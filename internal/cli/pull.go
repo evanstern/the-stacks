@@ -140,13 +140,7 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 		}
 
 		marketStart := time.Now()
-		var pageRates []float64
-		trades, capped, err := data.AllTrades(ctx, m.ConditionID, func(page []polymarket.Trade, offset int) {
-			elapsed := time.Since(marketStart).Seconds()
-			if elapsed > 0 {
-				pageRates = append(pageRates, float64(len(page))/elapsed)
-			}
-		})
+		trades, capped, err := data.AllTrades(ctx, m.ConditionID, nil)
 		if err != nil {
 			fmt.Fprintf(stderr, "[%d/%d] error fetching trades for %q: %v\n", idx, len(markets), m.Slug, err)
 			stat.MarketsSkipped++

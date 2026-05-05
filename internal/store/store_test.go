@@ -9,6 +9,16 @@ import (
 	"github.com/evanstern/the-stacks/internal/polymarket"
 )
 
+func openTestStore(t *testing.T) *Store {
+	t.Helper()
+	s, err := Open(filepath.Join(t.TempDir(), "t.db"))
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	t.Cleanup(func() { s.Close() })
+	return s
+}
+
 func TestMigrationIdempotent(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "test.db")
 	for i := 0; i < 3; i++ {
@@ -21,8 +31,7 @@ func TestMigrationIdempotent(t *testing.T) {
 }
 
 func TestUpsertMarketAndDateParsing(t *testing.T) {
-	s, _ := Open(filepath.Join(t.TempDir(), "t.db"))
-	defer s.Close()
+	s := openTestStore(t)
 
 	m := polymarket.Market{
 		ConditionID: "cond1",
@@ -53,15 +62,16 @@ func TestUpsertMarketAndDateParsing(t *testing.T) {
 		t.Fatal(err)
 	}
 	var q string
-	_ = s.DB.QueryRow("SELECT question FROM markets WHERE condition_id = ?", "cond1").Scan(&q)
+	if err := s.DB.QueryRow("SELECT question FROM markets WHERE condition_id = ?", "cond1").Scan(&q); err != nil {
+		t.Fatal(err)
+	}
 	if q != "Q updated?" {
 		t.Errorf("upsert did not update question, got %q", q)
 	}
 }
 
 func TestInsertTradesIdempotent(t *testing.T) {
-	s, _ := Open(filepath.Join(t.TempDir(), "t.db"))
-	defer s.Close()
+	s := openTestStore(t)
 
 	m := polymarket.Market{ConditionID: "cond1", Slug: "s", Question: "Q?", Active: true, Raw: json.RawMessage(`{}`)}
 	if err := s.UpsertMarket(m); err != nil {
@@ -89,46 +99,63 @@ func TestInsertTradesIdempotent(t *testing.T) {
 	}
 
 	var count int
-	_ = s.DB.QueryRow("SELECT COUNT(*) FROM trades").Scan(&count)
+	if err := s.DB.QueryRow("SELECT COUNT(*) FROM trades").Scan(&count); err != nil {
+		t.Fatal(err)
+	}
 	if count != 2 {
 		t.Errorf("trade count = %d, want 2", count)
 	}
 }
 
 func TestMarketHasTrades(t *testing.T) {
-	s, _ := Open(filepath.Join(t.TempDir(), "t.db"))
-	defer s.Close()
+	s := openTestStore(t)
 
-	exists, n, _ := s.MarketHasTrades("nope")
+	exists, n, err := s.MarketHasTrades("nope")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if exists || n != 0 {
 		t.Errorf("missing market: exists=%v n=%d", exists, n)
 	}
 
 	m := polymarket.Market{ConditionID: "cond1", Slug: "s", Question: "Q?", Raw: json.RawMessage(`{}`)}
-	_ = s.UpsertMarket(m)
-	exists, n, _ = s.MarketHasTrades("cond1")
+	if err := s.UpsertMarket(m); err != nil {
+		t.Fatal(err)
+	}
+	exists, n, err = s.MarketHasTrades("cond1")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !exists || n != 0 {
 		t.Errorf("market without trades: exists=%v n=%d", exists, n)
 	}
 
-	_, _ = s.InsertTrades([]envelope.Row{
+	if _, err := s.InsertTrades([]envelope.Row{
 		{Source: "polymarket.trade", WhenUnix: 1, ConditionID: "cond1", Asset: "a", Side: "BUY", Outcome: "Y", Size: 1, Price: 0.5, ProxyWallet: "w", TxHash: "tx", TagsJSON: "[]", DataJSON: "{}"},
-	})
-	exists, n, _ = s.MarketHasTrades("cond1")
+	}); err != nil {
+		t.Fatal(err)
+	}
+	exists, n, err = s.MarketHasTrades("cond1")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !exists || n != 1 {
 		t.Errorf("market with trades: exists=%v n=%d", exists, n)
 	}
 }
 
 func TestTradesEnvelopeView(t *testing.T) {
-	s, _ := Open(filepath.Join(t.TempDir(), "t.db"))
-	defer s.Close()
+	s := openTestStore(t)
 
 	m := polymarket.Market{ConditionID: "cond1", Slug: "the-slug", Question: "The Question?", Raw: json.RawMessage(`{}`)}
-	_ = s.UpsertMarket(m)
-	_, _ = s.InsertTrades([]envelope.Row{
+	if err := s.UpsertMarket(m); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.InsertTrades([]envelope.Row{
 		{Source: "polymarket.trade", WhenUnix: 1700000000, ConditionID: "cond1", Asset: "a1", Side: "BUY", Outcome: "Yes", OutcomeIndex: 0, Size: 1.5, Price: 0.7, ProxyWallet: "0xw", TxHash: "0xtx", TagsJSON: `["polymarket"]`, DataJSON: `{}`},
-	})
+	}); err != nil {
+		t.Fatal(err)
+	}
 
 	var source, tags, whenISO, dataJSON string
 	err := s.DB.QueryRow("SELECT source, tags, when_iso, data FROM trades_envelope LIMIT 1").Scan(&source, &tags, &whenISO, &dataJSON)

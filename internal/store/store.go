@@ -22,7 +22,7 @@ type Store struct {
 }
 
 // Open opens (or creates) a sqlite DB at path, applies migrations, and sets
-// the pragmas described in IMPLEMENT.md (WAL, synchronous=NORMAL, foreign_keys=ON).
+// WAL + synchronous=NORMAL + foreign_keys=ON pragmas.
 func Open(path string) (*Store, error) {
 	db, err := sql.Open("sqlite", path)
 	if err != nil {
@@ -118,7 +118,11 @@ func (s *Store) InsertTrades(rows []envelope.Row) (int, error) {
 			_ = tx.Rollback()
 			return inserted, err
 		}
-		n, _ := res.RowsAffected()
+		n, err := res.RowsAffected()
+		if err != nil {
+			_ = tx.Rollback()
+			return inserted, fmt.Errorf("rows affected: %w", err)
+		}
 		inserted += int(n)
 	}
 	if err := tx.Commit(); err != nil {
@@ -135,7 +139,8 @@ func boolToInt(b bool) int {
 }
 
 // isoToUnix parses an ISO 8601 timestamp like "2026-12-31T00:00:00Z" and
-// returns a *int64 unix-seconds pointer, or nil if empty / unparseable.
+// returns it as int64 unix seconds, or untyped-nil if empty/unparseable.
+// The any return type lets database/sql bind it as SQL NULL when nil.
 func isoToUnix(s string) any {
 	if s == "" {
 		return nil
