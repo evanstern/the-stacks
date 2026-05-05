@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T01:46:13.194196288Z",
+  "generated_at": "2026-05-05T02:04:49.434860683Z",
   "next_id": 8,
   "cards": [
     {
@@ -41,7 +41,7 @@
       "uuid": "019df5c3-a6ac-76ee-a701-d4e4749fc30b",
       "title": "Pick demo corpus and document rationale",
       "type": "card",
-      "status": "backlog",
+      "status": "done",
       "priority": "p1",
       "project": "the-stacks",
       "epic": 1,

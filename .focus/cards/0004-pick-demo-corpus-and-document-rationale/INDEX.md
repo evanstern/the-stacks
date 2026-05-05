@@ -4,7 +4,7 @@ id: 4
 uuid: 019df5c3-a6ac-76ee-a701-d4e4749fc30b
 title: Pick demo corpus and document rationale
 type: card
-status: backlog
+status: done
 priority: p1
 project: the-stacks
 created: 2026-05-05
@@ -19,35 +19,43 @@ The README runs against this corpus. It has to be:
 - **Substantive enough to need retrieval** (not 12 documents)
 - **Coherent enough that a curated wiki layer makes sense** in M2
 - **Recognizable** to a hiring manager skimming the README
+- **Time-series-shaped.** This is the reframe (2026-05-05): The Stacks is for *ledgers* with a thick context layer, not for prose corpora. Application work this is meant to support looks like `{source, tags, when, data}` events plus SOPs/playbooks/best-practices framing them. The corpus must reflect that shape.
 
-## Candidates to evaluate
+## Decision (2026-05-05)
 
-- **Project Gutenberg subset.** Literature. Famous, public domain,
-  unambiguously legible. Pro: unmistakable, beautiful, demoable.
-  Con: retrieval over fiction is a weird fit — what question are
-  we answering?
-- **Wikipedia article dump (subset).** Real reference material.
-  Pro: questions feel natural. Con: dump tooling, size management,
-  not as visually distinctive in a recording.
-- **Postgres docs.** Massive, deeply technical, public, beloved.
-  Pro: retrieval is a natural use case. Con: maybe too obviously
-  "RAG demo" — boring.
-- **Kubernetes docs.** Same logic as Postgres.
-- **A pre-1924 reference work** (Encyclopedia Britannica 1911,
-  Bartlett's, Black's Law Dictionary 1st ed). Pro: distinctive,
-  deeply public domain, has an editorial voice that pairs well
-  with the librarian metaphor. Con: weird, possibly too cute.
+**Corpus:** Polymarket public Data API. **Scope:** Top ~100 most-traded markets, all-time. **License path:** Public REST endpoints, no auth required, redistributable.
+
+### Why
+
+Polymarket events are natively ledger-shaped — every trade and activity event is a timestamped, structured envelope around an opinionated payload. Maps directly onto the `{source, tags, when, data}` interface The Stacks is being aimed at. Famous markets ("Will Trump win the 2024 election?") make the README's demo queries instantly legible. The wiki layer writes itself as prediction-market SOPs and playbooks — exactly the "editorial-judgment over a noisy ledger" story the architectural opinion needs.
+
+### Sources rejected
+
+- **Goldsky Mirror** — Evan's first suggestion. Confirmed paid product, requires a database sink, not redistributable. Stays as a candidate *future* alternative ingest path for streaming dogfood.
+- **predictiondata.dev** CSV downloads — 3yr history pre-packaged, but redistribution license is unclear and they require an API key. Worth keeping as a backfill fast-path if we later need depth, but not the canonical M1 source.
+- **Project Gutenberg / Postgres docs / Kubernetes docs / Wikipedia** — all rejected for being prose corpora. Wrong shape for the actual application work this design is meant to back.
+
+## Steps
+
+1. Write `designs/the-stacks-corpus.md` documenting the pick, the rationale, sources rejected, and the redistribution story.
+2. Verify the Polymarket Data API endpoints and rate limits empirically (one curl against `/trades` and `/activity`, confirm the shape).
+3. Sketch the corpus envelope: how `{source, tags, when, data}` maps onto a Polymarket trade and onto an activity event.
+4. Draft 3-5 demo questions that exercise both pure-RAG (M1) and wiki+RAG (M2) modes. Examples: - "What was the last week of trading like for Trump-2024 YES?"
+     (pure ledger drill-down)
+   - "How should I read late-stage liquidity drops on a binary market?"
+     (pure SOP / wiki page)
+   - "Trump-2024 had this liquidity pattern in the final week — what
+     does the playbook say about that?" (hybrid: SOP + scoped trades)
+5. Pick the ~100-market candidate set criterion. Probably "highest `volumeNum` from Gamma `/markets`, all-time, with status=resolved or active." Document the query.
 
 ## Done when
 
-- One corpus selected, with rationale committed to
-  `designs/the-stacks-corpus.md` (or as an ADR in the repo)
-- Corpus acquisition documented (download command, license note,
-  size on disk, expected chunk count)
-- Sample of 3-5 questions the demo will answer drafted
+- `designs/the-stacks-corpus.md` lands with the decision, rationale, rejected alternatives, and license/redistribution note
+- Polymarket API shape verified with one live curl logged in the doc
+- Ledger envelope mapping (`{source, tags, when, data}` for a trade and for an activity event) written into the design
+- 3-5 demo questions drafted in the doc
+- Top-100 selection criterion documented (the query that picks them)
 
 ## Notes
 
-Trust your taste here. The corpus is part of the brand. A boring
-corpus makes a boring README. Bias toward something that has a
-voice.
+The architectural opinion just sharpened: The Stacks isn't "wiki-over-RAG for documents." It's **wiki-as-SOPs over a structured event ledger**. That sentence belongs in the README too, eventually. Note for the next pass on README.md.
