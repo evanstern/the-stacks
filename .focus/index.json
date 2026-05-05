@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T02:10:59.011260918Z",
-  "next_id": 9,
+  "generated_at": "2026-05-05T02:11:48.563494494Z",
+  "next_id": 11,
   "cards": [
     {
       "id": 1,
@@ -93,6 +93,28 @@
       "project": "the-stacks",
       "created": "2026-05-05",
       "dir": "cards/0008-rewrite-readme-to-lead-with-wiki-as-sops-over-event-ledger"
+    },
+    {
+      "id": 9,
+      "uuid": "019df5e7-52c2-7430-8cc3-655269cd0144",
+      "title": "Upgrade local Go toolchain to 1.25 to match go.mod declaration",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0009-upgrade-local-go-toolchain-to-1-25-to-match-go-mod-declaration"
+    },
+    {
+      "id": 10,
+      "uuid": "019df5e7-52d1-7ebc-963d-26db71580ccf",
+      "title": "Investigate: focus MCP tools not following pwd to repo board",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0010-investigate-focus-mcp-tools-not-following-pwd-to-repo-board"
     }
   ]
 }
