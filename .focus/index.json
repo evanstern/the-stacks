@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T03:14:32.263337762Z",
-  "next_id": 15,
+  "generated_at": "2026-05-05T21:58:11.982302663Z",
+  "next_id": 18,
   "cards": [
     {
       "id": 1,
@@ -162,6 +162,41 @@
       "project": "the-stacks",
       "created": "2026-05-05",
       "dir": "cards/0014-investigate-ann-index-for-sqlite-vec-at-top-100-scale"
+    },
+    {
+      "id": 15,
+      "uuid": "019dfa24-3949-74f8-b56d-2ba0a7c4bcc2",
+      "title": "GCS archive for raw.db: bucket setup + upload/download flow",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0015-gcs-archive-for-raw-db-bucket-setup-upload-download-flow"
+    },
+    {
+      "id": 16,
+      "uuid": "019dfa24-395c-7aa5-91c1-8e0b75d5a33b",
+      "title": "GitHub Action: scheduled corpus refresh (pull -\u003e embed -\u003e upload -\u003e release)",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0016-github-action-scheduled-corpus-refresh-pull-embed-upload-release"
+    },
+    {
+      "id": 17,
+      "uuid": "019dfa24-396f-72c5-bae0-eae781bf47fa",
+      "title": "EPIC: Hosted demo (the-stacks serve HTTP API on GCE)",
+      "type": "epic",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0017-epic-hosted-demo-the-stacks-serve-http-api-on-gce"
     }
   ]
 }

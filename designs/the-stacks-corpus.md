@@ -242,11 +242,17 @@ queries on the resulting DB). Going to top-100 multiplies cost
 convinces me" weight. top-100 stays available via flag for
 anyone who wants to push it.
 
-**Where the embed actually runs:** Free-tier GCP e2-micro is the
-target host for the periodic corpus refresh (744 vCPU-hr/month
-free tier covers a top-10 embed easily). Local laptop also works
-for top-10 (~30 min total). top-100 wants more — we're not
-hosting top-100 in v0.
+**Where the refresh actually runs:** GitHub Actions on a free
+ubuntu-latest runner (#16). 4 vCPU, 16 GB RAM, plenty of disk for
+top-10. Scheduled monthly. raw.db uploads to GCS (#15);
+stacks.db publishes to GH Releases (#13). No human in the loop.
+
+Local laptop is the fallback if the Action ever breaks. top-100
+wants more — we're not hosting top-100 in v0.
+
+**Where raw.db lives:** GCS bucket as cold archive (#15). Never on
+Evan's dev VM, never long-lived on any single host. Pulled down
+on demand for re-embed experiments, deleted after.
 
 ## Redistribution / license
 
@@ -257,10 +263,9 @@ flow:
 1. **Selected market list** — committed to repo as JSON
    (`corpus/markets-top10.json`, ~tens of KB).
 2. **Raw ledger (`raw.db`)** — produced by `the-stacks pull`, NOT
-   committed and NOT shipped. Lives on the refresh host (free-tier
-   e2-micro or local laptop). Held there because re-chunking
-   experiments (#11) read from it cheaply, but readers don't need
-   it to query.
+   committed and NOT shipped to readers. Archived in GCS bucket
+   `gs://the-stacks-corpus` (#15). Pulled down on demand for
+   re-embed experiments (#11) or ad-hoc SQL.
 3. **Pre-built `stacks.db`** — produced by `the-stacks embed` from
    `raw.db`. Carries chunks + vectors + denormalized market
    context (so it's self-contained for serving). Published as a
