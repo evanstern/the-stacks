@@ -7,6 +7,7 @@ type: card
 status: backlog
 priority: p3
 project: the-stacks
+created: 2026-05-05
 ---
 
 # Investigate ANN index for sqlite-vec at top-100+ scale
