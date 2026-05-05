@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T03:00:05.761145548Z",
+  "generated_at": "2026-05-05T03:14:32.263337762Z",
   "next_id": 15,
   "cards": [
     {
@@ -51,14 +51,14 @@
     {
       "id": 5,
       "uuid": "019df5c3-a6be-747d-a297-f7bab8ae3716",
-      "title": "Pull Polymarket trades to local JSONL corpus",
+      "title": "Pull Polymarket trades into raw sqlite ledger",
       "type": "card",
-      "status": "backlog",
+      "status": "active",
       "priority": "p1",
       "project": "the-stacks",
       "epic": 1,
       "created": "2026-05-05",
-      "dir": "cards/0005-pull-polymarket-trades-to-local-jsonl-corpus"
+      "dir": "cards/0005-pull-polymarket-trades-into-raw-sqlite-ledger"
     },
     {
       "id": 6,
@@ -119,7 +119,7 @@
     {
       "id": 11,
       "uuid": "019df5fc-9335-7b19-b2d7-a39f17eede84",
-      "title": "Embed local corpus into sqlite-vec (chunk strategy experiment + embed pipeline)",
+      "title": "Embed raw ledger into sqlite-vec (chunk strategy experiment + embed pipeline)",
       "type": "card",
       "status": "backlog",
       "priority": "p1",

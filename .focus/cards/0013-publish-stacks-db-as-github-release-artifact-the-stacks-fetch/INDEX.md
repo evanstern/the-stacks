@@ -43,14 +43,19 @@ to publish before this means anything.
 ### Release publishing flow
 
 - We (Annie + Evan) refresh the corpus periodically:
-  1. Run `the-stacks pull --markets-limit 10 --out ./corpus/polymarket`
-     (locally or on free-tier e2-micro)
-  2. Run `the-stacks embed --in ./corpus/polymarket --db ./stacks.db`
+  1. Run `the-stacks pull --markets-limit 10 --db ./corpus/raw.db`
+     (locally or on free-tier e2-micro). `raw.db` is large
+     (~1-2 GB) and **not shipped** — it's the source-of-truth
+     ledger we compute against.
+  2. Run `the-stacks embed --raw ./corpus/raw.db --db ./stacks.db`
+     to produce the small chunks+vectors+denormalized-context DB.
   3. `gzip -k stacks.db && sha256sum stacks.db > stacks.db.sha256`
   4. `gh release create corpus-vN stacks.db.gz stacks.db.sha256
      --notes "..."`
 - Document this flow as `docs/publishing-corpus.md` (or a
   Makefile target)
+- `raw.db` stays on the refresh host. If we need to re-embed
+  with a different chunk strategy, we already have it locally.
 
 ## Why this matters
 

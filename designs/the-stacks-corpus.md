@@ -142,7 +142,14 @@ the top-volume corpus.
 
 ## Ledger envelope mapping
 
-A Polymarket **trade** maps to our envelope as:
+The envelope `{source, tags, when, data}` is the **contract** —
+the cross-source schema The Stacks speaks. It is *not* the on-disk
+storage format. Storage is sqlite (see #5 for schema), and the
+envelope is materializable via the `trades_envelope` SQL view. JSONL
+export is available on demand via `the-stacks export-jsonl` if
+needed for piping into other tools.
+
+A Polymarket **trade** maps to the envelope as:
 
 ```json
 {
@@ -203,20 +210,25 @@ Filter rules to firm up in the ingest card (#5):
 All numbers measured 2026-05-05 against the live API:
 
 - Mean trade USD value: ~$31 (median ~$16)
-- Trade envelope size: 956 bytes (compact JSON, single line)
+- Per-trade row size in raw sqlite: ~700 bytes (envelope-aware
+  columns + JSON1 `data`/`tags`)
 - API page max: 1000 trades, ~0.1-0.7s latency per page
 - Top-100 markets total volume: $2.78B → ~93M estimated trades
 
 Scaling table, **chunk strategy B** (one chunk per 1-hour window
 per market — see #11 for strategy comparison):
 
-| Scope | JSONL on disk | sqlite-vec DB | Pull (5x conc) | Embed (CPU) |
+| Scope | raw.db (sqlite) | stacks.db (chunks+vectors) | Pull (5x conc) | Embed (CPU) |
 |---|---|---|---|---|
-| top-1 | 1.8 GB | 31 MB | ~3 min | ~2 min |
-| top-3 | 4.8 GB | 92 MB | ~7 min | ~5 min |
-| **top-10 (demo default)** | **8.9 GB** | **307 MB** | **~13 min** | **~15 min** |
-| top-25 | ~22 GB | 770 MB | ~30 min | ~37 min |
-| top-100 | 82 GB | 3 GB | ~2.5 hrs | ~2.5 hrs |
+| top-1 | ~1.4 GB | ~31 MB | ~3 min | ~2 min |
+| top-3 | ~3.6 GB | ~92 MB | ~7 min | ~5 min |
+| **top-10 (demo default)** | **~6.5 GB** | **~307 MB** | **~13 min** | **~15 min** |
+| top-25 | ~16 GB | ~770 MB | ~30 min | ~37 min |
+| top-100 | ~60 GB | ~3 GB | ~2.5 hrs | ~2.5 hrs |
+
+`raw.db` lives on the refresh host (us), never ships. `stacks.db`
+is the published artifact (#13) — small, self-contained, what
+readers download.
 
 Reader-side hardware (running the published demo): ~500 MB disk
 for the downloaded `stacks.db.gz`, a few hundred MB RAM, no GPU.
@@ -244,13 +256,16 @@ flow:
 
 1. **Selected market list** — committed to repo as JSON
    (`corpus/markets-top10.json`, ~tens of KB).
-2. **Trade JSONL** — produced by `the-stacks pull`, NOT committed
-   (lives in `corpus/polymarket/trades/*.jsonl`, gitignored).
-   Transient artifact of the ingest, can be deleted after embed.
-3. **Pre-built `stacks.db`** — published as a GitHub Release
-   artifact (see #13). Gzipped, with a sha256 sidecar. ~150 MB
-   download, decompresses to ~300 MB. This is what
-   `the-stacks fetch-corpus` pulls.
+2. **Raw ledger (`raw.db`)** — produced by `the-stacks pull`, NOT
+   committed and NOT shipped. Lives on the refresh host (free-tier
+   e2-micro or local laptop). Held there because re-chunking
+   experiments (#11) read from it cheaply, but readers don't need
+   it to query.
+3. **Pre-built `stacks.db`** — produced by `the-stacks embed` from
+   `raw.db`. Carries chunks + vectors + denormalized market
+   context (so it's self-contained for serving). Published as a
+   GitHub Release artifact (see #13). Gzipped, with a sha256
+   sidecar. ~150 MB download, decompresses to ~300 MB.
 4. **Reproducible refresh path** —
    `the-stacks pull && the-stacks embed && gh release create ...`
    documented in `docs/publishing-corpus.md` (created in #13).
