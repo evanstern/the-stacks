@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T02:35:02.031041677Z",
-  "next_id": 12,
+  "generated_at": "2026-05-05T02:52:51.955581767Z",
+  "next_id": 15,
   "cards": [
     {
       "id": 1,
@@ -127,6 +127,41 @@
       "epic": 1,
       "created": "2026-05-05",
       "dir": "cards/0011-embed-local-corpus-into-sqlite-vec-chunk-strategy-experiment"
+    },
+    {
+      "id": 12,
+      "uuid": "019df60d-7b4f-7400-a014-9c63eeaf8530",
+      "title": "Document corpus sizing in design doc; soften top-100 to top-10 default",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0012-document-corpus-sizing-in-design-doc-soften-top-100-to-top-10"
+    },
+    {
+      "id": 13,
+      "uuid": "019df60d-7b63-7181-80d8-e8fa4208f87d",
+      "title": "Publish stacks.db as GitHub release artifact + the-stacks fetch-corpus subcommand",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0013-publish-stacks-db-as-github-release-artifact-the-stacks-fetch"
+    },
+    {
+      "id": 14,
+      "uuid": "019df60d-7b73-7547-a4be-0a4a2eb630e8",
+      "title": "Investigate ANN index for sqlite-vec at top-100+ scale",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p3",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0014-investigate-ann-index-for-sqlite-vec-at-top-100-scale"
     }
   ]
 }
