@@ -117,6 +117,36 @@ Returns the on-chain trade ledger. No auth. Sample (truncated):
 Useful filters (per docs): `market` (conditionId), `asset_id`,
 `maker_address`, `before` / `after` timestamps, paginated via cursor.
 
+**Pagination — verified 2026-05-05 by #5 implementation.** The card
+predicted "cursor"; in practice the API is offset-based:
+`?market=<conditionId>&limit=1000&offset=<N>`. Two hard limits surfaced
+empirically:
+
+- **Page size cap.** `limit` maxes out at **1000** rows per call.
+- **Historical depth cap.** `offset` may not exceed **3000**. Asking
+  for `offset=3001+` returns `HTTP 400 {"error":"max historical
+  activity offset of 3000 exceeded"}`. Combined with the page-size
+  cap, **a market exposes at most ~4000 trades** through this
+  endpoint (offsets 0, 1000, 2000, 3000). For top-volume markets with
+  millions in volume this is a small recent slice — in our top-10
+  corpus all ten markets hit the cap and contributed 4000 trades each.
+- **Filter parameters do not narrow history.** `before`,
+  `maxTimestamp`, `filterTimestamp` were tested and observed to be
+  silently ignored — they return the same most-recent page regardless
+  of value. Older trades appear unreachable through `/trades`.
+
+`takerOnly=false` does not bypass the offset cap either.
+
+**Observed throughput (no auth, single-threaded).** A top-10 pull
+took **8.3s wall-clock for ~40,000 trades**, ~0.3–1.2s per market
+(four pages each). Peak observed throughput was **~13,400 trades/sec**
+(measured per-market, dominated by JSON decode + sqlite insert).
+Zero `429`s observed across runs at concurrency=1; `--concurrency >1`
+was deferred to #16 under measurement.
+
+**Recorded in this PR:** `pull-stats.json` (manifest of run timing per
+invocation, sibling of the DB).
+
 ### Markets — `GET https://gamma-api.polymarket.com/markets`
 
 Returns market metadata. Useful for picking the top-N corpus and for
