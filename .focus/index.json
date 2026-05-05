@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T02:30:54.607301647Z",
-  "next_id": 11,
+  "generated_at": "2026-05-05T02:35:02.031041677Z",
+  "next_id": 12,
   "cards": [
     {
       "id": 1,
@@ -51,14 +51,14 @@
     {
       "id": 5,
       "uuid": "019df5c3-a6be-747d-a297-f7bab8ae3716",
-      "title": "Build ingest + embed pipeline (sqlite-vec + Ollama)",
+      "title": "Pull Polymarket trades to local JSONL corpus",
       "type": "card",
-      "status": "backlog",
+      "status": "active",
       "priority": "p1",
       "project": "the-stacks",
       "epic": 1,
       "created": "2026-05-05",
-      "dir": "cards/0005-build-ingest-embed-pipeline-sqlite-vec-ollama"
+      "dir": "cards/0005-pull-polymarket-trades-to-local-jsonl-corpus"
     },
     {
       "id": 6,
@@ -115,6 +115,18 @@
       "project": "the-stacks",
       "created": "2026-05-05",
       "dir": "cards/0010-investigate-focus-mcp-tools-not-following-pwd-to-repo-board"
+    },
+    {
+      "id": 11,
+      "uuid": "019df5fc-9335-7b19-b2d7-a39f17eede84",
+      "title": "Embed local corpus into sqlite-vec (chunk strategy experiment + embed pipeline)",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0011-embed-local-corpus-into-sqlite-vec-chunk-strategy-experiment"
     }
   ]
 }
