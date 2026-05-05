@@ -4,7 +4,7 @@ id: 12
 uuid: 019df60d-7b4f-7400-a014-9c63eeaf8530
 title: Document corpus sizing in design doc; soften top-100 to top-10 default
 type: card
-status: backlog
+status: done
 priority: p1
 project: the-stacks
 created: 2026-05-05
@@ -13,14 +13,9 @@ epic: 1
 
 # Document corpus sizing; soften top-100 to top-10 default
 
-The original #4 decision said "top ~100 markets" without sizing the
-cost. Real numbers were measured 2026-05-05 against the live API.
-Top-100 is a 82 GB JSONL pull, 300 GB+ DB if per-trade, 12+ hours
-of CPU embed even at sane chunking. Not appropriate as a default
-for a portfolio repo where readers should be able to run the demo.
+The original #4 decision said "top ~100 markets" without sizing the cost. Real numbers were measured 2026-05-05 against the live API. Top-100 is a 82 GB JSONL pull, 300 GB+ DB if per-trade, 12+ hours of CPU embed even at sane chunking. Not appropriate as a default for a portfolio repo where readers should be able to run the demo.
 
-**Decision (2026-05-05):** Default demo size is **top-10 markets**.
-top-100 stays available via flag for those who want it.
+**Decision (2026-05-05):** Default demo size is **top-10 markets**. top-100 stays available via flag for those who want it.
 
 ## Numbers (anchor in design doc)
 
@@ -42,15 +37,9 @@ Scaling table (Strategy B, 1h windows per market):
 
 ## Steps
 
-1. Add a "Sizing" section to `designs/the-stacks-corpus.md` with
-   the table above + the measurement methodology
-2. Update `designs/the-stacks-corpus.md` "Decision" section: change
-   "Top ~100 most-traded markets" to "Top-N markets, default 10
-   for the published demo, configurable up to 100 for those
-   running their own embed"
-3. Add a paragraph noting: published `stacks.db` artifact (#13)
-   ships top-10; readers can rebuild larger via `the-stacks pull
-   --markets-limit N` + embed
+1. Add a "Sizing" section to `designs/the-stacks-corpus.md` with the table above + the measurement methodology
+2. Update `designs/the-stacks-corpus.md` "Decision" section: change "Top ~100 most-traded markets" to "Top-N markets, default 10 for the published demo, configurable up to 100 for those running their own embed"
+3. Add a paragraph noting: published `stacks.db` artifact (#13) ships top-10; readers can rebuild larger via `the-stacks pull --markets-limit N` + embed
 4. Update card #5's done-when to use top-10 as the default demo run
 
 ## Done when
@@ -62,7 +51,4 @@ Scaling table (Strategy B, 1h windows per market):
 
 ## Notes
 
-Filed 2026-05-05 after sizing exercise. The original "top ~100"
-in #4 was confident-sounding but not backed by measurement. This
-card fixes the design doc with real numbers. Per raise-and-card
-rule.
+Filed 2026-05-05 after sizing exercise. The original "top ~100" in #4 was confident-sounding but not backed by measurement. This card fixes the design doc with real numbers. Per raise-and-card rule.

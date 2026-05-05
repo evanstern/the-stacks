@@ -1,7 +1,9 @@
 # The Stacks — M1 demo corpus
 
 > **Status:** decided 2026-05-05
-> **Decision:** Polymarket public Data API, top ~100 markets by volume, all-time
+> **Decision:** Polymarket public Data API. Top-N markets by volume,
+> default **N=10** for the published demo, configurable up to 100 for
+> those running their own embed.
 > **Companion to:** `the-stacks.md`
 
 ---
@@ -56,8 +58,8 @@ endpoints at `data-api.polymarket.com` and `gamma-api.polymarket.com`.
   resolution disputes look like, which market types are gameable. The
   wiki+RAG demo for M2 has obvious queries.
 - **Volume.** Top markets do tens of millions in volume; even a focused
-  100-market subset puts us comfortably in the millions-of-events
-  range. Real stress test.
+  10-market subset puts us comfortably in the millions-of-events
+  range. (See "Sizing" below for the scaling table.)
 - **Free and redistributable.** Public REST endpoints, no auth, no rate
   limits we care about, on-chain data is inherently public-domain in
   the practical sense.
@@ -174,14 +176,18 @@ A Polymarket **market** record (from Gamma) is *not* a ledger event —
 it's a context object. Markets become wiki-or-metadata-layer entries,
 not chunks. They give the trade events something to point at.
 
-## Scope criterion (top ~100 markets)
+## Scope criterion (top-N markets)
 
 ```
 GET https://gamma-api.polymarket.com/markets
     ?order=volumeNum
     &ascending=false
-    &limit=100
+    &limit=N
 ```
+
+**Default N = 10** for the published `stacks.db` artifact (see #13).
+Anyone wanting to rebuild a larger corpus can pass
+`the-stacks pull --markets-limit 100` and re-embed locally.
 
 Filter rules to firm up in the ingest card (#5):
 
@@ -192,33 +198,83 @@ Filter rules to firm up in the ingest card (#5):
   some markets the README shouldn't be quoting. Editorial judgment
   applies to the corpus selection itself, not just the wiki layer.
 
+## Sizing
+
+All numbers measured 2026-05-05 against the live API:
+
+- Mean trade USD value: ~$31 (median ~$16)
+- Trade envelope size: 956 bytes (compact JSON, single line)
+- API page max: 1000 trades, ~0.1-0.7s latency per page
+- Top-100 markets total volume: $2.78B → ~93M estimated trades
+
+Scaling table, **chunk strategy B** (one chunk per 1-hour window
+per market — see #11 for strategy comparison):
+
+| Scope | JSONL on disk | sqlite-vec DB | Pull (5x conc) | Embed (CPU) |
+|---|---|---|---|---|
+| top-1 | 1.8 GB | 31 MB | ~3 min | ~2 min |
+| top-3 | 4.8 GB | 92 MB | ~7 min | ~5 min |
+| **top-10 (demo default)** | **8.9 GB** | **307 MB** | **~13 min** | **~15 min** |
+| top-25 | ~22 GB | 770 MB | ~30 min | ~37 min |
+| top-100 | 82 GB | 3 GB | ~2.5 hrs | ~2.5 hrs |
+
+Reader-side hardware (running the published demo): ~500 MB disk
+for the downloaded `stacks.db.gz`, a few hundred MB RAM, no GPU.
+The reader never pulls or embeds — they
+`the-stacks fetch-corpus` (#13) and start querying.
+
+**Why top-10 not top-100 as default:** The architectural opinion
+is fully demonstrated at 10 famous markets (~10M trades, sub-second
+queries on the resulting DB). Going to top-100 multiplies cost
+~10x without proportional gain in legibility or "the demo
+convinces me" weight. top-100 stays available via flag for
+anyone who wants to push it.
+
+**Where the embed actually runs:** Free-tier GCP e2-micro is the
+target host for the periodic corpus refresh (744 vCPU-hr/month
+free tier covers a top-10 embed easily). Local laptop also works
+for top-10 (~30 min total). top-100 wants more — we're not
+hosting top-100 in v0.
+
 ## Redistribution / license
 
 The Polymarket Data API is documented as public, no-auth, no API key.
-On-chain data is in practice public-domain. The corpus we publish
-alongside the README will be:
+On-chain data is in practice public-domain. The corpus shipping
+flow:
 
-1. The list of selected `conditionId`s + market metadata snapshot
-   (committed to repo as JSON, ~hundreds of KB)
-2. The trades pulled for those markets, written to disk as JSONL in
-   the envelope format above (NOT committed — produced by ingest, kept
-   in `corpus/` which is gitignored)
-3. A reproducible `the-stacks ingest --polymarket-corpus` flow so
-   anyone can rebuild from scratch
+1. **Selected market list** — committed to repo as JSON
+   (`corpus/markets-top10.json`, ~tens of KB).
+2. **Trade JSONL** — produced by `the-stacks pull`, NOT committed
+   (lives in `corpus/polymarket/trades/*.jsonl`, gitignored).
+   Transient artifact of the ingest, can be deleted after embed.
+3. **Pre-built `stacks.db`** — published as a GitHub Release
+   artifact (see #13). Gzipped, with a sha256 sidecar. ~150 MB
+   download, decompresses to ~300 MB. This is what
+   `the-stacks fetch-corpus` pulls.
+4. **Reproducible refresh path** —
+   `the-stacks pull && the-stacks embed && gh release create ...`
+   documented in `docs/publishing-corpus.md` (created in #13).
 
-This means the README demo runs against deterministic, reproducible
-data without needing to ship gigabytes of trades in the repo.
+Reader's path: `the-stacks fetch-corpus` (~30 sec, no Ollama
+needed) → `the-stacks ask "..."`. Pull and embed are *our* tools,
+not theirs.
 
-## Open questions for #5 (ingest pipeline)
+## Open questions for downstream cards
 
-- Polymarket Data API rate limits — empirical, not documented. Worth
-  finding out before doing 100-market backfill.
-- Pagination strategy for high-volume markets (millions of trades per
-  market for Trump-2024). Cursor-based, but how aggressive can we be?
-- Trade-event chunking for embedding: each trade is small. Either we
-  embed individual trades (volume), batch by time-window (probably
-  better), or embed at the *market summary* level and let the wiki
-  layer do the routing. Decision deferred — this is exactly the
-  kind of thing #5 should figure out empirically.
-- Live-update story for the dogfood. M1 is one-shot ingest. Streaming
-  comes later (Goldsky becomes relevant again here, post-M3).
+For #5 (pull):
+- Polymarket Data API rate limits — empirical, not documented.
+  Document observed limits in this doc after the first real top-10
+  run.
+- Pagination cursor patterns for high-volume markets. Verified
+  page max = 1000 trades.
+
+For #11 (embed):
+- Trade-event chunking. Three strategies described in #11; pick
+  empirically against a 5-market subset, document the lock-in
+  back into this doc.
+- Embedding model: `nomic-embed-text` is the default; revisit only
+  if retrieval quality is bad.
+
+Out of scope for M1:
+- Live-update / streaming corpus. Goldsky becomes relevant here,
+  post-M3.
