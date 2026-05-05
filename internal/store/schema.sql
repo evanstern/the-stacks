@@ -40,14 +40,17 @@ SELECT
   source,
   tags,
   strftime('%Y-%m-%dT%H:%M:%SZ', when_unix, 'unixepoch') AS when_iso,
-  json_object(
-    'conditionId', condition_id, 'asset', asset,
-    'size', size, 'price', price, 'side', side,
-    'outcome', outcome, 'outcomeIndex', outcome_idx,
-    'proxyWallet', proxy_wallet, 'transactionHash', tx_hash,
-    'title', (SELECT question FROM markets m
-              WHERE m.condition_id = trades.condition_id),
-    'marketSlug', (SELECT slug FROM markets m
-                   WHERE m.condition_id = trades.condition_id)
+  json_patch(
+    data,
+    json_object(
+      'conditionId', condition_id, 'asset', asset,
+      'size', size, 'price', price, 'side', side,
+      'outcome', outcome, 'outcomeIndex', outcome_idx,
+      'proxyWallet', proxy_wallet, 'transactionHash', tx_hash,
+      'title', (SELECT question FROM markets m
+                WHERE m.condition_id = trades.condition_id),
+      'marketSlug', (SELECT slug FROM markets m
+                     WHERE m.condition_id = trades.condition_id)
+    )
   ) AS data
 FROM trades;

@@ -212,7 +212,9 @@ func loadBlocklist(path string) (Blocklist, error) {
 func appendStat(path string, stat runStat) error {
 	var stats []runStat
 	if b, err := os.ReadFile(path); err == nil {
-		_ = json.Unmarshal(b, &stats)
+		if err := json.Unmarshal(b, &stats); err != nil {
+			return fmt.Errorf("parse existing stats %s (refusing to overwrite): %w", path, err)
+		}
 	}
 	stats = append(stats, stat)
 	out, err := json.MarshalIndent(stats, "", "  ")

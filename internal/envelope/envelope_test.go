@@ -78,7 +78,7 @@ func TestFromTradeMapping(t *testing.T) {
 	if err := json.Unmarshal([]byte(row.DataJSON), &data); err != nil {
 		t.Fatalf("data unmarshal: %v", err)
 	}
-	for _, redundant := range []string{"conditionId", "asset", "size", "price", "side", "outcome", "outcomeIndex", "proxyWallet", "transactionHash", "timestamp"} {
+	for _, redundant := range []string{"conditionId", "asset", "size", "price", "side", "outcome", "outcomeIndex", "proxyWallet", "transactionHash", "timestamp", "slug"} {
 		if _, ok := data[redundant]; ok {
 			t.Errorf("data still contains redundant key %q", redundant)
 		}

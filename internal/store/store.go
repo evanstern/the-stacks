@@ -126,7 +126,8 @@ func (s *Store) InsertTrades(rows []envelope.Row) (int, error) {
 		inserted += int(n)
 	}
 	if err := tx.Commit(); err != nil {
-		return inserted, err
+		_ = tx.Rollback()
+		return inserted, fmt.Errorf("commit trades: %w", err)
 	}
 	return inserted, nil
 }

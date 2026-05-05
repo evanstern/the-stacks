@@ -151,8 +151,9 @@ func TestTradesEnvelopeView(t *testing.T) {
 	if err := s.UpsertMarket(m); err != nil {
 		t.Fatal(err)
 	}
+	passthroughData := `{"eventSlug":"the-event","pseudonym":"Slimy-Screen","title":"stale-from-upstream"}`
 	if _, err := s.InsertTrades([]envelope.Row{
-		{Source: "polymarket.trade", WhenUnix: 1700000000, ConditionID: "cond1", Asset: "a1", Side: "BUY", Outcome: "Yes", OutcomeIndex: 0, Size: 1.5, Price: 0.7, ProxyWallet: "0xw", TxHash: "0xtx", TagsJSON: `["polymarket"]`, DataJSON: `{}`},
+		{Source: "polymarket.trade", WhenUnix: 1700000000, ConditionID: "cond1", Asset: "a1", Side: "BUY", Outcome: "Yes", OutcomeIndex: 0, Size: 1.5, Price: 0.7, ProxyWallet: "0xw", TxHash: "0xtx", TagsJSON: `["polymarket"]`, DataJSON: passthroughData},
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -173,12 +174,18 @@ func TestTradesEnvelopeView(t *testing.T) {
 		t.Fatal(err)
 	}
 	if data["title"] != "The Question?" {
-		t.Errorf("view didn't join title, got %v", data["title"])
+		t.Errorf("view should override stale title with markets.question, got %v", data["title"])
 	}
 	if data["marketSlug"] != "the-slug" {
 		t.Errorf("view didn't join marketSlug, got %v", data["marketSlug"])
 	}
 	if data["conditionId"] != "cond1" || data["asset"] != "a1" {
 		t.Errorf("view missing identifying cols")
+	}
+	if data["eventSlug"] != "the-event" {
+		t.Errorf("view dropped passthrough eventSlug from trades.data, got %v", data["eventSlug"])
+	}
+	if data["pseudonym"] != "Slimy-Screen" {
+		t.Errorf("view dropped passthrough pseudonym from trades.data, got %v", data["pseudonym"])
 	}
 }

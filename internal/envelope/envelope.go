@@ -75,6 +75,7 @@ func buildData(t polymarket.Trade) ([]byte, error) {
 	for _, k := range []string{
 		"conditionId", "asset", "side", "outcome", "outcomeIndex",
 		"size", "price", "proxyWallet", "transactionHash", "timestamp",
+		"slug",
 	} {
 		delete(m, k)
 	}
@@ -82,7 +83,7 @@ func buildData(t polymarket.Trade) ([]byte, error) {
 	if _, ok := m["title"]; !ok && t.Title != "" {
 		m["title"] = t.Title
 	}
-	if _, ok := m["marketSlug"]; !ok && t.Slug != "" {
+	if t.Slug != "" {
 		m["marketSlug"] = t.Slug
 	}
 	if _, ok := m["eventSlug"]; !ok && t.EventSlug != "" {
