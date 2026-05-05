@@ -1,0 +1,87 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-05-05T01:46:13.194196288Z",
+  "next_id": 8,
+  "cards": [
+    {
+      "id": 1,
+      "uuid": "019df5c3-81ff-79f0-88ac-97b62928d745",
+      "title": "M1: RAG that works",
+      "type": "epic",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0001-m1-rag-that-works"
+    },
+    {
+      "id": 2,
+      "uuid": "019df5c3-90b1-791f-b9fc-15ab8a531699",
+      "title": "M2: Wiki as routing layer",
+      "type": "epic",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0002-m2-wiki-as-routing-layer"
+    },
+    {
+      "id": 3,
+      "uuid": "019df5c3-90c2-7e02-9883-08dd10c55bf0",
+      "title": "M3: coda-lite MCP plugin",
+      "type": "epic",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0003-m3-coda-lite-mcp-plugin"
+    },
+    {
+      "id": 4,
+      "uuid": "019df5c3-a6ac-76ee-a701-d4e4749fc30b",
+      "title": "Pick demo corpus and document rationale",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0004-pick-demo-corpus-and-document-rationale"
+    },
+    {
+      "id": 5,
+      "uuid": "019df5c3-a6be-747d-a297-f7bab8ae3716",
+      "title": "Build ingest + embed pipeline (sqlite-vec + Ollama)",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0005-build-ingest-embed-pipeline-sqlite-vec-ollama"
+    },
+    {
+      "id": 6,
+      "uuid": "019df5c3-a6ce-70db-b3f2-b0f4bbc7480f",
+      "title": "Build ask CLI and record asciinema demo",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0006-build-ask-cli-and-record-asciinema-demo"
+    },
+    {
+      "id": 7,
+      "uuid": "019df5c3-a6e0-7956-8118-1a406c3552d5",
+      "title": "Bootstrap repo: evanstern/the-stacks, README skeleton, Go module init",
+      "type": "card",
+      "status": "done",
+      "priority": "p1",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0007-bootstrap-repo-evanstern-the-stacks-readme-skeleton-go-module"
+    }
+  ]
+}
