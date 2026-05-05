@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T21:58:11.982302663Z",
-  "next_id": 18,
+  "generated_at": "2026-05-05T23:14:18.435695989Z",
+  "next_id": 19,
   "cards": [
     {
       "id": 1,
@@ -197,6 +197,18 @@
       "project": "the-stacks",
       "created": "2026-05-05",
       "dir": "cards/0017-epic-hosted-demo-the-stacks-serve-http-api-on-gce"
+    },
+    {
+      "id": 18,
+      "uuid": "019dfa6b-18da-7e80-aa72-56b9d7b29998",
+      "title": "Verify M1 demo questions answerable against 4000-trade-per-market slice; investigate /activity for historical depth",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p1",
+      "project": "the-stacks",
+      "epic": 1,
+      "created": "2026-05-05",
+      "dir": "cards/0018-verify-m1-demo-questions-answerable-against-4000-trade-per"
     }
   ]
 }
