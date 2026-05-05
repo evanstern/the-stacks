@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T02:11:48.563494494Z",
+  "generated_at": "2026-05-05T02:30:54.607301647Z",
   "next_id": 11,
   "cards": [
     {
@@ -99,7 +99,7 @@
       "uuid": "019df5e7-52c2-7430-8cc3-655269cd0144",
       "title": "Upgrade local Go toolchain to 1.25 to match go.mod declaration",
       "type": "card",
-      "status": "backlog",
+      "status": "done",
       "priority": "p1",
       "project": "the-stacks",
       "created": "2026-05-05",
