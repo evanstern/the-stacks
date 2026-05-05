@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T02:04:49.434860683Z",
-  "next_id": 8,
+  "generated_at": "2026-05-05T02:10:59.011260918Z",
+  "next_id": 9,
   "cards": [
     {
       "id": 1,
@@ -82,6 +82,17 @@
       "project": "the-stacks",
       "created": "2026-05-05",
       "dir": "cards/0007-bootstrap-repo-evanstern-the-stacks-readme-skeleton-go-module"
+    },
+    {
+      "id": 8,
+      "uuid": "019df5e6-6b3a-703d-8d91-3cabe91cfc22",
+      "title": "Rewrite README to lead with wiki-as-SOPs over event-ledger framing",
+      "type": "card",
+      "status": "backlog",
+      "priority": "p2",
+      "project": "the-stacks",
+      "created": "2026-05-05",
+      "dir": "cards/0008-rewrite-readme-to-lead-with-wiki-as-sops-over-event-ledger"
     }
   ]
 }
