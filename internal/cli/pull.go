@@ -40,7 +40,9 @@ type runStat struct {
 	FinishedAt       string  `json:"finished_at"`
 	MarketsRequested int     `json:"markets_requested"`
 	MarketsPulled    int     `json:"markets_pulled"`
-	MarketsSkipped   int     `json:"markets_skipped"`
+	MarketsResumed   int     `json:"markets_resumed"`
+	MarketsBlocked   int     `json:"markets_blocked"`
+	MarketsFailed    int     `json:"markets_failed"`
 	TradesInserted   int     `json:"trades_inserted"`
 	ElapsedSeconds   float64 `json:"elapsed_seconds"`
 	PeakRatePerSec   float64 `json:"peak_rate_per_sec"`
@@ -94,8 +96,8 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	}
 	defer st.Close()
 
-	gamma := &polymarket.GammaClient{BaseURL: f.gammaURL, HTTP: defaultHTTP()}
-	data := &polymarket.DataClient{BaseURL: f.dataURL, HTTP: defaultHTTP()}
+	gamma := &polymarket.GammaClient{BaseURL: f.gammaURL, HTTP: httpClient}
+	data := &polymarket.DataClient{BaseURL: f.dataURL, HTTP: httpClient}
 
 	startedAt := time.Now()
 	fmt.Fprintf(stdout, "fetching top %d markets by volume from %s\n", f.marketsLimit, f.gammaURL)
@@ -116,7 +118,7 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 		idx := i + 1
 		if reason, ok := blocked[m.ConditionID]; ok {
 			fmt.Fprintf(stdout, "[%d/%d] skipping %q (blocked: %s)\n", idx, len(markets), m.Slug, reason)
-			stat.MarketsSkipped++
+			stat.MarketsBlocked++
 			continue
 		}
 
@@ -127,7 +129,9 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 			}
 			if exists && n > 0 {
 				fmt.Fprintf(stdout, "[%d/%d] skipping %q (already pulled, %d trades)\n", idx, len(markets), m.Slug, n)
-				stat.MarketsSkipped++
+				stat.MarketsResumed++
+				// Refresh Gamma metadata even on resume; cheap, and
+				// volume/dates can drift between runs.
 				if err := st.UpsertMarket(m); err != nil {
 					return err
 				}
@@ -143,7 +147,7 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 		trades, capped, err := data.AllTrades(ctx, m.ConditionID, nil)
 		if err != nil {
 			fmt.Fprintf(stderr, "[%d/%d] error fetching trades for %q: %v\n", idx, len(markets), m.Slug, err)
-			stat.MarketsSkipped++
+			stat.MarketsFailed++
 			continue
 		}
 
@@ -182,11 +186,15 @@ func RunPull(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	stat.FinishedAt = finished.UTC().Format(time.RFC3339)
 	stat.ElapsedSeconds = finished.Sub(startedAt).Seconds()
 
-	fmt.Fprintf(stdout, "done: %d trades inserted across %d markets in %.1fs (peak %.0f t/s)\n",
-		stat.TradesInserted, stat.MarketsPulled, stat.ElapsedSeconds, stat.PeakRatePerSec)
+	fmt.Fprintf(stdout, "done: %d trades inserted across %d markets in %.1fs (peak %.0f t/s) [resumed=%d blocked=%d failed=%d]\n",
+		stat.TradesInserted, stat.MarketsPulled, stat.ElapsedSeconds, stat.PeakRatePerSec,
+		stat.MarketsResumed, stat.MarketsBlocked, stat.MarketsFailed)
 
-	if err := appendStat(f.statsPath, stat); err != nil {
+	if err := appendStat(f.statsPath, stat, stderr); err != nil {
 		fmt.Fprintf(stderr, "warning: failed to append stats: %v\n", err)
+	}
+	if stat.MarketsFailed > 0 {
+		return fmt.Errorf("%d market(s) failed during pull; see log above", stat.MarketsFailed)
 	}
 	return nil
 }
@@ -209,11 +217,12 @@ func loadBlocklist(path string) (Blocklist, error) {
 	return bl, nil
 }
 
-func appendStat(path string, stat runStat) error {
+func appendStat(path string, stat runStat, stderr io.Writer) error {
 	var stats []runStat
 	if b, err := os.ReadFile(path); err == nil {
 		if err := json.Unmarshal(b, &stats); err != nil {
-			return fmt.Errorf("parse existing stats %s (refusing to overwrite): %w", path, err)
+			fmt.Fprintf(stderr, "warning: existing stats file %s unreadable, starting fresh: %v\n", path, err)
+			stats = nil
 		}
 	}
 	stats = append(stats, stat)
@@ -224,6 +233,6 @@ func appendStat(path string, stat runStat) error {
 	return os.WriteFile(path, out, 0o644)
 }
 
-func defaultHTTP() *http.Client {
-	return &http.Client{Timeout: 60 * time.Second}
-}
+// httpClient is shared across the gamma + data clients so connection pooling
+// works across both endpoints.
+var httpClient = &http.Client{Timeout: 60 * time.Second}
