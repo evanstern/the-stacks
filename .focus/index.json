@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-05T23:14:18.435695989Z",
+  "generated_at": "2026-05-06T01:42:27.248274198Z",
   "next_id": 19,
   "cards": [
     {
@@ -53,7 +53,7 @@
       "uuid": "019df5c3-a6be-747d-a297-f7bab8ae3716",
       "title": "Pull Polymarket trades into raw sqlite ledger",
       "type": "card",
-      "status": "active",
+      "status": "done",
       "priority": "p1",
       "project": "the-stacks",
       "epic": 1,
