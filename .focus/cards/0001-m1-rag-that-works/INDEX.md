@@ -4,7 +4,7 @@ id: 1
 uuid: 019df5c3-81ff-79f0-88ac-97b62928d745
 title: 'M1: RAG that works'
 type: epic
-status: backlog
+status: archived
 priority: p1
 project: the-stacks
 created: 2026-05-05

@@ -4,7 +4,7 @@ id: 2
 uuid: 019df5c3-90b1-791f-b9fc-15ab8a531699
 title: 'M2: Wiki as routing layer'
 type: epic
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

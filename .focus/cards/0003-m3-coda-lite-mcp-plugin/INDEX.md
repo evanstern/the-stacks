@@ -4,7 +4,7 @@ id: 3
 uuid: 019df5c3-90c2-7e02-9883-08dd10c55bf0
 title: 'M3: coda-lite MCP plugin'
 type: epic
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05
