@@ -1,9 +1,9 @@
 # The Stacks
 
-> A hierarchical knowledge system where a hand-curated wiki indexes
-> into a vector RAG store. The wiki is the librarian. RAG is the stacks.
+> A DB-backed context library with curated provenance, vector retrieval,
+> lexical search, graph/PPR reranking, and context-pack compilation.
 
-**Status:** design locked, implementation pending
+**Status:** re-chartered 2026-05-29, design contract updating before new code
 **Owner:** Annie (orchestrator)
 **Architect:** Zach
 **Repo:** `evanstern/the-stacks`
@@ -12,175 +12,174 @@
 
 ## Why this exists
 
-Two complementary failure modes shape the design:
+Agents do not need bigger piles of text. They need a way to assemble the right
+context for a task, with provenance and enough structure to know why those
+pieces belong together.
 
-- **Wiki alone doesn't scale.** Hand-curated knowledge bases hit a
-  ceiling around ~100 pages before the index becomes the problem.
-  Past that, you're navigating navigation.
-- **RAG alone is structureless.** Vector retrieval over an
-  unstructured corpus returns plausible chunks with no editorial
-  judgment. Every query starts from zero. The retriever has no
-  opinion about what matters.
+Plain vector RAG is useful but structureless. Lexical search is inspectable but
+literal. A graph captures adjacency and influence but does not know semantic
+similarity by itself. Curated wiki pages and approval manifests add judgment,
+but hand curation alone does not scale.
 
-The Stacks combines them. The wiki is the **routing layer** — a
-small, hand-curated set of pages with frontmatter declaring retrieval
-scope. Each wiki page says: "here are the load-bearing facts about
-this topic, and if you need to drill in, query these tags / this
-directory / this corpus subset." RAG is the **deep store** —
-retrieval scoped by what the wiki page declares.
+The Stacks combines those signals into a local-first context library. Curation
+decides what enters the collection. The database stores pages, chunks,
+provenance, vectors, and graph edges. Retrieval blends vector, lexical, and
+graph/PPR signals. Context packs turn ranked evidence into a compact, cited
+bundle an agent or human can actually use.
 
-This mirrors how good libraries work (Dewey decimal as routing,
-stacks as storage), how Wikipedia works (curated article + retrievable
-references), and how good codebases work (README + grep).
+The old May 5 design framed v0 as wiki over vanilla vector RAG, with no hybrid
+retrieval in v0. That line is dead. Nice funeral. Small turnout.
 
 ## Goals
 
-1. **Demonstrate the pattern.** Working code that anyone can run.
-2. **Be useful.** Not a toy. The Stacks should be the kind of thing
-   you'd actually want to back an agent's memory with.
-3. **Be operable.** Single binary, file-backed, no daemons, no
-   external services required for the local mode.
-4. **Plug into coda-lite.** Ship as an MCP server so any coda-lite
-   agent can mount it as a memory surface.
+1. **Demonstrate context assembly.** Build a working CLI/backend over a public,
+   reviewable corpus.
+2. **Preserve provenance.** Every page and chunk should trace back to an
+   approved source and extraction decision.
+3. **Use multiple retrieval signals.** Vector, lexical, and graph/PPR are all
+   first-class in v0.
+4. **Produce context packs.** The product surface is not just top-k search; it is
+   a cited pack of selected context for a concrete task.
+5. **Stay local-first.** One Go binary plus sqlite-backed runtime state. Cloud is
+   optional distribution or demo hosting, not the core architecture.
+6. **Mount later.** MCP comes after the CLI/backend workflow proves useful.
 
 ## Non-goals
 
-- Multi-user / multi-tenant. Single-host, single-user, like coda-lite.
-- Cloud-first. Local-first; cloud is opt-in.
-- Schema-heavy frontmatter. The contract should be tight, not chatty.
-- Reranker pipelines, query expansion, hybrid search. Not in v0.
-  Vanilla cosine similarity over chunks. We add complexity only if
-  retrieval quality demonstrably needs it.
+- Multi-user / multi-tenant service architecture.
+- Cloud-first storage or retrieval.
+- Treating Zach's flat-file experiment as the runtime storage model.
+- Replacing vectors with graph search. Vectors are required.
+- Keeping the old "no reranker / no hybrid search in v0" constraint.
+
+## Demo corpus
+
+The likely public demo corpus is Zach's official-tabletop D&D Wikipedia-derived
+slice, starting with the approved Forgotten Realms corpus.
+
+Evidence from the experiment:
+
+- Candidate extraction scanned 5,000,001 index rows and produced 229 reviewable
+  candidates.
+- Manual policy approved 76 official/WotC/tabletop D&D pages and rejected or
+  deferred the rest.
+- Page extraction produced 76 local JSON pages with source URL, page id,
+  revision id, timestamp, categories, links, and article text.
+- Chunk indexing produced 236 heading-aware chunks.
+- Lexical baseline produced useful transparent results, with known weaknesses.
+- Graph/PPR hybrid produced an inspectable reranking signal over 337 nodes and
+  1,672 edges.
+- Section filtering removed obvious media/meta leakage without hard-deleting
+  useful official-tabletop context.
+- Context-pack generation produced Markdown and JSON for a Waterdeep faction
+  intrigue task, proving the shape while exposing corpus expansion needs.
+
+This corpus is not locked forever. It is the current best public demo because it
+has provenance, graph structure, and a context-pack story people understand.
 
 ## Architecture
 
-Three layers, three milestones.
+### V0.1 - Corpus Ingestion And Approval
 
-### M1 — RAG that works
+Build the intake path for a public corpus.
 
-The boring foundation.
+- Discover candidate pages from a source index without scanning full bodies
+  blindly.
+- Apply an explicit approval policy and preserve approved, deferred, and rejected
+  decisions for audit.
+- Extract approved pages into normalized records with source URL, page id,
+  revision id, timestamp, categories, links, and local text.
+- Store pages and provenance in sqlite. Flat JSON/JSONL may remain as import,
+  export, or debugging artifacts, not runtime storage.
 
-- **Ingest:** walk a corpus directory, chunk markdown into
-  ~500-token windows with ~50-token overlap, embed each chunk,
-  store in sqlite-vec.
-- **Embedding:** `nomic-embed-text` via Ollama (local, free).
-  Pluggable later.
-- **Storage:** sqlite-vec (`stacks.db`). One table for chunks
-  (id, doc_path, chunk_idx, text, embedding). One table for docs
-  (path, mtime, hash). Re-embed on hash change.
-- **Query:** `the-stacks ask "..."` returns top-k chunks with
-  scores and source paths. Plain text out.
-- **Demo corpus:** public, redistributable. Project Gutenberg
-  subset, Wikipedia article dump, or a famous OSS docset
-  (Postgres docs? Kubernetes docs?). To be picked early — the
-  README demo runs against this.
+**Done when:** `the-stacks ingest` can build a local sqlite corpus from an
+approved manifest and report page/provenance counts.
 
-**Done when:** `the-stacks ingest <corpus>` builds the DB,
-`the-stacks ask "..."` returns sensible top-k chunks, asciinema
-recording exists for the README.
+### V0.2 - Chunk DB, Vectors, And Lexical Baseline
 
-### M2 — The wiki as routing layer
+Build the retrieval substrate.
 
-Where the architectural opinion lives.
+- Split pages into heading-aware chunks, falling back to paragraph windows only
+  for oversized sections.
+- Store chunks, metadata, and chunk/page relationships in sqlite.
+- Embed chunks and store vectors in sqlite-vec or an equivalent sqlite-local
+  vector table.
+- Implement transparent lexical scoring over titles, categories, headings,
+  approved links, and body text.
+- Keep scoring inspectable; this is a baseline to beat, not a magic box.
 
-- **Wiki pages:** markdown files with frontmatter declaring
-  retrieval scope. Format:
-  ```yaml
-  ---
-  topic: kubernetes-networking
-  scope:
-    tags: [networking, cni, ingress]
-    paths: [docs/concepts/services-networking/**]
-  ---
-  ```
-- **Two-phase query:** `the-stacks ask "..."` consults the wiki
-  index first. If a wiki page matches the question, return its
-  curated content **plus** a scoped retrieval drill-down. If no
-  wiki page matches, fall back to global retrieval.
-- **Demo:** side-by-side comparison. Same question, three modes:
-  pure RAG (M1), pure wiki, wiki+RAG. Show how the third gives
-  you the curated frame and the deep evidence.
-- **Editorial tooling:** `the-stacks promote <chunk-id>` —
-  surface a high-frequency retrieval target as a candidate wiki
-  page. The wiki grows from observed retrieval patterns, not from
-  guessing.
+**Done when:** `the-stacks search` can show lexical results, vector results, and
+their source chunks over the demo corpus.
 
-**Done when:** wiki frontmatter contract is documented, two-phase
-query works, side-by-side demo recording exists, `promote` flow
-is functional.
+### V0.3 - Graph/PPR Hybrid Retrieval
 
-### M3 — Coda-lite plugin / MCP server
+Add graph structure as a retrieval signal.
 
-The differentiator.
+- Derive graph nodes for pages, chunks, and categories.
+- Derive edges from page/chunk containment, approved page links, chunk links to
+  approved pages, and category relationships.
+- Seed PPR from high-confidence lexical/vector hits.
+- Blend scores as inspectable components, not a hidden ranking soup.
+- Downrank known boundary-leak sections such as `Reception`, `Film`, `External
+  links`, and similar meta/media headings under the official-tabletop boundary.
 
-- **`the-stacks mcp serve`** subcommand. JSON-RPC over stdio,
-  same idiom as coda-lite's MCP.
-- **Tools exposed:**
-  - `stacks_ask(query, k, mode)` — query with mode hint
-    (rag-only, wiki-only, hybrid)
-  - `stacks_ingest(path)` — add to corpus
-  - `stacks_wiki_promote(chunk_id)` — propose a wiki page from a
-    retrieved chunk
-  - `stacks_wiki_read(topic)` — read a curated page directly
-- **Coda-lite integration:** an agent's `opencode.json` adds a
-  `the-stacks` MCP block pointing at the agent's own corpus
-  (their `wiki/`, `memory/`, `learnings/`, `dreams/`). Annie eats
-  her own corpus first; zach mounts it once it's stable.
+**Done when:** `the-stacks search --mode hybrid` reports lexical, vector, and
+graph components and improves at least one tracked query without burying direct
+entity hits.
 
-**Done when:** Annie boots with the-stacks MCP wired in,
-queries her own memory through it, and at least one curated wiki
-page in her corpus has a working scoped drill-down.
+### V0.4 - Context Pack Compiler
+
+Turn retrieval into a product surface.
+
+- Rank pages first when the task benefits from page-level coherence.
+- Select a small number of chunks per page.
+- Emit Markdown and JSON context packs with local chunk ids, source citations,
+  and selection rationale.
+- Make the pack readable enough to hand to an agent as task context.
+
+**Done when:** `the-stacks context-pack "Waterdeep faction intrigue"` produces a
+cited Markdown/JSON pack from the demo corpus, with enough supporting context to
+be useful and enough gaps documented to guide corpus expansion.
+
+### Later - MCP
+
+MCP is still part of the project, but not the first milestone. First prove the
+CLI/backend loop: ingest, approve, chunk, vectorize, search, rerank, compile.
+Then mount it into coda-lite as a memory/context surface.
+
+**Done when:** Annie can mount `the-stacks mcp serve`, query her own corpus, and
+use a context pack in a real session.
+
+## Storage model
+
+Runtime state belongs in sqlite:
+
+- `pages` - normalized approved source pages.
+- `provenance` - source URLs, page ids, revision ids, timestamps, approval state.
+- `chunks` - heading-aware chunk text and metadata.
+- `chunk_vectors` - vector table keyed to chunks.
+- `graph_nodes` and `graph_edges` - local graph for PPR.
+- `retrieval_runs` / `context_packs` - optional audit trail for generated packs.
+
+Files are still useful at the edges: manifests, exports, debug dumps, release
+artifacts, and human-readable context packs. They are not the runtime database.
 
 ## Conventions
 
-- **Single Go binary,** no runtime deps beyond Ollama for embeddings.
-- **File-backed everything.** sqlite-vec for vectors, markdown for
-  wiki pages, filesystem for corpus. Same ethos as coda-lite.
-- **Always-explicit naming** in CLI. No env-var magic. No
-  pwd-magic. `the-stacks --corpus <dir> ask "..."`.
-- **Public test corpus** for the README demo. Annie's private
-  corpus is for dogfood, not the demo.
-- **README-driven.** The README writes itself if M1/M2/M3 land in
-  order with asciinema recordings. Resume artifact.
-
-## Open questions deferred to implementation
-
-- **Chunking strategy.** Naive 500/50 to start. Revisit if quality
-  is bad on the public corpus.
-- **Top-k default.** Probably 5. Empirical.
-- **Wiki frontmatter exact shape.** Locked above as a starting
-  point; revisit after first wiki page exists in real use.
-- **Corpus refresh model.** Watch mode? Periodic scan? On-demand?
-  Probably on-demand for v0 (call `ingest` to refresh), watch mode
-  later if it matters.
-- **Demo corpus pick.** Annie chooses, with rationale, in M1 card.
-- **Embedding model swap.** `nomic-embed-text` for v0. If quality
-  is bad, try `bge-m3` or `mxbai-embed-large`.
-
-## Sequencing
-
-M1 → M2 → M3. Each milestone is independently shippable and
-demo-able. No "M3 retroactively requires changing M1" surprises
-expected — the layers are additive.
-
-## What this is not
-
-- **Not a coda-lite plugin first.** It's a standalone tool that
-  *also* ships an MCP server. The standalone shape is the
-  resume-piece. The MCP wiring is the dogfood.
-- **Not a re-implementation of memory-as-coda-surface (#211).**
-  That design contract carries forward; the-stacks is a candidate
-  *implementation* of that surface, not a replacement for the
-  contract.
-- **Not a competitor to mature RAG frameworks.** It's an
-  architectural opinion about wiki-as-routing-layer expressed in
-  the smallest possible code. LangChain et al. solve different
-  problems.
+- **Single Go binary.** Keep the shape close to coda-lite and focus.
+- **Local-first sqlite.** No daemon required for local mode.
+- **Explicit corpus paths.** No pwd magic. `the-stacks --db <path> ...`.
+- **Public demo corpus.** Annie's private corpus is later dogfood, not the README
+  demo.
+- **Context packs first-class.** Search is a component; packs are the surface.
+- **Design before code.** Zach's handoff explicitly says not to start
+  implementation until this contract is updated.
 
 ## References
 
-- coda-lite: `evanstern/coda-lite` — substrate
-- focus v2: `~/agents/zach/designs/focus-v2.md` — sibling project
-- Karpathy's wiki style — original inspiration for our wiki layer
-- Memory-as-coda-surface: `wiki/decisions/memory-as-coda-surface.md`
-  (#211) — surface contract this implements
+- Zach decision: `/home/coda/agents/zach/wiki/decisions/the-stacks-memory-graph-graduation.md`
+- Zach handoff: `/home/coda/agents/zach/reports/annie-the-stacks-memory-graph-handoff.md`
+- Experiment logs: `/home/coda/agents/zach/experiments/dnd-memory-graph/results/`
+- NAS artifacts: `/mnt/jace_coda/dnd-memory-graph/`
+- coda-lite: `evanstern/coda-lite`
+- focus: `evanstern/focus`
