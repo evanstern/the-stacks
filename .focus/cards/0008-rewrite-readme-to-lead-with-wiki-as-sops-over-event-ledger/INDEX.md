@@ -4,7 +4,7 @@ id: 8
 uuid: 019df5e6-6b3a-703d-8d91-3cabe91cfc22
 title: Rewrite README to lead with wiki-as-SOPs over event-ledger framing
 type: card
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

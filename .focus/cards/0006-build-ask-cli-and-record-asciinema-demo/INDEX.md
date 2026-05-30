@@ -4,7 +4,7 @@ id: 6
 uuid: 019df5c3-a6ce-70db-b3f2-b0f4bbc7480f
 title: Build ask CLI and record asciinema demo
 type: card
-status: backlog
+status: archived
 priority: p1
 project: the-stacks
 created: 2026-05-05

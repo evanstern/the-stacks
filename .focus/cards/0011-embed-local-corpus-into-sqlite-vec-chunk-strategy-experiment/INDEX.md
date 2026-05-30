@@ -4,7 +4,7 @@ id: 11
 uuid: 019df5fc-9335-7b19-b2d7-a39f17eede84
 title: Embed raw ledger into sqlite-vec (chunk strategy experiment + embed pipeline)
 type: card
-status: backlog
+status: archived
 priority: p1
 project: the-stacks
 created: 2026-05-05

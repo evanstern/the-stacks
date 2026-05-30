@@ -4,7 +4,7 @@ id: 13
 uuid: 019df60d-7b63-7181-80d8-e8fa4208f87d
 title: Publish stacks.db as GitHub release artifact + the-stacks fetch-corpus subcommand
 type: card
-status: backlog
+status: archived
 priority: p1
 project: the-stacks
 created: 2026-05-05
