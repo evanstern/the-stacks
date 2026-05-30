@@ -1,65 +1,64 @@
 # The Stacks
 
-> A hierarchical knowledge system where a hand-curated wiki indexes
-> into a vector RAG store. The wiki is the librarian. The stacks are the books.
+> A local-first context library: curated provenance, DB-backed chunks, vector
+> retrieval, lexical search, graph/PPR reranking, and context-pack compilation.
 
-**Status:** under construction. M1 in progress.
+**Status:** re-chartered. Design contract updated before the next implementation
+slice.
 
 ## Why
 
-Two failure modes shape the design:
+Agents do not need a larger haystack. They need the right context bundle for the
+job, with citations and enough structure to explain why each piece is there.
 
-- **Wiki alone doesn't scale.** Hand-curated knowledge bases hit a
-  ceiling around ~100 pages. Past that, you're navigating navigation.
-- **RAG alone is structureless.** Vector retrieval over an
-  unstructured corpus returns plausible chunks with no editorial
-  judgment. Every query starts from zero. The retriever has no
-  opinion about what matters.
+The Stacks is that bundle-maker. It stores approved public corpus pages and
+chunks in sqlite, indexes them with vectors and transparent lexical scoring,
+uses graph/PPR to rerank and expand around related material, then emits cited
+context packs an agent or human can use.
 
-The Stacks combines them. The wiki is the **routing layer** — a
-small, hand-curated set of pages with frontmatter declaring retrieval
-scope. Each wiki page says: *here are the load-bearing facts about
-this topic, and if you need to drill in, query these tags / this
-directory / this corpus subset.* RAG is the **deep store** —
-retrieval scoped by what the wiki page declares.
-
-This mirrors how good libraries work (Dewey decimal as routing,
-stacks as storage), how Wikipedia works (curated article + retrievable
-references), and how good codebases work (README + grep).
+The original May 5 roadmap was wiki-over-vanilla-RAG. The current direction is
+sharper: DB-backed context library with vectors, lexical search, graph-ranked
+retrieval, and context packs in v0. MCP comes after the CLI/backend loop proves
+useful.
 
 ## Stack
 
-- **Language:** Go (single binary, no daemons)
-- **Vector store:** [sqlite-vec](https://github.com/asg017/sqlite-vec)
-- **Embeddings:** [Ollama](https://ollama.com/) + `nomic-embed-text` (local, free)
-- **MCP:** standard Go MCP SDK, mounts into [coda-lite](https://github.com/evanstern/coda-lite)
-- **Demo corpus:** public, redistributable. To be selected in M1.
+- **Language:** Go, single binary.
+- **Storage:** sqlite for pages, chunks, provenance, graph edges, and runtime
+  state.
+- **Vectors:** sqlite-local vector index, likely sqlite-vec.
+- **Retrieval:** vector search, lexical baseline, graph/PPR hybrid rerank.
+- **Output:** Markdown and JSON context packs.
+- **Demo corpus:** likely official-tabletop D&D Wikipedia-derived pages from the
+  graduated memory-graph experiment.
 
-Local-first. File-backed. The whole thing is a single Go binary plus
-a sqlite database plus a directory of markdown.
+Local-first. DB-backed. No daemon in the local path.
 
 ## Roadmap
 
 | Milestone | Shape | Done when |
 |-----------|-------|-----------|
-| M1 | RAG that works (ingest + ask, sqlite-vec + Ollama) | asciinema demo against public corpus |
-| M2 | Wiki as routing layer (frontmatter scope, two-phase query) | side-by-side demo: rag-only / wiki-only / hybrid |
-| M3 | coda-lite MCP plugin | An agent boots with the-stacks MCP wired in, drills into its own corpus |
+| V0.1 | Corpus ingestion + approval/provenance | approved public corpus pages land in sqlite with audit trail |
+| V0.2 | Chunk DB + vectors + lexical baseline | chunks are searchable by vector and inspectable lexical scores |
+| V0.3 | Graph/PPR hybrid retrieval | graph signal reranks/expands results with visible score components |
+| V0.4 | Context pack compiler | Markdown/JSON packs cite selected chunks for a concrete task |
+| Later | coda-lite MCP | agents mount the proven CLI/backend as a memory/context surface |
 
 Full design: [`designs/the-stacks.md`](designs/the-stacks.md).
 
 ## Non-goals
 
-- Multi-user / multi-tenant. Single-host, single-user.
-- Cloud-first. Local-first; cloud is opt-in.
-- Reranker pipelines, query expansion, hybrid search. Not in v0.
-  Vanilla cosine over chunks. Complexity earns its keep.
+- Multi-user / multi-tenant service architecture.
+- Cloud-first retrieval or storage.
+- Treating Zach's flat-file experiment as runtime storage.
+- Replacing vectors with graph search. Vectors are required.
+- Preserving the old "no hybrid search in v0" rule. That rule is dead.
 
 ## Status board
 
-Project work is tracked with [focus](https://github.com/evanstern/focus)
-in [`.focus/`](.focus/). M1 epic: corpus pick → ingest+embed pipeline →
-ask CLI → asciinema recording.
+Project work is tracked with [focus](https://github.com/evanstern/focus) in
+[`.focus/`](.focus/). The old Polymarket/vanilla-RAG cards have been archived;
+the board now tracks the memory-graph direction.
 
 ## License
 
