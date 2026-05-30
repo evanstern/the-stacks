@@ -4,7 +4,7 @@ id: 14
 uuid: 019df60d-7b73-7547-a4be-0a4a2eb630e8
 title: Investigate ANN index for sqlite-vec at top-100+ scale
 type: card
-status: backlog
+status: archived
 priority: p3
 project: the-stacks
 created: 2026-05-05

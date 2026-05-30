@@ -4,7 +4,7 @@ id: 15
 uuid: 019dfa24-3949-74f8-b56d-2ba0a7c4bcc2
 title: 'GCS archive for raw.db: bucket setup + upload/download flow'
 type: card
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

@@ -4,7 +4,7 @@ id: 10
 uuid: 019df5e7-52d1-7ebc-963d-26db71580ccf
 title: 'Investigate: focus MCP tools not following pwd to repo board'
 type: card
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

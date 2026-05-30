@@ -4,7 +4,7 @@ id: 17
 uuid: 019dfa24-396f-72c5-bae0-eae781bf47fa
 title: 'EPIC: Hosted demo (the-stacks serve HTTP API on GCE)'
 type: epic
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

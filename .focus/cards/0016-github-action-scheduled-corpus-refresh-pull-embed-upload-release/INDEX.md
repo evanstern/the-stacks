@@ -4,7 +4,7 @@ id: 16
 uuid: 019dfa24-395c-7aa5-91c1-8e0b75d5a33b
 title: 'GitHub Action: scheduled corpus refresh (pull -> embed -> upload -> release)'
 type: card
-status: backlog
+status: archived
 priority: p2
 project: the-stacks
 created: 2026-05-05

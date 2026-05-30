@@ -4,7 +4,7 @@ id: 18
 uuid: 019dfa6b-18da-7e80-aa72-56b9d7b29998
 title: Verify M1 demo questions answerable against 4000-trade-per-market slice; investigate /activity for historical depth
 type: card
-status: backlog
+status: archived
 priority: p1
 project: the-stacks
 created: 2026-05-05
