@@ -10,17 +10,6 @@
 /dist/
 vendor/
 
-# Node / React Router artifacts
-build/
-node_modules/
-.react-router/
-test-results/
-
-# Local runtime data
-data/
-data-docling/
-.env
-
 # sqlite-vec databases
 *.db
 *.db-journal
@@ -32,7 +21,7 @@ stacks.db*
 /corpus/
 /corpora/
 
-# asciinema recordings - committed under demos/, ignore stray casts
+# asciinema recordings — committed under demos/, ignore stray casts
 /*.cast
 
 # Editor / OS
