@@ -1,5 +1,6 @@
 export { markdownImportAdapter } from "./markdown.js";
 export { docxImportAdapter } from "./docx.js";
+export { createDoclingPdfImportAdapter, doclingPdfImportAdapter } from "./docling.js";
 export { epubImportAdapter, isCalibreFallbackEnabled, mobiImportAdapter, tryCalibreTextFallback } from "./ebook/index.js";
 export { importMediaWikiApprovalManifest, mediaWikiPageImportAdapter, normalizeMediaWikiPage, normalizeMediaWikiTitle } from "./mediawiki/index.js";
 export { pdfImportAdapter } from "./pdf.js";
