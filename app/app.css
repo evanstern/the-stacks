@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --font-display: "Alegreya", serif;
+  --font-body: "Source Serif 4", serif;
+  --color-background: hsl(42 35% 92%);
+  --color-foreground: hsl(220 28% 12%);
+  --color-card: hsl(39 45% 96% / 0.86);
+  --color-card-foreground: hsl(220 28% 12%);
+  --color-primary: hsl(166 64% 24%);
+  --color-primary-foreground: hsl(40 48% 96%);
+  --color-secondary: hsl(33 61% 86%);
+  --color-secondary-foreground: hsl(220 28% 12%);
+  --color-muted: hsl(41 23% 84%);
+  --color-muted-foreground: hsl(220 13% 39%);
+  --color-accent: hsl(12 82% 48%);
+  --color-accent-foreground: hsl(40 48% 96%);
+  --color-border: hsl(31 28% 72%);
+  --color-ring: hsl(166 64% 24%);
+  --shadow-panel: 0 24px 70px hsl(220 28% 12% / 0.16);
+  color-scheme: light;
+  font-family: var(--font-body);
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, hsl(166 64% 24% / 0.18), transparent 32rem),
+    radial-gradient(circle at bottom right, hsl(12 82% 48% / 0.16), transparent 28rem),
+    var(--color-background);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
