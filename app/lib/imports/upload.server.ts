@@ -5,6 +5,7 @@ import { basename, extname, join, resolve } from "node:path";
 import { closeDatabase, openDatabase } from "~/lib/db/connection";
 import { runMigrations } from "~/lib/db/migrations";
 import { createCorpusRepository, type ImportJob, type Source } from "~/lib/corpus/repository";
+import { enqueueOcrJob } from "~/lib/imports/ocr-queue.server";
 import { allowedUploadExtensions, maxUploadBytes, uploadAdapterVersion, type AllowedUploadExtension } from "~/lib/imports/upload";
 import { createManualReviewItemForSource, normalizeImportForReview } from "~/lib/review/queue.server";
 
@@ -82,9 +83,15 @@ function validateUpload(file: File): AllowedUploadExtension {
   return extension;
 }
 
-export async function queueUploadImport(file: File): Promise<UploadImportResult> {
+export type UploadImportOptions = {
+  pdfExtraction?: "default" | "docling";
+};
+
+export async function queueUploadImport(file: File, options: UploadImportOptions = {}): Promise<UploadImportResult> {
   const extension = validateUpload(file);
-  const adapter = adapterFor(extension);
+  const adapter = extension === ".pdf" && options.pdfExtraction === "docling"
+    ? "pdf-docling"
+    : adapterFor(extension);
   const uploadRoot = getUploadRoot();
   const tempRoot = join(uploadRoot, "tmp");
   const sourceRoot = join(uploadRoot, "sources");
@@ -147,6 +154,7 @@ export async function queueUploadImport(file: File): Promise<UploadImportResult>
       storageUri: storageUriFor(persistentPath),
       metadata: {
         allowedExtension: extension,
+        extractionExperiment: adapter === "pdf-docling" ? "docling" : null,
         originalUploadName: file.name,
         sha256: fileHash,
         uploadRoot,
@@ -189,6 +197,25 @@ export async function queueUploadImport(file: File): Promise<UploadImportResult>
 }
 
 async function finalizeQueuedImport(input: Pick<UploadImportResult, "source" | "importJob" | "duplicate" | "message">): Promise<UploadImportResult> {
+  if (input.importJob.adapter === "pdf-docling") {
+    try {
+      await enqueueOcrJob(input.importJob.id);
+    } catch (error) {
+      console.error("[docling-queue] enqueue failed; Docling import remains queued in SQLite", {
+        importJobId: input.importJob.id,
+        error: error instanceof Error ? error.message : "Unknown Docling queue enqueue failure.",
+      });
+    }
+
+    return {
+      ...input,
+      message: `${input.message} Docling layout extraction queued for background processing.`,
+      reviewItemIds: [],
+      suggestionErrors: [],
+      ocrJobIds: [input.importJob.id],
+    };
+  }
+
   try {
     const review = await normalizeImportForReview(input.importJob.id);
 
