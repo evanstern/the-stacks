@@ -73,7 +73,7 @@ async function main(): Promise<void> {
     await page.getByTestId("chat-submit").click();
     const answer = page.getByTestId("chat-answer");
     await answer.waitFor();
-    await page.getByText(/Based on approved corpus evidence/).waitFor();
+    await expectText(answer, /\[1\]/);
     await expectText(answer, /three brass lamps/i);
     await page.getByTestId("citation-link").first().click();
     await page.getByTestId("source-preview").waitFor();
