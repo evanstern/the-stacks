@@ -113,14 +113,31 @@ export async function normalizeImportForReview(importJobId: string, options: Que
           parserReadiness: document.corpusReadiness ?? null,
         };
 
-        return corpusRepo.createImportJob({
+        const ocrJob = corpusRepo.createImportJob({
           corpusId: source.corpusId,
           sourceId: source.id,
           status: "ocr_queued",
           adapter: "pdf-ocr",
           adapterVersion: "pdf-ocr-v1",
           stats,
-        }).id;
+        });
+
+        corpusRepo.createImportJobEvent({
+          importJobId: importJob.id,
+          eventType: "ocr_job_created",
+          message: `Created OCR fallback job for ${source.originalFilename}.`,
+          progressPct: 85,
+          payload: { sourceId: source.id, ocrImportJobId: ocrJob.id, readiness: document.corpusReadiness ?? null },
+        });
+        corpusRepo.createImportJobEvent({
+          importJobId: ocrJob.id,
+          eventType: "ocr_job_queued",
+          message: `OCR fallback job queued from parent import ${importJob.id}.`,
+          progressPct: 20,
+          payload: { sourceId: source.id, parentImportJobId: importJob.id, parserAdapter: prepared.adapter.name },
+        });
+
+        return ocrJob.id;
       });
 
     const status = persisted.suggestionErrors.length > 0 ? "failed_review_suggestion" : ocrJobIds.length > 0 ? "ocr_needed" : "review_needed";
@@ -138,6 +155,19 @@ export async function normalizeImportForReview(importJobId: string, options: Que
       finishedAt: new Date().toISOString(),
     });
     corpusRepo.updateSourceStatus(source.id, "review_needed");
+    corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "normalization_completed",
+      message: `Normalization completed with status ${status}.`,
+      progressPct: 100,
+      payload: {
+        sourceId: source.id,
+        documents: normalized.documents.length,
+        reviewItems: persisted.reviewItemIds.length,
+        suggestionErrors: persisted.suggestionErrors.length,
+        ocrJobs: ocrJobIds.length,
+      },
+    });
 
     try {
       await enqueueOcrJobs(ocrJobIds);
@@ -180,6 +210,13 @@ function prepareImportForNormalization(importJobId: string): { importJob: Import
     }
 
     corpusRepo.updateImportJob({ id: importJob.id, status: "parsing" });
+    corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "parsing_started",
+      message: `Started normalization with ${source.parserAdapter}.`,
+      progressPct: 30,
+      payload: { sourceId: source.id, adapter: source.parserAdapter },
+    });
     return { importJob, source, adapter };
   } finally {
     closeDatabase(db);
@@ -214,6 +251,13 @@ export async function persistNormalizedDocumentsForReview(
       ...(corpusReadiness ? { corpusReadiness } : {}),
       ...(input.adapterName === "pdf-ocr" ? { ocr: ocrProvenanceForReview(normalizedDocument.provenance) } : {}),
     };
+    corpusRepo.createImportJobEvent({
+      importJobId: input.importJob.id,
+      eventType: "document_normalizing",
+      message: `Persisting normalized document ${normalizedDocument.title}.`,
+      progressPct: 55,
+      payload: { sourceId: input.source.id, title: normalizedDocument.title, adapter: input.adapterName },
+    });
     const document = corpusRepo.createDocument({
       corpusId: input.source.corpusId,
       sourceId: input.source.id,
@@ -250,6 +294,13 @@ export async function persistNormalizedDocumentsForReview(
       metadata: reviewMetadata,
     });
     reviewItemIds.push(reviewItem.id);
+    corpusRepo.createImportJobEvent({
+      importJobId: input.importJob.id,
+      eventType: "review_item_created",
+      message: `Created review item for ${normalizedDocument.title}.`,
+      progressPct: 75,
+      payload: { documentId: document.id, reviewItemId: reviewItem.id },
+    });
 
     const readinessSuggestion = deterministicReadinessSuggestion(corpusReadiness);
 
@@ -262,6 +313,13 @@ export async function persistNormalizedDocumentsForReview(
         promptVersion: readinessSuggestion.promptVersion,
         confidence: readinessSuggestion.confidence,
         metadata: readinessSuggestion.metadata,
+      });
+      corpusRepo.createImportJobEvent({
+        importJobId: input.importJob.id,
+        eventType: "review_suggestion_created",
+        message: `Created deterministic readiness suggestion for ${normalizedDocument.title}.`,
+        progressPct: 82,
+        payload: { reviewItemId: reviewItem.id, suggestionState: readinessSuggestion.suggestionState },
       });
       continue;
     }
@@ -292,9 +350,24 @@ export async function persistNormalizedDocumentsForReview(
           confidence: suggestion.confidence,
           metadata: suggestion.metadata,
         });
+        corpusRepo.createImportJobEvent({
+          importJobId: input.importJob.id,
+          eventType: "review_suggestion_created",
+          message: `Created review suggestion for ${normalizedDocument.title}.`,
+          progressPct: 82,
+          payload: { reviewItemId: reviewItem.id, suggestionState: suggestion.suggestionState, model: suggestion.model },
+        });
       }
     } catch (error) {
-      suggestionErrors.push(error instanceof Error ? error.message : "Review LLM suggestion failed.");
+      const message = error instanceof Error ? error.message : "Review LLM suggestion failed.";
+      suggestionErrors.push(message);
+      corpusRepo.createImportJobEvent({
+        importJobId: input.importJob.id,
+        eventType: "review_suggestion_failed",
+        message: `Review suggestion failed for ${normalizedDocument.title}: ${message}`,
+        progressPct: 82,
+        payload: { reviewItemId: reviewItem.id, error: message },
+      });
     }
   }
 

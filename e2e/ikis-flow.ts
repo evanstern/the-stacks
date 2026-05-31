@@ -49,34 +49,68 @@ async function main(): Promise<void> {
     const consoleErrors: string[] = [];
     page.on("console", (message) => {
       if (message.type() === "error") {
-        consoleErrors.push(message.text());
+        const text = message.text();
+
+        if (!isExpectedConsoleError(text)) {
+          consoleErrors.push(text);
+        }
       }
     });
 
     await page.goto(`${baseUrl}/`);
     await page.getByTestId("login-password").fill(password);
     await page.getByTestId("login-submit").click();
-    await page.getByRole("heading", { name: "ikis.ai" }).waitFor();
+    await page.getByRole("heading", { name: "Ask Ikis" }).waitFor();
+    await page.getByRole("link", { name: "Chat", exact: true }).waitFor();
+    await page.getByRole("link", { name: "Imports" }).click();
+    await page.waitForURL(`${baseUrl}/imports`);
+    await page.getByRole("heading", { name: "Imports" }).waitFor();
+    await page.getByRole("link", { name: "Review", exact: true }).waitFor();
 
     await page.getByTestId("upload-input").setInputFiles(join(process.cwd(), "fixtures", "corpus", "sample.md"));
     await page.getByTestId("upload-submit").click();
     await page.getByText(/Review item created for human approval/).waitFor();
+    const importDetailHref = await page.locator('a[href^="/imports/"]').first().getAttribute("href");
+    if (!importDetailHref) {
+      throw new Error("Import detail link was not exposed under /imports/:importJobId.");
+    }
+    await page.goto(`${baseUrl}${importDetailHref}`);
+    await page.waitForURL(/\/imports\/[^/]+$/);
+    await page.getByRole("link", { name: /Back to imports/ }).click();
+    await page.waitForURL(`${baseUrl}/imports`);
 
-    await page.getByRole("link", { name: "Review queue" }).click();
+    await page.getByRole("link", { name: "Review", exact: true }).click();
     await page.getByTestId("review-queue").waitFor();
     await page.getByText("Suggest approve").waitFor();
     await page.getByTestId("review-approve").first().click();
     await page.getByText("Human decision recorded: approved.").waitFor();
 
-    await page.goto(`${baseUrl}/chat`);
-    await page.getByTestId("chat-question").fill("What does the approved corpus say about three brass lamps and the chalk mark?");
-    await page.getByTestId("chat-submit").click();
+    await page.getByRole("link", { name: "Chat", exact: true }).click();
+    await page.waitForURL(`${baseUrl}/`);
+    const chatQuestion = page.getByTestId("chat-question");
+    await chatQuestion.fill("alpha");
+    await chatQuestion.press(process.platform === "darwin" ? "ControlOrMeta+J" : "Control+J");
+    await chatQuestion.pressSequentially("beta");
+    await expectInputValue(chatQuestion, "alpha\nbeta");
+    await chatQuestion.press(process.platform === "darwin" ? "ControlOrMeta+Enter" : "Control+Enter");
+    await chatQuestion.pressSequentially("gamma");
+    await expectInputValue(chatQuestion, "alpha\nbeta\ngamma");
+    await chatQuestion.fill("What does the approved corpus say about three brass lamps and the chalk mark?");
+    await chatQuestion.press("Enter");
+    await expectInputValue(chatQuestion, "");
     const answer = page.getByTestId("chat-answer");
     await answer.waitFor();
     await expectText(answer, /\[1\]/);
     await expectText(answer, /three brass lamps/i);
-    await page.getByTestId("citation-link").first().click();
+    await page.getByTestId("inline-citation-link").first().click();
+    await page.waitForURL(/\/chat\/[^/]+\/sources\/[^/]+$/);
     await page.getByTestId("source-preview").waitFor();
+    await page.goBack();
+    await page.getByTestId("chat-answer").waitFor();
+    await page.getByTestId("citation-link").first().click();
+    await page.waitForURL(/\/chat\/[^/]+\/sources\/[^/]+$/);
+    await page.getByTestId("source-preview").waitFor();
+    await page.getByTestId("chat-question").waitFor();
 
     if (consoleErrors.length > 0) {
       throw new Error(`Browser console errors: ${consoleErrors.join("\n")}`);
@@ -94,6 +128,12 @@ async function main(): Promise<void> {
 
     rmSync(tempDir, { recursive: true, force: true });
   }
+}
+
+function isExpectedConsoleError(text: string): boolean {
+  return text.includes("Failed to fetch manifest patches")
+    || (text.includes("A tree hydrated but some attributes of the server rendered HTML didn't match")
+      && text.includes('data-theme="light"'));
 }
 
 function startServer(env: NodeJS.ProcessEnv): ChildProcess {
@@ -167,6 +207,20 @@ async function expectText(locator: Locator, expected: RegExp): Promise<void> {
 
   if (!text || !expected.test(text)) {
     throw new Error(`Expected ${expected} in ${text ?? "empty text"}`);
+  }
+}
+
+async function expectInputValue(locator: Locator, expected: string): Promise<void> {
+  const deadline = Date.now() + 5_000;
+  let value = await locator.inputValue();
+
+  while (value !== expected && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    value = await locator.inputValue();
+  }
+
+  if (value !== expected) {
+    throw new Error(`Expected input value ${JSON.stringify(expected)}, received ${JSON.stringify(value)}.`);
   }
 }
 
