@@ -209,7 +209,13 @@ describe("OCR queue transport", () => {
         throw new Error("database was locked before OCR persisted a result");
       },
     });
+    const failedJob = createCorpusRepository(openTestDatabase()).getImportJob(jobId);
 
     expect(terminal).toEqual({ processed: false, requeued: false, terminalFailure: true });
+    expect(failedJob).toMatchObject({
+      status: "ocr_failed",
+      errors: ["database was locked before OCR persisted a result"],
+    });
+    expect(failedJob?.stats).toMatchObject({ workerFailure: "database was locked before OCR persisted a result" });
   });
 });

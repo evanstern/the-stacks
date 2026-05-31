@@ -180,16 +180,35 @@ export async function enqueueOcrJob(importJobId: string, transport: OcrQueueTran
     }
 
     if (importJob.adapter !== "pdf-ocr" && importJob.adapter !== "pdf-docling") {
+      corpusRepo.createImportJobEvent({
+        importJobId: importJob.id,
+        eventType: "background_enqueue_skipped",
+        message: "Background enqueue skipped because this is not a background PDF job.",
+        payload: { sourceId: importJob.sourceId, adapter: importJob.adapter, status: importJob.status },
+      });
       return { enqueued: false, skippedReason: "not-background-pdf-job" };
     }
 
     const expectedStatus = importJob.adapter === "pdf-ocr" ? "ocr_queued" : "queued";
 
     if (importJob.status !== expectedStatus) {
+      corpusRepo.createImportJobEvent({
+        importJobId: importJob.id,
+        eventType: "background_enqueue_skipped",
+        message: `Background enqueue skipped because status is ${importJob.status}.`,
+        payload: { sourceId: importJob.sourceId, adapter: importJob.adapter, status: importJob.status, expectedStatus },
+      });
       return { enqueued: false, skippedReason: `status-${importJob.status}` };
     }
 
     await transport.enqueue({ jobId: importJob.id, sourceId: importJob.sourceId, attempts: 0, enqueuedAt: new Date().toISOString() });
+    corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "background_enqueued",
+      message: `${importJob.adapter} job enqueued for background processing.`,
+      progressPct: importJob.adapter === "pdf-ocr" ? 25 : 15,
+      payload: { sourceId: importJob.sourceId, status: importJob.status, adapter: importJob.adapter },
+    });
     console.info("[ocr-queue] enqueued", { jobId: importJob.id, sourceId: importJob.sourceId, status: importJob.status });
     return { enqueued: true };
   } finally {

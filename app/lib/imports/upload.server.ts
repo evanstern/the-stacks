@@ -4,6 +4,7 @@ import { basename, extname, join, resolve } from "node:path";
 
 import { closeDatabase, openDatabase } from "~/lib/db/connection";
 import { runMigrations } from "~/lib/db/migrations";
+import type { JsonValue } from "~/lib/db/rows";
 import { createCorpusRepository, type ImportJob, type Source } from "~/lib/corpus/repository";
 import { enqueueOcrJob } from "~/lib/imports/ocr-queue.server";
 import { allowedUploadExtensions, maxUploadBytes, uploadAdapterVersion, type AllowedUploadExtension } from "~/lib/imports/upload";
@@ -129,6 +130,13 @@ export async function queueUploadImport(file: File, options: UploadImportOptions
 
       queuedSource = existing;
       queuedImportJob = importJob;
+      corpusRepo.createImportJobEvent({
+        importJobId: importJob.id,
+        eventType: "upload_duplicate_queued",
+        message: "Duplicate upload matched an existing source and queued a new import job.",
+        progressPct: 10,
+        payload: { sourceId: existing.id, fileHash, adapter },
+      });
 
       return await finalizeQueuedImport({
         source: existing,
@@ -171,6 +179,13 @@ export async function queueUploadImport(file: File, options: UploadImportOptions
 
     queuedSource = source;
     queuedImportJob = importJob;
+    corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "upload_queued",
+      message: `${source.originalFilename} uploaded and queued for import.`,
+      progressPct: 10,
+      payload: { sourceId: source.id, fileHash, bytes: file.size, adapter },
+    });
 
     return await finalizeQueuedImport({
       source,
@@ -201,6 +216,11 @@ async function finalizeQueuedImport(input: Pick<UploadImportResult, "source" | "
     try {
       await enqueueOcrJob(input.importJob.id);
     } catch (error) {
+      recordImportEvent(input.importJob.id, {
+        eventType: "background_enqueue_failed",
+        message: "Docling layout extraction could not be enqueued for background processing.",
+        payload: { error: error instanceof Error ? error.message : "Unknown Docling queue enqueue failure." },
+      });
       console.error("[docling-queue] enqueue failed; Docling import remains queued in SQLite", {
         importJobId: input.importJob.id,
         error: error instanceof Error ? error.message : "Unknown Docling queue enqueue failure.",
@@ -237,6 +257,12 @@ async function finalizeQueuedImport(input: Pick<UploadImportResult, "source" | "
 async function createFallbackManualReview(input: Pick<UploadImportResult, "source" | "importJob" | "duplicate" | "message"> & { error: unknown }): Promise<UploadImportResult> {
   const reviewItemId = createManualReviewItemForSource(input.source.id);
   const message = input.error instanceof Error ? input.error.message : "Import normalization failed.";
+  recordImportEvent(input.importJob.id, {
+    eventType: "manual_review_fallback_created",
+    message: "Manual review item created because normalization or suggestion generation failed.",
+    progressPct: 100,
+    payload: { sourceId: input.source.id, reviewItemId, error: message },
+  });
 
   return {
     ...input,
@@ -245,6 +271,21 @@ async function createFallbackManualReview(input: Pick<UploadImportResult, "sourc
     suggestionErrors: [message],
     ocrJobIds: [],
   };
+}
+
+function recordImportEvent(importJobId: string, input: { eventType: string; message: string; progressPct?: number | null; payload?: JsonValue }): void {
+  const db = openDatabase();
+
+  try {
+    runMigrations(db);
+    const corpusRepo = createCorpusRepository(db);
+
+    if (corpusRepo.getImportJob(importJobId)) {
+      corpusRepo.createImportJobEvent({ importJobId, ...input });
+    }
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 export function getImportDashboard(): ImportDashboard {
