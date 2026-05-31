@@ -11,6 +11,17 @@ import type * as React from "react";
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
+const themeScript = `(() => {
+  try {
+    const stored = localStorage.getItem("ikis-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = stored === "dark" || stored === "light" ? stored : (prefersDark ? "dark" : "light");
+    document.documentElement.dataset.theme = theme;
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+})();`;
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -32,6 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Meta />
         <Links />
       </head>
