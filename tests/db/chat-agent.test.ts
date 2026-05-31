@@ -197,6 +197,55 @@ describe("local chat agent runner", () => {
     }
   });
 
+  it("passes prior conversation turns plus the current turn through the enabled agent path", async () => {
+    process.env.IKIS_CHAT_AGENT_ENABLED = "true";
+    const corpusId = await seedApprovedMarkdown();
+    const db = openTestDatabase();
+
+    try {
+      const firstTurn = await answerGroundedQuestion(db, {
+        corpusId,
+        question: "What does the corpus say about three brass lamps?",
+        answerProvider: createExtractiveGroundedAnswerProvider(),
+      });
+      const historySnapshots: string[][] = [];
+      const secondTurn = await answerGroundedQuestion(db, {
+        corpusId,
+        conversationId: firstTurn.conversation.id,
+        question: "Tell me more about their chalk mark.",
+        answerProvider: async ({ conversationHistory, evidence }) => {
+          historySnapshots.push((conversationHistory ?? []).map((message) => `${message.role}: ${message.content}`));
+          return {
+            answer: `The history-aware agent can answer from ${evidence[0]?.text.slice(0, 40)} [1]`,
+            citedOrdinals: [1],
+            model: "agent-history-test-provider",
+            promptVersion: groundedAnswerPromptVersion,
+          };
+        },
+      });
+      const workflowRuns = createConversationRepository(db).listWorkflowRunsForTarget({ targetType: "conversation", targetId: firstTurn.conversation.id });
+      const secondWorkflow = workflowRuns[workflowRuns.length - 1];
+      const firstNodeSummary = workflowNodeSummaries(secondWorkflow)[0].summary;
+
+      expect(secondTurn.conversation.id).toBe(firstTurn.conversation.id);
+      expect(historySnapshots).toHaveLength(1);
+      expect(historySnapshots[0]).toEqual([
+        expect.stringContaining("user: What does the corpus say about three brass lamps?"),
+        expect.stringContaining("assistant:"),
+        expect.stringContaining("user: Tell me more about their chalk mark."),
+      ]);
+      expect(secondTurn.noEvidence).toBe(false);
+      expect(jsonRecord(firstNodeSummary)).toMatchObject({
+        conversationHistory: {
+          messageCount: 3,
+          roles: ["user", "assistant", "user"],
+        },
+      });
+    } finally {
+      closeDatabase(db);
+    }
+  });
+
   it("keeps the disabled direct path free of chat agent workflow traces", async () => {
     process.env.IKIS_CHAT_AGENT_ENABLED = "false";
     const corpusId = await seedApprovedMarkdown();

@@ -166,6 +166,11 @@ export function createConversationRepository(db: Database) {
       return row ? mapConversation(row) : null;
     },
 
+    listConversations(input: { limit?: number } = {}): Conversation[] {
+      const limit = Math.max(1, Math.min(input.limit ?? 12, 50));
+      return (db.prepare("SELECT * FROM conversations ORDER BY updated_at DESC, created_at DESC LIMIT ?").all(limit) as Row[]).map(mapConversation);
+    },
+
     addMessage(input: { id?: string; conversationId: string; role: Message["role"]; content: string; model?: string | null; metadata?: JsonValue }): Message {
       const id = input.id ?? createId("message");
       db.prepare("INSERT INTO messages (id, conversation_id, role, content, model, metadata_json) VALUES (?, ?, ?, ?, ?, ?)").run(

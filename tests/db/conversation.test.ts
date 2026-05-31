@@ -239,6 +239,46 @@ describe("grounded corpus conversation", () => {
     }
   });
 
+  it("passes previous turns plus the current question into the grounded answer provider", async () => {
+    const corpusId = await seedApprovedMarkdown();
+    const db = openTestDatabase();
+
+    try {
+      const firstTurn = await answerGroundedQuestion(db, {
+        corpusId,
+        question: "What does the corpus say about three brass lamps?",
+        answerProvider: createExtractiveGroundedAnswerProvider(),
+      });
+      const historySnapshots: string[][] = [];
+      const secondTurn = await answerGroundedQuestion(db, {
+        corpusId,
+        conversationId: firstTurn.conversation.id,
+        question: "Tell me more about their chalk mark.",
+        answerProvider: async ({ conversationHistory, evidence }) => {
+          historySnapshots.push((conversationHistory ?? []).map((message) => `${message.role}: ${message.content}`));
+          return {
+            answer: `The follow-up can see the prior turn and current question: ${evidence[0]?.text.slice(0, 40)} [1]`,
+            citedOrdinals: [1],
+            model: "history-aware-test-provider",
+            promptVersion: groundedAnswerPromptVersion,
+          };
+        },
+      });
+
+      expect(secondTurn.conversation.id).toBe(firstTurn.conversation.id);
+      expect(historySnapshots).toHaveLength(1);
+      expect(historySnapshots[0]).toEqual([
+        expect.stringContaining("user: What does the corpus say about three brass lamps?"),
+        expect.stringContaining("assistant:"),
+        expect.stringContaining("user: Tell me more about their chalk mark."),
+      ]);
+      expect(secondTurn.noEvidence).toBe(false);
+      expect(secondTurn.assistantMessage.content).toContain("[1]");
+    } finally {
+      closeDatabase(db);
+    }
+  });
+
   it("persists an explicit no-evidence answer without fabricated citations", async () => {
     const corpusId = await seedApprovedMarkdown();
     const db = openTestDatabase();

@@ -7,10 +7,12 @@ import {
   createConfiguredGroundedAnswerProvider,
   insufficientEvidenceAnswer,
   type GroundedAnswerProvider,
+  type GroundedAnswerProviderMessage,
   type GroundedAnswerResult,
   validateGroundedAnswer,
 } from "~/lib/conversations/grounded-answer.server";
 import { persistGroundedConversationTurn } from "~/lib/conversations/grounded-turn-persistence.server";
+import { buildHistoryAwareRetrievalQuery } from "~/lib/conversations/history-query.server";
 import { buildGroundedRetrievalContext, type GroundedRetrievalContext } from "~/lib/retrieval/context";
 import { assertWorkflowBoundaryRefs, createDeterministicThreadId } from "~/lib/workflows/boundary";
 import {
@@ -38,6 +40,28 @@ function nowIso(): string {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown chat agent error.";
+}
+
+const maxProviderHistoryMessages = 16;
+
+function toProviderHistory(messages: Message[]): GroundedAnswerProviderMessage[] {
+  return messages
+    .slice(-maxProviderHistoryMessages)
+    .flatMap((message): GroundedAnswerProviderMessage[] => {
+      if (message.role !== "user" && message.role !== "assistant" && message.role !== "system") {
+        return [];
+      }
+
+      return [{ role: message.role, content: message.content }];
+    });
+}
+
+function historySummary(history: GroundedAnswerProviderMessage[]): JsonValue {
+  return {
+    messageCount: history.length,
+    roles: history.map((message) => message.role),
+    characterCount: history.reduce((total, message) => total + message.content.length, 0),
+  };
 }
 
 function step(input: { node: ChatAgentNodeName; status?: ChatAgentNodeStep["status"]; summary: JsonValue }): ChatAgentNodeStep {
@@ -197,7 +221,9 @@ export async function runLocalChatAgentTurn(db: Database, input: ChatAgentTurnIn
   const conversation = input.conversationId
     ? conversationRepo.getConversation(input.conversationId) ?? conversationRepo.createConversation({ corpusId: input.corpusId, title: question.slice(0, 80) })
     : conversationRepo.createConversation({ corpusId: input.corpusId, title: question.slice(0, 80) });
+  const previousMessages = conversationRepo.listMessages(conversation.id);
   const userMessage = conversationRepo.addMessage({ conversationId: conversation.id, role: "user", content: question });
+  const conversationHistory = toProviderHistory([...previousMessages, userMessage]);
   const receiveUserMessage = step({
     node: "receive_user_message",
     summary: {
@@ -205,6 +231,7 @@ export async function runLocalChatAgentTurn(db: Database, input: ChatAgentTurnIn
       userMessageId: userMessage.id,
       questionHash: hashValue(question),
       questionLength: question.length,
+      conversationHistory: historySummary(conversationHistory),
     },
   });
   const workflow = startWorkflow({ db, corpusId: input.corpusId, conversation, userMessage, question });
@@ -215,7 +242,8 @@ export async function runLocalChatAgentTurn(db: Database, input: ChatAgentTurnIn
 
   try {
     currentNode = "retrieve_evidence";
-    retrievalContext = buildGroundedRetrievalContext(db, { corpusId: input.corpusId, query: question });
+    const retrievalQuery = buildHistoryAwareRetrievalQuery({ question, conversationHistory });
+    retrievalContext = buildGroundedRetrievalContext(db, { corpusId: input.corpusId, query: retrievalQuery });
     steps.push(step({ node: "retrieve_evidence", summary: evidenceSummary(retrievalContext) }));
 
     currentNode = "synthesize_answer";
@@ -228,7 +256,7 @@ export async function runLocalChatAgentTurn(db: Database, input: ChatAgentTurnIn
         promptVersion: "grounded-answer-v2",
         metadata: { skipped: "retrieval_returned_no_evidence" },
       }
-      : await answerProvider({ question, evidence: retrievalContext.evidence });
+      : await answerProvider({ question, evidence: retrievalContext.evidence, conversationHistory });
     steps.push(step({
       node: "synthesize_answer",
       summary: {
@@ -280,10 +308,7 @@ export async function runLocalChatAgentTurn(db: Database, input: ChatAgentTurnIn
       corpusId: input.corpusId,
       userMessageId: userMessage.id,
       question,
-      messages: [
-        { role: "user", content: question },
-        { role: "assistant", content: turn.assistantMessage.content },
-      ],
+      messages: [...conversationHistory, { role: "assistant", content: turn.assistantMessage.content }],
       intent: "corpus_lookup",
       retrievalAttempts: [{
         query: question,
