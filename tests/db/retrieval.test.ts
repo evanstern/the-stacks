@@ -12,6 +12,7 @@ import { markdownImportAdapter, textImportAdapter } from "../../app/lib/imports/
 import type { ImportAdapter } from "../../app/lib/imports/adapters/types.js";
 import { normalizeImportForReview, recordHumanReviewDecision } from "../../app/lib/review/queue.server.js";
 import { createReviewRepository } from "../../app/lib/review/repository.js";
+import { buildGroundedRetrievalContext } from "../../app/lib/retrieval/context.js";
 import { retrieveLexicalChunks } from "../../app/lib/retrieval/lexical.js";
 
 let tempDir: string;
@@ -78,6 +79,52 @@ async function importFixtureForReview(input: { fixture: string; adapter: ImportA
         promptVersion: "review-import-v1",
         confidence: 0.9,
         metadata: { fixture: input.fixture },
+      }),
+    });
+
+    return { corpusId: corpus.id, reviewItemId: result.reviewItemIds[0] };
+  } finally {
+    closeDatabase(db);
+  }
+}
+
+async function importMarkdownTextForReview(input: { text: string; filename: string; fileHash: string }): Promise<{ corpusId: string; reviewItemId: string }> {
+  const storedPath = join(tempDir, input.filename);
+  const bytes = Buffer.from(input.text, "utf8");
+  writeFileSync(storedPath, bytes);
+
+  const db = openTestDatabase();
+
+  try {
+    const corpusRepo = createCorpusRepository(db);
+    const corpus = corpusRepo.getOrCreateDefaultCorpus();
+    const source = corpusRepo.createSource({
+      corpusId: corpus.id,
+      fileHash: input.fileHash,
+      sourceKind: "upload",
+      originalFilename: input.filename,
+      mimeType: "text/markdown",
+      sizeBytes: bytes.length,
+      parserAdapter: markdownImportAdapter.name,
+      parserVersion: markdownImportAdapter.version,
+      importStatus: "queued",
+      storageUri: `file://${storedPath}`,
+    });
+    const importJob = corpusRepo.createImportJob({
+      corpusId: corpus.id,
+      sourceId: source.id,
+      status: "queued",
+      adapter: markdownImportAdapter.name,
+      adapterVersion: markdownImportAdapter.version,
+    });
+
+    const result = await normalizeImportForReview(importJob.id, {
+      suggest: async () => ({
+        suggestionState: "suggested_approve",
+        rationale: "Inline fixture content is inside the test corpus boundary.",
+        model: "test-review-model",
+        promptVersion: "review-import-v1",
+        confidence: 0.9,
       }),
     });
 
@@ -204,6 +251,122 @@ describe("lexical retrieval baseline", () => {
       expect(retrieval.classification).toBe("no_evidence");
       expect(retrieval.noEvidenceReason).toBe("The corpus does not contain enough evidence for this query.");
       expect(retrieval.results).toEqual([]);
+    } finally {
+      closeDatabase(db);
+    }
+  });
+
+  it("builds bounded evidence context records with stable citation ordinals", async () => {
+    const { corpusId, reviewItemId } = await importFixtureForReview({ fixture: "sample.md", adapter: markdownImportAdapter, filename: "context.md" });
+    recordHumanReviewDecision({ reviewItemId, decisionState: "approved", actor: "test-human" });
+
+    const db = openTestDatabase();
+    try {
+      const context = buildGroundedRetrievalContext(db, {
+        corpusId,
+        query: "three brass lamps chalk mark duplicate heading",
+        candidateLimit: 20,
+        maxContextRecords: 2,
+      });
+
+      expect(context.trace.retrievalMode).toBe("lexical-fts-context-v1");
+      expect(context.trace.candidateLimit).toBe(20);
+      expect(context.trace.candidateCount).toBeGreaterThanOrEqual(context.evidence.length);
+      expect(context.evidence).toHaveLength(2);
+      expect(context.evidence.map((record) => record.ordinal)).toEqual([1, 2]);
+      expect(context.evidence[0]).toMatchObject({
+        documentTitle: "Synthetic Field Notes",
+        sourceLabel: "context.md",
+      });
+      expect(context.evidence[0]?.chunkId).toBeTruthy();
+      expect(context.evidence[0]?.documentId).toBeTruthy();
+      expect(context.evidence[0]?.sourceId).toBeTruthy();
+    } finally {
+      closeDatabase(db);
+    }
+  });
+
+  it("ignores conversational stopwords so noun terms still retrieve evidence", async () => {
+    const { corpusId, reviewItemId } = await importMarkdownTextForReview({
+      filename: "goblin-field-guide.md",
+      fileHash: "goblin-field-guide-hash",
+      text: [
+        "---",
+        "title: Goblin Field Guide",
+        "---",
+        "# Goblin Field Guide",
+        "",
+        "Goblins mark narrow tunnels with blue chalk and trade brass buttons at dusk.",
+      ].join("\n"),
+    });
+    recordHumanReviewDecision({ reviewItemId, decisionState: "approved", actor: "test-human" });
+
+    const db = openTestDatabase();
+    try {
+      const context = buildGroundedRetrievalContext(db, {
+        corpusId,
+        query: "tell me about goblins",
+        candidateLimit: 10,
+        maxContextRecords: 3,
+      });
+
+      expect(context.trace).toMatchObject({
+        candidateLimit: 10,
+        candidateCount: 1,
+        finalContextCount: 1,
+      });
+      expect(context.evidence).toHaveLength(1);
+      expect(context.evidence[0]).toMatchObject({
+        ordinal: 1,
+        documentTitle: "Goblin Field Guide",
+        sourceLabel: "goblin-field-guide.md",
+      });
+      expect(context.evidence[0]?.text).toContain("Goblins mark narrow tunnels");
+    } finally {
+      closeDatabase(db);
+    }
+  });
+
+  it("retrieves goblin stat-block hit point evidence for hitpoints questions", async () => {
+    const { corpusId, reviewItemId } = await importMarkdownTextForReview({
+      filename: "goblin-stat-block.md",
+      fileHash: "goblin-stat-block-hash",
+      text: [
+        "---",
+        "title: Skirmisher Notes",
+        "---",
+        "# Skirmisher Notes",
+        "",
+        "## Tunnel Watch",
+        "",
+        "Goblins gather near the east tunnel. A goblin scout taps the wall while another goblin counts buttons.",
+        "The goblin patrol notes are noisy field observations without any combat statistics.",
+        "",
+        "## Stat Block",
+        "",
+        "A goblin skirmisher watches the mushroom gate and keeps a bent copper horn nearby.",
+        "",
+        "Goblin",
+        "Small humanoid, nimble and wary",
+        "Armor Class 14",
+        "Hit Points 7 (2d6)",
+        "Speed 30 ft.",
+        "Nimble Escape. The goblin can duck behind crates after striking.",
+      ].join("\n"),
+    });
+    recordHumanReviewDecision({ reviewItemId, decisionState: "approved", actor: "test-human" });
+
+    const db = openTestDatabase();
+    try {
+      const context = buildGroundedRetrievalContext(db, {
+        corpusId,
+        query: "tell me what the goblin's hitpoints are",
+        candidateLimit: 10,
+        maxContextRecords: 1,
+      });
+
+      expect(context.evidence).toHaveLength(1);
+      expect(context.evidence[0]?.text).toContain("Hit Points 7 (2d6)");
     } finally {
       closeDatabase(db);
     }
