@@ -1,4 +1,5 @@
 import { closeDatabase, openDatabase } from "~/lib/db/connection";
+import type { JsonValue } from "~/lib/db/rows";
 import { runMigrations } from "~/lib/db/migrations";
 import { createCorpusRepository } from "~/lib/corpus/repository";
 import { runOcrJob } from "~/lib/imports/ocr.server";
@@ -26,6 +27,24 @@ const DEFAULT_MAX_ATTEMPTS = 3;
 function configuredMaxAttempts(env: NodeJS.ProcessEnv = process.env): number {
   const parsed = Number(env.IKIS_OCR_WORKER_MAX_ATTEMPTS ?? DEFAULT_MAX_ATTEMPTS);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_ATTEMPTS;
+}
+
+
+function recordWorkerEvent(importJobId: string, input: { eventType: string; message: string; progressPct?: number | null; payload?: JsonValue }): void {
+  const db = openDatabase();
+
+  try {
+    runMigrations(db);
+    const corpusRepo = createCorpusRepository(db);
+
+    if (!corpusRepo.getImportJob(importJobId)) {
+      return;
+    }
+
+    corpusRepo.createImportJobEvent({ importJobId, ...input });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 function isEligibleOcrJob(payload: OcrQueuePayload): { eligible: boolean; reason?: string } {
@@ -69,13 +88,30 @@ export async function processOcrQueuePayload(payload: OcrQueuePayload, options: 
   }
 
   if (!eligibility.eligible) {
+    recordWorkerEvent(payload.jobId, {
+      eventType: "worker_skipped",
+      message: `Worker skipped payload: ${eligibility.reason ?? "not eligible"}.`,
+      payload: { sourceId: payload.sourceId, attempts: payload.attempts, reason: eligibility.reason ?? null },
+    });
     console.info("[ocr-worker] skipped stale job", { jobId: payload.jobId, sourceId: payload.sourceId, reason: eligibility.reason });
     return { processed: false, requeued: false, terminalFailure: false, skippedReason: eligibility.reason };
   }
 
   try {
+    recordWorkerEvent(payload.jobId, {
+      eventType: "worker_dequeued",
+      message: "Background worker dequeued the import job.",
+      progressPct: 35,
+      payload: { sourceId: payload.sourceId, attempts: payload.attempts },
+    });
     console.info("[ocr-worker] dequeued", { jobId: payload.jobId, sourceId: payload.sourceId, attempts: payload.attempts });
     const result = await runBackgroundPdfJob(payload.jobId, options);
+    recordWorkerEvent(payload.jobId, {
+      eventType: "worker_completed",
+      message: `Background worker completed with status ${result.importJob.status}.`,
+      progressPct: 100,
+      payload: { sourceId: payload.sourceId, status: result.importJob.status, reviewItemIds: result.reviewItemIds.length },
+    });
     console.info("[ocr-worker] completed", { jobId: payload.jobId, status: result.importJob.status, reviewItemIds: result.reviewItemIds.length });
     return { processed: true, requeued: false, terminalFailure: false };
   } catch (error) {
@@ -90,12 +126,49 @@ async function requeueOrFail(payload: OcrQueuePayload, options: OcrWorkerOptions
 
   if (nextAttempt < maxAttempts) {
     await options.transport?.enqueue({ ...payload, attempts: nextAttempt, enqueuedAt: new Date().toISOString() });
+    recordWorkerEvent(payload.jobId, {
+      eventType: "worker_requeued",
+      message: `Worker attempt ${nextAttempt} failed and requeued: ${message}`,
+      payload: { sourceId: payload.sourceId, attempts: nextAttempt, error: message },
+    });
     console.warn("[ocr-worker] requeued", { jobId: payload.jobId, sourceId: payload.sourceId, attempts: nextAttempt, error: message });
     return { processed: false, requeued: true, terminalFailure: false };
   }
 
+  persistTerminalFailure(payload.jobId, message);
+  recordWorkerEvent(payload.jobId, {
+    eventType: "worker_terminal_failure",
+    message: `Worker reached terminal failure: ${message}`,
+    progressPct: 100,
+    payload: { sourceId: payload.sourceId, attempts: nextAttempt, error: message },
+  });
   console.error("[ocr-worker] terminal failure", { jobId: payload.jobId, sourceId: payload.sourceId, attempts: nextAttempt, error: message });
   return { processed: false, requeued: false, terminalFailure: true };
+}
+
+function persistTerminalFailure(importJobId: string, message: string): void {
+  const db = openDatabase();
+
+  try {
+    runMigrations(db);
+    const corpusRepo = createCorpusRepository(db);
+    const importJob = corpusRepo.getImportJob(importJobId);
+
+    if (!importJob) {
+      return;
+    }
+
+    const status = importJob.adapter === "pdf-ocr" ? "ocr_failed" : "failed_parse";
+    corpusRepo.updateImportJob({
+      id: importJob.id,
+      status,
+      errors: [message],
+      stats: { ...(importJob.stats && typeof importJob.stats === "object" && !Array.isArray(importJob.stats) ? importJob.stats : {}), workerFailure: message },
+      finishedAt: new Date().toISOString(),
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 async function runBackgroundPdfJob(importJobId: string, options: OcrWorkerOptions): Promise<{ importJob: { status: string }; reviewItemIds: string[] }> {

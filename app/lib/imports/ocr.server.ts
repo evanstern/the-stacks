@@ -476,6 +476,13 @@ export async function runOcrJob(importJobId: string, options: RunOcrJobOptions =
     }
 
     corpusRepo.updateImportJob({ id: importJob.id, status: "ocr_running" });
+    corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "ocr_started",
+      message: `Started OCR for ${source.originalFilename}.`,
+      progressPct: 45,
+      payload: { sourceId: source.id, engine: process.env.IKIS_OCR_ENGINE ?? "local-tesseract-poppler" },
+    });
 
     try {
       const bytes = new Uint8Array(await readFile(pathFromStorageUri(source.storageUri)));
@@ -542,6 +549,13 @@ export async function runOcrJob(importJobId: string, options: RunOcrJobOptions =
         finishedAt: new Date().toISOString(),
       });
       corpusRepo.updateSourceStatus(source.id, "review_needed");
+      corpusRepo.createImportJobEvent({
+        importJobId: importJob.id,
+        eventType: "ocr_completed",
+        message: `OCR completed with status ${ocrStatus}.`,
+        progressPct: 100,
+        payload: { sourceId: source.id, status: ocrStatus, pages: result.pages.length, reviewItemIds: persisted.reviewItemIds.length, suggestionErrors: persisted.suggestionErrors.length },
+      });
 
       return { importJob: updatedJob, reviewItemIds: persisted.reviewItemIds, suggestionErrors: persisted.suggestionErrors };
     } catch (error) {
@@ -571,6 +585,13 @@ export async function runOcrJob(importJobId: string, options: RunOcrJobOptions =
       });
 
       corpusRepo.updateSourceStatus(source.id, "review_needed");
+      corpusRepo.createImportJobEvent({
+        importJobId: importJob.id,
+        eventType: "ocr_failed",
+        message: `OCR failed: ${message}`,
+        progressPct: 100,
+        payload: { sourceId: source.id, reviewItemId: reviewItem.id, error: message },
+      });
 
       return { importJob: failedJob, reviewItemIds: [reviewItem.id], suggestionErrors: [message] };
     }
