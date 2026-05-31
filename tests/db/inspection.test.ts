@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -13,6 +13,7 @@ import {
   getImportInspection,
   getRetrievalTraceInspection,
   getReviewInspection,
+  getSourceInspection,
 } from "../../app/lib/inspection.server.js";
 import { createReviewRepository } from "../../app/lib/review/repository.js";
 
@@ -43,6 +44,8 @@ afterEach(() => {
 
 function seedInspectionRecords() {
   const db = openTestDatabase();
+  const rawSourcePath = join(tempDir, "inspection.md");
+  writeFileSync(rawSourcePath, "# Inspection Fixture\n\nA brass key opens the archive door.");
 
   try {
     const corpusRepo = createCorpusRepository(db);
@@ -59,7 +62,7 @@ function seedInspectionRecords() {
       parserAdapter: "markdown",
       parserVersion: "1.0.0",
       importStatus: "review_needed",
-      storageUri: "file:///tmp/inspection.md",
+      storageUri: `file://${rawSourcePath}`,
       metadata: { sourceId: "fixture-source" },
     });
     const importJob = corpusRepo.createImportJob({
@@ -73,6 +76,13 @@ function seedInspectionRecords() {
       stats: { documents: 1, chunks: 1 },
       startedAt: "2026-05-30T00:00:00.000Z",
       finishedAt: "2026-05-30T00:00:01.000Z",
+    });
+    const importEvent = corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "review_item_created",
+      message: "Created review item for Inspection Fixture.",
+      progressPct: 75,
+      payload: { sourceId: source.id },
     });
     const document = corpusRepo.createDocument({
       corpusId: corpus.id,
@@ -180,7 +190,7 @@ function seedInspectionRecords() {
       outputRefs: { reviewItemId: reviewItem.id, suggestionId: suggestion.id },
     });
 
-    return { importJob, source, document, section, chunk, reviewItem, suggestion, decision, retrievalRun, citation };
+    return { importJob, importEvent, source, document, section, chunk, reviewItem, suggestion, decision, retrievalRun, citation };
   } finally {
     closeDatabase(db);
   }
@@ -198,6 +208,7 @@ describe("audit and inspection data surfaces", () => {
     expect(inspection?.source?.parserVersion).toBe("1.0.0");
     expect(inspection?.documents.map((document) => document.id)).toEqual([seeded.document.id]);
     expect(inspection?.reviewItems.map((item) => item.id)).toEqual([seeded.reviewItem.id]);
+    expect(inspection?.events.map((event) => event.id)).toEqual([seeded.importEvent.id]);
   });
 
   it("resolves review history with suggestions separated from human decisions and workflow IDs", () => {
@@ -229,6 +240,21 @@ describe("audit and inspection data surfaces", () => {
     expect(inspection?.document.provenance).toMatchObject({ importJobId: seeded.importJob.id });
     expect(inspection?.sections.map((section) => section.id)).toEqual([seeded.section.id]);
     expect(inspection?.chunks.map((chunk) => chunk.stableId)).toEqual(["inspection-fixture:0"]);
+  });
+
+  it("resolves source inspection with raw preview, import jobs, documents, sections, chunks, and review items", () => {
+    const seeded = seedInspectionRecords();
+
+    const inspection = getSourceInspection(seeded.source.id);
+
+    expect(inspection?.source.id).toBe(seeded.source.id);
+    expect(inspection?.rawFile.previewText).toContain("A brass key opens the archive door.");
+    expect(inspection?.importJobs.map((job) => job.id)).toEqual([seeded.importJob.id]);
+    expect(inspection?.importJobs[0]?.events.map((event) => event.eventType)).toEqual(["review_item_created"]);
+    expect(inspection?.documents.map((document) => document.id)).toEqual([seeded.document.id]);
+    expect(inspection?.documents[0]?.sections.map((section) => section.id)).toEqual([seeded.section.id]);
+    expect(inspection?.documents[0]?.chunks.map((chunk) => chunk.id)).toEqual([seeded.chunk.id]);
+    expect(inspection?.reviewItems.map((item) => item.id)).toEqual([seeded.reviewItem.id]);
   });
 
   it("resolves retrieval trace with query, chunk scores, answer model, source IDs, and final citations", () => {

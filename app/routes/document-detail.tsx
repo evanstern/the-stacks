@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DetailGrid, JsonCard } from "~/components/inspection/detail-grid";
 import { requireAuthenticated } from "~/lib/auth.server";
+import { formatEasternTime } from "~/lib/display-time";
 import { getDocumentInspection } from "~/lib/inspection.server";
 
 export const meta: Route.MetaFunction = () => [
@@ -66,8 +67,8 @@ export default function DocumentDetail({ loaderData }: Route.ComponentProps) {
             { label: "Content hash", value: document.contentHash },
             { label: "Sections", value: sections.length },
             { label: "Chunks", value: chunks.length },
-            { label: "Created", value: document.createdAt },
-            { label: "Updated", value: document.updatedAt },
+            { label: "Created", value: formatEasternTime(document.createdAt) },
+            { label: "Updated", value: formatEasternTime(document.updatedAt) },
           ]} />
           <blockquote className="mt-5 max-h-96 overflow-auto rounded-3xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 text-sm leading-7 text-[var(--color-card-foreground)]">
             {document.normalizedText}
