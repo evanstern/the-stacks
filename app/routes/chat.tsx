@@ -52,7 +52,7 @@ export async function action({ request }: Route.ActionArgs) {
     return { ok: false, message: "Ask a question before sending." };
   }
 
-  const turn = askGroundedQuestion({ corpusId, conversationId, question });
+  const turn = await askGroundedQuestion({ corpusId, conversationId, question });
 
   return {
     ok: true,

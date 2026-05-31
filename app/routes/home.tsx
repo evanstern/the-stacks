@@ -34,13 +34,15 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const upload = formData.get("source");
+  const requestedPdfExtraction = formData.get("pdfExtraction");
+  const pdfExtraction = requestedPdfExtraction === "docling" ? requestedPdfExtraction : "default";
 
   if (!(upload instanceof File)) {
     return { ok: false, message: "Choose a source file before importing." };
   }
 
   try {
-    const result = await queueUploadImport(upload);
+    const result = await queueUploadImport(upload, { pdfExtraction });
 
     return {
       ok: true,
@@ -123,12 +125,23 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-sm text-[var(--color-muted-foreground)] file:mr-4 file:rounded-full file:border-0 file:bg-[var(--color-secondary)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[var(--color-secondary-foreground)]"
                   />
                 </label>
+                <fieldset className="grid gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 text-sm text-[var(--color-muted-foreground)]">
+                  <legend className="px-1 font-semibold text-[var(--color-card-foreground)]">PDF extraction</legend>
+                  <label className="flex items-center gap-2">
+                    <input name="pdfExtraction" type="radio" value="default" defaultChecked />
+                    Default parser / OCR fallback queue
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input name="pdfExtraction" type="radio" value="docling" />
+                    Docling layout experiment (local 5174 prototype)
+                  </label>
+                </fieldset>
                 <Button data-testid="upload-submit" type="submit" disabled={isUploading}>
                   {isUploading ? "Queueing..." : "Queue import"}
                 </Button>
               </Form>
               <p className="text-sm leading-6 text-[var(--color-muted-foreground)]">
-                Accepts {allowedUploadExtensions.join(", ")} up to {Math.floor(maxUploadBytes / 1024 / 1024)} MB. Uploads are SHA-256 hashed and stored once.
+                Accepts {allowedUploadExtensions.join(", ")} up to {Math.floor(maxUploadBytes / 1024 / 1024)} MB. Uploads are SHA-256 hashed once per parser path.
               </p>
               <div
                 data-testid="import-status"
