@@ -20,6 +20,7 @@ const canonicalTables = [
   "review_suggestions",
   "review_decisions",
   "import_jobs",
+  "import_job_events",
   "conversations",
   "messages",
   "retrieval_runs",
@@ -52,6 +53,7 @@ describe("SQLite schema", () => {
 
     expect(indexes).toContain("idx_sources_corpus_status");
     expect(indexes).toContain("idx_review_items_corpus_status");
+    expect(indexes).toContain("idx_import_job_events_job_created");
     expect(indexes).toContain("idx_retrieval_runs_corpus");
   });
 
@@ -96,6 +98,13 @@ describe("repository round trips", () => {
       stats: { documents: 1 },
     });
     const finishedJob = corpusRepo.updateImportJob({ id: importJob.id, status: "review_needed", finishedAt: "2026-05-29T00:00:00.000Z" });
+    const importEvent = corpusRepo.createImportJobEvent({
+      importJobId: importJob.id,
+      eventType: "queued",
+      message: "Import queued for normalization.",
+      progressPct: 10,
+      payload: { adapter: importJob.adapter },
+    });
 
     const document = corpusRepo.createDocument({
       corpusId: corpus.id,
@@ -198,6 +207,14 @@ describe("repository round trips", () => {
     expect(corpusRepo.listSourcesForCorpus(corpus.id)[0]?.id).toBe(source.id);
     expect(corpusRepo.listImportJobsForCorpus(corpus.id)[0]?.id).toBe(importJob.id);
     expect(corpusRepo.listImportJobsForSource(source.id)[0]?.id).toBe(importJob.id);
+    expect(corpusRepo.getImportJobEvent(importEvent.id)).toMatchObject({
+      importJobId: importJob.id,
+      eventType: "queued",
+      message: "Import queued for normalization.",
+      progressPct: 10,
+      payload: { adapter: "markdown" },
+    });
+    expect(corpusRepo.listImportJobEvents(importJob.id).map((event) => event.id)).toEqual([importEvent.id]);
     expect(finishedJob.status).toBe("review_needed");
     expect(corpusRepo.listDocumentsForCorpus(corpus.id)).toHaveLength(1);
     expect(corpusRepo.listSectionsForDocument(document.id)[0]?.headingPath).toEqual(["Overview"]);
@@ -205,6 +222,7 @@ describe("repository round trips", () => {
     expect(reviewRepo.getReviewItem(reviewItem.id)?.status).toBe("approved");
     expect(reviewRepo.listSuggestions(reviewItem.id)[0]?.id).toBe(suggestion.id);
     expect(reviewRepo.listDecisions(reviewItem.id)[0]?.id).toBe(decision.id);
+    expect(conversationRepo.listConversations()[0]?.id).toBe(conversation.id);
     expect(conversationRepo.listMessages(conversation.id)).toHaveLength(2);
     expect(conversationRepo.getRetrievalRun(retrievalRun.id)?.retrievedChunks).toEqual([chunk.id]);
     expect(conversationRepo.listCitations(retrievalRun.id)[0]?.id).toBe(citation.id);

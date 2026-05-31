@@ -92,6 +92,16 @@ export type ImportJob = {
   updatedAt: string;
 };
 
+export type ImportJobEvent = {
+  id: string;
+  importJobId: string;
+  eventType: string;
+  message: string;
+  progressPct: number | null;
+  payload: JsonValue;
+  createdAt: string;
+};
+
 type Row = Record<string, unknown>;
 
 function mapCorpus(row: Row): Corpus {
@@ -194,6 +204,18 @@ function mapImportJob(row: Row): ImportJob {
     finishedAt: (row.finished_at as string | null) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+  };
+}
+
+function mapImportJobEvent(row: Row): ImportJobEvent {
+  return {
+    id: row.id as string,
+    importJobId: row.import_job_id as string,
+    eventType: row.event_type as string,
+    message: row.message as string,
+    progressPct: (row.progress_pct as number | null) ?? null,
+    payload: parseJson(row.payload_json, {}),
+    createdAt: row.created_at as string,
   };
 }
 
@@ -495,6 +517,31 @@ export function createCorpusRepository(db: Database) {
         input.id,
       );
       return this.getImportJob(input.id)!;
+    },
+
+    createImportJobEvent(input: { id?: string; importJobId: string; eventType: string; message: string; progressPct?: number | null; payload?: JsonValue }): ImportJobEvent {
+      const id = input.id ?? createId("import_event");
+      db.prepare(`
+        INSERT INTO import_job_events (id, import_job_id, event_type, message, progress_pct, payload_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        input.importJobId,
+        input.eventType,
+        input.message,
+        input.progressPct ?? null,
+        stringifyJson(input.payload, {}),
+      );
+      return this.getImportJobEvent(id)!;
+    },
+
+    getImportJobEvent(id: string): ImportJobEvent | null {
+      const row = db.prepare("SELECT * FROM import_job_events WHERE id = ?").get(id) as Row | undefined;
+      return row ? mapImportJobEvent(row) : null;
+    },
+
+    listImportJobEvents(importJobId: string): ImportJobEvent[] {
+      return (db.prepare("SELECT * FROM import_job_events WHERE import_job_id = ? ORDER BY created_at, id").all(importJobId) as Row[]).map(mapImportJobEvent);
     },
   };
 }

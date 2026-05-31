@@ -136,6 +136,16 @@ CREATE TABLE IF NOT EXISTS import_jobs (
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
+CREATE TABLE IF NOT EXISTS import_job_events (
+  id TEXT PRIMARY KEY,
+  import_job_id TEXT NOT NULL REFERENCES import_jobs(id) ON DELETE CASCADE,
+  event_type TEXT NOT NULL,
+  message TEXT NOT NULL,
+  progress_pct INTEGER CHECK (progress_pct IS NULL OR (progress_pct >= 0 AND progress_pct <= 100)),
+  payload_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
 CREATE TABLE IF NOT EXISTS conversations (
   id TEXT PRIMARY KEY,
   corpus_id TEXT NOT NULL REFERENCES corpora(id) ON DELETE CASCADE,
@@ -212,6 +222,7 @@ CREATE INDEX IF NOT EXISTS idx_review_items_corpus_status ON review_items(corpus
 CREATE INDEX IF NOT EXISTS idx_review_suggestions_item ON review_suggestions(review_item_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_review_decisions_item ON review_decisions(review_item_id, decided_at);
 CREATE INDEX IF NOT EXISTS idx_import_jobs_corpus_status ON import_jobs(corpus_id, status);
+CREATE INDEX IF NOT EXISTS idx_import_job_events_job_created ON import_job_events(import_job_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_retrieval_runs_corpus ON retrieval_runs(corpus_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_citations_retrieval ON citations(retrieval_run_id, ordinal);
