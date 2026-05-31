@@ -179,11 +179,13 @@ export async function enqueueOcrJob(importJobId: string, transport: OcrQueueTran
       return { enqueued: false, skippedReason: "missing-import-job" };
     }
 
-    if (importJob.adapter !== "pdf-ocr") {
-      return { enqueued: false, skippedReason: "not-pdf-ocr" };
+    if (importJob.adapter !== "pdf-ocr" && importJob.adapter !== "pdf-docling") {
+      return { enqueued: false, skippedReason: "not-background-pdf-job" };
     }
 
-    if (importJob.status !== "ocr_queued") {
+    const expectedStatus = importJob.adapter === "pdf-ocr" ? "ocr_queued" : "queued";
+
+    if (importJob.status !== expectedStatus) {
       return { enqueued: false, skippedReason: `status-${importJob.status}` };
     }
 

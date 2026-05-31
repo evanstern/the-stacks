@@ -26,6 +26,7 @@ export function openDatabase(path = resolveDatabasePath()): Database {
   }
 
   const db = new DatabaseSync(path);
+  db.exec("PRAGMA busy_timeout = 30000");
   db.exec("PRAGMA foreign_keys = ON");
   db.exec("PRAGMA journal_mode = WAL");
   return db;

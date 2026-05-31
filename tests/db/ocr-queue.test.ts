@@ -62,6 +62,37 @@ function createQueuedOcrJob(): { jobId: string; sourceId: string } {
   }
 }
 
+function createQueuedDoclingJob(): { jobId: string; sourceId: string } {
+  const db = openTestDatabase();
+
+  try {
+    const corpusRepo = createCorpusRepository(db);
+    const corpus = corpusRepo.getOrCreateDefaultCorpus();
+    const source = corpusRepo.createSource({
+      corpusId: corpus.id,
+      fileHash: crypto.randomUUID(),
+      sourceKind: "upload",
+      originalFilename: "layout.pdf",
+      sizeBytes: 10,
+      parserAdapter: "pdf-docling",
+      parserVersion: "upload-v1",
+      importStatus: "queued",
+      storageUri: "file:///tmp/layout.pdf",
+    });
+    const importJob = corpusRepo.createImportJob({
+      corpusId: corpus.id,
+      sourceId: source.id,
+      status: "queued",
+      adapter: "pdf-docling",
+      adapterVersion: "upload-v1",
+    });
+
+    return { jobId: importJob.id, sourceId: source.id };
+  } finally {
+    closeDatabase(db);
+  }
+}
+
 beforeEach(() => {
   tempDir = mkdtempSync(join(tmpdir(), "the-stacks-ocr-queue-"));
   previousDbPath = process.env.THE_STACKS_DB_PATH;
@@ -95,6 +126,43 @@ describe("OCR queue transport", () => {
 
     await expect(enqueueOcrJob(jobId, transport)).resolves.toEqual({ enqueued: false, skippedReason: "status-ocr_running" });
     expect(transport.payloads).toHaveLength(1);
+  });
+
+  it("enqueues queued Docling imports for background processing", async () => {
+    const { jobId, sourceId } = createQueuedDoclingJob();
+    const transport = new MemoryOcrQueueTransport();
+
+    await expect(enqueueOcrJob(jobId, transport)).resolves.toEqual({ enqueued: true });
+    expect(transport.payloads).toMatchObject([{ jobId, sourceId, attempts: 0 }]);
+  });
+
+  it("worker dispatches queued Docling imports through the import normalizer", async () => {
+    const { jobId, sourceId } = createQueuedDoclingJob();
+
+    const result = await processOcrQueuePayload(
+      { jobId, sourceId, attempts: 0, enqueuedAt: new Date().toISOString() },
+      {
+        runImportJob: async (importJobId: string) => {
+          const db = openTestDatabase();
+
+          try {
+            db.exec("BEGIN EXCLUSIVE");
+            db.exec("ROLLBACK");
+          } finally {
+            closeDatabase(db);
+          }
+
+          return {
+            importJob: { id: importJobId, status: "review_needed" } as Awaited<ReturnType<NonNullable<Parameters<typeof processOcrQueuePayload>[1]>["runImportJob"]>>["importJob"],
+            reviewItemIds: ["review-item-docling"],
+            suggestionErrors: [],
+            ocrJobIds: [],
+          };
+        },
+      },
+    );
+
+    expect(result).toEqual({ processed: true, requeued: false, terminalFailure: false });
   });
 
   it("worker drops stale payloads before invoking OCR", async () => {
