@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { closeDatabase, openDatabase, type Database } from "../../app/lib/db/connection.js";
 import { runMigrations } from "../../app/lib/db/migrations.js";
 import { createCorpusRepository } from "../../app/lib/corpus/repository.js";
-import { normalizeImportForReview, recordHumanReviewDecision } from "../../app/lib/review/queue.server.js";
+import { normalizeImportForReview, recordHumanReviewDecision, syncReviewItemRetrievability } from "../../app/lib/review/queue.server.js";
 import { createReviewRepository } from "../../app/lib/review/repository.js";
 
 let tempDir: string;
@@ -135,6 +135,49 @@ describe("review queue path", () => {
       expect(reviewRepo.getReviewItem(queueItem.id)?.status).toBe("deferred");
     } finally {
       closeDatabase(db);
+    }
+  });
+
+  it("can record approval before running retrievability indexing", async () => {
+    const { importJobId, corpusId } = seedImportJob("deferred-index.md");
+    const result = await normalizeImportForReview(importJobId, {
+      suggest: async () => ({
+        suggestionState: "suggested_approve",
+        rationale: "The normalized document is inside the corpus boundary.",
+        model: "test-review-model",
+        promptVersion: "review-import-v1",
+        confidence: 0.82,
+        metadata: { test: true },
+      }),
+    });
+    const reviewItemId = result.reviewItemIds[0];
+
+    const decision = recordHumanReviewDecision({ reviewItemId, decisionState: "approved", actor: "test-human", syncRetrievability: false });
+
+    expect(decision.decisionState).toBe("approved");
+
+    const dbBeforeSync = openTestDatabase();
+    try {
+      const reviewItem = createReviewRepository(dbBeforeSync).getReviewItem(reviewItemId)!;
+      const chunks = createCorpusRepository(dbBeforeSync).listChunksForDocument(reviewItem.targetId);
+
+      expect(reviewItem.corpusId).toBe(corpusId);
+      expect(reviewItem.status).toBe("approved");
+      expect(chunks).toHaveLength(0);
+    } finally {
+      closeDatabase(dbBeforeSync);
+    }
+
+    syncReviewItemRetrievability(reviewItemId);
+
+    const dbAfterSync = openTestDatabase();
+    try {
+      const reviewItem = createReviewRepository(dbAfterSync).getReviewItem(reviewItemId)!;
+      const chunks = createCorpusRepository(dbAfterSync).listChunksForDocument(reviewItem.targetId);
+
+      expect(chunks.length).toBeGreaterThan(0);
+    } finally {
+      closeDatabase(dbAfterSync);
     }
   });
 });

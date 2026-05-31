@@ -5,7 +5,7 @@ import { runMigrations } from "~/lib/db/migrations";
 import type { JsonValue } from "~/lib/db/rows";
 import { syncDocumentRetrievability } from "~/lib/chunks/indexer";
 import { createCorpusRepository, type ImportJob, type Source } from "~/lib/corpus/repository";
-import { docxImportAdapter, epubImportAdapter, markdownImportAdapter, mobiImportAdapter, pdfImportAdapter, textImportAdapter, type ImportAdapter } from "~/lib/imports/adapters";
+import { doclingPdfImportAdapter, docxImportAdapter, epubImportAdapter, markdownImportAdapter, mobiImportAdapter, pdfImportAdapter, textImportAdapter, type ImportAdapter } from "~/lib/imports/adapters";
 import { enqueueOcrJobs } from "~/lib/imports/ocr-queue.server";
 import type { CorpusReadiness, NormalizedDocument } from "~/lib/imports/adapters/types";
 import { uploadAdapterVersion } from "~/lib/imports/upload";
@@ -32,6 +32,7 @@ const adapters: Record<string, ImportAdapter | undefined> = {
   epub: epubImportAdapter,
   mobi: mobiImportAdapter,
   pdf: pdfImportAdapter,
+  "pdf-docling": doclingPdfImportAdapter,
   docx: docxImportAdapter,
 };
 
@@ -84,37 +85,21 @@ function ocrProvenanceForReview(provenance: JsonValue): JsonValue | undefined {
 }
 
 export async function normalizeImportForReview(importJobId: string, options: QueueImportOptions = {}): Promise<QueueImportResult> {
+  const prepared = prepareImportForNormalization(importJobId);
+  const bytes = new Uint8Array(await readFile(pathFromStorageUri(prepared.source)));
+  const normalized = await prepared.adapter.import({ filename: prepared.source.originalFilename, bytes, sourceId: prepared.source.id });
   const db = openDatabase();
 
   try {
     runMigrations(db);
     const corpusRepo = createCorpusRepository(db);
-    const importJob = corpusRepo.getImportJob(importJobId);
-
-    if (!importJob?.sourceId) {
-      throw new Error(`Import job ${importJobId} was not found or has no source.`);
-    }
-
-    const source = corpusRepo.getSource(importJob.sourceId);
-
-    if (!source) {
-      throw new Error(`Source ${importJob.sourceId} was not found.`);
-    }
-
-    const adapter = adapters[source.parserAdapter];
-
-    if (!adapter) {
-      throw new Error(`No normalization adapter registered for ${source.parserAdapter}.`);
-    }
-
-    corpusRepo.updateImportJob({ id: importJob.id, status: "parsing" });
-    const bytes = new Uint8Array(await readFile(pathFromStorageUri(source)));
-    const normalized = await adapter.import({ filename: source.originalFilename, bytes, sourceId: source.id });
+    const importJob = corpusRepo.getImportJob(importJobId) ?? prepared.importJob;
+    const source = corpusRepo.getSource(prepared.source.id) ?? prepared.source;
     const persisted = await persistNormalizedDocumentsForReview(db, {
       source,
       importJob,
-      adapterName: adapter.name,
-      adapterVersion: adapter.version,
+      adapterName: prepared.adapter.name,
+      adapterVersion: prepared.adapter.version,
       documents: normalized.documents,
       options,
     });
@@ -123,8 +108,8 @@ export async function normalizeImportForReview(importJobId: string, options: Que
       .map((document) => {
         const stats = {
           parentImportJobId: importJob.id,
-          parserAdapter: adapter.name,
-          parserAdapterVersion: adapter.version,
+          parserAdapter: prepared.adapter.name,
+          parserAdapterVersion: prepared.adapter.version,
           parserReadiness: document.corpusReadiness ?? null,
         };
 
@@ -165,6 +150,37 @@ export async function normalizeImportForReview(importJobId: string, options: Que
     }
 
     return { importJob: updatedJob, reviewItemIds: persisted.reviewItemIds, suggestionErrors: persisted.suggestionErrors, ocrJobIds };
+  } finally {
+    closeDatabase(db);
+  }
+}
+
+function prepareImportForNormalization(importJobId: string): { importJob: ImportJob; source: Source; adapter: ImportAdapter } {
+  const db = openDatabase();
+
+  try {
+    runMigrations(db);
+    const corpusRepo = createCorpusRepository(db);
+    const importJob = corpusRepo.getImportJob(importJobId);
+
+    if (!importJob?.sourceId) {
+      throw new Error(`Import job ${importJobId} was not found or has no source.`);
+    }
+
+    const source = corpusRepo.getSource(importJob.sourceId);
+
+    if (!source) {
+      throw new Error(`Source ${importJob.sourceId} was not found.`);
+    }
+
+    const adapter = adapters[source.parserAdapter];
+
+    if (!adapter) {
+      throw new Error(`No normalization adapter registered for ${source.parserAdapter}.`);
+    }
+
+    corpusRepo.updateImportJob({ id: importJob.id, status: "parsing" });
+    return { importJob, source, adapter };
   } finally {
     closeDatabase(db);
   }
@@ -305,6 +321,7 @@ export function recordHumanReviewDecision(input: {
   decisionState: ReviewDecision["decisionState"];
   rationale?: string | null;
   actor?: string;
+  syncRetrievability?: boolean;
 }): ReviewDecision {
   const db = openDatabase();
 
@@ -321,13 +338,31 @@ export function recordHumanReviewDecision(input: {
       actor: input.actor ?? "local-admin",
       metadata: { source: "review-queue-ui" },
     });
-    const reviewItem = reviewRepo.getReviewItem(input.reviewItemId);
 
-    if (reviewItem?.targetType === "document") {
-      syncDocumentRetrievability(db, reviewItem.targetId);
+    if (input.syncRetrievability ?? true) {
+      syncReviewItemRetrievabilityWithDatabase(db, input.reviewItemId);
     }
 
     return decision;
+  } finally {
+    closeDatabase(db);
+  }
+}
+
+function syncReviewItemRetrievabilityWithDatabase(db: Database, reviewItemId: string): void {
+  const reviewItem = createReviewRepository(db).getReviewItem(reviewItemId);
+
+  if (reviewItem?.targetType === "document") {
+    syncDocumentRetrievability(db, reviewItem.targetId);
+  }
+}
+
+export function syncReviewItemRetrievability(reviewItemId: string): void {
+  const db = openDatabase();
+
+  try {
+    runMigrations(db);
+    syncReviewItemRetrievabilityWithDatabase(db, reviewItemId);
   } finally {
     closeDatabase(db);
   }

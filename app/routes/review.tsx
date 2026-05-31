@@ -1,4 +1,5 @@
 import { ClipboardCheck, Sparkles } from "lucide-react";
+import { spawn } from "node:child_process";
 import { Form, useActionData, useNavigation } from "react-router";
 
 import type { Route } from "./+types/review";
@@ -39,9 +40,25 @@ export async function action({ request }: Route.ActionArgs) {
     return { ok: false, message: "Choose a review action before submitting." };
   }
 
-  const saved = recordHumanReviewDecision({ reviewItemId, decisionState, actor: "local-admin" });
+  const saved = recordHumanReviewDecision({ reviewItemId, decisionState, actor: "local-admin", syncRetrievability: false });
+
+  startReviewRetrievabilitySync(reviewItemId);
 
   return { ok: true, message: `Human decision recorded: ${saved.decisionState}.`, reviewItemId: saved.reviewItemId };
+}
+
+function startReviewRetrievabilitySync(reviewItemId: string): void {
+  const child = spawn(process.execPath, ["--import", "tsx", "scripts/sync-review-retrievability.ts", reviewItemId], {
+    cwd: process.cwd(),
+    detached: true,
+    stdio: ["ignore", "inherit", "inherit"],
+    env: process.env,
+  });
+
+  child.on("error", (error) => {
+    console.error("[review-indexer] spawn failed", error);
+  });
+  child.unref();
 }
 
 function suggestionLabel(state: string | undefined): string {
