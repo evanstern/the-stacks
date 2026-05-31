@@ -1,65 +1,31 @@
 # The Stacks
 
-> A local-first context library: curated provenance, DB-backed chunks, vector
-> retrieval, lexical search, graph/PPR reranking, and context-pack compilation.
+> Architecture restart in progress.
 
-**Status:** re-chartered. Design contract updated before the next implementation
-slice.
+The previous chat-first Ikis implementation was a successful test bed. It is now
+archived for posterity instead of being the base for the next build.
 
-## Why
+## Archive
 
-Agents do not need a larger haystack. They need the right context bundle for the
-job, with citations and enough structure to explain why each piece is there.
+- Branch: `chat-first-ui`
+- Tag: `archive/chat-first-testbed-2026-05-31`
+- Focus backup: `/home/coda/projects/the-stacks/focus-backups/focus-20260531-162555/.focus`
 
-The Stacks is that bundle-maker. It stores approved public corpus pages and
-chunks in sqlite, indexes them with vectors and transparent lexical scoring,
-uses graph/PPR to rerank and expand around related material, then emits cited
-context packs an agent or human can use.
+## Restart Inputs
 
-The original May 5 roadmap was wiki-over-vanilla-RAG. The current direction is
-sharper: DB-backed context library with vectors, lexical search, graph-ranked
-retrieval, and context packs in v0. MCP comes after the CLI/backend loop proves
-useful.
+The new architecture pass starts from the durable Annie wiki notes:
 
-## Stack
+- `~/agents/annie/wiki/the-stacks-rag-design-sources.md`
+- `~/agents/annie/wiki/the-stacks-architecture-restart-2026-05-31.md`
 
-- **Language:** Go, single binary.
-- **Storage:** sqlite for pages, chunks, provenance, graph edges, and runtime
-  state.
-- **Vectors:** sqlite-local vector index, likely sqlite-vec.
-- **Retrieval:** vector search, lexical baseline, graph/PPR hybrid rerank.
-- **Output:** Markdown and JSON context packs.
-- **Demo corpus:** likely official-tabletop D&D Wikipedia-derived pages from the
-  graduated memory-graph experiment.
+Primary design inputs:
 
-Local-first. DB-backed. No daemon in the local path.
+- Evan's RAG/AI agents PDF URL captured in the wiki.
+- `/home/coda/RAGDESIGN.md`.
 
-## Roadmap
+## Current State
 
-| Milestone | Shape | Done when |
-|-----------|-------|-----------|
-| V0.1 | Corpus ingestion + approval/provenance | approved public corpus pages land in sqlite with audit trail |
-| V0.2 | Chunk DB + vectors + lexical baseline | chunks are searchable by vector and inspectable lexical scores |
-| V0.3 | Graph/PPR hybrid retrieval | graph signal reranks/expands results with visible score components |
-| V0.4 | Context pack compiler | Markdown/JSON packs cite selected chunks for a concrete task |
-| Later | coda-lite MCP | agents mount the proven CLI/backend as a memory/context surface |
+The active Focus board has been reinitialized empty. The repository is cleared
+for a fresh architecture plan before new implementation.
 
-Full design: [`designs/the-stacks.md`](designs/the-stacks.md).
-
-## Non-goals
-
-- Multi-user / multi-tenant service architecture.
-- Cloud-first retrieval or storage.
-- Treating Zach's flat-file experiment as runtime storage.
-- Replacing vectors with graph search. Vectors are required.
-- Preserving the old "no hybrid search in v0" rule. That rule is dead.
-
-## Status board
-
-Project work is tracked with [focus](https://github.com/evanstern/focus) in
-[`.focus/`](.focus/). The old Polymarket/vanilla-RAG cards have been archived;
-the board now tracks the memory-graph direction.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+No runtime stack is expected to be running from this repo right now.
