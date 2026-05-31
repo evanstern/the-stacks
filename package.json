@@ -1,0 +1,47 @@
+{
+  "name": "the-stacks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "db:migrate": "tsx app/lib/db/migrate.ts",
+    "dev": "react-router dev",
+    "ocr:worker": "tsx scripts/ocr-worker.ts",
+    "prestart": "node ./scripts/check-startup-env.mjs",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "test": "node test/run-tests.js",
+    "e2e": "tsx e2e/ikis-flow.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "@react-router/node": "^7.6.0",
+    "@react-router/serve": "^7.6.0",
+    "@tailwindcss/vite": "^4.1.7",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "isbot": "^5.1.27",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "react-router": "^7.6.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^4.1.7",
+    "tsx": "^4.19.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@react-router/dev": "^7.6.0",
+    "@types/node": "^22.15.24",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "playwright": "^1.60.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.1.4"
+  },
+  "packageManager": "pnpm@10.11.0"
+}

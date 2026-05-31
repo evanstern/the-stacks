@@ -1,0 +1,76 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ikis-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ikis
+    restart: unless-stopped
+    depends_on:
+      - redis
+    ports:
+      - "${APP_HOST_PORT:-8423}:3000"
+    environment:
+      NODE_ENV: production
+      IKIS_SHARED_PASSWORD: ${IKIS_SHARED_PASSWORD:?IKIS_SHARED_PASSWORD is required (see docs/deployment.md)}
+      IKIS_AUTH_SECRET: ${IKIS_AUTH_SECRET:?IKIS_AUTH_SECRET is required (see docs/deployment.md)}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8423}
+      THE_STACKS_DB_PATH: /app/data/the-stacks.sqlite
+      IKIS_UPLOAD_DIR: /app/data/uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-25}
+      REDIS_URL: redis://redis:6379/0
+      IKIS_OCR_QUEUE_NAME: ${IKIS_OCR_QUEUE_NAME:-ikis:ocr:jobs}
+      IKIS_OCR_ENGINE: ${IKIS_OCR_ENGINE:-local-tesseract-poppler}
+      IKIS_OCRMYPDF_MODE: ${IKIS_OCRMYPDF_MODE:-force-ocr}
+      IKIS_OCR_LANGUAGE: ${IKIS_OCR_LANGUAGE:-eng}
+      IKIS_OCR_COMMAND_TIMEOUT_MS: ${IKIS_OCR_COMMAND_TIMEOUT_MS:-120000}
+      IKIS_REVIEW_LLM_PROVIDER_KEY: ${IKIS_REVIEW_LLM_PROVIDER_KEY:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER: ${IKIS_GROUNDED_ANSWER_PROVIDER:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER_KEY: ${IKIS_GROUNDED_ANSWER_PROVIDER_KEY:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER_URL: ${IKIS_GROUNDED_ANSWER_PROVIDER_URL:-}
+      IKIS_GROUNDED_ANSWER_MODEL: ${IKIS_GROUNDED_ANSWER_MODEL:-}
+      IKIS_GROUNDED_ANSWER_TIMEOUT_MS: ${IKIS_GROUNDED_ANSWER_TIMEOUT_MS:-15000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+
+  ocr-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ikis-ocr-worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+    command: ["pnpm", "ocr:worker"]
+    environment:
+      NODE_ENV: production
+      IKIS_SHARED_PASSWORD: ${IKIS_SHARED_PASSWORD:?IKIS_SHARED_PASSWORD is required (see docs/deployment.md)}
+      IKIS_AUTH_SECRET: ${IKIS_AUTH_SECRET:?IKIS_AUTH_SECRET is required (see docs/deployment.md)}
+      THE_STACKS_DB_PATH: /app/data/the-stacks.sqlite
+      IKIS_UPLOAD_DIR: /app/data/uploads
+      REDIS_URL: redis://redis:6379/0
+      IKIS_OCR_QUEUE_NAME: ${IKIS_OCR_QUEUE_NAME:-ikis:ocr:jobs}
+      IKIS_OCR_WORKER_MAX_ATTEMPTS: ${IKIS_OCR_WORKER_MAX_ATTEMPTS:-3}
+      IKIS_OCR_ENGINE: ${IKIS_OCR_ENGINE:-local-tesseract-poppler}
+      IKIS_OCRMYPDF_MODE: ${IKIS_OCRMYPDF_MODE:-force-ocr}
+      IKIS_OCR_LANGUAGE: ${IKIS_OCR_LANGUAGE:-eng}
+      IKIS_OCR_COMMAND_TIMEOUT_MS: ${IKIS_OCR_COMMAND_TIMEOUT_MS:-120000}
+      IKIS_REVIEW_LLM_PROVIDER_KEY: ${IKIS_REVIEW_LLM_PROVIDER_KEY:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER: ${IKIS_GROUNDED_ANSWER_PROVIDER:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER_KEY: ${IKIS_GROUNDED_ANSWER_PROVIDER_KEY:-}
+      IKIS_GROUNDED_ANSWER_PROVIDER_URL: ${IKIS_GROUNDED_ANSWER_PROVIDER_URL:-}
+      IKIS_GROUNDED_ANSWER_MODEL: ${IKIS_GROUNDED_ANSWER_MODEL:-}
+      IKIS_GROUNDED_ANSWER_TIMEOUT_MS: ${IKIS_GROUNDED_ANSWER_TIMEOUT_MS:-15000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./data:/app/data
