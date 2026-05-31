@@ -1,0 +1,5 @@
+Synthetic Plain Text Fixture
+
+This public-domain-style text is synthetic and intentionally brief.
+
+The second paragraph gives import adapters enough content to create a stable section without relying on protected source material.

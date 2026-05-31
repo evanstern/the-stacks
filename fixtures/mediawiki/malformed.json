@@ -1,0 +1,4 @@
+{
+  "title": "Malformed Fixture",
+  "page_id": 404,
+  "text": "This JSON intentionally omits its closing brace for failed-parse tests"
