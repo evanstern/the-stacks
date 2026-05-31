@@ -1,40 +1,28 @@
-import { createHash } from "node:crypto";
-
 import type { Database } from "~/lib/db/connection";
 import { closeDatabase, openDatabase } from "~/lib/db/connection";
 import { runMigrations } from "~/lib/db/migrations";
-import { createCorpusRepository, type Chunk, type DocumentRecord, type Source } from "~/lib/corpus/repository";
+import { createCorpusRepository } from "~/lib/corpus/repository";
 import { createConversationRepository, type Citation, type Conversation, type Message, type RetrievalRun } from "~/lib/conversations/repository";
-import { retrieveLexicalChunks, type RetrievalResult } from "~/lib/retrieval/lexical";
+import {
+  createConfiguredGroundedAnswerProvider,
+  insufficientEvidenceAnswer,
+  type GroundedAnswerProvider,
+  type GroundedAnswerResult,
+  type GroundedAnswerValidation,
+  validateGroundedAnswer,
+} from "~/lib/conversations/grounded-answer.server";
+import { runLocalChatAgentTurn } from "~/lib/conversations/agent/local-runner.server";
+import { buildGroundedRetrievalContext } from "~/lib/retrieval/context";
+import {
+  loadPreviewForCitation,
+  persistGroundedConversationTurn,
+  type GroundedConversationTurn,
+  type SourcePreview,
+} from "~/lib/conversations/grounded-turn-persistence.server";
 
-export const insufficientEvidenceAnswer = "The corpus does not contain enough evidence to answer that question.";
-const groundedAnswerModel = "ikis-grounded-extractive-v1";
-const groundedPromptVersion = "grounded-answer-v1";
+export { insufficientEvidenceAnswer } from "~/lib/conversations/grounded-answer.server";
 
-export type SourcePreview = {
-  citationId: string;
-  retrievalRunId: string;
-  ordinal: number;
-  chunkId: string;
-  documentId: string;
-  sourceId: string;
-  documentTitle: string;
-  sourceLabel: string;
-  headingPath: string[];
-  quote: string;
-  score: number | null;
-  previewUrl: string;
-};
-
-export type GroundedConversationTurn = {
-  conversation: Conversation;
-  userMessage: Message;
-  assistantMessage: Message;
-  retrievalRun: RetrievalRun;
-  citations: Citation[];
-  sourcePreviews: SourcePreview[];
-  noEvidence: boolean;
-};
+export type { GroundedConversationTurn, SourcePreview } from "~/lib/conversations/grounded-turn-persistence.server";
 
 export type ConversationTranscript = {
   conversation: Conversation | null;
@@ -44,134 +32,35 @@ export type ConversationTranscript = {
   sourcePreviews: SourcePreview[];
 };
 
-type CitationRecord = {
-  result: RetrievalResult;
-  quote: string;
-  ordinal: number;
-};
-
-type PersistedCitationRecord = CitationRecord & {
-  citation: Citation;
-};
-
-function hashContext(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
-}
-
-function sentenceCandidates(text: string): string[] {
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 0);
-}
-
-function tokenSet(value: string): Set<string> {
-  return new Set(
-    value
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter((token) => token.length >= 3),
-  );
-}
-
-function overlapScore(sentence: string, queryTokens: Set<string>): number {
-  const sentenceTokens = tokenSet(sentence);
-  let score = 0;
-
-  for (const token of queryTokens) {
-    if (sentenceTokens.has(token)) {
-      score += 1;
-    }
-  }
-
-  return score;
-}
-
-function trimQuote(text: string, maxLength = 280): string {
-  const normalized = text.replace(/\s+/g, " ").trim();
-
-  if (normalized.length <= maxLength) {
-    return normalized;
-  }
-
-  return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
-}
-
-function quoteForResult(result: RetrievalResult, query: string): string {
-  const queryTokens = tokenSet(query);
-  const candidates = sentenceCandidates(result.chunk.text);
-  let best = candidates[0] ?? result.chunk.text;
-  let bestScore = -1;
-
-  for (const candidate of candidates) {
-    const score = overlapScore(candidate, queryTokens);
-
-    if (score > bestScore) {
-      best = candidate;
-      bestScore = score;
-    }
-  }
-
-  return trimQuote(best);
-}
-
-function buildCitedAnswer(query: string, records: CitationRecord[]): string {
-  const evidenceLines = records.map((record) => {
-    const citationMark = `[${record.ordinal + 1}]`;
-    return `${citationMark} ${record.quote}`;
-  });
-
-  return [`Based on approved corpus evidence for “${query}”:`, ...evidenceLines].join("\n");
-}
-
-function sourcePreviewUrl(conversationId: string, citation: Citation): string {
-  return `/chat/${encodeURIComponent(conversationId)}/sources/${encodeURIComponent(citation.id)}`;
-}
-
-function toSourcePreview(input: {
-  conversationId: string;
-  citation: Citation;
-  result: { chunk: Chunk; document: DocumentRecord; source: Source };
-}): SourcePreview {
-  return {
-    citationId: input.citation.id,
-    retrievalRunId: input.citation.retrievalRunId,
-    ordinal: input.citation.ordinal,
-    chunkId: input.result.chunk.id,
-    documentId: input.result.document.id,
-    sourceId: input.result.source.id,
-    documentTitle: input.result.document.title,
-    sourceLabel: input.result.source.originalFilename,
-    headingPath: input.result.chunk.headingPath,
-    quote: input.citation.quote ?? trimQuote(input.result.chunk.text),
-    score: input.citation.metadata && typeof input.citation.metadata === "object" && !Array.isArray(input.citation.metadata) && "score" in input.citation.metadata
-      ? Number(input.citation.metadata.score)
-      : null,
-    previewUrl: sourcePreviewUrl(input.conversationId, input.citation),
+export type DirectGroundedConversationTurn = GroundedConversationTurn & {
+  agentContext: {
+    conversationId: string;
+    userMessage: Message;
+    retrievalContext: ReturnType<typeof buildGroundedRetrievalContext>;
+    answerResult: GroundedAnswerResult;
+    validation: GroundedAnswerValidation;
   };
-}
+};
 
-function loadPreviewForCitation(db: Database, conversationId: string, citation: Citation): SourcePreview | null {
-  if (!citation.chunkId || !citation.documentId || !citation.sourceId) {
-    return null;
-  }
-
-  const corpusRepo = createCorpusRepository(db);
-  const chunk = corpusRepo.getChunk(citation.chunkId);
-  const document = corpusRepo.getDocument(citation.documentId);
-  const source = corpusRepo.getSource(citation.sourceId);
-
-  if (!chunk || !document || !source) {
-    return null;
-  }
-
-  return toSourcePreview({ conversationId, citation, result: { chunk, document, source } });
-}
-
-export function answerGroundedQuestion(
+export async function answerGroundedQuestion(
   db: Database,
-  input: { corpusId: string; question: string; conversationId?: string | null },
-): GroundedConversationTurn {
+  input: { corpusId: string; question: string; conversationId?: string | null; answerProvider?: GroundedAnswerProvider },
+): Promise<GroundedConversationTurn> {
+  if (isChatAgentEnabled()) {
+    return runLocalChatAgentTurn(db, input);
+  }
+
+  return answerGroundedQuestionDirect(db, input);
+}
+
+export function isChatAgentEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.IKIS_CHAT_AGENT_ENABLED === "true";
+}
+
+export async function answerGroundedQuestionDirect(
+  db: Database,
+  input: { corpusId: string; question: string; conversationId?: string | null; answerProvider?: GroundedAnswerProvider },
+): Promise<DirectGroundedConversationTurn> {
   const question = input.question.trim();
 
   if (!question) {
@@ -184,101 +73,47 @@ export function answerGroundedQuestion(
     : conversationRepo.createConversation({ corpusId: input.corpusId, title: question.slice(0, 80) });
 
   const userMessage = conversationRepo.addMessage({ conversationId: conversation.id, role: "user", content: question });
-  const retrieval = retrieveLexicalChunks(db, { corpusId: input.corpusId, query: question });
-  const citationRecords: CitationRecord[] = retrieval.results.map((result, index) => ({
-    result,
-    quote: quoteForResult(result, question),
-    ordinal: index,
-  }));
-  const answer = retrieval.classification === "evidence" ? buildCitedAnswer(question, citationRecords) : insufficientEvidenceAnswer;
-  const contextPayload = JSON.stringify({
-    query: question,
-    chunks: citationRecords.map((record) => ({
-      chunkId: record.result.chunk.id,
-      documentId: record.result.document.id,
-      sourceId: record.result.source.id,
-      score: record.result.score,
-      quote: record.quote,
-    })),
-  });
-  const assistantMessage = conversationRepo.addMessage({
-    conversationId: conversation.id,
-    role: "assistant",
-    content: answer,
-    model: groundedAnswerModel,
-    metadata: {
-      noEvidence: retrieval.classification === "no_evidence",
-      promptVersion: groundedPromptVersion,
-      retrievalRunSourceIds: citationRecords.map((record) => record.result.source.id),
-    },
-  });
-  const retrievalRun = conversationRepo.createRetrievalRun({
-    conversationId: conversation.id,
-    messageId: assistantMessage.id,
+  const retrievalContext = buildGroundedRetrievalContext(db, { corpusId: input.corpusId, query: question });
+  const answerProvider = input.answerProvider ?? createConfiguredGroundedAnswerProvider();
+  const answerResult = retrievalContext.evidence.length === 0
+    ? {
+      answer: insufficientEvidenceAnswer,
+      citedOrdinals: [],
+      model: "ikis-grounded-no-evidence-v1",
+      promptVersion: "grounded-answer-v2",
+      metadata: { skipped: "retrieval_returned_no_evidence" },
+    }
+    : await answerProvider({ question, evidence: retrievalContext.evidence });
+  const validation = validateGroundedAnswer({ result: answerResult, evidence: retrievalContext.evidence });
+  const persistedTurn = persistGroundedConversationTurn({
+    db,
     corpusId: input.corpusId,
-    query: question,
-    retrievalMode: "lexical-fts-v1",
-    retrievedChunks: citationRecords.map((record) => record.result.chunk.id),
-    scores: citationRecords.map((record) => ({ chunkId: record.result.chunk.id, score: record.result.score, rank: record.result.rank })),
-    modelInputs: {
-      mode: "extractive-grounded-answer",
-      answerModel: groundedAnswerModel,
-      promptVersion: groundedPromptVersion,
-      sourceIds: citationRecords.map((record) => record.result.source.id),
-      noEvidenceReason: retrieval.noEvidenceReason,
-      context: citationRecords.map((record) => ({
-        chunkId: record.result.chunk.id,
-        documentTitle: record.result.document.title,
-        sourceId: record.result.source.id,
-        sourceLabel: record.result.source.originalFilename,
-        quote: record.quote,
-      })),
-    },
-    promptContextHash: hashContext(contextPayload),
-    finalAnswer: answer,
-    noEvidence: retrieval.classification === "no_evidence",
+    question,
+    conversation,
+    userMessage,
+    retrievalContext,
+    answerResult,
+    validation,
   });
-
-  const persistedCitations: PersistedCitationRecord[] = citationRecords.map((record) => ({
-    ...record,
-    citation: conversationRepo.createCitation({
-      retrievalRunId: retrievalRun.id,
-      messageId: assistantMessage.id,
-      chunkId: record.result.chunk.id,
-      documentId: record.result.document.id,
-      sourceId: record.result.source.id,
-      ordinal: record.ordinal,
-      quote: record.quote,
-      rationale: "Retrieved approved chunk used as answer evidence.",
-      metadata: {
-        score: record.result.score,
-        rank: record.result.rank,
-        stableChunkId: record.result.chunk.stableId,
-      },
-    }),
-  }));
 
   return {
-    conversation: conversationRepo.getConversation(conversation.id) ?? conversation,
-    userMessage,
-    assistantMessage,
-    retrievalRun,
-    citations: persistedCitations.map((record) => record.citation),
-    sourcePreviews: persistedCitations.map((record) => toSourcePreview({
+    ...persistedTurn,
+    agentContext: {
       conversationId: conversation.id,
-      citation: record.citation,
-      result: record.result,
-    })),
-    noEvidence: retrieval.classification === "no_evidence",
+      userMessage,
+      retrievalContext,
+      answerResult,
+      validation,
+    },
   };
 }
 
-export function askGroundedQuestion(input: { corpusId: string; question: string; conversationId?: string | null }): GroundedConversationTurn {
+export async function askGroundedQuestion(input: { corpusId: string; question: string; conversationId?: string | null }): Promise<GroundedConversationTurn> {
   const db = openDatabase();
   runMigrations(db);
 
   try {
-    return answerGroundedQuestion(db, input);
+    return await answerGroundedQuestion(db, input);
   } finally {
     closeDatabase(db);
   }
