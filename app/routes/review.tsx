@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { Form, useActionData, useNavigation } from "react-router";
 
 import type { Route } from "./+types/review";
+import { AppShell } from "~/components/app-shell";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -97,7 +98,8 @@ export default function ReviewQueue({ loaderData }: Route.ComponentProps) {
   const isSubmitting = navigation.state !== "idle";
 
   return (
-    <main className="min-h-screen px-6 py-8 text-[var(--color-foreground)] md:px-10 lg:px-14">
+    <AppShell>
+      <main className="text-[var(--color-foreground)]">
       <section className="mx-auto grid max-w-6xl gap-8">
         <div className="relative overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-panel)] md:p-10">
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[hsl(166_64%_24%_/_0.16)] blur-3xl" />
@@ -113,7 +115,7 @@ export default function ReviewQueue({ loaderData }: Route.ComponentProps) {
               </p>
             </div>
             <Button variant="secondary" asChild>
-              <a href="/">Back to imports</a>
+              <a href="/imports">Back to imports</a>
             </Button>
           </div>
         </div>
@@ -201,6 +203,7 @@ export default function ReviewQueue({ loaderData }: Route.ComponentProps) {
           )}
         </div>
       </section>
-    </main>
+      </main>
+    </AppShell>
   );
 }

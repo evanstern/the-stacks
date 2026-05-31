@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DetailGrid, JsonCard } from "~/components/inspection/detail-grid";
 import { requireAuthenticated } from "~/lib/auth.server";
+import { formatEasternTime } from "~/lib/display-time";
 import { getRetrievalTraceInspection } from "~/lib/inspection.server";
 
 function scoreDetailForChunk(scores: unknown, chunkId: string): string {
@@ -84,7 +85,7 @@ export default function RetrievalTrace({ loaderData }: Route.ComponentProps) {
             { label: "Message ID", value: run.messageId },
             { label: "Conversation ID", value: run.conversationId },
             { label: "Corpus ID", value: run.corpusId },
-            { label: "Created", value: run.createdAt },
+            { label: "Created", value: formatEasternTime(run.createdAt) },
           ]} />
           <blockquote className="mt-5 whitespace-pre-wrap rounded-3xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 text-sm leading-7 text-[var(--color-card-foreground)]">
             {run.finalAnswer ?? "No final answer stored."}

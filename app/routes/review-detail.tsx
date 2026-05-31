@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DetailGrid, JsonCard } from "~/components/inspection/detail-grid";
 import { requireAuthenticated } from "~/lib/auth.server";
+import { formatEasternTime } from "~/lib/display-time";
 import { getReviewInspection } from "~/lib/inspection.server";
 
 export const meta: Route.MetaFunction = () => [
@@ -61,8 +62,8 @@ export default function ReviewDetail({ loaderData }: Route.ComponentProps) {
             { label: "Document", value: document ? <a className="underline decoration-[var(--color-border)] underline-offset-4" href={`/documents/${encodeURIComponent(document.id)}`}>{document.title}</a> : "—" },
             { label: "Source", value: source?.originalFilename },
             { label: "Source ID", value: source?.id },
-            { label: "Created", value: item.createdAt },
-            { label: "Updated", value: item.updatedAt },
+            { label: "Created", value: formatEasternTime(item.createdAt) },
+            { label: "Updated", value: formatEasternTime(item.updatedAt) },
           ]} />
         </Card>
 
@@ -76,7 +77,7 @@ export default function ReviewDetail({ loaderData }: Route.ComponentProps) {
               <div key={suggestion.id} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-sm leading-6 text-[var(--color-muted-foreground)]">
                 <p className="font-semibold text-[var(--color-card-foreground)]">{suggestion.suggestionState}</p>
                 <p className="mt-2">{suggestion.rationale}</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.16em]">suggestion {suggestion.id} · model {suggestion.model} · prompt {suggestion.promptVersion} · confidence {suggestion.confidence ?? "—"} · created {suggestion.createdAt}</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.16em]">suggestion {suggestion.id} · model {suggestion.model} · prompt {suggestion.promptVersion} · confidence {suggestion.confidence ?? "—"} · created {formatEasternTime(suggestion.createdAt)}</p>
                 <pre className="mt-3 max-h-48 overflow-auto rounded-2xl border border-[var(--color-border)] bg-[hsl(41_23%_84%_/_0.42)] p-3 text-xs leading-5">
                   {JSON.stringify(suggestion.metadata, null, 2)}
                 </pre>
