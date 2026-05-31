@@ -13,9 +13,15 @@ export type GroundedAnswerResult = {
   metadata?: JsonValue;
 };
 
+export type GroundedAnswerProviderMessage = {
+  role: "user" | "assistant" | "system";
+  content: string;
+};
+
 export type GroundedAnswerProviderInput = {
   question: string;
   evidence: GroundedEvidenceRecord[];
+  conversationHistory?: GroundedAnswerProviderMessage[];
 };
 
 export type GroundedAnswerProvider = (input: GroundedAnswerProviderInput) => Promise<GroundedAnswerResult>;
@@ -122,6 +128,19 @@ export function validateGroundedAnswer(input: {
   return { accepted: true, noEvidence: false, answer, citedOrdinals, reason: null };
 }
 
+function buildConversationHistoryBlock(input: GroundedAnswerProviderInput): string {
+  const history = input.conversationHistory ?? [];
+
+  if (history.length === 0) {
+    return "Conversation so far: none";
+  }
+
+  return [
+    "Conversation so far, oldest to newest:",
+    ...history.map((message, index) => `${index + 1}. ${message.role}: ${message.content}`),
+  ].join("\n");
+}
+
 function buildEvidencePrompt(input: GroundedAnswerProviderInput): string {
   const evidenceBlock = input.evidence.map((record) => [
     `[${record.ordinal}] ${record.documentTitle}`,
@@ -132,12 +151,13 @@ function buildEvidencePrompt(input: GroundedAnswerProviderInput): string {
 
   return [
     `Prompt version: ${groundedAnswerPromptVersion}`,
-    "Answer the user's question only from the supplied evidence records.",
+    "Answer the user's current question only from the supplied evidence records, using the conversation history to resolve references and follow-ups.",
     `If the evidence is insufficient, return exactly: ${insufficientEvidenceAnswer}`,
     "Cite every factual claim with bracketed evidence numbers like [1].",
     "Do not cite evidence numbers that were not supplied.",
     "Prefer concise RPG-reference prose with short paragraphs or bullets when useful.",
-    `Question: ${input.question}`,
+    buildConversationHistoryBlock(input),
+    `Current question: ${input.question}`,
     `Evidence:\n${evidenceBlock}`,
   ].join("\n\n");
 }

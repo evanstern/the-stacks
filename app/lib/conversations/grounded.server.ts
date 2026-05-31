@@ -7,12 +7,14 @@ import {
   createConfiguredGroundedAnswerProvider,
   insufficientEvidenceAnswer,
   type GroundedAnswerProvider,
+  type GroundedAnswerProviderMessage,
   type GroundedAnswerResult,
   type GroundedAnswerValidation,
   validateGroundedAnswer,
 } from "~/lib/conversations/grounded-answer.server";
 import { runLocalChatAgentTurn } from "~/lib/conversations/agent/local-runner.server";
 import { buildGroundedRetrievalContext } from "~/lib/retrieval/context";
+import { buildHistoryAwareRetrievalQuery } from "~/lib/conversations/history-query.server";
 import {
   loadPreviewForCitation,
   persistGroundedConversationTurn,
@@ -24,12 +26,24 @@ export { insufficientEvidenceAnswer } from "~/lib/conversations/grounded-answer.
 
 export type { GroundedConversationTurn, SourcePreview } from "~/lib/conversations/grounded-turn-persistence.server";
 
+function toProviderHistory(messages: Message[]): GroundedAnswerProviderMessage[] {
+  return messages
+    .flatMap((message): GroundedAnswerProviderMessage[] => {
+      if (message.role !== "user" && message.role !== "assistant" && message.role !== "system") {
+        return [];
+      }
+
+      return [{ role: message.role, content: message.content }];
+    });
+}
+
 export type ConversationTranscript = {
   conversation: Conversation | null;
   messages: Message[];
   latestRun: RetrievalRun | null;
   citations: Citation[];
   sourcePreviews: SourcePreview[];
+  sourcePreviewsByMessageId: Record<string, SourcePreview[]>;
 };
 
 export type DirectGroundedConversationTurn = GroundedConversationTurn & {
@@ -54,7 +68,7 @@ export async function answerGroundedQuestion(
 }
 
 export function isChatAgentEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.IKIS_CHAT_AGENT_ENABLED === "true";
+  return env.IKIS_CHAT_AGENT_ENABLED !== "false";
 }
 
 export async function answerGroundedQuestionDirect(
@@ -72,8 +86,11 @@ export async function answerGroundedQuestionDirect(
     ? conversationRepo.getConversation(input.conversationId) ?? conversationRepo.createConversation({ corpusId: input.corpusId, title: question.slice(0, 80) })
     : conversationRepo.createConversation({ corpusId: input.corpusId, title: question.slice(0, 80) });
 
+  const previousMessages = conversationRepo.listMessages(conversation.id);
   const userMessage = conversationRepo.addMessage({ conversationId: conversation.id, role: "user", content: question });
-  const retrievalContext = buildGroundedRetrievalContext(db, { corpusId: input.corpusId, query: question });
+  const conversationHistory = toProviderHistory([...previousMessages, userMessage]);
+  const retrievalQuery = buildHistoryAwareRetrievalQuery({ question, conversationHistory });
+  const retrievalContext = buildGroundedRetrievalContext(db, { corpusId: input.corpusId, query: retrievalQuery });
   const answerProvider = input.answerProvider ?? createConfiguredGroundedAnswerProvider();
   const answerResult = retrievalContext.evidence.length === 0
     ? {
@@ -83,7 +100,7 @@ export async function answerGroundedQuestionDirect(
       promptVersion: "grounded-answer-v2",
       metadata: { skipped: "retrieval_returned_no_evidence" },
     }
-    : await answerProvider({ question, evidence: retrievalContext.evidence });
+    : await answerProvider({ question, evidence: retrievalContext.evidence, conversationHistory });
   const validation = validateGroundedAnswer({ result: answerResult, evidence: retrievalContext.evidence });
   const persistedTurn = persistGroundedConversationTurn({
     db,
@@ -131,17 +148,29 @@ export function getConversationTranscript(input: { conversationId?: string | nul
       ? db.prepare("SELECT id FROM retrieval_runs WHERE conversation_id = ? ORDER BY created_at DESC LIMIT 1").get(conversation.id) as { id: string } | undefined
       : undefined;
     const retrievalRun = latestRun ? conversationRepo.getRetrievalRun(latestRun.id) : null;
-    const citations = retrievalRun ? conversationRepo.listCitations(retrievalRun.id) : [];
+    const allRunRows = conversation
+      ? db.prepare("SELECT id FROM retrieval_runs WHERE conversation_id = ? ORDER BY created_at").all(conversation.id) as { id: string }[]
+      : [];
+    const citations = allRunRows.flatMap((row) => conversationRepo.listCitations(row.id));
+    const sourcePreviewsByMessageId: Record<string, SourcePreview[]> = {};
+    const sourcePreviews = citations.flatMap((citation) => {
+      const preview = conversation ? loadPreviewForCitation(db, conversation.id, citation) : null;
+
+      if (!preview || !citation.messageId) {
+        return [];
+      }
+
+      sourcePreviewsByMessageId[citation.messageId] = [...(sourcePreviewsByMessageId[citation.messageId] ?? []), preview];
+      return [preview];
+    });
 
     return {
       conversation,
       messages,
       latestRun: retrievalRun,
       citations,
-      sourcePreviews: citations.flatMap((citation) => {
-        const preview = conversation ? loadPreviewForCitation(db, conversation.id, citation) : null;
-        return preview ? [preview] : [];
-      }),
+      sourcePreviews,
+      sourcePreviewsByMessageId,
     };
   } finally {
     closeDatabase(db);

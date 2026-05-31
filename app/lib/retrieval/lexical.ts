@@ -81,7 +81,7 @@ function baseQueryTokens(query: string): string[] {
     .filter((token) => token.length >= 2 && !queryStopwords.has(token));
 }
 
-function tokenizeQuery(query: string): string[] {
+export function tokenizeQuery(query: string): string[] {
   const tokens = baseQueryTokens(query);
 
   return Array.from(new Set(tokens.flatMap((token) => [token, ...(queryAliases.get(token) ?? [])]).filter((token) => !queryStopwords.has(token))));
