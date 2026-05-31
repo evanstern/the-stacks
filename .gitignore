@@ -1,4 +1,7 @@
 build/
 data/
+data-docling/
 node_modules/
 .react-router/
+test-results/
+.env

@@ -27,6 +27,7 @@ COPY tsconfig.json ./tsconfig.json
 COPY app ./app
 COPY scripts/check-startup-env.mjs ./scripts/check-startup-env.mjs
 COPY scripts/ocr-worker.ts ./scripts/ocr-worker.ts
+COPY scripts/sync-review-retrievability.ts ./scripts/sync-review-retrievability.ts
 RUN mkdir -p /app/data/uploads
 EXPOSE 3000
 CMD ["pnpm", "start"]
