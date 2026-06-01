@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
+from app.routes_archives import router as archives_router
 from app.routes_auth import router as auth_router
 from app.routes_ingestion import router as ingestion_router
 from app.routes_records import router as records_router
@@ -23,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(archives_router)
 app.include_router(ingestion_router)
 app.include_router(records_router)
 app.include_router(sessions_router)
