@@ -206,6 +206,73 @@ def test_worker_surfaces_html_parser_warnings_in_events_and_metadata(db_session:
     assert any(event.event_type == "parsing_warnings" for event in events)
 
 
+def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_path: Path) -> None:
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    job = _create_upload_and_job(
+        db_session,
+        tmp_path,
+        "a-world-of-your-own-ddb.html",
+        fixture.read_text(encoding="utf-8"),
+        extension=".html",
+        content_type="text/html",
+    )
+
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
+
+    assert processed is not None
+    assert processed.status == "awaiting_embedding"
+    metadata = json.loads(processed.metadata_json)
+    assert metadata["parser"] == "ddb_saved_html"
+    assert metadata["title"] == "A World of Your Own"
+    assert metadata["book_title"] == "Dungeon Master's Guide"
+    assert metadata["document_title"] == "A World of Your Own"
+    artifact_dir = Path(str(tmp_path / "a-world-of-your-own-ddb.html") + ".artifacts")
+    assert metadata["raw_html_path"] == str(artifact_dir / "raw.html")
+    assert metadata["rendered_html_path"] == str(artifact_dir / "rendered.html")
+    assert metadata["jsonl_path"] == str(artifact_dir / "chunks.jsonl")
+    assert (artifact_dir / "raw.html").read_text(encoding="utf-8") == fixture.read_text(encoding="utf-8")
+    assert (artifact_dir / "rendered.html").is_file()
+    jsonl_records = [json.loads(line) for line in (artifact_dir / "chunks.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert jsonl_records[0]["source_type"] == "ddb_saved_html"
+    assert jsonl_records[0]["book_title"] == "Dungeon Master's Guide"
+    assert jsonl_records[0]["document_title"] == "A World of Your Own"
+    assert jsonl_records[0]["content_chunk_id"] == "chunk-3"
+    assert jsonl_records[0]["content_chunk_ids"] == ["chunk-3"]
+    assert jsonl_records[0]["chunk_index"] == 0
+    assert jsonl_records[0]["heading_level"] == 2
+    assert jsonl_records[0]["heading_id"] == "TheBigPicture"
+    assert jsonl_records[0]["section_path"] == ["A World of Your Own", "The Big Picture"]
+    assert jsonl_records[0]["citation"] == {
+        "label": "The Big Picture",
+        "anchor": "#TheBigPicture",
+        "source_url": "https://www.dndbeyond.com/sources/dnd/synthetic/a-world-of-your-own",
+    }
+    assert 'data-content-chunk-id="chunk-3"' in jsonl_records[0]["html"]
+    manifest = json.loads((artifact_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["parser"] == "ddb_saved_html"
+    assert manifest["book_title"] == "Dungeon Master's Guide"
+    assert manifest["document_title"] == "A World of Your Own"
+
+    chunks = db_session.scalars(
+        select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)
+    ).all()
+    assert len(chunks) == 3
+    chunk_metadata = [json.loads(chunk.metadata_json) for chunk in chunks]
+    assert chunk_metadata[0]["source_type"] == "ddb_saved_html"
+    assert chunk_metadata[0]["book_title"] == "Dungeon Master's Guide"
+    assert chunk_metadata[0]["document_title"] == "A World of Your Own"
+    assert chunk_metadata[0]["raw_sha256"]
+    assert chunk_metadata[0]["raw_html_path"] == str(artifact_dir / "raw.html")
+    assert chunk_metadata[1]["heading_id"] == "TheBigPicture"
+    assert chunk_metadata[1]["section_path"] == ["A World of Your Own", "The Big Picture"]
+    assert "chunk-3" in chunk_metadata[1]["content_chunk_ids"]
+    assert chunk_metadata[2]["citation_anchor"] == "#CoreAssumptions"
+    assert chunk_metadata[2]["heading_level"] == 3
+    assert chunk_metadata[2]["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
+
+
 def _create_upload_and_job(
     db: Session,
     tmp_path: Path,

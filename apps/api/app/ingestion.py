@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
+from app.ddb_import import DDB_PARSER, is_ddb_saved_html, parse_ddb_saved_html, write_ddb_artifacts
 from app.embeddings import EmbeddingClient, get_embedding_client
 from app.models import Document, DocumentChunk, IndexedChunk, IngestionEvent, IngestionJob, Section, Source, Upload, utcnow
 from app.qdrant_index import QdrantIndexer, QdrantPoint, get_qdrant_indexer
@@ -33,6 +34,7 @@ class ParsedSection:
     text: str
     start_char: int
     end_char: int
+    metadata: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,7 @@ class ParsedDocument:
     title: str | None
     sections: list[ParsedSection]
     warnings: list[str] = field(default_factory=list)
+    metadata: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -120,7 +123,8 @@ def parse_document(path: Path, extension: str) -> ParsedDocument:
         return _parse_epub(path)
 
     try:
-        raw_text = path.read_text(encoding="utf-8")
+        raw_bytes = path.read_bytes()
+        raw_text = raw_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ParserError("Uploaded file is not valid UTF-8 text") from exc
     except OSError as exc:
@@ -129,6 +133,8 @@ def parse_document(path: Path, extension: str) -> ParsedDocument:
     if extension in {".md", ".markdown"}:
         return _parse_markdown(raw_text)
     if extension in {".html", ".htm"}:
+        if is_ddb_saved_html(raw_text):
+            return _parse_ddb_html(path, raw_text, raw_bytes)
         return _parse_html(raw_text)
     return _parse_text(raw_text)
 
@@ -153,6 +159,8 @@ def chunk_document(document: ParsedDocument, upload: Upload, job: IngestionJob) 
                 "end_char": section.start_char + end,
                 "token_count_estimate": len(content.split()),
             }
+            _merge_chunk_metadata(metadata, document.metadata)
+            _merge_chunk_metadata(metadata, section.metadata)
             chunks.append(Chunk(content=content, metadata=metadata))
     return chunks
 
@@ -266,12 +274,13 @@ def process_claimed_job(
             source_type=upload.extension.lstrip(".") or "unknown",
             filename=upload.original_filename,
             metadata_json=_to_json(
-                {
-                    "content_type": upload.content_type,
-                    "sha256": upload.sha256,
-                    "parser": document.parser,
-                    "parser_warnings": document.warnings,
-                }
+                _merged_metadata(
+                    document.metadata,
+                    content_type=upload.content_type,
+                    sha256=upload.sha256,
+                    parser=document.parser,
+                    parser_warnings=document.warnings,
+                )
             ),
             chunk_count=len(chunks),
             created_at=utcnow(),
@@ -284,7 +293,9 @@ def process_claimed_job(
             source_id=source.id,
             title=document.title or upload.original_filename,
             ordinal=0,
-            metadata_json=_to_json({"parser": document.parser, "section_count": len(document.sections)}),
+            metadata_json=_to_json(
+                _merged_metadata(document.metadata, parser=document.parser, section_count=len(document.sections))
+            ),
             created_at=utcnow(),
         )
         db.add(canonical_document)
@@ -299,7 +310,9 @@ def process_claimed_job(
                 document_id=canonical_document.id,
                 heading_path=section.heading,
                 ordinal=ordinal,
-                metadata_json=_to_json({"start_char": section.start_char, "end_char": section.end_char}),
+                metadata_json=_to_json(
+                    _merged_metadata(section.metadata, start_char=section.start_char, end_char=section.end_char)
+                ),
                 created_at=utcnow(),
             )
             db.add(canonical_section)
@@ -330,13 +343,14 @@ def process_claimed_job(
 
         job.status = "awaiting_embedding"
         job.metadata_json = _to_json(
-            {
-                "parser": document.parser,
-                "title": document.title,
-                "section_count": len(document.sections),
-                "chunk_count": len(chunks),
-                "parser_warnings": document.warnings,
-            }
+            _merged_metadata(
+                document.metadata,
+                parser=document.parser,
+                title=document.title,
+                section_count=len(document.sections),
+                chunk_count=len(chunks),
+                parser_warnings=document.warnings,
+            )
         )
         job.updated_at = utcnow()
         add_event(db, job, "chunking_completed", "Chunks are ready for embedding", {"chunk_count": len(chunks)})
@@ -613,6 +627,32 @@ def _parse_html(text: str) -> ParsedDocument:
     return ParsedDocument(parser="html", title=title, sections=sections, warnings=parser.warnings)
 
 
+def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes) -> ParsedDocument:
+    try:
+        document = parse_ddb_saved_html(text, raw_bytes)
+        write_ddb_artifacts(document, Path(f"{path}.artifacts"))
+    except ValueError as exc:
+        raise ParserError(str(exc)) from exc
+    except OSError as exc:
+        raise ParserError(f"Could not write DDB import artifacts: {exc}") from exc
+    return ParsedDocument(
+        parser=DDB_PARSER,
+        title=document.title,
+        sections=[
+            ParsedSection(
+                heading=section.heading,
+                text=section.text,
+                start_char=section.start_char,
+                end_char=section.end_char,
+                metadata=section.metadata,
+            )
+            for section in document.sections
+        ],
+        warnings=document.warnings,
+        metadata=document.metadata,
+    )
+
+
 def _parse_epub(path: Path) -> ParsedDocument:
     try:
         raw_bytes = path.read_bytes()
@@ -684,6 +724,19 @@ def _append_section(
 
 def _non_empty_sections(sections: list[ParsedSection]) -> list[ParsedSection]:
     return [section for section in sections if _normalize_whitespace(section.text)]
+
+
+def _merge_chunk_metadata(metadata: dict[str, object], extra: dict[str, object]) -> None:
+    protected_keys = set(metadata)
+    for key, value in extra.items():
+        if key not in protected_keys and value is not None:
+            metadata[key] = value
+
+
+def _merged_metadata(base: dict[str, object], **protected: object) -> dict[str, object]:
+    metadata = {key: value for key, value in base.items() if key not in protected and value is not None}
+    metadata.update(protected)
+    return metadata
 
 
 def _split_text(text: str) -> list[tuple[int, int, str]]:

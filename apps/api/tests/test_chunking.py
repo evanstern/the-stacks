@@ -38,6 +38,50 @@ def test_chunk_document_adds_retrieval_metadata() -> None:
     }
 
 
+def test_chunk_document_preserves_parser_metadata_without_clobbering_base_fields() -> None:
+    upload = Upload(
+        id="upload-1",
+        original_filename="ddb.html",
+        stored_path="/data/uploads/upload-1.html",
+        content_type="text/html",
+        extension=".html",
+        sha256="abc123",
+        size_bytes=42,
+    )
+    job = IngestionJob(id="job-1", upload_id="upload-1", status="chunking")
+    document = ParsedDocument(
+        parser="ddb_saved_html",
+        title="A World of Your Own",
+        metadata={"source_type": "ddb_saved_html", "parser": "should-not-overwrite"},
+        sections=[
+            ParsedSection(
+                heading="The Big Picture",
+                text="A compact synthetic page with preserved metadata.",
+                start_char=100,
+                end_char=148,
+                metadata={
+                    "heading_id": "TheBigPicture",
+                    "section_path": ["A World of Your Own", "The Big Picture"],
+                    "content_chunk_ids": ["chunk-2", "chunk-3"],
+                    "start_char": "should-not-overwrite",
+                    "citation_anchor": "#TheBigPicture",
+                },
+            )
+        ],
+    )
+
+    chunks = chunk_document(document, upload, job)
+
+    assert len(chunks) == 1
+    assert chunks[0].metadata["parser"] == "ddb_saved_html"
+    assert chunks[0].metadata["start_char"] == 100
+    assert chunks[0].metadata["source_type"] == "ddb_saved_html"
+    assert chunks[0].metadata["heading_id"] == "TheBigPicture"
+    assert chunks[0].metadata["section_path"] == ["A World of Your Own", "The Big Picture"]
+    assert chunks[0].metadata["content_chunk_ids"] == ["chunk-2", "chunk-3"]
+    assert chunks[0].metadata["citation_anchor"] == "#TheBigPicture"
+
+
 def test_chunk_document_splits_long_sections_with_stable_indices() -> None:
     upload = Upload(
         id="upload-1",

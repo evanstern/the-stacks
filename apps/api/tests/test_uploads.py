@@ -100,6 +100,21 @@ def test_upload_supported_files_creates_raw_file_and_queued_job(
     assert event.event_type == "queued"
 
 
+def test_upload_accepts_ddb_saved_html_through_generic_html_flow(client: TestClient, db_session: Session) -> None:
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    content = fixture.read_bytes()
+
+    response = client.post("/uploads", files={"file": ("ddb.html", content, "text/html")})
+
+    assert response.status_code == 201
+    payload = response.json()
+    upload = db_session.get(Upload, payload["upload_id"])
+    assert upload is not None
+    assert upload.extension == ".html"
+    assert Path(upload.stored_path).read_bytes() == content
+    assert db_session.get(IngestionJob, payload["job_id"]).status == "queued"
+
+
 @pytest.mark.parametrize(
     ("filename", "content_type"),
     [
