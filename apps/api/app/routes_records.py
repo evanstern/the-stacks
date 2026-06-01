@@ -1,4 +1,5 @@
 import json
+from pathlib import PurePosixPath
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import desc, func, select
@@ -135,7 +136,7 @@ def _job_read(job: IngestionJob) -> IngestionJobRead:
         upload_id=job.upload_id,
         status=job.status,
         error_summary=job.error_summary,
-        metadata=json.loads(job.metadata_json),
+        metadata=_public_metadata(json.loads(job.metadata_json)),
         created_at=job.created_at,
         updated_at=job.updated_at,
     )
@@ -148,7 +149,7 @@ def _chunk_read(chunk: DocumentChunk) -> ChunkRead:
         ingestion_job_id=chunk.ingestion_job_id,
         chunk_index=chunk.chunk_index,
         content=chunk.content,
-        metadata=json.loads(chunk.metadata_json),
+        metadata=_public_metadata(json.loads(chunk.metadata_json)),
         created_at=chunk.created_at,
     )
 
@@ -164,3 +165,35 @@ def _retrieval_run_read(run: RetrievalRun) -> RetrievalRunRead:
         metadata=json.loads(run.metadata_json),
         created_at=run.created_at,
     )
+
+
+INTERNAL_ARCHIVE_METADATA_KEYS = {
+    "archive_manifest_path",
+    "archive_original_dir",
+    "archive_original_path",
+    "archive_original_zip_path",
+    "archive_storage_path",
+    "raw_html_path",
+    "rendered_html_path",
+    "jsonl_path",
+}
+
+
+def _public_metadata(metadata: dict[str, object]) -> dict[str, object]:
+    return {
+        key: value
+        for key, value in metadata.items()
+        if key not in INTERNAL_ARCHIVE_METADATA_KEYS and not _is_internal_archive_path_value(value)
+    }
+
+
+def _is_internal_archive_path_value(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    text = value.strip()
+    if not text:
+        return False
+    if text.startswith(("/", "file://")):
+        return True
+    parts = PurePosixPath(text).parts
+    return "source-archives" in parts and ("original.zip" in parts or "original" in parts or "served" in parts)
