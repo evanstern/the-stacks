@@ -1,31 +1,9 @@
-# Binaries
-/the-stacks
-/cmd/the-stacks/the-stacks
-*.exe
-*.test
-*.out
-
-# Go build artifacts
-/bin/
-/dist/
-vendor/
-
-# sqlite-vec databases
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-stacks.db*
-
-# Local corpora (do not commit)
-/corpus/
-/corpora/
-
-# asciinema recordings — committed under demos/, ignore stray casts
-/*.cast
-
-# Editor / OS
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+dist/
+.vite/
 .DS_Store
-.idea/
-.vscode/
-*.swp
+.omo/evidence/*.log
