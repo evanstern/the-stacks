@@ -1120,6 +1120,65 @@ a {
   margin-bottom: 0.65rem;
 }
 
+.citation-viewer {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--card) 74%, var(--cream));
+  padding: 0.65rem;
+  box-shadow: var(--shadow-inset);
+}
+
+.citation-viewer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.citation-viewer-title {
+  margin-top: 0.2rem;
+  color: var(--foreground);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+  letter-spacing: -0.03em;
+}
+
+.citation-target-pill {
+  flex-shrink: 0;
+  border: 1px solid var(--clay);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--clay-dark);
+  padding: 0.28rem 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.citation-viewer-fallback {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--amber) 52%, var(--border));
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--amber) 15%, var(--cream));
+  color: var(--muted);
+  padding: 0.55rem 0.65rem;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.citation-viewer-frame {
+  width: 100%;
+  min-height: 18rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--cream);
+}
+
 .break-anywhere {
   overflow-wrap: anywhere;
 }

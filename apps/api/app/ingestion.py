@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, uuid4, uuid5
 import zipfile
 
 from sqlalchemy import select
@@ -114,7 +114,21 @@ class _HTMLTextParser(HTMLParser):
             self._buffer.clear()
 
 
-def parse_document(path: Path, extension: str) -> ParsedDocument:
+ARCHIVE_LOCATOR_METADATA_KEYS = (
+    "archive_source_id",
+    "archive_entry_path",
+    "archive_manifest_path",
+    "archive_served_entry_path",
+    "target_chunk_id",
+    "target_selector",
+    "viewer_fragment",
+    "quote",
+    "section_path",
+    "source_url",
+)
+
+
+def parse_document(path: Path, extension: str, metadata: dict[str, object] | None = None) -> ParsedDocument:
     extension = extension.lower()
     if extension not in SUPPORTED_PARSE_EXTENSIONS:
         raise ParserError(f"No parser is available for {extension or 'unknown'} files yet")
@@ -133,6 +147,8 @@ def parse_document(path: Path, extension: str) -> ParsedDocument:
     if extension in {".md", ".markdown"}:
         return _parse_markdown(raw_text)
     if extension in {".html", ".htm"}:
+        if (metadata or {}).get("source_type") == "archived_webpage":
+            return _parse_archived_webpage_html(raw_text, metadata or {})
         if is_ddb_saved_html(raw_text):
             return _parse_ddb_html(path, raw_text, raw_bytes)
         return _parse_html(raw_text)
@@ -242,8 +258,9 @@ def process_claimed_job(
         return job
 
     try:
+        job_metadata = _loads_json(job.metadata_json)
         add_event(db, job, "parsing_started", "Parsing uploaded source", {"extension": upload.extension})
-        document = parse_document(Path(upload.stored_path), upload.extension)
+        document = parse_document(Path(upload.stored_path), upload.extension, job_metadata)
         add_event(
             db,
             job,
@@ -269,13 +286,14 @@ def process_claimed_job(
             raise ParserError("Parsed document did not contain chunkable text")
 
         source = Source(
+            id=str(job_metadata.get("source_id") or uuid4()),
             upload_id=upload.id,
             title=document.title or upload.original_filename,
-            source_type=upload.extension.lstrip(".") or "unknown",
+            source_type=str(job_metadata.get("source_type") or upload.extension.lstrip(".") or "unknown"),
             filename=upload.original_filename,
             metadata_json=_to_json(
                 _merged_metadata(
-                    document.metadata,
+                    _merged_metadata(document.metadata, **job_metadata),
                     content_type=upload.content_type,
                     sha256=upload.sha256,
                     parser=document.parser,
@@ -344,7 +362,7 @@ def process_claimed_job(
         job.status = "awaiting_embedding"
         job.metadata_json = _to_json(
             _merged_metadata(
-                document.metadata,
+                _merged_metadata(document.metadata, **job_metadata),
                 parser=document.parser,
                 title=document.title,
                 section_count=len(document.sections),
@@ -535,12 +553,23 @@ def _qdrant_points(
             "chunk_index": chunk.chunk_index,
             "ingestion_job_id": chunk.ingestion_job_id,
         }
+        payload.update(_archive_locator_metadata(metadata))
         points.append(QdrantPoint(id=point_id, vector=vector, payload=payload))
     return points
 
 
 def deterministic_point_id(chunk: DocumentChunk) -> str:
     return str(uuid5(NAMESPACE_URL, f"thestacks:{chunk.upload_id}:{chunk.ingestion_job_id}:{chunk.id}"))
+
+
+def _archive_locator_metadata(metadata: dict[str, object]) -> dict[str, object]:
+    if metadata.get("source_type") != "archived_webpage":
+        return {}
+    return {
+        key: metadata[key]
+        for key in ARCHIVE_LOCATOR_METADATA_KEYS
+        if key in metadata and metadata[key] not in (None, "", [])
+    }
 
 
 def _record_indexed_chunks(
@@ -568,12 +597,19 @@ def _record_indexed_chunks(
 
 
 def _merge_json(existing: str, updates: dict[str, object]) -> str:
+    payload = _loads_json(existing)
+    payload.update(updates)
+    return _to_json(payload)
+
+
+def _loads_json(existing: str) -> dict[str, object]:
     try:
         payload = json.loads(existing or "{}")
     except json.JSONDecodeError:
-        payload = {}
-    payload.update(updates)
-    return _to_json(payload)
+        return {}
+    if isinstance(payload, dict):
+        return payload
+    return {}
 
 
 def _parse_markdown(text: str) -> ParsedDocument:
@@ -625,6 +661,95 @@ def _parse_html(text: str) -> ParsedDocument:
     if not sections:
         raise ParserError("HTML document did not contain readable text")
     return ParsedDocument(parser="html", title=title, sections=sections, warnings=parser.warnings)
+
+
+def _parse_archived_webpage_html(text: str, metadata: dict[str, object]) -> ParsedDocument:
+    document = _parse_html(text)
+    anchor_map = _load_archive_anchor_map(metadata)
+    anchors = _archive_anchors(anchor_map)
+    source_id = str(metadata.get("source_id") or anchor_map.get("source_id") or "")
+    entry_path = str(metadata.get("archive_entry_path") or metadata.get("archive_primary_html_path") or anchor_map.get("source_path") or "")
+    served_entry_path = str(metadata.get("archive_served_entry_path") or metadata.get("archive_served_html_path") or entry_path)
+    manifest_path = str(metadata.get("archive_manifest_path") or "")
+    base_metadata: dict[str, object] = {
+        "source_type": "archived_webpage",
+        "archive_source_id": source_id,
+        "archive_entry_path": entry_path,
+        "archive_manifest_path": manifest_path,
+        "archive_served_entry_path": served_entry_path,
+    }
+    if metadata.get("source_url"):
+        base_metadata["source_url"] = metadata["source_url"]
+
+    warnings = list(document.warnings)
+    if not anchors:
+        warnings.append("Archive anchor map did not contain citation targets")
+
+    sections: list[ParsedSection] = []
+    for section in document.sections:
+        locator = _match_archive_anchor(section, anchors)
+        section_metadata = dict(base_metadata)
+        if locator:
+            section_metadata.update(locator)
+        sections.append(
+            ParsedSection(
+                heading=section.heading,
+                text=section.text,
+                start_char=section.start_char,
+                end_char=section.end_char,
+                metadata=section_metadata,
+            )
+        )
+    return ParsedDocument(
+        parser="archived_webpage",
+        title=document.title,
+        sections=sections,
+        warnings=warnings,
+        metadata=base_metadata,
+    )
+
+
+def _load_archive_anchor_map(metadata: dict[str, object]) -> dict[str, object]:
+    anchor_map_path = metadata.get("archive_anchor_map_path")
+    manifest_path = metadata.get("archive_manifest_path")
+    if not anchor_map_path or not manifest_path:
+        return {}
+    try:
+        path = Path(str(manifest_path)).parent / str(anchor_map_path)
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _archive_anchors(anchor_map: dict[str, object]) -> list[dict[str, object]]:
+    anchors = anchor_map.get("anchors")
+    if not isinstance(anchors, list):
+        return []
+    return [anchor for anchor in anchors if isinstance(anchor, dict)]
+
+
+def _match_archive_anchor(section: ParsedSection, anchors: list[dict[str, object]]) -> dict[str, object]:
+    section_text = _normalize_whitespace(section.text)
+    for anchor in anchors:
+        quote = str(anchor.get("quote") or "")
+        normalized_quote = _normalize_whitespace(quote)
+        if normalized_quote and (normalized_quote in section_text or section_text in normalized_quote):
+            return _archive_anchor_metadata(anchor)
+    return {}
+
+
+def _archive_anchor_metadata(anchor: dict[str, object]) -> dict[str, object]:
+    heading_path = anchor.get("heading_path")
+    section_path = heading_path if isinstance(heading_path, list) else []
+    metadata: dict[str, object] = {
+        "target_chunk_id": anchor.get("chunk_id"),
+        "target_selector": anchor.get("selector"),
+        "viewer_fragment": anchor.get("viewer_fragment"),
+        "quote": anchor.get("quote"),
+        "section_path": section_path,
+    }
+    return {key: value for key, value in metadata.items() if value is not None}
 
 
 def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes) -> ParsedDocument:

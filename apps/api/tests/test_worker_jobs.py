@@ -1,6 +1,8 @@
 import json
 import importlib.util
+import io
 import os
+import zipfile
 from collections.abc import Generator
 from pathlib import Path
 from textwrap import dedent
@@ -168,7 +170,9 @@ def test_worker_entrypoint_uses_full_drain_helper(db_session: Session, tmp_path:
 def test_worker_marks_parser_failures_failed_with_event(db_session: Session, tmp_path: Path) -> None:
     job = _create_upload_and_job(db_session, tmp_path, "book.epub", "placeholder", extension=".epub")
 
-    processed = process_next_job(db_session)
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
 
     assert processed is not None
     assert processed.status == "failed"
@@ -273,6 +277,91 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert chunk_metadata[2]["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
 
 
+def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_session: Session, tmp_path: Path) -> None:
+    from app.archive_storage import store_source_archive
+    from app.config import Settings
+
+    source_id = "archive-source-worker"
+    archive = store_source_archive(
+        source_id=source_id,
+        original_filename="saved-page.zip",
+        content=_zip_bytes(
+            {
+                "page.html": b"""
+                <html>
+                  <head>
+                    <title>Archive title</title>
+                    <link rel="canonical" href="https://example.test/archive-source">
+                  </head>
+                  <body><h1>Archive heading</h1><script>bad()</script><p onclick="bad()">Safe archive quote.</p></body>
+                </html>
+                """,
+            }
+        ),
+        settings=Settings(UPLOAD_DIR=str(tmp_path / "uploads")),
+    )
+    upload = Upload(
+        original_filename="saved-page.zip",
+        stored_path=str(archive.served_html_path),
+        content_type="application/zip",
+        extension=".html",
+        sha256="zip-sha",
+        size_bytes=1,
+        created_at=utcnow(),
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job_metadata = {
+        "source_id": source_id,
+        "source_type": "archived_webpage",
+        "archive_manifest_path": str(archive.manifest_path),
+        "archive_entry_path": "page.html",
+        "archive_primary_html_path": "page.html",
+        "archive_served_entry_path": "page.html",
+        "archive_served_html_path": "page.html",
+        "archive_anchor_map_path": "anchor-map.json",
+        "source_url": archive.manifest["source_url"],
+    }
+    job = IngestionJob(
+        upload_id=upload.id,
+        status="queued",
+        metadata_json=json.dumps(job_metadata),
+        created_at=utcnow(),
+        updated_at=utcnow(),
+    )
+    db_session.add(job)
+    db_session.flush()
+    add_event(db_session, job, "queued", "Upload queued for ingestion", {"status": "queued"})
+    db_session.commit()
+
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
+
+    assert processed is not None
+    assert processed.status == "awaiting_embedding"
+    source = db_session.get(Source, source_id)
+    assert source is not None
+    assert source.source_type == "archived_webpage"
+    chunk = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).one()
+    assert chunk.content == "Safe archive quote."
+    assert "bad()" not in chunk.content
+    metadata = json.loads(chunk.metadata_json)
+    assert metadata["parser"] == "archived_webpage"
+    assert metadata["source_type"] == "archived_webpage"
+    assert metadata["archive_source_id"] == source_id
+    assert metadata["archive_entry_path"] == "page.html"
+    assert metadata["archive_served_entry_path"] == "page.html"
+    assert metadata["archive_manifest_path"] == str(archive.manifest_path)
+    assert metadata["target_chunk_id"].startswith("archive-")
+    target_chunk_id = metadata["target_chunk_id"]
+    assert metadata["target_selector"] == f'[data-source-chunk-id="{target_chunk_id}"]'
+    assert metadata["viewer_fragment"] == f"#source-chunk-{target_chunk_id}"
+    assert metadata["quote"] == "Safe archive quote."
+    assert metadata["section_path"] == ["Archive heading"]
+    assert metadata["source_url"] == "https://example.test/archive-source"
+
+
 def _create_upload_and_job(
     db: Session,
     tmp_path: Path,
@@ -309,3 +398,11 @@ def _event_types(db: Session, job_id: str) -> list[str]:
         select(IngestionEvent).where(IngestionEvent.ingestion_job_id == job_id).order_by(IngestionEvent.created_at)
     ).all()
     return [event.event_type for event in events]
+
+
+def _zip_bytes(entries: dict[str, bytes]) -> bytes:
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for name, content in entries.items():
+            zip_file.writestr(name, content)
+    return archive.getvalue()

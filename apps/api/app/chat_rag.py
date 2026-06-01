@@ -3,6 +3,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TypedDict
+from urllib.parse import quote
 
 import httpx
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -343,6 +344,8 @@ def _context_index_from_numeric_marker(token: int, zero_marker_seen: bool) -> in
 def _has_unsupported_citation_placement(answer: str) -> bool:
     if not answer.strip():
         return True
+    if _has_duplicate_adjacent_citation_marker(answer):
+        return True
     for line in answer.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("```"):
@@ -351,6 +354,18 @@ def _has_unsupported_citation_placement(answer: str) -> bool:
             continue
         if _contains_invalid_bracket_token(stripped):
             return True
+    return False
+
+
+def _has_duplicate_adjacent_citation_marker(answer: str) -> bool:
+    previous_label: str | None = None
+    previous_end = -1
+    for match in _CITATION_MARKER_RE.finditer(answer):
+        label = match.group(1)
+        if label == previous_label and answer[previous_end : match.start()].strip() == "":
+            return True
+        previous_label = label
+        previous_end = match.end()
     return False
 
 
@@ -433,7 +448,83 @@ def _citation_markers_match_contexts(answer: str, cited_contexts: Sequence[Conte
 def _citation_metadata(context: ContextChunk) -> dict[str, object]:
     metadata = dict(context.metadata)
     metadata["cited_text"] = context.content
+    if metadata.get("source_type") == "archived_webpage":
+        metadata = _archive_citation_metadata(metadata, context.content)
     return metadata
+
+
+def _archive_citation_metadata(metadata: dict[str, object], content: str) -> dict[str, object]:
+    archive_metadata = {key: value for key, value in metadata.items() if key not in _ARCHIVE_CITATION_INTERNAL_KEYS}
+    source_id = _metadata_text(metadata, "archive_source_id")
+    target_chunk_id = _metadata_text(metadata, "target_chunk_id")
+    target_selector = _metadata_text(metadata, "target_selector")
+    quote_text = _metadata_text(metadata, "quote") or content
+    section_path = metadata.get("section_path")
+
+    archive_metadata["source_type"] = "archived_webpage"
+    archive_metadata["source_title"] = _archive_source_title(metadata)
+    if source_id:
+        archive_metadata["viewer_url"] = _archive_viewer_url(source_id, target_chunk_id, target_selector)
+    if target_chunk_id:
+        archive_metadata["target_chunk_id"] = target_chunk_id
+    if target_selector:
+        archive_metadata["target_selector"] = target_selector
+    archive_metadata["quote"] = quote_text
+    if isinstance(section_path, list):
+        archive_metadata["section_path"] = [str(part) for part in section_path]
+    elif isinstance(section_path, str):
+        archive_metadata["section_path"] = section_path
+    else:
+        archive_metadata["section_path"] = []
+    archive_metadata["cited_text"] = content
+    return archive_metadata
+
+
+def _archive_source_title(metadata: dict[str, object]) -> str:
+    for key in ("source_title", "document_title", "book_title", "source_filename"):
+        value = _metadata_text(metadata, key)
+        if value:
+            return value
+    return "Archived webpage"
+
+
+def _archive_viewer_url(source_id: str, target_chunk_id: str | None, target_selector: str | None) -> str:
+    target = target_chunk_id or _target_from_selector(target_selector)
+    url = f"/records/sources/{quote(source_id, safe='')}/archive/viewer"
+    if target:
+        return f"{url}?target={quote(target, safe='')}"
+    return url
+
+
+def _target_from_selector(target_selector: str | None) -> str | None:
+    if target_selector is None:
+        return None
+    selector = target_selector.strip()
+    if selector.startswith("#"):
+        return selector[1:]
+    return None
+
+
+def _metadata_text(metadata: dict[str, object], key: str) -> str | None:
+    value = metadata.get(key)
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    return text or None
+
+
+_ARCHIVE_CITATION_INTERNAL_KEYS = {
+    "archive_anchor_map_path",
+    "archive_entry_path",
+    "archive_manifest_path",
+    "archive_original_path",
+    "archive_served_entry_path",
+    "archive_served_html_path",
+    "archive_storage_path",
+    "jsonl_path",
+    "raw_html_path",
+    "rendered_html_path",
+}
 
 
 def _context_identity_key(context: ContextChunk) -> tuple[str, ...]:

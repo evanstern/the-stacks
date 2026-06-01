@@ -76,6 +76,79 @@ def test_post_session_message_returns_grounded_answer_shape(db_session: Session)
     assert payload["no_evidence"] is False
 
 
+def test_post_session_message_returns_archive_viewer_citation_metadata(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Archive goblins prefer moonlit ruins.", filename="archive.zip")
+    chunk.metadata_json = json.dumps(
+        {
+            **json.loads(chunk.metadata_json),
+            "source_type": "archived_webpage",
+            "archive_source_id": chunk.source_id,
+            "source_title": "Moonlit Goblin Archive",
+            "target_chunk_id": "archive-target-123",
+            "target_selector": "#source-chunk-archive-target-123",
+            "quote": "Archive goblins prefer moonlit ruins.",
+            "section_path": ["Bestiary", "Goblins"],
+            "archive_entry_path": "original/index.html",
+            "archive_served_entry_path": "served/index.html",
+            "archive_manifest_path": "source-archives/source-id/manifest.json",
+            "raw_html_path": "/tmp/source-archives/source-id/original/index.html",
+        },
+        sort_keys=True,
+    )
+    db_session.commit()
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Archive goblins prefer moonlit ruins. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Where do archive goblins lair?"})
+
+    assert response.status_code == 200
+    citation = response.json()["assistant_message"]["citations"][0]
+    metadata = citation["metadata"]
+
+    assert citation["document_chunk_id"] == chunk.id
+    assert metadata["source_type"] == "archived_webpage"
+    assert metadata["source_title"] == "Moonlit Goblin Archive"
+    assert metadata["viewer_url"] == f"/records/sources/{chunk.source_id}/archive/viewer?target=archive-target-123"
+    assert metadata["target_chunk_id"] == "archive-target-123"
+    assert metadata["target_selector"] == "#source-chunk-archive-target-123"
+    assert metadata["quote"] == "Archive goblins prefer moonlit ruins."
+    assert metadata["section_path"] == ["Bestiary", "Goblins"]
+    assert metadata["cited_text"] == "Archive goblins prefer moonlit ruins."
+    assert metadata["source_filename"] == "archive.zip"
+    assert "archive_entry_path" not in metadata
+    assert "archive_served_entry_path" not in metadata
+    assert "archive_manifest_path" not in metadata
+    assert "raw_html_path" not in metadata
+    assert "original/index.html" not in json.dumps(metadata)
+    assert "/tmp/" not in json.dumps(metadata)
+
+
+def test_post_session_message_keeps_non_archive_citation_metadata_compatible(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Plain goblins prefer caves.", filename="plain.html", section="Bestiary")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Plain goblins prefer caves. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Where do plain goblins lair?"})
+
+    assert response.status_code == 200
+    citation = response.json()["assistant_message"]["citations"][0]
+    metadata = citation["metadata"]
+
+    assert citation["document_chunk_id"] == chunk.id
+    assert metadata["source_filename"] == "plain.html"
+    assert metadata["section_heading"] == "Bestiary"
+    assert metadata["cited_text"] == "Plain goblins prefer caves."
+    assert "viewer_url" not in metadata
+    assert "target_chunk_id" not in metadata
+    assert "target_selector" not in metadata
+
+
 def test_post_session_message_returns_service_error_for_embedding_failure(db_session: Session) -> None:
     class FailingEmbeddingClient(FakeEmbeddingClient):
         def embed_texts(self, texts):
