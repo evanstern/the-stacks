@@ -10,6 +10,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY apps/api/app ./app
 COPY apps/worker/worker.py .
-COPY apps/worker/tests ./tests
 
 CMD ["python", "worker.py"]

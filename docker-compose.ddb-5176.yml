@@ -1,0 +1,135 @@
+name: the-stacks-ddb-5176
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: thestacks
+      POSTGRES_USER: thestacks
+      POSTGRES_PASSWORD: thestacks
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thestacks -d thestacks"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.5
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6336:6333"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/6333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    profiles:
+      - admin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@thestacks.local
+      PGADMIN_DEFAULT_PASSWORD: admin-password
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "127.0.0.1:5056:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ./apps/api
+    env_file:
+      - .env.example
+      - .env.ddb-5176
+    environment:
+      DATABASE_URL: postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks
+      ADMIN_PASSWORD_HASH: ${SMOKE_ADMIN_PASSWORD_HASH:-$$2b$$12$$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2}
+      SESSION_SECRET: ${SMOKE_SESSION_SECRET:-local-dev-session-secret-change-me}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-thestacks_ddb_5176_chunks}
+      RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
+      UPLOAD_DIR: /data/uploads
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5176,http://127.0.0.1:5176}
+    ports:
+      - "8016:8000"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health').read()"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    env_file:
+      - .env.example
+      - .env.ddb-5176
+    environment:
+      DATABASE_URL: postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-thestacks_ddb_5176_chunks}
+      RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
+      UPLOAD_DIR: /data/uploads
+      WORKER_POLL_SECONDS: ${WORKER_POLL_SECONDS:-5}
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pathlib; pathlib.Path('/data/uploads').mkdir(parents=True, exist_ok=True)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: ./apps/web
+    environment:
+      VITE_API_URL: http://localhost:8016
+    ports:
+      - "5176:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  postgres-data:
+    name: the-stacks-ddb-5176-postgres-data
+  qdrant-data:
+    name: the-stacks-ddb-5176-qdrant-data
+  uploads:
+    name: the-stacks-ddb-5176-uploads
+  pgadmin-data:
+    name: the-stacks-ddb-5176-pgadmin-data
