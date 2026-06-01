@@ -48,6 +48,7 @@ ALLOWED_ASSET_EXTENSIONS = {
 }
 ALLOWED_EXTENSIONS = HTML_EXTENSIONS | ALLOWED_ASSET_EXTENSIONS
 EXTENSIONLESS_ASSET_MIME_TYPE = "application/octet-stream"
+ALLOWED_METADATA_FILENAMES = {".DS_Store"}
 ALLOWED_MIME_PREFIXES = {"image/", "font/", "text/"}
 ALLOWED_MIME_TYPES = {
     "application/font-woff",
@@ -536,7 +537,7 @@ def _validate_zip_archive(content: bytes, settings: Settings) -> _ArchiveValidat
                 extracted_size = 0
                 for info in entries:
                     extension = Path(info.filename).suffix.lower()
-                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename):
+                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename) and not _is_allowed_metadata_entry(info.filename):
                         raise ArchiveValidationError(f"Archive entry has a disallowed extension: {info.filename}")
                     mime_type = _validate_entry_mime(info.filename)
                     extracted_size += info.file_size
@@ -589,7 +590,7 @@ def _validate_entry_mime(filename: str) -> str:
 
 
 def _archive_entry_mime(filename: str) -> str | None:
-    if _is_extensionless_archive_asset(filename):
+    if _is_extensionless_archive_asset(filename) or _is_allowed_metadata_entry(filename):
         return EXTENSIONLESS_ASSET_MIME_TYPE
     return mimetypes.guess_type(filename)[0]
 
@@ -598,6 +599,10 @@ def _is_extensionless_archive_asset(filename: str) -> bool:
     path = PurePosixPath(filename)
     name = path.name
     return bool(path.parent.name.endswith("_files") and name and not name.startswith(".") and Path(name).suffix == "")
+
+
+def _is_allowed_metadata_entry(filename: str) -> bool:
+    return PurePosixPath(filename).name in ALLOWED_METADATA_FILENAMES
 
 
 def _is_zip_bomb_candidate(info: zipfile.ZipInfo) -> bool:

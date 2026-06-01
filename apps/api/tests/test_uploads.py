@@ -308,6 +308,32 @@ def test_archive_served_html_rewrites_assets_and_creates_anchor_map(
     assert asset_response.text == "body { color: black; }"
 
 
+def test_upload_allows_macos_ds_store_archive_entries(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    content = _zip_bytes(
+        {
+            "A/.DS_Store": b"mac metadata",
+            "A/page.html": b"<html><body><h1>Saved page</h1><p>Hello archive.</p></body></html>",
+        }
+    )
+
+    response = client.post("/uploads", files={"file": ("saved-page.zip", content, "application/zip")})
+
+    assert response.status_code == 201
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert job is not None
+    source_id = json.loads(job.metadata_json)["source_id"]
+    archive_root = tmp_path / "uploads" / "source-archives" / source_id
+    assert (archive_root / "original" / "A" / ".DS_Store").read_bytes() == b"mac metadata"
+
+    manifest = json.loads((archive_root / "manifest.json").read_text(encoding="utf-8"))
+    manifest_entry = next(entry for entry in manifest["entries"] if entry["path"] == "A/.DS_Store")
+    assert manifest_entry["mime_type"] == "application/octet-stream"
+
+
 def test_upload_allows_extensionless_browser_saved_assets(
     client: TestClient,
     db_session: Session,
@@ -531,6 +557,7 @@ def test_archive_served_html_strips_dangerous_content_and_external_references(
         ({"../evil.html": b"<html></html>"}, "unsafe entry path"),
         ({"/evil.html": b"<html></html>"}, "unsafe entry path"),
         ({"assets/file.exe": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
+        ({"A/.env": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
         ({"assets/style.css": b"body{}"}, "exactly one HTML"),
         ({"a.html": b"<html></html>", "b.htm": b"<html></html>"}, "multiple HTML"),
     ],
