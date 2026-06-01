@@ -298,7 +298,7 @@ def _validated_citations(generation: GeneratedAnswer, contexts: Sequence[Context
     if marker_contexts:
         marker_ids = {context.chunk_id for context in marker_contexts}
         cited_ids = {context.chunk_id for context in cited}
-        if marker_ids.issubset(cited_ids):
+        if not invalid_citation_seen or marker_ids.issubset(cited_ids):
             return marker_contexts
 
     if invalid_citation_seen:
@@ -307,20 +307,37 @@ def _validated_citations(generation: GeneratedAnswer, contexts: Sequence[Context
 
 
 def _contexts_from_numeric_markers(answer: str, contexts: Sequence[ContextChunk]) -> list[ContextChunk]:
+    numeric_tokens = _numeric_marker_tokens(answer)
+    if not numeric_tokens:
+        return []
+    zero_marker_seen = any(token == 0 for token in numeric_tokens)
     cited: list[ContextChunk] = []
     seen_chunk_ids: set[str] = set()
-    for match in _BRACKET_TOKEN_RE.finditer(answer):
-        token = match.group(1).strip()
-        if not token.isdigit():
-            continue
-        context_index = int(token) - 1
-        if context_index < 0 or context_index >= len(contexts):
+    for token in numeric_tokens:
+        context_index = _context_index_from_numeric_marker(token, zero_marker_seen)
+        if context_index is None or context_index >= len(contexts):
             return []
         context = contexts[context_index]
         if context.chunk_id not in seen_chunk_ids:
             cited.append(context)
             seen_chunk_ids.add(context.chunk_id)
     return cited
+
+
+def _numeric_marker_tokens(answer: str) -> list[int]:
+    tokens: list[int] = []
+    for match in _BRACKET_TOKEN_RE.finditer(answer):
+        token = match.group(1).strip()
+        if not token.isdigit():
+            continue
+        tokens.append(int(token))
+    return tokens
+
+
+def _context_index_from_numeric_marker(token: int, zero_marker_seen: bool) -> int | None:
+    if token == 0:
+        return 0 if zero_marker_seen else None
+    return token - 1
 
 
 def _has_unsupported_citation_placement(answer: str) -> bool:
@@ -347,14 +364,24 @@ def _contains_invalid_bracket_token(line: str) -> bool:
 
 
 def _repair_citation_markers(answer: str, cited_contexts: Sequence[ContextChunk], contexts: Sequence[ContextChunk]) -> str | None:
+    if not _BRACKET_TOKEN_RE.search(answer):
+        if not cited_contexts:
+            return answer
+        labels = "".join(f"[{index}]" for index, _ in enumerate(cited_contexts, start=1))
+        return f"{answer.rstrip()} {labels}"
+
     repaired_parts: list[str] = []
     last_index = 0
+    zero_marker_seen = any(token == 0 for token in _numeric_marker_tokens(answer))
     for match in _BRACKET_TOKEN_RE.finditer(answer):
         repaired_parts.append(answer[last_index:match.start()])
         token = _normalize_generated_citation_id(match.group(1))
         numeric_label = int(token) if token.isdigit() else None
-        if numeric_label is not None and 1 <= numeric_label <= len(contexts):
-            label = _label_for_context(contexts[numeric_label - 1], cited_contexts)
+        if numeric_label is not None:
+            context_index = _context_index_from_numeric_marker(numeric_label, zero_marker_seen)
+            if context_index is None or context_index >= len(contexts):
+                return None
+            label = _label_for_context(contexts[context_index], cited_contexts)
             if label is None:
                 return None
             repaired_parts.append(f"[{label}]")

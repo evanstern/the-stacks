@@ -179,3 +179,72 @@ def test_numeric_markers_select_subset_of_retrieved_contexts(db_session: Session
     assert [citation.document_chunk_id for citation in citations] == [third_chunk.id, first_chunk.id]
     assert [citation.label for citation in citations] == ["[1]", "[2]"]
 
+
+def test_zero_based_numeric_markers_select_retrieved_contexts(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunks = [
+        create_indexed_chunk(db_session, f"Goblin fact {index}.", filename=f"goblin-{index}.md")
+        for index in range(8)
+    ]
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id=f"point-{index}", score=0.95 - (index * 0.01), payload={"chunk_id": chunk.id})
+            for index, chunk in enumerate(chunks)
+        ]
+    )
+    chat = FakeChatClient(
+        "Goblins are reckless. [0] Goblins serve disruptive leaders. [1] Goblins can aid conquest. [2][6][7]",
+        [chunks[0].id, chunks[1].id, chunks[5].id, chunks[3].id],
+    )
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "What can you tell me about goblins?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=CapturingGraphInvoker(chat),
+        settings=Settings(RETRIEVAL_TOP_K=8, RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
+
+    assert assistant.content == "Goblins are reckless. [1] Goblins serve disruptive leaders. [1] Goblins can aid conquest. [2][3][4]"
+    assert [citation.document_chunk_id for citation in citations] == [
+        chunks[0].id,
+        chunks[1].id,
+        chunks[5].id,
+        chunks[6].id,
+    ]
+    assert [citation.label for citation in citations] == ["[1]", "[2]", "[3]", "[4]"]
+
+
+def test_markerless_answer_appends_valid_json_citations(db_session: Session) -> None:
+    session = create_session(db_session)
+    first_chunk = create_indexed_chunk(db_session, "Goblins delight in chaos.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Goblin bosses lead through disruption.", filename="second.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.91, payload={"chunk_id": second_chunk.id}),
+        ]
+    )
+    chat = FakeChatClient("Goblins are disruptive tricksters who follow bold leaders.", [first_chunk.id, second_chunk.id])
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "What can you tell me about goblins?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=CapturingGraphInvoker(chat),
+        settings=Settings(RETRIEVAL_TOP_K=2, RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
+
+    assert assistant.content == "Goblins are disruptive tricksters who follow bold leaders. [1][2]"
+    assert [citation.document_chunk_id for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert [citation.label for citation in citations] == ["[1]", "[2]"]
