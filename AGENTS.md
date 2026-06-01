@@ -1,33 +1,28 @@
 # AGENTS.md
 
-This repository’s working app lives in `main/`. Treat that as the project root for day-to-day work, even if the outer checkout contains backups or other support files.
+This repo’s working app lives in `main/`, not at the top level. Use the root for OMO coordination and `main/` for the actual app, compose stack, and web work.
 
-## Where to work
+## Workflow anchors
 
-- Main app code: `main/apps/web`
-- Backend and compose stack: the `main/` Docker Compose setup
-- OMO plans and workflow notes: `.omo/`
-- Avoid touching generated output, backups, and recovery material unless the task explicitly needs it, including `restart-backups/` and similar artifacts.
+- Read `main/README.md` before changing anything that touches local run or verification behavior.
+- Treat `.omo/plans/`, `.omo/notepads/`, and `.omo/evidence/` as part of the workflow; keep them intact and follow the active plan.
+- Avoid editing generated output, backups, and recovery artifacts unless the task explicitly requires it.
 
-## OMO workflow
+## Where the app lives
 
-- Read `.omo/plans/` and any relevant `.omo/notepads/` entries before making changes when they exist.
-- Keep changes aligned with the active plan and avoid broad cleanup outside the requested scope.
-- If a task depends on project conventions, check `main/README.md` first.
+- Main web app: `main/apps/web`
+- Stack entrypoint and local runbook: `main/`
+- If a task needs app code, work in `main/` subpaths, not the repository root.
 
-## Local run and verification
+## Local verification
 
-- The Dockerized web app must keep host port `5173` available. Do not change that contract unless the task explicitly says so.
-- Start the stack with `docker compose up --build` from `main/`.
-- Verify backend and stack changes with `make test` and `make smoke` from `main/`.
-- Verify web changes with `npm run build` from `main/apps/web`.
+- Keep the Dockerized web app on host port `5173`; do not change that contract unless asked.
+- Use `make test` from `main/` for backend/stack verification.
+- Use `make smoke` from `main/` for end-to-end local smoke checks.
+- Use `npm run build` from `main/apps/web` for web build verification.
 
-## Editing guidance
+## Editing rules
 
-- Keep edits focused on the requested files only.
-- Do not change app behavior, schemas, or workflow files unless the task calls for it.
-- Preserve existing generated artifacts and backups unless they are part of the fix.
-
-## Final check
-
-- Before closing out a task, confirm the edited file still matches the repo layout and the commands above are the ones future agents should use.
+- Keep changes focused and aligned with the active OMO plan.
+- Do not change application behavior, schemas, or workflow artifacts unless the task calls for it.
+- Prefer concise, practical updates that help the next agent continue safely.
