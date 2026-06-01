@@ -271,6 +271,40 @@ def test_post_session_message_accepts_valid_citations_at_paragraph_end(db_sessio
     assert payload["no_evidence"] is False
 
 
+def test_post_session_message_derives_citation_order_from_chunk_id_inline_markers(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk_a = create_indexed_chunk(db_session, "Source A supports the first claim.", filename="source-a.md")
+    chunk_b = create_indexed_chunk(db_session, "Source B supports the third claim.", filename="source-b.md")
+    chunk_c = create_indexed_chunk(db_session, "Source C supports the second claim.", filename="source-c.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.99, payload={"chunk_id": chunk_a.id}),
+            QdrantSearchHit(id="point-2", score=0.98, payload={"chunk_id": chunk_b.id}),
+            QdrantSearchHit(id="point-3", score=0.97, payload={"chunk_id": chunk_c.id}),
+        ]
+    )
+    answer = (
+        f"First claim. [chunk_id={chunk_a.id}] "
+        f"Second claim. [chunk_id={chunk_c.id}] "
+        f"Third claim. [chunk_id={chunk_b.id}]"
+    )
+    chat = FakeChatClient(answer, [chunk_a.id, chunk_b.id, chunk_c.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Explain the claims."})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["no_evidence"] is False
+    assert payload["assistant_message"]["content"] == "First claim. [1] Second claim. [2] Third claim. [3]"
+    assert [citation["document_chunk_id"] for citation in payload["assistant_message"]["citations"]] == [
+        chunk_a.id,
+        chunk_c.id,
+        chunk_b.id,
+    ]
+
+
 def test_post_session_message_falls_back_when_hash_style_citation_token_trails_answer(db_session: Session) -> None:
     session = create_session(db_session)
     chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")

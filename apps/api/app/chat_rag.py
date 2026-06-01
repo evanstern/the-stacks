@@ -295,7 +295,7 @@ def _validated_citations(generation: GeneratedAnswer, contexts: Sequence[Context
             cited.append(context)
             seen_chunk_ids.add(context.chunk_id)
 
-    marker_contexts = _contexts_from_numeric_markers(generation.answer, contexts)
+    marker_contexts = _contexts_from_inline_markers(generation.answer, contexts)
     if marker_contexts:
         marker_ids = {context.chunk_id for context in marker_contexts}
         cited_ids = {context.chunk_id for context in cited}
@@ -307,22 +307,36 @@ def _validated_citations(generation: GeneratedAnswer, contexts: Sequence[Context
     return cited
 
 
-def _contexts_from_numeric_markers(answer: str, contexts: Sequence[ContextChunk]) -> list[ContextChunk]:
-    numeric_tokens = _numeric_marker_tokens(answer)
-    if not numeric_tokens:
+def _contexts_from_inline_markers(answer: str, contexts: Sequence[ContextChunk]) -> list[ContextChunk]:
+    marker_tokens = [match.group(1).strip() for match in _BRACKET_TOKEN_RE.finditer(answer)]
+    if not marker_tokens:
         return []
-    zero_marker_seen = any(token == 0 for token in numeric_tokens)
+
+    zero_marker_seen = any(token == 0 for token in _numeric_marker_tokens(answer))
     cited: list[ContextChunk] = []
     seen_chunk_ids: set[str] = set()
-    for token in numeric_tokens:
-        context_index = _context_index_from_numeric_marker(token, zero_marker_seen)
-        if context_index is None or context_index >= len(contexts):
+    for raw_token in marker_tokens:
+        context = _context_from_inline_marker(raw_token, contexts, zero_marker_seen)
+        if context is None:
             return []
-        context = contexts[context_index]
         if context.chunk_id not in seen_chunk_ids:
             cited.append(context)
             seen_chunk_ids.add(context.chunk_id)
     return cited
+
+
+def _context_from_inline_marker(raw_token: str, contexts: Sequence[ContextChunk], zero_marker_seen: bool) -> ContextChunk | None:
+    token = _normalize_generated_citation_id(raw_token)
+    if token.isdigit():
+        context_index = _context_index_from_numeric_marker(int(token), zero_marker_seen)
+        if context_index is None or context_index >= len(contexts):
+            return None
+        return contexts[context_index]
+
+    matching_contexts = [context for context in contexts if context.chunk_id == token or context.chunk_id.startswith(token)]
+    if len(matching_contexts) == 1:
+        return matching_contexts[0]
+    return None
 
 
 def _numeric_marker_tokens(answer: str) -> list[int]:
