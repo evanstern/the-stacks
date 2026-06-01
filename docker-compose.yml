@@ -1,3 +1,5 @@
+name: main
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -49,6 +51,7 @@ services:
       context: ./apps/api
     env_file:
       - .env.example
+      - .env
     environment:
       DATABASE_URL: postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks
       ADMIN_PASSWORD_HASH: ${SMOKE_ADMIN_PASSWORD_HASH:-$$2b$$12$$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2}
@@ -56,9 +59,10 @@ services:
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-thestacks_chunks}
       RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
       UPLOAD_DIR: /data/uploads
-      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:5175,http://127.0.0.1:5175,http://localhost:5176,http://127.0.0.1:5176,http://localhost:5177,http://127.0.0.1:5177,http://localhost:5178,http://127.0.0.1:5178,http://localhost:5179,http://127.0.0.1:5179,http://localhost:5180,http://127.0.0.1:5180,http://localhost:3000,http://vm-104.tailb3c1b6.ts.net,http://vm-104.tailb3c1b6.ts.net:5173
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     ports:
       - "8000:8000"
     volumes:
@@ -81,10 +85,12 @@ services:
       dockerfile: apps/worker/Dockerfile
     env_file:
       - .env.example
+      - .env
     environment:
       DATABASE_URL: postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-thestacks_chunks}
       RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
       UPLOAD_DIR: /data/uploads
       WORKER_POLL_SECONDS: ${WORKER_POLL_SECONDS:-5}
@@ -120,6 +126,10 @@ services:
 
 volumes:
   postgres-data:
+    name: main-postgres-data
   qdrant-data:
+    name: main-qdrant-data
   uploads:
+    name: main-uploads
   pgadmin-data:
+    name: main-pgadmin-data
