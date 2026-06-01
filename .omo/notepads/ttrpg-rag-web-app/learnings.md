@@ -1,0 +1,6 @@
+
+- 2026-05-31 Task 11: HTML parser now strips obvious boilerplate tags (nav/header/footer/script/style/etc.), preserves title/heading metadata, and emits parser warnings into ingestion job metadata/events. EPUB support is pragmatic zip/XHTML extraction with at least one readable chunk from the fixture, without introducing Calibre or other complex ebook tooling.
+
+- 2026-05-31 Worker ingestion slice: The live worker calls the pre-embedding `process_next_queued_job()` path so queued uploads claim transactionally, parse/chunk into canonical `sources/documents/sections/chunks`, emit durable `queued`, `processing`, `chunking_started`, `chunking_completed`, and `awaiting_embedding` events, and then stop at `awaiting_embedding`; embedding/indexing remains available through explicit API ingestion functions for the next wave, not the worker loop.
+
+- 2026-06-01 Task 9 web observability follow-up: The RR7 upload surface should treat `awaiting_embedding` as a settled local-dev outcome alongside `completed`/error states because the worker intentionally stops after chunking. Browser QA on host `5174` verified admin login, `sample.md` upload to `awaiting_embedding`, `/records` showing upload/job events/retrieval/source/chunk preview data, and `sample.pdf` surfacing the exact FastAPI 415 detail (`Unsupported file type. Supported types: EPUB, HTML, TXT, MD.`).
