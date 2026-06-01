@@ -308,6 +308,41 @@ def test_archive_served_html_rewrites_assets_and_creates_anchor_map(
     assert asset_response.text == "body { color: black; }"
 
 
+def test_upload_allows_extensionless_browser_saved_assets(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    content = _zip_bytes(
+        {
+            "Introduction/page.html": b'<html><body><h1>Introduction</h1><p>Saved archive text.</p><a href="page_files/species">Species</a></body></html>',
+            "Introduction/page_files/species": b'{"kind":"route-manifest"}',
+        }
+    )
+
+    response = client.post("/uploads", files={"file": ("Introduction.zip", content, "application/zip")})
+
+    assert response.status_code == 201
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert job is not None
+    source_id = json.loads(job.metadata_json)["source_id"]
+    archive_root = tmp_path / "uploads" / "source-archives" / source_id
+    assert (archive_root / "original" / "Introduction" / "page_files" / "species").read_bytes() == b'{"kind":"route-manifest"}'
+
+    manifest = json.loads((archive_root / "manifest.json").read_text(encoding="utf-8"))
+    manifest_entry = next(entry for entry in manifest["entries"] if entry["path"] == "Introduction/page_files/species")
+    assert manifest_entry["mime_type"] == "application/octet-stream"
+
+    from app.ingestion import process_claimed_job
+
+    process_claimed_job(db_session, job.id, continue_to_index=False)
+
+    asset_response = client.get(f"/records/sources/{source_id}/archive/assets/Introduction/page_files/species")
+    assert asset_response.status_code == 200
+    assert asset_response.headers["content-type"].startswith("application/octet-stream")
+    assert asset_response.content == b'{"kind":"route-manifest"}'
+
+
 def test_archive_viewer_and_assets_require_authentication(unauthenticated_client: TestClient) -> None:
     viewer_response = unauthenticated_client.get("/records/sources/source-id/archive/viewer")
     asset_response = unauthenticated_client.get("/records/sources/source-id/archive/assets/page_files/style.css")

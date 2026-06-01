@@ -47,6 +47,7 @@ ALLOWED_ASSET_EXTENSIONS = {
     ".xml",
 }
 ALLOWED_EXTENSIONS = HTML_EXTENSIONS | ALLOWED_ASSET_EXTENSIONS
+EXTENSIONLESS_ASSET_MIME_TYPE = "application/octet-stream"
 ALLOWED_MIME_PREFIXES = {"image/", "font/", "text/"}
 ALLOWED_MIME_TYPES = {
     "application/font-woff",
@@ -320,7 +321,7 @@ def archive_asset_path(*, source_id: str, asset_path: str, settings: Settings) -
         raise ArchiveValidationError("Invalid archive asset path") from exc
     if not target.exists() or not target.is_file():
         raise FileNotFoundError(decoded_path)
-    _validate_served_archive_mime(target, allow_html=False)
+    _validate_entry_mime(decoded_path)
     return target
 
 
@@ -535,7 +536,7 @@ def _validate_zip_archive(content: bytes, settings: Settings) -> _ArchiveValidat
                 extracted_size = 0
                 for info in entries:
                     extension = Path(info.filename).suffix.lower()
-                    if extension not in ALLOWED_EXTENSIONS:
+                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename):
                         raise ArchiveValidationError(f"Archive entry has a disallowed extension: {info.filename}")
                     mime_type = _validate_entry_mime(info.filename)
                     extracted_size += info.file_size
@@ -579,12 +580,24 @@ def _validate_zip_info(info: zipfile.ZipInfo) -> None:
 
 
 def _validate_entry_mime(filename: str) -> str:
-    mime_type = mimetypes.guess_type(filename)[0]
+    mime_type = _archive_entry_mime(filename)
     if mime_type is None:
         raise ArchiveValidationError(f"Archive entry has an unknown MIME type: {filename}")
     if mime_type in ALLOWED_MIME_TYPES or any(mime_type.startswith(prefix) for prefix in ALLOWED_MIME_PREFIXES):
         return mime_type
     raise ArchiveValidationError(f"Archive entry has a disallowed MIME type: {filename}")
+
+
+def _archive_entry_mime(filename: str) -> str | None:
+    if _is_extensionless_archive_asset(filename):
+        return EXTENSIONLESS_ASSET_MIME_TYPE
+    return mimetypes.guess_type(filename)[0]
+
+
+def _is_extensionless_archive_asset(filename: str) -> bool:
+    path = PurePosixPath(filename)
+    name = path.name
+    return bool(path.parent.name.endswith("_files") and name and not name.startswith(".") and Path(name).suffix == "")
 
 
 def _is_zip_bomb_candidate(info: zipfile.ZipInfo) -> bool:
