@@ -72,6 +72,67 @@ def test_worker_embeds_indexes_and_completes_job(db_session: Session, tmp_path: 
     ]
 
 
+def test_qdrant_payload_includes_archive_locator_metadata(db_session: Session, tmp_path: Path) -> None:
+    job = create_upload_and_job(
+        db_session,
+        tmp_path,
+        "served.html",
+        "<html><head><title>Archive</title></head><body><h1>Archive heading</h1><p>Safe archive quote.</p></body></html>",
+        extension=".html",
+        content_type="text/html",
+    )
+    job.metadata_json = json.dumps(
+        {
+            "source_id": "archive-source-qdrant",
+            "source_type": "archived_webpage",
+            "archive_manifest_path": str(tmp_path / "manifest.json"),
+            "archive_entry_path": "page.html",
+            "archive_served_entry_path": "page.html",
+            "archive_anchor_map_path": "anchor-map.json",
+            "source_url": "https://example.test/archive-source",
+        }
+    )
+    (tmp_path / "anchor-map.json").write_text(
+        json.dumps(
+            {
+                "source_id": "archive-source-qdrant",
+                "source_path": "page.html",
+                "anchors": [
+                    {
+                        "chunk_id": "archive-target-1",
+                        "selector": '[data-source-chunk-id="archive-target-1"]',
+                        "heading_path": ["Archive heading"],
+                        "quote": "Safe archive quote.",
+                        "source_path": "page.html",
+                        "viewer_fragment": "#source-chunk-archive-target-1",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    qdrant = FakeQdrantIndexer(collection="mock_chunks")
+
+    processed = process_next_job(db_session, embedding_client=FakeEmbeddingClient(dimensions=5), qdrant_indexer=qdrant)
+
+    assert processed is not None
+    assert processed.status == "completed"
+    chunks = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all()
+    assert len(chunks) == 1
+    payload = qdrant.points[0].payload
+    assert payload["chunk_id"] == chunks[0].id
+    assert payload["archive_source_id"] == "archive-source-qdrant"
+    assert payload["archive_entry_path"] == "page.html"
+    assert payload["archive_served_entry_path"] == "page.html"
+    assert payload["archive_manifest_path"] == str(tmp_path / "manifest.json")
+    assert payload["target_chunk_id"] == "archive-target-1"
+    assert payload["target_selector"] == '[data-source-chunk-id="archive-target-1"]'
+    assert payload["viewer_fragment"] == "#source-chunk-archive-target-1"
+    assert payload["quote"] == "Safe archive quote."
+    assert payload["section_path"] == ["Archive heading"]
+    assert payload["source_url"] == "https://example.test/archive-source"
+
+
 def test_worker_embeds_and_indexes_epub_fixture(db_session: Session, tmp_path: Path) -> None:
     fixture = Path(__file__).resolve().parent / "fixtures" / "sample.epub"
     job = create_upload_and_job(
