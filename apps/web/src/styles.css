@@ -976,6 +976,14 @@ a {
   letter-spacing: -0.03em;
 }
 
+.assistant-loading-note {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .assistant-loading-phases {
   position: relative;
   display: grid;

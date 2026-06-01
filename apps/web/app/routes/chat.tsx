@@ -473,6 +473,7 @@ function AssistantLoading() {
           <div>
             <p className="micro-label text-clay-dark">The Stacks is preparing</p>
             <p className="assistant-loading-title">Gathering context for a grounded answer</p>
+            <p className="assistant-loading-note">Local preparation estimates shown while the request is pending.</p>
           </div>
         </div>
 
