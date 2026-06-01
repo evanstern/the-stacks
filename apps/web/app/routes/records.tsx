@@ -289,24 +289,29 @@ function SourcesSection({ sources, uploads, chunks, selectedSource }: { sources:
     <RecordSplit
       list={
         <RecordList title="Sources" count={sources.length} empty="No indexed sources yet.">
-          {sources.map((source) => (
-            <DenseRow
-              key={source.id}
-              href={sectionHref("sources", "source", source.id)}
-              active={selectedSource?.id === source.id}
-              eyebrow={source.extension || "source"}
-              title={source.title ?? source.original_filename}
-              detail={`${source.chunk_count} chunks · ${source.indexed_chunk_count} indexed`}
-              meta={[`source ${shortId(source.id)}`, `upload ${shortId(source.upload_id)}`, formatDate(source.created_at)]}
-            />
-          ))}
+          {sources.map((source) => {
+            const upload = uploads.find((uploadRecord) => uploadRecord.id === source.upload_id) ?? null;
+            const displayType = sourceDisplayType(source, upload);
+
+            return (
+              <DenseRow
+                key={source.id}
+                href={sectionHref("sources", "source", source.id)}
+                active={selectedSource?.id === source.id}
+                eyebrow={displayType}
+                title={source.title ?? source.original_filename}
+                detail={`${source.chunk_count} chunks · ${source.indexed_chunk_count} indexed`}
+                meta={[`type ${displayType}`, `source ${shortId(source.id)}`, `upload ${shortId(source.upload_id)}`, formatDate(source.created_at)]}
+              />
+            );
+          })}
         </RecordList>
       }
       detail={
         <DetailPanel title="Source detail" empty="Select a source to inspect indexing metadata." item={selectedSource}>
           {(source) => (
             <div className="space-y-4">
-              <SourceMeta source={source} />
+              <SourceMeta source={source} upload={sourceUpload} />
               <RelationshipRail>
                 <RelationshipLink label="Upload" value={sourceUpload ? sourceUpload.original_filename : shortId(source.upload_id)} href={sectionHref("uploads", "upload", source.upload_id)} />
                 <RelationshipLink label="Loaded chunks" value={sourceChunks.length} href={sourceChunks[0] ? sectionHref("chunks", "chunk", sourceChunks[0].id) : undefined} />
@@ -541,13 +546,14 @@ function JobMeta({ job, compact = false }: { job: IngestionJob; compact?: boolea
   );
 }
 
-function SourceMeta({ source }: { source: SourceRecord }) {
+function SourceMeta({ source, upload }: { source: SourceRecord; upload?: UploadRecord | null }) {
   return (
     <MetadataGrid>
       <MetaItem label="Title" value={source.title ?? source.original_filename} />
+      <MetaItem label="Type" value={sourceDisplayType(source, upload ?? null)} />
       <MetaItem label="Source id" value={source.id} mono />
       <MetaItem label="Upload id" value={source.upload_id} mono />
-      <MetaItem label="Extension" value={source.extension} />
+      <MetaItem label="Source key" value={source.extension} />
       <MetaItem label="Chunks" value={`${source.chunk_count} total`} />
       <MetaItem label="Indexed" value={`${source.indexed_chunk_count} indexed`} />
       <MetaItem label="Created" value={formatDate(source.created_at)} />
@@ -666,6 +672,56 @@ function previewText(value: string, maxLength = 520) {
 function metadataKeys(metadata: Record<string, unknown>) {
   const keys = Object.keys(metadata);
   return keys.length ? keys.join(", ") : "none";
+}
+
+export function sourceTypeLabel(sourceType: string) {
+  const normalizedSourceType = sourceType.trim().toLowerCase();
+
+  if (normalizedSourceType === "archived_webpage") {
+    return "Archived webpage";
+  }
+  if (normalizedSourceType === "ddb_saved_html") {
+    return "DDB saved HTML";
+  }
+  if (normalizedSourceType === "html" || normalizedSourceType === "htm") {
+    return "Plain HTML";
+  }
+  if (normalizedSourceType === "md" || normalizedSourceType === "markdown") {
+    return "Markdown";
+  }
+  if (normalizedSourceType === "txt") {
+    return "Plain text";
+  }
+  if (normalizedSourceType === "epub") {
+    return "EPUB";
+  }
+
+  return sourceType || "Source";
+}
+
+export function sourceDisplayType(source: Pick<SourceRecord, "extension">, upload?: Pick<UploadRecord, "content_type" | "extension" | "original_filename"> | null) {
+  if (uploadIsZipArchive(upload)) {
+    return "Archived webpage";
+  }
+
+  return sourceTypeLabel(source.extension);
+}
+
+function uploadIsZipArchive(upload: Pick<UploadRecord, "content_type" | "extension" | "original_filename"> | null | undefined) {
+  if (!upload) {
+    return false;
+  }
+
+  return uploadFileType(upload.extension) === "zip"
+    || uploadFileType(upload.original_filename) === "zip"
+    || upload.content_type.toLowerCase().includes("zip");
+}
+
+function uploadFileType(value: string | undefined) {
+  const normalizedValue = value?.trim().toLowerCase() ?? "";
+  const extensionStart = normalizedValue.lastIndexOf(".");
+
+  return extensionStart > -1 ? normalizedValue.slice(extensionStart + 1) : normalizedValue.replace(/^\./, "");
 }
 
 function sumChunks(sources: SourceRecord[]) {

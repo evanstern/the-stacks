@@ -32,6 +32,15 @@ type CitationMetadata = {
   excerpt: string;
 };
 
+type ArchiveCitationView = {
+  viewerUrl: string | null;
+  hasTarget: boolean;
+  targetLabel: string | null;
+  fallbackText: string;
+};
+
+export const citationIframeSandbox = "";
+
 type PendingCitationFocus = {
   citationId: string;
   messageId: string;
@@ -535,6 +544,7 @@ function CitationRail({ citations, isOpen, onClose }: { citations: Citation[]; i
 
 function CitationCard({ citation }: { citation: Citation }) {
   const metadata = citationMetadata(citation);
+  const archiveView = archiveCitationView(citation, metadata);
   const cardId = citationCardId(citation.id);
   const summaryId = citationSummaryId(citation.id);
 
@@ -556,6 +566,7 @@ function CitationCard({ citation }: { citation: Citation }) {
       </summary>
       <div className="citation-body">
         <p className="citation-excerpt">{metadata.excerpt}</p>
+        {archiveView ? <ArchiveCitationViewer citation={citation} view={archiveView} /> : null}
         <dl className="grid gap-2 font-mono text-[0.65rem] uppercase tracking-[0.12em]">
           <div>
             <dt className="text-muted">Citation id</dt>
@@ -568,6 +579,39 @@ function CitationCard({ citation }: { citation: Citation }) {
         </dl>
       </div>
     </details>
+  );
+}
+
+function ArchiveCitationViewer({ citation, view }: { citation: Citation; view: ArchiveCitationView }) {
+  return (
+    <section className="citation-viewer" aria-label={`Archived source viewer for citation ${citation.label}`}>
+      <div className="citation-viewer-header">
+        <div>
+          <p className="micro-label text-clay-dark">Archived source</p>
+          <p className="citation-viewer-title">
+            {view.viewerUrl ? "Sandboxed page preview" : "Preview unavailable"}
+          </p>
+        </div>
+        {view.targetLabel ? <span className="citation-target-pill">Target {view.targetLabel}</span> : null}
+      </div>
+
+      {!view.viewerUrl || !view.hasTarget ? (
+        <p className="citation-viewer-fallback" role="note">
+          {view.fallbackText}
+        </p>
+      ) : null}
+
+      {view.viewerUrl ? (
+        <iframe
+          className="citation-viewer-frame"
+          src={view.viewerUrl}
+          title={`Archived citation ${citation.label}`}
+          sandbox={citationIframeSandbox}
+          referrerPolicy="same-origin"
+          loading="lazy"
+        />
+      ) : null}
+    </section>
   );
 }
 
@@ -727,7 +771,7 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function citationMetadata(citation: Citation): CitationMetadata {
+export function citationMetadata(citation: Citation): CitationMetadata {
   const source = metadataString(citation.metadata.source_filename) ?? metadataString(citation.metadata.filename) ?? "Unknown source";
   const title = metadataString(citation.metadata.title) ?? metadataString(citation.metadata.source_title) ?? source;
   const location = citationLocation(citation);
@@ -737,6 +781,63 @@ function citationMetadata(citation: Citation): CitationMetadata {
     ?? "Cited text unavailable.";
 
   return { source, title, location, excerpt: compactExcerpt(excerpt) };
+}
+
+export function isArchiveCitation(citation: Citation) {
+  return metadataString(citation.metadata.source_type) === "archived_webpage";
+}
+
+export function archiveCitationView(citation: Citation, metadata: CitationMetadata = citationMetadata(citation)): ArchiveCitationView | null {
+  if (!isArchiveCitation(citation)) {
+    return null;
+  }
+
+  const rawViewerUrl = metadataString(citation.metadata.viewer_url);
+  const targetLabel = metadataString(citation.metadata.target_chunk_id);
+  const viewerUrl = rawViewerUrl ? archiveViewerUrl(rawViewerUrl, targetLabel) : null;
+
+  return {
+    viewerUrl,
+    hasTarget: Boolean(targetLabel),
+    targetLabel,
+    fallbackText: archiveCitationFallbackText(Boolean(rawViewerUrl), Boolean(targetLabel), metadata.excerpt),
+  };
+}
+
+export function archiveViewerUrl(viewerUrl: string, targetChunkId: string | null) {
+  const normalizedViewerUrl = viewerUrl.trim();
+  if (/^https?:\/\//i.test(normalizedViewerUrl)) {
+    return targetChunkId ? withTargetFragment(normalizedViewerUrl, targetChunkId) : normalizedViewerUrl;
+  }
+
+  if (targetChunkId) {
+    return withTargetFragment(normalizedViewerUrl, targetChunkId);
+  }
+
+  const [baseUrl] = normalizedViewerUrl.split("#", 1);
+  const [path, query = ""] = baseUrl.split("?", 2);
+  const params = new URLSearchParams(query);
+  params.delete("target");
+  const queryString = params.toString();
+
+  return queryString ? `${path}?${queryString}` : path;
+}
+
+function withTargetFragment(viewerUrl: string, targetChunkId: string) {
+  const [baseUrl] = viewerUrl.split("#", 1);
+  return `${baseUrl}#source-chunk-${encodeURIComponent(targetChunkId)}`;
+}
+
+function archiveCitationFallbackText(hasViewerUrl: boolean, hasTarget: boolean, excerpt: string) {
+  if (!hasViewerUrl) {
+    return `Archived viewer unavailable. Showing cited text instead: ${excerpt}`;
+  }
+
+  if (!hasTarget) {
+    return `Target chunk unavailable. Opening the archived page from the top and showing cited text here: ${excerpt}`;
+  }
+
+  return excerpt;
 }
 
 

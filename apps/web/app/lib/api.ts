@@ -198,7 +198,27 @@ async function errorMessage(response: Response) {
     return fallback;
   }
   const payload = (await response.json().catch(() => null)) as { detail?: unknown } | null;
-  return typeof payload?.detail === "string" ? payload.detail : fallback;
+  if (typeof payload?.detail === "string") {
+    return payload.detail;
+  }
+  if (Array.isArray(payload?.detail)) {
+    return payload.detail
+      .map((item) => validationDetailMessage(item))
+      .filter((message): message is string => Boolean(message))
+      .join(" ") || fallback;
+  }
+  return fallback;
+}
+
+function validationDetailMessage(item: unknown) {
+  if (typeof item === "string") {
+    return item;
+  }
+  if (typeof item === "object" && item !== null && "msg" in item) {
+    const message = (item as { msg?: unknown }).msg;
+    return typeof message === "string" ? message : null;
+  }
+  return null;
 }
 
 export async function getAuthStatus() {

@@ -7,6 +7,24 @@ import { getIngestionJob, getJobEvents, isApiError, uploadFile, type IngestionEv
 import { cn } from "@/lib/utils";
 
 const terminalStatuses = new Set(["awaiting_embedding", "completed", "failed", "error"]);
+const archiveUploadCopy = "Upload a ZIP containing one saved webpage HTML file and its asset folder.";
+const supportedUploadExtensions = [".epub", ".html", ".htm", ".txt", ".md", ".markdown", ".zip"];
+const sourceFileAccept = [
+  ".epub",
+  ".html",
+  ".htm",
+  ".txt",
+  ".md",
+  ".markdown",
+  ".zip",
+  "text/html",
+  "text/plain",
+  "text/markdown",
+  "application/epub+zip",
+  "application/zip",
+  "application/x-zip-compressed",
+].join(",");
+
 type UploadSubmitEvent = Parameters<NonNullable<ComponentProps<"form">["onSubmit"]>>[0];
 
 export function UploadRoute() {
@@ -51,6 +69,12 @@ export function UploadRoute() {
       return;
     }
 
+    const validationError = validateUploadFile(selectedFile);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setIsUploading(true);
     setError(null);
     setJob(null);
@@ -62,7 +86,7 @@ export function UploadRoute() {
       setJob(nextJob);
       setEvents(nextEvents);
     } catch (uploadError) {
-      setError(isApiError(uploadError) ? uploadError.message : "Upload failed. Try again.");
+      setError(uploadError instanceof Error || isApiError(uploadError) ? uploadError.message : "Upload failed. Try again.");
     } finally {
       setIsUploading(false);
     }
@@ -77,7 +101,7 @@ export function UploadRoute() {
           <p className="micro-label text-clay-dark">Corpus intake</p>
           <h1 className="mt-2 font-serif text-4xl tracking-[-0.05em] text-foreground">Upload a source file.</h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-            Supported types: EPUB, HTML, TXT, and MD. Files are persisted, queued for ingestion, then reflected in Records.
+            Supported types: EPUB, HTML, TXT, MD, and archived webpage ZIP. Files are persisted, queued for ingestion, then reflected in Records.
           </p>
         </div>
 
@@ -89,11 +113,14 @@ export function UploadRoute() {
                 <span className="grid size-10 place-items-center rounded-full border border-border bg-card text-clay-dark">
                   <FileText className="size-4" aria-hidden="true" />
                 </span>
-                {selectedFile ? selectedFile.name : "Choose .epub, .html, .txt, or .md"}
+                {selectedFile ? selectedFile.name : "Choose .epub, .html, .txt, .md, or .zip"}
               </span>
               <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
                 Browse
               </Button>
+            </span>
+            <span className="mt-3 block text-xs leading-5 text-muted">
+              {archiveUploadCopy}
             </span>
             <input
               ref={inputRef}
@@ -101,8 +128,12 @@ export function UploadRoute() {
               className="sr-only"
               name="file"
               type="file"
-              accept=".epub,.html,.htm,.txt,.md,.markdown,text/html,text/plain,text/markdown,application/epub+zip"
-              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+              accept={sourceFileAccept}
+              onChange={(event) => {
+                const nextFile = event.target.files?.[0] ?? null;
+                setSelectedFile(nextFile);
+                setError(nextFile ? validateUploadFile(nextFile) : null);
+              }}
             />
           </label>
 
@@ -162,6 +193,24 @@ export function UploadRoute() {
     </div>
   );
 }
+
+export function validateUploadFile(file: Pick<File, "name">) {
+  const extension = uploadFileExtension(file.name);
+  if (extension && supportedUploadExtensions.includes(extension)) {
+    return null;
+  }
+
+  const displayedType = extension || "unknown file type";
+  return `Unsupported file type ${displayedType}. Choose .epub, .html, .txt, .md, or .zip.`;
+}
+
+export function uploadFileExtension(fileName: string) {
+  const normalizedName = fileName.trim().toLowerCase();
+  const extensionStart = normalizedName.lastIndexOf(".");
+  return extensionStart > -1 ? normalizedName.slice(extensionStart) : "";
+}
+
+export { archiveUploadCopy, sourceFileAccept };
 
 function StatusPill({ status }: { status: string }) {
   const isComplete = status === "completed";
