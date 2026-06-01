@@ -17,10 +17,12 @@ from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.ingestion import process_next_job
 from app.main import app
-from app.chat_rag import PostgresCheckpointedGraphInvoker, RetrievalGraphInvoker, get_graph_invoker
+from app.chat_rag import PostgresCheckpointedGraphInvoker, RetrievalGraphInvoker, get_graph_invoker, message_citations
 from app.models import Document, DocumentChunk, Section, Source
-from tests.rag_support import FakeChatClient
+from app.routes_sessions import _chat_dependency, _qdrant_dependency
+from tests.rag_support import FakeChatClient, create_indexed_chunk, create_session
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
+from app.qdrant_index import QdrantSearchHit
 from tests.support import create_upload_and_job, db_session
 
 
@@ -125,6 +127,42 @@ def test_openapi_documents_chat_envelope_and_jobs_routes(db_session: Session) ->
     assert "/jobs/{job_id}/events" in schema["paths"]
     response_schema = schema["paths"]["/sessions/{session_id}/messages"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]
     assert response_schema["$ref"].endswith("/ChatMessageEnvelope")
+
+
+def test_session_message_route_preserves_citation_metadata_and_marker_order(db_session: Session) -> None:
+    import app.routes_sessions as routes_sessions
+
+    session = create_session(db_session)
+    first_chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="second.md")
+
+    with _client(db_session) as client:
+        app.dependency_overrides[routes_sessions._qdrant_dependency] = lambda: FakeQdrantIndexer(
+            search_hits=[
+                QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+                QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
+            ]
+        )
+        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: FakeChatClient(
+            "Ancient red dragons prefer volcanic lairs [1] and hoard treasure obsessively [2].",
+            [second_chunk.id, first_chunk.id],
+        )
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Where do ancient red dragons lair?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    citations = payload["assistant_message"]["citations"]
+    persisted_citations = message_citations(db_session, payload["assistant_message"]["id"])
+
+    assert [citation["label"] for citation in citations] == [citation.label for citation in persisted_citations]
+    assert [citation["document_chunk_id"] for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert citations[0]["document_chunk_id"] == first_chunk.id
+    assert citations[1]["document_chunk_id"] == second_chunk.id
+    assert citations[0]["metadata"]["cited_text"] == "Ancient red dragons prefer volcanic lairs."
+    assert citations[1]["metadata"]["cited_text"] == "Ancient red dragons hoard treasure obsessively."
+    assert citations[0]["label"] == "[1]"
+    assert citations[1]["label"] == "[2]"
+
 
 
 def test_postgres_settings_select_checkpointed_langgraph_invoker() -> None:

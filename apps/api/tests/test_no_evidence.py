@@ -32,6 +32,7 @@ def test_weak_retrieval_returns_no_evidence_without_calling_chat(db_session: Ses
     )
 
     assert assistant.content == NO_EVIDENCE_RESPONSE
+    assert "[" not in assistant.content
     assert chat.requests == []
     assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all() == []
     run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
@@ -54,4 +55,5 @@ def test_empty_retrieval_returns_no_evidence(db_session: Session) -> None:
     )
 
     assert assistant.content == NO_EVIDENCE_RESPONSE
+    assert "[" not in assistant.content
     assert chat.requests == []

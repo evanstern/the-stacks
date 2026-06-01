@@ -16,7 +16,7 @@ from app.config import Settings, get_settings
 from app.database import get_db
 from app.embeddings import EmbeddingError
 from app.main import app
-from app.models import ChatMessage, RetrievalHit, RetrievalRun
+from app.models import ChatMessage, Citation, RetrievalHit, RetrievalRun
 from app.routes_sessions import _chat_dependency, _embedding_dependency, _graph_dependency, _qdrant_dependency
 from app.qdrant_index import QdrantSearchHit
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
@@ -97,9 +97,205 @@ def test_post_session_message_returns_service_error_for_embedding_failure(db_ses
 def test_system_prompt_requires_inline_citation_markers() -> None:
     prompt = _system_prompt()
 
+    assert "JSON with answer and citations as chunk IDs" in prompt
+    assert "concise Markdown" in prompt
+    assert "Markdown tables" in prompt
     assert "[1]" in prompt
     assert "[2][3]" in prompt
-    assert "returned citations" in prompt
+    assert "immediately next to the supported claims" in prompt
+    assert "Repeat [1] on every factual sentence that the same source supports." in prompt
+    assert "Never leave citations only at the end of a paragraph when they belong to multiple sentences." in prompt
+    assert "When two sources support one sentence, keep [1][2] immediately after that sentence." in prompt
+    assert "Put citations on each bullet line that makes a factual claim." in prompt
+
+
+def test_post_session_message_repeats_single_source_citation_on_multiple_factual_sentences(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [1] They hoard treasure obsessively. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Ancient red dragons prefer volcanic lairs. [1] They hoard treasure obsessively. [1]"
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+
+
+def test_post_session_message_rewrites_paragraph_end_only_citation_drift(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. They hoard treasure obsessively. [1][2]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert payload["assistant_message"]["citations"] == []
+    assert payload["no_evidence"] is True
+    assert db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one().status == "no_evidence"
+
+
+def test_post_session_message_keeps_multi_source_citations_immediately_after_sentence(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk_a = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="source-a.md")
+    chunk_b = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="source-b.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.97, payload={"chunk_id": chunk_a.id}),
+            QdrantSearchHit(id="point-2", score=0.95, payload={"chunk_id": chunk_b.id}),
+        ]
+    )
+    chat = FakeChatClient("Ancient red dragons are volcanic and greedy. [1][2]", [chunk_a.id, chunk_b.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Ancient red dragons are volcanic and greedy. [1][2]"
+    assert [citation["document_chunk_id"] for citation in payload["assistant_message"]["citations"]] == [chunk_a.id, chunk_b.id]
+
+
+def test_post_session_message_attaches_citations_to_each_bullet_line(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("- Ancient red dragons prefer volcanic lairs. [1]\n- Ancient red dragons hoard treasure obsessively. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "- Ancient red dragons prefer volcanic lairs. [1]\n- Ancient red dragons hoard treasure obsessively. [1]"
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+
+
+def test_post_session_message_accepts_valid_citations_at_paragraph_end(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. They hoard treasure obsessively. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Ancient red dragons prefer volcanic lairs. They hoard treasure obsessively. [1]"
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+    assert payload["no_evidence"] is False
+
+
+def test_post_session_message_falls_back_when_hash_style_citation_token_trails_answer(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [84bc7124e9f1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert payload["assistant_message"]["citations"] == []
+    assert payload["no_evidence"] is True
+    assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == payload["assistant_message"]["id"])).all() == []
+
+
+def test_post_session_message_falls_back_when_duplicate_hits_drift_into_multiple_labels(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.95, payload={"chunk_id": chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.94, payload={"chunk_id": chunk.id}),
+        ]
+    )
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [1][2]", [chunk.id, chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert payload["assistant_message"]["citations"] == []
+    assert payload["no_evidence"] is True
+    assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == payload["assistant_message"]["id"])).all() == []
+
+
+def test_post_session_message_deduplicates_imported_chunks_by_shared_source_span(db_session: Session) -> None:
+    session = create_session(db_session)
+    duplicate_a = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.", filename="monster-manual-a.epub")
+    duplicate_b = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.", filename="monster-manual-b.epub")
+    distinct = create_indexed_chunk(db_session, "Ancient red dragons hate cold climates and seek volcanic lairs.", filename="monster-manual-c.epub")
+
+    duplicate_a.metadata_json = json.dumps(
+        {**json.loads(duplicate_a.metadata_json), "source_sha256": "monster-manual-sha256", "start_char": 120, "end_char": 210},
+        sort_keys=True,
+    )
+    duplicate_b.metadata_json = json.dumps(
+        {**json.loads(duplicate_b.metadata_json), "source_sha256": "monster-manual-sha256", "start_char": 120, "end_char": 210},
+        sort_keys=True,
+    )
+    distinct.metadata_json = json.dumps(
+        {**json.loads(distinct.metadata_json), "source_sha256": "monster-manual-sha256-distinct", "start_char": 330, "end_char": 388},
+        sort_keys=True,
+    )
+    db_session.commit()
+
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.99, payload={"chunk_id": duplicate_a.id}),
+            QdrantSearchHit(id="point-2", score=0.98, payload={"chunk_id": duplicate_b.id}),
+            QdrantSearchHit(id="point-3", score=0.97, payload={"chunk_id": distinct.id}),
+        ]
+    )
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hate cold climates. [2]", [duplicate_a.id, distinct.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hate cold climates. [2]"
+    assert [citation["document_chunk_id"] for citation in payload["assistant_message"]["citations"]] == [duplicate_a.id, distinct.id]
+    assert [request[1] for request in chat.requests] == [[duplicate_a.id, distinct.id]]
+    assert [limit for _, limit in qdrant.search_requests] == [50]
+
+
+def test_post_session_message_falls_back_when_numeric_markers_do_not_match_persisted_citations(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [2]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do Ancient red dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert payload["assistant_message"]["citations"] == []
+    assert payload["no_evidence"] is True
+    assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == payload["assistant_message"]["id"])).all() == []
 
 
 @contextmanager

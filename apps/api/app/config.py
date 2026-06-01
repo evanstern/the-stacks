@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     openai_embedding_dimensions: int = Field(default=1536, alias="OPENAI_EMBEDDING_DIMENSIONS")
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
     qdrant_collection: str = Field(default="thestacks_chunks", alias="QDRANT_COLLECTION")
-    retrieval_top_k: int = Field(default=5, alias="RETRIEVAL_TOP_K")
+    retrieval_top_k: int = Field(default=8, alias="RETRIEVAL_TOP_K")
     retrieval_min_score: float = Field(default=0.2, alias="RETRIEVAL_MIN_SCORE")
 
     model_config = SettingsConfigDict(env_file=None, populate_by_name=True)

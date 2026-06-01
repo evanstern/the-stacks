@@ -1,11 +1,12 @@
 import os
+import json
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
-from app.chat_rag import NO_EVIDENCE_RESPONSE, answer_session_message
+from app.chat_rag import NO_EVIDENCE_RESPONSE, answer_session_message, message_citations
 from app.config import Settings
 from app.models import Citation, RetrievalRun
 from app.qdrant_index import QdrantSearchHit
@@ -16,9 +17,18 @@ from tests.support import db_session
 
 def test_only_valid_retrieved_chunk_ids_become_citations(db_session: Session) -> None:
     session = create_session(db_session)
-    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.")
-    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.88, payload={"chunk_id": chunk.id})])
-    chat = FakeChatClient("Ancient red dragons prefer volcanic lairs. [1]", [chunk.id, "invented-chunk"])
+    first_chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="second.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
+        ]
+    )
+    chat = FakeChatClient(
+        "Ancient red dragons prefer volcanic lairs [1] and hoard treasure obsessively [2].",
+        [second_chunk.id, first_chunk.id, "invented-chunk"],
+    )
 
     assistant = answer_session_message(
         db_session,
@@ -32,9 +42,18 @@ def test_only_valid_retrieved_chunk_ids_become_citations(db_session: Session) ->
     )
 
     citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
-    assert len(citations) == 1
-    assert citations[0].document_chunk_id == chunk.id
-    assert "Ancient red dragons prefer volcanic lairs." in citations[0].metadata_json
+    persisted_citations = message_citations(db_session, assistant.id)
+
+    assert [citation.document_chunk_id for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert [citation.label for citation in persisted_citations] == ["[1]", "[2]"]
+    assert [citation.document_chunk_id for citation in persisted_citations] == [first_chunk.id, second_chunk.id]
+    assert [json.loads(citation.metadata_json)["cited_text"] for citation in citations] == [
+        "Ancient red dragons prefer volcanic lairs.",
+        "Ancient red dragons hoard treasure obsessively.",
+    ]
+    assert json.loads(citations[0].metadata_json)["cited_text"] == "Ancient red dragons prefer volcanic lairs."
+    assert json.loads(citations[1].metadata_json)["cited_text"] == "Ancient red dragons hoard treasure obsessively."
+    assert json.loads(citations[0].metadata_json)["source_filename"] == "first.md"
 
 
 def test_invalid_only_citations_fall_back_to_no_evidence(db_session: Session) -> None:
@@ -55,6 +74,108 @@ def test_invalid_only_citations_fall_back_to_no_evidence(db_session: Session) ->
     )
 
     assert assistant.content == NO_EVIDENCE_RESPONSE
+    assert "[" not in assistant.content
     assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all() == []
     run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
     assert run.status == "no_evidence"
+
+
+def test_chunk_id_prefixed_citations_are_normalized(db_session: Session) -> None:
+    session = create_session(db_session)
+    first_chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="second.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
+        ]
+    )
+    chat = FakeChatClient(
+        "Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hoard treasure obsessively. [2]",
+        [f"chunk_id={first_chunk.id}", f"chunk_id={second_chunk.id}"],
+    )
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "Where do Ancient red dragons lair?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=CapturingGraphInvoker(chat),
+        settings=Settings(RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
+
+    assert assistant.content == "Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hoard treasure obsessively. [2]"
+    assert [citation.document_chunk_id for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert [citation.label for citation in citations] == ["[1]", "[2]"]
+
+
+def test_hash_style_answer_markers_are_rewritten_for_unique_cited_chunk_prefixes(db_session: Session) -> None:
+    session = create_session(db_session)
+    first_chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="second.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
+        ]
+    )
+    chat = FakeChatClient(
+        f"Ancient red dragons prefer volcanic lairs. [{first_chunk.id[:8]}] Ancient red dragons hoard treasure obsessively. [{second_chunk.id[:8]}]",
+        [first_chunk.id, second_chunk.id],
+    )
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "Where do Ancient red dragons lair?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=CapturingGraphInvoker(chat),
+        settings=Settings(RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
+
+    assert assistant.content == "Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hoard treasure obsessively. [2]"
+    assert [citation.document_chunk_id for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert [citation.label for citation in citations] == ["[1]", "[2]"]
+
+def test_numeric_markers_select_subset_of_retrieved_contexts(db_session: Session) -> None:
+    session = create_session(db_session)
+    first_chunk = create_indexed_chunk(db_session, "Magic item auctions are hard to find.", filename="first.md")
+    second_chunk = create_indexed_chunk(db_session, "Magic items can be identified with careful study.", filename="second.md")
+    third_chunk = create_indexed_chunk(db_session, "Magic items include armor, potions, and wands.", filename="third.md")
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
+            QdrantSearchHit(id="point-2", score=0.91, payload={"chunk_id": second_chunk.id}),
+            QdrantSearchHit(id="point-3", score=0.9, payload={"chunk_id": third_chunk.id}),
+        ]
+    )
+    chat = FakeChatClient(
+        "Magic items include armor, potions, and wands. [3] Magic item auctions are hard to find. [1]",
+        [third_chunk.id, first_chunk.id],
+    )
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "What are magic items?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=CapturingGraphInvoker(chat),
+        settings=Settings(RETRIEVAL_TOP_K=3, RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    citations = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all()
+
+    assert assistant.content == "Magic items include armor, potions, and wands. [1] Magic item auctions are hard to find. [2]"
+    assert [citation.document_chunk_id for citation in citations] == [third_chunk.id, first_chunk.id]
+    assert [citation.label for citation in citations] == ["[1]", "[2]"]
+
