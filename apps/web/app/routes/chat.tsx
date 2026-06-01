@@ -1,7 +1,9 @@
 import { Form, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router";
-import { AlertCircle, ArrowUp, BookOpen, Loader2, Plus } from "lucide-react";
-import type { ComponentProps, KeyboardEvent, ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { AlertCircle, ArrowUp, BookOpen, CheckCircle2, FileText, Loader2, PenLine, Plus, Search, X } from "lucide-react";
+import type { ComponentProps, CSSProperties, KeyboardEvent, ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -62,14 +64,39 @@ export function ChatRoute() {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [selectedCitationMessageId, setSelectedCitationMessageId] = useState<string | null>(null);
   const [pendingCitationFocus, setPendingCitationFocus] = useState<PendingCitationFocus | null>(null);
+  const [isCitationDrawerOpen, setIsCitationDrawerOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const isSending = navigation.state !== "idle" || Boolean(optimisticQuestion);
+  const visibleMessages = optimisticQuestion ? [...messages, optimisticQuestion] : messages;
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages.length, optimisticQuestion]);
+  useLayoutEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
+    const scrollToBottom = () => {
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    };
+
+    scrollToBottom();
+    const animationFrame = window.requestAnimationFrame(scrollToBottom);
+    const timeout = window.setTimeout(scrollToBottom, 50);
+    const resizeObserver = new ResizeObserver(scrollToBottom);
+    resizeObserver.observe(scrollContainer);
+
+    if (scrollContainer.firstElementChild) {
+      resizeObserver.observe(scrollContainer.firstElementChild);
+    }
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(timeout);
+      resizeObserver.disconnect();
+    };
+  }, [session.id, visibleMessages.length]);
 
   async function handleSubmit(event: ChatSubmitEvent) {
     event.preventDefault();
@@ -157,12 +184,30 @@ export function ChatRoute() {
     }
   }
 
-  const visibleMessages = optimisticQuestion ? [...messages, optimisticQuestion] : messages;
   const latestAssistantCitations = latestCitations(visibleMessages);
   const selectedCitationMessage = selectedCitationMessageId
     ? visibleMessages.find((message) => message.id === selectedCitationMessageId && message.role === "assistant" && message.citations.length > 0)
     : null;
   const railCitations = selectedCitationMessage?.citations ?? latestAssistantCitations;
+
+  useEffect(() => {
+    setIsCitationDrawerOpen(false);
+  }, [session.id]);
+
+  useEffect(() => {
+    if (!isCitationDrawerOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsCitationDrawerOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCitationDrawerOpen]);
 
   useEffect(() => {
     if (!pendingCitationFocus) {
@@ -188,11 +233,20 @@ export function ChatRoute() {
   function handleCitationMarkerClick(message: ChatMessage, citation: Citation) {
     setSelectedCitationMessageId(message.id);
     setPendingCitationFocus({ citationId: citation.id, messageId: message.id });
+    setIsCitationDrawerOpen(true);
   }
 
   return (
     <div className="chat-workspace">
-      <CitationRail citations={railCitations} />
+      {isCitationDrawerOpen ? (
+        <button
+          type="button"
+          className="citation-backdrop citation-backdrop-open"
+          aria-label="Close citations"
+          onClick={() => setIsCitationDrawerOpen(false)}
+        />
+      ) : null}
+      <CitationRail citations={railCitations} isOpen={isCitationDrawerOpen} onClose={() => setIsCitationDrawerOpen(false)} />
 
       <section className="chat-panel">
         <div className="chat-header">
@@ -203,6 +257,17 @@ export function ChatRoute() {
             </h1>
           </div>
           <div className="session-controls">
+            <Button
+              type="button"
+              variant="outline"
+              className="citation-open-button"
+              aria-controls="citation-rail"
+              aria-expanded={isCitationDrawerOpen}
+              onClick={() => setIsCitationDrawerOpen(true)}
+            >
+              <BookOpen className="size-4" aria-hidden="true" />
+              Citations
+            </Button>
             <label className="sr-only" htmlFor="session-select">Conversation</label>
             <select id="session-select" className="session-select" value={session.id} onChange={handleSessionChange}>
               {sessions.map((chatSession) => (
@@ -304,32 +369,80 @@ function MessageBubble({ message, onCitationMarkerClick }: { message: ChatMessag
   );
 }
 
-function MessageText({ content, citations, onCitationMarkerClick }: { content: string; citations: Citation[]; onCitationMarkerClick: (citation: Citation) => void }) {
+export function MessageText({ content, citations, onCitationMarkerClick }: { content: string; citations: Citation[]; onCitationMarkerClick: (citation: Citation) => void }) {
   const labelMap = citationLabelMap(citations);
-  const renderedContent = renderCitationMarkers(content, labelMap, onCitationMarkerClick);
   const labelsInContent = contentCitationLabels(content, labelMap);
   const appendedCitations = citations.filter((citation) => !labelsInContent.has(citation.label));
 
   return (
-    <p className="message-text">
-      {renderedContent}
+    <div className="message-text">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        skipHtml
+        components={{
+          a: ({ href, children }) => {
+            const safeHref = safeMarkdownHref(href);
+            if (!safeHref) {
+              return <span>{children}</span>;
+            }
+
+            return (
+              <a href={safeHref} target="_blank" rel="noreferrer noopener">
+                {renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}
+              </a>
+            );
+          },
+          code: ({ children, className }) => <code className={className}>{children}</code>,
+          em: ({ children }) => <em>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</em>,
+          strong: ({ children }) => <strong>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</strong>,
+          h1: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          h2: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          h3: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          h4: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          h5: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          h6: ({ children }) => <p className="message-heading">{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          p: ({ children }) => <p>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</p>,
+          li: ({ children }) => <li>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</li>,
+          table: ({ children }) => (
+            <div className="message-table-scroll" style={{ maxWidth: "100%", overflowX: "auto" }}>
+              <table>{children}</table>
+            </div>
+          ),
+          td: ({ children }) => <td>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</td>,
+          th: ({ children }) => <th>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</th>,
+          blockquote: ({ children }) => <blockquote>{renderCitationNodeChildren(children, labelMap, onCitationMarkerClick)}</blockquote>,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
       {appendedCitations.length > 0 ? <CitationMarkerGroup citations={appendedCitations} onCitationMarkerClick={onCitationMarkerClick} /> : null}
-    </p>
+    </div>
   );
 }
 
-function CitationMarkerGroup({ citations, onCitationMarkerClick }: { citations: Citation[]; onCitationMarkerClick: (citation: Citation) => void }) {
+export function CitationMarkerGroup({ citations, onCitationMarkerClick }: { citations: Citation[]; onCitationMarkerClick: (citation: Citation) => void }) {
   return (
-    <span className="citation-marker-group">
-      <span className="sr-only">Citations for this answer</span>
-      {citations.map((citation) => (
-        <CitationMarker key={citation.id} citation={citation} onCitationMarkerClick={onCitationMarkerClick} />
-      ))}
-    </span>
+    <aside
+      className="mt-3 inline-flex max-w-full items-start gap-2 rounded-2xl border border-[var(--danger)] bg-[color-mix(in_srgb,var(--amber)_18%,var(--cream))] px-3 py-2 text-xs leading-5 text-[var(--danger)] shadow-inset"
+      role="note"
+      aria-label="Unmatched citations appended after the answer"
+      title="These citations were returned by the archive but their labels were not found in the answer text."
+    >
+      <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+      <span className="min-w-0">
+        <span className="micro-label block text-[var(--danger)]">Unmatched citations</span>
+        <span className="text-[var(--muted)]">Available sources not placed inline:</span>
+        <span className="citation-marker-group" title="Appended unmatched citation markers">
+          {citations.map((citation) => (
+            <CitationMarker key={citation.id} citation={citation} onCitationMarkerClick={onCitationMarkerClick} />
+          ))}
+        </span>
+      </span>
+    </aside>
   );
 }
 
-function CitationMarker({ citation, onCitationMarkerClick }: { citation: Citation; onCitationMarkerClick: (citation: Citation) => void }) {
+export function CitationMarker({ citation, onCitationMarkerClick }: { citation: Citation; onCitationMarkerClick: (citation: Citation) => void }) {
   return (
     <button
       type="button"
@@ -343,19 +456,56 @@ function CitationMarker({ citation, onCitationMarkerClick }: { citation: Citatio
 }
 
 function AssistantLoading() {
+  const phases = [
+    { label: "Searching the archive", detail: "Preparing likely source matches", icon: Search },
+    { label: "Reading sources", detail: "Reviewing persisted notes for context", icon: FileText },
+    { label: "Composing answer", detail: "Shaping a grounded response", icon: PenLine },
+    { label: "Checking citations", detail: "Keeping references ready for review", icon: CheckCircle2 },
+  ];
+
   return (
     <article className="message-row message-row-assistant">
-      <div className="assistant-loading">
-        <Loader2 className="size-4 animate-spin text-clay-dark" aria-hidden="true" />
-        Reading persisted sources...
+      <div className="assistant-loading" role="status" aria-live="polite" aria-label="The Stacks is preparing a response">
+        <div className="assistant-loading-header">
+          <span className="assistant-loading-seal" aria-hidden="true">
+            <Loader2 className="size-4 animate-spin" />
+          </span>
+          <div>
+            <p className="micro-label text-clay-dark">The Stacks is preparing</p>
+            <p className="assistant-loading-title">Gathering context for a grounded answer</p>
+          </div>
+        </div>
+
+        <ol className="assistant-loading-phases" aria-label="Simulated preparation steps">
+          {phases.map((phase, index) => {
+            const PhaseIcon = phase.icon;
+
+            return (
+              <li key={phase.label} className="assistant-loading-phase" style={{ "--phase-index": index } as CSSProperties}>
+                <span className="assistant-loading-phase-icon" aria-hidden="true">
+                  <PhaseIcon className="size-3.5" />
+                </span>
+                <span className="assistant-loading-phase-copy">
+                  <span>{phase.label}</span>
+                  <small>{phase.detail}</small>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </article>
   );
 }
 
-function CitationRail({ citations }: { citations: Citation[] }) {
+function CitationRail({ citations, isOpen, onClose }: { citations: Citation[]; isOpen: boolean; onClose: () => void }) {
   return (
-    <aside className="citation-rail" aria-label="Citations">
+    <aside
+      id="citation-rail"
+      className={cn("citation-rail", isOpen ? "citation-rail-open" : null)}
+      aria-label="Citations"
+      role={isOpen ? "dialog" : undefined}
+    >
       <div className="citation-heading">
         <span className="citation-icon">
           <BookOpen className="size-4" aria-hidden="true" />
@@ -364,6 +514,9 @@ function CitationRail({ citations }: { citations: Citation[] }) {
           <p className="micro-label text-muted">Citation rail</p>
           <p className="mt-1 text-sm text-foreground">Latest answer sources</p>
         </div>
+        <Button type="button" variant="ghost" className="citation-close-button" aria-label="Close citations" onClick={onClose}>
+          <X className="size-4" aria-hidden="true" />
+        </Button>
       </div>
 
       <div className="citation-list">
@@ -418,7 +571,23 @@ function CitationCard({ citation }: { citation: Citation }) {
   );
 }
 
-function renderCitationMarkers(content: string, labelMap: Map<string, Citation>, onCitationMarkerClick: (citation: Citation) => void): ReactNode[] {
+export function renderCitationNodeChildren(children: ReactNode, labelMap: Map<string, Citation>, onCitationMarkerClick: (citation: Citation) => void): ReactNode {
+  if (Array.isArray(children)) {
+    return children.flatMap((child, index) => renderCitationNodeChild(child, labelMap, onCitationMarkerClick, index));
+  }
+
+  return renderCitationNodeChild(children, labelMap, onCitationMarkerClick, 0);
+}
+
+function renderCitationNodeChild(child: ReactNode, labelMap: Map<string, Citation>, onCitationMarkerClick: (citation: Citation) => void, index: string | number): ReactNode {
+  if (typeof child === "string") {
+    return renderCitationMarkers(child, labelMap, onCitationMarkerClick, index);
+  }
+
+  return child;
+}
+
+export function renderCitationMarkers(content: string, labelMap: Map<string, Citation>, onCitationMarkerClick: (citation: Citation) => void, keyPrefix: string | number = "citation"): ReactNode[] {
   if (labelMap.size === 0) {
     return [content];
   }
@@ -441,7 +610,7 @@ function renderCitationMarkers(content: string, labelMap: Map<string, Citation>,
         parts.push(content.slice(lastIndex, match.index));
       }
 
-      parts.push(<CitationMarker key={`${citation.id}-${match.index}`} citation={citation} onCitationMarkerClick={onCitationMarkerClick} />);
+      parts.push(<CitationMarker key={`${keyPrefix}-${citation.id}-${match.index}`} citation={citation} onCitationMarkerClick={onCitationMarkerClick} />);
       lastIndex = match.index + label.length;
     }
 
@@ -455,24 +624,48 @@ function renderCitationMarkers(content: string, labelMap: Map<string, Citation>,
   return parts.length > 0 ? parts : [content];
 }
 
-function contentCitationLabels(content: string, labelMap: Map<string, Citation>) {
+export function contentCitationLabels(content: string, labelMap: Map<string, Citation>) {
   const labels = new Set<string>();
   const labelPattern = citationLabelPattern(labelMap);
+  const searchableContent = markdownCitationSearchText(content);
 
   if (!labelPattern) {
     return labels;
   }
 
-  let match = labelPattern.exec(content);
+  let match = labelPattern.exec(searchableContent);
   while (match) {
     labels.add(match[0]);
-    match = labelPattern.exec(content);
+    match = labelPattern.exec(searchableContent);
   }
 
   return labels;
 }
 
-function citationLabelMap(citations: Citation[]) {
+export function markdownCitationSearchText(content: string) {
+  const searchableLines: string[] = [];
+  let fenceMarker: string | null = null;
+
+  for (const line of content.split("\n")) {
+    const fenceMatch = line.match(/^\s*(```+|~~~+)/);
+    if (fenceMatch) {
+      const marker = fenceMatch[1].startsWith("`") ? "`" : "~";
+      if (fenceMarker === marker) {
+        fenceMarker = null;
+      } else if (!fenceMarker) {
+        fenceMarker = marker;
+      }
+      searchableLines.push("");
+      continue;
+    }
+
+    searchableLines.push(fenceMarker ? "" : line.replace(/`+[^`]*`+/g, ""));
+  }
+
+  return searchableLines.join("\n");
+}
+
+export function citationLabelMap(citations: Citation[]) {
   return new Map(citations.map((citation) => [citation.label, citation]));
 }
 
@@ -483,6 +676,24 @@ function citationLabelPattern(labelMap: Map<string, Citation>) {
     .map(escapeRegExp);
 
   return labels.length > 0 ? new RegExp(labels.join("|"), "g") : null;
+}
+
+function safeMarkdownHref(href: string | undefined) {
+  if (!href) {
+    return null;
+  }
+
+  const normalizedHref = href.trim();
+  if (normalizedHref.startsWith("#") || normalizedHref.startsWith("/")) {
+    return normalizedHref;
+  }
+
+  try {
+    const url = new URL(normalizedHref);
+    return ["http:", "https:", "mailto:"].includes(url.protocol) ? normalizedHref : null;
+  } catch {
+    return null;
+  }
 }
 
 function openCitationById(citationId: string) {

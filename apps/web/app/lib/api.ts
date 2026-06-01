@@ -1,9 +1,9 @@
-const configuredApiUrl = import.meta.env.VITE_API_URL;
+const configuredApiUrl = (import.meta as ImportMeta & { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL;
 
 function resolveApiUrl() {
   if (configuredApiUrl) {
     const configuredUrl = new URL(configuredApiUrl);
-    if (typeof window !== "undefined" && isLocalHost(configuredUrl.hostname) && isLocalHost(window.location.hostname)) {
+    if (typeof window !== "undefined" && isLocalHost(configuredUrl.hostname)) {
       configuredUrl.hostname = window.location.hostname;
     }
     return configuredUrl.toString().replace(/\/$/, "");
