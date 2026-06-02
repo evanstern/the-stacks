@@ -74,6 +74,7 @@ export function ChatRoute() {
   const [selectedCitationMessageId, setSelectedCitationMessageId] = useState<string | null>(null);
   const [pendingCitationFocus, setPendingCitationFocus] = useState<PendingCitationFocus | null>(null);
   const [isCitationDrawerOpen, setIsCitationDrawerOpen] = useState(false);
+  const [largeCitationPreview, setLargeCitationPreview] = useState<Citation | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -200,23 +201,29 @@ export function ChatRoute() {
   const railCitations = selectedCitationMessage?.citations ?? latestAssistantCitations;
 
   useEffect(() => {
+    setLargeCitationPreview(null);
     setIsCitationDrawerOpen(false);
   }, [session.id]);
 
   useEffect(() => {
-    if (!isCitationDrawerOpen) {
+    if (!isCitationDrawerOpen && !largeCitationPreview) {
       return;
     }
 
     function handleKeyDown(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") {
+        if (largeCitationPreview) {
+          setLargeCitationPreview(null);
+          return;
+        }
+
         setIsCitationDrawerOpen(false);
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isCitationDrawerOpen]);
+  }, [isCitationDrawerOpen, largeCitationPreview]);
 
   useEffect(() => {
     if (!pendingCitationFocus) {
@@ -245,6 +252,23 @@ export function ChatRoute() {
     setIsCitationDrawerOpen(true);
   }
 
+  function closeCitationRail() {
+    setLargeCitationPreview(null);
+    setIsCitationDrawerOpen(false);
+  }
+
+  function closeLargeCitationPreview() {
+    setLargeCitationPreview(null);
+  }
+
+  function openLargeCitationPreview(citation: Citation) {
+    if (!canPreviewCitationLarge(citation)) {
+      return;
+    }
+
+    setLargeCitationPreview(citation);
+  }
+
   return (
     <div className="chat-workspace">
       {isCitationDrawerOpen ? (
@@ -252,10 +276,13 @@ export function ChatRoute() {
           type="button"
           className="citation-backdrop citation-backdrop-open"
           aria-label="Close citations"
-          onClick={() => setIsCitationDrawerOpen(false)}
+          onClick={closeCitationRail}
         />
       ) : null}
-      <CitationRail citations={railCitations} isOpen={isCitationDrawerOpen} onClose={() => setIsCitationDrawerOpen(false)} />
+      <CitationRail citations={railCitations} isOpen={isCitationDrawerOpen} onClose={closeCitationRail} onOpenLargePreview={openLargeCitationPreview} />
+      {largeCitationPreview ? (
+        <CitationLargePreviewState preview={largeCitationPreview} onClose={closeLargeCitationPreview} />
+      ) : null}
 
       <section className="chat-panel">
         <div className="chat-header">
@@ -508,7 +535,17 @@ function AssistantLoading() {
   );
 }
 
-function CitationRail({ citations, isOpen, onClose }: { citations: Citation[]; isOpen: boolean; onClose: () => void }) {
+function CitationRail({
+  citations,
+  isOpen,
+  onClose,
+  onOpenLargePreview,
+}: {
+  citations: Citation[];
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenLargePreview: (citation: Citation) => void;
+}) {
   return (
     <aside
       id="citation-rail"
@@ -536,14 +573,14 @@ function CitationRail({ citations, isOpen, onClose }: { citations: Citation[]; i
           </p>
         ) : null}
         {citations.map((citation) => (
-          <CitationCard key={citation.id} citation={citation} />
+          <CitationCard key={citation.id} citation={citation} onOpenLargePreview={onOpenLargePreview} />
         ))}
       </div>
     </aside>
   );
 }
 
-function CitationCard({ citation }: { citation: Citation }) {
+function CitationCard({ citation, onOpenLargePreview }: { citation: Citation; onOpenLargePreview: (citation: Citation) => void }) {
   const metadata = citationMetadata(citation);
   const archiveView = archiveCitationView(citation, metadata);
   const cardId = citationCardId(citation.id);
@@ -567,7 +604,7 @@ function CitationCard({ citation }: { citation: Citation }) {
       </summary>
       <div className="citation-body">
         <p className="citation-excerpt">{metadata.excerpt}</p>
-        {archiveView ? <ArchiveCitationViewer citation={citation} view={archiveView} /> : null}
+        {archiveView ? <ArchiveCitationViewer citation={citation} view={archiveView} onOpenLargePreview={onOpenLargePreview} /> : null}
         <dl className="grid gap-2 font-mono text-[0.65rem] uppercase tracking-[0.12em]">
           <div>
             <dt className="text-muted">Citation id</dt>
@@ -583,7 +620,9 @@ function CitationCard({ citation }: { citation: Citation }) {
   );
 }
 
-function ArchiveCitationViewer({ citation, view }: { citation: Citation; view: ArchiveCitationView }) {
+function ArchiveCitationViewer({ citation, view, onOpenLargePreview }: { citation: Citation; view: ArchiveCitationView; onOpenLargePreview: (citation: Citation) => void }) {
+  void onOpenLargePreview;
+
   return (
     <section className="citation-viewer" aria-label={`Archived source viewer for citation ${citation.label}`}>
       <div className="citation-viewer-header">
@@ -614,6 +653,53 @@ function ArchiveCitationViewer({ citation, view }: { citation: Citation; view: A
       ) : null}
     </section>
   );
+}
+
+export function LargeCitationPreviewDialog({ preview, onClose }: { preview: Citation; onClose: () => void }) {
+  const metadata = citationMetadata(preview);
+  const view = archiveCitationView(preview, metadata);
+
+  return (
+    <section
+      className="citation-preview-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-label={largeCitationPreviewLabel(preview)}
+    >
+      <div className="citation-preview-shell">
+        <div className="citation-preview-header">
+          <div>
+            <p className="micro-label text-clay-dark">Archived source</p>
+            <h2 className="citation-preview-title">{largeCitationPreviewLabel(preview)}</h2>
+            <p className="citation-viewer-title">{metadata.source}</p>
+          </div>
+          <Button type="button" variant="ghost" className="citation-preview-close-button" aria-label="Close citation preview" onClick={onClose}>
+            Close citation preview
+          </Button>
+        </div>
+        <div className="citation-preview-body">
+          {!view?.viewerUrl ? (
+            <p className="citation-viewer-fallback" role="note">
+              Large preview unavailable for this citation.
+            </p>
+          ) : (
+            <iframe
+              className="citation-preview-frame"
+              src={view.viewerUrl}
+              title={`Large preview for citation ${preview.label}`}
+              sandbox={citationIframeSandbox}
+              referrerPolicy="same-origin"
+              loading="lazy"
+            />
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CitationLargePreviewState({ preview, onClose }: { preview: Citation; onClose: () => void }) {
+  return <LargeCitationPreviewDialog preview={preview} onClose={onClose} />;
 }
 
 export function renderCitationNodeChildren(children: ReactNode, labelMap: Map<string, Citation>, onCitationMarkerClick: (citation: Citation) => void): ReactNode {
@@ -803,6 +889,14 @@ export function archiveCitationView(citation: Citation, metadata: CitationMetada
     targetLabel,
     fallbackText: archiveCitationFallbackText(Boolean(rawViewerUrl), Boolean(targetLabel), metadata.excerpt),
   };
+}
+
+export function canPreviewCitationLarge(citation: Citation) {
+  return Boolean(archiveCitationView(citation)?.viewerUrl);
+}
+
+export function largeCitationPreviewLabel(citation: Citation) {
+  return `Large preview for citation ${citation.label}`;
 }
 
 export function archiveViewerUrl(viewerUrl: string, targetChunkId: string | null) {

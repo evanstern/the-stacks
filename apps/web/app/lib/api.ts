@@ -3,14 +3,22 @@ const configuredApiUrl = (import.meta as ImportMeta & { env?: { VITE_API_URL?: s
 function resolveApiUrl() {
   if (configuredApiUrl) {
     const configuredUrl = new URL(configuredApiUrl);
+    if (typeof window !== "undefined" && isLocalHost(configuredUrl.hostname) && !isLocalHost(window.location.hostname)) {
+      return window.location.origin;
+    }
+
     if (typeof window !== "undefined" && isLocalHost(configuredUrl.hostname)) {
       configuredUrl.hostname = window.location.hostname;
     }
     return configuredUrl.toString().replace(/\/$/, "");
   }
 
-  if (typeof window !== "undefined" && isLocalHost(window.location.hostname)) {
-    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  if (typeof window !== "undefined") {
+    if (isLocalHost(window.location.hostname)) {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+
+    return window.location.origin;
   }
 
   return "http://localhost:8000";

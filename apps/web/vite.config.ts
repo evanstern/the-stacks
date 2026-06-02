@@ -12,7 +12,7 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     strictPort: true,
-    allowedHosts: ["vm-104.tailb3c1b6.ts.net"],
+    allowedHosts: ["vm-104.tailb3c1b6.ts.net", "thestacks.ikis.ai"],
     proxy: {
       "/records": {
         target: "http://api:8000",
