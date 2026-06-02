@@ -473,7 +473,7 @@ def _archive_citation_metadata(metadata: dict[str, object], content: str) -> dic
     target_chunk_id = _metadata_text(metadata, "target_chunk_id")
     target_selector = _metadata_text(metadata, "target_selector")
     quote_text = _metadata_text(metadata, "quote") or content
-    section_path = _semantic_section_path_text(metadata)
+    section_path = _semantic_section_path_text(archive_metadata)
 
     archive_metadata["source_type"] = "archived_webpage"
     archive_metadata["source_title"] = _archive_source_title(metadata)

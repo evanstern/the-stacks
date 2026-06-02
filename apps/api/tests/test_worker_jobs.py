@@ -60,7 +60,7 @@ def test_worker_processes_markdown_to_awaiting_embedding(db_session: Session, tm
 
     assert processed is not None
     assert processed.id == job.id
-    assert processed.status == "completed"
+    assert processed.status == "awaiting_embedding"
     assert processed.error_summary is None
     metadata = json.loads(processed.metadata_json)
     assert metadata["parser"] == "markdown"
@@ -200,7 +200,7 @@ def test_worker_surfaces_html_parser_warnings_in_events_and_metadata(db_session:
     processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
 
     assert processed is not None
-    assert processed.status == "completed"
+    assert processed.status == "awaiting_embedding"
     metadata = json.loads(processed.metadata_json)
     assert metadata["title"] == "Bestiary"
     assert metadata["parser_warnings"]
@@ -364,7 +364,7 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
     )
 
     assert processed is not None
-    assert processed.status == "awaiting_embedding"
+    assert processed.status == "completed"
     source = db_session.get(Source, source_id)
     assert source is not None
     assert source.source_type == "archived_webpage"

@@ -420,6 +420,101 @@ def test_archive_viewer_serves_sanitized_html_with_target_highlight_and_iframe_h
     assert str(tmp_path) not in response.text
 
 
+def test_archive_viewer_repairs_stale_source_metadata_from_manifest(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    source_id = _upload_and_ingest_archive(
+        client,
+        db_session,
+        {"nested/page.html": b"<html><body><h1>Saved page</h1><p>Hello repaired archive.</p></body></html>"},
+    )
+    source = db_session.get(Source, source_id)
+    assert source is not None
+    source.metadata_json = json.dumps(
+        {
+            "source_id": source_id,
+            "source_type": "archived_webpage",
+            "archive_manifest_path": "/stale/uploads/source-archives/stale/manifest.json",
+            "archive_served_html_path": "/stale/uploads/source-archives/stale/served/page.html",
+        }
+    )
+    db_session.commit()
+
+    response = client.get(f"/records/sources/{source_id}/archive/viewer")
+
+    assert response.status_code == 200
+    assert "Hello repaired archive." in response.text
+    repaired = db_session.get(Source, source_id)
+    assert repaired is not None
+    repaired_metadata = json.loads(repaired.metadata_json)
+    assert repaired_metadata["archive_served_html_path"] == "nested/page.html"
+    assert repaired_metadata["archive_served_entry_path"] == "nested/page.html"
+    assert repaired_metadata["archive_primary_html_path"] == "nested/page.html"
+    assert repaired_metadata["archive_anchor_map_path"] == "anchor-map.json"
+
+
+def test_archive_viewer_reconstructs_missing_source_from_archive_job_metadata(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    response = client.post(
+        "/uploads",
+        files={"file": ("saved-page.zip", _zip_bytes({"page.html": b"<html><body><h1>Saved page</h1><p>Hello queued archive.</p></body></html>"}), "application/zip")},
+    )
+    assert response.status_code == 201
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert job is not None
+    source_id = json.loads(job.metadata_json)["source_id"]
+    assert db_session.get(Source, source_id) is None
+
+    viewer_response = client.get(f"/records/sources/{source_id}/archive/viewer")
+
+    assert viewer_response.status_code == 200
+    assert "Hello queued archive." in viewer_response.text
+    repaired_source = db_session.get(Source, source_id)
+    assert repaired_source is not None
+    assert repaired_source.source_type == "archived_webpage"
+    assert repaired_source.upload_id == job.upload_id
+    repaired_metadata = json.loads(repaired_source.metadata_json)
+    assert repaired_metadata["archive_served_html_path"] == "page.html"
+    assert repaired_metadata["archive_served_entry_path"] == "page.html"
+
+
+def test_archive_viewer_still_404s_when_repair_artifacts_are_missing(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    source_id = _upload_and_ingest_archive(
+        client,
+        db_session,
+        {"page.html": b"<html><body><h1>Saved page</h1><p>Missing ingested file.</p></body></html>"},
+    )
+    served_html_path = tmp_path / "uploads" / "source-archives" / source_id / "served" / "page.html"
+    served_html_path.unlink()
+
+    stale_source_response = client.get(f"/records/sources/{source_id}/archive/viewer")
+
+    assert stale_source_response.status_code == 404
+
+    response = client.post(
+        "/uploads",
+        files={"file": ("saved-page.zip", _zip_bytes({"page.html": b"<html><body><h1>Saved page</h1><p>Missing file.</p></body></html>"}), "application/zip")},
+    )
+    assert response.status_code == 201
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert job is not None
+    queued_source_id = json.loads(job.metadata_json)["source_id"]
+    queued_served_html_path = tmp_path / "uploads" / "source-archives" / queued_source_id / "served" / "page.html"
+    queued_served_html_path.unlink()
+
+    viewer_response = client.get(f"/records/sources/{queued_source_id}/archive/viewer")
+
+    assert viewer_response.status_code == 404
+    assert db_session.get(Source, queued_source_id) is None
+
+
 def test_archive_asset_route_serves_local_assets_with_mime_and_iframe_headers(
     client: TestClient,
     db_session: Session,
