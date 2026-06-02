@@ -316,6 +316,8 @@ def test_upload_allows_macos_ds_store_archive_entries(
     content = _zip_bytes(
         {
             "A/.DS_Store": b"mac metadata",
+            "__MACOSX/A/._page.html": b"appledouble metadata",
+            "__MACOSX/Introduction/._Introduction - Dungeon Masters Guide (2014) - Dungeons & Dragons - Sources - D&D Beyond_files": b"resource fork metadata",
             "A/page.html": b"<html><body><h1>Saved page</h1><p>Hello archive.</p></body></html>",
         }
     )
@@ -328,10 +330,13 @@ def test_upload_allows_macos_ds_store_archive_entries(
     source_id = json.loads(job.metadata_json)["source_id"]
     archive_root = tmp_path / "uploads" / "source-archives" / source_id
     assert (archive_root / "original" / "A" / ".DS_Store").read_bytes() == b"mac metadata"
+    assert (archive_root / "original" / "__MACOSX" / "A" / "._page.html").read_bytes() == b"appledouble metadata"
 
     manifest = json.loads((archive_root / "manifest.json").read_text(encoding="utf-8"))
-    manifest_entry = next(entry for entry in manifest["entries"] if entry["path"] == "A/.DS_Store")
-    assert manifest_entry["mime_type"] == "application/octet-stream"
+    metadata_entries = {entry["path"]: entry for entry in manifest["entries"] if entry["mime_type"] == "application/octet-stream"}
+    assert metadata_entries["A/.DS_Store"]
+    assert metadata_entries["__MACOSX/A/._page.html"]
+    assert metadata_entries["__MACOSX/Introduction/._Introduction - Dungeon Masters Guide (2014) - Dungeons & Dragons - Sources - D&D Beyond_files"]
 
 
 def test_upload_allows_extensionless_browser_saved_assets(
@@ -558,6 +563,7 @@ def test_archive_served_html_strips_dangerous_content_and_external_references(
         ({"/evil.html": b"<html></html>"}, "unsafe entry path"),
         ({"assets/file.exe": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
         ({"A/.env": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
+        ({"__MACOSX/evil.exe": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
         ({"assets/style.css": b"body{}"}, "exactly one HTML"),
         ({"a.html": b"<html></html>", "b.htm": b"<html></html>"}, "multiple HTML"),
     ],

@@ -537,7 +537,8 @@ def _validate_zip_archive(content: bytes, settings: Settings) -> _ArchiveValidat
                 extracted_size = 0
                 for info in entries:
                     extension = Path(info.filename).suffix.lower()
-                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename) and not _is_allowed_metadata_entry(info.filename):
+                    is_metadata_entry = _is_allowed_metadata_entry(info.filename)
+                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename) and not is_metadata_entry:
                         raise ArchiveValidationError(f"Archive entry has a disallowed extension: {info.filename}")
                     mime_type = _validate_entry_mime(info.filename)
                     extracted_size += info.file_size
@@ -555,7 +556,7 @@ def _validate_zip_archive(content: bytes, settings: Settings) -> _ArchiveValidat
                             mime_type=mime_type,
                         )
                     )
-                    if extension in HTML_EXTENSIONS:
+                    if extension in HTML_EXTENSIONS and not is_metadata_entry:
                         html_entries.append(info.filename)
     except zipfile.BadZipFile as exc:
         raise ArchiveValidationError("Uploaded archive is not a valid ZIP file") from exc
@@ -602,7 +603,10 @@ def _is_extensionless_archive_asset(filename: str) -> bool:
 
 
 def _is_allowed_metadata_entry(filename: str) -> bool:
-    return PurePosixPath(filename).name in ALLOWED_METADATA_FILENAMES
+    path = PurePosixPath(filename)
+    if path.name in ALLOWED_METADATA_FILENAMES:
+        return True
+    return bool(path.parts and path.parts[0] == "__MACOSX" and path.name.startswith("._"))
 
 
 def _is_zip_bomb_candidate(info: zipfile.ZipInfo) -> bool:

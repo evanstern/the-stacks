@@ -6,6 +6,7 @@ import zipfile
 from collections.abc import Generator
 from pathlib import Path
 from textwrap import dedent
+from typing import cast
 
 import pytest
 from sqlalchemy import create_engine, select
@@ -58,7 +59,7 @@ def test_worker_processes_markdown_to_awaiting_embedding(db_session: Session, tm
 
     assert processed is not None
     assert processed.id == job.id
-    assert processed.status == "awaiting_embedding"
+    assert processed.status == "completed"
     assert processed.error_summary is None
     metadata = json.loads(processed.metadata_json)
     assert metadata["parser"] == "markdown"
@@ -198,7 +199,7 @@ def test_worker_surfaces_html_parser_warnings_in_events_and_metadata(db_session:
     processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
 
     assert processed is not None
-    assert processed.status == "awaiting_embedding"
+    assert processed.status == "completed"
     metadata = json.loads(processed.metadata_json)
     assert metadata["title"] == "Bestiary"
     assert metadata["parser_warnings"]
@@ -280,6 +281,7 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
 def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_session: Session, tmp_path: Path) -> None:
     from app.archive_storage import store_source_archive
     from app.config import Settings
+    from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 
     source_id = "archive-source-worker"
     archive = store_source_archive(
@@ -336,7 +338,15 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
 
     claimed = claim_next_job(db_session)
     assert claimed is not None
-    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
+    qdrant = FakeQdrantIndexer(collection="mock_chunks")
+    processed = process_claimed_job(
+        db_session,
+        claimed.id,
+        continue_to_index=True,
+        embedding_client=FakeEmbeddingClient(dimensions=5),
+        qdrant_indexer=qdrant,
+        settings=Settings(UPLOAD_DIR=str(tmp_path / "uploads")),
+    )
 
     assert processed is not None
     assert processed.status == "awaiting_embedding"
@@ -347,6 +357,7 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
     assert chunk.content == "Safe archive quote."
     assert "bad()" not in chunk.content
     metadata = json.loads(chunk.metadata_json)
+    expected_path_text = ["Archive heading"]
     assert metadata["parser"] == "archived_webpage"
     assert metadata["source_type"] == "archived_webpage"
     assert metadata["archive_source_id"] == source_id
@@ -358,8 +369,15 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
     assert metadata["target_selector"] == f'[data-source-chunk-id="{target_chunk_id}"]'
     assert metadata["viewer_fragment"] == f"#source-chunk-{target_chunk_id}"
     assert metadata["quote"] == "Safe archive quote."
-    assert metadata["section_path"] == ["Archive heading"]
+    assert metadata["semantic_section"]["kind"] == "heading"
+    assert metadata["semantic_section"]["path_text"] == expected_path_text
+    assert "section_path" not in metadata
     assert metadata["source_url"] == "https://example.test/archive-source"
+    assert len(qdrant.points) == 1
+    qdrant_payload = qdrant.points[0].payload
+    semantic_section = cast(dict[str, object], qdrant_payload["semantic_section"])
+    assert semantic_section["path_text"] == expected_path_text
+    assert "section_path" not in qdrant_payload
 
 
 def _create_upload_and_job(

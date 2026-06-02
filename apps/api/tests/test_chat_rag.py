@@ -88,7 +88,27 @@ def test_post_session_message_returns_archive_viewer_citation_metadata(db_sessio
             "target_chunk_id": "archive-target-123",
             "target_selector": "#source-chunk-archive-target-123",
             "quote": "Archive goblins prefer moonlit ruins.",
-            "section_path": ["Bestiary", "Goblins"],
+            "semantic_section": {
+                "kind": "heading",
+                "heading": {
+                    "text": "Goblins",
+                    "level": 2,
+                    "id": "goblins",
+                    "slug": "goblins",
+                },
+                "parent": {
+                    "text": "Bestiary",
+                    "level": 1,
+                    "id": "bestiary",
+                    "slug": "bestiary",
+                },
+                "path": [
+                    {"text": "Bestiary", "level": 1, "id": "bestiary", "slug": "bestiary"},
+                    {"text": "Goblins", "level": 2, "id": "goblins", "slug": "goblins"},
+                ],
+                "path_text": ["Bestiary", "Goblins"],
+                "depth": 2,
+            },
             "archive_entry_path": "original/index.html",
             "archive_served_entry_path": "served/index.html",
             "archive_manifest_path": "source-archives/source-id/manifest.json",
@@ -115,7 +135,7 @@ def test_post_session_message_returns_archive_viewer_citation_metadata(db_sessio
     assert metadata["target_chunk_id"] == "archive-target-123"
     assert metadata["target_selector"] == "#source-chunk-archive-target-123"
     assert metadata["quote"] == "Archive goblins prefer moonlit ruins."
-    assert metadata["section_path"] == ["Bestiary", "Goblins"]
+    assert metadata["section_path"] == metadata["semantic_section"]["path_text"]
     assert metadata["cited_text"] == "Archive goblins prefer moonlit ruins."
     assert metadata["source_filename"] == "archive.zip"
     assert "archive_entry_path" not in metadata
@@ -196,6 +216,66 @@ def test_post_session_message_repeats_single_source_citation_on_multiple_factual
     payload = response.json()
     assert payload["assistant_message"]["content"] == "Ancient red dragons prefer volcanic lairs. [1] They hoard treasure obsessively. [1]"
     assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+
+
+def test_post_session_message_derives_archive_citation_section_path_from_semantic_section_path_text(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Archive goblins prefer moonlit ruins.", filename="archive.zip")
+    legacy_section_path = ["Parser", "Legacy"]
+    chunk.metadata_json = json.dumps(
+        {
+            **json.loads(chunk.metadata_json),
+            "source_type": "archived_webpage",
+            "archive_source_id": chunk.source_id,
+            "source_title": "Moonlit Goblin Archive",
+            "target_chunk_id": "archive-target-456",
+            "target_selector": "#source-chunk-archive-target-456",
+            "quote": "Archive goblins prefer moonlit ruins.",
+            "semantic_section": {
+                "kind": "heading",
+                "heading": {
+                    "text": "Goblins",
+                    "level": 2,
+                    "id": "goblins",
+                    "slug": "goblins",
+                },
+                "parent": {
+                    "text": "Bestiary",
+                    "level": 1,
+                    "id": "bestiary",
+                    "slug": "bestiary",
+                },
+                "path": [
+                    {"text": "Bestiary", "level": 1, "id": "bestiary", "slug": "bestiary"},
+                    {"text": "Goblins", "level": 2, "id": "goblins", "slug": "goblins"},
+                ],
+                "path_text": ["Bestiary", "Goblins"],
+                "depth": 2,
+            },
+            "section_path": legacy_section_path,
+            "archive_entry_path": "original/index.html",
+            "archive_served_entry_path": "served/index.html",
+            "archive_manifest_path": "source-archives/source-id/manifest.json",
+            "raw_html_path": "/tmp/source-archives/source-id/original/index.html",
+        },
+        sort_keys=True,
+    )
+    db_session.commit()
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Archive goblins prefer moonlit ruins. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Where do archive goblins lair?"})
+
+    assert response.status_code == 200
+    citation = response.json()["assistant_message"]["citations"][0]
+    metadata = citation["metadata"]
+
+    assert metadata["section_path"] == metadata["semantic_section"]["path_text"]
+    assert metadata["section_path"] != legacy_section_path
+    assert metadata["viewer_url"] == f"/records/sources/{chunk.source_id}/archive/viewer?target=archive-target-456"
+    assert json.loads(chunk.metadata_json)["section_path"] == legacy_section_path
 
 
 def test_post_session_message_rewrites_paragraph_end_only_citation_drift(db_session: Session) -> None:
