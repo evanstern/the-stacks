@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse, HTMLResponse
 from sqlalchemy.orm import Session
 
+from app.archive_repair import repair_archive_source
 from app.archive_storage import ARCHIVE_SOURCE_TYPE, SERVED_VIEWER_CSS, ArchiveValidationError, archive_asset_path, archive_served_html_path
 from app.auth import current_admin_session
 from app.config import Settings, get_settings
@@ -31,7 +32,7 @@ def read_archive_viewer(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> HTMLResponse:
-    source = _archived_source_or_404(db, source_id)
+    source = _archived_source_or_404(db, source_id, settings)
     served_path = path or _archive_served_html_metadata(source)
     try:
         html_path = archive_served_html_path(source_id=source_id, served_html_path=served_path, settings=settings)
@@ -52,7 +53,7 @@ def read_archive_asset(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> FileResponse:
-    _archived_source_or_404(db, source_id)
+    _archived_source_or_404(db, source_id, settings)
     try:
         path = archive_asset_path(source_id=source_id, asset_path=asset_path, settings=settings)
     except FileNotFoundError as exc:
@@ -64,8 +65,12 @@ def read_archive_asset(
     return FileResponse(path, media_type=media_type, headers=ARCHIVE_IFRAME_HEADERS)
 
 
-def _archived_source_or_404(db: Session, source_id: str) -> Source:
+def _archived_source_or_404(db: Session, source_id: str, settings: Settings) -> Source:
     source = db.get(Source, source_id)
+    if source is None:
+        source = repair_archive_source(db, source_id, settings)
+    elif source.source_type == ARCHIVE_SOURCE_TYPE:
+        source = repair_archive_source(db, source_id, settings) or source
     if source is None or source.source_type != ARCHIVE_SOURCE_TYPE:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Archive source not found")
     return source
