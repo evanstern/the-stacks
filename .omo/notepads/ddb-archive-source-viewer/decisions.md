@@ -261,3 +261,12 @@
 - Rebuilt isolated API image: `docker compose --env-file .env.ddb-5176 -f docker-compose.ddb-5176.yml build api` completed and produced `the-stacks-ddb-5176-api:latest`.
 - Targeted backend verification passed: `docker compose --env-file .env.ddb-5176 -f docker-compose.ddb-5176.yml run --rm api pytest tests/test_uploads.py tests/test_chat_rag.py tests/test_citations.py` collected 58 tests and ended `58 passed, 2 warnings in 9.75s`.
 - Secret/runtime handling: `.env.ddb-5176` remained local-only; its contents were not read or printed. No unrelated UI files were modified.
+
+## 2026-06-02 — Manual rollback for archive upload W.zip
+
+- Request scope: back out job `ef17bc40-f5da-4aed-8c08-7f8081556262` and upload `0ecef328-784e-4f87-ba9e-5e2c71ac6649` only.
+- The active `main` dev database on `main-postgres-1` already had zero rows for those IDs, so no changes were made there. The records were found in the running `webpage-semantic-chunking-metadata` stack (`postgres` on host port `5438`, Qdrant on `6338`, API on `8017`).
+- Pre-cleanup target scope in `webpage-semantic-chunking-metadata-postgres-1`: upload `W.zip`, completed job `ef17bc40-f5da-4aed-8c08-7f8081556262`, source `b5be763f-a609-4f9e-9584-39b9d8dac41e`, 222 `chunks`, 222 `indexed_chunks`, 12 `ingestion_events`, 10 `sections`, 1 `document`, and no `citations`/`retrieval_hits`.
+- Cleanup removed exactly those scoped database rows plus 222 Qdrant points from collection `thestacks_chunks` filtered by the target job/upload IDs. It also removed the exact archive directory `/data/webpage-semantic-chunking-metadata/uploads/source-archives/b5be763f-a609-4f9e-9584-39b9d8dac41e` from the shared upload volume.
+- Post-cleanup verification: target counts were zero for `uploads`, `ingestion_jobs`, `ingestion_events`, `sources`, `documents`, `sections`, `chunks`, `indexed_chunks`, `retrieval_hits`, and `citations`; Qdrant counts were zero by both `ingestion_job_id` and `upload_id`; archive path existence was `False`; isolated API health at `http://localhost:8017/health` returned `{"status":"ok"}`.
+- Unrelated rows remained present after cleanup: 53 uploads/jobs/sources, 22,027 chunks, and 20,415 indexed chunks remained in that isolated database.
