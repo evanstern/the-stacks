@@ -1,8 +1,13 @@
 from pathlib import Path
+from typing import cast
 
-import pytest
+import pytest  # pyright: ignore[reportMissingImports]
 
-from app.ingestion import ParserError, parse_document
+from app.ingestion import ParserError, parse_document  # pyright: ignore[reportImplicitRelativeImport]
+
+
+def _semantic_section(section: object) -> dict[str, object]:
+    return cast(dict[str, object], getattr(section, "metadata")["semantic_section"])
 
 
 def test_markdown_parser_preserves_headings(tmp_path: Path) -> None:
@@ -46,6 +51,63 @@ def test_html_parser_extracts_title_headings_and_blocks(tmp_path: Path) -> None:
     assert document.sections[0].text == "Ancient red dragons prefer volcanic lairs."
 
 
+def test_html_parser_builds_semantic_sections_for_root_and_nested_headings(tmp_path: Path) -> None:
+    source = tmp_path / "semantic-hierarchy.html"
+    source.write_text(
+        """<!doctype html>
+<html lang="en">
+  <head>
+    <title>Guide</title>
+  </head>
+  <body>
+    <p>Preface note.</p>
+    <h1>Guide</h1>
+    <p>Intro paragraph.</p>
+    <h3>Linux</h3>
+    <p>Linux steps.</p>
+    <h2>Install</h2>
+    <p>Install steps.</p>
+    <h3>Windows</h3>
+    <p>Windows steps.</p>
+  </body>
+</html>""",
+        encoding="utf-8",
+    )
+
+    document = parse_document(source, ".html")
+
+    assert document.title == "Guide"
+    assert [section.heading for section in document.sections] == [None, "Guide", "Linux", "Install", "Windows"]
+    assert document.sections[0].text == "Preface note."
+    assert _semantic_section(document.sections[0]) == {
+        "kind": "root",
+        "heading": None,
+        "parent": None,
+        "path": [],
+        "path_text": [],
+        "depth": 0,
+    }
+    assert cast(dict[str, object], _semantic_section(document.sections[1])["heading"]) == {
+        "text": "Guide",
+        "level": 1,
+        "id": "guide",
+        "slug": "guide",
+    }
+    assert cast(list[str], _semantic_section(document.sections[1])["path_text"]) == ["Guide"]
+    assert cast(dict[str, object], _semantic_section(document.sections[2])["parent"]) == {
+        "text": "Guide",
+        "level": 1,
+        "id": "guide",
+        "slug": "guide",
+    }
+    assert cast(list[str], _semantic_section(document.sections[2])["path_text"]) == ["Guide", "Linux"]
+    assert cast(int, cast(dict[str, object], _semantic_section(document.sections[2])["heading"])["level"]) == 3
+    assert cast(list[str], _semantic_section(document.sections[3])["path_text"]) == ["Guide", "Install"]
+    assert cast(int, cast(dict[str, object], _semantic_section(document.sections[3])["heading"])["level"]) == 2
+    assert cast(list[str], _semantic_section(document.sections[4])["path_text"]) == ["Guide", "Install", "Windows"]
+    assert cast(str, cast(dict[str, object], _semantic_section(document.sections[4])["parent"])["text"]) == "Install"
+
+
 def test_ddb_html_dispatches_before_generic_html(tmp_path: Path) -> None:
     fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
     source = tmp_path / fixture.name
@@ -63,15 +125,81 @@ def test_ddb_html_dispatches_before_generic_html(tmp_path: Path) -> None:
     assert Path(str(source) + ".artifacts", "rendered.html").is_file()
     assert Path(str(source) + ".artifacts", "chunks.jsonl").is_file()
     assert Path(str(source) + ".artifacts", "manifest.json").is_file()
-    assert [section.metadata["heading_id"] for section in document.sections] == [
+    assert [cast(dict[str, object], _semantic_section(section)["heading"])["id"] for section in document.sections] == [
         "AWorldofYourOwn",
         "TheBigPicture",
         "CoreAssumptions",
     ]
-    assert document.sections[1].metadata["section_path"] == ["A World of Your Own", "The Big Picture"]
-    assert document.sections[2].metadata["heading_level"] == 3
-    assert document.sections[2].metadata["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
-    assert "chunk-3" in document.sections[1].metadata["content_chunk_ids"]
+    assert cast(list[str], _semantic_section(document.sections[1])["path_text"]) == [
+        "A World of Your Own",
+        "The Big Picture",
+    ]
+    assert cast(int, cast(dict[str, object], _semantic_section(document.sections[2])["heading"])["level"]) == 3
+    assert cast(list[str], _semantic_section(document.sections[2])["path_text"]) == [
+        "A World of Your Own",
+        "The Big Picture",
+        "Core Assumptions",
+    ]
+    assert "heading_id" not in document.sections[1].metadata
+    assert "heading_level" not in document.sections[1].metadata
+    assert "section_path" not in document.sections[1].metadata
+    assert "content_chunk_ids" not in document.sections[1].metadata
+    assert "source_content_ids" not in document.sections[1].metadata
+    semantic_section = cast(dict[str, object], document.sections[1].metadata["semantic_section"])
+    assert "content_chunk_ids" not in semantic_section
+
+
+def test_archived_html_parser_emits_semantic_section_without_section_path(tmp_path: Path) -> None:
+    source = tmp_path / "archived.html"
+    source.write_text(
+        "<html><head><title>Archive title</title></head><body><h1>Archive heading</h1><p>Safe archive quote.</p></body></html>",
+        encoding="utf-8",
+    )
+    anchor_map = tmp_path / "anchor-map.json"
+    manifest = tmp_path / "manifest.json"
+    anchor_map.write_text(
+        """{
+  "source_id": "archive-source",
+  "source_path": "page.html",
+  "anchors": [
+    {
+      "chunk_id": "archive-target-1",
+      "selector": "[data-source-chunk-id=archive-target-1]",
+      "heading_path": ["Archive heading"],
+      "quote": "Safe archive quote.",
+      "viewer_fragment": "#source-chunk-archive-target-1"
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+
+    document = parse_document(
+        source,
+        ".html",
+        {
+            "source_type": "archived_webpage",
+            "source_id": "archive-source",
+            "archive_manifest_path": str(manifest),
+            "archive_anchor_map_path": anchor_map.name,
+            "archive_entry_path": "page.html",
+            "source_url": "https://example.test/archive-source",
+        },
+    )
+
+    assert document.parser == "archived_webpage"
+    assert len(document.sections) == 1
+    metadata = document.sections[0].metadata
+    assert metadata["target_chunk_id"] == "archive-target-1"
+    assert metadata["semantic_section"] == {
+        "kind": "heading",
+        "heading": {"text": "Archive heading", "level": 1, "id": "archive-heading", "slug": "archive-heading"},
+        "parent": None,
+        "path": [{"text": "Archive heading", "level": 1, "id": "archive-heading", "slug": "archive-heading"}],
+        "path_text": ["Archive heading"],
+        "depth": 1,
+    }
+    assert "section_path" not in metadata
 
 
 def test_generic_html_with_ddb_mention_stays_generic(tmp_path: Path) -> None:

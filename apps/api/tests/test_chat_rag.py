@@ -136,6 +136,7 @@ def test_post_session_message_returns_archive_viewer_citation_metadata(db_sessio
     assert metadata["target_selector"] == "#source-chunk-archive-target-123"
     assert metadata["quote"] == "Archive goblins prefer moonlit ruins."
     assert metadata["section_path"] == metadata["semantic_section"]["path_text"]
+    assert metadata["semantic_section"]["path_text"] == ["Bestiary", "Goblins"]
     assert metadata["cited_text"] == "Archive goblins prefer moonlit ruins."
     assert metadata["source_filename"] == "archive.zip"
     assert "archive_entry_path" not in metadata

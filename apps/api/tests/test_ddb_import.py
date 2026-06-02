@@ -73,6 +73,12 @@ def test_parse_preserves_raw_bytes_and_exposes_parsed_document() -> None:
     assert document.metadata["book_title"] == "Monsters"
     assert document.metadata["document_title"] == "Adult Red Dragon"
     assert [section.heading for section in document.sections] == ["Adult Red Dragon", "Actions", "Fire Breath"]
+    assert document.sections[0].metadata["semantic_section"]["kind"] == "heading"
+    assert "heading_level" not in document.sections[0].metadata
+    assert "heading_id" not in document.sections[0].metadata
+    assert "section_path" not in document.sections[0].metadata
+    assert "content_chunk_ids" not in document.sections[0].metadata
+    assert "source_content_ids" not in document.sections[0].metadata
 
 
 def test_extraction_preserves_heading_paths_citations_and_source_url() -> None:
@@ -89,11 +95,17 @@ def test_extraction_preserves_heading_paths_citations_and_source_url() -> None:
     )
 
     assert chunks[0].id == "adult-red-dragon-huge-dragon-chaotic-evil"
-    assert chunks[0].heading_id == "AdultRedDragon"
-    assert chunks[0].section_path == ["Adult Red Dragon"]
+    assert chunks[0].metadata["content_chunk_id"] == "adult-red-dragon-huge-dragon-chaotic-evil"
+    assert chunks[0].metadata["semantic_section"]["heading"]["id"] == "AdultRedDragon"
+    assert chunks[0].metadata["semantic_section"]["path_text"] == ["Adult Red Dragon"]
+    assert "heading_level" not in chunks[0].metadata
+    assert "heading_id" not in chunks[0].metadata
+    assert "section_path" not in chunks[0].metadata
+    assert "content_chunk_ids" not in chunks[0].metadata
+    assert "source_content_ids" not in chunks[0].metadata
     assert chunks[0].citation.label == "Adult Red Dragon"
     assert chunks[0].citation.anchor == "#AdultRedDragon"
-    assert chunks[1].section_path == ["Adult Red Dragon", "Actions"]
+    assert chunks[1].metadata["semantic_section"]["path_text"] == ["Adult Red Dragon", "Actions"]
     assert chunks[1].metadata["source_url"] == "https://www.dndbeyond.com/monsters/16771-adult-red-dragon"
 
 
@@ -136,11 +148,16 @@ def test_jsonl_records_are_valid_and_include_required_metadata() -> None:
     assert records[0]["source_type"] == "ddb_saved_html"
     assert records[0]["book_title"] == "Monsters"
     assert records[0]["document_title"] == "Adult Red Dragon"
-    assert records[0]["section_path"] == ["Adult Red Dragon"]
-    assert records[0]["heading_level"] == 1
-    assert records[0]["heading_id"] == "AdultRedDragon"
     assert records[0]["content_chunk_id"] == "intro"
-    assert records[0]["content_chunk_ids"] == ["intro"]
+    assert records[0]["semantic_section"]["kind"] == "heading"
+    assert records[0]["semantic_section"]["heading"]["id"] == "AdultRedDragon"
+    assert records[0]["semantic_section"]["heading"]["level"] == 1
+    assert records[0]["semantic_section"]["path_text"] == ["Adult Red Dragon"]
+    assert "heading_level" not in records[0]
+    assert "heading_id" not in records[0]
+    assert "section_path" not in records[0]
+    assert "content_chunk_ids" not in records[0]
+    assert "source_content_ids" not in records[0]
     assert records[0]["chunk_index"] == 0
     assert records[0]["text"] == "Huge dragon, chaotic evil."
     assert 'data-content-chunk-id="intro"' in records[0]["html"]
@@ -151,6 +168,11 @@ def test_jsonl_records_are_valid_and_include_required_metadata() -> None:
     }
     assert records[0]["metadata"]["content_chunk_id"] == "intro"
     assert records[0]["metadata"]["raw_sha256"] == imported.raw_sha256
+    assert "heading_level" not in records[0]["metadata"]
+    assert "heading_id" not in records[0]["metadata"]
+    assert "section_path" not in records[0]["metadata"]
+    assert "content_chunk_ids" not in records[0]["metadata"]
+    assert "source_content_ids" not in records[0]["metadata"]
 
 
 def test_artifact_writer_writes_manifest_and_fails_loudly(tmp_path: Path) -> None:
@@ -166,11 +188,23 @@ def test_artifact_writer_writes_manifest_and_fails_loudly(tmp_path: Path) -> Non
     assert manifest["raw_html_path"] == str(artifacts.raw_html_path)
     assert manifest["rendered_html_path"] == str(artifacts.rendered_html_path)
     assert manifest["jsonl_path"] == str(artifacts.jsonl_path)
+    assert "heading_level" not in manifest
+    assert "heading_id" not in manifest
+    assert "section_path" not in manifest
+    assert "content_chunk_ids" not in manifest
+    assert "source_content_ids" not in manifest
 
     records = [json.loads(line) for line in artifacts.jsonl_path.read_text(encoding="utf-8").splitlines()]
     assert records[0]["raw_html_path"] == str(artifacts.raw_html_path)
     assert records[0]["rendered_html_path"] == str(artifacts.rendered_html_path)
     assert records[0]["jsonl_path"] == str(artifacts.jsonl_path)
+    assert records[0]["content_chunk_id"] == "intro"
+    assert records[0]["semantic_section"]["heading"]["id"] == "AdultRedDragon"
+    assert "heading_level" not in records[0]
+    assert "heading_id" not in records[0]
+    assert "section_path" not in records[0]
+    assert "content_chunk_ids" not in records[0]
+    assert "source_content_ids" not in records[0]
 
     blocking_file = tmp_path / "not-a-directory"
     blocking_file.write_text("blocking", encoding="utf-8")

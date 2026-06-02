@@ -1,3 +1,5 @@
+from typing import cast
+
 from app.ingestion import ParsedDocument, ParsedSection, chunk_document
 from app.models import IngestionJob, Upload
 
@@ -35,6 +37,14 @@ def test_chunk_document_adds_retrieval_metadata() -> None:
         "start_char": 10,
         "end_char": 52,
         "token_count_estimate": 6,
+        "semantic_section": {
+            "kind": "heading",
+            "heading": {"text": "Lairs", "level": 1, "id": "lairs", "slug": "lairs"},
+            "parent": None,
+            "path": [{"text": "Lairs", "level": 1, "id": "lairs", "slug": "lairs"}],
+            "path_text": ["Lairs"],
+            "depth": 1,
+        },
     }
 
 
@@ -64,7 +74,21 @@ def test_chunk_document_preserves_parser_metadata_without_clobbering_base_fields
                     "section_path": ["A World of Your Own", "The Big Picture"],
                     "content_chunk_ids": ["chunk-2", "chunk-3"],
                     "start_char": "should-not-overwrite",
+                    "end_char": "should-not-overwrite",
+                    "parser": "should-not-overwrite",
+                    "section_heading": "should-not-overwrite",
                     "citation_anchor": "#TheBigPicture",
+                    "semantic_section": {
+                        "kind": "heading",
+                        "heading": {"text": "The Big Picture", "level": 2, "id": "the-big-picture", "slug": "the-big-picture"},
+                        "parent": {"text": "A World of Your Own", "level": 1, "id": "a-world-of-your-own", "slug": "a-world-of-your-own"},
+                        "path": [
+                            {"text": "A World of Your Own", "level": 1, "id": "a-world-of-your-own", "slug": "a-world-of-your-own"},
+                            {"text": "The Big Picture", "level": 2, "id": "the-big-picture", "slug": "the-big-picture"},
+                        ],
+                        "path_text": ["A World of Your Own", "The Big Picture"],
+                        "depth": 2,
+                    },
                 },
             )
         ],
@@ -75,11 +99,16 @@ def test_chunk_document_preserves_parser_metadata_without_clobbering_base_fields
     assert len(chunks) == 1
     assert chunks[0].metadata["parser"] == "ddb_saved_html"
     assert chunks[0].metadata["start_char"] == 100
+    assert chunks[0].metadata["end_char"] == 149
+    assert chunks[0].metadata["section_heading"] == "The Big Picture"
     assert chunks[0].metadata["source_type"] == "ddb_saved_html"
     assert chunks[0].metadata["heading_id"] == "TheBigPicture"
     assert chunks[0].metadata["section_path"] == ["A World of Your Own", "The Big Picture"]
     assert chunks[0].metadata["content_chunk_ids"] == ["chunk-2", "chunk-3"]
     assert chunks[0].metadata["citation_anchor"] == "#TheBigPicture"
+    semantic_section = cast(dict[str, object], chunks[0].metadata["semantic_section"])
+    assert semantic_section["path_text"] == ["A World of Your Own", "The Big Picture"]
+    assert semantic_section["depth"] == 2
 
 
 def test_chunk_document_splits_long_sections_with_stable_indices() -> None:

@@ -1,4 +1,5 @@
 import hashlib
+import importlib
 import json
 import re
 from dataclasses import dataclass, field
@@ -115,10 +116,7 @@ class DdbChunk:
     id: str
     content: str
     heading: str | None
-    heading_level: int | None
-    heading_id: str | None
-    section_path: list[str]
-    content_chunk_ids: list[str]
+    semantic_section: dict[str, Any]
     html: str
     source_url: str | None
     citation: DdbCitation
@@ -131,10 +129,7 @@ class DdbChunk:
             {
                 "content_chunk_id": self.id,
                 "heading": self.heading,
-                "heading_level": self.heading_level,
-                "heading_id": self.heading_id,
-                "section_path": self.section_path,
-                "content_chunk_ids": self.content_chunk_ids,
+                "semantic_section": self.semantic_section,
                 "source_url": self.source_url,
                 **self.citation.metadata(),
             }
@@ -152,12 +147,9 @@ class DdbChunk:
             "rendered_html_path": metadata.get("rendered_html_path"),
             "jsonl_path": metadata.get("jsonl_path"),
             "content_chunk_id": self.id,
-            "content_chunk_ids": self.content_chunk_ids,
             "chunk_index": chunk_index,
-            "section_path": self.section_path,
             "heading": self.heading,
-            "heading_level": self.heading_level,
-            "heading_id": self.heading_id,
+            "semantic_section": self.semantic_section,
             "text": self.content,
             "html": self.html,
             "citation": citation,
@@ -206,13 +198,13 @@ class DdbImport:
         return _extract_ddb_sections(self.rendered_html, dict(self.metadata))
 
     def to_parsed_document(self) -> Any:
-        from app.ingestion import ParsedDocument, ParsedSection
+        ingestion = importlib.import_module("app.ingestion")
 
-        return ParsedDocument(
+        return ingestion.ParsedDocument(
             parser=DDB_PARSER,
             title=self.title,
             sections=[
-                ParsedSection(section.heading, section.text, section.start_char, section.end_char, section.metadata)
+                ingestion.ParsedSection(section.heading, section.text, section.start_char, section.end_char, section.metadata)
                 for section in self.sections
             ],
             warnings=list(self.warnings),
@@ -262,7 +254,8 @@ def extract_ddb_chunks(article_html: str, source_url: str | None = None) -> list
     soup = BeautifulSoup(article_html, "html.parser")
     root = _select_article(soup) or soup
     chunks: list[DdbChunk] = []
-    heading_stack: list[tuple[int, str, str | None]] = []
+    heading_stack: list[dict[str, Any]] = []
+    heading_ids: set[str] = set()
     seen_ids: dict[str, int] = {}
 
     for element in root.descendants:
@@ -273,40 +266,37 @@ def extract_ddb_chunks(article_html: str, source_url: str | None = None) -> list
             heading_text = _normalize_text(element.get_text(" "))
             if heading_text:
                 level = int(name[1])
-                heading_stack = [item for item in heading_stack if item[0] < level]
-                heading_stack.append((level, heading_text, _attribute_value(element.get("id"))))
+                heading_stack = [item for item in heading_stack if _semantic_heading_level(item) < level]
+                heading_id = _semantic_heading_id(heading_text, heading_ids, _attribute_value(element.get("id")))
+                semantic_section = _semantic_section_heading_from_stack(heading_text, level, heading_id, heading_stack)
+                heading_stack = list(semantic_section["path"])
             continue
         if name not in DDB_TEXT_BLOCK_TAGS or _has_block_ancestor(element, root):
             continue
         text = _normalize_text(element.get_text(" "))
         if not text:
             continue
-        heading = heading_stack[-1][1] if heading_stack else None
-        heading_level = heading_stack[-1][0] if heading_stack else None
-        heading_id = heading_stack[-1][2] if heading_stack else None
-        section_path = [item[1] for item in heading_stack]
+        semantic_section = _semantic_section_from_stack(heading_stack)
+        heading_node = semantic_section.get("heading") if isinstance(semantic_section.get("heading"), dict) else None
+        heading = str(heading_node["text"]) if heading_node else None
+        heading_id = str(heading_node["id"]) if heading_node else None
+        section_path = [str(item["text"]) for item in heading_stack]
         chunk_id = _chunk_id_for_element(element, section_path, text, seen_ids)
-        content_chunk_ids = _content_chunk_ids([element]) or [chunk_id]
         citation = DdbCitation(label=heading or section_path[-1] if section_path else None, anchor=f"#{heading_id}" if heading_id else None)
+        html = sanitize_ddb_article_html(str(element))
         chunks.append(
             DdbChunk(
                 id=chunk_id,
                 content=text,
                 heading=heading,
-                heading_level=heading_level,
-                heading_id=heading_id,
-                section_path=section_path,
-                content_chunk_ids=content_chunk_ids,
-                html=sanitize_ddb_article_html(str(element)),
+                semantic_section=semantic_section,
+                html=html,
                 source_url=source_url,
                 citation=citation,
                 metadata={
                     "content_chunk_id": chunk_id,
-                    "content_chunk_ids": content_chunk_ids,
-                    "heading_level": heading_level,
-                    "heading_id": heading_id,
-                    "section_path": section_path,
-                    "html": sanitize_ddb_article_html(str(element)),
+                    "semantic_section": semantic_section,
+                    "html": html,
                     "source_url": source_url,
                     **citation.metadata(),
                 },
@@ -319,7 +309,8 @@ def _extract_ddb_sections(article_html: str, import_metadata: dict[str, Any]) ->
     soup = BeautifulSoup(article_html, "html.parser")
     root = _select_article(soup) or soup
     sections: list[DdbSection] = []
-    heading_stack: list[tuple[int, str, str | None]] = []
+    heading_stack: list[dict[str, Any]] = []
+    heading_ids: set[str] = set()
     headings = [element for element in root.descendants if isinstance(element, Tag) and _heading_level(element) is not None]
 
     for index, heading in enumerate(headings):
@@ -329,10 +320,12 @@ def _extract_ddb_sections(article_html: str, import_metadata: dict[str, Any]) ->
         heading_text = _normalize_text(heading.get_text(" "))
         if not heading_text:
             continue
-        heading_id = _attribute_value(heading.get("id"))
-        heading_stack = [item for item in heading_stack if item[0] < level]
-        heading_stack.append((level, heading_text, heading_id))
-        nodes = _section_nodes_until_next_heading(heading, headings[index + 1] if index + 1 < len(headings) else None)
+        heading_stack = [item for item in heading_stack if _semantic_heading_level(item) < level]
+        heading_id = _semantic_heading_id(heading_text, heading_ids, _attribute_value(heading.get("id")))
+        semantic_section = _semantic_section_heading_from_stack(heading_text, level, heading_id, heading_stack)
+        heading_stack = list(semantic_section["path"])
+        next_heading = headings[index + 1] if index + 1 < len(headings) else None
+        nodes = _section_nodes_until_next_heading(heading, next_heading)
         body_text = _normalize_text(" ".join(node.get_text(" ") for node in nodes if _heading_level(node) is None))
         section_text = body_text or heading_text
         start_char = article_html.find(str(heading))
@@ -350,10 +343,11 @@ def _extract_ddb_sections(article_html: str, import_metadata: dict[str, Any]) ->
         citation = DdbCitation(label=heading_text, anchor=f"#{heading_id}" if heading_id else None)
         metadata = {
             **{key: value for key, value in import_metadata.items() if value is not None},
-            "heading_id": heading_id,
-            "heading_level": level,
-            "section_path": [item[1] for item in heading_stack],
-            "content_chunk_ids": _content_chunk_ids([heading, *nodes]),
+            "content_chunk_id": _primary_content_chunk_id(
+                _section_nodes_until_next_same_or_higher_heading(heading, headings[index + 1 :], level),
+                heading_id,
+            ),
+            "semantic_section": semantic_section,
             "html": sanitize_ddb_article_html(section_html),
             **citation.metadata(),
         }
@@ -524,17 +518,116 @@ def _section_nodes_until_next_heading(heading: Tag, next_heading: Tag | None) ->
     return nodes
 
 
-def _content_chunk_ids(nodes: list[Tag]) -> list[str]:
-    ids: list[str] = []
-    seen: set[str] = set()
+def _section_nodes_until_next_same_or_higher_heading(heading: Tag, following_headings: list[Tag], level: int) -> list[Tag]:
+    next_boundary = None
+    for candidate in following_headings:
+        candidate_level = _heading_level(candidate)
+        if candidate_level is not None and candidate_level <= level:
+            next_boundary = candidate
+            break
+    nodes: list[Tag] = []
+    for sibling in heading.next_siblings:
+        if sibling is next_boundary:
+            break
+        if isinstance(sibling, Tag):
+            nodes.append(sibling)
+    return nodes
+
+
+def _content_chunk_candidates(node: Tag) -> list[Tag]:
+    if _heading_level(node) is not None:
+        return list(node.find_all(attrs={"data-content-chunk-id": True})) + list(node.find_all(attrs={"data-content-chunk": True}))
+    return [node, *node.find_all(attrs={"data-content-chunk-id": True}), *node.find_all(attrs={"data-content-chunk": True})]
+
+
+def _semantic_section_root() -> dict[str, Any]:
+    return {
+        "kind": "root",
+        "heading": None,
+        "parent": None,
+        "path": [],
+        "path_text": [],
+        "depth": 0,
+    }
+
+
+def _semantic_heading_slug(text: str) -> str:
+    slug = re.sub(r"[^0-9a-z]+", "-", _normalize_text(text).lower()).strip("-")
+    return slug or "section"
+
+
+def _semantic_heading_id(heading_text: str, existing_ids: set[str], dom_id: str | None = None) -> str:
+    candidate = (dom_id or "").strip()
+    if candidate:
+        candidate_key = _semantic_heading_slug(candidate)
+        if candidate_key not in existing_ids:
+            existing_ids.add(candidate_key)
+            return candidate
+
+    base_source = candidate or heading_text
+    base = _semantic_heading_slug(base_source)
+    identifier = base
+    suffix = 1
+    while _semantic_heading_slug(identifier) in existing_ids:
+        suffix += 1
+        identifier = f"{base}-{suffix}"
+    existing_ids.add(_semantic_heading_slug(identifier))
+    return identifier
+
+
+def _semantic_heading_node(heading_text: str, heading_level: int, heading_id: str) -> dict[str, Any]:
+    normalized_text = _normalize_text(heading_text)
+    return {
+        "text": normalized_text,
+        "level": heading_level,
+        "id": heading_id,
+        "slug": _semantic_heading_slug(normalized_text),
+    }
+
+
+def _semantic_section_heading_from_stack(
+    heading_text: str,
+    heading_level: int,
+    heading_id: str,
+    heading_stack: list[dict[str, Any]],
+) -> dict[str, Any]:
+    heading = _semantic_heading_node(heading_text, heading_level, heading_id)
+    path = [*heading_stack, heading]
+    return {
+        "kind": "heading",
+        "heading": heading,
+        "parent": heading_stack[-1] if heading_stack else None,
+        "path": path,
+        "path_text": [str(item["text"]) for item in path],
+        "depth": len(path),
+    }
+
+
+def _semantic_section_from_stack(heading_stack: list[dict[str, Any]]) -> dict[str, Any]:
+    if not heading_stack:
+        return _semantic_section_root()
+    return {
+        "kind": "heading",
+        "heading": heading_stack[-1],
+        "parent": heading_stack[-2] if len(heading_stack) > 1 else None,
+        "path": list(heading_stack),
+        "path_text": [str(item["text"]) for item in heading_stack],
+        "depth": len(heading_stack),
+    }
+
+
+def _semantic_heading_level(heading: dict[str, Any]) -> int:
+    level = heading.get("level")
+    return level if isinstance(level, int) else 0
+
+
+def _primary_content_chunk_id(nodes: list[Tag], fallback: str | None) -> str | None:
     for node in nodes:
-        candidates = [node, *node.find_all(attrs={"data-content-chunk-id": True}), *node.find_all(attrs={"data-content-chunk": True})]
-        for candidate in candidates:
+        for candidate in _content_chunk_candidates(node):
             value = _attribute_value(candidate.get("data-content-chunk-id")) or _attribute_value(candidate.get("data-content-chunk"))
-            if value and value not in seen:
-                ids.append(value)
-                seen.add(value)
-    return ids
+            if value:
+                return value
+    return fallback
 
 
 def _chunk_id_for_element(element: Tag, section_path: list[str], text: str, seen_ids: dict[str, int]) -> str:

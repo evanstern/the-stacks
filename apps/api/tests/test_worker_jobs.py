@@ -18,6 +18,7 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 from app.database import Base
 from app.ingestion import add_event, claim_next_job, process_claimed_job, process_next_job, process_next_queued_job
 from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, utcnow
+from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 
 
 @pytest.fixture()
@@ -244,11 +245,15 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert jsonl_records[0]["book_title"] == "Dungeon Master's Guide"
     assert jsonl_records[0]["document_title"] == "A World of Your Own"
     assert jsonl_records[0]["content_chunk_id"] == "chunk-3"
-    assert jsonl_records[0]["content_chunk_ids"] == ["chunk-3"]
+    assert jsonl_records[0]["semantic_section"]["heading"]["id"] == "TheBigPicture"
+    assert jsonl_records[0]["semantic_section"]["heading"]["level"] == 2
+    assert jsonl_records[0]["semantic_section"]["path_text"] == ["A World of Your Own", "The Big Picture"]
+    assert "heading_level" not in jsonl_records[0]
+    assert "heading_id" not in jsonl_records[0]
+    assert "section_path" not in jsonl_records[0]
+    assert "content_chunk_ids" not in jsonl_records[0]
+    assert "source_content_ids" not in jsonl_records[0]
     assert jsonl_records[0]["chunk_index"] == 0
-    assert jsonl_records[0]["heading_level"] == 2
-    assert jsonl_records[0]["heading_id"] == "TheBigPicture"
-    assert jsonl_records[0]["section_path"] == ["A World of Your Own", "The Big Picture"]
     assert jsonl_records[0]["citation"] == {
         "label": "The Big Picture",
         "anchor": "#TheBigPicture",
@@ -259,6 +264,11 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert manifest["parser"] == "ddb_saved_html"
     assert manifest["book_title"] == "Dungeon Master's Guide"
     assert manifest["document_title"] == "A World of Your Own"
+    assert "heading_level" not in manifest
+    assert "heading_id" not in manifest
+    assert "section_path" not in manifest
+    assert "content_chunk_ids" not in manifest
+    assert "source_content_ids" not in manifest
 
     chunks = db_session.scalars(
         select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)
@@ -270,12 +280,17 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert chunk_metadata[0]["document_title"] == "A World of Your Own"
     assert chunk_metadata[0]["raw_sha256"]
     assert chunk_metadata[0]["raw_html_path"] == str(artifact_dir / "raw.html")
-    assert chunk_metadata[1]["heading_id"] == "TheBigPicture"
-    assert chunk_metadata[1]["section_path"] == ["A World of Your Own", "The Big Picture"]
-    assert "chunk-3" in chunk_metadata[1]["content_chunk_ids"]
+    assert chunk_metadata[0]["content_chunk_id"] == "chunk-3"
+    assert chunk_metadata[0]["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
+    assert chunk_metadata[1]["semantic_section"]["heading"]["id"] == "TheBigPicture"
+    assert chunk_metadata[1]["semantic_section"]["path_text"] == ["A World of Your Own", "The Big Picture"]
+    assert chunk_metadata[2]["semantic_section"]["heading"]["id"] == "CoreAssumptions"
+    assert "heading_level" not in chunk_metadata[1]
+    assert "heading_id" not in chunk_metadata[1]
+    assert "section_path" not in chunk_metadata[1]
+    assert "content_chunk_ids" not in chunk_metadata[1]
+    assert "source_content_ids" not in chunk_metadata[1]
     assert chunk_metadata[2]["citation_anchor"] == "#CoreAssumptions"
-    assert chunk_metadata[2]["heading_level"] == 3
-    assert chunk_metadata[2]["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
 
 
 def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_session: Session, tmp_path: Path) -> None:
@@ -371,6 +386,7 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
     assert metadata["quote"] == "Safe archive quote."
     assert metadata["semantic_section"]["kind"] == "heading"
     assert metadata["semantic_section"]["path_text"] == expected_path_text
+    assert metadata["semantic_section"]["path_text"] == ["Archive heading"]
     assert "section_path" not in metadata
     assert metadata["source_url"] == "https://example.test/archive-source"
     assert len(qdrant.points) == 1
@@ -378,6 +394,89 @@ def test_worker_indexes_archive_from_served_html_with_locator_metadata(db_sessio
     semantic_section = cast(dict[str, object], qdrant_payload["semantic_section"])
     assert semantic_section["path_text"] == expected_path_text
     assert "section_path" not in qdrant_payload
+
+
+def test_worker_indexes_archive_qdrant_payload_uses_semantic_section_path_text(db_session: Session, tmp_path: Path) -> None:
+    source_id = "archive-source-qdrant-worker"
+    served_html_path = tmp_path / "served.html"
+    served_html_path.write_text(
+        "<html><head><title>Archive title</title><link rel=\"canonical\" href=\"https://example.test/archive-source-qdrant-worker\"></head><body><h1>Archive heading</h1><p>Safe archive quote.</p></body></html>",
+        encoding="utf-8",
+    )
+    upload = Upload(
+        original_filename="served.html",
+        stored_path=str(served_html_path),
+        content_type="text/html",
+        extension=".html",
+        sha256="zip-sha",
+        size_bytes=served_html_path.stat().st_size,
+        created_at=utcnow(),
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job_metadata = {
+        "source_id": source_id,
+        "source_type": "archived_webpage",
+        "archive_manifest_path": str(tmp_path / "manifest.json"),
+        "archive_entry_path": "page.html",
+        "archive_primary_html_path": "page.html",
+        "archive_served_entry_path": "page.html",
+        "archive_served_html_path": "page.html",
+        "archive_anchor_map_path": "anchor-map.json",
+        "source_url": "https://example.test/archive-source-qdrant-worker",
+    }
+    job = IngestionJob(
+        upload_id=upload.id,
+        status="queued",
+        metadata_json=json.dumps(job_metadata),
+        created_at=utcnow(),
+        updated_at=utcnow(),
+    )
+    db_session.add(job)
+    db_session.flush()
+    add_event(db_session, job, "queued", "Upload queued for ingestion", {"status": "queued"})
+    db_session.commit()
+
+    (tmp_path / "anchor-map.json").write_text(
+        json.dumps(
+            {
+                "source_id": source_id,
+                "source_path": "page.html",
+                "anchors": [
+                    {
+                        "chunk_id": "archive-target-1",
+                        "selector": '[data-source-chunk-id="archive-target-1"]',
+                        "heading_path": ["Archive heading"],
+                        "quote": "Safe archive quote.",
+                        "source_path": "page.html",
+                        "viewer_fragment": "#source-chunk-archive-target-1",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    qdrant = FakeQdrantIndexer(collection="mock_chunks")
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(dimensions=5),
+        qdrant_indexer=qdrant,
+    )
+
+    assert processed is not None
+    assert processed.status == "completed"
+    assert len(qdrant.points) == 1
+    qdrant_payload = cast(dict[str, object], qdrant.points[0].payload)
+    assert qdrant_payload["archive_source_id"] == source_id
+    assert qdrant_payload["target_chunk_id"] == "archive-target-1"
+    assert qdrant_payload["target_selector"] == '[data-source-chunk-id="archive-target-1"]'
+    assert qdrant_payload["viewer_fragment"] == "#source-chunk-archive-target-1"
+    assert qdrant_payload["quote"] == "Safe archive quote."
+    assert qdrant_payload["semantic_section"]["path_text"] == ["Archive heading"]
+    assert "section_path" not in qdrant_payload
+    assert qdrant_payload["source_url"] == "https://example.test/archive-source-qdrant-worker"
+
 
 
 def _create_upload_and_job(

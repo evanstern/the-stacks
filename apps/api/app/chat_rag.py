@@ -2,7 +2,7 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import TypedDict, cast
 from urllib.parse import quote
 
 import httpx
@@ -473,7 +473,7 @@ def _archive_citation_metadata(metadata: dict[str, object], content: str) -> dic
     target_chunk_id = _metadata_text(metadata, "target_chunk_id")
     target_selector = _metadata_text(metadata, "target_selector")
     quote_text = _metadata_text(metadata, "quote") or content
-    section_path = metadata.get("section_path")
+    section_path = _semantic_section_path_text(metadata)
 
     archive_metadata["source_type"] = "archived_webpage"
     archive_metadata["source_title"] = _archive_source_title(metadata)
@@ -484,14 +484,19 @@ def _archive_citation_metadata(metadata: dict[str, object], content: str) -> dic
     if target_selector:
         archive_metadata["target_selector"] = target_selector
     archive_metadata["quote"] = quote_text
-    if isinstance(section_path, list):
-        archive_metadata["section_path"] = [str(part) for part in section_path]
-    elif isinstance(section_path, str):
-        archive_metadata["section_path"] = section_path
-    else:
-        archive_metadata["section_path"] = []
+    archive_metadata["section_path"] = section_path
     archive_metadata["cited_text"] = content
     return archive_metadata
+
+
+def _semantic_section_path_text(metadata: dict[str, object]) -> list[str]:
+    semantic_section = metadata.get("semantic_section")
+    if not isinstance(semantic_section, dict):
+        return []
+    path_text = cast(object, semantic_section.get("path_text"))
+    if not isinstance(path_text, list):
+        return []
+    return [str(part) for part in path_text]
 
 
 def _archive_source_title(metadata: dict[str, object]) -> str:
@@ -640,7 +645,7 @@ def _compile_state_graph(chat_client: ChatClient, checkpointer: object | None):
 def _graph_state(state: dict[str, object]) -> RagGraphState:
     return {
         "question": str(state["question"]),
-        "contexts": list(state["contexts"]),
+        "contexts": list(cast(Sequence[ContextChunk], state["contexts"])),
         "generation": None,
     }
 

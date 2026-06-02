@@ -1,3 +1,4 @@
+import html
 import json
 import re
 import io
@@ -6,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import cast
 from uuid import NAMESPACE_URL, uuid4, uuid5
 import zipfile
 
@@ -53,18 +55,23 @@ class Chunk:
 
 
 class _HTMLTextParser(HTMLParser):
-    _IGNORED_TAGS = {"script", "style", "noscript", "template", "nav", "header", "footer", "aside"}
+    _IGNORED_TAGS: set[str] = {"script", "style", "noscript", "template", "nav", "header", "footer", "aside"}
 
     def __init__(self) -> None:
         super().__init__()
-        self.blocks: list[tuple[str | None, str]] = []
+        self.blocks: list[tuple[str | None, str, dict[str, object]]] = []
         self._tag_stack: list[str] = []
         self._buffer: list[str] = []
+        self._heading_stack: list[dict[str, object]] = []
         self._current_heading: str | None = None
+        self._current_semantic_section: dict[str, object] = _semantic_section_root()
+        self._heading_ids: set[str] = set()
+        self._heading_attrs: list[dict[str, str | None]] = []
         self.title: str | None = None
         self.warnings: list[str] = []
-        self._ignored_depth = 0
+        self._ignored_depth: int = 0
         self._ignored_tags_seen: set[str] = set()
+        self._suppress_blocks_until_heading: bool = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
@@ -81,6 +88,8 @@ class _HTMLTextParser(HTMLParser):
         if tag in {"title", "h1", "h2", "h3", "h4", "h5", "h6", "p", "li"}:
             self._flush_buffer()
             self._tag_stack.append(tag)
+            if tag.startswith("h") and tag[1:].isdigit():
+                self._heading_attrs.append(dict(attrs))
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
@@ -99,9 +108,16 @@ class _HTMLTextParser(HTMLParser):
                 if tag == "title":
                     self.title = text
                 elif tag.startswith("h") and tag[1:].isdigit():
-                    self._current_heading = text
-                else:
-                    self.blocks.append((self._current_heading, text))
+                    heading_attrs = self._heading_attrs.pop() if self._heading_attrs else {}
+                    self._set_current_heading(tag, text, heading_attrs.get("id"))
+                elif not self._suppress_blocks_until_heading:
+                    self.blocks.append((self._current_heading, text, self._current_semantic_section))
+            elif tag.startswith("h") and tag[1:].isdigit() and self._heading_attrs:
+                _ = self._heading_attrs.pop()
+                level = int(tag[1:])
+                while self._heading_stack and cast(int, self._heading_stack[-1]["level"]) >= level:
+                    _ = self._heading_stack.pop()
+                self._suppress_blocks_until_heading = True
             if self._tag_stack and self._tag_stack[-1] == tag:
                 self._tag_stack.pop()
 
@@ -113,6 +129,19 @@ class _HTMLTextParser(HTMLParser):
         if self._buffer and not self._tag_stack:
             self._buffer.clear()
 
+    def _set_current_heading(self, tag: str, text: str, dom_id: str | None) -> None:
+        level = int(tag[1:])
+        while self._heading_stack and cast(int, self._heading_stack[-1]["level"]) > level:
+            _ = self._heading_stack.pop()
+        heading_id = _semantic_heading_id(text, self._heading_ids, dom_id)
+        semantic_section = _semantic_section_heading_from_stack(text, level, heading_id, self._heading_stack)
+        heading = semantic_section["heading"]
+        if isinstance(heading, dict):
+            self._heading_stack.append(cast(dict[str, object], heading))
+        self._current_heading = text
+        self._current_semantic_section = semantic_section
+        self._suppress_blocks_until_heading = False
+
 
 ARCHIVE_LOCATOR_METADATA_KEYS = (
     "archive_source_id",
@@ -123,9 +152,88 @@ ARCHIVE_LOCATOR_METADATA_KEYS = (
     "target_selector",
     "viewer_fragment",
     "quote",
-    "section_path",
+    "semantic_section",
     "source_url",
 )
+
+
+def _semantic_section_root() -> dict[str, object]:
+    return {
+        "kind": "root",
+        "heading": None,
+        "parent": None,
+        "path": [],
+        "path_text": [],
+        "depth": 0,
+    }
+
+
+def _normalize_semantic_heading_text(text: str) -> str:
+    return _normalize_whitespace(html.unescape(text))
+
+
+def _semantic_heading_slug(text: str) -> str:
+    normalized = _normalize_semantic_heading_text(text).lower()
+    slug = re.sub(r"[^0-9a-z]+", "-", normalized).strip("-")
+    return slug or "section"
+
+
+def _semantic_heading_id(heading_text: str, existing_ids: set[str], dom_id: str | None = None) -> str:
+    candidate = (dom_id or "").strip()
+    if candidate:
+        candidate_key = _semantic_heading_slug(candidate)
+        if candidate_key not in existing_ids:
+            existing_ids.add(candidate_key)
+            return candidate
+
+    base_source = candidate or heading_text
+    base = _semantic_heading_slug(base_source)
+    identifier = base
+    suffix = 1
+    while _semantic_heading_slug(identifier) in existing_ids:
+        suffix += 1
+        identifier = f"{base}-{suffix}"
+    existing_ids.add(_semantic_heading_slug(identifier))
+    return identifier
+
+
+def _semantic_heading_node(heading_text: str, heading_level: int, heading_id: str) -> dict[str, object]:
+    normalized_text = _normalize_semantic_heading_text(heading_text)
+    return {
+        "text": normalized_text,
+        "level": heading_level,
+        "id": heading_id,
+        "slug": _semantic_heading_slug(normalized_text),
+    }
+
+
+def _semantic_section_heading_from_stack(
+    heading_text: str,
+    heading_level: int,
+    heading_id: str,
+    heading_stack: list[dict[str, object]],
+) -> dict[str, object]:
+    heading = _semantic_heading_node(heading_text, heading_level, heading_id)
+    path = [*heading_stack, heading]
+    return {
+        "kind": "heading",
+        "heading": heading,
+        "parent": heading_stack[-1] if heading_stack else None,
+        "path": path,
+        "path_text": [str(item["text"]) for item in path],
+        "depth": len(path),
+    }
+
+
+def _semantic_section_for_chunk(section: ParsedSection, existing_ids: set[str]) -> dict[str, object]:
+    semantic_section = section.metadata.get("semantic_section")
+    if isinstance(semantic_section, dict):
+        return semantic_section
+    heading_text = _normalize_semantic_heading_text(section.heading or "")
+    if not heading_text:
+        return _semantic_section_root()
+    heading_id = _semantic_heading_id(heading_text, existing_ids)
+    return _semantic_section_heading_from_stack(heading_text, 1, heading_id, [])
 
 
 def parse_document(path: Path, extension: str, metadata: dict[str, object] | None = None) -> ParsedDocument:
@@ -157,12 +265,13 @@ def parse_document(path: Path, extension: str, metadata: dict[str, object] | Non
 
 def chunk_document(document: ParsedDocument, upload: Upload, job: IngestionJob) -> list[Chunk]:
     chunks: list[Chunk] = []
+    semantic_heading_ids: set[str] = set()
     for section in document.sections:
         text = _normalize_whitespace(section.text)
         if not text:
             continue
         for start, end, content in _split_text(text):
-            metadata = {
+            metadata: dict[str, object] = {
                 "upload_id": upload.id,
                 "job_id": job.id,
                 "source_filename": upload.original_filename,
@@ -175,6 +284,7 @@ def chunk_document(document: ParsedDocument, upload: Upload, job: IngestionJob) 
                 "end_char": section.start_char + end,
                 "token_count_estimate": len(content.split()),
             }
+            metadata["semantic_section"] = _semantic_section_for_chunk(section, semantic_heading_ids)
             _merge_chunk_metadata(metadata, document.metadata)
             _merge_chunk_metadata(metadata, section.metadata)
             chunks.append(Chunk(content=content, metadata=metadata))
@@ -340,7 +450,10 @@ def process_claimed_job(
         for index, chunk in enumerate(chunks):
             metadata = dict(chunk.metadata)
             metadata["chunk_index"] = index
-            section_id = section_ids_by_heading.get(metadata.get("section_heading"))
+            section_heading = metadata.get("section_heading")
+            if not isinstance(section_heading, str):
+                section_heading = None
+            section_id = section_ids_by_heading.get(section_heading)
             if section_id is None:
                 section_id = next(iter(section_ids_by_heading.values()))
             db.add(
@@ -353,7 +466,7 @@ def process_claimed_job(
                     chunk_index=index,
                     content=chunk.content,
                     content_hash=hashlib.sha256(chunk.content.encode()).hexdigest(),
-                    token_count=int(metadata.get("token_count_estimate") or len(chunk.content.split())),
+                    token_count=_metadata_int(metadata.get("token_count_estimate"), len(chunk.content.split())),
                     metadata_json=_to_json(metadata),
                     created_at=utcnow(),
                 )
@@ -543,7 +656,7 @@ def _qdrant_points(
             raise ParserError("Embedding vector dimensions did not match configured dimensions")
         metadata = json.loads(chunk.metadata_json)
         point_id = deterministic_point_id(chunk)
-        payload = {
+        payload: dict[str, object] = {
             "source_id": chunk.upload_id,
             "chunk_id": chunk.id,
             "filename": metadata.get("source_filename"),
@@ -646,12 +759,20 @@ def _parse_html(text: str) -> ParsedDocument:
     parser.feed(text)
     sections: list[ParsedSection] = []
     cursor = 0
-    for heading, block in parser.blocks:
+    for heading, block, semantic_section in parser.blocks:
         start = text.find(block, cursor)
         if start == -1:
             start = cursor
         end = start + len(block)
-        sections.append(ParsedSection(heading=heading, text=block, start_char=start, end_char=end))
+        sections.append(
+            ParsedSection(
+                heading=heading,
+                text=block,
+                start_char=start,
+                end_char=end,
+                metadata={"semantic_section": semantic_section},
+            )
+        )
         cursor = end
     sections = _non_empty_sections(sections)
     title = parser.title
@@ -688,9 +809,9 @@ def _parse_archived_webpage_html(text: str, metadata: dict[str, object]) -> Pars
     sections: list[ParsedSection] = []
     for section in document.sections:
         locator = _match_archive_anchor(section, anchors)
-        section_metadata = dict(base_metadata)
-        if locator:
-            section_metadata.update(locator)
+        section_metadata = dict(section.metadata)
+        _merge_chunk_metadata(section_metadata, base_metadata)
+        _merge_chunk_metadata(section_metadata, locator)
         sections.append(
             ParsedSection(
                 heading=section.heading,
@@ -741,15 +862,31 @@ def _match_archive_anchor(section: ParsedSection, anchors: list[dict[str, object
 
 def _archive_anchor_metadata(anchor: dict[str, object]) -> dict[str, object]:
     heading_path = anchor.get("heading_path")
-    section_path = heading_path if isinstance(heading_path, list) else []
+    semantic_section = _semantic_section_from_heading_path(heading_path if isinstance(heading_path, list) else [])
     metadata: dict[str, object] = {
         "target_chunk_id": anchor.get("chunk_id"),
         "target_selector": anchor.get("selector"),
         "viewer_fragment": anchor.get("viewer_fragment"),
         "quote": anchor.get("quote"),
-        "section_path": section_path,
+        "semantic_section": semantic_section,
     }
     return {key: value for key, value in metadata.items() if value is not None}
+
+
+def _semantic_section_from_heading_path(heading_path: list[object]) -> dict[str, object]:
+    heading_stack: list[dict[str, object]] = []
+    heading_ids: set[str] = set()
+    semantic_section = _semantic_section_root()
+    for index, heading_text in enumerate(heading_path, start=1):
+        normalized_heading = _normalize_semantic_heading_text(str(heading_text))
+        if not normalized_heading:
+            continue
+        heading_id = _semantic_heading_id(normalized_heading, heading_ids)
+        semantic_section = _semantic_section_heading_from_stack(normalized_heading, index, heading_id, heading_stack)
+        heading = semantic_section["heading"]
+        if isinstance(heading, dict):
+            heading_stack.append(heading)
+    return semantic_section
 
 
 def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes) -> ParsedDocument:
@@ -856,6 +993,17 @@ def _merge_chunk_metadata(metadata: dict[str, object], extra: dict[str, object])
     for key, value in extra.items():
         if key not in protected_keys and value is not None:
             metadata[key] = value
+
+
+def _metadata_int(value: object, default: int) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    return default
 
 
 def _merged_metadata(base: dict[str, object], **protected: object) -> dict[str, object]:

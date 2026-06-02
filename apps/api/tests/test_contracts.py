@@ -143,6 +143,7 @@ def test_session_message_route_preserves_citation_metadata_and_marker_order(db_s
                 QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
             ]
         )
+        app.dependency_overrides[routes_sessions._embedding_dependency] = lambda: FakeEmbeddingClient()
         app.dependency_overrides[routes_sessions._chat_dependency] = lambda: FakeChatClient(
             "Ancient red dragons prefer volcanic lairs [1] and hoard treasure obsessively [2].",
             [second_chunk.id, first_chunk.id],

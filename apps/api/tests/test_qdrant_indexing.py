@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import cast
 
 import httpx
 import pytest
@@ -129,7 +130,9 @@ def test_qdrant_payload_includes_archive_locator_metadata(db_session: Session, t
     assert payload["target_selector"] == '[data-source-chunk-id="archive-target-1"]'
     assert payload["viewer_fragment"] == "#source-chunk-archive-target-1"
     assert payload["quote"] == "Safe archive quote."
-    assert payload["section_path"] == ["Archive heading"]
+    semantic_section = cast(dict[str, object], payload["semantic_section"])
+    assert semantic_section["path_text"] == ["Archive heading"]
+    assert "section_path" not in payload
     assert payload["source_url"] == "https://example.test/archive-source"
 
 
