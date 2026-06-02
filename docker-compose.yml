@@ -62,7 +62,7 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-thestacks_chunks}
       RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
       UPLOAD_DIR: /data/uploads
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,https://thestacks.ikis.ai}
     ports:
       - "8000:8000"
     volumes:

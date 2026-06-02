@@ -65,6 +65,101 @@ expect_body_contains() {
   fi
 }
 
+expect_json_field_equals() {
+  local body="$1"
+  local field_path="$2"
+  local expected="$3"
+  local description="$4"
+  local actual
+
+  actual="$(printf '%s' "$body" | $PYTHON_BIN -c 'import json,sys
+path = sys.argv[1].split(".") if sys.argv[1] else []
+data = json.load(sys.stdin)
+for key in path:
+    if isinstance(data, list):
+        data = data[int(key)]
+    else:
+        data = data[key]
+if isinstance(data, bool):
+    print("true" if data else "false")
+elif data is None:
+    print("null")
+else:
+    print(data)' "$field_path")" || fail "${description} was not valid JSON"
+
+  if [[ "$actual" != "$expected" ]]; then
+    fail "${description} expected ${field_path}=${expected}, got ${actual}"
+  fi
+}
+
+expect_json_nonempty_field() {
+  local body="$1"
+  local field_path="$2"
+  local description="$3"
+  local actual
+
+  actual="$(printf '%s' "$body" | $PYTHON_BIN -c 'import json,sys
+path = sys.argv[1].split(".") if sys.argv[1] else []
+data = json.load(sys.stdin)
+for key in path:
+    if isinstance(data, list):
+        data = data[int(key)]
+    else:
+        data = data[key]
+if data is None:
+    print("")
+else:
+    print(str(data))' "$field_path")" || fail "${description} was not valid JSON"
+
+  if [[ -z "$actual" ]]; then
+    fail "${description} expected non-empty ${field_path}"
+  fi
+}
+
+expect_json_list_nonempty() {
+  local body="$1"
+  local field_path="$2"
+  local description="$3"
+  local count
+
+  count="$(printf '%s' "$body" | $PYTHON_BIN -c 'import json,sys
+path = sys.argv[1].split(".") if sys.argv[1] else []
+data = json.load(sys.stdin)
+for key in path:
+    if isinstance(data, list):
+        data = data[int(key)]
+    else:
+        data = data[key]
+if not isinstance(data, list):
+    raise SystemExit(1)
+print(len(data))' "$field_path")" || fail "${description} expected ${field_path} to be a JSON list"
+
+  if [[ "$count" == "0" ]]; then
+    fail "${description} expected non-empty ${field_path}"
+  fi
+}
+
+expect_status_one_of() {
+  local description="$1"
+  shift
+  local expected_csv="$1"
+  shift
+  local response status body expected
+
+  response="$(curl -sS -w '\n%{http_code}' "$@")" || fail "${description} curl command failed"
+  status="${response##*$'\n'}"
+  body="${response%$'\n'*}"
+  IFS=',' read -r -a expected <<<"$expected_csv"
+  for expected in "${expected[@]}"; do
+    if [[ "$status" == "$expected" ]]; then
+      printf '%s\n%s' "$status" "$body"
+      return 0
+    fi
+  done
+  printf '%s\n' "$body" >&2
+  fail "${description} returned HTTP ${status}; expected one of ${expected_csv}"
+}
+
 wait_for "API health" "${API_URL}/health"
 wait_for "web frontend" "${WEB_URL}"
 
@@ -109,9 +204,19 @@ if [[ "$empty_messages" != "[]" ]]; then
 fi
 log "empty chat index returns []"
 
-chat_body="$(expect_status 503 "chat without OpenAI key" -b "$COOKIE_JAR" -H "Content-Type: application/json" -d '{"content":"What do red dragons prefer?"}' "${API_URL}/sessions/${session_id}/messages")"
-expect_body_contains "$chat_body" "OPENAI_API_KEY is required" "chat without OpenAI key"
-log "chat dependency failures return explicit 503"
+chat_response="$(expect_status_one_of "chat dependency/configuration check" "200,503" -b "$COOKIE_JAR" -H "Content-Type: application/json" -d '{"content":"What do red dragons prefer?"}' "${API_URL}/sessions/${session_id}/messages")"
+chat_status="${chat_response%%$'\n'*}"
+chat_body="${chat_response#*$'\n'}"
+if [[ "$chat_status" == "503" ]]; then
+  expect_body_contains "$chat_body" "OPENAI_API_KEY is required" "chat without OpenAI key"
+  log "chat dependency failures return explicit 503 when OpenAI is unavailable"
+else
+  expect_json_field_equals "$chat_body" "no_evidence" "false" "chat with OpenAI key"
+  expect_json_field_equals "$chat_body" "assistant_message.role" "assistant" "chat with OpenAI key"
+  expect_json_nonempty_field "$chat_body" "assistant_message.content" "chat with OpenAI key"
+  expect_json_list_nonempty "$chat_body" "assistant_message.citations" "chat with OpenAI key"
+  log "chat succeeds with grounded citations when OpenAI is configured"
+fi
 
 curl -fsS "${WEB_URL}" >/dev/null || fail "web frontend stopped responding after API smoke"
 log "web frontend remained reachable after smoke"

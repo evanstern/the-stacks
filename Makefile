@@ -1,4 +1,4 @@
-.PHONY: compose-config up down test smoke
+.PHONY: compose-config up down test smoke smoke-public
 
 compose-config:
 	docker compose config
@@ -18,3 +18,6 @@ test:
 
 smoke:
 	./scripts/smoke.sh
+
+smoke-public:
+	./scripts/smoke-public.sh

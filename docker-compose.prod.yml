@@ -1,0 +1,124 @@
+name: the-stacks-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-thestacks}
+      POSTGRES_USER: ${POSTGRES_USER:-thestacks}
+      POSTGRES_PASSWORD: ${PROD_POSTGRES_PASSWORD:-thestacks-prod-change-me}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-thestacks} -d $${POSTGRES_DB:-thestacks}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.5
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/6333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  api:
+    build:
+      context: ./apps/api
+    env_file:
+      - path: .env.production
+        required: false
+    environment:
+      DATABASE_URL: ${PROD_DATABASE_URL:-postgresql+psycopg://thestacks:thestacks-prod-change-me@postgres:5432/thestacks}
+      SESSION_COOKIE_SECURE: "true"
+      SESSION_COOKIE_NAME: thestacks_session
+      SESSION_TTL_SECONDS: "604800"
+      OPENAI_CHAT_MODEL: gpt-4.1-mini
+      OPENAI_EMBEDDING_MODEL: text-embedding-3-small
+      OPENAI_EMBEDDING_DIMENSIONS: "1536"
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: thestacks_chunks
+      RETRIEVAL_TOP_K: "8"
+      RETRIEVAL_MIN_SCORE: "0.2"
+      ARCHIVE_MAX_ZIP_SIZE_BYTES: "52428800"
+      ARCHIVE_MAX_EXTRACTED_SIZE_BYTES: "209715200"
+      ARCHIVE_MAX_FILE_COUNT: "2000"
+      UPLOAD_DIR: /data/uploads
+      CORS_ORIGINS: https://thestacks.ikis.ai
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health').read()"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    env_file:
+      - path: .env.production
+        required: false
+    environment:
+      DATABASE_URL: ${PROD_DATABASE_URL:-postgresql+psycopg://thestacks:thestacks-prod-change-me@postgres:5432/thestacks}
+      OPENAI_CHAT_MODEL: gpt-4.1-mini
+      OPENAI_EMBEDDING_MODEL: text-embedding-3-small
+      OPENAI_EMBEDDING_DIMENSIONS: "1536"
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: thestacks_chunks
+      RETRIEVAL_TOP_K: "8"
+      RETRIEVAL_MIN_SCORE: "0.2"
+      ARCHIVE_MAX_ZIP_SIZE_BYTES: "52428800"
+      ARCHIVE_MAX_EXTRACTED_SIZE_BYTES: "209715200"
+      ARCHIVE_MAX_FILE_COUNT: "2000"
+      UPLOAD_DIR: /data/uploads
+      WORKER_POLL_SECONDS: "5"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pathlib; pathlib.Path('/data/uploads').mkdir(parents=True, exist_ok=True)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://thestacks.ikis.ai}
+    ports:
+      - "${APP_HOST_PORT:-8423}:8423"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8423"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  postgres-data:
+    name: the-stacks-prod-postgres-data
+  qdrant-data:
+    name: the-stacks-prod-qdrant-data
+  uploads:
+    name: the-stacks-prod-uploads
