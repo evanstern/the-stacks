@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import bleach
 from bs4 import BeautifulSoup, Tag
@@ -218,9 +219,7 @@ def is_ddb_saved_html(raw_html: bytes | str) -> bool:
     article = _select_article(soup)
     if article is None:
         return False
-    if _saved_from_url(text) is not None:
-        return True
-    return _source_url_from_soup(soup) is not None and _has_ddb_article_marker(article)
+    return _has_ddb_identity_or_source_signal(soup, article, text)
 
 
 def parse_ddb_saved_html(raw_html: bytes | str, raw_bytes: bytes | None = None) -> DdbImport:
@@ -426,8 +425,14 @@ def _source_url_from_soup(soup: BeautifulSoup) -> str | None:
         if not tag:
             continue
         value = tag.get("href") or tag.get("content")
-        if isinstance(value, str) and any(marker in value.lower() for marker in DDB_HOST_MARKERS):
-            return value.strip()
+        if not isinstance(value, str):
+            continue
+        cleaned = value.strip()
+        if not any(marker in cleaned.lower() for marker in DDB_HOST_MARKERS):
+            continue
+        path = urlparse(cleaned).path.lower()
+        if path.startswith("/sources/dnd/"):
+            return cleaned
     return None
 
 
@@ -444,6 +449,14 @@ def _select_article(soup: BeautifulSoup | Tag) -> Tag | None:
         if article and _normalize_text(article.get_text(" ")):
             return article
     return None
+
+
+def _has_ddb_identity_or_source_signal(soup: BeautifulSoup, article: Tag, text: str) -> bool:
+    if _saved_from_url(text) is not None:
+        return True
+    if _source_url_from_soup(soup) is not None:
+        return True
+    return bool(article.select_one("[data-content-chunk-id], [data-content-chunk]"))
 
 
 def _has_ddb_article_marker(article: Tag) -> bool:
@@ -535,9 +548,14 @@ def _section_nodes_until_next_same_or_higher_heading(heading: Tag, following_hea
 
 
 def _content_chunk_candidates(node: Tag) -> list[Tag]:
-    if _heading_level(node) is not None:
-        return list(node.find_all(attrs={"data-content-chunk-id": True})) + list(node.find_all(attrs={"data-content-chunk": True}))
-    return [node, *node.find_all(attrs={"data-content-chunk-id": True}), *node.find_all(attrs={"data-content-chunk": True})]
+    candidates: list[Tag] = [] if _heading_level(node) is not None else [node]
+    for candidate in node.find_all(attrs={"data-content-chunk-id": True}):
+        if isinstance(candidate, Tag):
+            candidates.append(candidate)
+    for candidate in node.find_all(attrs={"data-content-chunk": True}):
+        if isinstance(candidate, Tag):
+            candidates.append(candidate)
+    return candidates
 
 
 def _semantic_section_root() -> dict[str, Any]:

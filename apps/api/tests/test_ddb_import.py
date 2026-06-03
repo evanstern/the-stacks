@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from app.ddb_import import (
+from app.ddb_import import (  # pyright: ignore[reportImplicitRelativeImport]
     ddb_chunks_to_jsonl,
     extract_ddb_chunks,
     is_ddb_saved_html,
@@ -49,6 +49,10 @@ def test_ddb_detection_is_conservative() -> None:
         b"<html><body><div class='p-article-content u-typography-format'><h1>Homebrew</h1></div></body></html>"
     )
     assert not is_ddb_saved_html(
+        b"""<html><head><title>Dungeons &amp; Dragons - Sources - D&amp;D Beyond</title></head>
+        <body><article><h1>Generic exported page</h1><p>No DDB article markers.</p></article></body></html>"""
+    )
+    assert not is_ddb_saved_html(
         b"""<html><head><title>DDB link roundup</title></head><body><article><h1>Links</h1>
         <p>See https://www.dndbeyond.com for official rules.</p></article></body></html>"""
     )
@@ -56,6 +60,18 @@ def test_ddb_detection_is_conservative() -> None:
         b"""<html><head><link rel="canonical" href="https://www.dndbeyond.com/forums/example"></head>
         <body><article><h1>Generic exported page</h1><p>No DDB article markers.</p></article></body></html>"""
     )
+
+
+def test_ddb_detection_accepts_article_selector_with_identity_or_source_signals() -> None:
+    saved_from_html = b"""<html><body>
+    <article><h1>Genuine Article</h1><p>Saved from https://www.dndbeyond.com/sources/test/article</p></article>
+    </body></html>"""
+    chunk_html = b"""<html><body>
+    <article><h1>Genuine Article</h1><p data-content-chunk-id='intro'>Source signal present.</p></article>
+    </body></html>"""
+
+    assert is_ddb_saved_html(saved_from_html)
+    assert is_ddb_saved_html(chunk_html)
 
 
 def test_parse_preserves_raw_bytes_and_exposes_parsed_document() -> None:

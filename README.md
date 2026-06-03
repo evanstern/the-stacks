@@ -61,6 +61,84 @@ make smoke-public
 - Activation only accepts versions in `ready` state and refuses teardown-locked versions. The default active pointer is updated during activation, and the active version cannot be torn down.
 - Teardown is dry-run first. Confirmed teardown requires explicit confirmation, records lifecycle events, persists steps so reruns can resume, and keeps failed steps marked for audit.
 
+## Default DnDBeyond corpus seed
+
+The default corpus workflow loads the 5e core trio — Player's Handbook, Dungeon Master's Guide, and Monster Manual — into an isolated `default-corpus` runtime version. Archives are local external inputs that must not be downloaded by the tool or committed to the repository.
+
+### Archive setup
+
+Place saved DnDBeyond HTML ZIP archives in your archive root directory (`/data/uploads/sourcebooks` by default). The identity manifest expects exactly these filenames:
+
+- `phb-2014.zip` — Player's Handbook
+- `dmg-2014.zip` — Dungeon Master's Guide
+- `mm-2014.zip` — Monster Manual
+
+These files must be DnDBeyond saved-HTML exports. Do not rename archives from other sources to match these filenames.
+
+### Workflow
+
+Run these Make targets from `main/`:
+
+```bash
+# 1. Verify upstream primitives are available
+make corpus-preflight
+
+# 2. Generate a lock manifest with SHA256 hashes and expected counts
+make corpus-lock ARCHIVE_ROOT=/data/uploads/sourcebooks
+
+# 3. Preview what seed will do without mutating state
+make corpus-seed-dry-run
+
+# 4. Seed the corpus (imports archives, waits for ingestion, verifies counts)
+make corpus-seed
+
+# 5. Verify the seeded corpus matches the lock manifest
+make corpus-verify
+```
+
+### Reset
+
+Reset tears down only the `default-corpus` runtime version's derived data (DB rows, Qdrant points, runtime paths) while preserving immutable source archive bytes and metadata. Reset is dry-run by default and requires explicit confirmation.
+
+```bash
+# Preview what reset will delete and preserve
+make corpus-reset-dry-run
+
+# Confirm destructive reset (re-type the version name for safety)
+make corpus-reset-confirm
+```
+
+Reset refuses to operate on the currently active runtime version. Seed and reset never mutate the active version pointer. Activation is a separate, explicit step.
+
+### Make target reference
+
+| Target | Description |
+|--------|-------------|
+| `corpus-preflight` | Validate upstream lifecycle primitives exist |
+| `corpus-lock` | Generate lock manifest from local archives |
+| `corpus-seed-dry-run` | Preview seed plan without mutation |
+| `corpus-seed` | Import archives, wait for ingestion, verify |
+| `corpus-reset-dry-run` | Preview reset delete/preserve manifest |
+| `corpus-reset-confirm` | Confirmed destructive runtime-only reset |
+| `corpus-verify` | Verify seeded corpus matches lock manifest |
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CORPUS_VERSION` | `default-corpus` | Target runtime version name |
+| `CORPUS_IDENTITY_MANIFEST` | `apps/api/corpus/default-dndbeyond-corpus.json` | Checked-in identity manifest |
+| `CORPUS_MANIFEST` | `../.omo/corpus/default-dndbeyond-corpus.lock.json` | Generated lock manifest (not committed) |
+| `ARCHIVE_ROOT` | `/data/uploads/sourcebooks` | Directory containing source ZIP archives |
+
+### Troubleshooting
+
+- **Missing archive**: Seed and verify fail before any mutation if an expected ZIP file is not found under `ARCHIVE_ROOT`. Place the correct file and retry.
+- **Hash mismatch**: If an archive's SHA256 does not match the lock manifest, seed refuses to enqueue jobs. Regenerate the lock manifest with `make corpus-lock` after replacing the archive.
+- **Active-version refusal**: Reset refuses to operate on the currently active runtime version. Deactivate or switch the active pointer first.
+- **Count mismatch**: Verify fails if per-source or aggregate counts (uploads, jobs, sources, documents, sections, chunks, indexed chunks) differ from the lock manifest. This usually means ingestion did not complete or the lock manifest is stale.
+- **Prerequisite failure**: `make corpus-preflight` fails if upstream multi-ZIP upload or runtime lifecycle primitives are missing. Complete the upstream plan first.
+
 ## Worktree lifecycle
 
 Use the current worktree’s helper or runbook step to stop the matching compose stack. Do not shut down a different checkout by accident, and do not rely on a blanket repo-wide teardown when you are only trying to stop one worktree.

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "runtime_version": "default-corpus",
+  "sources": [
+    {
+      "source_id": "phb-2014",
+      "title": "Player's Handbook",
+      "filename": "phb-2014.zip",
+      "parser": "ddb_saved_html",
+      "sha256": "91b3ca9bf9d14c794e7358f8181fdcffa22170d6fe5c7f9f972b306b5c04e1bd",
+      "expected": {
+        "uploads": 1,
+        "jobs": 1,
+        "sources": 1,
+        "documents": 1,
+        "sections": 2,
+        "chunks": 2,
+        "indexed_chunks": 2
+      }
+    },
+    {
+      "source_id": "dmg-2014",
+      "title": "Dungeon Master's Guide",
+      "filename": "dmg-2014.zip",
+      "parser": "ddb_saved_html",
+      "sha256": "35ef4b99f2d3bf38a27aa6f88f0a0b606ac40784ded7ace4a1d31a707d064af8",
+      "expected": {
+        "uploads": 1,
+        "jobs": 1,
+        "sources": 1,
+        "documents": 1,
+        "sections": 3,
+        "chunks": 3,
+        "indexed_chunks": 3
+      }
+    },
+    {
+      "source_id": "mm-2014",
+      "title": "Monster Manual",
+      "filename": "mm-2014.zip",
+      "parser": "ddb_saved_html",
+      "sha256": "3cb76d7fa68ea4e609721cc4d9c05d0f50736e5434e63effce0f4ff4ec098a9d",
+      "expected": {
+        "uploads": 1,
+        "jobs": 1,
+        "sources": 1,
+        "documents": 1,
+        "sections": 2,
+        "chunks": 2,
+        "indexed_chunks": 2
+      }
+    }
+  ],
+  "expected_totals": {
+    "uploads": 3,
+    "jobs": 3,
+    "sources": 3,
+    "documents": 3,
+    "sections": 7,
+    "chunks": 7,
+    "indexed_chunks": 7
+  }
+}
