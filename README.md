@@ -1,5 +1,7 @@
 # The Stacks local runbook
 
+This repo runs as a bare shared Git store plus worktrees. `.bare/` is shared plumbing, `main/` is deploy-only, and day-to-day development happens in worktrees beside it. Keep `.omo/` at the repo root beside those worktrees so OMO planning, notes, and evidence stay outside the Git plumbing.
+
 The Dockerized web app is intentionally exposed on host port `5173`. Keep that port contract when running or hardening the stack.
 
 ## Start the stack
@@ -10,7 +12,9 @@ docker compose up --build
 
 Compose starts Postgres, Qdrant, the FastAPI API, the ingestion worker, and the Vite frontend. The API and worker wait on healthy Postgres/Qdrant; the frontend waits on the API healthcheck.
 
-The compose stack now uses the same stack-specific env-file pattern as the promoted webpage runtime: `.env.example` plus `.env.webpage-5174`. That keeps the local app on `5173` while preserving the promoted storage layout and runtime defaults.
+Create the local env file for each worktree from `.env.example`, then add only worktree-local overrides there. Do not bootstrap local development by copying production env files. Keep `.env.production.example` for the production path only.
+
+The compose stack uses the same stack-specific env-file pattern as the promoted webpage runtime: `.env.example` plus `.env.webpage-5174`. That keeps the local app on `5173` while preserving the promoted storage layout and runtime defaults.
 
 For local smoke, compose supplies the documented dev password `admin-password` through a valid bcrypt hash and a local-only session secret. Override `SMOKE_ADMIN_PASSWORD_HASH`, `SMOKE_SESSION_SECRET`, and `OPENAI_API_KEY` in your shell when using non-smoke credentials.
 
@@ -47,6 +51,12 @@ make smoke-public
 
 `make smoke-public` runs `scripts/smoke-public.sh` against both `THE_STACKS_LOCAL_URL=http://localhost:8423` and `THE_STACKS_BASE_URL=https://thestacks.ikis.ai` by default. It exercises the audited root-mounted API contract (`/health`, `/auth/*`, `/sessions*`, `/uploads`, `/jobs/*`, `/records/*`) and verifies SPA delivery on `/` and `/login` without browser automation. Override either base URL if you need to point at a different deployment target.
 
+## Worktree lifecycle
+
+Use the current worktree’s helper or runbook step to stop the matching compose stack. Do not shut down a different checkout by accident, and do not rely on a blanket repo-wide teardown when you are only trying to stop one worktree.
+
+The full operating model is documented in `docs/worktree-operating-model.md`.
+
 To stop the stack:
 
 ```bash
@@ -64,3 +74,5 @@ Production storage must be durable and isolated from dev data:
 - Uploads must persist `/data/uploads` and be shared by the API and worker containers.
 
 The local compose file already demonstrates the storage shape with named volumes `webpage-semantic-chunking-metadata-postgres-data`, `webpage-semantic-chunking-metadata-qdrant-data`, and `webpage-semantic-chunking-metadata-uploads`; production compose/deploy files should define their own production volumes or host mounts rather than reusing local dev state.
+
+If you need the broader bare-worktree operating rules, read `docs/worktree-operating-model.md`.
