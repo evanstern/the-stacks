@@ -20,7 +20,7 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.main import app
-from app.models import IngestionEvent, IngestionJob, Source, Upload
+from app.models import IngestionEvent, IngestionJob, Source, Upload, UploadBatch, utcnow
 
 
 SUPPORTED_FIXTURES = [
@@ -137,6 +137,347 @@ def test_upload_accepts_ddb_saved_html_through_generic_html_flow(client: TestCli
     assert upload.extension == ".html"
     assert Path(upload.stored_path).read_bytes() == content
     assert db_session.get(IngestionJob, payload["job_id"]).status == "queued"
+
+
+def test_multi_zip_batch_success_queues_each_zip_atomically(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("valid-ddb-b.zip", batch_zip_artifacts["valid-ddb-b.zip"].read_bytes(), "application/zip")),
+        ],
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert set(payload) == {"batch_id", "status", "items", "queued", "upload_status_url"}
+    assert payload["batch_id"]
+    assert payload["status"] == "queued"
+    assert payload["upload_status_url"] == f"/upload?batch_id={payload['batch_id']}"
+    assert payload["queued"] is True
+    assert [item["filename"] for item in payload["items"]] == ["valid-ddb-a.zip", "valid-ddb-b.zip"]
+    assert all(item["status"] == "queued" for item in payload["items"])
+    assert all(item["upload_id"] for item in payload["items"])
+    assert all(item["job_id"] for item in payload["items"])
+
+    uploads = db_session.scalars(select(Upload)).all()
+    jobs = db_session.scalars(select(IngestionJob)).all()
+    assert len(uploads) == 2
+    assert len(jobs) == 2
+    assert {upload.original_filename for upload in uploads} == {"valid-ddb-a.zip", "valid-ddb-b.zip"}
+    assert {upload.extension for upload in uploads} == {".html"}
+    assert {job.status for job in jobs} == {"queued"}
+    assert db_session.scalars(select(IngestionEvent)).all()
+
+
+def test_multi_zip_enqueue_failure_is_atomic_before_child_jobs_are_left_behind(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("invalid-zip.zip", batch_zip_artifacts["invalid-zip.zip"].read_bytes(), "application/zip")),
+            ("file", ("valid-ddb-b.zip", batch_zip_artifacts["valid-ddb-b.zip"].read_bytes(), "application/zip")),
+        ],
+    )
+
+    assert response.status_code == 400
+    assert "invalid-zip.zip" in response.json()["detail"]
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
+    assert db_session.scalars(select(IngestionEvent)).all() == []
+    assert not (tmp_path / "uploads" / "source-archives").exists()
+
+
+def test_multi_zip_partial_failure_fixture_setup_queues_worker_time_failures(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("malformed-ddb.zip", batch_zip_artifacts["malformed-ddb.zip"].read_bytes(), "application/zip")),
+        ],
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["upload_status_url"] == f"/upload?batch_id={payload['batch_id']}"
+    assert [item["filename"] for item in payload["items"]] == ["valid-ddb-a.zip", "malformed-ddb.zip"]
+    assert [item["status"] for item in payload["items"]] == ["queued", "queued"]
+    assert len(db_session.scalars(select(Upload)).all()) == 2
+    assert len(db_session.scalars(select(IngestionJob)).all()) == 2
+
+
+def test_batch_status_endpoint_contract(client: TestClient, batch_zip_artifacts: dict[str, Path]) -> None:
+    create_response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("valid-ddb-b.zip", batch_zip_artifacts["valid-ddb-b.zip"].read_bytes(), "application/zip")),
+        ],
+    )
+    assert create_response.status_code == 201
+    batch_id = create_response.json()["batch_id"]
+
+    response = client.get(f"/uploads/batches/{batch_id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload) == {"batch_id", "status", "file_count", "created_at", "updated_at", "items", "summary", "upload_status_url"}
+    assert payload["batch_id"] == batch_id
+    assert payload["status"] == "queued"
+    assert payload["file_count"] == 2
+    assert payload["upload_status_url"] == f"/upload?batch_id={batch_id}"
+    assert set(payload["summary"]) == {"queued", "running", "completed", "partial_failed", "failed", "total"}
+    assert payload["summary"] == {"queued": 2, "running": 0, "completed": 0, "partial_failed": 0, "failed": 0, "total": 2}
+    assert [item["filename"] for item in payload["items"]] == ["valid-ddb-a.zip", "valid-ddb-b.zip"]
+    for item in payload["items"]:
+        assert set(item) == {"filename", "upload_id", "job_id", "status", "error"}
+        assert item["status"] == "queued"
+        assert item["error"] is None
+
+
+def test_batch_status_endpoint_returns_404_for_unknown_batch(client: TestClient) -> None:
+    response = client.get("/uploads/batches/unknown-batch-id")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Upload batch not found"}
+
+
+def test_batch_status_endpoint_redacts_unsafe_child_errors(client: TestClient, db_session: Session, tmp_path: Path) -> None:
+    now = utcnow()
+    batch = UploadBatch(status="failed", file_count=1, created_at=now, updated_at=now)
+    db_session.add(batch)
+    db_session.flush()
+    upload = Upload(
+        original_filename="malformed-ddb.zip",
+        stored_path=str(tmp_path / "malformed.html"),
+        content_type="application/zip",
+        extension=".html",
+        sha256="abc123",
+        size_bytes=123,
+        batch_id=batch.id,
+        batch_position=0,
+        created_at=now,
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job = IngestionJob(
+        upload_id=upload.id,
+        batch_id=batch.id,
+        status="failed",
+        error_summary="Traceback: File \"/srv/the-stacks/uploads/secret.py\" exposed a path",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(job)
+    db_session.commit()
+
+    response = client.get(f"/uploads/batches/{batch.id}")
+
+    assert response.status_code == 200
+    response_text = json.dumps(response.json())
+    assert "Traceback" not in response_text
+    assert "/srv/the-stacks/uploads" not in response_text
+    error = response.json()["items"][0]["error"]
+    assert error == {
+        "filename": "malformed-ddb.zip",
+        "category": "unknown_error",
+        "message": "Import failed. Review the file and try again.",
+    }
+
+
+@pytest.mark.parametrize(
+    ("child_statuses", "expected_status"),
+    [
+        (["queued", "queued"], "queued"),
+        (["completed", "queued"], "running"),
+        (["completed", "processing"], "running"),
+        (["completed", "completed"], "completed"),
+        (["failed", "failed"], "failed"),
+        (["completed", "failed"], "partial_failed"),
+    ],
+)
+def test_batch_status_endpoint_aggregate_algorithm(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+    child_statuses: list[str],
+    expected_status: str,
+) -> None:
+    batch_id = _create_batch_with_statuses(db_session, tmp_path, child_statuses)
+
+    response = client.get(f"/uploads/batches/{batch_id}")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == expected_status
+
+
+def test_batch_status_endpoint_orders_children_by_position_created_at_and_id(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    now = utcnow()
+    batch = UploadBatch(status="queued", file_count=4, created_at=now, updated_at=now)
+    db_session.add(batch)
+    db_session.flush()
+
+    children = [
+        ("third.zip", 2, now, "00000000-0000-0000-0000-000000000003"),
+        ("second.zip", 1, now, "00000000-0000-0000-0000-000000000002"),
+        ("first.zip", 0, now, "00000000-0000-0000-0000-000000000004"),
+        ("tie-breaker.zip", 0, now, "00000000-0000-0000-0000-000000000001"),
+    ]
+    for filename, position, created_at, upload_id in children:
+        upload = Upload(
+            id=upload_id,
+            original_filename=filename,
+            stored_path=str(tmp_path / filename),
+            content_type="application/zip",
+            extension=".html",
+            sha256=f"sha-{filename}",
+            size_bytes=123,
+            batch_id=batch.id,
+            batch_position=position,
+            created_at=created_at,
+        )
+        db_session.add(upload)
+        db_session.flush()
+        db_session.add(IngestionJob(upload_id=upload.id, batch_id=batch.id, status="queued", created_at=created_at, updated_at=created_at))
+    db_session.commit()
+
+    response = client.get(f"/uploads/batches/{batch.id}")
+
+    assert response.status_code == 200
+    assert [item["filename"] for item in response.json()["items"]] == ["tie-breaker.zip", "first.zip", "second.zip", "third.zip"]
+
+
+@pytest.mark.parametrize(
+    ("files", "expected_detail"),
+    [
+        (["valid-ddb-a.zip", "valid-ddb-a.zip"], "duplicate filename"),
+        (["../valid-ddb-a.zip", "valid-ddb-b.zip"], "unsafe filename"),
+    ],
+)
+def test_multi_zip_rejects_unsafe_or_duplicate_filenames(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+    files: list[str],
+    expected_detail: str,
+) -> None:
+    response = client.post(
+        "/uploads",
+        files=[
+            (
+                "file",
+                (filename, batch_zip_artifacts[Path(filename).name].read_bytes(), "application/zip"),
+            )
+            for filename in files
+        ],
+    )
+
+    assert response.status_code == 400
+    assert expected_detail in response.json()["detail"]
+    assert "../valid-ddb-a.zip" not in response.json()["detail"]
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
+
+
+def test_multi_zip_rejects_empty_request(client: TestClient, db_session: Session) -> None:
+    response = client.post("/uploads", files=[])
+
+    assert response.status_code == 400
+    assert "upload_limit_exceeded" in response.json()["detail"]
+    assert "at least one file" in response.json()["detail"]
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
+
+
+def test_multi_zip_rejects_max_file_count(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    content = batch_zip_artifacts["valid-ddb-a.zip"].read_bytes()
+
+    response = client.post(
+        "/uploads",
+        files=[("file", (f"valid-ddb-{index}.zip", content, "application/zip")) for index in range(26)],
+    )
+
+    assert response.status_code == 400
+    assert "upload_limit_exceeded" in response.json()["detail"]
+    assert "maximum file count" in response.json()["detail"]
+    assert "25" in response.json()["detail"]
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
+
+
+def test_multi_zip_rejects_aggregate_size_limit(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+    tmp_path: Path,
+) -> None:
+    def override_settings() -> Settings:
+        settings = Settings(
+            ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+            SESSION_SECRET=os.environ["SESSION_SECRET"],
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            UPLOAD_DIR=str(tmp_path / "uploads"),
+        )
+        object.__setattr__(settings, "upload_batch_max_size_bytes", 10)
+        return settings
+
+    app.dependency_overrides[get_settings] = override_settings
+
+    response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("valid-ddb-b.zip", batch_zip_artifacts["valid-ddb-b.zip"].read_bytes(), "application/zip")),
+        ],
+    )
+
+    assert response.status_code == 413
+    assert "upload_limit_exceeded" in response.json()["detail"]
+    assert "aggregate size" in response.json()["detail"]
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
+
+
+def test_single_upload_compatibility_still_uses_legacy_file_contract(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    content = batch_zip_artifacts["valid-ddb-a.zip"].read_bytes()
+
+    response = client.post("/uploads", files={"file": ("valid-ddb-a.zip", content, "application/zip")})
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert set(payload) == {"upload_id", "job_id", "queued"}
+    assert payload["queued"] is True
+    upload = db_session.get(Upload, payload["upload_id"])
+    job = db_session.get(IngestionJob, payload["job_id"])
+    assert upload is not None
+    assert job is not None
+    assert upload.original_filename == "valid-ddb-a.zip"
+    assert job.upload_id == upload.id
 
 
 @pytest.mark.parametrize(
@@ -789,6 +1130,35 @@ def _zip_bytes(entries: dict[str, bytes]) -> bytes:
     return archive.getvalue()
 
 
+@pytest.fixture()
+def batch_zip_artifacts(tmp_path: Path) -> dict[str, Path]:
+    artifacts = tmp_path / "batch-zips"
+    artifacts.mkdir()
+    files = {
+        "valid-ddb-a.zip": _zip_bytes(
+            {
+                "Book A/page.html": b"<html><body><h1>Book A</h1><p>DDB fixture A.</p></body></html>",
+                "Book A/page_files/style.css": b"body { color: #111; }",
+            }
+        ),
+        "valid-ddb-b.zip": _zip_bytes(
+            {
+                "Book B/page.html": b"<html><body><h1>Book B</h1><p>DDB fixture B.</p></body></html>",
+                "Book B/page_files/style.css": b"body { color: #222; }",
+            }
+        ),
+        "invalid-zip.zip": b"not a zip archive",
+        "malformed-ddb.zip": _zip_bytes(
+            {
+                "Malformed/page.html": b"<html><body><h1>Malformed DDB</h1><script type=\"application/json\">{</script></body></html>",
+            }
+        ),
+    }
+    for filename, content in files.items():
+        (artifacts / filename).write_bytes(content)
+    return {filename: artifacts / filename for filename in files}
+
+
 def _upload_and_ingest_archive(client: TestClient, db_session: Session, entries: dict[str, bytes]) -> str:
     response = client.post("/uploads", files={"file": ("saved-page.zip", _zip_bytes(entries), "application/zip")})
     assert response.status_code == 201
@@ -801,6 +1171,40 @@ def _upload_and_ingest_archive(client: TestClient, db_session: Session, entries:
     processed = process_claimed_job(db_session, job.id, continue_to_index=False)
     assert processed.status == "awaiting_embedding"
     return source_id
+
+
+def _create_batch_with_statuses(db: Session, tmp_path: Path, child_statuses: list[str]) -> str:
+    now = utcnow()
+    batch = UploadBatch(status="queued", file_count=len(child_statuses), created_at=now, updated_at=now)
+    db.add(batch)
+    db.flush()
+    for position, child_status in enumerate(child_statuses):
+        filename = f"child-{position}.zip"
+        upload = Upload(
+            original_filename=filename,
+            stored_path=str(tmp_path / f"child-{position}.html"),
+            content_type="application/zip",
+            extension=".html",
+            sha256=f"sha-{position}",
+            size_bytes=123,
+            batch_id=batch.id,
+            batch_position=position,
+            created_at=now,
+        )
+        db.add(upload)
+        db.flush()
+        db.add(
+            IngestionJob(
+                upload_id=upload.id,
+                batch_id=batch.id,
+                status=child_status,
+                error_summary="Import failed." if child_status == "failed" else None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+    db.commit()
+    return batch.id
 
 
 def _zip_with_symlink() -> bytes:

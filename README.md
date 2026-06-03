@@ -51,6 +51,16 @@ make smoke-public
 
 `make smoke-public` runs `scripts/smoke-public.sh` against both `THE_STACKS_LOCAL_URL=http://localhost:8423` and `THE_STACKS_BASE_URL=https://thestacks.ikis.ai` by default. It exercises the audited root-mounted API contract (`/health`, `/auth/*`, `/sessions*`, `/uploads`, `/jobs/*`, `/records/*`) and verifies SPA delivery on `/` and `/login` without browser automation. Override either base URL if you need to point at a different deployment target.
 
+## Upload batches and runtime versions
+
+- `POST /uploads` accepts repeated multipart field `file`. Single-file uploads keep the legacy response shape, while multi-file ZIP batches return `batch_id`, `items`, `queued`, and `upload_status_url`.
+- Use the canonical browser refresh link `/upload?batch_id=<batch_id>` and the backend batch status endpoint `GET /uploads/batches/{batch_id}` to resume or inspect a batch.
+- Batch status rows stay file-scoped. They surface `filename`, `category`, and a safe public `message`, and they do not expose tracebacks or raw filesystem paths.
+- Immutable source archives are content-addressed under `/data/uploads/source-archives/...`. Matching bytes reuse the same archive record, and teardown does not delete `source-archives`.
+- Version runtime namespaces come from internal version IDs, not user labels or filenames. Each version gets its own database name and URL, Qdrant collection, and upload, static, and runtime prefixes.
+- Activation only accepts versions in `ready` state and refuses teardown-locked versions. The default active pointer is updated during activation, and the active version cannot be torn down.
+- Teardown is dry-run first. Confirmed teardown requires explicit confirmation, records lifecycle events, persists steps so reruns can resume, and keeps failed steps marked for audit.
+
 ## Worktree lifecycle
 
 Use the current worktree’s helper or runbook step to stop the matching compose stack. Do not shut down a different checkout by accident, and do not rely on a blanket repo-wide teardown when you are only trying to stop one worktree.

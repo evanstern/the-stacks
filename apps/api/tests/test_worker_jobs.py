@@ -9,16 +9,25 @@ from textwrap import dedent
 from typing import cast
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
+from app.config import Settings, get_settings
 from app.database import Base
+from app.database import get_db
 from app.ingestion import add_event, claim_next_job, process_claimed_job, process_next_job, process_next_queued_job
-from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, utcnow
+from app.main import app
+from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, UploadBatch, utcnow
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
+
+
+class FailingQdrantIndexer(FakeQdrantIndexer):
+    def upsert_points(self, points: object) -> None:
+        raise RuntimeError("qdrant unavailable at /srv/the-stacks/private/collection")
 
 
 @pytest.fixture()
@@ -179,9 +188,200 @@ def test_worker_marks_parser_failures_failed_with_event(db_session: Session, tmp
     assert processed is not None
     assert processed.status == "failed"
     assert processed.error_summary is not None
-    assert "valid EPUB archive" in processed.error_summary
+    assert processed.error_summary == "Uploaded archive is not a valid ZIP file."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["filename"] == "book.epub"
+    assert failure["category"] == "invalid_zip"
+    assert failure["message"] == "Uploaded archive is not a valid ZIP file."
+    assert failure["diagnostics"]["exception_type"] == "ParserError"
+    assert "valid EPUB archive" in failure["diagnostics"]["summary"]
     assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all() == []
     assert _event_types(db_session, job.id) == ["queued", "processing", "job_failed"]
+
+
+def test_worker_parser_failure_stores_structured_metadata_without_public_leak(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(
+        db_session,
+        tmp_path,
+        "malformed-ddb.html",
+        """
+        <html><head><link rel="canonical" href="https://www.dndbeyond.com/sources/test/broken"></head>
+        <body><article class="ddb-article"><h1>Broken DDB</h1></article></body></html>
+        """,
+        extension=".html",
+        content_type="text/html",
+    )
+
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
+
+    assert processed.status == "failed"
+    assert processed.error_summary == "D&D Beyond saved HTML could not be parsed. Review the saved page and try again."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["filename"] == "malformed-ddb.html"
+    assert failure["category"] == "ddb_parse_error"
+    assert failure["message"] == processed.error_summary
+    assert failure["diagnostics"]["exception_type"] == "DdbParserError"
+    assert "Traceback" in failure["diagnostics"]["traceback"]
+
+
+def test_multi_zip_jobs_independent_after_parser_failure_and_batch_aggregate_partial_failed(
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+    os.environ["SESSION_SECRET"] = "test-session-secret"
+    now = utcnow()
+    batch = UploadBatch(status="queued", file_count=2, created_at=now, updated_at=now)
+    db_session.add(batch)
+    db_session.flush()
+    failed_job = _create_upload_and_job(
+        db_session,
+        tmp_path,
+        "malformed-ddb.zip",
+        """
+        <html><head><link rel="canonical" href="https://www.dndbeyond.com/sources/test/broken"></head>
+        <body><article class="ddb-article"><h1>Broken DDB</h1></article></body></html>
+        """,
+        extension=".html",
+        content_type="application/zip",
+        batch_id=batch.id,
+        batch_position=0,
+    )
+    completed_job = _create_upload_and_job(
+        db_session,
+        tmp_path,
+        "valid-ddb-b.zip",
+        "# Valid sibling\nQueued siblings continue after a failed import.",
+        extension=".md",
+        content_type="application/zip",
+        batch_id=batch.id,
+        batch_position=1,
+    )
+
+    first = process_next_job(db_session, embedding_client=FakeEmbeddingClient(dimensions=3), qdrant_indexer=FakeQdrantIndexer())
+    second = process_next_job(db_session, embedding_client=FakeEmbeddingClient(dimensions=3), qdrant_indexer=FakeQdrantIndexer())
+
+    assert first is not None
+    assert first.id == failed_job.id
+    assert first.status == "failed"
+    assert second is not None
+    assert second.id == completed_job.id
+    assert second.status == "completed"
+
+    def override_db() -> Generator[Session, None, None]:
+        yield db_session
+
+    def override_settings() -> Settings:
+        return Settings(
+            ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+            SESSION_SECRET=os.environ["SESSION_SECRET"],
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            UPLOAD_DIR=str(tmp_path / "uploads"),
+        )
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_settings] = override_settings
+    with TestClient(app) as client:
+        assert client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        response = client.get(f"/uploads/batches/{batch.id}")
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "partial_failed"
+    assert payload["summary"] == {"queued": 0, "running": 0, "completed": 1, "partial_failed": 1, "failed": 1, "total": 2}
+    failed_error = payload["items"][0]["error"]
+    assert failed_error == {
+        "filename": "malformed-ddb.zip",
+        "category": "ddb_parse_error",
+        "message": "D&D Beyond saved HTML could not be parsed. Review the saved page and try again.",
+    }
+    response_text = json.dumps(payload)
+    assert "Traceback" not in response_text
+    assert str(tmp_path) not in response_text
+    assert "DdbParserError(" not in response_text
+    assert payload["items"][1]["error"] is None
+
+
+def test_worker_categorizes_indexing_failure_without_public_diagnostics(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "index-me.md", "# Index me\nThis chunk reaches Qdrant.")
+
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(dimensions=3),
+        qdrant_indexer=FailingQdrantIndexer(),
+    )
+
+    assert processed is not None
+    assert processed.id == job.id
+    assert processed.status == "failed"
+    assert processed.error_summary == "Search indexing failed. Try again later."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["filename"] == "index-me.md"
+    assert failure["category"] == "qdrant_index_error"
+    assert failure["message"] == "Search indexing failed. Try again later."
+    assert "qdrant unavailable" in failure["diagnostics"]["summary"]
+    assert "/srv/the-stacks/private" in failure["diagnostics"]["summary"]
+    public_text = json.dumps({"error_summary": processed.error_summary, "category": failure["category"], "message": failure["message"]})
+    assert "qdrant unavailable" not in public_text
+    assert "/srv/the-stacks/private" not in public_text
+
+
+def test_job_detail_redacts_private_failure_diagnostics(db_session: Session, tmp_path: Path) -> None:
+    os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+    os.environ["SESSION_SECRET"] = "test-session-secret"
+    job = _create_upload_and_job(db_session, tmp_path, "index-me.md", "# Index me\nThis chunk reaches Qdrant.")
+
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(dimensions=3),
+        qdrant_indexer=FailingQdrantIndexer(),
+    )
+
+    assert processed is not None
+    assert processed.id == job.id
+    persisted_failure = json.loads(processed.metadata_json)["failure"]
+    assert "diagnostics" in persisted_failure
+    assert "qdrant unavailable" in persisted_failure["diagnostics"]["summary"]
+    assert "/srv/the-stacks/private" in persisted_failure["diagnostics"]["summary"]
+
+    def override_db() -> Generator[Session, None, None]:
+        yield db_session
+
+    def override_settings() -> Settings:
+        return Settings(
+            ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+            SESSION_SECRET=os.environ["SESSION_SECRET"],
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            UPLOAD_DIR=str(tmp_path / "uploads"),
+        )
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_settings] = override_settings
+    with TestClient(app) as client:
+        assert client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        response = client.get(f"/jobs/{job.id}")
+        alias_response = client.get(f"/ingestion/jobs/{job.id}")
+    app.dependency_overrides.clear()
+
+    for job_response in (response, alias_response):
+        assert job_response.status_code == 200
+        payload = job_response.json()
+        assert payload["error_summary"] == "Search indexing failed. Try again later."
+        assert payload["metadata"]["failure"] == {
+            "filename": "index-me.md",
+            "category": "qdrant_index_error",
+            "message": "Search indexing failed. Try again later.",
+        }
+        response_text = json.dumps(payload)
+        assert "diagnostics" not in response_text
+        assert "Traceback" not in response_text
+        assert "/srv/" not in response_text
+        assert "/tmp/" not in response_text
+        assert "qdrant unavailable" not in response_text
+        assert "/srv/the-stacks/private" not in response_text
 
 
 def test_worker_surfaces_html_parser_warnings_in_events_and_metadata(db_session: Session, tmp_path: Path) -> None:
@@ -478,6 +678,63 @@ def test_worker_indexes_archive_qdrant_payload_uses_semantic_section_path_text(d
     assert qdrant_payload["source_url"] == "https://example.test/archive-source-qdrant-worker"
 
 
+def test_job_status_upload_view_url(db_session: Session, tmp_path: Path) -> None:
+    from app.config import Settings, get_settings
+    from app.database import get_db
+    from app.main import app
+    from fastapi.testclient import TestClient
+
+    os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+    os.environ["SESSION_SECRET"] = "test-session-secret"
+
+    now = utcnow()
+    batch = UploadBatch(status="queued", file_count=1, created_at=now, updated_at=now)
+    db_session.add(batch)
+    db_session.flush()
+    upload = Upload(
+        original_filename="valid-ddb-a.zip",
+        stored_path=str(tmp_path / "valid-ddb-a.html"),
+        content_type="application/zip",
+        extension=".html",
+        sha256="abc123",
+        size_bytes=123,
+        batch_id=batch.id,
+        batch_position=0,
+        created_at=now,
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job = IngestionJob(upload_id=upload.id, batch_id=batch.id, status="queued", created_at=now, updated_at=now)
+    db_session.add(job)
+    db_session.commit()
+
+    def override_db() -> Generator[Session, None, None]:
+        yield db_session
+
+    def override_settings() -> Settings:
+        return Settings(
+            ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+            SESSION_SECRET=os.environ["SESSION_SECRET"],
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            UPLOAD_DIR=str(tmp_path / "uploads"),
+        )
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_settings] = override_settings
+    with TestClient(app) as client:
+        assert client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        response = client.get(f"/jobs/{job.id}")
+        alias_response = client.get(f"/ingestion/jobs/{job.id}")
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert alias_response.status_code == 200
+    assert response.json()["batch_id"] == batch.id
+    assert response.json()["upload_status_url"] == f"/upload?batch_id={batch.id}"
+    assert alias_response.json()["batch_id"] == batch.id
+    assert alias_response.json()["upload_status_url"] == f"/upload?batch_id={batch.id}"
+
+
 
 def _create_upload_and_job(
     db: Session,
@@ -486,6 +743,8 @@ def _create_upload_and_job(
     content: str,
     extension: str | None = None,
     content_type: str = "text/markdown",
+    batch_id: str | None = None,
+    batch_position: int | None = None,
 ) -> IngestionJob:
     extension = extension or Path(filename).suffix.lower()
     stored_path = tmp_path / filename
@@ -497,11 +756,13 @@ def _create_upload_and_job(
         extension=extension,
         sha256="abc123",
         size_bytes=len(content.encode()),
+        batch_id=batch_id,
+        batch_position=batch_position,
         created_at=utcnow(),
     )
     db.add(upload)
     db.flush()
-    job = IngestionJob(upload_id=upload.id, status="queued", created_at=utcnow(), updated_at=utcnow())
+    job = IngestionJob(upload_id=upload.id, batch_id=batch_id, status="queued", created_at=utcnow(), updated_at=utcnow())
     db.add(job)
     db.flush()
     add_event(db, job, "queued", "Upload queued for ingestion", {"status": "queued"})

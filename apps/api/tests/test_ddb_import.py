@@ -210,3 +210,17 @@ def test_artifact_writer_writes_manifest_and_fails_loudly(tmp_path: Path) -> Non
     blocking_file.write_text("blocking", encoding="utf-8")
     with pytest.raises(FileExistsError):
         write_ddb_artifacts(imported, blocking_file)
+
+
+def test_structured_import_errors_for_malformed_ddb_saved_html() -> None:
+    malformed = b"""
+    <html>
+      <head><link rel="canonical" href="https://www.dndbeyond.com/sources/test/broken"></head>
+      <body><article class="ddb-article"><h1>Broken Article</h1></article></body>
+    </html>
+    """
+
+    with pytest.raises(ValueError) as exc_info:
+        parse_ddb_saved_html(malformed)
+
+    assert str(exc_info.value) == "DDB saved HTML did not contain extractable article text"

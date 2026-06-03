@@ -129,6 +129,73 @@ def test_openapi_documents_chat_envelope_and_jobs_routes(db_session: Session) ->
     assert response_schema["$ref"].endswith("/ChatMessageEnvelope")
 
 
+def test_openapi_documents_canonical_upload_url_and_batch_contract(db_session: Session) -> None:
+    with _client(db_session) as client:
+        schema = client.get("/openapi.json").json()
+
+    assert "/uploads" in schema["paths"]
+    assert "/api/uploads" not in schema["paths"]
+    upload_post = schema["paths"]["/uploads"]["post"]
+    request_body = upload_post["requestBody"]["content"]["multipart/form-data"]["schema"]
+    request_body_schema = _resolve_openapi_ref(schema, request_body)
+    properties = request_body_schema["properties"]
+    assert isinstance(properties, dict)
+    file_schema = properties["file"]
+    assert isinstance(file_schema, dict)
+    items_schema = file_schema["items"]
+    assert isinstance(items_schema, dict)
+    assert file_schema["type"] == "array"
+    assert items_schema["format"] == "binary"
+    response_schema = upload_post["responses"]["201"]["content"]["application/json"]["schema"]
+    assert _openapi_schema_includes_ref(response_schema, "UploadBatchQueued")
+
+
+def test_batch_status_endpoint_contract(db_session: Session) -> None:
+    from app.models import IngestionJob, Upload, UploadBatch, utcnow
+
+    now = utcnow()
+    batch = UploadBatch(status="queued", file_count=1, created_at=now, updated_at=now)
+    db_session.add(batch)
+    db_session.flush()
+    upload = Upload(
+        original_filename="valid-ddb-a.zip",
+        stored_path="/tmp/valid-ddb-a.html",
+        content_type="application/zip",
+        extension=".html",
+        sha256="abc123",
+        size_bytes=123,
+        batch_id=batch.id,
+        batch_position=0,
+        created_at=now,
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job = IngestionJob(upload_id=upload.id, batch_id=batch.id, status="queued", created_at=now, updated_at=now)
+    db_session.add(job)
+    db_session.commit()
+
+    with _client(db_session) as client:
+        response = client.get(f"/uploads/batches/{batch.id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload) == {"batch_id", "status", "file_count", "created_at", "updated_at", "items", "summary", "upload_status_url"}
+    assert payload["batch_id"] == batch.id
+    assert payload["status"] == "queued"
+    assert payload["upload_status_url"] == f"/upload?batch_id={batch.id}"
+    assert set(payload["summary"]) == {"queued", "running", "completed", "partial_failed", "failed", "total"}
+    for item in payload["items"]:
+        assert set(item) == {"filename", "upload_id", "job_id", "status", "error"}
+
+
+def test_batch_status_endpoint_404s_unknown_batch(db_session: Session) -> None:
+    with _client(db_session) as client:
+        response = client.get("/uploads/batches/unknown-batch-id")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Upload batch not found"}
+
+
 def test_session_message_route_preserves_citation_metadata_and_marker_order(db_session: Session) -> None:
     import app.routes_sessions as routes_sessions
 
@@ -205,6 +272,32 @@ def _load_repair_migration():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _resolve_openapi_ref(openapi_schema: dict[str, object], maybe_ref: dict[str, object]) -> dict[str, object]:
+    ref = maybe_ref.get("$ref")
+    if not isinstance(ref, str):
+        return maybe_ref
+    prefix = "#/components/schemas/"
+    assert ref.startswith(prefix)
+    components = openapi_schema["components"]
+    assert isinstance(components, dict)
+    schemas = components["schemas"]
+    assert isinstance(schemas, dict)
+    resolved = schemas[ref.removeprefix(prefix)]
+    assert isinstance(resolved, dict)
+    return resolved
+
+
+def _openapi_schema_includes_ref(schema_node: object, schema_name: str) -> bool:
+    if isinstance(schema_node, dict):
+        ref = schema_node.get("$ref")
+        if isinstance(ref, str) and ref.endswith(f"/{schema_name}"):
+            return True
+        return any(_openapi_schema_includes_ref(value, schema_name) for value in schema_node.values())
+    if isinstance(schema_node, list):
+        return any(_openapi_schema_includes_ref(item, schema_name) for item in schema_node)
+    return False
 
 
 class _ConstraintRecorder:

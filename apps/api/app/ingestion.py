@@ -3,6 +3,7 @@ import json
 import re
 import io
 import hashlib
+import traceback
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
@@ -12,21 +13,43 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 import zipfile
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.ddb_import import DDB_PARSER, is_ddb_saved_html, parse_ddb_saved_html, write_ddb_artifacts
 from app.embeddings import EmbeddingClient, get_embedding_client
 from app.models import Document, DocumentChunk, IndexedChunk, IngestionEvent, IngestionJob, Section, Source, Upload, utcnow
-from app.qdrant_index import QdrantIndexer, QdrantPoint, get_qdrant_indexer
+from app.qdrant_index import QdrantIndexer, QdrantIndexError, QdrantPoint, get_qdrant_indexer
 
 
 MAX_CHUNK_CHARS = 1200
 CHUNK_OVERLAP_CHARS = 160
 SUPPORTED_PARSE_EXTENSIONS = {".md", ".markdown", ".txt", ".html", ".htm", ".epub"}
+FAILURE_METADATA_KEY = "failure"
+FAILURE_CATEGORIES = {
+    "invalid_zip",
+    "unsupported_source_type",
+    "ddb_parse_error",
+    "missing_required_file",
+    "duplicate_source",
+    "storage_error",
+    "database_error",
+    "qdrant_index_error",
+    "worker_timeout",
+    "unknown_error",
+}
 
 
 class ParserError(ValueError):
+    pass
+
+
+class DdbParserError(ParserError):
+    pass
+
+
+class StorageParserError(ParserError):
     pass
 
 
@@ -250,7 +273,7 @@ def parse_document(path: Path, extension: str, metadata: dict[str, object] | Non
     except UnicodeDecodeError as exc:
         raise ParserError("Uploaded file is not valid UTF-8 text") from exc
     except OSError as exc:
-        raise ParserError(f"Could not read uploaded file: {exc}") from exc
+        raise StorageParserError(f"Could not read uploaded file: {exc}") from exc
 
     if extension in {".md", ".markdown"}:
         return _parse_markdown(raw_text)
@@ -495,7 +518,7 @@ def process_claimed_job(
         job = db.get(IngestionJob, job_id)
         if job is None:
             raise
-        _fail_job(db, job, str(exc))
+        _fail_job(db, job, str(exc), exc, upload)
     db.refresh(job)
     return job
 
@@ -529,12 +552,118 @@ def add_event(
     )
 
 
-def _fail_job(db: Session, job: IngestionJob, error_summary: str) -> None:
+def _fail_job(db: Session, job: IngestionJob, error_summary: str, exc: BaseException | None = None, upload: Upload | None = None) -> None:
+    failure = _normalize_job_failure(job, error_summary, exc, upload)
     job.status = "failed"
-    job.error_summary = error_summary[:2000]
+    job.error_summary = str(failure["message"])[:2000]
     job.updated_at = utcnow()
-    add_event(db, job, "job_failed", error_summary[:2000], {"status": "failed"})
+    job.metadata_json = _merge_json(job.metadata_json, {FAILURE_METADATA_KEY: failure})
+    add_event(
+        db,
+        job,
+        "job_failed",
+        str(failure["message"])[:2000],
+        {"status": "failed", "category": failure["category"], "filename": failure["filename"]},
+    )
     db.commit()
+
+
+def _normalize_job_failure(
+    job: IngestionJob,
+    error_summary: str,
+    exc: BaseException | None = None,
+    upload: Upload | None = None,
+) -> dict[str, object]:
+    category = _failure_category(error_summary, exc)
+    message = _safe_failure_message(category, error_summary)
+    filename = upload.original_filename if upload is not None else None
+    if not filename:
+        filename = str(_loads_json(job.metadata_json).get("filename") or job.upload_id or "unknown")
+    return {
+        "filename": filename,
+        "category": category,
+        "message": message,
+        "diagnostics": _failure_diagnostics(error_summary, exc),
+    }
+
+
+def _failure_category(error_summary: str, exc: BaseException | None) -> str:
+    lower_summary = error_summary.lower()
+    chain = _exception_chain(exc)
+    if any(isinstance(item, TimeoutError) for item in chain):
+        return "worker_timeout"
+    if any(isinstance(item, QdrantIndexError) for item in chain) or "qdrant" in lower_summary:
+        return "qdrant_index_error"
+    if any(isinstance(item, DdbParserError) for item in chain) or "ddb saved html" in lower_summary or "d&d beyond" in lower_summary:
+        return "ddb_parse_error"
+    if any(isinstance(item, zipfile.BadZipFile) for item in chain) or "not a valid zip" in lower_summary or "valid epub archive" in lower_summary:
+        return "invalid_zip"
+    if any(isinstance(item, StorageParserError | OSError) for item in chain) or "could not read uploaded file" in lower_summary or "could not write" in lower_summary:
+        return "storage_error"
+    if any(isinstance(item, SQLAlchemyError) for item in chain):
+        if "duplicate" in lower_summary or "unique" in lower_summary:
+            return "duplicate_source"
+        return "database_error"
+    if "no parser is available" in lower_summary:
+        return "unsupported_source_type"
+    if "upload row is missing" in lower_summary:
+        return "missing_required_file"
+    if "duplicate" in lower_summary:
+        return "duplicate_source"
+    return "unknown_error"
+
+
+def _safe_failure_message(category: str, error_summary: str) -> str:
+    messages = {
+        "invalid_zip": "Uploaded archive is not a valid ZIP file.",
+        "unsupported_source_type": "Unsupported file type. Supported types: ZIP, EPUB, HTML, TXT, MD.",
+        "ddb_parse_error": "D&D Beyond saved HTML could not be parsed. Review the saved page and try again.",
+        "missing_required_file": "A required uploaded file was missing during import.",
+        "duplicate_source": "This source has already been imported.",
+        "storage_error": "Uploaded file storage could not be read or written. Try again later.",
+        "database_error": "The import could not be saved. Try again later.",
+        "qdrant_index_error": "Search indexing failed. Try again later.",
+        "worker_timeout": "The import worker timed out. Try again later.",
+        "unknown_error": "Import failed. Review the file and try again.",
+    }
+    if category == "unknown_error":
+        return _redact_failure_message(error_summary)[:500]
+    return messages[category]
+
+
+def _redact_failure_message(message: str) -> str:
+    if _message_looks_unsafe(message):
+        return "Import failed. Review the file and try again."
+    return message or "Import failed. Review the file and try again."
+
+
+def _message_looks_unsafe(message: str) -> bool:
+    return bool(
+        re.search(r"Traceback", message, re.IGNORECASE)
+        or re.search(r"\bFile \"", message)
+        or re.search(r"/(?:home|tmp|var|srv|data|app|mnt)/", message)
+        or re.search(r"[A-Za-z]:\\\\", message)
+        or re.search(r"<[^>]+Error[^>]*>", message)
+    )
+
+
+def _failure_diagnostics(error_summary: str, exc: BaseException | None) -> dict[str, object]:
+    diagnostics: dict[str, object] = {"summary": error_summary[:2000]}
+    if exc is None:
+        return diagnostics
+    diagnostics["exception_type"] = type(exc).__name__
+    diagnostics["exception_module"] = type(exc).__module__
+    diagnostics["traceback"] = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))[:8000]
+    return diagnostics
+
+
+def _exception_chain(exc: BaseException | None) -> list[BaseException]:
+    chain: list[BaseException] = []
+    current = exc
+    while current is not None and current not in chain:
+        chain.append(current)
+        current = current.__cause__ or current.__context__
+    return chain
 
 
 def _embed_and_index_job(
@@ -629,7 +758,8 @@ def _embed_and_index_job(
         job = db.get(IngestionJob, job_id)
         if job is None:
             raise
-        _fail_job(db, job, str(exc))
+        upload = db.get(Upload, job.upload_id)
+        _fail_job(db, job, str(exc), exc, upload)
     db.refresh(job)
     return job
 
@@ -894,9 +1024,9 @@ def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes) -> ParsedDocument:
         document = parse_ddb_saved_html(text, raw_bytes)
         write_ddb_artifacts(document, Path(f"{path}.artifacts"))
     except ValueError as exc:
-        raise ParserError(str(exc)) from exc
+        raise DdbParserError(str(exc)) from exc
     except OSError as exc:
-        raise ParserError(f"Could not write DDB import artifacts: {exc}") from exc
+        raise StorageParserError(f"Could not write DDB import artifacts: {exc}") from exc
     return ParsedDocument(
         parser=DDB_PARSER,
         title=document.title,
@@ -919,7 +1049,7 @@ def _parse_epub(path: Path) -> ParsedDocument:
     try:
         raw_bytes = path.read_bytes()
     except OSError as exc:
-        raise ParserError(f"Could not read uploaded file: {exc}") from exc
+        raise StorageParserError(f"Could not read uploaded file: {exc}") from exc
 
     try:
         archive = zipfile.ZipFile(io.BytesIO(raw_bytes))

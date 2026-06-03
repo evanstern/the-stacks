@@ -77,6 +77,17 @@ class Citation(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
+class UploadBatch(Base):
+    __tablename__ = "upload_batches"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False)
+    file_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
 class Upload(Base):
     __tablename__ = "uploads"
 
@@ -87,7 +98,72 @@ class Upload(Base):
     extension: Mapped[str] = mapped_column(String(16), nullable=False)
     sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     size_bytes: Mapped[int] = mapped_column(nullable=False)
+    batch_id: Mapped[str | None] = mapped_column(ForeignKey("upload_batches.id"), nullable=True)
+    batch_position: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class ImmutableSourceArchive(Base):
+    __tablename__ = "immutable_source_archives"
+
+    content_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    storage_path: Mapped[str] = mapped_column(Text, nullable=False)
+    original_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class RuntimeVersion(Base):
+    __tablename__ = "runtime_versions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    display_label: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    label_slug: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="draft", nullable=False)
+    database_name: Mapped[str] = mapped_column(String(63), nullable=False)
+    database_url: Mapped[str] = mapped_column(Text, nullable=False)
+    qdrant_collection: Mapped[str] = mapped_column(String(255), nullable=False)
+    upload_prefix: Mapped[str] = mapped_column(Text, nullable=False)
+    static_prefix: Mapped[str] = mapped_column(Text, nullable=False)
+    runtime_prefix: Mapped[str] = mapped_column(Text, nullable=False)
+    source_archive_hash: Mapped[str] = mapped_column(ForeignKey("immutable_source_archives.content_hash"), nullable=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class ActiveVersionPointer(Base):
+    __tablename__ = "active_version_pointers"
+
+    name: Mapped[str] = mapped_column(String(64), primary_key=True)
+    runtime_version_id: Mapped[str] = mapped_column(ForeignKey("runtime_versions.id"), nullable=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class VersionLifecycleEvent(Base):
+    __tablename__ = "version_lifecycle_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    runtime_version_id: Mapped[str] = mapped_column(ForeignKey("runtime_versions.id"), nullable=False)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class TeardownStep(Base):
+    __tablename__ = "teardown_steps"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    runtime_version_id: Mapped[str] = mapped_column(ForeignKey("runtime_versions.id"), nullable=False)
+    step_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
 class Source(Base):
@@ -131,6 +207,7 @@ class IngestionJob(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id"), nullable=False)
+    batch_id: Mapped[str | None] = mapped_column(ForeignKey("upload_batches.id"), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False)
     error_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
@@ -175,6 +252,7 @@ class IngestionEvent(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     ingestion_job_id: Mapped[str] = mapped_column(ForeignKey("ingestion_jobs.id"), nullable=False)
     upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id"), nullable=False)
+    batch_id: Mapped[str | None] = mapped_column(ForeignKey("upload_batches.id"), nullable=True)
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)

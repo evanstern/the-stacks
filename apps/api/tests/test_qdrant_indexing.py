@@ -245,7 +245,11 @@ def test_qdrant_failure_marks_job_failed_without_silencing_error(db_session: Ses
 
     assert processed is not None
     assert processed.status == "failed"
-    assert processed.error_summary == "qdrant unavailable"
+    assert processed.error_summary == "Search indexing failed. Try again later."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["category"] == "qdrant_index_error"
+    assert failure["message"] == processed.error_summary
+    assert failure["diagnostics"]["summary"] == "qdrant unavailable"
     assert db_session.scalars(select(IndexedChunk).where(IndexedChunk.ingestion_job_id == job.id)).all() == []
     assert _event_types(db_session, job.id)[-1] == "job_failed"
 

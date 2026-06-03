@@ -48,6 +48,56 @@ export type UploadQueued = {
   queued: boolean;
 };
 
+export type UploadBatchQueuedItem = {
+  filename: string;
+  upload_id: string;
+  job_id: string;
+  status: string;
+};
+
+export type UploadBatchQueued = {
+  batch_id: string;
+  status: string;
+  items: UploadBatchQueuedItem[];
+  queued: boolean;
+  upload_status_url: string;
+};
+
+export type UploadBatchChildError = {
+  filename: string;
+  category: string;
+  message: string;
+};
+
+export type UploadBatchStatusItem = {
+  filename: string;
+  upload_id: string;
+  job_id: string;
+  status: string;
+  error: UploadBatchChildError | null;
+};
+
+export type UploadBatchStatusSummary = {
+  queued: number;
+  running: number;
+  completed: number;
+  failed: number;
+  partial_failed: number;
+};
+
+export type UploadBatchStatus = {
+  batch_id: string;
+  status: string;
+  file_count: number;
+  created_at: string;
+  updated_at: string;
+  items: UploadBatchStatusItem[];
+  summary: UploadBatchStatusSummary;
+  upload_status_url: string;
+};
+
+export type UploadResponse = UploadQueued | UploadBatchQueued;
+
 export type UploadRecord = {
   id: string;
   original_filename: string;
@@ -286,6 +336,21 @@ export async function uploadFile(file: File) {
     method: "POST",
     body: formData,
   });
+}
+
+export async function uploadFiles(files: File[]) {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append("file", file);
+  }
+  return request<UploadResponse>("/uploads", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function getUploadBatch(batchId: string) {
+  return request<UploadBatchStatus>(`/uploads/batches/${batchId}`);
 }
 
 export async function getIngestionJob(jobId: string) {

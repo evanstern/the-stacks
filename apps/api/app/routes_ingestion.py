@@ -61,9 +61,11 @@ def _job_read(job: IngestionJob) -> IngestionJobRead:
     return IngestionJobRead(
         id=job.id,
         upload_id=job.upload_id,
+        batch_id=job.batch_id,
+        upload_status_url=f"/upload?batch_id={job.batch_id}" if job.batch_id else None,
         status=job.status,
         error_summary=job.error_summary,
-        metadata=json.loads(job.metadata_json),
+        metadata=_public_job_metadata(json.loads(job.metadata_json)),
         created_at=job.created_at,
         updated_at=job.updated_at,
     )
@@ -79,3 +81,29 @@ def _event_read(event: IngestionEvent) -> IngestionEventRead:
         metadata=json.loads(event.metadata_json),
         created_at=event.created_at,
     )
+
+
+def _public_job_metadata(metadata: dict[str, object]) -> dict[str, object]:
+    public_metadata: dict[str, object] = {}
+    for key, value in metadata.items():
+        if key == "failure" and isinstance(value, dict):
+            public_metadata[key] = _public_failure_metadata(value)
+        else:
+            public_metadata[key] = _public_job_metadata_value(value)
+    return public_metadata
+
+
+def _public_job_metadata_value(value: object) -> object:
+    if isinstance(value, dict):
+        return _public_job_metadata(value)
+    if isinstance(value, list):
+        return [_public_job_metadata_value(item) for item in value]
+    return value
+
+
+def _public_failure_metadata(failure: dict[object, object]) -> dict[str, object]:
+    return {
+        str(key): _public_job_metadata_value(value)
+        for key, value in failure.items()
+        if key != "diagnostics"
+    }

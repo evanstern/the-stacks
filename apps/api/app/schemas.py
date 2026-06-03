@@ -59,6 +59,55 @@ class UploadQueued(BaseModel):
     queued: bool
 
 
+class UploadBatchQueuedItem(BaseModel):
+    filename: str
+    upload_id: str
+    job_id: str
+    status: str
+
+
+class UploadBatchQueued(BaseModel):
+    batch_id: str
+    status: str
+    items: list[UploadBatchQueuedItem]
+    queued: bool
+    upload_status_url: str
+
+
+class UploadBatchChildError(BaseModel):
+    filename: str
+    category: str
+    message: str
+
+
+class UploadBatchStatusItem(BaseModel):
+    filename: str
+    upload_id: str
+    job_id: str
+    status: str
+    error: UploadBatchChildError | None
+
+
+class UploadBatchStatusSummary(BaseModel):
+    queued: int
+    running: int
+    completed: int
+    partial_failed: int
+    failed: int
+    total: int
+
+
+class UploadBatchStatusRead(BaseModel):
+    batch_id: str
+    status: str
+    file_count: int
+    created_at: datetime
+    updated_at: datetime
+    items: list[UploadBatchStatusItem]
+    summary: UploadBatchStatusSummary
+    upload_status_url: str
+
+
 class UploadRead(BaseModel):
     id: str
     original_filename: str
@@ -72,6 +121,8 @@ class UploadRead(BaseModel):
 class IngestionJobRead(BaseModel):
     id: str
     upload_id: str
+    batch_id: str | None = None
+    upload_status_url: str | None = None
     status: str
     error_summary: str | None
     metadata: dict[str, object]
