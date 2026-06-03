@@ -47,6 +47,7 @@ ALLOWED_ASSET_EXTENSIONS = {
     ".xml",
 }
 ALLOWED_EXTENSIONS = HTML_EXTENSIONS | ALLOWED_ASSET_EXTENSIONS
+NESTED_ARCHIVE_EXTENSIONS = {".zip"}
 EXTENSIONLESS_ASSET_MIME_TYPE = "application/octet-stream"
 ALLOWED_METADATA_FILENAMES = {".DS_Store"}
 ALLOWED_MIME_PREFIXES = {"image/", "font/", "text/"}
@@ -61,6 +62,7 @@ ALLOWED_MIME_TYPES = {
     "text/ecmascript",
     "text/javascript",
 }
+NESTED_ARCHIVE_MIME_TYPES = {"application/zip", "application/x-zip-compressed"}
 SERVED_VIEWER_CSS = """
 :target,
 .archive-target-highlight {
@@ -538,9 +540,15 @@ def _validate_zip_archive(content: bytes, settings: Settings) -> _ArchiveValidat
                 for info in entries:
                     extension = Path(info.filename).suffix.lower()
                     is_metadata_entry = _is_allowed_metadata_entry(info.filename)
-                    if extension not in ALLOWED_EXTENSIONS and not _is_extensionless_archive_asset(info.filename) and not is_metadata_entry:
+                    is_nested_archive_entry = _is_nested_archive_entry(info.filename)
+                    if (
+                        extension not in ALLOWED_EXTENSIONS
+                        and not is_nested_archive_entry
+                        and not _is_extensionless_archive_asset(info.filename)
+                        and not is_metadata_entry
+                    ):
                         raise ArchiveValidationError(f"Archive entry has a disallowed extension: {info.filename}")
-                    mime_type = _validate_entry_mime(info.filename)
+                    mime_type = _validate_entry_mime(info.filename, allow_nested_archive=is_nested_archive_entry)
                     extracted_size += info.file_size
                     if extracted_size > settings.archive_max_extracted_size_bytes:
                         raise ArchiveValidationError("Archive extracted content exceeds the maximum allowed size")
@@ -581,10 +589,12 @@ def _validate_zip_info(info: zipfile.ZipInfo) -> None:
         raise ArchiveValidationError("Archive contains a symbolic link")
 
 
-def _validate_entry_mime(filename: str) -> str:
+def _validate_entry_mime(filename: str, *, allow_nested_archive: bool = False) -> str:
     mime_type = _archive_entry_mime(filename)
     if mime_type is None:
         raise ArchiveValidationError(f"Archive entry has an unknown MIME type: {filename}")
+    if allow_nested_archive and mime_type in NESTED_ARCHIVE_MIME_TYPES:
+        return mime_type
     if mime_type in ALLOWED_MIME_TYPES or any(mime_type.startswith(prefix) for prefix in ALLOWED_MIME_PREFIXES):
         return mime_type
     raise ArchiveValidationError(f"Archive entry has a disallowed MIME type: {filename}")
@@ -607,6 +617,11 @@ def _is_allowed_metadata_entry(filename: str) -> bool:
     if path.name in ALLOWED_METADATA_FILENAMES:
         return True
     return bool(path.parts and path.parts[0] == "__MACOSX" and path.name.startswith("._"))
+
+
+def _is_nested_archive_entry(filename: str) -> bool:
+    path = PurePosixPath(filename)
+    return len(path.parts) > 1 and Path(path.name).suffix.lower() in NESTED_ARCHIVE_EXTENSIONS
 
 
 def _is_zip_bomb_candidate(info: zipfile.ZipInfo) -> bool:

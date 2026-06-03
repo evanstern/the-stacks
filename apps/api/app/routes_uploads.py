@@ -1,8 +1,11 @@
 import hashlib
+import io
 import json
 import re
 import shutil
-from pathlib import Path
+import zipfile
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -52,6 +55,13 @@ SUPPORTED_CONTENT_TYPES = {
 
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
+
+
+@dataclass(frozen=True)
+class _UploadBatchInput:
+    filename: str
+    content: bytes
+    content_type: str
 
 
 def _extension(filename: str | None) -> str:
@@ -105,7 +115,8 @@ def _create_upload_and_job(
     db: Session,
     settings: Settings,
     upload_dir: Path,
-    file: UploadFile,
+    filename: str | None,
+    content_type: str | None,
     content: bytes,
     extension: str,
     now: object,
@@ -116,9 +127,9 @@ def _create_upload_and_job(
     digest = hashlib.sha256(content).hexdigest()
 
     upload = Upload(
-        original_filename=file.filename or f"upload{extension}",
+        original_filename=filename or f"upload{extension}",
         stored_path="",
-        content_type=(file.content_type or "application/octet-stream").lower(),
+        content_type=(content_type or "application/octet-stream").lower(),
         extension=".html" if extension == ".zip" else extension,
         sha256=digest,
         size_bytes=len(content),
@@ -160,35 +171,90 @@ def _create_upload_and_job(
     return upload, job
 
 
-def _validate_batch_files(files: list[UploadFile], contents: list[bytes], settings: Settings) -> list[str]:
-    if not files:
+def _validate_batch_inputs(items: list[_UploadBatchInput], settings: Settings) -> None:
+    if not items:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="upload_limit_exceeded: at least one file is required")
-    if len(files) > MAX_UPLOAD_BATCH_FILE_COUNT:
+    if len(items) > MAX_UPLOAD_BATCH_FILE_COUNT:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"upload_limit_exceeded: maximum file count is {MAX_UPLOAD_BATCH_FILE_COUNT}",
         )
 
-    filenames: list[str] = []
     seen_filenames: set[str] = set()
-    for file in files:
-        filename = _safe_filename(file.filename)
+    for item in items:
+        filename = _safe_filename(item.filename)
         if filename in seen_filenames:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"duplicate filename: {filename}")
         seen_filenames.add(filename)
-        filenames.append(filename)
 
-        extension = _validate_upload(file)
-        if extension != ".zip":
+        extension = _extension(filename)
+        if extension != ".zip" or item.content_type.lower() not in SUPPORTED_CONTENT_TYPES[".zip"]:
             raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=SUPPORTED_TYPE_MESSAGE)
 
     per_file_limit = getattr(settings, "upload_file_max_size_bytes", DEFAULT_UPLOAD_FILE_MAX_SIZE_BYTES)
     aggregate_limit = getattr(settings, "upload_batch_max_size_bytes", DEFAULT_UPLOAD_BATCH_MAX_SIZE_BYTES)
-    if any(len(content) > per_file_limit for content in contents):
+    if any(len(item.content) > per_file_limit for item in items):
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="upload_limit_exceeded: per-file size limit exceeded")
-    if sum(len(content) for content in contents) > aggregate_limit:
+    if sum(len(item.content) for item in items) > aggregate_limit:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="upload_limit_exceeded: aggregate size limit exceeded")
-    return filenames
+
+
+def _batch_inputs_from_uploads(files: list[UploadFile], contents: list[bytes], settings: Settings) -> list[_UploadBatchInput]:
+    items: list[_UploadBatchInput] = []
+    for file, content in zip(files, contents, strict=True):
+        filename = _safe_filename(file.filename)
+        extension = _validate_upload(file)
+        if extension != ".zip":
+            raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=SUPPORTED_TYPE_MESSAGE)
+
+        nested_items = _nested_zip_batch_inputs(content, settings)
+        if nested_items is not None:
+            items.extend(nested_items)
+        else:
+            items.append(_UploadBatchInput(filename=filename, content=content, content_type=file.content_type or "application/octet-stream"))
+
+    _validate_batch_inputs(items, settings)
+    return items
+
+
+def _nested_zip_batch_inputs(content: bytes, settings: Settings) -> list[_UploadBatchInput] | None:
+    try:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            entries = [info for info in archive.infolist() if not info.is_dir()]
+            if not entries:
+                return None
+            if any("\\" in info.filename for info in entries):
+                return None
+
+            paths_by_entry = [(info, PurePosixPath(info.filename)) for info in entries]
+            if any(path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts) for _info, path in paths_by_entry):
+                return None
+
+            content_entries = [
+                (info, path)
+                for info, path in paths_by_entry
+                if not _is_nested_zip_bundle_metadata_path(path)
+            ]
+            if not content_entries:
+                return None
+            if any(path.suffix.lower() in {".html", ".htm"} for _info, path in content_entries):
+                return None
+            if not all(path.suffix.lower() == ".zip" for _info, path in content_entries):
+                return None
+
+            items = [
+                _UploadBatchInput(filename=path.name, content=archive.read(info.filename), content_type="application/zip")
+                for info, path in content_entries
+            ]
+    except zipfile.BadZipFile:
+        return None
+
+    _validate_batch_inputs(items, settings)
+    return items
+
+
+def _is_nested_zip_bundle_metadata_path(path: PurePosixPath) -> bool:
+    return path.name == ".DS_Store" or bool(path.parts and path.parts[0] == "__MACOSX")
 
 
 def _remove_staged_archive_roots(settings: Settings, staged_archive_roots: list[Path]) -> None:
@@ -199,6 +265,72 @@ def _remove_staged_archive_roots(settings: Settings, staged_archive_roots: list[
         source_archives_dir.rmdir()
     except OSError:
         pass
+
+
+def _queue_batch_uploads(
+    *,
+    db: Session,
+    settings: Settings,
+    upload_dir: Path,
+    items: list[_UploadBatchInput],
+    now: object,
+) -> UploadBatchQueued:
+    batch = UploadBatch(
+        status="queued",
+        file_count=len(items),
+        metadata_json=json.dumps({"filenames": [item.filename for item in items]}, sort_keys=True, separators=(",", ":")),
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(batch)
+    db.flush()
+
+    staged_archive_roots: list[Path] = []
+    jobs: list[tuple[str, Upload, IngestionJob]] = []
+    current_filename = "upload"
+    try:
+        for position, item in enumerate(items):
+            current_filename = item.filename
+            upload, job = _create_upload_and_job(
+                db=db,
+                settings=settings,
+                upload_dir=upload_dir,
+                filename=item.filename,
+                content_type=item.content_type,
+                content=item.content,
+                extension=".zip",
+                now=now,
+                batch_id=batch.id,
+                batch_position=position,
+                staged_archive_roots=staged_archive_roots,
+            )
+            jobs.append((item.filename, upload, job))
+        for _filename, _upload, job in jobs:
+            add_event(db, job, "queued", "Upload queued for ingestion", {"status": "queued", "batch_id": batch.id})
+        db.commit()
+    except ArchiveValidationError as exc:
+        db.rollback()
+        _remove_staged_archive_roots(settings, staged_archive_roots)
+        detail = str(exc)
+        if current_filename not in detail:
+            detail = f"{current_filename}: {detail}"
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail) from exc
+    except Exception:
+        db.rollback()
+        _remove_staged_archive_roots(settings, staged_archive_roots)
+        raise
+
+    db.refresh(batch)
+    return UploadBatchQueued(
+        batch_id=batch.id,
+        status=batch.status,
+        items=[
+            UploadBatchQueuedItem(filename=filename, upload_id=upload.id, job_id=job.id, status=job.status)
+            for filename, upload, job in jobs
+        ],
+        queued=all(job.status == "queued" for _, _, job in jobs),
+        upload_status_url=f"/upload?batch_id={batch.id}",
+    )
 
 
 def _aggregate_batch_status(child_statuses: list[str]) -> str:
@@ -332,12 +464,17 @@ def create_upload(
 
     if len(file) == 1:
         extension = _validate_upload(file[0])
+        if extension == ".zip":
+            batch_items = _nested_zip_batch_inputs(contents[0], settings)
+            if batch_items is not None:
+                return _queue_batch_uploads(db=db, settings=settings, upload_dir=upload_dir, items=batch_items, now=now)
         try:
             upload, job = _create_upload_and_job(
                 db=db,
                 settings=settings,
                 upload_dir=upload_dir,
-                file=file[0],
+                filename=file[0].filename,
+                content_type=file[0].content_type,
                 content=contents[0],
                 extension=extension,
                 now=now,
@@ -351,59 +488,5 @@ def create_upload(
         db.refresh(job)
         return UploadQueued(upload_id=upload.id, job_id=job.id, queued=job.status == "queued")
 
-    filenames = _validate_batch_files(file, contents, settings)
-    batch = UploadBatch(
-        status="queued",
-        file_count=len(file),
-        metadata_json=json.dumps({"filenames": filenames}, sort_keys=True, separators=(",", ":")),
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(batch)
-    db.flush()
-
-    staged_archive_roots: list[Path] = []
-    jobs: list[tuple[str, Upload, IngestionJob]] = []
-    current_filename = "upload"
-    try:
-        for position, (upload_file, content, filename) in enumerate(zip(file, contents, filenames, strict=True)):
-            current_filename = filename
-            upload, job = _create_upload_and_job(
-                db=db,
-                settings=settings,
-                upload_dir=upload_dir,
-                file=upload_file,
-                content=content,
-                extension=".zip",
-                now=now,
-                batch_id=batch.id,
-                batch_position=position,
-                staged_archive_roots=staged_archive_roots,
-            )
-            jobs.append((filename, upload, job))
-        for _filename, _upload, job in jobs:
-            add_event(db, job, "queued", "Upload queued for ingestion", {"status": "queued", "batch_id": batch.id})
-        db.commit()
-    except ArchiveValidationError as exc:
-        db.rollback()
-        _remove_staged_archive_roots(settings, staged_archive_roots)
-        detail = str(exc)
-        if current_filename not in detail:
-            detail = f"{current_filename}: {detail}"
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail) from exc
-    except Exception:
-        db.rollback()
-        _remove_staged_archive_roots(settings, staged_archive_roots)
-        raise
-
-    db.refresh(batch)
-    return UploadBatchQueued(
-        batch_id=batch.id,
-        status=batch.status,
-        items=[
-            UploadBatchQueuedItem(filename=filename, upload_id=upload.id, job_id=job.id, status=job.status)
-            for filename, upload, job in jobs
-        ],
-        queued=all(job.status == "queued" for _, _, job in jobs),
-        upload_status_url=f"/upload?batch_id={batch.id}",
-    )
+    batch_items = _batch_inputs_from_uploads(file, contents, settings)
+    return _queue_batch_uploads(db=db, settings=settings, upload_dir=upload_dir, items=batch_items, now=now)

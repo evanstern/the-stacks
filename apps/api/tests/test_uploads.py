@@ -174,6 +174,92 @@ def test_multi_zip_batch_success_queues_each_zip_atomically(
     assert db_session.scalars(select(IngestionEvent)).all()
 
 
+@pytest.mark.parametrize("bundle_shape", ["folder", "root", "root_with_metadata"])
+def test_single_zip_bundle_with_nested_sourcebook_zips_queues_as_batch(
+    client: TestClient,
+    db_session: Session,
+    bundle_shape: str,
+) -> None:
+    chapter_a = _zip_bytes({"Chapter A/page.html": b"<html><body><h1>Chapter A</h1><p>First.</p></body></html>"})
+    chapter_b = _zip_bytes({"Chapter B/page.html": b"<html><body><h1>Chapter B</h1><p>Second.</p></body></html>"})
+    expected_filenames = ["01 - Character Options.zip", "11 - Spells.zip"]
+
+    if bundle_shape == "folder":
+        bundle_entries = {
+            "xanathars-guide-to-everything/01 - Character Options.zip": chapter_a,
+            "xanathars-guide-to-everything/11 - Spells.zip": chapter_b,
+        }
+    elif bundle_shape == "root":
+        bundle_entries = {
+            "01 - Character Options.zip": chapter_a,
+            "11 - Spells.zip": chapter_b,
+        }
+    else:
+        bundle_entries = {
+            ".DS_Store": b"finder metadata",
+            "__MACOSX/._01 - Character Options.zip": b"appledouble metadata",
+            "01 - Character Options.zip": chapter_a,
+            "11 - Spells.zip": chapter_b,
+        }
+
+    bundle = _zip_bytes(bundle_entries)
+
+    response = client.post("/uploads", files={"file": ("sourcebook-bundle.zip", bundle, "application/zip")})
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert set(payload) == {"batch_id", "status", "items", "queued", "upload_status_url"}
+    assert payload["status"] == "queued"
+    assert payload["queued"] is True
+    assert [item["filename"] for item in payload["items"]] == expected_filenames
+
+    uploads = db_session.scalars(select(Upload).order_by(Upload.batch_position)).all()
+    jobs = db_session.scalars(select(IngestionJob).order_by(IngestionJob.created_at, IngestionJob.id)).all()
+    assert len(uploads) == len(expected_filenames)
+    assert len(jobs) == len(expected_filenames)
+    assert [upload.original_filename for upload in uploads] == expected_filenames
+    assert all(upload.batch_id == payload["batch_id"] for upload in uploads)
+    assert all(job.batch_id == payload["batch_id"] for job in jobs)
+
+
+def test_multi_zip_batch_expands_nested_bundle_parts(
+    client: TestClient,
+    db_session: Session,
+    batch_zip_artifacts: dict[str, Path],
+) -> None:
+    child_a = _zip_bytes({"Child A/page.html": b"<html><body><h1>Child A</h1><p>First.</p></body></html>"})
+    child_b = _zip_bytes({"Child B/page.html": b"<html><body><h1>Child B</h1><p>Second.</p></body></html>"})
+    bundle = _zip_bytes(
+        {
+            ".DS_Store": b"finder metadata",
+            "01 - Child A.zip": child_a,
+            "02 - Child B.zip": child_b,
+        }
+    )
+
+    response = client.post(
+        "/uploads",
+        files=[
+            ("file", ("valid-ddb-a.zip", batch_zip_artifacts["valid-ddb-a.zip"].read_bytes(), "application/zip")),
+            ("file", ("sourcebook-bundle.zip", bundle, "application/zip")),
+        ],
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["status"] == "queued"
+    assert payload["queued"] is True
+    assert [item["filename"] for item in payload["items"]] == ["valid-ddb-a.zip", "01 - Child A.zip", "02 - Child B.zip"]
+
+    uploads = db_session.scalars(select(Upload).order_by(Upload.batch_position)).all()
+    jobs = db_session.scalars(select(IngestionJob).order_by(IngestionJob.created_at, IngestionJob.id)).all()
+    assert len(uploads) == 3
+    assert len(jobs) == 3
+    assert [upload.original_filename for upload in uploads] == ["valid-ddb-a.zip", "01 - Child A.zip", "02 - Child B.zip"]
+    assert all(upload.batch_id == payload["batch_id"] for upload in uploads)
+    assert all(job.batch_id == payload["batch_id"] for job in jobs)
+
+
 def test_multi_zip_enqueue_failure_is_atomic_before_child_jobs_are_left_behind(
     client: TestClient,
     db_session: Session,
@@ -715,6 +801,53 @@ def test_upload_allows_extensionless_browser_saved_assets(
     assert asset_response.content == b'{"kind":"route-manifest"}'
 
 
+def test_upload_allows_nested_zip_members_for_multi_zip_folder_archives(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    nested_zip = _zip_bytes({"spells/page.html": b"<html><body><p>Spell appendix.</p></body></html>"})
+    content = _zip_bytes(
+        {
+            "xanathars-guide-to-everything/page.html": b"<html><body><h1>Xanathar's Guide</h1><p>Main book.</p></body></html>",
+            "xanathars-guide-to-everything/11 - Spells.zip": nested_zip,
+        }
+    )
+
+    response = client.post("/uploads", files={"file": ("xanathars-guide-to-everything.zip", content, "application/zip")})
+
+    assert response.status_code == 201
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert job is not None
+    source_id = json.loads(job.metadata_json)["source_id"]
+    archive_root = tmp_path / "uploads" / "source-archives" / source_id
+    nested_member = archive_root / "original" / "xanathars-guide-to-everything" / "11 - Spells.zip"
+    assert nested_member.read_bytes() == nested_zip
+
+    manifest = json.loads((archive_root / "manifest.json").read_text(encoding="utf-8"))
+    nested_entry = next(entry for entry in manifest["entries"] if entry["path"] == "xanathars-guide-to-everything/11 - Spells.zip")
+    assert nested_entry["mime_type"] == "application/zip"
+
+
+def test_archive_asset_route_does_not_serve_nested_zip_members(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    source_id = _upload_and_ingest_archive(
+        client,
+        db_session,
+        {
+            "book/page.html": b"<html><body><h1>Book</h1><p>Main book.</p></body></html>",
+            "book/appendix.zip": _zip_bytes({"appendix/page.html": b"<html></html>"}),
+        },
+    )
+
+    response = client.get(f"/records/sources/{source_id}/archive/assets/book/appendix.zip")
+
+    assert response.status_code == 400
+    assert "disallowed MIME type" in response.text
+
+
 def test_archive_viewer_and_assets_require_authentication(unauthenticated_client: TestClient) -> None:
     viewer_response = unauthenticated_client.get("/records/sources/source-id/archive/viewer")
     asset_response = unauthenticated_client.get("/records/sources/source-id/archive/assets/page_files/style.css")
@@ -997,6 +1130,7 @@ def test_archive_served_html_strips_dangerous_content_and_external_references(
     [
         ({"../evil.html": b"<html></html>"}, "unsafe entry path"),
         ({"/evil.html": b"<html></html>"}, "unsafe entry path"),
+        ({"page.html": b"<html></html>", "standalone.zip": b"nested zip placeholder"}, "disallowed extension"),
         ({"assets/file.exe": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
         ({"A/.env": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
         ({"__MACOSX/evil.exe": b"not allowed", "page.html": b"<html></html>"}, "disallowed extension"),
