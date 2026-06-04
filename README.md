@@ -1,4 +1,19 @@
-# The Stacks local runbook
+# The Stacks
+
+The Stacks is a TTRPG session harness. It is a local and deployable web app for running sessions with authenticated chat, uploads, retrieval-backed answers, ingestion and job visibility, and records views around material the operator supplies.
+
+## What this project is
+
+- A bare shared Git store plus worktrees workflow for day-to-day development.
+- A TTRPG session harness that helps operators run sessions with their own lawful campaign and reference material.
+- A web app with chat/session workflows, upload/import paths, retrieval-backed answers, and records/observability for uploads, jobs, sources, chunks, and retrieval runs.
+
+## What this project is not
+
+- It does not ship, download, scrape, or provide rulebooks.
+- It does not include proprietary game data or bundled DnDBeyond exports.
+- It does not replace ownership or licensing of source material.
+- Users and operators must supply lawful content they have rights to use.
 
 This repo runs as a bare shared Git store plus worktrees. `.bare/` is shared plumbing, `main/` is deploy-only, and day-to-day development happens in worktrees beside it. Keep `.omo/` at the repo root beside those worktrees so OMO planning, notes, and evidence stay outside the Git plumbing.
 
@@ -61,19 +76,19 @@ make smoke-public
 - Activation only accepts versions in `ready` state and refuses teardown-locked versions. The default active pointer is updated during activation, and the active version cannot be torn down.
 - Teardown is dry-run first. Confirmed teardown requires explicit confirmation, records lifecycle events, persists steps so reruns can resume, and keeps failed steps marked for audit.
 
-## Default DnDBeyond corpus seed
+## Optional user-supplied corpus import
 
-The default corpus workflow loads the 5e core trio — Player's Handbook, Dungeon Master's Guide, and Monster Manual — into an isolated `default-corpus` runtime version. Archives are local external inputs that must not be downloaded by the tool or committed to the repository.
+The optional corpus workflow can load the 5e core trio — Player's Handbook, Dungeon Master's Guide, and Monster Manual — into an isolated `default-corpus` runtime version. Any DnDBeyond archives or 5e book exports are local external inputs supplied by the operator. The repository does not provide them, and the tool must not download or commit them.
 
 ### Archive setup
 
-Place saved DnDBeyond HTML ZIP archives in your archive root directory (`/data/uploads/sourcebooks` by default). The identity manifest expects exactly these filenames:
+Place saved DnDBeyond HTML ZIP archives in your archive root directory (`/data/uploads/sourcebooks` by default). The identity manifest expects exactly these filenames when you supply those files locally:
 
 - `phb-2014.zip` — Player's Handbook
 - `dmg-2014.zip` — Dungeon Master's Guide
 - `mm-2014.zip` — Monster Manual
 
-These files must be DnDBeyond saved-HTML exports. Do not rename archives from other sources to match these filenames.
+These files must be DnDBeyond saved-HTML exports that you already lawfully possess. Do not rename archives from other sources to match these filenames, and do not treat the repository as a source for the archives.
 
 ### Workflow
 
