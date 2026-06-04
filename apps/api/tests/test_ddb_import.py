@@ -1,8 +1,9 @@
 import hashlib
 import json
 from pathlib import Path
+from typing import cast
 
-import pytest
+import pytest  # pyright: ignore[reportMissingImports]
 
 from app.ddb_import import (  # pyright: ignore[reportImplicitRelativeImport]
     ddb_chunks_to_jsonl,
@@ -12,6 +13,33 @@ from app.ddb_import import (  # pyright: ignore[reportImplicitRelativeImport]
     sanitize_ddb_article_html,
     write_ddb_artifacts,
 )
+from app.etl.ingestion_compat import normalized_document_from_parsed, parsed_document_from_normalized
+from app.ingestion import ParsedDocument
+
+
+def _observable_parsed_document(document: ParsedDocument) -> dict[str, object]:
+    return {
+        "parser": getattr(document, "parser"),
+        "title": getattr(document, "title"),
+        "warnings": getattr(document, "warnings"),
+        "sections": [
+            {
+                "heading": section.heading,
+                "text": section.text,
+                "start_char": section.start_char,
+                "end_char": section.end_char,
+                "metadata": section.metadata,
+            }
+            for section in getattr(document, "sections")
+        ],
+    }
+
+
+def _assert_round_trips_observable_content(document: ParsedDocument) -> ParsedDocument:
+    round_tripped = parsed_document_from_normalized(normalized_document_from_parsed(document))
+    assert _observable_parsed_document(round_tripped) == _observable_parsed_document(document)
+    assert document.metadata.items() <= round_tripped.metadata.items()
+    return round_tripped
 
 
 SAVED_DDB_HTML = b"""<!doctype html>
@@ -79,7 +107,7 @@ def test_parse_preserves_raw_bytes_and_exposes_parsed_document() -> None:
     fixture_bytes = fixture.read_bytes()
 
     imported = parse_ddb_saved_html(fixture_bytes)
-    document = imported.to_parsed_document()
+    document = cast(ParsedDocument, imported.to_parsed_document())
 
     assert imported.raw_bytes == fixture_bytes
     assert imported.raw_sha256 == hashlib.sha256(fixture_bytes).hexdigest()
@@ -107,14 +135,17 @@ def test_parse_preserves_raw_bytes_and_exposes_parsed_document() -> None:
         ["chunk-core-assumptions", "chunk-table"],
     ]
     assert [section.metadata["source_type"] for section in document.sections] == ["ddb_saved_html", "ddb_saved_html", "ddb_saved_html"]
-    assert document.sections[0].metadata["semantic_section"]["kind"] == "heading"
-    assert document.sections[0].metadata["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
-    assert document.sections[0].metadata["semantic_section"]["path_text"] == ["A World of Your Own"]
+    first_semantic_section = cast(dict[str, object], document.sections[0].metadata["semantic_section"])
+    assert first_semantic_section["kind"] == "heading"
+    assert cast(dict[str, object], first_semantic_section["heading"])["id"] == "AWorldofYourOwn"
+    assert first_semantic_section["path_text"] == ["A World of Your Own"]
     assert document.sections[0].metadata["citation_anchor"] == "#AWorldofYourOwn"
     assert document.sections[0].metadata["source_url"] == imported.source_url
-    assert document.sections[0].metadata["html"].startswith("<h1")
-    assert 'id="AWorldofYourOwn"' in document.sections[0].metadata["html"]
-    assert 'data-content-chunk-id="chunk-root"' in document.sections[0].metadata["html"]
+    first_section_html = cast(str, document.sections[0].metadata["html"])
+    assert first_section_html.startswith("<h1")
+    assert 'id="AWorldofYourOwn"' in first_section_html
+    assert 'data-content-chunk-id="chunk-root"' in first_section_html
+    _ = _assert_round_trips_observable_content(document)
 
 
 def test_extraction_preserves_heading_paths_citations_and_source_url() -> None:

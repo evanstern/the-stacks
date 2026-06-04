@@ -16,6 +16,8 @@ The Stacks is a TTRPG session harness. It is a local and deployable web app for 
 
 This repo runs as a bare shared Git store plus worktrees. `.bare/` is shared plumbing, `main/` is deploy-only, and day-to-day development happens in worktrees beside it. Keep `.omo/` at the repo root beside those worktrees so OMO planning, notes, and evidence stay outside the Git plumbing.
 
+The durable ETL wiki lives in `docs/wiki/`. Start with `docs/wiki/Home.md`, then follow the links to the architecture, contract, and decision notes when you need the current refactor state.
+
 The Dockerized web app is intentionally exposed on host port `5173`. Keep that port contract when running or hardening the stack.
 
 ## Start the stack
@@ -53,9 +55,18 @@ psql postgresql://thestacks:thestacks@localhost:5432/thestacks
 make test
 make smoke
 make smoke-public
+make etl-live-smoke
 ```
 
-Use `make test` for the backend suite, `make smoke` for the local end to end stack, and `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`.
+Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, and `make etl-live-smoke` for the compose-backed ETL verification path.
+
+`make test` runs the backend pytest suite, using local pytest when available and a no-dependency API container fallback otherwise; it does not start Postgres, Qdrant, or the application stack. `make smoke` waits for `http://localhost:8000/health` and `http://localhost:5173`, logs in with the dev password, verifies unauthenticated access is rejected, queues a supported Markdown upload, checks unsupported files return `415`, creates an empty chat session, and confirms chat dependency failures are explicit when `OPENAI_API_KEY` is not configured. It also rechecks the frontend on `5173` before exiting.
+
+`make smoke-public` runs `scripts/smoke-public.sh` against both `THE_STACKS_LOCAL_URL=http://localhost:8423` and `THE_STACKS_BASE_URL=https://thestacks.ikis.ai` by default. It exercises the audited root-mounted API contract (`/health`, `/auth/*`, `/sessions*`, `/uploads`, `/jobs/*`, `/records/*`) and verifies SPA delivery on `/` and `/login` without browser automation. Override either base URL if you need to point at a different deployment target.
+
+`make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
+
+`make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
 
 ## Upload batches and runtime versions
 
@@ -102,6 +113,8 @@ Use `make corpus-reset-dry-run` to preview removal and `make corpus-reset-confir
 ## Worktree lifecycle
 
 Use the current worktree’s helper or runbook step to stop the matching compose stack. The broader operating model lives in `docs/worktree-operating-model.md`.
+
+Keep the wiki current when ETL behavior or refactor decisions settle, and link new durable notes back through `docs/wiki/Home.md`.
 
 To stop the stack:
 

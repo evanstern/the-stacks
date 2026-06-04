@@ -4,11 +4,45 @@ from typing import cast
 import pytest  # pyright: ignore[reportMissingImports]
 
 import app.ingestion as ingestion  # pyright: ignore[reportImplicitRelativeImport]
-from app.ingestion import ParserError, parse_document  # pyright: ignore[reportImplicitRelativeImport]
+from app.etl.ingestion_compat import normalized_document_from_parsed, parsed_document_from_normalized
+from app.ingestion import ParserError, ParsedDocument, parse_document  # pyright: ignore[reportImplicitRelativeImport]
 
 
 def _semantic_section(section: object) -> dict[str, object]:
     return cast(dict[str, object], getattr(section, "metadata")["semantic_section"])
+
+
+def _round_trip_document(document: ParsedDocument) -> ParsedDocument:
+    return parsed_document_from_normalized(normalized_document_from_parsed(document))
+
+
+def _observable_document(document: ParsedDocument) -> dict[str, object]:
+    return {
+        "parser": getattr(document, "parser"),
+        "title": getattr(document, "title"),
+        "warnings": getattr(document, "warnings"),
+        "sections": [
+            {
+                "heading": section.heading,
+                "text": section.text,
+                "start_char": section.start_char,
+                "end_char": section.end_char,
+                "metadata": section.metadata,
+            }
+            for section in getattr(document, "sections")
+        ],
+    }
+
+
+def _assert_round_trips_observable_content(document: ParsedDocument) -> ParsedDocument:
+    round_tripped = _round_trip_document(document)
+    assert _observable_document(round_tripped) == _observable_document(document)
+    assert document.metadata.items() <= round_tripped.metadata.items()
+    return round_tripped
+
+
+def _section_metadata(document: ParsedDocument, index: int) -> dict[str, object]:
+    return document.sections[index].metadata
 
 
 def test_markdown_parser_preserves_headings(tmp_path: Path) -> None:
@@ -21,6 +55,7 @@ def test_markdown_parser_preserves_headings(tmp_path: Path) -> None:
     assert document.title == "Dragons"
     assert [section.heading for section in document.sections] == ["Dragons", "Hoards"]
     assert document.sections[0].text == "Ancient red dragons prefer volcanic lairs."
+    _ = _assert_round_trips_observable_content(document)
 
 
 def test_text_parser_reads_plain_text(tmp_path: Path) -> None:
@@ -34,6 +69,7 @@ def test_text_parser_reads_plain_text(tmp_path: Path) -> None:
     assert len(document.sections) == 1
     assert document.sections[0].heading is None
     assert document.sections[0].text == "Ancient red dragons prefer volcanic lairs."
+    _ = _assert_round_trips_observable_content(document)
 
 
 def test_html_parser_extracts_title_headings_and_blocks(tmp_path: Path) -> None:
@@ -50,6 +86,7 @@ def test_html_parser_extracts_title_headings_and_blocks(tmp_path: Path) -> None:
     assert len(document.sections) == 1
     assert document.sections[0].heading == "Dragons"
     assert document.sections[0].text == "Ancient red dragons prefer volcanic lairs."
+    _ = _assert_round_trips_observable_content(document)
 
 
 def test_html_parser_builds_semantic_sections_for_root_and_nested_headings(tmp_path: Path) -> None:
@@ -150,8 +187,9 @@ def test_ddb_html_dispatches_before_generic_html(tmp_path: Path) -> None:
         "The Big Picture",
         "Core Assumptions",
     ]
-    assert document.sections[0].metadata["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
-    assert document.sections[0].metadata["semantic_section"]["path_text"] == ["A World of Your Own"]
+    first_semantic_section = cast(dict[str, object], document.sections[0].metadata["semantic_section"])
+    assert cast(dict[str, object], first_semantic_section["heading"])["id"] == "AWorldofYourOwn"
+    assert first_semantic_section["path_text"] == ["A World of Your Own"]
     assert document.sections[0].metadata["citation_anchor"] == "#AWorldofYourOwn"
     assert document.sections[0].metadata["source_url"] == document.metadata["source_url"]
     assert document.sections[2].metadata["heading_id"] == "CoreAssumptions"
@@ -233,6 +271,8 @@ def test_archived_html_parser_emits_semantic_section_without_section_path(tmp_pa
         "depth": 1,
     }
     assert "section_path" not in metadata
+    round_tripped = _assert_round_trips_observable_content(document)
+    assert _section_metadata(round_tripped, 0)["target_selector"] == "[data-source-chunk-id=archive-target-1]"
 
 
 def test_generic_html_with_ddb_mention_stays_generic(tmp_path: Path) -> None:
