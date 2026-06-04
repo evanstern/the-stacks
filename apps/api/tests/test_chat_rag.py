@@ -16,9 +16,10 @@ from app.config import Settings, get_settings
 from app.database import get_db
 from app.embeddings import EmbeddingError
 from app.main import app
-from app.models import ChatMessage, Citation, RetrievalHit, RetrievalRun
+from app.models import ChatMessage, Citation, RetrievalHit, RetrievalRun, RuntimeVersion
 from app.routes_sessions import _chat_dependency, _embedding_dependency, _graph_dependency, _qdrant_dependency
 from app.qdrant_index import QdrantSearchHit
+from app.version_lifecycle import RuntimeVersionContext, VersionLifecycleService
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 from tests.rag_support import CapturingGraphInvoker, FakeChatClient, create_indexed_chunk, create_session
 from tests.support import db_session
@@ -53,6 +54,77 @@ def test_answer_session_message_persists_messages_retrieval_and_thread_config(db
     assert graph.configs == [{"configurable": {"thread_id": session.id}}]
 
 
+def test_answer_session_message_searches_active_runtime_collection_when_pointer_exists(db_session: Session) -> None:
+    settings = Settings(RETRIEVAL_TOP_K=5, RETRIEVAL_MIN_SCORE=0.2, QDRANT_COLLECTION="base_chunks")
+    runtime = _activate_runtime(db_session, settings, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(
+        db_session,
+        "Active runtime dragons prefer volcanic lairs.",
+        qdrant_collection=runtime.qdrant_collection,
+    )
+    qdrant = FakeQdrantIndexer(
+        collection="base_chunks",
+        collection_search_hits={
+            settings.qdrant_collection: [],
+            runtime.qdrant_collection: [QdrantSearchHit(id="point-1", score=0.91, payload={"chunk_id": chunk.id})],
+        },
+    )
+    chat = FakeChatClient("Active runtime dragons prefer volcanic lairs. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "What do active runtime dragons prefer?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=graph,
+        settings=settings,
+    )
+
+    assert assistant.content == "Active runtime dragons prefer volcanic lairs. [1]"
+    assert qdrant.search_requests == [([1.0, 1.0, 1.0, 1.0], 50, runtime.qdrant_collection)]
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    assert run.status == "answered"
+    assert db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).one().document_chunk_id == chunk.id
+
+
+def test_answer_session_message_preserves_no_evidence_when_active_collection_has_no_hits(db_session: Session) -> None:
+    settings = Settings(RETRIEVAL_TOP_K=5, RETRIEVAL_MIN_SCORE=0.2, QDRANT_COLLECTION="base_chunks")
+    runtime = _activate_runtime(db_session, settings, "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
+    session = create_session(db_session)
+    base_chunk = create_indexed_chunk(db_session, "Base collection data should not leak into active runtime retrieval.")
+    qdrant = FakeQdrantIndexer(
+        collection="base_chunks",
+        collection_search_hits={
+            settings.qdrant_collection: [QdrantSearchHit(id="point-1", score=0.99, payload={"chunk_id": base_chunk.id})],
+            runtime.qdrant_collection: [],
+        },
+    )
+    chat = FakeChatClient("Should not be generated", [base_chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "What data exists?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=graph,
+        settings=settings,
+    )
+
+    assert assistant.content == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert qdrant.search_requests == [([1.0, 1.0, 1.0, 1.0], 50, runtime.qdrant_collection)]
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    assert run.status == "no_evidence"
+    assert db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).all() == []
+    assert chat.requests == []
+
+
 def test_post_session_message_returns_grounded_answer_shape(db_session: Session) -> None:
     session = create_session(db_session)
     chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
@@ -74,6 +146,46 @@ def test_post_session_message_returns_grounded_answer_shape(db_session: Session)
     assert payload["assistant_message"]["citations"][0]["metadata"]["cited_text"] == "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively."
     assert payload["retrieval_run_id"]
     assert payload["no_evidence"] is False
+
+
+def test_post_session_message_searches_active_runtime_collection_when_base_collection_empty(db_session: Session) -> None:
+    settings = Settings(
+        ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+        SESSION_SECRET=os.environ["SESSION_SECRET"],
+        DATABASE_URL="sqlite+pysqlite:///:memory:",
+        RETRIEVAL_TOP_K=5,
+        RETRIEVAL_MIN_SCORE=0.2,
+        QDRANT_COLLECTION="base_chunks",
+    )
+    runtime = _activate_runtime(db_session, settings, "cccccccc-cccc-4ccc-8ccc-cccccccccccc")
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(
+        db_session,
+        "Route-level active runtime dragons prefer volcanic lairs.",
+        qdrant_collection=runtime.qdrant_collection,
+    )
+    qdrant = FakeQdrantIndexer(
+        collection=settings.qdrant_collection,
+        collection_search_hits={
+            settings.qdrant_collection: [],
+            runtime.qdrant_collection: [QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})],
+        },
+    )
+    chat = FakeChatClient("Route-level active runtime dragons prefer volcanic lairs. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph, settings=settings) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "What do route-level dragons prefer?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Route-level active runtime dragons prefer volcanic lairs. [1]"
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+    assert payload["no_evidence"] is False
+    assert qdrant.search_requests == [([1.0, 1.0, 1.0, 1.0], 50, runtime.qdrant_collection)]
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    assert run.status == "answered"
+    assert db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).one().document_chunk_id == chunk.id
 
 
 def test_post_session_message_returns_archive_viewer_citation_metadata(db_session: Session) -> None:
@@ -465,7 +577,7 @@ def test_post_session_message_deduplicates_imported_chunks_by_shared_source_span
     assert payload["assistant_message"]["content"] == "Ancient red dragons prefer volcanic lairs. [1] Ancient red dragons hate cold climates. [2]"
     assert [citation["document_chunk_id"] for citation in payload["assistant_message"]["citations"]] == [duplicate_a.id, distinct.id]
     assert [request[1] for request in chat.requests] == [[duplicate_a.id, distinct.id]]
-    assert [limit for _, limit in qdrant.search_requests] == [50]
+    assert [limit for _, limit, _ in qdrant.search_requests] == [50]
 
 
 def test_post_session_message_falls_back_when_numeric_markers_do_not_match_persisted_citations(db_session: Session) -> None:
@@ -492,11 +604,14 @@ def _client(
     qdrant: FakeQdrantIndexer,
     chat: FakeChatClient,
     graph: CapturingGraphInvoker,
+    settings: Settings | None = None,
 ) -> Generator[TestClient, None, None]:
     def override_db() -> Generator[Session, None, None]:
         yield db
 
     def override_settings() -> Settings:
+        if settings is not None:
+            return settings
         return Settings(
             ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
             SESSION_SECRET=os.environ["SESSION_SECRET"],
@@ -515,3 +630,13 @@ def _client(
         assert test_client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
         yield test_client
     app.dependency_overrides.clear()
+
+
+def _activate_runtime(db: Session, settings: Settings, version_id: str) -> RuntimeVersionContext:
+    service = VersionLifecycleService(db=db, settings=settings)
+    build = service.create_version_namespaces(version_id=version_id, archive_bytes=f"archive-{version_id}".encode())
+    version = db.get(RuntimeVersion, build.version.id)
+    assert version is not None
+    version.status = "ready"
+    db.flush()
+    return service.activate_runtime_version(version.id)

@@ -78,7 +78,7 @@ Use `make test` for the backend suite, `make smoke` for the local end to end sta
 
 ## Optional user-supplied corpus import
 
-The optional corpus workflow can load the 5e core trio, Player's Handbook, Dungeon Master's Guide, and Monster Manual, into an isolated `default-corpus` runtime version. Any DnDBeyond archives or 5e book exports are local external inputs supplied by the operator. The repository does not provide them, and the tool must not download or commit them.
+The optional corpus workflow can load the 5e core trio, Player's Handbook, Dungeon Master's Guide, and Monster Manual, into an isolated `default-corpus` runtime version. Any DnDBeyond archives or 5e book exports are local external inputs supplied by the operator. The repository does not provide them, they must not be downloaded by the tool, and they must not be committed to the repository.
 
 ### Archive setup
 
@@ -92,7 +92,7 @@ These files must be DnDBeyond saved-HTML exports that you already lawfully posse
 
 ### How to run it
 
-From `main/`, use `make corpus-preflight`, `make corpus-lock ARCHIVE_ROOT=/data/uploads/sourcebooks`, `make corpus-seed-dry-run`, `make corpus-seed`, and `make corpus-verify`. The first two establish the lock manifest, the middle steps import the corpus, and the last step checks the seeded result.
+From `main/`, use `make corpus-preflight`, `make corpus-lock ARCHIVE_ROOT=/data/uploads/sourcebooks`, `make corpus-seed-dry-run`, `make corpus-seed`, and `make corpus-verify`. The first two establish the lock manifest, the middle steps import the corpus, and the last step checks the seeded result. Activation is a separate lifecycle step; seed and reset commands never mutate the active runtime pointer.
 
 ### Reset
 

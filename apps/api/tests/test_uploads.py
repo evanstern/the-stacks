@@ -5,6 +5,7 @@ import os
 import stat
 import zipfile
 from collections.abc import Generator
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,7 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.main import app
-from app.models import IngestionEvent, IngestionJob, Source, Upload, UploadBatch, utcnow
+from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, UploadBatch, utcnow
 
 
 SUPPORTED_FIXTURES = [
@@ -136,7 +137,9 @@ def test_upload_accepts_ddb_saved_html_through_generic_html_flow(client: TestCli
     assert upload is not None
     assert upload.extension == ".html"
     assert Path(upload.stored_path).read_bytes() == content
-    assert db_session.get(IngestionJob, payload["job_id"]).status == "queued"
+    job = db_session.get(IngestionJob, payload["job_id"])
+    assert job is not None
+    assert job.status == "queued"
 
 
 def test_multi_zip_batch_success_queues_each_zip_atomically(
@@ -1129,6 +1132,43 @@ def test_records_job_and_chunk_metadata_do_not_expose_archive_filesystem_paths(
     assert archive_chunk["metadata"]["target_chunk_id"].startswith("archive-")
 
 
+def test_records_source_chunks_returns_selected_source_previews_outside_global_latest_limit(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    selected_source, selected_chunks = _create_source_with_chunks(
+        db_session,
+        filename="older-source.md",
+        contents=["selected source chunk zero", "selected source chunk one"],
+        age_seconds=120,
+    )
+    other_source, newer_chunks = _create_source_with_chunks(
+        db_session,
+        filename="newer-source.md",
+        contents=[f"newer source chunk {index}" for index in range(30)],
+        age_seconds=0,
+    )
+
+    global_response = client.get("/records/chunks")
+    source_response = client.get(f"/records/sources/{selected_source.id}/chunks")
+    other_source_response = client.get(f"/records/sources/{other_source.id}/chunks")
+
+    assert global_response.status_code == 200
+    assert source_response.status_code == 200
+    assert other_source_response.status_code == 200
+    assert [chunk["id"] for chunk in global_response.json()] == [chunk.id for chunk in newer_chunks[:25]]
+    assert [chunk["id"] for chunk in source_response.json()] == [chunk.id for chunk in selected_chunks]
+    assert [chunk["content"] for chunk in source_response.json()] == ["selected source chunk zero", "selected source chunk one"]
+    assert len(other_source_response.json()) == 25
+
+
+def test_records_source_chunks_returns_404_for_unknown_source(client: TestClient) -> None:
+    response = client.get("/records/sources/unknown-source/chunks")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Source not found"
+
+
 def test_archive_served_html_strips_dangerous_content_and_external_references(
     client: TestClient,
     db_session: Session,
@@ -1346,6 +1386,65 @@ def _upload_and_ingest_archive(client: TestClient, db_session: Session, entries:
     processed = process_claimed_job(db_session, job.id, continue_to_index=False)
     assert processed.status == "awaiting_embedding"
     return source_id
+
+
+def _create_source_with_chunks(db: Session, *, filename: str, contents: list[str], age_seconds: int) -> tuple[Source, list[DocumentChunk]]:
+    now = utcnow() - timedelta(seconds=age_seconds)
+    upload = Upload(
+        original_filename=filename,
+        stored_path=f"/tmp/{filename}",
+        content_type="text/markdown",
+        extension=".md",
+        sha256=f"sha-{filename}",
+        size_bytes=sum(len(content.encode()) for content in contents),
+        created_at=now,
+    )
+    db.add(upload)
+    db.flush()
+    job = IngestionJob(upload_id=upload.id, status="completed", created_at=now, updated_at=now)
+    db.add(job)
+    db.flush()
+    source = Source(
+        upload_id=upload.id,
+        title=filename,
+        source_type="md",
+        filename=filename,
+        metadata_json=json.dumps({"sha256": upload.sha256}, sort_keys=True),
+        chunk_count=len(contents),
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(source)
+    db.flush()
+    document = Document(source_id=source.id, title=filename, ordinal=0, metadata_json="{}", created_at=now)
+    db.add(document)
+    db.flush()
+    section = Section(document_id=document.id, heading_path=None, ordinal=0, metadata_json="{}", created_at=now)
+    db.add(section)
+    db.flush()
+    chunks: list[DocumentChunk] = []
+    for index, content in enumerate(contents):
+        chunk = DocumentChunk(
+            upload_id=upload.id,
+            ingestion_job_id=job.id,
+            source_id=source.id,
+            document_id=document.id,
+            section_id=section.id,
+            chunk_index=index,
+            content=content,
+            content_hash=f"chunk-{filename}-{index}",
+            token_count=len(content.split()),
+            metadata_json=json.dumps({"source_filename": filename}, sort_keys=True),
+            created_at=now,
+        )
+        db.add(chunk)
+        chunks.append(chunk)
+
+    db.commit()
+    db.refresh(source)
+    for chunk in chunks:
+        db.refresh(chunk)
+    return source, chunks
 
 
 def _create_batch_with_statuses(db: Session, tmp_path: Path, child_statuses: list[str]) -> str:

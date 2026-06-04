@@ -8,6 +8,7 @@ import {
   listChunks,
   listJobs,
   listRetrievalRuns,
+  listSourceChunks,
   listSources,
   listUploads,
   type ChunkRecord,
@@ -29,6 +30,7 @@ type RecordsLoaderData = {
   retrievalRuns: RetrievalRun[];
   sources: SourceRecord[];
   chunks: ChunkRecord[];
+  sourceChunks: ChunkRecord[];
   stats: RecordsStats;
 };
 
@@ -46,6 +48,7 @@ export async function recordsLoader({ request }: { request: Request }): Promise<
   await requireAuth();
   const url = new URL(request.url);
   const requestedJobId = url.searchParams.get("job");
+  const requestedSourceId = url.searchParams.get("source");
   const [uploads, jobs, retrievalRuns, sources, chunks, stats] = await Promise.all([
     listUploads(),
     listJobs(),
@@ -55,13 +58,15 @@ export async function recordsLoader({ request }: { request: Request }): Promise<
     getRecordsStats(),
   ]);
   const selectedJob = (requestedJobId ? jobs.find((job) => job.id === requestedJobId) : null) ?? jobs[0] ?? null;
+  const selectedSource = findSource(sources, requestedSourceId) ?? sources[0] ?? null;
   const selectedJobEvents = selectedJob ? await getJobEvents(selectedJob.id) : [];
+  const sourceChunks = selectedSource ? await listSourceChunks(selectedSource.id) : [];
 
-  return { uploads, jobs, selectedJob, selectedJobEvents, retrievalRuns, sources, chunks, stats };
+  return { uploads, jobs, selectedJob, selectedJobEvents, retrievalRuns, sources, chunks, sourceChunks, stats };
 }
 
 export function RecordsRoute() {
-  const { uploads, jobs, selectedJob, selectedJobEvents, retrievalRuns, sources, chunks, stats } = useLoaderData() as RecordsLoaderData;
+  const { uploads, jobs, selectedJob, selectedJobEvents, retrievalRuns, sources, chunks, sourceChunks, stats } = useLoaderData() as RecordsLoaderData;
   const [searchParams] = useSearchParams();
   const activeSection = getSection(searchParams.get("section"));
   const selectedUpload = findById(uploads, searchParams.get("upload")) ?? uploads[0] ?? null;
@@ -127,7 +132,7 @@ export function RecordsRoute() {
       ) : null}
       {activeSection === "uploads" ? <UploadsSection uploads={uploads} jobs={jobs} sources={sources} selectedUpload={selectedUpload} /> : null}
       {activeSection === "jobs" ? <JobsSection jobs={jobs} selectedJob={selectedJobFromQuery} events={selectedJobEvents} /> : null}
-      {activeSection === "sources" ? <SourcesSection sources={sources} uploads={uploads} chunks={chunks} selectedSource={selectedSource} /> : null}
+      {activeSection === "sources" ? <SourcesSection sources={sources} uploads={uploads} sourceChunks={sourceChunks} selectedSource={selectedSource} /> : null}
       {activeSection === "retrieval" ? <RetrievalSection retrievalRuns={retrievalRuns} selectedRetrieval={selectedRetrieval} /> : null}
       {activeSection === "chunks" ? <ChunksSection chunks={chunks} sources={sources} selectedChunk={selectedChunk} /> : null}
     </div>
@@ -281,9 +286,9 @@ function JobsSection({ jobs, selectedJob, events }: { jobs: IngestionJob[]; sele
   );
 }
 
-function SourcesSection({ sources, uploads, chunks, selectedSource }: { sources: SourceRecord[]; uploads: UploadRecord[]; chunks: ChunkRecord[]; selectedSource: SourceRecord | null }) {
+function SourcesSection({ sources, uploads, sourceChunks, selectedSource }: { sources: SourceRecord[]; uploads: UploadRecord[]; sourceChunks: ChunkRecord[]; selectedSource: SourceRecord | null }) {
   const sourceUpload = selectedSource ? uploads.find((upload) => upload.id === selectedSource.upload_id) ?? null : null;
-  const sourceChunks = selectedSource ? chunks.filter((chunk) => chunk.upload_id === selectedSource.upload_id) : [];
+  const previewChunks = selectedSource ? sourceDetailPreviewChunks(sourceChunks) : [];
 
   return (
     <RecordSplit
@@ -314,9 +319,9 @@ function SourcesSection({ sources, uploads, chunks, selectedSource }: { sources:
               <SourceMeta source={source} upload={sourceUpload} />
               <RelationshipRail>
                 <RelationshipLink label="Upload" value={sourceUpload ? sourceUpload.original_filename : shortId(source.upload_id)} href={sectionHref("uploads", "upload", source.upload_id)} />
-                <RelationshipLink label="Loaded chunks" value={sourceChunks.length} href={sourceChunks[0] ? sectionHref("chunks", "chunk", sourceChunks[0].id) : undefined} />
+                <RelationshipLink label="Loaded chunks" value={previewChunks.length} href={previewChunks[0] ? sectionHref("chunks", "chunk", previewChunks[0].id) : undefined} />
               </RelationshipRail>
-              <PreviewStack chunks={sourceChunks} empty="No loaded chunk previews match this source yet." />
+              <PreviewStack chunks={previewChunks} empty="No loaded chunk previews match this source yet." />
             </div>
           )}
         </DetailPanel>
@@ -705,6 +710,10 @@ export function sourceDisplayType(source: Pick<SourceRecord, "extension">, uploa
   }
 
   return sourceTypeLabel(source.extension);
+}
+
+export function sourceDetailPreviewChunks(sourceChunks: ChunkRecord[]) {
+  return sourceChunks;
 }
 
 function uploadIsZipArchive(upload: Pick<UploadRecord, "content_type" | "extension" | "original_filename"> | null | undefined) {

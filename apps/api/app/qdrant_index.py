@@ -25,7 +25,7 @@ class QdrantSearchHit:
 
 
 class QdrantIndexer:
-    collection: str
+    collection: str = ""
 
     def ensure_collection(self, dimensions: int) -> None:
         raise NotImplementedError
@@ -33,7 +33,7 @@ class QdrantIndexer:
     def upsert_points(self, points: Sequence[QdrantPoint]) -> None:
         raise NotImplementedError
 
-    def search_points(self, vector: list[float], limit: int) -> list[QdrantSearchHit]:
+    def search_points(self, vector: list[float], limit: int, collection: str | None = None) -> list[QdrantSearchHit]:
         raise NotImplementedError
 
 
@@ -82,9 +82,10 @@ class HttpQdrantIndexer(QdrantIndexer):
             )
             _raise_for_qdrant(response, "upsert Qdrant points")
 
-    def search_points(self, vector: list[float], limit: int) -> list[QdrantSearchHit]:
+    def search_points(self, vector: list[float], limit: int, collection: str | None = None) -> list[QdrantSearchHit]:
+        target_collection = collection or self.collection
         response = httpx.post(
-            f"{self.url}/collections/{self.collection}/points/search",
+            f"{self.url}/collections/{target_collection}/points/search",
             json={"vector": vector, "limit": limit, "with_payload": True},
             timeout=30,
         )

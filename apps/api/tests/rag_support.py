@@ -1,4 +1,5 @@
 import json
+from collections.abc import Sequence
 
 from sqlalchemy.orm import Session
 
@@ -13,7 +14,7 @@ class FakeChatClient(ChatClient):
         self.cited_chunk_ids = cited_chunk_ids
         self.requests: list[tuple[str, list[str]]] = []
 
-    def generate_answer(self, question: str, contexts: list[ContextChunk]) -> GeneratedAnswer:
+    def generate_answer(self, question: str, contexts: Sequence[ContextChunk]) -> GeneratedAnswer:
         self.requests.append((question, [context.chunk_id for context in contexts]))
         return GeneratedAnswer(answer=self.answer, cited_chunk_ids=self.cited_chunk_ids)
 
@@ -36,7 +37,13 @@ def create_session(db: Session, title: str = "RAG test") -> ChatSession:
     return session
 
 
-def create_indexed_chunk(db: Session, content: str, filename: str = "sample.md", section: str | None = "Bestiary") -> DocumentChunk:
+def create_indexed_chunk(
+    db: Session,
+    content: str,
+    filename: str = "sample.md",
+    section: str | None = "Bestiary",
+    qdrant_collection: str = "test_chunks",
+) -> DocumentChunk:
     upload = Upload(
         original_filename=filename,
         stored_path=f"/tmp/{filename}",
@@ -107,7 +114,7 @@ def create_indexed_chunk(db: Session, content: str, filename: str = "sample.md",
             upload_id=upload.id,
             ingestion_job_id=job.id,
             document_chunk_id=chunk.id,
-            qdrant_collection="test_chunks",
+            qdrant_collection=qdrant_collection,
             qdrant_point_id="point-1",
             embedding_model="test-embedding-model",
             embedding_dimensions=4,

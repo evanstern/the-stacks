@@ -2,7 +2,7 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TypedDict, cast
+from typing import Any, TypedDict, cast
 from urllib.parse import quote
 
 import httpx
@@ -15,6 +15,7 @@ from app.config import Settings, get_settings
 from app.embeddings import EmbeddingClient, get_embedding_client
 from app.models import Citation, ChatMessage, ChatSession, DocumentChunk, RetrievalHit, RetrievalRun, utcnow
 from app.qdrant_index import QdrantIndexer, QdrantSearchHit, get_qdrant_indexer
+from app.version_lifecycle import DEFAULT_ACTIVE_POINTER_NAME, resolve_runtime_context
 
 
 NO_EVIDENCE_RESPONSE = "I do not have enough evidence in the indexed corpus to answer that question."
@@ -43,7 +44,7 @@ class RagGraphState(TypedDict):
 
 
 class ChatClient:
-    model: str
+    model: str = ""
 
     def generate_answer(self, question: str, contexts: Sequence[ContextChunk]) -> GeneratedAnswer:
         raise NotImplementedError
@@ -85,18 +86,19 @@ class RetrievalGraphInvoker:
         self.graph = _compile_state_graph(chat_client, None)
 
     def invoke(self, state: dict[str, object], config: dict[str, object]) -> dict[str, object]:
-        return self.graph.invoke(_graph_state(state), config)
+        return self.graph.invoke(_graph_state(state), cast(Any, config))
 
 
 class PostgresCheckpointedGraphInvoker(RetrievalGraphInvoker):
     def __init__(self, chat_client: ChatClient, database_url: str) -> None:
+        super().__init__(chat_client)
         self.chat_client = chat_client
         self.database_url = _psycopg_conn_string(database_url)
 
     def invoke(self, state: dict[str, object], config: dict[str, object]) -> dict[str, object]:
         with PostgresSaver.from_conn_string(self.database_url) as checkpointer:
             graph = _compile_state_graph(self.chat_client, checkpointer)
-            return graph.invoke(_graph_state(state), config)
+            return graph.invoke(_graph_state(state), cast(Any, config))
 
 
 def get_chat_client(settings: Settings) -> ChatClient:
@@ -233,7 +235,11 @@ def _retrieve_contexts(
     settings: Settings,
 ) -> list[ContextChunk]:
     embedding = embedding_client.embed_texts([question]).vectors[0]
-    hits = qdrant_indexer.search_points(embedding, _retrieval_overfetch_limit(settings))
+    hits = qdrant_indexer.search_points(
+        embedding,
+        _retrieval_overfetch_limit(settings),
+        collection=_active_retrieval_collection(db, settings),
+    )
     contexts: list[ContextChunk] = []
     seen_context_keys: set[tuple[str, ...]] = set()
     for hit in hits:
@@ -248,6 +254,15 @@ def _retrieve_contexts(
         if len(contexts) >= settings.retrieval_top_k:
             break
     return contexts
+
+
+def _active_retrieval_collection(db: Session, settings: Settings) -> str:
+    try:
+        return resolve_runtime_context(db=db, pointer_name=DEFAULT_ACTIVE_POINTER_NAME).qdrant_collection
+    except ValueError as exc:
+        if str(exc) == "Active runtime version pointer is not configured":
+            return settings.qdrant_collection
+        raise
 
 
 def _retrieval_overfetch_limit(settings: Settings) -> int:
@@ -630,7 +645,7 @@ def _to_json(value: dict[str, object]) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
-def _compile_state_graph(chat_client: ChatClient, checkpointer: object | None):
+def _compile_state_graph(chat_client: ChatClient, checkpointer: Any | None):
     graph = StateGraph(RagGraphState)
 
     def generate(state: RagGraphState) -> dict[str, GeneratedAnswer]:
@@ -639,7 +654,7 @@ def _compile_state_graph(chat_client: ChatClient, checkpointer: object | None):
     graph.add_node("generate", generate)
     graph.add_edge(START, "generate")
     graph.add_edge("generate", END)
-    return graph.compile(checkpointer=checkpointer)
+    return graph.compile(checkpointer=cast(Any, checkpointer))
 
 
 def _graph_state(state: dict[str, object]) -> RagGraphState:

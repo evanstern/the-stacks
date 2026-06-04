@@ -384,3 +384,7 @@ export async function listSources() {
 export async function listChunks() {
   return request<ChunkRecord[]>("/records/chunks");
 }
+
+export async function listSourceChunks(sourceId: string) {
+  return request<ChunkRecord[]>(`/records/sources/${encodeURIComponent(sourceId)}/chunks`);
+}

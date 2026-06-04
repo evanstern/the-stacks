@@ -12,6 +12,7 @@ from app.schemas import ChunkRead, IngestionJobRead, RecordsStatsRead, Retrieval
 
 
 router = APIRouter(prefix="/records", tags=["records"])
+SOURCE_CHUNK_PREVIEW_LIMIT = 25
 
 
 @router.get("/stats", response_model=RecordsStatsRead)
@@ -114,6 +115,25 @@ def list_chunks(
 ) -> list[ChunkRead]:
     chunks = db.scalars(
         select(DocumentChunk).order_by(desc(DocumentChunk.created_at), DocumentChunk.chunk_index).limit(25)
+    ).all()
+    return [_chunk_read(chunk) for chunk in chunks]
+
+
+@router.get("/sources/{source_id}/chunks", response_model=list[ChunkRead])
+def list_source_chunks(
+    source_id: str,
+    _: AdminSession = Depends(current_admin_session),
+    db: Session = Depends(get_db),
+) -> list[ChunkRead]:
+    source = db.get(Source, source_id)
+    if source is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found")
+
+    chunks = db.scalars(
+        select(DocumentChunk)
+        .where(DocumentChunk.source_id == source.id)
+        .order_by(DocumentChunk.chunk_index, desc(DocumentChunk.created_at))
+        .limit(SOURCE_CHUNK_PREVIEW_LIMIT)
     ).all()
     return [_chunk_read(chunk) for chunk in chunks]
 

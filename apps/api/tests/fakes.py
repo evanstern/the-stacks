@@ -17,12 +17,18 @@ class FakeEmbeddingClient(EmbeddingClient):
 
 
 class FakeQdrantIndexer(QdrantIndexer):
-    def __init__(self, collection: str = "test_chunks", search_hits: list[QdrantSearchHit] | None = None) -> None:
+    def __init__(
+        self,
+        collection: str = "test_chunks",
+        search_hits: list[QdrantSearchHit] | None = None,
+        collection_search_hits: dict[str, list[QdrantSearchHit]] | None = None,
+    ) -> None:
         self.collection = collection
         self.ensured_dimensions: list[int] = []
         self.points: list[QdrantPoint] = []
         self.search_hits = search_hits or []
-        self.search_requests: list[tuple[list[float], int]] = []
+        self.collection_search_hits = collection_search_hits or {}
+        self.search_requests: list[tuple[list[float], int, str]] = []
 
     def ensure_collection(self, dimensions: int) -> None:
         self.ensured_dimensions.append(dimensions)
@@ -30,6 +36,8 @@ class FakeQdrantIndexer(QdrantIndexer):
     def upsert_points(self, points: Sequence[QdrantPoint]) -> None:
         self.points.extend(points)
 
-    def search_points(self, vector: list[float], limit: int) -> list[QdrantSearchHit]:
-        self.search_requests.append((vector, limit))
-        return self.search_hits[:limit]
+    def search_points(self, vector: list[float], limit: int, collection: str | None = None) -> list[QdrantSearchHit]:
+        target_collection = collection or self.collection
+        self.search_requests.append((vector, limit, target_collection))
+        hits = self.collection_search_hits.get(target_collection, self.search_hits)
+        return hits[:limit]
