@@ -98,6 +98,26 @@ def test_worker_processes_markdown_to_awaiting_embedding(db_session: Session, tm
     ]
 
 
+def test_process_next_queued_job_stops_after_chunking_without_embedding(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "dragons.md", "# Dragons\nAncient red dragons prefer volcanic lairs.")
+
+    processed = process_next_queued_job(db_session)
+
+    assert processed is not None
+    assert processed.id == job.id
+    assert processed.status == "awaiting_embedding"
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all()
+    assert _event_types(db_session, job.id) == [
+        "queued",
+        "processing",
+        "parsing_started",
+        "parsing_completed",
+        "chunking_started",
+        "chunking_completed",
+        "awaiting_embedding",
+    ]
+
+
 def test_worker_entrypoint_uses_full_drain_helper(db_session: Session, tmp_path: Path) -> None:
     worker_path = tmp_path / "main" / "apps" / "worker" / "worker.py"
     worker_path.parent.mkdir(parents=True, exist_ok=True)
@@ -753,6 +773,73 @@ def test_worker_processes_ddb_saved_html_after_upload_queueing(db_session: Sessi
 
     events = _event_types(db_session, job.id)
     assert events[:4] == ["queued", "processing", "parsing_started", "parsing_completed"]
+
+
+def test_worker_processes_zip_wrapped_ddb_saved_html_as_archived_webpage(db_session: Session, tmp_path: Path) -> None:
+    from app.archive_storage import store_source_archive
+    from app.config import Settings
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    source_id = "ddb-zip-current-contract"
+    archive = store_source_archive(
+        source_id=source_id,
+        original_filename="a-world-of-your-own-ddb.zip",
+        content=_zip_bytes({"A World of Your Own/page.html": fixture.read_bytes()}),
+        settings=Settings(UPLOAD_DIR=str(tmp_path / "uploads")),
+    )
+    upload = Upload(
+        original_filename="a-world-of-your-own-ddb.zip",
+        stored_path=str(archive.served_html_path),
+        content_type="application/zip",
+        extension=".html",
+        sha256="zip-sha",
+        size_bytes=1,
+        created_at=utcnow(),
+    )
+    db_session.add(upload)
+    db_session.flush()
+    job_metadata = {
+        "source_id": source_id,
+        "source_type": "archived_webpage",
+        "archive_manifest_path": str(archive.manifest_path),
+        "archive_entry_path": "A World of Your Own/page.html",
+        "archive_primary_html_path": "A World of Your Own/page.html",
+        "archive_served_entry_path": "A World of Your Own/page.html",
+        "archive_served_html_path": "A World of Your Own/page.html",
+        "archive_anchor_map_path": "anchor-map.json",
+        "source_url": archive.manifest["source_url"],
+    }
+    job = IngestionJob(
+        upload_id=upload.id,
+        status="queued",
+        metadata_json=json.dumps(job_metadata),
+        created_at=utcnow(),
+        updated_at=utcnow(),
+    )
+    db_session.add(job)
+    db_session.flush()
+    add_event(db_session, job, "queued", "Upload queued for ingestion", {"status": "queued"})
+    db_session.commit()
+
+    processed = process_next_job(db_session, embedding_client=FakeEmbeddingClient(dimensions=3), qdrant_indexer=FakeQdrantIndexer())
+
+    assert processed is not None
+    assert processed.status == "completed"
+    metadata = json.loads(processed.metadata_json)
+    assert metadata["parser"] == "archived_webpage"
+    assert metadata["source_type"] == "archived_webpage"
+    assert metadata["source_id"] == source_id
+    source = db_session.get(Source, source_id)
+    assert source is not None
+    assert source.source_type == "archived_webpage"
+    chunks = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)).all()
+    assert len(chunks) == 3
+    first_chunk_metadata = json.loads(chunks[0].metadata_json)
+    assert first_chunk_metadata["parser"] == "archived_webpage"
+    assert first_chunk_metadata["archive_source_id"] == source_id
+    assert first_chunk_metadata["target_chunk_id"].startswith("archive-")
+    assert "raw_html_path" not in first_chunk_metadata
+    assert "content_chunk_ids" not in first_chunk_metadata
 
 
 def test_job_status_upload_view_url(db_session: Session, tmp_path: Path) -> None:

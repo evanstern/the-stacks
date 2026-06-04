@@ -136,6 +136,41 @@ def test_qdrant_payload_includes_archive_locator_metadata(db_session: Session, t
     assert payload["source_url"] == "https://example.test/archive-source"
 
 
+def test_qdrant_payload_for_ddb_saved_html_keeps_current_base_shape(db_session: Session, tmp_path: Path) -> None:
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    job = create_upload_and_job(
+        db_session,
+        tmp_path,
+        "a-world-of-your-own-ddb.html",
+        fixture.read_bytes(),
+        extension=".html",
+        content_type="text/html",
+    )
+    qdrant = FakeQdrantIndexer(collection="mock_chunks")
+
+    processed = process_next_job(db_session, embedding_client=FakeEmbeddingClient(dimensions=5, model="mock-embedding"), qdrant_indexer=qdrant)
+
+    assert processed is not None
+    assert processed.status == "completed"
+    assert len(qdrant.points) == 3
+    chunks = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)).all()
+    assert [point.payload for point in qdrant.points] == [
+        {
+            "source_id": chunk.upload_id,
+            "chunk_id": chunk.id,
+            "filename": "a-world-of-your-own-ddb.html",
+            "section": section,
+            "embedding_model": "mock-embedding",
+            "embedding_dimensions": 5,
+            "chunk_index": index,
+            "ingestion_job_id": job.id,
+        }
+        for index, (chunk, section) in enumerate(
+            zip(chunks, ["A World of Your Own", "The Big Picture", "Core Assumptions"], strict=True)
+        )
+    ]
+
+
 def test_worker_embeds_and_indexes_epub_fixture(db_session: Session, tmp_path: Path) -> None:
     fixture = Path(__file__).resolve().parent / "fixtures" / "sample.epub"
     job = create_upload_and_job(

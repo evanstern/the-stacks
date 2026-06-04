@@ -624,6 +624,17 @@ def test_upload_valid_webpage_archive_stores_immutable_source_archive(
 
     job_metadata = json.loads(job.metadata_json)
     source_id = job_metadata["source_id"]
+    assert job_metadata == {
+        "archive_anchor_map_path": "anchor-map.json",
+        "archive_entry_path": "page.html",
+        "archive_manifest_path": str(tmp_path / "uploads" / "source-archives" / source_id / "manifest.json"),
+        "archive_primary_html_path": "page.html",
+        "archive_served_entry_path": "page.html",
+        "archive_served_html_path": "page.html",
+        "source_id": source_id,
+        "source_type": "archived_webpage",
+        "source_url": None,
+    }
     archive_root = tmp_path / "uploads" / "source-archives" / source_id
     manifest_path = archive_root / "manifest.json"
     assert Path(upload.stored_path) == archive_root / "served" / "page.html"
@@ -678,6 +689,33 @@ def test_archive_job_metadata_becomes_ingested_source_metadata(client: TestClien
     assert source_metadata["archive_served_entry_path"] == "page.html"
     assert source_metadata["archive_anchor_map_path"] == "anchor-map.json"
     assert source_metadata["archive_file_count"] == 1
+
+
+def test_zip_containing_ddb_saved_html_is_queued_as_archived_webpage_not_direct_ddb_parse(
+    client: TestClient,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    content = _zip_bytes({"A World of Your Own/page.html": fixture.read_bytes()})
+
+    response = client.post("/uploads", files={"file": ("a-world-of-your-own-ddb.zip", content, "application/zip")})
+
+    assert response.status_code == 201
+    upload = db_session.get(Upload, response.json()["upload_id"])
+    job = db_session.get(IngestionJob, response.json()["job_id"])
+    assert upload is not None
+    assert job is not None
+    assert upload.original_filename == "a-world-of-your-own-ddb.zip"
+    assert upload.content_type == "application/zip"
+    assert upload.extension == ".html"
+    assert job.status == "queued"
+    job_metadata = json.loads(job.metadata_json)
+    assert job_metadata["source_type"] == "archived_webpage"
+    assert job_metadata["archive_entry_path"] == "A World of Your Own/page.html"
+    assert job_metadata["archive_served_entry_path"] == "A World of Your Own/page.html"
+    assert job_metadata["archive_anchor_map_path"] == "anchor-map.json"
+    assert Path(upload.stored_path) == tmp_path / "uploads" / "source-archives" / job_metadata["source_id"] / "served" / "A World of Your Own" / "page.html"
 
 
 def test_archive_served_html_rewrites_assets_and_creates_anchor_map(
