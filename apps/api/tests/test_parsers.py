@@ -3,6 +3,7 @@ from typing import cast
 
 import pytest  # pyright: ignore[reportMissingImports]
 
+import app.ingestion as ingestion  # pyright: ignore[reportImplicitRelativeImport]
 from app.ingestion import ParserError, parse_document  # pyright: ignore[reportImplicitRelativeImport]
 
 
@@ -113,11 +114,20 @@ def test_ddb_html_dispatches_before_generic_html(tmp_path: Path) -> None:
     source = tmp_path / fixture.name
     source.write_bytes(fixture.read_bytes())
 
-    document = parse_document(source, ".html")
+    def fail_generic_html_parser(text: str) -> object:
+        raise AssertionError("DDB saved HTML must not fall through to the generic HTML parser")
+
+    original_generic_parser = ingestion._parse_html
+    ingestion._parse_html = fail_generic_html_parser  # type: ignore[method-assign]
+
+    try:
+        document = parse_document(source, ".html")
+    finally:
+        ingestion._parse_html = original_generic_parser  # type: ignore[method-assign]
 
     assert document.parser == "ddb_saved_html"
     assert document.title == "A World of Your Own"
-    assert document.metadata["book_title"] == "Dungeon Master's Guide"
+    assert document.metadata["book_title"] == "Dungeon Master’s Guide (2014)"
     assert document.metadata["document_title"] == "A World of Your Own"
     assert document.metadata["source_type"] == "ddb_saved_html"
     assert document.metadata["parser"] == "ddb_saved_html"
@@ -140,13 +150,36 @@ def test_ddb_html_dispatches_before_generic_html(tmp_path: Path) -> None:
         "The Big Picture",
         "Core Assumptions",
     ]
-    assert "heading_id" not in document.sections[1].metadata
-    assert "heading_level" not in document.sections[1].metadata
-    assert "section_path" not in document.sections[1].metadata
-    assert "content_chunk_ids" not in document.sections[1].metadata
-    assert "source_content_ids" not in document.sections[1].metadata
-    semantic_section = cast(dict[str, object], document.sections[1].metadata["semantic_section"])
-    assert "content_chunk_ids" not in semantic_section
+    assert document.sections[0].metadata["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
+    assert document.sections[0].metadata["semantic_section"]["path_text"] == ["A World of Your Own"]
+    assert document.sections[0].metadata["citation_anchor"] == "#AWorldofYourOwn"
+    assert document.sections[0].metadata["source_url"] == document.metadata["source_url"]
+    assert document.sections[2].metadata["heading_id"] == "CoreAssumptions"
+    assert document.sections[2].metadata["heading_level"] == 3
+    assert document.sections[2].metadata["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
+    assert document.sections[2].metadata["content_chunk_ids"] == ["chunk-core-assumptions", "chunk-table"]
+
+
+def test_generic_html_still_uses_existing_html_parser_path(tmp_path: Path) -> None:
+    source = tmp_path / "generic.html"
+    source.write_text("<html><head><title>Bestiary</title></head><body><h1>Dragons</h1><p>Ancient red dragons prefer volcanic lairs.</p></body></html>", encoding="utf-8")
+
+    calls: list[str] = []
+    original_generic_parser = ingestion._parse_html
+
+    def recording_generic_html_parser(text: str) -> object:
+        calls.append(text)
+        return original_generic_parser(text)
+
+    ingestion._parse_html = recording_generic_html_parser  # type: ignore[method-assign]
+
+    try:
+        document = parse_document(source, ".html")
+    finally:
+        ingestion._parse_html = original_generic_parser  # type: ignore[method-assign]
+
+    assert document.parser == "html"
+    assert calls == [source.read_text(encoding="utf-8")]
 
 
 def test_archived_html_parser_emits_semantic_section_without_section_path(tmp_path: Path) -> None:

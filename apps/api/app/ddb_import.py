@@ -87,15 +87,10 @@ DDB_ALLOWED_TAGS = frozenset(
         "th",
         "td",
         "a",
-        "img",
         "br",
-        "hr",
-        "dl",
-        "dt",
-        "dd",
     }
 )
-DDB_ALLOWED_PROTOCOLS = frozenset({"http", "https", "mailto"})
+DDB_ALLOWED_PROTOCOLS = frozenset({"http", "https"})
 
 
 class DdbMetadata(dict[str, Any]):
@@ -123,38 +118,54 @@ class DdbChunk:
     citation: DdbCitation
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def jsonl_record(self, import_metadata: dict[str, Any] | None = None, chunk_index: int = 0) -> dict[str, Any]:
-        metadata = dict(import_metadata or {})
-        metadata.update(self.metadata)
-        metadata.update(
-            {
-                "content_chunk_id": self.id,
-                "heading": self.heading,
-                "semantic_section": self.semantic_section,
-                "source_url": self.source_url,
-                **self.citation.metadata(),
-            }
-        )
-        citation = {"label": self.citation.label, "anchor": self.citation.anchor, "source_url": self.source_url}
+    def jsonl_record(self, import_result: Any | None = None, chunk_index: int = 0) -> dict[str, Any]:
+        import_metadata = dict(import_result.metadata()) if import_result is not None else {}
+        chunk_metadata = dict(self.metadata)
+        citation_anchor = self.citation.anchor or chunk_metadata.get("citation_anchor")
+        citation_label = self.citation.label or chunk_metadata.get("citation_label") or self.heading
+        source_url = self.source_url or import_metadata.get("source_url")
+        heading_id = chunk_metadata.get("heading_id")
+        content_chunk_ids = list(chunk_metadata.get("content_chunk_ids") or [])
+        citation = {
+            "label": citation_label,
+            "source_url": f"{source_url}{citation_anchor}" if source_url and citation_anchor else source_url,
+            "raw_html_path": import_metadata.get("raw_html_path"),
+            "rendered_html_path": import_metadata.get("rendered_html_path"),
+            "jsonl_path": import_metadata.get("jsonl_path"),
+            "raw_sha256": import_metadata.get("raw_sha256"),
+            "heading_id": heading_id,
+            "content_chunk_ids": content_chunk_ids,
+        }
         return {
-            "source_type": metadata.get("source_type", "ddb_saved_html"),
-            "parser": metadata.get("parser", DDB_PARSER),
-            "book_title": metadata.get("book_title"),
-            "document_title": metadata.get("document_title") or metadata.get("title"),
-            "source_url": self.source_url or metadata.get("source_url"),
-            "raw_sha256": metadata.get("raw_sha256"),
-            "raw_byte_size": metadata.get("raw_byte_size"),
-            "raw_html_path": metadata.get("raw_html_path"),
-            "rendered_html_path": metadata.get("rendered_html_path"),
-            "jsonl_path": metadata.get("jsonl_path"),
+            "source_type": import_metadata.get("source_type", "ddb_saved_html"),
+            "book_title": import_metadata.get("book_title"),
+            "document_title": import_metadata.get("document_title") or import_metadata.get("title"),
+            "source_url": source_url,
+            "raw_sha256": import_metadata.get("raw_sha256"),
+            "raw_byte_size": import_metadata.get("raw_byte_size"),
+            "raw_html_path": import_metadata.get("raw_html_path"),
+            "rendered_html_path": import_metadata.get("rendered_html_path"),
+            "jsonl_path": import_metadata.get("jsonl_path"),
             "content_chunk_id": self.id,
             "chunk_index": chunk_index,
+            "heading_id": heading_id,
+            "heading_level": chunk_metadata.get("heading_level"),
+            "section_path": chunk_metadata.get("section_path"),
+            "content_chunk_ids": content_chunk_ids,
             "heading": self.heading,
             "semantic_section": self.semantic_section,
             "text": self.content,
             "html": self.html,
             "citation": citation,
-            "metadata": metadata,
+            "metadata": {
+                **import_metadata,
+                **chunk_metadata,
+                "content_chunk_id": self.id,
+                "heading": self.heading,
+                "source_url": source_url,
+                "citation_label": citation_label,
+                "citation_anchor": citation_anchor,
+            },
         }
 
 
@@ -162,6 +173,23 @@ class DdbChunk:
 class DdbSection:
     heading: str | None
     text: str
+    start_char: int
+    end_char: int
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class DdbSectionRecord:
+    heading: str | None
+    heading_id: str | None
+    heading_level: int | None
+    section_path: list[str]
+    text: str
+    html: str
+    source_url: str | None
+    content_chunk_ids: list[str]
+    semantic_section: dict[str, Any]
+    chunk_id: str
     start_char: int
     end_char: int
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -181,6 +209,7 @@ class DdbImport:
     book_title: str | None
     document_title: str | None
     source_url: str | None
+    original_filename: str | None
     raw_bytes: bytes
     raw_sha256: str
     rendered_html: str
@@ -242,6 +271,7 @@ def parse_ddb_saved_html(raw_html: bytes | str, raw_bytes: bytes | None = None) 
         book_title=_book_title_from_soup(soup),
         document_title=_document_title_from_soup(soup, article),
         source_url=source_url,
+        original_filename=None,
         raw_bytes=preserved_bytes,
         raw_sha256=hashlib.sha256(preserved_bytes).hexdigest(),
         rendered_html=rendered_html,
@@ -250,108 +280,35 @@ def parse_ddb_saved_html(raw_html: bytes | str, raw_bytes: bytes | None = None) 
 
 
 def extract_ddb_chunks(article_html: str, source_url: str | None = None) -> list[DdbChunk]:
-    soup = BeautifulSoup(article_html, "html.parser")
-    root = _select_article(soup) or soup
-    chunks: list[DdbChunk] = []
-    heading_stack: list[dict[str, Any]] = []
-    heading_ids: set[str] = set()
-    seen_ids: dict[str, int] = {}
-
-    for element in root.descendants:
-        if not isinstance(element, Tag):
-            continue
-        name = element.name.lower() if element.name else ""
-        if name in {"h1", "h2", "h3", "h4", "h5", "h6"}:
-            heading_text = _normalize_text(element.get_text(" "))
-            if heading_text:
-                level = int(name[1])
-                heading_stack = [item for item in heading_stack if _semantic_heading_level(item) < level]
-                heading_id = _semantic_heading_id(heading_text, heading_ids, _attribute_value(element.get("id")))
-                semantic_section = _semantic_section_heading_from_stack(heading_text, level, heading_id, heading_stack)
-                heading_stack = list(semantic_section["path"])
-            continue
-        if name not in DDB_TEXT_BLOCK_TAGS or _has_block_ancestor(element, root):
-            continue
-        text = _normalize_text(element.get_text(" "))
-        if not text:
-            continue
-        semantic_section = _semantic_section_from_stack(heading_stack)
-        heading_node = semantic_section.get("heading") if isinstance(semantic_section.get("heading"), dict) else None
-        heading = str(heading_node["text"]) if heading_node else None
-        heading_id = str(heading_node["id"]) if heading_node else None
-        section_path = [str(item["text"]) for item in heading_stack]
-        chunk_id = _chunk_id_for_element(element, section_path, text, seen_ids)
-        citation = DdbCitation(label=heading or section_path[-1] if section_path else None, anchor=f"#{heading_id}" if heading_id else None)
-        html = sanitize_ddb_article_html(str(element))
-        chunks.append(
-            DdbChunk(
-                id=chunk_id,
-                content=text,
-                heading=heading,
-                semantic_section=semantic_section,
-                html=html,
-                source_url=source_url,
-                citation=citation,
-                metadata={
-                    "content_chunk_id": chunk_id,
-                    "semantic_section": semantic_section,
-                    "html": html,
-                    "source_url": source_url,
-                    **citation.metadata(),
-                },
-            )
+    return [
+        DdbChunk(
+            id=record.chunk_id,
+            content=record.text,
+            heading=record.heading,
+            semantic_section=record.semantic_section,
+            html=record.html,
+            source_url=record.source_url,
+            citation=DdbCitation(label=record.heading, anchor=f"#{record.heading_id}" if record.heading_id else None),
+            metadata=record.metadata,
         )
-    return chunks
+        for record in _extract_ddb_section_records(article_html, source_url=source_url)
+    ]
 
 
 def _extract_ddb_sections(article_html: str, import_metadata: dict[str, Any]) -> list[DdbSection]:
-    soup = BeautifulSoup(article_html, "html.parser")
-    root = _select_article(soup) or soup
-    sections: list[DdbSection] = []
-    heading_stack: list[dict[str, Any]] = []
-    heading_ids: set[str] = set()
-    headings = [element for element in root.descendants if isinstance(element, Tag) and _heading_level(element) is not None]
-
-    for index, heading in enumerate(headings):
-        level = _heading_level(heading)
-        if level is None:
-            continue
-        heading_text = _normalize_text(heading.get_text(" "))
-        if not heading_text:
-            continue
-        heading_stack = [item for item in heading_stack if _semantic_heading_level(item) < level]
-        heading_id = _semantic_heading_id(heading_text, heading_ids, _attribute_value(heading.get("id")))
-        semantic_section = _semantic_section_heading_from_stack(heading_text, level, heading_id, heading_stack)
-        heading_stack = list(semantic_section["path"])
-        next_heading = headings[index + 1] if index + 1 < len(headings) else None
-        nodes = _section_nodes_until_next_heading(heading, next_heading)
-        body_text = _normalize_text(" ".join(node.get_text(" ") for node in nodes if _heading_level(node) is None))
-        section_text = body_text or heading_text
-        start_char = article_html.find(str(heading))
-        if start_char == -1:
-            start_char = article_html.find(heading_text)
-        if start_char == -1:
-            start_char = 0
-        end_char = start_char + len(str(heading))
-        if nodes:
-            last_markup = str(nodes[-1])
-            last_start = article_html.find(last_markup, start_char)
-            if last_start != -1:
-                end_char = last_start + len(last_markup)
-        section_html = "".join(str(node) for node in [heading, *nodes])
-        citation = DdbCitation(label=heading_text, anchor=f"#{heading_id}" if heading_id else None)
-        metadata = {
-            **{key: value for key, value in import_metadata.items() if value is not None},
-            "content_chunk_id": _primary_content_chunk_id(
-                _section_nodes_until_next_same_or_higher_heading(heading, headings[index + 1 :], level),
-                heading_id,
-            ),
-            "semantic_section": semantic_section,
-            "html": sanitize_ddb_article_html(section_html),
-            **citation.metadata(),
-        }
-        sections.append(DdbSection(heading=heading_text, text=section_text, start_char=start_char, end_char=end_char, metadata=metadata))
-    return sections
+    return [
+        DdbSection(
+            heading=record.heading,
+            text=record.text,
+            start_char=record.start_char,
+            end_char=record.end_char,
+            metadata={
+                **{key: value for key, value in import_metadata.items() if value is not None},
+                **record.metadata,
+            },
+        )
+        for record in _extract_ddb_section_records(article_html, source_url=import_metadata.get("source_url"), import_metadata=import_metadata)
+    ]
 
 
 def sanitize_ddb_article_html(article_html: str) -> str:
@@ -371,8 +328,8 @@ def sanitize_ddb_article_html(article_html: str) -> str:
     return cleaner.clean(str(root)).strip()
 
 
-def ddb_chunks_to_jsonl(chunks: list[DdbChunk], import_metadata: dict[str, Any] | None = None) -> str:
-    lines = [json.dumps(chunk.jsonl_record(import_metadata, index), ensure_ascii=False, sort_keys=True) for index, chunk in enumerate(chunks)]
+def ddb_chunks_to_jsonl(import_result: DdbImport) -> str:
+    lines = [json.dumps(chunk.jsonl_record(import_result, index), ensure_ascii=False, sort_keys=True) for index, chunk in enumerate(import_result.chunks)]
     return "\n".join(lines) + ("\n" if lines else "")
 
 
@@ -382,15 +339,23 @@ def write_ddb_artifacts(ddb_import: DdbImport, output_dir: Path) -> DdbArtifacts
     rendered_path = output_dir / "rendered.html"
     jsonl_path = output_dir / "chunks.jsonl"
     manifest_path = output_dir / "manifest.json"
+    original_filename = ddb_import.original_filename or output_dir.name.removesuffix(".artifacts")
 
     raw_path.write_bytes(ddb_import.raw_bytes)
     rendered_path.write_text(ddb_import.rendered_html, encoding="utf-8")
+    object.__setattr__(ddb_import, "original_filename", original_filename)
     object.__setattr__(ddb_import, "raw_html_path", raw_path)
     object.__setattr__(ddb_import, "rendered_html_path", rendered_path)
     object.__setattr__(ddb_import, "jsonl_path", jsonl_path)
     object.__setattr__(ddb_import, "metadata", DdbMetadata(_import_metadata(ddb_import)))
-    metadata = {**ddb_import.metadata(), "raw_html_path": str(raw_path), "rendered_html_path": str(rendered_path), "jsonl_path": str(jsonl_path)}
-    jsonl_path.write_text(ddb_chunks_to_jsonl(ddb_import.chunks, metadata), encoding="utf-8")
+    metadata = {
+        **ddb_import.metadata(),
+        "original_filename": original_filename,
+        "raw_html_path": str(raw_path),
+        "rendered_html_path": str(rendered_path),
+        "jsonl_path": str(jsonl_path),
+    }
+    jsonl_path.write_text(ddb_chunks_to_jsonl(ddb_import), encoding="utf-8")
     manifest = {**metadata, "chunk_count": len(ddb_import.chunks), "manifest_path": str(manifest_path)}
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return DdbArtifacts(raw_html_path=raw_path, rendered_html_path=rendered_path, jsonl_path=jsonl_path, manifest_path=manifest_path)
@@ -404,6 +369,7 @@ def _import_metadata(ddb_import: DdbImport) -> dict[str, Any]:
         "book_title": ddb_import.book_title,
         "document_title": ddb_import.document_title,
         "source_url": ddb_import.source_url,
+        "original_filename": ddb_import.original_filename,
         "raw_sha256": ddb_import.raw_sha256,
         "raw_byte_size": len(ddb_import.raw_bytes),
         "rendered_html": ddb_import.rendered_html,
@@ -431,7 +397,7 @@ def _source_url_from_soup(soup: BeautifulSoup) -> str | None:
         if not any(marker in cleaned.lower() for marker in DDB_HOST_MARKERS):
             continue
         path = urlparse(cleaned).path.lower()
-        if path.startswith("/sources/dnd/"):
+        if path and not path.startswith("/forums"):
             return cleaned
     return None
 
@@ -491,10 +457,19 @@ def _book_title_from_soup(soup: BeautifulSoup) -> str | None:
     if soup.title:
         title = _normalize_text(soup.title.get_text(" "))
         parts = [part.strip() for part in re.split(r"\s+[-—|]\s+", title) if part.strip()]
-        if len(parts) >= 3 and parts[-1].lower() in {"d&d beyond", "dungeons & dragons beyond", "dungeons and dragons beyond"}:
-            return parts[-2]
-        if len(parts) >= 2 and parts[-1].lower() in {"ddb", "d&d beyond", "dungeons & dragons beyond", "dungeons and dragons beyond"}:
-            return parts[0]
+        if len(parts) >= 2:
+            generic_suffixes = {
+                "ddb",
+                "d&d beyond",
+                "dungeons & dragons beyond",
+                "dungeons and dragons beyond",
+                "dungeons & dragons",
+                "dungeons and dragons",
+                "sources",
+            }
+            for part in parts[1:]:
+                if part.lower() not in generic_suffixes:
+                    return part
     return None
 
 
@@ -548,7 +523,7 @@ def _section_nodes_until_next_same_or_higher_heading(heading: Tag, following_hea
 
 
 def _content_chunk_candidates(node: Tag) -> list[Tag]:
-    candidates: list[Tag] = [] if _heading_level(node) is not None else [node]
+    candidates: list[Tag] = [node]
     for candidate in node.find_all(attrs={"data-content-chunk-id": True}):
         if isinstance(candidate, Tag):
             candidates.append(candidate)
@@ -648,6 +623,97 @@ def _primary_content_chunk_id(nodes: list[Tag], fallback: str | None) -> str | N
     return fallback
 
 
+def _extract_ddb_section_records(article_html: str, source_url: str | None = None, import_metadata: dict[str, Any] | None = None) -> list[DdbSectionRecord]:
+    soup = BeautifulSoup(article_html, "html.parser")
+    root = _select_article(soup) or soup
+    headings = [element for element in root.descendants if isinstance(element, Tag) and _heading_level(element) is not None]
+    heading_stack: list[dict[str, Any]] = []
+    heading_ids: set[str] = set()
+    seen_ids: dict[str, int] = {}
+    base_metadata = {key: value for key, value in (import_metadata or {}).items() if value is not None}
+    records: list[DdbSectionRecord] = []
+
+    for index, heading in enumerate(headings):
+        level = _heading_level(heading)
+        if level is None:
+            continue
+        heading_text = _normalize_text(heading.get_text(" "))
+        if not heading_text:
+            continue
+
+        heading_stack = [item for item in heading_stack if _semantic_heading_level(item) < level]
+        heading_id = _semantic_heading_id(heading_text, heading_ids, _attribute_value(heading.get("id")))
+        semantic_section = _semantic_section_heading_from_stack(heading_text, level, heading_id, heading_stack)
+        heading_stack = list(semantic_section["path"])
+
+        next_heading = headings[index + 1] if index + 1 < len(headings) else None
+        nodes = _section_nodes_until_next_heading(heading, next_heading)
+        fragment_nodes = [heading, *nodes]
+        body_text = _normalize_text(" ".join(node.get_text(" ") for node in nodes if _heading_level(node) is None))
+        if not body_text:
+            continue
+        section_text = body_text or heading_text
+        section_html = "".join(str(node) for node in fragment_nodes)
+        section_path = [str(item["text"]) for item in semantic_section["path"]]
+        content_chunk_ids = _section_content_chunk_ids(fragment_nodes)
+        chunk_id = heading_id
+        start_char = article_html.find(str(heading))
+        if start_char == -1:
+            start_char = article_html.find(heading_text)
+        if start_char == -1:
+            start_char = 0
+        end_char = start_char + len(str(heading))
+        if nodes:
+            last_markup = str(nodes[-1])
+            last_start = article_html.find(last_markup, start_char)
+            if last_start != -1:
+                end_char = last_start + len(last_markup)
+
+        metadata = {
+            **base_metadata,
+            "content_chunk_id": chunk_id,
+            "heading_id": heading_id,
+            "heading_level": level,
+            "section_path": section_path,
+            "content_chunk_ids": content_chunk_ids,
+            "source_url": source_url,
+            "semantic_section": semantic_section,
+            "html": sanitize_ddb_article_html(section_html),
+            "citation_label": heading_text,
+            "citation_anchor": f"#{heading_id}" if heading_id else None,
+        }
+        records.append(
+            DdbSectionRecord(
+                heading=heading_text,
+                heading_id=heading_id,
+                heading_level=level,
+                section_path=section_path,
+                text=section_text,
+                html=sanitize_ddb_article_html(section_html),
+                source_url=source_url,
+                content_chunk_ids=content_chunk_ids,
+                semantic_section=semantic_section,
+                chunk_id=chunk_id,
+                start_char=start_char,
+                end_char=end_char,
+                metadata=metadata,
+            )
+        )
+    return records
+
+
+def _section_content_chunk_ids(nodes: list[Tag]) -> list[str]:
+    ids: list[str] = []
+    seen: set[str] = set()
+    for node in nodes:
+        for candidate in _content_chunk_candidates(node):
+            value = _attribute_value(candidate.get("data-content-chunk-id")) or _attribute_value(candidate.get("data-content-chunk"))
+            if value and value not in seen:
+                seen.add(value)
+                ids.append(value)
+    return ids
+
+
 def _chunk_id_for_element(element: Tag, section_path: list[str], text: str, seen_ids: dict[str, int]) -> str:
     source_id = _attribute_value(element.get("data-content-chunk-id")) or _attribute_value(element.get("data-content-chunk"))
     if source_id:
@@ -690,10 +756,8 @@ def _allow_ddb_attribute(tag: str, name: str, value: str) -> bool:
     del value
     if name.startswith("on") or name == "style":
         return False
-    if name in {"id", "class", "title"} or name.startswith("data-"):
+    if name in {"id", "class", "title", "data-content-chunk-id", "data-citation-id"}:
         return True
-    if tag == "a" and name in {"href", "rel", "title", "target"}:
+    if tag == "a" and name == "href":
         return True
-    if tag == "img" and name in {"src", "alt", "width", "height", "title"}:
-        return True
-    return tag in {"td", "th"} and name in {"colspan", "rowspan"}
+    return False

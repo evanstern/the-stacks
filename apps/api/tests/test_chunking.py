@@ -21,6 +21,9 @@ def test_chunk_document_adds_retrieval_metadata() -> None:
         sections=[ParsedSection(heading="Lairs", text="Ancient red dragons prefer volcanic lairs.", start_char=10, end_char=52)],
     )
 
+    assert document.metadata == {}
+    assert document.sections[0].metadata == {}
+
     chunks = chunk_document(document, upload, job)
 
     assert len(chunks) == 1
@@ -94,6 +97,11 @@ def test_chunk_document_preserves_parser_metadata_without_clobbering_base_fields
         ],
     )
 
+    assert document.sections[0].metadata["heading_id"] == "TheBigPicture"
+    assert document.sections[0].metadata["section_path"] == ["A World of Your Own", "The Big Picture"]
+    assert document.sections[0].metadata["content_chunk_ids"] == ["chunk-2", "chunk-3"]
+    assert document.sections[0].metadata["citation_anchor"] == "#TheBigPicture"
+
     chunks = chunk_document(document, upload, job)
 
     assert len(chunks) == 1
@@ -106,6 +114,10 @@ def test_chunk_document_preserves_parser_metadata_without_clobbering_base_fields
     assert chunks[0].metadata["section_path"] == ["A World of Your Own", "The Big Picture"]
     assert chunks[0].metadata["content_chunk_ids"] == ["chunk-2", "chunk-3"]
     assert chunks[0].metadata["citation_anchor"] == "#TheBigPicture"
+    assert chunks[0].metadata["parser"] == "ddb_saved_html"
+    assert chunks[0].metadata["title"] == "A World of Your Own"
+    assert chunks[0].metadata["start_char"] == 100
+    assert chunks[0].metadata["end_char"] == 149
     semantic_section = cast(dict[str, object], chunks[0].metadata["semantic_section"])
     assert semantic_section["path_text"] == ["A World of Your Own", "The Big Picture"]
     assert semantic_section["depth"] == 2

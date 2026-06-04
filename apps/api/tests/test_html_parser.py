@@ -119,10 +119,5 @@ def test_ddb_fixture_routes_to_saved_html_parser_without_weakening_generic_fixtu
         "The Big Picture",
         "Core Assumptions",
     ]
-    assert "heading_id" not in document.sections[2].metadata
-    assert "heading_level" not in document.sections[2].metadata
-    assert "section_path" not in document.sections[2].metadata
-    assert "content_chunk_ids" not in document.sections[2].metadata
-    assert "source_content_ids" not in document.sections[2].metadata
     assert document.sections[2].metadata["citation_anchor"] == "#CoreAssumptions"
     assert "onclick" not in str(document.sections[2].metadata["html"])

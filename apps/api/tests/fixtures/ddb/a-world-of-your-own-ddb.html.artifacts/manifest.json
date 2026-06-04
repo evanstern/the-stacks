@@ -1,9 +1,10 @@
 {
-  "book_title": "Sources",
-  "chunk_count": 11,
+  "book_title": "Dungeon Master’s Guide (2014)",
+  "chunk_count": 3,
   "document_title": "A World of Your Own",
   "jsonl_path": "/home/coda/projects/the-stacks/main/apps/api/tests/fixtures/ddb/a-world-of-your-own-ddb.html.artifacts/chunks.jsonl",
   "manifest_path": "/home/coda/projects/the-stacks/main/apps/api/tests/fixtures/ddb/a-world-of-your-own-ddb.html.artifacts/manifest.json",
+  "original_filename": "a-world-of-your-own-ddb.html",
   "parser": "ddb_saved_html",
   "raw_byte_size": 1717,
   "raw_html_path": "/home/coda/projects/the-stacks/main/apps/api/tests/fixtures/ddb/a-world-of-your-own-ddb.html.artifacts/raw.html",

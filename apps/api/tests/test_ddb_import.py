@@ -75,26 +75,46 @@ def test_ddb_detection_accepts_article_selector_with_identity_or_source_signals(
 
 
 def test_parse_preserves_raw_bytes_and_exposes_parsed_document() -> None:
-    imported = parse_ddb_saved_html(SAVED_DDB_HTML)
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    fixture_bytes = fixture.read_bytes()
+
+    imported = parse_ddb_saved_html(fixture_bytes)
     document = imported.to_parsed_document()
 
-    assert imported.raw_bytes == SAVED_DDB_HTML
-    assert imported.raw_sha256 == hashlib.sha256(SAVED_DDB_HTML).hexdigest()
-    assert imported.source_url == "https://www.dndbeyond.com/monsters/16771-adult-red-dragon"
-    assert imported.title == "Adult Red Dragon"
-    assert imported.book_title == "Monsters"
-    assert imported.document_title == "Adult Red Dragon"
+    assert imported.raw_bytes == fixture_bytes
+    assert imported.raw_sha256 == hashlib.sha256(fixture_bytes).hexdigest()
+    assert imported.source_url == "https://www.dndbeyond.com/sources/dnd/dmg-2014/a-world-of-your-own"
+    assert imported.title == "A World of Your Own"
+    assert imported.book_title == "Dungeon Master’s Guide (2014)"
+    assert imported.document_title == "A World of Your Own"
     assert document.parser == "ddb_saved_html"
-    assert document.title == "Adult Red Dragon"
-    assert document.metadata["book_title"] == "Monsters"
-    assert document.metadata["document_title"] == "Adult Red Dragon"
-    assert [section.heading for section in document.sections] == ["Adult Red Dragon", "Actions", "Fire Breath"]
+    assert document.title == "A World of Your Own"
+    assert document.metadata["source_type"] == "ddb_saved_html"
+    assert document.metadata["book_title"] == "Dungeon Master’s Guide (2014)"
+    assert document.metadata["document_title"] == "A World of Your Own"
+    assert [section.heading for section in document.sections] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
+    assert [section.metadata for section in document.sections]
+    assert [section.metadata["heading_id"] for section in document.sections] == ["AWorldofYourOwn", "TheBigPicture", "CoreAssumptions"]
+    assert [section.metadata["heading_level"] for section in document.sections] == [1, 2, 3]
+    assert [section.metadata["section_path"] for section in document.sections] == [
+        ["A World of Your Own"],
+        ["A World of Your Own", "The Big Picture"],
+        ["A World of Your Own", "The Big Picture", "Core Assumptions"],
+    ]
+    assert [section.metadata["content_chunk_ids"] for section in document.sections] == [
+        ["chunk-root", "chunk-intro"],
+        ["chunk-big-picture", "chunk-big-picture-body", "chunk-list"],
+        ["chunk-core-assumptions", "chunk-table"],
+    ]
+    assert [section.metadata["source_type"] for section in document.sections] == ["ddb_saved_html", "ddb_saved_html", "ddb_saved_html"]
     assert document.sections[0].metadata["semantic_section"]["kind"] == "heading"
-    assert "heading_level" not in document.sections[0].metadata
-    assert "heading_id" not in document.sections[0].metadata
-    assert "section_path" not in document.sections[0].metadata
-    assert "content_chunk_ids" not in document.sections[0].metadata
-    assert "source_content_ids" not in document.sections[0].metadata
+    assert document.sections[0].metadata["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
+    assert document.sections[0].metadata["semantic_section"]["path_text"] == ["A World of Your Own"]
+    assert document.sections[0].metadata["citation_anchor"] == "#AWorldofYourOwn"
+    assert document.sections[0].metadata["source_url"] == imported.source_url
+    assert document.sections[0].metadata["html"].startswith("<h1")
+    assert 'id="AWorldofYourOwn"' in document.sections[0].metadata["html"]
+    assert 'data-content-chunk-id="chunk-root"' in document.sections[0].metadata["html"]
 
 
 def test_extraction_preserves_heading_paths_citations_and_source_url() -> None:
@@ -110,15 +130,15 @@ def test_extraction_preserves_heading_paths_citations_and_source_url() -> None:
         source_url="https://www.dndbeyond.com/monsters/16771-adult-red-dragon",
     )
 
-    assert chunks[0].id == "adult-red-dragon-huge-dragon-chaotic-evil"
-    assert chunks[0].metadata["content_chunk_id"] == "adult-red-dragon-huge-dragon-chaotic-evil"
+    assert [chunk.heading for chunk in chunks] == ["Adult Red Dragon", "Actions"]
+    assert [chunk.id for chunk in chunks] == ["AdultRedDragon", "Actions"]
+    assert chunks[0].metadata["content_chunk_id"] == "AdultRedDragon"
+    assert chunks[0].metadata["heading_id"] == "AdultRedDragon"
+    assert chunks[0].metadata["heading_level"] == 1
+    assert chunks[0].metadata["section_path"] == ["Adult Red Dragon"]
+    assert chunks[0].metadata["content_chunk_ids"] == []
     assert chunks[0].metadata["semantic_section"]["heading"]["id"] == "AdultRedDragon"
     assert chunks[0].metadata["semantic_section"]["path_text"] == ["Adult Red Dragon"]
-    assert "heading_level" not in chunks[0].metadata
-    assert "heading_id" not in chunks[0].metadata
-    assert "section_path" not in chunks[0].metadata
-    assert "content_chunk_ids" not in chunks[0].metadata
-    assert "source_content_ids" not in chunks[0].metadata
     assert chunks[0].citation.label == "Adult Red Dragon"
     assert chunks[0].citation.anchor == "#AdultRedDragon"
     assert chunks[1].metadata["semantic_section"]["path_text"] == ["Adult Red Dragon", "Actions"]
@@ -137,70 +157,109 @@ def test_extraction_prefers_source_content_chunk_id_with_generated_fallback() ->
         """
     )
 
-    assert [chunk.id for chunk in chunks] == ["chunk-3", "legacy-id", "world-generate-this-id"]
-    assert chunks[0].metadata["content_chunk_id"] == "chunk-3"
+    assert [chunk.id for chunk in chunks] == ["World"]
+    assert chunks[0].metadata["content_chunk_id"] == "World"
+    assert chunks[0].metadata["content_chunk_ids"] == ["chunk-3", "legacy-id"]
+    assert chunks[0].metadata["heading_level"] == 1
+    assert chunks[0].metadata["section_path"] == ["World"]
 
 
 def test_sanitization_preserves_safe_renderable_html_and_strips_unsafe_attributes() -> None:
-    rendered = sanitize_ddb_article_html(SAVED_DDB_HTML.decode("utf-8"))
+    rendered = sanitize_ddb_article_html(
+        """
+        <html>
+          <body>
+            <nav>nav chrome</nav>
+            <aside>aside chrome</aside>
+            <article class="ddb-article" onclick="alert('bad')">
+              <h1 id="AWorldofYourOwn">A World of Your Own</h1>
+              <p data-content-chunk-id="intro">This is <strong>safe</strong> text.</p>
+              <h2 id="TheBigPicture">The Big Picture</h2>
+              <p><a href="#TheBigPicture" title="anchor">Jump back</a></p>
+              <script>alert('remove me')</script>
+              <style>.bad { color: red; }</style>
+              <iframe src="https://example.com/evil"></iframe>
+              <object data="https://example.com/evil"></object>
+              <embed src="https://example.com/evil"></embed>
+              <form><input value="bad"><button>bad</button></form>
+            </article>
+          </body>
+        </html>
+        """
+    )
 
     assert "<article" in rendered
-    assert 'id="AdultRedDragon"' in rendered
+    assert "<strong>safe</strong>" in rendered
+    assert '<a href="#TheBigPicture" title="anchor">Jump back</a>' in rendered
+    assert 'id="AWorldofYourOwn"' in rendered
+    assert 'id="TheBigPicture"' in rendered
     assert 'data-content-chunk-id="intro"' in rendered
-    assert "site chrome" not in rendered
+    assert "nav chrome" not in rendered
+    assert "aside chrome" not in rendered
+    assert "<nav" not in rendered
+    assert "<aside" not in rendered
     assert "<script" not in rendered
+    assert "<style" not in rendered
+    assert "<iframe" not in rendered
+    assert "<object" not in rendered
+    assert "<embed" not in rendered
+    assert "<form" not in rendered
+    assert "<input" not in rendered
+    assert "<button" not in rendered
     assert "onclick" not in rendered
     assert "javascript:" not in rendered
-    assert "Multiattack" in rendered
+    assert "This is" in rendered
+    assert "safe" in rendered
 
 
 def test_jsonl_records_are_valid_and_include_required_metadata() -> None:
-    imported = parse_ddb_saved_html(SAVED_DDB_HTML)
-    jsonl = ddb_chunks_to_jsonl(imported.chunks, imported.metadata())
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    imported = parse_ddb_saved_html(fixture.read_bytes())
+    jsonl = ddb_chunks_to_jsonl(imported)
     records = [json.loads(line) for line in jsonl.splitlines()]
 
-    assert len(records) == 3
-    assert imported.chunks[0].id == "intro"
-    assert records[0]["source_type"] == "ddb_saved_html"
-    assert records[0]["book_title"] == "Monsters"
-    assert records[0]["document_title"] == "Adult Red Dragon"
-    assert records[0]["content_chunk_id"] == "intro"
-    assert records[0]["semantic_section"]["kind"] == "heading"
-    assert records[0]["semantic_section"]["heading"]["id"] == "AdultRedDragon"
-    assert records[0]["semantic_section"]["heading"]["level"] == 1
-    assert records[0]["semantic_section"]["path_text"] == ["Adult Red Dragon"]
-    assert "heading_level" not in records[0]
-    assert "heading_id" not in records[0]
-    assert "section_path" not in records[0]
-    assert "content_chunk_ids" not in records[0]
-    assert "source_content_ids" not in records[0]
-    assert records[0]["chunk_index"] == 0
-    assert records[0]["text"] == "Huge dragon, chaotic evil."
-    assert 'data-content-chunk-id="intro"' in records[0]["html"]
-    assert records[0]["citation"] == {
-        "label": "Adult Red Dragon",
-        "anchor": "#AdultRedDragon",
-        "source_url": imported.source_url,
-    }
-    assert records[0]["metadata"]["content_chunk_id"] == "intro"
-    assert records[0]["metadata"]["raw_sha256"] == imported.raw_sha256
-    assert "heading_level" not in records[0]["metadata"]
-    assert "heading_id" not in records[0]["metadata"]
-    assert "section_path" not in records[0]["metadata"]
-    assert "content_chunk_ids" not in records[0]["metadata"]
-    assert "source_content_ids" not in records[0]["metadata"]
+    assert len(records) == len(imported.chunks)
+    assert imported.chunks[0].id == "AWorldofYourOwn"
+    assert any(record["heading_id"] == "CoreAssumptions" for record in records)
+    assert all(record["source_type"] == "ddb_saved_html" for record in records)
+    assert all(record["book_title"] == "Dungeon Master’s Guide (2014)" for record in records)
+    assert all(record["document_title"] == "A World of Your Own" for record in records)
+    assert all(record["raw_sha256"] == imported.raw_sha256 for record in records)
+    assert all(record["raw_html_path"] is None for record in records)
+    assert all(record["rendered_html_path"] is None for record in records)
+    assert all(record["jsonl_path"] is None for record in records)
+    assert all(record["content_chunk_ids"] for record in records)
+    assert all(record["citation"]["label"] == record["heading"] for record in records)
+    assert all(record["citation"]["heading_id"] == record["heading_id"] for record in records)
+    assert all(record["citation"]["content_chunk_ids"] == record["content_chunk_ids"] for record in records)
+    assert all(record["citation"]["raw_sha256"] == imported.raw_sha256 for record in records)
+    assert all(record["citation"]["source_url"].endswith(f"#{record['heading_id']}") for record in records)
+    assert all(json.loads(json.dumps(record, ensure_ascii=False)) == record for record in records)
+
+    core_assumptions = next(record for record in records if record["heading_id"] == "CoreAssumptions")
+    assert core_assumptions["source_type"] == "ddb_saved_html"
+    assert core_assumptions["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
+    assert core_assumptions["citation"]["source_url"].endswith("#CoreAssumptions")
+    assert core_assumptions["content_chunk_ids"] == ["chunk-core-assumptions", "chunk-table"]
+    assert core_assumptions["text"]
+    assert core_assumptions["html"]
 
 
 def test_artifact_writer_writes_manifest_and_fails_loudly(tmp_path: Path) -> None:
-    imported = parse_ddb_saved_html(SAVED_DDB_HTML)
-    artifacts = write_ddb_artifacts(imported, tmp_path / "ddb")
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    fixture_bytes = fixture.read_bytes()
+    imported = parse_ddb_saved_html(fixture_bytes)
+    output_dir = tmp_path / f"{fixture.name}.artifacts"
+    artifacts = write_ddb_artifacts(imported, output_dir)
 
-    assert artifacts.raw_html_path.read_bytes() == SAVED_DDB_HTML
+    assert artifacts.raw_html_path.read_bytes() == fixture_bytes
     assert artifacts.rendered_html_path.read_text(encoding="utf-8") == imported.rendered_html
     manifest = json.loads(artifacts.manifest_path.read_text(encoding="utf-8"))
     assert manifest["raw_sha256"] == imported.raw_sha256
-    assert manifest["book_title"] == "Monsters"
-    assert manifest["document_title"] == "Adult Red Dragon"
+    assert manifest["raw_byte_size"] == len(fixture_bytes)
+    assert manifest["book_title"] == "Dungeon Master’s Guide (2014)"
+    assert manifest["document_title"] == "A World of Your Own"
+    assert manifest["original_filename"] == fixture.name
     assert manifest["raw_html_path"] == str(artifacts.raw_html_path)
     assert manifest["rendered_html_path"] == str(artifacts.rendered_html_path)
     assert manifest["jsonl_path"] == str(artifacts.jsonl_path)
@@ -214,13 +273,17 @@ def test_artifact_writer_writes_manifest_and_fails_loudly(tmp_path: Path) -> Non
     assert records[0]["raw_html_path"] == str(artifacts.raw_html_path)
     assert records[0]["rendered_html_path"] == str(artifacts.rendered_html_path)
     assert records[0]["jsonl_path"] == str(artifacts.jsonl_path)
-    assert records[0]["content_chunk_id"] == "intro"
-    assert records[0]["semantic_section"]["heading"]["id"] == "AdultRedDragon"
-    assert "heading_level" not in records[0]
-    assert "heading_id" not in records[0]
-    assert "section_path" not in records[0]
-    assert "content_chunk_ids" not in records[0]
-    assert "source_content_ids" not in records[0]
+    assert records[0]["metadata"]["original_filename"] == fixture.name
+    assert records[0]["content_chunk_id"] == "AWorldofYourOwn"
+    assert records[0]["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
+    assert records[0]["heading_level"] == 1
+    assert records[0]["heading_id"] == "AWorldofYourOwn"
+    assert records[0]["section_path"] == ["A World of Your Own"]
+    assert records[0]["content_chunk_ids"] == ["chunk-root", "chunk-intro"]
+    assert records[0]["citation"]["raw_html_path"] == str(artifacts.raw_html_path)
+    assert records[0]["citation"]["rendered_html_path"] == str(artifacts.rendered_html_path)
+    assert records[0]["citation"]["jsonl_path"] == str(artifacts.jsonl_path)
+    assert records[0]["citation"]["raw_sha256"] == imported.raw_sha256
 
     blocking_file = tmp_path / "not-a-directory"
     blocking_file.write_text("blocking", encoding="utf-8")

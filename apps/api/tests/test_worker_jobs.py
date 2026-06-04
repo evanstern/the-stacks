@@ -432,7 +432,7 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     metadata = json.loads(processed.metadata_json)
     assert metadata["parser"] == "ddb_saved_html"
     assert metadata["title"] == "A World of Your Own"
-    assert metadata["book_title"] == "Dungeon Master's Guide"
+    assert metadata["book_title"] == "Dungeon Master’s Guide (2014)"
     assert metadata["document_title"] == "A World of Your Own"
     artifact_dir = Path(str(tmp_path / "a-world-of-your-own-ddb.html") + ".artifacts")
     assert metadata["raw_html_path"] == str(artifact_dir / "raw.html")
@@ -442,27 +442,31 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert (artifact_dir / "rendered.html").is_file()
     jsonl_records = [json.loads(line) for line in (artifact_dir / "chunks.jsonl").read_text(encoding="utf-8").splitlines()]
     assert jsonl_records[0]["source_type"] == "ddb_saved_html"
-    assert jsonl_records[0]["book_title"] == "Dungeon Master's Guide"
+    assert jsonl_records[0]["book_title"] == "Dungeon Master’s Guide (2014)"
     assert jsonl_records[0]["document_title"] == "A World of Your Own"
-    assert jsonl_records[0]["content_chunk_id"] == "chunk-3"
-    assert jsonl_records[0]["semantic_section"]["heading"]["id"] == "TheBigPicture"
-    assert jsonl_records[0]["semantic_section"]["heading"]["level"] == 2
-    assert jsonl_records[0]["semantic_section"]["path_text"] == ["A World of Your Own", "The Big Picture"]
-    assert "heading_level" not in jsonl_records[0]
-    assert "heading_id" not in jsonl_records[0]
-    assert "section_path" not in jsonl_records[0]
-    assert "content_chunk_ids" not in jsonl_records[0]
-    assert "source_content_ids" not in jsonl_records[0]
+    assert jsonl_records[0]["content_chunk_id"] == "AWorldofYourOwn"
+    assert jsonl_records[0]["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
+    assert jsonl_records[0]["semantic_section"]["heading"]["level"] == 1
+    assert jsonl_records[0]["semantic_section"]["path_text"] == ["A World of Your Own"]
+    assert jsonl_records[0]["heading_level"] == 1
+    assert jsonl_records[0]["heading_id"] == "AWorldofYourOwn"
+    assert jsonl_records[0]["section_path"] == ["A World of Your Own"]
+    assert jsonl_records[0]["content_chunk_ids"] == ["chunk-root", "chunk-intro"]
     assert jsonl_records[0]["chunk_index"] == 0
     assert jsonl_records[0]["citation"] == {
-        "label": "The Big Picture",
-        "anchor": "#TheBigPicture",
-        "source_url": "https://www.dndbeyond.com/sources/dnd/synthetic/a-world-of-your-own",
+        "label": "A World of Your Own",
+        "source_url": "https://www.dndbeyond.com/sources/dnd/dmg-2014/a-world-of-your-own#AWorldofYourOwn",
+        "raw_html_path": str(artifact_dir / "raw.html"),
+        "rendered_html_path": str(artifact_dir / "rendered.html"),
+        "jsonl_path": str(artifact_dir / "chunks.jsonl"),
+        "raw_sha256": metadata["raw_sha256"],
+        "heading_id": "AWorldofYourOwn",
+        "content_chunk_ids": ["chunk-root", "chunk-intro"],
     }
-    assert 'data-content-chunk-id="chunk-3"' in jsonl_records[0]["html"]
+    assert 'data-content-chunk-id="chunk-root"' in jsonl_records[0]["html"]
     manifest = json.loads((artifact_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["parser"] == "ddb_saved_html"
-    assert manifest["book_title"] == "Dungeon Master's Guide"
+    assert manifest["book_title"] == "Dungeon Master’s Guide (2014)"
     assert manifest["document_title"] == "A World of Your Own"
     assert "heading_level" not in manifest
     assert "heading_id" not in manifest
@@ -476,20 +480,26 @@ def test_worker_persists_ddb_saved_html_chunk_metadata(db_session: Session, tmp_
     assert len(chunks) == 3
     chunk_metadata = [json.loads(chunk.metadata_json) for chunk in chunks]
     assert chunk_metadata[0]["source_type"] == "ddb_saved_html"
-    assert chunk_metadata[0]["book_title"] == "Dungeon Master's Guide"
+    assert chunk_metadata[0]["book_title"] == "Dungeon Master’s Guide (2014)"
     assert chunk_metadata[0]["document_title"] == "A World of Your Own"
     assert chunk_metadata[0]["raw_sha256"]
     assert chunk_metadata[0]["raw_html_path"] == str(artifact_dir / "raw.html")
-    assert chunk_metadata[0]["content_chunk_id"] == "chunk-3"
+    assert chunk_metadata[0]["content_chunk_id"] == "AWorldofYourOwn"
+    assert chunk_metadata[0]["heading_id"] == "AWorldofYourOwn"
+    assert chunk_metadata[0]["section_path"] == ["A World of Your Own"]
+    assert chunk_metadata[0]["content_chunk_ids"] == ["chunk-root", "chunk-intro"]
+    assert chunk_metadata[0]["citation_anchor"] == "#AWorldofYourOwn"
     assert chunk_metadata[0]["semantic_section"]["heading"]["id"] == "AWorldofYourOwn"
     assert chunk_metadata[1]["semantic_section"]["heading"]["id"] == "TheBigPicture"
     assert chunk_metadata[1]["semantic_section"]["path_text"] == ["A World of Your Own", "The Big Picture"]
     assert chunk_metadata[2]["semantic_section"]["heading"]["id"] == "CoreAssumptions"
-    assert "heading_level" not in chunk_metadata[1]
-    assert "heading_id" not in chunk_metadata[1]
-    assert "section_path" not in chunk_metadata[1]
-    assert "content_chunk_ids" not in chunk_metadata[1]
-    assert "source_content_ids" not in chunk_metadata[1]
+    assert chunk_metadata[1]["heading_id"] == "TheBigPicture"
+    assert chunk_metadata[1]["section_path"] == ["A World of Your Own", "The Big Picture"]
+    assert chunk_metadata[1]["content_chunk_ids"] == ["chunk-big-picture", "chunk-big-picture-body", "chunk-list"]
+    assert chunk_metadata[1]["citation_anchor"] == "#TheBigPicture"
+    assert chunk_metadata[2]["heading_id"] == "CoreAssumptions"
+    assert chunk_metadata[2]["section_path"] == ["A World of Your Own", "The Big Picture", "Core Assumptions"]
+    assert chunk_metadata[2]["content_chunk_ids"] == ["chunk-core-assumptions", "chunk-table"]
     assert chunk_metadata[2]["citation_anchor"] == "#CoreAssumptions"
 
 
@@ -676,6 +686,73 @@ def test_worker_indexes_archive_qdrant_payload_uses_semantic_section_path_text(d
     assert qdrant_payload["semantic_section"]["path_text"] == ["Archive heading"]
     assert "section_path" not in qdrant_payload
     assert qdrant_payload["source_url"] == "https://example.test/archive-source-qdrant-worker"
+
+
+def test_worker_processes_ddb_saved_html_after_upload_queueing(db_session: Session, tmp_path: Path) -> None:
+    from app.config import Settings, get_settings
+    from app.database import get_db
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "ddb" / "a-world-of-your-own-ddb.html"
+    content = fixture.read_bytes()
+
+    def override_db() -> Generator[Session, None, None]:
+        yield db_session
+
+    def override_settings() -> Settings:
+        return Settings(
+            ADMIN_PASSWORD_HASH=os.environ["ADMIN_PASSWORD_HASH"],
+            SESSION_SECRET=os.environ["SESSION_SECRET"],
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            UPLOAD_DIR=str(tmp_path / "uploads"),
+        )
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_settings] = override_settings
+    with TestClient(app) as client:
+        assert client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        response = client.post("/uploads", files={"file": ("a-world-of-your-own-ddb.html", content, "text/html")})
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 201
+    payload = response.json()
+    upload = db_session.get(Upload, payload["upload_id"])
+    job = db_session.get(IngestionJob, payload["job_id"])
+    assert upload is not None
+    assert job is not None
+    assert upload.extension == ".html"
+    assert upload.original_filename == "a-world-of-your-own-ddb.html"
+    assert Path(upload.stored_path).read_bytes() == content
+    assert job.status == "queued"
+
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False)
+
+    assert processed is not None
+    assert processed.status == "awaiting_embedding"
+    metadata = json.loads(processed.metadata_json)
+    assert metadata["parser"] == "ddb_saved_html"
+    assert metadata["title"] == "A World of Your Own"
+    assert metadata["book_title"] == "Dungeon Master’s Guide (2014)"
+    assert metadata["document_title"] == "A World of Your Own"
+    artifact_dir = Path(str(upload.stored_path) + ".artifacts")
+    assert metadata["raw_html_path"] == str(artifact_dir / "raw.html")
+    assert metadata["rendered_html_path"] == str(artifact_dir / "rendered.html")
+    assert metadata["jsonl_path"] == str(artifact_dir / "chunks.jsonl")
+    assert (artifact_dir / "raw.html").read_bytes() == content
+    assert (artifact_dir / "rendered.html").is_file()
+
+    chunks = db_session.scalars(
+        select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)
+    ).all()
+    assert len(chunks) == 3
+    first_chunk_metadata = json.loads(chunks[0].metadata_json)
+    assert first_chunk_metadata["source_type"] == "ddb_saved_html"
+    assert first_chunk_metadata["raw_html_path"] == str(artifact_dir / "raw.html")
+    assert first_chunk_metadata["citation_anchor"] == "#AWorldofYourOwn"
+
+    events = _event_types(db_session, job.id)
+    assert events[:4] == ["queued", "processing", "parsing_started", "parsing_completed"]
 
 
 def test_job_status_upload_view_url(db_session: Session, tmp_path: Path) -> None:
