@@ -2,10 +2,10 @@ CORPUS_VERSION ?= default-corpus
 CORPUS_IDENTITY_MANIFEST ?= apps/api/corpus/default-dndbeyond-corpus.json
 CORPUS_MANIFEST ?= ../.omo/corpus/default-dndbeyond-corpus.lock.json
 ARCHIVE_ROOT ?= /data/uploads/sourcebooks
-CORPUS_PYTHON ?= $(shell if [ -x .venv/bin/python ]; then printf '%s' '.venv/bin/python'; else printf '%s' 'python'; fi)
+CORPUS_PYTHON ?= $(shell if [ -x .venv/bin/python ]; then printf '%s' '.venv/bin/python'; elif command -v python3 >/dev/null 2>&1; then printf '%s' 'python3'; else printf '%s' 'python'; fi)
 CORPUS_CLI = PYTHONPATH=apps/api $(CORPUS_PYTHON) -m app.cli.corpus_seed
 
-.PHONY: compose-config up down test smoke smoke-public corpus-preflight corpus-lock corpus-seed-dry-run corpus-seed corpus-reset-dry-run corpus-reset-confirm corpus-verify
+.PHONY: compose-config up down test smoke smoke-public etl-live-smoke corpus-preflight corpus-lock corpus-seed-dry-run corpus-seed corpus-reset-dry-run corpus-reset-confirm corpus-verify
 
 compose-config:
 	docker compose config
@@ -20,7 +20,7 @@ test:
 	@if command -v pytest >/dev/null 2>&1; then \
 		pytest apps/api/tests; \
 	else \
-		docker compose run --rm api pytest tests; \
+		docker compose run --rm --no-deps -T -v "$${PWD}:/workspace" -w /workspace api pytest apps/api/tests; \
 	fi
 
 smoke:
@@ -28,6 +28,16 @@ smoke:
 
 smoke-public:
 	./scripts/smoke-public.sh
+
+etl-live-smoke:
+	docker compose up -d --wait postgres qdrant
+	docker compose run --rm -T --build \
+		-e PYTHONPATH=/app \
+		-e DATABASE_URL=postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks \
+		-e QDRANT_URL=http://qdrant:6333 \
+		-e QDRANT_COLLECTION=$${QDRANT_COLLECTION:-etl_live_smoke_chunks} \
+		-v "$${PWD}/scripts:/app/scripts:ro" \
+		api python scripts/etl_live_smoke.py
 
 corpus-preflight:
 	$(CORPUS_CLI) preflight

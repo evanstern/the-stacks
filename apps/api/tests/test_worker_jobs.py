@@ -3,7 +3,7 @@ import importlib.util
 import io
 import os
 import zipfile
-from collections.abc import Generator
+from collections.abc import Generator, Mapping
 from pathlib import Path
 from textwrap import dedent
 from typing import cast
@@ -11,6 +11,7 @@ from typing import cast
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -19,6 +20,17 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 from app.config import Settings, get_settings
 from app.database import Base
 from app.database import get_db
+from app.etl.contracts import (
+    NormalizedDocument,
+    NormalizedSection,
+    PluginFailure,
+    PluginFailureCategory,
+    PluginMetadata,
+    PluginResult,
+    SourcePlugin,
+    TransformerPlugin,
+)
+from app.etl.load_services import PostgresLoadResult, PostgresLoadService
 from app.ingestion import add_event, claim_next_job, process_claimed_job, process_next_job, process_next_queued_job
 from app.main import app
 from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, UploadBatch, utcnow
@@ -28,6 +40,60 @@ from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 class FailingQdrantIndexer(FakeQdrantIndexer):
     def upsert_points(self, points: object) -> None:
         raise RuntimeError("qdrant unavailable at /srv/the-stacks/private/collection")
+
+
+class FailingPostgresLoadService(PostgresLoadService):
+    def persist_document(self, *args: object, **kwargs: object) -> PostgresLoadResult:
+        raise SQLAlchemyError("postgres write failed")
+
+
+class RunnerSuccessPlugin(SourcePlugin):
+    metadata: PluginMetadata = PluginMetadata(name="runner_success", version="1.0.0", source_types=("runner",))
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[Path, dict[str, object]]] = []
+
+    def extract(self, source_path: Path, source_metadata: Mapping[str, object] | None = None) -> PluginResult:
+        metadata = dict(source_metadata or {})
+        self.calls.append((source_path, metadata))
+        return PluginResult(
+            document=NormalizedDocument(
+                source_type="runner",
+                parser="runner_success",
+                title="Runner title",
+                sections=(NormalizedSection(text="Runner plugin text.", heading="Runner heading"),),
+            )
+        )
+
+
+class TypedFailurePlugin(SourcePlugin):
+    metadata: PluginMetadata = PluginMetadata(name="typed_failure", version="1.0.0", source_types=("runner",))
+
+    def extract(self, source_path: Path, source_metadata: Mapping[str, object] | None = None) -> PluginResult:
+        del source_path, source_metadata
+        return PluginResult(
+            failure=PluginFailure(
+                category=PluginFailureCategory.PARSE_ERROR,
+                message="Typed plugin says no",
+                diagnostics={"private_path": "/srv/private/plugin.log"},
+            )
+        )
+
+
+class RaisingPlugin(SourcePlugin):
+    metadata: PluginMetadata = PluginMetadata(name="raising_plugin", version="1.0.0", source_types=("runner",))
+
+    def extract(self, source_path: Path, source_metadata: Mapping[str, object] | None = None) -> PluginResult:
+        del source_path, source_metadata
+        raise RuntimeError("plugin exploded at /srv/private/plugin.py")
+
+
+class EmptyTransformer(TransformerPlugin):
+    metadata: PluginMetadata = PluginMetadata(name="empty_transformer", version="1.0.0", source_types=("runner",))
+
+    def transform(self, document: NormalizedDocument) -> NormalizedDocument:
+        del document
+        return NormalizedDocument(source_type="runner", parser="empty_transformer", sections=(NormalizedSection(text="   "),))
 
 
 @pytest.fixture()
@@ -116,6 +182,109 @@ def test_process_next_queued_job_stops_after_chunking_without_embedding(db_sessi
         "chunking_completed",
         "awaiting_embedding",
     ]
+
+
+def test_direct_sequential_runner_plugin_success_uses_host_load_services(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "runner.md", "ignored by fake plugin")
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    plugin = RunnerSuccessPlugin()
+
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False, source_plugin=plugin)
+
+    assert processed.status == "awaiting_embedding"
+    assert plugin.calls == [(tmp_path / "runner.md", {})]
+    metadata = json.loads(processed.metadata_json)
+    assert metadata["parser"] == "runner_success"
+    assert metadata["title"] == "Runner title"
+    chunks = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all()
+    assert len(chunks) == 1
+    assert chunks[0].content == "Runner plugin text."
+    assert db_session.scalars(select(Source)).one().source_type == "runner"
+    assert _event_types(db_session, job.id) == [
+        "queued",
+        "processing",
+        "parsing_started",
+        "parsing_completed",
+        "chunking_started",
+        "chunking_completed",
+        "awaiting_embedding",
+    ]
+
+
+def test_direct_sequential_runner_typed_plugin_failure_marks_job_failed(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "typed.md", "ignored")
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False, source_plugin=TypedFailurePlugin())
+
+    assert processed.status == "failed"
+    assert processed.error_summary == "Import plugin failed. Review the file and try again."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["filename"] == "typed.md"
+    assert failure["category"] == "plugin_error"
+    assert failure["message"] == processed.error_summary
+    assert "Typed plugin says no" in failure["diagnostics"]["summary"]
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all() == []
+    assert _event_types(db_session, job.id) == ["queued", "processing", "job_failed"]
+
+
+def test_direct_sequential_runner_unexpected_plugin_exception_is_sanitized(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "raising.md", "ignored")
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+
+    processed = process_claimed_job(db_session, claimed.id, continue_to_index=False, source_plugin=RaisingPlugin())
+
+    assert processed.status == "failed"
+    assert processed.error_summary == "Import failed. Review the file and try again."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["category"] == "unknown_error"
+    assert failure["message"] == processed.error_summary
+    assert "plugin exploded" in failure["diagnostics"]["summary"]
+    public_text = json.dumps({"error_summary": processed.error_summary, "message": failure["message"]})
+    assert "plugin exploded" not in public_text
+    assert "/srv/private" not in public_text
+    assert _event_types(db_session, job.id) == ["queued", "processing", "job_failed"]
+
+
+def test_direct_sequential_runner_empty_transform_output_fails_before_load(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "empty-transform.md", "ignored")
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+
+    processed = process_claimed_job(
+        db_session,
+        claimed.id,
+        continue_to_index=False,
+        source_plugin=RunnerSuccessPlugin(),
+        transformers=(EmptyTransformer(),),
+    )
+
+    assert processed.status == "failed"
+    assert processed.error_summary == "Import plugin failed. Review the file and try again."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["category"] == "plugin_error"
+    assert "Transformer produced no sections" in failure["diagnostics"]["summary"]
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all() == []
+    assert _event_types(db_session, job.id) == ["queued", "processing", "job_failed"]
+
+
+def test_direct_sequential_runner_failure_propagates_to_job_status(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "propagate.md", "ignored")
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(dimensions=3),
+        qdrant_indexer=FakeQdrantIndexer(),
+        source_plugin=TypedFailurePlugin(),
+    )
+
+    assert processed is not None
+    assert processed.id == job.id
+    assert processed.status == "failed"
+    assert processed.error_summary == "Import plugin failed. Review the file and try again."
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all() == []
 
 
 def test_worker_entrypoint_uses_full_drain_helper(db_session: Session, tmp_path: Path) -> None:
@@ -347,6 +516,49 @@ def test_worker_categorizes_indexing_failure_without_public_diagnostics(db_sessi
     public_text = json.dumps({"error_summary": processed.error_summary, "category": failure["category"], "message": failure["message"]})
     assert "qdrant unavailable" not in public_text
     assert "/srv/the-stacks/private" not in public_text
+
+
+def test_postgres_load_failure_prevents_embedding_and_qdrant_load(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "persist-me.md", "# Persist me\nThis should not reach embeddings.")
+    claimed = claim_next_job(db_session)
+    assert claimed is not None
+    embeddings = FakeEmbeddingClient(dimensions=3)
+    qdrant = FakeQdrantIndexer()
+
+    processed = process_claimed_job(
+        db_session,
+        claimed.id,
+        embedding_client=embeddings,
+        qdrant_indexer=qdrant,
+        postgres_load_service=FailingPostgresLoadService(),
+    )
+
+    assert processed.status == "failed"
+    assert processed.error_summary == "The import could not be saved. Try again later."
+    failure = json.loads(processed.metadata_json)["failure"]
+    assert failure["category"] == "database_error"
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all() == []
+    assert embeddings.requests == []
+    assert qdrant.ensured_dimensions == []
+    assert qdrant.points == []
+    assert _event_types(db_session, job.id) == ["queued", "processing", "job_failed"]
+
+
+def test_qdrant_failure_after_postgres_load_preserves_terminal_failure_semantics(db_session: Session, tmp_path: Path) -> None:
+    job = _create_upload_and_job(db_session, tmp_path, "index-me.md", "# Index me\nThis reaches PostgreSQL before Qdrant fails.")
+
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(dimensions=3),
+        qdrant_indexer=FailingQdrantIndexer(),
+    )
+
+    assert processed is not None
+    assert processed.status == "failed"
+    assert processed.error_summary == "Search indexing failed. Try again later."
+    assert db_session.scalars(select(Source).where(Source.upload_id == processed.upload_id)).all()
+    assert db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id)).all()
+    assert _event_types(db_session, job.id)[-1] == "job_failed"
 
 
 def test_job_detail_redacts_private_failure_diagnostics(db_session: Session, tmp_path: Path) -> None:
@@ -807,8 +1019,9 @@ def test_worker_processes_zip_wrapped_ddb_saved_html_as_archived_webpage(db_sess
         "archive_served_entry_path": "A World of Your Own/page.html",
         "archive_served_html_path": "A World of Your Own/page.html",
         "archive_anchor_map_path": "anchor-map.json",
-        "source_url": archive.manifest["source_url"],
     }
+    if archive.manifest.get("source_url"):
+        job_metadata["source_url"] = archive.manifest["source_url"]
     job = IngestionJob(
         upload_id=upload.id,
         status="queued",
@@ -833,7 +1046,7 @@ def test_worker_processes_zip_wrapped_ddb_saved_html_as_archived_webpage(db_sess
     assert source is not None
     assert source.source_type == "archived_webpage"
     chunks = db_session.scalars(select(DocumentChunk).where(DocumentChunk.ingestion_job_id == job.id).order_by(DocumentChunk.chunk_index)).all()
-    assert len(chunks) == 3
+    assert len(chunks) == 5
     first_chunk_metadata = json.loads(chunks[0].metadata_json)
     assert first_chunk_metadata["parser"] == "archived_webpage"
     assert first_chunk_metadata["archive_source_id"] == source_id

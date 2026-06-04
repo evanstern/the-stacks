@@ -10,6 +10,7 @@ The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` i
 - Treat `.omo/plans/`, `.omo/notepads/`, and `.omo/evidence/` as part of the workflow; keep them intact and follow the active plan.
 - Keep `.omo/` at the repo root beside the worktrees. Do not move it into `.bare/` or treat `.bare/` as a place for tracked project docs.
 - Avoid editing generated output, backups, and recovery artifacts unless the task explicitly requires it.
+- Keep the ETL wiki under `main/docs/wiki/` current, and add new durable notes there instead of scattering them through ad hoc docs.
 
 ## Where the app lives
 
@@ -17,6 +18,7 @@ The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` i
 - Stack entrypoint and local runbook: `main/`
 - If a task needs app code, work in `main/` subpaths, not the repository root.
 - If you are inside `main/`, remember that you are in a worktree, not in the shared Git plumbing under `.bare/`.
+- For ETL refactor context, start at `docs/wiki/Home.md` and follow the linked notes before making changes.
 
 ## Local verification
 

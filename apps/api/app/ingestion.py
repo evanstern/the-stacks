@@ -2,14 +2,13 @@ import html
 import json
 import re
 import io
-import hashlib
 import traceback
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import cast
-from uuid import NAMESPACE_URL, uuid4, uuid5
+from typing import override, cast
+from uuid import NAMESPACE_URL, uuid5
 import zipfile
 
 from sqlalchemy import select
@@ -17,9 +16,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
-from app.ddb_import import DDB_PARSER, is_ddb_saved_html, parse_ddb_saved_html, write_ddb_artifacts
+from app.ddb_import import DDB_PARSER, is_ddb_saved_html, parse_ddb_saved_html
 from app.embeddings import EmbeddingClient, get_embedding_client
-from app.models import Document, DocumentChunk, IndexedChunk, IngestionEvent, IngestionJob, Section, Source, Upload, utcnow
+from app.etl.contracts import (
+    ArchiveLocator,
+    NormalizedDocument,
+    NormalizedSection,
+    PluginMetadata,
+    PluginResult,
+    SourcePlugin,
+    TransformerPlugin,
+    normalize_metadata,
+)
+from app.etl.load_services import DdbArtifactLoadService, PostgresLoadService, QdrantLoadService
+from app.etl.runner import DirectSequentialEtlRunner, EtlEmptyOutputError, EtlPluginFailure, EtlPluginUnexpectedError
+from app.models import DocumentChunk, IngestionEvent, IngestionJob, Upload, utcnow
 from app.qdrant_index import QdrantIndexer, QdrantIndexError, QdrantPoint, get_qdrant_indexer
 
 
@@ -36,6 +47,7 @@ FAILURE_CATEGORIES = {
     "storage_error",
     "database_error",
     "qdrant_index_error",
+    "plugin_error",
     "worker_timeout",
     "unknown_error",
 }
@@ -50,6 +62,18 @@ class DdbParserError(ParserError):
 
 
 class StorageParserError(ParserError):
+    pass
+
+
+class PluginRunnerError(ParserError):
+    pass
+
+
+class PluginOutputError(ParserError):
+    pass
+
+
+class UnexpectedPluginError(ParserError):
     pass
 
 
@@ -259,7 +283,12 @@ def _semantic_section_for_chunk(section: ParsedSection, existing_ids: set[str]) 
     return _semantic_section_heading_from_stack(heading_text, 1, heading_id, [])
 
 
-def parse_document(path: Path, extension: str, metadata: dict[str, object] | None = None) -> ParsedDocument:
+def parse_document(
+    path: Path,
+    extension: str,
+    metadata: dict[str, object] | None = None,
+    artifact_load_service: DdbArtifactLoadService | None = None,
+) -> ParsedDocument:
     extension = extension.lower()
     if extension not in SUPPORTED_PARSE_EXTENSIONS:
         raise ParserError(f"No parser is available for {extension or 'unknown'} files yet")
@@ -281,7 +310,7 @@ def parse_document(path: Path, extension: str, metadata: dict[str, object] | Non
         if (metadata or {}).get("source_type") == "archived_webpage":
             return _parse_archived_webpage_html(raw_text, metadata or {})
         if is_ddb_saved_html(raw_text):
-            return _parse_ddb_html(path, raw_text, raw_bytes)
+            return _parse_ddb_html(path, raw_text, raw_bytes, artifact_load_service or DdbArtifactLoadService())
         return _parse_html(raw_text)
     return _parse_text(raw_text)
 
@@ -312,6 +341,127 @@ def chunk_document(document: ParsedDocument, upload: Upload, job: IngestionJob) 
             _merge_chunk_metadata(metadata, section.metadata)
             chunks.append(Chunk(content=content, metadata=metadata))
     return chunks
+
+
+class _LegacyParserPlugin(SourcePlugin):
+    metadata: PluginMetadata = PluginMetadata(
+        name="legacy_ingestion_parser",
+        version="1.0.0",
+        source_types=("legacy",),
+        description="Host-owned adapter around the existing ingestion parsers.",
+    )
+
+    def __init__(self, *, extension: str, artifact_load_service: DdbArtifactLoadService | None = None) -> None:
+        self.extension = extension
+        self.artifact_load_service = artifact_load_service
+
+    @override
+    def extract(self, source_path: Path, source_metadata: Mapping[str, object] | None = None) -> PluginResult:
+        parsed = parse_document(source_path, self.extension, dict(source_metadata or {}), self.artifact_load_service)
+        source_type = str((source_metadata or {}).get("source_type") or parsed.metadata.get("source_type") or parsed.parser)
+        document = _normalized_document_from_parsed(parsed, source_type=source_type)
+        return PluginResult(document=document, warnings=tuple(parsed.warnings))
+
+
+def _sequential_runner(
+    upload: Upload,
+    job_metadata: dict[str, object],
+    artifact_load_service: DdbArtifactLoadService | None,
+    postgres_load_service: PostgresLoadService | None,
+    source_plugin: SourcePlugin | None,
+    transformers: Sequence[TransformerPlugin],
+) -> DirectSequentialEtlRunner[ParsedDocument, Chunk]:
+    del job_metadata
+    passthrough_exception_types: tuple[type[BaseException], ...] = ()
+    if source_plugin is None:
+        passthrough_exception_types = (ParserError, OSError, SQLAlchemyError)
+    extractor = source_plugin or _LegacyParserPlugin(extension=upload.extension, artifact_load_service=artifact_load_service)
+    return DirectSequentialEtlRunner(
+        extractor=extractor,
+        transformers=transformers,
+        document_adapter=_parsed_document_from_normalized,
+        chunker=chunk_document,
+        postgres_load_service=postgres_load_service,
+        passthrough_exception_types=passthrough_exception_types,
+    )
+
+
+def _normalized_document_from_parsed(parsed: ParsedDocument, *, source_type: str | None = None) -> NormalizedDocument:
+    metadata = normalize_metadata(parsed.metadata)
+    normalized_source_type = source_type or str(metadata.get("source_type") or parsed.parser)
+    return NormalizedDocument(
+        source_type=normalized_source_type,
+        parser=parsed.parser,
+        title=parsed.title,
+        sections=tuple(_normalized_section_from_parsed(section) for section in parsed.sections),
+        warnings=tuple(parsed.warnings),
+        metadata=metadata,
+    )
+
+
+def _parsed_document_from_normalized(document: NormalizedDocument) -> ParsedDocument:
+    metadata: dict[str, object] = dict(normalize_metadata(document.metadata))
+    return ParsedDocument(
+        parser=document.parser,
+        title=document.title,
+        sections=[_parsed_section_from_normalized(section) for section in document.sections],
+        warnings=list(document.warnings),
+        metadata=metadata,
+    )
+
+
+def _normalized_section_from_parsed(section: ParsedSection) -> NormalizedSection:
+    metadata = normalize_metadata(section.metadata)
+    return NormalizedSection(
+        heading=section.heading,
+        text=section.text,
+        start_char=section.start_char,
+        end_char=section.end_char,
+        metadata=metadata,
+        archive_locator=_archive_locator_from_metadata(metadata),
+    )
+
+
+def _parsed_section_from_normalized(section: NormalizedSection) -> ParsedSection:
+    metadata: dict[str, object] = dict(normalize_metadata(section.metadata))
+    if section.archive_locator is not None:
+        metadata = {**metadata, **section.archive_locator.metadata()}
+    return ParsedSection(
+        heading=section.heading,
+        text=section.text,
+        start_char=section.start_char,
+        end_char=int(section.end_char or section.start_char + len(section.text)),
+        metadata=metadata,
+    )
+
+
+def _archive_locator_from_metadata(metadata: Mapping[str, object]) -> ArchiveLocator | None:
+    if metadata.get("source_type") != "archived_webpage":
+        return None
+    archive_source_id = str(metadata.get("archive_source_id") or "")
+    archive_entry_path = str(metadata.get("archive_entry_path") or "")
+    if not archive_source_id or not archive_entry_path:
+        return None
+    semantic_section = metadata.get("semantic_section")
+    semantic_section_metadata = normalize_metadata(cast(Mapping[str, object], semantic_section)) if isinstance(semantic_section, Mapping) else {}
+    return ArchiveLocator(
+        archive_source_id=archive_source_id,
+        archive_entry_path=archive_entry_path,
+        archive_served_entry_path=_optional_str(metadata.get("archive_served_entry_path")),
+        archive_manifest_path=_optional_str(metadata.get("archive_manifest_path")),
+        target_chunk_id=_optional_str(metadata.get("target_chunk_id")),
+        target_selector=_optional_str(metadata.get("target_selector")),
+        viewer_fragment=_optional_str(metadata.get("viewer_fragment")),
+        quote=_optional_str(metadata.get("quote")),
+        source_url=_optional_str(metadata.get("source_url")),
+        semantic_section=semantic_section_metadata,
+    )
+
+
+def _optional_str(value: object) -> str | None:
+    if value in (None, ""):
+        return None
+    return str(value)
 
 
 def claim_next_job(db: Session) -> IngestionJob | None:
@@ -348,10 +498,20 @@ def process_next_job(
     embedding_client: EmbeddingClient | None = None,
     qdrant_indexer: QdrantIndexer | None = None,
     settings: Settings | None = None,
+    source_plugin: SourcePlugin | None = None,
+    transformers: Sequence[TransformerPlugin] = (),
 ) -> IngestionJob | None:
     job = claim_next_job(db)
     if job is not None:
-        return process_claimed_job(db, job.id, embedding_client, qdrant_indexer, settings)
+        return process_claimed_job(
+            db,
+            job.id,
+            embedding_client,
+            qdrant_indexer,
+            settings,
+            source_plugin=source_plugin,
+            transformers=transformers,
+        )
 
     embedding_job = claim_next_awaiting_embedding_job(db)
     if embedding_job is None:
@@ -380,6 +540,10 @@ def process_claimed_job(
     qdrant_indexer: QdrantIndexer | None = None,
     settings: Settings | None = None,
     continue_to_index: bool = True,
+    postgres_load_service: PostgresLoadService | None = None,
+    artifact_load_service: DdbArtifactLoadService | None = None,
+    source_plugin: SourcePlugin | None = None,
+    transformers: Sequence[TransformerPlugin] = (),
 ) -> IngestionJob:
     job = db.get(IngestionJob, job_id)
     if job is None:
@@ -393,7 +557,28 @@ def process_claimed_job(
     try:
         job_metadata = _loads_json(job.metadata_json)
         add_event(db, job, "parsing_started", "Parsing uploaded source", {"extension": upload.extension})
-        document = parse_document(Path(upload.stored_path), upload.extension, job_metadata)
+        runner = _sequential_runner(upload, job_metadata, artifact_load_service, postgres_load_service, source_plugin, transformers)
+        try:
+            runner_state = runner.run(
+                db,
+                job=job,
+                upload=upload,
+                source_path=Path(upload.stored_path),
+                source_metadata=job_metadata,
+            )
+        except EtlPluginFailure as exc:
+            raise PluginRunnerError(exc.failure.message) from exc
+        except EtlPluginUnexpectedError as exc:
+            raise UnexpectedPluginError(str(exc)) from exc
+        except EtlEmptyOutputError as exc:
+            raise PluginOutputError(str(exc)) from exc
+
+        document = runner_state.parsed_document
+        if document is None:
+            raise PluginOutputError("ETL runner produced no parsed document")
+        chunks = list(runner_state.chunks)
+        if not chunks:
+            raise PluginOutputError("ETL runner produced no chunks")
         add_event(
             db,
             job,
@@ -413,87 +598,6 @@ def process_claimed_job(
         job.updated_at = utcnow()
         add_event(db, job, "chunking_started", "Chunking parsed content", {"status": "chunking"})
         db.flush()
-
-        chunks = chunk_document(document, upload, job)
-        if not chunks:
-            raise ParserError("Parsed document did not contain chunkable text")
-
-        source = Source(
-            id=str(job_metadata.get("source_id") or uuid4()),
-            upload_id=upload.id,
-            title=document.title or upload.original_filename,
-            source_type=str(job_metadata.get("source_type") or upload.extension.lstrip(".") or "unknown"),
-            filename=upload.original_filename,
-            metadata_json=_to_json(
-                _merged_metadata(
-                    _merged_metadata(document.metadata, **job_metadata),
-                    content_type=upload.content_type,
-                    sha256=upload.sha256,
-                    parser=document.parser,
-                    parser_warnings=document.warnings,
-                )
-            ),
-            chunk_count=len(chunks),
-            created_at=utcnow(),
-            updated_at=utcnow(),
-        )
-        db.add(source)
-        db.flush()
-
-        canonical_document = Document(
-            source_id=source.id,
-            title=document.title or upload.original_filename,
-            ordinal=0,
-            metadata_json=_to_json(
-                _merged_metadata(document.metadata, parser=document.parser, section_count=len(document.sections))
-            ),
-            created_at=utcnow(),
-        )
-        db.add(canonical_document)
-        db.flush()
-
-        section_ids_by_heading: dict[str | None, str] = {}
-        for ordinal, section in enumerate(document.sections):
-            heading_key = section.heading
-            if heading_key in section_ids_by_heading:
-                continue
-            canonical_section = Section(
-                document_id=canonical_document.id,
-                heading_path=section.heading,
-                ordinal=ordinal,
-                metadata_json=_to_json(
-                    _merged_metadata(section.metadata, start_char=section.start_char, end_char=section.end_char)
-                ),
-                created_at=utcnow(),
-            )
-            db.add(canonical_section)
-            db.flush()
-            section_ids_by_heading[heading_key] = canonical_section.id
-
-        for index, chunk in enumerate(chunks):
-            metadata = dict(chunk.metadata)
-            metadata["chunk_index"] = index
-            section_heading = metadata.get("section_heading")
-            if not isinstance(section_heading, str):
-                section_heading = None
-            section_id = section_ids_by_heading.get(section_heading)
-            if section_id is None:
-                section_id = next(iter(section_ids_by_heading.values()))
-            db.add(
-                DocumentChunk(
-                    upload_id=upload.id,
-                    ingestion_job_id=job.id,
-                    source_id=source.id,
-                    document_id=canonical_document.id,
-                    section_id=section_id,
-                    chunk_index=index,
-                    content=chunk.content,
-                    content_hash=hashlib.sha256(chunk.content.encode()).hexdigest(),
-                    token_count=_metadata_int(metadata.get("token_count_estimate"), len(chunk.content.split())),
-                    metadata_json=_to_json(metadata),
-                    created_at=utcnow(),
-                )
-            )
 
         job.status = "awaiting_embedding"
         job.metadata_json = _to_json(
@@ -594,6 +698,12 @@ def _failure_category(error_summary: str, exc: BaseException | None) -> str:
         return "worker_timeout"
     if any(isinstance(item, QdrantIndexError) for item in chain) or "qdrant" in lower_summary:
         return "qdrant_index_error"
+    if any(isinstance(item, PluginRunnerError) for item in chain):
+        return "plugin_error"
+    if any(isinstance(item, PluginOutputError) for item in chain) or "etl runner produced no" in lower_summary or "produced no sections" in lower_summary:
+        return "plugin_error"
+    if any(isinstance(item, UnexpectedPluginError) for item in chain):
+        return "unknown_error"
     if any(isinstance(item, DdbParserError) for item in chain) or "ddb saved html" in lower_summary or "d&d beyond" in lower_summary:
         return "ddb_parse_error"
     if any(isinstance(item, zipfile.BadZipFile) for item in chain) or "not a valid zip" in lower_summary or "valid epub archive" in lower_summary:
@@ -623,6 +733,7 @@ def _safe_failure_message(category: str, error_summary: str) -> str:
         "storage_error": "Uploaded file storage could not be read or written. Try again later.",
         "database_error": "The import could not be saved. Try again later.",
         "qdrant_index_error": "Search indexing failed. Try again later.",
+        "plugin_error": "Import plugin failed. Review the file and try again.",
         "worker_timeout": "The import worker timed out. Try again later.",
         "unknown_error": "Import failed. Review the file and try again.",
     }
@@ -725,14 +836,20 @@ def _embed_and_index_job(
         add_event(db, job, "indexing_started", "Indexing chunks in Qdrant", {"status": "indexing"})
         db.commit()
 
-        qdrant_indexer.ensure_collection(embeddings.dimensions)
         points = _qdrant_points(chunks, embeddings.vectors, embeddings.model, embeddings.dimensions)
-        qdrant_indexer.upsert_points(points)
 
         job = db.get(IngestionJob, job_id)
         if job is None:
             raise ParserError(f"Embedding job {job_id} disappeared")
-        _record_indexed_chunks(db, job, chunks, points, qdrant_indexer.collection, embeddings.model, embeddings.dimensions)
+        QdrantLoadService().persist_index(
+            db,
+            job=job,
+            chunks=chunks,
+            points=points,
+            indexer=qdrant_indexer,
+            embedding_dimensions=embeddings.dimensions,
+            embedding_model=embeddings.model,
+        )
         job.status = "completed"
         job.updated_at = utcnow()
         job.metadata_json = _merge_json(
@@ -813,30 +930,6 @@ def _archive_locator_metadata(metadata: dict[str, object]) -> dict[str, object]:
         for key in ARCHIVE_LOCATOR_METADATA_KEYS
         if key in metadata and metadata[key] not in (None, "", [])
     }
-
-
-def _record_indexed_chunks(
-    db: Session,
-    job: IngestionJob,
-    chunks: Sequence[DocumentChunk],
-    points: Sequence[QdrantPoint],
-    collection: str,
-    embedding_model: str,
-    embedding_dimensions: int,
-) -> None:
-    for chunk, point in zip(chunks, points, strict=True):
-        db.add(
-            IndexedChunk(
-                upload_id=chunk.upload_id,
-                ingestion_job_id=job.id,
-                document_chunk_id=chunk.id,
-                qdrant_collection=collection,
-                qdrant_point_id=point.id,
-                embedding_model=embedding_model,
-                embedding_dimensions=embedding_dimensions,
-                created_at=utcnow(),
-            )
-        )
 
 
 def _merge_json(existing: str, updates: dict[str, object]) -> str:
@@ -1019,10 +1112,10 @@ def _semantic_section_from_heading_path(heading_path: list[object]) -> dict[str,
     return semantic_section
 
 
-def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes) -> ParsedDocument:
+def _parse_ddb_html(path: Path, text: str, raw_bytes: bytes, artifact_load_service: DdbArtifactLoadService) -> ParsedDocument:
     try:
         document = parse_ddb_saved_html(text, raw_bytes)
-        write_ddb_artifacts(document, Path(f"{path}.artifacts"))
+        artifact_load_service.persist_artifacts(document, path)
     except ValueError as exc:
         raise DdbParserError(str(exc)) from exc
     except OSError as exc:
@@ -1123,17 +1216,6 @@ def _merge_chunk_metadata(metadata: dict[str, object], extra: dict[str, object])
     for key, value in extra.items():
         if key not in protected_keys and value is not None:
             metadata[key] = value
-
-
-def _metadata_int(value: object, default: int) -> int:
-    if isinstance(value, int):
-        return value
-    if isinstance(value, str):
-        try:
-            return int(value)
-        except ValueError:
-            return default
-    return default
 
 
 def _merged_metadata(base: dict[str, object], **protected: object) -> dict[str, object]:

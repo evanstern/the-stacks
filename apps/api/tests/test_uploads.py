@@ -624,18 +624,21 @@ def test_upload_valid_webpage_archive_stores_immutable_source_archive(
 
     job_metadata = json.loads(job.metadata_json)
     source_id = job_metadata["source_id"]
+    archive_root = tmp_path / "uploads" / "source-archives" / source_id
     assert job_metadata == {
         "archive_anchor_map_path": "anchor-map.json",
         "archive_entry_path": "page.html",
+        "archive_extracted_size_bytes": 123,
+        "archive_file_count": 3,
         "archive_manifest_path": str(tmp_path / "uploads" / "source-archives" / source_id / "manifest.json"),
+        "archive_original_dir": str(archive_root / "original"),
+        "archive_original_zip_path": str(archive_root / "original.zip"),
         "archive_primary_html_path": "page.html",
         "archive_served_entry_path": "page.html",
         "archive_served_html_path": "page.html",
         "source_id": source_id,
         "source_type": "archived_webpage",
-        "source_url": None,
     }
-    archive_root = tmp_path / "uploads" / "source-archives" / source_id
     manifest_path = archive_root / "manifest.json"
     assert Path(upload.stored_path) == archive_root / "served" / "page.html"
     assert (archive_root / "original.zip").read_bytes() == content
