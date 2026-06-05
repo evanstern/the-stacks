@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repo’s working app lives in `main/`, not at the top level. Use the root for OMO coordination and `main/` for the actual app, compose stack, and web work.
+This repo’s working app lives in `main/`, not at the top level. Use the root for OMO coordination and `main/` for the actual app, compose stack, and web work. Prefer per-worktree development here, especially for follow-up work, so stacks stay isolated and easy to tear down.
 
 The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` is shared Git plumbing only, development happens in worktrees, and `main` is deploy-only.
 
@@ -23,6 +23,7 @@ The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` i
 ## Local verification
 
 - Keep the Dockerized web app on host port `5173`; do not change that contract unless asked.
+- For dev-like hot-reload worktree stacks, use a separate port in the `5174+` range for the current checkout. Keep that distinct from the default `5173` local stack.
 - Compose identity, ports, and teardown are per-worktree. Use the current worktree’s stack name and stop only that stack.
 - Use `make test` from `main/` for backend/stack verification.
 - Use `make smoke` from `main/` for end-to-end local smoke checks.
