@@ -3,7 +3,7 @@ title: LangGraph ETL Decision
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - wiki
   - etl
@@ -29,5 +29,7 @@ LangGraph is the orchestration choice for the ETL refactor.
 
 ## Related notes
 
+- [[Layer Boundaries]] for the roadmap split.
 - [[ETL Architecture]] for the process layout.
 - [[ETL Plugin Contracts]] for the boundary rules.
+- [[RAG Retrieval Architecture]] for the next roadmap layer after ETL.

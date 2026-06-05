@@ -3,7 +3,7 @@ title: ETL Architecture
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - wiki
   - etl
@@ -31,5 +31,7 @@ The contract tests lock a few seams that matter during extraction. Direct DDB sa
 
 ## Related notes
 
+- [[Layer Boundaries]] for the broader roadmap split.
 - [[ETL Plugin Contracts]] for the plugin surface.
 - [[LangGraph ETL Decision]] for the orchestration rationale.
+- [[RAG Retrieval Architecture]] for the next query-time layer.

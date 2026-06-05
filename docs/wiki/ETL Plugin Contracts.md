@@ -3,7 +3,7 @@ title: ETL Plugin Contracts
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - wiki
   - etl
@@ -29,5 +29,7 @@ This note describes the boundaries the ETL plugins need to respect.
 
 ## Related notes
 
+- [[Layer Boundaries]] for the layer ownership split.
 - [[ETL Architecture]] for the flow context.
 - [[LangGraph ETL Decision]] for why the orchestration boundary sits where it does.
+- [[RAG Retrieval Architecture]] for the downstream query-time contract that consumes ETL output.
