@@ -18,7 +18,7 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 
 - [[ETL Architecture]] covers source intake, parsing, chunking, and the staged handoff into later work.
 - [[RAG Retrieval Architecture]] covers retrieval requests, ranking, and answer-time lookup rules.
-- [[Corpus Management Architecture]] covers corpus selection, import, reset, and lifecycle rules.
+- [[Corpus Management Architecture]] covers the merged default-corpus contract, including selection, import, reset, and lifecycle rules.
 - [[Chat Sessions Architecture]] covers user chat sessions, session state, and how retrieval plugs into chat.
 - [[Queue Architecture]] stays a stub for future queue design.
 
@@ -100,11 +100,13 @@ This page also sets the promotion policy for the embedding evaluation harness. T
 - Corpus management depends on the ETL output shape, but it does not control the ETL flow.
 - Queue work should stay separate until a real queue task is ready, and the current implementation should be described as claim/status handling, not a standalone queue system.
 - Keep the wiki aligned to these concrete module seams so the next plan starts from reality instead of the roadmap draft.
+- Corpus management is already documented as current state. Future multi-corpus work stays in design notes until there is a real runtime selector and storage model.
 
 ## Roadmap follow-up
 
 - The next implementation plan after ETL is `rag-retrieval-api-operations`.
 - That plan should use this boundary map as the contract for retrieval, corpus, chat, and queue ownership.
+- The corpus page is the durable source of truth for the merged default-corpus contract, so do not reopen it as a pending architecture task.
 - Queue remains a placeholder until a dedicated queue design plan is justified.
 - The embedding evaluation harness should follow the promotion path above, staying script-first until a thin CLI wrapper is clearly useful, and only then considering `app/evals` if a stable multi-caller contract emerges.
 

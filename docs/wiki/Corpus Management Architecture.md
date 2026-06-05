@@ -12,7 +12,7 @@ tags:
 
 # Corpus Management Architecture
 
-This page covers the corpus layer that decides what material belongs in the corpus, how the current default corpus is managed, and where future multi-corpus seams may eventually land.
+This page is the durable current-state note for the corpus layer. It covers what material belongs in the corpus, how the current default corpus is managed, and which future multi-corpus seams are still design notes only.
 
 ## Current contract
 
@@ -127,7 +127,7 @@ This page covers the corpus layer that decides what material belongs in the corp
 - If retrieval cannot resolve the active pointer, it falls back only to the configured collection and records that fact in trace metadata.
 - Recovery is operational, not magical: operators reseed, reverify, or re-run lifecycle steps instead of expecting the page to imply automatic healing.
 
-## Roadmap note
+## Future seams
 
 Generalized multi-corpus support is a long-run product direction, but it is not implemented in the current scope.
 

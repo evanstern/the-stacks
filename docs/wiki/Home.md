@@ -12,7 +12,7 @@ tags:
 
 # Wiki Home
 
-Start here for the current architecture spine and the retrieval boundary notes.
+Start here for the current architecture spine, then read the corpus contract page before the retrieval notes.
 
 - [[ETL Architecture]]
 - [[ETL Plugin Contracts]]
@@ -37,11 +37,11 @@ This folder holds the durable notes that should stay current as the roadmap move
 2. [[ETL Plugin Contracts]] for the extension boundaries.
 3. [[LangGraph ETL Decision]] for the orchestration choice.
 4. [[Layer Boundaries]] for the ownership split across layers.
-5. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
-6. [[Corpus Management Architecture]] for corpus lifecycle and scope control.
+5. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
+6. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
 7. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
 8. [[Queue Architecture]] for the deferred queue stub.
 
 ## Roadmap continuation
 
-The next implementation plan after ETL is [[rag-retrieval-api-operations|RAG Retrieval + API Operations]]. It should follow the boundary map above and leave ETL details alone.
+The next implementation plan after ETL is [[rag-retrieval-api-operations|RAG Retrieval + API Operations]]. It should follow the boundary map above and leave ETL details alone. The corpus contract page is already merged and should be read as current state, not as pending work.
