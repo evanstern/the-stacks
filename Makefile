@@ -4,8 +4,14 @@ CORPUS_MANIFEST ?= ../.omo/corpus/default-dndbeyond-corpus.lock.json
 ARCHIVE_ROOT ?= /data/uploads/sourcebooks
 CORPUS_PYTHON ?= $(shell if [ -x .venv/bin/python ]; then printf '%s' '.venv/bin/python'; elif command -v python3 >/dev/null 2>&1; then printf '%s' 'python3'; else printf '%s' 'python'; fi)
 CORPUS_CLI = PYTHONPATH=apps/api $(CORPUS_PYTHON) -m app.cli.corpus_seed
+EVAL_EMBEDDINGS_PYTHON ?= $(CORPUS_PYTHON)
+EVAL_EMBEDDINGS_PROVIDER ?= deterministic
+EVAL_EMBEDDINGS_FORMAT ?= json
+EVAL_EMBEDDINGS_TOP_K ?= 3
+EVAL_EMBEDDINGS_FIXTURE ?= apps/api/tests/fixtures/embeddings/gold.fixture.json
+EVAL_EMBEDDINGS_ARGS ?=
 
-.PHONY: compose-config up down test smoke smoke-public etl-live-smoke corpus-preflight corpus-lock corpus-seed-dry-run corpus-seed corpus-reset-dry-run corpus-reset-confirm corpus-verify
+.PHONY: compose-config up down test smoke smoke-public etl-live-smoke eval-embeddings corpus-preflight corpus-lock corpus-seed-dry-run corpus-seed corpus-reset-dry-run corpus-reset-confirm corpus-verify
 
 compose-config:
 	docker compose config
@@ -38,6 +44,14 @@ etl-live-smoke:
 		-e QDRANT_COLLECTION=$${QDRANT_COLLECTION:-etl_live_smoke_chunks} \
 		-v "$${PWD}/scripts:/app/scripts:ro" \
 		api python scripts/etl_live_smoke.py
+
+eval-embeddings:
+	$(EVAL_EMBEDDINGS_PYTHON) scripts/eval_embeddings.py \
+		--fixture $(EVAL_EMBEDDINGS_FIXTURE) \
+		--provider $(EVAL_EMBEDDINGS_PROVIDER) \
+		--format $(EVAL_EMBEDDINGS_FORMAT) \
+		--top-k $(EVAL_EMBEDDINGS_TOP_K) \
+		$(EVAL_EMBEDDINGS_ARGS)
 
 corpus-preflight:
 	$(CORPUS_CLI) preflight

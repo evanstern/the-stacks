@@ -1,6 +1,8 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
+from importlib import import_module
 import time
+from typing import Any, Protocol, cast
 
 import httpx
 
@@ -21,9 +23,11 @@ class EmbeddingBatch:
     vectors: list[list[float]]
     model: str
     dimensions: int
+    provider: str = "openai"
 
 
-class EmbeddingClient:
+class EmbeddingClient(Protocol):
+    provider: str
     model: str
     dimensions: int
 
@@ -33,6 +37,7 @@ class EmbeddingClient:
 
 class OpenAIEmbeddingClient(EmbeddingClient):
     def __init__(self, settings: Settings) -> None:
+        self.provider = "openai"
         self.api_key = settings.openai_api_key
         self.model = settings.openai_embedding_model
         self.dimensions = settings.openai_embedding_dimensions
@@ -41,7 +46,7 @@ class OpenAIEmbeddingClient(EmbeddingClient):
         if not self.api_key:
             raise EmbeddingError("OPENAI_API_KEY is required for embedding")
         if not texts:
-            return EmbeddingBatch(vectors=[], model=self.model, dimensions=self.dimensions)
+            return EmbeddingBatch(vectors=[], model=self.model, dimensions=self.dimensions, provider=self.provider)
 
         vectors: list[list[float]] = []
         for batch in _batch_texts(texts, OPENAI_EMBEDDING_REQUEST_TOKEN_LIMIT):
@@ -56,7 +61,27 @@ class OpenAIEmbeddingClient(EmbeddingClient):
                     raise EmbeddingError("OpenAI embeddings response dimensions did not match configuration")
             vectors.extend(batch_vectors)
 
-        return EmbeddingBatch(vectors=vectors, model=self.model, dimensions=self.dimensions)
+        return EmbeddingBatch(vectors=vectors, model=self.model, dimensions=self.dimensions, provider=self.provider)
+
+
+class HuggingFaceEmbeddingClient(EmbeddingClient):
+    def __init__(self, settings: Settings) -> None:
+        self.provider = "huggingface"
+        self.model = settings.huggingface_embedding_model
+        self.dimensions = settings.huggingface_embedding_dimensions
+        self._model = _load_sentence_transformer_model(self.model, self.dimensions)
+
+    def embed_texts(self, texts: Sequence[str]) -> EmbeddingBatch:
+        if not texts:
+            return EmbeddingBatch(vectors=[], model=self.model, dimensions=self.dimensions, provider=self.provider)
+
+        vectors = _coerce_embedding_vectors(self._model.encode(list(texts), convert_to_numpy=False))
+        if len(vectors) != len(texts):
+            raise EmbeddingError("Hugging Face embeddings response did not match requested input count")
+        for vector in vectors:
+            if len(vector) != self.dimensions:
+                raise EmbeddingError("Hugging Face embeddings response dimensions did not match configuration")
+        return EmbeddingBatch(vectors=vectors, model=self.model, dimensions=self.dimensions, provider=self.provider)
 
 
 def _batch_texts(texts: Sequence[str], token_limit: int) -> list[list[str]]:
@@ -117,5 +142,27 @@ def _retry_delay_seconds(retry_after: str | None, attempt: int) -> float:
     return OPENAI_EMBEDDING_RETRY_BACKOFF_SECONDS * (attempt + 1)
 
 
+def _load_sentence_transformer_model(model: str, dimensions: int) -> Any:
+    try:
+        sentence_transformers = import_module("sentence_transformers")
+    except ImportError as exc:
+        raise EmbeddingError("sentence-transformers is required for Hugging Face embeddings") from exc
+
+    sentence_transformer = sentence_transformers.SentenceTransformer
+    return sentence_transformer(model, truncate_dim=dimensions)
+
+
+def _coerce_embedding_vectors(encoded: object) -> list[list[float]]:
+    if hasattr(encoded, "tolist"):
+        encoded = cast(Any, encoded).tolist()
+    vectors = cast(Sequence[Sequence[float]], encoded)
+    return [[float(value) for value in vector] for vector in vectors]
+
+
 def get_embedding_client(settings: Settings) -> EmbeddingClient:
-    return OpenAIEmbeddingClient(settings)
+    provider = settings.embedding_provider.strip().lower()
+    if provider == "openai":
+        return OpenAIEmbeddingClient(settings)
+    if provider in {"huggingface", "hf", "sentence-transformers", "sentence_transformers"}:
+        return HuggingFaceEmbeddingClient(settings)
+    raise EmbeddingError(f"Unsupported embedding provider: {settings.embedding_provider}")

@@ -56,9 +56,10 @@ make test
 make smoke
 make smoke-public
 make etl-live-smoke
+make eval-embeddings
 ```
 
-Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, and `make etl-live-smoke` for the compose-backed ETL verification path.
+Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, `make etl-live-smoke` for the compose-backed ETL verification path, and `make eval-embeddings` for the script-first embedding retrieval evaluation harness.
 
 `make test` runs the backend pytest suite, using local pytest when available and a no-dependency API container fallback otherwise; it does not start Postgres, Qdrant, or the application stack. `make smoke` waits for `http://localhost:8000/health` and `http://localhost:5173`, logs in with the dev password, verifies unauthenticated access is rejected, queues a supported Markdown upload, checks unsupported files return `415`, creates an empty chat session, and confirms chat dependency failures are explicit when `OPENAI_API_KEY` is not configured. It also rechecks the frontend on `5173` before exiting.
 
@@ -67,6 +68,8 @@ Use `make test` for the backend suite, `make smoke` for the local end to end sta
 `make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
 
 `make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
+
+`make eval-embeddings` runs `scripts/eval_embeddings.py` against the checked-in gold fixture in deterministic mode by default and emits sorted JSON with stable `schema_version`, fixture metadata, run configuration, provider/model/dimension identity, collection identity, and retrieval metrics. Override `EVAL_EMBEDDINGS_PROVIDER`, `EVAL_EMBEDDINGS_FORMAT`, `EVAL_EMBEDDINGS_TOP_K`, `EVAL_EMBEDDINGS_FIXTURE`, or append `EVAL_EMBEDDINGS_ARGS` to compare real providers, for example `make eval-embeddings EVAL_EMBEDDINGS_PROVIDER=huggingface:sentence-transformers/all-MiniLM-L6-v2:384 EVAL_EMBEDDINGS_FORMAT=text`. Repeat providers directly through the script when comparing several models in one report: `scripts/eval_embeddings.py --provider deterministic --provider huggingface:sentence-transformers/all-MiniLM-L6-v2:384`.
 
 ## Upload batches and runtime versions
 

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "embedding-eval-smoke",
+  "documents": [
+    {
+      "id": "goblin-map",
+      "title": "Goblin Cartographer",
+      "text": "A goblin cartographer marks hidden tunnels, bridge crossings, and safe routes through the old mine."
+    },
+    {
+      "id": "healing-potion",
+      "title": "Healing Draught",
+      "text": "The alchemist records a crimson healing draught that restores weary adventurers after battle."
+    },
+    {
+      "id": "winter-rations",
+      "title": "Winter Rations",
+      "text": "Quartermasters store salted beans, hardtack, and dried apples for journeys through snowbound passes."
+    }
+  ],
+  "queries": [
+    {
+      "id": "find-mapmaker",
+      "text": "Who knows the safe tunnels through the mine?",
+      "relevant_document_ids": ["goblin-map"]
+    },
+    {
+      "id": "find-healing",
+      "text": "Which note describes a potion that helps after a fight?",
+      "relevant_document_ids": ["healing-potion"]
+    }
+  ]
+}
