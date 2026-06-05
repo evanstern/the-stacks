@@ -3,7 +3,7 @@ title: Layer Boundaries
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-05
 tags:
   - wiki
   - architecture
@@ -12,7 +12,7 @@ tags:
 
 # Layer Boundaries
 
-This page records the current roadmap split. It keeps the work separated by layer so each page can stay narrow and the next agent can pick up the right thread.
+This page records the current split across ETL, retrieval, corpus, chat, and queue. It keeps each note narrow and the ownership lines clear.
 
 ## Layer map
 
@@ -20,7 +20,7 @@ This page records the current roadmap split. It keeps the work separated by laye
 - [[RAG Retrieval Architecture]] covers retrieval requests, ranking, and answer-time lookup rules.
 - [[Corpus Management Architecture]] covers corpus selection, import, reset, and lifecycle rules.
 - [[Chat Sessions Architecture]] covers user chat sessions, session state, and how retrieval plugs into chat.
-- [[Queue Architecture]] is reserved for future queue design and stays a stub for now.
+- [[Queue Architecture]] stays a stub for future queue design.
 
 ## Ownership and non-ownership
 
@@ -31,8 +31,8 @@ This page records the current roadmap split. It keeps the work separated by laye
 
 ### RAG retrieval
 
-- Owns answer-time retrieval behavior and the rules for what can be searched.
-- Does not own corpus import, source ingestion, or queue lifecycle.
+- Owns answer-time retrieval behavior, trace persistence, and the rules for what can be searched.
+- Does not own corpus import, source ingestion, chat session state, or queue lifecycle.
 
 ### Corpus management
 
@@ -41,7 +41,7 @@ This page records the current roadmap split. It keeps the work separated by laye
 
 ### Chat sessions
 
-- Owns session state and the chat-facing flow that consumes retrieval results.
+- Owns session state, chat persistence, and the chat-facing flow that consumes retrieval results.
 - Does not own corpus imports or ETL staging rules.
 
 ### Queue
@@ -51,16 +51,10 @@ This page records the current roadmap split. It keeps the work separated by laye
 
 ## Dependencies
 
-- RAG retrieval depends on corpus scope. Indexed data is not automatically eligible for every retrieval call.
+- RAG retrieval depends on corpus scope and chat context, but it still only searches eligible data.
 - Chat depends on retrieval and session state, but not on corpus reset mechanics.
 - Corpus management depends on the ETL output shape, but it does not control the ETL flow.
 - Queue work should stay separate until a real queue task is ready.
-
-## Open questions
-
-- Which retrieval filters are hard requirements versus optional hints.
-- How much corpus scope metadata needs to travel with a chat session.
-- Whether queue work lands before or after chat session refinements.
 
 ## Roadmap follow-up
 

@@ -21,6 +21,7 @@ from app.database import get_db
 from app.embeddings import EmbeddingClient, EmbeddingError, get_embedding_client
 from app.models import AdminSession, ChatMessage, ChatSession, Citation, DocumentChunk, RetrievalRun, utcnow
 from app.qdrant_index import QdrantIndexer, QdrantIndexError, get_qdrant_indexer
+from app.retrieval_service import RetrievalService
 from app.schemas import ChatMessageCreate, ChatMessageEnvelope, ChatMessageRead, CitationRead, SessionCreate, SessionRead
 
 
@@ -44,6 +45,15 @@ def _graph_dependency(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> RetrievalGraphInvoker:
     return get_graph_invoker(chat_client, settings)
+
+
+def _retrieval_service_dependency(
+    db: Annotated[Session, Depends(get_db)],
+    embedding_client: Annotated[EmbeddingClient, Depends(_embedding_dependency)],
+    qdrant_indexer: Annotated[QdrantIndexer, Depends(_qdrant_dependency)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> RetrievalService:
+    return RetrievalService(db, embedding_client, qdrant_indexer, settings)
 
 
 def _read_session(session: ChatSession) -> SessionRead:
@@ -145,10 +155,9 @@ def create_session_message(
     _: AdminSession = Depends(current_admin_session),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
-    embedding_client: EmbeddingClient = Depends(_embedding_dependency),
-    qdrant_indexer: QdrantIndexer = Depends(_qdrant_dependency),
     chat_client: ChatClient = Depends(_chat_dependency),
     graph_invoker: RetrievalGraphInvoker = Depends(_graph_dependency),
+    retrieval_service: RetrievalService = Depends(_retrieval_service_dependency),
 ) -> ChatMessageEnvelope:
     if db.get(ChatSession, session_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
@@ -157,15 +166,14 @@ def create_session_message(
             db,
             session_id,
             payload.content,
-            embedding_client=embedding_client,
-            qdrant_indexer=qdrant_indexer,
             chat_client=chat_client,
             graph_invoker=graph_invoker,
+            retrieval_service=retrieval_service,
             settings=settings,
         )
     except (EmbeddingError, QdrantIndexError, RuntimeError) as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=_chat_failure_detail(exc)) from exc
     retrieval_run = db.scalars(select(RetrievalRun).where(RetrievalRun.assistant_message_id == message.id)).one()
     user_message = db.get(ChatMessage, retrieval_run.user_message_id)
     if user_message is None:
@@ -176,3 +184,11 @@ def create_session_message(
         retrieval_run_id=retrieval_run.id,
         no_evidence=json.loads(message.metadata_json).get("no_evidence") is True,
     )
+
+
+def _chat_failure_detail(exc: Exception) -> str:
+    if isinstance(exc, EmbeddingError):
+        return "Embedding service is unavailable"
+    if isinstance(exc, QdrantIndexError):
+        return "Retrieval index is unavailable"
+    return "Chat response service is unavailable"

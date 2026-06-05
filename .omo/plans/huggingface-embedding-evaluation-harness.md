@@ -199,7 +199,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 > Implementation + Test = ONE task. Never separate.
 > EVERY task MUST have: Agent Profile + Parallelization + QA Scenarios.
 
-- [ ] 1. Extend the Runtime Embedding Provider Seam for Hugging Face
+- [x] 1. Extend the Runtime Embedding Provider Seam for Hugging Face
 
   **What to do**: Update `main/apps/api/app/embeddings.py` and related config so the runtime embedding seam can select between OpenAI and Hugging Face/Sentence Transformers providers. Preserve current OpenAI behavior while adding model/provider configuration, dimension awareness, and provider-specific initialization boundaries.
   **Must NOT do**: Do not duplicate provider logic inside scripts. Do not couple provider selection to retrieval routes or benchmark-only code.
@@ -237,7 +237,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `feat(embeddings): add pluggable huggingface provider seam` | Files: `main/apps/api/app/**`, `main/apps/api/tests/**`
 
-- [ ] 2. Finalize the Phase-1 Folder Layout and Shared Support Boundary
+- [x] 2. Finalize the Phase-1 Folder Layout and Shared Support Boundary
 
   **What to do**: Decide whether any shared support module beyond `embeddings.py` is truly needed. If duplication appears between scripts and tests, add a narrow helper module such as `main/apps/api/app/embedding_eval_support.py`; otherwise keep phase 1 simpler and let the benchmark script call runtime services directly.
   **Must NOT do**: Do not create `app/evals/` yet. Do not move benchmark orchestration into runtime modules.
@@ -275,7 +275,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `refactor(eval): establish script-first evaluation layout` | Files: `main/apps/api/app/**`, `main/apps/api/tests/**`, `main/scripts/**`
 
-- [ ] 3. Add the Benchmark Entry Script Under `main/scripts/`
+- [x] 3. Add the Benchmark Entry Script Under `main/scripts/`
 
   **What to do**: Create `main/scripts/eval_embeddings.py` as the primary evaluation entrypoint. It should accept an explicit model/provider selection, run the evaluation against a small gold set, create isolated Qdrant collection names when model dimensions differ, and emit machine-readable plus human-readable results.
   **Must NOT do**: Do not hardcode a single model. Do not reuse production collections unsafely across incompatible vector dimensions.
@@ -312,7 +312,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `feat(eval): add embedding benchmark script` | Files: `main/scripts/**`, `main/apps/api/app/**`, `main/apps/api/tests/**`
 
-- [ ] 4. Create a Tiny Gold Evaluation Fixture Set
+- [x] 4. Create a Tiny Gold Evaluation Fixture Set
 
   **What to do**: Add a small deterministic corpus and query/expected-hit fixture set under `main/apps/api/tests/fixtures/embedding_eval/`. Cover a few representative TTRPG-style retrieval tasks and include at least one hard negative.
   **Must NOT do**: Do not use large opaque datasets in the first slice. Do not rely on manual judgment instead of explicit expected hits.
@@ -349,7 +349,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `test(eval): add embedding evaluation gold fixtures` | Files: `main/apps/api/tests/**`
 
-- [ ] 5. Add Metrics, Report Output, and Makefile Wiring
+- [x] 5. Add Metrics, Report Output, and Makefile Wiring
 
   **What to do**: Add the first evaluation metrics and a stable invocation shape, likely a `make eval-embeddings` target. Capture retrieval hit-rate/recall-style metrics, latency, and model metadata in output that can be compared across runs.
   **Must NOT do**: Do not add CI gating yet unless the benchmark is stable and deterministic enough. Do not overbuild dashboards in the first slice.
@@ -386,7 +386,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `feat(eval): add metrics and make target` | Files: `main/Makefile`, `main/scripts/**`, `main/apps/api/app/**`, `main/apps/api/tests/**`
 
-- [ ] 6. Lock Regression Coverage for Shared Evaluation Logic
+- [x] 6. Lock Regression Coverage for Shared Evaluation Logic
 
   **What to do**: Add pytest coverage for any shared helper/module logic used by the benchmark harness, especially metric calculations, provider/model metadata handling, and collection naming/dimension safety.
   **Must NOT do**: Do not try to unit-test every console-printing branch of the top-level script. Focus on reusable logic.
@@ -423,7 +423,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `test(eval): cover shared evaluation logic` | Files: `main/apps/api/tests/**`, `main/apps/api/app/**`
 
-- [ ] 7. Document the Promotion Path to `app/cli/` or `app/evals/`
+- [x] 7. Document the Promotion Path to `app/cli/` or `app/evals/`
 
   **What to do**: Update the relevant wiki/plan notes so future agents know when to keep evaluation script-first versus when to promote it into `app/cli/` or a dedicated `app/evals/` package.
   **Must NOT do**: Do not create the bigger package just because the documentation mentions it.
@@ -460,7 +460,7 @@ Wave 4: Tasks 7-8 — promotion-path docs + full verification.
 
   **Commit**: YES | Message: `docs(eval): record evaluation promotion path` | Files: `main/docs/wiki/**`, `.omo/plans/**`
 
-- [ ] 8. Run End-to-End Evaluation Verification
+- [x] 8. Run End-to-End Evaluation Verification
 
   **What to do**: Run the relevant pytest subset, then execute the evaluation harness against the fixture set with at least two models and capture evidence that the architecture works as planned: shared runtime provider seam, script-first orchestration, safe collection handling, and comparable output.
   **Must NOT do**: Do not claim success from unit tests alone. Do not skip the actual benchmark run.
