@@ -12,17 +12,21 @@ tags:
 
 # Queue Architecture
 
-This page is a placeholder for a later queue design task.
+This page is still a placeholder for a later queue design task, but the current implementation is worth naming so the stub does not drift.
 
 ## Current state
 
-- Queue architecture is not being specified here yet.
-- The wiki only needs a clear marker that queue work is separate from the current ETL, retrieval, corpus, and chat pages.
+- The live queue behavior is a database-backed claim/status flow.
+- `ingestion.py` claims queued jobs and awaiting-embedding jobs with `FOR UPDATE SKIP LOCKED`.
+- Upload batches and job rows carry the status information the rest of the app reads.
+- There is no standalone brokered queue design in the code today.
+- Keep the page intentionally short until a real queue system replaces that flow.
 
 ## Why this stays a stub
 
 - The current roadmap is still sorting the higher-value layers first.
 - A detailed queue design would be premature until the work actually needs it.
+- The wiki should not pretend the current DB claim/status flow is a finished queue subsystem.
 
 ## Roadmap note
 

@@ -22,6 +22,17 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 - [[Chat Sessions Architecture]] covers user chat sessions, session state, and how retrieval plugs into chat.
 - [[Queue Architecture]] stays a stub for future queue design.
 
+## Current module seams
+
+- `main/apps/api/app/ingestion.py` owns the live ETL control flow and the job-claim path.
+- `main/apps/api/app/etl/runner.py` holds the direct sequential ETL runner used today.
+- `main/apps/api/app/etl/load_services.py` owns the staged load services.
+- `main/apps/api/app/retrieval_service.py` owns retrieval scope resolution, lookup, ranking, and trace persistence.
+- `main/apps/api/app/corpus_seed.py`, `main/apps/api/app/corpus_reset.py`, and `main/apps/api/app/version_lifecycle.py` own corpus lifecycle behavior.
+- `main/apps/api/app/chat_rag.py` and `main/apps/api/app/routes_sessions.py` own chat session orchestration and the answer boundary.
+- `main/apps/api/app/routes_uploads.py` and `main/apps/api/app/models.py` carry the upload and job record shapes that the rest of the layers read.
+- These seams mirror the code that already exists today, rather than a future idealized split.
+
 ## Ownership and non-ownership
 
 ### ETL
@@ -47,7 +58,8 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 ### Queue
 
 - Remains a future concern.
-- Does not carry implementation detail in the wiki yet.
+- Does not carry implementation detail in the wiki yet beyond the current DB-backed claim/status flow.
+- A fuller brokered queue design stays deferred until the work actually needs it.
 
 ## Promotion path for operator harnesses
 
@@ -86,7 +98,8 @@ This page also sets the promotion policy for the embedding evaluation harness. T
 - RAG retrieval depends on corpus scope and chat context, but it still only searches eligible data.
 - Chat depends on retrieval and session state, but not on corpus reset mechanics.
 - Corpus management depends on the ETL output shape, but it does not control the ETL flow.
-- Queue work should stay separate until a real queue task is ready.
+- Queue work should stay separate until a real queue task is ready, and the current implementation should be described as claim/status handling, not a standalone queue system.
+- Keep the wiki aligned to these concrete module seams so the next plan starts from reality instead of the roadmap draft.
 
 ## Roadmap follow-up
 

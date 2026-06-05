@@ -19,6 +19,10 @@ This page covers the chat layer that owns session state and the path from a user
 - Session creation, loading, and persistence.
 - The chat loop that sends the current message into retrieval.
 - The user-facing shape of chat results and session history.
+- The route boundary that turns session requests into a retrieval-backed response.
+- The answer envelope returned to the client, including the safe failure shape.
+- Citation validation and repair after the answer graph produces output.
+- The route/session split that keeps HTTP handling thin while the chat layer owns persistence.
 
 ## What this layer does not own
 
@@ -31,6 +35,20 @@ This page covers the chat layer that owns session state and the path from a user
 - Depends on [[RAG Retrieval Architecture]] for answer-time lookup and trace data.
 - Depends on [[Corpus Management Architecture]] for the active corpus scope.
 - Depends on [[ETL Architecture]] only for the indexed data shape it consumes indirectly.
+
+## Request path
+
+- `routes_sessions.py` wires the session routes and injects `RetrievalService` at the route boundary.
+- `answer_session_message()` in `chat_rag.py` persists the user message, records the retrieval run, and calls `RetrievalService.retrieve()` before the answer graph runs.
+- The route returns a `ChatMessageEnvelope`, not a raw internal result object.
+- Embedding, Qdrant, and runtime failures are mapped to a safe `503` response shape.
+- Citation validation remains a chat-owned step after the answer graph completes.
+
+## Chat-owned boundaries
+
+- LangGraph is used here for chat answer generation and checkpointing.
+- Citation validation and repair stay in the chat layer after the answer graph returns.
+- Session persistence stays separate from retrieval trace persistence, even though the two are linked in the request flow.
 
 ## Roadmap note
 
