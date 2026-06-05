@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "corpus_id": "tiny-embedding-eval-gold-v1",
+  "documents": [
+    {
+      "id": "doc-moonwell",
+      "title": "Moonwell Shrine",
+      "text": "The moonwell shrine restores spent spell slots only when a silver leaf is placed on the water at dusk."
+    },
+    {
+      "id": "doc-iron-gate",
+      "title": "Iron Gate Password",
+      "text": "The iron gate opens for the password emberglass, spoken after the western torch is extinguished."
+    },
+    {
+      "id": "doc-river-market",
+      "title": "River Market Schedule",
+      "text": "The river market arrives every third dawn with spice barges, map sellers, and ferry captains."
+    },
+    {
+      "id": "doc-glass-orb",
+      "title": "Glass Orb Decoy",
+      "text": "The glass orb glows like moonlight but stores no spells and has no effect on the moonwell ritual."
+    }
+  ],
+  "queries": [
+    {
+      "id": "query-moonwell-ritual",
+      "text": "What item must be placed on the moonwell at dusk to restore spell slots?",
+      "expected_hits": ["doc-moonwell"],
+      "hard_negatives": ["doc-glass-orb"]
+    },
+    {
+      "id": "query-gate-password",
+      "text": "Which password opens the iron gate after a torch is put out?",
+      "expected_hits": ["doc-iron-gate"],
+      "hard_negatives": ["doc-river-market"]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ title: Corpus Management Architecture
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-05
 tags:
   - wiki
   - architecture
@@ -31,12 +31,6 @@ This page covers the corpus layer that decides what material belongs in a corpus
 - Depends on [[ETL Architecture]] for the ingestion and chunk output it consumes.
 - Feeds [[RAG Retrieval Architecture]] with the scope that retrieval must respect.
 - Feeds [[Chat Sessions Architecture]] with the corpus context a session can use.
-
-## Open questions
-
-- How much corpus metadata should be stored with each session or retrieval run.
-- Whether corpus reset needs a separate audit trail from normal upload records.
-- Which corpus operations should be visible in the main records view.
 
 ## Roadmap note
 

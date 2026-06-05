@@ -1,9 +1,7 @@
-# pyright: reportAny=false, reportMissingParameterType=false, reportUnknownArgumentType=false, reportUnknownLambdaType=false, reportUnknownMemberType=false, reportUnknownParameterType=false, reportUnannotatedClassAttribute=false
-
+from dataclasses import dataclass
 import argparse
 import importlib.util
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
 from typing import cast

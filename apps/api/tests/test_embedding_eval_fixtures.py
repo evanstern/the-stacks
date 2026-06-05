@@ -1,31 +1,37 @@
-# pyright: reportMissingImports=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownVariableType=false
+from pathlib import Path
 
-from embedding_eval_support import FIXTURE_PATH, load_gold_fixture
-
-
-def test_embedding_eval_fixture_loads_with_expected_hits() -> None:
-    fixture = load_gold_fixture(FIXTURE_PATH)
-    documents = fixture["documents"]
-    queries = fixture["queries"]
-    assert isinstance(documents, list)
-    assert isinstance(queries, list)
-    document_ids = {document["id"] for document in documents}
-
-    assert fixture["schema_version"] == 1
-    assert fixture["name"] == "embedding-eval-smoke"
-    assert [document["id"] for document in documents] == ["goblin-map", "healing-potion", "winter-rations"]
-    assert [query["id"] for query in queries] == ["find-mapmaker", "find-healing"]
-    assert [query["relevant_document_ids"] for query in queries] == [["goblin-map"], ["healing-potion"]]
-
-    for query in queries:
-        assert query["relevant_document_ids"]
-        assert set(query["relevant_document_ids"]).issubset(document_ids)
+from fixtures.embedding_eval.gold_fixture import load_embedding_eval_gold_set
 
 
-def test_embedding_eval_fixture_keeps_documents_and_queries_deterministic() -> None:
-    first = load_gold_fixture(FIXTURE_PATH)
-    second = load_gold_fixture(FIXTURE_PATH)
+FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "embedding_eval" / "gold_set.fixture.json"
 
-    assert first == second
-    assert first["documents"][0]["text"].startswith("A goblin cartographer")
-    assert first["queries"][1]["text"] == "Which note describes a potion that helps after a fight?"
+
+def test_embedding_eval_gold_fixture_loads_with_explicit_hits_and_hard_negatives() -> None:
+    gold_set = load_embedding_eval_gold_set(FIXTURE_PATH)
+    document_ids = {document["id"] for document in gold_set["documents"]}
+
+    assert gold_set["schema_version"] == 1
+    assert gold_set["corpus_id"] == "tiny-embedding-eval-gold-v1"
+    assert [document["id"] for document in gold_set["documents"]] == [
+        "doc-moonwell",
+        "doc-iron-gate",
+        "doc-river-market",
+        "doc-glass-orb",
+    ]
+    assert [query["id"] for query in gold_set["queries"]] == ["query-moonwell-ritual", "query-gate-password"]
+
+    for query in gold_set["queries"]:
+        assert query["expected_hits"]
+        assert query["hard_negatives"]
+        assert set(query["expected_hits"]).issubset(document_ids)
+        assert set(query["hard_negatives"]).issubset(document_ids)
+        assert set(query["expected_hits"]).isdisjoint(query["hard_negatives"])
+
+
+def test_embedding_eval_gold_fixture_keeps_hard_negative_explicit() -> None:
+    gold_set = load_embedding_eval_gold_set(FIXTURE_PATH)
+
+    assert gold_set["queries"][0]["expected_hits"] == ["doc-moonwell"]
+    assert gold_set["queries"][0]["hard_negatives"] == ["doc-glass-orb"]
+    assert gold_set["queries"][1]["expected_hits"] == ["doc-iron-gate"]
+    assert gold_set["queries"][1]["hard_negatives"] == ["doc-river-market"]

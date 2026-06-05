@@ -1,7 +1,8 @@
 import json
 import os
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
-from collections.abc import Generator
+from typing import override
 
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -14,12 +15,13 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 from app.chat_rag import _system_prompt, answer_session_message
 from app.config import Settings, get_settings
 from app.database import get_db
-from app.embeddings import EmbeddingError
+from app.embeddings import EmbeddingBatch, EmbeddingError
 from app.main import app
 from app.models import ChatMessage, Citation, RetrievalHit, RetrievalRun, RuntimeVersion
-from app.routes_sessions import _chat_dependency, _embedding_dependency, _graph_dependency, _qdrant_dependency
-from app.qdrant_index import QdrantSearchHit
-from app.version_lifecycle import RuntimeVersionContext, VersionLifecycleService
+from app.routes_sessions import _chat_dependency, _embedding_dependency, _graph_dependency, _qdrant_dependency, _retrieval_service_dependency
+from app.qdrant_index import QdrantIndexError, QdrantSearchHit
+from app.retrieval_service import RetrievalCandidate, RetrievalCitation, RetrievalResult, RetrievalScope, RetrievalService, RetrievalTrace
+from app.version_lifecycle import DEFAULT_ACTIVE_POINTER_NAME, RuntimeVersionContext, VersionLifecycleService
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 from tests.rag_support import CapturingGraphInvoker, FakeChatClient, create_indexed_chunk, create_session
 from tests.support import db_session
@@ -52,6 +54,77 @@ def test_answer_session_message_persists_messages_retrieval_and_thread_config(db
     assert json.loads(run.metadata_json)["thread_id"] == session.id
     assert db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).one().document_chunk_id == chunk.id
     assert graph.configs == [{"configurable": {"thread_id": session.id}}]
+
+
+def test_answer_session_message_persists_explainable_retrieval_trace_distinct_from_ingestion_job(
+    db_session: Session,
+) -> None:
+    session = create_session(db_session)
+    chunk_a = create_indexed_chunk(db_session, "Source A supports volcanic lairs.", filename="source-a.md")
+    chunk_b = create_indexed_chunk(db_session, "Source B supports treasure hoards.", filename="source-b.md")
+    chunk_a_job = chunk_a.ingestion_job_id
+    chunk_b_job = chunk_b.ingestion_job_id
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="point-a", score=0.97, payload={"chunk_id": chunk_a.id}),
+            QdrantSearchHit(id="point-b", score=0.91, payload={"chunk_id": chunk_b.id}),
+        ]
+    )
+    chat = FakeChatClient("Ancient red dragons are volcanic and greedy. [2][1]", [chunk_b.id, chunk_a.id])
+    graph = CapturingGraphInvoker(chat)
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "Explain ancient red dragons.",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=graph,
+        settings=Settings(RETRIEVAL_TOP_K=5, RETRIEVAL_MIN_SCORE=0.2),
+    )
+
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    run_metadata = json.loads(run.metadata_json)
+    trace = run_metadata["trace"]
+    hits = db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id).order_by(RetrievalHit.rank)).all()
+
+    assert assistant.content == "Ancient red dragons are volcanic and greedy. [1][2]"
+    assert run.status == "answered"
+    assert run_metadata["thread_id"] == session.id
+    assert run_metadata["qdrant_collection"] == "thestacks_chunks"
+    assert trace["scope"] == {
+        "qdrant_collection": "thestacks_chunks",
+        "pointer_name": DEFAULT_ACTIVE_POINTER_NAME,
+        "scope_source": "settings_fallback",
+    }
+    assert trace["query_embedding"] == {"model": "test-embedding-model", "dimensions": 4}
+    assert trace["limits"] == {"requested_limit": 50, "retrieval_min_score": 0.2, "retrieval_top_k": 5}
+    assert trace["counts"] == {
+        "raw_hits": 2,
+        "selected_candidates": 2,
+        "filtered_low_score": 0,
+        "filtered_missing_chunk": 0,
+        "deduplicated": 0,
+    }
+    assert trace["candidates"] == [
+        {"rank": 1, "document_chunk_id": chunk_a.id, "score": "0.97000000", "citation_label": "[1]"},
+        {"rank": 2, "document_chunk_id": chunk_b.id, "score": "0.91000000", "citation_label": "[2]"},
+    ]
+    assert trace["citation_choices"] == [
+        {"label": "[1]", "document_chunk_id": chunk_a.id},
+        {"label": "[2]", "document_chunk_id": chunk_b.id},
+    ]
+    assert trace["final_citation_choices"] == [
+        {"label": "[1]", "document_chunk_id": chunk_b.id},
+        {"label": "[2]", "document_chunk_id": chunk_a.id},
+    ]
+    assert [json.loads(hit.metadata_json)["retrieval_score"] for hit in hits] == ["0.97000000", "0.91000000"]
+    assert [json.loads(hit.metadata_json)["retrieval_rank"] for hit in hits] == [1, 2]
+    serialized_trace = json.dumps(trace, sort_keys=True)
+    assert chunk_a_job not in serialized_trace
+    assert chunk_b_job not in serialized_trace
+    assert "ingestion_job" not in serialized_trace
 
 
 def test_answer_session_message_searches_active_runtime_collection_when_pointer_exists(db_session: Session) -> None:
@@ -125,6 +198,48 @@ def test_answer_session_message_preserves_no_evidence_when_active_collection_has
     assert chat.requests == []
 
 
+def test_answer_session_message_filters_active_collection_hits_outside_scope(db_session: Session) -> None:
+    settings = Settings(RETRIEVAL_TOP_K=5, RETRIEVAL_MIN_SCORE=0.2, QDRANT_COLLECTION="base_chunks")
+    runtime = _activate_runtime(db_session, settings, "ffffffff-ffff-4fff-8fff-ffffffffffff")
+    session = create_session(db_session)
+    base_chunk = create_indexed_chunk(
+        db_session,
+        "Base collection data should be rejected even if Qdrant returns it for the active collection.",
+        qdrant_collection=settings.qdrant_collection,
+    )
+    qdrant = FakeQdrantIndexer(
+        collection="base_chunks",
+        collection_search_hits={
+            runtime.qdrant_collection: [QdrantSearchHit(id="stale-point", score=0.99, payload={"chunk_id": base_chunk.id})],
+        },
+    )
+    chat = FakeChatClient("Should not be generated", [base_chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "Can stale active-collection data leak?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=graph,
+        settings=settings,
+    )
+
+    assert assistant.content == "I do not have enough evidence in the indexed corpus to answer that question."
+    assert qdrant.search_requests == [([1.0, 1.0, 1.0, 1.0], 50, runtime.qdrant_collection)]
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    metadata = json.loads(run.metadata_json)
+    assert run.status == "no_evidence"
+    assert metadata["qdrant_collection"] == runtime.qdrant_collection
+    assert metadata["runtime_version_id"] == runtime.version_id
+    assert metadata["filtered_missing_chunk_count"] == 1
+    assert metadata["weak_reasons"] == ["no_candidates", "unavailable_data"]
+    assert db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).all() == []
+    assert chat.requests == []
+
+
 def test_post_session_message_returns_grounded_answer_shape(db_session: Session) -> None:
     session = create_session(db_session)
     chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively.")
@@ -146,6 +261,51 @@ def test_post_session_message_returns_grounded_answer_shape(db_session: Session)
     assert payload["assistant_message"]["citations"][0]["metadata"]["cited_text"] == "Ancient red dragons prefer volcanic lairs and hoard treasure obsessively."
     assert payload["retrieval_run_id"]
     assert payload["no_evidence"] is False
+
+
+def test_post_session_message_invokes_retrieval_service_boundary(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Boundary service dragons prefer volcanic lairs.")
+    chat = FakeChatClient("Boundary service dragons prefer volcanic lairs. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+    service = BoundaryRetrievalService(db_session, chunk.id, chunk.content)
+
+    with _client(db_session, FakeQdrantIndexer(search_hits=[]), chat, graph) as client:
+        app.dependency_overrides[_retrieval_service_dependency] = lambda: service
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Use the service boundary?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["assistant_message"]["content"] == "Boundary service dragons prefer volcanic lairs. [1]"
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+    assert payload["no_evidence"] is False
+    assert service.requests == [("Use the service boundary?", "thestacks_chunks")]
+    assert chat.requests == [("Use the service boundary?", [chunk.id])]
+
+
+def test_records_retrieval_runs_serialize_persisted_trace_metadata(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Records can explain retrieved dragon evidence.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Records can explain retrieved dragon evidence. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, qdrant, chat, graph) as client:
+        answer_response = client.post(f"/sessions/{session.id}/messages", json={"content": "Can records explain this later?"})
+        records_response = client.get("/records/retrieval-runs")
+
+    assert answer_response.status_code == 200
+    assert records_response.status_code == 200
+    record = records_response.json()[0]
+    trace = record["metadata"]["trace"]
+
+    assert record["id"] == answer_response.json()["retrieval_run_id"]
+    assert trace["scope"]["qdrant_collection"] == "thestacks_chunks"
+    assert trace["counts"]["raw_hits"] == 1
+    assert trace["candidates"] == [
+        {"rank": 1, "document_chunk_id": chunk.id, "score": "0.93000000", "citation_label": "[1]"}
+    ]
+    assert trace["final_citation_choices"] == [{"label": "[1]", "document_chunk_id": chunk.id}]
 
 
 def test_post_session_message_searches_active_runtime_collection_when_base_collection_empty(db_session: Session) -> None:
@@ -259,6 +419,65 @@ def test_post_session_message_returns_archive_viewer_citation_metadata(db_sessio
     assert "/tmp/" not in json.dumps(metadata)
 
 
+def test_answer_session_message_uses_retrieval_layer_citation_metadata_for_hits_and_citations(db_session: Session) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Archive goblins prefer moonlit ruins.", filename="archive.zip")
+    chunk.metadata_json = json.dumps(
+        {
+            **json.loads(chunk.metadata_json),
+            "source_type": "archived_webpage",
+            "archive_source_id": chunk.source_id,
+            "source_title": "Moonlit Goblin Archive",
+            "target_chunk_id": "archive-target-123",
+            "target_selector": "#source-chunk-archive-target-123",
+            "quote": "Archive goblins prefer moonlit ruins.",
+            "semantic_section": {"path_text": ["Bestiary", "Goblins"]},
+            "archive_entry_path": "original/index.html",
+            "archive_served_entry_path": "served/index.html",
+            "archive_manifest_path": "source-archives/source-id/manifest.json",
+            "raw_html_path": "/tmp/source-archives/source-id/original/index.html",
+            "diagnostic_traceback": "Traceback (most recent call last): boom",
+        },
+        sort_keys=True,
+    )
+    db_session.commit()
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Archive goblins prefer moonlit ruins. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    assistant = answer_session_message(
+        db_session,
+        session.id,
+        "Where do archive goblins lair?",
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=qdrant,
+        chat_client=chat,
+        graph_invoker=graph,
+        settings=Settings(RETRIEVAL_TOP_K=5, RETRIEVAL_MIN_SCORE=0.2),
+    )
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    hit = db_session.scalars(select(RetrievalHit).where(RetrievalHit.retrieval_run_id == run.id)).one()
+    citation = db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).one()
+    hit_metadata = json.loads(hit.metadata_json)
+    citation_metadata = json.loads(citation.metadata_json)
+    serialized = json.dumps(citation_metadata, sort_keys=True)
+
+    assert {key: value for key, value in hit_metadata.items() if not key.startswith("retrieval_")} == citation_metadata
+    assert hit_metadata["retrieval_rank"] == 1
+    assert hit_metadata["retrieval_score"] == "0.93000000"
+    assert citation_metadata["viewer_url"] == f"/records/sources/{chunk.source_id}/archive/viewer?target=archive-target-123"
+    assert citation_metadata["section_path"] == ["Bestiary", "Goblins"]
+    assert citation_metadata["cited_text"] == "Archive goblins prefer moonlit ruins."
+    assert "archive_entry_path" not in citation_metadata
+    assert "archive_served_entry_path" not in citation_metadata
+    assert "archive_manifest_path" not in citation_metadata
+    assert "raw_html_path" not in citation_metadata
+    assert "diagnostic_traceback" not in citation_metadata
+    assert "original/index.html" not in serialized
+    assert "/tmp/" not in serialized
+    assert "Traceback" not in serialized
+
+
 def test_post_session_message_keeps_non_archive_citation_metadata_compatible(db_session: Session) -> None:
     session = create_session(db_session)
     chunk = create_indexed_chunk(db_session, "Plain goblins prefer caves.", filename="plain.html", section="Bestiary")
@@ -284,8 +503,9 @@ def test_post_session_message_keeps_non_archive_citation_metadata_compatible(db_
 
 def test_post_session_message_returns_service_error_for_embedding_failure(db_session: Session) -> None:
     class FailingEmbeddingClient(FakeEmbeddingClient):
-        def embed_texts(self, texts):
-            raise EmbeddingError("OPENAI_API_KEY is required for embedding")
+        @override
+        def embed_texts(self, texts: Sequence[str]) -> EmbeddingBatch:
+            raise EmbeddingError("Traceback at /srv/private/embed.py: OPENAI_API_KEY is required for embedding")
 
     session = create_session(db_session)
     qdrant = FakeQdrantIndexer(search_hits=[])
@@ -297,7 +517,54 @@ def test_post_session_message_returns_service_error_for_embedding_failure(db_ses
         response = client.post(f"/sessions/{session.id}/messages", json={"content": "Ancient red dragons?"})
 
     assert response.status_code == 503
-    assert response.json() == {"detail": "OPENAI_API_KEY is required for embedding"}
+    assert response.json() == {"detail": "Embedding service is unavailable"}
+    assert "Traceback" not in response.text
+    assert "/srv/private" not in response.text
+
+
+def test_post_session_message_returns_safe_service_error_for_qdrant_failure(db_session: Session) -> None:
+    class FailingQdrantIndexer(FakeQdrantIndexer):
+        @override
+        def search_points(
+            self,
+            vector: list[float],
+            limit: int,
+            collection: str | None = None,
+        ) -> list[QdrantSearchHit]:
+            raise QdrantIndexError("Traceback from file:///srv/private/qdrant.py: collection exploded")
+
+    session = create_session(db_session)
+    chat = FakeChatClient("Should not be used", [])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, FailingQdrantIndexer(search_hits=[]), chat, graph) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Ancient red dragons?"})
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Retrieval index is unavailable"}
+    assert "Traceback" not in response.text
+    assert "file://" not in response.text
+    assert "/srv/private" not in response.text
+
+
+def test_post_session_message_returns_safe_service_error_for_chat_runtime_failure(db_session: Session) -> None:
+    class FailingGraphInvoker(CapturingGraphInvoker):
+        @override
+        def invoke(self, state: dict[str, object], config: dict[str, object]) -> dict[str, object]:
+            raise RuntimeError("Traceback at /tmp/chat.py: OPENAI response failed")
+
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.")
+    qdrant = FakeQdrantIndexer(search_hits=[QdrantSearchHit(id="point-1", score=0.93, payload={"chunk_id": chunk.id})])
+    chat = FakeChatClient("Should not be used", [chunk.id])
+
+    with _client(db_session, qdrant, chat, FailingGraphInvoker(chat)) as client:
+        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Ancient red dragons?"})
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Chat response service is unavailable"}
+    assert "Traceback" not in response.text
+    assert "/tmp/" not in response.text
 
 
 def test_system_prompt_requires_inline_citation_markers() -> None:
@@ -630,6 +897,49 @@ def _client(
         assert test_client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
         yield test_client
     app.dependency_overrides.clear()
+
+
+class BoundaryRetrievalService(RetrievalService):
+    def __init__(self, db: Session, chunk_id: str, content: str) -> None:
+        super().__init__(db, FakeEmbeddingClient(), FakeQdrantIndexer(search_hits=[]), Settings())
+        self.chunk_id: str = chunk_id
+        self.content: str = content
+        self.requests: list[tuple[str, str]] = []
+
+    @override
+    def retrieve(self, query: str, scope: RetrievalScope) -> RetrievalResult:
+        self.requests.append((query, scope.qdrant_collection))
+        candidate = RetrievalCandidate(
+            chunk_id=self.chunk_id,
+            content=self.content,
+            score=0.94,
+            metadata={"source_filename": "service-boundary.md"},
+        )
+        return RetrievalResult(
+            candidates=[candidate],
+            citations=[
+                RetrievalCitation(
+                    chunk_id=self.chunk_id,
+                    label="[1]",
+                    metadata={"source_filename": "service-boundary.md", "cited_text": self.content},
+                )
+            ],
+            trace=RetrievalTrace(
+                query_embedding_model="boundary-service",
+                query_embedding_dimensions=4,
+                requested_limit=1,
+                min_score=0.2,
+                top_k=1,
+                raw_hit_count=1,
+                selected_candidate_count=1,
+                filtered_low_score_count=0,
+                filtered_missing_chunk_count=0,
+                deduplicated_count=0,
+                scope=scope,
+            ),
+            weak_result=False,
+            weak_reasons=[],
+        )
 
 
 def _activate_runtime(db: Session, settings: Settings, version_id: str) -> RuntimeVersionContext:

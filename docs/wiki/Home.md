@@ -3,7 +3,7 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-04
+updated: 2026-06-05
 tags:
   - wiki
   - etl
@@ -12,7 +12,7 @@ tags:
 
 # Wiki Home
 
-Start here when you need the current architecture notes and roadmap spine.
+Start here for the current architecture spine and the retrieval boundary notes.
 
 - [[ETL Architecture]]
 - [[ETL Plugin Contracts]]
@@ -36,12 +36,12 @@ This folder holds the durable notes that should stay current as the roadmap move
 1. [[ETL Architecture]] for the system shape.
 2. [[ETL Plugin Contracts]] for the extension boundaries.
 3. [[LangGraph ETL Decision]] for the orchestration choice.
-4. [[Layer Boundaries]] for the roadmap split across layers.
-5. [[RAG Retrieval Architecture]] for retrieval scope and dependency rules.
-6. [[Corpus Management Architecture]] for corpus lifecycle and ownership.
-7. [[Chat Sessions Architecture]] for chat, session, and retrieval wiring.
-8. [[Queue Architecture]] for the future queue work placeholder.
+4. [[Layer Boundaries]] for the ownership split across layers.
+5. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
+6. [[Corpus Management Architecture]] for corpus lifecycle and scope control.
+7. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
+8. [[Queue Architecture]] for the deferred queue stub.
 
 ## Roadmap continuation
 
-The next implementation plan after ETL is [[rag-retrieval-api-operations|RAG Retrieval + API Operations]], which should follow the boundary map above rather than reopening ETL.
+The next implementation plan after ETL is [[rag-retrieval-api-operations|RAG Retrieval + API Operations]]. It should follow the boundary map above and leave ETL details alone.

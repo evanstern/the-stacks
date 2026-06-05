@@ -3,7 +3,7 @@ title: Chat Sessions Architecture
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-05
 tags:
   - wiki
   - architecture
@@ -28,19 +28,13 @@ This page covers the chat layer that owns session state and the path from a user
 
 ## Dependencies
 
-- Depends on [[RAG Retrieval Architecture]] for answer-time lookup.
+- Depends on [[RAG Retrieval Architecture]] for answer-time lookup and trace data.
 - Depends on [[Corpus Management Architecture]] for the active corpus scope.
 - Depends on [[ETL Architecture]] only for the indexed data shape it consumes indirectly.
 
-## Open questions
-
-- How much retrieval detail should be stored in the session record.
-- Whether failed retrieval should be visible inline or only in records.
-- How session context should remember corpus changes mid-conversation.
-
 ## Roadmap note
 
-Chat is a consumer of retrieval, not the owner of retrieval policy. The next retrieval plan should keep this separation explicit so session state does not absorb corpus lifecycle or retrieval ranking rules.
+Chat is a consumer of retrieval, not the owner of retrieval policy. The retrieval plan should keep session state, trace storage, and corpus lifecycle in separate lanes.
 
 ## Related notes
 

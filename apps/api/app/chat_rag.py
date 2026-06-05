@@ -3,7 +3,6 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any, TypedDict, cast
-from urllib.parse import quote
 
 import httpx
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -13,9 +12,15 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.embeddings import EmbeddingClient, get_embedding_client
-from app.models import Citation, ChatMessage, ChatSession, DocumentChunk, RetrievalHit, RetrievalRun, utcnow
-from app.qdrant_index import QdrantIndexer, QdrantSearchHit, get_qdrant_indexer
-from app.version_lifecycle import DEFAULT_ACTIVE_POINTER_NAME, resolve_runtime_context
+from app.models import Citation, ChatMessage, ChatSession, RetrievalRun, utcnow
+from app.qdrant_index import QdrantIndexer, get_qdrant_indexer
+from app.retrieval_service import (
+    RetrievalCandidate,
+    RetrievalService,
+    citation_metadata_by_chunk_id,
+    record_retrieval_hits,
+    resolve_retrieval_scope,
+)
 
 
 NO_EVIDENCE_RESPONSE = "I do not have enough evidence in the indexed corpus to answer that question."
@@ -29,6 +34,15 @@ class ContextChunk:
     content: str
     score: float
     metadata: dict[str, object]
+
+    @classmethod
+    def from_candidate(cls, candidate: RetrievalCandidate) -> "ContextChunk":
+        return cls(
+            chunk_id=candidate.chunk_id,
+            content=candidate.content,
+            score=candidate.score,
+            metadata=candidate.metadata,
+        )
 
 
 @dataclass(frozen=True)
@@ -126,13 +140,16 @@ def answer_session_message(
     qdrant_indexer: QdrantIndexer | None = None,
     chat_client: ChatClient | None = None,
     graph_invoker: RetrievalGraphInvoker | None = None,
+    retrieval_service: RetrievalService | None = None,
     settings: Settings | None = None,
 ) -> ChatMessage:
     settings = settings or get_settings()
-    embedding_client = embedding_client or get_embedding_client(settings)
-    qdrant_indexer = qdrant_indexer or get_qdrant_indexer(settings)
     chat_client = chat_client or get_chat_client(settings)
     graph_invoker = graph_invoker or get_graph_invoker(chat_client, settings)
+    if retrieval_service is None:
+        embedding_client = embedding_client or get_embedding_client(settings)
+        qdrant_indexer = qdrant_indexer or get_qdrant_indexer(settings)
+        retrieval_service = RetrievalService(db, embedding_client, qdrant_indexer, settings)
 
     session = db.get(ChatSession, session_id)
     if session is None:
@@ -154,14 +171,21 @@ def answer_session_message(
     db.add(retrieval_run)
     db.flush()
 
-    contexts = _retrieve_contexts(db, content, embedding_client, qdrant_indexer, settings)
-    _record_hits(db, retrieval_run, contexts)
+    retrieval_scope = resolve_retrieval_scope(db, settings)
+    retrieval_result = retrieval_service.retrieve(content, retrieval_scope)
+    contexts = [ContextChunk.from_candidate(candidate) for candidate in retrieval_result.candidates]
+    citation_metadata = citation_metadata_by_chunk_id(retrieval_result.citations)
+    record_retrieval_hits(db, retrieval_run, retrieval_result)
+    retrieval_metadata: dict[str, object] = {
+        "thread_id": session.id,
+        **retrieval_result.persistence_metadata(),
+    }
 
     if not contexts:
         assistant_message = _assistant_message(db, session, NO_EVIDENCE_RESPONSE, {"no_evidence": True})
         retrieval_run.assistant_message_id = assistant_message.id
         retrieval_run.status = "no_evidence"
-        retrieval_run.metadata_json = _to_json({"thread_id": session.id, "selected_context_count": 0})
+        retrieval_run.metadata_json = _to_json(retrieval_metadata)
         session.updated_at = utcnow()
         db.commit()
         db.refresh(assistant_message)
@@ -179,7 +203,7 @@ def answer_session_message(
         assistant_message = _assistant_message(db, session, NO_EVIDENCE_RESPONSE, {"no_evidence": True})
         retrieval_run.assistant_message_id = assistant_message.id
         retrieval_run.status = "no_evidence"
-        retrieval_run.metadata_json = _to_json({"thread_id": session.id, "selected_context_count": len(contexts)})
+        retrieval_run.metadata_json = _to_json(retrieval_metadata)
         session.updated_at = utcnow()
         db.commit()
         db.refresh(assistant_message)
@@ -190,7 +214,7 @@ def answer_session_message(
         assistant_message = _assistant_message(db, session, NO_EVIDENCE_RESPONSE, {"no_evidence": True})
         retrieval_run.assistant_message_id = assistant_message.id
         retrieval_run.status = "no_evidence"
-        retrieval_run.metadata_json = _to_json({"thread_id": session.id, "selected_context_count": len(contexts)})
+        retrieval_run.metadata_json = _to_json(retrieval_metadata)
         session.updated_at = utcnow()
         db.commit()
         db.refresh(assistant_message)
@@ -200,7 +224,7 @@ def answer_session_message(
         assistant_message = _assistant_message(db, session, NO_EVIDENCE_RESPONSE, {"no_evidence": True})
         retrieval_run.assistant_message_id = assistant_message.id
         retrieval_run.status = "no_evidence"
-        retrieval_run.metadata_json = _to_json({"thread_id": session.id, "selected_context_count": len(contexts)})
+        retrieval_run.metadata_json = _to_json(retrieval_metadata)
         session.updated_at = utcnow()
         db.commit()
         db.refresh(assistant_message)
@@ -209,7 +233,7 @@ def answer_session_message(
     assistant_message = _assistant_message(db, session, repaired_answer, {"no_evidence": False})
     retrieval_run.assistant_message_id = assistant_message.id
     retrieval_run.status = "answered"
-    retrieval_run.metadata_json = _to_json({"thread_id": session.id, "selected_context_count": len(contexts)})
+    retrieval_run.metadata_json = _to_json(_retrieval_metadata_with_final_citations(retrieval_metadata, cited_contexts))
     for index, context in enumerate(cited_contexts, start=1):
         db.add(
             Citation(
@@ -217,7 +241,7 @@ def answer_session_message(
                 retrieval_run_id=retrieval_run.id,
                 document_chunk_id=context.chunk_id,
                 label=f"[{index}]",
-                metadata_json=_to_json(_citation_metadata(context)),
+                metadata_json=_to_json(citation_metadata[context.chunk_id]),
                 created_at=utcnow(),
             )
         )
@@ -227,73 +251,18 @@ def answer_session_message(
     return assistant_message
 
 
-def _retrieve_contexts(
-    db: Session,
-    question: str,
-    embedding_client: EmbeddingClient,
-    qdrant_indexer: QdrantIndexer,
-    settings: Settings,
-) -> list[ContextChunk]:
-    embedding = embedding_client.embed_texts([question]).vectors[0]
-    hits = qdrant_indexer.search_points(
-        embedding,
-        _retrieval_overfetch_limit(settings),
-        collection=_active_retrieval_collection(db, settings),
-    )
-    contexts: list[ContextChunk] = []
-    seen_context_keys: set[tuple[str, ...]] = set()
-    for hit in hits:
-        context = _context_from_hit(db, hit)
-        if context is None or context.score < settings.retrieval_min_score:
-            continue
-        context_key = _context_identity_key(context)
-        if context_key in seen_context_keys:
-            continue
-        seen_context_keys.add(context_key)
-        contexts.append(context)
-        if len(contexts) >= settings.retrieval_top_k:
-            break
-    return contexts
-
-
-def _active_retrieval_collection(db: Session, settings: Settings) -> str:
-    try:
-        return resolve_runtime_context(db=db, pointer_name=DEFAULT_ACTIVE_POINTER_NAME).qdrant_collection
-    except ValueError as exc:
-        if str(exc) == "Active runtime version pointer is not configured":
-            return settings.qdrant_collection
-        raise
-
-
-def _retrieval_overfetch_limit(settings: Settings) -> int:
-    return max(settings.retrieval_top_k * 10, settings.retrieval_top_k + 25)
-
-
-def _context_from_hit(db: Session, hit: QdrantSearchHit) -> ContextChunk | None:
-    chunk_id = hit.payload.get("chunk_id")
-    if not isinstance(chunk_id, str):
-        return None
-    chunk = db.get(DocumentChunk, chunk_id)
-    if chunk is None:
-        return None
-    metadata = json.loads(chunk.metadata_json)
-    metadata["content_hash"] = chunk.content_hash
-    metadata.update(hit.payload)
-    return ContextChunk(chunk_id=chunk.id, content=chunk.content, score=hit.score, metadata=metadata)
-
-
-def _record_hits(db: Session, retrieval_run: RetrievalRun, contexts: Sequence[ContextChunk]) -> None:
-    for rank, context in enumerate(contexts, start=1):
-        db.add(
-            RetrievalHit(
-                retrieval_run_id=retrieval_run.id,
-                document_chunk_id=context.chunk_id,
-                rank=rank,
-                score=f"{context.score:.8f}",
-                metadata_json=_to_json(_citation_metadata(context)),
-                created_at=utcnow(),
-            )
-        )
+def _retrieval_metadata_with_final_citations(
+    metadata: dict[str, object], cited_contexts: Sequence[ContextChunk]
+) -> dict[str, object]:
+    trace = metadata.get("trace")
+    if not isinstance(trace, dict):
+        return metadata
+    updated_trace = dict(cast(dict[str, object], trace))
+    updated_trace["final_citation_choices"] = [
+        {"label": f"[{index}]", "document_chunk_id": context.chunk_id}
+        for index, context in enumerate(cited_contexts, start=1)
+    ]
+    return {**metadata, "trace": updated_trace}
 
 
 def _validated_citations(generation: GeneratedAnswer, contexts: Sequence[ContextChunk]) -> list[ContextChunk]:
@@ -472,129 +441,6 @@ def _citation_markers_match_contexts(answer: str, cited_contexts: Sequence[Conte
         return not cited_contexts
     expected_labels = list(range(1, len(cited_contexts) + 1))
     return marker_labels == expected_labels
-
-
-def _citation_metadata(context: ContextChunk) -> dict[str, object]:
-    metadata = dict(context.metadata)
-    metadata["cited_text"] = context.content
-    if metadata.get("source_type") == "archived_webpage":
-        metadata = _archive_citation_metadata(metadata, context.content)
-    return metadata
-
-
-def _archive_citation_metadata(metadata: dict[str, object], content: str) -> dict[str, object]:
-    archive_metadata = {key: value for key, value in metadata.items() if key not in _ARCHIVE_CITATION_INTERNAL_KEYS}
-    source_id = _metadata_text(metadata, "archive_source_id")
-    target_chunk_id = _metadata_text(metadata, "target_chunk_id")
-    target_selector = _metadata_text(metadata, "target_selector")
-    quote_text = _metadata_text(metadata, "quote") or content
-    section_path = _semantic_section_path_text(archive_metadata)
-
-    archive_metadata["source_type"] = "archived_webpage"
-    archive_metadata["source_title"] = _archive_source_title(metadata)
-    if source_id:
-        archive_metadata["viewer_url"] = _archive_viewer_url(source_id, target_chunk_id, target_selector)
-    if target_chunk_id:
-        archive_metadata["target_chunk_id"] = target_chunk_id
-    if target_selector:
-        archive_metadata["target_selector"] = target_selector
-    archive_metadata["quote"] = quote_text
-    archive_metadata["section_path"] = section_path
-    archive_metadata["cited_text"] = content
-    return archive_metadata
-
-
-def _semantic_section_path_text(metadata: dict[str, object]) -> list[str]:
-    semantic_section = metadata.get("semantic_section")
-    if not isinstance(semantic_section, dict):
-        return []
-    path_text = cast(object, semantic_section.get("path_text"))
-    if not isinstance(path_text, list):
-        return []
-    return [str(part) for part in path_text]
-
-
-def _archive_source_title(metadata: dict[str, object]) -> str:
-    for key in ("source_title", "document_title", "book_title", "source_filename"):
-        value = _metadata_text(metadata, key)
-        if value:
-            return value
-    return "Archived webpage"
-
-
-def _archive_viewer_url(source_id: str, target_chunk_id: str | None, target_selector: str | None) -> str:
-    target = target_chunk_id or _target_from_selector(target_selector)
-    url = f"/records/sources/{quote(source_id, safe='')}/archive/viewer"
-    if target:
-        return f"{url}?target={quote(target, safe='')}"
-    return url
-
-
-def _target_from_selector(target_selector: str | None) -> str | None:
-    if target_selector is None:
-        return None
-    selector = target_selector.strip()
-    if selector.startswith("#"):
-        return selector[1:]
-    return None
-
-
-def _metadata_text(metadata: dict[str, object], key: str) -> str | None:
-    value = metadata.get(key)
-    if not isinstance(value, str):
-        return None
-    text = value.strip()
-    return text or None
-
-
-_ARCHIVE_CITATION_INTERNAL_KEYS = {
-    "archive_anchor_map_path",
-    "archive_entry_path",
-    "archive_manifest_path",
-    "archive_original_path",
-    "archive_served_entry_path",
-    "archive_served_html_path",
-    "archive_storage_path",
-    "jsonl_path",
-    "raw_html_path",
-    "rendered_html_path",
-}
-
-
-def _context_identity_key(context: ContextChunk) -> tuple[str, ...]:
-    metadata = context.metadata
-    source_span_key = [
-        _context_identity_part(metadata, "source_sha256"),
-        _context_identity_part(metadata, "start_char"),
-        _context_identity_part(metadata, "end_char"),
-    ]
-    if all(source_span_key):
-        return tuple(part for part in source_span_key if part)
-    primary_key = [
-        *source_span_key,
-        _context_identity_part(metadata, "chunk_index"),
-    ]
-    if all(primary_key):
-        return tuple(part for part in primary_key if part)
-    fallback_key = [
-        _context_identity_part(metadata, "content_hash"),
-        _context_identity_part(metadata, "source_filename"),
-        _context_identity_part(metadata, "section_heading"),
-        f"content={_normalize_context_content(context.content)}",
-    ]
-    return tuple(part for part in fallback_key if part)
-
-
-def _context_identity_part(metadata: dict[str, object], key: str) -> str | None:
-    value = metadata.get(key)
-    if value is None:
-        return None
-    text = str(value).strip()
-    return f"{key}={text}" if text else None
-
-
-def _normalize_context_content(content: str) -> str:
-    return " ".join(content.split())
 
 
 def _assistant_message(db: Session, session: ChatSession, content: str, metadata: dict[str, object]) -> ChatMessage:

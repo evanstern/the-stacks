@@ -1,88 +1,123 @@
-# pyright: reportMissingImports=false, reportMissingParameterType=false, reportUnknownMemberType=false, reportUnknownParameterType=false, reportUnknownVariableType=false
+from collections.abc import Sequence
+from pathlib import Path
+from typing import override
 
 import pytest
 
-from embedding_eval_support import (
-    collection_identity,
-    evaluate_with_fake_provider,
-    rank_fixture_with_vectors,
-    validate_embedding_dimensions,
-)
+from app.embeddings import EmbeddingBatch
+from app.qdrant_index import QdrantSearchHit
+from tests.embedding_eval_support import derive_evaluation_collection, evaluate_gold_set
+from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
+from fixtures.embedding_eval.gold_fixture import load_embedding_eval_gold_set
 
 
-def test_rank_fixture_with_vectors_calculates_expected_hit_metrics() -> None:
-    result = rank_fixture_with_vectors(
-        document_vectors=[
-            [1.0, 0.0],
-            [0.0, 1.0],
-            [0.8, 0.2],
-        ],
-        query_vectors=[
-            [0.7, 0.3],
-            [1.0, 0.0],
-        ],
+FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "embedding_eval" / "gold_set.fixture.json"
+
+
+def test_evaluate_gold_set_uses_fixture_hits_for_metrics_and_provider_identity() -> None:
+    gold_set = load_embedding_eval_gold_set(FIXTURE_PATH)
+    qdrant = FakeQdrantIndexer(
+        collection_search_hits={
+            "eval_huggingface-sentence-transformers-all-minilm-l6-v2-384": [
+                QdrantSearchHit(id="point-moonwell", score=0.91, payload={"document_id": "doc-moonwell"}),
+                QdrantSearchHit(id="point-orb", score=0.72, payload={"document_id": "doc-glass-orb"}),
+            ],
+        }
+    )
+    embedding_client = FakeEmbeddingClient(dimensions=384, model="sentence-transformers/all-MiniLM-L6-v2")
+
+    result = evaluate_gold_set(
+        gold_set,
+        embedding_client=embedding_client,
+        qdrant_indexer=qdrant,
+        provider="huggingface",
+        collection_prefix="eval",
+        top_k=2,
+    )
+
+    assert embedding_client.requests == [
+        [
+            "What item must be placed on the moonwell at dusk to restore spell slots?",
+            "Which password opens the iron gate after a torch is put out?",
+        ]
+    ]
+    assert qdrant.ensured_dimensions == [384]
+    assert [request[2] for request in qdrant.search_requests] == [result.identity.collection, result.identity.collection]
+    assert result.identity.provider == "huggingface"
+    assert result.identity.model == "sentence-transformers/all-MiniLM-L6-v2"
+    assert result.identity.dimensions == 384
+    assert result.identity.collection == "eval_huggingface-sentence-transformers-all-minilm-l6-v2-384"
+    assert result.metrics == {
+        "hit_rate_at_1": 0.5,
+        "hit_rate_at_top_k": 0.5,
+        "mean_reciprocal_rank": 0.5,
+    }
+    assert [metric.query_id for metric in result.query_metrics] == ["query-moonwell-ritual", "query-gate-password"]
+    assert result.query_metrics[0].retrieved_ids == ["doc-moonwell", "doc-glass-orb"]
+    assert result.query_metrics[0].first_relevant_rank == 1
+    assert result.query_metrics[1].first_relevant_rank is None
+
+
+def test_evaluate_gold_set_computes_reciprocal_rank_when_expected_hit_is_not_first() -> None:
+    gold_set = load_embedding_eval_gold_set(FIXTURE_PATH)
+    qdrant = FakeQdrantIndexer(
+        search_hits=[
+            QdrantSearchHit(id="doc-hard-negative", score=0.99, payload={"document_id": "doc-glass-orb"}),
+            QdrantSearchHit(id="doc-expected", score=0.88, payload={"document_id": "doc-moonwell"}),
+        ]
+    )
+
+    result = evaluate_gold_set(
+        gold_set,
+        embedding_client=FakeEmbeddingClient(dimensions=4, model="deterministic-fixture"),
+        qdrant_indexer=qdrant,
+        provider="deterministic",
+        collection_prefix="eval",
         top_k=2,
     )
 
     assert result.metrics == {
         "hit_rate_at_1": 0.0,
         "hit_rate_at_top_k": 0.5,
-        "mean_reciprocal_rank": 0.416667,
+        "mean_reciprocal_rank": 0.25,
     }
-    assert result.queries[0]["expected_document_ids"] == ["goblin-map"]
-    assert result.queries[0]["first_relevant_rank"] == 2
-    assert result.queries[0]["hit_at_top_k"] is True
-    assert result.queries[1]["expected_document_ids"] == ["healing-potion"]
-    assert result.queries[1]["first_relevant_rank"] == 3
-    assert result.queries[1]["hit_at_top_k"] is False
+    assert result.query_metrics[0].first_relevant_rank == 2
 
 
-def test_collection_identity_is_provider_model_dimension_scoped() -> None:
-    collection = collection_identity(
-        "eval",
-        "huggingface",
+def test_derive_evaluation_collection_includes_sanitized_model_and_dimensions() -> None:
+    collection = derive_evaluation_collection(
+        "eval embeddings",
+        "hf/local",
         "sentence-transformers/all-MiniLM-L6-v2",
         384,
     )
 
-    assert collection == "eval_huggingface-sentence-transformers_all-minilm-l6-v2-384_d262389f"
-    assert collection != "eval"
-    assert "384" in collection
+    assert collection == "eval-embeddings_hf-local-sentence-transformers-all-minilm-l6-v2-384"
 
 
-def test_validate_embedding_dimensions_rejects_mismatched_vector_lengths(capsys) -> None:
-    with pytest.raises(SystemExit) as exc_info:
-        validate_embedding_dimensions([[1.0, 0.0], [0.0]], dimensions=2, expected_count=2)
-
-    assert exc_info.value.code == 1
-    assert "embeddings embedding index=1 dimensions=1, expected 2" in capsys.readouterr().err
+def test_derive_evaluation_collection_rejects_shared_collection_without_identity() -> None:
+    with pytest.raises(ValueError, match="provider, model, and dimensions"):
+        _ = derive_evaluation_collection("eval", "", "", 0)
 
 
-def test_evaluate_with_fake_provider_preserves_identity_and_ensures_collection(monkeypatch) -> None:
-    result, ensured, settings_seen = evaluate_with_fake_provider(
-        monkeypatch=monkeypatch,
-        document_vectors=[
-            [1.0, 0.0],
-            [0.0, 1.0],
-            [0.8, 0.2],
-        ],
-        query_vectors=[
-            [1.0, 0.0],
-            [0.0, 1.0],
-        ],
-        provider="huggingface",
-        model="sentence-transformers/test-model",
-        dimensions=2,
-    )
+def test_evaluate_gold_set_fails_before_search_when_vector_dimensions_do_not_match_metadata() -> None:
+    class MismatchedEmbeddingClient(FakeEmbeddingClient):
+        @override
+        def embed_texts(self, texts: Sequence[str]) -> EmbeddingBatch:
+            return EmbeddingBatch(vectors=[[1.0], [2.0]], model="bad-dimensions", dimensions=2)
 
-    expected_collection = "eval_huggingface-sentence-transformers_test-model-2_6f7e6f72"
-    assert result.identity == {
-        "collection": expected_collection,
-        "dimensions": 2,
-        "model": "sentence-transformers/test-model",
-        "provider": "huggingface",
-        "provider_spec": "huggingface:sentence-transformers/test-model:2",
-    }
-    assert result.metrics == {"hit_rate_at_1": 1.0, "hit_rate_at_top_k": 1.0, "mean_reciprocal_rank": 1.0}
-    assert settings_seen == [{"QDRANT_URL": "http://qdrant.test", "QDRANT_COLLECTION": expected_collection}]
-    assert ensured == [(expected_collection, 2)]
+    gold_set = load_embedding_eval_gold_set(FIXTURE_PATH)
+    qdrant = FakeQdrantIndexer()
+
+    with pytest.raises(ValueError, match="vector dimensions"):
+        _ = evaluate_gold_set(
+            gold_set,
+            embedding_client=MismatchedEmbeddingClient(),
+            qdrant_indexer=qdrant,
+            provider="deterministic",
+            collection_prefix="eval",
+            top_k=2,
+        )
+
+    assert qdrant.ensured_dimensions == [2]
+    assert qdrant.search_requests == []

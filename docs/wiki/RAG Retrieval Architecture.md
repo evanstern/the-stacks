@@ -3,7 +3,7 @@ title: RAG Retrieval Architecture
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-05
 tags:
   - wiki
   - architecture
@@ -12,13 +12,13 @@ tags:
 
 # RAG Retrieval Architecture
 
-This page covers the retrieval layer that answers questions from stored material.
+This page covers the retrieval layer that answers questions from stored material and records a trace of what it used.
 
 ## What this layer owns
 
 - Build the retrieval request from the current chat context and allowed corpus scope.
-- Select candidates from indexed chunks or other permitted records.
-- Rank and trim results before they reach the answer layer.
+- Select candidates from indexed chunks that belong to the active scope.
+- Rank, trim, and persist the retrieval trace before the answer layer uses the result.
 
 ## What this layer does not own
 
@@ -33,17 +33,11 @@ This page covers the retrieval layer that answers questions from stored material
 - Depends on [[Chat Sessions Architecture]] for the active session context.
 - Depends on [[ETL Architecture]] for the available chunk shape and indexing output.
 
-Retrieval should only use data that belongs to the active corpus or another explicitly allowed scope. The fact that content is indexed does not make it globally searchable.
-
-## Open questions
-
-- Which retrieval sources are allowed outside the active corpus, if any.
-- Whether corpus scope should be checked before query execution or after candidate fetch.
-- How much of the retrieval trace should be visible in records.
+Retrieval only uses data that belongs to the active corpus or another explicitly allowed scope. Indexed content is not globally searchable by default.
 
 ## Roadmap note
 
-This page is the architecture anchor for the `rag-retrieval-api-operations` plan. That plan should implement retrieval as a scoped application service and keep corpus eligibility, chat persistence, and queue behavior separate.
+This page is the architecture anchor for the `rag-retrieval-api-operations` plan. That plan should keep retrieval scoped, chat-owned persistence separate, and queue behavior out of the retrieval layer.
 
 ## Related notes
 

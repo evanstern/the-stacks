@@ -1,3 +1,4 @@
+import json
 import os
 
 from sqlalchemy import select
@@ -37,6 +38,7 @@ def test_weak_retrieval_returns_no_evidence_without_calling_chat(db_session: Ses
     assert db_session.scalars(select(Citation).where(Citation.assistant_message_id == assistant.id)).all() == []
     run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
     assert run.status == "no_evidence"
+    assert json.loads(run.metadata_json)["weak_reasons"] == ["no_candidates", "all_candidates_below_min_score"]
 
 
 def test_empty_retrieval_returns_no_evidence(db_session: Session) -> None:
@@ -57,3 +59,6 @@ def test_empty_retrieval_returns_no_evidence(db_session: Session) -> None:
     assert assistant.content == NO_EVIDENCE_RESPONSE
     assert "[" not in assistant.content
     assert chat.requests == []
+    run = db_session.scalars(select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)).one()
+    assert run.status == "no_evidence"
+    assert json.loads(run.metadata_json)["weak_reasons"] == ["empty_result", "no_candidates"]

@@ -42,7 +42,7 @@ def create_indexed_chunk(
     content: str,
     filename: str = "sample.md",
     section: str | None = "Bestiary",
-    qdrant_collection: str = "test_chunks",
+    qdrant_collection: str = "thestacks_chunks",
 ) -> DocumentChunk:
     upload = Upload(
         original_filename=filename,
