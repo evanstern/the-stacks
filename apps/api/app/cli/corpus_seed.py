@@ -10,13 +10,14 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 from tempfile import TemporaryDirectory
 from typing import Any
 
 from fastapi.routing import APIRoute
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, func, select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from ..config import Settings, get_settings
@@ -24,7 +25,7 @@ from ..corpus_manifest import DEFAULT_RUNTIME_VERSION, CorpusManifestError
 from ..corpus_reset import CorpusResetError, CorpusResetService
 from ..corpus_seed import CorpusSeedError, CorpusSeedService, result_to_jsonable
 from ..database import Base, SessionLocal
-from ..version_lifecycle import VersionLifecycleService
+from ..version_lifecycle import DEFAULT_ACTIVE_POINTER_NAME, VersionLifecycleService
 
 PREREQUISITE_PLAN = ".omo/plans/multi-zip-dndbeyond-upload-queue.md"
 DEFAULT_DOCKER_DATABASE_URL = "postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks"
@@ -390,6 +391,111 @@ def _run_seed_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_doctor_report(*, db: Session, settings: Settings, check_qdrant: bool = False) -> dict[str, object]:
+    from ..models import ActiveVersionPointer, IndexedChunk, RuntimeVersion
+
+    pointer = db.get(ActiveVersionPointer, DEFAULT_ACTIVE_POINTER_NAME)
+    runtime = db.get(RuntimeVersion, pointer.runtime_version_id) if pointer is not None else None
+    if pointer is not None and runtime is None:
+        selected_collection = settings.qdrant_collection
+        scope_source = "broken_active_pointer"
+    elif runtime is not None:
+        selected_collection = runtime.qdrant_collection
+        scope_source = "active_runtime"
+    else:
+        selected_collection = settings.qdrant_collection
+        scope_source = "settings_fallback"
+
+    collection_rows = db.execute(
+        select(IndexedChunk.qdrant_collection, func.count(IndexedChunk.id))
+        .group_by(IndexedChunk.qdrant_collection)
+        .order_by(func.count(IndexedChunk.id).desc(), IndexedChunk.qdrant_collection)
+    ).all()
+    indexed_counts = {str(collection): int(count) for collection, count in collection_rows}
+    selected_indexed_chunks = indexed_counts.get(selected_collection, 0)
+
+    remediation: list[str] = []
+    status = "ok"
+    if scope_source == "broken_active_pointer":
+        status = "attention"
+        remediation.append("Active runtime pointer references a missing runtime version; activate a verified ready runtime or repair the pointer.")
+    elif scope_source == "settings_fallback":
+        remediation.append("No active runtime pointer is configured; retrieval is using QDRANT_COLLECTION fallback.")
+    if selected_indexed_chunks == 0:
+        status = "attention"
+        remediation.append("Selected retrieval collection has no indexed_chunks rows; run corpus seed/verify before activation.")
+
+    qdrant: dict[str, object] = {"checked": False}
+    if check_qdrant:
+        qdrant = _inspect_qdrant_collection(settings=settings, collection=selected_collection)
+        if qdrant.get("error") or qdrant.get("exists") is not True:
+            status = "attention"
+            remediation.append("Selected Qdrant collection is unavailable; restore Qdrant storage or reseed and activate a verified runtime.")
+        elif qdrant.get("points") == 0:
+            status = "attention"
+            remediation.append("Selected Qdrant collection exists but has zero points; reseed or restore the indexed corpus before serving chat.")
+
+    report: dict[str, object] = {
+        "status": status,
+        "scope_source": scope_source,
+        "settings_qdrant_collection": settings.qdrant_collection,
+        "selected_qdrant_collection": selected_collection,
+        "selected_indexed_chunks": selected_indexed_chunks,
+        "indexed_chunks_by_collection": indexed_counts,
+        "qdrant": qdrant,
+        "remediation": remediation,
+    }
+    if pointer is not None:
+        report["active_pointer"] = {"name": pointer.name, "runtime_version_id": pointer.runtime_version_id}
+    if runtime is not None:
+        report["active_runtime"] = {
+            "id": runtime.id,
+            "label_slug": runtime.label_slug,
+            "status": runtime.status,
+            "qdrant_collection": runtime.qdrant_collection,
+        }
+    return report
+
+
+def _inspect_qdrant_collection(*, settings: Settings, collection: str) -> dict[str, object]:
+    import httpx
+
+    base_url = settings.qdrant_url.rstrip("/")
+    encoded_collection = quote(collection, safe="")
+    try:
+        collection_response = httpx.get(f"{base_url}/collections/{encoded_collection}", timeout=10)
+        if collection_response.status_code == 404:
+            return {"checked": True, "exists": False, "points": None, "error": "collection_not_found"}
+        _ = collection_response.raise_for_status()
+        count_response = httpx.post(
+            f"{base_url}/collections/{encoded_collection}/points/count",
+            json={"exact": True},
+            timeout=10,
+        )
+        _ = count_response.raise_for_status()
+    except httpx.HTTPError as exc:
+        return {"checked": True, "exists": None, "points": None, "error": str(exc)}
+    count_payload = count_response.json().get("result", {})
+    points = count_payload.get("count") if isinstance(count_payload, dict) else None
+    return {"checked": True, "exists": True, "points": points, "error": None}
+
+
+def _run_doctor_command(args: argparse.Namespace) -> int:
+    settings = get_settings()
+    db = SessionLocal()
+    try:
+        report = build_doctor_report(db=db, settings=settings, check_qdrant=args.check_qdrant)
+        db.rollback()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        print(f"Corpus doctor database error: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        db.close()
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["status"] == "ok" else 1
+
+
 def _run_verify_command(args: argparse.Namespace) -> int:
     settings = get_settings()
     if args.lock_only:
@@ -526,6 +632,8 @@ def build_parser() -> argparse.ArgumentParser:
     _ = reset_parser.add_argument("--version", default=DEFAULT_RUNTIME_VERSION, help="corpus runtime version to reset")
     _ = reset_parser.add_argument("--dry-run", action="store_true", help="print reset manifest without mutation")
     _ = reset_parser.add_argument("--confirm-version", default=None, help="required exact version confirmation for mutation")
+    doctor_parser = subcommands.add_parser("doctor", help="diagnose active corpus retrieval scope and optional Qdrant availability")
+    _ = doctor_parser.add_argument("--check-qdrant", action="store_true", help="perform read-only Qdrant collection existence and point-count checks")
     verify_parser = subcommands.add_parser("verify", help="verify default corpus runtime or lock manifest")
     _ = verify_parser.add_argument("--manifest", type=Path, default=DEFAULT_LOCK_MANIFEST)
     _ = verify_parser.add_argument("--archive-root", type=Path, required=True)
@@ -545,6 +653,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_seed_command(args)
     if args.command == "reset":
         return _run_reset_command(args)
+    if args.command == "doctor":
+        return _run_doctor_command(args)
     if args.command == "verify":
         return _run_verify_command(args)
     parser.error(f"unknown command {args.command}")

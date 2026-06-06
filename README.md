@@ -59,7 +59,7 @@ make etl-live-smoke
 make eval-embeddings
 ```
 
-Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, `make etl-live-smoke` for the compose-backed ETL verification path, and `make eval-embeddings` for the script-first embedding retrieval evaluation harness.
+Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, `make etl-live-smoke` for the compose-backed ETL verification path, `make corpus-doctor` for a read-only active-runtime/Qdrant retrieval health report, and `make eval-embeddings` for the script-first embedding retrieval evaluation harness.
 
 `make test` runs the backend pytest suite, using local pytest when available and a no-dependency API container fallback otherwise; it does not start Postgres, Qdrant, or the application stack. `make smoke` waits for `http://localhost:8000/health` and `http://localhost:5173`, logs in with the dev password, verifies unauthenticated access is rejected, queues a supported Markdown upload, checks unsupported files return `415`, creates an empty chat session, and confirms chat dependency failures are explicit when `OPENAI_API_KEY` is not configured. It also rechecks the frontend on `5173` before exiting.
 
@@ -129,7 +129,7 @@ docker compose down
 
 Use `.env.production.example` as the production-only template. Copy it to a local-only `.env.production`, keep production separate from the local dev compose defaults above, and fill in secrets outside the repo. The production host port is `APP_HOST_PORT=8423`, the browser origin is `CORS_ORIGINS=https://thestacks.ikis.ai`, and secure cookies must stay enabled with `SESSION_COOKIE_SECURE=true`.
 
-Production storage must be durable and isolated from dev data:
+Run `make corpus-doctor` in the production environment when chat reports `Retrieval index is unavailable`; it executes inside the already-running API container and checks the active runtime pointer, selected collection, DB indexed rows, and Qdrant collection/count without mutating data. Deploy the latest API code first with `docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --force-recreate api worker web`, then run `make corpus-doctor COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.production"`. Production storage must be durable and isolated from dev data:
 
 - Postgres must persist `/var/lib/postgresql/data`.
 - Qdrant must persist `/qdrant/storage`.

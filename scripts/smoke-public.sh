@@ -43,7 +43,11 @@ Checks run against each selected base URL:
   /health, /auth/me, /auth/login, /sessions, /sessions/:id/messages,
   /uploads, /jobs/:id, /records/stats, plus SPA responses for / and /login.
 
-The script fails clearly on DNS, HTTP, CORS, or routing mismatches.
+  Public-host checks also post a smoke chat question and fail if retrieval,
+  embedding, or chat infrastructure is unavailable. Local production checks allow
+  a missing OpenAI key but still fail retrieval-index outages.
+
+  The script fails clearly on DNS, HTTP, CORS, routing, or chat dependency mismatches.
 EOF
 }
 
@@ -92,6 +96,27 @@ expect_status() {
     fail "${description} returned HTTP ${status}; expected ${expected}"
   fi
   printf '%s' "$body"
+}
+
+expect_status_one_of() {
+  local description="$1"
+  local expected_csv="$2"
+  shift 2
+  local response status body expected
+
+  response="$(run_curl $(curl_base_args) -D - -o - -w '\n%{http_code}' "$@")" || fail "${description} curl command failed"
+  status="${response##*$'\n'}"
+  body="${response%$'\n'*}"
+  body="${body#*$'\r\n\r\n'}"
+  IFS=',' read -ra expected <<<"$expected_csv"
+  for code in "${expected[@]}"; do
+    if [[ "$status" == "$code" ]]; then
+      printf '%s\n%s' "$status" "$body"
+      return 0
+    fi
+  done
+  printf '%s\n' "$body" >&2
+  fail "${description} returned HTTP ${status}; expected one of ${expected_csv}"
 }
 
 expect_body_contains() {
@@ -178,7 +203,8 @@ check_cors_preflight() {
 run_smoke_for_base() {
   local base_url="$1"
   local label="$2"
-  local health_body unauth_body login_body session_body session_id empty_messages upload_body job_id job_body records_body root_body login_page_body unsupported_body
+  local target="$3"
+  local health_body unauth_body login_body session_body session_id empty_messages chat_response chat_status chat_body upload_body job_id job_body records_body root_body login_page_body unsupported_body
 
   wait_for "${label} health" "${base_url}/health"
   check_cors_preflight "$base_url"
@@ -200,6 +226,20 @@ run_smoke_for_base() {
   if [[ "$empty_messages" != "[]" ]]; then
     printf '%s\n' "$empty_messages" >&2
     fail "${label} empty session messages returned unexpected content"
+  fi
+
+  if [[ "$target" == "public" ]]; then
+    chat_body="$(expect_status 200 "${label} smoke chat question" -b "$COOKIE_JAR" -H "Content-Type: application/json" -d '{"content":"What do red dragons prefer?"}' "${base_url}/sessions/${session_id}/messages")"
+    expect_json_parses "$chat_body" "${label} smoke chat question"
+  else
+    chat_response="$(expect_status_one_of "${label} smoke chat dependency check" "200,503" -b "$COOKIE_JAR" -H "Content-Type: application/json" -d '{"content":"What do red dragons prefer?"}' "${base_url}/sessions/${session_id}/messages")"
+    chat_status="${chat_response%%$'\n'*}"
+    chat_body="${chat_response#*$'\n'}"
+    if [[ "$chat_status" == "503" ]]; then
+      expect_body_contains "$chat_body" "OPENAI_API_KEY is required" "${label} smoke chat dependency check"
+    else
+      expect_json_parses "$chat_body" "${label} smoke chat dependency check"
+    fi
   fi
 
   upload_body="$(expect_status 201 "${label} supported markdown upload" -b "$COOKIE_JAR" -F "file=@${SUPPORTED_FILE};filename=smoke.md;type=text/markdown" "${base_url}/uploads")"
