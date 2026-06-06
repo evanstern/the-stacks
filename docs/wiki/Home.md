@@ -3,7 +3,7 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-05
+updated: 2026-06-06
 tags:
   - wiki
   - etl
@@ -44,4 +44,4 @@ This folder holds the durable notes that should stay current as the roadmap move
 
 ## Roadmap continuation
 
-The next implementation plan after ETL is [[rag-retrieval-api-operations|RAG Retrieval + API Operations]]. It should follow the boundary map above and leave ETL details alone. The corpus contract page is already merged and should be read as current state, not as pending work.
+The next implementation plan after ETL was [[RAG Retrieval Architecture|RAG Retrieval + API Operations]], which is now complete. The corpus contract page is already merged and should be read as current state, not as pending work.

@@ -3,7 +3,7 @@ title: Chat Sessions Architecture
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-05
+updated: 2026-06-06
 tags:
   - wiki
   - architecture
