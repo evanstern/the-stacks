@@ -29,7 +29,7 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 - `main/apps/api/app/etl/load_services.py` owns the staged load services.
 - `main/apps/api/app/retrieval_service.py` owns retrieval scope resolution, lookup, ranking, and trace persistence.
 - `main/apps/api/app/corpus_seed.py`, `main/apps/api/app/corpus_reset.py`, and `main/apps/api/app/version_lifecycle.py` own corpus lifecycle behavior.
-- `main/apps/api/app/chat_rag.py` and `main/apps/api/app/routes_sessions.py` own chat session orchestration and the answer boundary.
+- `main/apps/api/app/chat_rag.py`, `main/apps/api/app/chat_session_service.py`, `main/apps/api/app/chat_citations.py`, and `main/apps/api/app/routes_sessions.py` own chat session orchestration and the answer boundary. `chat_rag.py` is the compatibility facade and LangGraph boundary, `chat_session_service.py` owns the chat-turn orchestration, `chat_citations.py` owns citation validation/repair, and `routes_sessions.py` is the thin HTTP boundary.
 - `main/apps/api/app/routes_uploads.py` and `main/apps/api/app/models.py` carry the upload and job record shapes that the rest of the layers read.
 - These seams mirror the code that already exists today, rather than a future idealized split.
 

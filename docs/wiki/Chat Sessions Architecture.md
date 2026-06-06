@@ -38,8 +38,8 @@ This page covers the chat layer that owns session state and the path from a user
 
 ## Request path
 
-- `routes_sessions.py` wires the session routes and injects `RetrievalService` at the route boundary.
-- `answer_session_message()` in `chat_rag.py` persists the user message, records the retrieval run, and calls `RetrievalService.retrieve()` before the answer graph runs.
+- `routes_sessions.py` is a thin HTTP boundary: it wires the session routes, injects dependencies, invokes the chat service facade, maps errors to safe HTTP shapes, and returns `ChatMessageEnvelope`.
+- `answer_session_message()` in `chat_rag.py` is a compatibility facade that delegates to `chat_session_service.py`, which owns the chat-turn orchestration: user/assistant persistence, retrieval-run lifecycle, retrieval calls, graph invocation, citation validation/repair (via `chat_citations.py`), and session timestamp updates.
 - The route returns a `ChatMessageEnvelope`, not a raw internal result object.
 - Embedding, Qdrant, and runtime failures are mapped to a safe `503` response shape.
 - Citation validation remains a chat-owned step after the answer graph completes.
