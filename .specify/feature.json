@@ -1,0 +1,41 @@
+{
+  "feature": "api-architecture-review",
+  "name": "API layer architecture review",
+  "feature_directory": "specs/002-api-architecture-review",
+  "status": "draft",
+  "created": "2026-06-06",
+  "source": {
+    "user_request": "start a review of the architecture, decisions, design and pattern usage, the API layer only; full sweep; ingest the wiki and align direction based on that data and make suggestions for improvements",
+    "wiki": [
+      "main/docs/wiki/Home.md",
+      "main/docs/wiki/Layer Boundaries.md",
+      "main/docs/wiki/ETL Architecture.md",
+      "main/docs/wiki/ETL Plugin Contracts.md",
+      "main/docs/wiki/LangGraph ETL Decision.md",
+      "main/docs/wiki/RAG Retrieval Architecture.md",
+      "main/docs/wiki/Corpus Management Architecture.md",
+      "main/docs/wiki/Chat Sessions Architecture.md",
+      "main/docs/wiki/Queue Architecture.md"
+    ],
+    "memory": [
+      ".specify/memory/constitution.md"
+    ]
+  },
+  "scope": {
+    "includes": [
+      "API-layer architecture review",
+      "wiki-ingested direction alignment",
+      "FastAPI route and service pattern sweep",
+      "evidence-backed improvement suggestions",
+      "review output contract"
+    ],
+    "excludes": [
+      "runtime API behavior changes",
+      "database migrations",
+      "new API endpoints",
+      "frontend UI work",
+      "worker implementation changes",
+      "broad cross-layer refactors"
+    ]
+  }
+}

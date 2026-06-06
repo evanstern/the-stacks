@@ -18,6 +18,7 @@ database_module = importlib.import_module("app.database")
 models_module = importlib.import_module("app.models")
 
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
+from tests.rag_support import create_indexed_chunk
 
 Settings = config_module.Settings
 Base = database_module.Base
@@ -52,7 +53,7 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def settings(tmp_path: Path) -> object:
+def settings(tmp_path: Path) -> Settings:
     return Settings(DATABASE_URL="sqlite+pysqlite:///:memory:", UPLOAD_DIR=str(tmp_path / "uploads"), QDRANT_COLLECTION="test_chunks")
 
 
@@ -62,7 +63,7 @@ def test_help_lists_task5_commands(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert exc_info.value.code == 0
     output = capsys.readouterr().out
-    for command in ("preflight", "lock", "seed", "reset", "verify"):
+    for command in ("preflight", "lock", "seed", "reset", "verify", "doctor"):
         assert command in output
 
 
@@ -100,7 +101,7 @@ def test_seed_cli_dry_run_uses_local_schema_fallback(monkeypatch: pytest.MonkeyP
     assert output["enqueue_source_ids"] == ["phb-2014", "dmg-2014", "mm-2014"]
 
 
-def test_seed_dry_run_no_mutation(db_session: Session, settings: object) -> None:
+def test_seed_dry_run_no_mutation(db_session: Session, settings: Settings) -> None:
     service = _service(db_session, settings)
     before = _counts(db_session)
 
@@ -111,7 +112,7 @@ def test_seed_dry_run_no_mutation(db_session: Session, settings: object) -> None
     assert _counts(db_session) == before
 
 
-def test_seed_validates_archive_hashes_before_enqueue(db_session: Session, settings: object, tmp_path: Path) -> None:
+def test_seed_validates_archive_hashes_before_enqueue(db_session: Session, settings: Settings, tmp_path: Path) -> None:
     archive_root = tmp_path / "archives"
     archive_root.mkdir()
     for archive in ARCHIVE_ROOT.glob("*.zip"):
@@ -126,7 +127,7 @@ def test_seed_validates_archive_hashes_before_enqueue(db_session: Session, setti
     assert _counts(db_session)["jobs"] == 0
 
 
-def test_seed_waits_for_batch_completion(db_session: Session, settings: object) -> None:
+def test_seed_waits_for_batch_completion(db_session: Session, settings: Settings) -> None:
     service = _service(db_session, settings)
 
     result = service.seed(manifest_path=FIXTURE_LOCK, archive_root=ARCHIVE_ROOT, version="default-corpus", dry_run=False)
@@ -142,7 +143,7 @@ def test_seed_waits_for_batch_completion(db_session: Session, settings: object) 
     assert _source_ids(db_session) == ["dmg-2014", "mm-2014", "phb-2014"]
 
 
-def test_verify_fixture_success_and_failure(db_session: Session, settings: object) -> None:
+def test_verify_fixture_success_and_failure(db_session: Session, settings: Settings) -> None:
     service = _service(db_session, settings)
     _ = service.seed(manifest_path=FIXTURE_LOCK, archive_root=ARCHIVE_ROOT, version="default-corpus", dry_run=False)
 
@@ -157,7 +158,7 @@ def test_verify_fixture_success_and_failure(db_session: Session, settings: objec
         service.verify(manifest_path=FIXTURE_LOCK, archive_root=ARCHIVE_ROOT, version="default-corpus")
 
 
-def test_lock_uses_temporary_runtime_and_cleans_up(db_session: Session, settings: object, tmp_path: Path) -> None:
+def test_lock_uses_temporary_runtime_and_cleans_up(db_session: Session, settings: Settings, tmp_path: Path) -> None:
     service = _service(db_session, settings)
     output = tmp_path / "generated.lock.json"
 
@@ -177,7 +178,7 @@ def test_lock_uses_temporary_runtime_and_cleans_up(db_session: Session, settings
     assert db_session.scalars(select(Source)).all() == []
 
 
-def test_seed_resume_partial_previous_state(db_session: Session, settings: object) -> None:
+def test_seed_resume_partial_previous_state(db_session: Session, settings: Settings) -> None:
     service = _service(db_session, settings)
     first = service.seed(manifest_path=FIXTURE_LOCK, archive_root=ARCHIVE_ROOT, version="default-corpus", dry_run=False)
     assert first.batch_id is not None
@@ -199,13 +200,83 @@ def test_seed_resume_partial_previous_state(db_session: Session, settings: objec
     assert len(db_session.scalars(select(Source).where(Source.id == "phb-2014")).all()) == 1
 
 
-def _service(db: Session, settings: object) -> CorpusSeedService:
+def test_doctor_reports_active_runtime_scope(db_session: Session, settings: Settings) -> None:
+    service = _service(db_session, settings)
+    _ = service.seed(manifest_path=FIXTURE_LOCK, archive_root=ARCHIVE_ROOT, version="default-corpus", dry_run=False)
+    runtime = db_session.scalars(select(RuntimeVersion).where(RuntimeVersion.label_slug == "default-corpus")).one()
+    db_session.add(ActiveVersionPointer(name="default", runtime_version_id=runtime.id))
+    db_session.commit()
+
+    report = corpus_seed_cli.build_doctor_report(db=db_session, settings=settings)
+
+    assert report["status"] == "ok"
+    assert report["scope_source"] == "active_runtime"
+    assert report["selected_qdrant_collection"] == runtime.qdrant_collection
+    assert report["selected_indexed_chunks"] == report["indexed_chunks_by_collection"][runtime.qdrant_collection]
+    assert report["selected_indexed_chunks"] > 0
+    assert report["active_runtime"]["status"] == "ready"
+
+
+def test_doctor_warns_when_fallback_collection_has_no_indexed_chunks(db_session: Session, settings: Settings) -> None:
+    report = corpus_seed_cli.build_doctor_report(db=db_session, settings=settings)
+
+    assert report["status"] == "attention"
+    assert report["scope_source"] == "settings_fallback"
+    assert report["selected_qdrant_collection"] == settings.qdrant_collection
+    assert report["selected_indexed_chunks"] == 0
+    assert "No active runtime pointer is configured" in report["remediation"][0]
+
+
+def test_doctor_warns_when_qdrant_collection_is_missing(monkeypatch: pytest.MonkeyPatch, db_session: Session, settings: Settings) -> None:
+    chunk = create_indexed_chunk(db_session, "Indexed only in Postgres.", qdrant_collection="active_chunks")
+    runtime = RuntimeVersion(
+        id="99999999-9999-4999-8999-999999999999",
+        label_slug="default-corpus",
+        status="ready",
+        database_name="tsv_doctor",
+        database_url="postgresql+psycopg://test/test",
+        qdrant_collection="active_chunks",
+        upload_prefix="versions/doctor/uploads",
+        static_prefix="versions/doctor/static",
+        runtime_prefix="versions/doctor/runtime",
+        source_archive_hash=_archive_hash(db_session),
+    )
+    db_session.add(runtime)
+    db_session.add(ActiveVersionPointer(name="default", runtime_version_id=runtime.id))
+    db_session.commit()
+    assert chunk.id
+    monkeypatch.setattr(
+        corpus_seed_cli,
+        "_inspect_qdrant_collection",
+        lambda *, settings, collection: {"checked": True, "exists": False, "points": None, "error": "collection_not_found"},
+    )
+
+    report = corpus_seed_cli.build_doctor_report(db=db_session, settings=settings, check_qdrant=True)
+
+    assert report["status"] == "attention"
+    assert report["selected_indexed_chunks"] == 1
+    assert report["qdrant"]["exists"] is False
+    assert any("restore Qdrant storage" in item for item in report["remediation"])
+
+
+
+def _service(db: Session, settings: Settings) -> CorpusSeedService:
     return CorpusSeedService(
         db=db,
         settings=settings,
         embedding_client=FakeEmbeddingClient(dimensions=3),
         qdrant_indexer_factory=lambda collection: FakeQdrantIndexer(collection=collection),
     )
+
+
+def _archive_hash(db: Session) -> str:
+    from app.version_lifecycle import store_immutable_source_archive
+
+    return store_immutable_source_archive(
+        db=db,
+        settings=Settings(DATABASE_URL="sqlite+pysqlite:///:memory:"),
+        content=b"doctor archive",
+    ).content_hash
 
 
 def _counts(db: Session) -> dict[str, int]:
