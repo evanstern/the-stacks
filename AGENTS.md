@@ -8,6 +8,7 @@ The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` i
 
 - Read `main/README.md` before changing anything that touches local run or verification behavior.
 - Treat `.omo/plans/`, `.omo/notepads/`, and `.omo/evidence/` as part of the workflow; keep them intact and follow the active plan.
+- For the live DB-backed queue planning work, start with `specs/001-live-db-backed-queue/plan.md` so the canonical queue boundary stays in view.
 - Keep `.omo/` at the repo root beside the worktrees. Do not move it into `.bare/` or treat `.bare/` as a place for tracked project docs.
 - Avoid editing generated output, backups, and recovery artifacts unless the task explicitly requires it.
 - Keep the ETL wiki under `main/docs/wiki/` current, and add new durable notes there instead of scattering them through ad hoc docs.
