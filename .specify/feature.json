@@ -1,0 +1,39 @@
+{
+  "feature": "live-db-backed-queue-claim-status",
+  "name": "Live DB-backed queue claim/status handling",
+  "feature_directory": "specs/001-live-db-backed-queue",
+  "status": "draft",
+  "created": "2026-06-06",
+  "source": {
+    "plan": ".omo/plans/multi-zip-dndbeyond-upload-queue.md",
+    "wiki": [
+      "main/docs/wiki/Layer Boundaries.md",
+      "main/docs/wiki/Queue Architecture.md"
+    ],
+    "memory": [
+      ".specify/memory/constitution.md",
+      ".omo/notepads/multi-zip-dndbeyond-upload-queue/learnings.md",
+      ".omo/notepads/multi-zip-dndbeyond-upload-queue/issues.md",
+      ".omo/notepads/multi-zip-dndbeyond-upload-queue/decisions.md",
+      ".omo/notepads/multi-zip-dndbeyond-upload-queue/problems.md"
+    ]
+  },
+  "scope": {
+    "includes": [
+      "current DB-backed claim/status handling",
+      "operator-facing queue boundary",
+      "job visibility and status flow",
+      "scope assumptions and guardrails"
+    ],
+    "excludes": [
+      "brokered queue redesign",
+      "retry controls",
+      "cancel controls",
+      "admin dashboards",
+      "admin workflows",
+      "ETL ownership changes",
+      "chat ownership changes",
+      "corpus ownership changes"
+    ]
+  }
+}
