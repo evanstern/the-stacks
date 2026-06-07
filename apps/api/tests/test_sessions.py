@@ -7,7 +7,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+os.environ["ADMIN_PASSWORD_HASH"] = (
+    "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+)
 os.environ["SESSION_SECRET"] = "test-session-secret"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
@@ -23,7 +25,9 @@ def client() -> Generator[TestClient, None, None]:
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    TestingSessionLocal = sessionmaker(
+        bind=engine, autoflush=False, expire_on_commit=False
+    )
     Base.metadata.create_all(bind=engine)
 
     def override_db() -> Generator[Session, None, None]:
@@ -43,7 +47,12 @@ def client() -> Generator[TestClient, None, None]:
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_settings] = override_settings
     with TestClient(app) as test_client:
-        assert test_client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        assert (
+            test_client.post(
+                "/auth/login", json={"password": "admin-password"}
+            ).status_code
+            == 200
+        )
         yield test_client
     app.dependency_overrides.clear()
 
@@ -69,7 +78,10 @@ def test_create_list_latest_and_get_session(client: TestClient) -> None:
 
     list_response = client.get("/sessions")
     assert list_response.status_code == 200
-    assert [session["id"] for session in list_response.json()] == [second_payload["id"], first_payload["id"]]
+    assert [session["id"] for session in list_response.json()] == [
+        second_payload["id"],
+        first_payload["id"],
+    ]
 
     latest_response = client.get("/sessions/latest")
     assert latest_response.status_code == 200
@@ -91,3 +103,15 @@ def test_get_session_returns_404_for_missing_session(client: TestClient) -> None
     response = client.get("/sessions/not-found")
 
     assert response.status_code == 404
+
+
+def test_get_session_message_route_returns_public_safe_missing_session_detail(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/sessions/not-found/messages",
+        json={"content": "Where are the dragons?"},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Session not found"}

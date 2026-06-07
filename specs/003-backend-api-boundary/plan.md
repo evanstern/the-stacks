@@ -1,40 +1,38 @@
-# Implementation Plan: API Boundary Architecture
+# Implementation Plan: API Boundary Hardening for Session Messages
 
 **Branch**: `003-backend-api-boundary` | **Date**: 2026-06-07 | **Spec**: `/specs/003-backend-api-boundary/spec.md`
 
 **Input**: Feature specification from `/specs/003-backend-api-boundary/spec.md`
 
-**Note**: This plan records documentation-only work for the API boundary wiki contract. It does not change runtime API behavior.
-
 ## Summary
 
-Create a durable `docs/wiki/API Boundary Architecture.md` note, link it from `docs/wiki/Home.md`, keep `docs/wiki/Layer Boundaries.md` concise by linking or aligning to the new page, and document the route/service boundary, dependency injection seams, public error mapping, response contract expectations, test seams, and wiki preflight/postflight rule so later backend refactors start from one stable architecture contract. This feature is documentation-only and must not change runtime API behavior.
+Harden the session message API boundary in runtime code and tests. The implementation slice centers on `POST /sessions/{session_id}/messages`, keeps the route thin, keeps `apps/api/app/chat_session_service.py` as the workflow seam, preserves the public `ChatMessageEnvelope` contract, and uses named FastAPI dependency seams so tests can override collaborators cleanly. Include the companion session read path only if it is needed to keep the boundary coherent.
 
 ## Technical Context
 
-**Language/Version**: Markdown documentation in the repository wiki, with existing FastAPI/Python 3.11 API evidence as reference context
+**Language/Version**: Markdown spec package, with existing FastAPI/Python runtime code as the implementation target
 
-**Primary Dependencies**: `docs/wiki/Home.md`, `docs/wiki/Layer Boundaries.md`, `docs/wiki/API Boundary Architecture.md`, `specs/003-backend-api-boundary/spec.md`, `specs/003-backend-api-boundary/research.md`, `.omo/notepads/backend-phase-01-api-boundary/learnings.md`
+**Primary Dependencies**: `apps/api/app/routes_sessions.py`, `apps/api/app/chat_session_service.py`, `apps/api/app/schemas.py`, `apps/api/tests/test_sessions.py`, `apps/api/tests/test_chat_rag.py`, `apps/api/tests/test_contracts.py`, `.omo/notepads/backend-phase-01-api-boundary/learnings.md`
 
-**Storage**: N/A, documentation-only work
+**Storage**: No new storage changes
 
-**Testing**: Wiki review, frontmatter timestamp check, and placeholder scan for unresolved template markers; no runtime test changes
+**Testing**: Focused route and service tests with `TestClient`, dependency overrides, and public contract assertions; no docs-only validation as the primary gate
 
-**Target Platform**: Repository documentation in a Linux worktree for The Stacks
+**Target Platform**: The Stacks backend API worktree on Linux
 
-**Project Type**: documentation/wiki feature in a web-service repository
+**Project Type**: Web-service backend feature with runtime route and test hardening
 
-**Performance Goals**: N/A, no runtime path changes
+**Performance Goals**: Keep the route path thin and keep test isolation fast enough that the boundary can be verified without live external services
 
-**Constraints**: No runtime API behavior changes; preserve operator-supplied content boundaries; keep `docs/wiki/Home.md` as the entry point; keep `docs/wiki/Layer Boundaries.md` concise; refresh `updated` frontmatter on changed wiki pages; work from the feature branch/worktree rather than deploy-only `main`
+**Constraints**: No broad API refactor, no database migrations, no frontend work, no new wiki-first deliverable, preserve current public session-message error shapes unless tests show a narrow correction is needed, and keep the scope centered on the session message boundary
 
-**Scale/Scope**: Three wiki pages plus the planning artifact, with no source code or test file edits
+**Scale/Scope**: One route boundary, one service seam, one public response contract, and the tests that lock them
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Pass. This work stays inside the constitution by preserving durable architecture boundaries, keeping operator-facing documentation under `docs/wiki/`, avoiding any runtime API change, and maintaining the bare-worktree model by editing the feature branch only. No TDD requirement applies because this is documentation-only work; verification is limited to wiki review, frontmatter updates, and placeholder scans.
+Pass. This work stays inside the project constraints by keeping the feature code-first, narrowing the slice to the session message boundary, preserving the current public API contract, and avoiding unrelated route or schema refactors. The runtime work can be verified with focused tests rather than docs-only checks.
 
 ## Project Structure
 
@@ -42,28 +40,30 @@ Pass. This work stays inside the constitution by preserving durable architecture
 
 ```text
 specs/003-backend-api-boundary/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Not needed for this docs-only feature
-├── quickstart.md        # Not needed for this docs-only feature
-├── contracts/           # Not needed for this docs-only feature
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── spec.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── plan.md
+└── tasks.md
 ```
 
-### Source Code (repository root)
+### Source Code (implementation target)
 
 ```text
-docs/wiki/
-├── Home.md
-├── Layer Boundaries.md
-└── API Boundary Architecture.md
+apps/api/app/
+├── routes_sessions.py
+├── chat_session_service.py
+└── schemas.py
 
-apps/api/           # Existing runtime API modules referenced by the research only; no edits planned
-tests/              # Existing runtime tests referenced by the research only; no edits planned
+apps/api/tests/
+├── test_sessions.py
+├── test_chat_rag.py
+└── test_contracts.py
 ```
 
-**Structure Decision**: This is a docs-only wiki feature. The implementation touches `docs/wiki/Home.md`, `docs/wiki/Layer Boundaries.md`, and adds `docs/wiki/API Boundary Architecture.md` so the API boundary contract becomes part of the durable architecture spine. The runtime API areas under `apps/api/` and `tests/` are intentionally left unchanged because the feature forbids runtime behavior changes.
+**Structure Decision**: This is a runtime hardening feature. The implementation should stay focused on the session message route-to-service seam and the tests that prove the boundary. Supporting docs and wiki notes may remain in the background, but they are not the feature output.
 
 ## Complexity Tracking
 
-Not applicable. The constitution check passes without violations, so no complexity justification is needed for this documentation-only feature.
+Not applicable. The slice is intentionally narrow, and the work is about locking an already existing boundary rather than inventing a new architecture layer.
