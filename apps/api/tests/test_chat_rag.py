@@ -19,6 +19,7 @@ from app.chat_rag import _system_prompt, answer_session_message
 from app.config import Settings, get_settings
 from app.database import get_db
 from app.embeddings import EmbeddingBatch, EmbeddingError
+import app.chat_session_service as chat_session_service
 from app.main import app
 from app.models import ChatMessage, Citation, RetrievalHit, RetrievalRun, RuntimeVersion
 from app.routes_sessions import (
@@ -26,6 +27,7 @@ from app.routes_sessions import (
     _embedding_dependency,
     _graph_dependency,
     _qdrant_dependency,
+    _chat_session_service_dependency,
     _retrieval_service_dependency,
 )
 from app.qdrant_index import QdrantIndexError, QdrantSearchHit
@@ -751,6 +753,47 @@ def test_post_session_message_returns_grounded_answer_shape(
     assert run.assistant_message_id == payload["assistant_message"]["id"]
 
 
+def test_post_session_message_route_contract_isolated_by_dependency_overrides(
+    db_session: Session,
+) -> None:
+    session = create_session(db_session)
+    chunk = create_indexed_chunk(
+        db_session, "Boundary dragons prefer volcanic lairs.", filename="boundary.md"
+    )
+    chat = FakeChatClient("Boundary dragons prefer volcanic lairs. [1]", [chunk.id])
+    graph = CapturingGraphInvoker(chat)
+
+    with _client(db_session, FakeQdrantIndexer(search_hits=[]), chat, graph) as client:
+        app.dependency_overrides[_retrieval_service_dependency] = lambda: (
+            BoundaryRetrievalService(db_session, chunk.id, chunk.content)
+        )
+        response = client.post(
+            f"/sessions/{session.id}/messages",
+            json={"content": "Use the service boundary?"},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload) == {
+        "user_message",
+        "assistant_message",
+        "retrieval_run_id",
+        "no_evidence",
+    }
+    assert payload["assistant_message"]["metadata"] == {"no_evidence": False}
+    assert payload["no_evidence"] is False
+    assert payload["assistant_message"]["citations"][0]["document_chunk_id"] == chunk.id
+    assert payload["assistant_message"]["citations"][0]["label"] == "[1]"
+    assert (
+        db_session.scalars(
+            select(RetrievalRun).where(RetrievalRun.chat_session_id == session.id)
+        )
+        .one()
+        .status
+        == "answered"
+    )
+
+
 def test_post_session_message_invokes_retrieval_service_boundary(
     db_session: Session,
 ) -> None:
@@ -766,6 +809,9 @@ def test_post_session_message_invokes_retrieval_service_boundary(
 
     with _client(db_session, FakeQdrantIndexer(search_hits=[]), chat, graph) as client:
         app.dependency_overrides[_retrieval_service_dependency] = lambda: service
+        app.dependency_overrides[_chat_session_service_dependency] = lambda: (
+            chat_session_service
+        )
         response = client.post(
             f"/sessions/{session.id}/messages",
             json={"content": "Use the service boundary?"},

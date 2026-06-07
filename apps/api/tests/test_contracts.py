@@ -9,7 +9,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import inspect, select
 from sqlalchemy.orm import Session
 
-os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+os.environ["ADMIN_PASSWORD_HASH"] = (
+    "$2b$12$AVhh6Snv3FcaevOnJ0dwR.SfBrkaPp036/Nt/wwdVTsVQNuR1XKx2"
+)
 os.environ["SESSION_SECRET"] = "test-session-secret"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
@@ -17,9 +19,20 @@ from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.ingestion import process_next_job
 from app.main import app
-from app.chat_rag import PostgresCheckpointedGraphInvoker, RetrievalGraphInvoker, get_graph_invoker, message_citations
+from app.chat_rag import (
+    PostgresCheckpointedGraphInvoker,
+    RetrievalGraphInvoker,
+    get_graph_invoker,
+    message_citations,
+)
 from app.models import Document, DocumentChunk, Section, Source
-from app.routes_sessions import _chat_dependency, _qdrant_dependency
+from app.routes_sessions import (
+    _chat_dependency,
+    _embedding_dependency,
+    _graph_dependency,
+    _qdrant_dependency,
+    _retrieval_service_dependency,
+)
 from tests.rag_support import FakeChatClient, create_indexed_chunk, create_session
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 from app.qdrant_index import QdrantSearchHit
@@ -33,13 +46,23 @@ def test_canonical_schema_tables_exist(db_session: Session) -> None:
     assert "document_chunks" not in table_names
 
 
-def test_chat_record_foreign_keys_target_canonical_chunks_table(db_session: Session) -> None:
+def test_chat_record_foreign_keys_target_canonical_chunks_table(
+    db_session: Session,
+) -> None:
     inspector = inspect(db_session.bind)
     retrieval_hit_fks = inspector.get_foreign_keys("retrieval_hits")
     citation_fks = inspector.get_foreign_keys("citations")
 
-    assert any(fk["referred_table"] == "chunks" and fk["constrained_columns"] == ["document_chunk_id"] for fk in retrieval_hit_fks)
-    assert any(fk["referred_table"] == "chunks" and fk["constrained_columns"] == ["document_chunk_id"] for fk in citation_fks)
+    assert any(
+        fk["referred_table"] == "chunks"
+        and fk["constrained_columns"] == ["document_chunk_id"]
+        for fk in retrieval_hit_fks
+    )
+    assert any(
+        fk["referred_table"] == "chunks"
+        and fk["constrained_columns"] == ["document_chunk_id"]
+        for fk in citation_fks
+    )
 
 
 def test_repair_migration_retargets_legacy_document_chunk_foreign_keys() -> None:
@@ -49,13 +72,26 @@ def test_repair_migration_retargets_legacy_document_chunk_foreign_keys() -> None
 
     recorder = migration.op
     assert recorder.dropped == [("retrieval_hits", "foreignkey")]
-    assert recorder.created == [("retrieval_hits", "chunks", ["document_chunk_id"], ["id"], True)]
+    assert recorder.created == [
+        ("retrieval_hits", "chunks", ["document_chunk_id"], ["id"], True)
+    ]
 
 
-def test_ingestion_writes_canonical_source_document_section_chunk_records(db_session: Session, tmp_path: Path) -> None:
-    create_upload_and_job(db_session, tmp_path, "sample.md", "# Bestiary\nAncient red dragons prefer volcanic lairs.")
+def test_ingestion_writes_canonical_source_document_section_chunk_records(
+    db_session: Session, tmp_path: Path
+) -> None:
+    create_upload_and_job(
+        db_session,
+        tmp_path,
+        "sample.md",
+        "# Bestiary\nAncient red dragons prefer volcanic lairs.",
+    )
 
-    processed = process_next_job(db_session, embedding_client=FakeEmbeddingClient(), qdrant_indexer=FakeQdrantIndexer())
+    processed = process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=FakeQdrantIndexer(),
+    )
 
     assert processed is not None
     source = db_session.scalars(select(Source)).one()
@@ -73,8 +109,15 @@ def test_ingestion_writes_canonical_source_document_section_chunk_records(db_ses
     assert chunk.token_count > 0
 
 
-def test_jobs_route_surface_exposes_detail_and_events(db_session: Session, tmp_path: Path) -> None:
-    job = create_upload_and_job(db_session, tmp_path, "sample.md", "# Bestiary\nAncient red dragons prefer volcanic lairs.")
+def test_jobs_route_surface_exposes_detail_and_events(
+    db_session: Session, tmp_path: Path
+) -> None:
+    job = create_upload_and_job(
+        db_session,
+        tmp_path,
+        "sample.md",
+        "# Bestiary\nAncient red dragons prefer volcanic lairs.",
+    )
 
     with _client(db_session) as client:
         detail = client.get(f"/jobs/{job.id}")
@@ -86,9 +129,20 @@ def test_jobs_route_surface_exposes_detail_and_events(db_session: Session, tmp_p
     assert isinstance(events.json(), list)
 
 
-def test_records_sources_reads_canonical_sources(db_session: Session, tmp_path: Path) -> None:
-    create_upload_and_job(db_session, tmp_path, "sample.md", "# Bestiary\nAncient red dragons prefer volcanic lairs.")
-    process_next_job(db_session, embedding_client=FakeEmbeddingClient(), qdrant_indexer=FakeQdrantIndexer())
+def test_records_sources_reads_canonical_sources(
+    db_session: Session, tmp_path: Path
+) -> None:
+    create_upload_and_job(
+        db_session,
+        tmp_path,
+        "sample.md",
+        "# Bestiary\nAncient red dragons prefer volcanic lairs.",
+    )
+    process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=FakeQdrantIndexer(),
+    )
 
     with _client(db_session) as client:
         response = client.get("/records/sources")
@@ -102,8 +156,17 @@ def test_records_sources_reads_canonical_sources(db_session: Session, tmp_path: 
 
 
 def test_records_stats_reads_total_counts(db_session: Session, tmp_path: Path) -> None:
-    create_upload_and_job(db_session, tmp_path, "sample.md", "# Bestiary\nAncient red dragons prefer volcanic lairs.")
-    process_next_job(db_session, embedding_client=FakeEmbeddingClient(), qdrant_indexer=FakeQdrantIndexer())
+    create_upload_and_job(
+        db_session,
+        tmp_path,
+        "sample.md",
+        "# Bestiary\nAncient red dragons prefer volcanic lairs.",
+    )
+    process_next_job(
+        db_session,
+        embedding_client=FakeEmbeddingClient(),
+        qdrant_indexer=FakeQdrantIndexer(),
+    )
 
     with _client(db_session) as client:
         response = client.get("/records/stats")
@@ -125,18 +188,24 @@ def test_openapi_documents_chat_envelope_and_jobs_routes(db_session: Session) ->
 
     assert "/jobs/{job_id}" in schema["paths"]
     assert "/jobs/{job_id}/events" in schema["paths"]
-    response_schema = schema["paths"]["/sessions/{session_id}/messages"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]
+    response_schema = schema["paths"]["/sessions/{session_id}/messages"]["post"][
+        "responses"
+    ]["200"]["content"]["application/json"]["schema"]
     assert response_schema["$ref"].endswith("/ChatMessageEnvelope")
 
 
-def test_openapi_documents_canonical_upload_url_and_batch_contract(db_session: Session) -> None:
+def test_openapi_documents_canonical_upload_url_and_batch_contract(
+    db_session: Session,
+) -> None:
     with _client(db_session) as client:
         schema = client.get("/openapi.json").json()
 
     assert "/uploads" in schema["paths"]
     assert "/api/uploads" not in schema["paths"]
     upload_post = schema["paths"]["/uploads"]["post"]
-    request_body = upload_post["requestBody"]["content"]["multipart/form-data"]["schema"]
+    request_body = upload_post["requestBody"]["content"]["multipart/form-data"][
+        "schema"
+    ]
     request_body_schema = _resolve_openapi_ref(schema, request_body)
     properties = request_body_schema["properties"]
     assert isinstance(properties, dict)
@@ -146,7 +215,9 @@ def test_openapi_documents_canonical_upload_url_and_batch_contract(db_session: S
     assert isinstance(items_schema, dict)
     assert file_schema["type"] == "array"
     assert items_schema["format"] == "binary"
-    response_schema = upload_post["responses"]["201"]["content"]["application/json"]["schema"]
+    response_schema = upload_post["responses"]["201"]["content"]["application/json"][
+        "schema"
+    ]
     assert _openapi_schema_includes_ref(response_schema, "UploadBatchQueued")
 
 
@@ -170,7 +241,13 @@ def test_batch_status_endpoint_contract(db_session: Session) -> None:
     )
     db_session.add(upload)
     db_session.flush()
-    job = IngestionJob(upload_id=upload.id, batch_id=batch.id, status="queued", created_at=now, updated_at=now)
+    job = IngestionJob(
+        upload_id=upload.id,
+        batch_id=batch.id,
+        status="queued",
+        created_at=now,
+        updated_at=now,
+    )
     db_session.add(job)
     db_session.commit()
 
@@ -179,11 +256,27 @@ def test_batch_status_endpoint_contract(db_session: Session) -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert set(payload) == {"batch_id", "status", "file_count", "created_at", "updated_at", "items", "summary", "upload_status_url"}
+    assert set(payload) == {
+        "batch_id",
+        "status",
+        "file_count",
+        "created_at",
+        "updated_at",
+        "items",
+        "summary",
+        "upload_status_url",
+    }
     assert payload["batch_id"] == batch.id
     assert payload["status"] == "queued"
     assert payload["upload_status_url"] == f"/upload?batch_id={batch.id}"
-    assert set(payload["summary"]) == {"queued", "running", "completed", "partial_failed", "failed", "total"}
+    assert set(payload["summary"]) == {
+        "queued",
+        "running",
+        "completed",
+        "partial_failed",
+        "failed",
+        "total",
+    }
     for item in payload["items"]:
         assert set(item) == {"filename", "upload_id", "job_id", "status", "error"}
 
@@ -196,48 +289,175 @@ def test_batch_status_endpoint_404s_unknown_batch(db_session: Session) -> None:
     assert response.json() == {"detail": "Upload batch not found"}
 
 
-def test_session_message_route_preserves_citation_metadata_and_marker_order(db_session: Session) -> None:
+def test_session_message_route_preserves_citation_metadata_and_marker_order(
+    db_session: Session,
+) -> None:
     import app.routes_sessions as routes_sessions
 
     session = create_session(db_session)
-    first_chunk = create_indexed_chunk(db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md")
-    second_chunk = create_indexed_chunk(db_session, "Ancient red dragons hoard treasure obsessively.", filename="second.md")
+    first_chunk = create_indexed_chunk(
+        db_session, "Ancient red dragons prefer volcanic lairs.", filename="first.md"
+    )
+    second_chunk = create_indexed_chunk(
+        db_session,
+        "Ancient red dragons hoard treasure obsessively.",
+        filename="second.md",
+    )
 
     with _client(db_session) as client:
-        app.dependency_overrides[routes_sessions._qdrant_dependency] = lambda: FakeQdrantIndexer(
-            search_hits=[
-                QdrantSearchHit(id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}),
-                QdrantSearchHit(id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}),
-            ]
+        app.dependency_overrides[routes_sessions._qdrant_dependency] = lambda: (
+            FakeQdrantIndexer(
+                search_hits=[
+                    QdrantSearchHit(
+                        id="point-1", score=0.92, payload={"chunk_id": first_chunk.id}
+                    ),
+                    QdrantSearchHit(
+                        id="point-2", score=0.88, payload={"chunk_id": second_chunk.id}
+                    ),
+                ]
+            )
         )
-        app.dependency_overrides[routes_sessions._embedding_dependency] = lambda: FakeEmbeddingClient()
-        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: FakeChatClient(
-            "Ancient red dragons prefer volcanic lairs [1] and hoard treasure obsessively [2].",
-            [second_chunk.id, first_chunk.id],
+        app.dependency_overrides[routes_sessions._embedding_dependency] = lambda: (
+            FakeEmbeddingClient()
         )
-        response = client.post(f"/sessions/{session.id}/messages", json={"content": "Where do ancient red dragons lair?"})
+        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: (
+            FakeChatClient(
+                "Ancient red dragons prefer volcanic lairs [1] and hoard treasure obsessively [2].",
+                [second_chunk.id, first_chunk.id],
+            )
+        )
+        response = client.post(
+            f"/sessions/{session.id}/messages",
+            json={"content": "Where do ancient red dragons lair?"},
+        )
 
     assert response.status_code == 200
     payload = response.json()
+    assert set(payload) == {
+        "user_message",
+        "assistant_message",
+        "retrieval_run_id",
+        "no_evidence",
+    }
+    assert payload["user_message"]["role"] == "user"
+    assert payload["assistant_message"]["role"] == "assistant"
+    assert payload["assistant_message"]["metadata"] == {"no_evidence": False}
+    assert payload["no_evidence"] is False
     citations = payload["assistant_message"]["citations"]
-    persisted_citations = message_citations(db_session, payload["assistant_message"]["id"])
+    persisted_citations = message_citations(
+        db_session, payload["assistant_message"]["id"]
+    )
 
-    assert [citation["label"] for citation in citations] == [citation.label for citation in persisted_citations]
-    assert [citation["document_chunk_id"] for citation in citations] == [first_chunk.id, second_chunk.id]
+    assert [citation["label"] for citation in citations] == [
+        citation.label for citation in persisted_citations
+    ]
+    assert [citation["document_chunk_id"] for citation in citations] == [
+        first_chunk.id,
+        second_chunk.id,
+    ]
     assert citations[0]["document_chunk_id"] == first_chunk.id
     assert citations[1]["document_chunk_id"] == second_chunk.id
-    assert citations[0]["metadata"]["cited_text"] == "Ancient red dragons prefer volcanic lairs."
-    assert citations[1]["metadata"]["cited_text"] == "Ancient red dragons hoard treasure obsessively."
+    assert (
+        citations[0]["metadata"]["cited_text"]
+        == "Ancient red dragons prefer volcanic lairs."
+    )
+    assert (
+        citations[1]["metadata"]["cited_text"]
+        == "Ancient red dragons hoard treasure obsessively."
+    )
     assert citations[0]["label"] == "[1]"
     assert citations[1]["label"] == "[2]"
 
 
+def test_session_message_route_returns_public_safe_missing_session_detail(
+    db_session: Session,
+) -> None:
+    import app.routes_sessions as routes_sessions
+
+    with _client(db_session) as client:
+        app.dependency_overrides[routes_sessions._embedding_dependency] = lambda: (
+            FakeEmbeddingClient()
+        )
+        app.dependency_overrides[routes_sessions._qdrant_dependency] = lambda: (
+            FakeQdrantIndexer(search_hits=[])
+        )
+        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: (
+            FakeChatClient("unused", [])
+        )
+        app.dependency_overrides[routes_sessions._graph_dependency] = lambda: object()
+        app.dependency_overrides[routes_sessions._retrieval_service_dependency] = (
+            lambda: object()
+        )
+
+        response = client.post(
+            "/sessions/missing-session/messages",
+            json={"content": "Where are the dragons?"},
+        )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Session not found"}
+
+
+def test_session_message_route_maps_service_failure_to_public_safe_503(
+    db_session: Session,
+) -> None:
+    import app.routes_sessions as routes_sessions
+
+    chunk = create_indexed_chunk(
+        db_session,
+        "Route boundary dragons prefer volcanic lairs.",
+        filename="boundary.md",
+    )
+
+    class FailingGraphInvoker:
+        def invoke(
+            self, state: dict[str, object], config: dict[str, object]
+        ) -> dict[str, object]:
+            raise RuntimeError("Traceback at /tmp/chat.py: OPENAI response failed")
+
+    session = create_session(db_session)
+
+    with _client(db_session) as client:
+        app.dependency_overrides[routes_sessions._embedding_dependency] = lambda: (
+            FakeEmbeddingClient()
+        )
+        app.dependency_overrides[routes_sessions._qdrant_dependency] = lambda: (
+            FakeQdrantIndexer(
+                search_hits=[
+                    QdrantSearchHit(
+                        id="point-1", score=0.93, payload={"chunk_id": chunk.id}
+                    )
+                ]
+            )
+        )
+        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: (
+            FakeChatClient("unused", [])
+        )
+        app.dependency_overrides[routes_sessions._graph_dependency] = lambda: (
+            FailingGraphInvoker()
+        )
+
+        response = client.post(
+            f"/sessions/{session.id}/messages",
+            json={"content": "Where are the dragons?"},
+        )
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Chat response service is unavailable"}
+    assert "Traceback" not in response.text
+    assert "/tmp/" not in response.text
+
 
 def test_postgres_settings_select_checkpointed_langgraph_invoker() -> None:
-    sqlite_invoker = get_graph_invoker(FakeChatClient("unused", []), Settings(DATABASE_URL="sqlite+pysqlite:///:memory:"))
+    sqlite_invoker = get_graph_invoker(
+        FakeChatClient("unused", []),
+        Settings(DATABASE_URL="sqlite+pysqlite:///:memory:"),
+    )
     postgres_invoker = get_graph_invoker(
         FakeChatClient("unused", []),
-        Settings(DATABASE_URL="postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks"),
+        Settings(
+            DATABASE_URL="postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks"
+        ),
     )
 
     assert isinstance(sqlite_invoker, RetrievalGraphInvoker)
@@ -260,21 +480,35 @@ def _client(db: Session) -> Generator[TestClient, None, None]:
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_settings] = override_settings
     with TestClient(app) as test_client:
-        assert test_client.post("/auth/login", json={"password": "admin-password"}).status_code == 200
+        assert (
+            test_client.post(
+                "/auth/login", json={"password": "admin-password"}
+            ).status_code
+            == 200
+        )
         yield test_client
     app.dependency_overrides.clear()
 
 
 def _load_repair_migration():
-    migration_path = Path(__file__).resolve().parents[1] / "alembic" / "versions" / "20260601_0006_repair_canonical_ingestion_tables.py"
-    spec = importlib.util.spec_from_file_location("repair_canonical_ingestion_tables", migration_path)
+    migration_path = (
+        Path(__file__).resolve().parents[1]
+        / "alembic"
+        / "versions"
+        / "20260601_0006_repair_canonical_ingestion_tables.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "repair_canonical_ingestion_tables", migration_path
+    )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-def _resolve_openapi_ref(openapi_schema: dict[str, object], maybe_ref: dict[str, object]) -> dict[str, object]:
+def _resolve_openapi_ref(
+    openapi_schema: dict[str, object], maybe_ref: dict[str, object]
+) -> dict[str, object]:
     ref = maybe_ref.get("$ref")
     if not isinstance(ref, str):
         return maybe_ref
@@ -294,9 +528,14 @@ def _openapi_schema_includes_ref(schema_node: object, schema_name: str) -> bool:
         ref = schema_node.get("$ref")
         if isinstance(ref, str) and ref.endswith(f"/{schema_name}"):
             return True
-        return any(_openapi_schema_includes_ref(value, schema_name) for value in schema_node.values())
+        return any(
+            _openapi_schema_includes_ref(value, schema_name)
+            for value in schema_node.values()
+        )
     if isinstance(schema_node, list):
-        return any(_openapi_schema_includes_ref(item, schema_name) for item in schema_node)
+        return any(
+            _openapi_schema_includes_ref(item, schema_name) for item in schema_node
+        )
     return False
 
 
@@ -317,7 +556,15 @@ class _ConstraintRecorder:
         remote_cols: list[str],
         postgresql_not_valid: bool = False,
     ) -> None:
-        self.created.append((source_table, referent_table, local_cols, remote_cols, postgresql_not_valid))
+        self.created.append(
+            (
+                source_table,
+                referent_table,
+                local_cols,
+                remote_cols,
+                postgresql_not_valid,
+            )
+        )
 
 
 class _LegacyChunkFkInspector:

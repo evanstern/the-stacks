@@ -3,7 +3,7 @@ title: Layer Boundaries
 status: active
 owner: docs
 created: 2026-06-04
-updated: 2026-06-06
+updated: 2026-06-07
 tags:
   - wiki
   - architecture
@@ -12,10 +12,11 @@ tags:
 
 # Layer Boundaries
 
-This page records the current split across ETL, retrieval, corpus, chat, and queue. It keeps each note narrow and the ownership lines clear.
+This page records the current split across ETL, API, retrieval, corpus, chat, and queue. It keeps each note narrow and the ownership lines clear.
 
 ## Layer map
 
+- [[API Boundary Architecture]] covers FastAPI route ownership, dependency injection, public error mapping, response schema boundaries, test seams, and the wiki preflight and postflight rules. Keep this page concise and point readers there for the route and service contract.
 - [[ETL Architecture]] covers source intake, parsing, chunking, and the staged handoff into later work.
 - [[RAG Retrieval Architecture]] covers retrieval requests, ranking, and answer-time lookup rules.
 - [[Corpus Management Architecture]] covers the merged default-corpus contract, including selection, import, reset, and lifecycle rules.
@@ -24,6 +25,7 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 
 ## Current module seams
 
+- `main/apps/api/app/main.py`, `main/apps/api/app/routes_auth.py`, `main/apps/api/app/routes_sessions.py`, `main/apps/api/app/routes_uploads.py`, `main/apps/api/app/routes_records.py`, `main/apps/api/app/routes_ingestion.py`, and `main/apps/api/app/routes_archives.py` own the HTTP boundary, request parsing, dependency wiring, response models, and public error shapes. See [[API Boundary Architecture]] for the durable route/service contract, dependency seams, and wiki preflight rule.
 - `main/apps/api/app/ingestion.py` owns the live ETL control flow and the job-claim path.
 - `main/apps/api/app/etl/runner.py` holds the direct sequential ETL runner used today.
 - `main/apps/api/app/etl/load_services.py` owns the staged load services.
@@ -34,6 +36,12 @@ This page records the current split across ETL, retrieval, corpus, chat, and que
 - These seams mirror the code that already exists today, rather than a future idealized split.
 
 ## Ownership and non-ownership
+
+### API boundary
+
+- Owns HTTP request parsing, dependency composition, public response models, and public-safe error translation for route handlers.
+- Does not own the durable business workflow itself, which belongs in services and other backend modules.
+- Keeps layer notes concise by linking route and service conventions to [[API Boundary Architecture]] instead of repeating the full API contract here.
 
 ### ETL
 
@@ -106,6 +114,7 @@ This page also sets the promotion policy for the embedding evaluation harness. T
 
 - The next implementation plan after ETL is `rag-retrieval-api-operations`.
 - That plan should use this boundary map as the contract for retrieval, corpus, chat, and queue ownership.
+- Use [[API Refactor Roadmap]] as the durable list of R1 to R7 API follow-up phases. Keep this page focused on the cross-layer seam map instead of repeating the roadmap.
 - The corpus page is the durable source of truth for the merged default-corpus contract, so do not reopen it as a pending architecture task.
 - Queue remains a placeholder until a dedicated queue design plan is justified.
 - The embedding evaluation harness should follow the promotion path above, staying script-first until a thin CLI wrapper is clearly useful, and only then considering `app/evals` if a stable multi-caller contract emerges.
