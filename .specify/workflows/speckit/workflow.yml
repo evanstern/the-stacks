@@ -7,9 +7,6 @@ workflow:
   description: "Runs specify → plan → tasks → implement with review gates"
 
 requires:
-  # 0.8.5 is the first release with engine-side resolution of the
-  # ``integration: "auto"`` default. Older versions would treat "auto"
-  # as a literal integration key and fail at dispatch.
   speckit_version: ">=0.8.5"
   integrations:
     # The four commands below (specify, plan, tasks, implement) are core
@@ -22,7 +19,6 @@ requires:
     any:
       - "claude"
       - "copilot"
-      - "gemini"
       - "opencode"
 
 inputs:
@@ -32,8 +28,9 @@ inputs:
     prompt: "Describe what you want to build"
   integration:
     type: string
-    default: "auto"
-    prompt: "Integration to use (e.g. claude, copilot, gemini; 'auto' uses the project's initialized integration)"
+    default: "opencode"
+    enum: ["claude", "copilot", "opencode"]
+    prompt: "Integration to use (claude, copilot, or opencode)"
   scope:
     type: string
     default: "full"
