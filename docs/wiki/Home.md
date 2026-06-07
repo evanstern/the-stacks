@@ -3,7 +3,7 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-06
+updated: 2026-06-07
 tags:
   - wiki
   - etl
@@ -12,12 +12,13 @@ tags:
 
 # Wiki Home
 
-Start here for the current architecture spine, then read the corpus contract page before the retrieval notes.
+Start here for the current architecture spine, then read the API boundary note before the layer-specific architecture pages.
 
 - [[ETL Architecture]]
 - [[ETL Plugin Contracts]]
 - [[LangGraph ETL Decision]]
 - [[Layer Boundaries]]
+- [[API Boundary Architecture]]
 - [[RAG Retrieval Architecture]]
 - [[Corpus Management Architecture]]
 - [[Chat Sessions Architecture]]
@@ -37,10 +38,11 @@ This folder holds the durable notes that should stay current as the roadmap move
 2. [[ETL Plugin Contracts]] for the extension boundaries.
 3. [[LangGraph ETL Decision]] for the orchestration choice.
 4. [[Layer Boundaries]] for the ownership split across layers.
-5. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
-6. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
-7. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
-8. [[Queue Architecture]] for the deferred queue stub.
+5. [[API Boundary Architecture]] for the route and service contract, dependency injection, error mapping, response schemas, and test seams.
+6. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
+7. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
+8. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
+9. [[Queue Architecture]] for the deferred queue stub.
 
 ## Roadmap continuation
 
