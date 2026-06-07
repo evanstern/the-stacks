@@ -102,6 +102,7 @@ class CorpusSeedService:
             raise CorpusSeedError(f"Temporary runtime version already exists: {temp_version}")
         self._refuse_active_version_id(temp_version)
         runtime = self._ensure_runtime_version(temp_version, archive_bytes=b"default corpus lock runtime archive")
+        runtime_id = runtime.id
         try:
             _ = self._seed_loaded_manifest(
                 manifest=identity,
@@ -116,8 +117,10 @@ class CorpusSeedService:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         finally:
-            self._delete_runtime_rows(runtime)
-            self.db.flush()
+            cleanup_runtime = self.db.get(RuntimeVersion, runtime_id)
+            if cleanup_runtime is not None:
+                self._delete_runtime_rows(cleanup_runtime)
+                self.db.flush()
         return CorpusLockResult(manifest_path=str(output_path), temp_version=temp_version, manifest=manifest)
 
     def seed(

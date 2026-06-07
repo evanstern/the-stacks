@@ -504,13 +504,13 @@ def test_multi_zip_rejects_max_file_count(
 
     response = client.post(
         "/uploads",
-        files=[("file", (f"valid-ddb-{index}.zip", content, "application/zip")) for index in range(26)],
+        files=[("file", (f"valid-ddb-{index}.zip", content, "application/zip")) for index in range(65)],
     )
 
     assert response.status_code == 400
     assert "upload_limit_exceeded" in response.json()["detail"]
     assert "maximum file count" in response.json()["detail"]
-    assert "25" in response.json()["detail"]
+    assert "64" in response.json()["detail"]
     assert db_session.scalars(select(Upload)).all() == []
     assert db_session.scalars(select(IngestionJob)).all() == []
 

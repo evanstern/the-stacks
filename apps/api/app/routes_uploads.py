@@ -30,9 +30,9 @@ from app.schemas import (
 
 
 SUPPORTED_TYPE_MESSAGE = "Unsupported file type. Supported types: ZIP, EPUB, HTML, TXT, MD."
-MAX_UPLOAD_BATCH_FILE_COUNT = 25
+MAX_UPLOAD_BATCH_FILE_COUNT = 64
 DEFAULT_UPLOAD_FILE_MAX_SIZE_BYTES = 100 * 1024 * 1024
-DEFAULT_UPLOAD_BATCH_MAX_SIZE_BYTES = 500 * 1024 * 1024
+DEFAULT_UPLOAD_BATCH_MAX_SIZE_BYTES = 768 * 1024 * 1024
 TERMINAL_SUCCESS_STATUSES = {"completed"}
 TERMINAL_FAILURE_STATUSES = {"failed"}
 RUNNING_STATUSES = {"processing", "chunking", "awaiting_embedding", "embedding", "indexing"}
