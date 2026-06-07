@@ -1,14 +1,13 @@
 import json
 
-from importlib import import_module
 from typing import Annotated
-from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.auth import current_admin_session
+from app.chat_session_service import ChatSessionService, chat_session_service
 from app.chat_rag import (
     ChatClient,
     RetrievalGraphInvoker,
@@ -66,6 +65,10 @@ def _retrieval_service_dependency(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> RetrievalService:
     return RetrievalService(db, embedding_client, qdrant_indexer, settings)
+
+
+def _chat_session_service_dependency() -> ChatSessionService:
+    return chat_session_service
 
 
 def _read_session(session: ChatSession) -> SessionRead:
@@ -139,13 +142,16 @@ def list_session_messages(
     session_id: str,
     _: AdminSession = Depends(current_admin_session),
     db: Session = Depends(get_db),
+    chat_session_service_dependency: ChatSessionService = Depends(
+        _chat_session_service_dependency
+    ),
 ) -> list[ChatMessageRead]:
     if db.get(ChatSession, session_id) is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
         )
     return [
-        _read_chat_message(db, message)
+        chat_session_service_dependency.read_chat_message(db, message)
         for message in read_session_messages(db, session_id)
     ]
 
@@ -160,13 +166,16 @@ def create_session_message(
     chat_client: ChatClient = Depends(_chat_dependency),
     graph_invoker: RetrievalGraphInvoker = Depends(_graph_dependency),
     retrieval_service: RetrievalService = Depends(_retrieval_service_dependency),
+    chat_session_service_dependency: ChatSessionService = Depends(
+        _chat_session_service_dependency
+    ),
 ) -> ChatMessageEnvelope:
     if db.get(ChatSession, session_id) is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
         )
     try:
-        return _answer_session_message_envelope(
+        return chat_session_service_dependency.answer_session_message_envelope(
             db,
             session_id,
             payload.content,
@@ -185,37 +194,6 @@ def create_session_message(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)
         ) from exc
-
-
-def _answer_session_message_envelope(
-    db: Session,
-    session_id: str,
-    content: str,
-    chat_client: ChatClient,
-    graph_invoker: RetrievalGraphInvoker,
-    retrieval_service: RetrievalService,
-    settings: Settings,
-) -> ChatMessageEnvelope:
-    service = import_module("app.chat_session_service")
-    answer_envelope = cast(Any, service).answer_session_message_envelope
-    return cast(
-        ChatMessageEnvelope,
-        answer_envelope(
-            db,
-            session_id,
-            content,
-            chat_client=chat_client,
-            graph_invoker=graph_invoker,
-            retrieval_service=retrieval_service,
-            settings=settings,
-        ),
-    )
-
-
-def _read_chat_message(db: Session, message: object) -> ChatMessageRead:
-    service = import_module("app.chat_session_service")
-    read_message = cast(Any, service).read_chat_message
-    return cast(ChatMessageRead, read_message(db, message))
 
 
 def _chat_failure_detail(exc: Exception) -> str:

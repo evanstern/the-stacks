@@ -1,21 +1,21 @@
 {
-  "feature": "api-architecture-review",
-  "name": "API layer architecture review",
-  "feature_directory": "specs/002-api-architecture-review",
+  "feature": "backend-api-boundary",
+  "name": "API Boundary Architecture",
+  "feature_directory": "specs/003-backend-api-boundary",
   "status": "draft",
-  "created": "2026-06-06",
+  "created": "2026-06-07",
   "source": {
-    "user_request": "start a review of the architecture, decisions, design and pattern usage, the API layer only; full sweep; ingest the wiki and align direction based on that data and make suggestions for improvements",
+    "user_request": "Create Phase 1 of the backend refactor as a real worktree-backed implementation feature: API Boundary Architecture, durable wiki page, Home.md reading order, Layer Boundaries alignment, wiki preflight/postflight checks, and no runtime behavior changes unless locking existing behavior with tests.",
     "wiki": [
-      "main/docs/wiki/Home.md",
-      "main/docs/wiki/Layer Boundaries.md",
-      "main/docs/wiki/ETL Architecture.md",
-      "main/docs/wiki/ETL Plugin Contracts.md",
-      "main/docs/wiki/LangGraph ETL Decision.md",
-      "main/docs/wiki/RAG Retrieval Architecture.md",
-      "main/docs/wiki/Corpus Management Architecture.md",
-      "main/docs/wiki/Chat Sessions Architecture.md",
-      "main/docs/wiki/Queue Architecture.md"
+      "docs/wiki/Home.md",
+      "docs/wiki/Layer Boundaries.md",
+      "docs/wiki/ETL Architecture.md",
+      "docs/wiki/ETL Plugin Contracts.md",
+      "docs/wiki/LangGraph ETL Decision.md",
+      "docs/wiki/RAG Retrieval Architecture.md",
+      "docs/wiki/Corpus Management Architecture.md",
+      "docs/wiki/Chat Sessions Architecture.md",
+      "docs/wiki/Queue Architecture.md"
     ],
     "memory": [
       ".specify/memory/constitution.md"
@@ -23,11 +23,15 @@
   },
   "scope": {
     "includes": [
-      "API-layer architecture review",
-      "wiki-ingested direction alignment",
-      "FastAPI route and service pattern sweep",
-      "evidence-backed improvement suggestions",
-      "review output contract"
+      "API boundary architecture wiki page",
+      "Home.md reading order update",
+      "Layer Boundaries link/alignment update",
+      "route and service ownership documentation",
+      "dependency injection conventions",
+      "public error mapping conventions",
+      "response contract expectations",
+      "test seam expectations",
+      "wiki preflight and postflight requirements for future backend refactors"
     ],
     "excludes": [
       "runtime API behavior changes",

@@ -36,3 +36,9 @@ The repo runs as a bare shared Git store plus per-worktree checkouts. `.bare/` i
 - Do not change application behavior, schemas, or workflow artifacts unless the task calls for it.
 - Prefer concise, practical updates that help the next agent continue safely.
 - If you need the operational model, start with `main/docs/worktree-operating-model.md`.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at specs/003-backend-api-boundary/plan.md
+<!-- SPECKIT END -->

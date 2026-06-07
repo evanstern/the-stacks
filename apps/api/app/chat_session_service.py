@@ -256,3 +256,35 @@ def _commit_no_evidence_turn(
     db.commit()
     db.refresh(assistant_message)
     return assistant_message
+
+
+class ChatSessionService:
+    def answer_session_message_envelope(
+        self,
+        db: Session,
+        session_id: str,
+        content: str,
+        embedding_client: EmbeddingClient | None = None,
+        qdrant_indexer: QdrantIndexer | None = None,
+        chat_client: ChatClient | None = None,
+        graph_invoker: RetrievalGraphInvoker | None = None,
+        retrieval_service: RetrievalService | None = None,
+        settings: Settings | None = None,
+    ) -> ChatMessageEnvelope:
+        return answer_session_message_envelope(
+            db,
+            session_id,
+            content,
+            embedding_client=embedding_client,
+            qdrant_indexer=qdrant_indexer,
+            chat_client=chat_client,
+            graph_invoker=graph_invoker,
+            retrieval_service=retrieval_service,
+            settings=settings,
+        )
+
+    def read_chat_message(self, db: Session, message: ChatMessage) -> ChatMessageRead:
+        return read_chat_message(db, message)
+
+
+chat_session_service = ChatSessionService()
