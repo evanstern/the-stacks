@@ -114,6 +114,7 @@ This page also sets the promotion policy for the embedding evaluation harness. T
 
 - The next implementation plan after ETL is `rag-retrieval-api-operations`.
 - That plan should use this boundary map as the contract for retrieval, corpus, chat, and queue ownership.
+- Use [[API Refactor Roadmap]] as the durable list of R1 to R7 API follow-up phases. Keep this page focused on the cross-layer seam map instead of repeating the roadmap.
 - The corpus page is the durable source of truth for the merged default-corpus contract, so do not reopen it as a pending architecture task.
 - Queue remains a placeholder until a dedicated queue design plan is justified.
 - The embedding evaluation harness should follow the promotion path above, staying script-first until a thin CLI wrapper is clearly useful, and only then considering `app/evals` if a stable multi-caller contract emerges.

@@ -19,6 +19,7 @@ Start here for the current architecture spine, then read the API boundary note b
 - [[LangGraph ETL Decision]]
 - [[Layer Boundaries]]
 - [[API Boundary Architecture]]
+- [[API Refactor Roadmap]]
 - [[RAG Retrieval Architecture]]
 - [[Corpus Management Architecture]]
 - [[Chat Sessions Architecture]]
@@ -39,10 +40,11 @@ This folder holds the durable notes that should stay current as the roadmap move
 3. [[LangGraph ETL Decision]] for the orchestration choice.
 4. [[Layer Boundaries]] for the ownership split across layers.
 5. [[API Boundary Architecture]] for the route and service contract, dependency injection, error mapping, response schemas, and test seams.
-6. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
-7. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
-8. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
-9. [[Queue Architecture]] for the deferred queue stub.
+6. [[API Refactor Roadmap]] for the R1 to R7 backend follow-up phases that can later become separate Spec Kit features.
+7. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
+8. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
+9. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
+10. [[Queue Architecture]] for the deferred queue stub.
 
 ## Roadmap continuation
 
