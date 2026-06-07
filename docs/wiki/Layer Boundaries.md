@@ -16,7 +16,7 @@ This page records the current split across ETL, API, retrieval, corpus, chat, an
 
 ## Layer map
 
-- [[API Boundary Architecture]] covers FastAPI route ownership, dependency injection, public error mapping, response schema boundaries, and test seams. Keep this page concise and point readers there for the route and service contract.
+- [[API Boundary Architecture]] covers FastAPI route ownership, dependency injection, public error mapping, response schema boundaries, test seams, and the wiki preflight and postflight rules. Keep this page concise and point readers there for the route and service contract.
 - [[ETL Architecture]] covers source intake, parsing, chunking, and the staged handoff into later work.
 - [[RAG Retrieval Architecture]] covers retrieval requests, ranking, and answer-time lookup rules.
 - [[Corpus Management Architecture]] covers the merged default-corpus contract, including selection, import, reset, and lifecycle rules.
@@ -25,7 +25,7 @@ This page records the current split across ETL, API, retrieval, corpus, chat, an
 
 ## Current module seams
 
-- `main/apps/api/app/main.py`, `main/apps/api/app/routes_auth.py`, `main/apps/api/app/routes_sessions.py`, `main/apps/api/app/routes_uploads.py`, `main/apps/api/app/routes_records.py`, `main/apps/api/app/routes_ingestion.py`, and `main/apps/api/app/routes_archives.py` own the HTTP boundary, request parsing, dependency wiring, response models, and public error shapes. See [[API Boundary Architecture]] for the durable route/service contract.
+- `main/apps/api/app/main.py`, `main/apps/api/app/routes_auth.py`, `main/apps/api/app/routes_sessions.py`, `main/apps/api/app/routes_uploads.py`, `main/apps/api/app/routes_records.py`, `main/apps/api/app/routes_ingestion.py`, and `main/apps/api/app/routes_archives.py` own the HTTP boundary, request parsing, dependency wiring, response models, and public error shapes. See [[API Boundary Architecture]] for the durable route/service contract, dependency seams, and wiki preflight rule.
 - `main/apps/api/app/ingestion.py` owns the live ETL control flow and the job-claim path.
 - `main/apps/api/app/etl/runner.py` holds the direct sequential ETL runner used today.
 - `main/apps/api/app/etl/load_services.py` owns the staged load services.

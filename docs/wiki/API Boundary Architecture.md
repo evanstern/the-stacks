@@ -12,7 +12,17 @@ tags:
 
 # API Boundary Architecture
 
-This page is the durable API contract for the backend boundary. It stays focused on route ownership, service ownership, dependency injection, public errors, response schemas, and test seams.
+This page is the durable API contract for the backend boundary. Planning notes are evidence only. The wiki is the lasting source of truth for route ownership, service ownership, dependency injection, public errors, response schemas, test seams, and the wiki preflight and postflight rules.
+
+## Source links
+
+- [[Home]] for the reading order.
+- [[Layer Boundaries]] for the concise cross-layer map.
+- [[Chat Sessions Architecture]] for the chat boundary that already documents the thin route split.
+- [[ETL Architecture]] for upload and ingestion ownership.
+- [[RAG Retrieval Architecture]] for retrieval scope and answer-time behavior.
+- [[Corpus Management Architecture]] for corpus scope and lifecycle rules.
+- [[Queue Architecture]] for the current queue placeholder.
 
 ## What belongs in routes
 
@@ -105,11 +115,6 @@ After the change lands, re-read the same pages and confirm the architecture note
 - Keep `Layer Boundaries.md` concise and point API-specific readers here instead of duplicating the full contract.
 - Record any intentional mismatch or follow-up separately so future phases know what still needs work.
 
-## Related durable notes
+## Durable contract reminder
 
-- [[Layer Boundaries]] for the cross-layer map.
-- [[Chat Sessions Architecture]] for the chat boundary that routes through this API contract.
-- [[ETL Architecture]] for upload and ingestion ownership.
-- [[RAG Retrieval Architecture]] for retrieval scope and answer-time behavior.
-- [[Corpus Management Architecture]] for corpus scope and lifecycle rules.
-- [[Queue Architecture]] for the current queue placeholder.
+The planning artifacts in `specs/003-backend-api-boundary/` and the review notes in `specs/002-api-architecture-review/` explain why this page exists. They are not the durable contract. When future backend work changes the API boundary, update this page and the linked layer pages together.

@@ -38,8 +38,8 @@ This folder holds the durable notes that should stay current as the roadmap move
 1. [[ETL Architecture]] for the system shape.
 2. [[ETL Plugin Contracts]] for the extension boundaries.
 3. [[LangGraph ETL Decision]] for the orchestration choice.
-4. [[Layer Boundaries]] for the ownership split across layers.
-5. [[API Boundary Architecture]] for the route and service contract, dependency injection, error mapping, response schemas, and test seams.
+4. [[API Boundary Architecture]] for the route and service contract, dependency injection, error mapping, response schemas, test seams, and wiki preflight and postflight rules.
+5. [[Layer Boundaries]] for the ownership split across layers.
 6. [[API Refactor Roadmap]] for the R1 to R7 backend follow-up phases that can later become separate Spec Kit features.
 7. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
 8. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
