@@ -7,7 +7,11 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.auth import current_admin_session
-from app.chat_session_service import ChatSessionService, chat_session_service
+from app.chat_session_service import (
+    ChatSessionService,
+    SessionMessageNotFoundError,
+    chat_session_service,
+)
 from app.chat_rag import (
     ChatClient,
     RetrievalGraphInvoker,
@@ -170,10 +174,6 @@ def create_session_message(
         _chat_session_service_dependency
     ),
 ) -> ChatMessageEnvelope:
-    if db.get(ChatSession, session_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-        )
     try:
         return chat_session_service_dependency.answer_session_message_envelope(
             db,
@@ -184,6 +184,10 @@ def create_session_message(
             retrieval_service=retrieval_service,
             settings=settings,
         )
+    except SessionMessageNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
+        ) from exc
     except (EmbeddingError, QdrantIndexError, RuntimeError) as exc:
         db.rollback()
         raise HTTPException(

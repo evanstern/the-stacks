@@ -827,6 +827,7 @@ def test_post_session_message_invokes_retrieval_service_boundary(
     assert payload["no_evidence"] is False
     assert service.requests == [("Use the service boundary?", "thestacks_chunks")]
     assert chat.requests == [("Use the service boundary?", [chunk.id])]
+    assert _chat_session_service_dependency not in app.dependency_overrides
 
 
 def test_records_retrieval_runs_serialize_persisted_trace_metadata(

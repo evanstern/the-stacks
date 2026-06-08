@@ -22,6 +22,7 @@ from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.main import app
 from app.models import Document, DocumentChunk, IngestionEvent, IngestionJob, Section, Source, Upload, UploadBatch, utcnow
+from app.schemas import UploadQueued
 
 
 SUPPORTED_FIXTURES = [
@@ -32,6 +33,41 @@ SUPPORTED_FIXTURES = [
     ("sample.htm", "text/html"),
     ("sample.epub", "application/epub+zip"),
 ]
+
+
+def test_upload_route_delegates_to_named_intake_service_dependency(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    import app.routes_uploads as routes_uploads
+
+    class FakeUploadIntakeService:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def create_upload(self, **kwargs: object) -> UploadQueued:
+            self.calls.append(kwargs)
+            return UploadQueued(upload_id="upload-from-seam", job_id="job-from-seam", queued=True)
+
+    fake_service = FakeUploadIntakeService()
+    app.dependency_overrides[routes_uploads._upload_intake_service_dependency] = lambda: fake_service
+
+    response = client.post("/uploads", files={"file": ("sample.md", b"# seam", "text/markdown")})
+
+    assert response.status_code == 201
+    assert response.json() == {"upload_id": "upload-from-seam", "job_id": "job-from-seam", "queued": True}
+    assert len(fake_service.calls) == 1
+    call = fake_service.calls[0]
+    assert call["db"] is db_session
+    assert isinstance(call["settings"], Settings)
+    files = call["files"]
+    assert isinstance(files, list)
+    assert len(files) == 1
+    assert files[0].filename == "sample.md"
+    assert files[0].content == b"# seam"
+    assert files[0].content_type == "text/markdown"
+    assert db_session.scalars(select(Upload)).all() == []
+    assert db_session.scalars(select(IngestionJob)).all() == []
 
 
 @pytest.fixture()

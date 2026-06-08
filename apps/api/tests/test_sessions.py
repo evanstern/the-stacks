@@ -13,9 +13,16 @@ os.environ["ADMIN_PASSWORD_HASH"] = (
 os.environ["SESSION_SECRET"] = "test-session-secret"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
+from app.chat_session_service import SessionMessageNotFoundError
 from app.config import Settings, get_settings
 from app.database import Base, get_db
 from app.main import app
+from app.routes_sessions import (
+    _chat_dependency,
+    _chat_session_service_dependency,
+    _graph_dependency,
+    _retrieval_service_dependency,
+)
 
 
 @pytest.fixture()
@@ -108,6 +115,17 @@ def test_get_session_returns_404_for_missing_session(client: TestClient) -> None
 def test_get_session_message_route_returns_public_safe_missing_session_detail(
     client: TestClient,
 ) -> None:
+    class MissingSessionMessageService:
+        def answer_session_message_envelope(self, *args: object, **kwargs: object) -> None:
+            raise SessionMessageNotFoundError("Session not found")
+
+    app.dependency_overrides[_chat_dependency] = lambda: object()
+    app.dependency_overrides[_graph_dependency] = lambda: object()
+    app.dependency_overrides[_retrieval_service_dependency] = lambda: object()
+    app.dependency_overrides[_chat_session_service_dependency] = lambda: (
+        MissingSessionMessageService()
+    )
+
     response = client.post(
         "/sessions/not-found/messages",
         json={"content": "Where are the dragons?"},

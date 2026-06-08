@@ -4,6 +4,7 @@ import importlib.util
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import cast
 
 from fastapi.testclient import TestClient
 from sqlalchemy import inspect, select
@@ -15,8 +16,9 @@ os.environ["ADMIN_PASSWORD_HASH"] = (
 os.environ["SESSION_SECRET"] = "test-session-secret"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
+from app.chat_session_service import SessionMessageNotFoundError
 from app.config import Settings, get_settings
-from app.database import Base, get_db
+from app.database import get_db
 from app.ingestion import process_next_job
 from app.main import app
 from app.chat_rag import (
@@ -26,13 +28,6 @@ from app.chat_rag import (
     message_citations,
 )
 from app.models import Document, DocumentChunk, Section, Source
-from app.routes_sessions import (
-    _chat_dependency,
-    _embedding_dependency,
-    _graph_dependency,
-    _qdrant_dependency,
-    _retrieval_service_dependency,
-)
 from tests.rag_support import FakeChatClient, create_indexed_chunk, create_session
 from tests.fakes import FakeEmbeddingClient, FakeQdrantIndexer
 from app.qdrant_index import QdrantSearchHit
@@ -40,7 +35,8 @@ from tests.support import create_upload_and_job, db_session
 
 
 def test_canonical_schema_tables_exist(db_session: Session) -> None:
-    table_names = set(inspect(db_session.bind).get_table_names())
+    bind = db_session.get_bind()
+    table_names = set(inspect(bind).get_table_names())
 
     assert {"sources", "documents", "sections", "chunks"}.issubset(table_names)
     assert "document_chunks" not in table_names
@@ -49,7 +45,7 @@ def test_canonical_schema_tables_exist(db_session: Session) -> None:
 def test_chat_record_foreign_keys_target_canonical_chunks_table(
     db_session: Session,
 ) -> None:
-    inspector = inspect(db_session.bind)
+    inspector = inspect(db_session.get_bind())
     retrieval_hit_fks = inspector.get_foreign_keys("retrieval_hits")
     citation_fks = inspector.get_foreign_keys("citations")
 
@@ -67,10 +63,10 @@ def test_chat_record_foreign_keys_target_canonical_chunks_table(
 
 def test_repair_migration_retargets_legacy_document_chunk_foreign_keys() -> None:
     migration = _load_repair_migration()
-    migration.op = _ConstraintRecorder()
+    setattr(migration, "op", _ConstraintRecorder())
     migration._retarget_document_chunk_fk(_LegacyChunkFkInspector(), "retrieval_hits")
 
-    recorder = migration.op
+    recorder = cast(_ConstraintRecorder, migration.op)
     assert recorder.dropped == [("retrieval_hits", "foreignkey")]
     assert recorder.created == [
         ("retrieval_hits", "chunks", ["document_chunk_id"], ["id"], True)
@@ -192,6 +188,15 @@ def test_openapi_documents_chat_envelope_and_jobs_routes(db_session: Session) ->
         "responses"
     ]["200"]["content"]["application/json"]["schema"]
     assert response_schema["$ref"].endswith("/ChatMessageEnvelope")
+    envelope_schema = _resolve_openapi_ref(schema, response_schema)
+    properties = envelope_schema["properties"]
+    assert isinstance(properties, dict)
+    assert set(properties) == {
+        "user_message",
+        "assistant_message",
+        "retrieval_run_id",
+        "no_evidence",
+    }
 
 
 def test_openapi_documents_canonical_upload_url_and_batch_contract(
@@ -218,6 +223,7 @@ def test_openapi_documents_canonical_upload_url_and_batch_contract(
     response_schema = upload_post["responses"]["201"]["content"]["application/json"][
         "schema"
     ]
+    assert _openapi_schema_includes_ref(response_schema, "UploadQueued")
     assert _openapi_schema_includes_ref(response_schema, "UploadBatchQueued")
 
 
@@ -396,6 +402,35 @@ def test_session_message_route_returns_public_safe_missing_session_detail(
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Session not found"}
+
+
+def test_session_message_route_delegates_missing_session_to_service_seam(
+    db_session: Session,
+) -> None:
+    import app.routes_sessions as routes_sessions
+
+    class MissingSessionMessageService:
+        def answer_session_message_envelope(self, *args: object, **kwargs: object) -> None:
+            raise SessionMessageNotFoundError("internal missing session detail")
+
+    with _client(db_session) as client:
+        app.dependency_overrides[routes_sessions._chat_dependency] = lambda: object()
+        app.dependency_overrides[routes_sessions._graph_dependency] = lambda: object()
+        app.dependency_overrides[routes_sessions._retrieval_service_dependency] = (
+            lambda: object()
+        )
+        app.dependency_overrides[routes_sessions._chat_session_service_dependency] = (
+            lambda: MissingSessionMessageService()
+        )
+
+        response = client.post(
+            "/sessions/missing-session/messages",
+            json={"content": "Where are the dragons?"},
+        )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Session not found"}
+    assert "internal missing session detail" not in response.text
 
 
 def test_session_message_route_maps_service_failure_to_public_safe_503(

@@ -37,7 +37,7 @@ from .models import (
     utcnow,
 )
 from .qdrant_index import QdrantIndexer
-from .routes_uploads import _UploadBatchInput, _queue_batch_uploads
+from .upload_intake_service import _UploadBatchInput, _queue_batch_uploads
 from .version_lifecycle import DEFAULT_ACTIVE_POINTER_NAME, VersionLifecycleService
 
 

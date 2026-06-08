@@ -41,6 +41,10 @@ from app.retrieval_service import (
 from app.schemas import ChatMessageEnvelope, ChatMessageRead, CitationRead
 
 
+class SessionMessageNotFoundError(Exception):
+    pass
+
+
 def answer_session_message(
     db: Session,
     session_id: str,
@@ -52,6 +56,10 @@ def answer_session_message(
     retrieval_service: RetrievalService | None = None,
     settings: Settings | None = None,
 ) -> ChatMessage:
+    session = db.get(ChatSession, session_id)
+    if session is None:
+        raise SessionMessageNotFoundError("Session not found")
+
     settings = settings or get_settings()
     chat_client = chat_client or get_chat_client(settings)
     graph_invoker = graph_invoker or get_graph_invoker(chat_client, settings)
@@ -61,10 +69,6 @@ def answer_session_message(
         retrieval_service = RetrievalService(
             db, embedding_client, qdrant_indexer, settings
         )
-
-    session = db.get(ChatSession, session_id)
-    if session is None:
-        raise ValueError("Session not found")
 
     now = utcnow()
     user_message = ChatMessage(
