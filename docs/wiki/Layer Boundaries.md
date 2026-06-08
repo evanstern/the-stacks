@@ -18,6 +18,7 @@ This page records the current split across ETL, API, retrieval, corpus, chat, an
 
 - [[API Boundary Architecture]] covers FastAPI route ownership, dependency injection, public error mapping, response schema boundaries, test seams, and the wiki preflight and postflight rules. Keep this page concise and point readers there for the route and service contract.
 - [[ETL Architecture]] covers source intake, parsing, chunking, and the staged handoff into later work.
+- [[Upload Intake Boundary]] keeps the R2 upload orchestration review durable without repeating the full ETL or API boundary contract.
 - [[RAG Retrieval Architecture]] covers retrieval requests, ranking, and answer-time lookup rules.
 - [[Corpus Management Architecture]] covers the merged default-corpus contract, including selection, import, reset, and lifecycle rules.
 - [[Chat Sessions Architecture]] covers user chat sessions, session state, and how retrieval plugs into chat.

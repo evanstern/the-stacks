@@ -42,16 +42,17 @@ R2, R4, R5, R6, and R7 remain later follow-ups unless another feature has alread
 
 ## R2 - Bounded upload orchestration review before upload and archive intake expansion
 
-- **Recommended feature title**: Bounded upload orchestration review
+- **Recommended feature title**: Upload Intake Service Seam
 - **Priority**: P1
 - **Why it exists**: Upload intake still mixes HTTP validation with helper-heavy orchestration, so future expansion needs a clean decision about what stays in the route layer and what moves behind a seam.
-- **Proposed scope**: Review `routes_uploads.py` against the ETL architecture and decide whether any upload orchestration should move into a small service seam before adding more upload or archive behavior.
+- **Proposed scope**: Create `specs/004-upload-intake-service-seam/` as the next bounded implementation spec so `routes_uploads.py` can stay focused on HTTP adaptation while a small service seam owns upload orchestration.
+- **Durable note**: [[Upload Intake Boundary]] preserves the review so later spec work can start from a stable decision record.
 - **Out of scope**: Broad ETL rewrites, new archive features, or changing public upload behavior just to simplify the module.
 - **Primary files to inspect**: `apps/api/app/routes_uploads.py`, `apps/api/app/ingestion.py`, `apps/api/app/routes_archives.py`, `docs/wiki/ETL Architecture.md`, `docs/wiki/API Boundary Architecture.md`
 - **Likely tests or verification**: Compare current upload route responsibilities to the ETL wiki, review existing upload tests for contract coverage, and add only targeted tests if the review uncovers a real seam boundary.
 - **Wiki pages likely affected**: `docs/wiki/ETL Architecture.md`, `docs/wiki/API Boundary Architecture.md`, possibly `docs/wiki/Layer Boundaries.md` if ownership lines change.
 - **Dependencies**: Best handled after the API boundary note is in place and stable.
-- **Suggested Spec Kit prompt seed**: Create a bounded upload orchestration review that decides whether upload and archive intake need a service seam before any new intake behavior is added.
+- **Suggested Spec Kit prompt seed**: Create `specs/004-upload-intake-service-seam/` as a narrow upload-intake feature that keeps `routes_uploads.py` on HTTP adaptation and moves orchestration behind a small service seam.
 
 ## R3 - Public API error-mapping convention
 
