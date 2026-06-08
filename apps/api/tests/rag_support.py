@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 from sqlalchemy.orm import Session
 
-from app.chat_rag import ChatClient, ContextChunk, GeneratedAnswer, RetrievalGraphInvoker
+from app.chat_session_rag import ChatClient, ContextChunk, GeneratedAnswer, RetrievalGraphInvoker
 from app.models import ChatSession, Document, DocumentChunk, IndexedChunk, IngestionJob, Section, Source, Upload, utcnow
 
 

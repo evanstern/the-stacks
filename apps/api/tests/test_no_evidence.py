@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
-from app.chat_rag import NO_EVIDENCE_RESPONSE, answer_session_message
+from app.chat_session_rag import NO_EVIDENCE_RESPONSE, answer_session_message
 from app.config import Settings
 from app.models import Citation, RetrievalRun
 from app.qdrant_index import QdrantSearchHit

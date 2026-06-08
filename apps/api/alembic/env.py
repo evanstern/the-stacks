@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from app.config import get_settings
 from app.database import Base
 from app import models
-from app.chat_rag import setup_langgraph_checkpointer
+from app.chat_session_rag import setup_langgraph_checkpointer
 
 
 config = context.config

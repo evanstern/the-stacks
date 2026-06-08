@@ -15,7 +15,7 @@ os.environ["ADMIN_PASSWORD_HASH"] = (
 os.environ["SESSION_SECRET"] = "test-session-secret"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
-from app.chat_rag import _system_prompt, answer_session_message
+from app.chat_session_rag import _system_prompt, answer_session_message
 from app.config import Settings, get_settings
 from app.database import get_db
 from app.embeddings import EmbeddingBatch, EmbeddingError

@@ -21,7 +21,7 @@ from app.config import Settings, get_settings
 from app.database import get_db
 from app.ingestion import process_next_job
 from app.main import app
-from app.chat_rag import (
+from app.chat_session_rag import (
     PostgresCheckpointedGraphInvoker,
     RetrievalGraphInvoker,
     get_graph_invoker,

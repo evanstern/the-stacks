@@ -10,7 +10,7 @@ from app.chat_citations import (
     _retrieval_metadata_with_final_citations,
     _validated_citations,
 )
-from app.chat_rag import (
+from app.chat_session_rag import (
     NO_EVIDENCE_RESPONSE,
     ChatClient,
     ContextChunk,

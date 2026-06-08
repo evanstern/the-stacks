@@ -12,7 +12,7 @@ from app.chat_session_service import (
     SessionMessageNotFoundError,
     chat_session_service,
 )
-from app.chat_rag import (
+from app.chat_session_rag import (
     ChatClient,
     RetrievalGraphInvoker,
     get_chat_client,
