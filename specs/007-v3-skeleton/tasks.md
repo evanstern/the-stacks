@@ -42,15 +42,15 @@ Fastify app skeleton — everything all three stories build on
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Write failing unit tests for typed domain errors (four classes, seam field) and env-first model-role resolution (happy path; missing/malformed var fails fast naming the variable) in `v3/packages/core/test/errors.test.ts` and `v3/packages/core/test/model-roles.test.ts`
-- [ ] T008 Implement `DomainError` + `ErrorClass` in `v3/packages/core/src/errors.ts` and `resolveModelRole('embedding')` from env in `v3/packages/core/src/model-roles.ts` per data-model.md value objects; export from `src/index.ts` (FR-013, FR-011 groundwork)
-- [ ] T009 Define Drizzle schema for `jobs`, `skeleton_check_runs`, `skeleton_check_events`, `skeleton_vectors` in `v3/packages/db/src/schema/{jobs,skeleton-checks,skeleton-vectors}.ts` exactly per data-model.md (columns, checks, indexes; un-dimensioned `vector` column per research R8)
-- [ ] T010 Generate migration 0001 via drizzle-kit into `v3/packages/db/migrations/` prepending `CREATE EXTENSION IF NOT EXISTS vector`; configure `v3/packages/db/drizzle.config.ts` (FR-016, research R10)
-- [ ] T011 [P] Implement DB client factory and programmatic migrator in `v3/packages/db/src/client.ts` and `v3/packages/db/src/migrate.ts` (Drizzle over `pg`, journal-recorded applications)
-- [ ] T012 [P] Write failing integration tests for queue semantics in `v3/packages/db/test/queue.test.ts`: enqueue, SKIP LOCKED claim, complete, retryable-fail requeues with backoff `run_at`, attempts exhaust → failed, visibility-timeout reclaim (research R6; runs against Dockerized Postgres)
-- [ ] T013 Implement queue helpers (`enqueue`, `claimNext`, `complete`, `fail`, `reclaimStale`) plus append-only event-insert helper in `v3/packages/db/src/queue.ts` and `v3/packages/db/src/events.ts` (D12, FR-010)
-- [ ] T014 Implement Fastify app factory in `v3/apps/api/src/app.ts` with the DomainError→HTTP error mapper (404/415/503/500 envelope per contracts/api.md) and unauthenticated `GET /health` + `GET /ready` in `v3/apps/api/src/health.ts` (FR-003)
-- [ ] T015 Implement API boot sequence in `v3/apps/api/src/main.ts`: validate required env fast-fail, run migrations before listen, `/ready` implies schema-current (FR-002, research R10; uses T008 config + T011 migrator)
+- [X] T007 [P] Write failing unit tests for typed domain errors (four classes, seam field) and env-first model-role resolution (happy path; missing/malformed var fails fast naming the variable) in `v3/packages/core/test/errors.test.ts` and `v3/packages/core/test/model-roles.test.ts`
+- [X] T008 Implement `DomainError` + `ErrorClass` in `v3/packages/core/src/errors.ts` and `resolveModelRole('embedding')` from env in `v3/packages/core/src/model-roles.ts` per data-model.md value objects; export from `src/index.ts` (FR-013, FR-011 groundwork)
+- [X] T009 Define Drizzle schema for `jobs`, `skeleton_check_runs`, `skeleton_check_events`, `skeleton_vectors` in `v3/packages/db/src/schema/{jobs,skeleton-checks,skeleton-vectors}.ts` exactly per data-model.md (columns, checks, indexes; un-dimensioned `vector` column per research R8)
+- [X] T010 Generate migration 0001 via drizzle-kit into `v3/packages/db/migrations/` prepending `CREATE EXTENSION IF NOT EXISTS vector`; configure `v3/packages/db/drizzle.config.ts` (FR-016, research R10)
+- [X] T011 [P] Implement DB client factory and programmatic migrator in `v3/packages/db/src/client.ts` and `v3/packages/db/src/migrate.ts` (Drizzle over `pg`, journal-recorded applications)
+- [X] T012 [P] Write failing integration tests for queue semantics in `v3/packages/db/test/queue.test.ts`: enqueue, SKIP LOCKED claim, complete, retryable-fail requeues with backoff `run_at`, attempts exhaust → failed, visibility-timeout reclaim (research R6; runs against Dockerized Postgres)
+- [X] T013 Implement queue helpers (`enqueue`, `claimNext`, `complete`, `fail`, `reclaimStale`) plus append-only event-insert helper in `v3/packages/db/src/queue.ts` and `v3/packages/db/src/events.ts` (D12, FR-010)
+- [X] T014 Implement Fastify app factory in `v3/apps/api/src/app.ts` with the DomainError→HTTP error mapper (404/415/503/500 envelope per contracts/api.md) and unauthenticated `GET /health` + `GET /ready` in `v3/apps/api/src/health.ts` (FR-003)
+- [X] T015 Implement API boot sequence in `v3/apps/api/src/main.ts`: validate required env fast-fail, run migrations before listen, `/ready` implies schema-current (FR-002, research R10; uses T008 config + T011 migrator)
 
 **Checkpoint**: `pnpm -r typecheck && pnpm -r test` green (core + db + api foundations); user stories can start
 
