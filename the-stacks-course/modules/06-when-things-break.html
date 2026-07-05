@@ -1,0 +1,543 @@
+<section class="module" id="module-6" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">When Things Break</h1>
+      <p class="module-subtitle">Debugging is reading, not guessing — because well-built software writes down everything it does</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ══════════ SCREEN 1: THE FLIGHT RECORDER ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Flight Recorder</h2>
+
+        <p>Here's the secret nobody tells beginners: <em>the difference between a pro and a beginner isn't fewer bugs.</em> It's that when something breaks, the pro's system already wrote down what happened.</p>
+
+        <p>Every airliner carries a flight data recorder — the "black box" that narrates every instrument, every second, into permanent storage. Investigators never guess; they pull the recorder and <em>read</em>. The Stacks is built the same way: it assumes things WILL break, so it keeps <span class="term" data-definition="A permanent, timestamped diary a program writes about its own actions — 'started parsing at 10:02', 'failed at 10:03'. When talking to an AI assistant, 'check the logs' means: go read that diary instead of guessing.">logs</span> of everything, everywhere.</p>
+
+        <p>You've actually already met its three recorders — one per module, hiding in plain sight:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🎫</div>
+            <h4 class="pattern-title">Job Event Logs</h4>
+            <p class="pattern-desc">Module 3's assembly line stamped the ticket at every station. Those stamps are an <span class="term" data-definition="A record you can only ADD to, never edit or erase — like writing in pen, one line per event. That's what makes it trustworthy: nobody can quietly rewrite history.">append-only</span> <span class="term" data-definition="A written trail of events kept specifically so someone can later reconstruct exactly what happened and when — the paper receipts of software.">event log</span>: parse started, chunking done, failed here, because of this.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🧾</div>
+            <h4 class="pattern-title">Retrieval Run Receipts</h4>
+            <p class="pattern-desc">Module 4's Librarian counted everything: every search writes an <span class="term" data-definition="A permanent record of a decision-making process — not just the result, but the scores, thresholds, and rejections along the way, so you can audit WHY the result came out that way.">audit run</span> with candidate scores and a tally of how many passages were rejected, and why.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🏗️</div>
+            <h4 class="pattern-title">Version Lifecycle Events</h4>
+            <p class="pattern-desc">Module 5's demolition log: every time an index version was built, activated, or torn down, a lifecycle event went on the record. No silent switches.</p>
+          </div>
+        </div>
+
+        <p>Engineers call this whole discipline <span class="term" data-definition="Designing software so you can tell what it is doing (and did) from the outside — through logs, statuses, and metrics — without pausing it or guessing. The opposite of a black box you have to poke at.">observability</span>. This module teaches you to be the investigator who reads the recorders.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 2: THE INVESTIGATION ROOM ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Investigation Room: the Records Screen</h2>
+
+        <p>The Stacks doesn't just keep recorders — it ships its own investigation room. The <strong>Records</strong> screen is a built-in inspector with tabs for every recorder: <em>Overview, Uploads, Jobs, Sources, Retrieval, Chunks</em>. Five nouns cover everything in the room:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">📥</div>
+            <h4 class="pattern-title">Upload</h4>
+            <p class="pattern-desc">The raw file, exactly as it arrived at the dock.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🎫</div>
+            <h4 class="pattern-title">Job</h4>
+            <p class="pattern-desc">The work ticket — status, timing, and its full event log.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📚</div>
+            <h4 class="pattern-title">Source</h4>
+            <p class="pattern-desc">The shelved book the job produced — a rulebook the library now owns.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">📄</div>
+            <h4 class="pattern-title">Chunk</h4>
+            <p class="pattern-desc">One passage cut from a source — the unit every answer cites.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🧾</div>
+            <h4 class="pattern-title">Retrieval Run</h4>
+            <p class="pattern-desc">One search's receipt: what was asked, what scored what, what got rejected.</p>
+          </div>
+        </div>
+
+        <p>Everything is cross-linked, so you can walk the whole chain of evidence in a few clicks:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Upload</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Job + events</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Source</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Chunks</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>Searches that found them</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔗</div>
+          <div class="callout-content">
+            <strong class="callout-title">The URL holds the state</strong>
+            <p>Every view in Records lives in the address bar — like <code>?section=jobs&amp;job=…</code>, a <span class="term" data-definition="The part of a web address after the ? — little key=value notes (like section=jobs) that tell the page exactly what to show. Change the URL, change the view.">query string</span>. That means every investigation is a link: bookmark it, paste it to a collaborator, or hand it straight to an AI assistant as "look at exactly this."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 3: HONEST STATUS CODES ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Honest Status Codes</h2>
+
+        <p>When something fails at the front door, the <span class="term" data-definition="Application Programming Interface — the app's front door. The program that receives requests and sends back answers (or refusals), without ever showing a screen.">API</span> 🚪 doesn't shrug. Every <span class="term" data-definition="The language web software speaks: HyperText Transfer Protocol. Every request gets a reply with a three-digit result code attached — the status code.">HTTP</span> reply carries a three-digit <span class="term" data-definition="The three-digit verdict attached to every web response: 2xx = success, 4xx = the request was the problem, 5xx = the server side was the problem. Pros read this number FIRST when debugging.">status code</span>, and three of them are your debugging vocabulary:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔍</div>
+            <h4 class="pattern-title">404 — "No such thing"</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Not Found — the thing you asked for does not exist on the server. Not broken, just absent. Check the ID or the URL you asked for.">404</span> means the thing you asked for doesn't exist. Wrong ID, deleted session — not a crash, an absence.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔌</div>
+            <h4 class="pattern-title">503 — "My helper is down"</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Service Unavailable — the server is fine but a service it DEPENDS on (a database, an outside API) is not answering. Translation for debugging: do not fix the code; check the dependency.">503</span> means a <span class="term" data-definition="Something your program needs but does not control — another service, a database, an outside API. When a dependency dies, your app is a victim, not a culprit.">dependency</span> I need is down — <em>not my code's fault</em>. Check Qdrant or OpenAI, not the app.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">💥</div>
+            <h4 class="pattern-title">500 — "My code broke"</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Internal Server Error — the server's own code hit something unexpected and fell over. THIS one means there is a genuine bug to find.">500</span> means the server's own code fell over. This is the one that actually means "there's a bug in here."</p>
+          </div>
+        </div>
+
+        <p>Here's the aha: the API <em>sorts failures by cause</em> before picking a code. Each kind of failure is a differently-named <span class="term" data-definition="A named error object a program 'throws' when something goes wrong — like a labeled flare. Code elsewhere can catch specific flares by name (SessionMessageNotFoundError) and react to each differently.">exception</span>, and only at the front door do they get translated into honest numbers:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/routes_sessions.py</span>
+            <pre><code><span class="code-line">    <span class="code-keyword">try</span>:</span>
+<span class="code-line">        <span class="code-keyword">return</span> chat_session_service_dependency.<span class="code-function">answer_session_message_envelope</span>(</span>
+<span class="code-line">            db,</span>
+<span class="code-line">            session_id,</span>
+<span class="code-line">            payload.content,</span>
+<span class="code-line">            <span class="code-property">chat_client</span>=chat_client,</span>
+<span class="code-line">            <span class="code-property">graph_invoker</span>=graph_invoker,</span>
+<span class="code-line">            <span class="code-property">retrieval_service</span>=retrieval_service,</span>
+<span class="code-line">            <span class="code-property">settings</span>=settings,</span>
+<span class="code-line">        )</span>
+<span class="code-line">    <span class="code-keyword">except</span> SessionMessageNotFoundError <span class="code-keyword">as</span> exc:</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">HTTPException</span>(</span>
+<span class="code-line">            <span class="code-property">status_code</span>=status.HTTP_404_NOT_FOUND, <span class="code-property">detail</span>=<span class="code-string">"Session not found"</span></span>
+<span class="code-line">        ) <span class="code-keyword">from</span> exc</span>
+<span class="code-line">    <span class="code-keyword">except</span> (EmbeddingError, QdrantIndexError, RuntimeError) <span class="code-keyword">as</span> exc:</span>
+<span class="code-line">        db.<span class="code-function">rollback</span>()</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">HTTPException</span>(</span>
+<span class="code-line">            <span class="code-property">status_code</span>=status.HTTP_503_SERVICE_UNAVAILABLE,</span>
+<span class="code-line">            <span class="code-property">detail</span>=<span class="code-function">_chat_failure_detail</span>(exc),</span>
+<span class="code-line">        ) <span class="code-keyword">from</span> exc</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Give it a shot: ask the chat service to answer the message…</p>
+              <p class="tl">…handing over everything it needs: the database connection, which session, what was typed…</p>
+              <p class="tl">…plus all the helpers — the chat brain, the graph runner, the Librarian, the settings.</p>
+              <p class="tl">If it works, that answer goes straight back to the user. Done.</p>
+              <p class="tl">But if the session simply doesn't exist — answer <strong>404</strong>, "no such thing." Not a crash, an absence.</p>
+              <p class="tl">And if OpenAI or Qdrant let us down (note: the failures are <em>named by cause</em>)…</p>
+              <p class="tl">…first <span class="term" data-definition="Undo every not-yet-saved database change from this request, restoring the last clean state — like ctrl-Z for the database. Guarantees a failure leaves no half-finished mess behind.">rollback</span>: undo the half-finished database changes so nothing is left messy…</p>
+              <p class="tl">…then answer <strong>503</strong>, "a helper I depend on is down — not my code's fault"…</p>
+              <p class="tl">…with a detail message that <em>diagnoses which helper</em>, not a generic shrug.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That's why error messages in this app read like diagnoses instead of apologies. The sorting happened <em>before</em> the number was chosen.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 4: SELF-HEALING AND PATIENCE ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Self-Healing and Patience</h2>
+
+        <p>Some failures aren't bugs at all — they're weather. When OpenAI 🤖 gets too many requests at once, it applies a <span class="term" data-definition="A cap on how many requests a service will accept from you per minute — like a nightclub at capacity. Hitting it is normal and temporary; the fix is to wait, not to panic.">rate limit</span> and answers <span class="term" data-definition="The status code for 'Too Many Requests' — you are asking too fast. It usually comes with instructions for exactly how long to wait before trying again.">429</span>: "slow down." The right response is patience, programmed:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/embeddings.py (lightly abridged)</span>
+            <pre><code><span class="code-line"><span class="code-keyword">for</span> attempt <span class="code-keyword">in</span> <span class="code-function">range</span>(OPENAI_EMBEDDING_REQUEST_MAX_RETRIES + <span class="code-number">1</span>):</span>
+<span class="code-line">    response = httpx.<span class="code-function">post</span>(</span>
+<span class="code-line">        <span class="code-string">"https://api.openai.com/v1/embeddings"</span>,</span>
+<span class="code-line">        <span class="code-property">headers</span>={<span class="code-string">"Authorization"</span>: <span class="code-string">f"Bearer {api_key}"</span>},</span>
+<span class="code-line">        <span class="code-property">json</span>={<span class="code-string">"model"</span>: model, <span class="code-string">"input"</span>: batch, <span class="code-string">"dimensions"</span>: dimensions, <span class="code-string">"encoding_format"</span>: <span class="code-string">"float"</span>},</span>
+<span class="code-line">        <span class="code-property">timeout</span>=<span class="code-number">60</span>,</span>
+<span class="code-line">    )</span>
+<span class="code-line">    <span class="code-keyword">try</span>:</span>
+<span class="code-line">        response.<span class="code-function">raise_for_status</span>()</span>
+<span class="code-line">        <span class="code-keyword">return</span> response</span>
+<span class="code-line">    <span class="code-keyword">except</span> httpx.HTTPStatusError <span class="code-keyword">as</span> exc:</span>
+<span class="code-line">        <span class="code-keyword">if</span> response.status_code != <span class="code-number">429</span> <span class="code-keyword">or</span> attempt == OPENAI_EMBEDDING_REQUEST_MAX_RETRIES:</span>
+<span class="code-line">            <span class="code-keyword">raise</span> <span class="code-function">EmbeddingError</span>(...) <span class="code-keyword">from</span> exc</span>
+<span class="code-line">        time.<span class="code-function">sleep</span>(<span class="code-function">_retry_delay_seconds</span>(response.headers.<span class="code-function">get</span>(<span class="code-string">"retry-after"</span>), attempt))</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Allow ourselves the maximum number of attempts — first try plus a few retries.</p>
+              <p class="tl">Each attempt: ask OpenAI to turn this batch of text into meaning coordinates…</p>
+              <p class="tl">…proving who we are with our key…</p>
+              <p class="tl">…specifying the model, the text, and the format we want back…</p>
+              <p class="tl">…and refusing to wait longer than 60 seconds for a reply.</p>
+              <p class="tl">If OpenAI said "OK" — done, hand the answer back. The loop only continues on trouble.</p>
+              <p class="tl">On an error, check WHICH error: anything other than 429 — or 429 on the <em>last</em> attempt — give up and raise a real, named error. (That <code>(...)</code> is shortened for the page; the real file writes a full message. Retrying a genuine bug just hides it.)</p>
+              <p class="tl">But if it was 429: wait exactly as long as OpenAI asked — via its <span class="term" data-definition="A note the server attaches to a 'slow down' reply saying exactly how many seconds to wait before retrying. Polite code reads it and obeys instead of hammering the server.">Retry-After</span> header — then loop around and try again. That waiting-longer-between-tries pattern is called <span class="term" data-definition="Retrying with increasing pauses between attempts — 1s, then 2s, then 4s — so a struggling service gets room to recover instead of being hammered harder.">backoff</span>.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Meanwhile, on the other side of the glass: how does the upload page show "live" progress? No magic. The page just politely re-asks — a pattern called <span class="term" data-definition="Checking for updates by asking again and again on a timer — 'anything new? …anything new?' — instead of the server pushing news to you. Simple, boring, and everywhere.">polling</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/upload.tsx</span>
+            <pre><code><span class="code-line">  <span class="code-function">useEffect</span>(() => {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!job || terminalStatuses.<span class="code-function">has</span>(job.status)) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">let</span> cancelled = <span class="code-keyword">false</span>;</span>
+<span class="code-line">    <span class="code-keyword">const</span> refresh = <span class="code-keyword">async</span> () => {</span>
+<span class="code-line">      <span class="code-keyword">const</span> [nextJob, nextEvents] = <span class="code-keyword">await</span> Promise.<span class="code-function">all</span>([<span class="code-function">getIngestionJob</span>(job.id), <span class="code-function">getJobEvents</span>(job.id)]);</span>
+<span class="code-line">      <span class="code-keyword">if</span> (!cancelled) {</span>
+<span class="code-line">        <span class="code-function">setJob</span>(nextJob);</span>
+<span class="code-line">        <span class="code-function">setEvents</span>(nextEvents);</span>
+<span class="code-line">      }</span>
+<span class="code-line">    };</span>
+<span class="code-line">    <span class="code-keyword">const</span> interval = window.<span class="code-function">setInterval</span>(() => {</span>
+<span class="code-line">      <span class="code-keyword">void</span> <span class="code-function">refresh</span>().<span class="code-function">catch</span>((refreshError) => {</span>
+<span class="code-line">        <span class="code-keyword">if</span> (!cancelled) {</span>
+<span class="code-line">          <span class="code-function">setError</span>(refreshError <span class="code-keyword">instanceof</span> Error ? refreshError.message : <span class="code-string">"Could not refresh job state."</span>);</span>
+<span class="code-line">        }</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }, <span class="code-number">1500</span>);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">return</span> () => {</span>
+<span class="code-line">      cancelled = <span class="code-keyword">true</span>;</span>
+<span class="code-line">      window.<span class="code-function">clearInterval</span>(interval);</span>
+<span class="code-line">    };</span>
+<span class="code-line">  }, [job]);</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Set up a little watcher for the current job.</p>
+              <p class="tl">If there's no job — or it already reached a <span class="term" data-definition="A status a job can never leave — completed or failed. Once there, the story is over, so a progress page can stop checking for updates.">terminal status</span> like completed or failed — don't watch at all. No pointless asking.</p>
+              <p class="tl">Keep a sticky note ("cancelled?") so late-arriving replies can be told "never mind."</p>
+              <p class="tl">One refresh = ask the API for the job's latest status AND its event log, both at once.</p>
+              <p class="tl">If the page still cares by the time the answers land, repaint with the fresh info.</p>
+              <p class="tl">Now the heartbeat: run that refresh every 1,500 milliseconds — every 1.5 seconds…</p>
+              <p class="tl">…and if a refresh itself fails, show a readable error message instead of exploding.</p>
+              <p class="tl">That's the entire "live" progress bar. A timer and a question.</p>
+              <p class="tl">Finally, cleanup: when you leave the page, flip the sticky note and shut off the timer. No zombie timers haunting other pages.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">⏱️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Transient failures get patience, not crashes</strong>
+            <p>Notice the split: 429 gets retried with backoff, real bugs get raised immediately, and the progress page stops asking the moment the story ends. Each failure gets the response its <em>cause</em> deserves.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 5: TRUTH WITHOUT SECRETS ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Truth Without Secrets</h2>
+
+        <p>One last recorder rule: not every truth belongs on screen. A raw error can leak server file paths or a full <span class="term" data-definition="The wall of text a crashing program prints — the exact chain of code calls that led to the error, with file paths and line numbers. Gold for the operator, a security leak for strangers.">traceback</span> — a map of your server's insides, handed to whoever is looking.</p>
+
+        <p>So the <span class="term" data-definition="The half of the app that runs in your browser — the screens, buttons, and text you actually see. Here, the React web app.">frontend</span> 🖥️ checks each failure message against a pattern of unsafe giveaways, and swaps anything suspicious for a calm "Check server logs for details":</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">unsafeDiagnosticPattern</code>
+            <span class="badge-desc">The detector: does this error text look like a leaked path or traceback?</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">safeBatchErrorCopy</code>
+            <span class="badge-desc">The replacement: a safe, human message when the raw one can't be shown — in <code>apps/web/app/routes/upload.tsx</code></span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">job metadata &amp; events</code>
+            <span class="badge-desc">Where the FULL diagnosis still lives — operator-only, one click away in Records</span>
+          </div>
+        </div>
+
+        <p>Vague-on-purpose is a security feature, not laziness. The truth isn't hidden — it's <em>filed</em>, in a room only the operator can enter.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: the debugging playbook</strong>
+            <p>Debugging is reading, not guessing — and the whole skill is knowing <em>which recorder to pull for which symptom</em>. Here's the entire playbook for The Stacks:</p>
+          </div>
+        </div>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-1)">📥</div>
+            <div>
+              <strong>Stuck or failed upload</strong>
+              <p>Pull the job's event log in Records — the stamps say exactly which station failed, and why.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-2)">🕳️</div>
+            <div>
+              <strong>Empty or refused answers</strong>
+              <p>Pull the retrieval run — the rejection tallies show whether nothing matched or everything got filtered out.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔑</div>
+            <div>
+              <strong>Login weirdness</strong>
+              <p>Read the API's status codes — 401 vs 404 vs 500 each tell a completely different story.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🔌</div>
+            <div>
+              <strong>Total outage</strong>
+              <p>Run <code>docker compose ps</code> and check the <span class="term" data-definition="A tiny automatic 'are you alive?' question asked of each service on a schedule. A failing healthcheck pinpoints WHICH cast member is down before you read a single log line.">healthchecks</span> — find out which cast member is missing before blaming any code.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 6: CAPSTONE QUIZ ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Final Investigation</h2>
+
+        <p>Badge on, investigator. Four real incidents — for each one, don't ask "what do I try?" Ask "which recorder do I pull?"</p>
+
+        <div class="quiz-container" id="quiz-module6">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! 503 is the API saying 'a helper I depend on is down — not my code's fault.' The retrieval index lives in Qdrant, so check whether Qdrant is up and whether the active version pointer names a collection that actually exists. The React code never touched this failure."
+               data-explanation-wrong="Not quite — read the number again. 503 specifically means 'a dependency I need is down,' so the app's own code is the LAST suspect, not the first. Retrieval lives in Qdrant, so check the warehouse (is it running? does the active collection exist?) and the version pointer that names it.">
+            <div class="scenario-block">
+              <div class="scenario-context">
+                <span class="scenario-label">Incident 1</span>
+                <p>Chat suddenly returns: <em>"Retrieval index is unavailable"</em> — with a 503.</p>
+              </div>
+            </div>
+            <h3 class="quiz-question">1. Using the status-code vocabulary: what KIND of problem is this, and which two things do you check first?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A bug in the app — start reading the React code for mistakes</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A dependency failure — check Qdrant (is it up? does the active collection exist?) and the active version pointer</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A rate limit — wait a minute and it will heal itself</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A missing session — the user's chat was deleted, so answer 404</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right! Raw errors can leak file paths and tracebacks — a map of the server's insides — so the frontend deliberately swaps them for a safe message. Nothing was lost: the full diagnosis is filed in the job's operator-only events and metadata. Open Records, pull that job's event log, and read the real story."
+               data-explanation-wrong="Good instinct to want the real error — and it EXISTS, just not on this screen. Raw errors can leak paths and tracebacks, so showing them to everyone would be a security hole, not a courtesy. The full detail is filed in the job's operator-side events and metadata: open Records and pull the event log.">
+            <div class="scenario-block">
+              <div class="scenario-context">
+                <span class="scenario-label">Incident 2</span>
+                <p>An upload shows <em>failed</em>, and the only message on screen is: <em>"Check server logs for details."</em></p>
+              </div>
+            </div>
+            <h3 class="quiz-question">2. Why won't the app just show the real error — and where does the real detail live?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The developers were lazy — the real error was never written down anywhere</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The error was lost when the job crashed — only a re-upload can reproduce it</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Raw errors can leak paths and tracebacks, so the screen stays vague on purpose — the full diagnosis lives in the job's events and metadata, in Records</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The frontend can't display long messages, so everything gets truncated to one line</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! The recorder settles arguments. The assistant's message is stored with its citation rows, and each citation links to a retrieval run and the exact chunks used. If citations exist, the passages are right there to compare against the answer — and a true no-evidence question would have been refused, not answered. No memories required."
+               data-explanation-wrong="There's better evidence than memory or a re-run — Tuesday's answer is still on file. The stored assistant message carries citation rows, and each one links to a retrieval run and the exact chunks it drew from. Compare the passages to the answer and the argument is over. (And remember Module 4: a true no-evidence case gets refused, not invented.)">
+            <div class="scenario-block">
+              <div class="scenario-context">
+                <span class="scenario-label">Incident 3</span>
+                <p>A user swears the app <em>"hallucinated"</em> an answer last Tuesday. They're upset. You weren't there.</p>
+              </div>
+            </div>
+            <h3 class="quiz-question">3. What evidence exists to settle it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>None — chat answers are ephemeral, so it's their word against the app's</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The stored message and its citation rows — each links to a retrieval run and the exact chunks, so you can read the very passages the answer cited</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Ask OpenAI support to pull their logs from Tuesday</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Ask the same question again today and see if the answer matches</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="That's the one. You just broke the loop the way a pro would: point the AI at the recorder instead of the guessing game. Any instruction that means 'stop guessing, go read the paper trail' — the event log, the recorded failure category, the retrieval run — is the winning move. This sentence is the whole course in miniature."
+               data-explanation-wrong="Each of those keeps the guessing loop spinning — restarts, rewrites, and error-hiding are all guesses wearing different hats. The loop-breaker is redirecting the AI to EVIDENCE: the job already wrote down what happened, stage by stage, with a failure category. Any instruction that means 'go read the paper trail' wins.">
+            <div class="scenario-block">
+              <div class="scenario-context">
+                <span class="scenario-label">Incident 4 — the boss fight</span>
+                <p>Your AI assistant has been stuck for 30 minutes guessing why uploads fail: "try this… hmm, now try this…"</p>
+              </div>
+            </div>
+            <h3 class="quiz-question">4. Based on this course, which ONE instruction do you give it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"Restart the API and Worker again — maybe this time it sticks"</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"Rewrite the upload page from scratch — it's clearly cursed"</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"Stop guessing — fetch GET /jobs/{id}/events for a failing job and diagnose from the recorded failure category"</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"Wrap everything in try/except so the errors stop appearing"</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 7: COURSE WRAP-UP ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Closing the Stacks</h2>
+
+        <p>That was the last recorder, the last incident, the last module. Look at the shelf you just filled:</p>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-1)">🏃</div>
+            <div>
+              <strong>01 · The Question Journey</strong>
+              <p>An app is a relay race of messages — you can name every hop.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-2)">🎭</div>
+            <div>
+              <strong>02 · Meet the Cast</strong>
+              <p>Five specialists on one call sheet: Web app 🖥️, API 🚪, Worker 🛠️, Postgres 🗃️, Qdrant 🧭 — plus OpenAI 🤖 on speed dial.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🏭</div>
+            <div>
+              <strong>03 · The Assembly Line</strong>
+              <p>Slow work happens on job tickets, behind the wall — nobody waits at the counter.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🧾</div>
+            <div>
+              <strong>04 · Answers with Receipts</strong>
+              <p>Hallucination is fixed by architecture, not trust — every answer cites its passages.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-5)">🏗️</div>
+            <div>
+              <strong>05 · Versions &amp; Vaults</strong>
+              <p>Isolation, verification, refusal — the guardrails that make big changes boring.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-1)">🛩️</div>
+            <div>
+              <strong>06 · When Things Break</strong>
+              <p>Debugging is reading the recorder, not guessing — pull the right paper trail.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>You can now name the hops, the cast, the stations, the guardrails, and the paper trails. That vocabulary is exactly what steering an AI assistant well <em>sounds like</em> — "make it a background job," "what status code comes back?", "check the retrieval run."</p>
+
+        <p>The Stacks will break someday — everything does. But now you know the difference: you won't be the person guessing. You'll be the one who pulls the recorder, reads it, and says what happened. Welcome inside. 📚</p>
+      </section>
+
+    </div>
+  </div>
+</section>

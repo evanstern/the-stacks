@@ -1,0 +1,391 @@
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Versions &amp; Vaults</h1>
+      <p class="module-subtitle">How the app rebuilds its entire library next to the live one — and why demolishing the gallery people are standing in is impossible</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ══════════ SCREEN 1: THE SEALED WING ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Sealed Wing</h2>
+
+        <p>Module 4 showed one question getting one answer, with receipts. Now the scary part: how do you replace the app's <em>entire</em> knowledge base while people are using it — and be certain you can't destroy the one that's live? This codebase's answer is its most professional habit.</p>
+
+        <p>Think of a museum that never renovates the open gallery. A new exhibition is built in a <strong>sealed wing</strong> with its own storage rooms and its own catalog, and each sealed wing is what the code calls a <span class="term" data-definition="One complete, numbered copy of the app's whole knowledge base — its own database, its own search index, its own folders. The Stacks can hold several at once, but only one is ever 'live.'">runtime version</span>.</p>
+
+        <div class="arch-diagram">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+            <div class="arch-zone" style="margin-bottom: 0; border-style: solid; border-color: var(--color-accent);">
+              <div class="arch-zone-label">Wing A · OPEN 🟢 · “Now Showing →” points here</div>
+              <div class="arch-component"><div class="arch-icon">🗃️</div><span>Own <span class="term" data-definition="An open-source database — the app's filing cabinet. It stores rows of records safely on disk. Here, EACH version gets an entire private filing cabinet of its own.">Postgres</span> database</span></div>
+              <div class="arch-component"><div class="arch-icon">🧭</div><span>Own <span class="term" data-definition="A vector database — the warehouse that stores 'meaning coordinates' for search. Each version gets its own private set of shelves inside it.">Qdrant</span> shelves</span></div>
+              <div class="arch-component"><div class="arch-icon">📁</div><span>Own folders</span></div>
+            </div>
+            <div class="arch-zone" style="margin-bottom: 0;">
+              <div class="arch-zone-label">Wing B · SEALED 🚧 · under construction</div>
+              <div class="arch-component"><div class="arch-icon">🗃️</div><span>Own Postgres database</span></div>
+              <div class="arch-component"><div class="arch-icon">🧭</div><span>Own Qdrant shelves</span></div>
+              <div class="arch-component"><div class="arch-icon">📁</div><span>Own folders</span></div>
+            </div>
+          </div>
+          <div class="arch-description">The “Now Showing →” sign is a single tiny <span class="term" data-definition="A tiny record that stores nothing but a name: 'the live version is X.' Changing what's live means rewriting one pointer — no data moves at all.">pointer</span> in the database. Visitors only ever walk through the wing it points at; Wing B can be built, torn apart, and rebuilt with zero risk to Wing A.</div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">This trick has a name</strong>
+            <p>Build the new world completely, verify it, then flip one switch — engineers call it <span class="term" data-definition="The industry name for this swap trick: run the new version (green) fully alongside the old one (blue), test it, then flip one pointer. Say 'do a blue-green style swap' to an AI assistant and it will know exactly what you mean.">blue-green deployment</span>. Now that you know the name, you can ask any AI assistant for it by name.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 2: ONE WORLD, DERIVED FROM ONE NAME ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One World, Derived From One Name</h2>
+
+        <p>How do two wings stay perfectly separate? Not by discipline — by arithmetic. When the app <span class="term" data-definition="To create and set up empty infrastructure — a fresh database, a fresh collection, empty folders — before any data moves in. The opposite of teardown.">provisions</span> a new version, every name in its world is <em>calculated</em> from the version's ID:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/version_lifecycle.py</span>
+            <pre><code><span class="code-line">    token = <span class="code-function">_namespace_token</span>(version_id)</span>
+<span class="code-line">    database_name = <span class="code-string">f"{VERSION_NAMESPACE_PREFIX}_{token}"</span>[:<span class="code-number">63</span>]</span>
+<span class="code-line">    base_database_url = database_url <span class="code-keyword">or</span> settings.database_url</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">VersionNamespaces</span>(</span>
+<span class="code-line">        version_id=version_id,</span>
+<span class="code-line">        database_name=database_name,</span>
+<span class="code-line">        database_url=<span class="code-function">_replace_database_name</span>(base_database_url, database_name),</span>
+<span class="code-line">        qdrant_collection=<span class="code-string">f"{settings.qdrant_collection}_{token}"</span>,</span>
+<span class="code-line">        upload_prefix=<span class="code-string">f"versions/{token}/uploads"</span>,</span>
+<span class="code-line">        static_prefix=<span class="code-string">f"versions/{token}/static"</span>,</span>
+<span class="code-line">        runtime_prefix=<span class="code-string">f"versions/{token}/runtime"</span>,</span>
+<span class="code-line">        storage_prefix=<span class="code-string">f"versions/{token}"</span>,</span>
+<span class="code-line">    )</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Turn the version's ID into a short, safe name-tag (the <em>token</em>).</p>
+              <p class="tl">Build this wing's private database name from that tag (trimmed to Postgres's 63-character name limit).</p>
+              <p class="tl">Start from the normal address of the database server...</p>
+              <p class="tl">...and hand back the complete address book for this one wing:</p>
+              <p class="tl">which version this world belongs to...</p>
+              <p class="tl">...its private database's name...</p>
+              <p class="tl">...the full address that points at that private database...</p>
+              <p class="tl">...its own <span class="term" data-definition="Qdrant's word for one named group of stored search points — roughly 'one set of shelves' in the warehouse. Each version of the library gets its own.">collection</span> in the Qdrant warehouse...</p>
+              <p class="tl">...its own uploads folder...</p>
+              <p class="tl">...its own static-files folder...</p>
+              <p class="tl">...its own runtime folder...</p>
+              <p class="tl">...all filed under one parent folder named after the tag.</p>
+              <p class="tl">(Address book complete.)</p>
+            </div>
+          </div>
+        </div>
+
+        <p>One token → its own database, its own collection, its own three folders. That calculated territory is a <span class="term" data-definition="A named territory that keeps one group's things from colliding with another's — like area codes keeping phone numbers apart. Nothing in version X's namespace can be reached by version Y.">namespace</span>, and because nobody invents names by hand, two versions can never collide by accident.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 3: THE SHIPPING MANIFEST ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Shipping Manifest</h2>
+
+        <p>Filling the sealed wing isn't a casual move-in — it's a five-step ritual, and every arriving crate is checked against a <span class="term" data-definition="A shipping list that states exactly what should arrive: every file's name, its fingerprint, and the exact expected counts. Anything off-list — or off-fingerprint — fails inspection.">manifest</span>:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Preflight — rehearse on a stage set</strong>
+              <p>All the safety guards run first against a throwaway <span class="term" data-definition="A database that lives only in RAM and vanishes when the program exits — perfect for rehearsing dangerous operations where a mistake must cost nothing.">in-memory database</span>. If any guard misfires, you find out where mistakes are free.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Lock — write the manifest</strong>
+              <p>Record every book's <span class="term" data-definition="A formula that turns any file into a unique 64-character fingerprint (a 'hash'). Same bytes in, same fingerprint out — change one byte and the fingerprint changes completely.">SHA-256</span> fingerprint plus the exact expected counts of chunks and rows. The wax seals are now on file.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Seed — move the crates in</strong>
+              <p>Now <span class="term" data-definition="To take raw uploaded files and process them into the searchable library — the parse → chunk → embed → index assembly line from Module 3.">ingest</span> for real: every book runs down Module 3's assembly line, into this wing's private database and shelves.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Verify — recount everything</strong>
+              <p>Compare what actually landed against the manifest: every fingerprint, every count. Off by anything? The wing stays sealed.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>Activate — move the sign</strong>
+              <p>Only now does the “Now Showing →” pointer swing to the new wing. Visitors mid-question never notice a thing.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Here's the wax-seal check itself — the moment a crate's actual bytes are held up against the manifest:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/corpus_manifest.py</span>
+            <pre><code><span class="code-line"><span class="code-keyword">def</span> <span class="code-function">validate_manifest_archives</span>(manifest: CorpusManifest, archive_root: Path) -&gt; <span class="code-value">None</span>:</span>
+<span class="code-line">    <span class="code-keyword">for</span> source <span class="code-keyword">in</span> manifest.sources:</span>
+<span class="code-line">        archive_path = archive_root / source.filename</span>
+<span class="code-line">        <span class="code-keyword">if not</span> archive_path.<span class="code-function">is_file</span>():</span>
+<span class="code-line">            <span class="code-keyword">raise</span> <span class="code-function">CorpusManifestError</span>(<span class="code-string">f"Archive for source {source.source_id} is missing: {source.filename}"</span>)</span>
+<span class="code-line">        <span class="code-keyword">if</span> source.sha256 <span class="code-keyword">is not</span> <span class="code-value">None</span>:</span>
+<span class="code-line">            actual_sha256 = hashlib.<span class="code-function">sha256</span>(archive_path.<span class="code-function">read_bytes</span>()).<span class="code-function">hexdigest</span>()</span>
+<span class="code-line">            <span class="code-keyword">if</span> actual_sha256 != source.sha256:</span>
+<span class="code-line">                <span class="code-keyword">raise</span> <span class="code-function">CorpusManifestError</span>(<span class="code-string">f"Archive hash mismatch for source {source.source_id}"</span>)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The inspection routine: hand it the manifest and the room where the crates sit.</p>
+              <p class="tl">Walk crate by crate through everything the manifest lists.</p>
+              <p class="tl">Find where this crate should be sitting.</p>
+              <p class="tl">Is the crate missing entirely?</p>
+              <p class="tl">Stop the whole operation — and say exactly which crate.</p>
+              <p class="tl">If the manifest recorded a wax-seal fingerprint for this crate...</p>
+              <p class="tl">...recompute the fingerprint from the file's <em>actual bytes</em>, right now.</p>
+              <p class="tl">Does it not match the seal on file?</p>
+              <p class="tl">Stop everything — this is not the crate that was sealed.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🔏</div>
+          <div class="callout-content">
+            <strong class="callout-title">One byte = full stop</strong>
+            <p>One changed byte in an archive means a completely different fingerprint, which means the whole operation halts <em>before anything mutates</em>. A corrupted or swapped book can't quietly poison the library — it can't even get through the door.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 4: THE REFUSALS ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Refusals</h2>
+
+        <p>Guardrails aren't warnings — they're refusals, written into the version <span class="term" data-definition="The full arc of something's existence: created, built, verified, activated, retired, destroyed. 'Lifecycle code' is the code that manages those transitions safely.">lifecycle</span> code. First, the velvet rope at activation — three bouncer checks before the sign moves:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/version_lifecycle.py</span>
+            <pre><code><span class="code-line">    version = db.<span class="code-function">get</span>(RuntimeVersion, runtime_version_id)</span>
+<span class="code-line">    <span class="code-keyword">if</span> version <span class="code-keyword">is</span> <span class="code-value">None</span>:</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">ValueError</span>(<span class="code-string">"Runtime version does not exist"</span>)</span>
+<span class="code-line">    <span class="code-keyword">if</span> version.status != VERSION_STATUS_READY:</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">ValueError</span>(<span class="code-string">"Only ready runtime versions can be activated"</span>)</span>
+<span class="code-line">    <span class="code-keyword">if</span> <span class="code-function">_is_teardown_locked</span>(db, runtime_version_id):</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">ValueError</span>(<span class="code-string">"Runtime version is teardown-locked and cannot be activated"</span>)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Look the wing up in the records.</p>
+              <p class="tl">Bouncer check #1: does this wing even exist?</p>
+              <p class="tl">No? Nobody moves any sign.</p>
+              <p class="tl">Check #2: did it pass final inspection — is it stamped <em>ready</em>?</p>
+              <p class="tl">Half-built wings don't open. Ever.</p>
+              <p class="tl">Check #3: is it already scheduled for demolition?</p>
+              <p class="tl">A condemned wing can't be the one you open to the public.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And the most important refusal in the codebase — four lines that make a whole class of catastrophe impossible. You cannot demolish the open gallery:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/version_lifecycle.py</span>
+            <pre><code><span class="code-line"><span class="code-keyword">def</span> <span class="code-function">_refuse_active_version</span>(db: Session, runtime_version_id: str) -&gt; <span class="code-value">None</span>:</span>
+<span class="code-line">    pointer = db.<span class="code-function">get</span>(ActiveVersionPointer, DEFAULT_ACTIVE_POINTER_NAME)</span>
+<span class="code-line">    <span class="code-keyword">if</span> pointer <span class="code-keyword">is not</span> <span class="code-value">None</span> <span class="code-keyword">and</span> pointer.runtime_version_id == runtime_version_id:</span>
+<span class="code-line">        <span class="code-keyword">raise</span> <span class="code-function">ValueError</span>(<span class="code-string">"Active runtime version cannot be torn down"</span>)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The demolition crew's one unbreakable rule, as a tiny function.</p>
+              <p class="tl">Fetch the “Now Showing →” sign and see where it points.</p>
+              <p class="tl">Is the wing you want to demolish the one visitors are standing in <em>right now</em>?</p>
+              <p class="tl">Refuse. No override, no exceptions.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Even a <em>legal</em> demolition starts as a walkthrough. Without an explicit signature, <span class="term" data-definition="The controlled demolition of a version: dropping its database, its collection, and its folders. The opposite of provisioning.">teardown</span> is only a <span class="term" data-definition="Running a dangerous command in pretend mode: it prints exactly what it WOULD do without doing any of it. One of the best phrases to use with an AI assistant: 'make it dry-run by default.'">dry run</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/version_lifecycle.py</span>
+            <pre><code><span class="code-line">        <span class="code-keyword">if not</span> confirm:</span>
+<span class="code-line">            <span class="code-function">_record_lifecycle_event</span>(</span>
+<span class="code-line">                db=self.db,</span>
+<span class="code-line">                runtime_version_id=runtime_version_id,</span>
+<span class="code-line">                event_type=VERSION_EVENT_TEARDOWN_DRY_RUN,</span>
+<span class="code-line">                message=<span class="code-string">"Runtime version teardown dry-run manifest generated"</span>,</span>
+<span class="code-line">                metadata={<span class="code-string">"manifest"</span>: <span class="code-function">asdict</span>(manifest), <span class="code-string">"confirmation_required"</span>: <span class="code-value">True</span>},</span>
+<span class="code-line">            )</span>
+<span class="code-line">            self.db.<span class="code-function">flush</span>()</span>
+<span class="code-line">            <span class="code-keyword">return</span> <span class="code-function">TeardownResult</span>(version=version, manifest=manifest, completed_steps=[], skipped_steps=[])</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">No signed work order? Then this is only a walkthrough.</p>
+              <p class="tl">Even the walkthrough gets written into the permanent <span class="term" data-definition="A permanent, append-only diary of every important action: who did what, to which version, and when. Nothing is ever deleted from it — that's the point.">audit log</span>:</p>
+              <p class="tl">...saved in the app's own records...</p>
+              <p class="tl">...filed under this wing's name...</p>
+              <p class="tl">...stamped “teardown dry-run”...</p>
+              <p class="tl">...in plain words a human can read later...</p>
+              <p class="tl">...with the full demolition checklist attached, plus a note that a real signature is still required.</p>
+              <p class="tl">(End of the log entry.)</p>
+              <p class="tl">Make sure that entry is actually written down.</p>
+              <p class="tl">Hand back the checklist — steps completed: <em>none</em>, because nothing was touched.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>It goes further: wiping a corpus from the <span class="term" data-definition="Command-Line Interface — controlling a program by typing commands into a terminal instead of clicking buttons. All of this module's rituals are run as CLI commands.">CLI</span> requires a <span class="term" data-definition="An option added after a command to change its behavior, written with dashes — like --confirm-version. When steering an AI assistant: 'add a --dry-run flag.'">flag</span> spelling out <code>--confirm-version &lt;name&gt;</code> — you must literally type the name of the thing you're destroying. And mid-operation it re-checks the vault copy's fingerprint, aborting if the <span class="term" data-definition="Never modified after creation — read-only forever. Immutable archives mean the original book files can be re-verified, byte for byte, years later.">immutable</span> archive changed.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 5: GUARD THE MUSEUM ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Guard the Museum</h2>
+
+        <p>These patterns are exactly what you should <em>demand</em> from an AI assistant for anything scary: “make it dry-run first,” “require typing the name to confirm,” “refuse if it's the live one.” First, prove you know which guardrail stops which disaster — drag each one onto the catastrophe it prevents:</p>
+
+        <div class="dnd-container" id="dnd-module5">
+          <div class="dnd-chips">
+            <div class="dnd-chip" draggable="true" data-answer="hash-lock">SHA-256 lock manifest</div>
+            <div class="dnd-chip" draggable="true" data-answer="own-world">Own database + collection per version</div>
+            <div class="dnd-chip" draggable="true" data-answer="refuse-active">Refuse to tear down the active version</div>
+            <div class="dnd-chip" draggable="true" data-answer="dry-run">Dry-run first, then confirm</div>
+            <div class="dnd-chip" draggable="true" data-answer="ready-only">Only “ready” versions can be activated</div>
+          </div>
+          <div class="dnd-zones">
+            <div class="dnd-zone" data-correct="hash-lock">
+              <p class="dnd-zone-label">A book file was swapped or corrupted — and would have poisoned the index</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="own-world">
+              <p class="dnd-zone-label">Building the new library corrupts the live one</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="refuse-active">
+              <p class="dnd-zone-label">Oops — deleted what users are using right now</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="dry-run">
+              <p class="dnd-zone-label">A destructive command ran before anyone saw what it would do</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="ready-only">
+              <p class="dnd-zone-label">A half-built library goes live</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+          </div>
+          <button class="quiz-check-btn" onclick="checkDnD('dnd-module5')">Check Matches</button>
+          <button class="quiz-reset-btn" onclick="resetDnD('dnd-module5')">Reset</button>
+        </div>
+
+        <p>Now put on the head-of-security badge:</p>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! A count mismatch means the seeding didn't finish (or the manifest's lock is stale) — and the response is beautifully boring: the wing simply stays sealed and un-activated. A broken library can't quietly go live; the live one never even notices."
+               data-explanation-wrong="Not quite — remember which wing the verify step is inspecting. It's the SEALED one, so the live library is never in danger and nothing gets deleted or rolled back. The mismatch means ingestion didn't complete (or the lock is stale), and the system's whole response is refusing to activate that wing.">
+            <h3 class="quiz-question">1. <span class="term" data-definition="A named command from a project's Makefile — a recipe book of pre-written commands. Typing 'make corpus-verify' runs the verify recipe with all its checks.">make corpus-verify</span> fails: expected 4,812 chunks, found 4,790. What does that mean, and what happens?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Qdrant compressed some chunks together — it's normal, and activation proceeds</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Ingestion didn't finish (or the lock is stale) — the version simply stays un-activated</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The system deletes the 22 missing chunks from the manifest so the counts match</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The live version gets rolled back to be safe</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — you just steered an AI with this module's two heaviest guardrails: a dry run so a human sees the plan before anything runs, and typed confirmation so the destructive step can't happen by reflex. (Refusing active accounts and writing an audit log would be great additions three and four.)"
+               data-explanation-wrong="Good instinct to add safety, but look at what this module's guardrails actually do: they make the dangerous step VISIBLE first (dry run) and DELIBERATE second (typed confirmation). Speed, admin power, and after-the-fact emails don't stop a wrong deletion — a printed plan and a required signature do.">
+            <h3 class="quiz-question">2. You ask an AI to write a script that deletes old user accounts. Which pair of requirements borrows this module's guardrails?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Run it at midnight for speed, and clean up its logs afterwards</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Give it admin access so it never hits a permissions error</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A dry-run mode that prints what it would delete, plus a typed confirmation before it really runs</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Have it email each account after deletion, in case someone objects</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! With separate collections, isolation is structural, not disciplinary — no query CAN cross versions, no matter how buggy the code, and deleting a version is just dropping one collection instead of a risky filtered cleanup inside shared shelves. Walls beat rules."
+               data-explanation-wrong="Not quite — Qdrant can filter by labels just fine, and cost isn't the issue. The point is that a label is a RULE (every single query must remember to filter, forever), while a separate collection is a WALL: crossing versions becomes impossible by construction, and deleting a version is dropping one collection, not a delicate cleanup.">
+            <h3 class="quiz-question">3. Why give each version its own Qdrant collection, instead of tagging vectors with a version label inside one big collection?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Qdrant can't filter search results by labels</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A separate collection makes cross-version accidents structurally impossible, and deleting a version is just dropping the collection</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Labels cost extra money per vector, so separate collections are cheaper</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <p>Isolation, verification, refusal — guardrails that make disasters impossible instead of merely unlikely. But ordinary things still break daily, and next we'll see how The Stacks makes breakage easy to diagnose: the audit trails, the error handling, and the debugging playbook.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

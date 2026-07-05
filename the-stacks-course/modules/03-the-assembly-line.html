@@ -1,0 +1,479 @@
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">The Assembly Line</h1>
+      <p class="module-subtitle">How an uploaded rulebook becomes searchable — one factory station at a time</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ══════════ SCREEN 1: THE RECEIVING DOCK ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Receiving Dock</h2>
+
+        <p>Module 2 ended with a promise: follow the Worker 🛠️ into the back room. Here we go — starting at the loading dock.</p>
+
+        <p>You drop a 300-page rulebook on the Upload page, and the response comes back in under a second. The book is <em>not</em> processed yet — you've been handed a claim ticket, and the real work happens behind the wall as a <span class="term" data-definition="Work a program does behind the scenes AFTER telling the user 'got it!' — so nobody waits on something slow. When talking to an AI assistant, 'make it a background job' means: accept fast now, do the heavy work later.">background job</span>.</p>
+
+        <p>Before accepting any crate, the <span class="term" data-definition="Application Programming Interface — the app's front door. It's the program that receives requests (like 'here's a file') and sends back answers, without ever showing a screen.">API</span> 🚪 plays receiving-dock inspector. Three things happen in that first second:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Inspect the crate</strong>
+              <p>Is this a supported file type? The dock accepts <span class="term" data-definition="A plain-text way to write formatted documents using symbols like # for headings — the .md files you see all over GitHub.">Markdown</span> (.md), plain text (.txt), HTML, <span class="term" data-definition="The standard ebook file format. Under the hood it's basically a ZIP archive full of web pages.">EPUB</span>, and <span class="term" data-definition="A single file that's really a compressed folder of files — like a vacuum-packed moving box. The Stacks uses it for saved-webpage bundles.">ZIP</span> archives. Nothing else gets in.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Fingerprint the bytes</strong>
+              <p>The API computes a <span class="term" data-definition="A formula that turns any file into a short, unique fingerprint (64 characters). Same bytes in, same fingerprint out — change one letter of the file and the fingerprint changes completely. Also called a 'hash.'">SHA-256</span> fingerprint of the file — so the exact same book uploaded twice can be recognized instantly.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Write the job ticket</strong>
+              <p>A ticket saying "this file needs processing, status: <em>queued</em>" gets dropped on the spike, and you get back a claim-ticket number. Total elapsed time: well under a second.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🚫</div>
+          <div class="callout-content">
+            <strong class="callout-title">The dock says no — instantly</strong>
+            <p>Try uploading a .docx and the crate is rejected on the spot with <span class="term" data-definition="An HTTP error code meaning 'Unsupported Media Type' — the server understood your request but refuses this kind of file. A fast, clear no is a feature, not a crash.">HTTP 415</span>. A fast rejection at the door beats a mysterious failure three stations down the line.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 2: HERO FLOW ANIMATION ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Whole Line, in Motion</h2>
+
+        <p>Nine steps, six machines. Watch the ticket travel through <span class="term" data-definition="An open-source database — the app's filing cabinet. It stores rows of records (like job tickets) safely on disk, and it's where the 'queue' actually lives.">Postgres</span> 🗃️ (the filing cabinet) and end up shelved in <span class="term" data-definition="A vector database — a specialized warehouse that stores 'meaning coordinates' and can instantly find the ones nearest to any point. It's how The Stacks searches by meaning instead of exact words.">Qdrant</span> 🧭 (the meaning warehouse). Notice the moment you're free to walk away.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-m3-web","label":"Web app → API: One rulebook — okay fine, a .zip archive — coming in!","packet":true,"from":"m3-web","to":"m3-api"},
+          {"highlight":"flow-m3-api","label":"API inspects the crate: supported type? size OK? Then it fingerprints the bytes with SHA-256."},
+          {"highlight":"flow-m3-pg","label":"API → Postgres: Write a new job ticket. Status = queued.","packet":true,"from":"m3-api","to":"m3-pg"},
+          {"highlight":"flow-m3-web","label":"API → Web app: Accepted! Here is your claim ticket number. You are free to go — nothing is frozen while the work happens.","packet":true,"from":"m3-api","to":"m3-web"},
+          {"highlight":"flow-m3-worker","label":"Worker → Postgres: Any queued tickets? ...Mine now. Status = processing.","packet":true,"from":"m3-worker","to":"m3-pg"},
+          {"highlight":"flow-m3-worker","label":"Worker parses the file, then cuts it into roughly 1,200-character chunks along the seams."},
+          {"highlight":"flow-m3-oai","label":"Worker → OpenAI: Here is a batch of chunks — send back their meaning coordinates, please.","packet":true,"from":"m3-worker","to":"m3-oai"},
+          {"highlight":"flow-m3-qdrant","label":"Worker → Qdrant: Shelving the measured chunks, 25 points at a time.","packet":true,"from":"m3-worker","to":"m3-qdrant"},
+          {"highlight":"flow-m3-pg","label":"Worker → Postgres: Ticket stamped completed ✅ — and every stage along the way was logged as an event.","packet":true,"from":"m3-worker","to":"m3-pg"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-m3-web">
+              <div class="flow-actor-icon">🖥️</div>
+              <span>Web app</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-api">
+              <div class="flow-actor-icon">🚪</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-pg">
+              <div class="flow-actor-icon">🗃️</div>
+              <span>Postgres</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-worker">
+              <div class="flow-actor-icon">🛠️</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-oai">
+              <div class="flow-actor-icon">🤖</div>
+              <span>OpenAI</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-qdrant">
+              <div class="flow-actor-icon">🧭</div>
+              <span>Qdrant</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 3: THE JOB TICKET + THE PATIENT WORKER ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Job Ticket and the Patient Worker</h2>
+
+        <p>The job ticket is just a <span class="term" data-definition="One record in a database table — like a single line in a spreadsheet. This job ticket row has columns like status, created_at, and file name.">row</span> in a <span class="term" data-definition="A grid of rows and columns inside the database, like one sheet in a spreadsheet. Every job ticket here is one row in the ingestion_jobs table.">database table</span>, and the Worker is the most patient employee ever hired. Its entire life is one polite <span class="term" data-definition="A loop that repeats forever ON PURPOSE — perfect for a worker whose whole job description is 'keep checking for new work.'">infinite loop</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/worker/worker.py</span>
+            <pre><code><span class="code-line"><span class="code-keyword">while</span> running:</span>
+<span class="code-line">    <span class="code-keyword">with</span> <span class="code-function">SessionLocal</span>() <span class="code-keyword">as</span> db:</span>
+<span class="code-line">        job = <span class="code-function">process_next_job</span>(db)</span>
+<span class="code-line">    <span class="code-keyword">if</span> job <span class="code-keyword">is not</span> <span class="code-value">None</span>:</span>
+<span class="code-line">        <span class="code-function">print</span>(<span class="code-string">f"Processed ingestion job {job.id}; status={job.status}"</span>, flush=<span class="code-value">True</span>)</span>
+<span class="code-line">    <span class="code-keyword">if</span> run_once:</span>
+<span class="code-line">        <span class="code-keyword">break</span></span>
+<span class="code-line">    time.<span class="code-function">sleep</span>(poll_seconds)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Keep walking the floor forever (until someone tells the Worker to clock out)...</p>
+              <p class="tl">Open a fresh connection to the filing cabinet...</p>
+              <p class="tl">...and try to grab and process exactly one job ticket.</p>
+              <p class="tl">If there actually was a job waiting...</p>
+              <p class="tl">...jot a note in the log: which ticket got finished, and how it ended.</p>
+              <p class="tl">(A test-mode switch: do one lap of the floor...</p>
+              <p class="tl">...then stop — handy for testing.)</p>
+              <p class="tl">Nap for five seconds, then check the pile again.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That check-nap-check rhythm is called <span class="term" data-definition="Checking for new work on a timer: 'anything for me? No? I'll ask again in five seconds.' Simple, unglamorous, and surprisingly reliable.">polling</span>. And grabbing a ticket sounds trivial — until you hire a <em>second</em> Worker. This <span class="term" data-definition="Structured Query Language — the standard language for asking a database questions, like 'give me the oldest queued job.' This snippet builds SQL using Python.">SQL</span> query makes fights over the same ticket impossible:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/ingestion.py</span>
+            <pre><code><span class="code-line">statement = (</span>
+<span class="code-line">    <span class="code-function">select</span>(IngestionJob)</span>
+<span class="code-line">    .<span class="code-function">where</span>(IngestionJob.status == <span class="code-string">"queued"</span>)</span>
+<span class="code-line">    .<span class="code-function">order_by</span>(IngestionJob.created_at, IngestionJob.id)</span>
+<span class="code-line">    .<span class="code-function">with_for_update</span>(skip_locked=<span class="code-value">True</span>)</span>
+<span class="code-line">    .<span class="code-function">limit</span>(<span class="code-number">1</span>)</span>
+<span class="code-line">)</span>
+<span class="code-line">job = db.<span class="code-function">scalars</span>(statement).<span class="code-function">first</span>()</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Build a question for the filing cabinet:</p>
+              <p class="tl">look through the job tickets...</p>
+              <p class="tl">...only the ones still stamped "queued"...</p>
+              <p class="tl">...oldest ticket first — first come, first served...</p>
+              <p class="tl">...put your hand on it so nobody else can take it, and skip any ticket that already has a hand on it...</p>
+              <p class="tl">...and take just one.</p>
+              <p class="tl">(That's the whole question.)</p>
+              <p class="tl">Ask the database, keep the first ticket it hands back.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: SKIP LOCKED = no fights, by construction</strong>
+            <p>"Hand on the ticket" is a database <em>lock</em>, and <code>skip_locked</code> means "if someone's hand is already on one, don't wait — grab the next." Two Workers can <em>never</em> process the same ticket, not because they're careful, but because the rules of the game make it impossible.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📦</div>
+          <div class="callout-content">
+            <strong class="callout-title">Boring is a feature</strong>
+            <p>There's no fancy <span class="term" data-definition="A waiting line for work: jobs go in at the back, workers take them from the front. Many apps use dedicated queue software (Redis, RabbitMQ) — The Stacks just uses a database table with a status column.">queue</span> system here — the "queue" is literally a database table with a status column. One less machine to install, break, and debug.</p>
+          </div>
+        </div>
+
+        <p>Every station stamps the ticket as the piece moves down the line — and that <code>status</code> column is exactly what the progress bar on the Upload page is reading:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>queued</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>processing</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>chunking</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>awaiting_<wbr>embedding</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>embedding</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">6</div><p>indexing</p></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step"><div class="flow-step-num">7</div><p>completed ✅</p></div>
+        </div>
+
+        <p>(And one sad railway siding off to the side: <code>failed</code> — where a ticket goes when a station jams, with the error written on the ticket so you know which station to poke.)</p>
+      </section>
+
+      <!-- ══════════ SCREEN 4: THE CUTTING STATION ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Cutting Station</h2>
+
+        <p>After the Worker <span class="term" data-definition="Parsing = reading a file's raw bytes and turning them into clean plain text the rest of the line can work with. Each file format (.epub, .html, .zip...) needs its own parser.">parses</span> the crate into plain text, it cuts the book into <span class="term" data-definition="A bite-sized slice of a document — here, at most 1,200 characters. Small enough for search to pinpoint the exact passage, and for the AI to read comfortably.">chunks</span>. Why cut at all? The AI can only read a few pages at a time, and search works far better on small passages than whole books.</p>
+
+        <p>But you don't cut fabric mid-pattern — you cut along the seams:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/ingestion.py</span>
+            <pre><code><span class="code-line">hard_end = <span class="code-function">min</span>(start + MAX_CHUNK_CHARS, <span class="code-function">len</span>(text))</span>
+<span class="code-line">end = hard_end</span>
+<span class="code-line"><span class="code-keyword">if</span> hard_end &lt; <span class="code-function">len</span>(text):</span>
+<span class="code-line">    paragraph_break = text.<span class="code-function">rfind</span>(<span class="code-string">"\n\n"</span>, start, hard_end)</span>
+<span class="code-line">    sentence_break = text.<span class="code-function">rfind</span>(<span class="code-string">". "</span>, start, hard_end)</span>
+<span class="code-line">    whitespace_break = text.<span class="code-function">rfind</span>(<span class="code-string">" "</span>, start, hard_end)</span>
+<span class="code-line">    end = <span class="code-function">max</span>(paragraph_break, sentence_break + <span class="code-number">1</span> <span class="code-keyword">if</span> sentence_break != -<span class="code-number">1</span> <span class="code-keyword">else</span> -<span class="code-number">1</span>, whitespace_break)</span>
+<span class="code-line">    <span class="code-keyword">if</span> end &lt;= start:</span>
+<span class="code-line">        end = hard_end</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The farthest this cut may reach: 1,200 characters — or the end of the book, whichever comes first.</p>
+              <p class="tl">Assume, for now, we cut at that hard limit.</p>
+              <p class="tl">But if there's more text beyond the limit...</p>
+              <p class="tl">...look backwards for the last paragraph break (a blank line)...</p>
+              <p class="tl">...and the last sentence ending (period + space)...</p>
+              <p class="tl">...and the last plain old space.</p>
+              <p class="tl">Cut at the best seam found: paragraph beats sentence beats space.</p>
+              <p class="tl">If no seam exists anywhere in range...</p>
+              <p class="tl">...fall back to the hard cut. An ugly cut beats no cut.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The cutting order, as a house rule:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Prefer a paragraph break</strong>
+              <p>A blank line is the cleanest seam — whole thoughts stay together.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Else, a sentence end</strong>
+              <p>A period followed by a space — at least no sentence gets severed.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Else, any space</strong>
+              <p>Last resort before cutting mid-word.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>And always: a 160-character overlap</strong>
+              <p>The next chunk starts 160 characters <em>before</em> this one ended — so a thought straddling the cut line appears whole in at least one chunk.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 5: MEASURING & WAREHOUSING ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Measuring &amp; Warehousing</h2>
+
+        <p>Now each chunk gets measured. An <span class="term" data-definition="A list of numbers (here, 1,536 of them) that captures what a passage MEANS — like GPS coordinates for ideas. Passages about similar things get nearby coordinates.">embedding</span> is a list of 1,536 numbers that works like GPS coordinates for <em>meaning</em> — a chunk about "fire damage" lands near a chunk about "burning", even though they share no words.</p>
+
+        <p>The Worker sends chunks to OpenAI in <span class="term" data-definition="A group of items processed together in one trip instead of one at a time. Fewer round trips = a faster assembly line.">batches</span>, as a plain <span class="term" data-definition="One message sent over the internet from one program to another — the exact same mechanism your browser uses to load a web page.">HTTP request</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/embeddings.py</span>
+            <pre><code><span class="code-line">response = httpx.<span class="code-function">post</span>(</span>
+<span class="code-line">    <span class="code-string">"https://api.openai.com/v1/embeddings"</span>,</span>
+<span class="code-line">    headers={<span class="code-string">"Authorization"</span>: <span class="code-string">f"Bearer {api_key}"</span>},</span>
+<span class="code-line">    json={<span class="code-string">"model"</span>: model, <span class="code-string">"input"</span>: batch, <span class="code-string">"dimensions"</span>: dimensions, <span class="code-string">"encoding_format"</span>: <span class="code-string">"float"</span>},</span>
+<span class="code-line">    timeout=<span class="code-number">60</span>,</span>
+<span class="code-line">)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Send a package of data...</p>
+              <p class="tl">...to OpenAI's embeddings counter.</p>
+              <p class="tl">Flash the membership card — the secret <span class="term" data-definition="A secret password string that proves to a paid service (like OpenAI) that a request comes from YOUR account. Guard it like a credit card number.">API key</span> — so OpenAI knows whose account to bill.</p>
+              <p class="tl">The package: which measuring model to use, the batch of passages, and how many coordinates (1,536) to send back per passage.</p>
+              <p class="tl">If no answer within 60 seconds, hang up instead of waiting forever.</p>
+              <p class="tl">(That's the whole request.)</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Back come the coordinates — <span class="term" data-definition="Just the math word for a list of numbers treated as a point in space. An embedding IS a vector; that's why Qdrant is called a 'vector database.'">vectors</span> — and the Worker shelves them in the Qdrant warehouse, 25 at a time, so they're <span class="term" data-definition="To index = to file something so it can be found FAST later — like a library card catalog. Qdrant indexes coordinates for instant 'what's nearest to this point?' lookups.">indexed</span> for instant lookup:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/qdrant_index.py</span>
+            <pre><code><span class="code-line">response = httpx.<span class="code-function">put</span>(</span>
+<span class="code-line">    <span class="code-string">f"{self.url}/collections/{self.collection}/points?wait=true"</span>,</span>
+<span class="code-line">    json={<span class="code-string">"points"</span>: [</span>
+<span class="code-line">        {<span class="code-string">"id"</span>: point.id, <span class="code-string">"vector"</span>: point.vector, <span class="code-string">"payload"</span>: point.payload}</span>
+<span class="code-line">        <span class="code-keyword">for</span> point <span class="code-keyword">in</span> batch</span>
+<span class="code-line">    ]},</span>
+<span class="code-line">    timeout=self._UPSERT_TIMEOUT,</span>
+<span class="code-line">)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Send a shipment to the warehouse (Qdrant)...</p>
+              <p class="tl">...to this collection's shelves — and <em>wait=true</em> means "don't hang up until it's actually shelved."</p>
+              <p class="tl">The shipment is a list of points; each point is...</p>
+              <p class="tl">...a slot number (id), the coordinates (vector), and a luggage tag (<span class="term" data-definition="The extra info riding along with each stored point — a luggage tag recording which file, which section, and which job this chunk came from. It's what makes citations possible later.">payload</span>) saying which file and section it came from.</p>
+              <p class="tl">...one point per chunk in this batch of 25.</p>
+              <p class="tl">(Close up the list.)</p>
+              <p class="tl">Give up politely if the warehouse takes too long.</p>
+              <p class="tl">(That's the whole shipment.)</p>
+            </div>
+          </div>
+        </div>
+
+        <p>One last detail — where does that slot number come from? It's <em>calculated</em>, never random:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/ingestion.py</span>
+            <pre><code><span class="code-line"><span class="code-keyword">def</span> <span class="code-function">deterministic_point_id</span>(chunk: DocumentChunk) -&gt; <span class="code-value">str</span>:</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">str</span>(<span class="code-function">uuid5</span>(NAMESPACE_URL, <span class="code-string">f"thestacks:{chunk.upload_id}:{chunk.ingestion_job_id}:{chunk.id}"</span>))</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A tiny recipe for a warehouse slot number (a <span class="term" data-definition="Universally Unique IDentifier — a long label like '6f3a-...' used as an ID. The uuid5 flavor is CALCULATED from a name rather than picked at random: same name in, same ID out.">UUID</span>)...</p>
+              <p class="tl">...computed from the chunk's identity — which upload, which job, which chunk. Same chunk in, same slot number out. Every single time.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: same slot every time = safe retries</strong>
+            <p>Because the slot number is calculated from the chunk's identity, re-running the same job <em>overwrites</em> the same warehouse slots instead of creating duplicates. Engineers call this <span class="term" data-definition="An operation that's safe to run twice — running it again changes nothing new. Idempotent retries mean a crash is an annoyance, not a catastrophe. Great word to use with AI assistants: 'make this retry idempotent.'">idempotent</span>: retrying costs nothing, so crashes are annoying instead of catastrophic.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 6: QUIZ ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Walk the Factory Floor</h2>
+
+        <p>You've seen the whole line: dock → ticket → cut → measure → shelve. Remember — "make it a background job" is one of the highest-leverage sentences you can say to an AI assistant. Now put on the floor-manager hat:</p>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! The API happily writes tickets whether or not anyone ever collects them — that's the whole design. Tickets piling up at 'queued' means the one machine whose job is collecting them isn't on the floor. First move: check whether the Worker process is running."
+               data-explanation-wrong="Not quite — think about who moves a ticket OUT of 'queued'. The API only writes tickets and OpenAI/Qdrant aren't even involved until later stations. A ticket frozen at 'queued' means nobody is picking tickets up at all: the Worker isn't running.">
+            <h3 class="quiz-question">1. An upload has said "queued" for ten minutes. Chat still works fine. What's your first suspect?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>OpenAI is down, so embeddings can't be computed</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Worker isn't running — nobody is collecting tickets</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The file was too big and the API silently dropped it</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Qdrant's warehouse shelves are full</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right! A fast, clear 415 is the dock doing its job — rejecting at the door beats failing mysteriously three stations later. The fix is converting the file (or teaching the parser a new format), not 'fixing' the error."
+               data-explanation-wrong="Good instinct to investigate, but look again at Screen 1 — the dock checks file types on purpose and answers 415 for anything unsupported. Instant, clear rejection is a feature; the fix is converting the .docx or adding a parser, not patching an error.">
+            <h3 class="quiz-question">2. Uploading a .docx file returns an error instantly. Is that a bug?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the API crashed while parsing the file</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the Worker should have converted it in the background</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — the dock rejects unsupported types on purpose, with HTTP 415</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly! Once a new parser turns PDFs into plain text, the cutting, measuring, and warehousing stations don't know or care where the text came from. Independent stations are the entire payoff of an assembly line — you upgrade one machine without touching the rest."
+               data-explanation-wrong="Not quite — remember what each station receives. After parsing, everything downstream works on plain text: the chunker cuts text, the embedder measures text, the indexer shelves numbers. Only the parse station knows about file formats, so only it needs work.">
+            <h3 class="quiz-question">3. You ask an AI assistant to add support for .pdf files. Which stations need work?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only parsing — chunk, embed, and index never see the original file</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All four stations — a new format changes everything downstream</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Parsing and embedding — PDFs need special coordinates</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only indexing — Qdrant needs a PDF shelf</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly! The status stamps make the job resumable — a Worker can pick up an 'awaiting_embedding' ticket and continue without re-parsing — and deterministic slot numbers make any re-done work overwrite instead of duplicate. Idempotent + resumable = crashes are Tuesday, not tragedy."
+               data-explanation-wrong="Not quite — no backups or babysitting required. The secret is the ticket itself: the status stamp records exactly which station the piece reached, so a Worker resumes from there. And deterministic point IDs mean redone work overwrites the same slots — retries are idempotent, so nothing duplicates.">
+            <h3 class="quiz-question">4. A job died overnight between "chunking" and "completed". Why is that not a disaster?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Uploads automatically delete themselves after a crash, so you just re-upload</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Statuses make the job resumable mid-line, and deterministic IDs make retries safe</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Qdrant keeps a nightly backup of every chunk</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>The warehouse is stocked, every chunk shelved at coordinates that mean something. Next: what happens when a question comes looking — and how The Stacks makes sure every answer arrives with receipts.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,463 @@
+<section class="module" id="module-4" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Answers with Receipts</h1>
+      <p class="module-subtitle">Why this app almost never makes things up — and how "no evidence" beats a confident guess</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ══════════ SCREEN 1: RULES OF EVIDENCE ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Rules of Evidence</h2>
+
+        <p>AI chatbots are famous for confidently making things up — engineers call it <span class="term" data-definition="When an AI confidently states something false. It isn't lying — it's autocompleting a plausible-sounding answer. Serious apps fix this with architecture around the AI, not by hoping the AI improves.">hallucination</span>. The Stacks almost never does, and not because its AI is smarter. The code around the AI is <em>suspicious of it</em>.</p>
+
+        <p>Module 3 stocked the warehouse of <span class="term" data-definition="A bite-sized passage cut from a document by Module 3's assembly line. Chunks are the unit this app searches, cites, and shows you.">chunks</span>. When a question arrives, the app runs it like a courtroom with strict rules of evidence: found passages are the <strong>exhibits</strong>, the <span class="term" data-definition="Large Language Model — the text-writing AI (here, OpenAI's models). It predicts likely next words, which makes it eloquent but not automatically truthful.">LLM</span> is an eloquent witness who may only testify about admitted exhibits, and a judge reviews every citation. Four independent exits all lead to the same honest verdict:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">📂</div>
+            <h4 class="pattern-title">No exhibits found</h4>
+            <p class="pattern-desc">The search turns up nothing convincing. Case dismissed <em>before the witness is even called</em> — OpenAI never gets contacted, and never gets paid.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🙊</div>
+            <h4 class="pattern-title">Testimony cites nothing</h4>
+            <p class="pattern-desc">The witness answers but doesn't point at a single valid exhibit. The whole answer is thrown out.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔧</div>
+            <h4 class="pattern-title">Markers beyond repair</h4>
+            <p class="pattern-desc">The [1]-style markers in the answer are too garbled to fix. Thrown out.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">👻</div>
+            <h4 class="pattern-title">Citing a phantom exhibit</h4>
+            <p class="pattern-desc">A marker points at evidence that was never admitted into the room. Thrown out.</p>
+          </div>
+        </div>
+
+        <p>All four exits deliver the exact same reply: an honest "I couldn't find evidence for that in your library." Never a confident story invented on the stand. This whole pattern has a name — <span class="term" data-definition="Retrieval-Augmented Generation — the pattern where the app first SEARCHES your documents, then hands the found passages to the AI and says 'answer only from these.' When you ask an AI assistant to build 'chat with my docs,' you're asking for RAG.">RAG</span> — and this module shows you the real machinery behind it.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 2: HERO — ONE CHAT TURN, LIVE ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One Question, Start to Verdict</h2>
+
+        <p>Two new specialists work <em>inside</em> the API for this job: the <strong>Librarian 🔎</strong> (the <span class="term" data-definition="The code whose only job is finding relevant passages for a question — the 'search' half of RAG. In this app it lives in apps/api/app/retrieval_service.py.">retrieval service</span>) and the <strong>Fact-Checker 🧐</strong> (the citation validator). Here's a full turn in the group chat — press play.</p>
+
+        <div class="chat-window" id="rag-turn-chat">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🚪</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">API</span>
+                <p>Question in: "Can a wizard cast in heavy armor?" Librarian, find me admissible evidence.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="librarian" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🔎</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Librarian</span>
+                <p>Converted to 1,536 numbers. Qdrant, what's nearby?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="qdrant" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🧭</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Qdrant</span>
+                <p>80 candidates, sorted by similarity.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="librarian" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🔎</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Librarian</span>
+                <p>3 below the confidence bar, 2 duplicates — out. Admitting the top 8 as exhibits.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="openai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-text-muted)">🤖</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-text-muted)">OpenAI</span>
+                <p>Draft ready. Cited exhibits [1] and [2].</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="factchecker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🧐</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Fact-Checker</span>
+                <p>[1] ✅ on the exhibit list. [2] ✅. Markers numbered correctly. Approved.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🚪</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">API</span>
+                <p>Filing answer + receipts in Postgres. Delivering to the browser.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="7" data-sender="openai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-text-muted)">🤖</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-text-muted)">OpenAI</span>
+                <p>(Rewind to a different turn.) Draft ready! Citing chunk #4912 — a chunk nobody admitted.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="8" data-sender="factchecker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🧐</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Fact-Checker</span>
+                <p>Overruled. That exhibit isn't on the table. The user sees "no evidence" — not your creative writing.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="rag-turn-chat-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>That "1,536 numbers" trick is an <span class="term" data-definition="An embedding turns text into a long list of numbers (1,536 of them here) that captures its MEANING, so passages about the same idea land near each other — even with totally different wording.">embedding</span> — the same one the assembly line used to shelve every chunk. Question and passages live in the same "meaning space," which is why <span class="term" data-definition="The vector database from Module 2 — the meaning-finder that searches by similarity instead of exact words.">Qdrant</span> can match them.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 3: THE LIBRARIAN'S SHORTLIST ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Librarian's Shortlist</h2>
+
+        <p>The Librarian deliberately <strong>over-fetches</strong> — asking Qdrant for roughly 10× more results than needed — then filters hard. Three ways a candidate gets bounced:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📉</div>
+            <h4 class="pattern-title">Too weak</h4>
+            <p class="pattern-desc">Its <span class="term" data-definition="A number saying how close in meaning a found passage is to your question — near 1.0 is a strong match, lower gets fuzzier.">similarity score</span> is under the <span class="term" data-definition="A cutoff value: anything below the bar gets rejected. Telling an AI assistant to 'raise the threshold' means 'be pickier about matches.'">threshold</span>. Out.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">👯</div>
+            <h4 class="pattern-title">Duplicate</h4>
+            <p class="pattern-desc">An identical passage was already admitted — <span class="term" data-definition="Short for de-duplicate: throwing out repeats so the same passage isn't admitted as evidence twice.">deduped</span>. Out.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">👻</div>
+            <h4 class="pattern-title">Ghost</h4>
+            <p class="pattern-desc">It points at a chunk that's no longer part of the live collection. Out.</p>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/retrieval_service.py</span>
+            <pre><code><span class="code-line">        <span class="code-keyword">for</span> hit <span class="code-keyword">in</span> hits:</span>
+<span class="code-line">            candidate = <span class="code-function">retrieval_candidate_from_hit</span>(self.db, hit, scope)</span>
+<span class="code-line">            <span class="code-keyword">if</span> candidate <span class="code-keyword">is</span> <span class="code-value">None</span>:</span>
+<span class="code-line">                filtered_missing_chunk_count += <span class="code-number">1</span></span>
+<span class="code-line">                <span class="code-keyword">continue</span></span>
+<span class="code-line">            <span class="code-keyword">if</span> candidate.score &lt; self.settings.retrieval_min_score:</span>
+<span class="code-line">                filtered_low_score_count += <span class="code-number">1</span></span>
+<span class="code-line">                <span class="code-keyword">continue</span></span>
+<span class="code-line">            context_key = <span class="code-function">retrieval_candidate_identity_key</span>(candidate)</span>
+<span class="code-line">            <span class="code-keyword">if</span> context_key <span class="code-keyword">in</span> seen_context_keys:</span>
+<span class="code-line">                deduplicated_count += <span class="code-number">1</span></span>
+<span class="code-line">                <span class="code-keyword">continue</span></span>
+<span class="code-line">            seen_context_keys.<span class="code-function">add</span>(context_key)</span>
+<span class="code-line">            candidates.<span class="code-function">append</span>(candidate)</span>
+<span class="code-line">            <span class="code-keyword">if</span> <span class="code-function">len</span>(candidates) &gt;= self.settings.retrieval_top_k:</span>
+<span class="code-line">                <span class="code-keyword">break</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Walk through every result Qdrant sent back, one at a time...</p>
+              <p class="tl">Look up the actual passage this result points at.</p>
+              <p class="tl">If that passage no longer exists in the live library — it's a ghost...</p>
+              <p class="tl">...add one to the "missing" tally...</p>
+              <p class="tl">...and move on to the next result.</p>
+              <p class="tl">If the match score is under the confidence bar...</p>
+              <p class="tl">...tally it as "too weak"...</p>
+              <p class="tl">...and skip it too.</p>
+              <p class="tl">Build a fingerprint identifying this exact passage.</p>
+              <p class="tl">If we've already admitted an identical one...</p>
+              <p class="tl">...count it as a duplicate...</p>
+              <p class="tl">...and skip it.</p>
+              <p class="tl">Otherwise: remember the fingerprint...</p>
+              <p class="tl">...and admit the passage as an exhibit.</p>
+              <p class="tl">Once the shortlist holds the best 8...</p>
+              <p class="tl">...stop looking. Court is in session.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Notice every rejection is <em>tallied</em> — those counters get saved as an <span class="term" data-definition="A permanent record of what the system did and why. Here, every rejected passage is counted and stored, so you can later investigate 'why did this search come up empty?'">audit trail</span>, so an empty search is never a mystery.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎛️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Knobs, not surgery</strong>
+            <p>The confidence bar (<code>retrieval_min_score</code>) and shortlist size (<code>retrieval_top_k</code> — <span class="term" data-definition="'Keep the best k results,' where k is just a number you choose. top_k = 8 means the shortlist holds eight passages. Say 'raise top_k' to an AI assistant and it knows exactly what you mean.">top-k</span> in the trade) are plain <span class="term" data-definition="Values the app reads at startup from a configuration file. Changing one changes the app's behavior with no code rewrite — that's why they're called 'knobs.'">settings</span>. Tuning how strict or generous retrieval is takes one changed value, not a code rewrite.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 4: THE WITNESS'S INSTRUCTIONS ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Witness's Instructions</h2>
+
+        <p>Before the witness testifies, the app hands it a <span class="term" data-definition="The standing instructions an app gives the AI before every request — the AI's job description, written in plain English and stored right in the codebase.">system prompt</span>. These are the <em>actual words</em> shipped to OpenAI on every question:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/chat_session_rag.py</span>
+            <pre><code><span class="code-line">    <span class="code-keyword">return</span> (</span>
+<span class="code-line">        <span class="code-string">"Answer only from the supplied context. Return JSON with answer and citations as chunk IDs. "</span></span>
+<span class="code-line">        <span class="code-string">"Write the answer in concise Markdown when helpful, and use Markdown tables for comparisons or structured summaries when they improve clarity. "</span></span>
+<span class="code-line">        <span class="code-string">"Keep bracketed citation markers like [1] or [2][3] immediately next to the supported claims in the answer text, "</span></span>
+<span class="code-line">        <span class="code-string">"where each marker corresponds to the order of the returned citations. "</span></span>
+<span class="code-line">        <span class="code-string">"Every factual sentence must carry its citation inline at the sentence level, and if the same source supports multiple factual sentences, repeat the same marker on each sentence. "</span></span>
+<span class="code-line">        <span class="code-string">"Repeat [1] on every factual sentence that the same source supports. "</span></span>
+<span class="code-line">        <span class="code-string">"Never leave citations only at the end of a paragraph when they belong to multiple sentences. "</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Hand the witness its standing orders:</p>
+              <p class="tl">"Testify ONLY about the exhibits provided. Reply in <span class="term" data-definition="A rigid text format for structured data that programs can reliably read. Asking an AI to 'return JSON' forces a fill-in-the-blanks form — here: one answer field, one list of cited chunk IDs — instead of freeform prose.">JSON</span>: an answer, plus the IDs of the exhibits you cited."</p>
+              <p class="tl">"Format nicely — use <span class="term" data-definition="A simple way to write formatting (bold, lists, tables) using plain characters like ** and |. Chat apps render it into styled text.">Markdown</span>, with tables when comparing things."</p>
+              <p class="tl">"Keep the [1]-style markers glued directly to the claims they support..."</p>
+              <p class="tl">"...numbered in the same order as your citation list."</p>
+              <p class="tl">"EVERY factual sentence carries its marker — reuse a marker if one source backs several sentences."</p>
+              <p class="tl">"Yes, really: repeat [1] on each sentence it supports."</p>
+              <p class="tl">"Never dump the citations in a pile at the end of a paragraph."</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Notice how repetitive and specific it is. Real <span class="term" data-definition="The text sent to an AI model for one request — all its instructions plus the material to work from. Everything the model 'knows' about your question is in the prompt.">prompts</span> read like instructions to a well-meaning but extremely literal-minded intern.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">A prompt isn't magic</strong>
+            <p>It's a paragraph of English sitting in a code file. You can open <code>chat_session_rag.py</code> and edit your app's personality the way you'd edit an email — or tell your AI assistant, "make the system prompt stricter about X."</p>
+          </div>
+        </div>
+
+        <p>And how do the exhibits reach the witness? They're literally <em>pasted under the question</em> — this five-line function is the entire trick people call RAG:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/chat_session_rag.py</span>
+            <pre><code><span class="code-line"><span class="code-keyword">def</span> <span class="code-function">_user_prompt</span>(question: <span class="code-property">str</span>, contexts: Sequence[ContextChunk]) -&gt; <span class="code-property">str</span>:</span>
+<span class="code-line">    context_text = <span class="code-string">"\n\n"</span>.<span class="code-function">join</span>(</span>
+<span class="code-line">        <span class="code-string">f"chunk_id={context.chunk_id}\n{context.content}"</span> <span class="code-keyword">for</span> context <span class="code-keyword">in</span> contexts</span>
+<span class="code-line">    )</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-string">f"Question: {question}\n\nContext:\n{context_text}"</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A tiny function: take the question and the admitted exhibits.</p>
+              <p class="tl">Stack the exhibits into one block of text, blank lines between them...</p>
+              <p class="tl">...each labeled with its chunk ID, so the witness can point at exhibits by name.</p>
+              <p class="tl">(Close up the stack.)</p>
+              <p class="tl">Final message: the question on top, the exhibits underneath. That's the whole <span class="term" data-definition="The material included in the AI's request — the model can only 'see' what's inside it. Confining the context to admitted exhibits is what keeps the witness honest.">context</span> the model ever sees.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SCREEN 5: THE JUDGE'S REVIEW ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Judge's Review — and the Receipts</h2>
+
+        <p>When testimony survives the Fact-Checker, every citation is filed as a permanent <span class="term" data-definition="One record in a database table — like one line in a ledger. Rows survive restarts, redeploys, and years of time.">row</span> in <span class="term" data-definition="The app's main database from Module 2 — the permanent ledger where messages, chunks, jobs, and citations live.">Postgres</span>, linking answer → search run → exact passage. That's why a chat from months ago still has working [1] links.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/app/chat_session_service.py</span>
+            <pre><code><span class="code-line">    <span class="code-keyword">for</span> index, context <span class="code-keyword">in</span> <span class="code-function">enumerate</span>(cited_contexts, start=<span class="code-number">1</span>):</span>
+<span class="code-line">        db.<span class="code-function">add</span>(</span>
+<span class="code-line">            <span class="code-function">Citation</span>(</span>
+<span class="code-line">                <span class="code-property">assistant_message_id</span>=assistant_message.id,</span>
+<span class="code-line">                <span class="code-property">retrieval_run_id</span>=retrieval_run.id,</span>
+<span class="code-line">                <span class="code-property">document_chunk_id</span>=context.chunk_id,</span>
+<span class="code-line">                <span class="code-property">label</span>=<span class="code-string">f"[{index}]"</span>,</span>
+<span class="code-line">                <span class="code-property">metadata_json</span>=<span class="code-function">_to_json</span>(citation_metadata[context.chunk_id]),</span>
+<span class="code-line">                <span class="code-property">created_at</span>=<span class="code-function">utcnow</span>(),</span>
+<span class="code-line">            )</span>
+<span class="code-line">        )</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">For each exhibit the answer actually cited — numbered 1, 2, 3...</p>
+              <p class="tl">...file a new record in the ledger:</p>
+              <p class="tl">a Citation receipt that ties together...</p>
+              <p class="tl">...which answer this receipt belongs to...</p>
+              <p class="tl">...which search run produced the evidence (the audit trail!)...</p>
+              <p class="tl">...the exact passage being cited...</p>
+              <p class="tl">...the clickable label the reader sees, like "[1]"...</p>
+              <p class="tl">...extra details (source, page) stored alongside...</p>
+              <p class="tl">...and a timestamp for the record.</p>
+              <p class="tl">(Seal the receipt...</p>
+              <p class="tl">...and drop it in the filing cabinet. Forever.)</p>
+            </div>
+          </div>
+        </div>
+
+        <p>On the <span class="term" data-definition="The half of the app that runs in your browser — everything you see and click. Here it's the React web app.">frontend</span>, clicking a [1] marker opens a side panel with the exact cited passage. Archived webpages render inside an <span class="term" data-definition="A webpage embedded inside another webpage, in its own framed box — like a TV showing a different channel inside your app. The pages can't touch each other unless you allow it.">iframe</span> with a very deliberate security setting:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/chat.tsx</span>
+            <pre><code><span class="code-line">      {view.viewerUrl ? (</span>
+<span class="code-line">        &lt;<span class="code-keyword">iframe</span></span>
+<span class="code-line">          <span class="code-property">className</span>=<span class="code-string">"citation-viewer-frame"</span></span>
+<span class="code-line">          <span class="code-property">src</span>={view.viewerUrl}</span>
+<span class="code-line">          <span class="code-property">title</span>={<span class="code-string">`Archived citation ${citation.label}`</span>}</span>
+<span class="code-line">          <span class="code-property">sandbox</span>={citationIframeSandbox}</span>
+<span class="code-line">          <span class="code-property">referrerPolicy</span>=<span class="code-string">"same-origin"</span></span>
+<span class="code-line">          <span class="code-property">loading</span>=<span class="code-string">"lazy"</span></span>
+<span class="code-line">        /&gt;</span>
+<span class="code-line">      ) : null}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">If this citation has an archived page to show...</p>
+              <p class="tl">...embed it in a framed viewer box...</p>
+              <p class="tl">...styled to fit the side panel...</p>
+              <p class="tl">...loading the archived copy of the source page...</p>
+              <p class="tl">...with a readable title for screen readers...</p>
+              <p class="tl">...under a <span class="term" data-definition="A security setting that strips an embedded page of its powers. sandbox=&quot;&quot; (empty) is maximum lockdown: the page can be displayed but cannot run scripts, open popups, or touch your app.">sandbox</span> lock — here set to "", the strictest possible: display only, zero code allowed to run...</p>
+              <p class="tl">...without leaking your address to other sites...</p>
+              <p class="tl">...and only loaded when it scrolls into view.</p>
+              <p class="tl">(That's the whole viewer.)</p>
+              <p class="tl">No archive? Show nothing rather than something fake.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The house rule, one last time: <strong>trust nothing, display everything.</strong> The archived rulebook page can be <em>seen</em> — but any script inside it is frozen solid.</p>
+      </section>
+
+      <!-- ══════════ SCREEN 6: QUIZ ══════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Cross-Examination: Your Turn</h2>
+
+        <p>Four scenarios. Use the architecture, not your memory.</p>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="retrieval"
+               data-explanation-right="Exactly! Both causes live before the AI is ever involved — and both are findable in the audit trail (the assembly line's job status, and the tallied 'too weak' counters). The AI can't forget what it was never shown."
+               data-explanation-wrong="Not quite — remember the four exits. The AI never 'forgets': it only ever sees the exhibits the Librarian admits. If the answer is 'no evidence,' the problem is upstream — either the book never finished the assembly line, or every match scored under the confidence bar. Both are visible in the audit trail.">
+            <h3 class="quiz-question">You ask about a rule you KNOW is printed in the rulebook, but get "no evidence." What are the two most plausible causes?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="forgot" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🤖 The AI forgot the rule and needs retraining</span>
+              </button>
+              <button class="quiz-option" data-value="retrieval" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🔎 The book never finished indexing, or every match scored below the confidence bar</span>
+              </button>
+              <button class="quiz-option" data-value="deleted" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🗃️ Postgres quietly deleted the book to save space</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="validation"
+               data-explanation-right="Exactly! Any of the guardrails could help, but the decisive one is checking the answer against the retrieved evidence — without a Fact-Checker, a fluent witness can invent testimony and nobody objects. Now you can ask for that guardrail by name."
+               data-explanation-wrong="Not quite — a bigger model is still an eloquent witness, and a faster database just finds evidence sooner. The missing piece is the judge: validating the answer against the retrieved evidence and throwing out anything uncited. That's the guardrail you'd ask an AI to build.">
+            <h3 class="quiz-question">A rival "chat with your PDFs" demo answers confidently even when the PDF says nothing. Which guardrail from this module is it missing?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="bigger" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🧠 A bigger, smarter AI model</span>
+              </button>
+              <button class="quiz-option" data-value="faster" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>⚡ A faster vector database</span>
+              </button>
+              <button class="quiz-option" data-value="validation" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🧐 Validation of the answer against the retrieved evidence</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="topk"
+               data-explanation-right="Exactly! It's a tuning knob, not code surgery — one config value and the Librarian's shortlist grows to 15. Knowing the knob's name is the difference between a one-line request and a rewrite."
+               data-explanation-wrong="Not quite — no rewrite or re-upload needed. The shortlist size is a plain setting: retrieval_top_k. Tell your assistant 'raise retrieval_top_k to 15' and you're done. Settings are knobs; save the surgery for real changes.">
+            <h3 class="quiz-question">You want answers to draw from 15 passages instead of 8. What do you tell your AI assistant to change?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="rewrite" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🏗️ "Rewrite the retrieval service to handle more passages"</span>
+              </button>
+              <button class="quiz-option" data-value="topk" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🎛️ "Raise the retrieval_top_k setting to 15"</span>
+              </button>
+              <button class="quiz-option" data-value="reupload" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>📚 "Upload the rulebook twice so there's more to find"</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="chunkrow"
+               data-explanation-right="Exactly! The citation row points at a chunk in Postgres — a passage the assembly line cut in Module 3. The panel shows the stored source text itself, never the AI's memory of it. That's what makes the receipt trustworthy."
+               data-explanation-wrong="Not quite — trace the receipt. Each citation row stores which chunk it points at, and that chunk lives in Postgres, cut by Module 3's assembly line. No re-search happens, and OpenAI keeps no memory between requests. The panel shows the stored source text itself.">
+            <h3 class="quiz-question">You click a [1] marker and read the passage in the side panel. Where does that text ultimately come from?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="aimemory" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🤖 OpenAI's memory of the answer it wrote</span>
+              </button>
+              <button class="quiz-option" data-value="research" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🧭 A fresh Qdrant search that runs on every click</span>
+              </button>
+              <button class="quiz-option" data-value="chunkrow" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🗃️ The chunk row in Postgres that the citation points at</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p>You've now seen one question interrogate one book — with receipts filed at every step. Next: how The Stacks builds, verifies, and swaps an <em>entire library</em> live, without anyone noticing.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

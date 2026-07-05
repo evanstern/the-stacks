@@ -1,0 +1,341 @@
+<section class="module" id="module-1" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Question Journey</h1>
+      <p class="module-subtitle">What actually happens in the two seconds between hitting Enter and getting an answer with receipts</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ══════════════ SCREEN 1 · HERO / WHAT THIS APP IS ══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two seconds, with receipts</h2>
+
+        <p>You type <em>“Can a wizard wear armor?”</em> and hit Enter. Two seconds later: an answer, with little [1] [2] footnotes that open the exact paragraph of the rulebook you uploaded.</p>
+
+        <p>This course is about everything that happens inside those two seconds — and inside the machine you built. Welcome to <strong>Module 1 of 6</strong> of <em>Inside The Stacks</em>.</p>
+
+        <p>The Stacks is a <span class="term" data-definition="Software you run on your own machine or server instead of letting a company run it for you — your data never leaves your hands.">self-hosted</span> <span class="term" data-definition="A website that behaves like a program — it runs in your browser tab instead of being installed on your computer.">web app</span> for tabletop RPG game masters: you upload your own rulebooks and campaign notes (<span class="term" data-definition="A simple way to write formatted text using plain characters — like stars for emphasis and # for headings. The favorite format of note apps and AI tools alike.">Markdown</span>, text, HTML, <span class="term" data-definition="The standard file format for e-books — essentially a zipped-up website pretending to be a book.">EPUB</span>, or saved-webpage ZIPs), then ask questions in a chat. Three promises define it:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">📎</div>
+            <h4 class="pattern-title">Ask with receipts</h4>
+            <p class="pattern-desc">Every factual sentence carries a numbered <span class="term" data-definition="A numbered marker like [1] that links a sentence back to the exact source passage it came from — a footnote you can click.">citation</span> like [1] that opens the exact source passage.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📚</div>
+            <h4 class="pattern-title">Bring your own books</h4>
+            <p class="pattern-desc">It answers ONLY from the material you uploaded — your rules, your notes, your table.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🙅</div>
+            <h4 class="pattern-title">Refuses to bluff</h4>
+            <p class="pattern-desc">No evidence in your books? It says so, plainly, instead of making something up.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════ SCREEN 2 · THE CLOSED-STACKS LIBRARY ══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A closed-stacks library, digitized</h2>
+
+        <p>In an ordinary library you wander the shelves yourself. In a <strong>closed-stacks</strong> library — which is literally what “the stacks” means — you hand a librarian a question slip at the desk, a runner disappears into the shelves, and your material comes back with call slips pointing at exact pages.</p>
+
+        <p>The Stacks is that library, digitized. Six characters staff it — here’s a teaser of the cast (full introductions in Module 2):</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🖥️</div>
+            <h4 class="pattern-title">Web app</h4>
+            <p class="pattern-desc">The reading room — the page you see and type into. Engineers call the visible part the <span class="term" data-definition="The part of an app you actually see and click — everything drawn in your browser. Its counterpart, the backend, runs out of sight on a server.">frontend</span>.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🚪</div>
+            <h4 class="pattern-title">API</h4>
+            <p class="pattern-desc">The librarian at the front desk. An <span class="term" data-definition="Application Programming Interface — a program with no screen of its own that other programs talk to by sending requests. Here it is the front desk every question must pass through.">API</span> is the <span class="term" data-definition="The part of an app that runs on a server, out of sight — it holds the logic and the data, while the frontend is what you see.">backend</span> program every request goes through.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🛠️</div>
+            <h4 class="pattern-title">Worker</h4>
+            <p class="pattern-desc">The intake clerk in the back room — a <span class="term" data-definition="A background program that handles slow jobs (like processing a 400-page rulebook) so the main app never freezes while you wait.">worker</span> processes your uploaded books off-stage.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🗃️</div>
+            <h4 class="pattern-title">Postgres</h4>
+            <p class="pattern-desc">The card catalog and ledger. <span class="term" data-definition="A battle-tested database that stores information in labeled tables — names, dates, messages. Think: an immaculate filing cabinet.">Postgres</span> is a <span class="term" data-definition="A program whose entire job is storing data safely and finding it fast — a filing cabinet with a superhuman clerk.">database</span> that remembers every book, chat, and answer.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🧭</div>
+            <h4 class="pattern-title">Qdrant</h4>
+            <p class="pattern-desc">The runner in the stacks. <span class="term" data-definition="A vector database — instead of matching exact words, it finds passages by MEANING, comparing long lists of numbers to see which texts are most similar.">Qdrant</span> finds passages by meaning, not by exact words.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🤖</div>
+            <h4 class="pattern-title">OpenAI</h4>
+            <p class="pattern-desc">The scholar on call — an <span class="term" data-definition="Large Language Model — an AI that reads and writes text, like the model behind ChatGPT. Here it drafts answers strictly from the passages it is handed.">LLM</span> that turns text into numbers and drafts the answers.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════ SCREEN 3 · HERO VISUAL — THE FLOW ══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One question, eight hops</h2>
+
+        <p>Here’s the module’s big idea: an app is not one program. It’s a <strong>relay race</strong> of small programs passing messages — and each hop is understandable on its own.</p>
+
+        <p>When you hit Enter, your question rides an <span class="term" data-definition="A message one program sends another over the web — the envelope that every question, answer, and page travels in.">HTTP request</span> to the front desk, carrying your <span class="term" data-definition="A small token your browser attaches to every request to prove you already logged in — like a hand stamp at a club door.">session cookie</span>. The whole pattern is called <span class="term" data-definition="Retrieval-Augmented Generation — look things up first, then let the AI write only from what was found. The entire trick behind this app.">RAG</span>. Click through the race yourself:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"You hit Enter. The web app sends a POST request with your question and your session cookie.","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-2","label":"The API checks the cookie — is this really the operator? No stamp, no service."},
+          {"highlight":"flow-actor-3","label":"The API asks OpenAI to turn your question into 1,536 numbers — an embedding of its meaning.","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"The API asks Qdrant to find the book passages whose numbers sit closest to those 1,536.","packet":true,"from":"actor-2","to":"actor-4"},
+          {"highlight":"flow-actor-3","label":"The API sends OpenAI the 8 best passages: answer ONLY from these, with citations.","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-2","label":"The API fact-checks every citation in the draft against the actual passages."},
+          {"highlight":"flow-actor-5","label":"The API files the question, answer, citations, and a search audit record in Postgres.","packet":true,"from":"actor-2","to":"actor-5"},
+          {"highlight":"flow-actor-1","label":"The answer lands back in your browser — with [1] [2] markers you can click.","packet":true,"from":"actor-2","to":"actor-1"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">🖥️</div>
+              <span>Web app</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">🚪</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="background: var(--color-accent)">🤖</div>
+              <span>OpenAI</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">🧭</div>
+              <span>Qdrant</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">🗃️</div>
+              <span>Postgres</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Step 3 deserves a beat: an <span class="term" data-definition="The long list of numbers (a vector) an AI produces to capture the meaning of a piece of text. Similar meanings produce similar number lists — which is what makes search-by-meaning possible.">embedding</span> is your question rewritten as a <span class="term" data-definition="A long list of numbers representing a point in space. Two texts with similar meanings land at nearby points — so distance between vectors measures similarity of meaning.">vector</span> — 1,536 numbers that capture its meaning, so the runner can search by meaning instead of by keyword.</p>
+      </section>
+
+      <!-- ══════════════ SCREEN 4 · CODE ↔ ENGLISH ══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The code behind the hops</h2>
+
+        <p>Let’s ground the metaphor in real code — the exact code in this project, untouched. First, the <span class="term" data-definition="JavaScript with type-checking bolted on — the language this frontend is written in. React is the popular library it uses to build the page out of reusable pieces.">TypeScript</span> <span class="term" data-definition="A named, reusable block of code — feed it inputs, it does its job, and it hands back a result. This one runs every time you press Enter in the chat.">function</span> that fires when you hit Enter, from <code>apps/web/app/routes/chat.tsx</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE · chat.tsx</span>
+            <pre><code>
+<span class="code-line">  <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">handleSubmit</span>(event: ChatSubmitEvent) {</span>
+<span class="code-line">    event.<span class="code-function">preventDefault</span>();</span>
+<span class="code-line">    <span class="code-keyword">const</span> content = draft.<span class="code-function">trim</span>();</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!content <span class="code-operator">||</span> isSending) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-function">setError</span>(<span class="code-keyword">null</span>);</span>
+<span class="code-line">    <span class="code-function">setDraft</span>(<span class="code-string">""</span>);</span>
+<span class="code-line">    <span class="code-function">setOptimisticQuestion</span>({</span>
+<span class="code-line">      <span class="code-property">id</span>: <span class="code-string">"pending-user-message"</span>,</span>
+<span class="code-line">      <span class="code-property">chat_session_id</span>: session.id,</span>
+<span class="code-line">      <span class="code-property">role</span>: <span class="code-string">"user"</span>,</span>
+<span class="code-line">      content,</span>
+<span class="code-line">      <span class="code-property">metadata</span>: {},</span>
+<span class="code-line">      <span class="code-property">citations</span>: [],</span>
+<span class="code-line">      <span class="code-property">created_at</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>().<span class="code-function">toISOString</span>(),</span>
+<span class="code-line">    });</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">sendSessionMessage</span>(session.id, content);</span>
+<span class="code-line">      <span class="code-keyword">await</span> revalidator.<span class="code-function">revalidate</span>();</span>
+<span class="code-line">      formRef.current?.<span class="code-function">reset</span>();</span>
+<span class="code-line">    } <span class="code-keyword">catch</span> (sendError) {</span>
+<span class="code-line">      <span class="code-function">setDraft</span>(content);</span>
+<span class="code-line">      <span class="code-function">setError</span>(sendError <span class="code-keyword">instanceof</span> Error ? sendError.message : <span class="code-string">"The archive could not answer just now."</span>);</span>
+<span class="code-line">    } <span class="code-keyword">finally</span> {</span>
+<span class="code-line">      <span class="code-function">setOptimisticQuestion</span>(<span class="code-keyword">null</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">When you hit send, run this. <span class="term" data-definition="Short for asynchronous — code that starts a slow task (like a network request) and waits for it without freezing the whole page.">async</span> means it can wait on the network without freezing the page.</p>
+              <p class="tl">Stop the browser’s ancient default habit of reloading the whole page on form submit.</p>
+              <p class="tl">Grab what you typed, minus stray spaces at the ends.</p>
+              <p class="tl">If the box is empty — or a previous question is still in flight — quietly do nothing.</p>
+              <p class="tl">Clear any old error, and empty the input box.</p>
+              <p class="tl">Now the trick: instantly paint a stand-in copy of your message on screen…</p>
+              <p class="tl">…with a made-up ID, <em>pending-user-message</em>. The server hasn’t even been contacted yet.</p>
+              <p class="tl">Stamp it with your session, your role (“user”), your text, and the current time.</p>
+              <p class="tl">NOW actually send the question to the API — and wait for the full answer.</p>
+              <p class="tl">When it returns, re-fetch the conversation so the real messages replace the stand-in.</p>
+              <p class="tl">If anything failed: put your draft back in the box — nothing you typed is lost…</p>
+              <p class="tl">…and show a polite, human error instead of a scary technical one.</p>
+              <p class="tl">Either way, remove the stand-in message. The real one has taken its place — or your draft is back.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That stand-in message is called <strong>optimistic UI</strong>: show your message instantly, before the server confirms, so the app <em>feels</em> fast. Now hop to the other end of the wire — the <span class="term" data-definition="A programming language famous for reading almost like English — the language this backend is written in.">Python</span> backend, from <code>apps/api/app/chat_session_service.py</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE · chat_session_service.py</span>
+            <pre><code>
+<span class="code-line">    <span class="code-keyword">if</span> <span class="code-keyword">not</span> contexts:</span>
+<span class="code-line">        assistant_message = <span class="code-function">_commit_no_evidence_turn</span>(</span>
+<span class="code-line">            db, session, retrieval_run, retrieval_metadata</span>
+<span class="code-line">        )</span>
+<span class="code-line">        <span class="code-keyword">return</span> assistant_message</span>
+<span class="code-line"></span>
+<span class="code-line">    result = graph_invoker.<span class="code-function">invoke</span>(</span>
+<span class="code-line">        {<span class="code-string">"question"</span>: content, <span class="code-string">"contexts"</span>: contexts},</span>
+<span class="code-line">        {<span class="code-string">"configurable"</span>: {<span class="code-string">"thread_id"</span>: session.id}},</span>
+<span class="code-line">    )</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><em>contexts</em> holds the passages the runner found. If that list is empty…</p>
+              <p class="tl">…record an honest “no evidence” answer in the database…</p>
+              <p class="tl">…along with the search details, for the audit trail…</p>
+              <p class="tl">…and stop right here. Hand back the refusal.</p>
+              <p class="tl">Otherwise: pass the question and its passages to the answer-writing pipeline…</p>
+              <p class="tl">…tagged with this chat session’s ID, so the conversation keeps its memory.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🤫</div>
+          <div class="callout-content">
+            <strong class="callout-title">Honesty is cheaper</strong>
+            <p>The app would rather say “I don’t know” than make something up — and it doesn’t even bother (or pay for) the AI call when there’s no evidence. Five lines of code, and the whole “refuses to bluff” promise is kept.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════ SCREEN 5 · AHA + QUIZ ══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">It’s theater (the good kind)</h2>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Perceived vs. actual progress</strong>
+            <p>That soothing “Searching the archive… Reading sources… Composing answer…” ticker in the chat? Theater. The real work is ONE request that returns the whole answer at once — the code even admits it: <em>“Local preparation estimates shown while the request is pending”</em> (<code>apps/web/app/routes/chat.tsx:494-536</code>). Great apps manage your <em>feeling</em> of progress separately from the progress itself.</p>
+          </div>
+        </div>
+
+        <p>Why does naming the hops matter? Because now you can point an AI assistant at the right one — “that’s a backend retrieval problem, not a UI problem” — and know where to look when something breaks. Prove it to yourself:</p>
+
+        <div class="quiz-container" id="quiz-module1">
+          <div class="quiz-question-block"
+               data-correct="q1-b"
+               data-explanation-right="Exactly — that’s optimistic UI. handleSubmit paints a stand-in message with the fake ID “pending-user-message” before the server is ever contacted, then swaps in the real one when the answer arrives. Feels instant, costs nothing."
+               data-explanation-wrong="Not quite — at that moment, the server hasn’t replied at all. Peek back at handleSubmit: setOptimisticQuestion draws your message on screen BEFORE sendSessionMessage finishes. The speed is a frontend illusion — a lovely one.">
+            <h3 class="quiz-question">1. You hit Enter and your question appears in the chat instantly — but the answer takes two seconds. Why does your own message show up immediately?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="q1-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The server answers user messages faster than assistant messages</span>
+              </button>
+              <button class="quiz-option" data-value="q1-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The web app displays it itself, before the server has replied</span>
+              </button>
+              <button class="quiz-option" data-value="q1-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It’s read back out of Postgres, which is very fast</span>
+              </button>
+              <button class="quiz-option" data-value="q1-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser cached it from the last time you asked</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="q2-c"
+               data-explanation-right="Spot on. An empty contexts list triggers the no-evidence short-circuit every single time — so the first suspect is the search hop: Qdrant has nothing indexed, or the books never finished processing. The AI never even got a phone call."
+               data-explanation-wrong="Good instinct to suspect a hop — but remember the short-circuit: when contexts comes back empty, the OpenAI call never happens at all. A blanket “no evidence” for every question points at the search step (Qdrant empty, nothing indexed), not the AI or the browser.">
+            <h3 class="quiz-question">2. The chat replies “no evidence found” to every single question — even easy ones. Which hop of the journey would you suspect FIRST?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="q2-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>OpenAI is down, so no answers can be written</span>
+              </button>
+              <button class="quiz-option" data-value="q2-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser is blocking the response from rendering</span>
+              </button>
+              <button class="quiz-option" data-value="q2-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The search hop — Qdrant is returning nothing, maybe nothing got indexed</span>
+              </button>
+              <button class="quiz-option" data-value="q2-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Postgres ran out of room to store new answers</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="q3-c"
+               data-explanation-right="Exactly. The “answer ONLY from these passages” rule lives in the instructions the API sends OpenAI at step 5. Loosen that one instruction and the model could blend in general knowledge — every other hop of the relay would run unchanged."
+               data-explanation-wrong="Not quite — searching, storing, and displaying would all keep working exactly as they do now. The strictness comes from step 5: the API tells OpenAI to answer ONLY from the passages it was handed. To allow general knowledge, that instruction is what you’d change.">
+            <h3 class="quiz-question">3. A friend wants the app to ALSO answer from general knowledge when the books don’t cover something. Which step of the journey would have to change?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="q3-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Step 8 — how the browser renders the answer</span>
+              </button>
+              <button class="quiz-option" data-value="q3-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Step 4 — make Qdrant search the whole internet too</span>
+              </button>
+              <button class="quiz-option" data-value="q3-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Step 5 — the “answer ONLY from these passages” instruction sent to OpenAI</span>
+              </button>
+              <button class="quiz-option" data-value="q3-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Step 7 — what gets filed away in Postgres</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+
+        <p>You’ve seen the relay race. Next up, <strong>Module 2: Meet the Cast</strong> — the five running services behind those badges, and the one file that brings them all to life at once.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,382 @@
+<section class="module" id="module-2" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Meet the Cast</h1>
+      <p class="module-subtitle">Five specialists, one call sheet — who actually runs The Stacks</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: THE CALL SHEET ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Call Sheet</h2>
+        <p>In Module 1 you watched the relay race. Time for proper introductions — because everything you saw was performed by five separate programs, each sealed inside its own <span class="term" data-definition="A container is a sealed box holding one program plus everything it needs to run — its own mini-computer-in-a-box. If it breaks, nothing outside the box is harmed. When talking to AI, you'd say 'run each service in its own container.'">container</span>.</p>
+        <p>One command wakes them all up, in the right order, ready to cooperate:</p>
+
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">TERMINAL</span>
+            <pre><code><span class="code-line"><span class="code-function">docker</span> compose up</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">"Everyone on the call sheet — report to set, in dependency order, and shout when you're ready."</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎬</div>
+          <div class="callout-content">
+            <strong class="callout-title">The metaphor for this module: a film set on shoot day</strong>
+            <p>The file <code>docker-compose.yml</code> is the <em>call sheet</em>: it lists who's on the crew, when each person shows up, how you check they're ready ("ready on set!"), and which rooms they work in. <span class="term" data-definition="Docker is the tool that builds and runs containers — the 'shipping company' that packs each program into its sealed box and starts it up. You'd tell AI 'add this service to our Docker setup.'">Docker</span> is the studio that runs the whole operation, and <span class="term" data-definition="Docker Compose is the part of Docker that reads one file (docker-compose.yml) describing SEVERAL containers and starts them all together, in the right order — a stage manager working from the call sheet.">Docker Compose</span> is the stage manager reading from it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 2: THE FIVE CAST CARDS ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Cast, In Order of Appearance</h2>
+        <p>Five crew members, one job each. Nobody does two jobs — that's the whole trick.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🖥️</div>
+            <h4 class="pattern-title">Web app</h4>
+            <p class="pattern-desc">The storefront — the pages you actually see and click. Built with <span class="term" data-definition="React is a popular toolkit for building web page interfaces out of reusable pieces (buttons, chat windows, upload forms). If you ask AI to 'change the React component,' you're asking to change what the user sees.">React</span>.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🚪</div>
+            <h4 class="pattern-title">API</h4>
+            <p class="pattern-desc">The front desk — checks IDs, takes requests, orchestrates answers. Built with <span class="term" data-definition="FastAPI is a toolkit for building the 'front desk' of an app in Python — it receives requests from the browser, checks them, and sends back answers. An API (Application Programming Interface) is the counter where programs talk to each other.">FastAPI</span> in <span class="term" data-definition="Python is a programming language known for being readable — it's what the API and Worker in this app are written in. When you say 'the Python backend,' you mean the behind-the-scenes half of the app.">Python</span>.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🛠️</div>
+            <h4 class="pattern-title">Worker</h4>
+            <p class="pattern-desc">The back room — processes your uploads while you do other things. A Python <span class="term" data-definition="A loop is code that repeats forever: 'check for work, do it, check again.' The Worker runs one big loop, asking every few seconds if there's a new job waiting.">loop</span> that never stops checking for jobs.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🗃️</div>
+            <h4 class="pattern-title">Postgres</h4>
+            <p class="pattern-desc">The ledger — a <span class="term" data-definition="A database is a program whose only job is to store information safely and hand it back fast — a filing cabinet with a librarian attached. Postgres is one of the most trusted databases in the world.">database</span> that remembers everything: messages, uploads, jobs, citations.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🧭</div>
+            <h4 class="pattern-title">Qdrant</h4>
+            <p class="pattern-desc">The meaning-finder — a special <span class="term" data-definition="A vector database stores 'meaning-numbers' (vectors) instead of plain text, so it can find passages that MEAN the same thing as your question even when the words are totally different.">vector database</span> that searches by similarity, not by exact words.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px dashed var(--color-text-muted); opacity: 0.85; background: var(--color-bg)">
+            <div class="pattern-icon" style="background: var(--color-text-muted)">🤖</div>
+            <h4 class="pattern-title">OpenAI <small style="font-weight:400; font-size: var(--text-xs); color: var(--color-text-muted)">(off-set)</small></h4>
+            <p class="pattern-desc">The outside contractor — turns text into meaning-numbers and drafts answers. Not on the crew, not in a container: it's an internet service the API calls.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why should you care who's who?</strong>
+            <p>Knowing the cast lets you steer AI precisely ("put that logic in the Worker, not the API") and localize failures (uploads stall → suspect the Worker; login fails → suspect the API). Engineers call this one-job-per-specialist design <em>separation of concerns</em>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: BOOT-UP GROUP CHAT ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Morning on Set</h2>
+        <p>Here's what boot-up looks like if the crew had a group chat. Notice the order: the databases call "ready" first, because everyone else depends on them.</p>
+
+        <div class="chat-window" id="boot-chat">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">🗃️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Postgres</span>
+                <p>Ledger's open. pg_isready says ✅</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="qdrant" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🧭</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Qdrant</span>
+                <p>Meaning-cabinet online at port 6333 ✅</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🚪</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">API</span>
+                <p>Great — dialing postgres:5432 and qdrant:6333… connected. Front desk open.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🛠️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Worker</span>
+                <p>API healthy? Cool. I'll check the job pile every 5 seconds. …anything yet?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">🗃️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Postgres</span>
+                <p>Nothing yet.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🛠️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Worker</span>
+                <p>…now? (I will literally never stop asking.)</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🖥️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Web app</span>
+                <p>Storefront's open on port 5173. First visitor incoming!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="boot-chat-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>That "check the job pile every 5 seconds" bit is real — the Worker's endless question-asking is called <span class="term" data-definition="Polling means repeatedly asking 'anything for me yet?' on a timer instead of waiting to be told. Simple and reliable — like a barista glancing at the order queue every few seconds.">polling</span>, and it's how uploads get processed without anyone waiting on hold.</p>
+      </section>
+
+      <!-- ============ SCREEN 4: READING THE CALL SHEET ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Reading the Call Sheet for Real</h2>
+        <p>Here's Postgres's actual entry in <code>docker-compose.yml</code> — written in <span class="term" data-definition="YAML is a file format for settings that uses indentation instead of brackets, designed to be human-readable. Config files like docker-compose.yml are written in it. Pronounced 'YAM-ul.'">YAML</span>. Every line answers a stage-manager question: who, where, and are-you-ready.</p>
+
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">docker-compose.yml</span>
+            <pre><code><span class="code-line">  <span class="code-property">postgres</span>:</span>
+<span class="code-line">    <span class="code-property">image</span>: <span class="code-string">postgres:16-alpine</span></span>
+<span class="code-line">    <span class="code-property">environment</span>:</span>
+<span class="code-line">      <span class="code-property">POSTGRES_DB</span>: <span class="code-string">thestacks</span></span>
+<span class="code-line">      <span class="code-property">POSTGRES_USER</span>: <span class="code-string">thestacks</span></span>
+<span class="code-line">      <span class="code-property">POSTGRES_PASSWORD</span>: <span class="code-string">thestacks</span></span>
+<span class="code-line">    <span class="code-property">volumes</span>:</span>
+<span class="code-line">      - <span class="code-string">postgres-data:/var/lib/postgresql/data</span></span>
+<span class="code-line">    <span class="code-property">ports</span>:</span>
+<span class="code-line">      - <span class="code-string">"127.0.0.1:5433:5432"</span></span>
+<span class="code-line">    <span class="code-property">healthcheck</span>:</span>
+<span class="code-line">      <span class="code-property">test</span>: [<span class="code-string">"CMD-SHELL"</span>, <span class="code-string">"pg_isready -U thestacks -d thestacks"</span>]</span>
+<span class="code-line">      <span class="code-property">interval</span>: <span class="code-number">5s</span></span>
+<span class="code-line">      <span class="code-property">timeout</span>: <span class="code-number">5s</span></span>
+<span class="code-line">      <span class="code-property">retries</span>: <span class="code-number">20</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Cast member's name on the call sheet: "postgres". Everyone reaches this crew member by this exact name.</p>
+              <p class="tl">Which program to run — Postgres version 16, the lightweight edition.</p>
+              <p class="tl">Its personal settings: database name, username, and password (fine for your own machine, changed in production).</p>
+              <p class="tl">A <span class="term" data-definition="A volume is a keep-forever drawer Docker attaches to a container. The container can be destroyed and rebuilt, but anything in the volume survives — that's why your data outlives restarts.">volume</span>: a keep-forever drawer, so your data survives even if the container is torn down.</p>
+              <p class="tl">A <span class="term" data-definition="A port is a numbered door on a computer where one specific program answers — like apartment numbers in one building. Postgres traditionally answers on door 5432.">port</span> opened as a window to your machine, so you can peek at the database directly.</p>
+              <p class="tl">The <span class="term" data-definition="A healthcheck is a small test Docker runs on a schedule to ask a container 'are you actually ready?' — not just 'are you switched on?' Other containers can wait for a green healthcheck before starting.">healthcheck</span>: every 5 seconds Docker asks "ready on set?" — and nobody who depends on Postgres starts until it says yes, up to 20 tries.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And here's how the API learns its own settings, in <code>apps/api/app/config.py</code>. Every knob reads from an <span class="term" data-definition="An environment variable is a named setting handed to a program from OUTSIDE when it starts — like a sticky note on the dressing-room mirror. Same code, different note, different behavior. You'd tell AI 'read that from an environment variable, don't hard-code it.'">environment variable</span>, with a safe default for your laptop.</p>
+
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">apps/api/app/config.py</span>
+            <pre><code><span class="code-line">    <span class="code-property">session_cookie_secure</span>: <span class="code-keyword">bool</span> = <span class="code-function">Field</span>(default=<span class="code-keyword">False</span>, alias=<span class="code-string">"SESSION_COOKIE_SECURE"</span>)</span>
+<span class="code-line">    <span class="code-property">session_ttl_seconds</span>: <span class="code-keyword">int</span> = <span class="code-function">Field</span>(default=<span class="code-number">7</span> * <span class="code-number">24</span> * <span class="code-number">60</span> * <span class="code-number">60</span>, alias=<span class="code-string">"SESSION_TTL_SECONDS"</span>)</span>
+<span class="code-line">    <span class="code-property">database_url</span>: <span class="code-keyword">str</span> = <span class="code-function">Field</span>(</span>
+<span class="code-line">        default=<span class="code-string">"postgresql+psycopg://thestacks:thestacks@postgres:5432/thestacks"</span>,</span>
+<span class="code-line">        alias=<span class="code-string">"DATABASE_URL"</span>,</span>
+<span class="code-line">    )</span>
+<span class="code-line">    <span class="code-property">cors_origins</span>: <span class="code-keyword">str</span> = <span class="code-function">Field</span>(default=<span class="code-string">"http://localhost:5173"</span>, alias=<span class="code-string">"CORS_ORIGINS"</span>)</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Should login cookies require a secure connection? Off by default for your laptop — forced ON <span class="term" data-definition="'Dev' (development) is the app running on your own machine while you build it; 'production' is the real deployed version others use. Same code, stricter settings in production.">in production</span>.</p>
+              <p class="tl">How long a login lasts: 7 days × 24 hours × 60 minutes × 60 seconds.</p>
+              <p class="tl">Where's the database? Look at the address inside…</p>
+              <p class="tl">…it dials <code>@postgres:5432</code> — the call-sheet <em>name</em>, like an internal phone extension. No IP address needed.</p>
+              <p class="tl">But any of these can be overridden by the environment variable named here.</p>
+              <p class="tl">(End of the database setting.)</p>
+              <p class="tl">Which website addresses may talk to this API — a <span class="term" data-definition="CORS (Cross-Origin Resource Sharing) is the browser's guest-list rule: an API declares which website addresses are allowed to call it, and the browser blocks everyone else. 'Blocked as cross-origin' means your address isn't on the list.">CORS</span> guest list, defaulting to your local dev address.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📞</div>
+          <div class="callout-content">
+            <strong class="callout-title">Two addresses for the same API — here's why</strong>
+            <p>Inside Docker's private network, services reach each other by <em>name</em>: the API literally dials <code>postgres:5432</code>. But your browser lives OUTSIDE that network, so it reaches the API via <span class="term" data-definition="localhost is the address that means 'this very computer.' http://localhost:5173 is a page served by your own machine — nobody else on the internet can see it.">localhost</span> — same building, but you have to use the street entrance while the crew uses internal extensions.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: THE LOGIN GATE + QUIZ ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Bouncer at Every Door</h2>
+        <p>One last cast trick before the quiz: how does the Web app guard its pages? Every protected page runs this tiny gatekeeper first, from <code>apps/web/app/lib/auth.ts</code>.</p>
+
+        <div class="translation-block">
+          <div class="translation-code">
+            <span class="translation-label">apps/web/app/lib/auth.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">requireAuth</span>() {</span>
+<span class="code-line">  <span class="code-keyword">try</span> {</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">getAuthStatus</span>();</span>
+<span class="code-line">  } <span class="code-keyword">catch</span> (error) {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-function">isUnauthorized</span>(error) || <span class="code-function">isApiNetworkError</span>(error)) {</span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-function">redirect</span>(<span class="code-string">"/login"</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">throw</span> error;</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The door guard, runnable by any protected page.</p>
+              <p class="tl">Attempt the check…</p>
+              <p class="tl">…ask the API: "am I logged in?"</p>
+              <p class="tl">If that goes wrong, look at WHY it went wrong:</p>
+              <p class="tl">If the API said <span class="term" data-definition="401 Unauthorized is HTTP's numeric code for 'who are you?' — the server saying it doesn't recognize you. Seeing 401s in the console almost always means a login/session problem.">401</span> ("who are you?") — or the API can't be reached at all —</p>
+              <p class="tl">…bounce the visitor straight to the login page.</p>
+              <p class="tl">(Done with the bounce case.)</p>
+              <p class="tl">Any other error is a real problem — pass it along, don't hide it.</p>
+              <p class="tl">(End of the check.)</p>
+              <p class="tl">That's the whole bouncer.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎟️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: your browser never holds your password</strong>
+            <p>After login, the browser holds only a signed <span class="term" data-definition="A cookie is a small note the server hands your browser, which the browser automatically shows back on every future visit — like a stamped wristband from the door staff.">cookie</span> — a stamped wristband the bouncer checks at every door. It's <span class="term" data-definition="HTTP-only means the cookie is invisible to the page's own JavaScript — only the browser and server can see it. Even a malicious script sneaked onto the page can't steal it.">HTTP-only</span>, so even sneaky code running on the page can't read it.</p>
+          </div>
+        </div>
+
+        <h2 class="screen-heading">Casting Call: You Decide</h2>
+        <p>Four situations, one cast. No memorization — just think about who does what.</p>
+
+        <div class="quiz-container" id="quiz-module2">
+          <div class="quiz-question-block"
+               data-correct="worker"
+               data-explanation-right="Exactly! Scheduled background work with no user waiting is the Worker's whole personality. The Web app only runs while a browser tab is open, and Postgres stores things — it doesn't act on its own."
+               data-explanation-wrong="Not quite — think about who's already awake at 3 a.m. with nobody watching. The Web app only runs while a browser is open, and Postgres is a ledger: it remembers, it doesn't act. Background jobs on a schedule are the Worker's home turf.">
+            <h3 class="quiz-question">You want a nightly job that emails you a recap of yesterday's game session. Which cast member is the natural home for it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="web" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🖥️ The Web app — it's where the session is displayed</span>
+              </button>
+              <button class="quiz-option" data-value="worker" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🛠️ The Worker — it does background work with nobody waiting</span>
+              </button>
+              <button class="quiz-option" data-value="postgres" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🗃️ Postgres — it already has all the session data</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="worker-down"
+               data-explanation-right="Exactly! Chat working proves the API, Postgres, and Qdrant are all fine — the question path goes through all three. The only cast member whose absence matches 'queued forever' is the one who processes the queue: the Worker."
+               data-explanation-wrong="Not quite — use what still works as evidence. Chat answering fine means the API, Postgres, AND Qdrant are all healthy. So who's the only one whose job is pulling uploads off the queue? The Worker — if it's down, jobs just sit there.">
+            <h3 class="quiz-question">Chat answers fine, but new uploads sit at "queued" forever. Which container do you suspect?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="api-down" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🚪 The API — it received the upload, so it must have dropped it</span>
+              </button>
+              <button class="quiz-option" data-value="postgres-down" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🗃️ Postgres — the queue lives there, so it must be broken</span>
+              </button>
+              <button class="quiz-option" data-value="worker-down" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>🛠️ The Worker — everyone else is provably fine because chat works</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="cors-config"
+               data-explanation-right="Exactly! 'Blocked as cross-origin' means the API's CORS guest list doesn't include the server's address — CORS_ORIGINS still defaults to your local dev address. It's a configuration fix, not a code fix. Same code, different sticky note."
+               data-explanation-wrong="Not quite — 'works on my machine, breaks on the server' with the SAME code is the classic signature of a configuration difference. 'Blocked as cross-origin' points straight at the API's CORS_ORIGINS guest list, which still defaults to the local dev address. Change the setting, not the code.">
+            <h3 class="quiz-question">Everything works on your machine, but on the server the browser console shows the Web app's requests being blocked as "cross-origin." What's your first move?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="rewrite-web" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Rewrite the Web app's request code — it's clearly buggy</span>
+              </button>
+              <button class="quiz-option" data-value="cors-config" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Check the API's CORS_ORIGINS environment variable — it's configuration, not code</span>
+              </button>
+              <button class="quiz-option" data-value="restart-all" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Restart all five containers and hope</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="answers-fail"
+               data-explanation-right="Exactly! Login, old chats, and upload queueing are all Postgres things, so they keep working. But similarity search is Qdrant's one job — with the meaning-finder gone, new questions can't find their evidence. One specialist down, one capability lost."
+               data-explanation-wrong="Not quite — remember: one job per specialist. Qdrant does exactly one thing: find passages by meaning. Login, viewing old chats, and queueing uploads all live in Postgres, so they survive. What dies is precisely the one thing Qdrant does: answering new questions.">
+            <h3 class="quiz-question">Qdrant crashes at 2 p.m. What still works?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="nothing-works" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — the whole app goes down together</span>
+              </button>
+              <button class="quiz-option" data-value="answers-fail" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Login, old chats, and upload queueing still work — only new answers fail</span>
+              </button>
+              <button class="quiz-option" data-value="uploads-fail" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only uploads break — chat is unaffected</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <p>You've met the whole crew. The quietest cast member — the Worker — has the most interesting job, and next module we follow it into the back room: the assembly line that turns a raw rulebook into searchable meaning.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
