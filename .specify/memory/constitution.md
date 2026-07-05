@@ -1,10 +1,29 @@
 <!--
 Sync Impact Report
-- Version change: template placeholders -> 1.0.0
-- Modified principles: Template Principle 1 → Lawful Operator-Supplied Content Only; Template Principle 2 → Contract-First ETL and Retrieval; Template Principle 3 → Evidence-Labeled Intelligence; Template Principle 4 → Operator Control and Auditability; Template Principle 5 → Durable Architecture Boundaries
-- Added sections: Additional Constraints; Development Workflow
-- Removed sections: none
-- Templates requiring updates: ✅ reviewed and aligned (.specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md, .specify/templates/commands/*.md, main/README.md, main/AGENTS.md)
+- Version change: 1.0.0 -> 2.0.0
+- Rationale: MAJOR — principles redefined around the v3 greenfield rebuild (docs/v3-grounding/01,
+  decisions D1-D14 in docs/v3-grounding/08). v2-era mandates removed or redefined: per-version
+  blue-green runtime machinery dropped (D4), Qdrant replaced by pgvector (D5), FastAPI-era
+  verification anchors and the hard host-port clause superseded by generic contract-stability
+  language, wiki governance moved from Principle V into Development Workflow.
+- Modified principles:
+  - I. Lawful Operator-Supplied Content Only (carried forward, wording tightened)
+  - II. Contract-First ETL and Retrieval -> III. Citations Are Receipts
+  - III. Evidence-Labeled Intelligence -> II. Hallucination Is Contained by Architecture
+  - IV. Operator Control and Auditability -> split into IV. Slow Work Is Asynchronous and
+    Destructive Work Is Guarded, and V. Operator Control and Observability
+  - V. Durable Architecture Boundaries -> VI. Boring, Bounded Infrastructure
+- Added sections: VII. Configuration Over Hardcoding (new principle); Fixed Technical
+  Decisions (replaces Additional Constraints)
+- Removed sections: Additional Constraints (v2-era runtime-version, Qdrant, and hard 5173
+  clauses; contract stability retained generically in Fixed Technical Decisions)
+- Templates requiring updates:
+  - ✅ .specify/templates/plan-template.md (Constitution Check gate is generated per plan; no
+    static edits needed)
+  - ✅ .specify/templates/spec-template.md (principle-agnostic; no edits needed)
+  - ✅ .specify/templates/tasks-template.md (principle-agnostic; no edits needed)
+  - ⚠ README.md / AGENTS.md describe the running v2 stack; they stay accurate for the v2
+    reference until the v3 skeleton spec lands, then must be updated by that spec
 - Follow-up TODOs: none
 -->
 
@@ -15,106 +34,136 @@ Sync Impact Report
 ### I. Lawful Operator-Supplied Content Only
 
 The Stacks MUST never ship, download, scrape, bundle, or imply access to proprietary
-rulebooks, campaign data, DnDBeyond exports, or other restricted game material. All
-campaign, corpus, archive, and reference material MUST be supplied by the operator and
-lawfully possessed. Repository fixtures may only use synthetic, minimal, or explicitly
-permitted content. Engineering convenience MUST NOT weaken licensing or provenance
-boundaries.
+rulebooks, campaign data, D&D Beyond exports, or other restricted game material. All
+corpus, archive, and reference material MUST be supplied by the operator and lawfully
+possessed; the product is a bring-your-own-books research library. Repository fixtures
+MUST use only synthetic, minimal, or explicitly permitted content. Engineering
+convenience MUST NOT weaken licensing or provenance boundaries.
 
-### II. Contract-First ETL and Retrieval
+### II. Hallucination Is Contained by Architecture
 
-Ingestion, parsing, chunking, embedding, indexing, retrieval, citation, and
-runtime-version behavior MUST be governed by explicit contracts. Changes to ETL or
-retrieval behavior MUST preserve traceability from source material to chunks, jobs,
-records, retrieval runs, and user-visible citations. Silent data loss, unverifiable
-transformations, and hidden fallback behavior are not acceptable.
+Honesty MUST be enforced structurally, not requested from the model: retrieval decides
+what the model may see, prompts confine it, and validators check citations after the
+fact. The two chat modes carry distinct contracts (D7) that MUST NOT blur:
 
-### III. Evidence-Labeled Intelligence
+- **Quick Ask** is single-turn and strict: it always retrieves, answers only from
+  evidence, and refuses honestly when evidence is missing.
+- **Conversations** are multi-turn with memory; retrieval is a tool the model chooses
+  to invoke (D8). The model MAY converse, summarize, and reason freely, but any claim
+  presented as coming from the corpus MUST carry a citation validated against
+  actually-retrieved chunks. The contract softens from "refuse to answer" to "never
+  fake a citation" — the validation machinery stays.
 
-Retrieval-backed answers MUST always include citations to operator-supplied source
-material and MUST preserve traceability from answer to source, chunk, job, and
-retrieval run where applicable. The system MUST clearly report when retrieved evidence
-is absent, incomplete, conflicting, or low confidence.
+Uncited output MUST be identifiable as reasoning, assumption, or general knowledge
+rather than retrieved fact. Tool use and agentic features MUST NOT weaken provenance,
+licensing, auditability, or operator control.
 
-Future agentic features MAY use general model knowledge, planning heuristics, and
-reasoning capabilities when assisting the operator, but MUST label the basis of their
-output. Any claim presented as coming from operator-supplied source material MUST be
-citation-backed. Any uncited synthesis MUST be identifiable as reasoning, assumption,
-recommendation, or general knowledge rather than retrieved fact. Agent autonomy MUST
-NOT weaken provenance, licensing, auditability, or user control.
+### III. Citations Are Receipts
 
-### IV. Operator Control and Auditability
+Every citation MUST be a durable record linking answer → retrieval run → exact chunk,
+and it MUST keep working when revisited in old conversations. Ingestion, chunking,
+embedding, indexing, retrieval, and citation MUST be governed by explicit contracts
+that preserve traceability from source material through chunks, jobs, and retrieval
+runs to user-visible citations. Silent data loss, unverifiable transformations, and
+hidden fallback behavior are not acceptable. New ingesters MUST plug in through the
+ingestion plugin contract without modifying the pipeline core.
 
-The Stacks MUST keep the operator in control of content, runtime state, destructive
-actions, and agentic behavior. Uploads, ingestion jobs, retrieval runs, corpus imports,
-runtime-version activation, resets, repairs, and future agent actions MUST be
-inspectable through records, statuses, lifecycle events, or evidence logs appropriate
-to the action.
+### IV. Slow Work Is Asynchronous and Destructive Work Is Guarded
 
-Destructive or hard-to-reverse operations MUST provide an explicit safety path
-appropriate to their risk: confirmation, preview, dry-run, rollback, scoped operation,
-or explicit operator approval. Dry-run or preview modes SHOULD be available for
-high-risk lifecycle operations where they materially improve operator confidence, but
-they are not mandatory for every runtime operation. Failures MUST be visible and
-actionable without exposing unsafe internals such as secrets, host filesystem paths, or
-raw tracebacks to public UI surfaces.
+Slow work MUST never happen while a user waits: uploads are accepted and recorded, and
+processing is asynchronous behind a legible status contract. Retries MUST be safe by
+construction — deterministic IDs, idempotent indexing, content-hash dedupe.
 
-### V. Durable Architecture Boundaries
+Destructive or hard-to-reverse operations MUST be dry-run-first, explicitly confirmed,
+and structurally unable to touch what is live (e.g., corpus deletion refuses the
+active corpus). Failures MUST be legible: append-only event trails for jobs, retrieval
+runs, and corpus lifecycle; errors typed by cause and mapped to honest status codes;
+user-facing messages scrubbed of secrets and internals while full diagnostics stay
+operator-side.
 
-The Stacks MUST preserve clear boundaries between retrieval/evidence concerns,
-operator-facing application concerns, runtime lifecycle concerns, and infrastructure
-concerns. RR7 means the UI/UX-facing application layer, including the frontend and
-related route/server API surfaces.
+### V. Operator Control and Observability
 
-The RAG layer MUST remain frontend-agnostic: ingestion, chunking, embedding, indexing,
-retrieval, citation, and evidence contracts MUST NOT depend on RR7 flows, visual
-presentation, or session UX assumptions. RR7 MAY own UI/UX-facing behavior and
-route/server API surfaces, but it MUST consume RAG capabilities through explicit
-contracts rather than reaching across boundaries or embedding retrieval assumptions into
-presentation logic.
+The operator MUST always be able to see inside: a Records-style observability surface
+with URL-addressable state is part of the product, not tooling. Uploads, ingestion
+jobs, retrieval runs, conversations, tool invocations, and corpus lifecycle events
+MUST be inspectable through records, statuses, or event trails appropriate to the
+action. The auth model is single-operator (D13); multi-user accounts, sharing, and
+permissions are out of scope and MUST NOT be partially introduced. Conversation tool
+use is bounded to the per-conversation scratch workspace and corpus retrieval/read
+tools (D9); new tool surfaces require a spec.
 
-Durable architecture, contract, lifecycle, ETL, retrieval, runtime-version,
-operator-control, and cross-layer behavior decisions MUST be recorded in
-`main/docs/wiki/` and linked from `main/docs/wiki/Home.md` once they settle. Routine bug
-fixes, local refactors, and implementation-only changes do not require new wiki pages
-unless they change a durable contract or operational expectation. Architectural work
-MUST include a wiki-impact decision: either the relevant wiki page was updated and
-linked, or the agent explicitly records why no durable wiki update was needed.
+### VI. Boring, Bounded Infrastructure
 
-## Additional Constraints
+Boring infrastructure is a feature: the queue is a Postgres table with locked claims
+and event trails (D12), vectors live in Postgres via pgvector (D5), config is env vars
+with safe local defaults, and the whole system MUST start with one compose command.
 
-- Local, smoke, and production configuration MUST remain distinct.
-- Production secrets MUST stay out of the repository.
-- Production storage, browser origins, secure cookies, host ports, runtime activation,
-  resets, and teardown flows MUST preserve documented safety contracts.
-- The local app port contract `5173` MUST NOT change without explicit approval.
-- Unsafe defaults or blurred environments MUST NOT be introduced because they can
-  corrupt data, weaken authentication, or make runtime state untrustworthy.
-- Dry-run or preview modes are preferred safety options for high-risk operations, but
-  they are not a universal prerequisite.
+Architectural boundaries are fixed (D2): the TypeScript core owns the API, ingestion
+orchestration, chunking, retrieval, chat, and corpus lifecycle; the Python sidecar is
+inference-only. The UI layer (React Router 7 SSR, D6) MUST consume retrieval and
+evidence capabilities through explicit contracts — ingestion, chunking, embedding,
+indexing, retrieval, and citation contracts MUST NOT depend on UI flows or
+presentation assumptions. Corpus versioning keeps immutable content-hashed archives,
+rebuildable/verifiable manifests, and dry-run/confirm/refuse-active guardrails without
+per-version databases or blue-green activation (D4); sources and chunks carry a corpus
+id so multi-corpus can return cheaply.
+
+### VII. Configuration Over Hardcoding
+
+Every model role — chat, quick-ask, embedding, judge, reranker — MUST be a named,
+env-first configuration with no hardcoded model identifiers (D14). Providers
+(Anthropic, OpenAI, OpenAI-compatible/self-hosted) MUST be selectable via
+configuration and, per conversation, in the UI. The embedding-model identity MUST be
+stamped on the index so mismatched query/index embeddings are structurally detectable.
+Retrieval and model choices MUST be justified by the evaluation program (D11):
+baseline first, one variable at a time, findings recorded as durable reports and ADRs.
+
+## Fixed Technical Decisions
+
+Decisions D1–D14 in `docs/v3-grounding/08-decisions-and-open-questions.md` are settled.
+Specs MUST treat them as fixed; reopening one requires an ADR. In brief:
+
+- D1 greenfield rebuild in this repo; v2 stays a runnable reference until parity, then
+  is retired deliberately. v2's documented contracts stay intact until that retirement.
+- D2 TypeScript core + Python inference-only ML sidecar. D3 Fastify for the API.
+- D4 corpus versioning replaces per-version blue-green machinery.
+- D5 pgvector replaces Qdrant. D12 the queue stays a Postgres table.
+- D6 React Router 7 framework mode (SSR), Tailwind + shadcn/ui.
+- D7 Quick Ask and Conversations are distinct contracts. D8 retrieval is a model-driven
+  tool in Conversations. D9 file tools are a per-conversation scratch workspace.
+- D10 Vercel AI SDK for the LLM layer; LangGraph is not carried forward.
+- D11 four-track eval program. D13 single-operator auth. D14 named, env-first model
+  roles.
+
+Production secrets MUST stay out of the repository, and local, smoke, and production
+configuration MUST remain distinct. Unsafe defaults or blurred environments MUST NOT
+be introduced.
 
 ## Development Workflow
 
 - For behavior changes where an automated test can reasonably express the desired
   outcome, development MUST follow TDD: write or update the failing test first,
-  implement the smallest change that passes it, then refactor only with tests passing.
-- When TDD is not practical, the work MUST still include explicit verification evidence
-  using the narrowest relevant command or QA surface.
-- Default verification anchors are `make test`, `make smoke`, `make smoke-public`,
-  `make etl-live-smoke`, `make eval-embeddings`, and `npm run build` from the documented
-  locations.
-- Development MUST preserve the bare-worktree operating model. `.bare/` is Git plumbing
-  only, `main/` is the deploy-oriented app worktree, development happens in separate
-  worktrees, and `.omo/` remains at the repository root beside worktrees for plans,
-  notes, and evidence.
-- Changes MUST stay aligned with the active OMO plan when one exists.
+  implement the smallest change that passes it, then refactor with tests passing.
+- When TDD is not practical, the work MUST still include explicit verification
+  evidence using the narrowest relevant command or QA surface.
+- Development MUST preserve the bare-worktree operating model: `.bare/` is Git
+  plumbing only, `main/` is the deploy-oriented app worktree, development happens in
+  separate worktrees, and `.omo/` remains at the repository root beside worktrees.
+- Durable architecture, contract, lifecycle, and cross-layer decisions MUST be
+  recorded in `docs/wiki/` and linked from `docs/wiki/Home.md` once they settle.
+  Architectural work MUST include a wiki-impact decision: either the relevant wiki
+  page was updated and linked, or the work explicitly records why no durable wiki
+  update was needed. Routine bug fixes and implementation-only changes do not require
+  wiki pages.
+- Any v3 design that violates a product principle from
+  `docs/v3-grounding/01-vision-and-scope.md` requires an ADR.
 
 ## Governance
 
 The Constitution supersedes conflicting local practices, templates, and ad hoc agent
 habits.
 
-Amendments MUST be made through `/speckit.constitution` and recorded with a semantic
+Amendments MUST be made through `/speckit-constitution` and recorded with a semantic
 version bump:
 
 - MAJOR: backward-incompatible governance or principle removals/redefinitions.
@@ -123,10 +172,11 @@ version bump:
 
 Compliance review expectations:
 
-- `/speckit.plan` and `/speckit.analyze` MUST reflect the constitution's requirements.
+- `/speckit-plan` and `/speckit-analyze` MUST reflect the constitution's requirements;
+  the plan-template Constitution Check gate is derived from the current version.
 - Durable changes MUST include the relevant wiki-impact decision in evidence.
 - Claims of completion MUST be backed by fresh verification or explicit justification
   when a check cannot run.
 - Exceptions MUST be documented in the relevant spec, plan, or OMO evidence.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-06-05
+**Version**: 2.0.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-05
