@@ -24,12 +24,12 @@ sign-in (P1), US2 end-to-end seam verification (P2), US3 developer foundation (P
 **Purpose**: The pnpm monorepo scaffold every subsequent task lands in (plan.md
 Project Structure)
 
-- [ ] T001 Create v3 workspace root: `v3/package.json` (name, `verify`/`dev` script stubs), `v3/pnpm-workspace.yaml` (apps/*, packages/*), `v3/tsconfig.base.json` (strict, NodeNext), `v3/.gitignore`
-- [ ] T002 [P] Scaffold shared packages `v3/packages/core`, `v3/packages/db`, `v3/packages/ingestion-contract`: each with `package.json` (`@stacks/core|db|ingestion-contract`, `typecheck`/`test` scripts), `tsconfig.json` extending base, `vitest.config.ts`, empty `src/index.ts`
-- [ ] T003 [P] Scaffold TS apps `v3/apps/api` (deps: fastify, @fastify/secure-session, bcrypt, @stacks/core, @stacks/db) and `v3/apps/worker` (deps: @stacks/core, @stacks/db): `package.json`, `tsconfig.json`, `vitest.config.ts`, empty `src/`
-- [ ] T004 [P] Scaffold React Router 7 framework-mode SSR app in `v3/apps/web` with Tailwind + shadcn/ui and Vitest + Testing Library (jsdom) configured; no dependency on @stacks/db (FR-019)
-- [ ] T005 [P] Scaffold Python sidecar in `v3/apps/ml`: `pyproject.toml` (fastapi, uvicorn, sentence-transformers, pytest, pyright), `src/ml/__init__.py`, `tests/`
-- [ ] T006 Write `v3/.env.example` implementing the full variable contract in `specs/007-v3-skeleton/contracts/environment.md` — every variable, safe local defaults, comments documenting the two required secrets and the bcrypt-hash generation command (FR-004, SC-006)
+- [X] T001 Create v3 workspace root: `v3/package.json` (name, `verify`/`dev` script stubs), `v3/pnpm-workspace.yaml` (apps/*, packages/*), `v3/tsconfig.base.json` (strict, NodeNext), `v3/.gitignore`
+- [X] T002 [P] Scaffold shared packages `v3/packages/core`, `v3/packages/db`, `v3/packages/ingestion-contract`: each with `package.json` (`@stacks/core|db|ingestion-contract`, `typecheck`/`test` scripts), `tsconfig.json` extending base, `vitest.config.ts`, empty `src/index.ts`
+- [X] T003 [P] Scaffold TS apps `v3/apps/api` (deps: fastify, @fastify/secure-session, bcrypt, @stacks/core, @stacks/db) and `v3/apps/worker` (deps: @stacks/core, @stacks/db): `package.json`, `tsconfig.json`, `vitest.config.ts`, empty `src/`
+- [X] T004 [P] Scaffold React Router 7 framework-mode SSR app in `v3/apps/web` with Tailwind + shadcn/ui and Vitest + Testing Library (jsdom) configured; no dependency on @stacks/db (FR-019)
+- [X] T005 [P] Scaffold Python sidecar in `v3/apps/ml`: `pyproject.toml` (fastapi, uvicorn, sentence-transformers, pytest, pyright), `src/ml/__init__.py`, `tests/`
+- [X] T006 Write `v3/.env.example` implementing the full variable contract in `specs/007-v3-skeleton/contracts/environment.md` — every variable, safe local defaults, comments documenting the two required secrets and the bcrypt-hash generation command (FR-004, SC-006)
 
 **Checkpoint**: `pnpm install` succeeds at `v3/`; workspace graph resolves
 
