@@ -9,6 +9,25 @@ The app checkout is this worktree. If you are one directory higher in the bare/w
 - For architecture context, start at `docs/wiki/Home.md`; it links the current API boundary, layer, ETL, retrieval, corpus, chat, and queue notes. Update wiki `updated` frontmatter when changing those pages.
 - Keep `.omo/plans/`, `.omo/notepads/`, and `.omo/evidence/` intact. Active plans and evidence live there even though app code lives in this worktree.
 
+## v3 (greenfield rebuild)
+
+- `v3/` is a separate pnpm + Docker Compose monorepo (apps: `api`, `worker`, `web`,
+  `ml`; packages: `core`, `db`, `ingestion-contract`) — see `specs/007-v3-skeleton/`
+  for the plan, contracts, and data model. Everything below this section ("Layout"
+  onward) describes v2, unaffected by v3 work.
+- v3 lives entirely under `v3/`; never import from v2's root `apps/` or touch v2's
+  compose/`.env.example` from v3 code (D1) — `v3/scripts/check-boundaries.mjs`
+  (run by `pnpm verify`) enforces this.
+- Start v3: `cd v3 && cp .env.example .env` (fill in the two required secrets) `&&
+  docker compose up -d --build --wait`. Ports: web `4400`, api `4401`, ml `4402`
+  (dev-only), postgres `5442` — disjoint from every v2 port.
+- Verify v3 (no Docker needed): `cd v3 && pnpm install && pnpm verify` (boundary
+  check + typecheck + tests across all TS packages).
+- The Python ML sidecar (`v3/apps/ml`) is the only Python in v3 (D2) and is
+  deliberately outside `pnpm verify`; run its own suite with `cd v3/apps/ml &&
+  python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]" &&
+  pytest && pyright --project .`.
+
 ## Layout
 
 - Backend API: `apps/api/app`; FastAPI app wiring is `apps/api/app/main.py` and routers live in `routes_*.py`.

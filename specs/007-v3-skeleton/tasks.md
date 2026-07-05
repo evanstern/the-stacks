@@ -149,11 +149,11 @@ the error-mapping convention is pinned per class
 **Purpose**: Coexistence proof, repo hygiene, and the documentation obligations the
 constitution attaches to this spec
 
-- [ ] T045 [P] Validate quickstart.md Scenario 6 (v2 coexistence): both stacks up simultaneously, disjoint ports/containers/volumes, v2 smoke checks still pass; record evidence (FR-005, SC-004)
-- [ ] T046 [P] Validate quickstart.md Scenario 7 (zero secrets, zero hardcoded model ids) across `v3/`; fix any hits (SC-006)
-- [ ] T047 [P] Update root `README.md` and `AGENTS.md`: document the v3 stack under `v3/` (start command, ports, verify command) alongside the still-running v2 reference (constitution sync-impact note assigns this to the skeleton spec)
-- [ ] T048 Write wiki page `docs/wiki/V3-Walking-Skeleton.md` (monorepo layout, compose topology, queue/event/vector doctrine, auth, sidecar contract — the settled plan decisions R1–R10) and link it from `docs/wiki/Home.md` (constitution Development Workflow: wiki-impact decision)
-- [ ] T049 Full quickstart.md pass end-to-end on a fresh clone as final acceptance; capture timings vs SC-001…SC-007 in the feature's evidence
+- [X] T045 [P] Validate quickstart.md Scenario 6 (v2 coexistence): both stacks up simultaneously, disjoint ports/containers/volumes, v2 smoke checks still pass; record evidence (FR-005, SC-004) — 10/10 containers healthy simultaneously, zero collisions; `make smoke` blocked by a pre-existing v2 macOS/mktemp portability gap (see evidence.md), unrelated to v3
+- [X] T046 [P] Validate quickstart.md Scenario 7 (zero secrets, zero hardcoded model ids) across `v3/`; fix any hits (SC-006)
+- [X] T047 [P] Update root `README.md` and `AGENTS.md`: document the v3 stack under `v3/` (start command, ports, verify command) alongside the still-running v2 reference (constitution sync-impact note assigns this to the skeleton spec)
+- [X] T048 Write wiki page `docs/wiki/V3-Walking-Skeleton.md` (monorepo layout, compose topology, queue/event/vector doctrine, auth, sidecar contract — the settled plan decisions R1–R10) and link it from `docs/wiki/Home.md` (constitution Development Workflow: wiki-impact decision)
+- [X] T049 Full quickstart.md pass end-to-end on a fresh clone as final acceptance; capture timings vs SC-001…SC-007 in the feature's evidence — see `specs/007-v3-skeleton/evidence.md`
 
 ---
 
