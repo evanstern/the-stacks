@@ -31,6 +31,29 @@ export async function skeletonCheckHandler(db: Database, job: Job): Promise<void
     throw new DomainError({ class: "internal_fault", message: "skeleton_check job missing runId in payload" });
   }
 
+  try {
+    await runSkeletonCheck(db, runId);
+  } catch (error) {
+    // Anything NOT already handled below (e.g. a misconfigured env var
+    // resolving the model role) must still fail the run — otherwise it's
+    // stuck at "running" forever while only the underlying job retries.
+    if (!(error instanceof DomainError)) {
+      await failRun(
+        db,
+        runId,
+        new DomainError({
+          class: "internal_fault",
+          seam: "inference",
+          message: "Unexpected error before inference.",
+          cause: error,
+        }),
+      );
+    }
+    throw error;
+  }
+}
+
+async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
   await db
     .update(skeletonCheckRuns)
     .set({ status: "running", startedAt: new Date() })

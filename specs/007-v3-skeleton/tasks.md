@@ -112,7 +112,7 @@ accepted→running→succeeded < 60 s, six events with timings, dependency-down 
 - [X] T034 [US2] Implement worker handler in `v3/apps/worker/src/handlers/skeleton-check.ts` + ml HTTP client in `v3/apps/worker/src/ml-client.ts`: claim → `claimed` event → embed (`ML_REQUEST_TIMEOUT_MS`, dependency-down vs internal-fault mapping) → `inference` event → vector upsert with identity stamp → `vector_write` event (`deduplicated` flag) → similarity read-back filtered on model identity → `vector_readback` event with distance → run succeeded + `completed` event; failures mark the failing seam `ok:false`, set typed run outcome, and requeue when retryable (FR-010…FR-014)
 - [X] T035 [US2] Implement web check UI in `v3/apps/web/app/routes/`: home "Run skeleton check" action + runs list, run detail route rendering status, outcome, vector identity block, and the per-seam event trail with timings; status polling via revalidation until terminal (FR-008, FR-010; spec's minimal status view)
 - [X] T036 [P] [US2] Web tests for the check UI in `v3/apps/web/test/skeleton-checks.test.tsx`: trigger renders accepted state without blocking; detail renders six-event trail; failed run renders dependency-down outcome naming the seam
-- [ ] T037 [US2] Validate quickstart.md Scenarios 2–4 against the running stack (full seam crossing < 60 s, `stop ml` drill fails legibly < 30 s then recovers, idempotent re-run shares vector id); fix until green (SC-002, SC-003, SC-007)
+- [X] T037 [US2] Validate quickstart.md Scenarios 2–4 against the running stack (full seam crossing < 60 s, `stop ml` drill fails legibly < 30 s then recovers, idempotent re-run shares vector id); fix until green (SC-002, SC-003, SC-007) — seam crossing succeeded in ~1s (curl-triggered, six events present); `stop ml` drill failed in <1s with `dependency_down`/`inference`; recovery after `start ml` succeeded reusing the same deterministic vector id across 3 separate runs
 
 **Checkpoint**: A request provably crosses every architectural seam with an inspectable trail
 
@@ -129,16 +129,16 @@ the error-mapping convention is pinned per class
 
 ### Tests for User Story 3 (write first, ensure they FAIL)
 
-- [ ] T038 [P] [US3] Error-mapping contract tests pinning all four classes in `v3/apps/api/test/error-mapping.contract.test.ts`: `unknown_thing`→404, `unsupported_type`→415 (e.g. non-JSON content type on POST), `dependency_down`→503 (DB pool stubbed down on /ready), `internal_fault`→500 with scrubbed message — at least one test per class (FR-018)
-- [ ] T039 [P] [US3] Migration-lifecycle integration test in `v3/apps/api/test/migrations.test.ts`: boot against empty Dockerized Postgres applies 0001 and records it in the journal; adding a trivial second migration file applies incrementally on next boot (FR-016)
+- [X] T038 [P] [US3] Error-mapping contract tests pinning all four classes in `v3/apps/api/test/error-mapping.contract.test.ts`: `unknown_thing`→404, `unsupported_type`→415 (e.g. non-JSON content type on POST), `dependency_down`→503 (DB pool stubbed down on /ready), `internal_fault`→500 with scrubbed message — at least one test per class (FR-018)
+- [X] T039 [P] [US3] Migration-lifecycle integration test in `v3/apps/api/test/migrations.test.ts`: boot against empty Dockerized Postgres applies 0001 and records it in the journal; adding a trivial second migration file applies incrementally on next boot (FR-016)
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Make the four error-mapping tests pass in `v3/apps/api/src/app.ts` (content-type guard, readiness dependency probe, catch-all internal-fault scrubbing)
-- [ ] T041 [P] [US3] Implement ingestion plugin contract placeholder in `v3/packages/ingestion-contract/src/index.ts`: named exported interface (identify/parse shape) + version constant, explicitly documented as placeholder owned by the ingestion spec, with a type-level test in `v3/packages/ingestion-contract/test/contract.test.ts` (FR-015)
-- [ ] T042 [P] [US3] Write boundary-check script `v3/scripts/check-boundaries.mjs` failing on: `apps/web` depending on `@stacks/db` or importing from `apps/*`; any v3 file importing from v2 paths (`../apps`, repo-root `apps/`); model identifiers hardcoded outside `.env.example`/compose (grep per quickstart Scenario 7) (FR-019, FR-005, SC-006)
-- [ ] T043 [US3] Wire root `pnpm verify` in `v3/package.json`: boundary script + `pnpm -r run typecheck` + `pnpm -r run test` (core, db, api, worker, web), documented in `v3/README.md`; ensure fresh-checkout green (FR-017, SC-005)
-- [ ] T044 [US3] Validate quickstart.md Scenario 5: fresh checkout `pnpm install && pnpm verify` green < 10 min; trivial-migration drill applies and journals on restart; record evidence
+- [X] T040 [US3] Make the four error-mapping tests pass in `v3/apps/api/src/app.ts` (content-type guard, readiness dependency probe, catch-all internal-fault scrubbing) — already satisfied by the T014 implementation; no changes needed
+- [X] T041 [P] [US3] Implement ingestion plugin contract placeholder in `v3/packages/ingestion-contract/src/index.ts`: named exported interface (identify/parse shape) + version constant, explicitly documented as placeholder owned by the ingestion spec, with a type-level test in `v3/packages/ingestion-contract/test/contract.test.ts` (FR-015)
+- [X] T042 [P] [US3] Write boundary-check script `v3/scripts/check-boundaries.mjs` failing on: `apps/web` depending on `@stacks/db` or importing from `apps/*`; any v3 file importing from v2 paths (`../apps`, repo-root `apps/`); model identifiers hardcoded outside `.env.example`/compose (grep per quickstart Scenario 7) (FR-019, FR-005, SC-006)
+- [X] T043 [US3] Wire root `pnpm verify` in `v3/package.json`: boundary script + `pnpm -r run typecheck` + `pnpm -r run test` (core, db, api, worker, web), documented in `v3/README.md`; ensure fresh-checkout green (FR-017, SC-005)
+- [X] T044 [US3] Validate quickstart.md Scenario 5: fresh checkout `pnpm install && pnpm verify` green < 10 min; trivial-migration drill applies and journals on restart; record evidence — `pnpm verify` measured at 10.4s; migration drill covered by T039's automated test
 
 **Checkpoint**: All three stories independently verified; foundation ready for the next specs
 
