@@ -1,13 +1,9 @@
+import type { Seam } from "@stacks/core";
+
 import type { Database } from "./client";
 import { skeletonCheckEvents } from "./schema/skeleton-checks";
 
-export type Seam =
-  | "queued"
-  | "claimed"
-  | "inference"
-  | "vector_write"
-  | "vector_readback"
-  | "completed";
+export type { Seam };
 
 export interface RecordEventInput {
   runId: string;

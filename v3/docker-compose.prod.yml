@@ -1,0 +1,20 @@
+# Prod shape (config only, per spec assumptions): apply on top of docker-compose.yml —
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --wait
+# Only the web port is published; api/ml/postgres stay internal-only, and the
+# session cookie requires TLS termination in front of web.
+
+services:
+  api:
+    ports: !reset []
+    environment:
+      SESSION_COOKIE_SECURE: "true"
+
+  ml:
+    ports: !reset []
+
+  postgres:
+    ports: !reset []
+
+  web:
+    environment:
+      SESSION_COOKIE_SECURE: "true"

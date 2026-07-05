@@ -23,7 +23,13 @@ async function main(): Promise<void> {
   // schema-current (research R10, FR-002).
   await runMigrations(db);
 
-  const app = buildApp({ pool });
+  const app = await buildApp({
+    db,
+    pool,
+    operatorPasswordHash: process.env.OPERATOR_PASSWORD_HASH!,
+    sessionSecret: process.env.SESSION_SECRET!,
+    sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
+  });
 
   const port = Number.parseInt(process.env.V3_API_PORT ?? "4401", 10);
   await app.listen({ host: "0.0.0.0", port });

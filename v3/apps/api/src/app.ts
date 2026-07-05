@@ -2,15 +2,22 @@ import { DomainError } from "@stacks/core";
 import type { createDbClient } from "@stacks/db";
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 
+import { registerAuthRoutes } from "./auth/routes";
+import { registerSession } from "./auth/session";
 import { errorEnvelope, statusForErrorClass } from "./errors";
 import { registerHealthRoutes } from "./health";
+import { registerSkeletonCheckRoutes } from "./skeleton-checks/routes";
 
 export interface AppDeps {
+  db: ReturnType<typeof createDbClient>["db"];
   pool: ReturnType<typeof createDbClient>["pool"];
+  operatorPasswordHash: string;
+  sessionSecret: string;
+  sessionCookieSecure: boolean;
 }
 
-export function buildApp(deps: AppDeps): FastifyInstance {
-  const app = Fastify({ logger: true });
+export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
+  const app = Fastify({ logger: process.env.NODE_ENV !== "test" });
 
   app.decorate("deps", deps);
 
@@ -43,6 +50,12 @@ export function buildApp(deps: AppDeps): FastifyInstance {
   });
 
   registerHealthRoutes(app, deps);
+  await registerSession(app, {
+    sessionSecret: deps.sessionSecret,
+    sessionCookieSecure: deps.sessionCookieSecure,
+  });
+  registerAuthRoutes(app, { operatorPasswordHash: deps.operatorPasswordHash });
+  registerSkeletonCheckRoutes(app, { db: deps.db });
 
   return app;
 }
