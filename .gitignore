@@ -23,3 +23,4 @@ Thumbs.db
 *.egg-info/
 .omo/
 .omo/evidence/*.log
+.claude/settings.local.json
