@@ -1,11 +1,15 @@
 # The Stacks
 
-The Stacks is a TTRPG session harness. It is a local and deployable web app for running sessions with authenticated chat, uploads, retrieval-backed answers, ingestion and job visibility, and records views around material the operator supplies.
+The Stacks is a TTRPG session harness: a local and deployable web app for running
+sessions with authenticated chat, uploads, retrieval-backed answers, and records views
+around material the operator supplies.
 
 ## What this project is
 
-- A TTRPG session harness that helps operators run sessions with their own lawful campaign and reference material.
-- A web app with chat/session workflows, upload/import paths, retrieval-backed answers, and records/observability for uploads, jobs, sources, chunks, and retrieval runs.
+- A TTRPG session harness that helps operators run sessions with their own lawful
+  campaign and reference material.
+- A bring-your-own-books research library: retrieval-backed answers with real,
+  durable citations.
 
 ## What this project is not
 
@@ -14,157 +18,89 @@ The Stacks is a TTRPG session harness. It is a local and deployable web app for 
 - It does not replace ownership or licensing of source material.
 - Users and operators must supply lawful content they have rights to use.
 
-This repo runs as a bare shared Git store plus worktrees. `.bare/` is shared plumbing, `main/` is deploy-only, and day-to-day development happens in worktrees beside it. Keep `.omo/` at the repo root beside those worktrees so OMO planning, notes, and evidence stay outside the Git plumbing.
+## Where the codebase is right now
 
-## v3: the greenfield rebuild
+This tree is the **v3 greenfield rebuild** (constitution v2.1.0, decisions D1–D14).
+The delivered slice is the **walking skeleton** (`specs/007-v3-skeleton/`): a pnpm
+monorepo, a five-service Docker Compose stack, single-operator auth, and an
+end-to-end "skeleton check" that proves every architectural seam — UI → API →
+Postgres job queue → worker → ML inference sidecar → pgvector write/read-back.
+Ingestion, retrieval, and chat are the next specs, built on this foundation.
 
-Everything described in this README (the sections below) is **v2** — the currently
-running app, unaffected by the rebuild. **v3** is a separate, self-contained pnpm +
-Docker Compose stack under `v3/`, coexisting with v2 on disjoint ports/containers/
-volumes (see `specs/007-v3-skeleton/`).
+The previous app (**v2**) was retired on 2026-07-06 and removed from the working
+tree; it lives in git history (last full state: tag the merge `cd9ed68` /
+`docs/adr/0001-retire-v2-before-parity.md` records the decision). Its interactive
+course survives at `docs/courses/inside-the-stacks-v2/`.
 
-```bash
-cd v3
-cp .env.example .env   # set OPERATOR_PASSWORD_HASH and SESSION_SECRET (comments show how)
-docker compose up -d --build --wait
+## Layout
+
+```text
+apps/
+  api/      Fastify 5 — auth, health/ready, skeleton-check routes, error mapping
+  worker/   TS queue consumer — SKIP LOCKED claims off the Postgres jobs table
+  web/      React Router 7 SSR — the only published surface in prod
+  ml/       Python 3.12 FastAPI sidecar — inference only, the only Python here
+packages/
+  core/     domain types, typed errors, env-first model-role config
+  db/       Drizzle schema, migrations, queue + append-only event helpers
+  ingestion-contract/  placeholder seam for the ingestion spec
+scripts/    check-boundaries.mjs (architecture enforcement, runs in pnpm verify)
+docs/       wiki, v3 grounding docs, interactive courses
+specs/      spec-kit feature history (001–007)
 ```
-
-- Web (sign-in + skeleton-check UI): `http://localhost:4400`
-- API: `http://localhost:4401` (`/health`, `/ready`)
-- ML inference sidecar: `http://localhost:4402` (`/health`, `/ready`, dev-only)
-- Postgres + pgvector: `localhost:5442`
-
-Developer verification (typecheck + tests + boundary checks, no Docker required):
-
-```bash
-cd v3
-pnpm install
-pnpm verify
-```
-
-v3 retires v2 later by promoting `v3/`'s contents once the ingestion/retrieval/chat
-specs land on top of this walking-skeleton foundation; v2's `apps/`, compose files,
-and `.env.example` at the repo root are never touched by v3 work (D1).
-
-The durable ETL wiki lives in `docs/wiki/`. Start with `docs/wiki/Home.md`, then follow the links to the architecture, contract, and decision notes when you need the current refactor state.
-
-The Dockerized web app is intentionally exposed on host port `5173`. Keep that port contract when running or hardening the stack.
 
 ## Start the stack
 
 ```bash
-docker compose up --build
+cp .env.example .env
+# set the two required secrets — generation commands are documented in .env.example:
+#   OPERATOR_PASSWORD_HASH   (bcrypt; escape every $ as $$ for compose)
+#   SESSION_SECRET           (>= 32 random chars)
+docker compose up -d --build --wait
 ```
 
-This starts Postgres, Qdrant, the FastAPI API, the ingestion worker, and the Vite frontend. Use `.env.example` for local runs and `.env.production.example` for production-only values. Keep the app on host port `5173`.
+- Web (sign-in + skeleton-check UI): <http://localhost:4400>
+- API: <http://localhost:4401> (`/health`, `/ready`) — dev-published only
+- ML sidecar: <http://localhost:4402> (`/health`, `/ready`) — dev-published only
+- Postgres + pgvector: `localhost:5442`
 
-Smoke runs use the compose-provided dev password and a local-only session secret. Override `SMOKE_ADMIN_PASSWORD_HASH`, `SMOKE_SESSION_SECRET`, and `OPENAI_API_KEY` when you need non-smoke credentials.
-
-## Monitor local data
-
-Use the local services directly when you need to inspect data, or start the admin profile for the GUI tools:
-
-- Postgres: `localhost:5432`, database `thestacks`, user `thestacks`, password `thestacks`
-- Qdrant dashboard/API: `http://localhost:6333/dashboard`
-
-Admin UI:
+All ports are env-overridable (`V3_WEB_PORT` etc. — see `.env.example`). The prod
+shape publishes only the web port:
 
 ```bash
-docker compose --profile admin up --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --wait
 ```
 
-Open `http://localhost:5050` with `admin@thestacks.local` / `admin-password`. For terminal access, use:
+## Verify
 
 ```bash
-psql postgresql://thestacks:thestacks@localhost:5432/thestacks
+pnpm install
+pnpm verify   # boundary check + typecheck + tests across every TS package
 ```
 
-## Verify locally
+DB-gated integration suites (queue semantics, worker handler, migration lifecycle)
+run when `RUN_DB_INTEGRATION_TESTS=1` and a Postgres is reachable at `DATABASE_URL`.
+The Python sidecar has its own suite:
 
 ```bash
-make test
-make smoke
-make smoke-public
-make etl-live-smoke
-make eval-embeddings
+cd apps/ml && python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]" && pytest && pyright --project .
 ```
 
-Use `make test` for the backend suite, `make smoke` for the local end to end stack, `make smoke-public` for the public deployment contract in `scripts/smoke-public.sh`, `make etl-live-smoke` for the compose-backed ETL verification path, `make corpus-doctor` for a read-only active-runtime/Qdrant retrieval health report, and `make eval-embeddings` for the script-first embedding retrieval evaluation harness.
+## Learn the codebase
 
-`make test` runs the backend pytest suite, using local pytest when available and a no-dependency API container fallback otherwise; it does not start Postgres, Qdrant, or the application stack. `make smoke` waits for `http://localhost:8000/health` and `http://localhost:5173`, logs in with the dev password, verifies unauthenticated access is rejected, queues a supported Markdown upload, checks unsupported files return `415`, creates an empty chat session, and confirms chat dependency failures are explicit when `OPENAI_API_KEY` is not configured. It also rechecks the frontend on `5173` before exiting.
+Per constitution Principle VIII, every spec cycle ships learning artifacts:
 
-`make smoke-public` runs `scripts/smoke-public.sh` against both `THE_STACKS_LOCAL_URL=http://localhost:8423` and `THE_STACKS_BASE_URL=https://thestacks.ikis.ai` by default. It exercises the audited root-mounted API contract (`/health`, `/auth/*`, `/sessions*`, `/uploads`, `/jobs/*`, `/records/*`) and verifies SPA delivery on `/` and `/login` without browser automation. Override either base URL if you need to point at a different deployment target.
+- `docs/courses/007-v3-skeleton/index.html` — six-module interactive course on this
+  codebase (open directly in a browser).
+- Source files carry teaching-grade comments: file headers place each module in the
+  architecture; why-comments explain doctrine and real bugs hit during validation.
+- `docs/wiki/Home.md` — the architecture wiki spine; start at
+  `docs/wiki/V3-Walking-Skeleton.md`.
 
-`make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
+## Worktree operating model
 
-`make etl-live-smoke` is intentionally not part of `make test`. It starts only compose-backed PostgreSQL and Qdrant, ingests a small Markdown fixture through the real ETL indexing path with deterministic local embeddings, and verifies persisted PostgreSQL rows plus the matching Qdrant point. By default it resets only the smoke Qdrant collection `etl_live_smoke_chunks` and inserts rows under a generated `etl-live-smoke-*` namespace. Use `QDRANT_COLLECTION=<isolated_collection>` or `scripts/etl_live_smoke.py --run-id <isolated-run-id>` when sharing a developer stack, and use `docker compose down` to stop services or `docker compose down -v` only when you intentionally want to remove the worktree's local Postgres/Qdrant volumes.
-
-`make eval-embeddings` runs `scripts/eval_embeddings.py` against the checked-in gold fixture in deterministic mode by default and emits sorted JSON with stable `schema_version`, fixture metadata, run configuration, provider/model/dimension identity, collection identity, and retrieval metrics. Override `EVAL_EMBEDDINGS_PROVIDER`, `EVAL_EMBEDDINGS_FORMAT`, `EVAL_EMBEDDINGS_TOP_K`, `EVAL_EMBEDDINGS_FIXTURE`, or append `EVAL_EMBEDDINGS_ARGS` to compare real providers, for example `make eval-embeddings EVAL_EMBEDDINGS_PROVIDER=huggingface:sentence-transformers/all-MiniLM-L6-v2:384 EVAL_EMBEDDINGS_FORMAT=text`. Repeat providers directly through the script when comparing several models in one report: `scripts/eval_embeddings.py --provider deterministic --provider huggingface:sentence-transformers/all-MiniLM-L6-v2:384`.
-
-## Upload batches and runtime versions
-
-- `POST /uploads` accepts repeated multipart `file` fields. Single-file uploads keep the legacy response shape, while multi-file ZIP batches return `batch_id`, `items`, `queued`, and `upload_status_url`.
-- Use `/upload?batch_id=<batch_id>` plus `GET /uploads/batches/{batch_id}` to resume or inspect a batch.
-- Batch status rows stay file-scoped and public-safe. They show `filename`, `category`, and `message`, and they do not expose tracebacks or raw filesystem paths.
-- Runtime versions are named by internal version IDs, not user labels. Each version gets its own database name and URL, Qdrant collection, and upload, static, and runtime prefixes.
-- Activation only accepts `ready` versions and refuses teardown-locked ones. Teardown stays dry-run first, requires confirmation, and records lifecycle events for audit.
-
-## Optional user-supplied corpus import
-
-The optional corpus workflow can load the 5e core trio, Player's Handbook, Dungeon Master's Guide, and Monster Manual, into an isolated `default-corpus` runtime version. Any DnDBeyond archives or 5e book exports are local external inputs supplied by the operator. The repository does not provide them, they must not be downloaded by the tool, and they must not be committed to the repository.
-
-### Archive setup
-
-Place saved DnDBeyond HTML ZIP archives in your archive root directory, `/data/uploads/sourcebooks` by default. When you supply those files locally, the identity manifest expects these filenames:
-
-- `phb-2014.zip` — Player's Handbook
-- `dmg-2014.zip` — Dungeon Master's Guide
-- `mm-2014.zip` — Monster Manual
-
-These files must be DnDBeyond saved-HTML exports that you already lawfully possess. Do not rename archives from other sources to match these filenames, and do not treat the repository as a source for the archives.
-
-### How to run it
-
-From `main/`, use `make corpus-preflight`, `make corpus-lock ARCHIVE_ROOT=/data/uploads/sourcebooks`, `make corpus-seed-dry-run`, `make corpus-seed`, and `make corpus-verify`. The first two establish the lock manifest, the middle steps import the corpus, and the last step checks the seeded result. Activation is a separate lifecycle step; seed and reset commands never mutate the active runtime pointer.
-
-### Reset
-
-Use `make corpus-reset-dry-run` to preview removal and `make corpus-reset-confirm` for the confirmed runtime-only reset. Reset preserves immutable source archive bytes and refuses to operate on the currently active runtime version.
-
-### Environment variables
-
-`CORPUS_VERSION` defaults to `default-corpus`, `CORPUS_IDENTITY_MANIFEST` points to `apps/api/corpus/default-dndbeyond-corpus.json`, `CORPUS_MANIFEST` is generated under `../.omo/corpus/default-dndbeyond-corpus.lock.json`, and `ARCHIVE_ROOT` defaults to `/data/uploads/sourcebooks`.
-
-### Troubleshooting
-
-- Missing archive, seed and verify stop before mutation if a ZIP is missing under `ARCHIVE_ROOT`.
-- Hash mismatch, regenerate the lock manifest with `make corpus-lock` after replacing the archive.
-- Active-version refusal, reset refuses the currently active runtime version.
-- Count mismatch, verify fails when counts diverge from the lock manifest, usually because ingestion did not finish or the lock is stale.
-- Prerequisite failure, `make corpus-preflight` surfaces missing upstream primitives.
-
-## Worktree lifecycle
-
-Use the current worktree’s helper or runbook step to stop the matching compose stack. The broader operating model lives in `docs/worktree-operating-model.md`.
-
-Keep the wiki current when ETL behavior or refactor decisions settle, and link new durable notes back through `docs/wiki/Home.md`.
-
-To stop the stack:
-
-```bash
-docker compose down
-```
-
-## Production environment contract
-
-Use `.env.production.example` as the production-only template. Copy it to a local-only `.env.production`, keep production separate from the local dev compose defaults above, and fill in secrets outside the repo. The production host port is `APP_HOST_PORT=8423`, the browser origin is `CORS_ORIGINS=https://thestacks.ikis.ai`, and secure cookies must stay enabled with `SESSION_COOKIE_SECURE=true`.
-
-Run `make corpus-doctor` in the production environment when chat reports `Retrieval index is unavailable`; it executes inside the already-running API container and checks the active runtime pointer, selected collection, DB indexed rows, and Qdrant collection/count without mutating data. Deploy the latest API code first with `docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --force-recreate api worker web`, then run `make corpus-doctor COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.production"`. Production storage must be durable and isolated from dev data:
-
-- Postgres must persist `/var/lib/postgresql/data`.
-- Qdrant must persist `/qdrant/storage`.
-- Uploads must persist `/data/uploads` and be shared by the API and worker containers.
-
-The local compose file already demonstrates the storage shape with named volumes `webpage-semantic-chunking-metadata-postgres-data`, `webpage-semantic-chunking-metadata-qdrant-data`, and `webpage-semantic-chunking-metadata-uploads`; production compose/deploy files should define their own production volumes or host mounts rather than reusing local dev state.
-
-If you need the broader bare-worktree operating rules, read `docs/worktree-operating-model.md`.
+This repo runs as a bare shared Git store plus worktrees: `.bare/` is plumbing,
+`main/` is the deploy-oriented worktree, development happens in sibling worktrees,
+and `.omo/` stays at the repository root beside them. Details:
+`docs/worktree-operating-model.md`.

@@ -1,84 +1,94 @@
 # AGENTS.md
 
-The app checkout is this worktree. If you are one directory higher in the bare/worktree layout, enter `main/` before touching app code. `.bare/` is shared Git plumbing only; keep `.omo/` beside the worktrees, not inside `.bare/`.
+The app checkout is this worktree. If you are one directory higher in the bare/worktree
+layout, enter a worktree before touching app code. `.bare/` is shared Git plumbing only;
+keep `.omo/` beside the worktrees, not inside `.bare/`.
 
 ## Start here
 
-- Read `README.md` before changing local run, ports, production, corpus, or verification behavior.
-- Read `specs/003-backend-api-boundary/plan.md` before backend API boundary work. That active slice is code-first: harden `POST /sessions/{session_id}/messages`, keep `apps/api/app/chat_session_service.py` as the workflow seam, preserve `ChatMessageEnvelope`, and use FastAPI dependency overrides in route tests.
-- For architecture context, start at `docs/wiki/Home.md`; it links the current API boundary, layer, ETL, retrieval, corpus, chat, and queue notes. Update wiki `updated` frontmatter when changing those pages.
-- Keep `.omo/plans/`, `.omo/notepads/`, and `.omo/evidence/` intact. Active plans and evidence live there even though app code lives in this worktree.
-
-## v3 (greenfield rebuild)
-
-- `v3/` is a separate pnpm + Docker Compose monorepo (apps: `api`, `worker`, `web`,
-  `ml`; packages: `core`, `db`, `ingestion-contract`) — see `specs/007-v3-skeleton/`
-  for the plan, contracts, and data model. Everything below this section ("Layout"
-  onward) describes v2, unaffected by v3 work.
-- v3 lives entirely under `v3/`; never import from v2's root `apps/` or touch v2's
-  compose/`.env.example` from v3 code (D1) — `v3/scripts/check-boundaries.mjs`
-  (run by `pnpm verify`) enforces this.
-- Start v3: `cd v3 && cp .env.example .env` (fill in the two required secrets) `&&
-  docker compose up -d --build --wait`. Ports: web `4400`, api `4401`, ml `4402`
-  (dev-only), postgres `5442` — disjoint from every v2 port.
-- Verify v3 (no Docker needed): `cd v3 && pnpm install && pnpm verify` (boundary
-  check + typecheck + tests across all TS packages).
-- The Python ML sidecar (`v3/apps/ml`) is the only Python in v3 (D2) and is
-  deliberately outside `pnpm verify`; run its own suite with `cd v3/apps/ml &&
-  python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]" &&
-  pytest && pyright --project .`.
+- Read `README.md` before changing local run, ports, production, or verification behavior.
+- The constitution (`.specify/memory/constitution.md`, v2.1.0) governs all work: fixed
+  decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
+- For architecture context start at `docs/wiki/V3-Walking-Skeleton.md`; the wiki spine is
+  `docs/wiki/Home.md`. Update wiki `updated` frontmatter when changing those pages.
+- Spec history lives in `specs/` (spec-kit). The delivered slice is `specs/007-v3-skeleton/`;
+  ingestion, retrieval, and chat are the next specs.
+- v2 was retired 2026-07-06 (`docs/adr/0001-retire-v2-before-parity.md`); its code lives in
+  git history only. Do not resurrect v2 patterns from the wiki's historical pages without
+  checking them against the v3 constitution.
 
 ## Layout
 
-- Backend API: `apps/api/app`; FastAPI app wiring is `apps/api/app/main.py` and routers live in `routes_*.py`.
-- Backend tests: `apps/api/tests`; `conftest.py` puts `apps/api` on `sys.path`, so focused pytest paths work from the repo root.
-- Web app: `apps/web/app`; Vite entry/config are `apps/web/src/main.tsx` and `apps/web/vite.config.ts`.
-- Worker: `apps/worker/worker.py`; compose builds it with `apps/worker/Dockerfile`.
-- Durable architecture docs: `docs/wiki/`; operational worktree rules: `docs/worktree-operating-model.md`.
+- API: `apps/api/src` — Fastify 5; composition root `app.ts`, process entry `main.ts`,
+  routes in `auth/` and `skeleton-checks/`.
+- Worker: `apps/worker/src` — poll loop `main.ts`, job handlers in `handlers/` keyed by
+  job `kind`.
+- Web: `apps/web/app` — React Router 7 SSR; the ONLY module allowed to reach the API is
+  `app/lib/api.server.ts` (browser never calls the API — FR-019).
+- ML sidecar: `apps/ml/src/ml` — FastAPI, inference-only, the only Python in the repo (D2).
+- Shared packages: `packages/core` (domain types, typed errors, model roles),
+  `packages/db` (Drizzle schema, migrations, queue + event helpers),
+  `packages/ingestion-contract` (placeholder seam).
+- Boundary enforcement: `scripts/check-boundaries.mjs`, wired into `pnpm verify`.
 
 ## Commands
 
-Run from this worktree root unless noted.
+Run from the worktree root unless noted.
 
-- Start current compose stack: `make up` or `docker compose up --build`; stop only this worktree's stack with `make down` or `docker compose down`.
-- Backend suite: `make test` or focused `pytest apps/api/tests/test_sessions.py::test_name`. `make test` falls back to a no-deps API container if local pytest is missing.
-- Local smoke script defaults to `API_URL=http://localhost:8000` and `WEB_URL=http://localhost:5173`. This checkout's `docker-compose.yml` currently publishes API on `8001` and web on `5174`, so use `API_URL=http://localhost:8001 WEB_URL=http://localhost:5174 make smoke` for this stack.
-- Public/prod contract smoke: `make smoke-public`; defaults are local prod `http://localhost:8423` and public `https://thestacks.ikis.ai`.
-- ETL live smoke: `make etl-live-smoke`; it starts only compose Postgres and Qdrant and uses deterministic local embeddings. Use an isolated `QDRANT_COLLECTION` when sharing a stack.
-- Embedding eval: `make eval-embeddings`; override `EVAL_EMBEDDINGS_PROVIDER`, `EVAL_EMBEDDINGS_FORMAT`, `EVAL_EMBEDDINGS_TOP_K`, `EVAL_EMBEDDINGS_FIXTURE`, or `EVAL_EMBEDDINGS_ARGS` for comparisons.
-- Web checks from `apps/web`: `npm run typecheck`, `npm run build`, and targeted UI verifiers such as `npm run verify:archive-upload-ui`. `npm run dev` and `npm run preview` use `--strictPort` on `5173`, so they fail instead of picking another port.
-- Production retrieval health check requires the target API container running: `make corpus-doctor COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.production"`. If the container lacks the doctor subcommand, rebuild/recreate `api worker web` first.
+- Start the stack: `docker compose up -d --build --wait` (five services; requires `.env`
+  from `.env.example` with the two documented secrets).
+- Full verification: `pnpm verify` (boundary check + `tsc --noEmit` + vitest across all
+  TS packages). DB-gated integration suites need `RUN_DB_INTEGRATION_TESTS=1` and a
+  reachable `DATABASE_URL` (the compose Postgres on `localhost:5442` works).
+- ML sidecar suite: `cd apps/ml && source .venv/bin/activate && pytest && pyright --project .`
+  (create the venv with `python3 -m venv .venv && pip install -e ".[dev]"` first).
+- New migration: `pnpm --filter @stacks/db generate --name <slug>` (drizzle-kit; the API
+  applies pending migrations at boot, before binding its port).
+- Focused tests: `pnpm --filter @stacks/api test`, `pnpm --filter @stacks/web test`, etc.
 
 ## Ports and env
 
-- Do not change the documented local `5173` web contract or production `8423` route contract casually. Current worktree compose maps host `5174 -> web:5173` and `8001 -> api:8000` to avoid clashing with the default stack.
-- Compose uses `.env.example` plus `.env.webpage-5174` for local API/worker env. Production uses `.env.production` with `docker-compose.prod.yml`; keep production secrets and local dev env separate.
-- Local compose service ports are host `5433 -> postgres:5432`, `6334 -> qdrant:6333`, `8001 -> api:8000`, and `5174 -> web:5173` in the current file. Use host `5433`/`6334` for local inspection even if README snippets mention default `5432`/`6333`.
-- `scripts/route-preflight.sh` is read-only and refuses any production host port except `8423`.
+- Defaults: web `4400`, api `4401` (dev only), ml `4402` (dev only), postgres `5442`.
+  All env-overridable (`V3_*` vars); all dev publishes bind `127.0.0.1`.
+- Prod shape (`docker-compose.prod.yml` overlay) publishes ONLY the web port and sets
+  `SESSION_COOKIE_SECURE=true`.
+- `.env.example` is the environment contract (specs/007-v3-skeleton/contracts/environment.md).
+  bcrypt hashes in `.env` need every `$` escaped as `$$` (compose interpolation).
+- Compose project name stays `the-stacks-v3` — container/volume names depend on it.
 
 ## Project constraints
 
-- The repository must not ship, download, scrape, or commit rulebooks, DnDBeyond exports, or other proprietary game data. Optional corpus archives are operator-supplied local files under `ARCHIVE_ROOT`.
-- Corpus seed/reset commands operate on `default-corpus` by default and write the lock manifest under `../.omo/corpus/`; activation is separate from seed/reset.
-- Runtime versions are identified by internal version IDs, not user labels. Reset/teardown paths are dry-run first and refuse active versions.
-- Avoid editing generated output, backups, recovery artifacts, or workflow artifacts unless the task explicitly targets them.
+- The repository must not ship, download, scrape, or commit rulebooks, DnDBeyond exports,
+  or other proprietary game data (constitution Principle I).
+- No hardcoded model identifiers in product code — model roles resolve env-first
+  (Principle VII / D14); `check-boundaries.mjs` enforces this.
+- `apps/web` must never import `@stacks/db` or another app's source (FR-019) — enforced.
+- `skeleton_check_events` is append-only BY CONSTRUCTION: `recordEvent` in
+  `packages/db/src/events.ts` is the sole writer; never add an UPDATE/DELETE path.
+- Slow work is accept-then-async off the Postgres `jobs` table (D12, Principle IV);
+  handlers throw typed `DomainError`s — HTTP mapping happens only in `apps/api/src/app.ts`.
 
-## Backend patterns
+## Code style (Principle VIII)
 
-- Keep routes thin. HTTP concerns stay in `routes_*.py`; workflow logic belongs in services such as `chat_session_service.py`, `retrieval_service.py`, ingestion, corpus, and lifecycle modules.
-- Route tests should prefer `TestClient(app)` plus `app.dependency_overrides` for named FastAPI providers. Do not monkeypatch service internals when the route exposes a dependency seam.
-- Preserve public-safe error shapes; tests in `test_contracts.py`, `test_chat_rag.py`, and `test_sessions.py` lock the session message boundary and missing-session/service-failure responses.
-- New API/database behavior should be covered in `apps/api/tests` and, when schemas change, the Alembic history under `apps/api/alembic/versions`.
+- Code is written to teach: file headers place each module in the architecture with
+  spec/contract pointers; why-comments explain doctrine, invariants, and real bugs.
+  Match that register — this deliberately supersedes minimal-comment conventions.
+- Every spec cycle ends with a visual learning artifact under `docs/courses/<feature>/`,
+  linked from the feature's evidence.
 
 ## OpenCode tooling
 
-- Repo-local OpenCode config lives in `.opencode/opencode.jsonc`; `opencode debug config` should show `mcp.serena`, and `opencode mcp list` should show `serena connected` before relying on Serena tools.
-- Serena is exposed to OpenCode as MCP; Serena may use LSP internally for semantic analysis. OpenCode LSP diagnostics are separate; this environment's LSP MCP points at `.opencode/lsp.json`, and Markdown diagnostics need their own server/config.
-- Spec Kit command hooks under `.opencode/commands/` can run git scripts. `.opencode/commands/speckit.git.commit.md` stages and commits only when `.specify/extensions/git/git-config.yml` enables an auto-commit event; do not assume hooks are side-effect free.
-- `.agents/skills/caveman*` are repo-local OpenCode skills; caveman mode is persistent until explicitly turned off, so say `stop caveman` or `normal mode` to revert.
-
+- Repo-local OpenCode config lives in `.opencode/opencode.jsonc`; `opencode debug config`
+  should show `mcp.serena`, and `opencode mcp list` should show `serena connected` before
+  relying on Serena tools.
+- Spec Kit command hooks under `.opencode/commands/` can run git scripts; do not assume
+  hooks are side-effect free.
+- `.agents/skills/caveman*` are repo-local OpenCode skills; caveman mode is persistent
+  until explicitly turned off (`stop caveman` / `normal mode`).
 
 ## Worktree safety
 
-- Compose identity, ports, volumes, and teardown are per worktree. Do not assume `docker compose down` in one checkout is safe for another checkout.
-- Keep changes focused on the active plan or user request. If a task touches ETL architecture or settled refactor decisions, update `docs/wiki/` instead of scattering durable notes in ad hoc docs.
+- Compose identity, ports, volumes, and teardown are per worktree. Do not assume
+  `docker compose down` in one checkout is safe for another checkout.
+- Keep changes focused on the active spec or user request. Durable architecture decisions
+  go in `docs/wiki/` (with a wiki-impact decision), not ad hoc docs.

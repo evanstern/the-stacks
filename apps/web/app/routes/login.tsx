@@ -1,93 +1,68 @@
-import { Form, redirect, useActionData, useNavigation } from "react-router";
-import { LibraryBig } from "lucide-react";
+/**
+ * /login — the only public route (see routes.ts). Password-only sign-in.
+ *
+ * The API is the sole auth authority (research R9): this action forwards the
+ * password via lib/api.server.ts and, on success, relays the API's sealed
+ * HttpOnly Set-Cookie onto the redirect. Web never mints, parses, or
+ * validates the session cookie itself. Contract:
+ * specs/007-v3-skeleton/contracts/api.md (POST /api/auth/login).
+ */
+import { Form, redirect, useActionData } from "react-router";
 
-import { getAuthStatus, getOrCreateSession, isApiNetworkError, isUnauthorized, login } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { isAuthenticated, login } from "~/lib/api.server";
+import type { Route } from "./+types/login";
 
-type LoginActionData = {
-  error: string;
-};
-
-export async function loginLoader() {
-  try {
-    await getAuthStatus();
-    const session = await getOrCreateSession();
-    throw redirect(`/chat/${session.id}`);
-  } catch (error) {
-    if (isUnauthorized(error) || isApiNetworkError(error)) {
-      return null;
-    }
-    throw error;
+// Inverse of the protected-layout gate: an already-authenticated visitor has
+// no business on the login page, so bounce them home.
+export async function loader({ request }: Route.LoaderArgs) {
+  if (await isAuthenticated(request)) {
+    throw redirect("/");
   }
+  return null;
 }
 
-export async function loginAction({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const password = String(formData.get("password") ?? "");
+export async function action({ request }: Route.ActionArgs) {
+  const form = await request.formData();
+  const password = String(form.get("password") ?? "");
 
-  try {
-    await login(password);
-    const session = await getOrCreateSession();
-    throw redirect(`/chat/${session.id}`);
-  } catch (error) {
-    if (isUnauthorized(error)) {
-      return { error: "That password did not open the archive." } satisfies LoginActionData;
-    }
-    if (isApiNetworkError(error)) {
-      return { error: "The archive API could not complete login. Check the server configuration and try again." } satisfies LoginActionData;
-    }
-    throw error;
+  const response = await login(request, password);
+
+  // Deliberately vague error: don't leak whether the password was close,
+  // rate-limited, or the API was unreachable.
+  if (response.status !== 200) {
+    return { error: "Sign-in failed." };
   }
+
+  // Success: relay the API's Set-Cookie (sealed, HttpOnly) onto the redirect
+  // so the browser stores the session on its way to the home page.
+  const headers = new Headers();
+  const setCookie = response.headers.get("set-cookie");
+  if (setCookie) {
+    headers.set("set-cookie", setCookie);
+  }
+  throw redirect("/", { headers });
 }
 
-export function LoginRoute() {
-  const actionData = useActionData() as LoginActionData | undefined;
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
+export default function Login() {
+  const actionData = useActionData<typeof action>();
 
   return (
-    <main className="login-page">
-      <Card className="login-card">
-        <div className="login-lockup" style={{ marginBottom: "2rem" }}>
-          <span className="icon-mark" style={{ width: "2.75rem", height: "2.75rem" }}>
-            <LibraryBig className="size-5" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="micro-label text-muted">Keeper access</p>
-            <h1 className="font-serif text-3xl tracking-[-0.04em] text-foreground">The Stacks</h1>
-          </div>
-        </div>
-
-        <p className="micro-label mb-4 text-clay-dark">Private archive</p>
-        <h2 className="font-serif text-4xl tracking-[-0.05em] text-foreground">Open the command desk.</h2>
-        <p className="text-muted" style={{ marginTop: "1rem", fontSize: "0.92rem", lineHeight: 1.7 }}>
-          Sign in with the admin password to continue into the chat-first campaign workspace.
-        </p>
-
-        <Form method="post" className="login-form">
-          <label className="field-label" htmlFor="password">
-            <span className="micro-label mb-2 block text-muted">Admin password</span>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter archive key"
-              required
-            />
-          </label>
-          {actionData?.error ? (
-            <p className="login-error" role="alert">
-              {actionData.error}
-            </p>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Opening" : "Enter archive"}
-          </Button>
-        </Form>
-      </Card>
+    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 p-8">
+      <h1 className="text-2xl font-semibold">Sign in</h1>
+      <Form method="post" className="flex flex-col gap-3">
+        <label className="text-sm font-medium" htmlFor="password">
+          Password
+        </label>
+        <Input id="password" name="password" type="password" required autoFocus />
+        {actionData?.error ? (
+          <p role="alert" className="text-sm text-[hsl(var(--destructive))]">
+            {actionData.error}
+          </p>
+        ) : null}
+        <Button type="submit">Sign in</Button>
+      </Form>
     </main>
   );
 }

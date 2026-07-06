@@ -3,7 +3,7 @@ title: V3 Walking Skeleton
 status: active
 owner: docs
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-06
 tags:
   - wiki
   - v3
@@ -12,36 +12,38 @@ tags:
 
 # V3 Walking Skeleton
 
-The greenfield rebuild's foundation slice: a pnpm + Docker Compose monorepo under
-`v3/` that starts with one command, authenticates a single operator, and proves a
+The greenfield rebuild's foundation slice: a pnpm + Docker Compose monorepo that
+starts with one command, authenticates a single operator, and proves a
 request can cross every architectural seam — UI → API → Postgres job queue →
 worker → ML inference sidecar → pgvector write + similarity read-back → status
 view — leaving an inspectable, append-only event trail. Full detail lives in
 `specs/007-v3-skeleton/` (plan, research, data-model, contracts, quickstart); this
 page is the durable summary of what settled there.
 
-## Coexistence with v2
+## Location & the v2 retirement
 
-v3 lives entirely under a new `v3/` root beside the running v2 stack described
-elsewhere in this wiki. Nothing in v3 imports from or modifies v2's root `apps/`,
-compose files, or `.env.example` (constitution D1) — retirement later is
-"archive/delete root `apps/` + compose, then promote `v3/`'s contents," not a
-merge. `v3/scripts/check-boundaries.mjs` (wired into `pnpm verify`) enforces the
-import boundary mechanically.
+The skeleton was built under a `v3/` directory beside the then-running v2 stack
+(constitution D1), with mechanically enforced isolation. On **2026-07-06** v2 was
+retired ([ADR 0001](../adr/0001-retire-v2-before-parity.md)) and v3 was promoted to
+the **repository root** — the layout below is now the repo's layout. The distinct
+port block and the `the-stacks-v3` compose project name were retained (deployed
+volumes/containers depend on them, and they stay useful for parallel worktrees):
 
-Port block is intentionally distinct from v2's (5433/6334/5050/8001/5174):
-
-| Service | Port | v2 equivalent |
+| Service | Port | notes |
 |---|---|---|
-| web (SSR) | 4400 | 5174 |
-| api | 4401 | 8001 |
-| ml sidecar | 4402 | — |
-| postgres | 5442 | 5433 |
+| web (SSR) | 4400 | only published port in prod shape |
+| api | 4401 | dev-published only |
+| ml sidecar | 4402 | dev-published only |
+| postgres | 5442 | dev-published only |
+
+`scripts/check-boundaries.mjs` (wired into `pnpm verify`) still enforces the
+architecture boundaries: web never imports `@stacks/db`, no relative imports escape
+the source roots, no hardcoded model ids in product code.
 
 ## Monorepo layout
 
 ```text
-v3/
+(repo root)
 ├── apps/{api,worker,web,ml}
 └── packages/{core,db,ingestion-contract}
 ```

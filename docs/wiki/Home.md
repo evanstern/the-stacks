@@ -3,16 +3,32 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-06-07
+updated: 2026-07-06
 tags:
   - wiki
-  - etl
+  - v3
   - docs
 ---
 
 # Wiki Home
 
-Start here for the current architecture spine, then read the ETL and upload intake notes before the layer-specific architecture pages.
+The codebase is the **v3 rebuild**, promoted to the repo root on 2026-07-06 when v2 was
+retired ([ADR 0001](../adr/0001-retire-v2-before-parity.md)). Start with the v3 page;
+the v2 pages below remain as historical reference for the retired app.
+
+## Current architecture (v3)
+
+- [[V3 Walking Skeleton]] — the foundation slice: monorepo layout, compose topology,
+  queue/event/vector doctrine, auth, sidecar contract. The next specs (ingestion,
+  retrieval, chat) build on this.
+
+Also see the interactive courses in `docs/courses/` (007-v3-skeleton for the current
+codebase; inside-the-stacks-v2 for the retired app).
+
+## Historical reference (v2 — retired 2026-07-06)
+
+These pages describe the retired v2 application. They stay for context — v2's designs
+informed the v3 grounding docs — but nothing here describes running code anymore.
 
 - [[ETL Architecture]]
 - [[Upload Intake Boundary]]
@@ -25,7 +41,6 @@ Start here for the current architecture spine, then read the ETL and upload inta
 - [[Corpus Management Architecture]]
 - [[Chat Sessions Architecture]]
 - [[Queue Architecture]]
-- [[V3 Walking Skeleton]]
 
 ## What this wiki is for
 
@@ -35,23 +50,8 @@ This folder holds the durable notes that should stay current as the roadmap move
 - Link related pages instead of repeating details.
 - Update the `updated` frontmatter field when you change a page.
 
-## Current reading order
-
-1. [[ETL Architecture]] for the system shape.
-2. [[Upload Intake Boundary]] for the bounded upload orchestration review and the route-versus-service decision.
-3. [[ETL Plugin Contracts]] for the extension boundaries.
-4. [[LangGraph ETL Decision]] for the orchestration choice.
-5. [[API Boundary Architecture]] for the route and service contract, dependency injection, error mapping, response schemas, test seams, and wiki preflight and postflight rules.
-6. [[Layer Boundaries]] for the ownership split across layers.
-7. [[API Refactor Roadmap]] for the R1 to R7 backend follow-up phases that can later become separate Spec Kit features.
-8. [[Corpus Management Architecture]] for the current default-corpus contract and scope control.
-9. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
-10. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
-11. [[Queue Architecture]] for the deferred queue stub.
-12. [[V3 Walking Skeleton]] for the greenfield rebuild's foundation slice — a separate stack coexisting with everything above.
-
 ## Roadmap continuation
 
-The next implementation plan after ETL was [[RAG Retrieval Architecture|RAG Retrieval + API Operations]], which is now complete. The corpus contract page is already merged and should be read as current state, not as pending work.
-
-Everything above this line describes v2, the currently running app. [[V3 Walking Skeleton]] starts a separate greenfield rebuild track under `v3/` — the next specs (ingestion, retrieval, chat) build on that foundation, not on v2's architecture.
+The walking skeleton (spec 007) is complete and converged. Next specs build on it:
+ingestion (via `packages/ingestion-contract`), retrieval, and chat. v2's roadmap pages
+above are closed.

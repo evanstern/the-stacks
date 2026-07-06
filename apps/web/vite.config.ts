@@ -1,30 +1,15 @@
+/**
+ * Vite config for dev + production builds (vitest has its own config —
+ * see vitest.config.ts for why). Three plugins, each pulling its weight:
+ * Tailwind v4's Vite plugin (no tailwind.config.js — theme lives in
+ * app.css), the RR7 framework plugin (routing, SSR build, .server.ts
+ * stripping), and tsconfig paths so the "~/*" alias resolves.
+ */
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": new URL("./app", import.meta.url).pathname,
-    },
-  },
-  server: {
-    host: "0.0.0.0",
-    port: 5173,
-    strictPort: true,
-    allowedHosts: ["vm-104.tailb3c1b6.ts.net", "thestacks.ikis.ai"],
-    proxy: {
-      "/records": {
-        target: "http://api:8000",
-        changeOrigin: true,
-        bypass: (request) => {
-          const url = request.url ?? "";
-          if (/^\/records\/sources\/[^/]+\/archive\//.test(url)) {
-            return undefined;
-          }
-          return "/index.html";
-        },
-      },
-    },
-  },
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });
