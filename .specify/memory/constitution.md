@@ -22,8 +22,9 @@ Sync Impact Report
     static edits needed)
   - ✅ .specify/templates/spec-template.md (principle-agnostic; no edits needed)
   - ✅ .specify/templates/tasks-template.md (principle-agnostic; no edits needed)
-  - ⚠ README.md / AGENTS.md describe the running v2 stack; they stay accurate for the v2
-    reference until the v3 skeleton spec lands, then must be updated by that spec
+  - ✅ README.md / AGENTS.md — updated by the v3 skeleton spec (007-v3-skeleton, T047):
+    both now document the v3 stack under `v3/` alongside the still-running v2 reference;
+    the owed wiki page (docs/wiki/V3-Walking-Skeleton.md) landed via T048
 - Follow-up TODOs: none
 -->
 
