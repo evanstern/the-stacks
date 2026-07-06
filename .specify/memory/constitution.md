@@ -1,31 +1,25 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 -> 2.0.0
-- Rationale: MAJOR — principles redefined around the v3 greenfield rebuild (docs/v3-grounding/01,
-  decisions D1-D14 in docs/v3-grounding/08). v2-era mandates removed or redefined: per-version
-  blue-green runtime machinery dropped (D4), Qdrant replaced by pgvector (D5), FastAPI-era
-  verification anchors and the hard host-port clause superseded by generic contract-stability
-  language, wiki governance moved from Principle V into Development Workflow.
-- Modified principles:
-  - I. Lawful Operator-Supplied Content Only (carried forward, wording tightened)
-  - II. Contract-First ETL and Retrieval -> III. Citations Are Receipts
-  - III. Evidence-Labeled Intelligence -> II. Hallucination Is Contained by Architecture
-  - IV. Operator Control and Auditability -> split into IV. Slow Work Is Asynchronous and
-    Destructive Work Is Guarded, and V. Operator Control and Observability
-  - V. Durable Architecture Boundaries -> VI. Boring, Bounded Infrastructure
-- Added sections: VII. Configuration Over Hardcoding (new principle); Fixed Technical
-  Decisions (replaces Additional Constraints)
-- Removed sections: Additional Constraints (v2-era runtime-version, Qdrant, and hard 5173
-  clauses; contract stability retained generically in Fixed Technical Decisions)
+- Version change: 2.0.0 -> 2.1.0
+- Rationale: MINOR — new principle added (VIII. The Work Must Teach) making learning
+  artifacts a deliverable of every spec cycle: teaching-grade code comments, a
+  feature-scoped visual course/lesson at the end of each specify->converge cycle, and a
+  visual-first presentation doctrine for reporting to the operator. Development Workflow
+  expanded with the end-of-cycle learning-artifact step and its scoping/pre-loading
+  guidance.
+- Modified principles: none renamed or redefined; I-VII carried forward unchanged.
+- Added sections: VIII. The Work Must Teach (new principle); Development Workflow gains
+  the learning-artifact closure step.
+- Removed sections: none.
 - Templates requiring updates:
-  - ✅ .specify/templates/plan-template.md (Constitution Check gate is generated per plan; no
-    static edits needed)
+  - ✅ .specify/templates/plan-template.md (Constitution Check gate is generated per plan
+    from the current version; plans authored after 2.1.0 must gate on Principle VIII)
   - ✅ .specify/templates/spec-template.md (principle-agnostic; no edits needed)
-  - ✅ .specify/templates/tasks-template.md (principle-agnostic; no edits needed)
-  - ✅ README.md / AGENTS.md — updated by the v3 skeleton spec (007-v3-skeleton, T047):
-    both now document the v3 stack under `v3/` alongside the still-running v2 reference;
-    the owed wiki page (docs/wiki/V3-Walking-Skeleton.md) landed via T048
-- Follow-up TODOs: none
+  - ✅ .specify/templates/tasks-template.md (principle-agnostic; task lists generated
+    after 2.1.0 must include the learning-artifact task in their final phase)
+- Follow-up TODOs:
+  - TODO(007-RETROFIT): 007-v3-skeleton predates this amendment — it owes a
+    teaching-comment pass over v3/ and its feature course/lesson under this principle.
 -->
 
 # The Stacks Constitution
@@ -119,6 +113,32 @@ stamped on the index so mismatched query/index embeddings are structurally detec
 Retrieval and model choices MUST be justified by the evaluation program (D11):
 baseline first, one variable at a time, findings recorded as durable reports and ADRs.
 
+### VIII. The Work Must Teach
+
+The operator approves specs and reads results; assume they have not read the code and
+will not. Code is produced quickly against approved specs, so every spec cycle MUST
+produce learning artifacts alongside the working system — the work is not done when it
+runs, it is done when the operator can understand it without reading it.
+
+- Code MUST be written to teach: comments narrate intent, architecture seams, domain
+  doctrine, and the why behind non-obvious choices, at a density sufficient for a
+  skilled but time-poor developer — or course-generation tooling such as
+  `/codebase-to-course` — to follow the design without reading every line. Comments
+  address the system's future reader, not the diff's reviewer; this deliberately
+  supersedes minimal-comment style conventions for this repository.
+- Every spec cycle (specify → converge) MUST end with a feature-scoped visual learning
+  artifact: an interactive HTML course, an HTML/SVG slide-show lesson, or richer media
+  where tooling allows. It teaches what was built, why, and how it works — diagrams,
+  animated flows, and side-by-side code-with-plain-English. Prose-only summaries do
+  not satisfy this requirement.
+- Learning artifacts SHOULD be scoped to the feature (its diff, its file list from
+  tasks.md) and pre-loaded with the feature's spec artifacts (spec, plan, tasks,
+  evidence) rather than re-analyzing the whole repository — cheaper to generate and
+  more focused to consume.
+- Reporting to the operator MUST be visual-first wherever the content allows:
+  informative but visual beats exhaustive but textual. The artifact targets a skilled
+  developer who thinks visually, not a beginner needing CS fundamentals.
+
 ## Fixed Technical Decisions
 
 Decisions D1–D14 in `docs/v3-grounding/08-decisions-and-open-questions.md` are settled.
@@ -158,6 +178,11 @@ be introduced.
   wiki pages.
 - Any v3 design that violates a product principle from
   `docs/v3-grounding/01-vision-and-scope.md` requires an ADR.
+- Every spec cycle MUST close with the Principle VIII learning artifact: after
+  `/speckit-converge` reports converged, generate the feature's course or lesson —
+  scoped to the feature's files and seeded with its spec artifacts — commit it to the
+  repository (e.g. `docs/courses/<feature>/`), and link it from the feature's
+  evidence. A spec cycle without its learning artifact is incomplete.
 
 ## Governance
 
@@ -180,4 +205,4 @@ Compliance review expectations:
   when a check cannot run.
 - Exceptions MUST be documented in the relevant spec, plan, or OMO evidence.
 
-**Version**: 2.0.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-05
+**Version**: 2.1.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-05
