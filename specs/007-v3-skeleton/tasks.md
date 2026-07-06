@@ -221,3 +221,10 @@ Task: "POST /v1/embed in v3/apps/ml/src/ml/main.py"
 - Integration tests needing Postgres (T012, T030, T039) run against Dockerized Postgres; keep them runnable on a fresh checkout with Docker available so `pnpm verify` stays honest
 - Commit after each task or logical group; each checkpoint is a safe pause point
 - v2 files (root `apps/`, root compose, root `.env.example`) are never touched except the documentation updates in T047 (FR-005, D1)
+
+---
+
+## Phase 7: Convergence
+
+- [ ] T050 Fix the drizzle-kit migration-numbering collision per quickstart Scenario 5 / FR-016 (partial): `pnpm --filter @stacks/db generate` was verified live to produce `0001_trivial_drill.sql`, colliding in numeric prefix with the existing `0001_init.sql` — root cause is T010's manual rename of drizzle-kit's native `0000_init.sql` to `0001_init.sql`, which permanently desynced the file-naming scheme from drizzle-kit's entry-count-based next-index. Re-baseline so future `generate` calls produce non-colliding filenames (e.g. rename back to `0000_init.sql` and update the journal tag plus any doc prose referencing "migration 0001"), then verify by actually running `generate` again.
+- [ ] T051 Add API-contract tests for the succeeded/failed run detail response shapes per data-model.md's validation rule / FR-010 (partial): `apps/api/test/skeleton-checks.contract.test.ts` only pins the `accepted` case (outcome/vector both absent) for `GET /api/skeleton-checks/:id`. Add a test asserting a `succeeded` run's detail response includes `vector` (id/provider/model/dimensions/readbackDistance) and omits `outcome`, and a test asserting a `failed` run's detail response includes `outcome` (class/seam/message) and omits `vector`.
