@@ -1,3 +1,18 @@
+/**
+ * The walking skeleton's payoff: the one handler that proves every
+ * architectural seam works end to end (specs/007-v3-skeleton/contracts/
+ * api.md, contracts/ml-sidecar.md, data-model.md). Seam order — claimed ->
+ * inference (embed via sidecar) -> vector_write -> vector_readback ->
+ * completed — with exactly one append-only event per seam, so a stalled or
+ * failed run tells you WHICH seam broke just from its event trail.
+ *
+ * Two state machines are in play and must not be conflated: the RUN
+ * (skeleton_check_runs, operator-facing truth) is failed here via failRun;
+ * the JOB (queue row) is failed by the poll loop when we re-throw, and may
+ * retry with backoff — a retry re-runs this handler against the same run and
+ * flips it back to "running". Failing the run on every attempt means the
+ * operator never sees a run stuck between retries with no explanation.
+ */
 import { DomainError, deriveVectorId, resolveModelRole, SKELETON_CHECK_INPUT_TEXT } from "@stacks/core";
 import type { Database, Job } from "@stacks/db";
 import { recordEvent, skeletonCheckRuns, skeletonVectors } from "@stacks/db";
@@ -9,6 +24,9 @@ interface SkeletonCheckPayload {
   runId: string;
 }
 
+// Stamps the run's terminal failure state with the DomainError's class/seam —
+// the same vocabulary the API's error mapping and the job's last_error use,
+// so one failure reads identically at every layer (FR-018).
 async function failRun(db: Database, runId: string, error: DomainError): Promise<void> {
   await db
     .update(skeletonCheckRuns)
@@ -37,6 +55,9 @@ export async function skeletonCheckHandler(db: Database, job: Job): Promise<void
     // Anything NOT already handled below (e.g. a misconfigured env var
     // resolving the model role) must still fail the run — otherwise it's
     // stuck at "running" forever while only the underlying job retries.
+    // This is a scar, not speculation: a missing env var once produced exactly
+    // that silent hang. DomainErrors skip this — runSkeletonCheck already
+    // called failRun for those; double-failing would clobber the real outcome.
     if (!(error instanceof DomainError)) {
       await failRun(
         db,
@@ -49,20 +70,29 @@ export async function skeletonCheckHandler(db: Database, job: Job): Promise<void
         }),
       );
     }
+    // Re-throw so the poll loop also fails the JOB (retry/backoff lives there).
     throw error;
   }
 }
 
 async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
+  // Seam 1, "claimed": the run leaves the queue's hands. From here every
+  // seam below appends exactly one event, success or failure.
   await db
     .update(skeletonCheckRuns)
     .set({ status: "running", startedAt: new Date() })
     .where(sql`${skeletonCheckRuns.id} = ${runId}`);
   await recordEvent(db, { runId, seam: "claimed" });
 
+  // Resolved per run, not cached at boot: the role's provider/model/dimensions
+  // become the vector's identity stamp below, so the stamp always reflects the
+  // config in force at execution time.
   const role = resolveModelRole("embedding");
   const timeoutMs = Number.parseInt(process.env.ML_REQUEST_TIMEOUT_MS ?? "15000", 10);
 
+  // Seam 2, "inference": the only network hop. ml-client has already sorted
+  // failures into dependency_down (sidecar unreachable/not ready) vs
+  // internal_fault (we sent something the contract rejects).
   const inferenceStart = Date.now();
   let result: Awaited<ReturnType<typeof embed>>;
   try {
@@ -95,6 +125,8 @@ async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
 
   // The stamp-integrity guard (FR-014): a dimension mismatch is our bug, not
   // a down dependency, and nothing gets written past this point.
+  // Placement is the point — this runs BEFORE any vector write, so the store
+  // can never hold a vector whose stamped dimensions disagree with its data.
   if (result.dimensions !== role.dimensions) {
     const domainError = new DomainError({
       class: "internal_fault",
@@ -119,6 +151,10 @@ async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
     durationMs: Date.now() - inferenceStart,
   });
 
+  // Seam 3, "vector_write". The id is DERIVED from (input, provider, model,
+  // dimensions) — the same content under the same embedding config always
+  // maps to the same row, which is what makes the upsert below an idempotent
+  // dedupe rather than an accumulating pile of identical vectors.
   const vectorId = deriveVectorId({
     inputText: SKELETON_CHECK_INPUT_TEXT,
     provider: role.provider,
@@ -140,6 +176,9 @@ async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
     })
     .onConflictDoNothing({ target: skeletonVectors.id })
     .returning();
+  // ON CONFLICT DO NOTHING + deterministic id: re-running the check (or a job
+  // retry that got past the write) is safe. Zero returned rows means the
+  // vector already existed — surfaced honestly as deduplicated, not hidden.
   const deduplicated = insertedRows.length === 0;
   await recordEvent(db, {
     runId,
@@ -148,6 +187,12 @@ async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
     durationMs: Date.now() - writeStart,
   });
 
+  // Seam 4, "vector_readback": prove the vector is not just stored but
+  // FINDABLE by similarity (<=> is pgvector cosine distance; nearest hit for
+  // our own embedding should be ~0). The model-identity filter is Principle
+  // VII doctrine: similarity is only defined within one embedding space, so
+  // if the configured model ever changes, old vectors fall out of scope and
+  // the mismatch is detectable — never a silent cross-space comparison.
   const readbackStart = Date.now();
   const vectorLiteral = `[${embedding.join(",")}]`;
   const distanceExpr = sql<number>`${skeletonVectors.embedding} <=> ${vectorLiteral}::vector`;
@@ -168,6 +213,9 @@ async function runSkeletonCheck(db: Database, runId: string): Promise<void> {
     durationMs: Date.now() - readbackStart,
   });
 
+  // Terminal seam, "completed": stamp the run with what it proved (vectorId,
+  // readback distance) — the GET /:id detail route only exposes the vector
+  // block when this succeeded state is reached (data-model.md).
   await db
     .update(skeletonCheckRuns)
     .set({

@@ -1,3 +1,8 @@
+/**
+ * Input — shadcn-style primitive (vendored): a plain <input> with the app's
+ * base styles; cn() merges caller classes so defaults can be overridden.
+ * No variants yet — unlike Button, one style covers every current use.
+ */
 import type { InputHTMLAttributes } from "react";
 
 import { cn } from "~/lib/utils";

@@ -1,3 +1,10 @@
+/**
+ * Button — shadcn-style primitive (vendored, not installed): cva declares
+ * the variant/size matrix, cn() lets a caller's className override defaults.
+ * Colors come from the CSS custom properties defined in app.css (Tailwind
+ * v4 theme tokens), so theming changes never touch this file. Only the
+ * variants the skeleton actually uses exist; add more here as needed.
+ */
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 

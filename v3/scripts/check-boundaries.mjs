@@ -1,6 +1,22 @@
 #!/usr/bin/env node
 // Fails the build on structural boundary violations the type system can't
 // catch on its own (FR-019, FR-005, SC-006). Run via `pnpm verify`.
+//
+// Three rules, each pinned to constitutional doctrine:
+//   1. apps/web may not import @stacks/db or reach into api/worker/ml source
+//      (FR-019): the web app is a client of the HTTP contract, nothing more.
+//      TypeScript can't stop a workspace import that would quietly couple
+//      the UI to the schema, so this scan does.
+//   2. No v3 file may import across the v3/ root into v2 code (decision D1,
+//      FR-005): v3 is a clean rebuild, not a graft. A single relative import
+//      escaping v3/ would silently re-entangle the old tree.
+//   3. No hardcoded model identifiers in product code (Principle VII, SC-006):
+//      models are configuration, resolved env-first via @stacks/core
+//      model-roles. A literal model id in source would bypass FR-013/D14's
+//      fail-fast env resolution and pin deploys to one model.
+// These are lexical scans over import/source text — cheap, dependency-free,
+// and intentionally blunt: they enforce architecture by failing CI, in the
+// same spirit as the append-only-by-construction event table.
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";

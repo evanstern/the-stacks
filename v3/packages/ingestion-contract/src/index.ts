@@ -5,6 +5,9 @@
  * exists now only so that spec can add to it without introducing a new
  * shared package or touching `@stacks/core`/`@stacks/db`.
  */
+// Exists so consumers can assert which contract revision they compiled
+// against once the real schema lands; the "-placeholder" suffix flags that
+// nothing implements or consumes IngestionPlugin yet.
 export const INGESTION_CONTRACT_VERSION = "0.0.0-placeholder" as const;
 
 export interface IngestionPlugin {

@@ -1,8 +1,20 @@
+/**
+ * API process entrypoint. Owns everything that belongs to the *process*, not
+ * the app: env validation, model-role resolution, migrations, port binding.
+ * buildApp (app.ts) stays pure/injectable so tests never come through here.
+ *
+ * Boot order is doctrine (FR-002, research R10): validate env -> resolve the
+ * embedding model role -> run migrations -> listen. Each step fails fast with
+ * a message naming what's missing, because a half-configured single-operator
+ * deployment that limps up is worse than one that refuses to start.
+ */
 import { resolveModelRole } from "@stacks/core";
 import { createDbClient, runMigrations } from "@stacks/db";
 
 import { buildApp } from "./app";
 
+// Checked before anything else so the failure message names every missing
+// variable at once, instead of dying one variable per restart.
 const REQUIRED_ENV_VARS = ["OPERATOR_PASSWORD_HASH", "SESSION_SECRET", "DATABASE_URL"];
 
 function assertRequiredEnv(): void {
@@ -15,6 +27,8 @@ function assertRequiredEnv(): void {
 async function main(): Promise<void> {
   assertRequiredEnv();
   // Fails fast (naming the variable) if the embedding role's env is missing/malformed.
+  // The API never embeds — the worker does — but validating here surfaces a bad
+  // embedding config at deploy time instead of on the first queued run.
   resolveModelRole("embedding");
 
   const { db, pool } = createDbClient(process.env.DATABASE_URL!);

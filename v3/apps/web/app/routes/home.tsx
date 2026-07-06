@@ -1,3 +1,12 @@
+/**
+ * Home ("/") — the protected index route: trigger a skeleton check, list
+ * recent runs, sign out. Rendered inside protected-layout, so by the time
+ * this loader runs the session has already been verified.
+ *
+ * All data flows through server-side loader/action calls into
+ * lib/api.server.ts (contract: specs/007-v3-skeleton/contracts/api.md);
+ * the browser only ever submits plain HTML forms back to this route.
+ */
 import { Form, Link, redirect } from "react-router";
 
 import { Button } from "~/components/ui/button";
@@ -9,11 +18,17 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { runs };
 }
 
+// One action, two intents: both forms on this page POST here (RR7 index
+// routes submit to "?index" — the framework bakes that into the form action).
+// A hidden "intent" field distinguishes logout from the default intent,
+// run-skeleton-check.
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData();
 
   if (form.get("intent") === "logout") {
     const response = await logout(request);
+    // Relay the API's session-clearing Set-Cookie onto the redirect — the
+    // API owns the cookie; web just passes it through (research R9).
     const headers = new Headers();
     const setCookie = response.headers.get("set-cookie");
     if (setCookie) {
@@ -22,11 +37,15 @@ export async function action({ request }: Route.ActionArgs) {
     throw redirect("/login", { headers });
   }
 
+  // Default intent: trigger a check. The API replies 202 (accept-then-async);
+  // we redirect straight to the detail page, which polls until terminal.
   const run = await triggerSkeletonCheck(request);
   throw redirect(`/skeleton-checks/${run.id}`);
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  // Fallback guards against test harnesses rendering before hydration data
+  // resolves; in real SSR loaderData is always present.
   const { runs } = loaderData ?? { runs: [] };
 
   return (
