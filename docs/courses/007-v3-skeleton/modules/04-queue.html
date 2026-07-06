@@ -1,0 +1,399 @@
+<section class="module" id="module-4" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">The Postgres Queue</h1>
+      <p class="module-subtitle">No broker, no second datastore — a <code>jobs</code> table, ~60 lines of SQL, and three mechanisms that survive crashes.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + STATE MACHINE (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A queue with no queue software</h2>
+        <p>There&rsquo;s no Redis, no RabbitMQ, no SQS here. The queue is a table named <code>jobs</code> and about 60 lines of SQL — chosen deliberately (<span class="term" data-definition="Fixed decision: the queue is a Postgres table, not a broker. Pinned in the constitution so nobody relitigates it per-feature.">D12</span>), because v2 proved the pattern and a second datastore is a second thing that pages you.</p>
+        <p>Picture a pharmacy prescription rack. Orders go on the rack, any pharmacist grabs the next slip — and the rack&rsquo;s trick is that two pharmacists can reach in at once and never grab the same one.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🤲</div>
+            <h4 class="pattern-title">Grab without colliding</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Row-lock modifier: skip rows another transaction holds locked instead of waiting — the primitive that makes a plain table a safe multi-consumer queue.">SKIP LOCKED</span> — the first transaction to lock a slip owns it; everyone else skips it instead of waiting.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">⏱️</div>
+            <h4 class="pattern-title">The rack takes it back</h4>
+            <p class="pattern-desc">A pharmacist wanders off holding a slip? After the <span class="term" data-definition="How long a claim may sit before the system presumes the worker died and returns the job to the queue — the reclaim clock that recovers from mid-job crashes.">visibility timeout</span>, the order goes back on the rack.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔁</div>
+            <h4 class="pattern-title">Retry with a note</h4>
+            <p class="pattern-desc">Failed orders go back with a &ldquo;don&rsquo;t retry before&rdquo; time — <span class="term" data-definition="Growing the wait between retries (here: doubling on each attempt) so a struggling dependency gets breathing room instead of a hammering.">backoff</span>, implemented as nothing more than a timestamp.</p>
+          </div>
+        </div>
+
+        <p>Here is the entire life of a <code>jobs</code> row. The two teal arrows going <em>backward</em> are the whole reason this is a queue and not a todo list:</p>
+
+        <div class="animate-in" style="background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); padding:var(--space-6); margin:var(--space-8) 0;">
+          <svg viewBox="0 0 800 412" width="100%" role="img" aria-label="State machine for a jobs row: queued goes to claimed via claimNext with FOR UPDATE SKIP LOCKED; claimed goes to succeeded via complete, or to failed when attempts reach the max. Two arrows return to queued: a retryable failure requeues with exponential backoff via run_at, and a visibility-timeout reclaim returns jobs orphaned by crashed workers.">
+            <defs>
+              <marker id="m4-arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#9E9790"/>
+              </marker>
+              <marker id="m4-arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#2D8B55"/>
+              </marker>
+              <marker id="m4-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#C93B3B"/>
+              </marker>
+              <marker id="m4-arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#2A7B9B"/>
+              </marker>
+            </defs>
+
+            <!-- ===== BACK-ARROW 1 (STAR): visibility-timeout reclaim, top arc ===== -->
+            <path d="M 405 186 C 375 66, 175 66, 145 186" fill="none" stroke="#2A7B9B" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 7" marker-end="url(#m4-arrow-teal)">
+              <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <text x="275" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">💥 worker crashed mid-job?</text>
+            <text x="275" y="62" text-anchor="middle" font-size="12" fill="#2A7B9B" style="font-family:var(--font-mono)">claimed too long → reclaimStale() puts it back</text>
+
+            <!-- ===== BACK-ARROW 2 (STAR): retryable failure with backoff, bottom arc ===== -->
+            <path d="M 405 254 C 375 374, 175 374, 145 254" fill="none" stroke="#2A7B9B" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 7" marker-end="url(#m4-arrow-teal)">
+              <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <text x="275" y="378" text-anchor="middle" font-size="13" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">↩ fail() with attempts &lt; max</text>
+            <text x="275" y="398" text-anchor="middle" font-size="12" fill="#2A7B9B" style="font-family:var(--font-mono)">requeued: run_at = now + base × 2^(attempts−1)</text>
+
+            <!-- ===== forward arrows ===== -->
+            <line x1="230" y1="220" x2="312" y2="220" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-gray)"/>
+            <text x="271" y="206" text-anchor="middle" font-size="12" fill="#6B6560" style="font-family:var(--font-mono)">claimNext()</text>
+            <text x="271" y="240" text-anchor="middle" font-size="10" fill="#9E9790" style="font-family:var(--font-mono)">FOR UPDATE SKIP LOCKED</text>
+
+            <line x1="482" y1="200" x2="592" y2="122" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-green)"/>
+            <text x="522" y="146" text-anchor="middle" font-size="12" fill="#2D8B55" style="font-family:var(--font-mono)">complete()</text>
+
+            <line x1="482" y1="240" x2="592" y2="318" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-red)"/>
+            <text x="518" y="298" text-anchor="middle" font-size="12" fill="#C93B3B" style="font-family:var(--font-mono)">fail() · attempts ≥ max</text>
+
+            <!-- ===== states ===== -->
+            <rect x="60" y="192" width="170" height="56" rx="10" fill="#FFFFFF" stroke="#2A7B9B" stroke-width="2"/>
+            <text x="145" y="216" text-anchor="middle" font-size="15" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">queued</text>
+            <text x="145" y="236" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">claimable when run_at ≤ now()</text>
+
+            <rect x="320" y="192" width="170" height="56" rx="10" fill="#FFFFFF" stroke="#D4A843" stroke-width="2"/>
+            <text x="405" y="216" text-anchor="middle" font-size="15" font-weight="700" fill="#B8912F" style="font-family:var(--font-mono)">claimed</text>
+            <text x="405" y="236" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">attempts+1 · claimed_by stamped</text>
+
+            <rect x="600" y="80" width="160" height="56" rx="10" fill="#E8F5EE" stroke="#2D8B55" stroke-width="2"/>
+            <text x="680" y="104" text-anchor="middle" font-size="15" font-weight="700" fill="#2D8B55" style="font-family:var(--font-mono)">succeeded</text>
+            <text x="680" y="124" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">terminal ✓</text>
+
+            <rect x="600" y="304" width="160" height="56" rx="10" fill="#FDE8E8" stroke="#C93B3B" stroke-width="2"/>
+            <text x="680" y="328" text-anchor="middle" font-size="15" font-weight="700" fill="#C93B3B" style="font-family:var(--font-mono)">failed</text>
+            <text x="680" y="348" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">claim frozen as evidence</text>
+          </svg>
+        </div>
+
+        <p>Locked claims, attempt-counted backoff, timeout-based reclaim: three small mechanisms that survive concurrent workers, dependency outages, and workers dying <em>mid-job</em>. Knowing them tells you exactly what to check when a job looks stuck — and it&rsquo;s a policy you can copy anywhere your job volume is one operator&rsquo;s background tasks.</p>
+      </section>
+
+      <!-- ============ SCREEN 2: CLAIMING (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Claiming: two hands, one slip</h2>
+        <p>The whole multi-worker story is one SQL clause inside one transaction. Everything else in <code>claimNext</code> is stamping the claim.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/queue.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">claimNext</span>(db: Database, input: ClaimNextInput): Promise&lt;Job | undefined&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// Raw SQL so the locking clause — the load-bearing part — stays literal</span></span>
+<span class="code-line">    <span class="code-comment">// and greppable rather than hidden behind builder options.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> candidates = <span class="code-keyword">await</span> tx.<span class="code-function">execute</span>&lt;{ id: <span class="code-keyword">string</span> }&gt;(</span>
+<span class="code-line">      sql`<span class="code-string">SELECT id FROM jobs</span></span>
+<span class="code-line"><span class="code-string">          WHERE status = 'queued' AND run_at &lt;= now()</span></span>
+<span class="code-line"><span class="code-string">          ORDER BY created_at</span></span>
+<span class="code-line"><span class="code-string">          <strong style="color:#F9E2AF">FOR UPDATE SKIP LOCKED</strong></span></span>
+<span class="code-line"><span class="code-string">          LIMIT 1</span>`,</span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> candidate = candidates.rows[<span class="code-number">0</span>];</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!candidate) {</span>
+<span class="code-line">      <span class="code-keyword">return undefined</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">      .<span class="code-function">set</span>({</span>
+<span class="code-line">        <span class="code-property">status</span>: <span class="code-string">"claimed"</span>,</span>
+<span class="code-line">        <span class="code-property">claimedBy</span>: input.workerId,</span>
+<span class="code-line">        <span class="code-property">claimedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">        <span class="code-property">attempts</span>: sql`${jobs.attempts} + <span class="code-number">1</span>`,</span>
+<span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${candidate.id}`)</span>
+<span class="code-line">      .<span class="code-function">returning</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">return</span> row;</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One call = one attempt to take the next job. <code>undefined</code> means the rack is empty.</p>
+              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block.</p>
+              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL so <code>grep "SKIP LOCKED"</code> finds it.</p>
+              <p class="tl">Take the oldest <code>queued</code> job whose <code>run_at</code> has arrived — the same timestamp backoff will push into the future.</p>
+              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it — no waiting, no double-grab.</p>
+              <p class="tl">One slip at a time.</p>
+              <p class="tl">Nothing claimable? Return <code>undefined</code>; the worker sleeps a tick and polls again.</p>
+              <p class="tl">Still inside the transaction — the lock is still held — flip the row to <code>claimed</code>.</p>
+              <p class="tl">Stamp who took it and when. These two fields power both the reclaim clock and the forensic freeze later.</p>
+              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — so it always counts the run that is about to happen.</p>
+              <p class="tl">Commit releases the lock, and the claimed row goes back to the worker loop.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: keep the load-bearing part literal</strong>
+            <p>Everything else in this file uses the query builder — only the locking clause is raw SQL. When one clause carries the whole concurrency story, you want it greppable and word-for-word identical to the docs that explain it, not reconstructed from builder options in your head.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: FAILING (SNIPPET B + SNIPPET D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Failing: back on the rack, with a note</h2>
+        <p>A failed job faces one comparison: <code>attempts ≥ maxAttempts</code>. Below the limit it goes back on the rack with a &ldquo;don&rsquo;t retry before&rdquo; time; at the limit it&rsquo;s frozen where it fell.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>1st failure<br><code>run_at = now + base×2⁰</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>2nd failure<br><code>run_at = now + base×2¹</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>3rd failure — exhausted<br><code>status = failed</code>, claim frozen</p></div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/queue.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">fail</span>(db: Database, jobId: <span class="code-keyword">string</span>, error: JobFailure): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">await</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx.<span class="code-function">select</span>().<span class="code-function">from</span>(jobs).<span class="code-function">where</span>(sql`${jobs.id} = ${jobId}`);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!row) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// attempts was already bumped by claimNext, so after the Nth run</span></span>
+<span class="code-line">    <span class="code-comment">// attempts === N: 1st failure waits base*2^0, 2nd base*2^1, ... The</span></span>
+<span class="code-line">    <span class="code-comment">// Math.max guards against a hand-inserted row failing at attempts = 0.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> exhausted = row.attempts &gt;= row.maxAttempts;</span>
+<span class="code-line">    <span class="code-keyword">const</span> backoffMs = BACKOFF_BASE_MS * <span class="code-number">2</span> ** Math.<span class="code-function">max</span>(<span class="code-number">0</span>, row.attempts - <span class="code-number">1</span>);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// On terminal failure we freeze claimed_by/claimed_at/run_at as forensic</span></span>
+<span class="code-line">    <span class="code-comment">// evidence of the final attempt; on requeue we clear the claim so the row</span></span>
+<span class="code-line">    <span class="code-comment">// is claimable again once run_at arrives.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">      .<span class="code-function">set</span>({</span>
+<span class="code-line">        <span class="code-property">status</span>: exhausted ? <span class="code-string">"failed"</span> : <span class="code-string">"queued"</span>,</span>
+<span class="code-line">        <span class="code-property">lastError</span>: error,</span>
+<span class="code-line">        <span class="code-property">runAt</span>: exhausted ? row.runAt : <span class="code-keyword">new</span> <span class="code-function">Date</span>(Date.<span class="code-function">now</span>() + backoffMs),</span>
+<span class="code-line">        <span class="code-property">claimedBy</span>: exhausted ? row.claimedBy : <span class="code-keyword">null</span>,</span>
+<span class="code-line">        <span class="code-property">claimedAt</span>: exhausted ? row.claimedAt : <span class="code-keyword">null</span>,</span>
+<span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${jobId}`);</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The worker calls this when a handler throws. The error arriving here is already typed — that vocabulary is module 5.</p>
+              <p class="tl">Same shape as the claim: one transaction, load the row.</p>
+              <p class="tl">Job gone? Nothing to record.</p>
+              <p class="tl">The comment does the arithmetic for you: <code>attempts</code> already counts the run that just failed, because <code>claimNext</code> bumped it up front.</p>
+              <p class="tl">One comparison picks the road: terminal, or try again.</p>
+              <p class="tl">Doubling backoff — 1st failure waits base×1, 2nd base×2, 3rd base×4. <code>Math.max</code> guards a hand-inserted row failing at <code>attempts = 0</code>.</p>
+              <p class="tl">Two exits, one UPDATE — every field picks its value off the same <code>exhausted</code> flag.</p>
+              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack.</p>
+              <p class="tl">The typed failure lands on the row either way — the &ldquo;note&rdquo; on the slip.</p>
+              <p class="tl">The schedule column <em>is</em> the backoff mechanism: requeue pushes <code>run_at</code> into the future, and <code>claimNext</code>&rsquo;s WHERE clause won&rsquo;t touch it before then. No timer service — just a timestamp.</p>
+              <p class="tl">Requeue clears the claim so the row is grabbable again; terminal failure freezes <code>claimed_by</code>/<code>claimed_at</code> as forensic evidence — who ran it last, and when.</p>
+            </div>
+          </div>
+        </div>
+
+        <p><code>fail()</code> is the road back the worker lives to report. The other road back is for the crash it doesn&rsquo;t survive — a job stuck at <code>claimed</code> because its worker is gone:</p>
+
+        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
+          <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
+          <pre style="margin:0"><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
+<span class="code-line">    <span class="code-function">touchHeartbeat</span>();</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-comment">// Visibility timeout: any job claimed longer ago than this is presumed</span></span>
+<span class="code-line">      <span class="code-comment">// orphaned by a crashed worker and returned to the queue. Reclaim runs</span></span>
+<span class="code-line">      <span class="code-comment">// every tick so recovery latency is bounded by pollMs, not by luck.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> reclaimed = <span class="code-keyword">await</span> <span class="code-function">reclaimStale</span>(db, { visibilityTimeoutMs });</span>
+<span class="code-line">      <span class="code-keyword">if</span> (reclaimed &gt; <span class="code-number">0</span>) {</span>
+<span class="code-line">        <span class="code-function">log</span>(<span class="code-string">"jobs_reclaimed"</span>, { <span class="code-property">count</span>: reclaimed });</span>
+<span class="code-line">      }</span></code></pre>
+        </div>
+
+        <p>Every worker tick starts by rescuing <em>other</em> workers&rsquo; orphans, then polls for its own work. Recovery latency is bounded by the timeout plus one poll interval — by design, not by luck.</p>
+      </section>
+
+      <!-- ============ SCREEN 4: THE TRAIL (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The trail beside the rack</h2>
+        <p>Next to <code>jobs</code> sits the event trail from module 3, and it is <span class="term" data-definition="Rows are only ever inserted, never updated or deleted — the history can grow, but it can&rsquo;t be rewritten.">append-only</span> BY CONSTRUCTION: no trigger, no grant — <code>recordEvent</code> is the sole writer, and no UPDATE or DELETE path exists anywhere in the codebase.</p>
+
+        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
+          <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
+          <pre style="margin:0"><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
+<span class="code-line"><span class="code-comment"> * keeping this function the sole writer is the invariant. If you find</span></span>
+<span class="code-line"><span class="code-comment"> * yourself wanting to update or delete an event row, the design answer is</span></span>
+<span class="code-line"><span class="code-comment"> * to append a correcting event instead.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">recordEvent</span>(db: Database, input: RecordEventInput): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">await</span> db.<span class="code-function">insert</span>(skeletonCheckEvents).<span class="code-function">values</span>({</span>
+<span class="code-line">    <span class="code-property">runId</span>: input.runId,</span>
+<span class="code-line">    <span class="code-property">seam</span>: input.seam,</span>
+<span class="code-line">    <span class="code-property">ok</span>: input.ok ?? <span class="code-keyword">true</span>,</span>
+<span class="code-line">    <span class="code-property">detail</span>: input.detail ?? {},</span>
+<span class="code-line">    <span class="code-property">durationMs</span>: input.durationMs,</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+
+        <div class="pattern-cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔁</div>
+            <h4 class="pattern-title">The job: a machine with loops</h4>
+            <p class="pattern-desc"><code>status</code> can go backward — <code>queued → claimed → queued</code> again. Retrying is its whole point.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+            <h4 class="pattern-title">The trail: a ledger, no eraser</h4>
+            <p class="pattern-desc">Events only accumulate. A retry shows up as <em>more</em> events — never edited ones. Corrections are new events.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Two state machines, one honest story</strong>
+            <p>After a retry, the job row looks clean — <code>queued</code>, as if nothing happened. The trail can&rsquo;t pretend: the failed attempt&rsquo;s events are still there, timestamped. The job may loop; the record of what happened only grows.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Debug it yourself</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Both workers run the SELECT; the first to reach the row locks it with FOR UPDATE. SKIP LOCKED means the second doesn&rsquo;t queue up behind that lock — it skips the row, gets zero candidates, and returns undefined. No blocking, no double-claim, no coordination service."
+               data-explanation-wrong="Not quite — the answer is in the clause name. FOR UPDATE alone would make the second worker BLOCK until the first commits (and then see a row that&rsquo;s no longer queued). SKIP LOCKED changes waiting into skipping: the second SELECT simply doesn&rsquo;t see the locked row and comes back empty.">
+            <h3 class="quiz-question">Two workers poll at the same instant; exactly one job is <code>queued</code>. Why does exactly one worker get it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The transactions serialize: the second worker&rsquo;s SELECT blocks until the first commits, then it claims the job too — but the <code>status = 'queued'</code> check saves it.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Both SELECT; the first locks the row, and SKIP LOCKED makes the second <em>skip</em> it — not block — so it sees an empty result and just polls again later.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A unique constraint on <code>claimed_by</code> makes the second worker&rsquo;s UPDATE fail, and its transaction rolls back harmlessly.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right. The row is stuck at status = 'claimed', so no SELECT can see it — until claimed_at is older than the visibility timeout. reclaimStale runs at the top of EVERY worker tick, so once the timeout elapses, the next tick (at most pollMs away) flips it back to queued. Worst case: visibility timeout + one poll interval."
+               data-explanation-wrong="Think about what the dead worker left behind: a row with status = 'claimed'. The Postgres row lock died with the connection, but the status field didn&rsquo;t — claimNext only selects 'queued' rows. Recovery comes from reclaimStale, which runs every tick and requeues any claim older than the visibility timeout: worst case is timeout + one poll interval.">
+            <h3 class="quiz-question">A worker is OOM-killed while holding a claim. When does that job run again, worst case?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>On the very next tick — the dead worker&rsquo;s row lock vanishes when its connection drops, so another worker can claim the job immediately.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Visibility timeout + up to one poll interval — <code>reclaimStale</code> runs every tick, so recovery latency is bounded by <code>pollMs</code>.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Never automatically — a job stuck at <code>claimed</code> needs an operator to requeue it by hand.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. attempts ≥ maxAttempts flips exhausted, so fail() writes status = 'failed', stores the typed error in last_error, and deliberately does NOT clear claimed_by/claimed_at/run_at — they&rsquo;re frozen as forensic evidence: which worker ran the final attempt, and when."
+               data-explanation-wrong="Not quite. Terminal failure keeps the row — and keeps the claim fields on purpose. On a requeue those fields are cleared so the row is claimable; on the FINAL failure they&rsquo;re frozen so you can see which worker ran the last attempt and when. status = 'failed', last_error holds the typed failure.">
+            <h3 class="quiz-question">A job fails a 3rd time with <code>max_attempts = 3</code>. What does the row look like — and why are <code>claimed_by</code>/<code>claimed_at</code> still set?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>status = 'failed'</code> with the claim fields nulled out — terminal rows are cleaned up so they don&rsquo;t look claimed.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>status = 'failed'</code>, <code>last_error</code> holds the typed failure, and the claim fields are frozen as forensic evidence of the final attempt.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The row is deleted — the append-only events table is the only surviving record of the failed run.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the docblock on recordEvent says it outright: if you want to update or delete an event, the design answer is to append a correcting event. The guarantee is by construction — recordEvent being the sole writer IS the invariant — and a one-off UPDATE (even via migration) would break the property that the trail cannot be rewritten."
+               data-explanation-wrong="The table&rsquo;s guarantee is append-only BY CONSTRUCTION: recordEvent is the only writer, and no update path exists — adding one, even audited or flag-guarded, destroys the property that the history can&rsquo;t be rewritten. The design-correct move is to append a correcting event; the typo stays, and the correction sits honestly beside it.">
+            <h3 class="quiz-question">You spot a typo in one event&rsquo;s <code>detail</code> JSON and you&rsquo;re tempted to UPDATE the row. What&rsquo;s the design-correct move?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fix it in a one-off migration — migrations are reviewed and audited, so the change is accountable.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Append a correcting event — the table has no update path on purpose, and keeping <code>recordEvent</code> the sole writer is the invariant.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add an UPDATE helper to <code>events.ts</code>, guarded behind an admin-only flag, so corrections stay rare and controlled.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p>The queue survives crashes — concurrent claims, dependency outages, workers dying mid-job. <strong>Module 5:</strong> who&rsquo;s allowed in at all, and what failure looks like when it reaches the operator — sealed cookies and the four-class typed-error vocabulary.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

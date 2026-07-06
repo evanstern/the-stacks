@@ -1,0 +1,327 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Auth &amp; Typed Failure</h1>
+      <p class="module-subtitle">One sealed cookie, one global hook, four error classes — and nothing else in the codebase knows a status code.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: THE AUTH MODEL (WAX-SEALED LETTER) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One hash, one seal, zero tables</h2>
+        <p>There is no users table, no sessions table, and no auth middleware per route. One bcrypt hash in env, one <span class="term" data-definition="Encrypted + authenticated cookie — the server can read it, nobody can forge or inspect it; tampering fails decryption and reads as 'no session'.">sealed cookie</span>, one global hook — and an unknown URL returns 401, not 404, on purpose.</p>
+        <p>The session isn&rsquo;t a locker-room ticket the server has to look up — it&rsquo;s a letter sealed with the server&rsquo;s own signet ring. A broken seal needs no investigation: it simply reads as <em>no letter</em>. Revocation is changing the ring — rotate <code>SESSION_SECRET</code> and every outstanding seal dies at once.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p><code>OPERATOR_PASSWORD_HASH</code> + <code>SESSION_SECRET</code> live in env — that&rsquo;s the whole identity store</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Login: bcrypt-compare the one password (<span class="term" data-definition="Fixed decision: single-operator auth — one password, no accounts.">D13</span>)</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Match → seal a cookie with the signet ring</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Every later request: unseal. Clean seal = session. No DB row anywhere</p>
+          </div>
+        </div>
+
+        <p>The seal itself carries its own rules:</p>
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">maxAge: 30 days</code>
+            <span class="badge-desc">The letter expires on its own — an old seal reads as no session</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">httpOnly</code>
+            <span class="badge-desc">Page JavaScript can never touch the cookie — the seal is opaque to scripts</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">sameSite: lax</code>
+            <span class="badge-desc">Other sites can&rsquo;t ride along on the cookie for cross-origin writes</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">no session table</code>
+            <span class="badge-desc">Nothing to look up, nothing to leak, nothing to migrate — the cookie is the whole session</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 2: THE GLOBAL GUARD (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One hook guards every route — including the ones that don&rsquo;t exist</h2>
+        <p>Auth is <span class="term" data-definition="Everything requires a valid session unless explicitly exempted. Safety comes from the default, not from remembering to add a guard to each route.">deny-by-default</span>: a single global <code>onRequest</code> hook with an explicit 4-route exemption list. No route opts <em>in</em> to auth — four routes opt <em>out</em>, by name.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/auth/session.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">const</span> EXEMPT = <span class="code-keyword">new</span> <span class="code-function">Set</span>([<span class="code-string">"GET /health"</span>, <span class="code-string">"GET /ready"</span>, <span class="code-string">"POST /api/auth/login"</span>, <span class="code-string">"POST /api/auth/logout"</span>]);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// A global onRequest hook (not preHandler) so it also applies to routes that</span></span>
+<span class="code-line">  <span class="code-comment">// don't exist yet — "every other route requires a valid session" (contracts/api.md).</span></span>
+<span class="code-line">  <span class="code-comment">// Consequence worth knowing: an unauthenticated request to an unknown path</span></span>
+<span class="code-line">  <span class="code-comment">// gets 401, not 404 — the API reveals nothing about its route map.</span></span>
+<span class="code-line">  app.<span class="code-function">addHook</span>(<span class="code-string">"onRequest"</span>, <span class="code-keyword">async</span> (request, reply) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// routeOptions.url is the route PATTERN (e.g. "/api/x/:id"), so exemption</span></span>
+<span class="code-line">    <span class="code-comment">// can't be spoofed by crafting a matching raw URL; raw url is only the</span></span>
+<span class="code-line">    <span class="code-comment">// fallback for unmatched (404-bound) requests, which are never exempt.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> key = <span class="code-string">`${request.method} ${request.routeOptions?.url ?? request.url}`</span>;</span>
+<span class="code-line">    <span class="code-keyword">if</span> (EXEMPT.<span class="code-function">has</span>(key)) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">isSessionAuthenticated</span>(request)) {</span>
+<span class="code-line">      <span class="code-comment">// Same fixed "Sign-in failed." body as every credential failure — the</span></span>
+<span class="code-line">      <span class="code-comment">// response never distinguishes missing vs. tampered vs. expired session.</span></span>
+<span class="code-line">      reply.<span class="code-function">code</span>(<span class="code-number">401</span>).<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(<span class="code-string">"unauthorized"</span>, <span class="code-string">"Sign-in failed."</span>));</span>
+<span class="code-line">    }</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The full escape hatch: four literal <code>METHOD pattern</code> strings — health, ready, login, logout. Everything else lives behind auth.</p>
+              <p class="tl"><code>onRequest</code>, not <code>preHandler</code>: it fires before routing resolves a handler, so even paths with no route are guarded.</p>
+              <p class="tl">That&rsquo;s the deliberate consequence — unknown path, no session, 401. The route map is invisible to the unauthenticated.</p>
+              <p class="tl">Registered once, app-wide. There is no per-route guard to forget.</p>
+              <p class="tl">The key uses the route <em>pattern</em> (<code>/api/x/:id</code>), never the raw URL — you can&rsquo;t craft a URL that string-matches an exemption.</p>
+              <p class="tl">Raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
+              <p class="tl">Exempt key? Fall through to the route, no session needed.</p>
+              <p class="tl">Everyone else must present a cookie that unseals cleanly.</p>
+              <p class="tl">One fixed body — <code>"Sign-in failed."</code> — whether the seal is missing, tampered, or expired. The response teaches an attacker nothing.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: forgetting is impossible</strong>
+            <p>Deny-by-default means forgetting auth on a new route is impossible — the failure mode of forgetfulness is 401, not exposure. The dangerous act isn&rsquo;t adding a route; it&rsquo;s editing <code>EXEMPT</code>, and that edit is loud, explicit, and one line.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: FOUR TRIAGE TAGS (CARDS + SNIPPET B) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Four triage tags, not incident novels</h2>
+        <p>Every failure in this system wears exactly one of four tags. Only the ER front desk — the API edge — translates a tag into what the public hears: a status code.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">404</div>
+            <h4 class="pattern-title"><code>unknown_thing</code></h4>
+            <p class="pattern-desc">You asked for something that doesn&rsquo;t exist — a run id, a resource.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> no such thing — check the id, not the system.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">415</div>
+            <h4 class="pattern-title"><code>unsupported_type</code></h4>
+            <p class="pattern-desc">The input is a kind this system doesn&rsquo;t serve.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> change the input — retrying the same thing changes nothing.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">503</div>
+            <h4 class="pattern-title"><code>dependency_down</code></h4>
+            <p class="pattern-desc">Something we depend on is unreachable or not ready yet.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> retry later — it heals without you.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">500</div>
+            <h4 class="pattern-title"><code>internal_fault</code></h4>
+            <p class="pattern-desc">Our own bug or misconfiguration — the fault is on this side of the seam.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> go fix config or code — waiting is useless.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-text-muted)">
+            <div class="pattern-icon" style="background: var(--color-text-muted)">401</div>
+            <h4 class="pattern-title"><code>unauthorized</code></h4>
+            <p class="pattern-desc">The auth-only bolt-on — not a domain class, just the edge&rsquo;s own tag for a broken seal.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> sign in.</p>
+          </div>
+        </div>
+
+        <p>The entire tag-to-status translation is one tiny table — and that smallness is the point. Each mapping is pinned by <span class="term" data-definition="Spec requirement: the four error classes are each pinned by at least one contract test.">FR-018</span>, so it can&rsquo;t drift silently.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/errors.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">const</span> STATUS_BY_CLASS: Record&lt;ErrorClass | <span class="code-string">"unauthorized"</span>, <span class="code-keyword">number</span>&gt; = {</span>
+<span class="code-line">  <span class="code-property">unknown_thing</span>: <span class="code-number">404</span>,</span>
+<span class="code-line">  <span class="code-property">unsupported_type</span>: <span class="code-number">415</span>,</span>
+<span class="code-line">  <span class="code-property">dependency_down</span>: <span class="code-number">503</span>,</span>
+<span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
+<span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">statusForErrorClass</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>): <span class="code-keyword">number</span> {</span>
+<span class="code-line">  <span class="code-keyword">return</span> STATUS_BY_CLASS[errorClass];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">errorEnvelope</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>, message: <span class="code-keyword">string</span>) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> { <span class="code-property">error</span>: { <span class="code-property">code</span>: errorClass, message } };</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The only place in the codebase that knows an HTTP status. Four domain classes plus the auth bolt-on.</p>
+              <p class="tl">No such thing → 404.</p>
+              <p class="tl">Wrong kind of input → 415.</p>
+              <p class="tl">Dependency unreachable → 503 — a retryable answer.</p>
+              <p class="tl">Our bug → 500.</p>
+              <p class="tl">Broken seal → 401. Note the type: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code>, it&rsquo;s bolted on at the edge only.</p>
+              <p class="tl">End of doctrine.</p>
+              <p class="tl">Tag in, status out — a pure lookup, zero logic.</p>
+              <p class="tl">And every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: CLASSIFICATION AT THE SEAM (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The tag is chosen where the patient is found</h2>
+        <p>Classification happens at the seam that failed — worker, ml client, routes all throw <code>DomainError</code> — and only the edge translates. Watch the ml client split two failures that look similar on the wire but demand opposite operator actions.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/ml-client.ts</span>
+            <pre><code><span class="code-line">  <span class="code-comment">// 503 is the sidecar's documented "model still loading / not ready" answer</span></span>
+<span class="code-line">  <span class="code-comment">// (contracts/ml-sidecar.md) — reachable but not serving, still a down</span></span>
+<span class="code-line">  <span class="code-comment">// dependency from the run's point of view, and retryable.</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (response.status <span class="code-operator">===</span> <span class="code-number">503</span>) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"dependency_down"</span>,</span>
+<span class="code-line">      <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"Inference sidecar is not ready."</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// Any other non-2xx (400 unknown model, 404, ...) means we sent something</span></span>
+<span class="code-line">  <span class="code-comment">// the contract doesn't allow — a misconfiguration on our side, so it must</span></span>
+<span class="code-line">  <span class="code-comment">// NOT masquerade as a down dependency: the operator should go fix config,</span></span>
+<span class="code-line">  <span class="code-comment">// not wait for the sidecar to "come back".</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!response.ok) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">      <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">`Inference sidecar returned ${response.status}.`</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;still loading&rdquo; answer — reachable, just not serving yet.</p>
+              <p class="tl">From the run&rsquo;s point of view that&rsquo;s still a down dependency, and crucially: a temporary one.</p>
+              <p class="tl">So the tag is <code>dependency_down</code> — retryable. The operator&rsquo;s move is <em>wait</em>.</p>
+              <p class="tl">The error notes which seam failed and why, in one line.</p>
+              <p class="tl">Same for connection timeouts and refused connections, handled just above this block.</p>
+              <p class="tl">Any <em>other</em> non-2xx — 400 unknown model, 404 — means we sent something the contract doesn&rsquo;t allow.</p>
+              <p class="tl">That must not masquerade as a down dependency: the sidecar is up and answering; <em>our config</em> is wrong.</p>
+              <p class="tl">So the tag is <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar to &ldquo;come back&rdquo; would wait forever.</p>
+              <p class="tl">The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🏷️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Same discipline, earlier seam</strong>
+            <p>The dimension-mismatch guard from Module 3 follows the same rule: a vector of the wrong size throws <code>internal_fault</code> <em>before any write</em>. Misconfiguration is tagged where it&rsquo;s detected and never touches the table.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Run the triage yourself</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The global onRequest hook guarded the route the moment it registered — deny-by-default means new routes are born protected. The exemption list is the only escape hatch, and it&rsquo;s an explicit, four-entry set you would have had to edit on purpose."
+               data-explanation-wrong="Not quite. There is no per-route guard to forget — the single global hook covers every route (even nonexistent ones) the moment the server starts. Only an explicit edit to the EXEMPT set opens a route, so forgetting auth yields 401s, never exposure.">
+            <h3 class="quiz-question">You add <code>GET /api/corpus</code> next sprint and forget everything about auth. Who can call it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Anyone — a route is open until you attach an auth <code>preHandler</code> to it.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only a valid session — the global hook guarded it the moment it registered; the only escape hatch is the explicit <code>EXEMPT</code> list.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nobody — new routes are blocked outright until they&rsquo;re added to the exemption list.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The sidecar is up and answering — the contract violation is ours: env names a model the sidecar didn&rsquo;t load. Waiting won&rsquo;t fix config, so tagging it dependency_down would send the operator to do exactly the wrong thing. internal_fault says: go fix env."
+               data-explanation-wrong="Not quite. dependency_down is reserved for a dependency that&rsquo;s unreachable or not ready — retryable, self-healing. Here the sidecar is up and answering; our config asked for the wrong model, and no amount of waiting fixes config. The worker throws internal_fault.">
+            <h3 class="quiz-question">The sidecar answers <code>404</code> because the model named in your env isn&rsquo;t the one it loaded. Which class does the worker throw — and why not <code>dependency_down</code>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>dependency_down</code> — any failure from the sidecar means the inference dependency is effectively down.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>internal_fault</code> — the sidecar is up and answering; our config asked for the wrong thing, and waiting won&rsquo;t fix config.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>unknown_thing</code> — the sidecar said 404, so we pass 404 straight through to the client.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The onRequest hook runs before any routing verdict can leak, so an unauthenticated caller can&rsquo;t tell a real path from a fake one — every probe gets the same 401 and the same &ldquo;Sign-in failed.&rdquo; body. The route map is invisible until you hold a valid seal."
+               data-explanation-wrong="Not quite — it&rsquo;s deliberate, and it&rsquo;s documented in the hook&rsquo;s own comment. Auth runs at onRequest, before routing resolves, so a 404 verdict never reaches an unauthenticated caller. If it did, attackers could map the API by probing paths and comparing 401 vs 404.">
+            <h3 class="quiz-question">Ops asks: &ldquo;Why does hitting a nonexistent API path unauthenticated return 401 and not 404?&rdquo; Your answer?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It&rsquo;s a quirk — Fastify happens to run the 404 handler after hooks, and nobody has fixed the ordering.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Deny-by-default runs before any routing verdict can leak — the route map is invisible to the unauthenticated, so real and fake paths answer identically.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>404 is reserved for <code>unknown_thing</code> domain errors, so the router isn&rsquo;t allowed to emit it.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <p>Two single points of truth: every new route is auto-guarded the moment it registers, and every new failure mode is just a class choice — the transport mapping already pinned by contract tests. Doctrine&rsquo;s clean on paper. <strong>Module 6</strong> is the receipts: six real bugs this feature hit during live validation, and what each one taught.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -25,6 +25,7 @@ Start here for the current architecture spine, then read the ETL and upload inta
 - [[Corpus Management Architecture]]
 - [[Chat Sessions Architecture]]
 - [[Queue Architecture]]
+- [[V3 Walking Skeleton]]
 
 ## What this wiki is for
 
@@ -47,7 +48,10 @@ This folder holds the durable notes that should stay current as the roadmap move
 9. [[RAG Retrieval Architecture]] for retrieval scope, trace, and answer-time behavior.
 10. [[Chat Sessions Architecture]] for chat, session state, and retrieval wiring.
 11. [[Queue Architecture]] for the deferred queue stub.
+12. [[V3 Walking Skeleton]] for the greenfield rebuild's foundation slice — a separate stack coexisting with everything above.
 
 ## Roadmap continuation
 
 The next implementation plan after ETL was [[RAG Retrieval Architecture|RAG Retrieval + API Operations]], which is now complete. The corpus contract page is already merged and should be read as current state, not as pending work.
+
+Everything above this line describes v2, the currently running app. [[V3 Walking Skeleton]] starts a separate greenfield rebuild track under `v3/` — the next specs (ingestion, retrieval, chat) build on that foundation, not on v2's architecture.

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.react-router/
+.env
+*.log
+coverage/
+.turbo/
+.DS_Store
+hf-cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/

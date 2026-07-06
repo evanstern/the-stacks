@@ -1,0 +1,440 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Anatomy of a Skeleton Check</h1>
+      <p class="module-subtitle">One tracer request, five seams, six timestamped events — every hop of the happy path.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + GROUP CHAT (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One click, six green events</h2>
+        <p>You click <strong>Run skeleton check</strong>. The API answers in ~5ms with a 202 and a run id — one second later the run shows six green events and a vector id.</p>
+        <p>Think of it as a tracer round: militaries load one glowing bullet per magazine so you can <em>see</em> the path fire is taking. The skeleton check is a fixed synthetic sentence shot through every <span class="term" data-definition="A boundary where one process hands off to another — HTTP request, queue claim, sidecar call, database write. Each seam is a place things can fail independently, so each crossing gets its own recorded event.">seam</span>, leaving a glowing, timestamped trail you inspect afterward.</p>
+
+        <div class="chat-window" id="chat-module3">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Operator</span>
+                <p>Run skeleton check.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>POST /api/skeleton-checks</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">API</span>
+                <p>Queue: INSERT run + job — one transaction, both or neither.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">API</span>
+                <p>Web: 202 — run a1b2c3, accepted. That&rsquo;s all I do.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>Redirecting you to the run page — I&rsquo;ll poll it for updates.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Queue — anything for me? (SKIP LOCKED claim)</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="queue" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">Q</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Queue (jobs table)</span>
+                <p>Job a1b2c3, yours. Nobody else can grab it now.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="7" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Sidecar — embed this sentence (model=all-MiniLM-L6-v2).</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="8" data-sender="sidecar" style="display:none">
+              <div class="chat-avatar" style="background: #C26D9C">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: #C26D9C">Sidecar</span>
+                <p>384 floats, 31ms.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="9" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Postgres — INSERT vector 8d6a97… ON CONFLICT DO NOTHING.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="10" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Now: nearest neighbor to that embedding, same model only?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="11" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: #336791">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: #336791">Postgres</span>
+                <p>8d6a97…, distance 0.0. It&rsquo;s the one you just wrote.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="12" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Queue — job done. Run marked succeeded, six events on the trail.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="13" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>Poll flipped: succeeded ✓ six events. Operator, your tracer landed.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>That conversation crosses five seams and leaves exactly six events, always in this order:</p>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p><code>queued</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p><code>claimed</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p><code>inference</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p><code>vector_write</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p><code>vector_readback</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">6</div><p><code>completed</code></p></div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 2: THE ACCEPT SIDE (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The accept side: 202 and out</h2>
+        <p>The POST handler is pure <span class="term" data-definition="The API&rsquo;s only job is to record the request and return 202; all real work happens off a queue — constitution Principle IV.">accept-then-async</span>: it creates the run and its job in <em>one</em> transaction, so there is no window where one exists without the other. Then it emits <code>queued</code> — but only after the commit.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/skeleton-checks/routes.ts</span>
+            <pre><code><span class="code-line">  app.<span class="code-function">post</span>(<span class="code-string">"/api/skeleton-checks"</span>, <span class="code-keyword">async</span> (_request, reply) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// Accept-then-async: run + job are created in one transaction (FR-009); the</span></span>
+<span class="code-line">    <span class="code-comment">// worker does the actual seam-crossing work off this queue entry (D12).</span></span>
+<span class="code-line">    <span class="code-comment">// One transaction means no window where a run exists without its job (or</span></span>
+<span class="code-line">    <span class="code-comment">// vice versa) — a crash mid-accept leaves nothing behind. The job is</span></span>
+<span class="code-line">    <span class="code-comment">// inserted first, then back-filled with the runId, because each row needs</span></span>
+<span class="code-line">    <span class="code-comment">// the other's id and jobs.payload is the cheaper side to update.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> run = <span class="code-keyword">await</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">      <span class="code-keyword">const</span> [job] = <span class="code-keyword">await</span> tx.<span class="code-function">insert</span>(jobs).<span class="code-function">values</span>({ <span class="code-property">kind</span>: <span class="code-string">"skeleton_check"</span>, <span class="code-property">payload</span>: {} }).<span class="code-function">returning</span>();</span>
+<span class="code-line">      <span class="code-keyword">const</span> [createdRun] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">insert</span>(skeletonCheckRuns)</span>
+<span class="code-line">        .<span class="code-function">values</span>({ <span class="code-property">jobId</span>: job!.id, <span class="code-property">inputText</span>: SKELETON_CHECK_INPUT_TEXT })</span>
+<span class="code-line">        .<span class="code-function">returning</span>();</span>
+<span class="code-line">      <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">        .<span class="code-function">set</span>({ <span class="code-property">payload</span>: { <span class="code-property">runId</span>: createdRun!.id } })</span>
+<span class="code-line">        .<span class="code-function">where</span>(sql`${jobs.id} = ${job!.id}`);</span>
+<span class="code-line">      <span class="code-keyword">return</span> createdRun!;</span>
+<span class="code-line">    });</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// 'queued' is emitted AFTER the commit: an event must never describe a run</span></span>
+<span class="code-line">    <span class="code-comment">// that a rollback could erase. Events are observability, not state — losing</span></span>
+<span class="code-line">    <span class="code-comment">// this one to a crash is acceptable; a phantom event is not.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">recordEvent</span>(db, { <span class="code-property">runId</span>: run.id, <span class="code-property">seam</span>: <span class="code-string">"queued"</span> });</span>
+<span class="code-line"></span>
+<span class="code-line">    reply.<span class="code-function">code</span>(<span class="code-number">202</span>);</span>
+<span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">run</span>: { <span class="code-property">id</span>: run.id, <span class="code-property">status</span>: run.status, <span class="code-property">createdAt</span>: run.createdAt } };</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the input sentence is fixed.</p>
+              <p class="tl">The comment is the contract: one transaction creates run + job here; the worker does the real seam-crossing later, off this queue entry.</p>
+              <p class="tl">Open a single transaction — everything inside commits together or vanishes together. A crash mid-accept leaves nothing behind.</p>
+              <p class="tl">Insert the job first with an empty payload; we need its id before the run row can point at it.</p>
+              <p class="tl">Insert the run, wired to the job via <code>jobId</code> and carrying the fixed sentence.</p>
+              <p class="tl">Back-fill the job payload with the run id — each row needs the other, and <code>jobs.payload</code> is the cheaper side to update.</p>
+              <p class="tl">Return the run out of the callback. This is the commit point: run and job now exist atomically.</p>
+              <p class="tl">Only <em>after</em> the commit does <code>queued</code> get recorded — an event must never describe a run a rollback could erase.</p>
+              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;. Hand back the run id the web page will poll.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: events are observability, not state</strong>
+            <p>Losing an event to a crash is acceptable; a phantom event describing a rolled-back run is not. That asymmetry is why <code>recordEvent</code> lives outside the transaction — the queue row is the truth, the event is the breadcrumb.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: THE WORK SIDE (FLOW ANIMATION + SNIPPETS B, D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The work side: the crossing itself</h2>
+        <p>Step through the worker&rsquo;s crossing. Each step is labeled with the event it emits — the animation <em>is</em> the event trail you will read in the database afterward.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-2","label":"queued — the API transaction commits and a job row appears in the jobs table","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"claimed — the worker grabs the job with FOR UPDATE SKIP LOCKED; attempts+1","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"inference — HTTP call to the sidecar; 384 floats come back in ~31ms","packet":true,"from":"actor-3","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"vector_write — INSERT under deterministic id 8d6a97…, ON CONFLICT DO NOTHING carries the dedup flag","packet":true,"from":"actor-3","to":"actor-5"},
+          {"highlight":"flow-actor-3","label":"vector_readback — nearest neighbor by cosine distance, filtered to the same provider/model/dimensions; distance 0.0","packet":true,"from":"actor-5","to":"actor-3"},
+          {"highlight":"flow-actor-2","label":"completed — the run is stamped with vectorId + distance and marked succeeded; six events on the trail","packet":true,"from":"actor-3","to":"actor-2"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">A</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">Q</div>
+              <span>jobs table</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">Wk</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="background: #C26D9C">S</div>
+              <span>Sidecar</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon" style="background: #336791">V</div>
+              <span>pgvector</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>The vector id in step 4 is not random. It is a <span class="term" data-definition="An id computed purely from the input — here sha256 of the text plus provider/model/dimensions. Same input, same id, every time, on every machine. No clock, no randomness, no coordination.">deterministic id</span>, which is what makes re-runs <span class="term" data-definition="Safe to run twice — the second run changes nothing. Deterministic ids make the second INSERT collide with the first instead of duplicating it.">idempotent</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/core/src/skeleton-check.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">deriveVectorId</span>(input: DeriveVectorIdInput): <span class="code-keyword">string</span> {</span>
+<span class="code-line">  <span class="code-keyword">const</span> material = `${input.inputText}\n${input.provider}/${input.model}/${input.dimensions}`;</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createHash</span>(<span class="code-string">"sha256"</span>).<span class="code-function">update</span>(material).<span class="code-function">digest</span>(<span class="code-string">"hex"</span>);</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Identity is a pure function of the input — no UUID, no clock.</p>
+              <p class="tl">The hash material is the sentence <em>plus its embedding space</em>: provider, model, dimensions. Same text under a different model gets a different id.</p>
+              <p class="tl">sha256 it. Run the check twice: same hash both times — that is where <code>8d6a97…</code> comes from.</p>
+              <p class="tl">So the second write is a collision, not a duplicate.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The write side absorbs that collision with <span class="term" data-definition="Postgres upsert clause: if a row with this key already exists, silently skip the insert instead of erroring. The write becomes a no-op and returning() comes back empty.">ON CONFLICT DO NOTHING</span> — the second run&rsquo;s <code>vector_write</code> event simply carries <code>deduplicated: true</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> insertedRows = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">insert</span>(skeletonVectors)</span>
+<span class="code-line">    .<span class="code-function">values</span>({</span>
+<span class="code-line">      <span class="code-property">id</span>: vectorId,</span>
+<span class="code-line">      <span class="code-property">content</span>: SKELETON_CHECK_INPUT_TEXT,</span>
+<span class="code-line">      <span class="code-property">embedding</span>,</span>
+<span class="code-line">      <span class="code-property">embeddingProvider</span>: role.provider,</span>
+<span class="code-line">      <span class="code-property">embeddingModel</span>: role.modelId,</span>
+<span class="code-line">      <span class="code-property">embeddingDimensions</span>: role.dimensions,</span>
+<span class="code-line">    })</span>
+<span class="code-line">    .<span class="code-function">onConflictDoNothing</span>({ <span class="code-property">target</span>: skeletonVectors.id })</span>
+<span class="code-line">    .<span class="code-function">returning</span>();</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Insert the vector row under its deterministic id.</p>
+              <p class="tl">The row carries the text, the 384 floats, and the full coordinates of its embedding space — provider, model, dimensions stamped right on it.</p>
+              <p class="tl">If that id already exists, skip silently — no error, no duplicate.</p>
+              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the event learns to say <code>deduplicated: true</code>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: THE READ-BACK (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The read-back: closing the loop</h2>
+        <p>Writing the vector proves <span class="term" data-definition="Postgres extension that adds a vector column type plus distance operators, so embeddings live in the same database as the rest of your rows — no separate vector store.">pgvector</span> accepts our floats. Reading it back by similarity proves the whole space is <em>queryable</em> — and the search is deliberately scoped.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> readbackStart = Date.<span class="code-function">now</span>();</span>
+<span class="code-line">  <span class="code-keyword">const</span> vectorLiteral = `[${embedding.<span class="code-function">join</span>(<span class="code-string">","</span>)}]`;</span>
+<span class="code-line">  <span class="code-keyword">const</span> distanceExpr = sql&lt;<span class="code-keyword">number</span>&gt;`${skeletonVectors.embedding} &lt;=&gt; ${vectorLiteral}::vector`;</span>
+<span class="code-line">  <span class="code-keyword">const</span> [readback] = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">select</span>({ <span class="code-property">id</span>: skeletonVectors.id, <span class="code-property">distance</span>: distanceExpr })</span>
+<span class="code-line">    .<span class="code-function">from</span>(skeletonVectors)</span>
+<span class="code-line">    .<span class="code-function">where</span>(</span>
+<span class="code-line">      sql`${skeletonVectors.embeddingModel} = ${role.modelId}</span>
+<span class="code-line">        AND ${skeletonVectors.embeddingProvider} = ${role.provider}</span>
+<span class="code-line">        AND ${skeletonVectors.embeddingDimensions} = ${role.dimensions}`,</span>
+<span class="code-line">    )</span>
+<span class="code-line">    .<span class="code-function">orderBy</span>(distanceExpr)</span>
+<span class="code-line">    .<span class="code-function">limit</span>(<span class="code-number">1</span>);</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Start the clock — the readback duration lands in the event detail.</p>
+              <p class="tl">Serialize the embedding we just wrote into a pgvector literal.</p>
+              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — the nearest-neighbor operator.</p>
+              <p class="tl">Ask for the closest vector&rsquo;s id and its distance...</p>
+              <p class="tl">...but only among vectors from the same model,</p>
+              <p class="tl">the same provider,</p>
+              <p class="tl">and the same dimensions. Other embedding spaces are invisible to this query.</p>
+              <p class="tl">Sort by distance, take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Distance <code>0.0</code> means we found the exact vector we just wrote. Accept, queue, claim, infer, write, read back — the loop is closed.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">The filter is the point</strong>
+            <p>Change the embedding model in env and old vectors fall out of scope as a <em>detectable</em> mismatch — never a silent cross-space comparison (Principle VII). A distance between two models&rsquo; vectors is numerically valid and semantically meaningless.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Trace it yourself</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Work is never lost — the committed job WILL be claimed and processed; the worker reads the jobs table, not the events. An event CAN be lost, and that asymmetry is designed: events are observability, not state."
+               data-explanation-wrong="Not quite. The transaction already committed, so run + job are durable and the worker will claim the job from the table — events play no part in dispatch. The only casualty is the queued breadcrumb.">
+            <h3 class="quiz-question">The API crashes between the transaction commit and <code>recordEvent('queued')</code>. What&rsquo;s the state?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The run and job are orphaned — with no <code>queued</code> event, nothing will ever process them.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Run + job exist and WILL be processed; only the <code>queued</code> event is missing from the trail.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The transaction rolls back on crash, so nothing exists — the click is simply lost.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="One row. deriveVectorId is a sha256 of input + provider/model/dimensions, so all five runs compute the same id; ON CONFLICT DO NOTHING turns writes 2-5 into no-ops, and each of those runs emits vector_write with deduplicated: true."
+               data-explanation-wrong="Not quite — all five runs hash the same material to the same vector id, so they all target one primary key. ON CONFLICT DO NOTHING absorbs the collision without an error, and the tell is in the events: runs 2-5 show vector_write {deduplicated: true}.">
+            <h3 class="quiz-question">You trigger the check 5 times with the same input + model. How many rows land in <code>skeleton_vectors</code>, and how do you know from the events?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>5 rows — each run inserts its own vector under a fresh id.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>1 row — runs 2-5 show <code>vector_write {deduplicated: true}</code> in their event detail.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>1 row — but runs 2-5 fail with a unique-constraint error and get retried.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — vectors from different models share no geometric space, so a cross-model distance is numerically valid but meaningless. The filter turns config drift (a swapped embedding model in env) into a visible mismatch instead of silently plausible garbage. That is Principle VII."
+               data-explanation-wrong="Think about what a distance between vectors from two different models means: nothing. Dimensions can even match across models, so Postgres would happily compare them — the filter exists so config drift is detected, not papered over with plausible-looking neighbors.">
+            <h3 class="quiz-question">Why does the readback filter on provider/model/dimensions instead of just taking the global nearest vector?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Performance — the WHERE clause lets Postgres scan a much smaller index.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Vectors from different models share no space — the filter turns config drift into a visible mismatch instead of silently &ldquo;similar&rdquo; garbage.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>pgvector physically cannot compare vectors of different dimensions, so the filter is required for the query to run at all.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>That was the happy path — and it&rsquo;s the exact template ingestion and retrieval will reuse: accept, queue, claim, infer, write, read back. <strong>Module 4:</strong> what the queue does when the path <em>isn&rsquo;t</em> happy — claims, retries, backoff, and the append-only trail mid-crash.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

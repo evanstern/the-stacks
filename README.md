@@ -16,6 +16,36 @@ The Stacks is a TTRPG session harness. It is a local and deployable web app for 
 
 This repo runs as a bare shared Git store plus worktrees. `.bare/` is shared plumbing, `main/` is deploy-only, and day-to-day development happens in worktrees beside it. Keep `.omo/` at the repo root beside those worktrees so OMO planning, notes, and evidence stay outside the Git plumbing.
 
+## v3: the greenfield rebuild
+
+Everything described in this README (the sections below) is **v2** — the currently
+running app, unaffected by the rebuild. **v3** is a separate, self-contained pnpm +
+Docker Compose stack under `v3/`, coexisting with v2 on disjoint ports/containers/
+volumes (see `specs/007-v3-skeleton/`).
+
+```bash
+cd v3
+cp .env.example .env   # set OPERATOR_PASSWORD_HASH and SESSION_SECRET (comments show how)
+docker compose up -d --build --wait
+```
+
+- Web (sign-in + skeleton-check UI): `http://localhost:4400`
+- API: `http://localhost:4401` (`/health`, `/ready`)
+- ML inference sidecar: `http://localhost:4402` (`/health`, `/ready`, dev-only)
+- Postgres + pgvector: `localhost:5442`
+
+Developer verification (typecheck + tests + boundary checks, no Docker required):
+
+```bash
+cd v3
+pnpm install
+pnpm verify
+```
+
+v3 retires v2 later by promoting `v3/`'s contents once the ingestion/retrieval/chat
+specs land on top of this walking-skeleton foundation; v2's `apps/`, compose files,
+and `.env.example` at the repo root are never touched by v3 work (D1).
+
 The durable ETL wiki lives in `docs/wiki/`. Start with `docs/wiki/Home.md`, then follow the links to the architecture, contract, and decision notes when you need the current refactor state.
 
 The Dockerized web app is intentionally exposed on host port `5173`. Keep that port contract when running or hardening the stack.

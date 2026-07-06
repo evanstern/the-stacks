@@ -1,0 +1,26 @@
+# Prod shape (config only, per spec assumptions): apply on top of docker-compose.yml —
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --wait
+# Only the web port is published; api/ml/postgres stay internal-only, and the
+# session cookie requires TLS termination in front of web.
+
+# `!reset []` is Compose's explicit "override to empty" for merged files: without
+# the tag, an empty list would MERGE with (i.e. keep) the base file's ports.
+# With it, the service publishes nothing — reachable only on the compose network.
+
+services:
+  api:
+    ports: !reset []
+    environment:
+      # Session cookie only over HTTPS; assumes TLS termination in front of web.
+      SESSION_COOKIE_SECURE: "true"
+
+  ml:
+    ports: !reset []
+
+  postgres:
+    ports: !reset []
+
+  # web keeps its base-file port publication — deliberately the ONLY exposed service.
+  web:
+    environment:
+      SESSION_COOKIE_SECURE: "true"
