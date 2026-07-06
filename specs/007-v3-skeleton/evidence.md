@@ -170,3 +170,31 @@ git -C v3 grep -iE 'sk-[a-zA-Z0-9]|password.*=.*[^example]' -- ':!*.example'
    empty despite the loader resolving correctly. Switched those specific
    tests to React Router's `createRoutesStub`, which is built for exactly
    this. Not a product bug; confined to `apps/web/test/*.test.tsx`.
+
+## Convergence pass (Phase 7, T050-T051)
+
+A `/speckit-converge` run re-tested the feature live rather than re-reading
+docs, and found two real gaps, both now closed:
+
+- **T050** (HIGH): actually ran `pnpm --filter @stacks/db generate` for a
+  trivial schema change and it produced `0001_trivial_drill.sql`, colliding
+  with the existing `0001_init.sql`. Traced to `drizzle-orm`'s
+  `readMigrationFiles`: it applies migrations by `tag` and content hash in
+  journal array order and never reads `idx` — `idx` is used only by
+  `generate` to compute the next prefix (`lastEntry.idx + 1`). T010's earlier
+  manual rename of drizzle-kit's native `0000_init.sql` to `0001_init.sql`
+  (to match doc prose) left the journal's `idx: 0` mismatched with the `0001`
+  tag, so every future `generate` would collide. Fixed by correcting the
+  journal entry to `idx: 1` — no file rename, no doc changes needed, since
+  the fix is purely to the tooling-facing counter, not the applied migration.
+  Re-verified live: `generate` now produces `0002_...`; re-ran the T039
+  migration-lifecycle test against a fresh Postgres+pgvector container —
+  still green.
+- **T051** (MEDIUM): added the two missing API-contract tests
+  (`skeleton-checks.contract.test.ts`) pinning that a `succeeded` run's
+  detail response includes `vector` and omits `outcome`, and a `failed`
+  run's includes `outcome` and omits `vector` — closing the gap between
+  `data-model.md`'s claimed test coverage and what was actually pinned.
+
+`pnpm verify` after both fixes: still green, all 6 skeleton-checks contract
+tests (4 original + 2 new) pass against live Postgres.

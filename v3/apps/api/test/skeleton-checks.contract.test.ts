@@ -1,4 +1,4 @@
-import { createDbClient, runMigrations } from "@stacks/db";
+import { createDbClient, runMigrations, skeletonCheckRuns, skeletonVectors } from "@stacks/db";
 import { sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -107,6 +107,79 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("skeleton-checks contract
     expect(Array.isArray(run.events)).toBe(true);
     expect(run.events[0]).toMatchObject({ seam: "queued", ok: true });
     expect(run.outcome).toBeUndefined();
+    expect(run.vector).toBeUndefined();
+  });
+
+  it("GET detail on a succeeded run includes the vector block and omits outcome", async () => {
+    const created = await app.inject({ method: "POST", url: "/api/skeleton-checks", headers: { cookie } });
+    const { id } = created.json().run;
+    const { db } = app.deps;
+
+    await db.insert(skeletonVectors).values({
+      id: "test-vector-id",
+      content: "fixture",
+      embedding: [0.1, 0.2, 0.3, 0.4],
+      embeddingProvider: "local-sidecar",
+      embeddingModel: "test-model",
+      embeddingDimensions: 4,
+    });
+    await db
+      .update(skeletonCheckRuns)
+      .set({
+        status: "succeeded",
+        vectorId: "test-vector-id",
+        readbackDistance: 0,
+        completedAt: new Date(),
+      })
+      .where(sql`${skeletonCheckRuns.id} = ${id}`);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: `/api/skeleton-checks/${id}`,
+      headers: { cookie },
+    });
+
+    expect(detail.statusCode).toBe(200);
+    const { run } = detail.json();
+    expect(run.status).toBe("succeeded");
+    expect(run.vector).toEqual({
+      id: "test-vector-id",
+      provider: "local-sidecar",
+      model: "test-model",
+      dimensions: 4,
+      readbackDistance: 0,
+    });
+    expect(run.outcome).toBeUndefined();
+  });
+
+  it("GET detail on a failed run includes the outcome and omits the vector block", async () => {
+    const created = await app.inject({ method: "POST", url: "/api/skeleton-checks", headers: { cookie } });
+    const { id } = created.json().run;
+    const { db } = app.deps;
+
+    await db
+      .update(skeletonCheckRuns)
+      .set({
+        status: "failed",
+        outcome: { class: "dependency_down", seam: "inference", message: "Inference sidecar is not ready." },
+        completedAt: new Date(),
+      })
+      .where(sql`${skeletonCheckRuns.id} = ${id}`);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: `/api/skeleton-checks/${id}`,
+      headers: { cookie },
+    });
+
+    expect(detail.statusCode).toBe(200);
+    const { run } = detail.json();
+    expect(run.status).toBe("failed");
+    expect(run.outcome).toEqual({
+      class: "dependency_down",
+      seam: "inference",
+      message: "Inference sidecar is not ready.",
+    });
     expect(run.vector).toBeUndefined();
   });
 });
