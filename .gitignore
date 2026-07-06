@@ -1,26 +1,38 @@
+# env: real values never committed; templates are
 .env
-.env*
+.env.*
 !.env.example
-!.env.production.example
-.env.production
-.env.production.local
+
+# node / typescript
+node_modules/
+dist/
+build/
+coverage/
+.react-router/
+.vite/
+.turbo/
+*.log
+
+# python (ml sidecar)
 .venv/
 venv/
 __pycache__/
 *.pyc
 .pytest_cache/
-node_modules/
-dist/
-build/
-*.log
-*.tmp
-*.swp
-.vite/
+*.egg-info/
+
+# ml model cache (compose uses a named volume; local runs may create this)
+hf-cache/
+
+# editors / os
 .DS_Store
 Thumbs.db
+*.tmp
+*.swp
 .vscode/
 .idea/
-*.egg-info/
+
+# repo tooling
 .omo/
 .omo/evidence/*.log
 .claude/settings.local.json

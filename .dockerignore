@@ -1,23 +1,26 @@
-.git/
-.dockerignore
-Dockerfile*
-node_modules/
-dist/
-build/
-coverage/
-__pycache__/
-*.pyc
-.pytest_cache/
-.venv/
-venv/
-*.egg-info/
-*.log*
-.env*
+# Keeps the Docker build context small and reproducible. The api/worker/web
+# images build from the REPO ROOT context (they need packages/ +
+# tsconfig.base.json); everything below is either rebuilt inside the image
+# (node_modules via pnpm install) or irrelevant to any image.
+.git
+node_modules
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.react-router
+**/dist
+**/build
+.env
+.env.*
 !.env.example
-!.env.production.example
+docs
+specs
+.omo
+.claude
+.opencode
+.agents
+.serena
+.specify
+*.log
 .DS_Store
-Thumbs.db
-*.tmp
-*.swp
-.vscode/
-.idea/

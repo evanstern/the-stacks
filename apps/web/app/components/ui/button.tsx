@@ -1,29 +1,39 @@
-import * as React from "react";
+/**
+ * Button — shadcn-style primitive (vendored, not installed): cva declares
+ * the variant/size matrix, cn() lets a caller's className override defaults.
+ * Colors come from the CSS custom properties defined in app.css (Tailwind
+ * v4 theme tokens), so theming changes never touch this file. Only the
+ * variants the skeleton actually uses exist; add more here as needed.
+ */
+import { cva, type VariantProps } from "class-variance-authority";
+import type { ButtonHTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
-type ButtonVariant = "primary" | "ghost" | "outline";
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90",
+        destructive: "bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:opacity-90",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 px-3",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
 
-const variants: Record<ButtonVariant, string> = {
-  primary:
-    "border-clay bg-clay text-cream shadow-warm hover:bg-clay-dark hover:border-clay-dark",
-  ghost: "border-transparent bg-transparent text-muted hover:bg-card-muted hover:text-foreground",
-  outline: "border-border bg-card text-foreground hover:border-clay hover:bg-card-muted hover:text-clay-dark",
-};
+export interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
 
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant;
-};
-
-export function Button({ className, variant = "primary", ...props }: ButtonProps) {
-  return (
-    <button
-      className={cn(
-        "button-base disabled:pointer-events-none",
-        variants[variant],
-        className,
-      )}
-      {...props}
-    />
-  );
+export function Button({ className, variant, size, ...props }: ButtonProps) {
+  return <button className={cn(buttonVariants({ variant, size }), className)} {...props} />;
 }

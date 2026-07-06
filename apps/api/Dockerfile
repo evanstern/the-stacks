@@ -1,18 +1,22 @@
-FROM python:3.12-slim
+# v3 API image — TS service run via tsx (no compile step; `pnpm start` uses tsx).
+# Build context: repo root (the pnpm workspace root)
+# Context must be the workspace root because the api depends on workspace
+# packages/ and on tsconfig.base.json, which every package's tsconfig extends.
+FROM node:22-slim
 
+RUN corepack enable && corepack prepare pnpm@10 --activate
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+# tsconfig.base.json is copied EXPLICITLY: every tsconfig extends it, and its
+# absence inside the image broke the web build during this feature. Keep it.
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.base.json ./
+COPY packages ./packages
+COPY apps ./apps
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pnpm install --frozen-lockfile
 
-COPY alembic.ini .
-COPY alembic ./alembic
-COPY app ./app
-COPY tests ./tests
-
-EXPOSE 8000
-
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+WORKDIR /app/apps/api
+EXPOSE 4401
+# `pnpm start` runs migrations before binding 4401 — compose's /ready
+# healthcheck therefore gates downstream services on schema success.
+CMD ["pnpm", "start"]
