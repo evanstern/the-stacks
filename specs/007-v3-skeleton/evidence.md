@@ -198,3 +198,23 @@ docs, and found two real gaps, both now closed:
 
 `pnpm verify` after both fixes: still green, all 6 skeleton-checks contract
 tests (4 original + 2 new) pass against live Postgres.
+
+## Principle VIII learning artifacts (constitution v2.1.0 retrofit)
+
+Constitution v2.1.0 added Principle VIII (The Work Must Teach); 007 predated
+it and was retrofitted in-session:
+
+- **Teaching-comment pass**: 834 narrative comment lines across 48 source
+  files (commit `b3efdbe`) — file headers placing each module in the
+  architecture with spec/contract pointers, plus why-comments on doctrine and
+  the real bugs above. Verified comment-only (3 lines extended in place,
+  zero behavioral changes); full verification suite stayed green.
+- **Feature course**: [docs/courses/007-v3-skeleton/index.html](../../docs/courses/007-v3-skeleton/index.html)
+  — a six-module interactive HTML course in the skilled-developer register
+  (One Command Five Services · The Monorepo Map · Anatomy of a Skeleton
+  Check · The Postgres Queue · Auth & Typed Failure · The Bug Ledger), built
+  via /codebase-to-course seeded with this feature's spec artifacts. Includes
+  a seven-actor group-chat animation of a check run, two data-flow
+  animations (boot chain; six-seam crossing), verbatim code↔English
+  translations from the commented source, per-module scenario quizzes, and a
+  bug ledger teaching the six real failures documented in this file.

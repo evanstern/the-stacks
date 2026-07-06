@@ -1,0 +1,329 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Monorepo Map</h1>
+      <p class="module-subtitle">Seven workspaces, three forbidden moves, and the 90-line script that fails CI when you make one.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── SCREEN 1: HOOK + HERO ARCHITECTURE DIAGRAM ─────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Load-Bearing Walls</h2>
+        <p>Nothing stops <code>apps/web</code> from importing the DB schema — TypeScript would happily compile it. A 90-line script is the only thing standing between this architecture and entropy, on purpose.</p>
+        <p>In a monorepo every package <em>can</em> import every other; which walls are load-bearing is a <strong>decision</strong>. Here the <span class="term" data-definition="The thinnest end-to-end slice of the real architecture — every layer built and wired together, with almost no features. You prove the seams first, then hang features on them.">walking skeleton</span> enforces that decision the way a building inspector fails a permit: mechanically, at CI time.</p>
+
+        <div class="arch-diagram animate-in">
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Apps — deployable processes</h4>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);align-items:start;justify-items:center;">
+              <div class="arch-component" data-desc="apps/web — a client of the HTTP contract, nothing more (FR-019). Zero workspace imports of @stacks/db; if it needs data, it earns an API endpoint.">
+                <div class="arch-icon">🖥️</div>
+                <span>web</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">HTTP client only</span>
+              </div>
+              <div class="arch-component" data-desc="apps/api — the HTTP surface. Imports @stacks/core for domain vocabulary and @stacks/db for persistence; everything web knows arrives through here.">
+                <div class="arch-icon">⚡</div>
+                <span>api</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">core + db</span>
+              </div>
+              <div class="arch-component" data-desc="apps/worker — background jobs. Same imports as api (core + db); it drains the Postgres-backed queue and calls the ml sidecar over HTTP.">
+                <div class="arch-icon">⚙️</div>
+                <span>worker</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">core + db</span>
+              </div>
+              <div class="arch-component" data-desc="apps/ml — the Python inference sidecar (D2). It imports no TypeScript at all; its entire relationship with the system is the HTTP contract.">
+                <div class="arch-icon">🐍</div>
+                <span>ml</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Python — no TS</span>
+              </div>
+            </div>
+          </div>
+
+          <svg viewBox="0 0 800 150" preserveAspectRatio="none" aria-hidden="true" style="display:block;width:calc(100% - 48px);margin:0 24px;height:150px;overflow:visible;">
+            <defs>
+              <marker id="m2-arr-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-accent)"></path>
+              </marker>
+              <marker id="m2-arr-h" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-text-muted)"></path>
+              </marker>
+            </defs>
+            <!-- HTTP arcs (calls, not imports) -->
+            <path d="M112,10 Q200,52 286,12" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" stroke-dasharray="2 4" marker-end="url(#m2-arr-h)" vector-effect="non-scaling-stroke"></path>
+            <text x="200" y="44" text-anchor="middle" font-size="11" fill="var(--color-text-muted)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">HTTP</text>
+            <path d="M512,10 Q600,52 686,12" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" stroke-dasharray="2 4" marker-end="url(#m2-arr-h)" vector-effect="non-scaling-stroke"></path>
+            <text x="600" y="44" text-anchor="middle" font-size="11" fill="var(--color-text-muted)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">HTTP (D2)</text>
+            <!-- Allowed workspace imports -->
+            <path d="M300,8 L150,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M300,8 L388,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M500,8 Q310,70 158,132" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M500,8 L412,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <!-- FORBIDDEN: web -> db (FR-019), struck out -->
+            <path d="M104,12 L390,136" fill="none" stroke="var(--color-error)" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"></path>
+            <path d="M234,61 L260,87 M260,61 L234,87" stroke="var(--color-error)" stroke-width="4" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+            <text x="258" y="104" text-anchor="start" font-size="11" font-weight="700" fill="var(--color-error)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">FR-019</text>
+          </svg>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Packages — shared libraries</h4>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);align-items:start;justify-items:center;">
+              <div class="arch-component" data-desc="@stacks/core — the domain vocabulary: pure types and functions, zero I/O. Both api and worker speak this language; it imports nothing else in the workspace.">
+                <div class="arch-icon">📦</div>
+                <span>@stacks/core</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">domain vocabulary</span>
+              </div>
+              <div class="arch-component" data-desc="@stacks/db — the persistence seam: drizzle schemas, the pooled client, boot migrations, queue, and event trail. Consumed by api and worker only; web importing it fails CI (FR-019).">
+                <div class="arch-icon">🗄️</div>
+                <span>@stacks/db</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">persistence seam</span>
+              </div>
+              <div class="arch-component" style="border-style:dashed;" data-desc="@stacks/ingestion-contract — a deliberate placeholder at 0.0.0. Nothing implements it yet; its shape is the deliverable, so the NEXT spec plugs ingesters into a seam that already exists.">
+                <div class="arch-icon">🔌</div>
+                <span>@stacks/ingestion-contract</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">placeholder · 0.0.0</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-4) var(--space-6);margin-top:var(--space-4);font-size:var(--text-xs);color:var(--color-text-secondary);align-items:center;">
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px solid var(--color-accent);"></span> allowed workspace import</span>
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed var(--color-error);"></span> <span style="color:var(--color-error);font-weight:700;">✕</span> forbidden — fails <code>pnpm verify</code></span>
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted var(--color-text-muted);"></span> HTTP call, not an import</span>
+          </div>
+
+          <div class="arch-description">Click any box — what it owns, and what it is allowed to import.</div>
+        </div>
+
+        <p><code>@stacks/db</code> is the persistence <span class="term" data-definition="A deliberate boundary where one part of the system can be swapped, extended, or tested without touching the rest. The skeleton's whole job is to prove its seams early.">seam</span>; web never touches it (<span class="term" data-definition="Spec requirement: the web app consumes the system only through the API contract — it may never import the database layer or reach into other apps' source.">FR-019</span>), and the ml sidecar is Python that only ever sees HTTP (<span class="term" data-definition="Fixed constitutional decision #2: the core stays TypeScript; Python exists only as an inference sidecar reached over HTTP — it never imports or is imported by TS code.">D2</span>). The missing red edge on the map is the whole point: the forbidden import is drawn so its absence is visible.</p>
+      </section>
+
+      <!-- ── SCREEN 2: COEXISTENCE (D1) ─────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two Stacks, One Machine</h2>
+        <p>v3 is a greenfield rebuild (<span class="term" data-definition="Fixed constitutional decision #1: v3 is a greenfield rebuild that lives beside the still-running v2 — no shared code, no in-place migration. A single import crossing the v3/ root fails CI.">D1</span>) that lives entirely under <code>v3/</code> while v2 keeps serving traffic. Disjoint ports, containers, and volumes mean both stacks run simultaneously — retirement later is a delete, not a migration.</p>
+
+        <div class="animate-in" style="border:1px dashed var(--color-border);border-radius:var(--radius-lg);padding:var(--space-6);background:var(--color-surface);box-shadow:var(--shadow-sm);">
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:var(--space-4);">One dev machine — both stacks live</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-4);align-items:stretch;">
+            <div style="background:var(--color-bg-warm);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-5);">
+              <strong style="font-family:var(--font-display);">v2 — still serving</strong>
+              <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0;">
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5433</code>
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:8001</code>
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5174</code>
+              </div>
+              <p style="margin:0;font-size:var(--text-sm);color:var(--color-text-secondary);">Own containers, own volumes. Untouched by the rebuild.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);min-width:90px;">
+              <span style="flex:1;width:0;border-left:2px dashed var(--color-error);"></span>
+              <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-error);text-align:center;white-space:nowrap;background:var(--color-error-light);padding:var(--space-1) var(--space-2);border-radius:var(--radius-full);">D1 · no imports cross</span>
+              <span style="flex:1;width:0;border-left:2px dashed var(--color-error);"></span>
+            </div>
+            <div style="background:var(--color-accent-light);border:1px solid var(--color-accent-muted);border-radius:var(--radius-md);padding:var(--space-5);">
+              <strong style="font-family:var(--font-display);">v3/ — the skeleton</strong>
+              <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0;">
+                <code style="background:var(--color-bg-code);color:#A6E3A1;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:44xx</code>
+                <code style="background:var(--color-bg-code);color:#A6E3A1;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5442</code>
+              </div>
+              <p style="margin:0;font-size:var(--text-sm);color:var(--color-text-secondary);">Own containers, own volumes. The whole rebuild lives under this one directory.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-5);font-size:var(--text-sm);color:var(--color-text-secondary);">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Retirement plan</span>
+            <code>rm -rf v2</code> <span aria-hidden="true">→</span> <span>promote <code>v3/</code> to the root. That is the entire migration.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 3: CODE ↔ ENGLISH — THE BOUNDARY SCRIPT ─────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Building Inspector: <code>check-boundaries.mjs</code></h2>
+        <p>The three walls from the map, written down as an executable comment. Each rule is pinned to the doctrine that demanded it.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">v3/scripts/check-boundaries.mjs</span>
+            <pre><code><span class="code-line"><span class="code-comment">#!/usr/bin/env node</span></span>
+<span class="code-line"><span class="code-comment">// Fails the build on structural boundary violations the type system can't</span></span>
+<span class="code-line"><span class="code-comment">// catch on its own (FR-019, FR-005, SC-006). Run via `pnpm verify`.</span></span>
+<span class="code-line"><span class="code-comment">//</span></span>
+<span class="code-line"><span class="code-comment">// Three rules, each pinned to constitutional doctrine:</span></span>
+<span class="code-line"><span class="code-comment">//   1. apps/web may not import @stacks/db or reach into api/worker/ml source</span></span>
+<span class="code-line"><span class="code-comment">//      (FR-019): the web app is a client of the HTTP contract, nothing more.</span></span>
+<span class="code-line"><span class="code-comment">//      TypeScript can't stop a workspace import that would quietly couple</span></span>
+<span class="code-line"><span class="code-comment">//      the UI to the schema, so this scan does.</span></span>
+<span class="code-line"><span class="code-comment">//   2. No v3 file may import across the v3/ root into v2 code (decision D1,</span></span>
+<span class="code-line"><span class="code-comment">//      FR-005): v3 is a clean rebuild, not a graft. A single relative import</span></span>
+<span class="code-line"><span class="code-comment">//      escaping v3/ would silently re-entangle the old tree.</span></span>
+<span class="code-line"><span class="code-comment">//   3. No hardcoded model identifiers in product code (Principle VII, SC-006):</span></span>
+<span class="code-line"><span class="code-comment">//      models are configuration, resolved env-first via @stacks/core</span></span>
+<span class="code-line"><span class="code-comment">//      model-roles. A literal model id in source would bypass FR-013/D14's</span></span>
+<span class="code-line"><span class="code-comment">//      fail-fast env resolution and pin deploys to one model.</span></span>
+<span class="code-line"><span class="code-comment">// These are lexical scans over import/source text — cheap, dependency-free,</span></span>
+<span class="code-line"><span class="code-comment">// and intentionally blunt: they enforce architecture by failing CI, in the</span></span>
+<span class="code-line"><span class="code-comment">// same spirit as the append-only-by-construction event table.</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">What it buys you</span>
+            <div class="translation-lines">
+              <p class="tl">A build gate: it kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
+              <p class="tl"><strong>Rule 1:</strong> web can only ever break the API contract, never the schema. The UI physically cannot couple itself to the database.</p>
+              <p class="tl">TypeScript would compile that import happily — the scan exists precisely because the compiler won't object.</p>
+              <p class="tl"><strong>Rule 2:</strong> v2 can be deleted without grep-ing v3. No import ever crosses the <code>v3/</code> root, so retirement stays a delete.</p>
+              <p class="tl"><strong>Rule 3:</strong> swapping the embedding model is an env change, not a code change. Model ids live in config, never in source.</p>
+              <p class="tl">Deliberately blunt: plain text scans, no AST, no dependencies. Cheap enough to run on every single verify.</p>
+              <p class="tl">The last line names the doctrine — make invariants structural, and you never have to remember them.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Enforce architecture by failing CI</strong>
+            <p>"Don't import that" is a convention; a script that fails the build is a fact. Same spirit as the append-only events table you'll meet in Module 4: invariants by construction, not by discipline.</p>
+          </div>
+        </div>
+
+        <p>The ban is documented on both sides of the wall — <code>@stacks/db</code> announces it in its own barrel header.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">v3/packages/db/src/index.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * @stacks/db — the persistence seam: drizzle schemas, the pooled client,</span></span>
+<span class="code-line"><span class="code-comment"> * boot-time migrations, and the two data disciplines of the skeleton (the</span></span>
+<span class="code-line"><span class="code-comment"> * Postgres-backed queue, D12, and the append-only event trail, Principle IV).</span></span>
+<span class="code-line"><span class="code-comment"> * Consumed by apps/api and apps/worker only; apps/web is forbidden from</span></span>
+<span class="code-line"><span class="code-comment"> * importing this package (FR-019, enforced by scripts/check-boundaries.mjs).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">What it buys you</span>
+            <div class="translation-lines">
+              <p class="tl">Everything that touches Postgres lives behind this one barrel: schemas, the pooled client, boot migrations.</p>
+              <p class="tl">It also hosts the skeleton's two data disciplines — the job queue and the append-only event trail.</p>
+              <p class="tl">The header names its own enforcement: who may import it, and exactly which script fails CI if anyone else tries.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 4: DRAG-AND-DROP + QUIZ ─────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">You Do the Filing</h2>
+        <p>You're building the next feature. Drag each artifact to where the map says it belongs — domain to core, persistence to db, HTTP to api, UI to web, and models to config.</p>
+
+        <div class="dnd-container animate-in" id="dnd-module2">
+          <div class="dnd-chips">
+            <div class="dnd-chip" draggable="true" data-answer="route-handler">POST /api/... route handler</div>
+            <div class="dnd-chip" draggable="true" data-answer="jobs-helper">new jobs-table helper</div>
+            <div class="dnd-chip" draggable="true" data-answer="pure-fn">deriveVectorId()-style pure function</div>
+            <div class="dnd-chip" draggable="true" data-answer="run-detail">React run-detail page</div>
+            <div class="dnd-chip" draggable="true" data-answer="model-id">sentence-transformers model id</div>
+          </div>
+          <div class="dnd-zones">
+            <div class="dnd-zone" data-correct="route-handler">
+              <p class="dnd-zone-label">apps/api — the HTTP surface</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="jobs-helper">
+              <p class="dnd-zone-label">packages/db — the persistence seam</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="pure-fn">
+              <p class="dnd-zone-label">packages/core — domain vocabulary, zero I/O</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="run-detail">
+              <p class="dnd-zone-label">apps/web — client of the API contract</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="model-id">
+              <p class="dnd-zone-label">.env / compose (config) — never source</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+          </div>
+          <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+          <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+        </div>
+
+        <div class="quiz-container animate-in" id="quiz-module2">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The scan runs inside pnpm verify, so the violation dies in CI before a reviewer ever opens the PR. And the fix is architectural, not cosmetic: web earns a new API endpoint, because it is a client of the HTTP contract and nothing more (FR-019)."
+               data-explanation-wrong="TypeScript compiles workspace imports happily — that gap is exactly why check-boundaries.mjs exists. The lexical scan fails pnpm verify before review, and the real fix is a new API endpoint, not a schema import.">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              <p>A teammate opens a PR: <code>apps/web</code> imports <code>@stacks/db</code> in a page loader "to save a round-trip."</p>
+            </div>
+            <h3 class="quiz-question">What happens, and where?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TypeScript refuses to compile — cross-app workspace imports are type errors.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>pnpm verify</code> fails in the boundary scan, before review; the fix is a new API endpoint.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It ships fine — catching this kind of coupling is what code review is for.</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It compiles and deploys, then fails at runtime when web can't reach Postgres.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The contract's shape IS the deliverable, versioned 0.0.0 as a placeholder. When the next spec arrives, new ingesters plug into a seam that already exists — no edits to core or db, no renegotiating boundaries mid-feature."
+               data-explanation-wrong="It's empty on purpose. The package pre-cuts the seam so the next spec can plug ingesters in without touching core or db — the contract's shape is the deliverable, shipped at 0.0.0 before any implementation exists.">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              <p>You notice <code>@stacks/ingestion-contract</code> sitting in the workspace at version <code>0.0.0</code> — and nothing implements it.</p>
+            </div>
+            <h3 class="quiz-question">Why does it exist NOW?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Leftover scaffolding — it should be deleted before the next release.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It pre-cuts the seam: the next spec plugs ingesters into an existing contract without touching core or db.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It holds shared helpers that api and worker both import today.</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>pnpm workspaces requires every <code>packages/</code> entry to publish before apps can build.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🧭</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Anatomy of a Skeleton Check</strong>
+            <p>Now that you know the map, let's follow one request across every seam on it — Web to API to Postgres to Worker to Sidecar, end to end.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

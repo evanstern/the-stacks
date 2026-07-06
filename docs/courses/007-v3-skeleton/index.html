@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stacks v3: Walking Skeleton</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">The Stacks v3: Walking Skeleton</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="One Command, Five Services" role="tab" aria-label="Module 1: One Command, Five Services"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Monorepo Map" role="tab" aria-label="Module 2: The Monorepo Map"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Anatomy of a Skeleton Check" role="tab" aria-label="Module 3: Anatomy of a Skeleton Check"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="The Postgres Queue" role="tab" aria-label="Module 4: The Postgres Queue"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Auth &amp; Typed Failure" role="tab" aria-label="Module 5: Auth &amp; Typed Failure"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="The Bug Ledger" role="tab" aria-label="Module 6: The Bug Ledger"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">One Command, Five Services</h1>
+      <p class="module-subtitle">You type one command. Ninety seconds later five services report healthy and you can sign in. This module is about everything that one command commits you to.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 0: Course framing -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What we are building</h2>
+        <p>This is <strong>the Stacks</strong> v3 — a greenfield rebuild of a TTRPG research-library app: bring your own rulebooks, get retrieval-backed chat with real citations. Before any feature, the team shipped a
+          <span class="term" data-definition="Alistair Cockburn's term: the thinnest possible end-to-end slice that exercises every architectural seam — real deploy, real components, near-zero features. You grow the system inside a skeleton that already walks.">walking skeleton</span> — a pnpm monorepo, a five-service Docker Compose stack, and one thin end-to-end probe called the <em>skeleton check</em>.</p>
+        <p>Spec&apos;d via
+          <span class="term" data-definition="GitHub's spec-driven development workflow: each feature gets a checked-in spec.md, plan.md, and tasks.md before any code is written. This feature lives at specs/007-v3-skeleton/.">spec-kit</span>, built against a project constitution with fixed decisions D1&ndash;D14. The skeleton check crosses every
+          <span class="term" data-definition="A boundary where two parts of the system meet — the HTTP edge, the queue table, the sidecar call. Integration risk concentrates at seams, so the skeleton crosses all of them on day one.">seam</span> in the system:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>UI</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>API</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Queue</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Worker</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>ML Sidecar</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <p><span class="term" data-definition="A Postgres extension adding a vector column type plus similarity indexes — embeddings live in the same database as the relational data. No separate vector store to run.">pgvector</span> &amp; back</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 1: Hook, the one command, the five services -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The pencil sketch before the painting</h2>
+        <p>A walking skeleton is a pencil sketch: every structural line present and load-bearing, zero rendering. No feature exists yet, but every line the features will hang on has already been drawn — and proven under weight.</p>
+
+        <div class="translation-code" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">The one command</span>
+          <pre><code><span class="code-function">docker</span> compose up <span class="code-keyword">-d</span> <span class="code-keyword">--build</span> <span class="code-keyword">--wait</span></code></pre>
+        </div>
+
+        <p><code>--wait</code> blocks until every container reports <em>healthy</em> — or fails loudly naming the one that never did. Five services come up:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🐘</div>
+            <h4 class="pattern-title">Postgres + pgvector</h4>
+            <p class="pattern-desc">One database, three roles: system of record, vector store, and job queue.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">⚡</div>
+            <h4 class="pattern-title">Fastify API</h4>
+            <p class="pattern-desc">The HTTP edge on :4401 — validates env, migrates the schema, owns sessions and every route.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🧠</div>
+            <h4 class="pattern-title">ML Sidecar</h4>
+            <p class="pattern-desc">The only Python in the stack (<span class="term" data-definition="Fixed technical decision #2 from the project's constitution: Python is allowed only inside the ML sidecar — every other service is TypeScript.">D2</span>) — embeds text behind a thin HTTP wall.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">⚙️</div>
+            <h4 class="pattern-title">Worker</h4>
+            <p class="pattern-desc">No HTTP surface at all — polls the queue, a plain Postgres table (<span class="term" data-definition="Fixed technical decision #12 from the project's constitution: the job queue is a Postgres table, not a broker like Redis or RabbitMQ.">D12</span>), and does the heavy lifting.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🖥️</div>
+            <h4 class="pattern-title">RR7 SSR Web</h4>
+            <p class="pattern-desc">Server-rendered React Router 7 front end on :4400 — talks only to the API.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: HERO — boot chain data flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The boot order IS the architecture</h2>
+        <p>Compose does not start five containers and hope. Each service is gated on the previous one turning <em>healthy</em> — step through the chain:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"docker compose up -d --build --wait — compose reads the dependency graph and starts Postgres first"},
+          {"highlight":"flow-actor-2","label":"Postgres boots; compose polls pg_isready until the container reports healthy","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"service_healthy gate opens: API starts, runs migrations, THEN binds :4401 — /ready goes green","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"In parallel the ML Sidecar loads the embedding model into its cache — its own /ready goes green once the model is warm","packet":true,"from":"actor-2","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"Worker is gated on BOTH api and ml being healthy — it starts polling and touches its heartbeat file","packet":true,"from":"actor-3","to":"actor-5"},
+          {"highlight":"flow-actor-6","label":"Web is gated on api healthy — it serves :4400 and the stack converges: five green services","packet":true,"from":"actor-3","to":"actor-6"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-text)">📦</div>
+              <span>compose</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">🐘</div>
+              <span>Postgres</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">⚡</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">🧠</div>
+              <span>Sidecar</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">⚙️</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-6">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">🖥️</div>
+              <span>Web</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to boot the stack</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔗</div>
+          <div class="callout-content">
+            <strong class="callout-title">Every arrow is a gate</strong>
+            <p>Each edge in this chain is a compose <code>service_healthy</code> condition — a hard gate, not a race. So &ldquo;the stack is up&rdquo; <em>provably means</em> the schema is current and every dependency answers.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Code ↔ English — API boot sequence -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the API does before it will talk to you</h2>
+        <p>The whole doctrine lives in one function — the order of these lines is the contract. From <code>v3/apps/api/src/main.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">main</span>(): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-function">assertRequiredEnv</span>();</span>
+<span class="code-line"><span class="code-comment">  // Fails fast (naming the variable) if the embedding role's env is missing/malformed.</span></span>
+<span class="code-line"><span class="code-comment">  // The API never embeds — the worker does — but validating here surfaces a bad</span></span>
+<span class="code-line"><span class="code-comment">  // embedding config at deploy time instead of on the first queued run.</span></span>
+<span class="code-line">  <span class="code-function">resolveModelRole</span>(<span class="code-string">"embedding"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> { db, pool } = <span class="code-function">createDbClient</span>(process.env.DATABASE_URL!);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">  // Migrations apply before the port binds — /ready therefore implies</span></span>
+<span class="code-line"><span class="code-comment">  // schema-current (research R10, FR-002).</span></span>
+<span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">runMigrations</span>(db);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> app = <span class="code-keyword">await</span> <span class="code-function">buildApp</span>({</span>
+<span class="code-line">    <span class="code-property">db</span>,</span>
+<span class="code-line">    <span class="code-property">pool</span>,</span>
+<span class="code-line">    <span class="code-property">operatorPasswordHash</span>: process.env.OPERATOR_PASSWORD_HASH!,</span>
+<span class="code-line">    <span class="code-property">sessionSecret</span>: process.env.SESSION_SECRET!,</span>
+<span class="code-line">    <span class="code-property">sessionCookieSecure</span>: process.env.SESSION_COOKIE_SECURE === <span class="code-string">"true"</span>,</span>
+<span class="code-line">  });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> port = Number.<span class="code-function">parseInt</span>(process.env.V3_API_PORT ?? <span class="code-string">"4401"</span>, <span class="code-number">10</span>);</span>
+<span class="code-line">  <span class="code-keyword">await</span> app.<span class="code-function">listen</span>({ <span class="code-property">host</span>: <span class="code-string">"0.0.0.0"</span>, <span class="code-property">port</span> });</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One async boot function. Any throw below kills the container — and compose reports exactly which link died.</p>
+              <p class="tl">Check every required env var up front, and report ALL missing vars at once — not one per restart.</p>
+              <p class="tl">The comments say it plainly: this validation is on behalf of a service that is not this one.</p>
+              <p class="tl">The API validates a model role it never uses — deploy-time surfacing. A bad embedding config stops boot here instead of stranding the first queued job hours later.</p>
+              <p class="tl">Open the connection pool to Postgres — which compose guarantees is already healthy.</p>
+              <p class="tl">Migrate-then-listen. Because this line runs before the port opens, /ready becomes a schema certificate.</p>
+              <p class="tl">Assemble the Fastify app: database handles plus auth material —</p>
+              <p class="tl">— the operator&apos;s password hash and the secret that seals the
+                <span class="term" data-definition="A session cookie whose contents are encrypted and authenticated with a server-side secret. The browser stores it but can neither read nor forge it.">sealed cookie</span> sessions.</p>
+              <p class="tl">Cookie security flag comes from env, so dev over http and prod over https use the same code path.</p>
+              <p class="tl">Port from env with a 4401 default.</p>
+              <p class="tl">Only NOW does the socket open. Anything that can answer on :4401 has, by construction, already migrated.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">/ready is a proof, not a ping</strong>
+            <p>Because migrations run before <code>listen()</code>, a green readiness check certifies schema-currency — not merely &ldquo;a process exists.&rdquo; Order of operations turned a healthcheck into evidence.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: The two odd healthchecks -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two healthchecks that look wrong (and are not)</h2>
+        <p>Open <code>v3/docker-compose.yml</code> and two checks stand out. Both are workarounds for a constraint — and both encode a definition of &ldquo;healthy&rdquo; that is stricter than &ldquo;the process runs.&rdquo;</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">API HEALTHCHECK</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    # node -e fetch(): no curl/wget in node:22-slim, so probe with node itself.</span></span>
+<span class="code-line"><span class="code-comment">    # /ready (not /health) so "healthy" means migrated + serving.</span></span>
+<span class="code-line">    <span class="code-property">healthcheck</span>:</span>
+<span class="code-line">      <span class="code-property">test</span>:</span>
+<span class="code-line">        [</span>
+<span class="code-line">          <span class="code-string">"CMD"</span>,</span>
+<span class="code-line">          <span class="code-string">"node"</span>,</span>
+<span class="code-line">          <span class="code-string">"-e"</span>,</span>
+<span class="code-line">          <span class="code-string">"fetch('http://localhost:4401/ready').then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
+<span class="code-line">        ]</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The slim base image ships no curl or wget — so the probe is a one-liner of Node itself.</p>
+              <p class="tl">And it hits <code>/ready</code>, not <code>/health</code>: the check inherits the migrate-then-listen guarantee from the boot sequence.</p>
+              <p class="tl">Exit 0 on a 2xx, exit 1 on anything else — including a refused connection. Docker translates that into healthy or unhealthy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">WORKER HEALTHCHECK</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    # Worker has no HTTP surface, so health = "heartbeat file touched within the</span></span>
+<span class="code-line"><span class="code-comment">    # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if</span></span>
+<span class="code-line"><span class="code-comment">    # the loop wedges, the file goes stale and the check fails.</span></span>
+<span class="code-line">    <span class="code-property">healthcheck</span>:</span>
+<span class="code-line">      <span class="code-property">test</span>: [<span class="code-string">"CMD-SHELL"</span>, <span class="code-string">"find /tmp/worker-heartbeat -mmin -1 | grep -q ."</span>]</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The Worker exposes no port, so there is nothing to fetch. Instead, its poll loop touches a file on every tick.</p>
+              <p class="tl">The check asks: was that file modified within the last minute? A wedged loop stops touching it, the file goes stale, the container flips unhealthy.</p>
+              <p class="tl">Health here means &ldquo;the loop is actually looping&rdquo; — a strictly stronger claim than &ldquo;the process is alive.&rdquo;</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Debug it before it happens</h2>
+        <p>Three scenarios. Reason from the boot chain, not from memory.</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. runMigrations() throws before listen(), so /ready never answers — the api container never turns healthy, and every service gated on it (worker, web) never starts. --wait fails naming the api link; the blast radius is one link, not a haze of cascading errors."
+               data-explanation-wrong="Not quite — trace the API boot order. Migrations run BEFORE the port binds, so a broken migration means the API never serves at all. Now follow the service_healthy chain: what happens to the services gated on api?">
+            <h3 class="quiz-question">Migration 0002 ships with a syntax error. You run <code>docker compose up -d --build --wait</code>. What do you observe?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All five containers start; the API logs migration errors but keeps serving on :4401 with the old schema</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API never turns healthy, so Worker and Web never start — <code>--wait</code> fails with the problem pinned at the api link</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Postgres goes unhealthy, since the failed SQL leaves its healthcheck failing until the migration is fixed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right. The healthcheck is deliberately NOT process-alive: the poll loop touches /tmp/worker-heartbeat each tick, so a deadlocked loop stops refreshing it, find -mmin -1 matches nothing, and Docker flips the container unhealthy — even though the process is still running."
+               data-explanation-wrong="Not this one. The Worker has no HTTP surface, and nothing else in the stack watches queue depth at boot. The signal is the heartbeat file: a wedged loop stops touching it, and staleness is exactly what the find -mmin -1 check detects.">
+            <h3 class="quiz-question">The Worker process is alive, but its poll loop has deadlocked. Which signal catches it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Docker notices the process exited and restarts the container</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API&apos;s <code>/ready</code> flips red because queue depth keeps growing</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The heartbeat file goes stale (&gt;1 minute), the <code>find -mmin -1</code> check matches nothing, and the container is marked unhealthy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — fail at deploy, not at first use. A malformed EMBEDDING_* config should stop boot with the variable named, not strand a queued ingestion run hours later in a service with no request to attach the error to. The API is simply the earliest place the whole stack can refuse to come up."
+               data-explanation-wrong="Not quite. The API genuinely never embeds — the Worker does. The point of resolveModelRole('embedding') in the API is timing: where do you WANT a bad config to surface — at deploy, loudly, or at the first queued job, silently?">
+            <h3 class="quiz-question">The API calls <code>resolveModelRole("embedding")</code> at boot — yet the API never embeds anything. Why validate it there?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>So a broken embedding config fails the deploy immediately, instead of stranding the first queued run in the Worker later</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because the API falls back to embedding locally if the Worker is down</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because compose requires every service to validate the full shared env file before it will report healthy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>Next up — Module 2 opens the containers: the monorepo map of packages and apps, and the boundary rules a script actually enforces.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Monorepo Map</h1>
+      <p class="module-subtitle">Seven workspaces, three forbidden moves, and the 90-line script that fails CI when you make one.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── SCREEN 1: HOOK + HERO ARCHITECTURE DIAGRAM ─────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Load-Bearing Walls</h2>
+        <p>Nothing stops <code>apps/web</code> from importing the DB schema — TypeScript would happily compile it. A 90-line script is the only thing standing between this architecture and entropy, on purpose.</p>
+        <p>In a monorepo every package <em>can</em> import every other; which walls are load-bearing is a <strong>decision</strong>. Here the <span class="term" data-definition="The thinnest end-to-end slice of the real architecture — every layer built and wired together, with almost no features. You prove the seams first, then hang features on them.">walking skeleton</span> enforces that decision the way a building inspector fails a permit: mechanically, at CI time.</p>
+
+        <div class="arch-diagram animate-in">
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Apps — deployable processes</h4>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);align-items:start;justify-items:center;">
+              <div class="arch-component" data-desc="apps/web — a client of the HTTP contract, nothing more (FR-019). Zero workspace imports of @stacks/db; if it needs data, it earns an API endpoint.">
+                <div class="arch-icon">🖥️</div>
+                <span>web</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">HTTP client only</span>
+              </div>
+              <div class="arch-component" data-desc="apps/api — the HTTP surface. Imports @stacks/core for domain vocabulary and @stacks/db for persistence; everything web knows arrives through here.">
+                <div class="arch-icon">⚡</div>
+                <span>api</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">core + db</span>
+              </div>
+              <div class="arch-component" data-desc="apps/worker — background jobs. Same imports as api (core + db); it drains the Postgres-backed queue and calls the ml sidecar over HTTP.">
+                <div class="arch-icon">⚙️</div>
+                <span>worker</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">core + db</span>
+              </div>
+              <div class="arch-component" data-desc="apps/ml — the Python inference sidecar (D2). It imports no TypeScript at all; its entire relationship with the system is the HTTP contract.">
+                <div class="arch-icon">🐍</div>
+                <span>ml</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Python — no TS</span>
+              </div>
+            </div>
+          </div>
+
+          <svg viewBox="0 0 800 150" preserveAspectRatio="none" aria-hidden="true" style="display:block;width:calc(100% - 48px);margin:0 24px;height:150px;overflow:visible;">
+            <defs>
+              <marker id="m2-arr-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-accent)"></path>
+              </marker>
+              <marker id="m2-arr-h" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-text-muted)"></path>
+              </marker>
+            </defs>
+            <!-- HTTP arcs (calls, not imports) -->
+            <path d="M112,10 Q200,52 286,12" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" stroke-dasharray="2 4" marker-end="url(#m2-arr-h)" vector-effect="non-scaling-stroke"></path>
+            <text x="200" y="44" text-anchor="middle" font-size="11" fill="var(--color-text-muted)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">HTTP</text>
+            <path d="M512,10 Q600,52 686,12" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" stroke-dasharray="2 4" marker-end="url(#m2-arr-h)" vector-effect="non-scaling-stroke"></path>
+            <text x="600" y="44" text-anchor="middle" font-size="11" fill="var(--color-text-muted)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">HTTP (D2)</text>
+            <!-- Allowed workspace imports -->
+            <path d="M300,8 L150,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M300,8 L388,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M500,8 Q310,70 158,132" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <path d="M500,8 L412,136" fill="none" stroke="var(--color-accent)" stroke-width="2" marker-end="url(#m2-arr-a)" vector-effect="non-scaling-stroke"></path>
+            <!-- FORBIDDEN: web -> db (FR-019), struck out -->
+            <path d="M104,12 L390,136" fill="none" stroke="var(--color-error)" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"></path>
+            <path d="M234,61 L260,87 M260,61 L234,87" stroke="var(--color-error)" stroke-width="4" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+            <text x="258" y="104" text-anchor="start" font-size="11" font-weight="700" fill="var(--color-error)" stroke="var(--color-surface)" stroke-width="4" paint-order="stroke" font-family="var(--font-mono)">FR-019</text>
+          </svg>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Packages — shared libraries</h4>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);align-items:start;justify-items:center;">
+              <div class="arch-component" data-desc="@stacks/core — the domain vocabulary: pure types and functions, zero I/O. Both api and worker speak this language; it imports nothing else in the workspace.">
+                <div class="arch-icon">📦</div>
+                <span>@stacks/core</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">domain vocabulary</span>
+              </div>
+              <div class="arch-component" data-desc="@stacks/db — the persistence seam: drizzle schemas, the pooled client, boot migrations, queue, and event trail. Consumed by api and worker only; web importing it fails CI (FR-019).">
+                <div class="arch-icon">🗄️</div>
+                <span>@stacks/db</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">persistence seam</span>
+              </div>
+              <div class="arch-component" style="border-style:dashed;" data-desc="@stacks/ingestion-contract — a deliberate placeholder at 0.0.0. Nothing implements it yet; its shape is the deliverable, so the NEXT spec plugs ingesters into a seam that already exists.">
+                <div class="arch-icon">🔌</div>
+                <span>@stacks/ingestion-contract</span>
+                <span style="font-size:var(--text-xs);color:var(--color-text-muted);">placeholder · 0.0.0</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-4) var(--space-6);margin-top:var(--space-4);font-size:var(--text-xs);color:var(--color-text-secondary);align-items:center;">
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px solid var(--color-accent);"></span> allowed workspace import</span>
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed var(--color-error);"></span> <span style="color:var(--color-error);font-weight:700;">✕</span> forbidden — fails <code>pnpm verify</code></span>
+            <span style="display:inline-flex;align-items:center;gap:var(--space-2);"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted var(--color-text-muted);"></span> HTTP call, not an import</span>
+          </div>
+
+          <div class="arch-description">Click any box — what it owns, and what it is allowed to import.</div>
+        </div>
+
+        <p><code>@stacks/db</code> is the persistence <span class="term" data-definition="A deliberate boundary where one part of the system can be swapped, extended, or tested without touching the rest. The skeleton's whole job is to prove its seams early.">seam</span>; web never touches it (<span class="term" data-definition="Spec requirement: the web app consumes the system only through the API contract — it may never import the database layer or reach into other apps' source.">FR-019</span>), and the ml sidecar is Python that only ever sees HTTP (<span class="term" data-definition="Fixed constitutional decision #2: the core stays TypeScript; Python exists only as an inference sidecar reached over HTTP — it never imports or is imported by TS code.">D2</span>). The missing red edge on the map is the whole point: the forbidden import is drawn so its absence is visible.</p>
+      </section>
+
+      <!-- ── SCREEN 2: COEXISTENCE (D1) ─────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two Stacks, One Machine</h2>
+        <p>v3 is a greenfield rebuild (<span class="term" data-definition="Fixed constitutional decision #1: v3 is a greenfield rebuild that lives beside the still-running v2 — no shared code, no in-place migration. A single import crossing the v3/ root fails CI.">D1</span>) that lives entirely under <code>v3/</code> while v2 keeps serving traffic. Disjoint ports, containers, and volumes mean both stacks run simultaneously — retirement later is a delete, not a migration.</p>
+
+        <div class="animate-in" style="border:1px dashed var(--color-border);border-radius:var(--radius-lg);padding:var(--space-6);background:var(--color-surface);box-shadow:var(--shadow-sm);">
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:var(--space-4);">One dev machine — both stacks live</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-4);align-items:stretch;">
+            <div style="background:var(--color-bg-warm);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-5);">
+              <strong style="font-family:var(--font-display);">v2 — still serving</strong>
+              <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0;">
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5433</code>
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:8001</code>
+                <code style="background:var(--color-bg-code);color:#F9E2AF;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5174</code>
+              </div>
+              <p style="margin:0;font-size:var(--text-sm);color:var(--color-text-secondary);">Own containers, own volumes. Untouched by the rebuild.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);min-width:90px;">
+              <span style="flex:1;width:0;border-left:2px dashed var(--color-error);"></span>
+              <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-error);text-align:center;white-space:nowrap;background:var(--color-error-light);padding:var(--space-1) var(--space-2);border-radius:var(--radius-full);">D1 · no imports cross</span>
+              <span style="flex:1;width:0;border-left:2px dashed var(--color-error);"></span>
+            </div>
+            <div style="background:var(--color-accent-light);border:1px solid var(--color-accent-muted);border-radius:var(--radius-md);padding:var(--space-5);">
+              <strong style="font-family:var(--font-display);">v3/ — the skeleton</strong>
+              <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0;">
+                <code style="background:var(--color-bg-code);color:#A6E3A1;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:44xx</code>
+                <code style="background:var(--color-bg-code);color:#A6E3A1;padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);">:5442</code>
+              </div>
+              <p style="margin:0;font-size:var(--text-sm);color:var(--color-text-secondary);">Own containers, own volumes. The whole rebuild lives under this one directory.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-5);font-size:var(--text-sm);color:var(--color-text-secondary);">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Retirement plan</span>
+            <code>rm -rf v2</code> <span aria-hidden="true">→</span> <span>promote <code>v3/</code> to the root. That is the entire migration.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 3: CODE ↔ ENGLISH — THE BOUNDARY SCRIPT ─────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Building Inspector: <code>check-boundaries.mjs</code></h2>
+        <p>The three walls from the map, written down as an executable comment. Each rule is pinned to the doctrine that demanded it.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">v3/scripts/check-boundaries.mjs</span>
+            <pre><code><span class="code-line"><span class="code-comment">#!/usr/bin/env node</span></span>
+<span class="code-line"><span class="code-comment">// Fails the build on structural boundary violations the type system can't</span></span>
+<span class="code-line"><span class="code-comment">// catch on its own (FR-019, FR-005, SC-006). Run via `pnpm verify`.</span></span>
+<span class="code-line"><span class="code-comment">//</span></span>
+<span class="code-line"><span class="code-comment">// Three rules, each pinned to constitutional doctrine:</span></span>
+<span class="code-line"><span class="code-comment">//   1. apps/web may not import @stacks/db or reach into api/worker/ml source</span></span>
+<span class="code-line"><span class="code-comment">//      (FR-019): the web app is a client of the HTTP contract, nothing more.</span></span>
+<span class="code-line"><span class="code-comment">//      TypeScript can't stop a workspace import that would quietly couple</span></span>
+<span class="code-line"><span class="code-comment">//      the UI to the schema, so this scan does.</span></span>
+<span class="code-line"><span class="code-comment">//   2. No v3 file may import across the v3/ root into v2 code (decision D1,</span></span>
+<span class="code-line"><span class="code-comment">//      FR-005): v3 is a clean rebuild, not a graft. A single relative import</span></span>
+<span class="code-line"><span class="code-comment">//      escaping v3/ would silently re-entangle the old tree.</span></span>
+<span class="code-line"><span class="code-comment">//   3. No hardcoded model identifiers in product code (Principle VII, SC-006):</span></span>
+<span class="code-line"><span class="code-comment">//      models are configuration, resolved env-first via @stacks/core</span></span>
+<span class="code-line"><span class="code-comment">//      model-roles. A literal model id in source would bypass FR-013/D14's</span></span>
+<span class="code-line"><span class="code-comment">//      fail-fast env resolution and pin deploys to one model.</span></span>
+<span class="code-line"><span class="code-comment">// These are lexical scans over import/source text — cheap, dependency-free,</span></span>
+<span class="code-line"><span class="code-comment">// and intentionally blunt: they enforce architecture by failing CI, in the</span></span>
+<span class="code-line"><span class="code-comment">// same spirit as the append-only-by-construction event table.</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">What it buys you</span>
+            <div class="translation-lines">
+              <p class="tl">A build gate: it kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
+              <p class="tl"><strong>Rule 1:</strong> web can only ever break the API contract, never the schema. The UI physically cannot couple itself to the database.</p>
+              <p class="tl">TypeScript would compile that import happily — the scan exists precisely because the compiler won't object.</p>
+              <p class="tl"><strong>Rule 2:</strong> v2 can be deleted without grep-ing v3. No import ever crosses the <code>v3/</code> root, so retirement stays a delete.</p>
+              <p class="tl"><strong>Rule 3:</strong> swapping the embedding model is an env change, not a code change. Model ids live in config, never in source.</p>
+              <p class="tl">Deliberately blunt: plain text scans, no AST, no dependencies. Cheap enough to run on every single verify.</p>
+              <p class="tl">The last line names the doctrine — make invariants structural, and you never have to remember them.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Enforce architecture by failing CI</strong>
+            <p>"Don't import that" is a convention; a script that fails the build is a fact. Same spirit as the append-only events table you'll meet in Module 4: invariants by construction, not by discipline.</p>
+          </div>
+        </div>
+
+        <p>The ban is documented on both sides of the wall — <code>@stacks/db</code> announces it in its own barrel header.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">v3/packages/db/src/index.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * @stacks/db — the persistence seam: drizzle schemas, the pooled client,</span></span>
+<span class="code-line"><span class="code-comment"> * boot-time migrations, and the two data disciplines of the skeleton (the</span></span>
+<span class="code-line"><span class="code-comment"> * Postgres-backed queue, D12, and the append-only event trail, Principle IV).</span></span>
+<span class="code-line"><span class="code-comment"> * Consumed by apps/api and apps/worker only; apps/web is forbidden from</span></span>
+<span class="code-line"><span class="code-comment"> * importing this package (FR-019, enforced by scripts/check-boundaries.mjs).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">What it buys you</span>
+            <div class="translation-lines">
+              <p class="tl">Everything that touches Postgres lives behind this one barrel: schemas, the pooled client, boot migrations.</p>
+              <p class="tl">It also hosts the skeleton's two data disciplines — the job queue and the append-only event trail.</p>
+              <p class="tl">The header names its own enforcement: who may import it, and exactly which script fails CI if anyone else tries.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 4: DRAG-AND-DROP + QUIZ ─────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">You Do the Filing</h2>
+        <p>You're building the next feature. Drag each artifact to where the map says it belongs — domain to core, persistence to db, HTTP to api, UI to web, and models to config.</p>
+
+        <div class="dnd-container animate-in" id="dnd-module2">
+          <div class="dnd-chips">
+            <div class="dnd-chip" draggable="true" data-answer="route-handler">POST /api/... route handler</div>
+            <div class="dnd-chip" draggable="true" data-answer="jobs-helper">new jobs-table helper</div>
+            <div class="dnd-chip" draggable="true" data-answer="pure-fn">deriveVectorId()-style pure function</div>
+            <div class="dnd-chip" draggable="true" data-answer="run-detail">React run-detail page</div>
+            <div class="dnd-chip" draggable="true" data-answer="model-id">sentence-transformers model id</div>
+          </div>
+          <div class="dnd-zones">
+            <div class="dnd-zone" data-correct="route-handler">
+              <p class="dnd-zone-label">apps/api — the HTTP surface</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="jobs-helper">
+              <p class="dnd-zone-label">packages/db — the persistence seam</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="pure-fn">
+              <p class="dnd-zone-label">packages/core — domain vocabulary, zero I/O</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="run-detail">
+              <p class="dnd-zone-label">apps/web — client of the API contract</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="model-id">
+              <p class="dnd-zone-label">.env / compose (config) — never source</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+          </div>
+          <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+          <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+        </div>
+
+        <div class="quiz-container animate-in" id="quiz-module2">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The scan runs inside pnpm verify, so the violation dies in CI before a reviewer ever opens the PR. And the fix is architectural, not cosmetic: web earns a new API endpoint, because it is a client of the HTTP contract and nothing more (FR-019)."
+               data-explanation-wrong="TypeScript compiles workspace imports happily — that gap is exactly why check-boundaries.mjs exists. The lexical scan fails pnpm verify before review, and the real fix is a new API endpoint, not a schema import.">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              <p>A teammate opens a PR: <code>apps/web</code> imports <code>@stacks/db</code> in a page loader "to save a round-trip."</p>
+            </div>
+            <h3 class="quiz-question">What happens, and where?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TypeScript refuses to compile — cross-app workspace imports are type errors.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>pnpm verify</code> fails in the boundary scan, before review; the fix is a new API endpoint.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It ships fine — catching this kind of coupling is what code review is for.</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It compiles and deploys, then fails at runtime when web can't reach Postgres.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The contract's shape IS the deliverable, versioned 0.0.0 as a placeholder. When the next spec arrives, new ingesters plug into a seam that already exists — no edits to core or db, no renegotiating boundaries mid-feature."
+               data-explanation-wrong="It's empty on purpose. The package pre-cuts the seam so the next spec can plug ingesters in without touching core or db — the contract's shape is the deliverable, shipped at 0.0.0 before any implementation exists.">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              <p>You notice <code>@stacks/ingestion-contract</code> sitting in the workspace at version <code>0.0.0</code> — and nothing implements it.</p>
+            </div>
+            <h3 class="quiz-question">Why does it exist NOW?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Leftover scaffolding — it should be deleted before the next release.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It pre-cuts the seam: the next spec plugs ingesters into an existing contract without touching core or db.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It holds shared helpers that api and worker both import today.</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>pnpm workspaces requires every <code>packages/</code> entry to publish before apps can build.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🧭</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Anatomy of a Skeleton Check</strong>
+            <p>Now that you know the map, let's follow one request across every seam on it — Web to API to Postgres to Worker to Sidecar, end to end.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Anatomy of a Skeleton Check</h1>
+      <p class="module-subtitle">One tracer request, five seams, six timestamped events — every hop of the happy path.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + GROUP CHAT (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One click, six green events</h2>
+        <p>You click <strong>Run skeleton check</strong>. The API answers in ~5ms with a 202 and a run id — one second later the run shows six green events and a vector id.</p>
+        <p>Think of it as a tracer round: militaries load one glowing bullet per magazine so you can <em>see</em> the path fire is taking. The skeleton check is a fixed synthetic sentence shot through every <span class="term" data-definition="A boundary where one process hands off to another — HTTP request, queue claim, sidecar call, database write. Each seam is a place things can fail independently, so each crossing gets its own recorded event.">seam</span>, leaving a glowing, timestamped trail you inspect afterward.</p>
+
+        <div class="chat-window" id="chat-module3">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Operator</span>
+                <p>Run skeleton check.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>POST /api/skeleton-checks</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">API</span>
+                <p>Queue: INSERT run + job — one transaction, both or neither.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">API</span>
+                <p>Web: 202 — run a1b2c3, accepted. That&rsquo;s all I do.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>Redirecting you to the run page — I&rsquo;ll poll it for updates.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Queue — anything for me? (SKIP LOCKED claim)</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="queue" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">Q</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Queue (jobs table)</span>
+                <p>Job a1b2c3, yours. Nobody else can grab it now.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="7" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Sidecar — embed this sentence (model=all-MiniLM-L6-v2).</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="8" data-sender="sidecar" style="display:none">
+              <div class="chat-avatar" style="background: #C26D9C">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: #C26D9C">Sidecar</span>
+                <p>384 floats, 31ms.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="9" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Postgres — INSERT vector 8d6a97… ON CONFLICT DO NOTHING.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="10" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Now: nearest neighbor to that embedding, same model only?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="11" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: #336791">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: #336791">Postgres</span>
+                <p>8d6a97…, distance 0.0. It&rsquo;s the one you just wrote.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="12" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">Wk</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>Queue — job done. Run marked succeeded, six events on the trail.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="13" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">W</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Web</span>
+                <p>Poll flipped: succeeded ✓ six events. Operator, your tracer landed.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>That conversation crosses five seams and leaves exactly six events, always in this order:</p>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p><code>queued</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p><code>claimed</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p><code>inference</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p><code>vector_write</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p><code>vector_readback</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">6</div><p><code>completed</code></p></div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 2: THE ACCEPT SIDE (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The accept side: 202 and out</h2>
+        <p>The POST handler is pure <span class="term" data-definition="The API&rsquo;s only job is to record the request and return 202; all real work happens off a queue — constitution Principle IV.">accept-then-async</span>: it creates the run and its job in <em>one</em> transaction, so there is no window where one exists without the other. Then it emits <code>queued</code> — but only after the commit.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/skeleton-checks/routes.ts</span>
+            <pre><code><span class="code-line">  app.<span class="code-function">post</span>(<span class="code-string">"/api/skeleton-checks"</span>, <span class="code-keyword">async</span> (_request, reply) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// Accept-then-async: run + job are created in one transaction (FR-009); the</span></span>
+<span class="code-line">    <span class="code-comment">// worker does the actual seam-crossing work off this queue entry (D12).</span></span>
+<span class="code-line">    <span class="code-comment">// One transaction means no window where a run exists without its job (or</span></span>
+<span class="code-line">    <span class="code-comment">// vice versa) — a crash mid-accept leaves nothing behind. The job is</span></span>
+<span class="code-line">    <span class="code-comment">// inserted first, then back-filled with the runId, because each row needs</span></span>
+<span class="code-line">    <span class="code-comment">// the other's id and jobs.payload is the cheaper side to update.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> run = <span class="code-keyword">await</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">      <span class="code-keyword">const</span> [job] = <span class="code-keyword">await</span> tx.<span class="code-function">insert</span>(jobs).<span class="code-function">values</span>({ <span class="code-property">kind</span>: <span class="code-string">"skeleton_check"</span>, <span class="code-property">payload</span>: {} }).<span class="code-function">returning</span>();</span>
+<span class="code-line">      <span class="code-keyword">const</span> [createdRun] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">insert</span>(skeletonCheckRuns)</span>
+<span class="code-line">        .<span class="code-function">values</span>({ <span class="code-property">jobId</span>: job!.id, <span class="code-property">inputText</span>: SKELETON_CHECK_INPUT_TEXT })</span>
+<span class="code-line">        .<span class="code-function">returning</span>();</span>
+<span class="code-line">      <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">        .<span class="code-function">set</span>({ <span class="code-property">payload</span>: { <span class="code-property">runId</span>: createdRun!.id } })</span>
+<span class="code-line">        .<span class="code-function">where</span>(sql`${jobs.id} = ${job!.id}`);</span>
+<span class="code-line">      <span class="code-keyword">return</span> createdRun!;</span>
+<span class="code-line">    });</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// 'queued' is emitted AFTER the commit: an event must never describe a run</span></span>
+<span class="code-line">    <span class="code-comment">// that a rollback could erase. Events are observability, not state — losing</span></span>
+<span class="code-line">    <span class="code-comment">// this one to a crash is acceptable; a phantom event is not.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">recordEvent</span>(db, { <span class="code-property">runId</span>: run.id, <span class="code-property">seam</span>: <span class="code-string">"queued"</span> });</span>
+<span class="code-line"></span>
+<span class="code-line">    reply.<span class="code-function">code</span>(<span class="code-number">202</span>);</span>
+<span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">run</span>: { <span class="code-property">id</span>: run.id, <span class="code-property">status</span>: run.status, <span class="code-property">createdAt</span>: run.createdAt } };</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the input sentence is fixed.</p>
+              <p class="tl">The comment is the contract: one transaction creates run + job here; the worker does the real seam-crossing later, off this queue entry.</p>
+              <p class="tl">Open a single transaction — everything inside commits together or vanishes together. A crash mid-accept leaves nothing behind.</p>
+              <p class="tl">Insert the job first with an empty payload; we need its id before the run row can point at it.</p>
+              <p class="tl">Insert the run, wired to the job via <code>jobId</code> and carrying the fixed sentence.</p>
+              <p class="tl">Back-fill the job payload with the run id — each row needs the other, and <code>jobs.payload</code> is the cheaper side to update.</p>
+              <p class="tl">Return the run out of the callback. This is the commit point: run and job now exist atomically.</p>
+              <p class="tl">Only <em>after</em> the commit does <code>queued</code> get recorded — an event must never describe a run a rollback could erase.</p>
+              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;. Hand back the run id the web page will poll.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: events are observability, not state</strong>
+            <p>Losing an event to a crash is acceptable; a phantom event describing a rolled-back run is not. That asymmetry is why <code>recordEvent</code> lives outside the transaction — the queue row is the truth, the event is the breadcrumb.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: THE WORK SIDE (FLOW ANIMATION + SNIPPETS B, D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The work side: the crossing itself</h2>
+        <p>Step through the worker&rsquo;s crossing. Each step is labeled with the event it emits — the animation <em>is</em> the event trail you will read in the database afterward.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-2","label":"queued — the API transaction commits and a job row appears in the jobs table","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"claimed — the worker grabs the job with FOR UPDATE SKIP LOCKED; attempts+1","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"inference — HTTP call to the sidecar; 384 floats come back in ~31ms","packet":true,"from":"actor-3","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"vector_write — INSERT under deterministic id 8d6a97…, ON CONFLICT DO NOTHING carries the dedup flag","packet":true,"from":"actor-3","to":"actor-5"},
+          {"highlight":"flow-actor-3","label":"vector_readback — nearest neighbor by cosine distance, filtered to the same provider/model/dimensions; distance 0.0","packet":true,"from":"actor-5","to":"actor-3"},
+          {"highlight":"flow-actor-2","label":"completed — the run is stamped with vectorId + distance and marked succeeded; six events on the trail","packet":true,"from":"actor-3","to":"actor-2"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">A</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">Q</div>
+              <span>jobs table</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">Wk</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="background: #C26D9C">S</div>
+              <span>Sidecar</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon" style="background: #336791">V</div>
+              <span>pgvector</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>The vector id in step 4 is not random. It is a <span class="term" data-definition="An id computed purely from the input — here sha256 of the text plus provider/model/dimensions. Same input, same id, every time, on every machine. No clock, no randomness, no coordination.">deterministic id</span>, which is what makes re-runs <span class="term" data-definition="Safe to run twice — the second run changes nothing. Deterministic ids make the second INSERT collide with the first instead of duplicating it.">idempotent</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/core/src/skeleton-check.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">deriveVectorId</span>(input: DeriveVectorIdInput): <span class="code-keyword">string</span> {</span>
+<span class="code-line">  <span class="code-keyword">const</span> material = `${input.inputText}\n${input.provider}/${input.model}/${input.dimensions}`;</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createHash</span>(<span class="code-string">"sha256"</span>).<span class="code-function">update</span>(material).<span class="code-function">digest</span>(<span class="code-string">"hex"</span>);</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Identity is a pure function of the input — no UUID, no clock.</p>
+              <p class="tl">The hash material is the sentence <em>plus its embedding space</em>: provider, model, dimensions. Same text under a different model gets a different id.</p>
+              <p class="tl">sha256 it. Run the check twice: same hash both times — that is where <code>8d6a97…</code> comes from.</p>
+              <p class="tl">So the second write is a collision, not a duplicate.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The write side absorbs that collision with <span class="term" data-definition="Postgres upsert clause: if a row with this key already exists, silently skip the insert instead of erroring. The write becomes a no-op and returning() comes back empty.">ON CONFLICT DO NOTHING</span> — the second run&rsquo;s <code>vector_write</code> event simply carries <code>deduplicated: true</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> insertedRows = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">insert</span>(skeletonVectors)</span>
+<span class="code-line">    .<span class="code-function">values</span>({</span>
+<span class="code-line">      <span class="code-property">id</span>: vectorId,</span>
+<span class="code-line">      <span class="code-property">content</span>: SKELETON_CHECK_INPUT_TEXT,</span>
+<span class="code-line">      <span class="code-property">embedding</span>,</span>
+<span class="code-line">      <span class="code-property">embeddingProvider</span>: role.provider,</span>
+<span class="code-line">      <span class="code-property">embeddingModel</span>: role.modelId,</span>
+<span class="code-line">      <span class="code-property">embeddingDimensions</span>: role.dimensions,</span>
+<span class="code-line">    })</span>
+<span class="code-line">    .<span class="code-function">onConflictDoNothing</span>({ <span class="code-property">target</span>: skeletonVectors.id })</span>
+<span class="code-line">    .<span class="code-function">returning</span>();</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Insert the vector row under its deterministic id.</p>
+              <p class="tl">The row carries the text, the 384 floats, and the full coordinates of its embedding space — provider, model, dimensions stamped right on it.</p>
+              <p class="tl">If that id already exists, skip silently — no error, no duplicate.</p>
+              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the event learns to say <code>deduplicated: true</code>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: THE READ-BACK (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The read-back: closing the loop</h2>
+        <p>Writing the vector proves <span class="term" data-definition="Postgres extension that adds a vector column type plus distance operators, so embeddings live in the same database as the rest of your rows — no separate vector store.">pgvector</span> accepts our floats. Reading it back by similarity proves the whole space is <em>queryable</em> — and the search is deliberately scoped.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> readbackStart = Date.<span class="code-function">now</span>();</span>
+<span class="code-line">  <span class="code-keyword">const</span> vectorLiteral = `[${embedding.<span class="code-function">join</span>(<span class="code-string">","</span>)}]`;</span>
+<span class="code-line">  <span class="code-keyword">const</span> distanceExpr = sql&lt;<span class="code-keyword">number</span>&gt;`${skeletonVectors.embedding} &lt;=&gt; ${vectorLiteral}::vector`;</span>
+<span class="code-line">  <span class="code-keyword">const</span> [readback] = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">select</span>({ <span class="code-property">id</span>: skeletonVectors.id, <span class="code-property">distance</span>: distanceExpr })</span>
+<span class="code-line">    .<span class="code-function">from</span>(skeletonVectors)</span>
+<span class="code-line">    .<span class="code-function">where</span>(</span>
+<span class="code-line">      sql`${skeletonVectors.embeddingModel} = ${role.modelId}</span>
+<span class="code-line">        AND ${skeletonVectors.embeddingProvider} = ${role.provider}</span>
+<span class="code-line">        AND ${skeletonVectors.embeddingDimensions} = ${role.dimensions}`,</span>
+<span class="code-line">    )</span>
+<span class="code-line">    .<span class="code-function">orderBy</span>(distanceExpr)</span>
+<span class="code-line">    .<span class="code-function">limit</span>(<span class="code-number">1</span>);</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Start the clock — the readback duration lands in the event detail.</p>
+              <p class="tl">Serialize the embedding we just wrote into a pgvector literal.</p>
+              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — the nearest-neighbor operator.</p>
+              <p class="tl">Ask for the closest vector&rsquo;s id and its distance...</p>
+              <p class="tl">...but only among vectors from the same model,</p>
+              <p class="tl">the same provider,</p>
+              <p class="tl">and the same dimensions. Other embedding spaces are invisible to this query.</p>
+              <p class="tl">Sort by distance, take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Distance <code>0.0</code> means we found the exact vector we just wrote. Accept, queue, claim, infer, write, read back — the loop is closed.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">The filter is the point</strong>
+            <p>Change the embedding model in env and old vectors fall out of scope as a <em>detectable</em> mismatch — never a silent cross-space comparison (Principle VII). A distance between two models&rsquo; vectors is numerically valid and semantically meaningless.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Trace it yourself</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Work is never lost — the committed job WILL be claimed and processed; the worker reads the jobs table, not the events. An event CAN be lost, and that asymmetry is designed: events are observability, not state."
+               data-explanation-wrong="Not quite. The transaction already committed, so run + job are durable and the worker will claim the job from the table — events play no part in dispatch. The only casualty is the queued breadcrumb.">
+            <h3 class="quiz-question">The API crashes between the transaction commit and <code>recordEvent('queued')</code>. What&rsquo;s the state?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The run and job are orphaned — with no <code>queued</code> event, nothing will ever process them.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Run + job exist and WILL be processed; only the <code>queued</code> event is missing from the trail.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The transaction rolls back on crash, so nothing exists — the click is simply lost.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="One row. deriveVectorId is a sha256 of input + provider/model/dimensions, so all five runs compute the same id; ON CONFLICT DO NOTHING turns writes 2-5 into no-ops, and each of those runs emits vector_write with deduplicated: true."
+               data-explanation-wrong="Not quite — all five runs hash the same material to the same vector id, so they all target one primary key. ON CONFLICT DO NOTHING absorbs the collision without an error, and the tell is in the events: runs 2-5 show vector_write {deduplicated: true}.">
+            <h3 class="quiz-question">You trigger the check 5 times with the same input + model. How many rows land in <code>skeleton_vectors</code>, and how do you know from the events?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>5 rows — each run inserts its own vector under a fresh id.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>1 row — runs 2-5 show <code>vector_write {deduplicated: true}</code> in their event detail.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>1 row — but runs 2-5 fail with a unique-constraint error and get retried.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — vectors from different models share no geometric space, so a cross-model distance is numerically valid but meaningless. The filter turns config drift (a swapped embedding model in env) into a visible mismatch instead of silently plausible garbage. That is Principle VII."
+               data-explanation-wrong="Think about what a distance between vectors from two different models means: nothing. Dimensions can even match across models, so Postgres would happily compare them — the filter exists so config drift is detected, not papered over with plausible-looking neighbors.">
+            <h3 class="quiz-question">Why does the readback filter on provider/model/dimensions instead of just taking the global nearest vector?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Performance — the WHERE clause lets Postgres scan a much smaller index.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Vectors from different models share no space — the filter turns config drift into a visible mismatch instead of silently &ldquo;similar&rdquo; garbage.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>pgvector physically cannot compare vectors of different dimensions, so the filter is required for the query to run at all.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>That was the happy path — and it&rsquo;s the exact template ingestion and retrieval will reuse: accept, queue, claim, infer, write, read back. <strong>Module 4:</strong> what the queue does when the path <em>isn&rsquo;t</em> happy — claims, retries, backoff, and the append-only trail mid-crash.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">The Postgres Queue</h1>
+      <p class="module-subtitle">No broker, no second datastore — a <code>jobs</code> table, ~60 lines of SQL, and three mechanisms that survive crashes.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + STATE MACHINE (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A queue with no queue software</h2>
+        <p>There&rsquo;s no Redis, no RabbitMQ, no SQS here. The queue is a table named <code>jobs</code> and about 60 lines of SQL — chosen deliberately (<span class="term" data-definition="Fixed decision: the queue is a Postgres table, not a broker. Pinned in the constitution so nobody relitigates it per-feature.">D12</span>), because v2 proved the pattern and a second datastore is a second thing that pages you.</p>
+        <p>Picture a pharmacy prescription rack. Orders go on the rack, any pharmacist grabs the next slip — and the rack&rsquo;s trick is that two pharmacists can reach in at once and never grab the same one.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🤲</div>
+            <h4 class="pattern-title">Grab without colliding</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Row-lock modifier: skip rows another transaction holds locked instead of waiting — the primitive that makes a plain table a safe multi-consumer queue.">SKIP LOCKED</span> — the first transaction to lock a slip owns it; everyone else skips it instead of waiting.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">⏱️</div>
+            <h4 class="pattern-title">The rack takes it back</h4>
+            <p class="pattern-desc">A pharmacist wanders off holding a slip? After the <span class="term" data-definition="How long a claim may sit before the system presumes the worker died and returns the job to the queue — the reclaim clock that recovers from mid-job crashes.">visibility timeout</span>, the order goes back on the rack.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔁</div>
+            <h4 class="pattern-title">Retry with a note</h4>
+            <p class="pattern-desc">Failed orders go back with a &ldquo;don&rsquo;t retry before&rdquo; time — <span class="term" data-definition="Growing the wait between retries (here: doubling on each attempt) so a struggling dependency gets breathing room instead of a hammering.">backoff</span>, implemented as nothing more than a timestamp.</p>
+          </div>
+        </div>
+
+        <p>Here is the entire life of a <code>jobs</code> row. The two teal arrows going <em>backward</em> are the whole reason this is a queue and not a todo list:</p>
+
+        <div class="animate-in" style="background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); padding:var(--space-6); margin:var(--space-8) 0;">
+          <svg viewBox="0 0 800 412" width="100%" role="img" aria-label="State machine for a jobs row: queued goes to claimed via claimNext with FOR UPDATE SKIP LOCKED; claimed goes to succeeded via complete, or to failed when attempts reach the max. Two arrows return to queued: a retryable failure requeues with exponential backoff via run_at, and a visibility-timeout reclaim returns jobs orphaned by crashed workers.">
+            <defs>
+              <marker id="m4-arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#9E9790"/>
+              </marker>
+              <marker id="m4-arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#2D8B55"/>
+              </marker>
+              <marker id="m4-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#C93B3B"/>
+              </marker>
+              <marker id="m4-arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#2A7B9B"/>
+              </marker>
+            </defs>
+
+            <!-- ===== BACK-ARROW 1 (STAR): visibility-timeout reclaim, top arc ===== -->
+            <path d="M 405 186 C 375 66, 175 66, 145 186" fill="none" stroke="#2A7B9B" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 7" marker-end="url(#m4-arrow-teal)">
+              <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <text x="275" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">💥 worker crashed mid-job?</text>
+            <text x="275" y="62" text-anchor="middle" font-size="12" fill="#2A7B9B" style="font-family:var(--font-mono)">claimed too long → reclaimStale() puts it back</text>
+
+            <!-- ===== BACK-ARROW 2 (STAR): retryable failure with backoff, bottom arc ===== -->
+            <path d="M 405 254 C 375 374, 175 374, 145 254" fill="none" stroke="#2A7B9B" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 7" marker-end="url(#m4-arrow-teal)">
+              <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <text x="275" y="378" text-anchor="middle" font-size="13" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">↩ fail() with attempts &lt; max</text>
+            <text x="275" y="398" text-anchor="middle" font-size="12" fill="#2A7B9B" style="font-family:var(--font-mono)">requeued: run_at = now + base × 2^(attempts−1)</text>
+
+            <!-- ===== forward arrows ===== -->
+            <line x1="230" y1="220" x2="312" y2="220" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-gray)"/>
+            <text x="271" y="206" text-anchor="middle" font-size="12" fill="#6B6560" style="font-family:var(--font-mono)">claimNext()</text>
+            <text x="271" y="240" text-anchor="middle" font-size="10" fill="#9E9790" style="font-family:var(--font-mono)">FOR UPDATE SKIP LOCKED</text>
+
+            <line x1="482" y1="200" x2="592" y2="122" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-green)"/>
+            <text x="522" y="146" text-anchor="middle" font-size="12" fill="#2D8B55" style="font-family:var(--font-mono)">complete()</text>
+
+            <line x1="482" y1="240" x2="592" y2="318" stroke="#9E9790" stroke-width="2" marker-end="url(#m4-arrow-red)"/>
+            <text x="518" y="298" text-anchor="middle" font-size="12" fill="#C93B3B" style="font-family:var(--font-mono)">fail() · attempts ≥ max</text>
+
+            <!-- ===== states ===== -->
+            <rect x="60" y="192" width="170" height="56" rx="10" fill="#FFFFFF" stroke="#2A7B9B" stroke-width="2"/>
+            <text x="145" y="216" text-anchor="middle" font-size="15" font-weight="700" fill="#2A7B9B" style="font-family:var(--font-mono)">queued</text>
+            <text x="145" y="236" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">claimable when run_at ≤ now()</text>
+
+            <rect x="320" y="192" width="170" height="56" rx="10" fill="#FFFFFF" stroke="#D4A843" stroke-width="2"/>
+            <text x="405" y="216" text-anchor="middle" font-size="15" font-weight="700" fill="#B8912F" style="font-family:var(--font-mono)">claimed</text>
+            <text x="405" y="236" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">attempts+1 · claimed_by stamped</text>
+
+            <rect x="600" y="80" width="160" height="56" rx="10" fill="#E8F5EE" stroke="#2D8B55" stroke-width="2"/>
+            <text x="680" y="104" text-anchor="middle" font-size="15" font-weight="700" fill="#2D8B55" style="font-family:var(--font-mono)">succeeded</text>
+            <text x="680" y="124" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">terminal ✓</text>
+
+            <rect x="600" y="304" width="160" height="56" rx="10" fill="#FDE8E8" stroke="#C93B3B" stroke-width="2"/>
+            <text x="680" y="328" text-anchor="middle" font-size="15" font-weight="700" fill="#C93B3B" style="font-family:var(--font-mono)">failed</text>
+            <text x="680" y="348" text-anchor="middle" font-size="9.5" fill="#6B6560" style="font-family:var(--font-mono)">claim frozen as evidence</text>
+          </svg>
+        </div>
+
+        <p>Locked claims, attempt-counted backoff, timeout-based reclaim: three small mechanisms that survive concurrent workers, dependency outages, and workers dying <em>mid-job</em>. Knowing them tells you exactly what to check when a job looks stuck — and it&rsquo;s a policy you can copy anywhere your job volume is one operator&rsquo;s background tasks.</p>
+      </section>
+
+      <!-- ============ SCREEN 2: CLAIMING (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Claiming: two hands, one slip</h2>
+        <p>The whole multi-worker story is one SQL clause inside one transaction. Everything else in <code>claimNext</code> is stamping the claim.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/queue.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">claimNext</span>(db: Database, input: ClaimNextInput): Promise&lt;Job | undefined&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// Raw SQL so the locking clause — the load-bearing part — stays literal</span></span>
+<span class="code-line">    <span class="code-comment">// and greppable rather than hidden behind builder options.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> candidates = <span class="code-keyword">await</span> tx.<span class="code-function">execute</span>&lt;{ id: <span class="code-keyword">string</span> }&gt;(</span>
+<span class="code-line">      sql`<span class="code-string">SELECT id FROM jobs</span></span>
+<span class="code-line"><span class="code-string">          WHERE status = 'queued' AND run_at &lt;= now()</span></span>
+<span class="code-line"><span class="code-string">          ORDER BY created_at</span></span>
+<span class="code-line"><span class="code-string">          <strong style="color:#F9E2AF">FOR UPDATE SKIP LOCKED</strong></span></span>
+<span class="code-line"><span class="code-string">          LIMIT 1</span>`,</span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> candidate = candidates.rows[<span class="code-number">0</span>];</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!candidate) {</span>
+<span class="code-line">      <span class="code-keyword">return undefined</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">      .<span class="code-function">set</span>({</span>
+<span class="code-line">        <span class="code-property">status</span>: <span class="code-string">"claimed"</span>,</span>
+<span class="code-line">        <span class="code-property">claimedBy</span>: input.workerId,</span>
+<span class="code-line">        <span class="code-property">claimedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">        <span class="code-property">attempts</span>: sql`${jobs.attempts} + <span class="code-number">1</span>`,</span>
+<span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${candidate.id}`)</span>
+<span class="code-line">      .<span class="code-function">returning</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">return</span> row;</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One call = one attempt to take the next job. <code>undefined</code> means the rack is empty.</p>
+              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block.</p>
+              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL so <code>grep "SKIP LOCKED"</code> finds it.</p>
+              <p class="tl">Take the oldest <code>queued</code> job whose <code>run_at</code> has arrived — the same timestamp backoff will push into the future.</p>
+              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it — no waiting, no double-grab.</p>
+              <p class="tl">One slip at a time.</p>
+              <p class="tl">Nothing claimable? Return <code>undefined</code>; the worker sleeps a tick and polls again.</p>
+              <p class="tl">Still inside the transaction — the lock is still held — flip the row to <code>claimed</code>.</p>
+              <p class="tl">Stamp who took it and when. These two fields power both the reclaim clock and the forensic freeze later.</p>
+              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — so it always counts the run that is about to happen.</p>
+              <p class="tl">Commit releases the lock, and the claimed row goes back to the worker loop.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: keep the load-bearing part literal</strong>
+            <p>Everything else in this file uses the query builder — only the locking clause is raw SQL. When one clause carries the whole concurrency story, you want it greppable and word-for-word identical to the docs that explain it, not reconstructed from builder options in your head.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: FAILING (SNIPPET B + SNIPPET D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Failing: back on the rack, with a note</h2>
+        <p>A failed job faces one comparison: <code>attempts ≥ maxAttempts</code>. Below the limit it goes back on the rack with a &ldquo;don&rsquo;t retry before&rdquo; time; at the limit it&rsquo;s frozen where it fell.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>1st failure<br><code>run_at = now + base×2⁰</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>2nd failure<br><code>run_at = now + base×2¹</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>3rd failure — exhausted<br><code>status = failed</code>, claim frozen</p></div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/queue.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">fail</span>(db: Database, jobId: <span class="code-keyword">string</span>, error: JobFailure): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">await</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx.<span class="code-function">select</span>().<span class="code-function">from</span>(jobs).<span class="code-function">where</span>(sql`${jobs.id} = ${jobId}`);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!row) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// attempts was already bumped by claimNext, so after the Nth run</span></span>
+<span class="code-line">    <span class="code-comment">// attempts === N: 1st failure waits base*2^0, 2nd base*2^1, ... The</span></span>
+<span class="code-line">    <span class="code-comment">// Math.max guards against a hand-inserted row failing at attempts = 0.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> exhausted = row.attempts &gt;= row.maxAttempts;</span>
+<span class="code-line">    <span class="code-keyword">const</span> backoffMs = BACKOFF_BASE_MS * <span class="code-number">2</span> ** Math.<span class="code-function">max</span>(<span class="code-number">0</span>, row.attempts - <span class="code-number">1</span>);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// On terminal failure we freeze claimed_by/claimed_at/run_at as forensic</span></span>
+<span class="code-line">    <span class="code-comment">// evidence of the final attempt; on requeue we clear the claim so the row</span></span>
+<span class="code-line">    <span class="code-comment">// is claimable again once run_at arrives.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
+<span class="code-line">      .<span class="code-function">set</span>({</span>
+<span class="code-line">        <span class="code-property">status</span>: exhausted ? <span class="code-string">"failed"</span> : <span class="code-string">"queued"</span>,</span>
+<span class="code-line">        <span class="code-property">lastError</span>: error,</span>
+<span class="code-line">        <span class="code-property">runAt</span>: exhausted ? row.runAt : <span class="code-keyword">new</span> <span class="code-function">Date</span>(Date.<span class="code-function">now</span>() + backoffMs),</span>
+<span class="code-line">        <span class="code-property">claimedBy</span>: exhausted ? row.claimedBy : <span class="code-keyword">null</span>,</span>
+<span class="code-line">        <span class="code-property">claimedAt</span>: exhausted ? row.claimedAt : <span class="code-keyword">null</span>,</span>
+<span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> <span class="code-function">Date</span>(),</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${jobId}`);</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The worker calls this when a handler throws. The error arriving here is already typed — that vocabulary is module 5.</p>
+              <p class="tl">Same shape as the claim: one transaction, load the row.</p>
+              <p class="tl">Job gone? Nothing to record.</p>
+              <p class="tl">The comment does the arithmetic for you: <code>attempts</code> already counts the run that just failed, because <code>claimNext</code> bumped it up front.</p>
+              <p class="tl">One comparison picks the road: terminal, or try again.</p>
+              <p class="tl">Doubling backoff — 1st failure waits base×1, 2nd base×2, 3rd base×4. <code>Math.max</code> guards a hand-inserted row failing at <code>attempts = 0</code>.</p>
+              <p class="tl">Two exits, one UPDATE — every field picks its value off the same <code>exhausted</code> flag.</p>
+              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack.</p>
+              <p class="tl">The typed failure lands on the row either way — the &ldquo;note&rdquo; on the slip.</p>
+              <p class="tl">The schedule column <em>is</em> the backoff mechanism: requeue pushes <code>run_at</code> into the future, and <code>claimNext</code>&rsquo;s WHERE clause won&rsquo;t touch it before then. No timer service — just a timestamp.</p>
+              <p class="tl">Requeue clears the claim so the row is grabbable again; terminal failure freezes <code>claimed_by</code>/<code>claimed_at</code> as forensic evidence — who ran it last, and when.</p>
+            </div>
+          </div>
+        </div>
+
+        <p><code>fail()</code> is the road back the worker lives to report. The other road back is for the crash it doesn&rsquo;t survive — a job stuck at <code>claimed</code> because its worker is gone:</p>
+
+        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
+          <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
+          <pre style="margin:0"><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
+<span class="code-line">    <span class="code-function">touchHeartbeat</span>();</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-comment">// Visibility timeout: any job claimed longer ago than this is presumed</span></span>
+<span class="code-line">      <span class="code-comment">// orphaned by a crashed worker and returned to the queue. Reclaim runs</span></span>
+<span class="code-line">      <span class="code-comment">// every tick so recovery latency is bounded by pollMs, not by luck.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> reclaimed = <span class="code-keyword">await</span> <span class="code-function">reclaimStale</span>(db, { visibilityTimeoutMs });</span>
+<span class="code-line">      <span class="code-keyword">if</span> (reclaimed &gt; <span class="code-number">0</span>) {</span>
+<span class="code-line">        <span class="code-function">log</span>(<span class="code-string">"jobs_reclaimed"</span>, { <span class="code-property">count</span>: reclaimed });</span>
+<span class="code-line">      }</span></code></pre>
+        </div>
+
+        <p>Every worker tick starts by rescuing <em>other</em> workers&rsquo; orphans, then polls for its own work. Recovery latency is bounded by the timeout plus one poll interval — by design, not by luck.</p>
+      </section>
+
+      <!-- ============ SCREEN 4: THE TRAIL (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The trail beside the rack</h2>
+        <p>Next to <code>jobs</code> sits the event trail from module 3, and it is <span class="term" data-definition="Rows are only ever inserted, never updated or deleted — the history can grow, but it can&rsquo;t be rewritten.">append-only</span> BY CONSTRUCTION: no trigger, no grant — <code>recordEvent</code> is the sole writer, and no UPDATE or DELETE path exists anywhere in the codebase.</p>
+
+        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
+          <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
+          <pre style="margin:0"><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
+<span class="code-line"><span class="code-comment"> * keeping this function the sole writer is the invariant. If you find</span></span>
+<span class="code-line"><span class="code-comment"> * yourself wanting to update or delete an event row, the design answer is</span></span>
+<span class="code-line"><span class="code-comment"> * to append a correcting event instead.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">recordEvent</span>(db: Database, input: RecordEventInput): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">await</span> db.<span class="code-function">insert</span>(skeletonCheckEvents).<span class="code-function">values</span>({</span>
+<span class="code-line">    <span class="code-property">runId</span>: input.runId,</span>
+<span class="code-line">    <span class="code-property">seam</span>: input.seam,</span>
+<span class="code-line">    <span class="code-property">ok</span>: input.ok ?? <span class="code-keyword">true</span>,</span>
+<span class="code-line">    <span class="code-property">detail</span>: input.detail ?? {},</span>
+<span class="code-line">    <span class="code-property">durationMs</span>: input.durationMs,</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+
+        <div class="pattern-cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔁</div>
+            <h4 class="pattern-title">The job: a machine with loops</h4>
+            <p class="pattern-desc"><code>status</code> can go backward — <code>queued → claimed → queued</code> again. Retrying is its whole point.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+            <h4 class="pattern-title">The trail: a ledger, no eraser</h4>
+            <p class="pattern-desc">Events only accumulate. A retry shows up as <em>more</em> events — never edited ones. Corrections are new events.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Two state machines, one honest story</strong>
+            <p>After a retry, the job row looks clean — <code>queued</code>, as if nothing happened. The trail can&rsquo;t pretend: the failed attempt&rsquo;s events are still there, timestamped. The job may loop; the record of what happened only grows.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Debug it yourself</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Both workers run the SELECT; the first to reach the row locks it with FOR UPDATE. SKIP LOCKED means the second doesn&rsquo;t queue up behind that lock — it skips the row, gets zero candidates, and returns undefined. No blocking, no double-claim, no coordination service."
+               data-explanation-wrong="Not quite — the answer is in the clause name. FOR UPDATE alone would make the second worker BLOCK until the first commits (and then see a row that&rsquo;s no longer queued). SKIP LOCKED changes waiting into skipping: the second SELECT simply doesn&rsquo;t see the locked row and comes back empty.">
+            <h3 class="quiz-question">Two workers poll at the same instant; exactly one job is <code>queued</code>. Why does exactly one worker get it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The transactions serialize: the second worker&rsquo;s SELECT blocks until the first commits, then it claims the job too — but the <code>status = 'queued'</code> check saves it.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Both SELECT; the first locks the row, and SKIP LOCKED makes the second <em>skip</em> it — not block — so it sees an empty result and just polls again later.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A unique constraint on <code>claimed_by</code> makes the second worker&rsquo;s UPDATE fail, and its transaction rolls back harmlessly.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right. The row is stuck at status = 'claimed', so no SELECT can see it — until claimed_at is older than the visibility timeout. reclaimStale runs at the top of EVERY worker tick, so once the timeout elapses, the next tick (at most pollMs away) flips it back to queued. Worst case: visibility timeout + one poll interval."
+               data-explanation-wrong="Think about what the dead worker left behind: a row with status = 'claimed'. The Postgres row lock died with the connection, but the status field didn&rsquo;t — claimNext only selects 'queued' rows. Recovery comes from reclaimStale, which runs every tick and requeues any claim older than the visibility timeout: worst case is timeout + one poll interval.">
+            <h3 class="quiz-question">A worker is OOM-killed while holding a claim. When does that job run again, worst case?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>On the very next tick — the dead worker&rsquo;s row lock vanishes when its connection drops, so another worker can claim the job immediately.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Visibility timeout + up to one poll interval — <code>reclaimStale</code> runs every tick, so recovery latency is bounded by <code>pollMs</code>.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Never automatically — a job stuck at <code>claimed</code> needs an operator to requeue it by hand.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. attempts ≥ maxAttempts flips exhausted, so fail() writes status = 'failed', stores the typed error in last_error, and deliberately does NOT clear claimed_by/claimed_at/run_at — they&rsquo;re frozen as forensic evidence: which worker ran the final attempt, and when."
+               data-explanation-wrong="Not quite. Terminal failure keeps the row — and keeps the claim fields on purpose. On a requeue those fields are cleared so the row is claimable; on the FINAL failure they&rsquo;re frozen so you can see which worker ran the last attempt and when. status = 'failed', last_error holds the typed failure.">
+            <h3 class="quiz-question">A job fails a 3rd time with <code>max_attempts = 3</code>. What does the row look like — and why are <code>claimed_by</code>/<code>claimed_at</code> still set?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>status = 'failed'</code> with the claim fields nulled out — terminal rows are cleaned up so they don&rsquo;t look claimed.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>status = 'failed'</code>, <code>last_error</code> holds the typed failure, and the claim fields are frozen as forensic evidence of the final attempt.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The row is deleted — the append-only events table is the only surviving record of the failed run.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the docblock on recordEvent says it outright: if you want to update or delete an event, the design answer is to append a correcting event. The guarantee is by construction — recordEvent being the sole writer IS the invariant — and a one-off UPDATE (even via migration) would break the property that the trail cannot be rewritten."
+               data-explanation-wrong="The table&rsquo;s guarantee is append-only BY CONSTRUCTION: recordEvent is the only writer, and no update path exists — adding one, even audited or flag-guarded, destroys the property that the history can&rsquo;t be rewritten. The design-correct move is to append a correcting event; the typo stays, and the correction sits honestly beside it.">
+            <h3 class="quiz-question">You spot a typo in one event&rsquo;s <code>detail</code> JSON and you&rsquo;re tempted to UPDATE the row. What&rsquo;s the design-correct move?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fix it in a one-off migration — migrations are reviewed and audited, so the change is accountable.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Append a correcting event — the table has no update path on purpose, and keeping <code>recordEvent</code> the sole writer is the invariant.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add an UPDATE helper to <code>events.ts</code>, guarded behind an admin-only flag, so corrections stay rare and controlled.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p>The queue survives crashes — concurrent claims, dependency outages, workers dying mid-job. <strong>Module 5:</strong> who&rsquo;s allowed in at all, and what failure looks like when it reaches the operator — sealed cookies and the four-class typed-error vocabulary.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Auth &amp; Typed Failure</h1>
+      <p class="module-subtitle">One sealed cookie, one global hook, four error classes — and nothing else in the codebase knows a status code.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: THE AUTH MODEL (WAX-SEALED LETTER) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One hash, one seal, zero tables</h2>
+        <p>There is no users table, no sessions table, and no auth middleware per route. One bcrypt hash in env, one <span class="term" data-definition="Encrypted + authenticated cookie — the server can read it, nobody can forge or inspect it; tampering fails decryption and reads as 'no session'.">sealed cookie</span>, one global hook — and an unknown URL returns 401, not 404, on purpose.</p>
+        <p>The session isn&rsquo;t a locker-room ticket the server has to look up — it&rsquo;s a letter sealed with the server&rsquo;s own signet ring. A broken seal needs no investigation: it simply reads as <em>no letter</em>. Revocation is changing the ring — rotate <code>SESSION_SECRET</code> and every outstanding seal dies at once.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p><code>OPERATOR_PASSWORD_HASH</code> + <code>SESSION_SECRET</code> live in env — that&rsquo;s the whole identity store</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Login: bcrypt-compare the one password (<span class="term" data-definition="Fixed decision: single-operator auth — one password, no accounts.">D13</span>)</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Match → seal a cookie with the signet ring</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Every later request: unseal. Clean seal = session. No DB row anywhere</p>
+          </div>
+        </div>
+
+        <p>The seal itself carries its own rules:</p>
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">maxAge: 30 days</code>
+            <span class="badge-desc">The letter expires on its own — an old seal reads as no session</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">httpOnly</code>
+            <span class="badge-desc">Page JavaScript can never touch the cookie — the seal is opaque to scripts</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">sameSite: lax</code>
+            <span class="badge-desc">Other sites can&rsquo;t ride along on the cookie for cross-origin writes</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">no session table</code>
+            <span class="badge-desc">Nothing to look up, nothing to leak, nothing to migrate — the cookie is the whole session</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 2: THE GLOBAL GUARD (SNIPPET A) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One hook guards every route — including the ones that don&rsquo;t exist</h2>
+        <p>Auth is <span class="term" data-definition="Everything requires a valid session unless explicitly exempted. Safety comes from the default, not from remembering to add a guard to each route.">deny-by-default</span>: a single global <code>onRequest</code> hook with an explicit 4-route exemption list. No route opts <em>in</em> to auth — four routes opt <em>out</em>, by name.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/auth/session.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">const</span> EXEMPT = <span class="code-keyword">new</span> <span class="code-function">Set</span>([<span class="code-string">"GET /health"</span>, <span class="code-string">"GET /ready"</span>, <span class="code-string">"POST /api/auth/login"</span>, <span class="code-string">"POST /api/auth/logout"</span>]);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// A global onRequest hook (not preHandler) so it also applies to routes that</span></span>
+<span class="code-line">  <span class="code-comment">// don't exist yet — "every other route requires a valid session" (contracts/api.md).</span></span>
+<span class="code-line">  <span class="code-comment">// Consequence worth knowing: an unauthenticated request to an unknown path</span></span>
+<span class="code-line">  <span class="code-comment">// gets 401, not 404 — the API reveals nothing about its route map.</span></span>
+<span class="code-line">  app.<span class="code-function">addHook</span>(<span class="code-string">"onRequest"</span>, <span class="code-keyword">async</span> (request, reply) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-comment">// routeOptions.url is the route PATTERN (e.g. "/api/x/:id"), so exemption</span></span>
+<span class="code-line">    <span class="code-comment">// can't be spoofed by crafting a matching raw URL; raw url is only the</span></span>
+<span class="code-line">    <span class="code-comment">// fallback for unmatched (404-bound) requests, which are never exempt.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> key = <span class="code-string">`${request.method} ${request.routeOptions?.url ?? request.url}`</span>;</span>
+<span class="code-line">    <span class="code-keyword">if</span> (EXEMPT.<span class="code-function">has</span>(key)) {</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">isSessionAuthenticated</span>(request)) {</span>
+<span class="code-line">      <span class="code-comment">// Same fixed "Sign-in failed." body as every credential failure — the</span></span>
+<span class="code-line">      <span class="code-comment">// response never distinguishes missing vs. tampered vs. expired session.</span></span>
+<span class="code-line">      reply.<span class="code-function">code</span>(<span class="code-number">401</span>).<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(<span class="code-string">"unauthorized"</span>, <span class="code-string">"Sign-in failed."</span>));</span>
+<span class="code-line">    }</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The full escape hatch: four literal <code>METHOD pattern</code> strings — health, ready, login, logout. Everything else lives behind auth.</p>
+              <p class="tl"><code>onRequest</code>, not <code>preHandler</code>: it fires before routing resolves a handler, so even paths with no route are guarded.</p>
+              <p class="tl">That&rsquo;s the deliberate consequence — unknown path, no session, 401. The route map is invisible to the unauthenticated.</p>
+              <p class="tl">Registered once, app-wide. There is no per-route guard to forget.</p>
+              <p class="tl">The key uses the route <em>pattern</em> (<code>/api/x/:id</code>), never the raw URL — you can&rsquo;t craft a URL that string-matches an exemption.</p>
+              <p class="tl">Raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
+              <p class="tl">Exempt key? Fall through to the route, no session needed.</p>
+              <p class="tl">Everyone else must present a cookie that unseals cleanly.</p>
+              <p class="tl">One fixed body — <code>"Sign-in failed."</code> — whether the seal is missing, tampered, or expired. The response teaches an attacker nothing.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: forgetting is impossible</strong>
+            <p>Deny-by-default means forgetting auth on a new route is impossible — the failure mode of forgetfulness is 401, not exposure. The dangerous act isn&rsquo;t adding a route; it&rsquo;s editing <code>EXEMPT</code>, and that edit is loud, explicit, and one line.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: FOUR TRIAGE TAGS (CARDS + SNIPPET B) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Four triage tags, not incident novels</h2>
+        <p>Every failure in this system wears exactly one of four tags. Only the ER front desk — the API edge — translates a tag into what the public hears: a status code.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">404</div>
+            <h4 class="pattern-title"><code>unknown_thing</code></h4>
+            <p class="pattern-desc">You asked for something that doesn&rsquo;t exist — a run id, a resource.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> no such thing — check the id, not the system.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">415</div>
+            <h4 class="pattern-title"><code>unsupported_type</code></h4>
+            <p class="pattern-desc">The input is a kind this system doesn&rsquo;t serve.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> change the input — retrying the same thing changes nothing.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">503</div>
+            <h4 class="pattern-title"><code>dependency_down</code></h4>
+            <p class="pattern-desc">Something we depend on is unreachable or not ready yet.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> retry later — it heals without you.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">500</div>
+            <h4 class="pattern-title"><code>internal_fault</code></h4>
+            <p class="pattern-desc">Our own bug or misconfiguration — the fault is on this side of the seam.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> go fix config or code — waiting is useless.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-text-muted)">
+            <div class="pattern-icon" style="background: var(--color-text-muted)">401</div>
+            <h4 class="pattern-title"><code>unauthorized</code></h4>
+            <p class="pattern-desc">The auth-only bolt-on — not a domain class, just the edge&rsquo;s own tag for a broken seal.</p>
+            <p class="pattern-desc"><strong>Operator&rsquo;s move:</strong> sign in.</p>
+          </div>
+        </div>
+
+        <p>The entire tag-to-status translation is one tiny table — and that smallness is the point. Each mapping is pinned by <span class="term" data-definition="Spec requirement: the four error classes are each pinned by at least one contract test.">FR-018</span>, so it can&rsquo;t drift silently.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/api/src/errors.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">const</span> STATUS_BY_CLASS: Record&lt;ErrorClass | <span class="code-string">"unauthorized"</span>, <span class="code-keyword">number</span>&gt; = {</span>
+<span class="code-line">  <span class="code-property">unknown_thing</span>: <span class="code-number">404</span>,</span>
+<span class="code-line">  <span class="code-property">unsupported_type</span>: <span class="code-number">415</span>,</span>
+<span class="code-line">  <span class="code-property">dependency_down</span>: <span class="code-number">503</span>,</span>
+<span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
+<span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">statusForErrorClass</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>): <span class="code-keyword">number</span> {</span>
+<span class="code-line">  <span class="code-keyword">return</span> STATUS_BY_CLASS[errorClass];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">errorEnvelope</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>, message: <span class="code-keyword">string</span>) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> { <span class="code-property">error</span>: { <span class="code-property">code</span>: errorClass, message } };</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The only place in the codebase that knows an HTTP status. Four domain classes plus the auth bolt-on.</p>
+              <p class="tl">No such thing → 404.</p>
+              <p class="tl">Wrong kind of input → 415.</p>
+              <p class="tl">Dependency unreachable → 503 — a retryable answer.</p>
+              <p class="tl">Our bug → 500.</p>
+              <p class="tl">Broken seal → 401. Note the type: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code>, it&rsquo;s bolted on at the edge only.</p>
+              <p class="tl">End of doctrine.</p>
+              <p class="tl">Tag in, status out — a pure lookup, zero logic.</p>
+              <p class="tl">And every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: CLASSIFICATION AT THE SEAM (SNIPPET C) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The tag is chosen where the patient is found</h2>
+        <p>Classification happens at the seam that failed — worker, ml client, routes all throw <code>DomainError</code> — and only the edge translates. Watch the ml client split two failures that look similar on the wire but demand opposite operator actions.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/ml-client.ts</span>
+            <pre><code><span class="code-line">  <span class="code-comment">// 503 is the sidecar's documented "model still loading / not ready" answer</span></span>
+<span class="code-line">  <span class="code-comment">// (contracts/ml-sidecar.md) — reachable but not serving, still a down</span></span>
+<span class="code-line">  <span class="code-comment">// dependency from the run's point of view, and retryable.</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (response.status <span class="code-operator">===</span> <span class="code-number">503</span>) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"dependency_down"</span>,</span>
+<span class="code-line">      <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"Inference sidecar is not ready."</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// Any other non-2xx (400 unknown model, 404, ...) means we sent something</span></span>
+<span class="code-line">  <span class="code-comment">// the contract doesn't allow — a misconfiguration on our side, so it must</span></span>
+<span class="code-line">  <span class="code-comment">// NOT masquerade as a down dependency: the operator should go fix config,</span></span>
+<span class="code-line">  <span class="code-comment">// not wait for the sidecar to "come back".</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!response.ok) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">      <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">`Inference sidecar returned ${response.status}.`</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;still loading&rdquo; answer — reachable, just not serving yet.</p>
+              <p class="tl">From the run&rsquo;s point of view that&rsquo;s still a down dependency, and crucially: a temporary one.</p>
+              <p class="tl">So the tag is <code>dependency_down</code> — retryable. The operator&rsquo;s move is <em>wait</em>.</p>
+              <p class="tl">The error notes which seam failed and why, in one line.</p>
+              <p class="tl">Same for connection timeouts and refused connections, handled just above this block.</p>
+              <p class="tl">Any <em>other</em> non-2xx — 400 unknown model, 404 — means we sent something the contract doesn&rsquo;t allow.</p>
+              <p class="tl">That must not masquerade as a down dependency: the sidecar is up and answering; <em>our config</em> is wrong.</p>
+              <p class="tl">So the tag is <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar to &ldquo;come back&rdquo; would wait forever.</p>
+              <p class="tl">The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🏷️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Same discipline, earlier seam</strong>
+            <p>The dimension-mismatch guard from Module 3 follows the same rule: a vector of the wrong size throws <code>internal_fault</code> <em>before any write</em>. Misconfiguration is tagged where it&rsquo;s detected and never touches the table.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ + HANDOFF ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Run the triage yourself</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The global onRequest hook guarded the route the moment it registered — deny-by-default means new routes are born protected. The exemption list is the only escape hatch, and it&rsquo;s an explicit, four-entry set you would have had to edit on purpose."
+               data-explanation-wrong="Not quite. There is no per-route guard to forget — the single global hook covers every route (even nonexistent ones) the moment the server starts. Only an explicit edit to the EXEMPT set opens a route, so forgetting auth yields 401s, never exposure.">
+            <h3 class="quiz-question">You add <code>GET /api/corpus</code> next sprint and forget everything about auth. Who can call it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Anyone — a route is open until you attach an auth <code>preHandler</code> to it.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only a valid session — the global hook guarded it the moment it registered; the only escape hatch is the explicit <code>EXEMPT</code> list.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nobody — new routes are blocked outright until they&rsquo;re added to the exemption list.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The sidecar is up and answering — the contract violation is ours: env names a model the sidecar didn&rsquo;t load. Waiting won&rsquo;t fix config, so tagging it dependency_down would send the operator to do exactly the wrong thing. internal_fault says: go fix env."
+               data-explanation-wrong="Not quite. dependency_down is reserved for a dependency that&rsquo;s unreachable or not ready — retryable, self-healing. Here the sidecar is up and answering; our config asked for the wrong model, and no amount of waiting fixes config. The worker throws internal_fault.">
+            <h3 class="quiz-question">The sidecar answers <code>404</code> because the model named in your env isn&rsquo;t the one it loaded. Which class does the worker throw — and why not <code>dependency_down</code>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>dependency_down</code> — any failure from the sidecar means the inference dependency is effectively down.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>internal_fault</code> — the sidecar is up and answering; our config asked for the wrong thing, and waiting won&rsquo;t fix config.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>unknown_thing</code> — the sidecar said 404, so we pass 404 straight through to the client.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The onRequest hook runs before any routing verdict can leak, so an unauthenticated caller can&rsquo;t tell a real path from a fake one — every probe gets the same 401 and the same &ldquo;Sign-in failed.&rdquo; body. The route map is invisible until you hold a valid seal."
+               data-explanation-wrong="Not quite — it&rsquo;s deliberate, and it&rsquo;s documented in the hook&rsquo;s own comment. Auth runs at onRequest, before routing resolves, so a 404 verdict never reaches an unauthenticated caller. If it did, attackers could map the API by probing paths and comparing 401 vs 404.">
+            <h3 class="quiz-question">Ops asks: &ldquo;Why does hitting a nonexistent API path unauthenticated return 401 and not 404?&rdquo; Your answer?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It&rsquo;s a quirk — Fastify happens to run the 404 handler after hooks, and nobody has fixed the ordering.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Deny-by-default runs before any routing verdict can leak — the route map is invisible to the unauthenticated, so real and fake paths answer identically.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>404 is reserved for <code>unknown_thing</code> domain errors, so the router isn&rsquo;t allowed to emit it.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <p>Two single points of truth: every new route is auto-guarded the moment it registers, and every new failure mode is just a class choice — the transport mapping already pinned by contract tests. Doctrine&rsquo;s clean on paper. <strong>Module 6</strong> is the receipts: six real bugs this feature hit during live validation, and what each one taught.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Six real bugs that type-checked, passed tests, and looked correct in review — until the stack actually ran.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + BUG-CARD GRID (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Six bugs, all green at review time</h2>
+        <p>Every one of these six bugs shipped in code that type-checked, passed unit tests, and looked correct in review. They were caught the only way these get caught: by starting the real stack and watching it fail.</p>
+        <p>The codebase marks each fix with a comment that says <em>&ldquo;this is a scar, not speculation.&rdquo;</em> This module is the ledger of those scars — all six documented in the feature&rsquo;s evidence log, none invented.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🔌</div>
+            <h4 class="pattern-title">The process that died with the database</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> stopping Postgres crashed the whole API instead of surfacing 503 <code>dependency_down</code>.<br><strong>Lesson:</strong> every pg Pool needs an error listener — liveness &ne; resilience.</p>
+            <code class="badge-code">process-lifecycle</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+            <h4 class="pattern-title">The Docker build that couldn&rsquo;t see its own tsconfig</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> web image build died with <code>TSConfckParseError</code>; local builds were fine.<br><strong>Lesson:</strong> in monorepo Docker builds, the COPY list is a dependency declaration.</p>
+            <code class="badge-code">container-build</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">$</div>
+            <h4 class="pattern-title">The password hash that compose ate</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> every login failed with a correct password — the bcrypt hash was silently mangled.<br><strong>Lesson:</strong> any secret containing <code>$</code> is a compose-interpolation landmine.</p>
+            <code class="badge-code">config-interpolation</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">⏳</div>
+            <h4 class="pattern-title">The run stuck at &ldquo;running&rdquo; forever</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a missing env var threw before failure-writing code ran — the job retried, the run never failed.<br><strong>Lesson:</strong> catch-alls at job boundaries are load-bearing.</p>
+            <code class="badge-code">env-plumbing</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🪞</div>
+            <h4 class="pattern-title">The test DOM from another realm</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> web tests hung — jsdom&rsquo;s Request/AbortSignal failed RR7&rsquo;s instanceof checks.<br><strong>Lesson:</strong> when a framework checks native brands, your test DOM must share the runtime&rsquo;s globals.</p>
+            <code class="badge-code">test-realm</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #C26D9C">
+            <div class="pattern-icon" style="background: #C26D9C">🔢</div>
+            <h4 class="pattern-title">The migration counter that lied</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a manually renamed migration left drizzle&rsquo;s journal idx stale — the next generate minted a duplicate prefix.<br><strong>Lesson:</strong> renaming tool-managed files means updating the tool&rsquo;s state file too.</p>
+            <code class="badge-code">tooling-state</code>
+          </div>
+        </div>
+
+        <p>Notice what these six classes have in common: process-lifecycle, container-build, config-interpolation, env-plumbing, test-realm, tooling-state. A green typecheck says nothing about any of them — which is exactly why the walking skeleton exists.</p>
+      </section>
+
+      <!-- ============ SCREEN 2: SILENCE IS THE SYMPTOM (SNIPPETS A + D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Silence is the symptom</h2>
+        <p>Bugs #1 and #4 share a shape: nothing screamed. Stopping Postgres didn&rsquo;t produce an error page — it produced a dead process, because node-postgres raises an <span class="term" data-definition="node-postgres: an error on a pooled connection sitting idle — with no 'error' listener, Node treats it as unhandled and kills the process.">idle-client error</span> that nobody was listening for.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/client.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> pool = <span class="code-keyword">new</span> <span class="code-function">Pool</span>({ connectionString });</span>
+<span class="code-line">  <span class="code-comment">// node-postgres crashes the process on an unhandled idle-client error</span></span>
+<span class="code-line">  <span class="code-comment">// otherwise; a dead DB must surface as dependency_down, not a process exit.</span></span>
+<span class="code-line">  pool.<span class="code-function">on</span>(<span class="code-string">"error"</span>, (err) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    console.<span class="code-function">error</span>(<span class="code-string">"Postgres pool error:"</span>, err);</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create the shared pool every query in the process flows through.</p>
+              <p class="tl">The comment is the scar: stopping Postgres once killed the entire API, because an idle pooled connection emitted <code>'error'</code> with no listener — and Node treats that as fatal.</p>
+              <p class="tl">Registering the listener is the whole fix. There&rsquo;s nothing to recover here — the pool discards the dead connection on its own.</p>
+              <p class="tl">Log it and stay alive. A dead DB now surfaces as 503 <code>dependency_down</code> from the health check, not a process exit — and a regression test stops Postgres to prove it.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Bug #4 was quieter still. The worker&rsquo;s compose env was missing <code>EMBEDDING_PROVIDER</code>, so <code>resolveModelRole</code> threw a plain <code>Error</code> <em>before</em> the try/catch that writes failure outcomes — the job silently retried while the run sat at <code>running</code> forever.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">try</span> {</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">runSkeletonCheck</span>(db, runId);</span>
+<span class="code-line">  } <span class="code-keyword">catch</span> (error) {</span>
+<span class="code-line">    <span class="code-comment">// Anything NOT already handled below (e.g. a misconfigured env var</span></span>
+<span class="code-line">    <span class="code-comment">// resolving the model role) must still fail the run — otherwise it's</span></span>
+<span class="code-line">    <span class="code-comment">// stuck at "running" forever while only the underlying job retries.</span></span>
+<span class="code-line">    <span class="code-comment">// This is a scar, not speculation: a missing env var once produced exactly</span></span>
+<span class="code-line">    <span class="code-comment">// that silent hang. DomainErrors skip this — runSkeletonCheck already</span></span>
+<span class="code-line">    <span class="code-comment">// called failRun for those; double-failing would clobber the real outcome.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!(error <span class="code-keyword">instanceof</span> DomainError)) {</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">failRun</span>(</span>
+<span class="code-line">        db,</span>
+<span class="code-line">        runId,</span>
+<span class="code-line">        <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">          <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">          <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">          <span class="code-property">message</span>: <span class="code-string">"Unexpected error before inference."</span>,</span>
+<span class="code-line">          <span class="code-property">cause</span>: error,</span>
+<span class="code-line">        }),</span>
+<span class="code-line">      );</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-comment">// Re-throw so the poll loop also fails the JOB (retry/backoff lives there).</span></span>
+<span class="code-line">    <span class="code-keyword">throw</span> error;</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Wrap the entire check in one boundary try — including everything that runs <em>before</em> the handler&rsquo;s own error handling exists.</p>
+              <p class="tl">The comments narrate the scar: the missing env var threw here, the job retried, and the run showed <code>running</code> forever. Absence of failure, the worst kind of bug.</p>
+              <p class="tl">DomainErrors skip this branch — <code>runSkeletonCheck</code> already called <code>failRun</code> with the real typed outcome, and double-failing would clobber it.</p>
+              <p class="tl">Anything else gets failed explicitly, wrapped as a typed <code>internal_fault</code> pinned to the seam it never reached — original error preserved as <code>cause</code>.</p>
+              <p class="tl">Then re-throw: the poll loop fails the JOB (retry/backoff lives there), this block fails the RUN. Two ledgers, both written.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: the worst failure mode isn&rsquo;t a crash</strong>
+            <p>It&rsquo;s a system that keeps looking busy. A crashed process gets noticed; a run stuck at <code>running</code> gets a shrug and a refresh. Both fixes here do the same thing: convert silence into a typed, visible failure.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: WHEN THE TOOL'S STATE LIES (SNIPPETS C + F, B + E) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">When the tool&rsquo;s state lies</h2>
+        <p>Bugs #3 and #6 share a different shape: your file is correct, but a tool between you and the runtime disagrees. Both fixes live in the code as self-narrating comments — scar tissue you can read in place.</p>
+
+        <p><strong>Bug #3.</strong> bcrypt hashes start <code>$2b$10$…</code> — and Docker Compose interpolates <code>$</code> in <code>.env</code> values, silently mangling the hash. Every login failed with a correct password, so the escaping rule now lives <em>in</em> the env template:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/.env.example</span>
+          <pre><code><span class="code-line"><span class="code-comment"># IMPORTANT: Docker Compose interpolates .env values, so every literal `$` in</span></span>
+<span class="code-line"><span class="code-comment"># the hash must be escaped as `$$` (e.g. `$2b$10$abc...` -&gt; `$$2b$$10$$abc...`)</span></span></code></pre>
+        </div>
+
+        <p><strong>Bug #6.</strong> <code>drizzle-kit generate</code> computes the next migration prefix from the journal&rsquo;s <code>lastEntry.idx + 1</code>. A manual rename (<code>0000</code>&rarr;<code>0001_init</code>) left <code>idx=0</code>, so the next generate minted <code>0001</code> — colliding with the existing file. Found by actually running generate, not by eyeballing:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/packages/db/drizzle.config.ts</span>
+          <pre><code><span class="code-line"><span class="code-comment"> * Numbering gotcha: drizzle-kit derives the next migration prefix from</span></span>
+<span class="code-line"><span class="code-comment"> * migrations/meta/_journal.json (lastEntry.idx + 1). The journal's idx was</span></span>
+<span class="code-line"><span class="code-comment"> * deliberately set to 1 to match the 0001_init tag after a manual file</span></span>
+<span class="code-line"><span class="code-comment"> * rename fixed a numbering collision — don't "correct" it back to 0, or the</span></span>
+<span class="code-line"><span class="code-comment"> * next generate will mint a duplicate prefix.</span></span></code></pre>
+        </div>
+
+        <p>Two more scars round out the ledger. <strong>Bug #2:</strong> every package&rsquo;s tsconfig extends <code>../../tsconfig.base.json</code>, but the Dockerfiles never COPY&rsquo;d it — invisible locally, fatal in the image:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/apps/web/Dockerfile</span>
+          <pre><code><span class="code-line"><span class="code-comment"># tsconfig.base.json is copied EXPLICITLY: every tsconfig extends it, and its</span></span>
+<span class="code-line"><span class="code-comment"># absence is invisible locally but fatal in the image build — this exact line</span></span>
+<span class="code-line"><span class="code-comment"># was missing once and broke the web build with a TSConfckParseError.</span></span>
+<span class="code-line"><span class="code-keyword">COPY</span> pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.base.json <span class="code-string">./</span></span></code></pre>
+        </div>
+
+        <p><strong>Bug #5:</strong> web tests hung because RR7&rsquo;s client runtime brand-checks <code>Request</code>/<code>AbortSignal</code>, and jsdom supplies <span class="term" data-definition="Two copies of the same global class from different JS realms — instanceof between them is always false.">cross-realm</span> copies that always fail <code>instanceof</code>. The fix was swapping the test DOM itself:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/apps/web/vitest.config.ts</span>
+          <pre><code><span class="code-line"><span class="code-comment"> * environment is happy-dom, NOT jsdom, and that choice is load-bearing:</span></span>
+<span class="code-line"><span class="code-comment"> * RR7's client runtime constructs Request/AbortSignal objects, and jsdom's</span></span>
+<span class="code-line"><span class="code-comment"> * realm-separated globals fail RR7's instanceof/brand checks (a real</span></span>
+<span class="code-line"><span class="code-comment"> * cross-realm bug hit during this feature). happy-dom shares Node's</span></span>
+<span class="code-line"><span class="code-comment"> * fetch primitives, so those checks pass.</span></span></code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🧾</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why the comments stay</strong>
+            <p>Each of these comments costs a few lines and prevents a repeat — the next person who &ldquo;cleans up&rdquo; the journal idx or trims the COPY line reads the scar first. The ledger lives where the bug lived.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: SPOT-THE-BUG QUIZ + COURSE WRAP-UP ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the bug</h2>
+        <p>Three fresh incidents. You&rsquo;ve read the ledger — diagnose them.</p>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — compose expands $2, $10, and $Bpd as (empty) variables before the app ever sees the value, so the stored fragment can never match a real bcrypt comparison. Escape every literal dollar: OPERATOR_PASSWORD_HASH=$$2b$$10$$Bpd.zeX71..."
+               data-explanation-wrong="Not quite — the hash itself is a perfectly valid bcrypt output, and quoting doesn&rsquo;t stop compose interpolation. Look at who touches the value before the app does: Docker Compose expands every unescaped $ in .env values, mangling the hash to fragments. Write $$2b$$10$$...">
+            <h3 class="quiz-question">A teammate reports &ldquo;correct password always fails&rdquo; on a fresh deploy. The compose env contains:<br><code>OPERATOR_PASSWORD_HASH=$2b$10$Bpd.zeX71...</code><br>What&rsquo;s wrong?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The hash was generated with the wrong bcrypt cost factor, so comparisons never match.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The <code>$</code> signs are unescaped — compose interpolated the hash to fragments. It must be written <code>$$2b$$10$$...</code></span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The value needs quotes in the <code>.env</code> file so the shell doesn&rsquo;t split it on <code>$</code>.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="That&rsquo;s bug #4&rsquo;s exact shape: the job failed and retried out, but nothing translated that failure into a run outcome. Look for the missing (or bypassed) top-level catch-all at the job boundary — the code that calls failRun for anything that isn&rsquo;t already a handled DomainError."
+               data-explanation-wrong="The jobs row is the tell: attempts=3, status=failed means the worker DID poll, claim, and run — three times. The gap is translation: nothing converted the job&rsquo;s failure into a run failure. That&rsquo;s the boundary catch-all from bug #4, missing or skipped.">
+            <h3 class="quiz-question">A run has shown <code>status=running</code> for 20 minutes. Its jobs row shows <code>attempts=3, status=failed</code>. Which bug pattern is this, and where&rsquo;s the missing code?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The queue poll loop is down — the worker never claimed the job in the first place.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The &ldquo;silent hang&rdquo; pattern: the job failed, but no boundary catch-all translated that into failing the run.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The run and job rows are deadlocked — the transaction that would fail the run can&rsquo;t commit.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — in a monorepo image build, the COPY list is a dependency declaration. tsconfig.strict.json exists on your disk but was never copied into the image context, so only Docker fails. Audit COPY against every extends and workspace reference."
+               data-explanation-wrong="&ldquo;Local builds fine&rdquo; is the tell: the file exists on disk but not inside the image. Before blaming strictness or caches, check the Dockerfile COPY list — the new extends target was never copied in. Same shape as the TSConfckParseError scar.">
+            <h3 class="quiz-question">Your monorepo web image suddenly fails to build after someone adds <code>"extends": "../../tsconfig.strict.json"</code> to a package. Local builds fine. First thing you check?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Dockerfile COPY list — is the new <code>extends</code> target actually inside the image context?</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The tsconfig itself — strict mode probably introduced new type errors in that package.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Docker build cache — rebuild with <code>--no-cache</code> so the layer picks up the new file.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- ============ WRAP-UP: THE COURSE CLOSES HERE ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The ledger closes — what the skeleton proved</h2>
+        <p>Six modules ago this was an empty repo. Here&rsquo;s what running — not reading — has now proven:</p>
+
+        <div class="badge-list stagger-children">
+          <div class="badge-item animate-in">
+            <code class="badge-code">one command</code>
+            <span class="badge-desc">Five services come up together — web, API, worker, sidecar, Postgres.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">six seams</code>
+            <span class="badge-desc">Every crossing recorded as a durable, timestamped event trail.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">idempotent</code>
+            <span class="badge-desc">Re-runs collide on deterministic ids instead of duplicating data.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">typed failure</code>
+            <span class="badge-desc">Every way to die maps to one of four error classes — never a silent hang.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">boundaries</code>
+            <span class="badge-desc">Who may import whom is enforced by tooling, not convention.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">51/51</code>
+            <span class="badge-desc">Every spec task converged against the running stack — this ledger included.</span>
+          </div>
+        </div>
+
+        <p>And what&rsquo;s next builds directly on seams you now know by name:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📥</div>
+            <h4 class="pattern-title">Ingestion</h4>
+            <p class="pattern-desc">Real documents through the same accept &rarr; queue &rarr; claim &rarr; embed &rarr; write path the tracer round proved.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔍</div>
+            <h4 class="pattern-title">Retrieval</h4>
+            <p class="pattern-desc">Real queries through the readback seam — same scoped nearest-neighbor search, same model filter.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">💬</div>
+            <h4 class="pattern-title">Chat</h4>
+            <p class="pattern-desc">An LLM on top of retrieval — failing, when a dependency dies, in the typed vocabulary you already speak.</p>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; text-align: center; margin-top: var(--space-12);">The skeleton walks. Time to give it organs.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

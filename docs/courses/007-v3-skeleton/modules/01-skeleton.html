@@ -1,0 +1,353 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">One Command, Five Services</h1>
+      <p class="module-subtitle">You type one command. Ninety seconds later five services report healthy and you can sign in. This module is about everything that one command commits you to.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 0: Course framing -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What we are building</h2>
+        <p>This is <strong>the Stacks</strong> v3 — a greenfield rebuild of a TTRPG research-library app: bring your own rulebooks, get retrieval-backed chat with real citations. Before any feature, the team shipped a
+          <span class="term" data-definition="Alistair Cockburn's term: the thinnest possible end-to-end slice that exercises every architectural seam — real deploy, real components, near-zero features. You grow the system inside a skeleton that already walks.">walking skeleton</span> — a pnpm monorepo, a five-service Docker Compose stack, and one thin end-to-end probe called the <em>skeleton check</em>.</p>
+        <p>Spec&apos;d via
+          <span class="term" data-definition="GitHub's spec-driven development workflow: each feature gets a checked-in spec.md, plan.md, and tasks.md before any code is written. This feature lives at specs/007-v3-skeleton/.">spec-kit</span>, built against a project constitution with fixed decisions D1&ndash;D14. The skeleton check crosses every
+          <span class="term" data-definition="A boundary where two parts of the system meet — the HTTP edge, the queue table, the sidecar call. Integration risk concentrates at seams, so the skeleton crosses all of them on day one.">seam</span> in the system:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>UI</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>API</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Queue</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Worker</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>ML Sidecar</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <p><span class="term" data-definition="A Postgres extension adding a vector column type plus similarity indexes — embeddings live in the same database as the relational data. No separate vector store to run.">pgvector</span> &amp; back</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 1: Hook, the one command, the five services -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The pencil sketch before the painting</h2>
+        <p>A walking skeleton is a pencil sketch: every structural line present and load-bearing, zero rendering. No feature exists yet, but every line the features will hang on has already been drawn — and proven under weight.</p>
+
+        <div class="translation-code" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">The one command</span>
+          <pre><code><span class="code-function">docker</span> compose up <span class="code-keyword">-d</span> <span class="code-keyword">--build</span> <span class="code-keyword">--wait</span></code></pre>
+        </div>
+
+        <p><code>--wait</code> blocks until every container reports <em>healthy</em> — or fails loudly naming the one that never did. Five services come up:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🐘</div>
+            <h4 class="pattern-title">Postgres + pgvector</h4>
+            <p class="pattern-desc">One database, three roles: system of record, vector store, and job queue.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">⚡</div>
+            <h4 class="pattern-title">Fastify API</h4>
+            <p class="pattern-desc">The HTTP edge on :4401 — validates env, migrates the schema, owns sessions and every route.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🧠</div>
+            <h4 class="pattern-title">ML Sidecar</h4>
+            <p class="pattern-desc">The only Python in the stack (<span class="term" data-definition="Fixed technical decision #2 from the project's constitution: Python is allowed only inside the ML sidecar — every other service is TypeScript.">D2</span>) — embeds text behind a thin HTTP wall.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">⚙️</div>
+            <h4 class="pattern-title">Worker</h4>
+            <p class="pattern-desc">No HTTP surface at all — polls the queue, a plain Postgres table (<span class="term" data-definition="Fixed technical decision #12 from the project's constitution: the job queue is a Postgres table, not a broker like Redis or RabbitMQ.">D12</span>), and does the heavy lifting.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🖥️</div>
+            <h4 class="pattern-title">RR7 SSR Web</h4>
+            <p class="pattern-desc">Server-rendered React Router 7 front end on :4400 — talks only to the API.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: HERO — boot chain data flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The boot order IS the architecture</h2>
+        <p>Compose does not start five containers and hope. Each service is gated on the previous one turning <em>healthy</em> — step through the chain:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"docker compose up -d --build --wait — compose reads the dependency graph and starts Postgres first"},
+          {"highlight":"flow-actor-2","label":"Postgres boots; compose polls pg_isready until the container reports healthy","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"service_healthy gate opens: API starts, runs migrations, THEN binds :4401 — /ready goes green","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"In parallel the ML Sidecar loads the embedding model into its cache — its own /ready goes green once the model is warm","packet":true,"from":"actor-2","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"Worker is gated on BOTH api and ml being healthy — it starts polling and touches its heartbeat file","packet":true,"from":"actor-3","to":"actor-5"},
+          {"highlight":"flow-actor-6","label":"Web is gated on api healthy — it serves :4400 and the stack converges: five green services","packet":true,"from":"actor-3","to":"actor-6"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-text)">📦</div>
+              <span>compose</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">🐘</div>
+              <span>Postgres</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">⚡</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">🧠</div>
+              <span>Sidecar</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">⚙️</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-6">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">🖥️</div>
+              <span>Web</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to boot the stack</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔗</div>
+          <div class="callout-content">
+            <strong class="callout-title">Every arrow is a gate</strong>
+            <p>Each edge in this chain is a compose <code>service_healthy</code> condition — a hard gate, not a race. So &ldquo;the stack is up&rdquo; <em>provably means</em> the schema is current and every dependency answers.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Code ↔ English — API boot sequence -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the API does before it will talk to you</h2>
+        <p>The whole doctrine lives in one function — the order of these lines is the contract. From <code>v3/apps/api/src/main.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">main</span>(): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-function">assertRequiredEnv</span>();</span>
+<span class="code-line"><span class="code-comment">  // Fails fast (naming the variable) if the embedding role's env is missing/malformed.</span></span>
+<span class="code-line"><span class="code-comment">  // The API never embeds — the worker does — but validating here surfaces a bad</span></span>
+<span class="code-line"><span class="code-comment">  // embedding config at deploy time instead of on the first queued run.</span></span>
+<span class="code-line">  <span class="code-function">resolveModelRole</span>(<span class="code-string">"embedding"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> { db, pool } = <span class="code-function">createDbClient</span>(process.env.DATABASE_URL!);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">  // Migrations apply before the port binds — /ready therefore implies</span></span>
+<span class="code-line"><span class="code-comment">  // schema-current (research R10, FR-002).</span></span>
+<span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">runMigrations</span>(db);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> app = <span class="code-keyword">await</span> <span class="code-function">buildApp</span>({</span>
+<span class="code-line">    <span class="code-property">db</span>,</span>
+<span class="code-line">    <span class="code-property">pool</span>,</span>
+<span class="code-line">    <span class="code-property">operatorPasswordHash</span>: process.env.OPERATOR_PASSWORD_HASH!,</span>
+<span class="code-line">    <span class="code-property">sessionSecret</span>: process.env.SESSION_SECRET!,</span>
+<span class="code-line">    <span class="code-property">sessionCookieSecure</span>: process.env.SESSION_COOKIE_SECURE === <span class="code-string">"true"</span>,</span>
+<span class="code-line">  });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> port = Number.<span class="code-function">parseInt</span>(process.env.V3_API_PORT ?? <span class="code-string">"4401"</span>, <span class="code-number">10</span>);</span>
+<span class="code-line">  <span class="code-keyword">await</span> app.<span class="code-function">listen</span>({ <span class="code-property">host</span>: <span class="code-string">"0.0.0.0"</span>, <span class="code-property">port</span> });</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One async boot function. Any throw below kills the container — and compose reports exactly which link died.</p>
+              <p class="tl">Check every required env var up front, and report ALL missing vars at once — not one per restart.</p>
+              <p class="tl">The comments say it plainly: this validation is on behalf of a service that is not this one.</p>
+              <p class="tl">The API validates a model role it never uses — deploy-time surfacing. A bad embedding config stops boot here instead of stranding the first queued job hours later.</p>
+              <p class="tl">Open the connection pool to Postgres — which compose guarantees is already healthy.</p>
+              <p class="tl">Migrate-then-listen. Because this line runs before the port opens, /ready becomes a schema certificate.</p>
+              <p class="tl">Assemble the Fastify app: database handles plus auth material —</p>
+              <p class="tl">— the operator&apos;s password hash and the secret that seals the
+                <span class="term" data-definition="A session cookie whose contents are encrypted and authenticated with a server-side secret. The browser stores it but can neither read nor forge it.">sealed cookie</span> sessions.</p>
+              <p class="tl">Cookie security flag comes from env, so dev over http and prod over https use the same code path.</p>
+              <p class="tl">Port from env with a 4401 default.</p>
+              <p class="tl">Only NOW does the socket open. Anything that can answer on :4401 has, by construction, already migrated.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">/ready is a proof, not a ping</strong>
+            <p>Because migrations run before <code>listen()</code>, a green readiness check certifies schema-currency — not merely &ldquo;a process exists.&rdquo; Order of operations turned a healthcheck into evidence.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: The two odd healthchecks -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two healthchecks that look wrong (and are not)</h2>
+        <p>Open <code>v3/docker-compose.yml</code> and two checks stand out. Both are workarounds for a constraint — and both encode a definition of &ldquo;healthy&rdquo; that is stricter than &ldquo;the process runs.&rdquo;</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">API HEALTHCHECK</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    # node -e fetch(): no curl/wget in node:22-slim, so probe with node itself.</span></span>
+<span class="code-line"><span class="code-comment">    # /ready (not /health) so "healthy" means migrated + serving.</span></span>
+<span class="code-line">    <span class="code-property">healthcheck</span>:</span>
+<span class="code-line">      <span class="code-property">test</span>:</span>
+<span class="code-line">        [</span>
+<span class="code-line">          <span class="code-string">"CMD"</span>,</span>
+<span class="code-line">          <span class="code-string">"node"</span>,</span>
+<span class="code-line">          <span class="code-string">"-e"</span>,</span>
+<span class="code-line">          <span class="code-string">"fetch('http://localhost:4401/ready').then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
+<span class="code-line">        ]</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The slim base image ships no curl or wget — so the probe is a one-liner of Node itself.</p>
+              <p class="tl">And it hits <code>/ready</code>, not <code>/health</code>: the check inherits the migrate-then-listen guarantee from the boot sequence.</p>
+              <p class="tl">Exit 0 on a 2xx, exit 1 on anything else — including a refused connection. Docker translates that into healthy or unhealthy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">WORKER HEALTHCHECK</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    # Worker has no HTTP surface, so health = "heartbeat file touched within the</span></span>
+<span class="code-line"><span class="code-comment">    # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if</span></span>
+<span class="code-line"><span class="code-comment">    # the loop wedges, the file goes stale and the check fails.</span></span>
+<span class="code-line">    <span class="code-property">healthcheck</span>:</span>
+<span class="code-line">      <span class="code-property">test</span>: [<span class="code-string">"CMD-SHELL"</span>, <span class="code-string">"find /tmp/worker-heartbeat -mmin -1 | grep -q ."</span>]</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The Worker exposes no port, so there is nothing to fetch. Instead, its poll loop touches a file on every tick.</p>
+              <p class="tl">The check asks: was that file modified within the last minute? A wedged loop stops touching it, the file goes stale, the container flips unhealthy.</p>
+              <p class="tl">Health here means &ldquo;the loop is actually looping&rdquo; — a strictly stronger claim than &ldquo;the process is alive.&rdquo;</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Debug it before it happens</h2>
+        <p>Three scenarios. Reason from the boot chain, not from memory.</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. runMigrations() throws before listen(), so /ready never answers — the api container never turns healthy, and every service gated on it (worker, web) never starts. --wait fails naming the api link; the blast radius is one link, not a haze of cascading errors."
+               data-explanation-wrong="Not quite — trace the API boot order. Migrations run BEFORE the port binds, so a broken migration means the API never serves at all. Now follow the service_healthy chain: what happens to the services gated on api?">
+            <h3 class="quiz-question">Migration 0002 ships with a syntax error. You run <code>docker compose up -d --build --wait</code>. What do you observe?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All five containers start; the API logs migration errors but keeps serving on :4401 with the old schema</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API never turns healthy, so Worker and Web never start — <code>--wait</code> fails with the problem pinned at the api link</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Postgres goes unhealthy, since the failed SQL leaves its healthcheck failing until the migration is fixed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right. The healthcheck is deliberately NOT process-alive: the poll loop touches /tmp/worker-heartbeat each tick, so a deadlocked loop stops refreshing it, find -mmin -1 matches nothing, and Docker flips the container unhealthy — even though the process is still running."
+               data-explanation-wrong="Not this one. The Worker has no HTTP surface, and nothing else in the stack watches queue depth at boot. The signal is the heartbeat file: a wedged loop stops touching it, and staleness is exactly what the find -mmin -1 check detects.">
+            <h3 class="quiz-question">The Worker process is alive, but its poll loop has deadlocked. Which signal catches it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Docker notices the process exited and restarts the container</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API&apos;s <code>/ready</code> flips red because queue depth keeps growing</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The heartbeat file goes stale (&gt;1 minute), the <code>find -mmin -1</code> check matches nothing, and the container is marked unhealthy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — fail at deploy, not at first use. A malformed EMBEDDING_* config should stop boot with the variable named, not strand a queued ingestion run hours later in a service with no request to attach the error to. The API is simply the earliest place the whole stack can refuse to come up."
+               data-explanation-wrong="Not quite. The API genuinely never embeds — the Worker does. The point of resolveModelRole('embedding') in the API is timing: where do you WANT a bad config to surface — at deploy, loudly, or at the first queued job, silently?">
+            <h3 class="quiz-question">The API calls <code>resolveModelRole("embedding")</code> at boot — yet the API never embeds anything. Why validate it there?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>So a broken embedding config fails the deploy immediately, instead of stranding the first queued run in the Worker later</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because the API falls back to embedding locally if the Worker is down</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because compose requires every service to validate the full shared env file before it will report healthy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>Next up — Module 2 opens the containers: the monorepo map of packages and apps, and the boundary rules a script actually enforces.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,323 @@
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Six real bugs that type-checked, passed tests, and looked correct in review — until the stack actually ran.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK + BUG-CARD GRID (HERO) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Six bugs, all green at review time</h2>
+        <p>Every one of these six bugs shipped in code that type-checked, passed unit tests, and looked correct in review. They were caught the only way these get caught: by starting the real stack and watching it fail.</p>
+        <p>The codebase marks each fix with a comment that says <em>&ldquo;this is a scar, not speculation.&rdquo;</em> This module is the ledger of those scars — all six documented in the feature&rsquo;s evidence log, none invented.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🔌</div>
+            <h4 class="pattern-title">The process that died with the database</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> stopping Postgres crashed the whole API instead of surfacing 503 <code>dependency_down</code>.<br><strong>Lesson:</strong> every pg Pool needs an error listener — liveness &ne; resilience.</p>
+            <code class="badge-code">process-lifecycle</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+            <h4 class="pattern-title">The Docker build that couldn&rsquo;t see its own tsconfig</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> web image build died with <code>TSConfckParseError</code>; local builds were fine.<br><strong>Lesson:</strong> in monorepo Docker builds, the COPY list is a dependency declaration.</p>
+            <code class="badge-code">container-build</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">$</div>
+            <h4 class="pattern-title">The password hash that compose ate</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> every login failed with a correct password — the bcrypt hash was silently mangled.<br><strong>Lesson:</strong> any secret containing <code>$</code> is a compose-interpolation landmine.</p>
+            <code class="badge-code">config-interpolation</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">⏳</div>
+            <h4 class="pattern-title">The run stuck at &ldquo;running&rdquo; forever</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a missing env var threw before failure-writing code ran — the job retried, the run never failed.<br><strong>Lesson:</strong> catch-alls at job boundaries are load-bearing.</p>
+            <code class="badge-code">env-plumbing</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🪞</div>
+            <h4 class="pattern-title">The test DOM from another realm</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> web tests hung — jsdom&rsquo;s Request/AbortSignal failed RR7&rsquo;s instanceof checks.<br><strong>Lesson:</strong> when a framework checks native brands, your test DOM must share the runtime&rsquo;s globals.</p>
+            <code class="badge-code">test-realm</code>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #C26D9C">
+            <div class="pattern-icon" style="background: #C26D9C">🔢</div>
+            <h4 class="pattern-title">The migration counter that lied</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a manually renamed migration left drizzle&rsquo;s journal idx stale — the next generate minted a duplicate prefix.<br><strong>Lesson:</strong> renaming tool-managed files means updating the tool&rsquo;s state file too.</p>
+            <code class="badge-code">tooling-state</code>
+          </div>
+        </div>
+
+        <p>Notice what these six classes have in common: process-lifecycle, container-build, config-interpolation, env-plumbing, test-realm, tooling-state. A green typecheck says nothing about any of them — which is exactly why the walking skeleton exists.</p>
+      </section>
+
+      <!-- ============ SCREEN 2: SILENCE IS THE SYMPTOM (SNIPPETS A + D) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Silence is the symptom</h2>
+        <p>Bugs #1 and #4 share a shape: nothing screamed. Stopping Postgres didn&rsquo;t produce an error page — it produced a dead process, because node-postgres raises an <span class="term" data-definition="node-postgres: an error on a pooled connection sitting idle — with no 'error' listener, Node treats it as unhandled and kills the process.">idle-client error</span> that nobody was listening for.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/client.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">const</span> pool = <span class="code-keyword">new</span> <span class="code-function">Pool</span>({ connectionString });</span>
+<span class="code-line">  <span class="code-comment">// node-postgres crashes the process on an unhandled idle-client error</span></span>
+<span class="code-line">  <span class="code-comment">// otherwise; a dead DB must surface as dependency_down, not a process exit.</span></span>
+<span class="code-line">  pool.<span class="code-function">on</span>(<span class="code-string">"error"</span>, (err) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    console.<span class="code-function">error</span>(<span class="code-string">"Postgres pool error:"</span>, err);</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create the shared pool every query in the process flows through.</p>
+              <p class="tl">The comment is the scar: stopping Postgres once killed the entire API, because an idle pooled connection emitted <code>'error'</code> with no listener — and Node treats that as fatal.</p>
+              <p class="tl">Registering the listener is the whole fix. There&rsquo;s nothing to recover here — the pool discards the dead connection on its own.</p>
+              <p class="tl">Log it and stay alive. A dead DB now surfaces as 503 <code>dependency_down</code> from the health check, not a process exit — and a regression test stops Postgres to prove it.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Bug #4 was quieter still. The worker&rsquo;s compose env was missing <code>EMBEDDING_PROVIDER</code>, so <code>resolveModelRole</code> threw a plain <code>Error</code> <em>before</em> the try/catch that writes failure outcomes — the job silently retried while the run sat at <code>running</code> forever.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/handlers/skeleton-check.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">try</span> {</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">runSkeletonCheck</span>(db, runId);</span>
+<span class="code-line">  } <span class="code-keyword">catch</span> (error) {</span>
+<span class="code-line">    <span class="code-comment">// Anything NOT already handled below (e.g. a misconfigured env var</span></span>
+<span class="code-line">    <span class="code-comment">// resolving the model role) must still fail the run — otherwise it's</span></span>
+<span class="code-line">    <span class="code-comment">// stuck at "running" forever while only the underlying job retries.</span></span>
+<span class="code-line">    <span class="code-comment">// This is a scar, not speculation: a missing env var once produced exactly</span></span>
+<span class="code-line">    <span class="code-comment">// that silent hang. DomainErrors skip this — runSkeletonCheck already</span></span>
+<span class="code-line">    <span class="code-comment">// called failRun for those; double-failing would clobber the real outcome.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!(error <span class="code-keyword">instanceof</span> DomainError)) {</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">failRun</span>(</span>
+<span class="code-line">        db,</span>
+<span class="code-line">        runId,</span>
+<span class="code-line">        <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">          <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">          <span class="code-property">seam</span>: <span class="code-string">"inference"</span>,</span>
+<span class="code-line">          <span class="code-property">message</span>: <span class="code-string">"Unexpected error before inference."</span>,</span>
+<span class="code-line">          <span class="code-property">cause</span>: error,</span>
+<span class="code-line">        }),</span>
+<span class="code-line">      );</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-comment">// Re-throw so the poll loop also fails the JOB (retry/backoff lives there).</span></span>
+<span class="code-line">    <span class="code-keyword">throw</span> error;</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Wrap the entire check in one boundary try — including everything that runs <em>before</em> the handler&rsquo;s own error handling exists.</p>
+              <p class="tl">The comments narrate the scar: the missing env var threw here, the job retried, and the run showed <code>running</code> forever. Absence of failure, the worst kind of bug.</p>
+              <p class="tl">DomainErrors skip this branch — <code>runSkeletonCheck</code> already called <code>failRun</code> with the real typed outcome, and double-failing would clobber it.</p>
+              <p class="tl">Anything else gets failed explicitly, wrapped as a typed <code>internal_fault</code> pinned to the seam it never reached — original error preserved as <code>cause</code>.</p>
+              <p class="tl">Then re-throw: the poll loop fails the JOB (retry/backoff lives there), this block fails the RUN. Two ledgers, both written.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha: the worst failure mode isn&rsquo;t a crash</strong>
+            <p>It&rsquo;s a system that keeps looking busy. A crashed process gets noticed; a run stuck at <code>running</code> gets a shrug and a refresh. Both fixes here do the same thing: convert silence into a typed, visible failure.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: WHEN THE TOOL'S STATE LIES (SNIPPETS C + F, B + E) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">When the tool&rsquo;s state lies</h2>
+        <p>Bugs #3 and #6 share a different shape: your file is correct, but a tool between you and the runtime disagrees. Both fixes live in the code as self-narrating comments — scar tissue you can read in place.</p>
+
+        <p><strong>Bug #3.</strong> bcrypt hashes start <code>$2b$10$…</code> — and Docker Compose interpolates <code>$</code> in <code>.env</code> values, silently mangling the hash. Every login failed with a correct password, so the escaping rule now lives <em>in</em> the env template:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/.env.example</span>
+          <pre><code><span class="code-line"><span class="code-comment"># IMPORTANT: Docker Compose interpolates .env values, so every literal `$` in</span></span>
+<span class="code-line"><span class="code-comment"># the hash must be escaped as `$$` (e.g. `$2b$10$abc...` -&gt; `$$2b$$10$$abc...`)</span></span></code></pre>
+        </div>
+
+        <p><strong>Bug #6.</strong> <code>drizzle-kit generate</code> computes the next migration prefix from the journal&rsquo;s <code>lastEntry.idx + 1</code>. A manual rename (<code>0000</code>&rarr;<code>0001_init</code>) left <code>idx=0</code>, so the next generate minted <code>0001</code> — colliding with the existing file. Found by actually running generate, not by eyeballing:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/packages/db/drizzle.config.ts</span>
+          <pre><code><span class="code-line"><span class="code-comment"> * Numbering gotcha: drizzle-kit derives the next migration prefix from</span></span>
+<span class="code-line"><span class="code-comment"> * migrations/meta/_journal.json (lastEntry.idx + 1). The journal's idx was</span></span>
+<span class="code-line"><span class="code-comment"> * deliberately set to 1 to match the 0001_init tag after a manual file</span></span>
+<span class="code-line"><span class="code-comment"> * rename fixed a numbering collision — don't "correct" it back to 0, or the</span></span>
+<span class="code-line"><span class="code-comment"> * next generate will mint a duplicate prefix.</span></span></code></pre>
+        </div>
+
+        <p>Two more scars round out the ledger. <strong>Bug #2:</strong> every package&rsquo;s tsconfig extends <code>../../tsconfig.base.json</code>, but the Dockerfiles never COPY&rsquo;d it — invisible locally, fatal in the image:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/apps/web/Dockerfile</span>
+          <pre><code><span class="code-line"><span class="code-comment"># tsconfig.base.json is copied EXPLICITLY: every tsconfig extends it, and its</span></span>
+<span class="code-line"><span class="code-comment"># absence is invisible locally but fatal in the image build — this exact line</span></span>
+<span class="code-line"><span class="code-comment"># was missing once and broke the web build with a TSConfckParseError.</span></span>
+<span class="code-line"><span class="code-keyword">COPY</span> pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.base.json <span class="code-string">./</span></span></code></pre>
+        </div>
+
+        <p><strong>Bug #5:</strong> web tests hung because RR7&rsquo;s client runtime brand-checks <code>Request</code>/<code>AbortSignal</code>, and jsdom supplies <span class="term" data-definition="Two copies of the same global class from different JS realms — instanceof between them is always false.">cross-realm</span> copies that always fail <code>instanceof</code>. The fix was swapping the test DOM itself:</p>
+
+        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
+          <span class="translation-label">SCAR — v3/apps/web/vitest.config.ts</span>
+          <pre><code><span class="code-line"><span class="code-comment"> * environment is happy-dom, NOT jsdom, and that choice is load-bearing:</span></span>
+<span class="code-line"><span class="code-comment"> * RR7's client runtime constructs Request/AbortSignal objects, and jsdom's</span></span>
+<span class="code-line"><span class="code-comment"> * realm-separated globals fail RR7's instanceof/brand checks (a real</span></span>
+<span class="code-line"><span class="code-comment"> * cross-realm bug hit during this feature). happy-dom shares Node's</span></span>
+<span class="code-line"><span class="code-comment"> * fetch primitives, so those checks pass.</span></span></code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🧾</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why the comments stay</strong>
+            <p>Each of these comments costs a few lines and prevents a repeat — the next person who &ldquo;cleans up&rdquo; the journal idx or trims the COPY line reads the scar first. The ledger lives where the bug lived.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: SPOT-THE-BUG QUIZ + COURSE WRAP-UP ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the bug</h2>
+        <p>Three fresh incidents. You&rsquo;ve read the ledger — diagnose them.</p>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — compose expands $2, $10, and $Bpd as (empty) variables before the app ever sees the value, so the stored fragment can never match a real bcrypt comparison. Escape every literal dollar: OPERATOR_PASSWORD_HASH=$$2b$$10$$Bpd.zeX71..."
+               data-explanation-wrong="Not quite — the hash itself is a perfectly valid bcrypt output, and quoting doesn&rsquo;t stop compose interpolation. Look at who touches the value before the app does: Docker Compose expands every unescaped $ in .env values, mangling the hash to fragments. Write $$2b$$10$$...">
+            <h3 class="quiz-question">A teammate reports &ldquo;correct password always fails&rdquo; on a fresh deploy. The compose env contains:<br><code>OPERATOR_PASSWORD_HASH=$2b$10$Bpd.zeX71...</code><br>What&rsquo;s wrong?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The hash was generated with the wrong bcrypt cost factor, so comparisons never match.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The <code>$</code> signs are unescaped — compose interpolated the hash to fragments. It must be written <code>$$2b$$10$$...</code></span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The value needs quotes in the <code>.env</code> file so the shell doesn&rsquo;t split it on <code>$</code>.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="That&rsquo;s bug #4&rsquo;s exact shape: the job failed and retried out, but nothing translated that failure into a run outcome. Look for the missing (or bypassed) top-level catch-all at the job boundary — the code that calls failRun for anything that isn&rsquo;t already a handled DomainError."
+               data-explanation-wrong="The jobs row is the tell: attempts=3, status=failed means the worker DID poll, claim, and run — three times. The gap is translation: nothing converted the job&rsquo;s failure into a run failure. That&rsquo;s the boundary catch-all from bug #4, missing or skipped.">
+            <h3 class="quiz-question">A run has shown <code>status=running</code> for 20 minutes. Its jobs row shows <code>attempts=3, status=failed</code>. Which bug pattern is this, and where&rsquo;s the missing code?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The queue poll loop is down — the worker never claimed the job in the first place.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The &ldquo;silent hang&rdquo; pattern: the job failed, but no boundary catch-all translated that into failing the run.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The run and job rows are deadlocked — the transaction that would fail the run can&rsquo;t commit.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — in a monorepo image build, the COPY list is a dependency declaration. tsconfig.strict.json exists on your disk but was never copied into the image context, so only Docker fails. Audit COPY against every extends and workspace reference."
+               data-explanation-wrong="&ldquo;Local builds fine&rdquo; is the tell: the file exists on disk but not inside the image. Before blaming strictness or caches, check the Dockerfile COPY list — the new extends target was never copied in. Same shape as the TSConfckParseError scar.">
+            <h3 class="quiz-question">Your monorepo web image suddenly fails to build after someone adds <code>"extends": "../../tsconfig.strict.json"</code> to a package. Local builds fine. First thing you check?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Dockerfile COPY list — is the new <code>extends</code> target actually inside the image context?</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The tsconfig itself — strict mode probably introduced new type errors in that package.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Docker build cache — rebuild with <code>--no-cache</code> so the layer picks up the new file.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- ============ WRAP-UP: THE COURSE CLOSES HERE ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The ledger closes — what the skeleton proved</h2>
+        <p>Six modules ago this was an empty repo. Here&rsquo;s what running — not reading — has now proven:</p>
+
+        <div class="badge-list stagger-children">
+          <div class="badge-item animate-in">
+            <code class="badge-code">one command</code>
+            <span class="badge-desc">Five services come up together — web, API, worker, sidecar, Postgres.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">six seams</code>
+            <span class="badge-desc">Every crossing recorded as a durable, timestamped event trail.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">idempotent</code>
+            <span class="badge-desc">Re-runs collide on deterministic ids instead of duplicating data.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">typed failure</code>
+            <span class="badge-desc">Every way to die maps to one of four error classes — never a silent hang.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">boundaries</code>
+            <span class="badge-desc">Who may import whom is enforced by tooling, not convention.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">51/51</code>
+            <span class="badge-desc">Every spec task converged against the running stack — this ledger included.</span>
+          </div>
+        </div>
+
+        <p>And what&rsquo;s next builds directly on seams you now know by name:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📥</div>
+            <h4 class="pattern-title">Ingestion</h4>
+            <p class="pattern-desc">Real documents through the same accept &rarr; queue &rarr; claim &rarr; embed &rarr; write path the tracer round proved.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔍</div>
+            <h4 class="pattern-title">Retrieval</h4>
+            <p class="pattern-desc">Real queries through the readback seam — same scoped nearest-neighbor search, same model filter.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">💬</div>
+            <h4 class="pattern-title">Chat</h4>
+            <p class="pattern-desc">An LLM on top of retrieval — failing, when a dependency dies, in the typed vocabulary you already speak.</p>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; text-align: center; margin-top: var(--space-12);">The skeleton walks. Time to give it organs.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
