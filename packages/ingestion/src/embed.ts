@@ -29,6 +29,7 @@ export interface EmbedClient {
   /** Embeds all texts, batching at maxBatch; result[i] belongs to texts[i]. */
   embedAll(texts: string[]): Promise<number[][]>;
   readonly config: ModelRoleConfig;
+  readonly maxBatch: number;
 }
 
 interface EmbedResponse {
@@ -91,6 +92,7 @@ export function createEmbedClient(options: EmbedClientOptions): EmbedClient {
 
   return {
     config,
+    maxBatch,
     async embedAll(texts) {
       const vectors: number[][] = [];
       for (let i = 0; i < texts.length; i += maxBatch) {

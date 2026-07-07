@@ -13,4 +13,4 @@
  * Fixtures under fixtures/ are synthetic look-alikes exercising DDB-shaped
  * structure without any proprietary text (constitution Principle I, FR-024).
  */
-export {};
+export { ddbSavedHtmlPlugin } from "./ddb/index";
