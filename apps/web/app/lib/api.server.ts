@@ -160,6 +160,56 @@ export async function uploadToLibrary(
   };
 }
 
+export interface IngestionEvent {
+  stage: string;
+  event: string;
+  ok: boolean;
+  detail: Record<string, unknown>;
+  durationMs: number | null;
+  at: string;
+}
+
+export interface SourceTicketDetail {
+  ticket: { kind: "source"; id: string };
+  source: {
+    originalFilename: string;
+    status: "queued" | "processing" | "ingested" | "failed" | "empty";
+    plugin: { name: string; version: string; confidence: number } | null;
+    generation: number;
+    counts: { sections: number; chunks: number };
+    lastError: { class: string; stage: string; message: string } | null;
+  };
+  events: IngestionEvent[];
+}
+
+export interface BatchTicketDetail {
+  ticket: { kind: "batch"; id: string };
+  batch: {
+    originalFilename: string;
+    status: "expanding" | "expanded" | "failed" | "empty";
+    entryReport: Array<{ name: string; outcome: string; reason?: string; sourceId?: string }>;
+  };
+  sources: Array<{ sourceId: string; filename: string; status: string }>;
+  events: IngestionEvent[];
+}
+
+export type TicketDetail = SourceTicketDetail | BatchTicketDetail;
+
+export async function getUploadTicket(
+  request: Request,
+  kind: string,
+  id: string,
+): Promise<TicketDetail | null> {
+  const response = await apiFetch(request, `/api/uploads/${kind}/${id}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Response("Failed to load upload ticket", { status: response.status });
+  }
+  return (await response.json()) as TicketDetail;
+}
+
 export async function getSkeletonCheck(request: Request, id: string): Promise<RunDetail | null> {
   const response = await apiFetch(request, `/api/skeleton-checks/${id}`);
   // 404 → null so the route loader can throw its own 404 Response; every

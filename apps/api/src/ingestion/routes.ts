@@ -16,6 +16,8 @@ import { admitBatch, admitSource, sniffMediaType } from "@stacks/ingestion";
 import { sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 
+import { registerStatusRoutes } from "./status";
+
 export interface IngestionRoutesDeps {
   db: Database;
   /** Injectable for tests; env-resolved in main.ts wiring. */
@@ -33,6 +35,8 @@ export async function registerIngestionRoutes(
   // The size cap is enforced INSIDE the multipart stream (limits.fileSize):
   // an oversized upload is refused without ever being buffered whole (R7).
   await app.register(multipart, { limits: { fileSize: maxUploadBytes, files: 1 } });
+
+  registerStatusRoutes(app, { db });
 
   app.post("/api/uploads", async (request, reply) => {
     const file = await request.file();

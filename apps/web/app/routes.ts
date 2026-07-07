@@ -14,5 +14,6 @@ export default [
     index("routes/home.tsx"),
     route("skeleton-checks/:id", "routes/skeleton-check-detail.tsx"),
     route("library/upload", "routes/library.upload.tsx"),
+    route("library/uploads/:kind/:id", "routes/library.uploads.$ticket.tsx"),
   ]),
 ] satisfies RouteConfig;

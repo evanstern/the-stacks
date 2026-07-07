@@ -96,15 +96,15 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 ### Tests for User Story 2
 
-- [ ] T031 [P] [US2] Failing contract tests for `GET /v1/uploads/:kind/:id`: source payload shape (status, plugin, generation, counts, lastError, ordered events), batch payload (entryReport + per-source summaries), 404 unknown_thing in apps/api/src/ingestion/status.test.ts
-- [ ] T032 [P] [US2] Author malformed fixture (declares HTML, truncated garbage) in packages/ingestion-plugins/fixtures/rejects/truncated.html
+- [x] T031 [P] [US2] Failing contract tests for `GET /v1/uploads/:kind/:id`: source payload shape (status, plugin, generation, counts, lastError, ordered events), batch payload (entryReport + per-source summaries), 404 unknown_thing in apps/api/src/ingestion/status.test.ts
+- [x] T032 [P] [US2] Author malformed fixture (declares HTML, truncated garbage) in packages/ingestion-plugins/fixtures/rejects/truncated.html
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement ticket status endpoint per contracts/api.md in apps/api/src/ingestion/status.ts (registered in routes.ts) — T031 green
-- [ ] T034 [US2] Scrubbed failure propagation: driver writes sources.last_error `{class, stage, message}` on terminal failure, failed events carry stage-specific detail keys per contracts/events.md; DB-gated retry-then-fail test with T032's fixture in packages/ingestion/src/ingest-source.failure.test.ts
-- [ ] T035 [US2] Web ticket status page (loader on status endpoint, event-trail table, auto-revalidate while non-terminal — R12) in apps/web/app/routes/library.uploads.$ticket.tsx + route registration
-- [ ] T036 [US2] Append-only re-inspection test: after terminal state, trail re-reads byte-identical incl. all retry attempts (US2 AC-3, SC-006) added to packages/ingestion/src/ingest-source.failure.test.ts
+- [x] T033 [US2] Implement ticket status endpoint per contracts/api.md in apps/api/src/ingestion/status.ts (registered in routes.ts) — T031 green
+- [x] T034 [US2] Scrubbed failure propagation: driver writes sources.last_error `{class, stage, message}` on terminal failure, failed events carry stage-specific detail keys per contracts/events.md; DB-gated retry-then-fail test with T032's fixture in packages/ingestion/src/ingest-source.failure.test.ts
+- [x] T035 [US2] Web ticket status page (loader on status endpoint, event-trail table, auto-revalidate while non-terminal — R12) in apps/web/app/routes/library.uploads.$ticket.tsx + route registration
+- [x] T036 [US2] Append-only re-inspection test: after terminal state, trail re-reads byte-identical incl. all retry attempts (US2 AC-3, SC-006) added to packages/ingestion/src/ingest-source.failure.test.ts
 
 **Checkpoint**: US1 + US2 — the full human journey (upload → watch → indexed/failed-with-reason) works in the browser (SC-001 web path now complete).
 
