@@ -20,6 +20,7 @@ import { registerAuthRoutes } from "./auth/routes";
 import { registerSession } from "./auth/session";
 import { errorEnvelope, statusForErrorClass } from "./errors";
 import { registerHealthRoutes } from "./health";
+import { registerIngestionRoutes } from "./ingestion/routes";
 import { registerSkeletonCheckRoutes } from "./skeleton-checks/routes";
 
 export interface AppDeps {
@@ -28,6 +29,8 @@ export interface AppDeps {
   operatorPasswordHash: string;
   sessionSecret: string;
   sessionCookieSecure: boolean;
+  /** Ingestion intake cap; env-resolved in main.ts, injectable in tests. */
+  maxUploadBytes?: number;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
@@ -78,6 +81,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   });
   registerAuthRoutes(app, { operatorPasswordHash: deps.operatorPasswordHash });
   registerSkeletonCheckRoutes(app, { db: deps.db });
+  await registerIngestionRoutes(app, { db: deps.db, maxUploadBytes: deps.maxUploadBytes });
 
   return app;
 }

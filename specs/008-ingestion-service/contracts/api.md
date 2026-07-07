@@ -7,7 +7,10 @@ skeleton's: `DomainError` classes → HTTP only in `app.ts`
 (`unknown_thing` 404, `unsupported_type` 415, `dependency_down` 503, `internal_fault`
 500); body shape `{ "error": { "code", "message" } }`.
 
-## `POST /v1/uploads` — intake (FR-001..005, research R7)
+## `POST /api/uploads` — intake (FR-001..005, research R7)
+
+> Path convention amended at implementation: the skeleton's routes live under
+> `/api/*`, so 008 follows suit (was `/v1/*` in the plan-phase draft).
 
 `multipart/form-data`, field `file` (exactly one). Optional field `corpus` (name;
 defaults to `default`).
@@ -40,7 +43,7 @@ Synchronous behavior, in order:
 "status": "expanding" }`. Duplicate ZIP (same archive fingerprint, same corpus) → 200 +
 existing batch ticket.
 
-## `GET /v1/uploads/:kind/:id` — ticket status (FR-010, US2)
+## `GET /api/uploads/:kind/:id` — ticket status (FR-010, US2)
 
 `:kind` ∈ `source` | `batch`. Unknown id → **404** (`unknown_thing`).
 
