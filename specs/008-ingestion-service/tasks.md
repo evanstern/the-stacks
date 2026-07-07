@@ -28,11 +28,11 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 **Purpose**: New packages exist, dependencies declared, boundaries enforced, env contract extended.
 
-- [ ] T001 Scaffold `@stacks/ingestion` package (package.json, tsconfig extending tsconfig.base.json, vitest config, empty src/index.ts) in packages/ingestion/, wired into pnpm-workspace.yaml and root verify script
-- [ ] T002 [P] Scaffold `@stacks/ingestion-plugins` package (same shape; depends ONLY on `@stacks/ingestion-contract` workspace dep) in packages/ingestion-plugins/
-- [ ] T003 [P] Add dependencies: `cheerio` + `sanitize-html` to packages/ingestion-plugins/package.json; `yauzl` to apps/worker/package.json (R6 worker-only exception); `@fastify/multipart` to apps/api/package.json
-- [ ] T004 [P] Extend scripts/check-boundaries.mjs with R13 rules — (a) ingestion-plugins imports only @stacks/ingestion-contract + its own parsing deps, (b) cheerio/sanitize-html appear nowhere outside packages/ingestion-plugins, yauzl nowhere outside apps/worker, (c) verify existing no-hardcoded-model rule covers new packages; prove by running `node scripts/check-boundaries.mjs`
-- [ ] T005 [P] Extend .env.example and docker-compose.yml (api + worker env passthrough) with `INGEST_MAX_UPLOAD_BYTES=26214400`, `INGEST_MAX_BATCH_ENTRIES=200`, `CHUNK_TARGET_CHARS=4000`, `CHUNK_OVERLAP_CHARS=400`, `CHUNK_MAX_CHARS=6000` per contracts/api.md, with teaching comments
+- [x] T001 Scaffold `@stacks/ingestion` package (package.json, tsconfig extending tsconfig.base.json, vitest config, empty src/index.ts) in packages/ingestion/, wired into pnpm-workspace.yaml and root verify script
+- [x] T002 [P] Scaffold `@stacks/ingestion-plugins` package (same shape; depends ONLY on `@stacks/ingestion-contract` workspace dep) in packages/ingestion-plugins/
+- [x] T003 [P] Add dependencies: `cheerio` + `sanitize-html` to packages/ingestion-plugins/package.json; `yauzl` to apps/worker/package.json (R6 worker-only exception); `@fastify/multipart` to apps/api/package.json
+- [x] T004 [P] Extend scripts/check-boundaries.mjs with R13 rules — (a) ingestion-plugins imports only @stacks/ingestion-contract + its own parsing deps, (b) cheerio/sanitize-html appear nowhere outside packages/ingestion-plugins, yauzl nowhere outside apps/worker, (c) verify existing no-hardcoded-model rule covers new packages; prove by running `node scripts/check-boundaries.mjs`
+- [x] T005 [P] Extend .env.example and docker-compose.yml (api + worker env passthrough) with `INGEST_MAX_UPLOAD_BYTES=26214400`, `INGEST_MAX_BATCH_ENTRIES=200`, `CHUNK_TARGET_CHARS=4000`, `CHUNK_OVERLAP_CHARS=400`, `CHUNK_MAX_CHARS=6000` per contracts/api.md, with teaching comments
 
 ---
 

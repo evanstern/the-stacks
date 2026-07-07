@@ -16,6 +16,17 @@
 //      models are configuration, resolved env-first via @stacks/core
 //      model-roles. A literal model id in source would bypass FR-013/D14's
 //      fail-fast env resolution and pin deploys to one model.
+//   4. Ingestion plugins are pure transforms (008 FR-014, research R13):
+//      packages/ingestion-plugins may import NO internal package except
+//      @stacks/ingestion-contract. A plugin that could reach @stacks/db or
+//      @stacks/ingestion could embed, index, or query — exactly what the
+//      plugin seam exists to make impossible. This wall is what keeps
+//      "write a new ingester" a small task (008 SC-007).
+//   5. Parsing/archive libraries are confined to their owners (008 R13):
+//      cheerio/sanitize-html only under packages/ingestion-plugins, yauzl
+//      only under apps/worker. Parsing knowledge leaking into the pipeline
+//      core is the v2 failure mode ("adapter bolted beside legacy parsers")
+//      that 008's plugin-only path retires.
 // These are lexical scans over import/source text — cheap, dependency-free,
 // and intentionally blunt: they enforce architecture by failing CI, in the
 // same spirit as the append-only-by-construction event table.
@@ -91,6 +102,38 @@ for (const file of files) {
   const isTestFile = /\btests?\b/.test(relPath) || /\.test\.(ts|tsx|py)$/.test(relPath);
   if (!isTestFile && content.includes("sentence-transformers")) {
     violations.push(`${relPath}: hardcoded model identifier "sentence-transformers" (SC-006) — use env config`);
+  }
+
+  // 4. Plugins import only the contract among internal packages (008 FR-014).
+  // Matched on parsed import specifiers (not substring: "@stacks/ingestion" is
+  // a prefix of the *allowed* "@stacks/ingestion-contract").
+  if (relPath.startsWith(join("packages", "ingestion-plugins"))) {
+    for (const match of content.matchAll(IMPORT_PATTERN)) {
+      const spec = match[1];
+      if (!spec.startsWith("@stacks/")) continue;
+      const pkg = spec.split("/").slice(0, 2).join("/");
+      if (pkg !== "@stacks/ingestion-contract") {
+        violations.push(
+          `${relPath}: ingestion plugins may only import @stacks/ingestion-contract, not "${spec}" (008 FR-014)`,
+        );
+      }
+    }
+  }
+
+  // 5. Parsing/archive libraries stay with their owners (008 R13). Checked on
+  // import specifiers so prose mentions in comments don't trip it.
+  const LIB_OWNERS = [
+    { lib: "cheerio", owner: join("packages", "ingestion-plugins") },
+    { lib: "sanitize-html", owner: join("packages", "ingestion-plugins") },
+    { lib: "yauzl", owner: join("apps", "worker") },
+  ];
+  for (const match of content.matchAll(IMPORT_PATTERN)) {
+    const spec = match[1];
+    for (const { lib, owner } of LIB_OWNERS) {
+      if ((spec === lib || spec.startsWith(`${lib}/`)) && !relPath.startsWith(owner)) {
+        violations.push(`${relPath}: "${lib}" may only be imported under ${owner} (008 R13)`);
+      }
+    }
   }
 }
 

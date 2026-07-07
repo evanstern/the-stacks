@@ -53,6 +53,9 @@ services:
       EMBEDDING_ENDPOINT: ${EMBEDDING_ENDPOINT:-http://ml:4402}
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-384}
+      # Ingestion intake cap (008): enforced inside the multipart stream, so an
+      # oversized upload is refused without ever being buffered (research R7).
+      INGEST_MAX_UPLOAD_BYTES: ${INGEST_MAX_UPLOAD_BYTES:-26214400}
       V3_API_PORT: ${V3_API_PORT:-4401}
     ports:
       - "127.0.0.1:${V3_API_PORT:-4401}:4401"
@@ -124,6 +127,15 @@ services:
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-384}
       ML_REQUEST_TIMEOUT_MS: ${ML_REQUEST_TIMEOUT_MS:-15000}
+      # Ingestion pipeline knobs (008): ZIP expansion caps + chunking policy.
+      # Chunking is env-tunable BY DESIGN (eval program, research R4).
+      INGEST_MAX_UPLOAD_BYTES: ${INGEST_MAX_UPLOAD_BYTES:-26214400}
+      INGEST_MAX_BATCH_ENTRIES: ${INGEST_MAX_BATCH_ENTRIES:-200}
+      CHUNK_TARGET_CHARS: ${CHUNK_TARGET_CHARS:-4000}
+      CHUNK_OVERLAP_CHARS: ${CHUNK_OVERLAP_CHARS:-400}
+      CHUNK_MAX_CHARS: ${CHUNK_MAX_CHARS:-6000}
+      # The worker batches its /v1/embed calls to the same cap the sidecar enforces.
+      EMBED_MAX_BATCH: ${EMBED_MAX_BATCH:-64}
     # Worker has no HTTP surface, so health = "heartbeat file touched within the
     # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if
     # the loop wedges, the file goes stale and the check fails.
