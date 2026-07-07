@@ -5,6 +5,7 @@
  * Consumed by apps/api and apps/worker only; apps/web is forbidden from
  * importing this package (FR-019, enforced by scripts/check-boundaries.mjs).
  */
+export * from "./schema/ingestion";
 export * from "./schema/jobs";
 export * from "./schema/skeleton-checks";
 export * from "./schema/skeleton-vectors";
@@ -12,4 +13,5 @@ export * from "./client";
 export * from "./migrate";
 export * from "./queue";
 export * from "./events";
+export * from "./ingestion-events";
 

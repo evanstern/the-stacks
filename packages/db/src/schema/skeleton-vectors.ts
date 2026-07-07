@@ -5,30 +5,11 @@
  * migration). Identity/idempotency doctrine (FR-012, FR-014) is explained on
  * the columns below; the hash itself lives in @stacks/core deriveVectorId.
  */
-import { customType } from "drizzle-orm/pg-core";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-// pgvector's `vector` type, deliberately un-dimensioned (research R8): dimension
-// is a property of the configured embedding model, not the schema.
-// drizzle has no built-in pgvector type, so we bridge with customType:
-// pgvector's wire format is the text literal "[1,2,3]", hence toDriver joins
-// a number[] into brackets and fromDriver strips/splits it back. The filter
-// guards the empty-vector literal "[]", which would otherwise map to [NaN].
-const vector = customType<{ data: number[]; driverData: string }>({
-  dataType() {
-    return "vector";
-  },
-  toDriver(value: number[]): string {
-    return `[${value.join(",")}]`;
-  },
-  fromDriver(value: string): number[] {
-    return value
-      .slice(1, -1)
-      .split(",")
-      .filter((v) => v.length > 0)
-      .map(Number);
-  },
-});
+// The un-dimensioned pgvector bridge lives in column-types.ts since 008
+// shares it with chunks; the wire-format doctrine is documented there.
+import { vector } from "./column-types";
 
 export const skeletonVectors = pgTable("skeleton_vectors", {
   // deterministic: sha256(input_text + '\n' + provider + '/' + model + '/' + dimensions)
