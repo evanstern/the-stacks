@@ -90,3 +90,9 @@ Run from the worktree root unless noted.
   `docker compose down` in one checkout is safe for another checkout.
 - Keep changes focused on the active spec or user request. Durable architecture decisions
   go in `docs/wiki/` (with a wiki-impact decision), not ad hoc docs.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at specs/008-ingestion-service/plan.md
+<!-- SPECKIT END -->
