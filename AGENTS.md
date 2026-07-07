@@ -2,7 +2,6 @@
 
 The app checkout is this worktree. If you are one directory higher in the bare/worktree
 layout, enter a worktree before touching app code. `.bare/` is shared Git plumbing only;
-keep `.omo/` beside the worktrees, not inside `.bare/`.
 
 ## Start here
 

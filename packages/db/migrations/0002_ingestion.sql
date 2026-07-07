@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS "batches" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"corpus_id" uuid NOT NULL,
+	"fingerprint" text NOT NULL,
 	"original_filename" text NOT NULL,
 	"status" text DEFAULT 'expanding' NOT NULL,
 	"entry_report" jsonb DEFAULT '[]'::jsonb NOT NULL,
@@ -100,6 +101,12 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "batches" ADD CONSTRAINT "batches_fingerprint_source_archives_fingerprint_fk" FOREIGN KEY ("fingerprint") REFERENCES "public"."source_archives"("fingerprint") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "chunks" ADD CONSTRAINT "chunks_source_id_sources_id_fk" FOREIGN KEY ("source_id") REFERENCES "public"."sources"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -147,6 +154,7 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "batches_corpus_fingerprint_idx" ON "batches" USING btree ("corpus_id","fingerprint");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "chunks_source_gen_idx" ON "chunks" USING btree ("source_id","generation");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "chunks_corpus_gen_idx" ON "chunks" USING btree ("corpus_id","generation");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "chunks_fts_idx" ON "chunks" USING gin ("fts");--> statement-breakpoint

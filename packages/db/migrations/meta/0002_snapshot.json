@@ -1,5 +1,5 @@
 {
-  "id": "9831a02b-2524-45ae-b0a7-63ee2dd7f7e1",
+  "id": "2a220c88-dae6-4649-b73c-0bf03c8e9185",
   "prevId": "59a0da37-e4c0-41a4-960c-cb686cc43e4c",
   "version": "7",
   "dialect": "postgresql",
@@ -18,6 +18,12 @@
         "corpus_id": {
           "name": "corpus_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fingerprint": {
+          "name": "fingerprint",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -56,7 +62,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "batches_corpus_fingerprint_idx": {
+          "name": "batches_corpus_fingerprint_idx",
+          "columns": [
+            {
+              "expression": "corpus_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fingerprint",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "batches_corpus_id_corpora_id_fk": {
           "name": "batches_corpus_id_corpora_id_fk",
@@ -67,6 +95,19 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "batches_fingerprint_source_archives_fingerprint_fk": {
+          "name": "batches_fingerprint_source_archives_fingerprint_fk",
+          "tableFrom": "batches",
+          "tableTo": "source_archives",
+          "columnsFrom": [
+            "fingerprint"
+          ],
+          "columnsTo": [
+            "fingerprint"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"

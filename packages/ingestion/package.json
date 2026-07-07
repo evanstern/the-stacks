@@ -13,10 +13,10 @@
     "@stacks/core": "workspace:*",
     "@stacks/db": "workspace:*",
     "@stacks/ingestion-contract": "workspace:*",
+    "@stacks/ingestion-plugins": "workspace:*",
     "drizzle-orm": "^0.36.0"
   },
   "devDependencies": {
-    "@stacks/ingestion-plugins": "workspace:*",
     "@types/node": "^22.10.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0"

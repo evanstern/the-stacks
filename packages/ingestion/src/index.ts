@@ -10,7 +10,12 @@
  * @stacks/ingestion-plugins — are pure transforms (bytes in, NormalizedDocument
  * out) and are structurally unable to import this package or @stacks/db
  * (enforced by scripts/check-boundaries.mjs rule 4).
- *
- * Exports grow as the 008 phases land; see specs/008-ingestion-service/tasks.md.
  */
-export {};
+export * from "./admit";
+export * from "./chunking";
+export * from "./embed";
+export * from "./index-chunks";
+export * from "./ingest-source";
+export * from "./registry";
+export * from "./shipped";
+export * from "./sniff";

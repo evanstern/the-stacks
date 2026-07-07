@@ -209,13 +209,13 @@ importers:
       '@stacks/ingestion-contract':
         specifier: workspace:*
         version: link:../ingestion-contract
+      '@stacks/ingestion-plugins':
+        specifier: workspace:*
+        version: link:../ingestion-plugins
       drizzle-orm:
         specifier: ^0.36.0
         version: 0.36.4(@types/pg@8.20.0)(@types/react@19.2.17)(pg@8.22.0)(react@19.2.7)
     devDependencies:
-      '@stacks/ingestion-plugins':
-        specifier: workspace:*
-        version: link:../ingestion-plugins
       '@types/node':
         specifier: ^22.10.0
         version: 22.20.0

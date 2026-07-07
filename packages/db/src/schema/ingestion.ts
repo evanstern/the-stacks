@@ -66,6 +66,12 @@ export const batches = pgTable(
     corpusId: uuid("corpus_id")
       .notNull()
       .references(() => corpora.id),
+    // The ZIP's own content address: the expand job loads its bytes through
+    // this, and duplicate-ZIP detection (FR-003) is the same unique-index
+    // trick sources use.
+    fingerprint: text("fingerprint")
+      .notNull()
+      .references(() => sourceArchives.fingerprint),
     originalFilename: text("original_filename").notNull(),
     // `empty` = zero ingestible entries — an honest terminal outcome (R6),
     // distinct from `failed` (the expand itself broke).
@@ -80,6 +86,7 @@ export const batches = pgTable(
       "batches_status_check",
       sql`${table.status} IN ('expanding', 'expanded', 'failed', 'empty')`,
     ),
+    uniqueIndex("batches_corpus_fingerprint_idx").on(table.corpusId, table.fingerprint),
   ],
 );
 
