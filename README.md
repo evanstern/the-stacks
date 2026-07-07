@@ -28,9 +28,10 @@ Postgres job queue → worker → ML inference sidecar → pgvector write/read-b
 Ingestion, retrieval, and chat are the next specs, built on this foundation.
 
 The previous app (**v2**) was retired on 2026-07-06 and removed from the working
-tree; it lives in git history (last full state: tag the merge `cd9ed68` /
-`docs/adr/0001-retire-v2-before-parity.md` records the decision). Its interactive
-course survives at `docs/courses/inside-the-stacks-v2/`.
+tree; its code lives in git history (last full state: the parent of merge `cd9ed68` /
+`docs/adr/0001-retire-v2-before-parity.md` records the decision). Its preserved
+artifacts — the interactive course, historical wiki pages, the v2 inventory, and the
+v2-era specs (001–006) — are staged under `.v2/` pending eventual deletion.
 
 ## Layout
 
@@ -45,8 +46,8 @@ packages/
   db/       Drizzle schema, migrations, queue + append-only event helpers
   ingestion-contract/  placeholder seam for the ingestion spec
 scripts/    check-boundaries.mjs (architecture enforcement, runs in pnpm verify)
-docs/       wiki, v3 grounding docs, interactive courses
-specs/      spec-kit feature history (001–007)
+docs/       wiki, grounding docs, interactive courses
+specs/      spec-kit feature specs (007 is the delivered slice; next specs build on it)
 ```
 
 ## Start the stack
@@ -96,7 +97,7 @@ Per constitution Principle VIII, every spec cycle ships learning artifacts:
 - Source files carry teaching-grade comments: file headers place each module in the
   architecture; why-comments explain doctrine and real bugs hit during validation.
 - `docs/wiki/Home.md` — the architecture wiki spine; start at
-  `docs/wiki/V3-Walking-Skeleton.md`.
+  `docs/wiki/Walking-Skeleton.md`.
 
 ## Worktree operating model
 

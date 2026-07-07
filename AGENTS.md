@@ -9,7 +9,7 @@ keep `.omo/` beside the worktrees, not inside `.bare/`.
 - Read `README.md` before changing local run, ports, production, or verification behavior.
 - The constitution (`.specify/memory/constitution.md`, v2.1.0) governs all work: fixed
   decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
-- For architecture context start at `docs/wiki/V3-Walking-Skeleton.md`; the wiki spine is
+- For architecture context start at `docs/wiki/Walking-Skeleton.md`; the wiki spine is
   `docs/wiki/Home.md`. Update wiki `updated` frontmatter when changing those pages.
 - Spec history lives in `specs/` (spec-kit). The delivered slice is `specs/007-v3-skeleton/`;
   ingestion, retrieval, and chat are the next specs.
@@ -83,8 +83,6 @@ Run from the worktree root unless noted.
   relying on Serena tools.
 - Spec Kit command hooks under `.opencode/commands/` can run git scripts; do not assume
   hooks are side-effect free.
-- `.agents/skills/caveman*` are repo-local OpenCode skills; caveman mode is persistent
-  until explicitly turned off (`stop caveman` / `normal mode`).
 
 ## Worktree safety
 

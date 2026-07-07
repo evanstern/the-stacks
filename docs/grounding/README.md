@@ -1,7 +1,8 @@
-# The Stacks v3 — Grounding Package
+# The Stacks — Grounding Package
 
-This folder is the grounding material for the third iteration of The Stacks. It is written
-to be handed to SpecKit (`/specify`) as shared context: it records what exists today (v2),
+This folder is the grounding material for the third iteration of The Stacks (now the only
+iteration — v2 was retired, see [ADR 0001](../adr/0001-retire-v2-before-parity.md)). It was
+written to be handed to SpecKit (`/specify`) as shared context: it records what v2 built,
 what v3 is, the decisions already made (with rationale), and the questions deliberately left
 open for individual feature specs.
 
@@ -12,7 +13,7 @@ open for individual feature specs.
 | Doc | What it covers |
 |---|---|
 | [01-vision-and-scope.md](01-vision-and-scope.md) | What The Stacks is, v3 scope (in/out), product principles that must survive the rewrite |
-| [02-v2-inventory.md](02-v2-inventory.md) | What v2 actually built, what to port / adapt / drop, and lessons encoded in the code |
+| 02-v2-inventory.md — _moved to [`.v2/grounding/02-v2-inventory.md`](../../.v2/grounding/02-v2-inventory.md)_ | What v2 actually built, what to port / adapt / drop, and lessons encoded in the code (the numbering gap 01, 03–08 is intentional) |
 | [03-architecture.md](03-architecture.md) | The decided v3 stack and service topology, data stores, error & observability doctrine |
 | [04-chat-and-tools.md](04-chat-and-tools.md) | Single-turn vs multi-turn chat, LLM provider layer, memory, tool use, citations |
 | [05-ingestion.md](05-ingestion.md) | The extensible ingestion service: plugin model, D&D Beyond ingester, corpus lifecycle |
