@@ -1,5 +1,5 @@
 ---
-title: V3 Walking Skeleton
+title: Walking Skeleton
 status: active
 owner: docs
 created: 2026-07-05
@@ -10,7 +10,7 @@ tags:
   - architecture
 ---
 
-# V3 Walking Skeleton
+# Walking Skeleton
 
 The greenfield rebuild's foundation slice: a pnpm + Docker Compose monorepo that
 starts with one command, authenticates a single operator, and proves a

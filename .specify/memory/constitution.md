@@ -141,11 +141,13 @@ runs, it is done when the operator can understand it without reading it.
 
 ## Fixed Technical Decisions
 
-Decisions D1–D14 in `docs/v3-grounding/08-decisions-and-open-questions.md` are settled.
+Decisions D1–D14 in `docs/grounding/08-decisions-and-open-questions.md` are settled.
 Specs MUST treat them as fixed; reopening one requires an ADR. In brief:
 
 - D1 greenfield rebuild in this repo; v2 stays a runnable reference until parity, then
   is retired deliberately. v2's documented contracts stay intact until that retirement.
+  (Superseded by ADR 0001, 2026-07-06: v2 was retired before parity and removed from the
+  working tree, so the "until parity" clause no longer holds; v2 now lives in git history.)
 - D2 TypeScript core + Python inference-only ML sidecar. D3 Fastify for the API.
 - D4 corpus versioning replaces per-version blue-green machinery.
 - D5 pgvector replaces Qdrant. D12 the queue stays a Postgres table.
@@ -177,7 +179,7 @@ be introduced.
   update was needed. Routine bug fixes and implementation-only changes do not require
   wiki pages.
 - Any v3 design that violates a product principle from
-  `docs/v3-grounding/01-vision-and-scope.md` requires an ADR.
+  `docs/grounding/01-vision-and-scope.md` requires an ADR.
 - Every spec cycle MUST close with the Principle VIII learning artifact: after
   `/speckit-converge` reports converged, generate the feature's course or lesson —
   scoped to the feature's files and seeded with its spec artifacts — commit it to the

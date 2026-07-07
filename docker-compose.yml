@@ -5,7 +5,8 @@
 # port, which means its /ready healthcheck also gates the stack on schema success.
 #
 # Ports: everything binds 127.0.0.1 only and is env-overridable. The 44xx/5442
-# block was chosen to never collide with the v2 stack (research R3).
+# block and distinct project name keep this stack from colliding with parallel
+# worktrees (originally chosen to avoid the now-retired v2 stack — research R3, ADR 0001).
 #
 # GOTCHA: Docker Compose interpolates .env values, so a literal $ (bcrypt hashes
 # like OPERATOR_PASSWORD_HASH) must be escaped as $$ in .env — see .env.example.

@@ -16,10 +16,10 @@ node_modules
 !.env.example
 docs
 specs
+.v2
 .omo
 .claude
 .opencode
-.agents
 .serena
 .specify
 *.log

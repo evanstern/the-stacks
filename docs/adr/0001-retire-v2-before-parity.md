@@ -22,9 +22,10 @@ practice, once the walking skeleton (spec 007) landed:
   (`specs/007-v3-skeleton/evidence.md`), so v2 is no longer the reference for "how it
   should behave" — the specs, contracts, wiki, and courses are.
 - v2's knowledge is preserved in more durable, more useful forms than runnable code:
-  the grounding docs (`docs/v3-grounding/`, including a full v2 inventory in doc 02),
-  the historical wiki pages, and the v2 interactive course
-  (`docs/courses/inside-the-stacks-v2/`).
+  the grounding docs (`docs/grounding/`), a full v2 inventory
+  (`.v2/grounding/02-v2-inventory.md`), the historical wiki pages (`.v2/wiki/`), and the
+  v2 interactive course (`.v2/courses/inside-the-stacks-v2/`). These preserved artifacts,
+  plus the v2-era specs 001–006, were later staged under `.v2/` pending eventual deletion.
 - Keeping two stacks doubles the surface an operator/agent can accidentally touch and
   keeps the repo root describing an app that is no longer the product's direction.
 
