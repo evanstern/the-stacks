@@ -12,6 +12,7 @@
   "dependencies": {
     "@stacks/ingestion-contract": "workspace:*",
     "cheerio": "^1.0.0",
+    "domhandler": "^5.0.3",
     "sanitize-html": "^2.13.0"
   },
   "devDependencies": {
