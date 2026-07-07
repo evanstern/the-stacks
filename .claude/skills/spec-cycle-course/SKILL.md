@@ -61,10 +61,14 @@ This overrides `codebase-to-course`'s default audience. Encode this in every bri
 ### 3. Write the briefs FIRST — one per module
 This is the load-bearing step and the-stacks' signature. Before any HTML, author
 `docs/courses/<feature>/briefs/NN-slug.md`, each a complete content plan for one module.
-Every brief contains:
+**Start from `templates/brief.md`** (beside this skill) — copy it per module and fill it in.
+It fixes the required sections so you don't have to re-derive them:
 - **Write-to target** (`modules/NN-slug.html`, one `<section class="module">`) and whether
   it's the centerpiece.
+- **AUDIENCE OVERRIDE** repeated verbatim (the skilled-developer register + this module's
+  domain-term tooltips).
 - **Teaching Arc**: metaphor · opening hook · key insight · "why should I care?".
+- **Canonical vocabulary** (the ordered states/events/steps, used identically everywhere).
 - **Screens** (numbered beats).
 - **Code Snippets** — verbatim, `file:line`-cited, marked *do not modify*.
 - **Interactive Elements** — checkboxed: group-chat animation, data-flow animation,

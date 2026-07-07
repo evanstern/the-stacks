@@ -182,7 +182,9 @@ be introduced.
   `/speckit-converge` reports converged, generate the feature's course or lesson —
   scoped to the feature's files and seeded with its spec artifacts — commit it to the
   repository (e.g. `docs/courses/<feature>/`), and link it from the feature's
-  evidence. A spec cycle without its learning artifact is incomplete.
+  evidence. The canonical mechanism is the `/spec-cycle-course` skill, which pins the
+  skilled-developer register and the briefs-first workflow; use it rather than
+  hand-rolling the artifact. A spec cycle without its learning artifact is incomplete.
 
 ## Governance
 
