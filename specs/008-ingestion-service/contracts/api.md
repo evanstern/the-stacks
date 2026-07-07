@@ -74,11 +74,13 @@ diagnostics stay in operator-side logs and event `detail` (Principle IV).
 
 ## Non-endpoints (scope fences)
 
-- No delete/reset/re-embed verbs (FR-025 — corpus lifecycle spec). The re-ingest verb
-  (FR-023) ships as the minimal `POST /v1/sources/:id/reingest` **only if** tasks.md
-  finds US5's acceptance needs it end-to-end; otherwise re-ingestion is exercised at the
-  package level and the verb arrives with corpus lifecycle. Decision deferred to
-  /speckit-tasks against US5's independent-test criterion.
+- No delete/reset/re-embed verbs (FR-025 — corpus lifecycle spec), **and no re-ingest
+  HTTP verb either** (decided with operator, 2026-07-07): mutation verbs belong with the
+  lifecycle spec's dry-run/confirm guardrails (Principle IV). 008 instead *prepares the
+  way* at the package level: `reingestSource()` and `sourcesByPluginVersion()` ship in
+  `@stacks/ingestion` as tested domain operations (US5 AC-3 is satisfied by the
+  integration suite), so the lifecycle spec only wraps existing functions in guarded
+  endpoints.
 - No search/query endpoints (FR-026 — retrieval spec).
 - No archive-content viewer endpoint (artifacts are stored, viewer is a later spec).
 
