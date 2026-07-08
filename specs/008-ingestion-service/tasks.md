@@ -178,8 +178,8 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 - [x] T052 [P] Teaching-comment pass — spot-checked across packages/ingestion*, apps/api/src/ingestion, apps/worker/src/handlers/ingest-*, apps/web/app/routes/library.*: every file already carries a Principle VIII header (file-in-architecture + spec/contract pointers + why-comments); no gaps found, no changes needed
 - [x] T053 [P] Wrote docs/wiki/Ingestion.md (pipeline map, plugin seam, detection dispatch, generation-flip doctrine, storage) and linked from docs/wiki/Home.md (updated `updated` frontmatter + roadmap-continuation note) — the constitution's wiki-impact decision for this cycle
 - [x] T054 [P] Updated AGENTS.md Layout (two new packages + ingestion routes/handlers) and Commands (fixture-regeneration command) sections
-- [ ] T055 Full-stack validation: `docker compose up -d --build --wait`, execute quickstart.md Scenarios 1–10, record outcomes + SC coverage map in specs/008-ingestion-service/evidence.md
-- [ ] T056 Final gate: `pnpm verify` + DB-gated suites + boundary rules all green; capture command output in evidence.md
+- [x] T055 Full-stack validation: `docker compose up -d --build --wait` (all 5 services healthy after fixing a pre-existing api-port mismatch in docker-compose.yml — see evidence.md), executed quickstart.md Scenarios 1-4/6 live (curl + web), 5/7/8/9/10 via the DB-gated suite; outcomes + SC coverage map recorded in specs/008-ingestion-service/evidence.md
+- [x] T056 Final gate: `pnpm verify` + DB-gated suites + boundary rules all green (197 tests, 0 failures, exit 0); command output captured in evidence.md
 - [ ] T057 Cycle closure reminder (not code): after `/speckit-converge` reports converged, run `/spec-cycle-course` for docs/courses/008-ingestion-service/ and link it from evidence.md (constitution Principle VIII — the cycle is incomplete without it)
 
 ---
