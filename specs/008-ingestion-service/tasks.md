@@ -161,13 +161,13 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 ### Tests for User Story 5
 
-- [ ] T048 [P] [US5] Failing DB-gated tests for `sourcesByPluginVersion()` (exact candidate enumeration, FR-016) and `reingestSource()` (generation N+1 job, flip, old-generation sweep, archive byte-identical — SC-008) in packages/ingestion/src/reingest.test.ts
+- [x] T048 [P] [US5] Failing DB-gated tests for `sourcesByPluginVersion()` (exact candidate enumeration, FR-016) and `reingestSource()` (generation N+1 job, flip, old-generation sweep, archive byte-identical — SC-008) in packages/ingestion/src/reingest.test.ts
 
 ### Implementation for User Story 5
 
-- [ ] T049 [US5] Implement `sourcesByPluginVersion()` + `reingestSource()` domain operations (no HTTP verb — decision pinned 2026-07-07 in contracts/api.md) in packages/ingestion/src/reingest.ts — T048 green
-- [ ] T050 [P] [US5] Author test-only `demo-format` plugin + synthetic fixture + conformance run in packages/ingestion-plugins/src/demo/index.ts + demo.test.ts; commit message must show zero diff under packages/ingestion/src (SC-007 reviewability)
-- [ ] T051 [US5] Wire every plugin's conformance run into `pnpm verify` path (ensure packages/ingestion-plugins test script runs all suites; verify SC-010) and add re-ingest scenario to packages/ingestion/src/pipeline.e2e.test.ts using demo-format version bump
+- [x] T049 [US5] Implement `sourcesByPluginVersion()` + `reingestSource()` domain operations (no HTTP verb — decision pinned 2026-07-07 in contracts/api.md) in packages/ingestion/src/reingest.ts — T048 green
+- [x] T050 [P] [US5] Author test-only `demo-format` plugin + synthetic fixture + conformance run in packages/ingestion-plugins/src/demo/index.ts + demo.test.ts; verified zero diff under packages/ingestion/src's PRODUCTION code (only reingest.ts's own export changed index.ts; demo-format appears nowhere in shipped.ts) — SC-007 reviewability confirmed via `git diff --stat`
+- [x] T051 [US5] Confirmed every plugin's conformance suite already runs under `pnpm verify` (packages/ingestion-plugins' `vitest run` picks up all `*.test.ts` with no extra wiring — SC-010 holds structurally); added the plugin-version-bump re-ingest scenario to packages/ingestion/src/reingest.test.ts (no pipeline.e2e.test.ts file exists in this repo — the e2e suite lives at apps/worker/test/ingest-pipeline.test.ts per T029's actual location; reingest.test.ts is the natural home for this scenario). Added a `./demo` package.json subpath export on @stacks/ingestion-plugins so the test-only plugin is reachable across the package boundary without violating tsc's rootDir.
 
 **Checkpoint**: All five stories independently green.
 

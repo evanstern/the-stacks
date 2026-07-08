@@ -17,5 +17,6 @@ export * from "./embed";
 export * from "./index-chunks";
 export * from "./ingest-source";
 export * from "./registry";
+export * from "./reingest";
 export * from "./shipped";
 export * from "./sniff";
