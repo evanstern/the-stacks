@@ -3,7 +3,7 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-07-06
+updated: 2026-07-07
 tags:
   - wiki
   - v3
@@ -18,11 +18,15 @@ retired ([ADR 0001](../adr/0001-retire-v2-before-parity.md)).
 ## Current architecture
 
 - [[Walking Skeleton]] — the foundation slice: monorepo layout, compose topology,
-  queue/event/vector doctrine, auth, sidecar contract. The next specs (ingestion,
-  retrieval, chat) build on this.
+  queue/event/vector doctrine, auth, sidecar contract. Ingestion, retrieval, and chat
+  build on this.
+- [[Ingestion]] — the extensible ingestion pipeline (spec 008): the plugin seam
+  (`@stacks/ingestion-contract`/`-plugins`), detection dispatch, structure-aware
+  chunking, and generation-flip re-ingestion. Retrieval and chat build on what this
+  produces: indexed, traceable passages.
 
-Also see the interactive course for the current codebase in
-`docs/courses/007-v3-skeleton/`.
+Also see the interactive courses under `docs/courses/007-v3-skeleton/` and
+`docs/courses/008-ingestion-service/`.
 
 ## Historical reference (v2 — retired 2026-07-06)
 
@@ -42,6 +46,8 @@ This folder holds the durable notes that should stay current as the roadmap move
 
 ## Roadmap continuation
 
-The walking skeleton (spec 007) is complete and converged. Next specs build on it:
-ingestion (via `packages/ingestion-contract`), retrieval, and chat. v2's roadmap is
-closed (its pages are archived under `.v2/`).
+The walking skeleton (spec 007) is complete and converged; the extensible ingestion
+pipeline (spec 008) has all five user stories implemented and is finishing its
+verify-convergence step. Next specs build on ingestion's output (indexed, traceable
+passages): retrieval and chat. v2's roadmap is closed (its pages are archived under
+`.v2/`).

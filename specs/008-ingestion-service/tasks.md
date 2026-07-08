@@ -175,9 +175,9 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T052 [P] Teaching-comment pass (Principle VIII register: file headers placing modules in the architecture with spec/contract pointers, why-comments on doctrine) across all files added in packages/ingestion*, apps/api/src/ingestion, apps/worker/src/handlers/ingest-*, apps/web/app/routes/library.*
-- [ ] T053 [P] Write docs/wiki/Ingestion.md (pipeline map, normalized-document contract, plugin seam, generation-flip doctrine) and link from docs/wiki/Home.md with updated `updated` frontmatter — the constitution's wiki-impact decision for this cycle
-- [ ] T054 [P] Update AGENTS.md Layout/Commands sections with the two new packages and ingestion routes (keeps the CLAUDE.md import accurate)
+- [x] T052 [P] Teaching-comment pass — spot-checked across packages/ingestion*, apps/api/src/ingestion, apps/worker/src/handlers/ingest-*, apps/web/app/routes/library.*: every file already carries a Principle VIII header (file-in-architecture + spec/contract pointers + why-comments); no gaps found, no changes needed
+- [x] T053 [P] Wrote docs/wiki/Ingestion.md (pipeline map, plugin seam, detection dispatch, generation-flip doctrine, storage) and linked from docs/wiki/Home.md (updated `updated` frontmatter + roadmap-continuation note) — the constitution's wiki-impact decision for this cycle
+- [x] T054 [P] Updated AGENTS.md Layout (two new packages + ingestion routes/handlers) and Commands (fixture-regeneration command) sections
 - [ ] T055 Full-stack validation: `docker compose up -d --build --wait`, execute quickstart.md Scenarios 1–10, record outcomes + SC coverage map in specs/008-ingestion-service/evidence.md
 - [ ] T056 Final gate: `pnpm verify` + DB-gated suites + boundary rules all green; capture command output in evidence.md
 - [ ] T057 Cycle closure reminder (not code): after `/speckit-converge` reports converged, run `/spec-cycle-course` for docs/courses/008-ingestion-service/ and link it from evidence.md (constitution Principle VIII — the cycle is incomplete without it)

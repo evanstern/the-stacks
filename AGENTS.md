@@ -8,10 +8,12 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 - Read `README.md` before changing local run, ports, production, or verification behavior.
 - The constitution (`.specify/memory/constitution.md`, v2.1.0) governs all work: fixed
   decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
-- For architecture context start at `docs/wiki/Walking-Skeleton.md`; the wiki spine is
-  `docs/wiki/Home.md`. Update wiki `updated` frontmatter when changing those pages.
-- Spec history lives in `specs/` (spec-kit). The delivered slice is `specs/007-v3-skeleton/`;
-  ingestion, retrieval, and chat are the next specs.
+- For architecture context start at `docs/wiki/Walking-Skeleton.md` and
+  `docs/wiki/Ingestion.md`; the wiki spine is `docs/wiki/Home.md`. Update wiki
+  `updated` frontmatter when changing those pages.
+- Spec history lives in `specs/` (spec-kit). Delivered slices: `specs/007-v3-skeleton/`
+  (foundation) and `specs/008-ingestion-service/` (extensible ingestion pipeline).
+  Retrieval and chat are the next specs.
 - v2 was retired 2026-07-06 (`docs/adr/0001-retire-v2-before-parity.md`); its code lives in
   git history only. Do not resurrect v2 patterns from the wiki's historical pages without
   checking them against the v3 constitution.
@@ -19,16 +21,24 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 ## Layout
 
 - API: `apps/api/src` — Fastify 5; composition root `app.ts`, process entry `main.ts`,
-  routes in `auth/` and `skeleton-checks/`.
+  routes in `auth/`, `skeleton-checks/`, and `ingestion/` (upload intake + ticket
+  status, contracts/api.md).
 - Worker: `apps/worker/src` — poll loop `main.ts`, job handlers in `handlers/` keyed by
-  job `kind`.
+  job `kind`, including `ingest-source.ts` and `ingest-batch-expand.ts`.
 - Web: `apps/web/app` — React Router 7 SSR; the ONLY module allowed to reach the API is
-  `app/lib/api.server.ts` (browser never calls the API — FR-019).
+  `app/lib/api.server.ts` (browser never calls the API — FR-019). Routes include
+  `library.upload.tsx` and `library.uploads.$ticket.tsx`.
 - ML sidecar: `apps/ml/src/ml` — FastAPI, inference-only, the only Python in the repo (D2).
-- Shared packages: `packages/core` (domain types, typed errors, model roles),
-  `packages/db` (Drizzle schema, migrations, queue + event helpers),
-  `packages/ingestion-contract` (placeholder seam).
-- Boundary enforcement: `scripts/check-boundaries.mjs`, wired into `pnpm verify`.
+- Shared packages: `packages/core` (domain types, typed errors, model roles, ingestion
+  ID derivation), `packages/db` (Drizzle schema, migrations, queue + event helpers,
+  ingestion schema/events), `packages/ingestion-contract` (the versioned
+  NormalizedDocument + plugin contract + conformance suite, FR-013/018),
+  `packages/ingestion` (pipeline core: registry, chunking, embed client, indexing,
+  stage driver, re-ingestion — DB/queue/model-facing), `packages/ingestion-plugins`
+  (shipped ingesters — ddb-saved-html, markdown, generic-html — structurally DB-blind,
+  FR-014).
+- Boundary enforcement: `scripts/check-boundaries.mjs`, wired into `pnpm verify` —
+  also enforces the ingestion-plugins package's parsing-lib confinement (research R13).
 
 ## Commands
 
@@ -44,6 +54,8 @@ Run from the worktree root unless noted.
 - New migration: `pnpm --filter @stacks/db generate --name <slug>` (drizzle-kit; the API
   applies pending migrations at boot, before binding its port).
 - Focused tests: `pnpm --filter @stacks/api test`, `pnpm --filter @stacks/web test`, etc.
+- Regenerate ingestion ZIP fixtures: `node packages/ingestion-plugins/fixtures/build-zips.mjs`
+  (deterministic STORE-method writer; commit the result if fixture inputs changed).
 
 ## Ports and env
 
