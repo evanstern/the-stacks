@@ -105,8 +105,9 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("mixed-ZIP expand -> pipe
     const { batch } = await admitBatch(db, { corpusId, filename: "export-mixed.zip", bytes: MIXED_ZIP });
     await ingestBatchExpandHandler(db, { payload: { batchId: batch.id } } as never);
 
-    // The markdown source has no owner until US4 — its job fails detection
-    // honestly. Drain must therefore tolerate exactly that one failure.
+    // US4 shipped the markdown fallback: notes.md now ingests instead of
+    // failing detection (all three admitted entries — 2 DDB pages + 1
+    // markdown — have an owning plugin).
     let ingested = 0;
     let detectFailures = 0;
     const deps = {
@@ -132,8 +133,8 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("mixed-ZIP expand -> pipe
       }
       await db.execute(sql`UPDATE jobs SET status = 'succeeded' WHERE id = ${job.id}`);
     }
-    expect(ingested).toBe(2);
-    expect(detectFailures).toBe(1); // notes.md — honest, not silent
+    expect(ingested).toBe(3);
+    expect(detectFailures).toBe(0);
 
     // SC-001 zero-orphan traceability: every current-generation chunk's anchor
     // names an artifact persisted with its sections.
@@ -155,9 +156,12 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("mixed-ZIP expand -> pipe
       .select()
       .from(sources)
       .where(sql`${sources.batchId} = ${batch.id} AND ${sources.status} = 'ingested'`);
-    expect(ingestedSources).toHaveLength(2);
+    expect(ingestedSources).toHaveLength(3);
+    const byFilename = Object.fromEntries(ingestedSources.map((s) => [s.originalFilename, s]));
+    expect(byFilename["grumble.html"]!.pluginName).toBe("ddb-saved-html");
+    expect(byFilename["glimmerburst.html"]!.pluginName).toBe("ddb-saved-html");
+    expect(byFilename["notes.md"]!.pluginName).toBe("markdown");
     for (const source of ingestedSources) {
-      expect(source.pluginName).toBe("ddb-saved-html");
       expect(source.currentGeneration).toBe(1);
     }
   });

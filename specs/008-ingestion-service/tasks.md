@@ -139,15 +139,15 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 ### Tests for User Story 4
 
-- [ ] T042 [P] [US4] Author fixtures: notes.md (nested headings), plain.txt, plain-article.html (non-DDB) in packages/ingestion-plugins/fixtures/{markdown,html}/
-- [ ] T043 [P] [US4] Failing conformance + heading-path tests for markdown plugin in packages/ingestion-plugins/src/markdown/markdown.test.ts
-- [ ] T044 [P] [US4] Failing conformance + fallback-confidence tests for generic-html plugin (must NOT claim DDB fixtures above 0.1 floor) in packages/ingestion-plugins/src/html/html.test.ts
+- [x] T042 [P] [US4] Author fixtures: notes.md (nested headings — already existed from T014/build-zips.mjs), plain.txt, blank.md (malformed case) in packages/ingestion-plugins/fixtures/markdown/; plain-article.html (non-DDB, already existed) in fixtures/html/
+- [x] T043 [P] [US4] Failing conformance + heading-path tests for markdown plugin in packages/ingestion-plugins/src/markdown/markdown.test.ts
+- [x] T044 [P] [US4] Failing conformance + fallback-confidence tests for generic-html plugin (must NOT claim DDB fixtures above 0.1 floor) in packages/ingestion-plugins/src/html/html.test.ts
 
 ### Implementation for User Story 4
 
-- [ ] T045 [P] [US4] Implement `markdown` plugin (heading trail → path, text/markdown + text/plain accepts, 0.1 fallback floor) in packages/ingestion-plugins/src/markdown/index.ts — T043 green
-- [ ] T046 [P] [US4] Implement `generic-html` plugin (cheerio heading/section walk, sanitized artifact, 0.1 floor) in packages/ingestion-plugins/src/html/index.ts — T044 green
-- [ ] T047 [US4] Register fallbacks after ddb in packages/ingestion/src/registry.ts; DB-gated dispatch test: plain-article.html → generic-html wins, detect event `candidates` map includes ddb≈0 (US4 AC-2/3) in packages/ingestion/src/registry.dispatch.test.ts
+- [x] T045 [P] [US4] Implement `markdown` plugin (heading trail → path via ATX heading walk, text/markdown + text/plain accepts, 0.1 fallback floor) in packages/ingestion-plugins/src/markdown/index.ts — T043 green
+- [x] T046 [P] [US4] Implement `generic-html` plugin (cheerio heading/section walk, sanitized artifact, 0.1 floor) in packages/ingestion-plugins/src/html/index.ts — T044 green
+- [x] T047 [US4] Registered fallbacks after ddb in packages/ingestion/src/shipped.ts (registry.ts itself is generic dispatch machinery, unchanged — the shipped LIST lives in shipped.ts); dispatch test: plain-article.html → generic-html wins, candidates map includes ddb-saved-html: 0 (US4 AC-2/3) in packages/ingestion/src/registry.dispatch.test.ts. Also updated apps/worker/test/ingest-pipeline.test.ts's e2e assertion — notes.md now ingests via markdown instead of the stale "no owner yet" expectation.
 
 **Checkpoint**: All shipped FR-028 ingesters live behind one detection front.
 

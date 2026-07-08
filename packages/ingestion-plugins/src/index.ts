@@ -14,3 +14,5 @@
  * structure without any proprietary text (constitution Principle I, FR-024).
  */
 export { ddbSavedHtmlPlugin } from "./ddb/index";
+export { genericHtmlPlugin } from "./html/index";
+export { markdownPlugin } from "./markdown/index";
