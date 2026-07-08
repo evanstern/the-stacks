@@ -34,6 +34,9 @@ const DATABASE_URL =
 const MIXED_ZIP = readFileSync(
   join(__dirname, "..", "..", "..", "packages", "ingestion-plugins", "fixtures", "zips", "export-mixed.zip"),
 );
+const EMPTY_ZIP = readFileSync(
+  join(__dirname, "..", "..", "..", "packages", "ingestion-plugins", "fixtures", "zips", "export-empty.zip"),
+);
 
 const stubEmbedClient: EmbedClient = {
   config: { role: "embedding", provider: "stub", endpoint: "http://stub", modelId: "stub-embedder", dimensions: 3 },
@@ -157,6 +160,24 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("mixed-ZIP expand -> pipe
       expect(source.pluginName).toBe("ddb-saved-html");
       expect(source.currentGeneration).toBe(1);
     }
+  });
+
+  it("all-unsupported ZIP lands on the honest `empty` status, not `failed` (T041, US3 AC-4)", async () => {
+    const { batch } = await admitBatch(db, { corpusId, filename: "export-empty.zip", bytes: EMPTY_ZIP });
+    await ingestBatchExpandHandler(db, { payload: { batchId: batch.id } } as never);
+
+    const [after] = await db.select().from(batches).where(sql`${batches.id} = ${batch.id}`);
+    expect(after!.status).toBe("empty");
+
+    const report = after!.entryReport as Array<{ name: string; outcome: string; reason?: string }>;
+    expect(report).toHaveLength(2);
+    expect(report.every((entry) => entry.outcome === "skipped")).toBe(true);
+
+    const skipEvents = await db
+      .select()
+      .from(ingestionEvents)
+      .where(sql`${ingestionEvents.batchId} = ${batch.id} AND ${ingestionEvents.event} = 'skipped'`);
+    expect(skipEvents).toHaveLength(2);
   });
 
   it("duplicate ZIP submission returns the existing batch, writes nothing new (FR-003)", async () => {

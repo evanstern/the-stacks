@@ -8,6 +8,10 @@
  * export-mixed.zip is quickstart Scenario 4's batch: two DDB pages, one
  * markdown file, one unsupported .dat — the expand handler must ingest three
  * and skip one with a reason (US1 AC-4, US3 AC-4).
+ *
+ * export-empty.zip (T041, US3 AC-4 edge case) is ALL-unsupported entries —
+ * the expand handler must skip every one and land the batch on the honest
+ * `empty` status, distinct from `failed` (nothing broke; nothing ingestible).
  */
 import { crc32 } from "node:zlib";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -90,4 +94,13 @@ writeFileSync(
   ]),
 );
 
+writeFileSync(
+  join(FIXTURES, "zips", "export-empty.zip"),
+  storeZip([
+    { name: "blob1.dat", data: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]) },
+    { name: "blob2.dat", data: Buffer.from([0x25, 0x50, 0x44, 0x46, 4, 5, 6]) },
+  ]),
+);
+
 console.log("wrote fixtures/zips/export-mixed.zip");
+console.log("wrote fixtures/zips/export-empty.zip");

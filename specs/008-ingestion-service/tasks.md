@@ -118,14 +118,14 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 
 ### Tests for User Story 3
 
-- [ ] T037 [P] [US3] Author reject fixtures: synthetic sample.pdf (magic bytes only), renamed-binary fake.html in packages/ingestion-plugins/fixtures/rejects/
-- [ ] T038 [P] [US3] Failing intake hardening tests: PDF → 415 no-residue (rows counted before/after — SC-005), declared-vs-actual mismatch → 415, over-cap stream abort → 415, in apps/api/src/ingestion/intake-rejection.test.ts
+- [x] T037 [P] [US3] Author reject fixtures: synthetic sample.pdf (magic bytes only), renamed-binary fake.html in packages/ingestion-plugins/fixtures/rejects/
+- [x] T038 [P] [US3] Failing intake hardening tests: PDF → 415 no-residue (rows counted before/after — SC-005), declared-vs-actual mismatch → 415, over-cap stream abort → 415, in apps/api/test/ingestion-intake.contract.test.ts (colocated with T028's intake contract tests, not a separate file — matches this repo's `*.contract.test.ts` convention)
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement magic-byte sniffing (html/markdown/text/zip signatures; mismatch policy per R7) and in-stream size-cap enforcement in apps/api/src/ingestion/sniff.ts, used by routes.ts — T038 green
-- [ ] T040 [US3] Dedupe path: unique (corpus_id, fingerprint) conflict → 200 `duplicate: true` with existing ticket, intake event notes duplicate (FR-003, SC-003), tests in apps/api/src/ingestion/routes.test.ts
-- [ ] T041 [US3] Mixed/empty ZIP handling proof: per-entry skipped events + entry_report reasons, zero-ingestible → batch status `empty` honest outcome (US3 AC-4, R6) — DB-gated tests in apps/worker/src/handlers/ingest-batch-expand.test.ts
+- [x] T039 [US3] Implement magic-byte sniffing (html/markdown/text/zip signatures; mismatch policy per R7) and in-stream size-cap enforcement in packages/ingestion/src/sniff.ts (shared by both intake doors — API + worker expand — rather than API-only; used by routes.ts and ingest-batch-expand.ts) — T038 green. Built during T026-T027 admission-seam work; hardening tests added T038 confirm it.
+- [x] T040 [US3] Dedupe path: unique (corpus_id, fingerprint) conflict → 200 `duplicate: true` with existing ticket, intake event notes duplicate (FR-003, SC-003), implemented in packages/ingestion/src/admit.ts (shared admission path, T026), tests in apps/api/test/ingestion-intake.contract.test.ts
+- [x] T041 [US3] Mixed/empty ZIP handling proof: per-entry skipped events + entry_report reasons (already covered, T027/T029) plus zero-ingestible → batch status `empty` honest outcome (US3 AC-4, R6) — DB-gated tests in apps/worker/test/ingest-pipeline.test.ts, new export-empty.zip fixture
 
 **Checkpoint**: Front door honest and residue-free under every refusal path.
 

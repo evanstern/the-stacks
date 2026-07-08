@@ -3,6 +3,10 @@
  * ticket for new content with job + intake event committed atomically,
  * 201 + batch ticket for ZIPs, 200 duplicate with the EXISTING ticket, 415
  * for unsupported types with ZERO residue, and the session guard in front.
+ *
+ * T038 extends this file (US3 front-door hardening): fixture-backed PDF and
+ * renamed-binary refusals (fixtures/rejects/, T037) and the over-cap
+ * stream-abort path — all three assert zero residue (SC-005).
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -20,6 +24,8 @@ const PASSWORD = "correct-password";
 const FIXTURES = join(__dirname, "..", "..", "..", "packages", "ingestion-plugins", "fixtures");
 const GOBLIN = readFileSync(join(FIXTURES, "ddb", "goblin-page.html"));
 const MIXED_ZIP = readFileSync(join(FIXTURES, "zips", "export-mixed.zip"));
+const REJECT_PDF = readFileSync(join(FIXTURES, "rejects", "sample.pdf"));
+const REJECT_FAKE_HTML = readFileSync(join(FIXTURES, "rejects", "fake.html"));
 
 /** Minimal multipart/form-data encoder for inject() — one file + fields. */
 function multipartBody(
@@ -178,10 +184,10 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ingestion intake contrac
     expect(rows).toHaveLength(1);
   });
 
-  it("415 + zero residue for an unsupported type (FR-002/SC-005)", async () => {
+  it("415 + zero residue for an unsupported type (FR-002/SC-005, T037 sample.pdf)", async () => {
     // %PDF magic — the famous deliberate 415 (PDF is out of scope for v3).
-    const pdf = Buffer.concat([Buffer.from("%PDF-1.7\n"), Buffer.from("x".repeat(64))]);
-    const { payload, headers } = multipartBody("rulebook.pdf", pdf);
+    const before = await counts();
+    const { payload, headers } = multipartBody("rulebook.pdf", REJECT_PDF);
     const res = await app.inject({
       method: "POST",
       url: "/api/uploads",
@@ -191,12 +197,12 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ingestion intake contrac
 
     expect(res.statusCode).toBe(415);
     expect((res.json() as { error: { code: string } }).error.code).toBe("unsupported_type");
-    expect(await counts()).toMatchObject({ sources: 0, batches: 0, archives: 0, jobs: 0 });
+    expect(await counts()).toEqual(before);
   });
 
-  it("415 + zero residue for a renamed binary (declared-vs-actual mismatch)", async () => {
-    const fakeHtml = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47]), Buffer.from("not html")]);
-    const { payload, headers } = multipartBody("sneaky.html", fakeHtml);
+  it("415 + zero residue for a renamed binary (declared-vs-actual mismatch, T037 fake.html)", async () => {
+    const before = await counts();
+    const { payload, headers } = multipartBody("sneaky.html", REJECT_FAKE_HTML);
     const res = await app.inject({
       method: "POST",
       url: "/api/uploads",
@@ -205,7 +211,27 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ingestion intake contrac
     });
 
     expect(res.statusCode).toBe(415);
-    expect(await counts()).toMatchObject({ sources: 0, archives: 0, jobs: 0 });
+    expect((res.json() as { error: { code: string } }).error.code).toBe("unsupported_type");
+    expect(await counts()).toEqual(before);
+  });
+
+  it("415 + zero residue when the stream exceeds INGEST_MAX_UPLOAD_BYTES (T038, SC-005)", async () => {
+    // Test app is built with maxUploadBytes = 1 MiB (see beforeAll); one byte
+    // over trips @fastify/multipart's limits.fileSize mid-stream, before the
+    // buffer (and therefore any row) ever completes.
+    const before = await counts();
+    const oversized = Buffer.alloc(1024 * 1024 + 1, "a");
+    const { payload, headers } = multipartBody("giant.txt", oversized);
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/uploads",
+      payload,
+      headers: { ...headers, cookie },
+    });
+
+    expect(res.statusCode).toBe(415);
+    expect((res.json() as { error: { code: string } }).error.code).toBe("unsupported_type");
+    expect(await counts()).toEqual(before);
   });
 
   it("404 unknown_thing for a nonexistent corpus", async () => {
