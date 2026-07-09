@@ -18,12 +18,16 @@ import { writeFileSync } from "node:fs";
 import { DomainError } from "@stacks/core";
 import { claimNext, createDbClient, fail, reclaimStale } from "@stacks/db";
 
+import { ingestBatchExpandHandler } from "./handlers/ingest-batch-expand";
+import { ingestSourceHandler } from "./handlers/ingest-source";
 import { skeletonCheckHandler } from "./handlers/skeleton-check";
 import { getHandler, registerHandler } from "./handlers/registry";
 
 // The one place job kinds are wired to handlers. New job kinds register here;
 // the loop below stays untouched (dispatch is data, not control flow).
 registerHandler("skeleton_check", skeletonCheckHandler);
+registerHandler("ingest_source", ingestSourceHandler);
+registerHandler("ingest_batch_expand", ingestBatchExpandHandler);
 
 const HEARTBEAT_PATH = process.env.WORKER_HEARTBEAT_PATH ?? "/tmp/worker-heartbeat";
 

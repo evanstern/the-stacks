@@ -33,9 +33,11 @@ export async function apiFetch(request: Request, path: string, init: RequestInit
   if (cookie) {
     headers.set("cookie", cookie);
   }
-  // All API bodies are JSON; default the header so callers can just pass
-  // JSON.stringify(...) without repeating themselves.
-  if (init.body && !headers.has("content-type")) {
+  // String bodies are JSON by convention; default the header so callers can
+  // just pass JSON.stringify(...). FormData bodies (008 uploads) must NOT be
+  // touched — fetch mints the multipart boundary itself, and a preset
+  // content-type would break it.
+  if (typeof init.body === "string" && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
 
@@ -121,6 +123,91 @@ export async function listSkeletonChecks(request: Request): Promise<RunSummary[]
   }
   const data = (await response.json()) as { runs: RunSummary[] };
   return data.runs;
+}
+
+// ---------------------------------------------------------------------------
+// Ingestion (spec 008; wire contract: specs/008-ingestion-service/contracts/
+// api.md). Upload is accept-then-async: the API answers with a claim ticket
+// before any parsing happens; the ticket page watches the event trail.
+// ---------------------------------------------------------------------------
+
+export interface UploadTicket {
+  ticket: { kind: "source" | "batch"; id: string };
+  duplicate: boolean;
+  status: string;
+}
+
+export interface UploadRejection {
+  status: number;
+  message: string;
+}
+
+/** Forwards the operator's multipart upload to the API. Returns the ticket on
+ * 200/201, or the API's typed refusal (415 unsupported/oversized etc.) so the
+ * form can show WHY — refusals are an expected outcome here, not exceptions. */
+export async function uploadToLibrary(
+  request: Request,
+  formData: FormData,
+): Promise<UploadTicket | UploadRejection> {
+  const response = await apiFetch(request, "/api/uploads", { method: "POST", body: formData });
+  if (response.status === 200 || response.status === 201) {
+    return (await response.json()) as UploadTicket;
+  }
+  const body = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
+  return {
+    status: response.status,
+    message: body?.error?.message ?? "Upload failed.",
+  };
+}
+
+export interface IngestionEvent {
+  stage: string;
+  event: string;
+  ok: boolean;
+  detail: Record<string, unknown>;
+  durationMs: number | null;
+  at: string;
+}
+
+export interface SourceTicketDetail {
+  ticket: { kind: "source"; id: string };
+  source: {
+    originalFilename: string;
+    status: "queued" | "processing" | "ingested" | "failed" | "empty";
+    plugin: { name: string; version: string; confidence: number } | null;
+    generation: number;
+    counts: { sections: number; chunks: number };
+    lastError: { class: string; stage: string; message: string } | null;
+  };
+  events: IngestionEvent[];
+}
+
+export interface BatchTicketDetail {
+  ticket: { kind: "batch"; id: string };
+  batch: {
+    originalFilename: string;
+    status: "expanding" | "expanded" | "failed" | "empty";
+    entryReport: Array<{ name: string; outcome: string; reason?: string; sourceId?: string }>;
+  };
+  sources: Array<{ sourceId: string; filename: string; status: string }>;
+  events: IngestionEvent[];
+}
+
+export type TicketDetail = SourceTicketDetail | BatchTicketDetail;
+
+export async function getUploadTicket(
+  request: Request,
+  kind: string,
+  id: string,
+): Promise<TicketDetail | null> {
+  const response = await apiFetch(request, `/api/uploads/${kind}/${id}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Response("Failed to load upload ticket", { status: response.status });
+  }
+  return (await response.json()) as TicketDetail;
 }
 
 export async function getSkeletonCheck(request: Request, id: string): Promise<RunDetail | null> {

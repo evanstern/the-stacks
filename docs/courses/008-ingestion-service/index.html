@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Ingestion Pipeline — Inside The Stacks v3</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    008's course uses coral — distinct from 007-v3-skeleton's teal, so the two
+    courses read as a related family without being identical.
+  -->
+  <style>
+    :root {
+      --color-accent:       #E06B56;
+      --color-accent-hover: #C85A47;
+      --color-accent-light: #FDECEA;
+      --color-accent-muted: #E89585;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">The Ingestion Pipeline</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Plugin Seam" role="tab" aria-label="Module 1: The Plugin Seam"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Detection Dispatch" role="tab" aria-label="Module 2: Detection Dispatch"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Anatomy of an Ingest" role="tab" aria-label="Module 3: Anatomy of an Ingest"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Generation-Flip" role="tab" aria-label="Module 4: Generation-Flip"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Honest Front Door" role="tab" aria-label="Module 5: The Honest Front Door"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Bug Ledger" role="tab" aria-label="Module 6: The Bug Ledger"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Pipeline &amp; The Plugin Seam</h1>
+      <p class="module-subtitle">A D&amp;D Beyond saved page, a Markdown file, and a plain-text note walk into a pipeline. By the time they reach chunking, the pipeline can&rsquo;t tell them apart &mdash; and that&rsquo;s the entire design.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + pipeline map HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One plug shape, many sockets</h2>
+        <p>Every country&rsquo;s wall socket is different &mdash; a universal power adapter doesn&rsquo;t care, because its whole job is making all of them fit <strong>one</strong> plug shape on the other side. That plug shape, here, is
+          <span class="term" data-definition="The one shape every plugin must produce past transform — FR-017/018.">NormalizedDocument</span>. Plugins are the adapters.</p>
+        <p>Past the <code>transform</code> stage, the pipeline sees exactly ONE shape, forever. Everything downstream &mdash; chunking, embedding, indexing &mdash; was written once, against that shape, and never needs to change when a new source format shows up.</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="Bytes arrive and get a stable identity — content hash and media-type sniff. Nothing is parsed yet.">intake</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="Every registered plugin's cheap detect() runs and returns a confidence score — no plugin has won yet (that's Module 2).">detect</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="The highest-confidence plugin's transform() begins parsing the source's real structure.">extract</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">1 plugin call</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="Same plugin call as extract, finishing the shape: pure transform, bytes in, NormalizedDocument out.">transform</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">same call</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">5</div>
+            <p><span class="term" data-definition="Pipeline-owned, not plugin code: NormalizedDocument sections split into embeddable passages, honoring ATOMIC section kinds that must never be split.">chunk</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">6</div>
+            <p><span class="term" data-definition="Pipeline-owned: each chunk becomes a vector via the ML sidecar — no plugin code runs here.">embed</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">7</div>
+            <p><span class="term" data-definition="Pipeline-owned: vectors and chunks land in pgvector, ready for retrieval.">index</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">8</div>
+            <p><span class="term" data-definition="Pipeline-owned: the generation is finalized — sections, artifacts, and warnings become queryable.">commit</span></p>
+          </div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary);">Hover any stage for its one-line job. Notice <code>extract</code> and <code>transform</code> carry a badge: they&rsquo;re one plugin call, observed as two pipeline stages &mdash; Module 3 traces exactly what happens inside that call.</p>
+      </section>
+
+      <!-- SCREEN 2: The plugin contract -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The contract every plugin signs</h2>
+        <p>The real TypeScript interface lives in <code>packages/ingestion-contract/src/plugin.ts</code>, but its documented shape &mdash; the contract plugins are actually held to &mdash; is short enough to read in one breath. Every plugin is a
+          <span class="term" data-definition="Bytes in, one fixed shape out — no side effects, FR-014.">pure transform</span>: declare identity and version, detect with a confidence score, transform to ONE shape, nothing else.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; contracts/plugin-contract.md:14-29</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> IngestionPlugin {</span>
+<span class="code-line">  <span class="code-comment">/** Stable unique name, e.g. "ddb-saved-html", "markdown", "generic-html". */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">name</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-comment">/** Plugin semver — stamped on every source it produces (FR-016). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">version</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-comment">/** Media types this plugin will even look at (pre-filter for detect). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">accepts</span>: <span class="code-keyword">readonly</span> <span class="code-keyword">string</span>[];   <span class="code-comment">// e.g. ["text/html"]</span></span>
+<span class="code-line">  <span class="code-comment">/** Optional soft guidance to the pipeline-owned chunker (FR-019). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">chunkingHints</span>?: ChunkingHints;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">/** Cheap, side-effect-free recognition. MUST NOT throw on garbage input. */</span></span>
+<span class="code-line">  <span class="code-function">detect</span>(input: DetectInput): DetectResult;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">/** Full extraction + transformation to the normalized document. */</span></span>
+<span class="code-line">  <span class="code-function">transform</span>(input: TransformInput): Promise&lt;NormalizedDocument&gt;;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Identity: a stable name, and a semver version stamped onto every source this plugin ever produces (FR-016) &mdash; so a version bump can name exactly which documents need re-ingestion.</p>
+              <p class="tl"><code>accepts</code> pre-filters which media types this plugin even looks at; <code>chunkingHints</code> is optional soft guidance to the chunker downstream.</p>
+              <p class="tl"><code>detect()</code> must be cheap, side-effect-free, and never throw &mdash; even on garbage input. It returns a confidence score, not a decision (Module 2 traces how the pipeline picks a winner).</p>
+              <p class="tl"><code>transform()</code> is the only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one shape every plugin is held to, and nothing else.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Nothing else</strong>
+            <p>Plugins declare identity + version, detect with confidence, transform to ONE shape &mdash; nothing else. FR-013.</p>
+          </div>
+        </div>
+
+        <p>That output shape is the more teachable artifact &mdash; the pivotal contract of the whole design, from <code>contracts/normalized-document.md</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; contracts/normalized-document.md:17-24</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> NormalizedDocument {</span>
+<span class="code-line">  <span class="code-property">contractVersion</span>: <span class="code-keyword">string</span>;          <span class="code-comment">// = NORMALIZED_DOCUMENT_VERSION at produce time</span></span>
+<span class="code-line">  <span class="code-property">title</span>: <span class="code-keyword">string</span>;                    <span class="code-comment">// best-effort document title, never empty</span></span>
+<span class="code-line">  <span class="code-property">language</span>?: <span class="code-keyword">string</span>;                <span class="code-comment">// BCP-47 hint when the plugin knows it</span></span>
+<span class="code-line">  <span class="code-property">sections</span>: Section[];              <span class="code-comment">// ordered; MAY be empty (=&gt; honest "empty" outcome)</span></span>
+<span class="code-line">  <span class="code-property">artifacts</span>: DisplayArtifact[];     <span class="code-comment">// sanitized fragments for the archive viewer</span></span>
+<span class="code-line">  <span class="code-property">warnings</span>: <span class="code-keyword">string</span>[];               <span class="code-comment">// non-fatal extraction notes, operator-readable</span></span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Stamped with the shape&rsquo;s own version &mdash; so a future breaking change can enumerate exactly which sources need re-ingestion.</p>
+              <p class="tl">A best-effort title, never empty &mdash; even a nameless plain-text file must produce something here.</p>
+              <p class="tl">An optional language hint, only when the plugin actually knows it.</p>
+              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose. Each section carries an
+                <span class="term" data-definition="A section's address inside its sanitized display artifact — the citation deep-link target, Principle III.">anchor</span> back into the artifact it came from.</p>
+              <p class="tl">Sanitized HTML fragments the archive viewer renders (never raw bytes), plus non-fatal extraction notes an operator can read.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: The wall -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The wall plugins can&rsquo;t see over</h2>
+        <p>Plugins aren&rsquo;t just asked nicely to stay in their lane &mdash; they&rsquo;re
+          <span class="term" data-definition="Not a review rule — a package-boundary lint rule fails the build if a plugin imports @stacks/db, FR-014.">structurally DB-blind</span>. The doctrine is written right at the top of the package, from <code>packages/ingestion-plugins/src/index.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; ingestion-plugins/src/index.ts:1-15</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * @stacks/ingestion-plugins — the shipped ingesters for spec 008 (FR-028):</span></span>
+<span class="code-line"><span class="code-comment"> * ddb-saved-html (flagship), markdown, generic-html (fallbacks), plus the</span></span>
+<span class="code-line"><span class="code-comment"> * test-only demo-format plugin that proves the extensibility promise (SC-007).</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * DOCTRINE (FR-014, the seam that makes "write a new ingester" a small task):</span></span>
+<span class="code-line"><span class="code-comment"> * everything in this package is a PURE TRANSFORM — bytes in, NormalizedDocument</span></span>
+<span class="code-line"><span class="code-comment"> * out. Nothing here may import @stacks/db, @stacks/core, @stacks/ingestion, or</span></span>
+<span class="code-line"><span class="code-comment"> * any HTTP/model client; the only internal dependency is the contract package.</span></span>
+<span class="code-line"><span class="code-comment"> * scripts/check-boundaries.mjs rule 4 fails the build otherwise. Parsing libs</span></span>
+<span class="code-line"><span class="code-comment"> * (cheerio, sanitize-html) live here and ONLY here (rule 5).</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * Fixtures under fixtures/ are synthetic look-alikes exercising DDB-shaped</span></span>
+<span class="code-line"><span class="code-comment"> * structure without any proprietary text (constitution Principle I, FR-024).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This package ships the real ingesters: ddb-saved-html as the flagship, markdown and generic-html as fallbacks, plus a test-only demo-format plugin that exists purely to prove new formats are addable.</p>
+              <p class="tl">The doctrine in one phrase: PURE TRANSFORM. Bytes in, <code>NormalizedDocument</code> out. Nothing here may import <code>@stacks/db</code>, <code>@stacks/core</code>, <code>@stacks/ingestion</code>, or any HTTP/model client &mdash; only the contract package.</p>
+              <p class="tl">That restriction isn&rsquo;t enforced by a reviewer&rsquo;s memory &mdash; <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if it&rsquo;s violated. Parsing libraries like cheerio and sanitize-html are only allowed to live here (rule 5).</p>
+              <p class="tl">Test fixtures are synthetic, DDB-shaped look-alikes &mdash; never real proprietary text.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🔒</div>
+          <div class="callout-content">
+            <strong class="callout-title">A linter, not a promise</strong>
+            <p>&ldquo;Structurally unable to import <code>@stacks/db</code>&rdquo; isn&rsquo;t a promise &mdash; it&rsquo;s <code>scripts/check-boundaries.mjs</code> failing your build. FR-014 is enforced by a linter, not a code reviewer&rsquo;s memory.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Three plugins, one shape -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three plugins, one shape</h2>
+        <p>Three shipped plugins prove the seam holds under real variety: wildly different internals, identical output contract.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">📖</div>
+            <h4 class="pattern-title">ddbSavedHtmlPlugin</h4>
+            <p class="pattern-desc">The flagship. Cheerio selectors hunt DDB-specific structural markers &mdash; canonical links, saved-from comments, heading stacks &mdash; ported from v2 as data-driven rule tables.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📝</div>
+            <h4 class="pattern-title">markdownPlugin</h4>
+            <p class="pattern-desc">A fallback floor. No markdown-rendering dependency at all &mdash; just an ATX heading (<code>#</code>..<code>######</code>) regex walk to build a heading trail.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🌐</div>
+            <h4 class="pattern-title">genericHtmlPlugin</h4>
+            <p class="pattern-desc">The other fallback. A generic DOM heading/section walk with zero DDB signal-hunting &mdash; it never even tries to outrank ddb-saved-html.</p>
+          </div>
+        </div>
+
+        <p>Cheerio selectors, a regex over heading lines, a generic DOM walk &mdash; three completely different implementations. What makes any of it work downstream is that all three end at the same door: every one of them returns a <code>NormalizedDocument</code>. Chunking, embedding, and indexing never know or care which plugin produced it.</p>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Test the seam</h2>
+        <p>Three plugins can all claim the same uploaded file. Who wins, and how is the decision made honest? Module 2 answers that &mdash; but first, reason from the contract you just read.</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — nothing reaches the network in production either, but more importantly it's disallowed by contract. The conformance suite's network guard makes any fetch() call an immediate test failure, not a silent violation that ships."
+               data-explanation-wrong="Not quite. transform() is a pure transform by contract (FR-014) — no HTTP client is even importable in this package, and the conformance suite enforces it with a network guard. Think about what 'structurally DB-blind' implies for any outbound call, not just database access.">
+            <h3 class="quiz-question">A plugin&rsquo;s <code>transform()</code> tries to call <code>fetch()</code> to look up extra metadata. What happens?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It works fine in dev but is stripped out by a build step before production</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's disallowed by contract; the conformance suite's network guard fails the test immediately</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It succeeds, and the resulting metadata is merged into the NormalizedDocument's warnings field</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right. An honest 'nothing ingestible' outcome (FR-017, invariant 6) is different from a plugin silently producing zero passages — the driver records status: empty, not ingested, so the operator can tell the difference between 'this document had nothing to extract' and 'this document was never processed.'"
+               data-explanation-wrong="Not quite. sections being allowed to be empty isn't a gap in the contract — it's deliberate. Think about what the alternative would hide: if empty weren't allowed, how would a plugin distinguish 'this really had nothing' from 'something silently failed'?">
+            <h3 class="quiz-question">Why is <code>NormalizedDocument.sections</code> allowed to be empty?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>An honest "nothing ingestible" outcome is different from silently producing zero passages — the driver records it as status: empty, not ingested</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's a bug in the type — sections should be required, and this will be tightened in a future MAJOR bump</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Empty sections trigger the pipeline to retry the same plugin with different chunkingHints</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly. The archive viewer always renders the SANITIZED artifact, never raw bytes — Principle III's citation deep-link target is one safe shape regardless of source format. A Markdown source still produces sanitized HTML because that's the only shape the viewer is ever allowed to render."
+               data-explanation-wrong="Not quite — this isn't about what format was easiest to implement. Think about what the archive viewer is allowed to render at all, and why raw saved HTML (or raw Markdown) would be unsafe to hand it directly."
+               >
+            <h3 class="quiz-question">Why does <code>DisplayArtifact.kind</code> only ever say <code>&quot;html&quot;</code>, even for a Markdown source?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because HTML was the first format supported, and the field was never generalized</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because every plugin internally converts to HTML before running its own parser</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The archive viewer always renders the sanitized artifact, never raw bytes — one safe shape regardless of source format</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>Next up &mdash; Module 2, &ldquo;Detection Dispatch&rdquo;: how the pipeline picks which plugin owns a given upload, and how that pick stays honest.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Detection Dispatch — How a Confidence Floor Keeps the Peace</h1>
+      <p class="module-subtitle">Every plugin gets a vote. The registry — not the plugin — picks the winner, and writes down why.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + hero data-flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One file, three plugins, exactly one winner</h2>
+        <p>Upload a plain HTML file that is not from D&amp;D Beyond. Three plugins in the registry technically could parse it. Exactly one will claim it — and the decision is provable, not a coin flip.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Upload arrives: plain-article.html, mediaType text/html"},
+          {"highlight":"flow-actor-5","label":"Registry filters to plugins whose accepts list includes text/html","packet":true,"from":"actor-1","to":"actor-5"},
+          {"highlight":"flow-actor-2","label":"ddb-saved-html.detect() runs and answers: confidence 0","packet":true,"from":"actor-5","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"markdown is skipped entirely: its accepts list does not include text/html","packet":true,"from":"actor-5","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"generic-html.detect() runs and answers: confidence 0.1","packet":true,"from":"actor-5","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"Registry compares every candidate: generic-html is the only nonzero score, so it wins","packet":true,"from":"actor-4","to":"actor-5"},
+          {"highlight":"flow-actor-5","label":"Decision recorded: plugin generic-html, confidence 0.1, candidates map generic-html 0.1 and ddb-saved-html 0"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">📄</div>
+              <span>plain-article.html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🐉</div>
+              <span>ddb-saved-html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">📝</div>
+              <span>markdown</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">🌐</div>
+              <span>generic-html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon">⚖️</div>
+              <span>Registry</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Detection is not "the first plugin that says yes." Every accepting plugin is asked, every answer is recorded, and the registry — not the plugin — picks the winner. A fallback claiming everything at a
+          <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span>
+          of 0.1 can never beat a real detector scoring 0.85 or higher.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why should I care?</strong>
+            <p>This is the exact mechanism that lets Module 6's demo-format plugin get added later with zero risk of accidentally hijacking traffic meant for ddb-saved-html — the floor is structural, not a promise.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: Code <-> English on Snippet A -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The dispatch loop, line by line</h2>
+        <p>The canonical chain: accepts filter, then <code>detect()</code> per candidate, then highest confidence wins, ties break by registration order, then the winning decision is recorded.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line">    <span class="code-function">detect</span>(input) {</span>
+<span class="code-line">      <span class="code-keyword">const</span> candidates: Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt; = {};</span>
+<span class="code-line">      <span class="code-keyword">let</span> winner: IngestionPlugin | <span class="code-keyword">null</span> = <span class="code-keyword">null</span>;</span>
+<span class="code-line">      <span class="code-keyword">let</span> winning = <span class="code-number">0</span>;</span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="code-keyword">for</span> (<span class="code-keyword">const</span> plugin <span class="code-keyword">of</span> plugins) {</span>
+<span class="code-line">        <span class="code-keyword">if</span> (!plugin.accepts.<span class="code-function">includes</span>(input.mediaType)) <span class="code-keyword">continue</span>;</span>
+<span class="code-line">        <span class="code-keyword">let</span> confidence = <span class="code-number">0</span>;</span>
+<span class="code-line">        <span class="code-keyword">try</span> {</span>
+<span class="code-line">          confidence = plugin.<span class="code-function">detect</span>(input).confidence;</span>
+<span class="code-line">        } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">          confidence = <span class="code-number">0</span>; <span class="code-comment">// plugin bug — scored as "not mine", surfaced by conformance</span></span>
+<span class="code-line">        }</span>
+<span class="code-line">        candidates[plugin.name] = confidence;</span>
+<span class="code-line">        <span class="code-comment">// Strictly-greater keeps the first-registered winner on ties.</span></span>
+<span class="code-line">        <span class="code-keyword">if</span> (confidence &gt; winning) {</span>
+<span class="code-line">          winner = plugin;</span>
+<span class="code-line">          winning = confidence;</span>
+<span class="code-line">        }</span>
+<span class="code-line">      }</span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="code-keyword">if</span> (!winner || winning &lt;= <span class="code-number">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">      <span class="code-keyword">return</span> { plugin: winner, confidence: winning, candidates };</span>
+<span class="code-line">    },</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Start a scoreboard: every plugin's confidence goes in <code>candidates</code>; nobody is winning yet.</p>
+              <p class="tl">Skip any plugin whose <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span> does not include this file's media type — it is not even asked.</p>
+              <p class="tl">Ask the plugin to score itself. If <code>detect()</code> throws, treat that as a confidence of exactly 0 — a crashing detector is scored as "not mine," not allowed to take detection down.</p>
+              <p class="tl">Write every consulted plugin's score into the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span>, honestly, even when the score is 0.</p>
+              <p class="tl">Only take the new plugin as winner if its confidence is <strong>strictly greater</strong> than the current best — an equal score never displaces the plugin already in the lead.</p>
+              <p class="tl">That strict "greater than" is the whole tie-break rule: whoever got compared first stays winner until someone beats it, which means
+                <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span> falls out for free.</p>
+              <p class="tl">If nobody scored above 0, there is no winner — return <code>null</code> and let the caller report an honest "unsupported type."</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: shipped.ts, the lineup -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The shipped lineup — and why order matters</h2>
+        <p>The registry's tie-break rule turns plugin <strong>registration order</strong> into a load-bearing decision. Here is the one place that order is set.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — shipped.ts (full file)</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * The SHIPPED plugin lineup (008 FR-028) — the one place the in-tree plugin</span></span>
+<span class="code-line"><span class="code-comment"> * list is wired (research R13's in-tree packaging decision). Registration</span></span>
+<span class="code-line"><span class="code-comment"> * ORDER is load-bearing: specific plugins before fallbacks, because the</span></span>
+<span class="code-line"><span class="code-comment"> * registry breaks confidence ties by order (registry.ts). ddb-saved-html</span></span>
+<span class="code-line"><span class="code-comment"> * goes first (it's the only plugin that ever claims text/html above the</span></span>
+<span class="code-line"><span class="code-comment"> * 0.1 floor); markdown and generic-html are the US4 fallbacks, each the sole</span></span>
+<span class="code-line"><span class="code-comment"> * claimant of its own media types, so their relative order doesn't matter.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * US5's demo plugin is test-only and deliberately NOT in this list.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-keyword">import</span> { ddbSavedHtmlPlugin, genericHtmlPlugin, markdownPlugin } <span class="code-keyword">from</span> <span class="code-string">"@stacks/ingestion-plugins"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">import type</span> { PluginRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { createRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">createShippedRegistry</span>(): PluginRegistry {</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createRegistry</span>([ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]);</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment says the quiet part out loud: this ORDER is load-bearing, not decorative — it is the tie-break rule in disguise.</p>
+              <p class="tl">Pull in the three real plugins that ship with the pipeline.</p>
+              <p class="tl">Pull in the registry constructor this list gets handed to.</p>
+              <p class="tl">Build the actual shipped registry — one function, one array, one order.</p>
+              <p class="tl">The array literal <code>[ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]</code> IS the tie-break table: ddb first, fallbacks after.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p><code>ddb-saved-html</code> is registered first not because it is "special" in code, but because registration order IS the tie-break rule — put fallbacks first and a coin-flip tie could hand a real DDB page to <code>generic-html</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Two real decisions side by side -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two real decisions, same run</h2>
+        <p>Both of these are real outcomes from this cycle's live validation — not illustrations. Same registry, same tie-break rule, two different truthful answers.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🐉</div>
+            <h4 class="pattern-title">The goblin stat block</h4>
+            <p class="pattern-desc">A real D&amp;D Beyond saved page. <code>ddb-saved-html</code>@1.0.0 recognized its identity signal and answered with confidence <strong>0.95</strong> — comfortably above the 0.1 floor, so it won outright. (evidence.md, Scenario 1: DDB happy path)</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🌐</div>
+            <h4 class="pattern-title">plain-article.html</h4>
+            <p class="pattern-desc"><code>ddb-saved-html</code> ran its own detection, found none of its signals, and answered with confidence <strong>exactly 0</strong> — not "low." <code>generic-html</code>'s 0.1 floor was the only nonzero score, so it won.</p>
+          </div>
+        </div>
+
+        <p>Here is the real <code>detect</code> event detail for the plain-article.html decision, verbatim from this cycle's live validation run (ticket <code>511d0240-fb33-4496-9097-e36789c9ac12</code>):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation run</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>{
+  <span class="code-property">"plugin"</span>: <span class="code-string">"generic-html"</span>,
+  <span class="code-property">"version"</span>: <span class="code-string">"1.0.0"</span>,
+  <span class="code-property">"candidates"</span>: { <span class="code-property">"generic-html"</span>: <span class="code-number">0.1</span>, <span class="code-property">"ddb-saved-html"</span>: <span class="code-number">0</span> },
+  <span class="code-property">"confidence"</span>: <span class="code-number">0.1</span>
+}</code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">Read the candidates map literally</strong>
+            <p>0 is not "didn't check" — <code>ddb-saved-html</code>'s <code>detect()</code> ran, looked for its identity signals, and truthfully found none. The map is not hiding a near-miss.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the registration order in shipped.ts IS the tie-break rule. It is written down and deterministic, never a coin flip."
+               data-explanation-wrong="Not quite. Re-check the strictly-greater-than comparison in registry.ts: on an exact tie, nothing displaces the current winner, so whichever plugin was compared first — i.e. registered first — keeps the win.">
+            <h3 class="quiz-question">Two plugins both report confidence 0.6 for the same file. Which wins, and why is that NOT arbitrary?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whichever plugin's name comes first alphabetically</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whichever plugin is registered first in shipped.ts — order is the documented tie-break rule</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It is genuinely random — a coin flip between the tied plugins</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — a throwing detect() is caught and scored as confidence 0, same as an honest 'not mine.' It never crashes detection for the whole file."
+               data-explanation-wrong="Not quite. Look at the try/catch in registry.ts: the catch block sets confidence = 0, not undefined and not a thrown error propagating upward.">
+            <h3 class="quiz-question">A plugin's detect() throws an exception on a weird input. What confidence does the registry record for it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>0 — treated as "not mine," not as a crash</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The error propagates and the whole upload fails immediately</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The plugin is skipped and left out of the candidates map entirely</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly right — ddb-saved-html's detect() genuinely ran and found no DDB identity signal in plain-article.html. The candidates map records honest zeros, not near-misses."
+               data-explanation-wrong="Not quite. The candidates map in Snippet C records ddb-saved-html at exactly 0, not some small-but-nonzero value — that 0 means its detector actually ran and found nothing, not that detection was skipped.">
+            <h3 class="quiz-question">Given the real candidates map for plain-article.html, could ddb-saved-html ever have won this particular upload instead of generic-html?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, if the registry had been configured to prefer ddb-saved-html</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — its score of 0 was actually a near-miss just below the floor</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — its own detect() genuinely found no DDB identity signal and returned exactly 0</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 3 — Anatomy of an Ingest</strong>
+            <p>Detection just picked a winner. Module 3 shows the whole run this decision kicks off — the actual ingest, seam to seam.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm); --color-accent:#3548C9; --color-accent-hover:#2A3AA8; --color-accent-light:#E8EAFB; --color-accent-muted:#8993D8; --color-actor-6:#C4457B; --color-actor-7:#6B4FA0; --color-actor-8:#336791;">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Anatomy of an Ingest</h1>
+      <p class="module-subtitle">One tracer round, eight seams: watch an upload become a searchable, citable passage — with a full transcript of exactly what happened.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO group chat animation                    -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Same Tracer Round, Eight Seams</h2>
+        <p>You submit a saved D&amp;D Beyond page. 20 milliseconds later you have a ticket.</p>
+        <p>One second later — with zero further input from you — that page is four classified sections, one embedded, indexed passage, and a complete stage-by-stage trail you can read like a transcript.</p>
+        <p>Module 2's tracer round found the plugin. This module follows it the rest of the way, through every one of the eight canonical stages:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>intake</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>detect</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>extract</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>transform</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>chunk</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">6</div><p>embed</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">7</div><p>index</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">8</div><p>commit</p></div>
+        </div>
+
+        <p>Watch the bullet, then look at what it built. Every message below is the <strong>real</strong> run — ticket <code>f513d44f-386b-407d-bf21-9eb046ac7707</code>, uploading <code>goblin-page.html</code>, straight from this cycle's live validation.</p>
+
+        <div class="chat-window" id="chat-ingest">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+                <p>Upload goblin-page.html</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🌐</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Web</span>
+                <p><code>POST /api/uploads</code> — multipart: file=goblin-page.html, corpus=default</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🔌</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">API</span>
+                <p>One transaction — sniff media type, hash the bytes, write archive + source + job rows. 2862 bytes, text/html, duplicate=false.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🔌</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">API → Web</span>
+                <p>201 — ticket f513d44f-386b-407d-bf21-9eb046ac7707, queued. Under 2 seconds, before a single byte of parsing has happened.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🌐</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Web → Operator</span>
+                <p>Redirecting you to the ticket page — polling starts now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker → Queue</span>
+                <p>Claiming the <code>ingest_source</code> job for ticket f513d44f…</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="queue" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">📥</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Queue</span>
+                <p>Yours. Job dequeued — first stage up is detect.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="7" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker → Registry</span>
+                <p>Who claims this document?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="8" data-sender="registry" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-6)">📋</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-6)">Registry → Worker</span>
+                <p>ddb-saved-html, confidence 0.95. (20ms)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="9" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>extract + transform — one plugin call, two recorded stages (13ms then 1ms). 4 sections, 5 artifacts, 0 warnings.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="10" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker</span>
+                <p>chunk — 1 chunk, 0 oversized. (0ms; targetChars 4000, overlapChars 400)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="11" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker → Sidecar</span>
+                <p>Embed this chunk.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="12" data-sender="sidecar" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-7)">🧩</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-7)">Sidecar → Worker</span>
+                <p>Vector's back. (121ms — local-sidecar/sentence-transformers/all-MiniLM-L6-v2, embedded=1, batches=1)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="13" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker → Postgres</span>
+                <p>Index 1 chunk + 4 sections.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="14" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-8)">🐘</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-8)">Postgres</span>
+                <p>Indexed. (4ms — inserted=5, conflictNoops=0)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="15" data-sender="worker" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">⚙️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Worker → Postgres</span>
+                <p>Commit.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="16" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-8)">🐘</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-8)">Postgres</span>
+                <p>Committed. (1ms — generation 1 flips, sweptSections=0, sweptChunks=0)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="17" data-sender="web" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🌐</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Web → Operator</span>
+                <p>Poll flips to "ingested ✓" — ddb-saved-html (0.95), 4 sections, 1 chunk. Full trail is right there to read.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="chat-ingest-typing" style="display:none">
+            <div class="chat-avatar" id="chat-ingest-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn btn-primary chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>Notice what closed the run: <span class="term" data-definition="An integer stamped on every derived row so re-ingestion can replace safely — a source's rows all carry the same generation number until the next run bumps it. Full story in Module 4.">generation</span> 1 flipped, and every row this job wrote now carries that number. Hold that thought — Module 4 is built entirely around what happens the day generation 2 is needed.</p>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — The accept side: Snippet A                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Accept Side: Refusal-First</h2>
+        <p>Think of <code>/api/uploads</code> as a customs checkpoint, not a warehouse: every reason to turn a shipment away is checked at the border, before anything is stamped and filed inland.</p>
+        <p>This is <span class="term" data-definition="The API's only job is validate, archive, and enqueue, then answer — all real work happens off a queue (Principle IV). A 201 means &quot;accepted,&quot; not &quot;done.&quot;">accept-then-async</span> in practice: the route's entire job is validate → archive → enqueue → answer. Parsing, chunking, embedding — none of it happens here.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/routes.ts:41-79</span>
+            <pre><code><span class="code-line">  app.post(<span class="code-string">"/api/uploads"</span>, <span class="code-keyword">async</span> (request, reply) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">const</span> file = <span class="code-keyword">await</span> request.<span class="code-function">file</span>();</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!file) {</span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">        <span class="code-property">class</span>: <span class="code-string">"unsupported_type"</span>,</span>
+<span class="code-line">        <span class="code-property">message</span>: <span class="code-string">"Upload requires exactly one multipart 'file' field."</span>,</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line">    <span class="code-keyword">let</span> bytes: Buffer;</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      bytes = <span class="code-keyword">await</span> file.<span class="code-function">toBuffer</span>();</span>
+<span class="code-line">    } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">      <span class="code-comment">// @fastify/multipart aborts the buffer once limits.fileSize trips.</span></span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">        <span class="code-property">class</span>: <span class="code-string">"unsupported_type"</span>,</span>
+<span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`File exceeds the upload size limit (${maxUploadBytes} bytes, INGEST_MAX_UPLOAD_BYTES).`</span>,</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line">    <span class="code-comment">// Magic bytes + extension — the client's declared content type is never</span></span>
+<span class="code-line">    <span class="code-comment">// trusted (renamed-binary edge case sniffs as null and is refused here).</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> sniffed = <span class="code-function">sniffMediaType</span>(file.filename, bytes);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!sniffed) {</span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">        <span class="code-property">class</span>: <span class="code-string">"unsupported_type"</span>,</span>
+<span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`Unsupported file type: "${file.filename}". Supported: HTML, Markdown, plain text, ZIP. (PDF is deliberately unsupported in v3.)`</span>,</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line">    <span class="code-keyword">const</span> corpusField = file.fields[<span class="code-string">"corpus"</span>];</span>
+<span class="code-line">    <span class="code-keyword">const</span> corpusName =</span>
+<span class="code-line">      corpusField &amp;&amp; <span class="code-string">"value"</span> <span class="code-keyword">in</span> corpusField &amp;&amp; <span class="code-keyword">typeof</span> corpusField.value === <span class="code-string">"string"</span></span>
+<span class="code-line">        ? corpusField.value</span>
+<span class="code-line">        : <span class="code-string">"default"</span>;</span>
+<span class="code-line">    <span class="code-keyword">const</span> [corpus] = <span class="code-keyword">await</span> db.<span class="code-function">select</span>().<span class="code-function">from</span>(corpora).<span class="code-function">where</span>(sql`${corpora.name} = ${corpusName}`);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!corpus) {</span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({ <span class="code-property">class</span>: <span class="code-string">"unknown_thing"</span>, <span class="code-property">message</span>: <span class="code-string">`No such corpus: "${corpusName}".`</span> });</span>
+<span class="code-line">    }</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Require exactly one uploaded file. No file field, no further work — refuse immediately.</p>
+              <p class="tl">Buffer the upload. If Fastify's own size limit trips mid-stream, that's a typed refusal too — the file is never held whole past the cap.</p>
+              <p class="tl">Sniff the real bytes and filename. A client's claimed content type is never trusted; anything outside HTML, Markdown, plain text, or ZIP is refused (no PDF in v3).</p>
+              <p class="tl">Read the optional <code>corpus</code> field off the multipart form, defaulting to "default" if it's missing.</p>
+              <p class="tl">Look the corpus up by name. Unknown corpus — refused. Every refusal above this line happens before a single row exists.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Every refusal in this function happens <em>before</em> a single row is written — sniff, size-cap, corpus lookup, all upstream of the transaction. A 415 always means zero residue.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — The stage-driver skeleton: Snippet B                -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One Function, Every Stage</h2>
+        <p>Once a job is claimed, the worker doesn't hand-roll detect/extract/transform/chunk/embed/index separately. It runs every one of them through a single <span class="term" data-definition="The one function that walks a source through every pipeline stage and records an event at each transition — so every stage's start, finish, and failure are captured identically, in one place.">stage driver</span>.</p>
+        <p>Picture a relay race where every runner hands off through the exact same timing gate — the gate doesn't care which leg of the race it is, it just starts the clock, waits, and records what happened.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/ingestion/src/ingest-source.ts:97-131</span>
+            <pre><code><span class="code-line">  <span class="code-comment">/** Runs one stage: started/completed events, timing, and the failure</span></span>
+<span class="code-line">   <span class="code-comment">* ritual (failed event + scrubbed last_error + status flip) in one place. */</span></span>
+<span class="code-line">  <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">stage</span>&lt;T&gt;(</span>
+<span class="code-line">    name: IngestionStage,</span>
+<span class="code-line">    body: () =&gt; Promise&lt;{ result: T; detail?: Record&lt;string, unknown&gt; }&gt;,</span>
+<span class="code-line">    options: { skipStarted?: boolean } = {},</span>
+<span class="code-line">  ): Promise&lt;T&gt; {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!options.skipStarted) <span class="code-keyword">await</span> <span class="code-function">event</span>(name, <span class="code-string">"started"</span>);</span>
+<span class="code-line">    <span class="code-keyword">const</span> startedAt = Date.<span class="code-function">now</span>();</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-keyword">const</span> { result, detail } = <span class="code-keyword">await</span> <span class="code-function">body</span>();</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">event</span>(name, <span class="code-string">"completed"</span>, detail, Date.now() - startedAt);</span>
+<span class="code-line">      <span class="code-keyword">return</span> result;</span>
+<span class="code-line">    } <span class="code-keyword">catch</span> (cause) {</span>
+<span class="code-line">      <span class="code-keyword">const</span> error =</span>
+<span class="code-line">        cause <span class="code-keyword">instanceof</span> DomainError</span>
+<span class="code-line">          ? cause</span>
+<span class="code-line">          : <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">              <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">              <span class="code-property">seam</span>: name,</span>
+<span class="code-line">              <span class="code-property">message</span>: <span class="code-string">`Unexpected failure in ${name} stage.`</span>,</span>
+<span class="code-line">              cause,</span>
+<span class="code-line">            });</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">event</span>(name, <span class="code-string">"failed"</span>, { <span class="code-property">class</span>: error.class, <span class="code-property">message</span>: error.message }, Date.now() - startedAt);</span>
+<span class="code-line">      <span class="code-keyword">await</span> db</span>
+<span class="code-line">        .<span class="code-function">update</span>(sources)</span>
+<span class="code-line">        .<span class="code-function">set</span>({</span>
+<span class="code-line">          <span class="code-property">status</span>: <span class="code-string">"failed"</span>,</span>
+<span class="code-line">          <span class="code-property">lastError</span>: { class: error.class, stage: name, message: error.message },</span>
+<span class="code-line">          <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> Date(),</span>
+<span class="code-line">        })</span>
+<span class="code-line">        .<span class="code-function">where</span>(sql`${sources.id} = ${sourceId}`);</span>
+<span class="code-line">      <span class="code-keyword">throw</span> error;</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One generic helper wraps every stage — detect, extract, transform, chunk, embed, index — with the same started/completed/failed timing.</p>
+              <p class="tl">Unless told to skip it, emit "started" first and start a clock.</p>
+              <p class="tl">Run the stage's real work. On success, emit "completed" with whatever detail that stage wants recorded, plus how long it took.</p>
+              <p class="tl">On any failure, normalize it into a DomainError tagged with which stage it happened in — even a raw crash becomes a typed, seam-tagged error.</p>
+              <p class="tl">Emit a "failed" event with the same timing discipline, then flip the source row to failed with a scrubbed <code>lastError</code> snapshot.</p>
+              <p class="tl">Re-throw. The worker's job loop sees the failure too, so retries and alerting still work.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>One function wraps EVERY stage identically: started event, timer, try/catch that turns any failure into a <code>failed</code> event + scrubbed <code>lastError</code> + re-throw. No stage's failure path was hand-written twice.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — HERO #2: data-flow animation on the real trail      -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Trail IS the Truth</h2>
+        <p>The stage driver's output isn't a log line buried in some console — it's a durable, replayable record. Here is the exact, unedited trail from ticket f513d44f's run.</p>
+        <p>Watch for one thing: <code>extract:completed</code> is followed by <code>transform:completed</code> — but there's only one plugin method, <code>transform()</code>. The driver emits <code>extract:started</code> manually, calls the plugin once, then runs the result through <code>stage("transform", …)</code> to validate it. One call, two stages, on purpose — doc 05's vocabulary stays visible even though the code seam is a single function.</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">intake:completed</code>
+            <span class="badge-desc">(0ms) byteSize=2862 mediaType=text/html duplicate=false</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">detect:started</code>
+            <span class="badge-desc">worker asks the registry which plugin claims this document</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">detect:completed</code>
+            <span class="badge-desc">(20ms) plugin=ddb-saved-html version=1.0.0 confidence=0.95</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">extract:started</code>
+            <span class="badge-desc">the one plugin.transform() call begins</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">extract:completed</code>
+            <span class="badge-desc">(13ms) — the same call returns a normalized document</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">transform:completed</code>
+            <span class="badge-desc">(1ms) sections=4 artifacts=5 warnings=0 contractVersion=1.0.0</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">chunk:started</code>
+            <span class="badge-desc">splitting the normalized document into embeddable pieces</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">chunk:completed</code>
+            <span class="badge-desc">(0ms) chunks=1 oversized=0 targetChars=4000 overlapChars=400</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">embed:started</code>
+            <span class="badge-desc">handing the chunk to the embedding sidecar</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">embed:completed</code>
+            <span class="badge-desc">(121ms) model=local-sidecar/sentence-transformers/all-MiniLM-L6-v2 embedded=1 batches=1</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">index:started</code>
+            <span class="badge-desc">writing chunk and section rows to Postgres</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">index:completed</code>
+            <span class="badge-desc">(4ms) inserted=5 conflictNoops=0</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">commit:completed</code>
+            <span class="badge-desc">(1ms) generation=1 sweptSections=0 sweptChunks=0</span>
+          </div>
+        </div>
+
+        <p>Now watch it move. Every step below is labeled with its exact <code>stage:event</code> name and its real duration — this animation <em>is</em> the trail, nothing invented.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-api","label":"intake:completed (0ms) - byteSize=2862 mediaType=text/html duplicate=false","packet":true,"from":"api","to":"postgres"},
+          {"highlight":"flow-worker","label":"detect:started - worker asks the registry which plugin claims this document","packet":true,"from":"worker","to":"registry"},
+          {"highlight":"flow-registry","label":"detect:completed (20ms) - plugin=ddb-saved-html version=1.0.0 confidence=0.95","packet":true,"from":"registry","to":"worker"},
+          {"highlight":"flow-worker","label":"extract:started - the one plugin.transform() call begins"},
+          {"highlight":"flow-worker","label":"extract:completed (13ms) - the same call returns a normalized document"},
+          {"highlight":"flow-worker","label":"transform:completed (1ms) - sections=4 artifacts=5 warnings=0 contractVersion=1.0.0"},
+          {"highlight":"flow-worker","label":"chunk:started - splitting the normalized document into embeddable pieces"},
+          {"highlight":"flow-worker","label":"chunk:completed (0ms) - chunks=1 oversized=0 targetChars=4000 overlapChars=400"},
+          {"highlight":"flow-worker","label":"embed:started - worker sends the chunk to the embedding sidecar","packet":true,"from":"worker","to":"sidecar"},
+          {"highlight":"flow-sidecar","label":"embed:completed (121ms) - model=local-sidecar/sentence-transformers/all-MiniLM-L6-v2 embedded=1 batches=1","packet":true,"from":"sidecar","to":"worker"},
+          {"highlight":"flow-worker","label":"index:started - worker writes chunk and section rows","packet":true,"from":"worker","to":"postgres"},
+          {"highlight":"flow-postgres","label":"index:completed (4ms) - inserted=5 conflictNoops=0"},
+          {"highlight":"flow-postgres","label":"commit:completed (1ms) - generation=1 sweptSections=0 sweptChunks=0"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-api">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🔌</div>
+              <span>API</span>
+            </div>
+            <div class="flow-actor" id="flow-queue">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">📥</div>
+              <span>Queue</span>
+            </div>
+            <div class="flow-actor" id="flow-worker">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">⚙️</div>
+              <span>Worker</span>
+            </div>
+            <div class="flow-actor" id="flow-registry">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-6)">📋</div>
+              <span>Registry</span>
+            </div>
+            <div class="flow-actor" id="flow-sidecar">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-7)">🧩</div>
+              <span>Sidecar</span>
+            </div>
+            <div class="flow-actor" id="flow-postgres">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-8)">🐘</div>
+              <span>Postgres</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Deterministic identity: Snippet D (reference only)  -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every Row Gets an Address, Not a Coin Flip</h2>
+        <p>Right before writing anything, the driver computes a <span class="term" data-definition="An id computed from content + position (never random) — the same job re-run twice derives the exact same id, which makes retries idempotent for free (research R9).">deterministic id</span> for every section and chunk it's about to create.</p>
+        <p>Full treatment of what this buys you is Module 4's whole subject — here it's just the seam to notice: the id comes from what the row <em>is</em>, not from a random generator.</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
+<span class="code-comment">// File: packages/ingestion/src/ingest-source.ts:270-290</span>
+<span class="code-line">  <span class="code-comment">// Deterministic identities for everything we are about to write (R9).</span></span>
+<span class="code-line">  <span class="code-keyword">const</span> idInput = {</span>
+<span class="code-line">    <span class="code-property">sourceFingerprint</span>: source.fingerprint,</span>
+<span class="code-line">    <span class="code-property">pluginName</span>: decision.plugin.name,</span>
+<span class="code-line">    <span class="code-property">pluginVersion</span>: decision.plugin.version,</span>
+<span class="code-line">    <span class="code-property">generation</span>: targetGeneration,</span>
+<span class="code-line">  };</span>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Content + position + plugin + generation, hashed — the SAME job re-run twice writes the SAME id twice. <code>ON CONFLICT DO NOTHING</code> makes the second write a no-op automatically.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 6 — Quiz + handoff to Module 4                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Trace</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="one-call-two-stages"
+               data-explanation-right="One call to decision.plugin.transform(), two events around it. The trail preserves doc 05's stage vocabulary; the code doesn't need two methods to do it."
+               data-explanation-wrong="Look back at the driver: extract:started is emitted manually right before the plugin call, then transform reuses stage() with skipStarted:true immediately after. Same call, two labels — not two methods, and not a bug.">
+            <h3 class="quiz-question">Snippet C shows <code>extract:completed</code> and then <code>transform:completed</code> — but the plugin contract has only ONE <code>transform()</code> method. Why two stages?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="two-methods" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The registry actually calls two different plugin methods internally.</span>
+              </button>
+              <button class="quiz-option" data-value="one-call-two-stages" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>extract and transform are one plugin call observed as two recorded stages — the driver emits extract:started before invoking the plugin and transform:completed after validating the result.</span>
+              </button>
+              <button class="quiz-option" data-value="double-count-bug" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's a bug — the driver double-counts the same stage.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="retry-from-detect"
+               data-explanation-right="The queue retries the job from detect again. Everything from detect onward is either idempotent (deterministic ids, ON CONFLICT DO NOTHING) or hasn't happened yet — so the retry reproduces the exact same trail, nothing duplicated. Module 4 draws the full line between a retry like this and a deliberate re-ingest."
+               data-explanation-wrong="There's no checkpoint that lets the job resume mid-stage — the queue only knows about the job as a whole. Think about what makes re-running detect, extract, transform, and chunk from scratch safe: nothing has been written to Postgres yet, and the ids that eventually get written would be identical either way.">
+            <h3 class="quiz-question">The worker process is killed right after <code>chunk:completed</code> but before <code>embed:started</code> is recorded. What happens on retry?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="resume-at-embed" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The job resumes at embed, skipping the stages that already ran.</span>
+              </button>
+              <button class="quiz-option" data-value="retry-from-detect" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The queue retries the job from detect again; since every write from detect onward is either idempotent or hasn't happened yet, the retry reproduces the exact same trail.</span>
+              </button>
+              <button class="quiz-option" data-value="stuck-forever" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The source is stuck in chunk forever until an operator manually intervenes.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="trail-vs-lasterror"
+               data-explanation-right="The event trail is the authoritative, append-only HISTORY of the run; sources.lastError is a derived convenience for a quick status read. Module 5 shows exactly why that distinction matters when it comes to scrubbing sensitive detail."
+               data-explanation-wrong="Not redundancy — the two writes serve different readers. One answers 'what is this source's status right now,' the other answers 'show me everything that happened, in order.' Think about which one you'd want to keep forever, unedited."
+          >
+            <h3 class="quiz-question">Why does <code>stage()</code> (Snippet B) write BOTH a <code>failed</code> event AND <code>sources.lastError</code> on any exception?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="redundancy" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Redundancy, in case one of the writes fails.</span>
+              </button>
+              <button class="quiz-option" data-value="trail-vs-lasterror" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The event trail is the authoritative, append-only HISTORY; lastError is a derived convenience for a quick status read.</span>
+              </button>
+              <button class="quiz-option" data-value="retry-reads-lasterror" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>lastError is what the retry logic reads to decide whether to retry.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>That run committed at <strong>generation 1</strong>. What happens the day this plugin ships a bug fix, and every source it touched needs to be redone? That's Module 4 — Generation-Flip.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4" style="background: var(--color-bg);">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Generation-Flip</h1>
+      <p class="module-subtitle">Why re-ingesting a source can never leave a reader looking at a half-old, half-new corpus.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ================= SCREEN 1 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One Column, Two Meanings</h2>
+        <p>A plugin bug fix ships. Every source that plugin ever touched needs to be re-derived. How do you redo work on a live, queryable corpus without a reader ever seeing a half-old, half-new source?</p>
+        <p>Every section and chunk row carries a
+          <span class="term" data-definition="An integer stamped on every section/chunk row — the pointer that decides which rows are live right now (research R8).">generation</span> —
+          one integer that decides which rows are live. A
+          <span class="term" data-definition="The SAME job re-run with the SAME target generation. Deterministic ids make it a no-op replay — nothing new is written.">retry</span>
+          replays a job at the SAME generation. A
+          <span class="term" data-definition="A NEW job at generation + 1 — a deliberate redo, e.g. after a plugin bug fix ships.">re-ingest</span>
+          starts a brand-new job at generation + 1. One column separates two situations that would otherwise be easy to confuse.
+        </p>
+
+        <div class="pattern-cards" style="grid-template-columns: 1fr auto 1fr; align-items: center; margin: var(--space-8) 0;">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-text-muted); opacity: 0.55;">
+            <div class="pattern-icon" style="background: var(--color-text-muted);">1</div>
+            <h4 class="pattern-title">Generation 1 — live</h4>
+            <p class="pattern-desc">Still the rows every reader sees. Untouched, still fully queryable, about to become stale.</p>
+          </div>
+          <div class="animate-in" style="text-align: center; font-family: var(--font-display); font-weight: 700;">
+            <div style="font-size: var(--text-4xl); line-height: 1; color: #35408F;">&#8594;</div>
+            <span class="badge-code" style="display: inline-block; margin-top: var(--space-2); background: var(--color-bg-code); color: #CBA6F7;">flip</span>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #35408F;">
+            <div class="pattern-icon" style="background: #35408F;">2</div>
+            <h4 class="pattern-title">Generation 2 — build aside</h4>
+            <p class="pattern-desc">Already fully constructed — chunked, embedded, indexed — but invisible. No reader has seen one row of it yet.</p>
+          </div>
+        </div>
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); text-align: center; margin-top: calc(-1 * var(--space-6));">One UPDATE moves <code class="badge-code" style="background: var(--color-bg-code); color: #F9E2AF;">current_generation</code> from 1 to 2 — the instant it commits, generation 1 is swept in the same transaction. Never a moment where a reader could see both.</p>
+
+        <p>Think blue-green deployment, shrunk to one integer column: build the new version fully aside, flip one pointer, then clean up the old version. There is never a moment where half the traffic sees old and half sees new.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num" style="background: #35408F;">1</div>
+            <p>build aside — do all the real work off to the side</p>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <div class="flow-step-num" style="background: #35408F;">2</div>
+            <p>flip — one UPDATE moves the pointer</p>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <div class="flow-step-num" style="background: #35408F;">3</div>
+            <p><span class="term" data-definition="Deleting the previous generation's rows, done in the SAME transaction as the flip — so a reader is never caught between old and new.">sweep</span> — delete the older generation, same transaction</p>
+          </div>
+        </div>
+
+        <div class="icon-rows" style="margin-top: var(--space-8);">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-text-muted);">&#8635;</div>
+            <div>
+              <strong>retry — same generation</strong>
+              <p>Deterministic ids make replay a no-op: the same job re-run targets the same generation and writes nothing new.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: #35408F;">+1</div>
+            <div>
+              <strong>re-ingest — generation + 1</strong>
+              <p>A deliberate redo: a brand-new job targets generation + 1, so old and new rows can never collide.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Flip Is the Commit</h2>
+        <p><code>commitGeneration</code> is where generation N+1 stops being build-aside work and becomes the version every reader sees. Read it as two moves, one transaction: flip, then sweep.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">commitGeneration</span>(</span>
+<span class="code-line">  db: Database,</span>
+<span class="code-line">  input: { sourceId: <span class="code-keyword">string</span>; generation: <span class="code-keyword">number</span>; contractVersion: <span class="code-keyword">string</span> },</span>
+<span class="code-line">): Promise&lt;CommitResult&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) =&gt; {</span>
+<span class="code-line">    <span class="code-comment">// The flip IS the commit: one UPDATE makes generation N the one readers</span></span>
+<span class="code-line">    <span class="code-comment">// see. Everything before this line was invisible build-aside work.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">update</span>(sources)</span>
+<span class="code-line">      .<span class="code-function">set</span>({</span>
+<span class="code-line">        <span class="code-property">currentGeneration</span>: input.generation,</span>
+<span class="code-line">        <span class="code-property">status</span>: <span class="code-string">"ingested"</span>,</span>
+<span class="code-line">        <span class="code-property">contractVersion</span>: input.contractVersion,</span>
+<span class="code-line">        <span class="code-property">lastError</span>: <span class="code-keyword">null</span>,</span>
+<span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> Date(),</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">where</span>(sql`${sources.id} = ${input.sourceId}`);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// Sweep is AFTER the flip, same transaction: a reader either saw the old</span></span>
+<span class="code-line">    <span class="code-comment">// generation before the transaction or the new one after — never neither.</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> sweptSections = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">delete</span>(documentSections)</span>
+<span class="code-line">      .<span class="code-function">where</span>(</span>
+<span class="code-line">        <span class="code-function">and</span>(</span>
+<span class="code-line">          sql`${documentSections.sourceId} = ${input.sourceId}`,</span>
+<span class="code-line">          <span class="code-function">lt</span>(documentSections.generation, input.generation),</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Takes the db, the sourceId, the target generation number, and the contract version — everything needed to make generation N official.</p>
+              <p class="tl">Everything runs inside one db transaction: it all lands, or none of it does.</p>
+              <p class="tl">The comment says it outright — this UPDATE below IS the commit. Nothing before it was ever visible to a reader.</p>
+              <p class="tl">Update the source's row and set currentGeneration to the new value, flip status to ingested, record the contract version, clear lastError, stamp updatedAt.</p>
+              <p class="tl">That one UPDATE, scoped to this sourceId, is the entire flip.</p>
+              <p class="tl">Now the sweep — still the same transaction. The comment repeats the guarantee: a reader either saw the old generation before this commits, or the new one after. Never neither.</p>
+              <p class="tl">Delete every documentSections row for this source whose generation is less than the new one — only rows OLDER than what just became current get removed.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>The sweep runs AFTER the flip, in the SAME transaction — a reader's snapshot either sees the old generation (the transaction hasn't committed yet) or the new one with nothing swept out from under it. Never neither, never both.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Re-Ingest: Just Another Job</h2>
+        <p>Something has to decide "generation + 1" and put a job on the queue. That something is <code>reingestSource</code> — and it is deliberately boring.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">reingestSource</span>(db: Database, input: ReingestSourceInput): Promise&lt;Job&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> [source] = <span class="code-keyword">await</span> db.<span class="code-function">select</span>().<span class="code-function">from</span>(sources).<span class="code-function">where</span>(<span class="code-function">eq</span>(sources.id, input.sourceId));</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!source) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> DomainError({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"unknown_thing"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: `No such source: ${input.sourceId}.`,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">if</span> (source.currentGeneration &lt; <span class="code-number">1</span>) {</span>
+<span class="code-line">    <span class="code-comment">// Nothing has ever been committed for this source — there is no prior</span></span>
+<span class="code-line">    <span class="code-comment">// generation to build past; the FIRST ingestion is the plain intake</span></span>
+<span class="code-line">    <span class="code-comment">// path's job (ingest_source at generation 1), not re-ingestion's.</span></span>
+<span class="code-line">    <span class="code-keyword">throw new</span> DomainError({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"unsupported_type"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: `Source ${input.sourceId} has never completed an ingestion (currentGeneration=0); re-ingest applies only to a source with an existing generation.`,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">enqueue</span>(db, {</span>
+<span class="code-line">    <span class="code-property">kind</span>: <span class="code-string">"ingest_source"</span>,</span>
+<span class="code-line">    <span class="code-property">payload</span>: { <span class="code-property">sourceId</span>: source.id, <span class="code-property">targetGeneration</span>: source.currentGeneration + <span class="code-number">1</span> },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Takes just a sourceId — the entire re-ingest trigger is one id.</p>
+              <p class="tl">Look the source up. If it doesn't exist, refuse: unknown_thing, naming the missing id.</p>
+              <p class="tl">Guard: currentGeneration less than 1 means this source has never finished a first ingestion.</p>
+              <p class="tl">There's no prior generation to build past yet — the very first ingest is the plain intake path's job (generation 1), not this function's.</p>
+              <p class="tl">Refuse with unsupported_type, spelling out exactly why re-ingest doesn't apply yet.</p>
+              <p class="tl">Otherwise: enqueue a new job. kind is "ingest_source" — the same kind every first-time ingestion uses. Re-ingestion isn't a different code path.</p>
+              <p class="tl">payload carries the same sourceId plus targetGeneration set to currentGeneration + 1 — the ONLY thing that changes is which generation the stage driver builds toward.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>This function only ENQUEUES a job — it never runs the pipeline inline. Re-ingestion reuses the exact same stage driver from Module 3; nothing about "redo" needed its own code path.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Real Proof: A Plugin Version Bump</h2>
+        <p>This is the actual scenario this cycle's tests exercise: <code>demo-format</code> ships v1.1.0, and one already-ingested source needs to move onto it. Six beats, no invented framing.</p>
+
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Ingest sample.demo under demo-format v1.0.0</strong>
+              <p>The source commits at generation 1 — a normal first ingestion, nothing special yet.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>sourcesByPluginVersion({ pluginName: "demo-format", pluginVersion: "1.0.0" })</strong>
+              <p>Returns exactly one source — the candidate list for "who did the old version produce."</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>reingestSource({ sourceId })</strong>
+              <p>Enqueues an ingest_source job with targetGeneration: 2. No pipeline runs yet.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Worker drains the job using a registry with demo-format v1.1.0</strong>
+              <p>The stage driver from Module 3 runs unchanged — it has no idea this is a "redo."</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>Result: source.pluginVersion is "1.1.0", currentGeneration is 2</strong>
+              <p>The flip landed. Generation 1's rows were swept in the same transaction.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <strong>sourcesByPluginVersion at "1.0.0" now returns none; at "1.1.0" it returns that one source</strong>
+              <p>The old version's candidate list is empty. The source moved on, provably.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-gen-actor-1","label":"Step 1 - Operator ingests sample.demo under demo-format v1.0.0. Source commits at generation 1."},
+          {"highlight":"flow-gen-actor-2","label":"Step 2 - sourcesByPluginVersion(demo-format, v1.0.0) returns that one source.","packet":true,"from":"gen-actor-1","to":"gen-actor-2"},
+          {"highlight":"flow-gen-actor-3","label":"Step 3 - reingestSource(sourceId) enqueues ingest_source with targetGeneration 2.","packet":true,"from":"gen-actor-2","to":"gen-actor-3"},
+          {"highlight":"flow-gen-actor-4","label":"Step 4 - The job lands on the Queue: ingest_source, targetGeneration 2.","packet":true,"from":"gen-actor-3","to":"gen-actor-4"},
+          {"highlight":"flow-gen-actor-5","label":"Step 5 - Worker drains the job using a registry with demo-format v1.1.0. Result: pluginVersion is now 1.1.0, currentGeneration is 2.","packet":true,"from":"gen-actor-4","to":"gen-actor-5"},
+          {"highlight":"flow-gen-actor-2","label":"Step 6 - sourcesByPluginVersion at v1.0.0 now returns none. At v1.1.0 it returns that one source. The old version moved on.","packet":true,"from":"gen-actor-5","to":"gen-actor-2"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-gen-actor-1">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1);">&#128104;&#8205;&#128187;</div>
+              <span>Operator</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-actor-2">
+              <div class="flow-actor-icon" style="background: #35408F;">&#128269;</div>
+              <span>sourcesByPluginVersion</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-actor-3">
+              <div class="flow-actor-icon" style="background: #4A5AC0;">&#128260;</div>
+              <span>reingestSource</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-actor-4">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4);">&#128230;</div>
+              <span>Queue</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-actor-5">
+              <div class="flow-actor-icon" style="background: #35408F;">&#9881;&#65039;</div>
+              <span>Worker (v1.1.0)</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>FR-016's "which sources did the old version produce" isn't a manual audit — it's one indexed query.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 5 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Yourself</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — pinned with the operator on 2026-07-07: mutation verbs belong with the corpus-lifecycle spec's own dry-run/confirm guardrails (Principle IV). 008 ships the tested primitive; exposing it as an HTTP trigger is a different spec's job."
+               data-explanation-wrong="Not quite — reingestSource already only enqueues (Snippet B proves that), and re-ingestion reuses the exact same stage driver Module 3 walked through. The real reason is a deliberate spec boundary, not a technical limitation.">
+            <h3 class="quiz-question">Why is <code>reingestSource</code> NOT an HTTP endpoint, even though the pipeline fully supports it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>HTTP endpoints can't enqueue jobs — they can only run pipelines inline</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Mutation verbs belong with the corpus-lifecycle spec's own dry-run/confirm guardrails — 008 ships the tested primitive, not the exposed trigger</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Re-ingestion needs a different stage driver that only a background job can invoke</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right — the sweep lives inside commitGeneration, which only runs once a job reaches success at the very end. A crash mid-embed never gets there, so nothing new ever committed, and there's nothing to sweep."
+               data-explanation-wrong="Not quite — look at where the sweep lives: inside commitGeneration, which Snippet A shows running only at the very end, on success. A crashed retry re-attempts from detect and never reaches that function.">
+            <h3 class="quiz-question">A job crashes mid-embed during a RETRY (same generation). Does the sweep in Snippet A ever run for that retry?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the retry always re-runs commitGeneration to clean up the failed attempt</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — commitGeneration only runs on success, at the very end; a retry that fails again just re-attempts from detect, so nothing is swept</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only if the retry happens to target generation + 1 instead of the same generation</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — commitGeneration's UPDATE sets currentGeneration, status, contractVersion, and (via the driver) pluginVersion together, in one transaction. A reader's query lands either before that transaction commits or after — there's no partial state to observe."
+               data-explanation-wrong="Not quite — Snippet A's UPDATE is one atomic statement inside one transaction. There's no moment where some fields have flipped and others haven't; a concurrent reader always sees a fully-old or fully-new row.">
+            <h3 class="quiz-question">Could <code>sourcesByPluginVersion</code> ever return a source mid-re-ingest — after the flip but before... anything?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, briefly — the flip and the pluginVersion update happen as two separate statements</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — no such window exists. The flip is the single atomic UPDATE inside one transaction; a reader sees the complete old state or the complete new state, never a partial one</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but only until the sweep finishes</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p style="margin-top: var(--space-8);">A re-ingest just replaced this source's passages safely. Next, in Module 5 — The Honest Front Door: what happens when the ORIGINAL upload was garbage to begin with?</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5" style="background: var(--color-bg-warm); --color-accent: #D4A843; --color-accent-hover: #B8863A; --color-accent-light: #FBF1DC; --color-accent-muted: #E0C179;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">The Honest Front Door</h1>
+      <p class="module-subtitle">A bouncer with a clipboard, not a shredder — every refusal leaves the room exactly as it found it, and writes down why.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + three-card HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three requests, three honest answers</h2>
+        <p>Upload a PDF. Upload a 30MB file. Upload the same file twice. All three get an honest, typed answer in milliseconds — and after all three,
+          <code>SELECT count(*) FROM sources</code> reads exactly the same as before you tried.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">📕</div>
+            <h4 class="pattern-title">sample.pdf</h4>
+            <p class="pattern-desc"><strong>415</strong> · <code>unsupported_type</code><br>
+              <em>"Unsupported file type: &quot;sample.pdf&quot;. Supported: HTML, Markdown, plain text, ZIP. (PDF is deliberately unsupported in v3.)"</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">🐘</div>
+            <h4 class="pattern-title">big.html (30MB)</h4>
+            <p class="pattern-desc"><strong>415</strong> · <code>unsupported_type</code><br>
+              <em>"File exceeds the upload size limit (26214400 bytes, INGEST_MAX_UPLOAD_BYTES)."</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">📝</div>
+            <h4 class="pattern-title">notes.md (2nd upload)</h4>
+            <p class="pattern-desc"><strong>200</strong> · <code>duplicate: true</code><br>
+              <em>Same ticket id as upload #1 — no new source row, no new job.</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+        </div>
+
+        <p>All three are the exact outcomes from this cycle's live validation run (Scenario 3, <code>quickstart.md</code>). Two are refusals, one is a duplicate — but every one of them leaves
+          <span class="term" data-definition="A refusal that leaves NO trace behind — no row, no job, no partial state. Verified by counting rows before and after: the counts must match exactly (SC-005).">zero residue</span>. The residue check that proves it: <code>SELECT count(*) FROM sources; SELECT count(*) FROM jobs WHERE kind LIKE 'ingest%';</code> — unchanged, before and after.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>sniff (magic bytes)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>size-cap (in-stream)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>fingerprint (sha256)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>optimistic insert</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>conflict = duplicate</p></div>
+        </div>
+        <p>One path, every request. There is no separate "duplicate detector" bolted on the side — a duplicate is just what an optimistic insert looks like when it loses a race it didn't know it was running.</p>
+      </section>
+
+      <!-- SCREEN 2: Code<->English on Snippet A (sniffMediaType) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Magic bytes beat declared type, every time</h2>
+        <p><code>sniffMediaType</code> never asks the client what it thinks the file is. It reads the bytes, then decides — and it never mentions HTTP at all; that translation into a
+          <span class="term" data-definition="One of four typed failure categories in this codebase — unknown_thing / unsupported_type / dependency_down / internal_fault. Code throws by CLASS; only the API boundary maps a class to an HTTP status. Nothing upstream of that boundary knows or cares what status code it becomes.">DomainError class</span>
+          (here, <code>unsupported_type</code> → 415) happens one layer up, at the caller.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — sniff.ts:52-78</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">sniffMediaType</span>(filename: string, bytes: Uint8Array): SniffResult | null {</span>
+<span class="code-line">  <span class="code-keyword">const</span> extension = <span class="code-function">extensionOf</span>(filename);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (<span class="code-function">hasMagic</span>(bytes, ZIP_MAGIC)) {</span>
+<span class="code-line">    <span class="code-comment">// A ZIP is a ZIP whatever it is named — but only the .zip extension is an</span></span>
+<span class="code-line">    <span class="code-comment">// intended batch; a renamed one is a mismatch the caller refuses.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> extension === <span class="code-string">"zip"</span> ? { <span class="code-property">mediaType</span>: <span class="code-string">"application/zip"</span> } : <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> binary = <span class="code-function">looksBinary</span>(bytes);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (binary) <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">// renamed binary or genuinely unsupported (e.g. PDF)</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">switch</span> (extension) {</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"html"</span>:</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"htm"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/html"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"md"</span>:</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"markdown"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/markdown"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"txt"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/plain"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"zip"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">// .zip extension without ZIP magic: a renamed non-zip</span></span>
+<span class="code-line">    <span class="code-keyword">default</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Takes the filename AND the raw bytes — the extension is only ever a hint, never trusted alone.</p>
+              <p class="tl">ZIP magic bytes present? Then only a <code>.zip</code> extension is treated as the intended batch format — a ZIP renamed to something else is refused, not silently accepted.</p>
+              <p class="tl"><code>looksBinary</code> runs next: anything binary — a PDF's bytes, a renamed image — is refused HERE, before any extension is even looked at.</p>
+              <p class="tl">Only once the bytes pass as plausibly-text does the extension get to pick WHICH text format: html/htm, md/markdown, txt.</p>
+              <p class="tl">A <code>.zip</code> extension with no ZIP magic gets its own explicit refusal — the mismatch is a named case, not a fallthrough.</p>
+              <p class="tl">Everything else: <code>null</code>. There is no branch anywhere in here that trusts the client's declared content type.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>A <code>.html</code> file that's really a PNG isn't "trusted and then caught later" — it fails detection at the very first byte check, before the client's own <code>Content-Type</code> header is ever consulted.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Code<->English on Snippet B (dedupe insert) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">"Does this exist?" and "create it" are one statement</h2>
+        <p>Every admitted file is identity-checked by its
+          <span class="term" data-definition="A sha256 hash of the uploaded bytes themselves — never the filename. Two uploads with different names but identical content produce the same fingerprint; a renamed re-upload can't sneak past dedupe (FR-003).">content fingerprint</span>,
+          never its filename. There is no lookup query anywhere in this function that asks "does this already exist?" before writing — the insert itself IS the check.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — admit.ts:33-68</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">admitSource</span>(db: Database, input: AdmitSourceInput): Promise&lt;AdmitSourceResult&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> fingerprint = <span class="code-function">deriveArchiveFingerprint</span>(input.bytes);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) =&gt; {</span>
+<span class="code-line">    <span class="code-comment">// Content-addressed: same bytes, same row — re-insert is a no-op (R1).</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">insert</span>(sourceArchives)</span>
+<span class="code-line">      .<span class="code-function">values</span>({</span>
+<span class="code-line">        <span class="code-property">fingerprint</span>,</span>
+<span class="code-line">        <span class="code-property">bytes</span>: input.bytes,</span>
+<span class="code-line">        <span class="code-property">byteSize</span>: input.bytes.length,</span>
+<span class="code-line">        <span class="code-property">mediaType</span>: input.mediaType,</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">onConflictDoNothing</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> inserted = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">insert</span>(sources)</span>
+<span class="code-line">      .<span class="code-function">values</span>({</span>
+<span class="code-line">        <span class="code-property">corpusId</span>: input.corpusId,</span>
+<span class="code-line">        <span class="code-property">batchId</span>: input.batchId,</span>
+<span class="code-line">        <span class="code-property">fingerprint</span>,</span>
+<span class="code-line">        <span class="code-property">originalFilename</span>: input.filename,</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">onConflictDoNothing</span>({ target: [sources.corpusId, sources.fingerprint] })</span>
+<span class="code-line">      .<span class="code-function">returning</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> source = inserted[0];</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!source) {</span>
+<span class="code-line">      <span class="code-comment">// Conflict = this corpus already has this CONTENT (filename is never</span></span>
+<span class="code-line">      <span class="code-comment">// identity). Answer with the existing source's ticket (FR-003).</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> [existing] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">select</span>()</span>
+<span class="code-line">        .<span class="code-function">from</span>(sources)</span>
+<span class="code-line">        .<span class="code-function">where</span>(<span class="code-function">and</span>(<span class="code-string">sql`${sources.corpusId} = ${input.corpusId}`</span>, <span class="code-string">sql`${sources.fingerprint} = ${fingerprint}`</span>));</span>
+<span class="code-line">      <span class="code-keyword">return</span> { source: existing!, duplicate: <span class="code-keyword">true</span> };</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Fingerprint the bytes FIRST — identity comes from content, never from whatever the client named the file.</p>
+              <p class="tl">Everything below runs in ONE transaction: archive row, source row, and the eventual job either all land, or none do.</p>
+              <p class="tl">Insert the archive keyed by fingerprint — if that exact content is already archived, <code>onConflictDoNothing</code> makes the re-insert a silent no-op.</p>
+              <p class="tl">Insert the source row scoped to <code>(corpus_id, fingerprint)</code> — this IS the "does it exist?" check, not a separate query before it.</p>
+              <p class="tl">If the insert came back empty, the unique constraint just fired — some insert already claimed this exact content in this corpus.</p>
+              <p class="tl">Look up whichever row actually won and hand back ITS ticket, flagged <code>duplicate: true</code> — "nothing new happened, here's what already exists."</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>"Does this already exist?" and "create it" are the SAME statement here — <code>ON CONFLICT</code> turns a race condition that would need its own bug report into a database guarantee.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Real error taxonomy via Snippet C -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the operator sees — and what stays behind the glass</h2>
+        <p>Every refusal in this system is one of four typed classes. The mapping to HTTP happens exactly once, at the API edge — never inside the code that throws.</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">unknown_thing</code>
+            <span class="badge-desc">404-shaped — the caller referenced something that doesn't exist (e.g. an unknown corpus)</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">unsupported_type</code>
+            <span class="badge-desc">415 in this API — recognized the request, won't handle this variant (every refusal in this module)</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">dependency_down</code>
+            <span class="badge-desc">503-shaped — an external dependency (Postgres, the ML sidecar) is unreachable</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">internal_fault</code>
+            <span class="badge-desc">500-shaped — our own bug or invariant violation</span>
+          </div>
+        </div>
+
+        <p>Here is the REAL
+          <span class="term" data-definition="The operator-visible copy of an error, with internals stripped out. Full diagnostics — stack traces, internal paths — never leave the append-only event trail (Principle IV); the scrubbed copy is what an operator is actually shown.">scrubbed</span>
+          failure from this cycle's live validation (Scenario 2, ticket <code>5cffc3a1-29ef-4d0e-9e0f-aacb8493dc4a</code>, uploading <code>truncated.html</code>):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation run</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>{
+  <span class="code-property">"class"</span>: <span class="code-string">"unsupported_type"</span>,
+  <span class="code-property">"stage"</span>: <span class="code-string">"detect"</span>,
+  <span class="code-property">"message"</span>: <span class="code-string">"No registered ingester recognizes \"truncated.html\" (text/html)."</span>
+}</code></pre>
+        </div>
+
+        <p>That's the entire scrubbed copy: <strong>class</strong>, <strong>stage</strong>, and a human-readable <strong>message</strong> — enough to know exactly why, never enough to leak internals. Everything else — every retry, every attempt's raw detail — stays in the append-only event trail, operator-side only.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">Read it literally</strong>
+            <p>The operator sees "why," never a stack trace. <code>class</code> + <code>stage</code> + <code>message</code> is the whole contract — nothing here is a file path, a secret, or a trace.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — looksBinary flags the PNG bytes as binary and returns null immediately; the switch on extension (where '.html' would normally map to text/html) never even executes. This is the renamed-binary edge case, caught at the byte level, not the filename level."
+               data-explanation-wrong="Not quite — trace the order of checks in sniffMediaType: looksBinary runs BEFORE the extension switch. A PNG's bytes are binary, so it's refused at that check, and the .html extension is never consulted.">
+            <h3 class="quiz-question">A file is named <code>report.html</code> but its first four bytes are PNG magic bytes. What does <code>sniffMediaType</code> return, and why does that matter more than checking the extension alone?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>{ mediaType: "text/html" }</code> — the extension always wins</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>null</code> — <code>looksBinary</code> catches it before the extension switch ever runs</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>{ mediaType: "application/zip" }</code> — unrecognized binary defaults to ZIP</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — there's no separate 'check if it exists' step to race. Both transactions attempt the SAME insert; whichever commits first wins, and the second's onConflictDoNothing simply returns nothing — inserted[0] is undefined, so it takes the duplicate branch."
+               data-explanation-wrong="Not quite — re-read admitSource: there's no lookup query before the insert. The insert IS the check, enforced by the unique (corpus_id, fingerprint) index — the database resolves the race, not application code.">
+            <h3 class="quiz-question">Two requests upload the identical file at the exact same instant. Is there a race where both could create a new source row?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — <code>onConflictDoNothing</code> with the <code>(corpus_id, fingerprint)</code> target makes the database itself the arbiter</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the code checks "does this exist" first, so two simultaneous requests could both pass that check</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but only if the two uploads use different filenames for the same bytes</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — the scrubbed copy is deliberately class + stage + message. None of that is a stack trace or an internal path. Full diagnostics, if any existed, would live in the event trail's detail, operator-side only."
+               data-explanation-wrong="Not quite — the scrubbed copy is designed to be operator-safe by construction: class + stage + message. There's no privilege tiering here; the distinction that matters is scrubbed-copy vs. full-diagnostics-in-the-event-trail, not who's asking.">
+            <h3 class="quiz-question">Snippet C's <code>message</code> says exactly which file and media type failed. Is that safe to show an operator?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — it's already the scrubbed copy; nothing here is a stack trace, a file path, or a secret</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — filenames should never appear in any operator-facing error</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It depends on whether the operator has admin privileges</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 6 — The Bug Ledger</strong>
+            <p>Every rule in this module was proven correct by tests before it ever ran for real. Module 6 is what slipped through anyway.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Five real bugs that passed <code>tsc --noEmit</code>. Two passed their own unit tests, wrong. All five were caught the same way — by running the thing.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + bug-card grid (HERO) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every one of these shipped code that looked correct</h2>
+        <p>Every bug on this ledger passed type-checking. Two of them passed their own unit tests on the first try — wrong. What caught all five was the discipline this course keeps insisting on: running the real system, not just reading it.</p>
+        <p>They cluster into two classes. <strong>Type-system blind spots</strong> — correct-looking code that a stricter check or a real run exposes as wrong. And <strong>environment coupling</strong> — code that's only correct under an assumption the codebase itself eventually violated. Neither class shows up in a diff review.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🧩</div>
+            <h4 class="pattern-title">#1 — The cheerio type that wasn't there. Twice.</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> compiled fine locally, failed <code>tsc --noEmit</code> in CI — for two different plugins, days apart, same mistake.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> when a fix is a genuine scar, note why at the import site, or the next author pays the same tax.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">✂️</div>
+            <h4 class="pattern-title">#2 — The <code>??</code>/<code>||</code> that wouldn't parse</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> the build itself refused to run — mixing <code>??</code> and <code>||</code> without parentheses is a syntax error, not a type error.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>??</code> and <code>||</code> are never implicitly composable. The language won't guess which you meant.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔁</div>
+            <h4 class="pattern-title">#3 — The plugin that couldn't be re-run</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> one fixture — the headingless one — failed a round-trip invariant that every other fixture passed clean.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>{ ...obj, maybe }</code> keeps an <code>undefined</code>-valued key that <code>JSON.stringify</code> quietly drops.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🚫</div>
+            <h4 class="pattern-title">#4 — The regex that quietly returned "no" instead of "yes"</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> <code>detect()</code> always said "not mine" on real multi-line input — yet every conformance assertion passed.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>^</code>/<code>$</code> without the <code>m</code> flag anchor to the whole string, not each line.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot + environment coupling</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔌</div>
+            <h4 class="pattern-title">#5 — The container that answered on the wrong port from itself</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> port mapping, healthcheck, and a sibling service's URL all hardcoded 4401 — invisible until a worktree overrode the port.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> one service quietly being "the exception" is invisible until something exercises exactly that difference.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">environment coupling</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: Deep-dive pair 1 — #3 and #4, the "green until you look closer" bugs -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Green until you look closer</h2>
+        <p>A test suite that <em>agrees</em> with broken behavior is more dangerous than one that's simply missing. Bugs #3 and #4 are that shape — and #4 is the single scariest bug class in software: the test agreed with the bug.</p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#3 — a key that shouldn't have been there</h3>
+        <p>The <code>markdown</code> plugin built an artifact object with a spread. When <code>title</code> was undefined, the spread kept the key anyway — present, but <code>undefined</code>-valued. That's not the same thing as the key being absent once it crosses a <span class="term" data-definition="A plugin's output must survive JSON.parse(JSON.stringify(x)) unchanged — a NormalizedDocument invariant, since persisted rows are the only thing downstream code ever sees again.">JSON round-trip purity</span> check.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">  // `title` must be OMITTED, never `undefined` — JSON.stringify drops absent</span></span>
+<span class="code-line"><span class="code-comment">  // keys but keeps `undefined`-valued ones out of the wire shape differently</span></span>
+<span class="code-line"><span class="code-comment">  // from how they compare in-memory, which trips the JSON-round-trip purity</span></span>
+<span class="code-line"><span class="code-comment">  // check (NormalizedDocument invariant 7).</span></span>
+<span class="code-line">  <span class="code-keyword">return</span> title === <span class="code-keyword">undefined</span></span>
+<span class="code-line">    ? { id, kind: <span class="code-string">"html"</span> <span class="code-keyword">as const</span>, content: html }</span>
+<span class="code-line">    : { id, kind: <span class="code-string">"html"</span> <span class="code-keyword">as const</span>, content: html, title };</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment is the scar tissue: it names the exact invariant this line protects, so the next person doesn't relearn it the hard way.</p>
+              <p class="tl">Branch explicitly on whether <code>title</code> is undefined...</p>
+              <p class="tl">...and if it is, build the object with NO <code>title</code> key at all...</p>
+              <p class="tl">...only include the key when there's a real value to put in it. No spread, no accidental <code>undefined</code>-valued key.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/markdown/index.ts</code>, lines 94–100.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#4 — an anchor that only knew about one line</h3>
+        <p>The <code>demo</code> plugin's <code>detect()</code> matched its own marker with a regex anchored to the start and end of the string, not each line. On real multi-line input, it never found the marker — and returned confidence <code>0</code> for every fixture that should have positively matched.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> MARKER = <span class="code-string">/^@@\s+(.+)$/m</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The marker pattern itself was never wrong — it was missing one character: the trailing <code>m</code> flag.</p>
+              <p class="tl">Without <code>m</code>, <code>^</code> and <code>$</code> anchor to the whole string's start and end. With it, they anchor to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/demo/index.ts</code>, line 25.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>#3's fixture-specific failure and #4's silent false-negative are the same shape: a test suite that agrees with broken behavior is more dangerous than one that's simply missing. Both were caught by the same discipline — write the failing-first assertion, then genuinely watch it fail before trusting green.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Deep-dive pair 2 — #1 and #5, the "worked yesterday" bugs; brief mention of #2 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Worked yesterday, broke somewhere else</h2>
+        <p>#1 and #5 aren't logic bugs at all — they're assumptions that held everywhere the code had been run before, and broke the moment something outside that history changed.</p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#1 — the same mistake, twice, weeks apart</h3>
+        <p>Cheerio re-exports the <code>AnyNode</code> type inconsistently across its own subpath exports — enough to compile locally, not enough to survive CI's stricter <code>tsc --noEmit</code>. It hit <code>ddb-saved-html</code> during US1, then hit <code>generic-html</code> independently during US4.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">import type</span> { Cheerio, CheerioAPI } <span class="code-keyword">from</span> <span class="code-string">"cheerio"</span>;</span>
+<span class="code-line"><span class="code-keyword">import type</span> { AnyNode } <span class="code-keyword">from</span> <span class="code-string">"domhandler"</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Keep the types cheerio genuinely owns coming from cheerio — and get <code>AnyNode</code> straight from <code>domhandler</code>, the package that actually defines it.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/html/index.ts</code>, lines 11–12.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#5 — the container that didn't listen where the compose file assumed</h3>
+        <p>The API service binds to whatever <code>V3_API_PORT</code> says at runtime — unlike the web service, which hardcodes a fixed internal port. But the compose file's port mapping, healthcheck, and the web service's internal URL to reach it all hardcoded the literal default, 4401, assuming the <span class="term" data-definition="The port a process INSIDE a Docker container binds to — distinct from the HOST port it's mapped to; the two can silently diverge when one is env-driven and the other is hardcoded.">container-side port</span> never moved. It didn't matter in the default worktree. It was fatal in a parallel worktree that overrode the port — found only by actually running <code>docker compose up --wait</code> there.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">      # BOTH sides must track V3_API_PORT: main.ts binds to</span></span>
+<span class="code-line"><span class="code-comment">      # process.env.V3_API_PORT (passed through above), so unlike web's fixed</span></span>
+<span class="code-line"><span class="code-comment">      # internal PORT=4400, the container-side port here is NOT always 4401 —</span></span>
+<span class="code-line"><span class="code-comment">      # a worktree overriding V3_API_PORT (the spec-cycle port-block</span></span>
+<span class="code-line"><span class="code-comment">      # convention) must move both the host mapping and the container's own</span></span>
+<span class="code-line"><span class="code-comment">      # listen port together, or the healthcheck below probes the wrong port.</span></span>
+<span class="code-line">      - <span class="code-string">"127.0.0.1:${V3_API_PORT:-4401}:${V3_API_PORT:-4401}"</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Same variable, both sides of the colon: host mapping and container listen port move together, whatever a worktree sets <code>V3_API_PORT</code> to.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>docker-compose.yml</code>, lines 61–67.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">Also worth a mention — #2, the fallback title that wouldn't build</h3>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line">    <span class="code-keyword">const</span> title = headings.find((h) =&gt; h.level === <span class="code-number">1</span>)?.text ?? (leadingText.slice(<span class="code-number">0</span>, <span class="code-number">80</span>) || <span class="code-string">"Untitled document"</span>);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Explicit parens force the "or" to resolve first — esbuild refuses to guess whether you meant <code>(a ?? b) || c</code> or <code>a ?? (b || c)</code>.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/markdown/index.ts</code>, line 164.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>#1 happened twice, independently, across two different plugins written weeks apart. The fix note at the import site is what would have stopped the second occurrence — and didn't exist yet the first time.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Spot-the-bug quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the bug</h2>
+        <p>Three scenarios built from what you just saw. Not "what's the syntax" — "what's the first thing you'd check."</p>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="opt-a"
+               data-explanation-right="Exactly — ?? and || can never be mixed without explicit parentheses. It's not a lint preference, it's the JS spec: their combined precedence is ambiguous by design, so the parser refuses to guess. Write a ?? (b || c) or (a ?? b) || c instead."
+               data-explanation-wrong="Not quite. Think about what a bundler does BEFORE any types or runtime values exist — this fails at parse time, before the code could ever run.">
+            <h3 class="quiz-question">You see this line committed as-is: <code>const x = a ?? b || c;</code> What happens when you try to build it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SyntaxError at build time — the bundler refuses to parse mixed <code>??</code>/<code>||</code> without explicit parens</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It builds fine, but <code>x</code> gets the wrong value at runtime</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TypeScript flags it as a type error, but plain JS would run it</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="opt-b"
+               data-explanation-right="Right — the 'negative' fixtures passing is a red herring, since returning 0 for everything trivially satisfies 'does not claim this format.' The bug hides in whatever decides confidence for the POSITIVE case, and multi-line anchor handling is the first suspect."
+               data-explanation-wrong="Close, but the conformance suite passing is the misleading signal here, not the reassuring one. A detector that always says 'no' will pass every negative-fixture check by accident — that's exactly the trap.">
+            <h3 class="quiz-question">A plugin's <code>detect()</code> returns confidence <code>0</code> for every fixture that should positively match its own format — but the conformance suite's negative-fixture assertions all pass. What's the most likely bug class, and what's the first thing to check?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The plugin registry is misconfigured — check that the plugin is registered at all</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A false negative in the matching logic itself — check anchors/flags in any regex run against multi-line input first</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing is actually wrong — a passing conformance suite means the detector is working as designed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="opt-c"
+               data-explanation-right="Exactly — if the service binds the env-driven port, every reference to it (mapping, healthcheck, sibling service URLs) has to move together. Fixing only the healthcheck, for instance, just relocates the mismatch instead of closing it."
+               data-explanation-wrong="Not quite — the individual values (4401, the port number itself) aren't the issue. The issue is whether all three hardcoded references agree with what the process actually binds to.">
+            <h3 class="quiz-question">A service in a Docker Compose file has one hardcoded port in three places — its own port mapping, its healthcheck, and a sibling service's internal URL to reach it — and also reads a port env var into its own process. What question do you ask before touching any ONE of those three places?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Is 4401 the right default value to hardcode?</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Which of the three places is most likely to be read first at container startup?</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Does this service actually bind the port the env var says, or a fixed one — and if the former, do all three references move together?</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Course wrap-up (final screen — no quiz, no "next module") -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The skeleton walked. Now it can read.</h2>
+        <p>Five user stories. 57 tasks. 197 tests. And one live <code>docker compose up --wait</code> run in a non-default-port worktree that found — and fixed — a real cross-worktree infrastructure bug none of those 197 tests could ever have caught, because it only exists between files, not inside one.</p>
+        <p>That's the point this whole course has been making, module after module: a plugin contract, a detection dispatcher, a persistence layer, a typed error boundary, and a bug ledger earned the hard way, together, are what turn "ingest a document" from an idea into something you can actually run.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">✅</div>
+            <h4 class="pattern-title">What this pipeline proved</h4>
+            <p class="pattern-desc">5 user stories shipped. 57 tasks closed. 197 tests green. A live docker-compose validation that found a real infrastructure bug — and the fix now lives in the compose file itself.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">➡️</div>
+            <h4 class="pattern-title">What's next</h4>
+            <p class="pattern-desc">Retrieval and chat — both built directly on the indexed, traceable passages this pipeline now produces for every document it ingests.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: var(--space-8); font-size: var(--text-lg)">Thanks for reading this far into the scar tissue. It's the part of a codebase that never makes it into a diagram — but it's the part that tells you the truth about what actually happened.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

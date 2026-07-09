@@ -6,6 +6,7 @@
  * core is what everything else depends on, never the reverse.
  */
 export * from "./errors";
+export * from "./ingestion-ids";
 export * from "./model-roles";
 export * from "./skeleton-check";
 

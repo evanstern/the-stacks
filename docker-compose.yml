@@ -53,9 +53,18 @@ services:
       EMBEDDING_ENDPOINT: ${EMBEDDING_ENDPOINT:-http://ml:4402}
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-384}
+      # Ingestion intake cap (008): enforced inside the multipart stream, so an
+      # oversized upload is refused without ever being buffered (research R7).
+      INGEST_MAX_UPLOAD_BYTES: ${INGEST_MAX_UPLOAD_BYTES:-26214400}
       V3_API_PORT: ${V3_API_PORT:-4401}
     ports:
-      - "127.0.0.1:${V3_API_PORT:-4401}:4401"
+      # BOTH sides must track V3_API_PORT: main.ts binds to
+      # process.env.V3_API_PORT (passed through above), so unlike web's fixed
+      # internal PORT=4400, the container-side port here is NOT always 4401 —
+      # a worktree overriding V3_API_PORT (the spec-cycle port-block
+      # convention) must move both the host mapping and the container's own
+      # listen port together, or the healthcheck below probes the wrong port.
+      - "127.0.0.1:${V3_API_PORT:-4401}:${V3_API_PORT:-4401}"
     # node -e fetch(): no curl/wget in node:22-slim, so probe with node itself.
     # /ready (not /health) so "healthy" means migrated + serving.
     healthcheck:
@@ -64,7 +73,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://localhost:4401/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "fetch('http://localhost:${V3_API_PORT:-4401}/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 5s
       timeout: 5s
@@ -124,6 +133,15 @@ services:
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-384}
       ML_REQUEST_TIMEOUT_MS: ${ML_REQUEST_TIMEOUT_MS:-15000}
+      # Ingestion pipeline knobs (008): ZIP expansion caps + chunking policy.
+      # Chunking is env-tunable BY DESIGN (eval program, research R4).
+      INGEST_MAX_UPLOAD_BYTES: ${INGEST_MAX_UPLOAD_BYTES:-26214400}
+      INGEST_MAX_BATCH_ENTRIES: ${INGEST_MAX_BATCH_ENTRIES:-200}
+      CHUNK_TARGET_CHARS: ${CHUNK_TARGET_CHARS:-4000}
+      CHUNK_OVERLAP_CHARS: ${CHUNK_OVERLAP_CHARS:-400}
+      CHUNK_MAX_CHARS: ${CHUNK_MAX_CHARS:-6000}
+      # The worker batches its /v1/embed calls to the same cap the sidecar enforces.
+      EMBED_MAX_BATCH: ${EMBED_MAX_BATCH:-64}
     # Worker has no HTTP surface, so health = "heartbeat file touched within the
     # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if
     # the loop wedges, the file goes stale and the check fails.
@@ -144,7 +162,9 @@ services:
       api:
         condition: service_healthy
     environment:
-      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4401}
+      # api's own container-internal port tracks V3_API_PORT (see api's port
+      # comment above) — this must match, or web's server-side calls 404.
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:${V3_API_PORT:-4401}}
       PORT: "4400"
     ports:
       - "127.0.0.1:${V3_WEB_PORT:-4400}:4400"

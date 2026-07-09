@@ -12,11 +12,14 @@
   "dependencies": {
     "@stacks/core": "workspace:*",
     "@stacks/db": "workspace:*",
+    "@stacks/ingestion": "workspace:*",
     "drizzle-orm": "^0.36.0",
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "yauzl": "^3.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "@types/yauzl": "^2.10.3",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0"
   }

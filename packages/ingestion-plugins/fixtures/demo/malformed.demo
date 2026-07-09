@@ -1,0 +1,3 @@
+This file has no @@ section markers at all, so the demo-format plugin cannot
+recognize any structure in it and must report a malformed failure rather than
+silently ingesting nothing.

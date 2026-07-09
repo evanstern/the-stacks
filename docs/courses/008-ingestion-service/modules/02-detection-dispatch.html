@@ -1,0 +1,301 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Detection Dispatch — How a Confidence Floor Keeps the Peace</h1>
+      <p class="module-subtitle">Every plugin gets a vote. The registry — not the plugin — picks the winner, and writes down why.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + hero data-flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One file, three plugins, exactly one winner</h2>
+        <p>Upload a plain HTML file that is not from D&amp;D Beyond. Three plugins in the registry technically could parse it. Exactly one will claim it — and the decision is provable, not a coin flip.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Upload arrives: plain-article.html, mediaType text/html"},
+          {"highlight":"flow-actor-5","label":"Registry filters to plugins whose accepts list includes text/html","packet":true,"from":"actor-1","to":"actor-5"},
+          {"highlight":"flow-actor-2","label":"ddb-saved-html.detect() runs and answers: confidence 0","packet":true,"from":"actor-5","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"markdown is skipped entirely: its accepts list does not include text/html","packet":true,"from":"actor-5","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"generic-html.detect() runs and answers: confidence 0.1","packet":true,"from":"actor-5","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"Registry compares every candidate: generic-html is the only nonzero score, so it wins","packet":true,"from":"actor-4","to":"actor-5"},
+          {"highlight":"flow-actor-5","label":"Decision recorded: plugin generic-html, confidence 0.1, candidates map generic-html 0.1 and ddb-saved-html 0"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">📄</div>
+              <span>plain-article.html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🐉</div>
+              <span>ddb-saved-html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">📝</div>
+              <span>markdown</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">🌐</div>
+              <span>generic-html</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon">⚖️</div>
+              <span>Registry</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Detection is not "the first plugin that says yes." Every accepting plugin is asked, every answer is recorded, and the registry — not the plugin — picks the winner. A fallback claiming everything at a
+          <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span>
+          of 0.1 can never beat a real detector scoring 0.85 or higher.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why should I care?</strong>
+            <p>This is the exact mechanism that lets Module 6's demo-format plugin get added later with zero risk of accidentally hijacking traffic meant for ddb-saved-html — the floor is structural, not a promise.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: Code <-> English on Snippet A -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The dispatch loop, line by line</h2>
+        <p>The canonical chain: accepts filter, then <code>detect()</code> per candidate, then highest confidence wins, ties break by registration order, then the winning decision is recorded.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line">    <span class="code-function">detect</span>(input) {</span>
+<span class="code-line">      <span class="code-keyword">const</span> candidates: Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt; = {};</span>
+<span class="code-line">      <span class="code-keyword">let</span> winner: IngestionPlugin | <span class="code-keyword">null</span> = <span class="code-keyword">null</span>;</span>
+<span class="code-line">      <span class="code-keyword">let</span> winning = <span class="code-number">0</span>;</span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="code-keyword">for</span> (<span class="code-keyword">const</span> plugin <span class="code-keyword">of</span> plugins) {</span>
+<span class="code-line">        <span class="code-keyword">if</span> (!plugin.accepts.<span class="code-function">includes</span>(input.mediaType)) <span class="code-keyword">continue</span>;</span>
+<span class="code-line">        <span class="code-keyword">let</span> confidence = <span class="code-number">0</span>;</span>
+<span class="code-line">        <span class="code-keyword">try</span> {</span>
+<span class="code-line">          confidence = plugin.<span class="code-function">detect</span>(input).confidence;</span>
+<span class="code-line">        } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">          confidence = <span class="code-number">0</span>; <span class="code-comment">// plugin bug — scored as "not mine", surfaced by conformance</span></span>
+<span class="code-line">        }</span>
+<span class="code-line">        candidates[plugin.name] = confidence;</span>
+<span class="code-line">        <span class="code-comment">// Strictly-greater keeps the first-registered winner on ties.</span></span>
+<span class="code-line">        <span class="code-keyword">if</span> (confidence &gt; winning) {</span>
+<span class="code-line">          winner = plugin;</span>
+<span class="code-line">          winning = confidence;</span>
+<span class="code-line">        }</span>
+<span class="code-line">      }</span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="code-keyword">if</span> (!winner || winning &lt;= <span class="code-number">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">      <span class="code-keyword">return</span> { plugin: winner, confidence: winning, candidates };</span>
+<span class="code-line">    },</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Start a scoreboard: every plugin's confidence goes in <code>candidates</code>; nobody is winning yet.</p>
+              <p class="tl">Skip any plugin whose <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span> does not include this file's media type — it is not even asked.</p>
+              <p class="tl">Ask the plugin to score itself. If <code>detect()</code> throws, treat that as a confidence of exactly 0 — a crashing detector is scored as "not mine," not allowed to take detection down.</p>
+              <p class="tl">Write every consulted plugin's score into the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span>, honestly, even when the score is 0.</p>
+              <p class="tl">Only take the new plugin as winner if its confidence is <strong>strictly greater</strong> than the current best — an equal score never displaces the plugin already in the lead.</p>
+              <p class="tl">That strict "greater than" is the whole tie-break rule: whoever got compared first stays winner until someone beats it, which means
+                <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span> falls out for free.</p>
+              <p class="tl">If nobody scored above 0, there is no winner — return <code>null</code> and let the caller report an honest "unsupported type."</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: shipped.ts, the lineup -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The shipped lineup — and why order matters</h2>
+        <p>The registry's tie-break rule turns plugin <strong>registration order</strong> into a load-bearing decision. Here is the one place that order is set.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — shipped.ts (full file)</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * The SHIPPED plugin lineup (008 FR-028) — the one place the in-tree plugin</span></span>
+<span class="code-line"><span class="code-comment"> * list is wired (research R13's in-tree packaging decision). Registration</span></span>
+<span class="code-line"><span class="code-comment"> * ORDER is load-bearing: specific plugins before fallbacks, because the</span></span>
+<span class="code-line"><span class="code-comment"> * registry breaks confidence ties by order (registry.ts). ddb-saved-html</span></span>
+<span class="code-line"><span class="code-comment"> * goes first (it's the only plugin that ever claims text/html above the</span></span>
+<span class="code-line"><span class="code-comment"> * 0.1 floor); markdown and generic-html are the US4 fallbacks, each the sole</span></span>
+<span class="code-line"><span class="code-comment"> * claimant of its own media types, so their relative order doesn't matter.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * US5's demo plugin is test-only and deliberately NOT in this list.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-keyword">import</span> { ddbSavedHtmlPlugin, genericHtmlPlugin, markdownPlugin } <span class="code-keyword">from</span> <span class="code-string">"@stacks/ingestion-plugins"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">import type</span> { PluginRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { createRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">createShippedRegistry</span>(): PluginRegistry {</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createRegistry</span>([ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]);</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment says the quiet part out loud: this ORDER is load-bearing, not decorative — it is the tie-break rule in disguise.</p>
+              <p class="tl">Pull in the three real plugins that ship with the pipeline.</p>
+              <p class="tl">Pull in the registry constructor this list gets handed to.</p>
+              <p class="tl">Build the actual shipped registry — one function, one array, one order.</p>
+              <p class="tl">The array literal <code>[ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]</code> IS the tie-break table: ddb first, fallbacks after.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p><code>ddb-saved-html</code> is registered first not because it is "special" in code, but because registration order IS the tie-break rule — put fallbacks first and a coin-flip tie could hand a real DDB page to <code>generic-html</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Two real decisions side by side -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two real decisions, same run</h2>
+        <p>Both of these are real outcomes from this cycle's live validation — not illustrations. Same registry, same tie-break rule, two different truthful answers.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🐉</div>
+            <h4 class="pattern-title">The goblin stat block</h4>
+            <p class="pattern-desc">A real D&amp;D Beyond saved page. <code>ddb-saved-html</code>@1.0.0 recognized its identity signal and answered with confidence <strong>0.95</strong> — comfortably above the 0.1 floor, so it won outright. (evidence.md, Scenario 1: DDB happy path)</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🌐</div>
+            <h4 class="pattern-title">plain-article.html</h4>
+            <p class="pattern-desc"><code>ddb-saved-html</code> ran its own detection, found none of its signals, and answered with confidence <strong>exactly 0</strong> — not "low." <code>generic-html</code>'s 0.1 floor was the only nonzero score, so it won.</p>
+          </div>
+        </div>
+
+        <p>Here is the real <code>detect</code> event detail for the plain-article.html decision, verbatim from this cycle's live validation run (ticket <code>511d0240-fb33-4496-9097-e36789c9ac12</code>):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation run</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>{
+  <span class="code-property">"plugin"</span>: <span class="code-string">"generic-html"</span>,
+  <span class="code-property">"version"</span>: <span class="code-string">"1.0.0"</span>,
+  <span class="code-property">"candidates"</span>: { <span class="code-property">"generic-html"</span>: <span class="code-number">0.1</span>, <span class="code-property">"ddb-saved-html"</span>: <span class="code-number">0</span> },
+  <span class="code-property">"confidence"</span>: <span class="code-number">0.1</span>
+}</code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">Read the candidates map literally</strong>
+            <p>0 is not "didn't check" — <code>ddb-saved-html</code>'s <code>detect()</code> ran, looked for its identity signals, and truthfully found none. The map is not hiding a near-miss.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the registration order in shipped.ts IS the tie-break rule. It is written down and deterministic, never a coin flip."
+               data-explanation-wrong="Not quite. Re-check the strictly-greater-than comparison in registry.ts: on an exact tie, nothing displaces the current winner, so whichever plugin was compared first — i.e. registered first — keeps the win.">
+            <h3 class="quiz-question">Two plugins both report confidence 0.6 for the same file. Which wins, and why is that NOT arbitrary?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whichever plugin's name comes first alphabetically</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whichever plugin is registered first in shipped.ts — order is the documented tie-break rule</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It is genuinely random — a coin flip between the tied plugins</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — a throwing detect() is caught and scored as confidence 0, same as an honest 'not mine.' It never crashes detection for the whole file."
+               data-explanation-wrong="Not quite. Look at the try/catch in registry.ts: the catch block sets confidence = 0, not undefined and not a thrown error propagating upward.">
+            <h3 class="quiz-question">A plugin's detect() throws an exception on a weird input. What confidence does the registry record for it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>0 — treated as "not mine," not as a crash</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The error propagates and the whole upload fails immediately</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The plugin is skipped and left out of the candidates map entirely</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly right — ddb-saved-html's detect() genuinely ran and found no DDB identity signal in plain-article.html. The candidates map records honest zeros, not near-misses."
+               data-explanation-wrong="Not quite. The candidates map in Snippet C records ddb-saved-html at exactly 0, not some small-but-nonzero value — that 0 means its detector actually ran and found nothing, not that detection was skipped.">
+            <h3 class="quiz-question">Given the real candidates map for plain-article.html, could ddb-saved-html ever have won this particular upload instead of generic-html?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, if the registry had been configured to prefer ddb-saved-html</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — its score of 0 was actually a near-miss just below the floor</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — its own detect() genuinely found no DDB identity signal and returned exactly 0</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 3 — Anatomy of an Ingest</strong>
+            <p>Detection just picked a winner. Module 3 shows the whole run this decision kicks off — the actual ingest, seam to seam.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

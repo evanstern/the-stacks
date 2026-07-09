@@ -1,0 +1,327 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm); --color-accent: #D4A843; --color-accent-hover: #B8863A; --color-accent-light: #FBF1DC; --color-accent-muted: #E0C179;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">The Honest Front Door</h1>
+      <p class="module-subtitle">A bouncer with a clipboard, not a shredder — every refusal leaves the room exactly as it found it, and writes down why.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + three-card HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three requests, three honest answers</h2>
+        <p>Upload a PDF. Upload a 30MB file. Upload the same file twice. All three get an honest, typed answer in milliseconds — and after all three,
+          <code>SELECT count(*) FROM sources</code> reads exactly the same as before you tried.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">📕</div>
+            <h4 class="pattern-title">sample.pdf</h4>
+            <p class="pattern-desc"><strong>415</strong> · <code>unsupported_type</code><br>
+              <em>"Unsupported file type: &quot;sample.pdf&quot;. Supported: HTML, Markdown, plain text, ZIP. (PDF is deliberately unsupported in v3.)"</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">🐘</div>
+            <h4 class="pattern-title">big.html (30MB)</h4>
+            <p class="pattern-desc"><strong>415</strong> · <code>unsupported_type</code><br>
+              <em>"File exceeds the upload size limit (26214400 bytes, INGEST_MAX_UPLOAD_BYTES)."</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">📝</div>
+            <h4 class="pattern-title">notes.md (2nd upload)</h4>
+            <p class="pattern-desc"><strong>200</strong> · <code>duplicate: true</code><br>
+              <em>Same ticket id as upload #1 — no new source row, no new job.</em></p>
+            <div style="margin-top: var(--space-3); display:inline-flex; align-items:center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; color: var(--color-success); background: var(--color-success-light); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);">✓ residue: zero rows changed</div>
+          </div>
+        </div>
+
+        <p>All three are the exact outcomes from this cycle's live validation run (Scenario 3, <code>quickstart.md</code>). Two are refusals, one is a duplicate — but every one of them leaves
+          <span class="term" data-definition="A refusal that leaves NO trace behind — no row, no job, no partial state. Verified by counting rows before and after: the counts must match exactly (SC-005).">zero residue</span>. The residue check that proves it: <code>SELECT count(*) FROM sources; SELECT count(*) FROM jobs WHERE kind LIKE 'ingest%';</code> — unchanged, before and after.</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>sniff (magic bytes)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>size-cap (in-stream)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>fingerprint (sha256)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>optimistic insert</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>conflict = duplicate</p></div>
+        </div>
+        <p>One path, every request. There is no separate "duplicate detector" bolted on the side — a duplicate is just what an optimistic insert looks like when it loses a race it didn't know it was running.</p>
+      </section>
+
+      <!-- SCREEN 2: Code<->English on Snippet A (sniffMediaType) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Magic bytes beat declared type, every time</h2>
+        <p><code>sniffMediaType</code> never asks the client what it thinks the file is. It reads the bytes, then decides — and it never mentions HTTP at all; that translation into a
+          <span class="term" data-definition="One of four typed failure categories in this codebase — unknown_thing / unsupported_type / dependency_down / internal_fault. Code throws by CLASS; only the API boundary maps a class to an HTTP status. Nothing upstream of that boundary knows or cares what status code it becomes.">DomainError class</span>
+          (here, <code>unsupported_type</code> → 415) happens one layer up, at the caller.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — sniff.ts:52-78</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">sniffMediaType</span>(filename: string, bytes: Uint8Array): SniffResult | null {</span>
+<span class="code-line">  <span class="code-keyword">const</span> extension = <span class="code-function">extensionOf</span>(filename);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (<span class="code-function">hasMagic</span>(bytes, ZIP_MAGIC)) {</span>
+<span class="code-line">    <span class="code-comment">// A ZIP is a ZIP whatever it is named — but only the .zip extension is an</span></span>
+<span class="code-line">    <span class="code-comment">// intended batch; a renamed one is a mismatch the caller refuses.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> extension === <span class="code-string">"zip"</span> ? { <span class="code-property">mediaType</span>: <span class="code-string">"application/zip"</span> } : <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> binary = <span class="code-function">looksBinary</span>(bytes);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (binary) <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">// renamed binary or genuinely unsupported (e.g. PDF)</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">switch</span> (extension) {</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"html"</span>:</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"htm"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/html"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"md"</span>:</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"markdown"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/markdown"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"txt"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> { <span class="code-property">mediaType</span>: <span class="code-string">"text/plain"</span> };</span>
+<span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"zip"</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">// .zip extension without ZIP magic: a renamed non-zip</span></span>
+<span class="code-line">    <span class="code-keyword">default</span>:</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Takes the filename AND the raw bytes — the extension is only ever a hint, never trusted alone.</p>
+              <p class="tl">ZIP magic bytes present? Then only a <code>.zip</code> extension is treated as the intended batch format — a ZIP renamed to something else is refused, not silently accepted.</p>
+              <p class="tl"><code>looksBinary</code> runs next: anything binary — a PDF's bytes, a renamed image — is refused HERE, before any extension is even looked at.</p>
+              <p class="tl">Only once the bytes pass as plausibly-text does the extension get to pick WHICH text format: html/htm, md/markdown, txt.</p>
+              <p class="tl">A <code>.zip</code> extension with no ZIP magic gets its own explicit refusal — the mismatch is a named case, not a fallthrough.</p>
+              <p class="tl">Everything else: <code>null</code>. There is no branch anywhere in here that trusts the client's declared content type.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>A <code>.html</code> file that's really a PNG isn't "trusted and then caught later" — it fails detection at the very first byte check, before the client's own <code>Content-Type</code> header is ever consulted.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Code<->English on Snippet B (dedupe insert) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">"Does this exist?" and "create it" are one statement</h2>
+        <p>Every admitted file is identity-checked by its
+          <span class="term" data-definition="A sha256 hash of the uploaded bytes themselves — never the filename. Two uploads with different names but identical content produce the same fingerprint; a renamed re-upload can't sneak past dedupe (FR-003).">content fingerprint</span>,
+          never its filename. There is no lookup query anywhere in this function that asks "does this already exist?" before writing — the insert itself IS the check.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — admit.ts:33-68</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">admitSource</span>(db: Database, input: AdmitSourceInput): Promise&lt;AdmitSourceResult&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> fingerprint = <span class="code-function">deriveArchiveFingerprint</span>(input.bytes);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) =&gt; {</span>
+<span class="code-line">    <span class="code-comment">// Content-addressed: same bytes, same row — re-insert is a no-op (R1).</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">insert</span>(sourceArchives)</span>
+<span class="code-line">      .<span class="code-function">values</span>({</span>
+<span class="code-line">        <span class="code-property">fingerprint</span>,</span>
+<span class="code-line">        <span class="code-property">bytes</span>: input.bytes,</span>
+<span class="code-line">        <span class="code-property">byteSize</span>: input.bytes.length,</span>
+<span class="code-line">        <span class="code-property">mediaType</span>: input.mediaType,</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">onConflictDoNothing</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> inserted = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">insert</span>(sources)</span>
+<span class="code-line">      .<span class="code-function">values</span>({</span>
+<span class="code-line">        <span class="code-property">corpusId</span>: input.corpusId,</span>
+<span class="code-line">        <span class="code-property">batchId</span>: input.batchId,</span>
+<span class="code-line">        <span class="code-property">fingerprint</span>,</span>
+<span class="code-line">        <span class="code-property">originalFilename</span>: input.filename,</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">onConflictDoNothing</span>({ target: [sources.corpusId, sources.fingerprint] })</span>
+<span class="code-line">      .<span class="code-function">returning</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">const</span> source = inserted[0];</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!source) {</span>
+<span class="code-line">      <span class="code-comment">// Conflict = this corpus already has this CONTENT (filename is never</span></span>
+<span class="code-line">      <span class="code-comment">// identity). Answer with the existing source's ticket (FR-003).</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> [existing] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">        .<span class="code-function">select</span>()</span>
+<span class="code-line">        .<span class="code-function">from</span>(sources)</span>
+<span class="code-line">        .<span class="code-function">where</span>(<span class="code-function">and</span>(<span class="code-string">sql`${sources.corpusId} = ${input.corpusId}`</span>, <span class="code-string">sql`${sources.fingerprint} = ${fingerprint}`</span>));</span>
+<span class="code-line">      <span class="code-keyword">return</span> { source: existing!, duplicate: <span class="code-keyword">true</span> };</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Fingerprint the bytes FIRST — identity comes from content, never from whatever the client named the file.</p>
+              <p class="tl">Everything below runs in ONE transaction: archive row, source row, and the eventual job either all land, or none do.</p>
+              <p class="tl">Insert the archive keyed by fingerprint — if that exact content is already archived, <code>onConflictDoNothing</code> makes the re-insert a silent no-op.</p>
+              <p class="tl">Insert the source row scoped to <code>(corpus_id, fingerprint)</code> — this IS the "does it exist?" check, not a separate query before it.</p>
+              <p class="tl">If the insert came back empty, the unique constraint just fired — some insert already claimed this exact content in this corpus.</p>
+              <p class="tl">Look up whichever row actually won and hand back ITS ticket, flagged <code>duplicate: true</code> — "nothing new happened, here's what already exists."</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>"Does this already exist?" and "create it" are the SAME statement here — <code>ON CONFLICT</code> turns a race condition that would need its own bug report into a database guarantee.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Real error taxonomy via Snippet C -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the operator sees — and what stays behind the glass</h2>
+        <p>Every refusal in this system is one of four typed classes. The mapping to HTTP happens exactly once, at the API edge — never inside the code that throws.</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">unknown_thing</code>
+            <span class="badge-desc">404-shaped — the caller referenced something that doesn't exist (e.g. an unknown corpus)</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">unsupported_type</code>
+            <span class="badge-desc">415 in this API — recognized the request, won't handle this variant (every refusal in this module)</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">dependency_down</code>
+            <span class="badge-desc">503-shaped — an external dependency (Postgres, the ML sidecar) is unreachable</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">internal_fault</code>
+            <span class="badge-desc">500-shaped — our own bug or invariant violation</span>
+          </div>
+        </div>
+
+        <p>Here is the REAL
+          <span class="term" data-definition="The operator-visible copy of an error, with internals stripped out. Full diagnostics — stack traces, internal paths — never leave the append-only event trail (Principle IV); the scrubbed copy is what an operator is actually shown.">scrubbed</span>
+          failure from this cycle's live validation (Scenario 2, ticket <code>5cffc3a1-29ef-4d0e-9e0f-aacb8493dc4a</code>, uploading <code>truncated.html</code>):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation run</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>{
+  <span class="code-property">"class"</span>: <span class="code-string">"unsupported_type"</span>,
+  <span class="code-property">"stage"</span>: <span class="code-string">"detect"</span>,
+  <span class="code-property">"message"</span>: <span class="code-string">"No registered ingester recognizes \"truncated.html\" (text/html)."</span>
+}</code></pre>
+        </div>
+
+        <p>That's the entire scrubbed copy: <strong>class</strong>, <strong>stage</strong>, and a human-readable <strong>message</strong> — enough to know exactly why, never enough to leak internals. Everything else — every retry, every attempt's raw detail — stays in the append-only event trail, operator-side only.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">Read it literally</strong>
+            <p>The operator sees "why," never a stack trace. <code>class</code> + <code>stage</code> + <code>message</code> is the whole contract — nothing here is a file path, a secret, or a trace.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — looksBinary flags the PNG bytes as binary and returns null immediately; the switch on extension (where '.html' would normally map to text/html) never even executes. This is the renamed-binary edge case, caught at the byte level, not the filename level."
+               data-explanation-wrong="Not quite — trace the order of checks in sniffMediaType: looksBinary runs BEFORE the extension switch. A PNG's bytes are binary, so it's refused at that check, and the .html extension is never consulted.">
+            <h3 class="quiz-question">A file is named <code>report.html</code> but its first four bytes are PNG magic bytes. What does <code>sniffMediaType</code> return, and why does that matter more than checking the extension alone?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>{ mediaType: "text/html" }</code> — the extension always wins</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>null</code> — <code>looksBinary</code> catches it before the extension switch ever runs</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>{ mediaType: "application/zip" }</code> — unrecognized binary defaults to ZIP</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — there's no separate 'check if it exists' step to race. Both transactions attempt the SAME insert; whichever commits first wins, and the second's onConflictDoNothing simply returns nothing — inserted[0] is undefined, so it takes the duplicate branch."
+               data-explanation-wrong="Not quite — re-read admitSource: there's no lookup query before the insert. The insert IS the check, enforced by the unique (corpus_id, fingerprint) index — the database resolves the race, not application code.">
+            <h3 class="quiz-question">Two requests upload the identical file at the exact same instant. Is there a race where both could create a new source row?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — <code>onConflictDoNothing</code> with the <code>(corpus_id, fingerprint)</code> target makes the database itself the arbiter</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the code checks "does this exist" first, so two simultaneous requests could both pass that check</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but only if the two uploads use different filenames for the same bytes</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — the scrubbed copy is deliberately class + stage + message. None of that is a stack trace or an internal path. Full diagnostics, if any existed, would live in the event trail's detail, operator-side only."
+               data-explanation-wrong="Not quite — the scrubbed copy is designed to be operator-safe by construction: class + stage + message. There's no privilege tiering here; the distinction that matters is scrubbed-copy vs. full-diagnostics-in-the-event-trail, not who's asking.">
+            <h3 class="quiz-question">Snippet C's <code>message</code> says exactly which file and media type failed. Is that safe to show an operator?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — it's already the scrubbed copy; nothing here is a stack trace, a file path, or a secret</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — filenames should never appear in any operator-facing error</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It depends on whether the operator has admin privileges</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 6 — The Bug Ledger</strong>
+            <p>Every rule in this module was proven correct by tests before it ever ran for real. Module 6 is what slipped through anyway.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
