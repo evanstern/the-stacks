@@ -1,0 +1,299 @@
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Five real bugs that passed <code>tsc --noEmit</code>. Two passed their own unit tests, wrong. All five were caught the same way — by running the thing.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + bug-card grid (HERO) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every one of these shipped code that looked correct</h2>
+        <p>Every bug on this ledger passed type-checking. Two of them passed their own unit tests on the first try — wrong. What caught all five was the discipline this course keeps insisting on: running the real system, not just reading it.</p>
+        <p>They cluster into two classes. <strong>Type-system blind spots</strong> — correct-looking code that a stricter check or a real run exposes as wrong. And <strong>environment coupling</strong> — code that's only correct under an assumption the codebase itself eventually violated. Neither class shows up in a diff review.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🧩</div>
+            <h4 class="pattern-title">#1 — The cheerio type that wasn't there. Twice.</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> compiled fine locally, failed <code>tsc --noEmit</code> in CI — for two different plugins, days apart, same mistake.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> when a fix is a genuine scar, note why at the import site, or the next author pays the same tax.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">✂️</div>
+            <h4 class="pattern-title">#2 — The <code>??</code>/<code>||</code> that wouldn't parse</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> the build itself refused to run — mixing <code>??</code> and <code>||</code> without parentheses is a syntax error, not a type error.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>??</code> and <code>||</code> are never implicitly composable. The language won't guess which you meant.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔁</div>
+            <h4 class="pattern-title">#3 — The plugin that couldn't be re-run</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> one fixture — the headingless one — failed a round-trip invariant that every other fixture passed clean.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>{ ...obj, maybe }</code> keeps an <code>undefined</code>-valued key that <code>JSON.stringify</code> quietly drops.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🚫</div>
+            <h4 class="pattern-title">#4 — The regex that quietly returned "no" instead of "yes"</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> <code>detect()</code> always said "not mine" on real multi-line input — yet every conformance assertion passed.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> <code>^</code>/<code>$</code> without the <code>m</code> flag anchor to the whole string, not each line.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">type-system blind spot + environment coupling</span>
+          </div>
+
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔌</div>
+            <h4 class="pattern-title">#5 — The container that answered on the wrong port from itself</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> port mapping, healthcheck, and a sibling service's URL all hardcoded 4401 — invisible until a worktree overrode the port.</p>
+            <p class="pattern-desc"><strong>Lesson:</strong> one service quietly being "the exception" is invisible until something exercises exactly that difference.</p>
+            <span class="badge-code" style="display:inline-block; margin-top: var(--space-2); white-space: normal; max-width: 100%;">environment coupling</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: Deep-dive pair 1 — #3 and #4, the "green until you look closer" bugs -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Green until you look closer</h2>
+        <p>A test suite that <em>agrees</em> with broken behavior is more dangerous than one that's simply missing. Bugs #3 and #4 are that shape — and #4 is the single scariest bug class in software: the test agreed with the bug.</p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#3 — a key that shouldn't have been there</h3>
+        <p>The <code>markdown</code> plugin built an artifact object with a spread. When <code>title</code> was undefined, the spread kept the key anyway — present, but <code>undefined</code>-valued. That's not the same thing as the key being absent once it crosses a <span class="term" data-definition="A plugin's output must survive JSON.parse(JSON.stringify(x)) unchanged — a NormalizedDocument invariant, since persisted rows are the only thing downstream code ever sees again.">JSON round-trip purity</span> check.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">  // `title` must be OMITTED, never `undefined` — JSON.stringify drops absent</span></span>
+<span class="code-line"><span class="code-comment">  // keys but keeps `undefined`-valued ones out of the wire shape differently</span></span>
+<span class="code-line"><span class="code-comment">  // from how they compare in-memory, which trips the JSON-round-trip purity</span></span>
+<span class="code-line"><span class="code-comment">  // check (NormalizedDocument invariant 7).</span></span>
+<span class="code-line">  <span class="code-keyword">return</span> title === <span class="code-keyword">undefined</span></span>
+<span class="code-line">    ? { id, kind: <span class="code-string">"html"</span> <span class="code-keyword">as const</span>, content: html }</span>
+<span class="code-line">    : { id, kind: <span class="code-string">"html"</span> <span class="code-keyword">as const</span>, content: html, title };</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment is the scar tissue: it names the exact invariant this line protects, so the next person doesn't relearn it the hard way.</p>
+              <p class="tl">Branch explicitly on whether <code>title</code> is undefined...</p>
+              <p class="tl">...and if it is, build the object with NO <code>title</code> key at all...</p>
+              <p class="tl">...only include the key when there's a real value to put in it. No spread, no accidental <code>undefined</code>-valued key.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/markdown/index.ts</code>, lines 94–100.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#4 — an anchor that only knew about one line</h3>
+        <p>The <code>demo</code> plugin's <code>detect()</code> matched its own marker with a regex anchored to the start and end of the string, not each line. On real multi-line input, it never found the marker — and returned confidence <code>0</code> for every fixture that should have positively matched.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> MARKER = <span class="code-string">/^@@\s+(.+)$/m</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The marker pattern itself was never wrong — it was missing one character: the trailing <code>m</code> flag.</p>
+              <p class="tl">Without <code>m</code>, <code>^</code> and <code>$</code> anchor to the whole string's start and end. With it, they anchor to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/demo/index.ts</code>, line 25.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>#3's fixture-specific failure and #4's silent false-negative are the same shape: a test suite that agrees with broken behavior is more dangerous than one that's simply missing. Both were caught by the same discipline — write the failing-first assertion, then genuinely watch it fail before trusting green.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Deep-dive pair 2 — #1 and #5, the "worked yesterday" bugs; brief mention of #2 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Worked yesterday, broke somewhere else</h2>
+        <p>#1 and #5 aren't logic bugs at all — they're assumptions that held everywhere the code had been run before, and broke the moment something outside that history changed.</p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#1 — the same mistake, twice, weeks apart</h3>
+        <p>Cheerio re-exports the <code>AnyNode</code> type inconsistently across its own subpath exports — enough to compile locally, not enough to survive CI's stricter <code>tsc --noEmit</code>. It hit <code>ddb-saved-html</code> during US1, then hit <code>generic-html</code> independently during US4.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">import type</span> { Cheerio, CheerioAPI } <span class="code-keyword">from</span> <span class="code-string">"cheerio"</span>;</span>
+<span class="code-line"><span class="code-keyword">import type</span> { AnyNode } <span class="code-keyword">from</span> <span class="code-string">"domhandler"</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Keep the types cheerio genuinely owns coming from cheerio — and get <code>AnyNode</code> straight from <code>domhandler</code>, the package that actually defines it.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/html/index.ts</code>, lines 11–12.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">#5 — the container that didn't listen where the compose file assumed</h3>
+        <p>The API service binds to whatever <code>V3_API_PORT</code> says at runtime — unlike the web service, which hardcodes a fixed internal port. But the compose file's port mapping, healthcheck, and the web service's internal URL to reach it all hardcoded the literal default, 4401, assuming the <span class="term" data-definition="The port a process INSIDE a Docker container binds to — distinct from the HOST port it's mapped to; the two can silently diverge when one is env-driven and the other is hardcoded.">container-side port</span> never moved. It didn't matter in the default worktree. It was fatal in a parallel worktree that overrode the port — found only by actually running <code>docker compose up --wait</code> there.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">      # BOTH sides must track V3_API_PORT: main.ts binds to</span></span>
+<span class="code-line"><span class="code-comment">      # process.env.V3_API_PORT (passed through above), so unlike web's fixed</span></span>
+<span class="code-line"><span class="code-comment">      # internal PORT=4400, the container-side port here is NOT always 4401 —</span></span>
+<span class="code-line"><span class="code-comment">      # a worktree overriding V3_API_PORT (the spec-cycle port-block</span></span>
+<span class="code-line"><span class="code-comment">      # convention) must move both the host mapping and the container's own</span></span>
+<span class="code-line"><span class="code-comment">      # listen port together, or the healthcheck below probes the wrong port.</span></span>
+<span class="code-line">      - <span class="code-string">"127.0.0.1:${V3_API_PORT:-4401}:${V3_API_PORT:-4401}"</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Same variable, both sides of the colon: host mapping and container listen port move together, whatever a worktree sets <code>V3_API_PORT</code> to.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>docker-compose.yml</code>, lines 61–67.</em></p>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">Also worth a mention — #2, the fallback title that wouldn't build</h3>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line">    <span class="code-keyword">const</span> title = headings.find((h) =&gt; h.level === <span class="code-number">1</span>)?.text ?? (leadingText.slice(<span class="code-number">0</span>, <span class="code-number">80</span>) || <span class="code-string">"Untitled document"</span>);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Explicit parens force the "or" to resolve first — esbuild refuses to guess whether you meant <code>(a ?? b) || c</code> or <code>a ?? (b || c)</code>.</p>
+            </div>
+          </div>
+        </div>
+        <p><em>File: <code>packages/ingestion-plugins/src/markdown/index.ts</code>, line 164.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>#1 happened twice, independently, across two different plugins written weeks apart. The fix note at the import site is what would have stopped the second occurrence — and didn't exist yet the first time.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Spot-the-bug quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the bug</h2>
+        <p>Three scenarios built from what you just saw. Not "what's the syntax" — "what's the first thing you'd check."</p>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="opt-a"
+               data-explanation-right="Exactly — ?? and || can never be mixed without explicit parentheses. It's not a lint preference, it's the JS spec: their combined precedence is ambiguous by design, so the parser refuses to guess. Write a ?? (b || c) or (a ?? b) || c instead."
+               data-explanation-wrong="Not quite. Think about what a bundler does BEFORE any types or runtime values exist — this fails at parse time, before the code could ever run.">
+            <h3 class="quiz-question">You see this line committed as-is: <code>const x = a ?? b || c;</code> What happens when you try to build it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SyntaxError at build time — the bundler refuses to parse mixed <code>??</code>/<code>||</code> without explicit parens</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It builds fine, but <code>x</code> gets the wrong value at runtime</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TypeScript flags it as a type error, but plain JS would run it</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="opt-b"
+               data-explanation-right="Right — the 'negative' fixtures passing is a red herring, since returning 0 for everything trivially satisfies 'does not claim this format.' The bug hides in whatever decides confidence for the POSITIVE case, and multi-line anchor handling is the first suspect."
+               data-explanation-wrong="Close, but the conformance suite passing is the misleading signal here, not the reassuring one. A detector that always says 'no' will pass every negative-fixture check by accident — that's exactly the trap.">
+            <h3 class="quiz-question">A plugin's <code>detect()</code> returns confidence <code>0</code> for every fixture that should positively match its own format — but the conformance suite's negative-fixture assertions all pass. What's the most likely bug class, and what's the first thing to check?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The plugin registry is misconfigured — check that the plugin is registered at all</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A false negative in the matching logic itself — check anchors/flags in any regex run against multi-line input first</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing is actually wrong — a passing conformance suite means the detector is working as designed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="opt-c"
+               data-explanation-right="Exactly — if the service binds the env-driven port, every reference to it (mapping, healthcheck, sibling service URLs) has to move together. Fixing only the healthcheck, for instance, just relocates the mismatch instead of closing it."
+               data-explanation-wrong="Not quite — the individual values (4401, the port number itself) aren't the issue. The issue is whether all three hardcoded references agree with what the process actually binds to.">
+            <h3 class="quiz-question">A service in a Docker Compose file has one hardcoded port in three places — its own port mapping, its healthcheck, and a sibling service's internal URL to reach it — and also reads a port env var into its own process. What question do you ask before touching any ONE of those three places?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Is 4401 the right default value to hardcode?</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Which of the three places is most likely to be read first at container startup?</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Does this service actually bind the port the env var says, or a fixed one — and if the former, do all three references move together?</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Course wrap-up (final screen — no quiz, no "next module") -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The skeleton walked. Now it can read.</h2>
+        <p>Five user stories. 57 tasks. 197 tests. And one live <code>docker compose up --wait</code> run in a non-default-port worktree that found — and fixed — a real cross-worktree infrastructure bug none of those 197 tests could ever have caught, because it only exists between files, not inside one.</p>
+        <p>That's the point this whole course has been making, module after module: a plugin contract, a detection dispatcher, a persistence layer, a typed error boundary, and a bug ledger earned the hard way, together, are what turn "ingest a document" from an idea into something you can actually run.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">✅</div>
+            <h4 class="pattern-title">What this pipeline proved</h4>
+            <p class="pattern-desc">5 user stories shipped. 57 tasks closed. 197 tests green. A live docker-compose validation that found a real infrastructure bug — and the fix now lives in the compose file itself.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">➡️</div>
+            <h4 class="pattern-title">What's next</h4>
+            <p class="pattern-desc">Retrieval and chat — both built directly on the indexed, traceable passages this pipeline now produces for every document it ingests.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: var(--space-8); font-size: var(--text-lg)">Thanks for reading this far into the scar tissue. It's the part of a codebase that never makes it into a diagram — but it's the part that tells you the truth about what actually happened.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

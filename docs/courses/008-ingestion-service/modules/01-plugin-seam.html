@@ -1,0 +1,299 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Pipeline &amp; The Plugin Seam</h1>
+      <p class="module-subtitle">A D&amp;D Beyond saved page, a Markdown file, and a plain-text note walk into a pipeline. By the time they reach chunking, the pipeline can&rsquo;t tell them apart &mdash; and that&rsquo;s the entire design.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + pipeline map HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One plug shape, many sockets</h2>
+        <p>Every country&rsquo;s wall socket is different &mdash; a universal power adapter doesn&rsquo;t care, because its whole job is making all of them fit <strong>one</strong> plug shape on the other side. That plug shape, here, is
+          <span class="term" data-definition="The one shape every plugin must produce past transform — FR-017/018.">NormalizedDocument</span>. Plugins are the adapters.</p>
+        <p>Past the <code>transform</code> stage, the pipeline sees exactly ONE shape, forever. Everything downstream &mdash; chunking, embedding, indexing &mdash; was written once, against that shape, and never needs to change when a new source format shows up.</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="Bytes arrive and get a stable identity — content hash and media-type sniff. Nothing is parsed yet.">intake</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="Every registered plugin's cheap detect() runs and returns a confidence score — no plugin has won yet (that's Module 2).">detect</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="The highest-confidence plugin's transform() begins parsing the source's real structure.">extract</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">1 plugin call</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="Same plugin call as extract, finishing the shape: pure transform, bytes in, NormalizedDocument out.">transform</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">same call</span>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">5</div>
+            <p><span class="term" data-definition="Pipeline-owned, not plugin code: NormalizedDocument sections split into embeddable passages, honoring ATOMIC section kinds that must never be split.">chunk</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">6</div>
+            <p><span class="term" data-definition="Pipeline-owned: each chunk becomes a vector via the ML sidecar — no plugin code runs here.">embed</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">7</div>
+            <p><span class="term" data-definition="Pipeline-owned: vectors and chunks land in pgvector, ready for retrieval.">index</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">8</div>
+            <p><span class="term" data-definition="Pipeline-owned: the generation is finalized — sections, artifacts, and warnings become queryable.">commit</span></p>
+          </div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary);">Hover any stage for its one-line job. Notice <code>extract</code> and <code>transform</code> carry a badge: they&rsquo;re one plugin call, observed as two pipeline stages &mdash; Module 3 traces exactly what happens inside that call.</p>
+      </section>
+
+      <!-- SCREEN 2: The plugin contract -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The contract every plugin signs</h2>
+        <p>The real TypeScript interface lives in <code>packages/ingestion-contract/src/plugin.ts</code>, but its documented shape &mdash; the contract plugins are actually held to &mdash; is short enough to read in one breath. Every plugin is a
+          <span class="term" data-definition="Bytes in, one fixed shape out — no side effects, FR-014.">pure transform</span>: declare identity and version, detect with a confidence score, transform to ONE shape, nothing else.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; contracts/plugin-contract.md:14-29</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> IngestionPlugin {</span>
+<span class="code-line">  <span class="code-comment">/** Stable unique name, e.g. "ddb-saved-html", "markdown", "generic-html". */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">name</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-comment">/** Plugin semver — stamped on every source it produces (FR-016). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">version</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-comment">/** Media types this plugin will even look at (pre-filter for detect). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">accepts</span>: <span class="code-keyword">readonly</span> <span class="code-keyword">string</span>[];   <span class="code-comment">// e.g. ["text/html"]</span></span>
+<span class="code-line">  <span class="code-comment">/** Optional soft guidance to the pipeline-owned chunker (FR-019). */</span></span>
+<span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">chunkingHints</span>?: ChunkingHints;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">/** Cheap, side-effect-free recognition. MUST NOT throw on garbage input. */</span></span>
+<span class="code-line">  <span class="code-function">detect</span>(input: DetectInput): DetectResult;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">/** Full extraction + transformation to the normalized document. */</span></span>
+<span class="code-line">  <span class="code-function">transform</span>(input: TransformInput): Promise&lt;NormalizedDocument&gt;;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Identity: a stable name, and a semver version stamped onto every source this plugin ever produces (FR-016) &mdash; so a version bump can name exactly which documents need re-ingestion.</p>
+              <p class="tl"><code>accepts</code> pre-filters which media types this plugin even looks at; <code>chunkingHints</code> is optional soft guidance to the chunker downstream.</p>
+              <p class="tl"><code>detect()</code> must be cheap, side-effect-free, and never throw &mdash; even on garbage input. It returns a confidence score, not a decision (Module 2 traces how the pipeline picks a winner).</p>
+              <p class="tl"><code>transform()</code> is the only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one shape every plugin is held to, and nothing else.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Nothing else</strong>
+            <p>Plugins declare identity + version, detect with confidence, transform to ONE shape &mdash; nothing else. FR-013.</p>
+          </div>
+        </div>
+
+        <p>That output shape is the more teachable artifact &mdash; the pivotal contract of the whole design, from <code>contracts/normalized-document.md</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; contracts/normalized-document.md:17-24</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> NormalizedDocument {</span>
+<span class="code-line">  <span class="code-property">contractVersion</span>: <span class="code-keyword">string</span>;          <span class="code-comment">// = NORMALIZED_DOCUMENT_VERSION at produce time</span></span>
+<span class="code-line">  <span class="code-property">title</span>: <span class="code-keyword">string</span>;                    <span class="code-comment">// best-effort document title, never empty</span></span>
+<span class="code-line">  <span class="code-property">language</span>?: <span class="code-keyword">string</span>;                <span class="code-comment">// BCP-47 hint when the plugin knows it</span></span>
+<span class="code-line">  <span class="code-property">sections</span>: Section[];              <span class="code-comment">// ordered; MAY be empty (=&gt; honest "empty" outcome)</span></span>
+<span class="code-line">  <span class="code-property">artifacts</span>: DisplayArtifact[];     <span class="code-comment">// sanitized fragments for the archive viewer</span></span>
+<span class="code-line">  <span class="code-property">warnings</span>: <span class="code-keyword">string</span>[];               <span class="code-comment">// non-fatal extraction notes, operator-readable</span></span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Stamped with the shape&rsquo;s own version &mdash; so a future breaking change can enumerate exactly which sources need re-ingestion.</p>
+              <p class="tl">A best-effort title, never empty &mdash; even a nameless plain-text file must produce something here.</p>
+              <p class="tl">An optional language hint, only when the plugin actually knows it.</p>
+              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose. Each section carries an
+                <span class="term" data-definition="A section's address inside its sanitized display artifact — the citation deep-link target, Principle III.">anchor</span> back into the artifact it came from.</p>
+              <p class="tl">Sanitized HTML fragments the archive viewer renders (never raw bytes), plus non-fatal extraction notes an operator can read.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: The wall -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The wall plugins can&rsquo;t see over</h2>
+        <p>Plugins aren&rsquo;t just asked nicely to stay in their lane &mdash; they&rsquo;re
+          <span class="term" data-definition="Not a review rule — a package-boundary lint rule fails the build if a plugin imports @stacks/db, FR-014.">structurally DB-blind</span>. The doctrine is written right at the top of the package, from <code>packages/ingestion-plugins/src/index.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; ingestion-plugins/src/index.ts:1-15</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * @stacks/ingestion-plugins — the shipped ingesters for spec 008 (FR-028):</span></span>
+<span class="code-line"><span class="code-comment"> * ddb-saved-html (flagship), markdown, generic-html (fallbacks), plus the</span></span>
+<span class="code-line"><span class="code-comment"> * test-only demo-format plugin that proves the extensibility promise (SC-007).</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * DOCTRINE (FR-014, the seam that makes "write a new ingester" a small task):</span></span>
+<span class="code-line"><span class="code-comment"> * everything in this package is a PURE TRANSFORM — bytes in, NormalizedDocument</span></span>
+<span class="code-line"><span class="code-comment"> * out. Nothing here may import @stacks/db, @stacks/core, @stacks/ingestion, or</span></span>
+<span class="code-line"><span class="code-comment"> * any HTTP/model client; the only internal dependency is the contract package.</span></span>
+<span class="code-line"><span class="code-comment"> * scripts/check-boundaries.mjs rule 4 fails the build otherwise. Parsing libs</span></span>
+<span class="code-line"><span class="code-comment"> * (cheerio, sanitize-html) live here and ONLY here (rule 5).</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * Fixtures under fixtures/ are synthetic look-alikes exercising DDB-shaped</span></span>
+<span class="code-line"><span class="code-comment"> * structure without any proprietary text (constitution Principle I, FR-024).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This package ships the real ingesters: ddb-saved-html as the flagship, markdown and generic-html as fallbacks, plus a test-only demo-format plugin that exists purely to prove new formats are addable.</p>
+              <p class="tl">The doctrine in one phrase: PURE TRANSFORM. Bytes in, <code>NormalizedDocument</code> out. Nothing here may import <code>@stacks/db</code>, <code>@stacks/core</code>, <code>@stacks/ingestion</code>, or any HTTP/model client &mdash; only the contract package.</p>
+              <p class="tl">That restriction isn&rsquo;t enforced by a reviewer&rsquo;s memory &mdash; <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if it&rsquo;s violated. Parsing libraries like cheerio and sanitize-html are only allowed to live here (rule 5).</p>
+              <p class="tl">Test fixtures are synthetic, DDB-shaped look-alikes &mdash; never real proprietary text.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🔒</div>
+          <div class="callout-content">
+            <strong class="callout-title">A linter, not a promise</strong>
+            <p>&ldquo;Structurally unable to import <code>@stacks/db</code>&rdquo; isn&rsquo;t a promise &mdash; it&rsquo;s <code>scripts/check-boundaries.mjs</code> failing your build. FR-014 is enforced by a linter, not a code reviewer&rsquo;s memory.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Three plugins, one shape -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three plugins, one shape</h2>
+        <p>Three shipped plugins prove the seam holds under real variety: wildly different internals, identical output contract.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">📖</div>
+            <h4 class="pattern-title">ddbSavedHtmlPlugin</h4>
+            <p class="pattern-desc">The flagship. Cheerio selectors hunt DDB-specific structural markers &mdash; canonical links, saved-from comments, heading stacks &mdash; ported from v2 as data-driven rule tables.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📝</div>
+            <h4 class="pattern-title">markdownPlugin</h4>
+            <p class="pattern-desc">A fallback floor. No markdown-rendering dependency at all &mdash; just an ATX heading (<code>#</code>..<code>######</code>) regex walk to build a heading trail.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🌐</div>
+            <h4 class="pattern-title">genericHtmlPlugin</h4>
+            <p class="pattern-desc">The other fallback. A generic DOM heading/section walk with zero DDB signal-hunting &mdash; it never even tries to outrank ddb-saved-html.</p>
+          </div>
+        </div>
+
+        <p>Cheerio selectors, a regex over heading lines, a generic DOM walk &mdash; three completely different implementations. What makes any of it work downstream is that all three end at the same door: every one of them returns a <code>NormalizedDocument</code>. Chunking, embedding, and indexing never know or care which plugin produced it.</p>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Test the seam</h2>
+        <p>Three plugins can all claim the same uploaded file. Who wins, and how is the decision made honest? Module 2 answers that &mdash; but first, reason from the contract you just read.</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — nothing reaches the network in production either, but more importantly it's disallowed by contract. The conformance suite's network guard makes any fetch() call an immediate test failure, not a silent violation that ships."
+               data-explanation-wrong="Not quite. transform() is a pure transform by contract (FR-014) — no HTTP client is even importable in this package, and the conformance suite enforces it with a network guard. Think about what 'structurally DB-blind' implies for any outbound call, not just database access.">
+            <h3 class="quiz-question">A plugin&rsquo;s <code>transform()</code> tries to call <code>fetch()</code> to look up extra metadata. What happens?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It works fine in dev but is stripped out by a build step before production</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's disallowed by contract; the conformance suite's network guard fails the test immediately</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It succeeds, and the resulting metadata is merged into the NormalizedDocument's warnings field</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right. An honest 'nothing ingestible' outcome (FR-017, invariant 6) is different from a plugin silently producing zero passages — the driver records status: empty, not ingested, so the operator can tell the difference between 'this document had nothing to extract' and 'this document was never processed.'"
+               data-explanation-wrong="Not quite. sections being allowed to be empty isn't a gap in the contract — it's deliberate. Think about what the alternative would hide: if empty weren't allowed, how would a plugin distinguish 'this really had nothing' from 'something silently failed'?">
+            <h3 class="quiz-question">Why is <code>NormalizedDocument.sections</code> allowed to be empty?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>An honest "nothing ingestible" outcome is different from silently producing zero passages — the driver records it as status: empty, not ingested</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's a bug in the type — sections should be required, and this will be tightened in a future MAJOR bump</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Empty sections trigger the pipeline to retry the same plugin with different chunkingHints</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly. The archive viewer always renders the SANITIZED artifact, never raw bytes — Principle III's citation deep-link target is one safe shape regardless of source format. A Markdown source still produces sanitized HTML because that's the only shape the viewer is ever allowed to render."
+               data-explanation-wrong="Not quite — this isn't about what format was easiest to implement. Think about what the archive viewer is allowed to render at all, and why raw saved HTML (or raw Markdown) would be unsafe to hand it directly."
+               >
+            <h3 class="quiz-question">Why does <code>DisplayArtifact.kind</code> only ever say <code>&quot;html&quot;</code>, even for a Markdown source?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because HTML was the first format supported, and the field was never generalized</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because every plugin internally converts to HTML before running its own parser</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The archive viewer always renders the sanitized artifact, never raw bytes — one safe shape regardless of source format</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>Next up &mdash; Module 2, &ldquo;Detection Dispatch&rdquo;: how the pipeline picks which plugin owns a given upload, and how that pick stays honest.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

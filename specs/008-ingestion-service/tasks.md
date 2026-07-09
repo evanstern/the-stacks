@@ -180,7 +180,7 @@ pnpm monorepo per plan.md: `packages/{core,db,ingestion-contract,ingestion,inges
 - [x] T054 [P] Updated AGENTS.md Layout (two new packages + ingestion routes/handlers) and Commands (fixture-regeneration command) sections
 - [x] T055 Full-stack validation: `docker compose up -d --build --wait` (all 5 services healthy after fixing a pre-existing api-port mismatch in docker-compose.yml — see evidence.md), executed quickstart.md Scenarios 1-4/6 live (curl + web), 5/7/8/9/10 via the DB-gated suite; outcomes + SC coverage map recorded in specs/008-ingestion-service/evidence.md
 - [x] T056 Final gate: `pnpm verify` + DB-gated suites + boundary rules all green (197 tests, 0 failures, exit 0); command output captured in evidence.md
-- [ ] T057 Cycle closure reminder (not code): after `/speckit-converge` reports converged, run `/spec-cycle-course` for docs/courses/008-ingestion-service/ and link it from evidence.md (constitution Principle VIII — the cycle is incomplete without it)
+- [x] T057 `/speckit-converge` reported converged (0 findings); ran `/spec-cycle-course` — six-module interactive course built briefs-first under docs/courses/008-ingestion-service/, verified rendering live in-browser (all modules, group-chat + flow animations, quizzes, no console errors, no duplicate-id bugs after fix), linked from evidence.md
 
 ---
 

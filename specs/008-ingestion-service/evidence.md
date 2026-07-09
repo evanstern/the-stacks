@@ -84,7 +84,7 @@ include this variable for future cycles.
 - Spec: [spec.md](spec.md) · Plan: [plan.md](plan.md) · Research: [research.md](research.md)
 - Data model: [data-model.md](data-model.md) · Contracts: [contracts/](contracts/)
 - Tasks: [tasks.md](tasks.md) — 57/57 complete across 8 phases, 5 user stories
-- Course: `docs/courses/008-ingestion-service/` (linked once `/spec-cycle-course` runs)
+- Course: [docs/courses/008-ingestion-service/index.html](../../docs/courses/008-ingestion-service/index.html) — six-module interactive course (Principle VIII): the plugin seam, detection dispatch, anatomy of an ingest (centerpiece), generation-flip re-ingestion, the honest front door, and a five-bug ledger drawn from this cycle's real fixes (verified rendering live, no console errors, real ids/timings/JSON throughout)
 - Wiki: [docs/wiki/Ingestion.md](../../docs/wiki/Ingestion.md)
 
 ## Constitution check (re-confirmed at convergence)
