@@ -12,7 +12,7 @@ cp .env.example .env        # set the two documented secrets
 docker compose up -d --build --wait   # five services; ml readiness gates on model load
 # login once; cookie jar for subsequent calls
 curl -c /tmp/stacks.jar -d '{"password":"<operator password>"}' \
-  -H 'content-type: application/json' http://localhost:4401/v1/auth/login
+  -H 'content-type: application/json' http://localhost:4401/api/auth/login
 ```
 
 `pnpm verify` must pass before any scenario (boundaries incl. the new plugin rules,
@@ -38,7 +38,7 @@ tsc, vitest incl. conformance suites — SC-010). DB-gated integration suites:
 
 ## Scenario 2 — status visibility incl. failure (SC-006; US2)
 
-1. Upload `fixtures/malformed/truncated.html` (declares HTML, broken content).
+1. Upload `fixtures/rejects/truncated.html` (declares HTML, broken content).
 2. **Expect**: job retries then fails; ticket page shows status `failed`, the failing
    stage, a scrubbed cause-typed reason; the event trail retains every attempt's
    events (append-only — re-fetch later, unchanged).
@@ -47,13 +47,13 @@ tsc, vitest incl. conformance suites — SC-010). DB-gated integration suites:
 
 ```bash
 # 415, no residue (SC-005): unsupported type
-curl -b /tmp/stacks.jar -F file=@fixtures/rejects/sample.pdf http://localhost:4401/v1/uploads   # expect 415
+curl -b /tmp/stacks.jar -F file=@fixtures/rejects/sample.pdf http://localhost:4401/api/uploads   # expect 415
 # 415: over the cap
 head -c 30000000 /dev/urandom > /tmp/big.html
-curl -b /tmp/stacks.jar -F file=@/tmp/big.html http://localhost:4401/v1/uploads                 # expect 415
+curl -b /tmp/stacks.jar -F file=@/tmp/big.html http://localhost:4401/api/uploads                 # expect 415
 # duplicate (SC-003): second POST of the same bytes
-curl -b /tmp/stacks.jar -F file=@fixtures/markdown/notes.md http://localhost:4401/v1/uploads    # 201
-curl -b /tmp/stacks.jar -F file=@fixtures/markdown/notes.md http://localhost:4401/v1/uploads    # 200, duplicate:true, same ticket
+curl -b /tmp/stacks.jar -F file=@fixtures/markdown/notes.md http://localhost:4401/api/uploads    # 201
+curl -b /tmp/stacks.jar -F file=@fixtures/markdown/notes.md http://localhost:4401/api/uploads    # 200, duplicate:true, same ticket
 ```
 
 Residue check after the two 415s: `SELECT count(*) FROM sources; SELECT count(*) FROM
@@ -61,7 +61,7 @@ jobs WHERE kind LIKE 'ingest%';` — counts unchanged from before.
 
 ## Scenario 4 — ZIP batch with mixed entries (US1 AC-4, US3 AC-4)
 
-1. Upload `fixtures/ddb/export-mixed.zip` (2 DDB pages, 1 markdown, 1 `.dat`).
+1. Upload `fixtures/zips/export-mixed.zip` (2 DDB pages, 1 markdown, 1 `.dat`).
 2. **Expect**: batch ticket; final `entryReport` shows 3 ingested + 1
    skipped-with-reason; each ingested entry is its own source with its own trail.
 
