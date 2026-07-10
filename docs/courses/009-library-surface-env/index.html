@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Library Surface &amp; The Port Protocol — Inside The Stacks v3</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the accent variables below.
+    009's course uses violet — the family line continues: 007 teal, 008 coral,
+    009 violet. Related, never identical.
+  -->
+  <style>
+    :root {
+      --color-accent:       #6B5AE0;
+      --color-accent-hover: #5847C9;
+      --color-accent-light: #EEEBFC;
+      --color-accent-muted: #9C90E8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">The Library Surface &amp; The Port Protocol</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Invisible Library" role="tab" aria-label="Module 1: The Invisible Library"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Submissions Timeline" role="tab" aria-label="Module 2: The Submissions Timeline"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Navigation Shell" role="tab" aria-label="Module 3: The Navigation Shell"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Whose Fault Is It?" role="tab" aria-label="Module 4: Whose Fault Is It? (The Honest 400)"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Ports by Arithmetic" role="tab" aria-label="Module 5: Ports by Arithmetic"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Bug Ledger" role="tab" aria-label="Module 6: The Bug Ledger"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Invisible Library</h1>
+      <p class="module-subtitle">008 shipped a working ingestion pipeline &mdash; upload page, ticket page, an eight-stage worker, a pgvector index. Then the operator asked: &ldquo;is there more to this than the home page?&rdquo; There was. Nobody could see it.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + exists-vs-visible HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A library with no card catalog</h2>
+        <p>Picture a library where the books are real, shelved, and indexed &mdash; but there is no catalog, no signage, no front desk. The only way to find a book is the receipt you were handed at the door. Lose the receipt, and the book might as well not exist. That was The Stacks after 008: every
+          <span class="term" data-definition="What the operator actually uploaded: a standalone source or a batch — 009 research R2.">submission</span> got a
+          <span class="term" data-definition="The {kind, id} receipt the intake answers with before any processing — 008 accept-then-async, Principle IV.">claim ticket</span>, and the ticket URL was the ONLY door back in.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid #6B5AE0">
+            <div class="pattern-icon" style="background: #6B5AE0">📚</div>
+            <h4 class="pattern-title">What existed</h4>
+            <div class="stagger-children">
+              <p class="pattern-desc animate-in"><code>/library/upload</code> &mdash; a working upload form (<code>library.upload.tsx</code>)</p>
+              <p class="pattern-desc animate-in"><code>/library/uploads/:ticket</code> &mdash; a live claim-ticket status page (<code>library.uploads.$ticket.tsx</code>)</p>
+              <p class="pattern-desc animate-in"><code>POST /api/uploads</code> &mdash; accept-then-async intake, sub-second tickets</p>
+              <p class="pattern-desc animate-in">An eight-stage worker pipeline, batch expansion, a pgvector index, an append-only event trail</p>
+            </div>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-text-secondary)">
+            <div class="pattern-icon" style="background: var(--color-text-secondary)">🚪</div>
+            <h4 class="pattern-title">What you could see</h4>
+            <div class="stagger-children">
+              <p class="pattern-desc animate-in">The home page. Its nav had <strong>no library link</strong> &mdash; nothing pointed at any of it.</p>
+              <p class="pattern-desc animate-in">Both library pages were reachable only by typing the URL from memory.</p>
+              <p class="pattern-desc animate-in">Lost your ticket URL? Your upload still exists &mdash; you just can&rsquo;t reach it without querying the database.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Concretely: the only recovery path for a lost submission was operational, not product. Trace it:</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="POST /api/uploads answers in under a second with the {kind, id} receipt — before any processing runs.">upload</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="The claim-ticket URL — /library/uploads/:ticket — the ONLY product surface that knows this submission exists.">ticket URL</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="Bookmark it, paste it somewhere, or memorize a UUID. There is no step 3b.">keep it safe</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="Lost the URL? The remaining option is querying Postgres by hand — which is DB access, not a product surface.">&hellip;or psql</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">not a surface</span>
+          </div>
+        </div>
+
+        <p>By the time 009 converged, the live library held <strong>57 submissions</strong> &mdash; the last page of the listing reads &ldquo;Showing 51 &ndash; 57 of 57&rdquo; &mdash; including this course&rsquo;s two recurring actors: <code>goblin-page.html</code> (a standalone source, rendered as <code>ddb-saved-html@1.0.0 &middot; gen 1</code>) and <code>export-mixed.zip</code> (a batch: <code>4 entries: 2 ingested &middot; 2 skipped &middot; 0 failed</code>). Before 009, not one of those 57 was findable without its receipt.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">The gap, precisely</strong>
+            <p>Nothing was broken. Every capability worked &mdash; the pipeline ingested, the ticket page polled, the events recorded. The gap was that <em>working</em> and <em>visible</em> turned out to be different properties, and 008&rsquo;s spec had only gated on the first one.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: The amendment (constitution v2.2.0) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The amendment: visibility becomes law</h2>
+        <p>The operator&rsquo;s 2026-07-09 request didn&rsquo;t become a bug ticket &mdash; it became a constitutional amendment. Version 2.2.0 expands Principle V (Operator Control and Observability) with a mandate: every delivered capability must have a
+          <span class="term" data-definition="The surface a capability is seeable through — web UI when operator-facing, CLI/logs/docs otherwise — Principle V, v2.2.0.">visibility avenue</span>. That&rsquo;s the right altitude for this fix: a nav link would have patched 008&rsquo;s pages, but the failure mode &mdash; shipping a capability whose spec never asks &ldquo;how does the operator see this?&rdquo; &mdash; would recur in every future spec. So the rule moved into the document every spec is gated on. Here is the new text, verbatim:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; .specify/memory/constitution.md (Principle V, v2.2.0)</span>
+            <pre><code>
+<span class="code-line">Every delivered capability MUST have a visibility avenue — being able to see inside is</span>
+<span class="code-line">a property of each feature, not only of the system:</span>
+<span class="code-line"></span>
+<span class="code-line">- Operator-facing capabilities MUST be visible in the web UI: Records-style,</span>
+<span class="code-line">  URL-addressable, and reachable through the product's navigation. A page reachable</span>
+<span class="code-line">  only by typing its URL does not satisfy this.</span>
+<span class="code-line">- Where a web surface is not warranted or not yet feasible — developer-facing tooling,</span>
+<span class="code-line">  protocols, background machinery — the capability MUST instead be visible through</span>
+<span class="code-line">  other output: CLI output, log files, or a documented inspection path.</span>
+<span class="code-line">- Each feature's spec or plan MUST record which visibility avenue every delivered</span>
+<span class="code-line">  capability satisfies and why that avenue is the right one.</span>
+<span class="code-line">- A capability with no visibility avenue at all is incomplete, the same way a spec</span>
+<span class="code-line">  cycle without its Principle VIII learning artifact is incomplete.</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The headline reframe: visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
+              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI &mdash; and the page must be reachable through navigation. A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
+              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery get a different avenue: CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
+              <p class="tl">The avenue is recorded in the spec or plan, with a reason &mdash; and a capability with none at all is <em>incomplete</em>, by the same standard that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📜</div>
+          <div class="callout-content">
+            <strong class="callout-title">The four-line rule</strong>
+            <p>Web UI when operator-facing. CLI/logs/docs otherwise. The spec records which avenue and why. No avenue = incomplete. That&rsquo;s the whole amendment &mdash; and 009 (FR-018) is the first spec gated on it.</p>
+          </div>
+        </div>
+
+        <p>009 itself had to file under this rule. Its converge evidence records four avenues: the library listing and upload/ticket pages (web UI, reachable via nav on every protected page), <code>GET /api/uploads</code> (consumed by the web UI, contract documented), the worktree env protocol (CLI output plus <code>contracts/environment.md</code>), and the Docker lifecycle rules (documentation). Every capability, an avenue, a reason.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔁</div>
+          <div class="callout-content">
+            <strong class="callout-title">Amendments come with debts</strong>
+            <p>The amendment&rsquo;s sync-impact record names its own retrofit: 008 predates v2.2.0, so its unreachable pages and avenue-less capabilities are explicitly tagged <code>TODO(008-VISIBILITY-RETROFIT)</code> &mdash; the debt 009 pays. Re-ingestion&rsquo;s avenue is deliberately NOT part of that payment; it lands with the corpus-lifecycle spec. Keep that carve-out in mind &mdash; it&rsquo;s the next screen&rsquo;s scope line.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: The slice map + the read-only scope line -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The slice: two parts and a hard scope line</h2>
+        <p>009 is the retrofit spec that pays 008&rsquo;s visibility debt &mdash; plus a second, unrelated-looking half that Module 5 will justify. The slice map:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid #6B5AE0">
+            <div class="pattern-icon" style="background: #6B5AE0">🗂️</div>
+            <h4 class="pattern-title">Part A &mdash; the library surface</h4>
+            <p class="pattern-desc">A nav link on every protected page, a paged <code>/library</code> listing of all submissions with evidence columns (plugin, generation, section/passage counts, batch outcomes), each row linking to its ticket page. Strictly read-only.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #8A7CE8">
+            <div class="pattern-icon" style="background: #8A7CE8">🌲</div>
+            <h4 class="pattern-title">Part B &mdash; the worktree protocol</h4>
+            <p class="pattern-desc">A deterministic environment protocol so every worktree gets its own ports, compose project, and volumes by arithmetic &mdash; two stacks running side by side with zero collisions. Modules 5 and 6 live here.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #5546C8">
+            <div class="pattern-icon" style="background: #5546C8">🚫</div>
+            <h4 class="pattern-title">Deliberately absent</h4>
+            <p class="pattern-desc">No retry, no delete, no re-ingest, no corpus management &mdash; anywhere in the slice. Not deferred by omission: pinned by name to the corpus-lifecycle spec, by the operator, on 2026-07-07.</p>
+          </div>
+        </div>
+
+        <p>The scope line matters as much as the scope. A listing page is one temptation away from becoming a management console &mdash; a &ldquo;retry&rdquo; button here, a &ldquo;delete&rdquo; there. FR-009 slams that door:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; specs/009-library-surface-env/spec.md &mdash; FR-009</span>
+            <pre><code>
+<span class="code-line">- **FR-009**: The listing capability MUST be read-only end to end: this slice adds no</span>
+<span class="code-line">  operation that creates, mutates, or deletes library content, and no re-ingestion or</span>
+<span class="code-line">  corpus-management operation (those stay pinned to the corpus-lifecycle spec per the</span>
+<span class="code-line">  2026-07-07 decision).</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">&ldquo;End to end&rdquo; is load-bearing: not just no delete button in the UI, but no new mutating route in the API, no new write path anywhere in the slice.</p>
+              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec by a dated operator decision. A scope line with a forwarding address, not a shrug.</p>
+              <p class="tl">Note what this makes read-only mean here: an actual functional requirement with a testable surface (grep the API for mutating routes), not a styling choice about which buttons the listing renders.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And it was verified as a requirement, not a vibe: the converge evidence greps <code>apps/api/src/ingestion/</code> and finds exactly one mutating route &mdash; 008&rsquo;s <code>POST /api/uploads</code>. 009&rsquo;s entire diff adds one <code>GET</code> (SC-007: zero new mutating operations).</p>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">The 2026-07-07 pin</strong>
+            <p>Two days BEFORE the visibility amendment, the operator had already pinned re-ingestion and corpus management to the corpus-lifecycle spec. So when 009 was specified, &ldquo;make the library visible&rdquo; could not quietly grow into &ldquo;make the library editable&rdquo; &mdash; the pin predated the temptation.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🧪</div>
+          <div class="callout-content">
+            <strong class="callout-title">US1&rsquo;s independent test</strong>
+            <p>The acceptance bar for the surface is behavioral: reach any submission&rsquo;s detail page with <strong>no URL typing and no DB access</strong>, in at most 3 interactions &mdash; and lost-ticket recovery in under 30 seconds at 100+ submissions (verified live at 57, SC-002).</p>
+          </div>
+        </div>
+
+        <p>The verified SC-001 path, as run against the live 009 stack &mdash; compare it with the pre-009 flow in screen one:</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="The library link lives in the protected layout, so it appears on EVERY authenticated page — Module 3's subject.">nav header</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="The paged, newest-first listing of all submissions with their evidence columns — Module 2's subject.">/library</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="Every row links to its submission's detail — the same ticket page 008 built, now reachable without the receipt.">row link</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="008's claim-ticket page, unchanged — 009 didn't rebuild the destination, it built the road.">ticket page</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">3 interactions</span>
+          </div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary);">Four boxes, three clicks &mdash; the nav header is where you already are. Hover any step for its one-line job. The psql box from screen one has no counterpart here; that&rsquo;s the point.</p>
+      </section>
+
+      <!-- SCREEN 4: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Test the rule</h2>
+        <p>The amendment&rsquo;s teeth are in its second bullet as much as its first. Reason from the text you just read:</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the mandate is an avenue, not a UI. A web surface is only mandatory when the capability is operator-facing; background machinery satisfies Principle V through CLI output, log files, or a documented inspection path, as long as the spec records which avenue and why. That's precisely how 009's own worktree protocol filed: CLI output + contracts/environment.md, no web page."
+               data-explanation-wrong="Not quite. Re-read the second bullet: where a web surface is not warranted — developer tooling, protocols, background machinery — the capability MUST instead be visible through CLI output, log files, or a documented inspection path. The web UI is only mandatory for operator-facing capabilities; but 'internal' with NO recorded avenue at all is exactly what the fourth bullet calls incomplete.">
+            <h3 class="quiz-question">A worker-only capability ships with no web page. Under constitution v2.2.0, is it compliant?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No &mdash; every delivered capability must be visible in the web UI, full stop</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, IF its spec records a CLI/log/docs avenue &mdash; a web surface is only mandatory when the capability is operator-facing</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, automatically &mdash; worker capabilities are internal, and internal machinery is exempt from Principle V</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answer</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>So the library gets a listing page. But a listing of 57 submissions &mdash; standalone sources and batches mixed, some ingested, some skipped, some failed &mdash; needs a read model that can answer &ldquo;what&rsquo;s in my corpus?&rdquo; in constant queries per page. Next up &mdash; Module 2, &ldquo;The Submissions Timeline&rdquo;: the read model behind the listing.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg-warm); --color-accent:#6D4FB8; --color-accent-hover:#5A3FA3; --color-accent-light:#EFEAFA; --color-accent-muted:#A491D4;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Submissions Timeline</h1>
+      <p class="module-subtitle">A checkout ledger, not two filing cabinets: one merged page, five queries, constant cost — no matter what landed in the library.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO: the five-query constant-cost animation -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five Queries. Always Five.</h2>
+        <p>Design question: a 200-entry ZIP lands in your library. Is that one row in your timeline, or 200?</p>
+        <p>One. Rows are <strong>submissions</strong> — what the operator uploaded — and the database stores those submissions in TWO tables (<code>sources</code> and <code>batches</code>). The listing's job is to answer as the ledger the operator remembers, not as the cabinets the schema uses. And it must do it without the classic listing failure mode: an
+          <span class="term" data-definition="one query per row — the listing anti-pattern research R3 forbids">N+1</span>
+          that gets slower with every row on the page.</p>
+        <p>Here is the whole read model in motion. The canonical five, in order: <strong>page query (UNION ALL) → total → sections aggregate → chunks aggregate → member-status aggregate</strong>. The numbers are the live 009 stack — 57 real submissions, last page.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-lst-req","label":"GET /api/uploads arrives. The live library holds 57 submissions; this request wants the last page of them."},
+          {"highlight":"flow-lst-page","label":"Query 1 - page (UNION ALL): standalone sources stacked with batches, ORDER BY created_at DESC with id DESC tiebreak, LIMIT/OFFSET cut AFTER the merge. Seven rows come back, each already carrying plugin, generation, last_error, entry_report.","packet":true,"from":"lst-req","to":"lst-page"},
+          {"highlight":"flow-lst-total","label":"Query 2 - total: two index-only counts summed to 57 - the honest more-exist number behind the pager.","packet":true,"from":"lst-page","to":"lst-total"},
+          {"highlight":"flow-lst-sections","label":"Query 3 - sections aggregate: ONE grouped count over exactly the page source ids, joined on generation = current_generation.","packet":true,"from":"lst-page","to":"lst-sections"},
+          {"highlight":"flow-lst-chunks","label":"Query 4 - chunks aggregate: same shape, same reader predicate, same page ids - never one query per row.","packet":true,"from":"lst-page","to":"lst-chunks"},
+          {"highlight":"flow-lst-members","label":"Query 5 - member statuses: GROUP BY batch_id, status over the page batch rows - what each admitted ZIP member did AFTER expand.","packet":true,"from":"lst-page","to":"lst-members"},
+          {"highlight":"flow-lst-env","label":"Rows assemble into the envelope: items, total 57, limit, offset - rendered live as Showing 51 - 57 of 57.","packet":true,"from":"lst-members","to":"lst-env"},
+          {"highlight":"flow-lst-env","label":"Count the round trips: five. Now change the page size below - watch the count refuse to move."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-lst-req">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">🧭</div>
+              <span>GET /api/uploads</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-page">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🗂️</div>
+              <span>1 · page (UNION ALL)</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-total">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">🧮</div>
+              <span>2 · total</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-sections">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">📑</div>
+              <span>3 · sections</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-chunks">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">🧩</div>
+              <span>4 · chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-members">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">📦</div>
+              <span>5 · member statuses</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-env">
+              <div class="flow-actor-icon" style="border-color: var(--color-accent)">📜</div>
+              <span>Timeline envelope</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Constant cost is not a promise in a code review — it is enforced by shape. The aggregates are <em>grouped</em> queries over exactly the page's ids, so the query count cannot grow with the page. Toggle the page size and count the cards:</p>
+
+        <div class="layer-demo">
+          <div class="layer-tabs">
+            <button class="layer-tab active" onclick="showLayer('layer-lst-10', this)">Page of 10 rows</button>
+            <button class="layer-tab" onclick="showLayer('layer-lst-50', this)">Page of 50 rows</button>
+          </div>
+          <div class="layer-viewport">
+            <div class="layer" id="layer-lst-10">
+              <div class="flow-steps">
+                <div class="flow-step"><div class="flow-step-num">1</div><p>page (UNION ALL)</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">2</div><p>total</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">3</div><p>sections agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">4</div><p>chunks agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">5</div><p>member statuses</p></div>
+              </div>
+              <p class="layer-description">10 rows → <strong>5 queries</strong>. The aggregates take 10 ids each; the query count never noticed.</p>
+            </div>
+            <div class="layer" id="layer-lst-50" style="display:none">
+              <div class="flow-steps">
+                <div class="flow-step"><div class="flow-step-num">1</div><p>page (UNION ALL)</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">2</div><p>total</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">3</div><p>sections agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">4</div><p>chunks agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">5</div><p>member statuses</p></div>
+              </div>
+              <p class="layer-description">50 rows → <strong>5 queries</strong>. Same five cards. An N+1 shape would have fired 100+ by now.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why should I care?</strong>
+            <p>This is the repo's canonical <strong>collection read model</strong>. The retrieval and corpus-lifecycle specs will copy this exact shape — one merged page query, grouped aggregates over the page's ids, an honest total. Learn it once here.</p>
+          </div>
+        </div>
+
+        <p>One honest footnote from the evidence: research R3 budgeted <em>three</em> constant queries; the shipped count is <strong>five</strong> (1 page + 1 total + 3 grouped aggregates). The third aggregate exists because the expand report cannot know post-admission member outcomes — Screen 4's whole subject. The requirement that held is "constant regardless of page size," and it did.</p>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — Submissions, not members: the UNION ALL page query  -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Submissions, Not Members</h2>
+        <p>So: the 200-entry ZIP. Its members live in <code>sources</code> like any other document — but they were never <em>submitted</em>, so the timeline must never show them as rows (research R2). And the merge of the two tables into one newest-first ledger has to page correctly, which means it cannot happen in TypeScript: only the database can sort <em>before</em> it cuts the page.</p>
+        <p>Both rules are one query. This is
+          <span class="term" data-definition="stack two SELECTs into one result set without dedupe cost — the merge happens in the database">UNION ALL</span>
+          doing structural work, verbatim from the route:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:74-95</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// One UNION ALL page query: sorting sources and batches into a single</span></span>
+<span class="code-line">      <span class="code-comment">// timeline is the database's job, not a TS merge — LIMIT/OFFSET stay</span></span>
+<span class="code-line">      <span class="code-comment">// correct across both kinds by construction. Kind-specific columns ride</span></span>
+<span class="code-line">      <span class="code-comment">// as NULLs on the other kind. id DESC tiebreaks same-millisecond rows</span></span>
+<span class="code-line">      <span class="code-comment">// so paging is deterministic.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> page = <span class="code-keyword">await</span> db.<span class="code-function">execute</span>(sql`</span>
+<span class="code-line">        SELECT kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">               plugin_name, plugin_version, detect_confidence, current_generation,</span>
+<span class="code-line">               last_error, entry_report</span>
+<span class="code-line">        FROM (</span>
+<span class="code-line">          SELECT <span class="code-string">'source'</span> AS kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">                 plugin_name, plugin_version, detect_confidence, current_generation,</span>
+<span class="code-line">                 last_error, NULL::jsonb AS entry_report</span>
+<span class="code-line">            FROM sources WHERE batch_id IS NULL</span>
+<span class="code-line">          UNION ALL</span>
+<span class="code-line">          SELECT <span class="code-string">'batch'</span> AS kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">                 NULL, NULL, NULL, NULL, NULL::jsonb, entry_report</span>
+<span class="code-line">            FROM batches</span>
+<span class="code-line">        ) submissions</span>
+<span class="code-line">        ORDER BY created_at DESC, id DESC</span>
+<span class="code-line">        LIMIT ${limit} OFFSET ${offset}</span>
+<span class="code-line">      `);</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong> — LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
+              <p class="tl">Arm one: standalone sources. <code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
+              <p class="tl">Arm two: batches ride the identical column list, with NULLs where source-only evidence goes (plugin, generation, last_error) and <code>entry_report</code> where sources carry NULL. Kind-specific columns as NULL passengers keep the UNION legal.</p>
+              <p class="tl">UNION <em>ALL</em>, not UNION: stack the two result sets with zero dedupe cost. Safe because there is nothing to dedupe — see the callout below.</p>
+              <p class="tl">Newest first, with <code>id DESC</code> as tiebreak — two rows born in the same millisecond page in the same order every time. Deterministic paging is what makes "Older" a link you can trust.</p>
+              <p class="tl">Cut the page <em>after</em> the merge. The database pages the ledger, not each cabinet separately.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why UNION ALL is free here</strong>
+            <p>008's intake dedupes by fingerprint: re-upload <code>goblin-page.html</code> and you get the SAME source row back (<code>duplicate=true</code>), never a second one. One record per stored upload means there are no duplicate rows for a plain UNION to remove — so the query skips the dedupe pass entirely. No duplicate timeline rows, ever, and no cost paid to guarantee it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — The reader predicate applied to observability       -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Counting Only What Readers May See</h2>
+        <p>Each source row shows <code>sections</code> and <code>chunks</code> counts — live in the 009 stack as <code>ddb-saved-html@1.0.0 · gen 1 · sections · passages</code>. But 008's re-ingestion writes a source's next generation <em>aside</em> while the old one stays live. If the listing counted naively, a half-written re-ingest would inflate the numbers mid-flight.</p>
+        <p>It cannot, because the aggregates apply the
+          <span class="term" data-definition="readers filter on generation = current_generation, so a half-written re-ingest is invisible until its one-UPDATE flip — 008 R8">reader predicate</span>
+          to observability itself — the counts JOIN through <code>s.current_generation</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:104-115 (sections aggregate)</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// Grouped aggregates for exactly the page's sources, joined through</span></span>
+<span class="code-line">      <span class="code-comment">// current_generation — the reader predicate applied to observability.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> [sectionCounts, chunkCounts] = <span class="code-keyword">await</span> Promise.<span class="code-function">all</span>([</span>
+<span class="code-line">        sourceIds.length === <span class="code-number">0</span></span>
+<span class="code-line">          ? { <span class="code-property">rows</span>: [] <span class="code-keyword">as</span> Array&lt;Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">unknown</span>&gt;&gt; }</span>
+<span class="code-line">          : db.<span class="code-function">execute</span>(sql`</span>
+<span class="code-line">              SELECT ds.source_id, count(*) AS n</span>
+<span class="code-line">              FROM document_sections ds</span>
+<span class="code-line">              JOIN sources s ON s.id = ds.source_id</span>
+<span class="code-line">              WHERE ds.source_id IN (${idList(sourceIds)}) AND ds.generation = s.current_generation</span>
+<span class="code-line">              GROUP BY ds.source_id</span>
+<span class="code-line">            `),</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting. Anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">If the page holds zero source rows, the aggregate does not run at all — the constant five is a ceiling, not a floor.</p>
+              <p class="tl">One grouped count for the whole page — <code>GROUP BY ds.source_id</code> is the anti-N+1: fifty sources, still one query.</p>
+              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at.</p>
+              <p class="tl">And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Watch the predicate work. These are the contract test's real numbers — generation 1 current with 2 sections and 3 chunks, generation 2 written aside:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-gen-src","label":"The JOIN reads one number off the source row: current_generation = 1."},
+          {"highlight":"flow-gen-agg","label":"That number becomes the predicate: count only rows WHERE generation = 1.","packet":true,"from":"gen-src","to":"gen-agg"},
+          {"highlight":"flow-gen-g1","label":"Generation 1 rows pass: 2 sections and 3 chunks are counted.","packet":true,"from":"gen-g1","to":"gen-agg"},
+          {"highlight":"flow-gen-g2","label":"Generation 2 rows - the re-ingest being written aside - fail the predicate. Greyed out. Never counted, never even scanned into the result."},
+          {"highlight":"flow-gen-agg","label":"counts = sections 2, chunks 3 - exactly what the test asserts. Generation 2 becomes visible only at its one-UPDATE flip."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-gen-src">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">📄</div>
+              <span>sources row · current_generation = 1</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-g1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">📗</div>
+              <span>gen 1 · 2 sections + 3 chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-g2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">📕</div>
+              <span>gen 2 (aside) · 1 section + 2 chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-agg">
+              <div class="flow-actor-icon" style="border-color: var(--color-accent)">🧮</div>
+              <span>aggregate</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>That scenario is not hypothetical — it is seeded, verbatim, in the contract suite (one of the 10 listing contract tests, 39 API tests green this cycle):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">apps/api/test/ingestion-list.contract.test.ts — US3 AC-1</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;"><code><span class="code-line">    <span class="code-comment">// Generation 1 is current: 2 sections, 3 chunks. Generation 2 is a</span></span>
+<span class="code-line">    <span class="code-comment">// re-ingest being written ASIDE — the listing must not count it.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">0</span>);</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">1</span>);</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">2</span>, <span class="code-number">0</span>);</span>
+<span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">3</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">1</span>, i);</span>
+<span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">2</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">2</span>, i);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-function">expect</span>(item.generation).<span class="code-function">toBe</span>(<span class="code-number">1</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(item.counts).<span class="code-function">toEqual</span>({ <span class="code-property">sections</span>: <span class="code-number">2</span>, <span class="code-property">chunks</span>: <span class="code-number">3</span> });</span>
+</code></pre>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>The gen-2 rows are sitting in the same table, same indexes, same source id — and the count is still 2 and 3, not 3 and 5. One JOIN clause is the entire isolation mechanism. When the re-ingest's one-UPDATE flip lands, the same query starts answering with generation 2's rows, atomically.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Why member statuses need their own aggregate        -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Question the Entry Report Cannot Answer</h2>
+        <p>Batch rows summarize their members without being opened. The obvious source for that summary is the
+          <span class="term" data-definition="the per-entry outcome list a batch records at expand completion — 008 FR-009">entry report</span>
+          — but the report is a photograph taken <em>at expand time</em>. It knows admitted-vs-skipped. It cannot know what an admitted member did afterwards: whether its own ingest pipeline finished or failed lives only on the member source row, written later, by a different job.</p>
+        <p>That is why query 5 exists — and why the summary is assembled from <strong>both</strong> truths:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:129-131, 183-193</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// Batch summaries need member STATUSES, not just the expand report: the</span></span>
+<span class="code-line">      <span class="code-comment">// report says admitted-vs-skipped at expand time; whether an admitted</span></span>
+<span class="code-line">      <span class="code-comment">// member then ingested or failed lives on the member source row.</span></span>
+<span class="code-line"></span>
+<span class="code-line">          <span class="code-keyword">const</span> report = (row.entry_report <span class="code-keyword">as</span> EntryReportEntry[] | <span class="code-keyword">null</span>) ?? [];</span>
+<span class="code-line">          <span class="code-keyword">const</span> members = byBatch.<span class="code-function">get</span>(base.id) ?? <span class="code-keyword">new</span> Map&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt;();</span>
+<span class="code-line">          <span class="code-keyword">return</span> {</span>
+<span class="code-line">            ...base,</span>
+<span class="code-line">            <span class="code-property">entrySummary</span>: {</span>
+<span class="code-line">              <span class="code-property">ingested</span>: members.<span class="code-function">get</span>(<span class="code-string">"ingested"</span>) ?? <span class="code-number">0</span>,</span>
+<span class="code-line">              <span class="code-property">skipped</span>: report.<span class="code-function">filter</span>((entry) =&gt; entry.outcome === <span class="code-string">"skipped"</span>).length,</span>
+<span class="code-line">              <span class="code-property">failed</span>: members.<span class="code-function">get</span>(<span class="code-string">"failed"</span>) ?? <span class="code-number">0</span>,</span>
+<span class="code-line">              <span class="code-property">total</span>: report.length,</span>
+<span class="code-line">            },</span>
+<span class="code-line">          };</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment states the split: the report is frozen at expand completion; member fate keeps evolving afterwards.</p>
+              <p class="tl"><code>report</code> is the photograph — the frozen per-entry outcome list off the batch row (query 1 already fetched it; no extra trip).</p>
+              <p class="tl"><code>members</code> is the live feed — this batch's status counts from query 5, the member-status aggregate.</p>
+              <p class="tl"><code>ingested</code> and <code>failed</code> come from the live feed: only member source rows know what happened after admission.</p>
+              <p class="tl"><code>skipped</code> comes from the photograph: skipped entries never became source rows at all — the report is the only place they exist.</p>
+              <p class="tl"><code>total</code> is the report's length: every entry the ZIP contained, whatever became of it. Two data sources, one honest line per batch.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📦</div>
+          <div class="callout-content">
+            <strong class="callout-title">Real row, live stack</strong>
+            <p>This cycle's validation run rendered exactly this assembly for <code>export-mixed.zip</code>: <strong>4 entries: 2 ingested · 2 skipped · 0 failed</strong> — the skipped two from the frozen report, the ingested two from live member statuses (evidence.md, SC-003). The contract suite's mixed case pins the harder shape: a batch reading <code>{ ingested: 1, skipped: 1, failed: 1, total: 3 }</code>, which no single data source could produce.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Quiz + handoff to Module 3                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="gen2-only"
+               data-explanation-right="The aggregates join on s.current_generation, which is still 2 until the re-ingest commits its one-UPDATE flip. Generation 3 rows fail the predicate and are invisible — same mechanism the contract test pins with its aside-written generation 2."
+               data-explanation-wrong="Re-read the JOIN in the sections aggregate: ds.generation = s.current_generation. The listing never locks anything and never mixes generations — it counts exactly the rows a reader could retrieve, which stay generation 2 until the flip lands.">
+            <h3 class="quiz-question">A re-ingest is writing generation 3 aside while the listing loads. What do the counts show?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="mixed" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A mix of generation 2 and generation 3 rows, depending on how far the re-ingest has gotten</span>
+              </button>
+              <button class="quiz-option" data-value="gen2-only" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Generation 2's counts — the aggregates join on current_generation, so gen 3 is invisible until the flip</span>
+              </button>
+              <button class="quiz-option" data-value="locked" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>An error — the source is locked while a re-ingest is in flight</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 3 — The Navigation Shell</strong>
+            <p>You now know what the five queries assemble. Module 3 is the page you actually see: how <code>/library</code> renders this envelope server-side, why the browser never touches the API, and where "Showing 51 – 57 of 57" comes from.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm); --color-accent:#6B5AE0; --color-accent-hover:#5747C7; --color-accent-light:#EAE6FB; --color-accent-muted:#A79DED;">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">The Navigation Shell</h1>
+      <p class="module-subtitle">The fix for &ldquo;no link to /library/upload&rdquo; was NOT adding a link to /library/upload — it was fixing the navigation model, once, in the one place every page inherits from.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO: the layout-nesting animation           -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Fix the Lobby, Not the Rooms</h2>
+        <p>A library can have perfect shelves, but if the lobby has no signage and no librarian, visitors wander back out. That was the-stacks before 009: the upload page worked, the ticket page worked — and both were reachable only by typing the URL.</p>
+        <p>The obvious patch is to add a link somewhere. The actual fix is structural: every authenticated route already nests under the <span class="term" data-definition="The RR7 layout route every non-login route nests under — the ONE place auth is checked, and now the ONE place nav renders — 007 R9 / 009 R5.">protected layout</span>. Put a nav header <em>there</em>, and every protected page — including pages that don't exist yet — renders it. The layout is the lobby. Fix the signage in the lobby and every room inherits it.</p>
+        <p>Watch the header slot in once and light up the whole tree.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-routes","label":"routes.ts declares the tree: every non-login route nests under one layout route. The nesting already existed for auth (007 R9)."},
+          {"highlight":"flow-layout","label":"009 slots the nav header into protected-layout.tsx, right above the Outlet. One file changed.","packet":true,"from":"routes","to":"layout"},
+          {"highlight":"flow-home","label":"/ inherits the header. Zero edits to the home page.","packet":true,"from":"layout","to":"home"},
+          {"highlight":"flow-library","label":"/library inherits it — the new listing ships already reachable.","packet":true,"from":"layout","to":"library"},
+          {"highlight":"flow-upload","label":"/library/upload inherits it — the missing-link bug is now structurally impossible.","packet":true,"from":"layout","to":"upload"},
+          {"highlight":"flow-ticket","label":"/library/uploads/:ticket inherits it too — and so will every protected page you have not written yet.","packet":true,"from":"layout","to":"ticket"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-routes">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🗺️</div>
+              <span>routes.ts</span>
+            </div>
+            <div class="flow-actor" id="flow-layout">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">🛎️</div>
+              <span>protected-layout</span>
+            </div>
+            <div class="flow-actor" id="flow-home">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🏠</div>
+              <span>/</span>
+            </div>
+            <div class="flow-actor" id="flow-library">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">📚</div>
+              <span>/library</span>
+            </div>
+            <div class="flow-actor" id="flow-upload">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">⬆️</div>
+              <span>/library/upload</span>
+            </div>
+            <div class="flow-actor" id="flow-ticket">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-6)">🎫</div>
+              <span>/library/uploads/:ticket</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Symptom-fixes add links; model-fixes make missing links structurally impossible. There is no per-page nav work left to forget, because there is no per-page nav work.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — The one-place rule: nav JSX + header comment        -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The One-Place Rule</h2>
+        <p>The layout was already the ONE place auth is checked — its <span class="term" data-definition="RR7's server-side data function; the browser never calls the API — 007 FR-019.">loader</span> turns unauthenticated traffic away before any child renders. 009 makes it the ONE place navigation renders, and the file's header comment says so out loud, with the doctrine attached.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/protected-layout.tsx:1-7, 28-46</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * The auth gate — and, since 009, the navigation shell. Every non-login route</span></span>
+<span class="code-line"><span class="code-comment"> * nests under this layout (routes.ts), so this loader is the ONE place</span></span>
+<span class="code-line"><span class="code-comment"> * unauthenticated traffic gets turned away — child routes never re-check the</span></span>
+<span class="code-line"><span class="code-comment"> * session — and the header below is the ONE place navigation renders on every</span></span>
+<span class="code-line"><span class="code-comment"> * authenticated page (009 FR-001; constitution v2.2.0 Principle V: a page</span></span>
+<span class="code-line"><span class="code-comment"> * reachable only by typed URL doesn't count as visible).</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">default</span> <span class="code-keyword">function</span> <span class="code-function">ProtectedLayout</span>() {</span>
+<span class="code-line">  <span class="code-keyword">return</span> (</span>
+<span class="code-line">    &lt;&gt;</span>
+<span class="code-line">      &lt;<span class="code-tag">nav</span></span>
+<span class="code-line">        <span class="code-attr">aria-label</span>=<span class="code-string">"Primary"</span></span>
+<span class="code-line">        <span class="code-attr">className</span>=<span class="code-string">"mx-auto flex max-w-4xl items-center gap-6 px-8 pt-6 text-sm"</span></span>
+<span class="code-line">      &gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"font-semibold"</span>&gt;The Stacks&lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">Link</span> <span class="code-attr">className</span>=<span class="code-string">"underline-offset-4 hover:underline"</span> <span class="code-attr">to</span>=<span class="code-string">"/"</span>&gt;</span>
+<span class="code-line">          Home</span>
+<span class="code-line">        &lt;/<span class="code-tag">Link</span>&gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">Link</span> <span class="code-attr">className</span>=<span class="code-string">"underline-offset-4 hover:underline"</span> <span class="code-attr">to</span>=<span class="code-string">"/library"</span>&gt;</span>
+<span class="code-line">          Library</span>
+<span class="code-line">        &lt;/<span class="code-tag">Link</span>&gt;</span>
+<span class="code-line">      &lt;/<span class="code-tag">nav</span>&gt;</span>
+<span class="code-line">      &lt;<span class="code-tag">Outlet</span> /&gt;</span>
+<span class="code-line">    &lt;/&gt;</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The header comment names the invariant: this file is the ONE place for auth AND the ONE place for nav, and cites the rule that forced it — a page reachable only by typed URL doesn't count as visible.</p>
+              <p class="tl">The component is deliberately boring: a landmark <code>&lt;nav aria-label="Primary"&gt;</code>, the product name, two links.</p>
+              <p class="tl">Home and Library are <code>Link</code>s — client-side navigations, no full reload.</p>
+              <p class="tl">Then <code>&lt;Outlet /&gt;</code>: whatever child route matched renders below the header. Every protected page gets the shell without asking.</p>
+              <p class="tl">That's the whole nav model. Two links today; adding a third someday is one edit in one file, visible everywhere at once.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Verified live</strong>
+            <p>The evidence run walks it: nav header → <code>/library</code> → row link → ticket page. Three interactions, no URL typing (SC-001), with the nav confirmed present on <code>/</code> and <code>/library</code> in server-rendered HTML.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — The Evidence column: per-kind rendering             -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Evidence Column</h2>
+        <p>Reachable is half the job. The other half is that the listing page (<code>/library</code>) tells you something worth reaching: each row's Evidence cell renders a different story per kind of item — a discriminated union, one branch per story.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/library.tsx:24-52</span>
+            <pre><code><span class="code-line"><span class="code-comment">/** The per-row evidence cell — one component per kind's story (US3). */</span></span>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">Evidence</span>({ item }: { <span class="code-property">item</span>: LibraryListItem }) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (item.kind === <span class="code-string">"batch"</span>) {</span>
+<span class="code-line">    <span class="code-keyword">const</span> { ingested, skipped, failed, total } = item.entrySummary;</span>
+<span class="code-line">    <span class="code-keyword">return</span> (</span>
+<span class="code-line">      &lt;<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">        {total} entries: {ingested} ingested · {skipped} skipped ·{<span class="code-string">" "</span>}</span>
+<span class="code-line">        &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>={failed &gt; 0 ? <span class="code-string">"text-destructive"</span> : <span class="code-string">""</span>}&gt;{failed} failed&lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">      &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">if</span> (item.lastError) {</span>
+<span class="code-line">    <span class="code-comment">// The scrubbed why, one glance deep — full trail stays on the detail page.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> (</span>
+<span class="code-line">      &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"text-destructive"</span>&gt;</span>
+<span class="code-line">        failed at {item.lastError.stage} ({item.lastError.class})</span>
+<span class="code-line">      &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!item.plugin) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"text-muted-foreground"</span>&gt;awaiting detect&lt;/<span class="code-tag">span</span>&gt;;</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> (</span>
+<span class="code-line">    &lt;<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">      {item.plugin.name}@{item.plugin.version} · gen {item.generation} · {item.counts.sections}{<span class="code-string">" "</span>}</span>
+<span class="code-line">      sections · {item.counts.chunks} passages</span>
+<span class="code-line">    &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Batch rows summarize their entries — ingested, skipped, failed — and the failed count goes destructive-red only when it's nonzero. Zero failures shouldn't shout.</p>
+              <p class="tl">A source with a <code>lastError</code> shows the scrubbed why — which stage, which error class — one glance deep. The full stage trail stays on the detail page where it belongs.</p>
+              <p class="tl">No plugin yet? The worker hasn't run detect. Say exactly that — "awaiting detect" — instead of faking a blank.</p>
+              <p class="tl">The happy path is the receipt: plugin@version, generation, and how much of the corpus this source contributes right now.</p>
+              <p class="tl">One component, four honest stories. Order matters: batch first (it has no lastError shape), then failure, then pending, then success.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>These aren't hypothetical renders — the live run produced each branch:</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">ddb-saved-html@1.0.0 · gen 1 · … sections · … passages</code>
+            <span class="badge-desc">source branch — real worker output, plugin attribution + generation from Module 2's run</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">4 entries: 2 ingested · 2 skipped · 0 failed</code>
+            <span class="badge-desc">batch branch — the live ZIP summary, failed count staying quiet at zero</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">failed at chunk (internal_fault)</code>
+            <span class="badge-desc">failure branch — seeded lastError in tests; row carries data-failed="true" + destructive styling</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">awaiting detect</code>
+            <span class="badge-desc">pending branch — accepted, queued, worker not there yet</span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Failed rows are "visibly distinguished" by contract, not by convention — tests pin the <code>data-failed</code> attribute and the destructive styling. This per-kind Evidence pattern is the house style for every listing the product grows next.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Honesty at the edges: empty state + paging          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Honesty at the Edges</h2>
+        <p>Two edges betray a listing page: the empty case and the too-big case. <code>/library</code> handles both by telling the truth.</p>
+        <p><strong>Empty:</strong> a blank page lies — it reads as broken. An empty library is a normal answer, so the empty state says so and points at the exit: <em>"Nothing in the library yet. Upload your first document — a saved HTML page, Markdown, plain text, or a ZIP of them."</em> The upload page links back to the listing too — the two surfaces cross-reference each other (US1 AC-5).</p>
+        <p><strong>Too big:</strong> paging. And the offset doesn't live in component state — it rides the URL, because paging is <span class="term" data-definition="Paging/state rides the URL so views are bookmarkable — Principle V.">URL-addressable state</span>.</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
+<span class="code-comment">// File: apps/web/app/routes/library.tsx:54-62</span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">loader</span>({ request }: Route.LoaderArgs) {</span>
+<span class="code-line">  <span class="code-comment">// Offset rides the page URL so paging is addressable/bookmarkable</span></span>
+<span class="code-line">  <span class="code-comment">// (Principle V: URL-addressable state). The API clamps; we only parse.</span></span>
+<span class="code-line">  <span class="code-keyword">const</span> url = <span class="code-keyword">new</span> <span class="code-function">URL</span>(request.url);</span>
+<span class="code-line">  <span class="code-keyword">const</span> rawOffset = Number.<span class="code-function">parseInt</span>(url.searchParams.<span class="code-function">get</span>(<span class="code-string">"offset"</span>) ?? <span class="code-string">"0"</span>, 10);</span>
+<span class="code-line">  <span class="code-keyword">const</span> offset = Number.<span class="code-function">isNaN</span>(rawOffset) || rawOffset &lt; 0 ? 0 : rawOffset;</span>
+<span class="code-line">  <span class="code-keyword">const</span> page = <span class="code-keyword">await</span> <span class="code-function">listUploads</span>(request, { offset });</span>
+<span class="code-line">  <span class="code-keyword">return</span> { page };</span>
+<span class="code-line">}</span>
+        </div>
+
+        <p>The live run proves the arithmetic against the real ledger: at <strong>57 submissions</strong>, the last page renders <code>Showing 51 – 57 of 57</code> with a <strong>Newer</strong> link only — no Older link past the end, because the links render conditionally off the same <code>total</code> the API reported. The count is the real ledger size, not a guess.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🧭</div>
+          <div class="callout-content">
+            <strong class="callout-title">One polling surface is enough</strong>
+            <p>Deliberate non-feature: the listing does NOT live-poll. It reflects reality at load/refresh; the ticket page from 008 stays the live-updating surface. Two surfaces polling the same pipeline is how you get flicker, drift, and double the API chatter for zero new information.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Quiz + handoff to Module 4                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check the Model</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="none-layout"
+               data-explanation-right="Exactly. The settings route nests under the protected layout in routes.ts like every other non-login route, so the nav shell already wraps it the moment it exists. Whether it earns its own LINK in the header is a separate product decision — reachability of the page's chrome is free."
+               data-explanation-wrong="Re-run the hero animation: the header lives in protected-layout.tsx, above the Outlet. Any route nested under the layout renders inside that shell automatically — that was the whole point of fixing the model instead of the missing link. Per-page nav work is the symptom-fix this module exists to bury.">
+            <h3 class="quiz-question">You add <code>/library/settings</code> next month. What nav work is needed for it to render inside the navigation shell?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="link-every-page" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a link to it on every existing page so users can find it.</span>
+              </button>
+              <button class="quiz-option" data-value="none-layout" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>None — it nests under the protected layout, so the shell already wraps it.</span>
+              </button>
+              <button class="quiz-option" data-value="routes-and-headers" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Update routes.ts AND each page's header component to include the new route.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>The shell makes every page reachable; the Evidence column makes every row honest; the URL makes every page of the ledger addressable. All of that assumed the request itself was well-formed. Module 4 asks the rude question: what does this surface do when it isn't — <code>offset=banana</code>, a ticket that never existed, a session that expired mid-click? That's <strong>Whose Fault Is It</strong> — typed refusals.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4" style="background: var(--color-bg);">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Whose Fault Is It?</h1>
+      <p class="module-subtitle">The honest 400 — how malformed input joined a closed error taxonomy without breaking its closure.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ================= SCREEN 1 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Triage at the Door</h2>
+        <p><code>GET /api/uploads?limit=nope</code> — before 009, that answered <code>500 "An internal error occurred."</code> Whose fault does that claim it is? Ours. The server just confessed to a crime the caller committed.</p>
+        <p>The API's error design is triage at the door: every failed request gets blamed on exactly one party, and the status code IS the blame. You asked for a thing that doesn't exist (404), a thing we don't handle (415), you're not signed in (401), our dependency is down (503), we broke (500) — and, new in 009: your request's SHAPE is wrong (400). Every verdict travels in the same
+          <span class="term" data-definition="the one non-2xx wire shape {error:{code,message}} every route answers with">error envelope</span>, and honest blame is the whole design.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-triage-door","label":"The door is app.ts setErrorHandler — the single seam where domain vocabulary becomes HTTP vocabulary. Five requests are about to walk up."},
+          {"highlight":"flow-triage-stamp","label":"GET /api/uploads?limit=nope — shape violates the route schema. Stamped 400 invalid_input: YOUR request is malformed. (New in 009 — keep reading.)","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"GET /api/uploads/<unknown ticket id> — the thing you named does not exist. Stamped 404 unknown_thing.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"POST /api/uploads with a PDF — a payload the system does not handle. Stamped 415 unsupported_type.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"Any /api route with no session cookie — you are not signed in. Stamped 401 unauthorized.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"Postgres unreachable mid-request — OUR dependency is down. Stamped 503 dependency_down. Same envelope shape every time: {error:{code,message}}.","packet":true,"from":"triage-client","to":"triage-door"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-triage-client">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1);">&#128100;</div>
+              <span>Caller</span>
+            </div>
+            <div class="flow-actor" id="flow-triage-door">
+              <div class="flow-actor-icon" style="background: #7C3AED;">&#128682;</div>
+              <span>The Door (app.ts)</span>
+            </div>
+            <div class="flow-actor" id="flow-triage-stamp">
+              <div class="flow-actor-icon" style="background: #8B5CF6;">&#127380;</div>
+              <span>Honest Stamp</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet-triage"></div>
+          <div class="flow-step-label" id="flow-label-triage">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Except that first request didn't always get an honest stamp. Toggle what <code>limit=nope</code> actually answered, before and after 009 — both bodies below are the real wire shapes (the 400 is verbatim from this cycle's live quickstart run, A6):</p>
+
+        <div class="layer-demo">
+          <div class="layer-tabs">
+            <button class="layer-tab" onclick="showLayer('layer-nope-before', this)">Before 009 — the 500 pit</button>
+            <button class="layer-tab active" onclick="showLayer('layer-nope-after', this)">After 009 — the honest 400</button>
+          </div>
+          <div class="layer-viewport">
+            <div class="layer" id="layer-nope-before" style="display: none; padding: var(--space-5); background: var(--color-bg-code);">
+              <pre><code>
+<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span class="code-line"><span class="code-keyword">HTTP/1.1 500 Internal Server Error</span></span>
+<span class="code-line"></span>
+<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"internal_fault"</span>,<span class="code-property">"message"</span>:<span class="code-string">"An internal error occurred."</span>}}</span>
+              </code></pre>
+              <p class="layer-description">The scrubbed catch-all. It blames the server, tells the caller nothing actionable, and pages an operator about a typo.</p>
+            </div>
+            <div class="layer" id="layer-nope-after" style="padding: var(--space-5); background: var(--color-bg-code);">
+              <pre><code>
+<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span class="code-line"><span class="code-keyword">HTTP/1.1 400 Bad Request</span></span>
+<span class="code-line"></span>
+<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"invalid_input"</span>,<span class="code-property">"message"</span>:<span class="code-string">"querystring/limit must be integer"</span>}}</span>
+              </code></pre>
+              <p class="layer-description">Same envelope shape as every other error, correct blame, and a message that names the exact parameter and what it must be.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Hazard: A 400 That Fell Into the 500 Pit</h2>
+        <p>Here's the trap. 009's new <code>GET /api/uploads</code> declares a query schema, so Fastify validates <code>limit</code> and <code>offset</code> before the handler ever runs. When validation fails, Fastify throws an error carrying
+          <span class="term" data-definition="Fastify's error code when a request violates a route's declared schema">FST_ERR_VALIDATION</span>
+          and <code>statusCode 400</code> — the framework already knew the right answer. But the API's error handler only recognized two things: a
+          <span class="term" data-definition="the transport-agnostic typed error @stacks/core defines — four classes, mapped to HTTP exactly once at the API edge — 007 FR-011/018">DomainError</span>
+          and Fastify's content-type errors. A validation error is neither, so it fell through to the scrubbed 500 catch-all — which threw away the 400 and confessed to an internal fault instead.</p>
+        <p>The fix is one branch in the one seam where errors become HTTP:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/app.ts:44-60</span>
+            <pre><code>
+<span class="code-line">  app.<span class="code-function">setErrorHandler</span>((error: FastifyError, request, reply) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (error <span class="code-keyword">instanceof</span> DomainError) {</span>
+<span class="code-line">      reply.<span class="code-function">code</span>(<span class="code-function">statusForErrorClass</span>(error.class)).<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(error.class, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// Fastify schema-validation failures (malformed query/body per a route's</span></span>
+<span class="code-line">    <span class="code-comment">// declared schema) are the caller's shape error — an honest 400, never the</span></span>
+<span class="code-line">    <span class="code-comment">// scrubbed 500 the catch-all would turn them into (009, contracts/api.md).</span></span>
+<span class="code-line">    <span class="code-comment">// error.message here is ajv's generated text (e.g. "querystring/limit must</span></span>
+<span class="code-line">    <span class="code-comment">// be integer") — mechanical, parameter-scoped, safe for the wire.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-keyword">typeof</span> error.code === <span class="code-string">"string"</span> &amp;&amp; error.code === <span class="code-string">"FST_ERR_VALIDATION"</span>) {</span>
+<span class="code-line">      reply</span>
+<span class="code-line">        .<span class="code-function">code</span>(<span class="code-function">statusForErrorClass</span>(<span class="code-string">"invalid_input"</span>))</span>
+<span class="code-line">        .<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(<span class="code-string">"invalid_input"</span>, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One error handler for the whole API. Checks run most-specific first.</p>
+              <p class="tl">First check: a known DomainError. Map its class to a status and its message to the envelope. This path existed since 007.</p>
+              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error. Honest 400, never the scrubbed 500 the fall-through would produce.</p>
+              <p class="tl">And it justifies putting <code>error.message</code> on the wire: ajv's generated text is mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
+              <p class="tl">The new branch: match Fastify's validation error code exactly.</p>
+              <p class="tl">Answer with the status for <code>invalid_input</code> (400) and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>The bug wasn't a missing feature — it was a fall-through. Fastify already produced a 400; the seam's catch-all overwrote it with a lie. The fix adds a branch to the mapping, not validation logic anywhere else. The next route that declares a schema gets the 400 path for free.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Boundary Codes vs Domain Classes</h2>
+        <p>So why not add <code>invalid_input</code> to <code>@stacks/core</code>'s <code>ErrorClass</code> union alongside <code>unknown_thing</code> and friends? Because the taxonomy stays closed by distinguishing two kinds of vocabulary: DOMAIN classes are shared and transport-agnostic — a worker handler can throw <code>dependency_down</code> as meaningfully as a route can. BOUNDARY codes only mean something at the HTTP edge. Only HTTP can have a malformed request; worker and db code can never throw one. The file's header comment argues it outright:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/errors.ts:13-32</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment"> * "invalid_input" (400) joined "unauthorized" as an API-only code in 009: a</span></span>
+<span class="code-line"><span class="code-comment"> * request whose SHAPE is wrong (malformed query params caught by Fastify</span></span>
+<span class="code-line"><span class="code-comment"> * schema validation) is neither an unknown thing nor an unsupported payload</span></span>
+<span class="code-line"><span class="code-comment"> * type — and letting it fall through to the scrubbed 500 would lie about</span></span>
+<span class="code-line"><span class="code-comment"> * whose fault it is. Like unauthorized, it stays out of the shared ErrorClass</span></span>
+<span class="code-line"><span class="code-comment"> * union because only the HTTP edge can have malformed requests.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** ErrorClass plus the codes that only exist at the HTTP boundary. */</span></span>
+<span class="code-line"><span class="code-keyword">export type</span> ApiErrorCode = ErrorClass | <span class="code-string">"unauthorized"</span> | <span class="code-string">"invalid_input"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> STATUS_BY_CLASS: Record&lt;ApiErrorCode, <span class="code-keyword">number</span>&gt; = {</span>
+<span class="code-line">  <span class="code-property">unknown_thing</span>: <span class="code-number">404</span>,</span>
+<span class="code-line">  <span class="code-property">unsupported_type</span>: <span class="code-number">415</span>,</span>
+<span class="code-line">  <span class="code-property">dependency_down</span>: <span class="code-number">503</span>,</span>
+<span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
+<span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
+<span class="code-line">  <span class="code-property">invalid_input</span>: <span class="code-number">400</span>,</span>
+<span class="code-line">};</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The 009 paragraph of the file's header: malformed shape fits none of the four domain classes, and the fall-through 500 "would lie about whose fault it is."</p>
+              <p class="tl">The precedent is <code>unauthorized</code> — it took this exact path in 007, because the worker has no auth concept either.</p>
+              <p class="tl">The closing argument in one clause: only the HTTP edge can have malformed requests. So the code lives with the mapping, not in the shared union.</p>
+              <p class="tl"><code>ApiErrorCode</code> is the type that says it structurally: the four shared classes, plus exactly two edge-only extensions.</p>
+              <p class="tl">And the whole translation table fits in one Record: four domain classes, two boundary codes, six statuses. This file is the ONLY place in the system that knows HTTP numbers.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📡</div>
+          <div class="callout-content">
+            <strong class="callout-title">On the wire, live</strong>
+            <p>From this cycle's quickstart A6 run against the 009 stack: <code>{"error":{"code":"invalid_input","message":"querystring/limit must be integer"}}</code> — the taxonomy's newest stamp, exactly as a real caller receives it.</p>
+          </div>
+        </div>
+
+        <p>One decision remains: not every weird <code>limit</code> deserves a 400. The route draws the line with its schema and one line of
+          <span class="term" data-definition="answering an in-range-but-extreme numeric with the nearest honest value instead of refusing">clamping</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:37-47, 71</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// ajv coerces query strings to integers and refuses what won't coerce</span></span>
+<span class="code-line"><span class="code-comment">// ("nope") or violates minimum (-1) — the 400 path. Clamping beyond that is</span></span>
+<span class="code-line"><span class="code-comment">// handler logic: 0 and 9999 are honest requests with honest nearest answers.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> LIST_QUERY_SCHEMA = {</span>
+<span class="code-line">  <span class="code-property">type</span>: <span class="code-string">"object"</span>,</span>
+<span class="code-line">  <span class="code-property">properties</span>: {</span>
+<span class="code-line">    <span class="code-property">limit</span>: { <span class="code-property">type</span>: <span class="code-string">"integer"</span>, <span class="code-property">minimum</span>: <span class="code-number">0</span> },</span>
+<span class="code-line">    <span class="code-property">offset</span>: { <span class="code-property">type</span>: <span class="code-string">"integer"</span>, <span class="code-property">minimum</span>: <span class="code-number">0</span> },</span>
+<span class="code-line">  },</span>
+<span class="code-line">  <span class="code-property">additionalProperties</span>: <span class="code-keyword">true</span>,</span>
+<span class="code-line">} <span class="code-keyword">as const</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// ...inside the GET /api/uploads handler:</span></span>
+<span class="code-line"><span class="code-keyword">const</span> limit = Math.<span class="code-function">min</span>(MAX_LIMIT, Math.<span class="code-function">max</span>(<span class="code-number">1</span>, request.query.limit ?? DEFAULT_LIMIT));</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer, -1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2.</p>
+              <p class="tl">Everything past that is handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
+              <p class="tl">The schema itself is deliberately loose: integers, non-negative, unknown params tolerated. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">And the clamp is one line: floor at 1, ceiling at <code>MAX_LIMIT</code> (200), default 50 when absent. No branch, no refusal, no fifth error code.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="icon-rows" style="margin-top: var(--space-8);">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: #7C3AED;">200</div>
+            <div>
+              <strong>limit=9999 → 200, limit: 200 &nbsp;·&nbsp; limit=0 → 200, limit: 1</strong>
+              <p>Coercible-but-extreme gets clamped to the nearest honest value — the response envelope reports the limit actually used, so the caller sees the clamp.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: #8B5CF6;">400</div>
+            <div>
+              <strong>limit=nope → 400 &nbsp;·&nbsp; offset=-1 → 400</strong>
+              <p>Uncoercible or negative gets refused with <code>invalid_input</code> naming the parameter. Honest requests get honest nearest answers; malformed requests get honest refusals.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why you care</strong>
+            <p>Both halves are now precedent. The next route that declares a querystring schema inherits the 400 path with zero new code, and the clamp-vs-refuse line — coercible-but-extreme clamps, uncoercible/negative refuses — is written down where the next paging parameter will be designed.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Yourself</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — only the HTTP edge can have malformed requests. Worker and db code can never throw invalid_input, so it lives with the mapping in errors.ts as an API-only code, exactly like unauthorized did in 007. The shared union stays a vocabulary every runtime can honestly speak."
+               data-explanation-wrong="Not quite — the header comment in errors.ts makes the real argument: only the HTTP edge can have malformed requests. Worker/db code can never throw invalid_input, so it joins unauthorized as an API-only code beside the mapping, keeping the shared ErrorClass union transport-agnostic.">
+            <h3 class="quiz-question">Why is <code>invalid_input</code> NOT added to <code>@stacks/core</code>'s <code>ErrorClass</code> union?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>To avoid a breaking change to every existing consumer of ErrorClass</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because @stacks/core can't import Fastify, and the code originates from FST_ERR_VALIDATION</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because only the HTTP edge can have malformed requests — worker/db code can never throw it, so it lives with the mapping as an API-only code, like unauthorized</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p style="margin-top: var(--space-8);">That closes Part A: the library surface is reachable, readable, and honest about failure. Part B changes altitude entirely — Module 5 asks how TWO copies of this whole stack run side by side on one laptop without ever fighting over a port. The answer is arithmetic.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5" style="background: var(--color-bg-warm); --color-accent: #7B4FC7; --color-accent-hover: #6540A8; --color-accent-light: #F0EAFA; --color-accent-muted: #B49DE0;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Ports by Arithmetic</h1>
+      <p class="module-subtitle">Street addresses, not parking spots — a worktree's whole environment derives from its directory name, and the mint tool only verifies the math.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + name→arithmetic derivation HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where was 4500 written down? Nowhere.</h2>
+        <p>The operator's own instance historically ran web on port 4500. Where is that recorded? Before 009: nowhere. It was folklore — the kind that works until the day a second stack needs a port and nobody remembers who owns what.</p>
+        <p>A parking lot solves this with an attendant, a registry, and arguments about who took spot 14. Street addresses solve it with arithmetic: house NNN is at <code>base + 10&times;NNN</code>, forever, no attendant. 009 chose street addresses. Every
+          <span class="term" data-definition="A second checkout of the same repo sharing one Git store — the-stacks runs bare + main/ + one sibling per feature — constitution Development Workflow.">worktree</span>
+          derives its entire environment — its
+          <span class="term" data-definition="A worktree's four published ports, derived together.">port block</span>
+          and its
+          <span class="term" data-definition="The namespace docker compose prefixes containers/networks/volumes with — the isolation boundary.">compose project</span>
+          — from its DIRECTORY NAME:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p><code>009-library-surface-env</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>NNN = 9</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>offset = 10 &times; 9 = 90</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>ports = defaults + 90</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p><code>the-stacks-009-library-surface-env</code></p></div>
+        </div>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🔢</div>
+            <h4 class="pattern-title">009-library-surface-env</h4>
+            <p class="pattern-desc">offset <strong>90</strong><br>
+              web <code>4400+90 = 4490</code><br>
+              api <code>4401+90 = 4491</code><br>
+              ml <code>4402+90 = 4492</code><br>
+              postgres <code>5442+90 = 5532</code><br>
+              project <code>the-stacks-009-library-surface-env</code></p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">🏠</div>
+            <h4 class="pattern-title">main — the fixed point</h4>
+            <p class="pattern-desc">offset <strong>0</strong><br>
+              web <code>4400</code> &middot; api <code>4401</code><br>
+              ml <code>4402</code> &middot; postgres <code>5442</code><br>
+              project <code>the-stacks-v3</code><br>
+              <em>Grandfathered forever — container and volume names already depend on that identity.</em></p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">⚠️</div>
+            <h4 class="pattern-title">The 4500 cautionary tale</h4>
+            <p class="pattern-desc">Feature 010's derived web port is <code>4400 + 10&times;10 = 4500</code> — exactly where the folklore instance lived. That near-miss is why the contract sends manual overrides <strong>&ge; 10000</strong>: above every block the arithmetic will ever produce.</p>
+          </div>
+        </div>
+
+        <p>Uniqueness is inherited, not managed: spec-kit assigns each feature a unique number, so derived blocks can't collide. No registry exists because none is needed.</p>
+      </section>
+
+      <!-- SCREEN 2: The tool as enforcement — deriveProfile + refusals + GROUP CHAT -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The tool doesn't allocate. It verifies.</h2>
+        <p><code>deriveProfile</code> is pure math, kept CLI-free so the protocol's guarantees are unit-tested inside <code>pnpm verify</code>. Read the header comment first — it's the whole doctrine in one place:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/worktree-env-lib.mjs:1-55 (PORT_KEYS table elided)</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * Worktree-environment derivation — the pure math behind mint-worktree-env.mjs</span></span>
+<span class="code-line"><span class="code-comment"> * (009 US2; contracts/environment.md §2–§4). Kept CLI-free so the protocol's</span></span>
+<span class="code-line"><span class="code-comment"> * guarantees are unit-testable (worktree-env-lib.test.mjs, wired into</span></span>
+<span class="code-line"><span class="code-comment"> * `pnpm verify`): determinism here is what lets the repo skip a port registry.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * The rule in one line: a worktree's identity and ports derive from its</span></span>
+<span class="code-line"><span class="code-comment"> * DIRNAME alone — `NNN-slug` gets default + 10×NNN and the-stacks-NNN-slug;</span></span>
+<span class="code-line"><span class="code-comment"> * `main` is the fixed point (offset 0, the-stacks-v3). Feature numbers are</span></span>
+<span class="code-line"><span class="code-comment"> * unique by spec-kit construction, so derived blocks can't collide;</span></span>
+<span class="code-line"><span class="code-comment"> * findPortCollisions() merely VERIFIES that inheritance against reality</span></span>
+<span class="code-line"><span class="code-comment"> * (manual overrides are where mistakes live — see §3's web-on-4500 tale).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** Default published ports — mirrors .env.example, the variable contract. */</span></span>
+<span class="code-line"><span class="code-keyword">export const</span> DEFAULT_PORTS = Object.<span class="code-function">freeze</span>({ <span class="code-property">web</span>: <span class="code-number">4400</span>, <span class="code-property">api</span>: <span class="code-number">4401</span>, <span class="code-property">ml</span>: <span class="code-number">4402</span>, <span class="code-property">postgres</span>: <span class="code-number">5442</span> });</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> BLOCK_STRIDE = <span class="code-number">10</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** @param {string} dirname worktree directory name (basename, not a path) */</span></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">deriveProfile</span>(dirname) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (dirname === <span class="code-string">"main"</span>) {</span>
+<span class="code-line">    <span class="code-comment">// main/ predates the protocol and its compose identity is load-bearing</span></span>
+<span class="code-line">    <span class="code-comment">// (container/volume names depend on it) — it stays the-stacks-v3 forever.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> { dirname, <span class="code-property">projectName</span>: <span class="code-string">"the-stacks-v3"</span>, <span class="code-property">offset</span>: <span class="code-number">0</span>, <span class="code-property">ports</span>: { ...DEFAULT_PORTS } };</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> match = /^(\d+)-/.<span class="code-function">exec</span>(dirname);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!match) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">Error</span>(</span>
+<span class="code-line">      <span class="code-string">`Cannot derive an environment for "${dirname}": no leading feature number `</span> +</span>
+<span class="code-line">        <span class="code-string">`(expected NNN-slug, e.g. 009-library-surface-env). Deterministic derivation `</span> +</span>
+<span class="code-line">        <span class="code-string">`is the whole protocol — name the worktree after its feature branch.`</span>,</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> featureNumber = Number.<span class="code-function">parseInt</span>(match[<span class="code-number">1</span>], <span class="code-number">10</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> offset = BLOCK_STRIDE * featureNumber;</span>
+<span class="code-line">  <span class="code-keyword">return</span> {</span>
+<span class="code-line">    dirname,</span>
+<span class="code-line">    <span class="code-property">projectName</span>: <span class="code-string">`the-stacks-${dirname}`</span>,</span>
+<span class="code-line">    offset,</span>
+<span class="code-line">    <span class="code-property">ports</span>: {</span>
+<span class="code-line">      <span class="code-property">web</span>: DEFAULT_PORTS.web + offset,</span>
+<span class="code-line">      <span class="code-property">api</span>: DEFAULT_PORTS.api + offset,</span>
+<span class="code-line">      <span class="code-property">ml</span>: DEFAULT_PORTS.ml + offset,</span>
+<span class="code-line">      <span class="code-property">postgres</span>: DEFAULT_PORTS.postgres + offset,</span>
+<span class="code-line">    },</span>
+<span class="code-line">  };</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The header IS the contract: dirname alone determines everything. Determinism is what lets the repo skip a port registry entirely.</p>
+              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
+              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
+              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
+              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">Nothing here reads a registry, a lockfile, or the network. <code>findPortCollisions()</code> exists only to VERIFY this inheritance against reality — manual overrides are where mistakes live.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The mint tool wraps that math in two refusals. First: an existing <code>.env</code> is never overwritten as a side effect — re-minting is a deliberate act (<code>--force</code>), because it replaces ports, identity, AND secrets:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (B2)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ node scripts/mint-worktree-env.mjs
+<span class="code-tag">✖ 009-library-surface-env/.env already exists. Re-minting overwrites ports,
+  identity, AND secrets — if that is what you want, re-run with --force
+  (and --secrets-from to keep your secrets).</span>
+$ echo $?
+1</code></pre>
+        </div>
+
+        <p>Second: the sibling collision scan. At mint time, every peer directory with a <code>.env</code> — <code>main/</code> included — is asked whether it already publishes any port in the derived block. Here's the scan the day a scratch directory squatted on 4492 (real refusal from this cycle's validation, B3):</p>
+
+        <div class="chat-window" id="chat-collision">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p>Minting <code>009-library-surface-env</code>. Derived block: 4490 / 4491 / 4492 / 5532. Scanning every sibling with a .env — anyone already publishing one of these?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="main" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🏠</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">main</span>
+                <p>Not me — I hold 4400 / 4401 / 4402 / 5442. Offset 0, the fixed point.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="scratch" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🚧</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">scratch-collision</span>
+                <p>Me. My .env publishes 4492.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p><code>✖ port 4492 is already published by ../scratch-collision/.env</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p><code>✖ refusing to mint a colliding block — resolve the overlap first (contracts/environment.md §2).</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p>Exit 1. No .env written — nothing half-minted to clean up. The collision is a NAMED error at mint time, not a bind failure halfway through <code>docker compose up</code>.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="chat-collision-typing" style="display:none">
+            <div class="chat-avatar" id="chat-collision-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn btn-primary chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Notice who the culprit had to be: not a derived block. Derived blocks can't intersect — feature numbers are unique. The scan exists to catch the hand-edited case, and when it fires, it names the offending file, not just the port.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Port-coupled values — the retired footgun -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The values that must move together</h2>
+        <p>Moving four ports is arithmetic. The trap is the
+          <span class="term" data-definition="An env var that must move when a port moves — API_INTERNAL_URL tracks V3_API_PORT — contract §4.">port-coupled value</span>:
+          the api container binds <code>V3_API_PORT</code> INSIDE the container (its process reads the env var directly), so the in-network URL <code>API_INTERNAL_URL</code> must move with it. Meanwhile <code>EMBEDDING_ENDPOINT</code> and <code>DATABASE_URL</code> never move — ml and postgres keep fixed container-side ports; only their published host ports shift.</p>
+        <p>This warning used to live as a compose-file comment — advice you could scroll past. Now it's derivation plus a <code>--check</code> finding:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">scripts/worktree-env-lib.mjs:80-95</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code><span class="code-keyword">export function</span> <span class="code-function">mintEnv</span>(template, dirname, secrets = {}) {
+  <span class="code-keyword">const</span> profile = <span class="code-function">deriveProfile</span>(dirname);
+  <span class="code-keyword">const</span> replacements = {
+    <span class="code-property">COMPOSE_PROJECT_NAME</span>: profile.projectName,
+    <span class="code-property">V3_WEB_PORT</span>: <span class="code-function">String</span>(profile.ports.web),
+    <span class="code-property">V3_API_PORT</span>: <span class="code-function">String</span>(profile.ports.api),
+    <span class="code-property">V3_ML_PORT</span>: <span class="code-function">String</span>(profile.ports.ml),
+    <span class="code-property">V3_POSTGRES_PORT</span>: <span class="code-function">String</span>(profile.ports.postgres),
+    <span class="code-comment">// The port-coupled derivation (§4): the api container binds V3_API_PORT</span>
+    <span class="code-comment">// INSIDE the container, so the in-network URL must move with it.</span>
+    <span class="code-property">API_INTERNAL_URL</span>: <span class="code-string">`http://api:${profile.ports.api}`</span>,
+    ...(secrets.OPERATOR_PASSWORD_HASH !== <span class="code-keyword">undefined</span>
+      ? { <span class="code-property">OPERATOR_PASSWORD_HASH</span>: secrets.OPERATOR_PASSWORD_HASH }
+      : {}),
+    ...(secrets.SESSION_SECRET !== <span class="code-keyword">undefined</span> ? { <span class="code-property">SESSION_SECRET</span>: secrets.SESSION_SECRET } : {}),
+  };</code></pre>
+        </div>
+
+        <p>Note the last two entries: secrets are copied or left blank, never generated — inventing an operator password silently would hide the one thing the operator must own.</p>
+        <p><code>--check</code> is the drift mode. Its three finding kinds, all named, none auto-repaired:</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">missing</code>
+            <span class="badge-desc">template keys absent from the .env — .env.example grew and your file didn't</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">unknown</code>
+            <span class="badge-desc">.env keys the template no longer knows — retired or typo'd variables</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">couplings</code>
+            <span class="badge-desc">port-coupled values that stopped moving together — the classic ECONNREFUSED-from-every-loader footgun, now named</span>
+          </div>
+        </div>
+
+        <p>The real drift run from this cycle's validation (B4): delete <code>WORKER_POLL_MS</code> from the .env, and the check names it and exits 2 — then a clean recheck after restoring it:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (B4–B5)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ node scripts/mint-worktree-env.mjs --check
+<span class="code-tag">✖ missing key (in .env.example, not .env): WORKER_POLL_MS</span>
+<span class="code-tag">✖ 1 drift finding(s). Reconcile by hand per the report, or re-mint with --force.</span>
+$ echo $?
+2
+
+$ node scripts/mint-worktree-env.mjs --check      # after restoring the key
+<span class="code-string">✔ 009-library-surface-env/.env matches the environment contract.</span></code></pre>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Ports that differ from the derived block are only <em>noted</em> by <code>--check</code>, never failed — deliberate overrides are legitimate protocol citizens (§3). Key drift and coupling breaks fail hard. The tool distinguishes "you chose differently" from "your file is wrong."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: The live proof — SC-004 / SC-006 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The live proof: two stacks, zero collisions</h2>
+        <p>SC-004, verified this cycle: <code>main/</code> (the 4400 block) and the 009 worktree (the 4490 block) up concurrently — 10 containers, disjoint names, disjoint ports, all four public endpoints answering 200:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (SC-004)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;"><code>$ docker ps --format '{{.Names}}\t{{.Ports}}'
+the-stacks-009-library-surface-env-web-1        127.0.0.1:4490-&gt;4400/tcp
+the-stacks-009-library-surface-env-api-1        127.0.0.1:4491-&gt;4491/tcp
+the-stacks-009-library-surface-env-worker-1
+the-stacks-009-library-surface-env-ml-1         127.0.0.1:4492-&gt;4402/tcp
+the-stacks-009-library-surface-env-postgres-1   127.0.0.1:5532-&gt;5432/tcp
+the-stacks-v3-web-1                             127.0.0.1:4400-&gt;4400/tcp
+the-stacks-v3-api-1                             127.0.0.1:4401-&gt;4401/tcp
+the-stacks-v3-worker-1
+the-stacks-v3-ml-1                              127.0.0.1:4402-&gt;4402/tcp
+the-stacks-v3-postgres-1                        127.0.0.1:5442-&gt;5432/tcp</code></pre>
+        </div>
+
+        <p>Read the arrows carefully — they teach screen 3 all over again. Web and ml map a moved host port onto a FIXED container port (<code>4490-&gt;4400</code>, <code>4492-&gt;4402</code>); postgres likewise (<code>5532-&gt;5432</code>). Only api moves BOTH sides (<code>4491-&gt;4491</code>) — its process binds the env var inside the container, which is exactly why <code>API_INTERNAL_URL</code> is port-coupled and the other in-network URLs are not.</p>
+
+        <p>And SC-006, the teardown half: <code>docker compose down --volumes</code> in <code>main/</code> removed every <code>the-stacks-v3_*</code> volume — while the 009 stack, one directory over, kept serving <code>/library</code> the whole time:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (SC-006)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ docker compose down --volumes                    # run in main/
+$ docker volume ls --format '{{.Name}}' | grep '^the-stacks-v3_'
+<span class="code-comment">(no output — zero the-stacks-v3_* volumes remain)</span>
+$ curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4490/ready
+200</code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🧹</div>
+          <div class="callout-content">
+            <strong class="callout-title">Lifecycle rules — memorize the middle one</strong>
+            <p><code>down</code> stops containers but KEEPS volumes — your database survives a restart. <code>down --volumes</code> is teardown: data gone, deliberately. And teardown always precedes <code>git worktree remove</code> — deleting the directory first orphans the compose project's containers and volumes with nobody left to name them.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Vocabulary + quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+        <p>The protocol's five verbs, in the order you'll live them each cycle:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>derive</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>mint</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>refuse (exists / collision)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>--check (drift)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>teardown (--volumes)</p></div>
+        </div>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — derived blocks can't collide, because feature numbers are unique by spec-kit construction and deriveProfile is pure arithmetic on them. The only collision findPortCollisions can ever find is a MANUAL override sitting inside some feature's derived block — which is why the contract sends manual ports &ge; 10000, above every block the arithmetic will ever produce."
+               data-explanation-wrong="Not quite — feature numbers are unique by spec-kit construction, and the 10-port stride gives every feature its own disjoint block, so two DERIVED blocks can never intersect. The remaining suspect is a manual override that wandered into derived territory: the exact mistake the &ge; 10000 rule exists to prevent (remember web-on-4500 — feature 010's derived web port).">
+            <h3 class="quiz-question">The mint tool's sibling scan finds two worktrees colliding on a port. Which explanation is actually possible?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>spec-kit reused a feature number, so two derived blocks landed on the same offset</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>One of them carries a MANUAL override that landed inside a derived block — that's why manual ports go &ge; 10000</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The 10-port stride is too small, so adjacent features' blocks overlap at the edges</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 6 — The Bug Ledger</strong>
+            <p>The arithmetic is clean, the refusals are loud, and the live proof passed on the first try. The cycle still shipped bugs. Module 6 reads the ledger of what slipped through anyway.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Three real bugs from this cycle. You get the code; find each one before the reveal.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook — the format -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The flight recorder</h2>
+        <p>Every cycle logs what actually went wrong — not to assign blame, but because real bugs teach sharper than invented examples. These three happened, live, during 009. Two were caught by tests written minutes earlier; one was found at design time by reading a handler that already existed.</p>
+        <p>The format for each: <strong>symptom</strong> → <strong>spot the bug</strong> (click the line you suspect) → <strong>reveal</strong> (mechanism → fix → the test that pins it). All three cluster in the same place: <em>semantics that depend on value shape</em> — a JS array inside a sql template, a <code>$</code> inside a replacement string, a bcrypt hash inside a sourced shell file. The defense each time was the same: a test that pinned the intended behavior before the code existed — that's <span class="term" data-definition="Failing test first, smallest pass, refactor green — constitutional here, not optional.">TDD</span> paying rent, not paying lip service.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🧮</div>
+            <h4 class="pattern-title">#1 — <code>ANY(array)</code> vs drizzle's expansion</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> every listing request 500'd the moment a page had rows. Empty library? Fine. One upload? Dead.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🎭</div>
+            <h4 class="pattern-title">#2 — the 400 that was a 500</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> <code>?limit=nope</code> answered &quot;An internal error occurred.&quot; The caller's typo, the server's confession.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">💲</div>
+            <h4 class="pattern-title">#3 — the <code>$$</code> that wasn't</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a minted <code>.env</code>'s bcrypt hash read <code>OPERATOR_PASSWORD_HASH=b</code>. Just... <code>b</code>.</p>
+          </div>
+        </div>
+        <p>Two of these three are lying in wait in any drizzle/JS codebase you touch this year. Worth ten minutes.</p>
+      </section>
+
+      <!-- SCREEN 2: Bug 1 — ANY(array) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #1 — <code>ANY(array)</code> and drizzle's parameter expansion</h2>
+        <p><strong>Symptom:</strong> the listing endpoint returned 500 on every request that had at least one row to aggregate. The page query itself ran fine — it was the per-source counts that blew up. Here's the sections aggregate as it first ran. One line is wrong.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — click the broken line</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Not here — this is plain SQL projection, no parameters involved.">
+              <span class="line-num">1</span><code>SELECT ds.source_id, count(*) AS n</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The FROM clause is fine — document_sections is the right table for section counts.">
+              <span class="line-num">2</span><code>FROM document_sections ds</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The join is deliberate — it's how the reader predicate (generation = current_generation) gets applied.">
+              <span class="line-num">3</span><code>JOIN sources s ON s.id = ds.source_id</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="drizzle's sql template expands a JS array into comma-joined placeholders — so this renders as ANY($1, $2, $3), which is not valid SQL. ANY() wants ONE array-typed argument; drizzle handed it three scalars. Valid inside IN (...), garbage inside ANY(...).">
+              <span class="line-num">4</span><code>WHERE ds.source_id = ANY(${sourceIds})   <span class="code-comment">-- ← the line as first written</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The generation filter is correct — it's the 008 reader predicate, and it belongs here.">
+              <span class="line-num">5</span><code>  AND ds.generation = s.current_generation</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="GROUP BY source_id is exactly right for a per-source count.">
+              <span class="line-num">6</span><code>GROUP BY ds.source_id</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Mechanism:</strong> <span class="term" data-definition="drizzle's sql template turns a JS array into comma-joined placeholders — shape-dependent semantics.">parameter expansion</span>. When drizzle's <code>sql</code> template meets a JS array, it doesn't bind one array-typed parameter — it splices the array into <code>$1, $2, $3</code>. Inside <code>IN (...)</code> that's exactly what you want. Inside <code>ANY(...)</code> — which takes a single array argument — it's a syntax error at execution time. Same template, same value, opposite outcomes, decided entirely by the SQL construct around it.</p>
+        <p><strong>Fix:</strong> stop fighting the expansion and lean into it — build explicit IN lists. The helper, verbatim from the source, why-comment and all:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">      // drizzle's sql template expands a JS array into comma-joined params —</span></span>
+<span class="code-line"><span class="code-comment">      // fine for IN (...), wrong inside ANY(...). Build IN lists explicitly.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> idList = (ids: <span class="code-keyword">string</span>[]) =&gt; sql.join(ids.map((id) =&gt; sql`${id}`), sql`, `);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment is the scar: it names the hazard at the exact place the next author will meet it.</p>
+              <p class="tl">Each id becomes its own one-parameter fragment (<code>sql`${id}`</code>)...</p>
+              <p class="tl">...and <code>sql.join</code> stitches them with literal commas — a hand-built <code>$1, $2, $3</code> that goes inside <code>IN (...)</code>, where comma-joined placeholders are exactly the right shape.</p>
+            </div>
+          </div>
+        </div>
+        <p>The call sites read <code>WHERE ds.source_id IN (${idList(sourceIds)})</code> — expansion semantics and SQL construct finally agreeing. <em>File: <code>apps/api/src/ingestion/list.ts</code>, lines 100–102.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The whole listing contract suite (<code>apps/api/test/ingestion-list.contract.test.ts</code>) — written first, TDD-style. It caught this within minutes of the aggregate being written: the first contract test that seeded a real row turned the endpoint red before anything downstream ever saw the 500.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Bug 2 — the 400 that was a 500 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #2 — the 400 that was a 500</h2>
+        <p><strong>Symptom:</strong> <code>GET /api/uploads?limit=nope</code> answered <code>500 internal_fault</code> — &quot;An internal error occurred.&quot; Nothing internal had erred. The caller sent a string where the schema demanded an integer; the server took the blame anyway.</p>
+        <p>Here's the error handler as 009 inherited it from 008 — the single seam where domain vocabulary becomes HTTP vocabulary, checks running most-specific first. Fastify's schema validator throws <code>FST_ERR_VALIDATION</code> for <code>?limit=nope</code>. Click the branch that catches it.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — where does FST_ERR_VALIDATION land?</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="A validation error is a FastifyError, not a DomainError — this instanceof check passes it by.">
+              <span class="line-num">1</span><code>if (error instanceof DomainError) { <span class="code-comment">/* class → status, typed envelope */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="FST_ERR_VALIDATION does not start with FST_ERR_CTP — content-type errors are a different family.">
+              <span class="line-num">2</span><code>if (error.code.startsWith(&quot;FST_ERR_CTP&quot;)) { <span class="code-comment">/* 415 unsupported_type */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="A validation error carries statusCode 400, not 415 — this branch never sees it.">
+              <span class="line-num">3</span><code>if (error.statusCode === 415) { <span class="code-comment">/* 415 unsupported_type */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="Exactly — FST_ERR_VALIDATION matched no branch above and fell into the scrubbed 500 catch-all. A caller shape error reported as a server fault: an honest-status violation. Found at design time, by reading this handler with the new route's schema in mind — before the route even shipped.">
+              <span class="line-num">4</span><code>request.log.error(...); reply.code(500).send(<span class="code-string">&quot;An internal error occurred.&quot;</span>);</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Mechanism:</strong> the catch-all is <em>supposed</em> to scrub — it exists so genuine server faults never leak stack traces to the wire. But scrubbing a caller's shape error hides the one thing the caller needs: that the fix is on <em>their</em> side. Module 4 called this the honest-status rule; this is the bug that motivated it.</p>
+        <p><strong>Fix:</strong> a branch above the catch-all, most-specific-first order preserved — verbatim from <code>apps/api/src/app.ts</code>, lines 50–60 (Module 4 walked this snippet in full; here it is as the reveal):</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    // Fastify schema-validation failures (malformed query/body per a route's</span></span>
+<span class="code-line"><span class="code-comment">    // declared schema) are the caller's shape error — an honest 400, never the</span></span>
+<span class="code-line"><span class="code-comment">    // scrubbed 500 the catch-all would turn them into (009, contracts/api.md).</span></span>
+<span class="code-line"><span class="code-comment">    // error.message here is ajv's generated text (e.g. &quot;querystring/limit must</span></span>
+<span class="code-line"><span class="code-comment">    // be integer&quot;) — mechanical, parameter-scoped, safe for the wire.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-keyword">typeof</span> error.code === <span class="code-string">&quot;string&quot;</span> &amp;&amp; error.code === <span class="code-string">&quot;FST_ERR_VALIDATION&quot;</span>) {</span>
+<span class="code-line">      reply</span>
+<span class="code-line">        .code(statusForErrorClass(<span class="code-string">&quot;invalid_input&quot;</span>))</span>
+<span class="code-line">        .send(errorEnvelope(<span class="code-string">&quot;invalid_input&quot;</span>, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment argues the two decisions that matter: why this is a 400 (caller's shape error), and why relaying ajv's message is safe (mechanical, parameter-scoped — no internals to leak).</p>
+              <p class="tl">Match Fastify's validation errors by their stable code...</p>
+              <p class="tl">...and answer with the typed envelope: <code>invalid_input</code>, status 400, ajv's own diagnosis as the message.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The malformed-paging contract test — <em>&quot;refuses malformed paging with a typed 400, never a silent default&quot;</em> (<code>apps/api/test/ingestion-list.contract.test.ts</code>, line 180). It asserts the status AND the envelope shape, so the branch can't silently regress back into the catch-all.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Bug 3 — the $$ that wasn't -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #3 — the <code>$$</code> that wasn't</h2>
+        <p><strong>Symptom:</strong> during the live worktree pivot, a freshly minted <code>.env</code> carried <code>OPERATOR_PASSWORD_HASH=b</code>. A 60-character bcrypt hash, reduced to one letter. Two mechanisms stacked to produce it:</p>
+        <p><strong>Mechanism (a):</strong> a bcrypt hash looks like <code>$2b$10$...</code> — and <em>sourcing</em> a file containing <code>HASH=$2b$10$...</code> hands it to the shell, which happily expands <code>$2</code> as a positional parameter. Empty. What survives is the literal debris between the expansions: <code>b</code>. The secret wasn't corrupted in storage; it was eaten in transit, by a shell doing exactly what shells do.</p>
+        <p><strong>Mechanism (b):</strong> the first repair attempt, in JS. Compose interpolation needs every <code>$</code> in the stored value escaped as <code>$$</code>, so the obvious move was a one-liner. Click the broken line.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — the repair that repaired nothing</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Reading the raw hash is fine — the value is intact at this point.">
+              <span class="line-num">1</span><code>const hash = readOperatorHash();          <span class="code-comment">// &quot;$2b$10$...&quot;</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="In a replacement STRING, $$ is the escape sequence for one literal $ — so this call replaces every $ with... $. A perfect no-op that reads like a fix. The pattern side and the replacement side of replaceAll speak different languages, and $ is a metacharacter in the second one.">
+              <span class="line-num">2</span><code>const escaped = hash.replaceAll(<span class="code-string">'$'</span>, <span class="code-string">'$$'</span>);   <span class="code-comment">// escape for compose</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Writing the line is fine — the damage happened one line up, where 'escaped' came out identical to 'hash'.">
+              <span class="line-num">3</span><code>lines.push(`OPERATOR_PASSWORD_HASH=${escaped}`);</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Fix:</strong> two layers. Tactically, use a form that never interprets its replacement — the function form <code>replaceAll('$', () =&gt; '$$')</code>, or <code>split('$').join('$$')</code>, where <code>join</code> treats its argument as bytes, full stop. Structurally — and this is the fix that actually shipped — the mint tool copies secrets <em>verbatim</em> from an existing <code>.env</code>, already-escaped bytes in, identical bytes out, so no human (or shell) ever re-derives the escaping again. That doctrine is written into <code>parseEnv</code> itself, verbatim from <code>scripts/worktree-env-lib.mjs</code>, lines 57–59:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** Minimal .env parser — KEY=value lines, comments/blanks skipped. Values are</span></span>
+<span class="code-line"><span class="code-comment"> * kept verbatim (no unquoting/expansion: compose does its own interpolation,</span></span>
+<span class="code-line"><span class="code-comment"> * and round-tripping bytes untouched is what keeps escaped bcrypt hashes safe). */</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Every clause of this comment is a scar from the bug above: no expansion (mechanism a), no re-escaping (mechanism b), bytes in = bytes out.</p>
+              <p class="tl">The parser refuses to be clever precisely because two layers of cleverness — the shell's and JS's — each destroyed the value in a different way.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The protocol suite's mint test (<code>scripts/worktree-env-lib.test.mjs</code>): it feeds <code>OPERATOR_PASSWORD_HASH: &quot;$$2b$$10$$x&quot;</code> through <code>mintEnv</code> → <code>parseEnv</code> and asserts the identical string comes back — <em>&quot;Secrets are copied verbatim, never invented.&quot;</em> Any future &quot;helpful&quot; escaping or expansion turns that assertion red.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Wrap — quiz, course summary strip, pointer onward -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the ledger teaches</h2>
+        <p>Three bugs, one shape: <strong>semantics that depend on value shape</strong>. An array means one thing to <code>IN</code> and another to <code>ANY</code>. A <code>$</code> means one thing in a pattern and another in a replacement string — and a third thing to a shell. An error object means &quot;caller's fault&quot; or &quot;server's fault&quot; depending on which branch reads it first. None of these are exotic; all of them look correct in a diff. The defense was never cleverness — it was a test, written first, that pinned what the code was supposed to mean.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Notice what the three fixes have in common: none of them made the code smarter. The <code>idList</code> helper hand-builds the dumbest possible SQL fragment. The <code>invalid_input</code> branch just relays ajv's own words. <code>parseEnv</code> refuses to interpret anything at all. When semantics depend on value shape, the winning move is to <em>remove</em> a layer of interpretation, not add one — and then pin the boring behavior with a test so nobody helpfully re-adds the cleverness later.</p>
+          </div>
+        </div>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="opt-b"
+               data-explanation-right="Right — in a replacement string, $$ is the escape sequence for one literal $, so every $ is replaced with a single $. The call is a perfect no-op. This is exactly Bug #3's mechanism (b), and why the fix used a form that never interprets its replacement."
+               data-explanation-wrong="Not quite. The pattern side of replaceAll is a plain string here — no regex, no error. The trap is on the REPLACEMENT side, where $ is a metacharacter: $$ means one literal $.">
+            <h3 class="quiz-question">In JS, what does <code>'a$b'.replaceAll('$', '$$')</code> return?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>'a$$b'</code> — each <code>$</code> becomes two, as written</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>'a$b'</code> — in a replacement string <code>$$</code> is the escape for one literal <code>$</code>, so the call is a no-op</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A SyntaxError — <code>$</code> is a reserved character in the pattern argument</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answer</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">The course, in six lines</h3>
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">👻</div>
+            <h4 class="pattern-title">01 — The Invisible Library</h4>
+            <p class="pattern-desc">A working pipeline nobody could see: the corpus existed, but only curl and a remembered ticket URL could prove it.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+            <h4 class="pattern-title">02 — The Submissions Timeline</h4>
+            <p class="pattern-desc">One newest-first page over sources + batches — a UNION ALL, five constant queries, and counts filtered through the reader predicate.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🧭</div>
+            <h4 class="pattern-title">03 — The Navigation Shell</h4>
+            <p class="pattern-desc">Every protected page carries the way to <code>/library</code>; the browser still never talks to the API — the server seam holds.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">⚖️</div>
+            <h4 class="pattern-title">04 — The Honest 400</h4>
+            <p class="pattern-desc">Malformed paging earns <code>invalid_input</code>, never the scrubbed 500 — statuses tell the truth about whose fault it is.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔢</div>
+            <h4 class="pattern-title">05 — Ports by Arithmetic</h4>
+            <p class="pattern-desc">A worktree's whole environment derived from its feature number — minted in one step, collision-checked, torn down without touching a sibling.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🪲</div>
+            <h4 class="pattern-title">06 — The Bug Ledger</h4>
+            <p class="pattern-desc">Three shape-dependent-semantics bugs from the live run, each pinned by a test that existed before the fix did.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">What's next</strong>
+            <p>Retrieval is the next spec. The listing's read model — plugin attribution, generations, current-generation counts — is exactly the shape it will build on: the same reader predicate that keeps this page honest is what will keep search results pointed at committed passages, not half-written re-ingests.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: var(--space-8); font-size: var(--text-lg)">Thanks for reading the scar tissue. It never makes the diagrams — but it's the part of the codebase that tells you what actually happened.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

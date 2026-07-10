@@ -1,0 +1,284 @@
+<section class="module" id="module-4" style="background: var(--color-bg);">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Whose Fault Is It?</h1>
+      <p class="module-subtitle">The honest 400 — how malformed input joined a closed error taxonomy without breaking its closure.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ================= SCREEN 1 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Triage at the Door</h2>
+        <p><code>GET /api/uploads?limit=nope</code> — before 009, that answered <code>500 "An internal error occurred."</code> Whose fault does that claim it is? Ours. The server just confessed to a crime the caller committed.</p>
+        <p>The API's error design is triage at the door: every failed request gets blamed on exactly one party, and the status code IS the blame. You asked for a thing that doesn't exist (404), a thing we don't handle (415), you're not signed in (401), our dependency is down (503), we broke (500) — and, new in 009: your request's SHAPE is wrong (400). Every verdict travels in the same
+          <span class="term" data-definition="the one non-2xx wire shape {error:{code,message}} every route answers with">error envelope</span>, and honest blame is the whole design.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-triage-door","label":"The door is app.ts setErrorHandler — the single seam where domain vocabulary becomes HTTP vocabulary. Five requests are about to walk up."},
+          {"highlight":"flow-triage-stamp","label":"GET /api/uploads?limit=nope — shape violates the route schema. Stamped 400 invalid_input: YOUR request is malformed. (New in 009 — keep reading.)","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"GET /api/uploads/<unknown ticket id> — the thing you named does not exist. Stamped 404 unknown_thing.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"POST /api/uploads with a PDF — a payload the system does not handle. Stamped 415 unsupported_type.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"Any /api route with no session cookie — you are not signed in. Stamped 401 unauthorized.","packet":true,"from":"triage-client","to":"triage-door"},
+          {"highlight":"flow-triage-stamp","label":"Postgres unreachable mid-request — OUR dependency is down. Stamped 503 dependency_down. Same envelope shape every time: {error:{code,message}}.","packet":true,"from":"triage-client","to":"triage-door"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-triage-client">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1);">&#128100;</div>
+              <span>Caller</span>
+            </div>
+            <div class="flow-actor" id="flow-triage-door">
+              <div class="flow-actor-icon" style="background: #7C3AED;">&#128682;</div>
+              <span>The Door (app.ts)</span>
+            </div>
+            <div class="flow-actor" id="flow-triage-stamp">
+              <div class="flow-actor-icon" style="background: #8B5CF6;">&#127380;</div>
+              <span>Honest Stamp</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet-triage"></div>
+          <div class="flow-step-label" id="flow-label-triage">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Except that first request didn't always get an honest stamp. Toggle what <code>limit=nope</code> actually answered, before and after 009 — both bodies below are the real wire shapes (the 400 is verbatim from this cycle's live quickstart run, A6):</p>
+
+        <div class="layer-demo">
+          <div class="layer-tabs">
+            <button class="layer-tab" onclick="showLayer('layer-nope-before', this)">Before 009 — the 500 pit</button>
+            <button class="layer-tab active" onclick="showLayer('layer-nope-after', this)">After 009 — the honest 400</button>
+          </div>
+          <div class="layer-viewport">
+            <div class="layer" id="layer-nope-before" style="display: none; padding: var(--space-5); background: var(--color-bg-code);">
+              <pre><code>
+<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span class="code-line"><span class="code-keyword">HTTP/1.1 500 Internal Server Error</span></span>
+<span class="code-line"></span>
+<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"internal_fault"</span>,<span class="code-property">"message"</span>:<span class="code-string">"An internal error occurred."</span>}}</span>
+              </code></pre>
+              <p class="layer-description">The scrubbed catch-all. It blames the server, tells the caller nothing actionable, and pages an operator about a typo.</p>
+            </div>
+            <div class="layer" id="layer-nope-after" style="padding: var(--space-5); background: var(--color-bg-code);">
+              <pre><code>
+<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span class="code-line"><span class="code-keyword">HTTP/1.1 400 Bad Request</span></span>
+<span class="code-line"></span>
+<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"invalid_input"</span>,<span class="code-property">"message"</span>:<span class="code-string">"querystring/limit must be integer"</span>}}</span>
+              </code></pre>
+              <p class="layer-description">Same envelope shape as every other error, correct blame, and a message that names the exact parameter and what it must be.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Hazard: A 400 That Fell Into the 500 Pit</h2>
+        <p>Here's the trap. 009's new <code>GET /api/uploads</code> declares a query schema, so Fastify validates <code>limit</code> and <code>offset</code> before the handler ever runs. When validation fails, Fastify throws an error carrying
+          <span class="term" data-definition="Fastify's error code when a request violates a route's declared schema">FST_ERR_VALIDATION</span>
+          and <code>statusCode 400</code> — the framework already knew the right answer. But the API's error handler only recognized two things: a
+          <span class="term" data-definition="the transport-agnostic typed error @stacks/core defines — four classes, mapped to HTTP exactly once at the API edge — 007 FR-011/018">DomainError</span>
+          and Fastify's content-type errors. A validation error is neither, so it fell through to the scrubbed 500 catch-all — which threw away the 400 and confessed to an internal fault instead.</p>
+        <p>The fix is one branch in the one seam where errors become HTTP:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/app.ts:44-60</span>
+            <pre><code>
+<span class="code-line">  app.<span class="code-function">setErrorHandler</span>((error: FastifyError, request, reply) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (error <span class="code-keyword">instanceof</span> DomainError) {</span>
+<span class="code-line">      reply.<span class="code-function">code</span>(<span class="code-function">statusForErrorClass</span>(error.class)).<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(error.class, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// Fastify schema-validation failures (malformed query/body per a route's</span></span>
+<span class="code-line">    <span class="code-comment">// declared schema) are the caller's shape error — an honest 400, never the</span></span>
+<span class="code-line">    <span class="code-comment">// scrubbed 500 the catch-all would turn them into (009, contracts/api.md).</span></span>
+<span class="code-line">    <span class="code-comment">// error.message here is ajv's generated text (e.g. "querystring/limit must</span></span>
+<span class="code-line">    <span class="code-comment">// be integer") — mechanical, parameter-scoped, safe for the wire.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-keyword">typeof</span> error.code === <span class="code-string">"string"</span> &amp;&amp; error.code === <span class="code-string">"FST_ERR_VALIDATION"</span>) {</span>
+<span class="code-line">      reply</span>
+<span class="code-line">        .<span class="code-function">code</span>(<span class="code-function">statusForErrorClass</span>(<span class="code-string">"invalid_input"</span>))</span>
+<span class="code-line">        .<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(<span class="code-string">"invalid_input"</span>, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">One error handler for the whole API. Checks run most-specific first.</p>
+              <p class="tl">First check: a known DomainError. Map its class to a status and its message to the envelope. This path existed since 007.</p>
+              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error. Honest 400, never the scrubbed 500 the fall-through would produce.</p>
+              <p class="tl">And it justifies putting <code>error.message</code> on the wire: ajv's generated text is mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
+              <p class="tl">The new branch: match Fastify's validation error code exactly.</p>
+              <p class="tl">Answer with the status for <code>invalid_input</code> (400) and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>The bug wasn't a missing feature — it was a fall-through. Fastify already produced a 400; the seam's catch-all overwrote it with a lie. The fix adds a branch to the mapping, not validation logic anywhere else. The next route that declares a schema gets the 400 path for free.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Boundary Codes vs Domain Classes</h2>
+        <p>So why not add <code>invalid_input</code> to <code>@stacks/core</code>'s <code>ErrorClass</code> union alongside <code>unknown_thing</code> and friends? Because the taxonomy stays closed by distinguishing two kinds of vocabulary: DOMAIN classes are shared and transport-agnostic — a worker handler can throw <code>dependency_down</code> as meaningfully as a route can. BOUNDARY codes only mean something at the HTTP edge. Only HTTP can have a malformed request; worker and db code can never throw one. The file's header comment argues it outright:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/errors.ts:13-32</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment"> * "invalid_input" (400) joined "unauthorized" as an API-only code in 009: a</span></span>
+<span class="code-line"><span class="code-comment"> * request whose SHAPE is wrong (malformed query params caught by Fastify</span></span>
+<span class="code-line"><span class="code-comment"> * schema validation) is neither an unknown thing nor an unsupported payload</span></span>
+<span class="code-line"><span class="code-comment"> * type — and letting it fall through to the scrubbed 500 would lie about</span></span>
+<span class="code-line"><span class="code-comment"> * whose fault it is. Like unauthorized, it stays out of the shared ErrorClass</span></span>
+<span class="code-line"><span class="code-comment"> * union because only the HTTP edge can have malformed requests.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** ErrorClass plus the codes that only exist at the HTTP boundary. */</span></span>
+<span class="code-line"><span class="code-keyword">export type</span> ApiErrorCode = ErrorClass | <span class="code-string">"unauthorized"</span> | <span class="code-string">"invalid_input"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> STATUS_BY_CLASS: Record&lt;ApiErrorCode, <span class="code-keyword">number</span>&gt; = {</span>
+<span class="code-line">  <span class="code-property">unknown_thing</span>: <span class="code-number">404</span>,</span>
+<span class="code-line">  <span class="code-property">unsupported_type</span>: <span class="code-number">415</span>,</span>
+<span class="code-line">  <span class="code-property">dependency_down</span>: <span class="code-number">503</span>,</span>
+<span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
+<span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
+<span class="code-line">  <span class="code-property">invalid_input</span>: <span class="code-number">400</span>,</span>
+<span class="code-line">};</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The 009 paragraph of the file's header: malformed shape fits none of the four domain classes, and the fall-through 500 "would lie about whose fault it is."</p>
+              <p class="tl">The precedent is <code>unauthorized</code> — it took this exact path in 007, because the worker has no auth concept either.</p>
+              <p class="tl">The closing argument in one clause: only the HTTP edge can have malformed requests. So the code lives with the mapping, not in the shared union.</p>
+              <p class="tl"><code>ApiErrorCode</code> is the type that says it structurally: the four shared classes, plus exactly two edge-only extensions.</p>
+              <p class="tl">And the whole translation table fits in one Record: four domain classes, two boundary codes, six statuses. This file is the ONLY place in the system that knows HTTP numbers.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📡</div>
+          <div class="callout-content">
+            <strong class="callout-title">On the wire, live</strong>
+            <p>From this cycle's quickstart A6 run against the 009 stack: <code>{"error":{"code":"invalid_input","message":"querystring/limit must be integer"}}</code> — the taxonomy's newest stamp, exactly as a real caller receives it.</p>
+          </div>
+        </div>
+
+        <p>One decision remains: not every weird <code>limit</code> deserves a 400. The route draws the line with its schema and one line of
+          <span class="term" data-definition="answering an in-range-but-extreme numeric with the nearest honest value instead of refusing">clamping</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:37-47, 71</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// ajv coerces query strings to integers and refuses what won't coerce</span></span>
+<span class="code-line"><span class="code-comment">// ("nope") or violates minimum (-1) — the 400 path. Clamping beyond that is</span></span>
+<span class="code-line"><span class="code-comment">// handler logic: 0 and 9999 are honest requests with honest nearest answers.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> LIST_QUERY_SCHEMA = {</span>
+<span class="code-line">  <span class="code-property">type</span>: <span class="code-string">"object"</span>,</span>
+<span class="code-line">  <span class="code-property">properties</span>: {</span>
+<span class="code-line">    <span class="code-property">limit</span>: { <span class="code-property">type</span>: <span class="code-string">"integer"</span>, <span class="code-property">minimum</span>: <span class="code-number">0</span> },</span>
+<span class="code-line">    <span class="code-property">offset</span>: { <span class="code-property">type</span>: <span class="code-string">"integer"</span>, <span class="code-property">minimum</span>: <span class="code-number">0</span> },</span>
+<span class="code-line">  },</span>
+<span class="code-line">  <span class="code-property">additionalProperties</span>: <span class="code-keyword">true</span>,</span>
+<span class="code-line">} <span class="code-keyword">as const</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// ...inside the GET /api/uploads handler:</span></span>
+<span class="code-line"><span class="code-keyword">const</span> limit = Math.<span class="code-function">min</span>(MAX_LIMIT, Math.<span class="code-function">max</span>(<span class="code-number">1</span>, request.query.limit ?? DEFAULT_LIMIT));</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer, -1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2.</p>
+              <p class="tl">Everything past that is handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
+              <p class="tl">The schema itself is deliberately loose: integers, non-negative, unknown params tolerated. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">And the clamp is one line: floor at 1, ceiling at <code>MAX_LIMIT</code> (200), default 50 when absent. No branch, no refusal, no fifth error code.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="icon-rows" style="margin-top: var(--space-8);">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: #7C3AED;">200</div>
+            <div>
+              <strong>limit=9999 → 200, limit: 200 &nbsp;·&nbsp; limit=0 → 200, limit: 1</strong>
+              <p>Coercible-but-extreme gets clamped to the nearest honest value — the response envelope reports the limit actually used, so the caller sees the clamp.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: #8B5CF6;">400</div>
+            <div>
+              <strong>limit=nope → 400 &nbsp;·&nbsp; offset=-1 → 400</strong>
+              <p>Uncoercible or negative gets refused with <code>invalid_input</code> naming the parameter. Honest requests get honest nearest answers; malformed requests get honest refusals.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why you care</strong>
+            <p>Both halves are now precedent. The next route that declares a querystring schema inherits the 400 path with zero new code, and the clamp-vs-refuse line — coercible-but-extreme clamps, uncoercible/negative refuses — is written down where the next paging parameter will be designed.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4 ================= -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Yourself</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — only the HTTP edge can have malformed requests. Worker and db code can never throw invalid_input, so it lives with the mapping in errors.ts as an API-only code, exactly like unauthorized did in 007. The shared union stays a vocabulary every runtime can honestly speak."
+               data-explanation-wrong="Not quite — the header comment in errors.ts makes the real argument: only the HTTP edge can have malformed requests. Worker/db code can never throw invalid_input, so it joins unauthorized as an API-only code beside the mapping, keeping the shared ErrorClass union transport-agnostic.">
+            <h3 class="quiz-question">Why is <code>invalid_input</code> NOT added to <code>@stacks/core</code>'s <code>ErrorClass</code> union?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>To avoid a breaking change to every existing consumer of ErrorClass</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because @stacks/core can't import Fastify, and the code originates from FST_ERR_VALIDATION</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because only the HTTP edge can have malformed requests — worker/db code can never throw it, so it lives with the mapping as an API-only code, like unauthorized</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p style="margin-top: var(--space-8);">That closes Part A: the library surface is reachable, readable, and honest about failure. Part B changes altitude entirely — Module 5 asks how TWO copies of this whole stack run side by side on one laptop without ever fighting over a port. The answer is arithmetic.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

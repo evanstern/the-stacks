@@ -204,7 +204,7 @@ Principle VIII), durable-docs decision.
 - [x] T022 Full quickstart pass (A1–A6, B1–B5) against the running stack; assemble
       specs/009-library-surface-env/evidence.md (per-SC verification, wiki-impact
       decision, visibility avenues); commit
-- [ ] T023 Principle VIII learning artifact via /spec-cycle-course:
+- [x] T023 Principle VIII learning artifact via /spec-cycle-course:
       docs/courses/009-library-surface-env/ (briefs-first, feature-scoped, seeded with
       spec/plan/tasks/evidence), committed and linked from evidence.md — the cycle is
       incomplete without it

@@ -1,0 +1,398 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm); --color-accent: #7B4FC7; --color-accent-hover: #6540A8; --color-accent-light: #F0EAFA; --color-accent-muted: #B49DE0;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Ports by Arithmetic</h1>
+      <p class="module-subtitle">Street addresses, not parking spots — a worktree's whole environment derives from its directory name, and the mint tool only verifies the math.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + name→arithmetic derivation HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where was 4500 written down? Nowhere.</h2>
+        <p>The operator's own instance historically ran web on port 4500. Where is that recorded? Before 009: nowhere. It was folklore — the kind that works until the day a second stack needs a port and nobody remembers who owns what.</p>
+        <p>A parking lot solves this with an attendant, a registry, and arguments about who took spot 14. Street addresses solve it with arithmetic: house NNN is at <code>base + 10&times;NNN</code>, forever, no attendant. 009 chose street addresses. Every
+          <span class="term" data-definition="A second checkout of the same repo sharing one Git store — the-stacks runs bare + main/ + one sibling per feature — constitution Development Workflow.">worktree</span>
+          derives its entire environment — its
+          <span class="term" data-definition="A worktree's four published ports, derived together.">port block</span>
+          and its
+          <span class="term" data-definition="The namespace docker compose prefixes containers/networks/volumes with — the isolation boundary.">compose project</span>
+          — from its DIRECTORY NAME:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p><code>009-library-surface-env</code></p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>NNN = 9</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>offset = 10 &times; 9 = 90</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>ports = defaults + 90</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p><code>the-stacks-009-library-surface-env</code></p></div>
+        </div>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🔢</div>
+            <h4 class="pattern-title">009-library-surface-env</h4>
+            <p class="pattern-desc">offset <strong>90</strong><br>
+              web <code>4400+90 = 4490</code><br>
+              api <code>4401+90 = 4491</code><br>
+              ml <code>4402+90 = 4492</code><br>
+              postgres <code>5442+90 = 5532</code><br>
+              project <code>the-stacks-009-library-surface-env</code></p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">🏠</div>
+            <h4 class="pattern-title">main — the fixed point</h4>
+            <p class="pattern-desc">offset <strong>0</strong><br>
+              web <code>4400</code> &middot; api <code>4401</code><br>
+              ml <code>4402</code> &middot; postgres <code>5442</code><br>
+              project <code>the-stacks-v3</code><br>
+              <em>Grandfathered forever — container and volume names already depend on that identity.</em></p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">⚠️</div>
+            <h4 class="pattern-title">The 4500 cautionary tale</h4>
+            <p class="pattern-desc">Feature 010's derived web port is <code>4400 + 10&times;10 = 4500</code> — exactly where the folklore instance lived. That near-miss is why the contract sends manual overrides <strong>&ge; 10000</strong>: above every block the arithmetic will ever produce.</p>
+          </div>
+        </div>
+
+        <p>Uniqueness is inherited, not managed: spec-kit assigns each feature a unique number, so derived blocks can't collide. No registry exists because none is needed.</p>
+      </section>
+
+      <!-- SCREEN 2: The tool as enforcement — deriveProfile + refusals + GROUP CHAT -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The tool doesn't allocate. It verifies.</h2>
+        <p><code>deriveProfile</code> is pure math, kept CLI-free so the protocol's guarantees are unit-tested inside <code>pnpm verify</code>. Read the header comment first — it's the whole doctrine in one place:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/worktree-env-lib.mjs:1-55 (PORT_KEYS table elided)</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * Worktree-environment derivation — the pure math behind mint-worktree-env.mjs</span></span>
+<span class="code-line"><span class="code-comment"> * (009 US2; contracts/environment.md §2–§4). Kept CLI-free so the protocol's</span></span>
+<span class="code-line"><span class="code-comment"> * guarantees are unit-testable (worktree-env-lib.test.mjs, wired into</span></span>
+<span class="code-line"><span class="code-comment"> * `pnpm verify`): determinism here is what lets the repo skip a port registry.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * The rule in one line: a worktree's identity and ports derive from its</span></span>
+<span class="code-line"><span class="code-comment"> * DIRNAME alone — `NNN-slug` gets default + 10×NNN and the-stacks-NNN-slug;</span></span>
+<span class="code-line"><span class="code-comment"> * `main` is the fixed point (offset 0, the-stacks-v3). Feature numbers are</span></span>
+<span class="code-line"><span class="code-comment"> * unique by spec-kit construction, so derived blocks can't collide;</span></span>
+<span class="code-line"><span class="code-comment"> * findPortCollisions() merely VERIFIES that inheritance against reality</span></span>
+<span class="code-line"><span class="code-comment"> * (manual overrides are where mistakes live — see §3's web-on-4500 tale).</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** Default published ports — mirrors .env.example, the variable contract. */</span></span>
+<span class="code-line"><span class="code-keyword">export const</span> DEFAULT_PORTS = Object.<span class="code-function">freeze</span>({ <span class="code-property">web</span>: <span class="code-number">4400</span>, <span class="code-property">api</span>: <span class="code-number">4401</span>, <span class="code-property">ml</span>: <span class="code-number">4402</span>, <span class="code-property">postgres</span>: <span class="code-number">5442</span> });</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> BLOCK_STRIDE = <span class="code-number">10</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">/** @param {string} dirname worktree directory name (basename, not a path) */</span></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">deriveProfile</span>(dirname) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (dirname === <span class="code-string">"main"</span>) {</span>
+<span class="code-line">    <span class="code-comment">// main/ predates the protocol and its compose identity is load-bearing</span></span>
+<span class="code-line">    <span class="code-comment">// (container/volume names depend on it) — it stays the-stacks-v3 forever.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> { dirname, <span class="code-property">projectName</span>: <span class="code-string">"the-stacks-v3"</span>, <span class="code-property">offset</span>: <span class="code-number">0</span>, <span class="code-property">ports</span>: { ...DEFAULT_PORTS } };</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> match = /^(\d+)-/.<span class="code-function">exec</span>(dirname);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!match) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">Error</span>(</span>
+<span class="code-line">      <span class="code-string">`Cannot derive an environment for "${dirname}": no leading feature number `</span> +</span>
+<span class="code-line">        <span class="code-string">`(expected NNN-slug, e.g. 009-library-surface-env). Deterministic derivation `</span> +</span>
+<span class="code-line">        <span class="code-string">`is the whole protocol — name the worktree after its feature branch.`</span>,</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> featureNumber = Number.<span class="code-function">parseInt</span>(match[<span class="code-number">1</span>], <span class="code-number">10</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> offset = BLOCK_STRIDE * featureNumber;</span>
+<span class="code-line">  <span class="code-keyword">return</span> {</span>
+<span class="code-line">    dirname,</span>
+<span class="code-line">    <span class="code-property">projectName</span>: <span class="code-string">`the-stacks-${dirname}`</span>,</span>
+<span class="code-line">    offset,</span>
+<span class="code-line">    <span class="code-property">ports</span>: {</span>
+<span class="code-line">      <span class="code-property">web</span>: DEFAULT_PORTS.web + offset,</span>
+<span class="code-line">      <span class="code-property">api</span>: DEFAULT_PORTS.api + offset,</span>
+<span class="code-line">      <span class="code-property">ml</span>: DEFAULT_PORTS.ml + offset,</span>
+<span class="code-line">      <span class="code-property">postgres</span>: DEFAULT_PORTS.postgres + offset,</span>
+<span class="code-line">    },</span>
+<span class="code-line">  };</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The header IS the contract: dirname alone determines everything. Determinism is what lets the repo skip a port registry entirely.</p>
+              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
+              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
+              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
+              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">Nothing here reads a registry, a lockfile, or the network. <code>findPortCollisions()</code> exists only to VERIFY this inheritance against reality — manual overrides are where mistakes live.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The mint tool wraps that math in two refusals. First: an existing <code>.env</code> is never overwritten as a side effect — re-minting is a deliberate act (<code>--force</code>), because it replaces ports, identity, AND secrets:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (B2)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ node scripts/mint-worktree-env.mjs
+<span class="code-tag">✖ 009-library-surface-env/.env already exists. Re-minting overwrites ports,
+  identity, AND secrets — if that is what you want, re-run with --force
+  (and --secrets-from to keep your secrets).</span>
+$ echo $?
+1</code></pre>
+        </div>
+
+        <p>Second: the sibling collision scan. At mint time, every peer directory with a <code>.env</code> — <code>main/</code> included — is asked whether it already publishes any port in the derived block. Here's the scan the day a scratch directory squatted on 4492 (real refusal from this cycle's validation, B3):</p>
+
+        <div class="chat-window" id="chat-collision">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p>Minting <code>009-library-surface-env</code>. Derived block: 4490 / 4491 / 4492 / 5532. Scanning every sibling with a .env — anyone already publishing one of these?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="main" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🏠</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">main</span>
+                <p>Not me — I hold 4400 / 4401 / 4402 / 5442. Offset 0, the fixed point.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="scratch" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🚧</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">scratch-collision</span>
+                <p>Me. My .env publishes 4492.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p><code>✖ port 4492 is already published by ../scratch-collision/.env</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p><code>✖ refusing to mint a colliding block — resolve the overlap first (contracts/environment.md §2).</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="mint" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🪙</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">mint-worktree-env</span>
+                <p>Exit 1. No .env written — nothing half-minted to clean up. The collision is a NAMED error at mint time, not a bind failure halfway through <code>docker compose up</code>.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="chat-collision-typing" style="display:none">
+            <div class="chat-avatar" id="chat-collision-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn btn-primary chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Notice who the culprit had to be: not a derived block. Derived blocks can't intersect — feature numbers are unique. The scan exists to catch the hand-edited case, and when it fires, it names the offending file, not just the port.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Port-coupled values — the retired footgun -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The values that must move together</h2>
+        <p>Moving four ports is arithmetic. The trap is the
+          <span class="term" data-definition="An env var that must move when a port moves — API_INTERNAL_URL tracks V3_API_PORT — contract §4.">port-coupled value</span>:
+          the api container binds <code>V3_API_PORT</code> INSIDE the container (its process reads the env var directly), so the in-network URL <code>API_INTERNAL_URL</code> must move with it. Meanwhile <code>EMBEDDING_ENDPOINT</code> and <code>DATABASE_URL</code> never move — ml and postgres keep fixed container-side ports; only their published host ports shift.</p>
+        <p>This warning used to live as a compose-file comment — advice you could scroll past. Now it's derivation plus a <code>--check</code> finding:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">scripts/worktree-env-lib.mjs:80-95</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code><span class="code-keyword">export function</span> <span class="code-function">mintEnv</span>(template, dirname, secrets = {}) {
+  <span class="code-keyword">const</span> profile = <span class="code-function">deriveProfile</span>(dirname);
+  <span class="code-keyword">const</span> replacements = {
+    <span class="code-property">COMPOSE_PROJECT_NAME</span>: profile.projectName,
+    <span class="code-property">V3_WEB_PORT</span>: <span class="code-function">String</span>(profile.ports.web),
+    <span class="code-property">V3_API_PORT</span>: <span class="code-function">String</span>(profile.ports.api),
+    <span class="code-property">V3_ML_PORT</span>: <span class="code-function">String</span>(profile.ports.ml),
+    <span class="code-property">V3_POSTGRES_PORT</span>: <span class="code-function">String</span>(profile.ports.postgres),
+    <span class="code-comment">// The port-coupled derivation (§4): the api container binds V3_API_PORT</span>
+    <span class="code-comment">// INSIDE the container, so the in-network URL must move with it.</span>
+    <span class="code-property">API_INTERNAL_URL</span>: <span class="code-string">`http://api:${profile.ports.api}`</span>,
+    ...(secrets.OPERATOR_PASSWORD_HASH !== <span class="code-keyword">undefined</span>
+      ? { <span class="code-property">OPERATOR_PASSWORD_HASH</span>: secrets.OPERATOR_PASSWORD_HASH }
+      : {}),
+    ...(secrets.SESSION_SECRET !== <span class="code-keyword">undefined</span> ? { <span class="code-property">SESSION_SECRET</span>: secrets.SESSION_SECRET } : {}),
+  };</code></pre>
+        </div>
+
+        <p>Note the last two entries: secrets are copied or left blank, never generated — inventing an operator password silently would hide the one thing the operator must own.</p>
+        <p><code>--check</code> is the drift mode. Its three finding kinds, all named, none auto-repaired:</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">missing</code>
+            <span class="badge-desc">template keys absent from the .env — .env.example grew and your file didn't</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">unknown</code>
+            <span class="badge-desc">.env keys the template no longer knows — retired or typo'd variables</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">couplings</code>
+            <span class="badge-desc">port-coupled values that stopped moving together — the classic ECONNREFUSED-from-every-loader footgun, now named</span>
+          </div>
+        </div>
+
+        <p>The real drift run from this cycle's validation (B4): delete <code>WORKER_POLL_MS</code> from the .env, and the check names it and exits 2 — then a clean recheck after restoring it:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (B4–B5)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ node scripts/mint-worktree-env.mjs --check
+<span class="code-tag">✖ missing key (in .env.example, not .env): WORKER_POLL_MS</span>
+<span class="code-tag">✖ 1 drift finding(s). Reconcile by hand per the report, or re-mint with --force.</span>
+$ echo $?
+2
+
+$ node scripts/mint-worktree-env.mjs --check      # after restoring the key
+<span class="code-string">✔ 009-library-surface-env/.env matches the environment contract.</span></code></pre>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Ports that differ from the derived block are only <em>noted</em> by <code>--check</code>, never failed — deliberate overrides are legitimate protocol citizens (§3). Key drift and coupling breaks fail hard. The tool distinguishes "you chose differently" from "your file is wrong."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: The live proof — SC-004 / SC-006 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The live proof: two stacks, zero collisions</h2>
+        <p>SC-004, verified this cycle: <code>main/</code> (the 4400 block) and the 009 worktree (the 4490 block) up concurrently — 10 containers, disjoint names, disjoint ports, all four public endpoints answering 200:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (SC-004)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;"><code>$ docker ps --format '{{.Names}}\t{{.Ports}}'
+the-stacks-009-library-surface-env-web-1        127.0.0.1:4490-&gt;4400/tcp
+the-stacks-009-library-surface-env-api-1        127.0.0.1:4491-&gt;4491/tcp
+the-stacks-009-library-surface-env-worker-1
+the-stacks-009-library-surface-env-ml-1         127.0.0.1:4492-&gt;4402/tcp
+the-stacks-009-library-surface-env-postgres-1   127.0.0.1:5532-&gt;5432/tcp
+the-stacks-v3-web-1                             127.0.0.1:4400-&gt;4400/tcp
+the-stacks-v3-api-1                             127.0.0.1:4401-&gt;4401/tcp
+the-stacks-v3-worker-1
+the-stacks-v3-ml-1                              127.0.0.1:4402-&gt;4402/tcp
+the-stacks-v3-postgres-1                        127.0.0.1:5442-&gt;5432/tcp</code></pre>
+        </div>
+
+        <p>Read the arrows carefully — they teach screen 3 all over again. Web and ml map a moved host port onto a FIXED container port (<code>4490-&gt;4400</code>, <code>4492-&gt;4402</code>); postgres likewise (<code>5532-&gt;5432</code>). Only api moves BOTH sides (<code>4491-&gt;4491</code>) — its process binds the env var inside the container, which is exactly why <code>API_INTERNAL_URL</code> is port-coupled and the other in-network URLs are not.</p>
+
+        <p>And SC-006, the teardown half: <code>docker compose down --volumes</code> in <code>main/</code> removed every <code>the-stacks-v3_*</code> volume — while the 009 stack, one directory over, kept serving <code>/library</code> the whole time:</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">Real output — live validation (SC-006)</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7;"><code>$ docker compose down --volumes                    # run in main/
+$ docker volume ls --format '{{.Name}}' | grep '^the-stacks-v3_'
+<span class="code-comment">(no output — zero the-stacks-v3_* volumes remain)</span>
+$ curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4490/ready
+200</code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🧹</div>
+          <div class="callout-content">
+            <strong class="callout-title">Lifecycle rules — memorize the middle one</strong>
+            <p><code>down</code> stops containers but KEEPS volumes — your database survives a restart. <code>down --volumes</code> is teardown: data gone, deliberately. And teardown always precedes <code>git worktree remove</code> — deleting the directory first orphans the compose project's containers and volumes with nobody left to name them.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Vocabulary + quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+        <p>The protocol's five verbs, in the order you'll live them each cycle:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><p>derive</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">2</div><p>mint</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">3</div><p>refuse (exists / collision)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">4</div><p>--check (drift)</p></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="flow-step-num">5</div><p>teardown (--volumes)</p></div>
+        </div>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — derived blocks can't collide, because feature numbers are unique by spec-kit construction and deriveProfile is pure arithmetic on them. The only collision findPortCollisions can ever find is a MANUAL override sitting inside some feature's derived block — which is why the contract sends manual ports &ge; 10000, above every block the arithmetic will ever produce."
+               data-explanation-wrong="Not quite — feature numbers are unique by spec-kit construction, and the 10-port stride gives every feature its own disjoint block, so two DERIVED blocks can never intersect. The remaining suspect is a manual override that wandered into derived territory: the exact mistake the &ge; 10000 rule exists to prevent (remember web-on-4500 — feature 010's derived web port).">
+            <h3 class="quiz-question">The mint tool's sibling scan finds two worktrees colliding on a port. Which explanation is actually possible?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>spec-kit reused a feature number, so two derived blocks landed on the same offset</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>One of them carries a MANUAL override that landed inside a derived block — that's why manual ports go &ge; 10000</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The 10-port stride is too small, so adjacent features' blocks overlap at the edges</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 6 — The Bug Ledger</strong>
+            <p>The arithmetic is clean, the refusals are loud, and the live proof passed on the first try. The cycle still shipped bugs. Module 6 reads the ledger of what slipped through anyway.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

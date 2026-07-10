@@ -1,0 +1,302 @@
+<section class="module" id="module-6" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Bug Ledger</h1>
+      <p class="module-subtitle">Three real bugs from this cycle. You get the code; find each one before the reveal.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook — the format -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The flight recorder</h2>
+        <p>Every cycle logs what actually went wrong — not to assign blame, but because real bugs teach sharper than invented examples. These three happened, live, during 009. Two were caught by tests written minutes earlier; one was found at design time by reading a handler that already existed.</p>
+        <p>The format for each: <strong>symptom</strong> → <strong>spot the bug</strong> (click the line you suspect) → <strong>reveal</strong> (mechanism → fix → the test that pins it). All three cluster in the same place: <em>semantics that depend on value shape</em> — a JS array inside a sql template, a <code>$</code> inside a replacement string, a bcrypt hash inside a sourced shell file. The defense each time was the same: a test that pinned the intended behavior before the code existed — that's <span class="term" data-definition="Failing test first, smallest pass, refactor green — constitutional here, not optional.">TDD</span> paying rent, not paying lip service.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🧮</div>
+            <h4 class="pattern-title">#1 — <code>ANY(array)</code> vs drizzle's expansion</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> every listing request 500'd the moment a page had rows. Empty library? Fine. One upload? Dead.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🎭</div>
+            <h4 class="pattern-title">#2 — the 400 that was a 500</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> <code>?limit=nope</code> answered &quot;An internal error occurred.&quot; The caller's typo, the server's confession.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">💲</div>
+            <h4 class="pattern-title">#3 — the <code>$$</code> that wasn't</h4>
+            <p class="pattern-desc"><strong>Symptom:</strong> a minted <code>.env</code>'s bcrypt hash read <code>OPERATOR_PASSWORD_HASH=b</code>. Just... <code>b</code>.</p>
+          </div>
+        </div>
+        <p>Two of these three are lying in wait in any drizzle/JS codebase you touch this year. Worth ten minutes.</p>
+      </section>
+
+      <!-- SCREEN 2: Bug 1 — ANY(array) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #1 — <code>ANY(array)</code> and drizzle's parameter expansion</h2>
+        <p><strong>Symptom:</strong> the listing endpoint returned 500 on every request that had at least one row to aggregate. The page query itself ran fine — it was the per-source counts that blew up. Here's the sections aggregate as it first ran. One line is wrong.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — click the broken line</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Not here — this is plain SQL projection, no parameters involved.">
+              <span class="line-num">1</span><code>SELECT ds.source_id, count(*) AS n</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The FROM clause is fine — document_sections is the right table for section counts.">
+              <span class="line-num">2</span><code>FROM document_sections ds</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The join is deliberate — it's how the reader predicate (generation = current_generation) gets applied.">
+              <span class="line-num">3</span><code>JOIN sources s ON s.id = ds.source_id</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="drizzle's sql template expands a JS array into comma-joined placeholders — so this renders as ANY($1, $2, $3), which is not valid SQL. ANY() wants ONE array-typed argument; drizzle handed it three scalars. Valid inside IN (...), garbage inside ANY(...).">
+              <span class="line-num">4</span><code>WHERE ds.source_id = ANY(${sourceIds})   <span class="code-comment">-- ← the line as first written</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="The generation filter is correct — it's the 008 reader predicate, and it belongs here.">
+              <span class="line-num">5</span><code>  AND ds.generation = s.current_generation</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="GROUP BY source_id is exactly right for a per-source count.">
+              <span class="line-num">6</span><code>GROUP BY ds.source_id</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Mechanism:</strong> <span class="term" data-definition="drizzle's sql template turns a JS array into comma-joined placeholders — shape-dependent semantics.">parameter expansion</span>. When drizzle's <code>sql</code> template meets a JS array, it doesn't bind one array-typed parameter — it splices the array into <code>$1, $2, $3</code>. Inside <code>IN (...)</code> that's exactly what you want. Inside <code>ANY(...)</code> — which takes a single array argument — it's a syntax error at execution time. Same template, same value, opposite outcomes, decided entirely by the SQL construct around it.</p>
+        <p><strong>Fix:</strong> stop fighting the expansion and lean into it — build explicit IN lists. The helper, verbatim from the source, why-comment and all:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">      // drizzle's sql template expands a JS array into comma-joined params —</span></span>
+<span class="code-line"><span class="code-comment">      // fine for IN (...), wrong inside ANY(...). Build IN lists explicitly.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> idList = (ids: <span class="code-keyword">string</span>[]) =&gt; sql.join(ids.map((id) =&gt; sql`${id}`), sql`, `);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment is the scar: it names the hazard at the exact place the next author will meet it.</p>
+              <p class="tl">Each id becomes its own one-parameter fragment (<code>sql`${id}`</code>)...</p>
+              <p class="tl">...and <code>sql.join</code> stitches them with literal commas — a hand-built <code>$1, $2, $3</code> that goes inside <code>IN (...)</code>, where comma-joined placeholders are exactly the right shape.</p>
+            </div>
+          </div>
+        </div>
+        <p>The call sites read <code>WHERE ds.source_id IN (${idList(sourceIds)})</code> — expansion semantics and SQL construct finally agreeing. <em>File: <code>apps/api/src/ingestion/list.ts</code>, lines 100–102.</em></p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The whole listing contract suite (<code>apps/api/test/ingestion-list.contract.test.ts</code>) — written first, TDD-style. It caught this within minutes of the aggregate being written: the first contract test that seeded a real row turned the endpoint red before anything downstream ever saw the 500.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Bug 2 — the 400 that was a 500 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #2 — the 400 that was a 500</h2>
+        <p><strong>Symptom:</strong> <code>GET /api/uploads?limit=nope</code> answered <code>500 internal_fault</code> — &quot;An internal error occurred.&quot; Nothing internal had erred. The caller sent a string where the schema demanded an integer; the server took the blame anyway.</p>
+        <p>Here's the error handler as 009 inherited it from 008 — the single seam where domain vocabulary becomes HTTP vocabulary, checks running most-specific first. Fastify's schema validator throws <code>FST_ERR_VALIDATION</code> for <code>?limit=nope</code>. Click the branch that catches it.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — where does FST_ERR_VALIDATION land?</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="A validation error is a FastifyError, not a DomainError — this instanceof check passes it by.">
+              <span class="line-num">1</span><code>if (error instanceof DomainError) { <span class="code-comment">/* class → status, typed envelope */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="FST_ERR_VALIDATION does not start with FST_ERR_CTP — content-type errors are a different family.">
+              <span class="line-num">2</span><code>if (error.code.startsWith(&quot;FST_ERR_CTP&quot;)) { <span class="code-comment">/* 415 unsupported_type */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="A validation error carries statusCode 400, not 415 — this branch never sees it.">
+              <span class="line-num">3</span><code>if (error.statusCode === 415) { <span class="code-comment">/* 415 unsupported_type */</span> }</code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="Exactly — FST_ERR_VALIDATION matched no branch above and fell into the scrubbed 500 catch-all. A caller shape error reported as a server fault: an honest-status violation. Found at design time, by reading this handler with the new route's schema in mind — before the route even shipped.">
+              <span class="line-num">4</span><code>request.log.error(...); reply.code(500).send(<span class="code-string">&quot;An internal error occurred.&quot;</span>);</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Mechanism:</strong> the catch-all is <em>supposed</em> to scrub — it exists so genuine server faults never leak stack traces to the wire. But scrubbing a caller's shape error hides the one thing the caller needs: that the fix is on <em>their</em> side. Module 4 called this the honest-status rule; this is the bug that motivated it.</p>
+        <p><strong>Fix:</strong> a branch above the catch-all, most-specific-first order preserved — verbatim from <code>apps/api/src/app.ts</code>, lines 50–60 (Module 4 walked this snippet in full; here it is as the reveal):</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">    // Fastify schema-validation failures (malformed query/body per a route's</span></span>
+<span class="code-line"><span class="code-comment">    // declared schema) are the caller's shape error — an honest 400, never the</span></span>
+<span class="code-line"><span class="code-comment">    // scrubbed 500 the catch-all would turn them into (009, contracts/api.md).</span></span>
+<span class="code-line"><span class="code-comment">    // error.message here is ajv's generated text (e.g. &quot;querystring/limit must</span></span>
+<span class="code-line"><span class="code-comment">    // be integer&quot;) — mechanical, parameter-scoped, safe for the wire.</span></span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-keyword">typeof</span> error.code === <span class="code-string">&quot;string&quot;</span> &amp;&amp; error.code === <span class="code-string">&quot;FST_ERR_VALIDATION&quot;</span>) {</span>
+<span class="code-line">      reply</span>
+<span class="code-line">        .code(statusForErrorClass(<span class="code-string">&quot;invalid_input&quot;</span>))</span>
+<span class="code-line">        .send(errorEnvelope(<span class="code-string">&quot;invalid_input&quot;</span>, error.message));</span>
+<span class="code-line">      <span class="code-keyword">return</span>;</span>
+<span class="code-line">    }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment argues the two decisions that matter: why this is a 400 (caller's shape error), and why relaying ajv's message is safe (mechanical, parameter-scoped — no internals to leak).</p>
+              <p class="tl">Match Fastify's validation errors by their stable code...</p>
+              <p class="tl">...and answer with the typed envelope: <code>invalid_input</code>, status 400, ajv's own diagnosis as the message.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The malformed-paging contract test — <em>&quot;refuses malformed paging with a typed 400, never a silent default&quot;</em> (<code>apps/api/test/ingestion-list.contract.test.ts</code>, line 180). It asserts the status AND the envelope shape, so the branch can't silently regress back into the catch-all.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: Bug 3 — the $$ that wasn't -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bug #3 — the <code>$$</code> that wasn't</h2>
+        <p><strong>Symptom:</strong> during the live worktree pivot, a freshly minted <code>.env</code> carried <code>OPERATOR_PASSWORD_HASH=b</code>. A 60-character bcrypt hash, reduced to one letter. Two mechanisms stacked to produce it:</p>
+        <p><strong>Mechanism (a):</strong> a bcrypt hash looks like <code>$2b$10$...</code> — and <em>sourcing</em> a file containing <code>HASH=$2b$10$...</code> hands it to the shell, which happily expands <code>$2</code> as a positional parameter. Empty. What survives is the literal debris between the expansions: <code>b</code>. The secret wasn't corrupted in storage; it was eaten in transit, by a shell doing exactly what shells do.</p>
+        <p><strong>Mechanism (b):</strong> the first repair attempt, in JS. Compose interpolation needs every <code>$</code> in the stored value escaped as <code>$$</code>, so the obvious move was a one-liner. Click the broken line.</p>
+
+        <div class="bug-challenge animate-in">
+          <h3>🐛 Spot the bug — the repair that repaired nothing</h3>
+          <div class="bug-code">
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Reading the raw hash is fine — the value is intact at this point.">
+              <span class="line-num">1</span><code>const hash = readOperatorHash();          <span class="code-comment">// &quot;$2b$10$...&quot;</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, true)" data-explanation="In a replacement STRING, $$ is the escape sequence for one literal $ — so this call replaces every $ with... $. A perfect no-op that reads like a fix. The pattern side and the replacement side of replaceAll speak different languages, and $ is a metacharacter in the second one.">
+              <span class="line-num">2</span><code>const escaped = hash.replaceAll(<span class="code-string">'$'</span>, <span class="code-string">'$$'</span>);   <span class="code-comment">// escape for compose</span></code>
+            </div>
+            <div class="bug-line" onclick="checkBugLine(this, false)" data-hint="Writing the line is fine — the damage happened one line up, where 'escaped' came out identical to 'hash'.">
+              <span class="line-num">3</span><code>lines.push(`OPERATOR_PASSWORD_HASH=${escaped}`);</code>
+            </div>
+          </div>
+          <div class="bug-feedback"></div>
+        </div>
+
+        <p><strong>Fix:</strong> two layers. Tactically, use a form that never interprets its replacement — the function form <code>replaceAll('$', () =&gt; '$$')</code>, or <code>split('$').join('$$')</code>, where <code>join</code> treats its argument as bytes, full stop. Structurally — and this is the fix that actually shipped — the mint tool copies secrets <em>verbatim</em> from an existing <code>.env</code>, already-escaped bytes in, identical bytes out, so no human (or shell) ever re-derives the escaping again. That doctrine is written into <code>parseEnv</code> itself, verbatim from <code>scripts/worktree-env-lib.mjs</code>, lines 57–59:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** Minimal .env parser — KEY=value lines, comments/blanks skipped. Values are</span></span>
+<span class="code-line"><span class="code-comment"> * kept verbatim (no unquoting/expansion: compose does its own interpolation,</span></span>
+<span class="code-line"><span class="code-comment"> * and round-tripping bytes untouched is what keeps escaped bcrypt hashes safe). */</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Every clause of this comment is a scar from the bug above: no expansion (mechanism a), no re-escaping (mechanism b), bytes in = bytes out.</p>
+              <p class="tl">The parser refuses to be clever precisely because two layers of cleverness — the shell's and JS's — each destroyed the value in a different way.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Pinned by</strong>
+            <p>The protocol suite's mint test (<code>scripts/worktree-env-lib.test.mjs</code>): it feeds <code>OPERATOR_PASSWORD_HASH: &quot;$$2b$$10$$x&quot;</code> through <code>mintEnv</code> → <code>parseEnv</code> and asserts the identical string comes back — <em>&quot;Secrets are copied verbatim, never invented.&quot;</em> Any future &quot;helpful&quot; escaping or expansion turns that assertion red.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: Wrap — quiz, course summary strip, pointer onward -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the ledger teaches</h2>
+        <p>Three bugs, one shape: <strong>semantics that depend on value shape</strong>. An array means one thing to <code>IN</code> and another to <code>ANY</code>. A <code>$</code> means one thing in a pattern and another in a replacement string — and a third thing to a shell. An error object means &quot;caller's fault&quot; or &quot;server's fault&quot; depending on which branch reads it first. None of these are exotic; all of them look correct in a diff. The defense was never cleverness — it was a test, written first, that pinned what the code was supposed to mean.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Notice what the three fixes have in common: none of them made the code smarter. The <code>idList</code> helper hand-builds the dumbest possible SQL fragment. The <code>invalid_input</code> branch just relays ajv's own words. <code>parseEnv</code> refuses to interpret anything at all. When semantics depend on value shape, the winning move is to <em>remove</em> a layer of interpretation, not add one — and then pin the boring behavior with a test so nobody helpfully re-adds the cleverness later.</p>
+          </div>
+        </div>
+
+        <div class="quiz-container" id="quiz-module6">
+          <div class="quiz-question-block"
+               data-correct="opt-b"
+               data-explanation-right="Right — in a replacement string, $$ is the escape sequence for one literal $, so every $ is replaced with a single $. The call is a perfect no-op. This is exactly Bug #3's mechanism (b), and why the fix used a form that never interprets its replacement."
+               data-explanation-wrong="Not quite. The pattern side of replaceAll is a plain string here — no regex, no error. The trap is on the REPLACEMENT side, where $ is a metacharacter: $$ means one literal $.">
+            <h3 class="quiz-question">In JS, what does <code>'a$b'.replaceAll('$', '$$')</code> return?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="opt-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>'a$$b'</code> — each <code>$</code> becomes two, as written</span>
+              </button>
+              <button class="quiz-option" data-value="opt-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span><code>'a$b'</code> — in a replacement string <code>$$</code> is the escape for one literal <code>$</code>, so the call is a no-op</span>
+              </button>
+              <button class="quiz-option" data-value="opt-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A SyntaxError — <code>$</code> is a reserved character in the pattern argument</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answer</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">The course, in six lines</h3>
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">👻</div>
+            <h4 class="pattern-title">01 — The Invisible Library</h4>
+            <p class="pattern-desc">A working pipeline nobody could see: the corpus existed, but only curl and a remembered ticket URL could prove it.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+            <h4 class="pattern-title">02 — The Submissions Timeline</h4>
+            <p class="pattern-desc">One newest-first page over sources + batches — a UNION ALL, five constant queries, and counts filtered through the reader predicate.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🧭</div>
+            <h4 class="pattern-title">03 — The Navigation Shell</h4>
+            <p class="pattern-desc">Every protected page carries the way to <code>/library</code>; the browser still never talks to the API — the server seam holds.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">⚖️</div>
+            <h4 class="pattern-title">04 — The Honest 400</h4>
+            <p class="pattern-desc">Malformed paging earns <code>invalid_input</code>, never the scrubbed 500 — statuses tell the truth about whose fault it is.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔢</div>
+            <h4 class="pattern-title">05 — Ports by Arithmetic</h4>
+            <p class="pattern-desc">A worktree's whole environment derived from its feature number — minted in one step, collision-checked, torn down without touching a sibling.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🪲</div>
+            <h4 class="pattern-title">06 — The Bug Ledger</h4>
+            <p class="pattern-desc">Three shape-dependent-semantics bugs from the live run, each pinned by a test that existed before the fix did.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">What's next</strong>
+            <p>Retrieval is the next spec. The listing's read model — plugin attribution, generations, current-generation counts — is exactly the shape it will build on: the same reader predicate that keeps this page honest is what will keep search results pointed at committed passages, not half-written re-ingests.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: var(--space-8); font-size: var(--text-lg)">Thanks for reading the scar tissue. It never makes the diagrams — but it's the part of the codebase that tells you what actually happened.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

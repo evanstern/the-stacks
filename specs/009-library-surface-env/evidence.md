@@ -71,5 +71,10 @@ page needed beyond the Ingestion page's existing scope.
 
 ## Learning artifact (Principle VIII)
 
-Course: _pending — added at cycle close via /spec-cycle-course; this line is updated
-by that step (T023)._
+Course: [docs/courses/009-library-surface-env/index.html](../../docs/courses/009-library-surface-env/index.html)
+— six interactive modules (invisible library / submissions timeline / navigation shell /
+honest 400 / ports by arithmetic / bug ledger), skilled-developer register, seeded from
+this feature's spec artifacts + teaching-commented source via /spec-cycle-course →
+/codebase-to-course (briefs-first; briefs committed alongside). Real data throughout:
+the live ids, the 57-submission paging run, the collision/drift transcripts, and this
+cycle's three real bugs.
