@@ -203,7 +203,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — v3/apps/api/src/main.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">main</span>(): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
 <span class="code-line">  <span class="code-function">assertRequiredEnv</span>();</span>
@@ -211,13 +211,10 @@
 <span class="code-line"><span class="code-comment">  // The API never embeds — the worker does — but validating here surfaces a bad</span></span>
 <span class="code-line"><span class="code-comment">  // embedding config at deploy time instead of on the first queued run.</span></span>
 <span class="code-line">  <span class="code-function">resolveModelRole</span>(<span class="code-string">"embedding"</span>);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> { db, pool } = <span class="code-function">createDbClient</span>(process.env.DATABASE_URL!);</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-comment">  // Migrations apply before the port binds — /ready therefore implies</span></span>
 <span class="code-line"><span class="code-comment">  // schema-current (research R10, FR-002).</span></span>
 <span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">runMigrations</span>(db);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> app = <span class="code-keyword">await</span> <span class="code-function">buildApp</span>({</span>
 <span class="code-line">    <span class="code-property">db</span>,</span>
 <span class="code-line">    <span class="code-property">pool</span>,</span>
@@ -225,7 +222,6 @@
 <span class="code-line">    <span class="code-property">sessionSecret</span>: process.env.SESSION_SECRET!,</span>
 <span class="code-line">    <span class="code-property">sessionCookieSecure</span>: process.env.SESSION_COOKIE_SECURE === <span class="code-string">"true"</span>,</span>
 <span class="code-line">  });</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> port = Number.<span class="code-function">parseInt</span>(process.env.V3_API_PORT ?? <span class="code-string">"4401"</span>, <span class="code-number">10</span>);</span>
 <span class="code-line">  <span class="code-keyword">await</span> app.<span class="code-function">listen</span>({ <span class="code-property">host</span>: <span class="code-string">"0.0.0.0"</span>, <span class="code-property">port</span> });</span>
 <span class="code-line">}</span>
@@ -234,18 +230,27 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">One async boot function. Any throw below kills the container — and compose reports exactly which link died.</p>
-              <p class="tl">Check every required env var up front, and report ALL missing vars at once — not one per restart.</p>
-              <p class="tl">The comments say it plainly: this validation is on behalf of a service that is not this one.</p>
-              <p class="tl">The API validates a model role it never uses — deploy-time surfacing. A bad embedding config stops boot here instead of stranding the first queued job hours later.</p>
-              <p class="tl">Open the connection pool to Postgres — which compose guarantees is already healthy.</p>
-              <p class="tl">Migrate-then-listen. Because this line runs before the port opens, /ready becomes a schema certificate.</p>
-              <p class="tl">Assemble the Fastify app: database handles plus auth material —</p>
-              <p class="tl">— the operator&apos;s password hash and the secret that seals the
+              <p class="tl">One async boot function owns the whole process. Any throw below kills the container — and compose&apos;s <code>--wait</code> reports exactly which link died.</p>
+              <p class="tl">Env gate first: collect and report ALL missing vars in one error — not one per restart.</p>
+              <p class="tl">A why-comment where the doctrine lives: fail fast, and name the offending variable in the error…</p>
+              <p class="tl">…while conceding the oddity up front — the API never embeds; the Worker does…</p>
+              <p class="tl">…so the call below is purely about timing: surface a bad config at deploy, not on the first queued run.</p>
+              <p class="tl">Validate a model role this service never uses. Model roles resolve env-first — no hardcoded model IDs (Principle VII / D14) — so a malformed embedding config stops boot here instead of stranding a Worker job hours later.</p>
+              <p class="tl">Open the Drizzle client and its raw pg pool — compose&apos;s <code>service_healthy</code> gate guarantees Postgres already answers.</p>
+              <p class="tl">Migrate-then-listen, stated as doctrine exactly where it is enforced…</p>
+              <p class="tl">…with the receipts cited: research R10 and FR-002 pin this ordering as a requirement, not a taste.</p>
+              <p class="tl">The await that makes /ready a schema certificate: no applied migrations, no port.</p>
+              <p class="tl">Assemble the Fastify app via the pure composition root (app.ts) — the process entry injects everything, so tests never come through main().</p>
+              <p class="tl">The Drizzle handle the routes query with…</p>
+              <p class="tl">…and the raw pool — /ready uses it for the cheapest possible &ldquo;is Postgres there&rdquo; probe, a bare <code>select 1</code>.</p>
+              <p class="tl">Auth material from env: the single operator&apos;s bcrypt hash (every <code>$</code> escaped as <code>$$</code> in .env, or compose interpolation mangles it)…</p>
+              <p class="tl">…and the secret that seals the
                 <span class="term" data-definition="A session cookie whose contents are encrypted and authenticated with a server-side secret. The browser stores it but can neither read nor forge it.">sealed cookie</span> sessions.</p>
-              <p class="tl">Cookie security flag comes from env, so dev over http and prod over https use the same code path.</p>
-              <p class="tl">Port from env with a 4401 default.</p>
-              <p class="tl">Only NOW does the socket open. Anything that can answer on :4401 has, by construction, already migrated.</p>
+              <p class="tl">The cookie Secure flag comes from env, so dev over http and prod over https share one code path — only the prod overlay flips it true.</p>
+              <p class="tl">That is the app&apos;s entire dependency list; everything else is constructed inside buildApp.</p>
+              <p class="tl">Port from env with a 4401 default — the same value compose publishes and the healthcheck probes.</p>
+              <p class="tl">Only NOW does the socket open. Anything that answers on :4401 has, by construction, already migrated.</p>
+              <p class="tl">End of boot — from here, &ldquo;is it healthy&rdquo; belongs to the compose healthcheck probing the /ready this ordering just made meaningful.</p>
             </div>
           </div>
         </div>
@@ -266,7 +271,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">API HEALTHCHECK</span>
+            <span class="translation-label">CODE — v3/docker-compose.yml (api healthcheck)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">    # node -e fetch(): no curl/wget in node:22-slim, so probe with node itself.</span></span>
 <span class="code-line"><span class="code-comment">    # /ready (not /health) so "healthy" means migrated + serving.</span></span>
@@ -276,23 +281,30 @@
 <span class="code-line">          <span class="code-string">"CMD"</span>,</span>
 <span class="code-line">          <span class="code-string">"node"</span>,</span>
 <span class="code-line">          <span class="code-string">"-e"</span>,</span>
-<span class="code-line">          <span class="code-string">"fetch('http://localhost:4401/ready').then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
+<span class="code-line">          <span class="code-string">"fetch(&#39;http://localhost:4401/ready&#39;).then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
 <span class="code-line">        ]</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The slim base image ships no curl or wget — so the probe is a one-liner of Node itself.</p>
-              <p class="tl">And it hits <code>/ready</code>, not <code>/health</code>: the check inherits the migrate-then-listen guarantee from the boot sequence.</p>
-              <p class="tl">Exit 0 on a 2xx, exit 1 on anything else — including a refused connection. Docker translates that into healthy or unhealthy.</p>
+              <p class="tl">The constraint, documented in place: node:22-slim ships neither curl nor wget — so the probe is a one-liner of Node itself.</p>
+              <p class="tl">And the target is <code>/ready</code>, not <code>/health</code> — &ldquo;healthy&rdquo; here inherits the migrate-then-listen guarantee from the boot sequence.</p>
+              <p class="tl">The compose health block: this command&apos;s exit code is the signal every downstream <code>service_healthy</code> gate reads.</p>
+              <p class="tl">The probe command…</p>
+              <p class="tl">…in exec-array form: an argv handed straight to the container, no shell in between.</p>
+              <p class="tl"><code>CMD</code>, not <code>CMD-SHELL</code> — run the binary directly.</p>
+              <p class="tl">The app&apos;s own runtime doubles as the probe binary.</p>
+              <p class="tl">Evaluate a one-line script…</p>
+              <p class="tl">…that maps HTTP truth onto exit codes: a 2xx exits 0, anything else — including a refused connection, via the catch — exits 1. Docker turns that into healthy or unhealthy.</p>
+              <p class="tl">Five argv tokens, zero packages installed just to ask &ldquo;are you up?&rdquo;</p>
             </div>
           </div>
         </div>
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">WORKER HEALTHCHECK</span>
+            <span class="translation-label">CODE — v3/docker-compose.yml (worker healthcheck)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">    # Worker has no HTTP surface, so health = "heartbeat file touched within the</span></span>
 <span class="code-line"><span class="code-comment">    # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if</span></span>
@@ -304,9 +316,11 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The Worker exposes no port, so there is nothing to fetch. Instead, its poll loop touches a file on every tick.</p>
-              <p class="tl">The check asks: was that file modified within the last minute? A wedged loop stops touching it, the file goes stale, the container flips unhealthy.</p>
-              <p class="tl">Health here means &ldquo;the loop is actually looping&rdquo; — a strictly stronger claim than &ldquo;the process is alive.&rdquo;</p>
+              <p class="tl">The Worker exposes no port, so there is nothing to fetch — the comment redefines health for a poll-loop service…</p>
+              <p class="tl">…as freshness: the loop touches <code>/tmp/worker-heartbeat</code> on every tick…</p>
+              <p class="tl">…so a wedged loop stops touching it, the mtime goes stale, and the check fails — while the process is still technically &ldquo;alive.&rdquo;</p>
+              <p class="tl">Same compose mechanism as the API&apos;s check — a different definition of healthy plugs into the identical <code>service_healthy</code> gating.</p>
+              <p class="tl"><code>find -mmin -1</code> matches only if the file changed within the last minute; <code>grep -q .</code> converts &ldquo;matched anything&rdquo; into exit 0. Health means &ldquo;the loop is actually looping&rdquo; — strictly stronger than &ldquo;the process runs.&rdquo;</p>
             </div>
           </div>
         </div>
@@ -541,7 +555,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">v3/scripts/check-boundaries.mjs</span>
+            <span class="translation-label">CODE &mdash; v3/scripts/check-boundaries.mjs</span>
             <pre><code><span class="code-line"><span class="code-comment">#!/usr/bin/env node</span></span>
 <span class="code-line"><span class="code-comment">// Fails the build on structural boundary violations the type system can't</span></span>
 <span class="code-line"><span class="code-comment">// catch on its own (FR-019, FR-005, SC-006). Run via `pnpm verify`.</span></span>
@@ -563,15 +577,27 @@
 <span class="code-line"><span class="code-comment">// same spirit as the append-only-by-construction event table.</span></span></code></pre>
           </div>
           <div class="translation-english">
-            <span class="translation-label">What it buys you</span>
+            <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">A build gate: it kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
-              <p class="tl"><strong>Rule 1:</strong> web can only ever break the API contract, never the schema. The UI physically cannot couple itself to the database.</p>
-              <p class="tl">TypeScript would compile that import happily — the scan exists precisely because the compiler won't object.</p>
-              <p class="tl"><strong>Rule 2:</strong> v2 can be deleted without grep-ing v3. No import ever crosses the <code>v3/</code> root, so retirement stays a delete.</p>
-              <p class="tl"><strong>Rule 3:</strong> swapping the embedding model is an env change, not a code change. Model ids live in config, never in source.</p>
-              <p class="tl">Deliberately blunt: plain text scans, no AST, no dependencies. Cheap enough to run on every single verify.</p>
-              <p class="tl">The last line names the doctrine — make invariants structural, and you never have to remember them.</p>
+              <p class="tl">Plain Node, zero dependencies — the inspector has to be cheap enough to run on every single verify.</p>
+              <p class="tl">The mission statement: a build gate. It kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
+              <p class="tl">The doctrine pins (FR-019, FR-005, SC-006) and the trigger. TypeScript would compile every one of these violations happily — the scan exists precisely because the compiler won't object.</p>
+              <p class="tl">A beat, then the contract itself.</p>
+              <p class="tl">Every rule cites the doctrine that demanded it — these are constitutional decisions, not style preferences.</p>
+              <p class="tl"><strong>Rule 1:</strong> web touches neither the schema nor any other app's source. Its only doorway into the system is HTTP.</p>
+              <p class="tl">The pin: FR-019. If web needs data, it earns an API endpoint — never a workspace import.</p>
+              <p class="tl">The failure mode being prevented: a compile-clean workspace import that quietly couples the UI&hellip;</p>
+              <p class="tl">&hellip;to the database schema. The scan objects exactly where the compiler stays silent — so web can only ever break the API contract, never the schema.</p>
+              <p class="tl"><strong>Rule 2:</strong> nothing under <code>v3/</code> may import v2 code — D1's clean-rebuild wall, checked lexically.</p>
+              <p class="tl">One stray <code>../../</code> relative import escaping the root is all it would take&hellip;</p>
+              <p class="tl">&hellip;to re-entangle the trees. This rule is why v2 can be deleted without grep-ing v3 — retirement stays a delete, not a migration.</p>
+              <p class="tl"><strong>Rule 3:</strong> model identifiers never appear in product code (<span class="term" data-definition="Constitutional principle: no hardcoded model identifiers in product code — model roles resolve from the environment first, so model choice stays configuration, never source.">Principle VII</span>). Swapping the embedding model is an env change, not a code change.</p>
+              <p class="tl">Models are configuration: resolved env-first through <code>@stacks/core</code>&hellip;</p>
+              <p class="tl">&hellip;whose model-roles helper fails fast at boot when a role is unset (FR-013/D14). A literal id in source would bypass&hellip;</p>
+              <p class="tl">&hellip;that resolution entirely and pin every deploy to one model. The wall keeps model choice an ops decision.</p>
+              <p class="tl">The implementation is deliberately blunt: lexical scans over source text — no AST, no lint framework&hellip;</p>
+              <p class="tl">&hellip;and bluntness is the point: cheap enough to run on every verify, strict enough to fail CI&hellip;</p>
+              <p class="tl">&hellip;in the same doctrine as the append-only event table you'll meet in Module 4 — make invariants structural, and nobody has to remember them.</p>
             </div>
           </div>
         </div>
@@ -588,7 +614,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">v3/packages/db/src/index.ts</span>
+            <span class="translation-label">CODE &mdash; v3/packages/db/src/index.ts</span>
             <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * @stacks/db — the persistence seam: drizzle schemas, the pooled client,</span></span>
 <span class="code-line"><span class="code-comment"> * boot-time migrations, and the two data disciplines of the skeleton (the</span></span>
@@ -598,11 +624,15 @@
 <span class="code-line"><span class="code-comment"> */</span></span></code></pre>
           </div>
           <div class="translation-english">
-            <span class="translation-label">What it buys you</span>
+            <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Everything that touches Postgres lives behind this one barrel: schemas, the pooled client, boot migrations.</p>
-              <p class="tl">It also hosts the skeleton's two data disciplines — the job queue and the append-only event trail.</p>
-              <p class="tl">The header names its own enforcement: who may import it, and exactly which script fails CI if anyone else tries.</p>
+              <p class="tl">A doc header as a load-bearing sign: the package announces its own import rules.</p>
+              <p class="tl">Everything that touches Postgres lives behind this one barrel: drizzle schemas, the pooled client&hellip;</p>
+              <p class="tl">&hellip;boot-time migrations (the API applies them before binding its port), plus the skeleton's two data disciplines&hellip;</p>
+              <p class="tl">&hellip;the Postgres-backed job queue (<span class="term" data-definition="Fixed constitutional decision #12: background work runs off a jobs table in Postgres — no Redis, no separate message broker to operate.">D12</span>) and the append-only event trail (Principle IV). No second store, no extra broker.</p>
+              <p class="tl">The consumer allowlist, spelled out: api and worker in, web explicitly out&hellip;</p>
+              <p class="tl">&hellip;with the doctrine pin (FR-019) and the exact script that fails CI if anyone else tries.</p>
+              <p class="tl">Header closes. The ban is now documented on both sides of the wall — here and in the inspector itself.</p>
             </div>
           </div>
         </div>
@@ -902,12 +932,10 @@
 <span class="code-line">        .<span class="code-function">where</span>(sql`${jobs.id} = ${job!.id}`);</span>
 <span class="code-line">      <span class="code-keyword">return</span> createdRun!;</span>
 <span class="code-line">    });</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// 'queued' is emitted AFTER the commit: an event must never describe a run</span></span>
 <span class="code-line">    <span class="code-comment">// that a rollback could erase. Events are observability, not state — losing</span></span>
 <span class="code-line">    <span class="code-comment">// this one to a crash is acceptable; a phantom event is not.</span></span>
 <span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">recordEvent</span>(db, { <span class="code-property">runId</span>: run.id, <span class="code-property">seam</span>: <span class="code-string">"queued"</span> });</span>
-<span class="code-line"></span>
 <span class="code-line">    reply.<span class="code-function">code</span>(<span class="code-number">202</span>);</span>
 <span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">run</span>: { <span class="code-property">id</span>: run.id, <span class="code-property">status</span>: run.status, <span class="code-property">createdAt</span>: run.createdAt } };</span>
 <span class="code-line">  });</span></code></pre>
@@ -915,15 +943,32 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the input sentence is fixed.</p>
-              <p class="tl">The comment is the contract: one transaction creates run + job here; the worker does the real seam-crossing later, off this queue entry.</p>
-              <p class="tl">Open a single transaction — everything inside commits together or vanishes together. A crash mid-accept leaves nothing behind.</p>
-              <p class="tl">Insert the job first with an empty payload; we need its id before the run row can point at it.</p>
-              <p class="tl">Insert the run, wired to the job via <code>jobId</code> and carrying the fixed sentence.</p>
-              <p class="tl">Back-fill the job payload with the run id — each row needs the other, and <code>jobs.payload</code> is the cheaper side to update.</p>
-              <p class="tl">Return the run out of the callback. This is the commit point: run and job now exist atomically.</p>
-              <p class="tl">Only <em>after</em> the commit does <code>queued</code> get recorded — an event must never describe a run a rollback could erase.</p>
-              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;. Hand back the run id the web page will poll.</p>
+              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the tracer sentence is fixed.</p>
+              <p class="tl">The comment carries the doctrine: <span class="term" data-definition="The API&rsquo;s only job is to record the request and return 202; all real work happens off a queue — constitution Principle IV.">accept-then-async</span> — one transaction creates run + job here (FR-009)…</p>
+              <p class="tl">…the worker does the actual seam-crossing later, off this queue entry (D12, Principle IV).</p>
+              <p class="tl">…and one transaction means no window where a run exists without its job…</p>
+              <p class="tl">…or vice versa — a crash mid-accept leaves nothing behind, in either direction.</p>
+              <p class="tl">…the insertion order is declared up front too: job first, runId back-filled…</p>
+              <p class="tl">…because each row needs the other&rsquo;s id, and <code>jobs.payload</code> is the cheaper side to update.</p>
+              <p class="tl">Open the single transaction — everything inside commits together or vanishes together.</p>
+              <p class="tl">Insert the job first, payload empty; its id must exist before the run row can point at it.</p>
+              <p class="tl">Second insert begins: the run itself…</p>
+              <p class="tl">…into <code>skeleton_check_runs</code>…</p>
+              <p class="tl">…wired to the job via <code>jobId</code> and carrying the fixed tracer sentence…</p>
+              <p class="tl">…and <code>returning()</code> hands the created row back so the route can answer with its id.</p>
+              <p class="tl">Third statement: back to the job row we created empty…</p>
+              <p class="tl">…an UPDATE on <code>jobs</code>…</p>
+              <p class="tl">…back-filling the payload with the run id — the circular reference resolved on the cheap side…</p>
+              <p class="tl">…scoped to exactly this job. The <code>sql</code>-tag interpolation is a bound parameter, not string splicing.</p>
+              <p class="tl">Return the run out of the callback — this value outlives the transaction.</p>
+              <p class="tl">The commit point. Run and job now exist atomically, or not at all.</p>
+              <p class="tl">Second doctrine comment: <code>queued</code> is emitted only AFTER the commit…</p>
+              <p class="tl">…because an event must never describe a run a rollback could erase. Events are observability, not state…</p>
+              <p class="tl">…so losing this event to a crash is acceptable; a phantom event is not. The callout below unpacks the asymmetry.</p>
+              <p class="tl">The emission itself: <code>recordEvent</code> — the sole writer to the append-only events table — records seam #1.</p>
+              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;.</p>
+              <p class="tl">Hand back id, status, <code>createdAt</code> — everything the web page needs to start polling.</p>
+              <p class="tl">Handler ends ~5ms after it began. The other five seams belong to the worker.</p>
             </div>
           </div>
         </div>
@@ -1026,10 +1071,18 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Insert the vector row under its deterministic id.</p>
-              <p class="tl">The row carries the text, the 384 floats, and the full coordinates of its embedding space — provider, model, dimensions stamped right on it.</p>
-              <p class="tl">If that id already exists, skip silently — no error, no duplicate.</p>
-              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the event learns to say <code>deduplicated: true</code>.</p>
+              <p class="tl">Capture the insert&rsquo;s result — how many rows come back is the dedup signal, so it matters.</p>
+              <p class="tl">Target <code>skeleton_vectors</code>, the pgvector table.</p>
+              <p class="tl">Open the row…</p>
+              <p class="tl">…keyed by the deterministic id from <code>deriveVectorId</code> — this primary key is what turns a re-run into a collision instead of a duplicate.</p>
+              <p class="tl">…the raw text rides along, so the row is self-describing without a join.</p>
+              <p class="tl">…the 384 floats the sidecar just returned.</p>
+              <p class="tl">Then the row&rsquo;s embedding-space coordinates: provider…</p>
+              <p class="tl">…model — resolved env-first from the model role, never hardcoded (Principle VII / D14)…</p>
+              <p class="tl">…and dimensions. The readback filter will match on all three.</p>
+              <p class="tl">Row closed.</p>
+              <p class="tl">If that id already exists, skip silently — no error, no duplicate; the second run&rsquo;s write is a no-op.</p>
+              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the <code>vector_write</code> event learns to say <code>deduplicated: true</code>.</p>
             </div>
           </div>
         </div>
@@ -1060,14 +1113,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Start the clock — the readback duration lands in the event detail.</p>
-              <p class="tl">Serialize the embedding we just wrote into a pgvector literal.</p>
-              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — the nearest-neighbor operator.</p>
-              <p class="tl">Ask for the closest vector&rsquo;s id and its distance...</p>
-              <p class="tl">...but only among vectors from the same model,</p>
-              <p class="tl">the same provider,</p>
-              <p class="tl">and the same dimensions. Other embedding spaces are invisible to this query.</p>
-              <p class="tl">Sort by distance, take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
+              <p class="tl">Start the clock — the readback duration lands in the <code>vector_readback</code> event detail.</p>
+              <p class="tl">Serialize the embedding we just wrote into pgvector&rsquo;s <code>[f1,f2,…]</code> literal form.</p>
+              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — build the nearest-neighbor expression once, so SELECT and ORDER BY share it.</p>
+              <p class="tl">Ask for exactly one row and destructure it straight off the result.</p>
+              <p class="tl">All we want back: the neighbor&rsquo;s id and how far away it is.</p>
+              <p class="tl">Search the same table the write just landed in.</p>
+              <p class="tl">But not the whole table — the filter opens…</p>
+              <p class="tl">…only vectors from the same model,</p>
+              <p class="tl">…the same provider,</p>
+              <p class="tl">…and the same dimensions. Other embedding spaces are invisible to this query.</p>
+              <p class="tl">Filter closed — config drift is now a <em>detectable</em> mismatch, never a silent cross-space comparison (Principle VII).</p>
+              <p class="tl">Sort by that distance expression, nearest first.</p>
+              <p class="tl">Take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
             </div>
           </div>
         </div>
@@ -1283,12 +1341,10 @@
 <span class="code-line"><span class="code-string">          <strong style="color:#F9E2AF">FOR UPDATE SKIP LOCKED</strong></span></span>
 <span class="code-line"><span class="code-string">          LIMIT 1</span>`,</span>
 <span class="code-line">    );</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> candidate = candidates.rows[<span class="code-number">0</span>];</span>
 <span class="code-line">    <span class="code-keyword">if</span> (!candidate) {</span>
 <span class="code-line">      <span class="code-keyword">return undefined</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx</span>
 <span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
 <span class="code-line">      .<span class="code-function">set</span>({</span>
@@ -1300,7 +1356,6 @@
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${candidate.id}`)</span>
 <span class="code-line">      .<span class="code-function">returning</span>();</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">return</span> row;</span>
 <span class="code-line">  });</span>
 <span class="code-line">}</span></code></pre>
@@ -1309,16 +1364,34 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">One call = one attempt to take the next job. <code>undefined</code> means the rack is empty.</p>
-              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block.</p>
-              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL so <code>grep "SKIP LOCKED"</code> finds it.</p>
-              <p class="tl">Take the oldest <code>queued</code> job whose <code>run_at</code> has arrived — the same timestamp backoff will push into the future.</p>
-              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it — no waiting, no double-grab.</p>
+              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block, which is what makes select-then-update a single atomic claim.</p>
+              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL, not query-builder options&hellip;</p>
+              <p class="tl">&hellip;so <code>grep "SKIP LOCKED"</code> finds it word-for-word, identical to the docs that explain it.</p>
+              <p class="tl">Ask Postgres for one candidate id — raw <code>execute</code>, still inside the transaction.</p>
+              <p class="tl">The entire dequeue is this one SELECT against the <code>jobs</code> table.</p>
+              <p class="tl">Only <code>queued</code> rows whose <code>run_at</code> has arrived — the same timestamp <code>fail()</code> pushes into the future, so backoff needs no extra machinery here.</p>
+              <p class="tl">Oldest first — FIFO by creation time.</p>
+              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it instead of blocking behind the lock — no waiting, no double-grab (<span class="term" data-definition="Fixed decision: the queue is a Postgres table, not a broker. Pinned in the constitution so nobody relitigates it per-feature.">D12</span>).</p>
               <p class="tl">One slip at a time.</p>
-              <p class="tl">Nothing claimable? Return <code>undefined</code>; the worker sleeps a tick and polls again.</p>
-              <p class="tl">Still inside the transaction — the lock is still held — flip the row to <code>claimed</code>.</p>
-              <p class="tl">Stamp who took it and when. These two fields power both the reclaim clock and the forensic freeze later.</p>
-              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — so it always counts the run that is about to happen.</p>
-              <p class="tl">Commit releases the lock, and the claimed row goes back to the worker loop.</p>
+              <p class="tl">Query done — from here to commit, that row is locked against every other worker.</p>
+              <p class="tl">Unpack the single candidate, if there was one.</p>
+              <p class="tl">Empty rack — or every runnable row locked by someone else?</p>
+              <p class="tl">Report &ldquo;nothing to do&rdquo;; the worker sleeps a tick and polls again.</p>
+              <p class="tl">Past this brace, we hold a locked, runnable row.</p>
+              <p class="tl">Now stamp the claim — same transaction, lock still held.</p>
+              <p class="tl">The query builder is fine here; only the locking clause above needed to stay literal.</p>
+              <p class="tl">Five fields make a claim:</p>
+              <p class="tl">Flip to <code>claimed</code> — invisible to every other worker&rsquo;s SELECT from now on.</p>
+              <p class="tl">Who took it&hellip;</p>
+              <p class="tl">&hellip;and when — the timestamp the visibility-timeout reclaim clock measures against.</p>
+              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — a worker that dies mid-job still burns an attempt when the claim is reclaimed.</p>
+              <p class="tl">Touch <code>updated_at</code>, as every writer of this row does.</p>
+              <p class="tl">End of the claim stamp.</p>
+              <p class="tl">Exactly the row the SELECT locked.</p>
+              <p class="tl"><code>.returning()</code> hands back the updated row — no second round-trip to re-read it.</p>
+              <p class="tl">The claimed job flows back to the worker loop for dispatch.</p>
+              <p class="tl">Commit — only now does the row lock release, with the status flip already visible.</p>
+              <p class="tl">That&rsquo;s the whole multi-worker story: one clause, one transaction.</p>
             </div>
           </div>
         </div>
@@ -1354,13 +1427,11 @@
 <span class="code-line">    <span class="code-keyword">if</span> (!row) {</span>
 <span class="code-line">      <span class="code-keyword">return</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// attempts was already bumped by claimNext, so after the Nth run</span></span>
 <span class="code-line">    <span class="code-comment">// attempts === N: 1st failure waits base*2^0, 2nd base*2^1, ... The</span></span>
 <span class="code-line">    <span class="code-comment">// Math.max guards against a hand-inserted row failing at attempts = 0.</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> exhausted = row.attempts &gt;= row.maxAttempts;</span>
 <span class="code-line">    <span class="code-keyword">const</span> backoffMs = BACKOFF_BASE_MS * <span class="code-number">2</span> ** Math.<span class="code-function">max</span>(<span class="code-number">0</span>, row.attempts - <span class="code-number">1</span>);</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// On terminal failure we freeze claimed_by/claimed_at/run_at as forensic</span></span>
 <span class="code-line">    <span class="code-comment">// evidence of the final attempt; on requeue we clear the claim so the row</span></span>
 <span class="code-line">    <span class="code-comment">// is claimable again once run_at arrives.</span></span>
@@ -1382,25 +1453,42 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The worker calls this when a handler throws. The error arriving here is already typed — that vocabulary is module 5.</p>
-              <p class="tl">Same shape as the claim: one transaction, load the row.</p>
-              <p class="tl">Job gone? Nothing to record.</p>
-              <p class="tl">The comment does the arithmetic for you: <code>attempts</code> already counts the run that just failed, because <code>claimNext</code> bumped it up front.</p>
-              <p class="tl">One comparison picks the road: terminal, or try again.</p>
-              <p class="tl">Doubling backoff — 1st failure waits base×1, 2nd base×2, 3rd base×4. <code>Math.max</code> guards a hand-inserted row failing at <code>attempts = 0</code>.</p>
-              <p class="tl">Two exits, one UPDATE — every field picks its value off the same <code>exhausted</code> flag.</p>
-              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack.</p>
+              <p class="tl">Same shape as the claim: read-then-write inside one transaction.</p>
+              <p class="tl">Load the job — its <code>attempts</code>, <code>maxAttempts</code>, and current claim decide everything below.</p>
+              <p class="tl">Job gone?</p>
+              <p class="tl">Nothing to record — exit quietly.</p>
+              <p class="tl">From here on, the row exists and faces exactly one comparison.</p>
+              <p class="tl">The comment does the arithmetic for you: after the Nth run, <code>attempts === N</code>&hellip;</p>
+              <p class="tl">&hellip;because <code>claimNext</code> bumped it up front — so the Nth failure waits base×2^(N−1)&hellip;</p>
+              <p class="tl">&hellip;and <code>Math.max</code> covers the one degenerate case: a hand-inserted row failing at <code>attempts = 0</code>.</p>
+              <p class="tl">One comparison picks the road: terminal, or back on the rack.</p>
+              <p class="tl">Doubling <span class="term" data-definition="Growing the wait between retries (here: doubling on each attempt) so a struggling dependency gets breathing room instead of a hammering.">backoff</span> — 1st failure waits base×1, 2nd base×2, 3rd base×4 — a struggling dependency gets breathing room.</p>
+              <p class="tl">Second why-comment: on the <em>final</em> failure the claim is deliberately not cleared&hellip;</p>
+              <p class="tl">&hellip;it freezes as forensic evidence — which worker ran the last attempt, and when&hellip;</p>
+              <p class="tl">&hellip;while a requeue clears it, so the row is claimable the moment <code>run_at</code> arrives.</p>
+              <p class="tl">Both roads are one UPDATE&hellip;</p>
+              <p class="tl">&hellip;on the same <code>jobs</code> row&hellip;</p>
+              <p class="tl">&hellip;with every field picking its value off the same <code>exhausted</code> flag:</p>
+              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack — the state machine&rsquo;s teal arrow.</p>
               <p class="tl">The typed failure lands on the row either way — the &ldquo;note&rdquo; on the slip.</p>
               <p class="tl">The schedule column <em>is</em> the backoff mechanism: requeue pushes <code>run_at</code> into the future, and <code>claimNext</code>&rsquo;s WHERE clause won&rsquo;t touch it before then. No timer service — just a timestamp.</p>
-              <p class="tl">Requeue clears the claim so the row is grabbable again; terminal failure freezes <code>claimed_by</code>/<code>claimed_at</code> as forensic evidence — who ran it last, and when.</p>
+              <p class="tl">Requeue clears the claimer so the row is grabbable again; terminal failure keeps it&hellip;</p>
+              <p class="tl">&hellip;and keeps the claim time — on a <code>failed</code> row these two fields are the frozen forensics.</p>
+              <p class="tl">Touch <code>updated_at</code>.</p>
+              <p class="tl">End of the two-road payload.</p>
+              <p class="tl">The same row we loaded at the top.</p>
+              <p class="tl">Commit: the requeue or the freeze becomes visible atomically.</p>
+              <p class="tl">No return value — the worker just moves on to its next tick.</p>
             </div>
           </div>
         </div>
 
         <p><code>fail()</code> is the road back the worker lives to report. The other road back is for the crash it doesn&rsquo;t survive — a job stuck at <code>claimed</code> because its worker is gone:</p>
 
-        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
-          <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
-          <pre style="margin:0"><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
 <span class="code-line">    <span class="code-function">touchHeartbeat</span>();</span>
 <span class="code-line">    <span class="code-keyword">try</span> {</span>
 <span class="code-line">      <span class="code-comment">// Visibility timeout: any job claimed longer ago than this is presumed</span></span>
@@ -1409,7 +1497,35 @@
 <span class="code-line">      <span class="code-keyword">const</span> reclaimed = <span class="code-keyword">await</span> <span class="code-function">reclaimStale</span>(db, { visibilityTimeoutMs });</span>
 <span class="code-line">      <span class="code-keyword">if</span> (reclaimed &gt; <span class="code-number">0</span>) {</span>
 <span class="code-line">        <span class="code-function">log</span>(<span class="code-string">"jobs_reclaimed"</span>, { <span class="code-property">count</span>: reclaimed });</span>
-<span class="code-line">      }</span></code></pre>
+<span class="code-line">      }</span>
+<span class="code-line">      <span class="code-comment">// … claim → dispatch → complete/fail elided — module 3 walked that middle …</span></span>
+<span class="code-line">    } <span class="code-keyword">catch</span> (error) {</span>
+<span class="code-line">      <span class="code-function">log</span>(<span class="code-string">"poll_error"</span>, { <span class="code-property">message</span>: error <span class="code-keyword">instanceof</span> Error ? error.message : <span class="code-function">String</span>(error) });</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">sleep</span>(pollMs);</span>
+<span class="code-line">  }</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The worker&rsquo;s whole life is one loop, running until shutdown flips <code>running</code> — SIGTERM lets the in-flight tick finish instead of killing it mid-write.</p>
+              <p class="tl">Heartbeat first: the worker has no HTTP surface, so the compose healthcheck watches this file&rsquo;s mtime for liveness.</p>
+              <p class="tl">The whole tick sits in one try — a bad tick must log and retry, never kill the process.</p>
+              <p class="tl">The <span class="term" data-definition="How long a claim may sit before the system presumes the worker died and returns the job to the queue — the reclaim clock that recovers from mid-job crashes.">visibility timeout</span> doctrine, stated where it runs: a claim older than the timeout&hellip;</p>
+              <p class="tl">&hellip;is presumed orphaned — its worker is dead, not slow — and goes back on the rack&hellip;</p>
+              <p class="tl">&hellip;and because reclaim runs every tick, worst-case recovery is the timeout plus one poll interval — by design, not by luck.</p>
+              <p class="tl">Rescue <em>other</em> workers&rsquo; orphans before polling for your own work.</p>
+              <p class="tl">Usually zero — the check is cheap.</p>
+              <p class="tl">When it isn&rsquo;t, say so: stuck-job debugging starts at this structured log line.</p>
+              <p class="tl">That&rsquo;s the rescue half of the tick done.</p>
+              <p class="tl">The elided middle is the happy path module 3 walked: <code>claimNext</code>, handler dispatch, <code>complete</code> or <code>fail</code>.</p>
+              <p class="tl">Any tick error lands here, not on the floor — a transient DB outage must not kill the process.</p>
+              <p class="tl">Log and move on — a queue-level outage is <code>dependency_down</code> territory (module 5), not a worker death.</p>
+              <p class="tl">The safety net closes; a failed tick ends the same way a quiet one does&hellip;</p>
+              <p class="tl">&hellip;sleep one poll interval, then tick again.</p>
+              <p class="tl">Around again — until <code>running</code> goes false and the loop drains out.</p>
+            </div>
+          </div>
         </div>
 
         <p>Every worker tick starts by rescuing <em>other</em> workers&rsquo; orphans, then polls for its own work. Recovery latency is bounded by the timeout plus one poll interval — by design, not by luck.</p>
@@ -1420,9 +1536,10 @@
         <h2 class="screen-heading">The trail beside the rack</h2>
         <p>Next to <code>jobs</code> sits the event trail from module 3, and it is <span class="term" data-definition="Rows are only ever inserted, never updated or deleted — the history can grow, but it can&rsquo;t be rewritten.">append-only</span> BY CONSTRUCTION: no trigger, no grant — <code>recordEvent</code> is the sole writer, and no UPDATE or DELETE path exists anywhere in the codebase.</p>
 
-        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
-          <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
-          <pre style="margin:0"><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
 <span class="code-line"><span class="code-comment"> * keeping this function the sole writer is the invariant. If you find</span></span>
 <span class="code-line"><span class="code-comment"> * yourself wanting to update or delete an event row, the design answer is</span></span>
 <span class="code-line"><span class="code-comment"> * to append a correcting event instead.</span></span>
@@ -1436,6 +1553,26 @@
 <span class="code-line">    <span class="code-property">durationMs</span>: input.durationMs,</span>
 <span class="code-line">  });</span>
 <span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">We join the docblock mid-sentence, on purpose — this is the line that matters: append-only <em>by construction</em>, no trigger, no revoked grant.</p>
+              <p class="tl">Keeping this function the sole writer <em>is</em> the invariant — nothing enforces it but the shape of the codebase.</p>
+              <p class="tl">Tempted to UPDATE or DELETE an event row?</p>
+              <p class="tl">The design answer: append a correcting event instead. The trail can grow; it cannot be rewritten.</p>
+              <p class="tl">Docblock ends; the function it guards is seven lines.</p>
+              <p class="tl">The only write path onto <code>skeleton_check_events</code> — Principle IV&rsquo;s per-seam trail.</p>
+              <p class="tl">One INSERT via the builder. Appending is the only verb this module knows.</p>
+              <p class="tl">Which run this event belongs to — the correlation key module 3 traced end to end.</p>
+              <p class="tl">Which seam reported — <code>queued</code>, <code>claimed</code>, <code>inference</code>, <code>vector_write</code>&hellip; one event per boundary the check crosses.</p>
+              <p class="tl">Defaults to success; failures record <code>ok: false</code> and stay on the trail forever.</p>
+              <p class="tl">Free-form JSON detail, defaulting to empty — the &ldquo;what happened.&rdquo;</p>
+              <p class="tl">Optional timing, for per-seam latency forensics.</p>
+              <p class="tl">The INSERT ends&hellip;</p>
+              <p class="tl">&hellip;and that&rsquo;s the entire writer. Nothing else in the repo touches this table.</p>
+            </div>
+          </div>
         </div>
 
         <div class="pattern-cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
@@ -1631,7 +1768,6 @@
           <div class="translation-code">
             <span class="translation-label">CODE — v3/apps/api/src/auth/session.ts</span>
             <pre><code><span class="code-line"><span class="code-keyword">const</span> EXEMPT = <span class="code-keyword">new</span> <span class="code-function">Set</span>([<span class="code-string">"GET /health"</span>, <span class="code-string">"GET /ready"</span>, <span class="code-string">"POST /api/auth/login"</span>, <span class="code-string">"POST /api/auth/logout"</span>]);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">// A global onRequest hook (not preHandler) so it also applies to routes that</span></span>
 <span class="code-line">  <span class="code-comment">// don't exist yet — "every other route requires a valid session" (contracts/api.md).</span></span>
 <span class="code-line">  <span class="code-comment">// Consequence worth knowing: an unauthenticated request to an unknown path</span></span>
@@ -1644,7 +1780,6 @@
 <span class="code-line">    <span class="code-keyword">if</span> (EXEMPT.<span class="code-function">has</span>(key)) {</span>
 <span class="code-line">      <span class="code-keyword">return</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">isSessionAuthenticated</span>(request)) {</span>
 <span class="code-line">      <span class="code-comment">// Same fixed "Sign-in failed." body as every credential failure — the</span></span>
 <span class="code-line">      <span class="code-comment">// response never distinguishes missing vs. tampered vs. expired session.</span></span>
@@ -1656,14 +1791,24 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The full escape hatch: four literal <code>METHOD pattern</code> strings — health, ready, login, logout. Everything else lives behind auth.</p>
-              <p class="tl"><code>onRequest</code>, not <code>preHandler</code>: it fires before routing resolves a handler, so even paths with no route are guarded.</p>
-              <p class="tl">That&rsquo;s the deliberate consequence — unknown path, no session, 401. The route map is invisible to the unauthenticated.</p>
-              <p class="tl">Registered once, app-wide. There is no per-route guard to forget.</p>
-              <p class="tl">The key uses the route <em>pattern</em> (<code>/api/x/:id</code>), never the raw URL — you can&rsquo;t craft a URL that string-matches an exemption.</p>
-              <p class="tl">Raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
-              <p class="tl">Exempt key? Fall through to the route, no session needed.</p>
+              <p class="tl">The why-comment opens with the load-bearing choice: <code>onRequest</code>, not <code>preHandler</code>&hellip;</p>
+              <p class="tl">&hellip;because it fires before routing resolves a handler, even paths with no route are guarded — &ldquo;every other route requires a valid session&rdquo; taken literally.</p>
+              <p class="tl">&hellip;and it names the consequence up front instead of leaving it as a surprise&hellip;</p>
+              <p class="tl">&hellip;unknown path, no session → 401, not 404. The route map is invisible to the unauthenticated.</p>
+              <p class="tl">Registered once, app-wide. There is no per-route guard to forget — that&rsquo;s the whole <span class="term" data-definition="Everything requires a valid session unless explicitly exempted. Safety comes from the default, not from remembering to add a guard to each route.">deny-by-default</span> mechanism.</p>
+              <p class="tl">Next comment: the exemption key is built from the route <em>pattern</em>&hellip;</p>
+              <p class="tl">&hellip;so what&rsquo;s keyed is <code>/api/x/:id</code>, not whatever URL the caller typed — you can&rsquo;t craft a URL that string-matches an exemption&hellip;</p>
+              <p class="tl">&hellip;the raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
+              <p class="tl">Build the key: <code>METHOD pattern</code>, raw URL only as the routing-found-nothing fallback.</p>
+              <p class="tl">Is this one of the four named exemptions?</p>
+              <p class="tl">Yes — fall through to the route handler, no session needed.</p>
+              <p class="tl">&hellip;end of the exemption check.</p>
               <p class="tl">Everyone else must present a cookie that unseals cleanly.</p>
-              <p class="tl">One fixed body — <code>"Sign-in failed."</code> — whether the seal is missing, tampered, or expired. The response teaches an attacker nothing.</p>
+              <p class="tl">The comment pins the anti-oracle rule: the same fixed body as every credential failure&hellip;</p>
+              <p class="tl">&hellip;missing, tampered, and expired seals are indistinguishable on the wire.</p>
+              <p class="tl">One fixed 401 — <code>"Sign-in failed."</code> — that teaches an attacker nothing.</p>
+              <p class="tl">&hellip;end of the auth check.</p>
+              <p class="tl">&hellip;and the hook closes. That&rsquo;s the entire auth story for every route in the API.</p>
             </div>
           </div>
         </div>
@@ -1727,11 +1872,9 @@
 <span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
 <span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
 <span class="code-line">};</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">statusForErrorClass</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>): <span class="code-keyword">number</span> {</span>
 <span class="code-line">  <span class="code-keyword">return</span> STATUS_BY_CLASS[errorClass];</span>
 <span class="code-line">}</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">errorEnvelope</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>, message: <span class="code-keyword">string</span>) {</span>
 <span class="code-line">  <span class="code-keyword">return</span> { <span class="code-property">error</span>: { <span class="code-property">code</span>: errorClass, message } };</span>
 <span class="code-line">}</span></code></pre>
@@ -1739,15 +1882,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The only place in the codebase that knows an HTTP status. Four domain classes plus the auth bolt-on.</p>
-              <p class="tl">No such thing → 404.</p>
-              <p class="tl">Wrong kind of input → 415.</p>
-              <p class="tl">Dependency unreachable → 503 — a retryable answer.</p>
-              <p class="tl">Our bug → 500.</p>
-              <p class="tl">Broken seal → 401. Note the type: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code>, it&rsquo;s bolted on at the edge only.</p>
-              <p class="tl">End of doctrine.</p>
-              <p class="tl">Tag in, status out — a pure lookup, zero logic.</p>
-              <p class="tl">And every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+              <p class="tl">The only place in the codebase that knows an HTTP status. The type says it: the four domain classes plus the auth-only bolt-on.</p>
+              <p class="tl">No such thing → 404. Check the id, not the system.</p>
+              <p class="tl">Wrong kind of input → 415. Retrying the same thing changes nothing.</p>
+              <p class="tl">Dependency unreachable or not ready → 503 — the one retryable answer.</p>
+              <p class="tl">Our own bug or misconfiguration → 500.</p>
+              <p class="tl">Broken seal → 401. Note the type above: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code> — the worker has no auth concept, so it&rsquo;s bolted on at the edge only.</p>
+              <p class="tl">End of doctrine. Each row is pinned by a contract test (<span class="term" data-definition="Spec requirement: the four error classes are each pinned by at least one contract test.">FR-018</span>), so the table can&rsquo;t drift silently.</p>
+              <p class="tl">The translator the edge calls: tag in, status out.</p>
+              <p class="tl">A pure lookup — zero logic, zero branches.</p>
+              <p class="tl">&hellip;that&rsquo;s the whole function.</p>
+              <p class="tl">The wire format, built in exactly one place.</p>
+              <p class="tl">Every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+              <p class="tl">&hellip;two functions and a table — the entire transport mapping.</p>
             </div>
           </div>
         </div>
@@ -1771,7 +1918,6 @@
 <span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"Inference sidecar is not ready."</span>,</span>
 <span class="code-line">    });</span>
 <span class="code-line">  }</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">// Any other non-2xx (400 unknown model, 404, ...) means we sent something</span></span>
 <span class="code-line">  <span class="code-comment">// the contract doesn't allow — a misconfiguration on our side, so it must</span></span>
 <span class="code-line">  <span class="code-comment">// NOT masquerade as a down dependency: the operator should go fix config,</span></span>
@@ -1787,15 +1933,27 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;still loading&rdquo; answer — reachable, just not serving yet.</p>
-              <p class="tl">From the run&rsquo;s point of view that&rsquo;s still a down dependency, and crucially: a temporary one.</p>
-              <p class="tl">So the tag is <code>dependency_down</code> — retryable. The operator&rsquo;s move is <em>wait</em>.</p>
-              <p class="tl">The error notes which seam failed and why, in one line.</p>
-              <p class="tl">Same for connection timeouts and refused connections, handled just above this block.</p>
-              <p class="tl">Any <em>other</em> non-2xx — 400 unknown model, 404 — means we sent something the contract doesn&rsquo;t allow.</p>
-              <p class="tl">That must not masquerade as a down dependency: the sidecar is up and answering; <em>our config</em> is wrong.</p>
-              <p class="tl">So the tag is <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar to &ldquo;come back&rdquo; would wait forever.</p>
-              <p class="tl">The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
+              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;model still loading / not ready&rdquo; answer, per contracts/ml-sidecar.md&hellip;</p>
+              <p class="tl">&hellip;reachable but not serving — from the run&rsquo;s point of view, still a down dependency&hellip;</p>
+              <p class="tl">&hellip;and crucially a temporary one: retryable.</p>
+              <p class="tl">Match that documented status exactly.</p>
+              <p class="tl">Throw a typed <code>DomainError</code> — the class is chosen here, at the seam that failed; translation to HTTP happens only at the API edge.</p>
+              <p class="tl">The tag: <code>dependency_down</code>. The operator&rsquo;s move is <em>wait</em> — it heals without you.</p>
+              <p class="tl">Which seam failed: inference.</p>
+              <p class="tl">One line of context for the log — a triage tag, not an incident novel.</p>
+              <p class="tl">&hellip;close the error object.</p>
+              <p class="tl">&hellip;end of the 503 branch. Connection timeouts and refused connections, handled just above this excerpt, throw the same class.</p>
+              <p class="tl">Now the opposite call. Any <em>other</em> non-2xx — 400 unknown model, 404 — means <em>we</em> sent something the contract doesn&rsquo;t allow&hellip;</p>
+              <p class="tl">&hellip;a misconfiguration on our side of the seam&hellip;</p>
+              <p class="tl">&hellip;which must NOT masquerade as a down dependency&hellip;</p>
+              <p class="tl">&hellip;because the operator should go fix config, not wait for the sidecar to &ldquo;come back&rdquo;.</p>
+              <p class="tl">Every remaining non-2xx lands here — the sidecar is up and answering; the request was wrong.</p>
+              <p class="tl">Same typed throw, opposite diagnosis.</p>
+              <p class="tl">The tag: <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar would wait forever.</p>
+              <p class="tl">Same seam — the split lives in the class, not the location.</p>
+              <p class="tl">The message carries the actual status, for the log.</p>
+              <p class="tl">&hellip;close the error object.</p>
+              <p class="tl">&hellip;end of the branch. The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
             </div>
           </div>
         </div>
@@ -1966,10 +2124,12 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Create the shared pool every query in the process flows through.</p>
-              <p class="tl">The comment is the scar: stopping Postgres once killed the entire API, because an idle pooled connection emitted <code>'error'</code> with no listener — and Node treats that as fatal.</p>
+              <p class="tl">Create the shared pool every query in the process flows through — which makes its failure mode a process-wide failure mode.</p>
+              <p class="tl">The comment is the scar: an idle pooled connection emitted <code>'error'</code> with no listener, and Node treats an unhandled <code>'error'</code> event as fatal. Stopping Postgres once killed the entire API.</p>
+              <p class="tl">The contract this fix restores: a dead DB surfaces as 503 <code>dependency_down</code> from the readiness check — never as a process exit.</p>
               <p class="tl">Registering the listener is the whole fix. There&rsquo;s nothing to recover here — the pool discards the dead connection on its own.</p>
-              <p class="tl">Log it and stay alive. A dead DB now surfaces as 503 <code>dependency_down</code> from the health check, not a process exit — and a regression test stops Postgres to prove it.</p>
+              <p class="tl">Log it and stay alive. A regression test in <code>packages/db/test/client.test.ts</code> now stops Postgres to prove the process survives.</p>
+              <p class="tl">That&rsquo;s the entire listener — its presence, not its logic, is what keeps the process up.</p>
             </div>
           </div>
         </div>
@@ -2001,16 +2161,36 @@
 <span class="code-line">      );</span>
 <span class="code-line">    }</span>
 <span class="code-line">    <span class="code-comment">// Re-throw so the poll loop also fails the JOB (retry/backoff lives there).</span></span>
-<span class="code-line">    <span class="code-keyword">throw</span> error;</span></code></pre>
+<span class="code-line">    <span class="code-keyword">throw</span> error;</span>
+<span class="code-line">  }</span></code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Wrap the entire check in one boundary try — including everything that runs <em>before</em> the handler&rsquo;s own error handling exists.</p>
-              <p class="tl">The comments narrate the scar: the missing env var threw here, the job retried, and the run showed <code>running</code> forever. Absence of failure, the worst kind of bug.</p>
-              <p class="tl">DomainErrors skip this branch — <code>runSkeletonCheck</code> already called <code>failRun</code> with the real typed outcome, and double-failing would clobber it.</p>
-              <p class="tl">Anything else gets failed explicitly, wrapped as a typed <code>internal_fault</code> pinned to the seam it never reached — original error preserved as <code>cause</code>.</p>
-              <p class="tl">Then re-throw: the poll loop fails the JOB (retry/backoff lives there), this block fails the RUN. Two ledgers, both written.</p>
+              <p class="tl">One boundary try wraps the entire check — including everything that runs <em>before</em> the handler&rsquo;s own error handling exists.</p>
+              <p class="tl">The whole unit of work. Inside, <code>runSkeletonCheck</code> fails runs itself with typed <code>DomainError</code>s; the gap was everything <em>outside</em> that.</p>
+              <p class="tl">The catch that was missing. Bug #4 lived exactly here: <code>resolveModelRole</code> threw a plain <code>Error</code> before any failure-writing code ran.</p>
+              <p class="tl">The comments narrate the scar in place. First the rule: an unhandled error must still fail the run&hellip;</p>
+              <p class="tl">&hellip;because otherwise only the job layer reacts, retrying on its own schedule&hellip;</p>
+              <p class="tl">&hellip;while the run row shows <code>running</code> forever. Absence of failure — the worst kind of bug.</p>
+              <p class="tl">&ldquo;A scar, not speculation&rdquo; — this codebase&rsquo;s marker for comments earned by a real incident.</p>
+              <p class="tl">The carve-out is deliberate: <code>DomainError</code>s were already handled downstream&hellip;</p>
+              <p class="tl">&hellip;<code>runSkeletonCheck</code> called <code>failRun</code> with the real typed outcome; failing again here would clobber it.</p>
+              <p class="tl">So only <em>untyped</em> errors take this branch — exactly the class that used to vanish.</p>
+              <p class="tl">Fail the run explicitly, through the same path every other failure uses.</p>
+              <p class="tl">Same database handle the check ran on.</p>
+              <p class="tl">Same run the job was carrying.</p>
+              <p class="tl">Wrap the raw error as a typed outcome&hellip;</p>
+              <p class="tl">&hellip;classed <code>internal_fault</code> — one of the four error classes from module 5&rsquo;s vocabulary&hellip;</p>
+              <p class="tl">&hellip;pinned to the seam it died before reaching&hellip;</p>
+              <p class="tl">&hellip;with an operator-readable message&hellip;</p>
+              <p class="tl">&hellip;and the original error preserved as <code>cause</code> for the logs.</p>
+              <p class="tl">Close the <code>DomainError</code>&hellip;</p>
+              <p class="tl">&hellip;and the <code>failRun</code> call. The run is now visibly, durably failed.</p>
+              <p class="tl">End of the untyped-error branch.</p>
+              <p class="tl">The second half of the fix, stated in code: run and job are separate ledgers.</p>
+              <p class="tl">Re-throw so the poll loop fails the JOB too — retry/backoff lives there, not here. Two ledgers, both written.</p>
+              <p class="tl">Close the catch. From here, no error class can leave a run stuck at <code>running</code>.</p>
             </div>
           </div>
         </div>
@@ -2031,42 +2211,98 @@
 
         <p><strong>Bug #3.</strong> bcrypt hashes start <code>$2b$10$…</code> — and Docker Compose interpolates <code>$</code> in <code>.env</code> values, silently mangling the hash. Every login failed with a correct password, so the escaping rule now lives <em>in</em> the env template:</p>
 
-        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
-          <span class="translation-label">SCAR — v3/.env.example</span>
-          <pre><code><span class="code-line"><span class="code-comment"># IMPORTANT: Docker Compose interpolates .env values, so every literal `$` in</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">SCAR — v3/.env.example</span>
+            <pre><code><span class="code-line"><span class="code-comment"># IMPORTANT: Docker Compose interpolates .env values, so every literal `$` in</span></span>
 <span class="code-line"><span class="code-comment"># the hash must be escaped as `$$` (e.g. `$2b$10$abc...` -&gt; `$$2b$$10$$abc...`)</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Compose interpolates <code>.env</code> values <em>themselves</em> — it has to, to support cross-references like <code>ML_EMBEDDING_MODEL=${EMBEDDING_MODEL_ID}</code> — so a bcrypt hash&rsquo;s <code>$2b$10$</code> reads as variable references and silently corrupts.</p>
+              <p class="tl">The rule lives in the template itself, right where the next operator will paste a hash: escape every literal <code>$</code> as <code>$$</code>.</p>
+            </div>
+          </div>
         </div>
 
         <p><strong>Bug #6.</strong> <code>drizzle-kit generate</code> computes the next migration prefix from the journal&rsquo;s <code>lastEntry.idx + 1</code>. A manual rename (<code>0000</code>&rarr;<code>0001_init</code>) left <code>idx=0</code>, so the next generate minted <code>0001</code> — colliding with the existing file. Found by actually running generate, not by eyeballing:</p>
 
-        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
-          <span class="translation-label">SCAR — v3/packages/db/drizzle.config.ts</span>
-          <pre><code><span class="code-line"><span class="code-comment"> * Numbering gotcha: drizzle-kit derives the next migration prefix from</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">SCAR — v3/packages/db/drizzle.config.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment">// …</span></span>
+<span class="code-line"><span class="code-comment"> * Numbering gotcha: drizzle-kit derives the next migration prefix from</span></span>
 <span class="code-line"><span class="code-comment"> * migrations/meta/_journal.json (lastEntry.idx + 1). The journal's idx was</span></span>
 <span class="code-line"><span class="code-comment"> * deliberately set to 1 to match the 0001_init tag after a manual file</span></span>
 <span class="code-line"><span class="code-comment"> * rename fixed a numbering collision — don't "correct" it back to 0, or the</span></span>
-<span class="code-line"><span class="code-comment"> * next generate will mint a duplicate prefix.</span></span></code></pre>
+<span class="code-line"><span class="code-comment"> * next generate will mint a duplicate prefix.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The scar is a stanza in the config file&rsquo;s doc-comment header.</p>
+              <p class="tl">&hellip;the header&rsquo;s first stanza omitted — it explains this file is dev tooling only, never imported by product code&hellip;</p>
+              <p class="tl">The trap: <code>drizzle-kit generate</code> computes the next migration filename prefix from tool-owned state&hellip;</p>
+              <p class="tl">&hellip;the journal&rsquo;s <code>lastEntry.idx + 1</code> — <em>not</em> from the filenames sitting in the directory.</p>
+              <p class="tl">The counter was deliberately corrected to <code>1</code> after a manual <code>0000&rarr;0001_init</code> rename left it stale&hellip;</p>
+              <p class="tl">&hellip;so the comment guards the fix: reverting <code>idx</code> to 0 looks like a cleanup&hellip;</p>
+              <p class="tl">&hellip;and would make the next generate mint a duplicate prefix. Found by actually running generate during convergence, not by eyeballing.</p>
+              <p class="tl">End of the stanza — the ledger entry lives where the trap lives.</p>
+            </div>
+          </div>
         </div>
 
         <p>Two more scars round out the ledger. <strong>Bug #2:</strong> every package&rsquo;s tsconfig extends <code>../../tsconfig.base.json</code>, but the Dockerfiles never COPY&rsquo;d it — invisible locally, fatal in the image:</p>
 
-        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
-          <span class="translation-label">SCAR — v3/apps/web/Dockerfile</span>
-          <pre><code><span class="code-line"><span class="code-comment"># tsconfig.base.json is copied EXPLICITLY: every tsconfig extends it, and its</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">SCAR — v3/apps/web/Dockerfile</span>
+            <pre><code><span class="code-line"><span class="code-comment"># tsconfig.base.json is copied EXPLICITLY: every tsconfig extends it, and its</span></span>
 <span class="code-line"><span class="code-comment"># absence is invisible locally but fatal in the image build — this exact line</span></span>
 <span class="code-line"><span class="code-comment"># was missing once and broke the web build with a TSConfckParseError.</span></span>
 <span class="code-line"><span class="code-keyword">COPY</span> pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.base.json <span class="code-string">./</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The scar comment rides directly on the line it protects — every package&rsquo;s tsconfig extends this one file.</p>
+              <p class="tl">Invisible locally because the file exists on your disk; fatal in the image because Docker only sees what COPY declares.</p>
+              <p class="tl">The incident, named: this exact filename missing from the list broke the web image build with <code>TSConfckParseError</code> — all three Node Dockerfiles got the fix.</p>
+              <p class="tl">The lesson in one line: in a monorepo image build, the COPY list is a <em>dependency declaration</em> — audit it against every <code>extends</code> and workspace reference.</p>
+            </div>
+          </div>
         </div>
 
         <p><strong>Bug #5:</strong> web tests hung because RR7&rsquo;s client runtime brand-checks <code>Request</code>/<code>AbortSignal</code>, and jsdom supplies <span class="term" data-definition="Two copies of the same global class from different JS realms — instanceof between them is always false.">cross-realm</span> copies that always fail <code>instanceof</code>. The fix was swapping the test DOM itself:</p>
 
-        <div class="translation-code animate-in" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin: var(--space-6) 0;">
-          <span class="translation-label">SCAR — v3/apps/web/vitest.config.ts</span>
-          <pre><code><span class="code-line"><span class="code-comment"> * environment is happy-dom, NOT jsdom, and that choice is load-bearing:</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">SCAR — v3/apps/web/vitest.config.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment">// …</span></span>
+<span class="code-line"><span class="code-comment"> * environment is happy-dom, NOT jsdom, and that choice is load-bearing:</span></span>
 <span class="code-line"><span class="code-comment"> * RR7's client runtime constructs Request/AbortSignal objects, and jsdom's</span></span>
 <span class="code-line"><span class="code-comment"> * realm-separated globals fail RR7's instanceof/brand checks (a real</span></span>
 <span class="code-line"><span class="code-comment"> * cross-realm bug hit during this feature). happy-dom shares Node's</span></span>
-<span class="code-line"><span class="code-comment"> * fetch primitives, so those checks pass.</span></span></code></pre>
+<span class="code-line"><span class="code-comment"> * fetch primitives, so those checks pass.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Another config-header scar, this one from the web app&rsquo;s test config.</p>
+              <p class="tl">&hellip;the header&rsquo;s first stanza omitted — it explains why vitest&rsquo;s config is deliberately separate from vite&rsquo;s&hellip;</p>
+              <p class="tl">The load-bearing choice, stated up front: happy-dom, NOT the reflex default jsdom.</p>
+              <p class="tl">RR7&rsquo;s client runtime constructs real <code>Request</code>/<code>AbortSignal</code> objects and brand-checks them&hellip;</p>
+              <p class="tl">&hellip;jsdom supplies its own realm&rsquo;s copies, so every <code>instanceof</code> against them is false — the tests hung rather than failed.</p>
+              <p class="tl">A real incident hit during this feature — not a hypothetical&hellip;</p>
+              <p class="tl">&hellip;happy-dom shares Node&rsquo;s own fetch primitives, so the brand checks pass.</p>
+              <p class="tl">Comment closes. The choice is defended in place so nobody &ldquo;normalizes&rdquo; it back to jsdom.</p>
+            </div>
+          </div>
         </div>
 
         <div class="callout callout-info">

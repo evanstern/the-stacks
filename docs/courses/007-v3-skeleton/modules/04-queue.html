@@ -117,12 +117,10 @@
 <span class="code-line"><span class="code-string">          <strong style="color:#F9E2AF">FOR UPDATE SKIP LOCKED</strong></span></span>
 <span class="code-line"><span class="code-string">          LIMIT 1</span>`,</span>
 <span class="code-line">    );</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> candidate = candidates.rows[<span class="code-number">0</span>];</span>
 <span class="code-line">    <span class="code-keyword">if</span> (!candidate) {</span>
 <span class="code-line">      <span class="code-keyword">return undefined</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> tx</span>
 <span class="code-line">      .<span class="code-function">update</span>(jobs)</span>
 <span class="code-line">      .<span class="code-function">set</span>({</span>
@@ -134,7 +132,6 @@
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">where</span>(sql`${jobs.id} = ${candidate.id}`)</span>
 <span class="code-line">      .<span class="code-function">returning</span>();</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">return</span> row;</span>
 <span class="code-line">  });</span>
 <span class="code-line">}</span></code></pre>
@@ -143,16 +140,34 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">One call = one attempt to take the next job. <code>undefined</code> means the rack is empty.</p>
-              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block.</p>
-              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL so <code>grep "SKIP LOCKED"</code> finds it.</p>
-              <p class="tl">Take the oldest <code>queued</code> job whose <code>run_at</code> has arrived — the same timestamp backoff will push into the future.</p>
-              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it — no waiting, no double-grab.</p>
+              <p class="tl">One transaction wraps both statements — the row lock taken by the SELECT lives exactly as long as this block, which is what makes select-then-update a single atomic claim.</p>
+              <p class="tl">The comment is doctrine: the load-bearing clause stays raw SQL, not query-builder options&hellip;</p>
+              <p class="tl">&hellip;so <code>grep "SKIP LOCKED"</code> finds it word-for-word, identical to the docs that explain it.</p>
+              <p class="tl">Ask Postgres for one candidate id — raw <code>execute</code>, still inside the transaction.</p>
+              <p class="tl">The entire dequeue is this one SELECT against the <code>jobs</code> table.</p>
+              <p class="tl">Only <code>queued</code> rows whose <code>run_at</code> has arrived — the same timestamp <code>fail()</code> pushes into the future, so backoff needs no extra machinery here.</p>
+              <p class="tl">Oldest first — FIFO by creation time.</p>
+              <p class="tl"><code>FOR UPDATE</code> locks the row; <code>SKIP LOCKED</code> makes a concurrent claimer skip it instead of blocking behind the lock — no waiting, no double-grab (<span class="term" data-definition="Fixed decision: the queue is a Postgres table, not a broker. Pinned in the constitution so nobody relitigates it per-feature.">D12</span>).</p>
               <p class="tl">One slip at a time.</p>
-              <p class="tl">Nothing claimable? Return <code>undefined</code>; the worker sleeps a tick and polls again.</p>
-              <p class="tl">Still inside the transaction — the lock is still held — flip the row to <code>claimed</code>.</p>
-              <p class="tl">Stamp who took it and when. These two fields power both the reclaim clock and the forensic freeze later.</p>
-              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — so it always counts the run that is about to happen.</p>
-              <p class="tl">Commit releases the lock, and the claimed row goes back to the worker loop.</p>
+              <p class="tl">Query done — from here to commit, that row is locked against every other worker.</p>
+              <p class="tl">Unpack the single candidate, if there was one.</p>
+              <p class="tl">Empty rack — or every runnable row locked by someone else?</p>
+              <p class="tl">Report &ldquo;nothing to do&rdquo;; the worker sleeps a tick and polls again.</p>
+              <p class="tl">Past this brace, we hold a locked, runnable row.</p>
+              <p class="tl">Now stamp the claim — same transaction, lock still held.</p>
+              <p class="tl">The query builder is fine here; only the locking clause above needed to stay literal.</p>
+              <p class="tl">Five fields make a claim:</p>
+              <p class="tl">Flip to <code>claimed</code> — invisible to every other worker&rsquo;s SELECT from now on.</p>
+              <p class="tl">Who took it&hellip;</p>
+              <p class="tl">&hellip;and when — the timestamp the visibility-timeout reclaim clock measures against.</p>
+              <p class="tl"><code>attempts</code> is bumped at <em>claim</em> time, not failure time — a worker that dies mid-job still burns an attempt when the claim is reclaimed.</p>
+              <p class="tl">Touch <code>updated_at</code>, as every writer of this row does.</p>
+              <p class="tl">End of the claim stamp.</p>
+              <p class="tl">Exactly the row the SELECT locked.</p>
+              <p class="tl"><code>.returning()</code> hands back the updated row — no second round-trip to re-read it.</p>
+              <p class="tl">The claimed job flows back to the worker loop for dispatch.</p>
+              <p class="tl">Commit — only now does the row lock release, with the status flip already visible.</p>
+              <p class="tl">That&rsquo;s the whole multi-worker story: one clause, one transaction.</p>
             </div>
           </div>
         </div>
@@ -188,13 +203,11 @@
 <span class="code-line">    <span class="code-keyword">if</span> (!row) {</span>
 <span class="code-line">      <span class="code-keyword">return</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// attempts was already bumped by claimNext, so after the Nth run</span></span>
 <span class="code-line">    <span class="code-comment">// attempts === N: 1st failure waits base*2^0, 2nd base*2^1, ... The</span></span>
 <span class="code-line">    <span class="code-comment">// Math.max guards against a hand-inserted row failing at attempts = 0.</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> exhausted = row.attempts &gt;= row.maxAttempts;</span>
 <span class="code-line">    <span class="code-keyword">const</span> backoffMs = BACKOFF_BASE_MS * <span class="code-number">2</span> ** Math.<span class="code-function">max</span>(<span class="code-number">0</span>, row.attempts - <span class="code-number">1</span>);</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// On terminal failure we freeze claimed_by/claimed_at/run_at as forensic</span></span>
 <span class="code-line">    <span class="code-comment">// evidence of the final attempt; on requeue we clear the claim so the row</span></span>
 <span class="code-line">    <span class="code-comment">// is claimable again once run_at arrives.</span></span>
@@ -216,25 +229,42 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The worker calls this when a handler throws. The error arriving here is already typed — that vocabulary is module 5.</p>
-              <p class="tl">Same shape as the claim: one transaction, load the row.</p>
-              <p class="tl">Job gone? Nothing to record.</p>
-              <p class="tl">The comment does the arithmetic for you: <code>attempts</code> already counts the run that just failed, because <code>claimNext</code> bumped it up front.</p>
-              <p class="tl">One comparison picks the road: terminal, or try again.</p>
-              <p class="tl">Doubling backoff — 1st failure waits base×1, 2nd base×2, 3rd base×4. <code>Math.max</code> guards a hand-inserted row failing at <code>attempts = 0</code>.</p>
-              <p class="tl">Two exits, one UPDATE — every field picks its value off the same <code>exhausted</code> flag.</p>
-              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack.</p>
+              <p class="tl">Same shape as the claim: read-then-write inside one transaction.</p>
+              <p class="tl">Load the job — its <code>attempts</code>, <code>maxAttempts</code>, and current claim decide everything below.</p>
+              <p class="tl">Job gone?</p>
+              <p class="tl">Nothing to record — exit quietly.</p>
+              <p class="tl">From here on, the row exists and faces exactly one comparison.</p>
+              <p class="tl">The comment does the arithmetic for you: after the Nth run, <code>attempts === N</code>&hellip;</p>
+              <p class="tl">&hellip;because <code>claimNext</code> bumped it up front — so the Nth failure waits base×2^(N−1)&hellip;</p>
+              <p class="tl">&hellip;and <code>Math.max</code> covers the one degenerate case: a hand-inserted row failing at <code>attempts = 0</code>.</p>
+              <p class="tl">One comparison picks the road: terminal, or back on the rack.</p>
+              <p class="tl">Doubling <span class="term" data-definition="Growing the wait between retries (here: doubling on each attempt) so a struggling dependency gets breathing room instead of a hammering.">backoff</span> — 1st failure waits base×1, 2nd base×2, 3rd base×4 — a struggling dependency gets breathing room.</p>
+              <p class="tl">Second why-comment: on the <em>final</em> failure the claim is deliberately not cleared&hellip;</p>
+              <p class="tl">&hellip;it freezes as forensic evidence — which worker ran the last attempt, and when&hellip;</p>
+              <p class="tl">&hellip;while a requeue clears it, so the row is claimable the moment <code>run_at</code> arrives.</p>
+              <p class="tl">Both roads are one UPDATE&hellip;</p>
+              <p class="tl">&hellip;on the same <code>jobs</code> row&hellip;</p>
+              <p class="tl">&hellip;with every field picking its value off the same <code>exhausted</code> flag:</p>
+              <p class="tl"><code>failed</code> is terminal; <code>queued</code> is back on the rack — the state machine&rsquo;s teal arrow.</p>
               <p class="tl">The typed failure lands on the row either way — the &ldquo;note&rdquo; on the slip.</p>
               <p class="tl">The schedule column <em>is</em> the backoff mechanism: requeue pushes <code>run_at</code> into the future, and <code>claimNext</code>&rsquo;s WHERE clause won&rsquo;t touch it before then. No timer service — just a timestamp.</p>
-              <p class="tl">Requeue clears the claim so the row is grabbable again; terminal failure freezes <code>claimed_by</code>/<code>claimed_at</code> as forensic evidence — who ran it last, and when.</p>
+              <p class="tl">Requeue clears the claimer so the row is grabbable again; terminal failure keeps it&hellip;</p>
+              <p class="tl">&hellip;and keeps the claim time — on a <code>failed</code> row these two fields are the frozen forensics.</p>
+              <p class="tl">Touch <code>updated_at</code>.</p>
+              <p class="tl">End of the two-road payload.</p>
+              <p class="tl">The same row we loaded at the top.</p>
+              <p class="tl">Commit: the requeue or the freeze becomes visible atomically.</p>
+              <p class="tl">No return value — the worker just moves on to its next tick.</p>
             </div>
           </div>
         </div>
 
         <p><code>fail()</code> is the road back the worker lives to report. The other road back is for the crash it doesn&rsquo;t survive — a job stuck at <code>claimed</code> because its worker is gone:</p>
 
-        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
-          <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
-          <pre style="margin:0"><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/apps/worker/src/main.ts</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">while</span> (running) {</span>
 <span class="code-line">    <span class="code-function">touchHeartbeat</span>();</span>
 <span class="code-line">    <span class="code-keyword">try</span> {</span>
 <span class="code-line">      <span class="code-comment">// Visibility timeout: any job claimed longer ago than this is presumed</span></span>
@@ -243,7 +273,35 @@
 <span class="code-line">      <span class="code-keyword">const</span> reclaimed = <span class="code-keyword">await</span> <span class="code-function">reclaimStale</span>(db, { visibilityTimeoutMs });</span>
 <span class="code-line">      <span class="code-keyword">if</span> (reclaimed &gt; <span class="code-number">0</span>) {</span>
 <span class="code-line">        <span class="code-function">log</span>(<span class="code-string">"jobs_reclaimed"</span>, { <span class="code-property">count</span>: reclaimed });</span>
-<span class="code-line">      }</span></code></pre>
+<span class="code-line">      }</span>
+<span class="code-line">      <span class="code-comment">// … claim → dispatch → complete/fail elided — module 3 walked that middle …</span></span>
+<span class="code-line">    } <span class="code-keyword">catch</span> (error) {</span>
+<span class="code-line">      <span class="code-function">log</span>(<span class="code-string">"poll_error"</span>, { <span class="code-property">message</span>: error <span class="code-keyword">instanceof</span> Error ? error.message : <span class="code-function">String</span>(error) });</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">sleep</span>(pollMs);</span>
+<span class="code-line">  }</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The worker&rsquo;s whole life is one loop, running until shutdown flips <code>running</code> — SIGTERM lets the in-flight tick finish instead of killing it mid-write.</p>
+              <p class="tl">Heartbeat first: the worker has no HTTP surface, so the compose healthcheck watches this file&rsquo;s mtime for liveness.</p>
+              <p class="tl">The whole tick sits in one try — a bad tick must log and retry, never kill the process.</p>
+              <p class="tl">The <span class="term" data-definition="How long a claim may sit before the system presumes the worker died and returns the job to the queue — the reclaim clock that recovers from mid-job crashes.">visibility timeout</span> doctrine, stated where it runs: a claim older than the timeout&hellip;</p>
+              <p class="tl">&hellip;is presumed orphaned — its worker is dead, not slow — and goes back on the rack&hellip;</p>
+              <p class="tl">&hellip;and because reclaim runs every tick, worst-case recovery is the timeout plus one poll interval — by design, not by luck.</p>
+              <p class="tl">Rescue <em>other</em> workers&rsquo; orphans before polling for your own work.</p>
+              <p class="tl">Usually zero — the check is cheap.</p>
+              <p class="tl">When it isn&rsquo;t, say so: stuck-job debugging starts at this structured log line.</p>
+              <p class="tl">That&rsquo;s the rescue half of the tick done.</p>
+              <p class="tl">The elided middle is the happy path module 3 walked: <code>claimNext</code>, handler dispatch, <code>complete</code> or <code>fail</code>.</p>
+              <p class="tl">Any tick error lands here, not on the floor — a transient DB outage must not kill the process.</p>
+              <p class="tl">Log and move on — a queue-level outage is <code>dependency_down</code> territory (module 5), not a worker death.</p>
+              <p class="tl">The safety net closes; a failed tick ends the same way a quiet one does&hellip;</p>
+              <p class="tl">&hellip;sleep one poll interval, then tick again.</p>
+              <p class="tl">Around again — until <code>running</code> goes false and the loop drains out.</p>
+            </div>
+          </div>
         </div>
 
         <p>Every worker tick starts by rescuing <em>other</em> workers&rsquo; orphans, then polls for its own work. Recovery latency is bounded by the timeout plus one poll interval — by design, not by luck.</p>
@@ -254,9 +312,10 @@
         <h2 class="screen-heading">The trail beside the rack</h2>
         <p>Next to <code>jobs</code> sits the event trail from module 3, and it is <span class="term" data-definition="Rows are only ever inserted, never updated or deleted — the history can grow, but it can&rsquo;t be rewritten.">append-only</span> BY CONSTRUCTION: no trigger, no grant — <code>recordEvent</code> is the sole writer, and no UPDATE or DELETE path exists anywhere in the codebase.</p>
 
-        <div class="animate-in" style="background:var(--color-bg-code); color:#CDD6F4; border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:var(--space-6); position:relative; margin:var(--space-6) 0; font-family:var(--font-mono); font-size:var(--text-sm); line-height:1.7;">
-          <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
-          <pre style="margin:0"><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — v3/packages/db/src/events.ts</span>
+            <pre><code><span class="code-line"><span class="code-comment"> * The append-only guarantee is BY CONSTRUCTION, not by trigger or grant:</span></span>
 <span class="code-line"><span class="code-comment"> * keeping this function the sole writer is the invariant. If you find</span></span>
 <span class="code-line"><span class="code-comment"> * yourself wanting to update or delete an event row, the design answer is</span></span>
 <span class="code-line"><span class="code-comment"> * to append a correcting event instead.</span></span>
@@ -270,6 +329,26 @@
 <span class="code-line">    <span class="code-property">durationMs</span>: input.durationMs,</span>
 <span class="code-line">  });</span>
 <span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">We join the docblock mid-sentence, on purpose — this is the line that matters: append-only <em>by construction</em>, no trigger, no revoked grant.</p>
+              <p class="tl">Keeping this function the sole writer <em>is</em> the invariant — nothing enforces it but the shape of the codebase.</p>
+              <p class="tl">Tempted to UPDATE or DELETE an event row?</p>
+              <p class="tl">The design answer: append a correcting event instead. The trail can grow; it cannot be rewritten.</p>
+              <p class="tl">Docblock ends; the function it guards is seven lines.</p>
+              <p class="tl">The only write path onto <code>skeleton_check_events</code> — Principle IV&rsquo;s per-seam trail.</p>
+              <p class="tl">One INSERT via the builder. Appending is the only verb this module knows.</p>
+              <p class="tl">Which run this event belongs to — the correlation key module 3 traced end to end.</p>
+              <p class="tl">Which seam reported — <code>queued</code>, <code>claimed</code>, <code>inference</code>, <code>vector_write</code>&hellip; one event per boundary the check crosses.</p>
+              <p class="tl">Defaults to success; failures record <code>ok: false</code> and stay on the trail forever.</p>
+              <p class="tl">Free-form JSON detail, defaulting to empty — the &ldquo;what happened.&rdquo;</p>
+              <p class="tl">Optional timing, for per-seam latency forensics.</p>
+              <p class="tl">The INSERT ends&hellip;</p>
+              <p class="tl">&hellip;and that&rsquo;s the entire writer. Nothing else in the repo touches this table.</p>
+            </div>
+          </div>
         </div>
 
         <div class="pattern-cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">

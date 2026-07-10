@@ -26,9 +26,9 @@ import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Pre-gate courses, tolerated until rebuilt (board tasks 4–7). Add nothing here.
+// Pre-gate courses, tolerated until rebuilt (board tasks 4–7). Add nothing
+// here — entries only leave (007 left with TASK-4's chrome-v2 rebuild).
 const LEGACY = new Set([
-  "007-v3-skeleton",
   "008-ingestion-service",
   "009-library-surface-env",
 ]);
