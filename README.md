@@ -101,6 +101,33 @@ cd apps/ml && python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]" && pytest && pyright --project .
 ```
 
+CI (`.github/workflows/ci.yml`) is the authoritative gate suite: it runs `pnpm verify`
+with the DB suites live against a pgvector service, the ML suite, and the process
+gates — wiki freshness (pinned corpus), spec-bridge board check, per-spec course gate,
+spec-artifact closure, ADR format, and (on PRs) the version-bump contract. The praxis
+gates (wiki freshness, spec-bridge, course) run through praxis's versioned consumer
+contract (`run-gates.mjs`) from a checkout pinned by `PRAXIS_REF`; because praxis is
+private, that checkout needs the `PRAXIS_READ_TOKEN` secret. (The composite-action
+form of the contract can't be used from a public repo against a private praxis.)
+Optional local mirrors: `git config core.hooksPath .githooks` enables the
+pre-commit/pre-push subsets.
+
+## Releases
+
+The repo versions as one stack: a single semver in the root `package.json`. A PR that
+touches released surface (`apps/`, `packages/`, `scripts/`, compose files, root
+manifests) must bump it (`scripts/check-version-bump.mjs` enforces this); each merge to
+`main` carrying a new version is tagged `v<version>` and gets a GitHub Release with
+generated notes automatically (`.github/workflows/release.yml`). Merge with merge
+commits only — squashing orphans the commit SHAs that wiki pins and evidence cite.
+
+## Task board
+
+Work is tracked on a Backlog.md kanban in `backlog/` (committed, one board across all
+worktrees): `backlog board view` in a terminal or `backlog browser` for the web UI.
+Spec cycles appear as linked tasks driven by their spec artifacts via spec-bridge —
+the board is a view, the spec dirs are the truth.
+
 ## Learn the codebase
 
 Per constitution Principle VIII, every spec cycle ships learning artifacts:

@@ -6,8 +6,10 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 ## Start here
 
 - Read `README.md` before changing local run, ports, production, or verification behavior.
-- The constitution (`.specify/memory/constitution.md`, v2.2.0) governs all work: fixed
-  decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
+- The constitution (`.specify/memory/constitution.md`, v2.3.0) governs all work: fixed
+  decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables),
+  and the process automation rules (board, pinned wiki, versioning, CI gates —
+  adopted by `docs/adr/0002-process-architecture-adoption.md`).
 - For architecture context start at `docs/wiki/walking-skeleton.md` and
   `docs/wiki/ingestion.md`; the wiki spine is `docs/wiki/INDEX.md`. The wiki is a
   code-grounded corpus: every note pins `verified_against` (a commit) + `sources`
@@ -20,6 +22,47 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 - v2 was retired 2026-07-06 (`docs/adr/0001-retire-v2-before-parity.md`); its code lives in
   git history only. Do not resurrect v2 patterns from the wiki's historical pages without
   checking them against the v3 constitution.
+
+## Board and process
+
+- The kanban is `backlog/` (Backlog.md), committed and shared across worktrees. Write
+  tasks ONLY via the `backlog` CLI (`backlog task create/edit/view`, `backlog board view`)
+  — never edit files under `backlog/` by hand.
+- Every spec cycle gets exactly one linked board task: `/spec-bridge:link specs/NNN-…`
+  after the spec exists, `/spec-bridge:sync` after working the spec (and at cycle close).
+  The spec dir is the source of truth; a linked task's status must never exceed what the
+  artifacts prove — the spec-bridge Stop gate blocks it, and `spec-bridge`'s `check` CLI
+  runs in CI. Edit a spec's linked task only from that spec's worktree; sync on main
+  after merges.
+- strictDone (requiring a saved `analysis.md` per spec) is OFF; turning it on means
+  saving `/speckit-analyze` output as `specs/<feature>/analysis.md` first (ADR 0002).
+
+## Versioning and release
+
+- One repo-level semver in the root `package.json`. Touching released surface (`apps/`,
+  `packages/`, `scripts/`, compose files, root manifests — authoritative list in
+  `scripts/check-version-bump.mjs`) requires bumping it in the same PR; docs/specs/
+  backlog/process changes are exempt. Versions are never reused.
+- Merging to `main` with a new version auto-tags `v<version>` and cuts a GitHub Release
+  (`.github/workflows/release.yml`). Merge with MERGE COMMITS only — never squash: wiki
+  pins and evidence reference SHAs that must stay reachable.
+
+## CI gates and local mirrors
+
+- CI (`.github/workflows/ci.yml`) is authoritative: `pnpm verify` (+ DB suites against
+  pgvector), the ML suite, wiki freshness, spec-bridge check, course gate
+  (`scripts/check-courses.mjs`), spec-artifact closure (`scripts/check-spec-artifacts.mjs`
+  — a fully-checked tasks.md owes evidence.md + the feature course), ADR format
+  (`scripts/check-adrs.mjs`), and the version bump (PRs). The praxis gates run through
+  praxis's versioned consumer contract (`run-gates.mjs`) from a `PRAXIS_REF`-pinned
+  checkout (the composite action can't resolve: public repo, private praxis); bumping
+  the pin is a deliberate PR. Locally, always resolve a praxis checkout to its
+  PHYSICAL path before spawning `run-gates.mjs` (its run-as-CLI guard silently
+  no-ops through symlinks).
+- Local mirrors: enable git hooks once per clone with `git config core.hooksPath
+  .githooks` (pre-commit: fast gates; pre-push: bump + freshness); the Claude Stop hook
+  (`.claude/settings.json` → `scripts/stop-gates.mjs`) blocks a turn ending with stale
+  wiki pins or broken spec/ADR ledgers.
 
 ## Layout
 
@@ -96,7 +139,8 @@ Run from the worktree root unless noted.
   spec/contract pointers; why-comments explain doctrine, invariants, and real bugs.
   Match that register — this deliberately supersedes minimal-comment conventions.
 - Every spec cycle ends with a visual learning artifact under `docs/courses/<feature>/`,
-  linked from the feature's evidence.
+  linked from the feature's evidence — machine-checked: `check-spec-artifacts.mjs`
+  fails CI without it, and the course must pass `node scripts/check-courses.mjs`.
 
 ## OpenCode tooling
 

@@ -27,7 +27,8 @@ stopping at **review gates** where the operator approves, re-orients, or pauses.
 operator's job is judgment; this skill's job is everything between the judgments.
 
 It composes existing machinery — the `speckit-*` skills (whose git hooks still run),
-the constitution (v2.1.0, D1–D14 fixed), and `/spec-cycle-course` — and adds only:
+the constitution (current version in `.specify/memory/constitution.md`, D1–D14 fixed),
+`/spec-bridge:link`/`sync` (the board), and `/spec-cycle-course` — and adds only:
 ordering, gates, stage detection, and the worktree pivot. Never bypass a step's own
 skill to "save time"; the skills carry the repo's conventions.
 
@@ -35,15 +36,15 @@ skill to "save time"; the skills carry the repo's conventions.
 
 | # | Step | Mechanism | Artifact | Then |
 |---|---|---|---|---|
-| 1 | Specify | `/speckit-specify` | spec.md + checklist | **GATE** |
+| 1 | Specify | `/speckit-specify`, then `/spec-bridge:link specs/<feature>` | spec.md + checklist + linked board task | **GATE** |
 | 2 | Clarify | `/speckit-clarify` — *only if* the spec left genuine ambiguities or the operator asks | clarifications in spec.md | GATE (if run) |
 | 3 | Plan | `/speckit-plan` | plan.md, research.md, data-model.md, contracts/, quickstart.md | **GATE** |
-| 4 | Tasks | `/speckit-tasks` | tasks.md | **GATE** |
+| 4 | Tasks | `/speckit-tasks`, then `/spec-bridge:sync` (phase ACs re-mirror) | tasks.md | **GATE** |
 | 5 | Worktree pivot | this skill (below) | feature worktree + isolated env | no gate — mechanical |
-| 6 | Implement | `/speckit-implement`, phase by phase | code + green `pnpm verify` | **GATE at each story checkpoint** |
+| 6 | Implement | `/speckit-implement`, phase by phase; `/spec-bridge:sync` at each checkpoint | code + green `pnpm verify` | **GATE at each story checkpoint** |
 | 7 | Verify convergence | `/speckit-analyze` then `/speckit-converge` | analysis + converged report + evidence.md | **GATE** |
-| 8 | Course | `/spec-cycle-course` (briefs-first) | docs/courses/<feature>/ linked from evidence | **GATE** |
-| 9 | Merge ritual | operator's call | merge to main, worktree teardown | done |
+| 8 | Course | `/spec-cycle-course` (briefs-first); must pass `node scripts/check-courses.mjs` | docs/courses/<feature>/ linked from evidence | **GATE** |
+| 9 | Merge ritual | operator's call | version bump if owed (`node scripts/check-version-bump.mjs --base origin/main`), MERGE COMMIT to main (never squash), final `/spec-bridge:sync`, worktree teardown | done |
 
 ## Gate protocol
 
@@ -86,17 +87,16 @@ gate:
 ```bash
 git switch main                                   # main/ back to main
 git worktree add ../<branch> <branch>             # sibling checkout
-cp main/.env ../<branch>/.env                     # then apply overrides:
-#   COMPOSE_PROJECT_NAME=the-stacks-<NNN>
-#   V3_WEB_PORT/V3_API_PORT/V3_ML_PORT/V3_POSTGRES_PORT: unique block (e.g. +NNN)
-pnpm install --dir ../<branch>                    # node_modules are per-worktree
+cd ../<branch> && node scripts/mint-worktree-env.mjs --secrets-from ../main/.env
+                                                  # 009 protocol: derived ports +
+                                                  # compose identity, secrets verbatim
+pnpm install                                      # node_modules are per-worktree
 ```
 
 All subsequent work uses absolute paths under the feature worktree. Teardown at merge
-(step 9) must remove the worktree's containers, networks, **and volumes** before
-`git worktree remove` — zero residue is an acceptance criterion (doc 07). If a
-worktree-tooling spec has landed by the time you read this, prefer its commands over
-the manual block above.
+(step 9) must be `docker compose down --volumes` (containers, networks, **and**
+volumes) before `git worktree remove` — zero residue is an acceptance criterion
+(specs/009-library-surface-env/contracts/environment.md §5).
 
 ## Implement-phase gating (step 6)
 
@@ -121,4 +121,11 @@ the manual block above.
 - Scope discipline: re-orientation at a gate edits the current cycle's artifacts. New
   scope goes to doc 08 / a future spec, and say so.
 - The cycle is incomplete without the Principle VIII course (step 8) — do not offer
-  step 9 before it exists, is committed, and is linked from evidence.md.
+  step 9 before it exists, is committed, is linked from evidence.md, and passes
+  `node scripts/check-courses.mjs` (CI enforces all of this via
+  `check-spec-artifacts.mjs` + the course gate).
+- The board never leads the artifacts: only `/spec-bridge:sync` moves a linked task,
+  and only to what the spec dir proves. If a sync looks wrong, fix the artifacts.
+- Architectural changes touch the wiki corpus: update/re-pin the affected notes
+  (`verified_against` + `sources`) or record why not — the freshness gate fails CI on
+  stale pins.
