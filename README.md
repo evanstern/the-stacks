@@ -104,10 +104,13 @@ pip install -e ".[dev]" && pytest && pyright --project .
 CI (`.github/workflows/ci.yml`) is the authoritative gate suite: it runs `pnpm verify`
 with the DB suites live against a pgvector service, the ML suite, and the process
 gates — wiki freshness (pinned corpus), spec-bridge board check, per-spec course gate,
-spec-artifact closure, ADR format, and (on PRs) the version-bump contract. The praxis
-gate CLIs run from a checkout pinned by `PRAXIS_REF`; the private-repo checkout needs
-the `PRAXIS_READ_TOKEN` secret. Optional local mirrors: `git config core.hooksPath
-.githooks` enables the pre-commit/pre-push subsets.
+spec-artifact closure, ADR format, and (on PRs) the version-bump contract. Wiki
+freshness and spec-bridge run through the official praxis composite action
+(`uses: evanstern/praxis@<tag>`); the course gate uses a praxis checkout pinned by
+`PRAXIS_REF` — both pins ride the same tag. Because praxis is private, its repo must
+allow Actions access from user-owned repositories, and this repo needs the
+`PRAXIS_READ_TOKEN` secret for the checkout. Optional local mirrors:
+`git config core.hooksPath .githooks` enables the pre-commit/pre-push subsets.
 
 ## Releases
 

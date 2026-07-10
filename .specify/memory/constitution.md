@@ -242,9 +242,11 @@ be introduced.
   with live DB integration, the ML sidecar suite, wiki freshness, the spec-bridge
   check, the course gate, spec-artifact closure, ADR format, and the version-bump
   contract — is the enforcement point. `.githooks/` and the Claude Stop hook are
-  convenience mirrors and MUST NOT be treated as the authority. The praxis gate CLIs
-  run from a source checkout pinned by tag (`PRAXIS_REF` in the workflows); upgrading
-  the pin is a deliberate, reviewed change.
+  convenience mirrors and MUST NOT be treated as the authority. The praxis gates run
+  through praxis's official consumption surface — the composite GitHub Action
+  (`uses: evanstern/praxis@<tag>`) and its `run-gates.mjs` contract — pinned by tag
+  (the `uses:` line and `PRAXIS_REF` ride the same tag); upgrading the pin is a
+  deliberate, reviewed change.
 
 ## Governance
 
