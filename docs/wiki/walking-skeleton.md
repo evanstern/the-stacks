@@ -1,13 +1,24 @@
 ---
-title: Walking Skeleton
-status: active
-owner: docs
-created: 2026-07-05
-updated: 2026-07-06
-tags:
-  - wiki
-  - v3
-  - architecture
+name: walking-skeleton
+description: v3 foundation slice — monorepo layout, compose topology, Postgres queue/event/vector doctrine, single-operator auth, and the ML sidecar contract (spec 007).
+kind: concept
+sources:
+  - docker-compose.yml
+  - docker-compose.prod.yml
+  - apps/api/src/app.ts
+  - apps/api/src/main.ts
+  - apps/api/src/auth
+  - apps/worker/src/main.ts
+  - apps/web/app/lib/api.server.ts
+  - apps/ml/src/ml/main.py
+  - packages/core/src/skeleton-check.ts
+  - packages/core/src/model-roles.ts
+  - packages/core/src/errors.ts
+  - packages/db/src/events.ts
+  - packages/db/src/queue.ts
+  - packages/db/src/schema/skeleton-vectors.ts
+  - scripts/check-boundaries.mjs
+verified_against: a908b1b67e7115c487cbd5531b13130fc98f153b
 ---
 
 # Walking Skeleton
@@ -27,7 +38,8 @@ The skeleton was built under a `v3/` directory beside the then-running v2 stack
 retired ([ADR 0001](../adr/0001-retire-v2-before-parity.md)) and v3 was promoted to
 the **repository root** — the layout below is now the repo's layout. The distinct
 port block and the `the-stacks-v3` compose project name were retained (deployed
-volumes/containers depend on them, and they stay useful for parallel worktrees):
+volumes/containers depend on them, and they anchor the [[worktree-environments]]
+protocol's derived blocks):
 
 | Service | Port | notes |
 |---|---|---|
@@ -133,6 +145,7 @@ that flag is set.
 
 ## What's next
 
-This slice deliberately has no ingestion, retrieval, or chat — those are the
+This slice deliberately has no ingestion, retrieval, or chat — those were the
 next specs, building on `packages/ingestion-contract`'s placeholder and the
-model-role config machinery this spec introduced.
+model-role config machinery this spec introduced. [[ingestion]] (spec 008) has
+since landed on these seams; retrieval and chat are still ahead.

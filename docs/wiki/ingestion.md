@@ -1,21 +1,32 @@
 ---
-title: Ingestion
-status: active
-owner: docs
-created: 2026-07-07
-updated: 2026-07-07
-tags:
-  - wiki
-  - v3
-  - architecture
-  - ingestion
+name: ingestion
+description: Extensible ingestion pipeline (spec 008) — accept-then-async intake, the NormalizedDocument plugin seam, detection dispatch, structure-aware chunking, and generation-flip re-ingestion.
+kind: pipeline
+sources:
+  - packages/ingestion-contract/src/document.ts
+  - packages/ingestion-contract/src/plugin.ts
+  - packages/ingestion/src/registry.ts
+  - packages/ingestion/src/shipped.ts
+  - packages/ingestion/src/chunking.ts
+  - packages/ingestion/src/embed.ts
+  - packages/ingestion/src/index-chunks.ts
+  - packages/ingestion/src/ingest-source.ts
+  - packages/ingestion/src/reingest.ts
+  - packages/ingestion-plugins/src
+  - apps/worker/src/handlers/ingest-source.ts
+  - apps/worker/src/handlers/ingest-batch-expand.ts
+  - apps/api/src/ingestion/routes.ts
+  - packages/db/src/ingestion-events.ts
+  - packages/db/src/schema/ingestion.ts
+  - scripts/check-boundaries.mjs
+verified_against: a908b1b67e7115c487cbd5531b13130fc98f153b
 ---
 
 # Ingestion
 
 The extensible pipeline that turns uploaded material into a searchable, traceable
 corpus: intake → detect → extract → transform → chunk → embed → index, entirely on
-the walking skeleton's proven seams (Postgres job queue, append-only events,
+the [[walking-skeleton]]'s proven seams (Postgres job queue, append-only events,
 `DomainError` taxonomy, env-first embedding role). Full detail lives in
 `specs/008-ingestion-service/` (plan, research R1–R13, data-model, contracts,
 quickstart); this page is the durable summary.

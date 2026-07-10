@@ -109,8 +109,8 @@ Per constitution Principle VIII, every spec cycle ships learning artifacts:
   codebase (open directly in a browser).
 - Source files carry teaching-grade comments: file headers place each module in the
   architecture; why-comments explain doctrine and real bugs hit during validation.
-- `docs/wiki/Home.md` — the architecture wiki spine; start at
-  `docs/wiki/Walking-Skeleton.md`.
+- `docs/wiki/INDEX.md` — the architecture wiki spine (a code-grounded corpus; every
+  note pins `verified_against` + `sources`); start at `docs/wiki/walking-skeleton.md`.
 
 ## Worktree operating model
 
