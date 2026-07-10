@@ -110,7 +110,7 @@ stacks concurrently with zero collisions, tear one down without touching the oth
 
 ### Tests for User Story 2 (write first, watch them fail)
 
-- [ ] T009 [P] [US2] Failing unit tests for the derivation library in
+- [x] T009 [P] [US2] Failing unit tests for the derivation library in
       scripts/worktree-env-lib.test.mjs — asserts: feature number parsed from
       worktree dirname (`009-library-surface-env` → 9; `main` → offset 0); port block
       `default + 10×NNN` for all four ports; `COMPOSE_PROJECT_NAME` =
@@ -121,26 +121,26 @@ stacks concurrently with zero collisions, tear one down without touching the oth
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Implement scripts/worktree-env-lib.mjs — pure derivation: number
+- [x] T010 [US2] Implement scripts/worktree-env-lib.mjs — pure derivation: number
       parsing, port block, identity, port-coupled values, collision + drift checks
       (T009 goes green)
-- [ ] T011 [US2] Implement CLI scripts/mint-worktree-env.mjs — mint from
+- [x] T011 [US2] Implement CLI scripts/mint-worktree-env.mjs — mint from
       `.env.example`, `--secrets-from` copy (never invent secrets), refuse existing
       `.env` without `--force`, sibling `../*/.env` collision scan with named refusal,
       `--check` drift mode (nonzero exit + report), printed profile table (the CLI
       visibility avenue, FR-018)
-- [ ] T012 [US2] Wire scripts/worktree-env-lib.test.mjs into `pnpm verify` (match the
+- [x] T012 [US2] Wire scripts/worktree-env-lib.test.mjs into `pnpm verify` (match the
       repo's verify pipeline pattern in package.json / turbo config so the derivation
       math is CI-guarded like check-boundaries)
-- [ ] T013 [P] [US2] Contract succession (FR-017): supersession banner atop
+- [x] T013 [P] [US2] Contract succession (FR-017): supersession banner atop
       specs/007-v3-skeleton/contracts/environment.md pointing to
       specs/009-library-surface-env/contracts/environment.md; update the
       `.env.example` header comment to point at the 009 contract
-- [ ] T014 [P] [US2] Update AGENTS.md ("Ports and env" + "Worktree safety" state the
+- [x] T014 [P] [US2] Update AGENTS.md ("Ports and env" + "Worktree safety" state the
       protocol: mint command, 10×NNN rule, lifecycle table pointer; re-scope the
       "Compose project name stays `the-stacks-v3`" line to main/ only) and README.md
       (mint step in local-run docs)
-- [ ] T015 [US2] **Story checkpoint — SC-004 live proof**: run
+- [x] T015 [US2] **Story checkpoint — SC-004 live proof**: run
       `node scripts/mint-worktree-env.mjs --check` against this worktree's
       pivot-minted `.env` (tool and pivot agree); start `main/`'s stack alongside this
       worktree's stack, capture `docker ps` showing disjoint names/ports, both `/ready`

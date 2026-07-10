@@ -52,6 +52,8 @@ specs/      spec-kit feature specs (007 is the delivered slice; next specs build
 
 ## Start the stack
 
+In `main/`:
+
 ```bash
 cp .env.example .env
 # set the two required secrets — generation commands are documented in .env.example:
@@ -60,12 +62,23 @@ cp .env.example .env
 docker compose up -d --build --wait
 ```
 
+In any other worktree, mint the derived environment instead of copying by hand —
+ports and compose identity are per worktree (deterministic `default + 10×NNN` blocks;
+protocol: `specs/009-library-surface-env/contracts/environment.md`):
+
+```bash
+node scripts/mint-worktree-env.mjs --secrets-from ../main/.env
+docker compose up -d --build --wait
+```
+
 - Web (sign-in + skeleton-check UI): <http://localhost:4400>
 - API: <http://localhost:4401> (`/health`, `/ready`) — dev-published only
 - ML sidecar: <http://localhost:4402> (`/health`, `/ready`) — dev-published only
 - Postgres + pgvector: `localhost:5442`
 
-All ports are env-overridable (`V3_WEB_PORT` etc. — see `.env.example`). The prod
+All ports are env-overridable (`V3_WEB_PORT` etc. — see `.env.example`); the URLs
+above are `main/`'s block — feature worktrees land on their derived block (e.g. 009
+→ 4490/4491/4492/5532). The prod
 shape publishes only the web port:
 
 ```bash

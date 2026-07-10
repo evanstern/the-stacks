@@ -1,5 +1,11 @@
 # Contract: Environment Variables
 
+> **Superseded (2026-07-09)** by
+> [specs/009-library-surface-env/contracts/environment.md](../../009-library-surface-env/contracts/environment.md),
+> which adds the worktree environment protocol (deterministic per-worktree ports,
+> compose identity, mint tooling, docker lifecycle rules). The variable tables below
+> remain historically accurate for 007; consult the successor for current doctrine.
+
 Source of truth: `v3/.env.example` (documented, safe local defaults, zero secrets —
 FR-004, SC-006). Every published port and environment-specific value below is
 overridable; startup fails fast naming any missing **required** variable (spec edge

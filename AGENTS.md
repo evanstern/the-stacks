@@ -59,13 +59,21 @@ Run from the worktree root unless noted.
 
 ## Ports and env
 
-- Defaults: web `4400`, api `4401` (dev only), ml `4402` (dev only), postgres `5442`.
-  All env-overridable (`V3_*` vars); all dev publishes bind `127.0.0.1`.
+- `main/` defaults: web `4400`, api `4401` (dev only), ml `4402` (dev only), postgres
+  `5442`; all dev publishes bind `127.0.0.1`. Every other worktree derives its block
+  deterministically: `default + 10×NNN` (feature number), compose project
+  `the-stacks-<worktree-dirname>` — see the protocol in
+  specs/009-library-surface-env/contracts/environment.md.
+- Mint a worktree's `.env` with `node scripts/mint-worktree-env.mjs --secrets-from
+  ../main/.env` (refuses overwrite + sibling port collisions); check drift after
+  `.env.example` changes with `--check`. Never copy `.env.example` by hand outside `main/`.
 - Prod shape (`docker-compose.prod.yml` overlay) publishes ONLY the web port and sets
   `SESSION_COOKIE_SECURE=true`.
-- `.env.example` is the environment contract (specs/007-v3-skeleton/contracts/environment.md).
-  bcrypt hashes in `.env` need every `$` escaped as `$$` (compose interpolation).
-- Compose project name stays `the-stacks-v3` — container/volume names depend on it.
+- `.env.example` is the variable contract (specs/009-library-surface-env/contracts/
+  environment.md, superseding 007's). bcrypt hashes in `.env` need every `$` escaped
+  as `$$` (compose interpolation) — the mint tool copies them verbatim.
+- `main/`'s compose project name stays `the-stacks-v3` — container/volume names depend
+  on it; feature worktrees get their own project identity from the protocol.
 
 ## Project constraints
 
@@ -97,8 +105,12 @@ Run from the worktree root unless noted.
 
 ## Worktree safety
 
-- Compose identity, ports, volumes, and teardown are per worktree. Do not assume
-  `docker compose down` in one checkout is safe for another checkout.
+- Compose identity, ports, volumes, and teardown are per worktree BY CONSTRUCTION
+  (009 protocol): lifecycle commands act only on the project named in the current
+  worktree's `.env`, so `docker compose down` cannot touch another checkout's stack.
+  Full teardown at worktree retirement is `docker compose down --volumes` BEFORE
+  `git worktree remove` — zero residue (lifecycle table:
+  specs/009-library-surface-env/contracts/environment.md §5).
 - Keep changes focused on the active spec or user request. Durable architecture decisions
   go in `docs/wiki/` (with a wiki-impact decision), not ad hoc docs.
 
