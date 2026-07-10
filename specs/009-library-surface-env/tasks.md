@@ -242,3 +242,16 @@ MVP = Phase 3 (US1) alone: the discoverability gap closes and ships independentl
 Then US2 (the protocol pays for itself immediately at SC-004's live proof), then US3
 (dashboard columns), then Polish. Single-implementer plan: sequential by priority,
 committing per task group, gating at each story checkpoint per the spec-cycle protocol.
+
+---
+
+## Phase 7: Convergence
+
+- [x] T024 Amend research.md R3 and plan.md (Summary + Performance Goals) to state the
+      implemented constant-FIVE queries per page (page + total + sections + chunks +
+      batch member-status aggregates), with the member-status rationale from
+      evidence.md, per plan: performance goal / research R3 (partial)
+- [x] T025 Amend specs/009-library-surface-env/contracts/api.md malformed-paging wording
+      to the implemented mechanism: Fastify querystring schema validation mapped at the
+      app.ts boundary to the API-only `invalid_input` code → 400 envelope
+      `{error:{code:"invalid_input"}}`, per contracts/api.md / FR-002 error path (partial)

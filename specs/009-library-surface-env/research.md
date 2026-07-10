@@ -44,7 +44,10 @@ computed in TS from the already-loaded `entry_report` jsonb — no extra query.
 
 **Rationale**: The ticket endpoint's per-source counts (status.ts) are correct but
 1-row-scoped; naively reusing them per row is an N+1. Two aggregates per page keep the
-listing O(3 queries) regardless of page size, and both filter on the current generation
+listing constant-per-page — five queries: page + total + the grouped aggregates
+(implementation added a third aggregate, batch member statuses, because the expand-time
+entry report cannot know post-admission member outcomes; see evidence.md). Both
+generation-scoped aggregates filter on the current generation
 — the same reader predicate the pipeline's generation-flip guarantees (008 R8): the
 listing must never count a half-swapped generation.
 

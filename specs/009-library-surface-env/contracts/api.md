@@ -17,8 +17,11 @@ Session-guarded like every non-health route (the global auth hook registered in
 | `limit` | integer | 50 | clamped to [1, 200] |
 | `offset` | integer | 0 | ≥ 0 |
 
-Malformed paging values (non-numeric, negative) → `400` typed refusal, same
-DomainError→HTTP mapping as every other route (mapping lives in app.ts only).
+Malformed paging values (non-numeric, negative) → `400` with envelope
+`{"error":{"code":"invalid_input","message":"querystring/… must be integer"}}`.
+Mechanism: Fastify querystring schema validation, mapped at the app.ts boundary to the
+API-only `invalid_input` code (joining `unauthorized` — the shared ErrorClass taxonomy
+stays untouched; mapping still lives in app.ts only).
 
 ### Response — `200`
 

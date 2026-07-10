@@ -7,7 +7,8 @@
 ## Summary
 
 Part A closes 008's visibility gaps read-only: one new `GET /api/uploads` list endpoint
-(3 queries per page — page rows + two grouped current-generation aggregates), a
+(constant five queries per page — page rows, total, and three grouped aggregates:
+current-generation sections, chunks, and batch member statuses), a
 `/library` listing page, and a shared nav header in the protected layout so every
 library page is reachable by navigation (the constitution v2.2.0 Principle V retrofit).
 Zero new mutating endpoints — re-ingestion/corpus management stay pinned to the
@@ -38,8 +39,9 @@ web component/loader tests; mint-tool derivation unit tests); TDD per constituti
 
 **Project Type**: monorepo web app (apps/api + apps/web) + repo tooling (scripts/)
 
-**Performance Goals**: listing page ≤ 3 queries per request regardless of page size;
-no N+1 (research R3)
+**Performance Goals**: listing page uses a CONSTANT number of queries per request
+(five — page, total, three grouped aggregates) regardless of page size; no N+1
+(research R3; count amended at converge, see evidence.md)
 
 **Constraints**: read-only end to end (FR-009); browser never calls the API (007
 FR-019 — loader goes through `lib/api.server.ts`); no new services, no new deps
