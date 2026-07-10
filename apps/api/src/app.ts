@@ -47,6 +47,18 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       return;
     }
 
+    // Fastify schema-validation failures (malformed query/body per a route's
+    // declared schema) are the caller's shape error — an honest 400, never the
+    // scrubbed 500 the catch-all would turn them into (009, contracts/api.md).
+    // error.message here is ajv's generated text (e.g. "querystring/limit must
+    // be integer") — mechanical, parameter-scoped, safe for the wire.
+    if (typeof error.code === "string" && error.code === "FST_ERR_VALIDATION") {
+      reply
+        .code(statusForErrorClass("invalid_input"))
+        .send(errorEnvelope("invalid_input", error.message));
+      return;
+    }
+
     // Fastify's built-in content-type/body errors (FST_ERR_CTP_*) are the
     // "payload/type the system doesn't handle" case (FR-018).
     if (typeof error.code === "string" && error.code.startsWith("FST_ERR_CTP")) {

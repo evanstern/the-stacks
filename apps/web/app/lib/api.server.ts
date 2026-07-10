@@ -160,6 +160,46 @@ export async function uploadToLibrary(
   };
 }
 
+// ---------------------------------------------------------------------------
+// Library listing (spec 009; wire contract: specs/009-library-surface-env/
+// contracts/api.md). One newest-first page of SUBMISSIONS — standalone
+// sources + batches; batch members are represented by their batch row.
+// ---------------------------------------------------------------------------
+
+export interface LibraryListItem {
+  kind: "source" | "batch";
+  id: string;
+  originalFilename: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LibraryListPage {
+  items: LibraryListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/** GET /api/uploads — the listing behind /library. Unlike listSkeletonChecks'
+ * degrade-to-empty, a failure here throws: an empty library and an unreachable
+ * API must not look the same on a page whose whole job is honest inventory. */
+export async function listUploads(
+  request: Request,
+  opts: { limit?: number; offset?: number } = {},
+): Promise<LibraryListPage> {
+  const params = new URLSearchParams();
+  if (opts.limit !== undefined) params.set("limit", String(opts.limit));
+  if (opts.offset !== undefined) params.set("offset", String(opts.offset));
+  const query = params.size > 0 ? `?${params.toString()}` : "";
+  const response = await apiFetch(request, `/api/uploads${query}`);
+  if (!response.ok) {
+    throw new Response("Failed to load the library listing", { status: response.status });
+  }
+  return (await response.json()) as LibraryListPage;
+}
+
 export interface IngestionEvent {
   stage: string;
   event: string;

@@ -13,6 +13,7 @@ export default [
   layout("routes/protected-layout.tsx", [
     index("routes/home.tsx"),
     route("skeleton-checks/:id", "routes/skeleton-check-detail.tsx"),
+    route("library", "routes/library.tsx"),
     route("library/upload", "routes/library.upload.tsx"),
     route("library/uploads/:kind/:id", "routes/library.uploads.$ticket.tsx"),
   ]),

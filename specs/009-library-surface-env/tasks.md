@@ -31,7 +31,7 @@ repo tooling in `scripts/`. All paths relative to the feature worktree root.
 **Purpose**: A clean baseline in the pivoted feature worktree — no new dependencies,
 no scaffolding needed (008's infrastructure is this slice's foundation).
 
-- [ ] T001 Baseline the feature worktree: `pnpm install`, `pnpm verify` green, stack
+- [x] T001 Baseline the feature worktree: `pnpm install`, `pnpm verify` green, stack
       starts with the pivot-minted `.env` (`docker compose up -d --build --wait`),
       and `RUN_DB_INTEGRATION_TESTS=1 pnpm --filter @stacks/api test` passes against
       the worktree's own Postgres — proves the pivot environment before any change
@@ -61,13 +61,13 @@ detail page — no URL typing, no DB access (quickstart A1, A2, A4).
 
 ### Tests for User Story 1 (write first, watch them fail)
 
-- [ ] T002 [P] [US1] Failing DB-gated integration test for `GET /api/uploads` in
+- [x] T002 [P] [US1] Failing DB-gated integration test for `GET /api/uploads` in
       apps/api/src/ingestion/list.test.ts — asserts: 401 without session; 200 envelope
       `{items,total,limit,offset}`; empty library → `items:[], total:0`; newest-first
       ordering (createdAt DESC, id DESC tiebreak); batch members (`batch_id IS NOT
       NULL`) excluded from rows; limit clamped to [1,200], offset ≥ 0; malformed
       paging → 400 typed refusal (contracts/api.md)
-- [ ] T003 [P] [US1] Failing web tests in apps/web/app/routes/library.test.tsx —
+- [x] T003 [P] [US1] Failing web tests in apps/web/app/routes/library.test.tsx —
       asserts: nav header renders Home + Library links on protected pages; listing
       renders filename/kind/status/time per row; each row links to
       `/library/uploads/:kind/:id`; empty state points at `/library/upload`;
@@ -75,21 +75,21 @@ detail page — no URL typing, no DB access (quickstart A1, A2, A4).
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implement `GET /api/uploads` in apps/api/src/ingestion/list.ts —
+- [x] T004 [US1] Implement `GET /api/uploads` in apps/api/src/ingestion/list.ts —
       page query over standalone sources + batches (UNION shape per research R1/R2),
       envelope + clamping per contracts/api.md; register from
       apps/api/src/ingestion/routes.ts (T002 goes green)
-- [ ] T005 [US1] Add `listUploads(request, {limit, offset})` to
+- [x] T005 [US1] Add `listUploads(request, {limit, offset})` to
       apps/web/app/lib/api.server.ts — the sole legal API path (007 FR-019)
-- [ ] T006 [US1] Create listing page apps/web/app/routes/library.tsx (loader via
+- [x] T006 [US1] Create listing page apps/web/app/routes/library.tsx (loader via
       listUploads, submission rows, honest empty state, prev/next) and add
       `route("library", "routes/library.tsx")` to apps/web/app/routes.ts (T003 partial
       green)
-- [ ] T007 [US1] Add shared nav header (Home / Library) to
+- [x] T007 [US1] Add shared nav header (Home / Library) to
       apps/web/app/routes/protected-layout.tsx (research R5) and cross-link the upload
       page ↔ listing (apps/web/app/routes/library.upload.tsx gains a "view library"
       link) (T003 fully green)
-- [ ] T008 [US1] **Story checkpoint**: `pnpm verify` +
+- [x] T008 [US1] **Story checkpoint**: `pnpm verify` +
       `RUN_DB_INTEGRATION_TESTS=1 pnpm --filter @stacks/api test` green; run
       quickstart A1/A2/A4 against the running stack; commit; GATE with US1's
       independent-test evidence
