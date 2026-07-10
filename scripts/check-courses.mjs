@@ -19,9 +19,9 @@
 //     ADR 0002). Any course not in the set — i.e. every future course — must
 //     pass outright.
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,7 +41,24 @@ export function findPraxis(argv, env = process.env, home = homedir()) {
     join(home, "projects", "praxis"),
     join(REPO_ROOT, ".praxis"),
   ].filter(Boolean);
-  return candidates.find((c) => existsSync(join(c, "codebase-to-course", "gates", "cli.mjs"))) ?? null;
+  const found = candidates.find((c) => existsSync(join(c, "codebase-to-course", "gates", "cli.mjs")));
+  // Physical path matters: run-gates.mjs's run-as-CLI guard compares
+  // import.meta.url (which node resolves through symlinks) with
+  // process.argv[1] (as typed). Spawned via a symlinked path
+  // (~/projects -> Claude/Code) the guard fails and the runner exits 0
+  // having run NOTHING — a silent pass, the worst gate failure mode.
+  return found ? realpathSync(found) : null;
+}
+
+/** Prefer praxis's versioned consumer contract (run-gates.mjs, v0.4.0+); fall
+ *  back to the plugin's own gate CLI for older checkouts. Same validator either
+ *  way — the runner is just the surface praxis promises not to break. */
+function courseGateArgs(praxis, courseDir) {
+  const runner = join(praxis, "scripts", "run-gates.mjs");
+  if (existsSync(runner)) {
+    return [runner, "--gates", "course", "--path", REPO_ROOT, "--course-dir", relative(REPO_ROOT, courseDir)];
+  }
+  return [join(praxis, "codebase-to-course", "gates", "cli.mjs"), "course", courseDir];
 }
 
 export function main(argv = process.argv.slice(2)) {
@@ -62,11 +79,10 @@ export function main(argv = process.argv.slice(2)) {
     : [];
   if (courses.length === 0) { console.log("course check ok: no courses yet"); return 0; }
 
-  const gate = join(praxis, "codebase-to-course", "gates", "cli.mjs");
   let failed = false;
   for (const name of courses) {
     const dir = join(coursesDir, name);
-    const res = spawnSync(process.execPath, [gate, "course", dir], { encoding: "utf8" });
+    const res = spawnSync(process.execPath, courseGateArgs(praxis, dir), { encoding: "utf8" });
     const output = `${res.stdout ?? ""}${res.stderr ?? ""}`.trim();
     if (res.status === 0) {
       console.log(`docs/courses/${name}: OK`);
