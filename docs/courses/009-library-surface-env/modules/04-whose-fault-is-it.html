@@ -116,11 +116,22 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">One error handler for the whole API. Checks run most-specific first.</p>
-              <p class="tl">First check: a known DomainError. Map its class to a status and its message to the envelope. This path existed since 007.</p>
-              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error. Honest 400, never the scrubbed 500 the fall-through would produce.</p>
-              <p class="tl">And it justifies putting <code>error.message</code> on the wire: ajv's generated text is mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
+              <p class="tl">First check: a known DomainError. This path has existed since 007.</p>
+              <p class="tl">Map its class to a status and its message to the envelope — one chained call, no HTTP knowledge outside this file.</p>
+              <p class="tl">Handled — hand the reply back before the catch-all can touch it.</p>
+              <p class="tl">…end of the DomainError branch.</p>
+              <p class="tl">A blank line, then the 009 addition.</p>
+              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error…</p>
+              <p class="tl">…so it deserves an honest 400, never the scrubbed 500 the fall-through would produce…</p>
+              <p class="tl">…and the comment cites the contract that pinned this down (009, contracts/api.md).</p>
+              <p class="tl">It also justifies putting <code>error.message</code> on the wire: it's ajv's generated text…</p>
+              <p class="tl">…mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
               <p class="tl">The new branch: match Fastify's validation error code exactly.</p>
-              <p class="tl">Answer with the status for <code>invalid_input</code> (400) and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+              <p class="tl">Build the reply in two steps…</p>
+              <p class="tl">…the status for <code>invalid_input</code> (400)…</p>
+              <p class="tl">…and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+              <p class="tl">Handled — return before falling through.</p>
+              <p class="tl">…end of the validation branch.</p>
             </div>
           </div>
         </div>
@@ -167,11 +178,25 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The 009 paragraph of the file's header: malformed shape fits none of the four domain classes, and the fall-through 500 "would lie about whose fault it is."</p>
+              <p class="tl">The 009 paragraph of the file's header: it names the new code and its status up front, plus the precedent it follows.</p>
+              <p class="tl">A malformed SHAPE is the caller's doing — Fastify's schema validation caught it…</p>
+              <p class="tl">…and it fits none of the existing classes: not an unknown thing, not an unsupported payload type…</p>
+              <p class="tl">…so letting it fall through to the scrubbed 500 "would lie about whose fault it is."</p>
               <p class="tl">The precedent is <code>unauthorized</code> — it took this exact path in 007, because the worker has no auth concept either.</p>
               <p class="tl">The closing argument in one clause: only the HTTP edge can have malformed requests. So the code lives with the mapping, not in the shared union.</p>
-              <p class="tl"><code>ApiErrorCode</code> is the type that says it structurally: the four shared classes, plus exactly two edge-only extensions.</p>
-              <p class="tl">And the whole translation table fits in one Record: four domain classes, two boundary codes, six statuses. This file is the ONLY place in the system that knows HTTP numbers.</p>
+              <p class="tl">…end of the header argument.</p>
+              <p class="tl">Argument above, implementation below.</p>
+              <p class="tl">The doc-comment says in one line what the type is about to say structurally.</p>
+              <p class="tl"><code>ApiErrorCode</code>: the four shared classes, plus exactly two edge-only extensions.</p>
+              <p class="tl">Now the payoff of keeping the taxonomy small.</p>
+              <p class="tl">The whole translation table fits in one Record — and this file is the ONLY place in the system that knows HTTP numbers.</p>
+              <p class="tl">The four domain classes first: something asked for doesn't exist…</p>
+              <p class="tl">…the payload type isn't one we handle…</p>
+              <p class="tl">…something we depend on is unreachable…</p>
+              <p class="tl">…and our own fault, deliberately scrubbed to a generic 500.</p>
+              <p class="tl">Then the two boundary codes: no valid session…</p>
+              <p class="tl">…and the 009 newcomer: malformed shape, honest 400.</p>
+              <p class="tl">…end of the mapping table. Six codes, six statuses, one file.</p>
             </div>
           </div>
         </div>
@@ -210,9 +235,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer, -1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2.</p>
-              <p class="tl">Everything past that is handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
-              <p class="tl">The schema itself is deliberately loose: integers, non-negative, unknown params tolerated. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer…</p>
+              <p class="tl">…-1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2. Clamping is a different job…</p>
+              <p class="tl">…handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
+              <p class="tl">The schema itself is deliberately loose. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">A plain object describing the query string…</p>
+              <p class="tl">…with exactly two declared params:</p>
+              <p class="tl"><code>limit</code> must be an integer, no lower than zero…</p>
+              <p class="tl">…and <code>offset</code> plays by the same rule.</p>
+              <p class="tl">…end of the declared params.</p>
+              <p class="tl">Unknown query params are tolerated, not refused — looseness is deliberate.</p>
+              <p class="tl"><code>as const</code> keeps the literal shape so the route's <code>request.query</code> types flow from it.</p>
+              <p class="tl">Schema above, the other half of the policy below.</p>
+              <p class="tl">Inside the handler now — validation already passed by the time this line runs.</p>
               <p class="tl">And the clamp is one line: floor at 1, ceiling at <code>MAX_LIMIT</code> (200), default 50 when absent. No branch, no refusal, no fifth error code.</p>
             </div>
           </div>

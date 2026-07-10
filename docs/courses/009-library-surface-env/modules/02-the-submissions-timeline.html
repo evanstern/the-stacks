@@ -162,12 +162,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong> — LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
-              <p class="tl">Arm one: standalone sources. <code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
-              <p class="tl">Arm two: batches ride the identical column list, with NULLs where source-only evidence goes (plugin, generation, last_error) and <code>entry_report</code> where sources carry NULL. Kind-specific columns as NULL passengers keep the UNION legal.</p>
+              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong>, never a TypeScript merge.</p>
+              <p class="tl">…because LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
+              <p class="tl">…and the trick that makes one query legal: kind-specific columns ride along…</p>
+              <p class="tl">…as NULLs on the kind that lacks them, while <code>id DESC</code> breaks same-millisecond ties…</p>
+              <p class="tl">…so two identical timestamps page in the same order every time.</p>
+              <p class="tl">One raw SQL statement, executed once — everything the timeline needs comes back in this single round trip.</p>
+              <p class="tl">The outer SELECT names the one uniform row shape both kinds must fit: identity, status, timestamps…</p>
+              <p class="tl">…plus the source-only evidence columns (plugin, confidence, generation)…</p>
+              <p class="tl">…and the two payloads: <code>last_error</code> for failures, <code>entry_report</code> for batches.</p>
+              <p class="tl">Open the subquery that builds the merged ledger.</p>
+              <p class="tl">Arm one: standalone sources, tagged <code>'source'</code> so the mapper later knows which kind each row is.</p>
+              <p class="tl">…sources genuinely own these columns, so they ride through as real values…</p>
+              <p class="tl">…except <code>entry_report</code>, which is a batch thing — sources carry an explicit NULL passenger there.</p>
+              <p class="tl"><code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
               <p class="tl">UNION <em>ALL</em>, not UNION: stack the two result sets with zero dedupe cost. Safe because there is nothing to dedupe — see the callout below.</p>
+              <p class="tl">Arm two: batches ride the identical column list, tagged <code>'batch'</code>.</p>
+              <p class="tl">…with NULLs where source-only evidence goes (plugin, generation, last_error) and a real <code>entry_report</code> where sources carry NULL. NULL passengers keep the UNION legal.</p>
+              <p class="tl">…every batch qualifies — batches are always submissions, so no WHERE clause is needed.</p>
+              <p class="tl">Close the subquery and name the merged set what it is: <code>submissions</code>.</p>
               <p class="tl">Newest first, with <code>id DESC</code> as tiebreak — two rows born in the same millisecond page in the same order every time. Deterministic paging is what makes "Older" a link you can trust.</p>
               <p class="tl">Cut the page <em>after</em> the merge. The database pages the ledger, not each cabinet separately.</p>
+              <p class="tl">…and the statement ends: one trip, one merged, sorted, correctly-cut page.</p>
             </div>
           </div>
         </div>
@@ -211,11 +227,18 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting. Anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting.</p>
+              <p class="tl">…anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">Both aggregates — sections and chunks — fire in parallel; two queries, one wait.</p>
               <p class="tl">If the page holds zero source rows, the aggregate does not run at all — the constant five is a ceiling, not a floor.</p>
+              <p class="tl">…the empty case hands back a bare empty result, shaped like the real one, without touching the database.</p>
+              <p class="tl">Otherwise, one raw SQL trip does all the counting.</p>
+              <p class="tl">Ask for one count per source id — <code>n</code> sections apiece.</p>
+              <p class="tl">…counting rows in <code>document_sections</code>…</p>
+              <p class="tl">…joined back to each row's source, solely to reach one number: <code>current_generation</code>.</p>
+              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at. And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
               <p class="tl">One grouped count for the whole page — <code>GROUP BY ds.source_id</code> is the anti-N+1: fifty sources, still one query.</p>
-              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at.</p>
-              <p class="tl">And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
+              <p class="tl">…close the statement; the chunks aggregate (not shown) is its exact twin over <code>document_chunks</code>.</p>
             </div>
           </div>
         </div>
@@ -318,12 +341,21 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The why-comment states the split: the report is frozen at expand completion; member fate keeps evolving afterwards.</p>
+              <p class="tl">The why-comment states the split: the report is frozen at expand completion…</p>
+              <p class="tl">…it knows admitted-vs-skipped and nothing more…</p>
+              <p class="tl">…while member fate keeps evolving afterwards, on the member source rows.</p>
+              <p class="tl">(A gap in the file — we jump from the why-comment down into the per-row assembly.)</p>
               <p class="tl"><code>report</code> is the photograph — the frozen per-entry outcome list off the batch row (query 1 already fetched it; no extra trip).</p>
               <p class="tl"><code>members</code> is the live feed — this batch's status counts from query 5, the member-status aggregate.</p>
-              <p class="tl"><code>ingested</code> and <code>failed</code> come from the live feed: only member source rows know what happened after admission.</p>
+              <p class="tl">Build the timeline item the page will render…</p>
+              <p class="tl">…starting from the fields every submission shares…</p>
+              <p class="tl">…and adding the one summary line a batch row carries.</p>
+              <p class="tl"><code>ingested</code> comes from the live feed: only member source rows know what happened after admission.</p>
               <p class="tl"><code>skipped</code> comes from the photograph: skipped entries never became source rows at all — the report is the only place they exist.</p>
+              <p class="tl"><code>failed</code> is the live feed again — a member that was admitted, then died in its own ingest.</p>
               <p class="tl"><code>total</code> is the report's length: every entry the ZIP contained, whatever became of it. Two data sources, one honest line per batch.</p>
+              <p class="tl">…close the summary…</p>
+              <p class="tl">…and the item is done: one row, both truths.</p>
             </div>
           </div>
         </div>

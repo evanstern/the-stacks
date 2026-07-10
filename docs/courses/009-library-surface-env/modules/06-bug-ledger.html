@@ -145,8 +145,16 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The comment argues the two decisions that matter: why this is a 400 (caller's shape error), and why relaying ajv's message is safe (mechanical, parameter-scoped — no internals to leak).</p>
+              <p class="tl">…a request that fails a route's declared schema is the caller's mistake, so it earns an honest 400…</p>
+              <p class="tl">…never the scrubbed 500 the catch-all below would otherwise turn it into.</p>
+              <p class="tl">The second decision: ajv generates these messages by machine, straight from the schema…</p>
+              <p class="tl">…so they name the offending parameter and nothing else — safe to send over the wire.</p>
               <p class="tl">Match Fastify's validation errors by their stable code...</p>
+              <p class="tl">Then build the reply in two chained steps…</p>
+              <p class="tl">…set the status by asking the shared error-class table what <code>invalid_input</code> maps to (400)…</p>
               <p class="tl">...and answer with the typed envelope: <code>invalid_input</code>, status 400, ajv's own diagnosis as the message.</p>
+              <p class="tl">Return early — this error is fully handled, so the catch-all never sees it…</p>
+              <p class="tl">…and close the branch.</p>
             </div>
           </div>
         </div>
@@ -197,6 +205,7 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">A parser that does almost nothing, on purpose: split <code>KEY=value</code>, skip comments and blank lines, and stop there.</p>
               <p class="tl">Every clause of this comment is a scar from the bug above: no expansion (mechanism a), no re-escaping (mechanism b), bytes in = bytes out.</p>
               <p class="tl">The parser refuses to be clever precisely because two layers of cleverness — the shell's and JS's — each destroyed the value in a different way.</p>
             </div>

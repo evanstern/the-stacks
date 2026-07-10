@@ -125,12 +125,54 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">The doc comment opens — a dozen lines of doctrine before any code runs.</p>
+              <p class="tl">This file is the pure math; the CLI (<code>mint-worktree-env.mjs</code>) is just a wrapper around it.</p>
+              <p class="tl">Spec pointers first — 009 US2 and the environment contract — then the design choice: no CLI code in here…</p>
+              <p class="tl">…so the guarantees live in a plain unit test that <code>pnpm verify</code> runs on every check.</p>
               <p class="tl">The header IS the contract: dirname alone determines everything. Determinism is what lets the repo skip a port registry entirely.</p>
-              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
-              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
-              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
-              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">…</p>
+              <p class="tl">The rule in one line starts here: a worktree's identity and ports come from…</p>
+              <p class="tl">…its directory name alone — <code>NNN-slug</code> maps to default + 10&times;NNN and <code>the-stacks-NNN-slug</code>…</p>
+              <p class="tl">…while <code>main</code> is grandfathered as the fixed point.</p>
+              <p class="tl">Uniqueness is inherited: spec-kit numbers features, so derived blocks can't collide by construction.</p>
               <p class="tl">Nothing here reads a registry, a lockfile, or the network. <code>findPortCollisions()</code> exists only to VERIFY this inheritance against reality — manual overrides are where mistakes live.</p>
+              <p class="tl">…still the doc comment — the web-on-4500 tale it references is told in §3.</p>
+              <p class="tl">…and the doctrine closes.</p>
+              <p class="tl">…</p>
+              <p class="tl">A one-line contract note: these defaults mirror <code>.env.example</code>, the variable contract.</p>
+              <p class="tl">The four published ports, frozen so nothing can mutate the baseline every offset is computed from.</p>
+              <p class="tl">…</p>
+              <p class="tl">Ten ports per feature. The stride is the only other constant in the entire scheme.</p>
+              <p class="tl">…</p>
+              <p class="tl">One input, documented precisely: a basename, never a path.</p>
+              <p class="tl">The derivation function itself — pure, synchronous, no I/O.</p>
+              <p class="tl">First branch: the one dirname that predates the protocol.</p>
+              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
+              <p class="tl">…</p>
+              <p class="tl">So <code>main</code> returns offset 0 and a fresh copy of the untouched defaults.</p>
+              <p class="tl">…</p>
+              <p class="tl">Everyone else must start with digits and a dash — the regex captures the feature number.</p>
+              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
+              <p class="tl">…</p>
+              <p class="tl">The error names the offending dirname and what's missing…</p>
+              <p class="tl">…shows the expected shape with a worked example…</p>
+              <p class="tl">…and explains WHY it refuses: deterministic derivation is the whole protocol.</p>
+              <p class="tl">…</p>
+              <p class="tl">…</p>
+              <p class="tl">The captured digits become the feature number — parsed base 10, explicitly.</p>
+              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
+              <p class="tl">Now assemble the profile…</p>
+              <p class="tl">…the dirname everything was derived from…</p>
+              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">…the offset, kept visible for tooling and error messages…</p>
+              <p class="tl">…and the four ports, each shifted by the same amount:</p>
+              <p class="tl">web rides at 4400 + offset…</p>
+              <p class="tl">…api at 4401 + offset…</p>
+              <p class="tl">…ml at 4402 + offset…</p>
+              <p class="tl">…postgres at 5442 + offset. One block, four ports, zero coordination.</p>
+              <p class="tl">…</p>
+              <p class="tl">…</p>
+              <p class="tl">…and that's the whole algorithm. No registry, no state, nothing to keep in sync.</p>
             </div>
           </div>
         </div>

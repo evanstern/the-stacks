@@ -102,10 +102,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The headline reframe: visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
-              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI &mdash; and the page must be reachable through navigation. A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
-              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery get a different avenue: CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
-              <p class="tl">The avenue is recorded in the spec or plan, with a reason &mdash; and a capability with none at all is <em>incomplete</em>, by the same standard that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
+              <p class="tl">The headline reframe: every delivered capability must have a visibility avenue&hellip;</p>
+              <p class="tl">&hellip;because visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
+              <p class="tl">&hellip;then three bullets pin down what that means.</p>
+              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI: Records-style pages, addressable by URL&hellip;</p>
+              <p class="tl">&hellip;and reachable through the product&rsquo;s navigation &mdash; not merely existing at some address.</p>
+              <p class="tl">A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
+              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery&hellip;</p>
+              <p class="tl">&hellip;still owe visibility &mdash; they just satisfy it through a different avenue&hellip;</p>
+              <p class="tl">&hellip;CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
+              <p class="tl">The avenue is recorded in the spec or plan, capability by capability&hellip;</p>
+              <p class="tl">&hellip;along with WHY that avenue is the right one &mdash; a reasoned decision, not a checkbox.</p>
+              <p class="tl">And a capability with no avenue at all is <em>incomplete</em>, by the same standard&hellip;</p>
+              <p class="tl">&hellip;that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
             </div>
           </div>
         </div>
@@ -168,8 +177,9 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">&ldquo;End to end&rdquo; is load-bearing: not just no delete button in the UI, but no new mutating route in the API, no new write path anywhere in the slice.</p>
-              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec by a dated operator decision. A scope line with a forwarding address, not a shrug.</p>
-              <p class="tl">Note what this makes read-only mean here: an actual functional requirement with a testable surface (grep the API for mutating routes), not a styling choice about which buttons the listing renders.</p>
+              <p class="tl">All three write verbs &mdash; create, mutate, delete &mdash; closed off by name, and re-ingestion alongside them.</p>
+              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec: a scope line with a forwarding address, not a shrug.</p>
+              <p class="tl">&hellip;and the pin carries a date, by operator decision. That makes read-only a testable requirement (grep the API for mutating routes), not a styling choice about buttons.</p>
             </div>
           </div>
         </div>

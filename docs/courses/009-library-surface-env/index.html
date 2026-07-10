@@ -151,10 +151,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The headline reframe: visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
-              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI &mdash; and the page must be reachable through navigation. A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
-              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery get a different avenue: CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
-              <p class="tl">The avenue is recorded in the spec or plan, with a reason &mdash; and a capability with none at all is <em>incomplete</em>, by the same standard that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
+              <p class="tl">The headline reframe: every delivered capability must have a visibility avenue&hellip;</p>
+              <p class="tl">&hellip;because visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
+              <p class="tl">&hellip;then three bullets pin down what that means.</p>
+              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI: Records-style pages, addressable by URL&hellip;</p>
+              <p class="tl">&hellip;and reachable through the product&rsquo;s navigation &mdash; not merely existing at some address.</p>
+              <p class="tl">A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
+              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery&hellip;</p>
+              <p class="tl">&hellip;still owe visibility &mdash; they just satisfy it through a different avenue&hellip;</p>
+              <p class="tl">&hellip;CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
+              <p class="tl">The avenue is recorded in the spec or plan, capability by capability&hellip;</p>
+              <p class="tl">&hellip;along with WHY that avenue is the right one &mdash; a reasoned decision, not a checkbox.</p>
+              <p class="tl">And a capability with no avenue at all is <em>incomplete</em>, by the same standard&hellip;</p>
+              <p class="tl">&hellip;that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
             </div>
           </div>
         </div>
@@ -217,8 +226,9 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">&ldquo;End to end&rdquo; is load-bearing: not just no delete button in the UI, but no new mutating route in the API, no new write path anywhere in the slice.</p>
-              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec by a dated operator decision. A scope line with a forwarding address, not a shrug.</p>
-              <p class="tl">Note what this makes read-only mean here: an actual functional requirement with a testable surface (grep the API for mutating routes), not a styling choice about which buttons the listing renders.</p>
+              <p class="tl">All three write verbs &mdash; create, mutate, delete &mdash; closed off by name, and re-ingestion alongside them.</p>
+              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec: a scope line with a forwarding address, not a shrug.</p>
+              <p class="tl">&hellip;and the pin carries a date, by operator decision. That makes read-only a testable requirement (grep the API for mutating routes), not a styling choice about buttons.</p>
             </div>
           </div>
         </div>
@@ -472,12 +482,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong> — LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
-              <p class="tl">Arm one: standalone sources. <code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
-              <p class="tl">Arm two: batches ride the identical column list, with NULLs where source-only evidence goes (plugin, generation, last_error) and <code>entry_report</code> where sources carry NULL. Kind-specific columns as NULL passengers keep the UNION legal.</p>
+              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong>, never a TypeScript merge.</p>
+              <p class="tl">…because LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
+              <p class="tl">…and the trick that makes one query legal: kind-specific columns ride along…</p>
+              <p class="tl">…as NULLs on the kind that lacks them, while <code>id DESC</code> breaks same-millisecond ties…</p>
+              <p class="tl">…so two identical timestamps page in the same order every time.</p>
+              <p class="tl">One raw SQL statement, executed once — everything the timeline needs comes back in this single round trip.</p>
+              <p class="tl">The outer SELECT names the one uniform row shape both kinds must fit: identity, status, timestamps…</p>
+              <p class="tl">…plus the source-only evidence columns (plugin, confidence, generation)…</p>
+              <p class="tl">…and the two payloads: <code>last_error</code> for failures, <code>entry_report</code> for batches.</p>
+              <p class="tl">Open the subquery that builds the merged ledger.</p>
+              <p class="tl">Arm one: standalone sources, tagged <code>'source'</code> so the mapper later knows which kind each row is.</p>
+              <p class="tl">…sources genuinely own these columns, so they ride through as real values…</p>
+              <p class="tl">…except <code>entry_report</code>, which is a batch thing — sources carry an explicit NULL passenger there.</p>
+              <p class="tl"><code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
               <p class="tl">UNION <em>ALL</em>, not UNION: stack the two result sets with zero dedupe cost. Safe because there is nothing to dedupe — see the callout below.</p>
+              <p class="tl">Arm two: batches ride the identical column list, tagged <code>'batch'</code>.</p>
+              <p class="tl">…with NULLs where source-only evidence goes (plugin, generation, last_error) and a real <code>entry_report</code> where sources carry NULL. NULL passengers keep the UNION legal.</p>
+              <p class="tl">…every batch qualifies — batches are always submissions, so no WHERE clause is needed.</p>
+              <p class="tl">Close the subquery and name the merged set what it is: <code>submissions</code>.</p>
               <p class="tl">Newest first, with <code>id DESC</code> as tiebreak — two rows born in the same millisecond page in the same order every time. Deterministic paging is what makes "Older" a link you can trust.</p>
               <p class="tl">Cut the page <em>after</em> the merge. The database pages the ledger, not each cabinet separately.</p>
+              <p class="tl">…and the statement ends: one trip, one merged, sorted, correctly-cut page.</p>
             </div>
           </div>
         </div>
@@ -521,11 +547,18 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting. Anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting.</p>
+              <p class="tl">…anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">Both aggregates — sections and chunks — fire in parallel; two queries, one wait.</p>
               <p class="tl">If the page holds zero source rows, the aggregate does not run at all — the constant five is a ceiling, not a floor.</p>
+              <p class="tl">…the empty case hands back a bare empty result, shaped like the real one, without touching the database.</p>
+              <p class="tl">Otherwise, one raw SQL trip does all the counting.</p>
+              <p class="tl">Ask for one count per source id — <code>n</code> sections apiece.</p>
+              <p class="tl">…counting rows in <code>document_sections</code>…</p>
+              <p class="tl">…joined back to each row's source, solely to reach one number: <code>current_generation</code>.</p>
+              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at. And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
               <p class="tl">One grouped count for the whole page — <code>GROUP BY ds.source_id</code> is the anti-N+1: fifty sources, still one query.</p>
-              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at.</p>
-              <p class="tl">And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
+              <p class="tl">…close the statement; the chunks aggregate (not shown) is its exact twin over <code>document_chunks</code>.</p>
             </div>
           </div>
         </div>
@@ -628,12 +661,21 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The why-comment states the split: the report is frozen at expand completion; member fate keeps evolving afterwards.</p>
+              <p class="tl">The why-comment states the split: the report is frozen at expand completion…</p>
+              <p class="tl">…it knows admitted-vs-skipped and nothing more…</p>
+              <p class="tl">…while member fate keeps evolving afterwards, on the member source rows.</p>
+              <p class="tl">(A gap in the file — we jump from the why-comment down into the per-row assembly.)</p>
               <p class="tl"><code>report</code> is the photograph — the frozen per-entry outcome list off the batch row (query 1 already fetched it; no extra trip).</p>
               <p class="tl"><code>members</code> is the live feed — this batch's status counts from query 5, the member-status aggregate.</p>
-              <p class="tl"><code>ingested</code> and <code>failed</code> come from the live feed: only member source rows know what happened after admission.</p>
+              <p class="tl">Build the timeline item the page will render…</p>
+              <p class="tl">…starting from the fields every submission shares…</p>
+              <p class="tl">…and adding the one summary line a batch row carries.</p>
+              <p class="tl"><code>ingested</code> comes from the live feed: only member source rows know what happened after admission.</p>
               <p class="tl"><code>skipped</code> comes from the photograph: skipped entries never became source rows at all — the report is the only place they exist.</p>
+              <p class="tl"><code>failed</code> is the live feed again — a member that was admitted, then died in its own ingest.</p>
               <p class="tl"><code>total</code> is the report's length: every entry the ZIP contained, whatever became of it. Two data sources, one honest line per batch.</p>
+              <p class="tl">…close the summary…</p>
+              <p class="tl">…and the item is done: one row, both truths.</p>
             </div>
           </div>
         </div>
@@ -809,10 +851,32 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The header comment names the invariant: this file is the ONE place for auth AND the ONE place for nav, and cites the rule that forced it — a page reachable only by typed URL doesn't count as visible.</p>
-              <p class="tl">The component is deliberately boring: a landmark <code>&lt;nav aria-label="Primary"&gt;</code>, the product name, two links.</p>
-              <p class="tl">Home and Library are <code>Link</code>s — client-side navigations, no full reload.</p>
+              <p class="tl">The file opens with a doc comment — not decoration; in this repo, headers carry the doctrine.</p>
+              <p class="tl">It names the invariant: this file is the auth gate AND, since 009, the navigation shell.</p>
+              <p class="tl">Every non-login route nests under this layout, so the loader here is the ONE place auth is checked…</p>
+              <p class="tl">…child routes never re-check the session; turned-away traffic never reaches them.</p>
+              <p class="tl">And the header below is the ONE place navigation renders on every authenticated page.</p>
+              <p class="tl">The comment cites its sources — 009 FR-001 and constitution Principle V…</p>
+              <p class="tl">…the rule that forced it: a page reachable only by typed URL doesn't count as visible.</p>
+              <p class="tl">A breath between doctrine and code.</p>
+              <p class="tl">The component itself is deliberately boring — no state, no hooks, just markup.</p>
+              <p class="tl">It returns one JSX tree…</p>
+              <p class="tl">…wrapped in a fragment, so no extra wrapper element hits the DOM.</p>
+              <p class="tl">First the nav — a real landmark element, not a styled div…</p>
+              <p class="tl">…labeled "Primary" so assistive tech can jump straight to it.</p>
+              <p class="tl">Tailwind utilities center it, cap its width, and space the links — the same rhythm as the pages below.</p>
+              <p class="tl">…and the opening tag closes.</p>
+              <p class="tl">The product name anchors the left edge — bold, but not a link.</p>
+              <p class="tl">Home is a <code>Link</code> — a client-side navigation, no full reload…</p>
+              <p class="tl">…with its visible label on its own line.</p>
+              <p class="tl">…and close the link.</p>
+              <p class="tl">Library gets the identical treatment, pointing at <code>/library</code>…</p>
+              <p class="tl">…its label, same pattern.</p>
+              <p class="tl">…and close the link.</p>
+              <p class="tl">…and close the nav.</p>
               <p class="tl">Then <code>&lt;Outlet /&gt;</code>: whatever child route matched renders below the header. Every protected page gets the shell without asking.</p>
+              <p class="tl">…close the fragment.</p>
+              <p class="tl">…and the return.</p>
               <p class="tl">That's the whole nav model. Two links today; adding a third someday is one edit in one file, visible everywhere at once.</p>
             </div>
           </div>
@@ -871,10 +935,34 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Batch rows summarize their entries — ingested, skipped, failed — and the failed count goes destructive-red only when it's nonzero. Zero failures shouldn't shout.</p>
-              <p class="tl">A source with a <code>lastError</code> shows the scrubbed why — which stage, which error class — one glance deep. The full stage trail stays on the detail page where it belongs.</p>
-              <p class="tl">No plugin yet? The worker hasn't run detect. Say exactly that — "awaiting detect" — instead of faking a blank.</p>
-              <p class="tl">The happy path is the receipt: plugin@version, generation, and how much of the corpus this source contributes right now.</p>
+              <p class="tl">One component per kind's story — the header comment states the contract up front (US3).</p>
+              <p class="tl"><code>Evidence</code> takes one row item; the <code>LibraryListItem</code> union is what lets the branches below discriminate.</p>
+              <p class="tl">First story: batch rows.</p>
+              <p class="tl">Pull the four counts out of the entry summary…</p>
+              <p class="tl">…and render them as one line.</p>
+              <p class="tl">A plain span — this lives inside a table cell.</p>
+              <p class="tl">Batch rows summarize their entries — total, ingested, skipped…</p>
+              <p class="tl">…and the failed count goes destructive-red only when it's nonzero. Zero failures shouldn't shout.</p>
+              <p class="tl">…close the span.</p>
+              <p class="tl">…and the return.</p>
+              <p class="tl">End of the batch branch — everything after this is a single source.</p>
+              <p class="tl">Second story: a source with a <code>lastError</code>.</p>
+              <p class="tl">The why-comment says it: the scrubbed why, one glance deep — the full stage trail stays on the detail page where it belongs.</p>
+              <p class="tl">Render it…</p>
+              <p class="tl">…in destructive red, because a failure should read as one.</p>
+              <p class="tl">Which stage, which error class — the scrubbed why, nothing more.</p>
+              <p class="tl">…close the span.</p>
+              <p class="tl">…and the return.</p>
+              <p class="tl">End of the failure branch.</p>
+              <p class="tl">Third story: no plugin yet? The worker hasn't run detect.</p>
+              <p class="tl">Say exactly that — "awaiting detect", muted — instead of faking a blank.</p>
+              <p class="tl">…end the pending branch.</p>
+              <p class="tl">Fourth story, the fall-through: the happy path.</p>
+              <p class="tl">Again a plain span…</p>
+              <p class="tl">…the receipt: plugin@version, generation…</p>
+              <p class="tl">…and how much of the corpus this source contributes right now — sections and passages.</p>
+              <p class="tl">…close the span.</p>
+              <p class="tl">…and the return.</p>
               <p class="tl">One component, four honest stories. Order matters: batch first (it has no lastError shape), then failure, then pending, then success.</p>
             </div>
           </div>
@@ -1101,11 +1189,22 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">One error handler for the whole API. Checks run most-specific first.</p>
-              <p class="tl">First check: a known DomainError. Map its class to a status and its message to the envelope. This path existed since 007.</p>
-              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error. Honest 400, never the scrubbed 500 the fall-through would produce.</p>
-              <p class="tl">And it justifies putting <code>error.message</code> on the wire: ajv's generated text is mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
+              <p class="tl">First check: a known DomainError. This path has existed since 007.</p>
+              <p class="tl">Map its class to a status and its message to the envelope — one chained call, no HTTP knowledge outside this file.</p>
+              <p class="tl">Handled — hand the reply back before the catch-all can touch it.</p>
+              <p class="tl">…end of the DomainError branch.</p>
+              <p class="tl">A blank line, then the 009 addition.</p>
+              <p class="tl">The why-comment states the doctrine: a schema-validation failure is the CALLER's shape error…</p>
+              <p class="tl">…so it deserves an honest 400, never the scrubbed 500 the fall-through would produce…</p>
+              <p class="tl">…and the comment cites the contract that pinned this down (009, contracts/api.md).</p>
+              <p class="tl">It also justifies putting <code>error.message</code> on the wire: it's ajv's generated text…</p>
+              <p class="tl">…mechanical and parameter-scoped — "querystring/limit must be integer" leaks nothing internal, unlike a stack trace.</p>
               <p class="tl">The new branch: match Fastify's validation error code exactly.</p>
-              <p class="tl">Answer with the status for <code>invalid_input</code> (400) and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+              <p class="tl">Build the reply in two steps…</p>
+              <p class="tl">…the status for <code>invalid_input</code> (400)…</p>
+              <p class="tl">…and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
+              <p class="tl">Handled — return before falling through.</p>
+              <p class="tl">…end of the validation branch.</p>
             </div>
           </div>
         </div>
@@ -1152,11 +1251,25 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The 009 paragraph of the file's header: malformed shape fits none of the four domain classes, and the fall-through 500 "would lie about whose fault it is."</p>
+              <p class="tl">The 009 paragraph of the file's header: it names the new code and its status up front, plus the precedent it follows.</p>
+              <p class="tl">A malformed SHAPE is the caller's doing — Fastify's schema validation caught it…</p>
+              <p class="tl">…and it fits none of the existing classes: not an unknown thing, not an unsupported payload type…</p>
+              <p class="tl">…so letting it fall through to the scrubbed 500 "would lie about whose fault it is."</p>
               <p class="tl">The precedent is <code>unauthorized</code> — it took this exact path in 007, because the worker has no auth concept either.</p>
               <p class="tl">The closing argument in one clause: only the HTTP edge can have malformed requests. So the code lives with the mapping, not in the shared union.</p>
-              <p class="tl"><code>ApiErrorCode</code> is the type that says it structurally: the four shared classes, plus exactly two edge-only extensions.</p>
-              <p class="tl">And the whole translation table fits in one Record: four domain classes, two boundary codes, six statuses. This file is the ONLY place in the system that knows HTTP numbers.</p>
+              <p class="tl">…end of the header argument.</p>
+              <p class="tl">Argument above, implementation below.</p>
+              <p class="tl">The doc-comment says in one line what the type is about to say structurally.</p>
+              <p class="tl"><code>ApiErrorCode</code>: the four shared classes, plus exactly two edge-only extensions.</p>
+              <p class="tl">Now the payoff of keeping the taxonomy small.</p>
+              <p class="tl">The whole translation table fits in one Record — and this file is the ONLY place in the system that knows HTTP numbers.</p>
+              <p class="tl">The four domain classes first: something asked for doesn't exist…</p>
+              <p class="tl">…the payload type isn't one we handle…</p>
+              <p class="tl">…something we depend on is unreachable…</p>
+              <p class="tl">…and our own fault, deliberately scrubbed to a generic 500.</p>
+              <p class="tl">Then the two boundary codes: no valid session…</p>
+              <p class="tl">…and the 009 newcomer: malformed shape, honest 400.</p>
+              <p class="tl">…end of the mapping table. Six codes, six statuses, one file.</p>
             </div>
           </div>
         </div>
@@ -1195,9 +1308,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer, -1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2.</p>
-              <p class="tl">Everything past that is handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
-              <p class="tl">The schema itself is deliberately loose: integers, non-negative, unknown params tolerated. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">The comment IS the policy. ajv handles the refusals: "nope" won't coerce to an integer…</p>
+              <p class="tl">…-1 violates <code>minimum: 0</code> — both hit the 400 path from Screen 2. Clamping is a different job…</p>
+              <p class="tl">…handler logic, because <code>0</code> and <code>9999</code> are "honest requests with honest nearest answers" — coercible, in-range integers that are merely extreme.</p>
+              <p class="tl">The schema itself is deliberately loose. It only rejects what cannot be answered honestly at all.</p>
+              <p class="tl">A plain object describing the query string…</p>
+              <p class="tl">…with exactly two declared params:</p>
+              <p class="tl"><code>limit</code> must be an integer, no lower than zero…</p>
+              <p class="tl">…and <code>offset</code> plays by the same rule.</p>
+              <p class="tl">…end of the declared params.</p>
+              <p class="tl">Unknown query params are tolerated, not refused — looseness is deliberate.</p>
+              <p class="tl"><code>as const</code> keeps the literal shape so the route's <code>request.query</code> types flow from it.</p>
+              <p class="tl">Schema above, the other half of the policy below.</p>
+              <p class="tl">Inside the handler now — validation already passed by the time this line runs.</p>
               <p class="tl">And the clamp is one line: floor at 1, ceiling at <code>MAX_LIMIT</code> (200), default 50 when absent. No branch, no refusal, no fifth error code.</p>
             </div>
           </div>
@@ -1394,12 +1517,54 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">The doc comment opens — a dozen lines of doctrine before any code runs.</p>
+              <p class="tl">This file is the pure math; the CLI (<code>mint-worktree-env.mjs</code>) is just a wrapper around it.</p>
+              <p class="tl">Spec pointers first — 009 US2 and the environment contract — then the design choice: no CLI code in here…</p>
+              <p class="tl">…so the guarantees live in a plain unit test that <code>pnpm verify</code> runs on every check.</p>
               <p class="tl">The header IS the contract: dirname alone determines everything. Determinism is what lets the repo skip a port registry entirely.</p>
-              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
-              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
-              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
-              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">…</p>
+              <p class="tl">The rule in one line starts here: a worktree's identity and ports come from…</p>
+              <p class="tl">…its directory name alone — <code>NNN-slug</code> maps to default + 10&times;NNN and <code>the-stacks-NNN-slug</code>…</p>
+              <p class="tl">…while <code>main</code> is grandfathered as the fixed point.</p>
+              <p class="tl">Uniqueness is inherited: spec-kit numbers features, so derived blocks can't collide by construction.</p>
               <p class="tl">Nothing here reads a registry, a lockfile, or the network. <code>findPortCollisions()</code> exists only to VERIFY this inheritance against reality — manual overrides are where mistakes live.</p>
+              <p class="tl">…still the doc comment — the web-on-4500 tale it references is told in §3.</p>
+              <p class="tl">…and the doctrine closes.</p>
+              <p class="tl">…</p>
+              <p class="tl">A one-line contract note: these defaults mirror <code>.env.example</code>, the variable contract.</p>
+              <p class="tl">The four published ports, frozen so nothing can mutate the baseline every offset is computed from.</p>
+              <p class="tl">…</p>
+              <p class="tl">Ten ports per feature. The stride is the only other constant in the entire scheme.</p>
+              <p class="tl">…</p>
+              <p class="tl">One input, documented precisely: a basename, never a path.</p>
+              <p class="tl">The derivation function itself — pure, synchronous, no I/O.</p>
+              <p class="tl">First branch: the one dirname that predates the protocol.</p>
+              <p class="tl"><code>main</code> is the fixed point — offset 0, <code>the-stacks-v3</code>. Its compose identity is load-bearing (container/volume names depend on it), so it's grandfathered forever.</p>
+              <p class="tl">…</p>
+              <p class="tl">So <code>main</code> returns offset 0 and a fresh copy of the untouched defaults.</p>
+              <p class="tl">…</p>
+              <p class="tl">Everyone else must start with digits and a dash — the regex captures the feature number.</p>
+              <p class="tl">Every other dirname must be <code>NNN-slug</code>. No leading feature number? A loud, instructive refusal — the protocol won't guess, because a guessed name can't promise uniqueness.</p>
+              <p class="tl">…</p>
+              <p class="tl">The error names the offending dirname and what's missing…</p>
+              <p class="tl">…shows the expected shape with a worked example…</p>
+              <p class="tl">…and explains WHY it refuses: deterministic derivation is the whole protocol.</p>
+              <p class="tl">…</p>
+              <p class="tl">…</p>
+              <p class="tl">The captured digits become the feature number — parsed base 10, explicitly.</p>
+              <p class="tl">offset = 10 &times; NNN. The stride gives each feature ten ports; the four published ones move together as one block.</p>
+              <p class="tl">Now assemble the profile…</p>
+              <p class="tl">…the dirname everything was derived from…</p>
+              <p class="tl">Project name is just <code>the-stacks-&lt;dirname&gt;</code> — collision-free for the same reason the ports are: spec-kit numbers features uniquely.</p>
+              <p class="tl">…the offset, kept visible for tooling and error messages…</p>
+              <p class="tl">…and the four ports, each shifted by the same amount:</p>
+              <p class="tl">web rides at 4400 + offset…</p>
+              <p class="tl">…api at 4401 + offset…</p>
+              <p class="tl">…ml at 4402 + offset…</p>
+              <p class="tl">…postgres at 5442 + offset. One block, four ports, zero coordination.</p>
+              <p class="tl">…</p>
+              <p class="tl">…</p>
+              <p class="tl">…and that's the whole algorithm. No registry, no state, nothing to keep in sync.</p>
             </div>
           </div>
         </div>
@@ -1812,8 +1977,16 @@ $ curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4490/ready
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The comment argues the two decisions that matter: why this is a 400 (caller's shape error), and why relaying ajv's message is safe (mechanical, parameter-scoped — no internals to leak).</p>
+              <p class="tl">…a request that fails a route's declared schema is the caller's mistake, so it earns an honest 400…</p>
+              <p class="tl">…never the scrubbed 500 the catch-all below would otherwise turn it into.</p>
+              <p class="tl">The second decision: ajv generates these messages by machine, straight from the schema…</p>
+              <p class="tl">…so they name the offending parameter and nothing else — safe to send over the wire.</p>
               <p class="tl">Match Fastify's validation errors by their stable code...</p>
+              <p class="tl">Then build the reply in two chained steps…</p>
+              <p class="tl">…set the status by asking the shared error-class table what <code>invalid_input</code> maps to (400)…</p>
               <p class="tl">...and answer with the typed envelope: <code>invalid_input</code>, status 400, ajv's own diagnosis as the message.</p>
+              <p class="tl">Return early — this error is fully handled, so the catch-all never sees it…</p>
+              <p class="tl">…and close the branch.</p>
             </div>
           </div>
         </div>
@@ -1864,6 +2037,7 @@ $ curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4490/ready
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">A parser that does almost nothing, on purpose: split <code>KEY=value</code>, skip comments and blank lines, and stop there.</p>
               <p class="tl">Every clause of this comment is a scar from the bug above: no expansion (mechanism a), no re-escaping (mechanism b), bytes in = bytes out.</p>
               <p class="tl">The parser refuses to be clever precisely because two layers of cleverness — the shell's and JS's — each destroyed the value in a different way.</p>
             </div>
