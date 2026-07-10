@@ -192,4 +192,120 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("library listing contract
     const res = await app.inject({ method: "GET", url: "/api/uploads" });
     expect(res.statusCode).toBe(401);
   });
+
+  // -------------------------------------------------------------------------
+  // T016 (US3): evidence at a glance — the listing carries what the worker
+  // recorded, and its counts obey the 008 R8 reader predicate (CURRENT
+  // generation only; an aside-written next generation must be invisible).
+  // Worker outcomes are seeded directly in SQL: these are read-model tests,
+  // not pipeline tests — the pipeline's own suite owns those transitions.
+  // -------------------------------------------------------------------------
+
+  interface EvidenceItem extends ListItem {
+    plugin: { name: string; version: string; confidence: number } | null;
+    generation: number;
+    counts: { sections: number; chunks: number };
+    lastError: { class: string; stage: string; message: string } | null;
+    entrySummary: { ingested: number; skipped: number; failed: number; total: number };
+  }
+
+  async function seedSection(sourceId: string, generation: number, index: number) {
+    await app.deps.pool.query(
+      `INSERT INTO document_sections (id, source_id, generation, section_index, path, kind, content, anchor)
+       VALUES ($1, $2, $3, $4, '[]', 'prose', 'seeded', '{}')`,
+      [`sec-${sourceId}-${generation}-${index}`, sourceId, generation, index],
+    );
+  }
+
+  async function seedChunk(sourceId: string, generation: number, index: number) {
+    await app.deps.pool.query(
+      `INSERT INTO chunks (id, source_id, corpus_id, generation, chunk_index, content, section_ids, anchor, plugin_name, plugin_version)
+       SELECT $1, $2, corpus_id, $3, $4, 'seeded', '[]', '{}', 'ddb-saved-html', '1.0.0' FROM sources WHERE id = $2`,
+      [`chk-${sourceId}-${generation}-${index}`, sourceId, generation, index],
+    );
+  }
+
+  it("source rows carry plugin, generation, and CURRENT-generation counts only (US3 AC-1)", async () => {
+    const ticket = await upload("goblin.html", GOBLIN);
+    await app.deps.pool.query(
+      `UPDATE sources SET plugin_name = 'ddb-saved-html', plugin_version = '1.0.0',
+         detect_confidence = 0.95, current_generation = 1, status = 'ingested' WHERE id = $1`,
+      [ticket.id],
+    );
+    // Generation 1 is current: 2 sections, 3 chunks. Generation 2 is a
+    // re-ingest being written ASIDE — the listing must not count it.
+    await seedSection(ticket.id, 1, 0);
+    await seedSection(ticket.id, 1, 1);
+    await seedSection(ticket.id, 2, 0);
+    for (let i = 0; i < 3; i++) await seedChunk(ticket.id, 1, i);
+    for (let i = 0; i < 2; i++) await seedChunk(ticket.id, 2, i);
+
+    const { body } = await list();
+    const item = body.items[0] as EvidenceItem;
+    expect(item.plugin).toEqual({ name: "ddb-saved-html", version: "1.0.0", confidence: 0.95 });
+    expect(item.generation).toBe(1);
+    expect(item.counts).toEqual({ sections: 2, chunks: 3 });
+    expect(item.lastError).toBeNull();
+  });
+
+  it("a source that never reached detect shows plugin null, generation 0, zero counts", async () => {
+    await upload("goblin.html", GOBLIN);
+    const { body } = await list();
+    const item = body.items[0] as EvidenceItem;
+    expect(item.plugin).toBeNull();
+    expect(item.generation).toBe(0);
+    expect(item.counts).toEqual({ sections: 0, chunks: 0 });
+  });
+
+  it("failed source rows carry the scrubbed lastError with its stage (US3 AC-2)", async () => {
+    const ticket = await upload("notes.md", NOTES);
+    await app.deps.pool.query(
+      `UPDATE sources SET status = 'failed',
+         last_error = '{"class":"internal_fault","stage":"chunk","message":"seeded failure"}'::jsonb
+       WHERE id = $1`,
+      [ticket.id],
+    );
+
+    const { body } = await list();
+    const item = body.items[0] as EvidenceItem;
+    expect(item.status).toBe("failed");
+    expect(item.lastError).toEqual({
+      class: "internal_fault",
+      stage: "chunk",
+      message: "seeded failure",
+    });
+  });
+
+  it("batch rows summarize entry outcomes without being opened (US3 AC-3)", async () => {
+    const ticket = await upload("export-mixed.zip", ZIP);
+    // Expand admitted two entries and skipped one; of the admitted members,
+    // one ingested and one later failed its pipeline. The summary must read
+    // member STATUSES for ingested/failed — the report alone can't say.
+    await app.deps.pool.query(
+      `INSERT INTO source_archives (fingerprint, bytes, byte_size, media_type)
+       VALUES ('member-a', '\\x00', 1, 'text/html'), ('member-b', '\\x01', 1, 'text/html')`,
+    );
+    await app.deps.pool.query(
+      `INSERT INTO sources (corpus_id, batch_id, fingerprint, original_filename, status)
+       SELECT corpus_id, $1, 'member-a', 'a.html', 'ingested' FROM batches WHERE id = $1`,
+      [ticket.id],
+    );
+    await app.deps.pool.query(
+      `INSERT INTO sources (corpus_id, batch_id, fingerprint, original_filename, status)
+       SELECT corpus_id, $1, 'member-b', 'c.html', 'failed' FROM batches WHERE id = $1`,
+      [ticket.id],
+    );
+    await app.deps.pool.query(
+      `UPDATE batches SET status = 'expanded', entry_report =
+         '[{"name":"a.html","outcome":"ingested"},{"name":"b.pdf","outcome":"skipped","reason":"unsupported"},{"name":"c.html","outcome":"ingested"}]'::jsonb
+       WHERE id = $1`,
+      [ticket.id],
+    );
+
+    const { body } = await list();
+    const item = body.items.find((entry) => entry.kind === "batch") as EvidenceItem;
+    expect(item.entrySummary).toEqual({ ingested: 1, skipped: 1, failed: 1, total: 3 });
+    // Members still never appear as their own rows (research R2 holds).
+    expect(body.items.filter((entry) => entry.kind === "source")).toHaveLength(0);
+  });
 });

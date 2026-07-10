@@ -166,14 +166,32 @@ export async function uploadToLibrary(
 // sources + batches; batch members are represented by their batch row.
 // ---------------------------------------------------------------------------
 
-export interface LibraryListItem {
-  kind: "source" | "batch";
+interface LibraryListItemBase {
   id: string;
   originalFilename: string;
   status: string;
   createdAt: string;
   updatedAt: string;
 }
+
+/** Standalone source row with its ingestion evidence (US3): plugin
+ * attribution, generation, CURRENT-generation counts, scrubbed failure. */
+export interface LibrarySourceItem extends LibraryListItemBase {
+  kind: "source";
+  plugin: { name: string; version: string; confidence: number } | null;
+  generation: number;
+  counts: { sections: number; chunks: number };
+  lastError: { class: string; stage: string; message: string } | null;
+}
+
+/** Batch row; members never appear as their own rows — this summary speaks
+ * for them (ingested/failed read member statuses, skipped reads the report). */
+export interface LibraryBatchItem extends LibraryListItemBase {
+  kind: "batch";
+  entrySummary: { ingested: number; skipped: number; failed: number; total: number };
+}
+
+export type LibraryListItem = LibrarySourceItem | LibraryBatchItem;
 
 export interface LibraryListPage {
   items: LibraryListItem[];

@@ -163,7 +163,7 @@ indexed" without opening any detail page (quickstart A3; SC-003).
 
 ### Tests for User Story 3 (write first, watch them fail)
 
-- [ ] T016 [P] [US3] Extend apps/api/src/ingestion/list.test.ts with failing
+- [x] T016 [P] [US3] Extend apps/api/src/ingestion/list.test.ts with failing
       assertions: source rows carry `plugin` (null before detect), `generation`,
       `counts` computed over the CURRENT generation only (seed a superseded generation
       and assert it is not counted — the 008 R8 reader predicate), `lastError` when
@@ -173,14 +173,14 @@ indexed" without opening any detail page (quickstart A3; SC-003).
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Extend apps/api/src/ingestion/list.ts with the two grouped
+- [x] T017 [US3] Extend apps/api/src/ingestion/list.ts with the two grouped
       current-generation aggregates (sections, chunks) merged in TS, and entrySummary
       computation from `entryReport` jsonb (T016 goes green)
-- [ ] T018 [US3] Extend apps/web/app/routes/library.tsx + library.test.tsx: evidence
+- [x] T018 [US3] Extend apps/web/app/routes/library.tsx + library.test.tsx: evidence
       columns (plugin@version, generation, counts), visibly distinguished failed rows
       with failing stage, batch outcome summaries — failing web assertions first, then
       the rendering
-- [ ] T019 [US3] **Story checkpoint**: full verify + DB-gated suite green; quickstart
+- [x] T019 [US3] **Story checkpoint**: full verify + DB-gated suite green; quickstart
       A3 against seeded mixed outcomes; commit; GATE with US3's independent-test
       evidence
 

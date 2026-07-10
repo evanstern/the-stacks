@@ -31,6 +31,11 @@ function sourceItem(overrides: Record<string, unknown> = {}) {
     id: SOURCE_ID,
     originalFilename: "goblin.html",
     status: "ingested",
+    // Evidence fields ride every source row on the real wire (US3).
+    plugin: null,
+    generation: 0,
+    counts: { sections: 0, chunks: 0 },
+    lastError: null,
     createdAt: "2026-07-09T12:00:00.000Z",
     updatedAt: "2026-07-09T12:00:05.000Z",
     ...overrides,
@@ -43,6 +48,7 @@ function batchItem(overrides: Record<string, unknown> = {}) {
     id: BATCH_ID,
     originalFilename: "export.zip",
     status: "expanded",
+    entrySummary: { ingested: 0, skipped: 0, failed: 0, total: 0 },
     createdAt: "2026-07-09T13:00:00.000Z",
     updatedAt: "2026-07-09T13:00:10.000Z",
     ...overrides,
@@ -131,6 +137,80 @@ describe("library listing page", () => {
       "href",
       "/library?offset=100",
     );
+  });
+});
+
+describe("library listing evidence columns (US3)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  it("ingested sources show plugin@version, generation, and counts (AC-1)", async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      jsonResponse(
+        page([
+          sourceItem({
+            plugin: { name: "ddb-saved-html", version: "1.0.0", confidence: 0.95 },
+            generation: 2,
+            counts: { sections: 12, chunks: 34 },
+            lastError: null,
+          }),
+        ]),
+      ),
+    );
+
+    const Stub = listStub();
+    render(<Stub initialEntries={["/library"]} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("library-row")).toHaveTextContent("ddb-saved-html@1.0.0");
+    });
+    const row = screen.getByTestId("library-row");
+    expect(row).toHaveTextContent(/gen 2/i);
+    expect(row).toHaveTextContent("12 sections");
+    expect(row).toHaveTextContent("34 passages");
+  });
+
+  it("failed sources are visibly distinguished and name the failing stage (AC-2)", async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      jsonResponse(
+        page([
+          sourceItem({
+            status: "failed",
+            plugin: { name: "markdown", version: "1.0.0", confidence: 0.8 },
+            generation: 0,
+            counts: { sections: 0, chunks: 0 },
+            lastError: { class: "internal_fault", stage: "chunk", message: "seeded" },
+          }),
+        ]),
+      ),
+    );
+
+    const Stub = listStub();
+    render(<Stub initialEntries={["/library"]} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("library-row")).toHaveAttribute("data-failed", "true");
+    });
+    expect(screen.getByTestId("library-row")).toHaveTextContent(/failed at chunk/i);
+  });
+
+  it("batch rows summarize entry outcomes without opening the batch (AC-3)", async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      jsonResponse(
+        page([batchItem({ entrySummary: { ingested: 8, skipped: 2, failed: 1, total: 11 } })]),
+      ),
+    );
+
+    const Stub = listStub();
+    render(<Stub initialEntries={["/library"]} />);
+
+    await waitFor(() => {
+      const row = screen.getByTestId("library-row");
+      expect(row).toHaveTextContent(/8 ingested/i);
+      expect(row).toHaveTextContent(/2 skipped/i);
+      expect(row).toHaveTextContent(/1 failed/i);
+    });
   });
 });
 
