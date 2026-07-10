@@ -98,6 +98,10 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          # setup-node v5 auto-enables pnpm caching when package.json declares
+          # packageManager — but this job never installs pnpm (gates are plain
+          # node), so the auto-detection would fail the job.
+          package-manager-cache: false
       - name: wiki freshness + spec-bridge (praxis run-gates contract)
         run: node .praxis/scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
       # The runner's course gate is single-dir; this repo holds one course PER
