@@ -3,7 +3,7 @@ title: Wiki Home
 status: active
 owner: docs
 created: 2026-06-03
-updated: 2026-07-07
+updated: 2026-07-10
 tags:
   - wiki
   - v3
@@ -24,6 +24,9 @@ retired ([ADR 0001](../adr/0001-retire-v2-before-parity.md)).
   (`@stacks/ingestion-contract`/`-plugins`), detection dispatch, structure-aware
   chunking, and generation-flip re-ingestion. Retrieval and chat build on what this
   produces: indexed, traceable passages.
+- [[Worktree Environments]] — the per-worktree environment protocol (spec 009):
+  deterministic `10×NNN` port blocks, per-worktree compose identity, the
+  `mint-worktree-env` tool, and docker lifecycle isolation rules.
 
 Also see the interactive courses under `docs/courses/007-v3-skeleton/` and
 `docs/courses/008-ingestion-service/`.

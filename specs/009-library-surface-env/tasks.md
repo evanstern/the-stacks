@@ -193,15 +193,15 @@ indexed" without opening any detail page (quickstart A3; SC-003).
 **Purpose**: Convergence evidence, constitutional closure (v2.2.0 visibility gate +
 Principle VIII), durable-docs decision.
 
-- [ ] T020 Read-only + visibility verification for evidence: quickstart A5 grep (no
+- [x] T020 Read-only + visibility verification for evidence: quickstart A5 grep (no
       new mutating verbs in apps/api/src/ingestion/), A6 contract curls, and the
       research R10 visibility-avenue table recorded per capability in
       specs/009-library-surface-env/evidence.md (constitution v2.2.0 gate)
-- [ ] T021 [P] Wiki-impact decision (plan ⚠): add the worktree/environment protocol as
+- [x] T021 [P] Wiki-impact decision (plan ⚠): add the worktree/environment protocol as
       a durable operating-model page under docs/wiki/ (linked from docs/wiki/Home.md,
       `updated` frontmatter set) or record in evidence.md why AGENTS.md/README +
       contract suffice
-- [ ] T022 Full quickstart pass (A1–A6, B1–B5) against the running stack; assemble
+- [x] T022 Full quickstart pass (A1–A6, B1–B5) against the running stack; assemble
       specs/009-library-surface-env/evidence.md (per-SC verification, wiki-impact
       decision, visibility avenues); commit
 - [ ] T023 Principle VIII learning artifact via /spec-cycle-course:
