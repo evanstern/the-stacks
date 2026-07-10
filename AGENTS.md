@@ -105,5 +105,5 @@ Run from the worktree root unless noted.
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/008-ingestion-service/plan.md
+at specs/009-library-surface-env/plan.md
 <!-- SPECKIT END -->
