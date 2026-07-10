@@ -7,12 +7,15 @@
 #                  pgvector service container — the same image compose runs.
 #   ml             the Python sidecar's own suite (pytest + pyright); kept out
 #                  of pnpm verify by design (007 FR-017).
-#   process-gates  the doctrine gates: wiki freshness + spec-bridge via the
-#                  official praxis composite action (evanstern/praxis@<tag>,
-#                  its versioned consumer contract — docs/consuming-gates.md
-#                  in praxis), the per-spec course gate, spec-artifact closure,
-#                  ADR format, and (PRs only) the version-bump contract. Pins
-#                  are tags; upgrading a pin is a deliberate PR (ADR 0002).
+#   process-gates  the doctrine gates: wiki freshness + spec-bridge via
+#                  praxis's versioned consumer contract (run-gates.mjs,
+#                  docs/consuming-gates.md in praxis), the per-spec course
+#                  gate, spec-artifact closure, ADR format, and (PRs only)
+#                  the version-bump contract. The runner executes from a
+#                  tag-pinned checkout, NOT the composite action: GitHub only
+#                  shares private-repo actions with private repos, and this
+#                  repo is public while praxis is private. Upgrading the pin
+#                  is a deliberate PR (ADR 0002).
 #
 # fetch-depth: 0 everywhere history is judged: merge-base for the bump gate,
 # tags for "version never reused", and `git log <pin>..HEAD` for wiki
@@ -26,8 +29,6 @@ on:
     branches: [main]
 
 env:
-  # One praxis version for the whole suite. The composite action's uses: line
-  # below rides the same tag but cannot read env — bump BOTH together.
   PRAXIS_REF: v0.4.0
 
 jobs:
@@ -80,21 +81,14 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      # The official praxis consumption surface (composite action): GitHub
-      # fetches the praxis tree at this tag and runs the selected gates
-      # against our workspace. praxis is private — its repo settings must
-      # allow Actions access from user-owned repositories
-      # (praxis Settings -> Actions -> General -> Access).
-      - name: wiki freshness + spec-bridge (praxis gates action)
-        uses: evanstern/praxis@v0.4.0
-        with:
-          gates: spec-bridge, wiki-freshness
-      # The action's course gate is single-dir; this repo holds one course PER
-      # SPEC plus the legacy baseline (ADR 0002), so check-courses.mjs
-      # enumerates docs/courses/*/ against a praxis checkout. GITHUB_TOKEN
-      # can't read across repos — this checkout needs PRAXIS_READ_TOKEN
-      # (fine-grained read-only PAT). The dot-dir path keeps it out of every
+      # The praxis tree, pinned by tag. GITHUB_TOKEN can't read across repos —
+      # this checkout needs PRAXIS_READ_TOKEN (fine-grained read-only PAT for
+      # the private evanstern/praxis). The dot-dir path keeps it out of every
       # scan (spec-bridge's root discovery skips dot-dirs; not released surface).
+      # (The composite action `uses: evanstern/praxis@<tag>` would be the
+      # nicer surface, but private actions only resolve from private repos —
+      # this repo is public, so we run the same run-gates.mjs contract the
+      # action wraps.)
       - uses: actions/checkout@v5
         with:
           repository: evanstern/praxis
@@ -104,6 +98,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - name: wiki freshness + spec-bridge (praxis run-gates contract)
+        run: node .praxis/scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
+      # The runner's course gate is single-dir; this repo holds one course PER
+      # SPEC plus the legacy baseline (ADR 0002), so check-courses.mjs
+      # enumerates docs/courses/*/ against the same checkout.
       - name: course gate (Principle VIII chrome contract)
         run: node scripts/check-courses.mjs --praxis .praxis --require-praxis
       - name: spec artifacts (Principle VIII closure)
