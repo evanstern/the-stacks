@@ -8,9 +8,11 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 - Read `README.md` before changing local run, ports, production, or verification behavior.
 - The constitution (`.specify/memory/constitution.md`, v2.2.0) governs all work: fixed
   decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
-- For architecture context start at `docs/wiki/Walking-Skeleton.md` and
-  `docs/wiki/Ingestion.md`; the wiki spine is `docs/wiki/Home.md`. Update wiki
-  `updated` frontmatter when changing those pages.
+- For architecture context start at `docs/wiki/walking-skeleton.md` and
+  `docs/wiki/ingestion.md`; the wiki spine is `docs/wiki/INDEX.md`. The wiki is a
+  code-grounded corpus: every note pins `verified_against` (a commit) + `sources`
+  (the files that invalidate it). When a source changes, re-verify the note against
+  the diff and re-pin (`/grounding-wiki:wiki-update`) — never bump a pin blind.
 - Spec history lives in `specs/` (spec-kit). Delivered slices: `specs/007-v3-skeleton/`
   (foundation), `specs/008-ingestion-service/` (extensible ingestion pipeline), and
   `specs/009-library-surface-env/` (library operator surface + worktree environment

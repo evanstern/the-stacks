@@ -1,20 +1,21 @@
 ---
-title: Worktree Environments
-status: active
-owner: docs
-created: 2026-07-10
-updated: 2026-07-10
-tags:
-  - wiki
-  - v3
-  - operating-model
-  - environments
+name: worktree-environments
+description: Per-worktree environment protocol (spec 009) — deterministic 10×NNN port blocks, per-worktree compose project identity, the mint-worktree-env tool, and docker lifecycle isolation.
+kind: pattern
+sources:
+  - scripts/mint-worktree-env.mjs
+  - scripts/worktree-env-lib.mjs
+  - docker-compose.yml
+  - .env.example
+  - specs/009-library-surface-env/contracts/environment.md
+verified_against: a908b1b67e7115c487cbd5531b13130fc98f153b
 ---
 
 # Worktree Environments
 
 The per-worktree environment protocol (spec 009): how every checkout in the bare +
-sibling-worktree layout gets an isolated, deterministic, collision-free stack. This
+sibling-worktree layout gets an isolated, deterministic, collision-free instance of
+the [[walking-skeleton]]'s five-service stack. This
 page is the durable operating-model record; the normative contract is
 [specs/009-library-surface-env/contracts/environment.md](../../specs/009-library-surface-env/contracts/environment.md)
 (supersedes 007's environment contract).
