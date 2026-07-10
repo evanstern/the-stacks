@@ -6,7 +6,7 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
 ## Start here
 
 - Read `README.md` before changing local run, ports, production, or verification behavior.
-- The constitution (`.specify/memory/constitution.md`, v2.1.0) governs all work: fixed
+- The constitution (`.specify/memory/constitution.md`, v2.2.0) governs all work: fixed
   decisions D1–D14, TDD posture, Principle VIII (learning artifacts are deliverables).
 - For architecture context start at `docs/wiki/Walking-Skeleton.md` and
   `docs/wiki/Ingestion.md`; the wiki spine is `docs/wiki/Home.md`. Update wiki

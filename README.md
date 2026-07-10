@@ -20,7 +20,7 @@ around material the operator supplies.
 
 ## Where the codebase is right now
 
-This tree is the **v3 greenfield rebuild** (constitution v2.1.0, decisions D1–D14).
+This tree is the **v3 greenfield rebuild** (constitution v2.2.0, decisions D1–D14).
 The delivered slice is the **walking skeleton** (`specs/007-v3-skeleton/`): a pnpm
 monorepo, a five-service Docker Compose stack, single-operator auth, and an
 end-to-end "skeleton check" that proves every architectural seam — UI → API →
