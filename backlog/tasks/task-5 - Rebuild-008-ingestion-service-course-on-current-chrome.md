@@ -1,11 +1,11 @@
 ---
 id: TASK-5
 title: Rebuild 008-ingestion-service course on current chrome
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:26'
-updated_date: '2026-07-10 21:54'
+updated_date: '2026-07-10 22:03'
 labels:
   - courses
 dependencies: []
@@ -29,3 +29,9 @@ Same playbook as TASK-4: copy chrome v2 from plugin references, re-author every 
 <!-- SECTION:NOTES:BEGIN -->
 Rebuilt on chrome v2 (plugin references): all 6 modules' translation blocks re-authored to the inline contract — 25 validator issues cleared, incl. mid-structure cuts in admitSource/commitGeneration/intake-route rebalanced with real closers + sanctioned elision lines, one orphan panel in module 03 converted to a full block, and a wrong line-range label corrected (routes.ts:43-81). Snippets verbatim-verified (spot-check: registry.ts 8/8). Course gate: 'course ok: 6 module(s)'. 008 removed from LEGACY (now enforced). Version 0.1.1→0.1.2 (scripts/ touched).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+docs/courses/008-ingestion-service rebuilt on chrome v2: 6 modules re-authored to the inline contract (25 validator issues cleared; mid-structure cuts rebalanced with real closers + elision lines; orphan panel converted; one label line-range corrected). Course gate passes as an ENFORCED course — 008 removed from LEGACY. Merged via PR #10 (all CI green), released as v0.1.2.
+<!-- SECTION:FINAL_SUMMARY:END -->
