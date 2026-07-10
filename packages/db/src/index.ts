@@ -11,6 +11,7 @@ export * from "./schema/skeleton-checks";
 export * from "./schema/skeleton-vectors";
 export * from "./client";
 export * from "./migrate";
+export * from "./test-db";
 export * from "./queue";
 export * from "./events";
 export * from "./ingestion-events";

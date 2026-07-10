@@ -1,14 +1,14 @@
 {
   "name": "stacks-v3",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "packageManager": "pnpm@11.10.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "dev": "echo 'use: docker compose up -d --build --wait' && exit 1",
-    "verify": "node scripts/check-boundaries.mjs && node --test 'scripts/*.test.mjs' && pnpm -r run typecheck && pnpm -r --workspace-concurrency=1 run test",
+    "verify": "node scripts/check-boundaries.mjs && node --test 'scripts/*.test.mjs' && pnpm -r run typecheck && pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test"
   }

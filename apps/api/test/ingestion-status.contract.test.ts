@@ -7,7 +7,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { createDbClient, runMigrations } from "@stacks/db";
+import { createDbClient,
+  ensureSuiteDatabase, runMigrations } from "@stacks/db";
 import bcrypt from "bcrypt";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
@@ -40,7 +41,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ticket status contract",
   let cookie: string;
 
   beforeAll(async () => {
-    const { db, pool } = createDbClient(DATABASE_URL);
+    const { db, pool } = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "api_status"),
+    );
     close = () => pool.end();
     await runMigrations(db);
     app = await buildApp({

@@ -51,11 +51,10 @@ jobs:
     env:
       RUN_DB_INTEGRATION_TESTS: "1"
       DATABASE_URL: postgresql://stacks_v3:stacks_v3@localhost:5442/stacks_v3
-      # Note: the DB-gated suites share ONE Postgres and contaminate each
-      # other when package suites run concurrently (failed on this PR's own
-      # runs). pnpm verify serializes its test leg (--workspace-concurrency=1
-      # in the root script — env-var config was ignored by pnpm); TASK-8
-      # tracks the durable per-suite isolation fix.
+      # Every DB-gated suite derives its OWN database from this URL
+      # (ensureSuiteDatabase in @stacks/db, TASK-8) — suites run in parallel
+      # and cannot truncate each other's rows. The service user owns the
+      # instance, so CREATE DATABASE needs no extra grants.
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

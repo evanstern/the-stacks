@@ -9,6 +9,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import type { Database } from "../src/client";
 import { createDbClient } from "../src/client";
+import { ensureSuiteDatabase } from "../src/test-db";
 import { recordIngestionEvent } from "../src/ingestion-events";
 import { runMigrations } from "../src/migrate";
 import { corpora, ingestionEvents, sourceArchives, sources } from "../src/schema/ingestion";
@@ -23,7 +24,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ingestion events + migra
   let sourceId: string;
 
   beforeAll(async () => {
-    const client = createDbClient(DATABASE_URL);
+    const client = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "db_ingestion_events"),
+    );
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);

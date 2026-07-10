@@ -94,7 +94,10 @@ Run from the worktree root unless noted.
   from `.env.example` with the two documented secrets).
 - Full verification: `pnpm verify` (boundary check + `tsc --noEmit` + vitest across all
   TS packages). DB-gated integration suites need `RUN_DB_INTEGRATION_TESTS=1` and a
-  reachable `DATABASE_URL` (the compose Postgres on `localhost:5442` works).
+  reachable `DATABASE_URL` (the compose Postgres on `localhost:5442` works). Each suite
+  derives its OWN database from that URL (`ensureSuiteDatabase` in `@stacks/db`, unique
+  suite id per test file) — suites run in parallel and can never truncate each other's
+  rows. A new DB-gated test file gets its own suite id; never point one at the base URL.
 - ML sidecar suite: `cd apps/ml && source .venv/bin/activate && pytest && pyright --project .`
   (create the venv with `python3 -m venv .venv && pip install -e ".[dev]"` first).
 - New migration: `pnpm --filter @stacks/db generate --name <slug>` (drizzle-kit; the API

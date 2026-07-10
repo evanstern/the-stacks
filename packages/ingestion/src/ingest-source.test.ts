@@ -17,6 +17,7 @@ import {
   chunks,
   corpora,
   createDbClient,
+  ensureSuiteDatabase,
   documentSections,
   ingestionEvents,
   runMigrations,
@@ -57,7 +58,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("ingestSource driver", ()
   let deps: IngestDeps;
 
   beforeAll(async () => {
-    const client = createDbClient(DATABASE_URL);
+    const client = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "ingestion_ingest_source"),
+    );
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);
