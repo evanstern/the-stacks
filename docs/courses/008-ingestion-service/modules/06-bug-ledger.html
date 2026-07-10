@@ -67,7 +67,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/markdown/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">  // `title` must be OMITTED, never `undefined` — JSON.stringify drops absent</span></span>
 <span class="code-line"><span class="code-comment">  // keys but keeps `undefined`-valued ones out of the wire shape differently</span></span>
@@ -81,10 +81,13 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment is the scar tissue: it names the exact invariant this line protects, so the next person doesn't relearn it the hard way.</p>
-              <p class="tl">Branch explicitly on whether <code>title</code> is undefined...</p>
-              <p class="tl">...and if it is, build the object with NO <code>title</code> key at all...</p>
-              <p class="tl">...only include the key when there's a real value to put in it. No spread, no accidental <code>undefined</code>-valued key.</p>
+              <p class="tl">The comment is the scar tissue, and it opens with the rule: omit the key entirely — never assign <code>undefined</code> to it.</p>
+              <p class="tl">Why: a key holding <code>undefined</code> exists in memory but vanishes when serialized — two "empty" states that aren't the same thing...</p>
+              <p class="tl">...and that gap is exactly what the round-trip purity check compares: the object before <code>JSON.stringify</code> versus after.</p>
+              <p class="tl">The scar ends by naming the law it obeys — <code>NormalizedDocument</code> invariant 7 — so the next author can look it up instead of relearning it.</p>
+              <p class="tl">Branch explicitly on whether <code>title</code> is undefined. No spread, so no way to smuggle in an <code>undefined</code>-valued key.</p>
+              <p class="tl">If it is undefined, build the object with NO <code>title</code> key at all — absent, not empty.</p>
+              <p class="tl">Only include the key when there's a real value to put in it. Presence of the key now tracks presence of a value.</p>
             </div>
           </div>
         </div>
@@ -95,7 +98,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/demo/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">const</span> MARKER = <span class="code-string">/^@@\s+(.+)$/m</span>;</span>
             </code></pre>
@@ -103,8 +106,7 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The marker pattern itself was never wrong — it was missing one character: the trailing <code>m</code> flag.</p>
-              <p class="tl">Without <code>m</code>, <code>^</code> and <code>$</code> anchor to the whole string's start and end. With it, they anchor to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
+              <p class="tl">The pattern was never wrong — the fix is one character, the trailing <code>m</code> flag. Without it, <code>^</code> and <code>$</code> anchor to the whole string's start and end; with it, to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
             </div>
           </div>
         </div>
@@ -129,7 +131,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/html/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">import type</span> { Cheerio, CheerioAPI } <span class="code-keyword">from</span> <span class="code-string">"cheerio"</span>;</span>
 <span class="code-line"><span class="code-keyword">import type</span> { AnyNode } <span class="code-keyword">from</span> <span class="code-string">"domhandler"</span>;</span>
@@ -138,7 +140,8 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Keep the types cheerio genuinely owns coming from cheerio — and get <code>AnyNode</code> straight from <code>domhandler</code>, the package that actually defines it.</p>
+              <p class="tl">The types cheerio genuinely owns keep coming from cheerio — nothing wrong with this line.</p>
+              <p class="tl">The fix: <code>AnyNode</code> comes straight from <code>domhandler</code>, the package that actually defines it. Importing it from <code>"cheerio"</code> compiled locally but failed CI's <code>tsc --noEmit</code> — cheerio re-exports the type inconsistently across its subpath exports.</p>
             </div>
           </div>
         </div>
@@ -149,7 +152,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — docker-compose.yml</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">      # BOTH sides must track V3_API_PORT: main.ts binds to</span></span>
 <span class="code-line"><span class="code-comment">      # process.env.V3_API_PORT (passed through above), so unlike web's fixed</span></span>
@@ -163,7 +166,13 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Same variable, both sides of the colon: host mapping and container listen port move together, whatever a worktree sets <code>V3_API_PORT</code> to.</p>
+              <p class="tl">The scar comment opens with the coupling itself: BOTH sides of this mapping must track <code>V3_API_PORT</code>...</p>
+              <p class="tl">...because the API's own process reads that env var at startup and binds whatever it says...</p>
+              <p class="tl">...which makes the API the one service whose container-side port moves — web's is a fixed <code>PORT=4400</code>, so 4401 here is only a default, never a fact.</p>
+              <p class="tl">And worktrees DO move it: the spec-cycle port-block convention gives every parallel worktree its own port range...</p>
+              <p class="tl">...so the host mapping and the container's own listen port have to change as one...</p>
+              <p class="tl">...or the healthcheck a few lines down probes a port nothing is listening on — exactly how this bug surfaced.</p>
+              <p class="tl">The fix: same variable on both sides of the colon. Host mapping and container listen port now move together, whatever a worktree sets.</p>
             </div>
           </div>
         </div>
@@ -172,7 +181,7 @@
         <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">Also worth a mention — #2, the fallback title that wouldn't build</h3>
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/markdown/index.ts</span>
             <pre><code>
 <span class="code-line">    <span class="code-keyword">const</span> title = headings.find((h) =&gt; h.level === <span class="code-number">1</span>)?.text ?? (leadingText.slice(<span class="code-number">0</span>, <span class="code-number">80</span>) || <span class="code-string">"Untitled document"</span>);</span>
             </code></pre>

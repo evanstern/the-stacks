@@ -120,7 +120,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; contracts/plugin-contract.md:14-29</span>
+            <span class="translation-label">CODE &mdash; specs/008-ingestion-service/contracts/plugin-contract.md</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">interface</span> IngestionPlugin {</span>
 <span class="code-line">  <span class="code-comment">/** Stable unique name, e.g. "ddb-saved-html", "markdown", "generic-html". */</span></span>
@@ -131,10 +131,8 @@
 <span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">accepts</span>: <span class="code-keyword">readonly</span> <span class="code-keyword">string</span>[];   <span class="code-comment">// e.g. ["text/html"]</span></span>
 <span class="code-line">  <span class="code-comment">/** Optional soft guidance to the pipeline-owned chunker (FR-019). */</span></span>
 <span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">chunkingHints</span>?: ChunkingHints;</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">/** Cheap, side-effect-free recognition. MUST NOT throw on garbage input. */</span></span>
 <span class="code-line">  <span class="code-function">detect</span>(input: DetectInput): DetectResult;</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">/** Full extraction + transformation to the normalized document. */</span></span>
 <span class="code-line">  <span class="code-function">transform</span>(input: TransformInput): Promise&lt;NormalizedDocument&gt;;</span>
 <span class="code-line">}</span>
@@ -143,10 +141,20 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Identity: a stable name, and a semver version stamped onto every source this plugin ever produces (FR-016) &mdash; so a version bump can name exactly which documents need re-ingestion.</p>
-              <p class="tl"><code>accepts</code> pre-filters which media types this plugin even looks at; <code>chunkingHints</code> is optional soft guidance to the chunker downstream.</p>
-              <p class="tl"><code>detect()</code> must be cheap, side-effect-free, and never throw &mdash; even on garbage input. It returns a confidence score, not a decision (Module 2 traces how the pipeline picks a winner).</p>
-              <p class="tl"><code>transform()</code> is the only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one shape every plugin is held to, and nothing else.</p>
+              <p class="tl">The whole contract. Every plugin &mdash; shipped or future third-party &mdash; is held to exactly these six members and nothing more (FR-013).</p>
+              <p class="tl">The docstring pins the naming register: short, stable, kebab-case &mdash; and those three example names are the shipped plugins you&rsquo;ll meet on the next screen.</p>
+              <p class="tl">Identity. The pipeline stamps this name on every source it ingests, so &ldquo;which plugin produced this document?&rdquo; is always answerable.</p>
+              <p class="tl">Why the version matters: it&rsquo;s recorded per-source at produce time (FR-016)&hellip;</p>
+              <p class="tl">&hellip;so a plugin semver bump can enumerate exactly which documents are stale and need re-ingestion &mdash; no guessing, no full re-crawl.</p>
+              <p class="tl">A cheap pre-filter: if the sniffed media type isn&rsquo;t in <code>accepts</code>, this plugin&rsquo;s <code>detect()</code> is never even called.</p>
+              <p class="tl">Declared as data, not code &mdash; so the registry can filter candidates without running anything.</p>
+              <p class="tl">Soft guidance only (FR-019): the chunker is pipeline-owned and free to ignore hints&hellip;</p>
+              <p class="tl">&hellip;which is why the field is optional &mdash; a plugin with no chunking opinion simply omits it.</p>
+              <p class="tl">The two MUSTs of detection: cheap (it runs for every registered plugin on every upload) and never-throws (garbage input is normal input here).</p>
+              <p class="tl">Synchronous and side-effect-free. It returns a confidence score, not a decision &mdash; Module 2 traces how the pipeline picks the winner.</p>
+              <p class="tl">One call, two observed pipeline stages &mdash; this is the <code>extract</code>/<code>transform</code> badge from the hero diagram.</p>
+              <p class="tl">The only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one plug shape, and nothing else.</p>
+              <p class="tl">That&rsquo;s the entire surface. No <code>save()</code>, no <code>fetch()</code>, no db handle &mdash; &ldquo;nothing else&rdquo; is the contract, not a convention.</p>
             </div>
           </div>
         </div>
@@ -163,7 +171,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; contracts/normalized-document.md:17-24</span>
+            <span class="translation-label">CODE &mdash; specs/008-ingestion-service/contracts/normalized-document.md</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">interface</span> NormalizedDocument {</span>
 <span class="code-line">  <span class="code-property">contractVersion</span>: <span class="code-keyword">string</span>;          <span class="code-comment">// = NORMALIZED_DOCUMENT_VERSION at produce time</span></span>
@@ -178,12 +186,15 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Stamped with the shape&rsquo;s own version &mdash; so a future breaking change can enumerate exactly which sources need re-ingestion.</p>
+              <p class="tl">The one plug shape (FR-017/018). Six fields &mdash; everything downstream of <code>transform</code> was written against exactly this, once.</p>
+              <p class="tl">Stamped with the shape&rsquo;s own version at produce time &mdash; so a future breaking change to the contract can enumerate exactly which sources need re-ingestion, the same way a plugin bump can.</p>
               <p class="tl">A best-effort title, never empty &mdash; even a nameless plain-text file must produce something here.</p>
-              <p class="tl">An optional language hint, only when the plugin actually knows it.</p>
-              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose. Each section carries an
+              <p class="tl">An optional BCP-47 language hint, present only when the plugin actually knows it &mdash; the contract bakes in no guessing.</p>
+              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose: an honest &ldquo;nothing ingestible&rdquo; outcome, not a silent zero. Each section carries an
                 <span class="term" data-definition="A section's address inside its sanitized display artifact — the citation deep-link target, Principle III.">anchor</span> back into the artifact it came from.</p>
-              <p class="tl">Sanitized HTML fragments the archive viewer renders (never raw bytes), plus non-fatal extraction notes an operator can read.</p>
+              <p class="tl">Sanitized HTML fragments for the archive viewer &mdash; the viewer renders these, never raw bytes (Principle III&rsquo;s one safe shape).</p>
+              <p class="tl">Non-fatal extraction notes, written for an operator to read &mdash; problems that shouldn&rsquo;t fail the ingest but shouldn&rsquo;t vanish either.</p>
+              <p class="tl">Six fields, closed. Adding one is a contract-version event (FR-013), not a quiet edit.</p>
             </div>
           </div>
         </div>
@@ -197,7 +208,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; ingestion-plugins/src/index.ts:1-15</span>
+            <span class="translation-label">CODE &mdash; packages/ingestion-plugins/src/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * @stacks/ingestion-plugins — the shipped ingesters for spec 008 (FR-028):</span></span>
@@ -219,10 +230,21 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">This package ships the real ingesters: ddb-saved-html as the flagship, markdown and generic-html as fallbacks, plus a test-only demo-format plugin that exists purely to prove new formats are addable.</p>
-              <p class="tl">The doctrine in one phrase: PURE TRANSFORM. Bytes in, <code>NormalizedDocument</code> out. Nothing here may import <code>@stacks/db</code>, <code>@stacks/core</code>, <code>@stacks/ingestion</code>, or any HTTP/model client &mdash; only the contract package.</p>
-              <p class="tl">That restriction isn&rsquo;t enforced by a reviewer&rsquo;s memory &mdash; <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if it&rsquo;s violated. Parsing libraries like cheerio and sanitize-html are only allowed to live here (rule 5).</p>
-              <p class="tl">Test fixtures are synthetic, DDB-shaped look-alikes &mdash; never real proprietary text.</p>
+              <p class="tl">A package-level doc comment &mdash; the doctrine sits at the top of the entry file, where no contributor opening this package can miss it.</p>
+              <p class="tl">The roster: this package ships the real ingesters delivered by spec 008 (FR-028).</p>
+              <p class="tl">ddb-saved-html is the flagship; markdown and generic-html are the fallback floor&hellip;</p>
+              <p class="tl">&hellip;plus a test-only demo-format plugin whose entire job is proving that adding a new format is a small, isolated task (SC-007 &mdash; Module 6 walks that proof).</p>
+              <p class="tl">A breath &mdash; roster above, doctrine below.</p>
+              <p class="tl">The doctrine, named and cited: FR-014 is the seam that makes &ldquo;write a new ingester&rdquo; a plugin task instead of a risky pipeline-core change.</p>
+              <p class="tl">The phrase to remember: PURE TRANSFORM &mdash; bytes in, <code>NormalizedDocument</code> out, no side effects.</p>
+              <p class="tl">The import blacklist is explicit: no <code>@stacks/db</code>, no <code>@stacks/core</code>, no <code>@stacks/ingestion</code>&hellip;</p>
+              <p class="tl">&hellip;and no HTTP or model client either &mdash; the contract package is the ONLY internal dependency a plugin may reach for.</p>
+              <p class="tl">Not a promise, a linter: <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if any of those imports appear.</p>
+              <p class="tl">The confinement cuts both ways &mdash; parsing libraries (cheerio, sanitize-html) may live here and ONLY here (rule 5), so no other package quietly grows a DOM parser.</p>
+              <p class="tl">Second breath &mdash; doctrine above, provenance below.</p>
+              <p class="tl">Test fixtures are synthetic look-alikes: they exercise DDB-shaped structure&hellip;</p>
+              <p class="tl">&hellip;without a single line of proprietary text (constitution Principle I, FR-024) &mdash; the repo never ships real game content.</p>
+              <p class="tl">End of the header. Everything below it is just export lines.</p>
             </div>
           </div>
         </div>
@@ -425,13 +447,12 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/registry.ts</span>
             <pre><code>
 <span class="code-line">    <span class="code-function">detect</span>(input) {</span>
 <span class="code-line">      <span class="code-keyword">const</span> candidates: Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt; = {};</span>
 <span class="code-line">      <span class="code-keyword">let</span> winner: IngestionPlugin | <span class="code-keyword">null</span> = <span class="code-keyword">null</span>;</span>
 <span class="code-line">      <span class="code-keyword">let</span> winning = <span class="code-number">0</span>;</span>
-<span class="code-line"></span>
 <span class="code-line">      <span class="code-keyword">for</span> (<span class="code-keyword">const</span> plugin <span class="code-keyword">of</span> plugins) {</span>
 <span class="code-line">        <span class="code-keyword">if</span> (!plugin.accepts.<span class="code-function">includes</span>(input.mediaType)) <span class="code-keyword">continue</span>;</span>
 <span class="code-line">        <span class="code-keyword">let</span> confidence = <span class="code-number">0</span>;</span>
@@ -447,7 +468,6 @@
 <span class="code-line">          winning = confidence;</span>
 <span class="code-line">        }</span>
 <span class="code-line">      }</span>
-<span class="code-line"></span>
 <span class="code-line">      <span class="code-keyword">if</span> (!winner || winning &lt;= <span class="code-number">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
 <span class="code-line">      <span class="code-keyword">return</span> { plugin: winner, confidence: winning, candidates };</span>
 <span class="code-line">    },</span>
@@ -456,14 +476,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Start a scoreboard: every plugin's confidence goes in <code>candidates</code>; nobody is winning yet.</p>
-              <p class="tl">Skip any plugin whose <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span> does not include this file's media type — it is not even asked.</p>
-              <p class="tl">Ask the plugin to score itself. If <code>detect()</code> throws, treat that as a confidence of exactly 0 — a crashing detector is scored as "not mine," not allowed to take detection down.</p>
-              <p class="tl">Write every consulted plugin's score into the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span>, honestly, even when the score is 0.</p>
-              <p class="tl">Only take the new plugin as winner if its confidence is <strong>strictly greater</strong> than the current best — an equal score never displaces the plugin already in the lead.</p>
-              <p class="tl">That strict "greater than" is the whole tie-break rule: whoever got compared first stays winner until someone beats it, which means
-                <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span> falls out for free.</p>
-              <p class="tl">If nobody scored above 0, there is no winner — return <code>null</code> and let the caller report an honest "unsupported type."</p>
+              <p class="tl">The registry's dispatch method (FR-011): the hiring panel convenes. The registry — never a plugin — decides who gets this file.</p>
+              <p class="tl">Start the scoreboard: the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span> will record every consulted plugin's score, not just the winner's.</p>
+              <p class="tl">Nobody is winning yet.</p>
+              <p class="tl">The bar to beat starts at 0 — a plugin must score <em>above</em> zero to claim anything.</p>
+              <p class="tl">Walk the plugins in registration order — <code>shipped.ts</code> fixed that order, and it becomes load-bearing five lines down.</p>
+              <p class="tl">The <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span>: a plugin that never declared this media type is not even asked — this is why markdown never sees <code>text/html</code>.</p>
+              <p class="tl">Every consulted plugin's score defaults to 0 — "not mine" until it says otherwise.</p>
+              <p class="tl"><code>detect()</code> is plugin code, i.e. potentially buggy code — so it runs fenced.</p>
+              <p class="tl">Ask the plugin to score itself against the raw input.</p>
+              <p class="tl">If its detector throws, that crash must not take detection down for the whole file&hellip;</p>
+              <p class="tl">&hellip;so a throw is scored as exactly 0 — same as an honest "not mine." The conformance suite, not this loop, is where the plugin bug gets surfaced.</p>
+              <p class="tl">Either way we leave with a number, never a propagating exception.</p>
+              <p class="tl">Write the score down — zeros included. Honest bookkeeping is what makes Screen 4's real event readable.</p>
+              <p class="tl">The why-comment names the invariant the next line encodes.</p>
+              <p class="tl"><strong>Strictly greater</strong>: an equal score never displaces the current leader — this one comparison IS <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span>, for free.</p>
+              <p class="tl">New leader&hellip;</p>
+              <p class="tl">&hellip;and the bar rises to its score — a later fallback floating at the 0.1 <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span> can never clear a real detector's 0.85+.</p>
+              <p class="tl">A tie or a lower score changes nothing.</p>
+              <p class="tl">Every accepting plugin has now been asked — detection is never "first plugin to say yes."</p>
+              <p class="tl">All zeros means no winner: return <code>null</code> so the caller can fail detection with an honest, typed "unsupported type" (FR-012).</p>
+              <p class="tl">The winning decision — plugin, confidence, and the full candidates map — exactly what gets recorded on the source and in the <code>detect</code> event.</p>
+              <p class="tl">One method, one deterministic answer.</p>
             </div>
           </div>
         </div>
@@ -476,7 +510,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — shipped.ts (full file)</span>
+            <span class="translation-label">CODE — packages/ingestion/src/shipped.ts (full file)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * The SHIPPED plugin lineup (008 FR-028) — the one place the in-tree plugin</span></span>
@@ -490,10 +524,8 @@
 <span class="code-line"><span class="code-comment"> * US5's demo plugin is test-only and deliberately NOT in this list.</span></span>
 <span class="code-line"><span class="code-comment"> */</span></span>
 <span class="code-line"><span class="code-keyword">import</span> { ddbSavedHtmlPlugin, genericHtmlPlugin, markdownPlugin } <span class="code-keyword">from</span> <span class="code-string">"@stacks/ingestion-plugins"</span>;</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">import type</span> { PluginRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
 <span class="code-line"><span class="code-keyword">import</span> { createRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">createShippedRegistry</span>(): PluginRegistry {</span>
 <span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createRegistry</span>([ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]);</span>
 <span class="code-line">}</span>
@@ -502,11 +534,23 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment says the quiet part out loud: this ORDER is load-bearing, not decorative — it is the tie-break rule in disguise.</p>
-              <p class="tl">Pull in the three real plugins that ship with the pipeline.</p>
-              <p class="tl">Pull in the registry constructor this list gets handed to.</p>
-              <p class="tl">Build the actual shipped registry — one function, one array, one order.</p>
-              <p class="tl">The array literal <code>[ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]</code> IS the tie-break table: ddb first, fallbacks after.</p>
+              <p class="tl">The file is nine-tenths why-comment on purpose — the doctrine IS the module.</p>
+              <p class="tl">The ONE place the shipped lineup is wired (FR-028) — no plugin registers itself from anywhere else.</p>
+              <p class="tl">In-tree packaging was a researched decision (R13), not a default.</p>
+              <p class="tl">The quiet part said out loud: this ORDER is load-bearing, not decorative — specific plugins before fallbacks.</p>
+              <p class="tl">It points straight back at the strictly-greater comparison you just read: registration order is the tie-break rule in disguise.</p>
+              <p class="tl"><code>ddb-saved-html</code> leads because it is the only plugin that ever outbids the floor on <code>text/html</code>&hellip;</p>
+              <p class="tl">&hellip;while the two fallbacks float at the 0.1 <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span> — high enough to catch what nothing claims, never enough to outbid a real detector.</p>
+              <p class="tl">Each fallback is the sole claimant of its own media types, so <em>their</em> relative order genuinely does not matter.</p>
+              <p class="tl">A beat, then the exception:</p>
+              <p class="tl">Module 6's demo plugin exists — but only in tests. It proves the seam without joining the lineup.</p>
+              <p class="tl">End of doctrine; three statements of code remain.</p>
+              <p class="tl">Pull in the three real plugins. This import list is alphabetical — it carries NO order meaning.</p>
+              <p class="tl">The return type, imported type-only.</p>
+              <p class="tl">The registry constructor the lineup gets handed to.</p>
+              <p class="tl">One factory builds the production registry — API and worker both call this, so they can never disagree about the lineup.</p>
+              <p class="tl">This array literal IS the tie-break table: <code>ddbSavedHtmlPlugin</code> first, fallbacks after. Put a fallback first and a tie could hand a real DDB page to <code>generic-html</code>.</p>
+              <p class="tl">That is the whole file — one order, written down exactly once.</p>
             </div>
           </div>
         </div>
@@ -865,7 +909,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — apps/api/src/ingestion/routes.ts:41-79</span>
+            <span class="translation-label">CODE — apps/api/src/ingestion/routes.ts:43-81</span>
             <pre><code><span class="code-line">  app.post(<span class="code-string">"/api/uploads"</span>, <span class="code-keyword">async</span> (request, reply) =&gt; {</span>
 <span class="code-line">    <span class="code-keyword">const</span> file = <span class="code-keyword">await</span> request.<span class="code-function">file</span>();</span>
 <span class="code-line">    <span class="code-keyword">if</span> (!file) {</span>
@@ -874,7 +918,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">"Upload requires exactly one multipart 'file' field."</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-keyword">let</span> bytes: Buffer;</span>
 <span class="code-line">    <span class="code-keyword">try</span> {</span>
 <span class="code-line">      bytes = <span class="code-keyword">await</span> file.<span class="code-function">toBuffer</span>();</span>
@@ -885,7 +928,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`File exceeds the upload size limit (${maxUploadBytes} bytes, INGEST_MAX_UPLOAD_BYTES).`</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-comment">// Magic bytes + extension — the client's declared content type is never</span></span>
 <span class="code-line">    <span class="code-comment">// trusted (renamed-binary edge case sniffs as null and is refused here).</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> sniffed = <span class="code-function">sniffMediaType</span>(file.filename, bytes);</span>
@@ -895,7 +937,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`Unsupported file type: "${file.filename}". Supported: HTML, Markdown, plain text, ZIP. (PDF is deliberately unsupported in v3.)`</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-keyword">const</span> corpusField = file.fields[<span class="code-string">"corpus"</span>];</span>
 <span class="code-line">    <span class="code-keyword">const</span> corpusName =</span>
 <span class="code-line">      corpusField &amp;&amp; <span class="code-string">"value"</span> <span class="code-keyword">in</span> corpusField &amp;&amp; <span class="code-keyword">typeof</span> corpusField.value === <span class="code-string">"string"</span></span>
@@ -905,16 +946,51 @@
 <span class="code-line">    <span class="code-keyword">if</span> (!corpus) {</span>
 <span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({ <span class="code-property">class</span>: <span class="code-string">"unknown_thing"</span>, <span class="code-property">message</span>: <span class="code-string">`No such corpus: "${corpusName}".`</span> });</span>
 <span class="code-line">    }</span>
+<span class="code-line">    <span class="code-comment">// … the accept side is trimmed: one transaction writes archive + source + job rows, then answers 201 with the ticket …</span></span>
+<span class="code-line">  });</span>
 </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Require exactly one uploaded file. No file field, no further work — refuse immediately.</p>
-              <p class="tl">Buffer the upload. If Fastify's own size limit trips mid-stream, that's a typed refusal too — the file is never held whole past the cap.</p>
-              <p class="tl">Sniff the real bytes and filename. A client's claimed content type is never trusted; anything outside HTML, Markdown, plain text, or ZIP is refused (no PDF in v3).</p>
-              <p class="tl">Read the optional <code>corpus</code> field off the multipart form, defaulting to "default" if it's missing.</p>
-              <p class="tl">Look the corpus up by name. Unknown corpus — refused. Every refusal above this line happens before a single row exists.</p>
+              <p class="tl">The customs checkpoint. This one route owns intake, and its whole job is validate → archive → enqueue → answer (<span class="term" data-definition="The API's only job is validate, archive, and enqueue, then answer — all real work happens off a queue (Principle IV). A 201 means &quot;accepted,&quot; not &quot;done.&quot;">accept-then-async</span>).</p>
+              <p class="tl">Pull the single multipart <code>file</code> field off the request stream.</p>
+              <p class="tl">No file field at all?</p>
+              <p class="tl">Refuse with a typed error — routes never pick HTTP statuses; the mapping to 415 lives only in <code>app.ts</code>.</p>
+              <p class="tl">The machine-readable class is the contract clients branch on.</p>
+              <p class="tl">The human-readable half tells the operator exactly what to fix.</p>
+              <p class="tl">First refusal complete — and no row exists yet.</p>
+              <p class="tl">Past this brace, there is definitely a file.</p>
+              <p class="tl">Declare the buffer outside the try so the rest of the handler can reach it.</p>
+              <p class="tl">Buffering is the one step that can trip the size cap mid-stream.</p>
+              <p class="tl">Read the upload into memory — <code>@fastify/multipart</code> enforces <code>limits.fileSize</code> inside the stream, so an oversized file is never buffered whole (R7).</p>
+              <p class="tl">The cap tripping surfaces here as an aborted buffer.</p>
+              <p class="tl">The why-comment names the library behavior this catch depends on.</p>
+              <p class="tl">Oversized is a refusal too, in the same typed shape.</p>
+              <p class="tl">Same class as every other intake refusal — clients keep one branch.</p>
+              <p class="tl">The message names both the limit and the env var that sets it — debuggable from the error alone.</p>
+              <p class="tl">Second refusal done; still zero residue.</p>
+              <p class="tl">Buffer in hand, size proven under the cap.</p>
+              <p class="tl">Doctrine: the client's declared content type is attacker-controlled input, so it is never trusted…</p>
+              <p class="tl">…a binary renamed to <code>.html</code> sniffs as null and is refused right here.</p>
+              <p class="tl">Sniff the real bytes plus the filename — never the Content-Type header.</p>
+              <p class="tl">Nothing recognizable?</p>
+              <p class="tl">Third refusal, same typed shape as the first two.</p>
+              <p class="tl">Still <code>unsupported_type</code> — the client's error handling doesn't grow.</p>
+              <p class="tl">The message lists what IS supported — HTML, Markdown, plain text, ZIP — and says PDF is a decision, not an oversight.</p>
+              <p class="tl">Unknown formats never reach a parser.</p>
+              <p class="tl">From here the media type is known and trusted.</p>
+              <p class="tl">Read the optional <code>corpus</code> field riding alongside the file.</p>
+              <p class="tl">Multipart fields are loosely typed, so the name is derived defensively:</p>
+              <p class="tl">only a real string value counts…</p>
+              <p class="tl">…use it when it is one…</p>
+              <p class="tl">…otherwise the upload lands in the "default" corpus.</p>
+              <p class="tl">Look the corpus up by name — the route's only database read before the intake transaction.</p>
+              <p class="tl">No such corpus?</p>
+              <p class="tl">A different class on purpose — <code>unknown_thing</code> maps to 404, not 415, because the file was fine; the destination wasn't.</p>
+              <p class="tl">Every refusal is now behind us — and not a single row has been written.</p>
+              <p class="tl">Trimmed here: the accept side — archive, source, and job rows written in ONE transaction, then the ticket answers before any parsing begins.</p>
+              <p class="tl">End of the checkpoint. A 201 means "accepted," not "done."</p>
             </div>
           </div>
         </div>
@@ -979,12 +1055,41 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">One generic helper wraps every stage — detect, extract, transform, chunk, embed, index — with the same started/completed/failed timing.</p>
-              <p class="tl">Unless told to skip it, emit "started" first and start a clock.</p>
-              <p class="tl">Run the stage's real work. On success, emit "completed" with whatever detail that stage wants recorded, plus how long it took.</p>
-              <p class="tl">On any failure, normalize it into a DomainError tagged with which stage it happened in — even a raw crash becomes a typed, seam-tagged error.</p>
-              <p class="tl">Emit a "failed" event with the same timing discipline, then flip the source row to failed with a scrubbed <code>lastError</code> snapshot.</p>
-              <p class="tl">Re-throw. The worker's job loop sees the failure too, so retries and alerting still work.</p>
+              <p class="tl">The doc comment is the thesis: one helper owns every stage's ceremony — events, timing, failure…</p>
+              <p class="tl">…so no stage's failure path is ever hand-written twice.</p>
+              <p class="tl">Generic over the result type — detect returns a decision, chunk returns drafts, embed returns vectors; one wrapper fits all eight stages.</p>
+              <p class="tl">The stage name is a typed union — the canonical stage names from doc 05, nothing free-form.</p>
+              <p class="tl">The real work arrives as a closure returning both a result for the next stage and the <code>detail</code> to record in the trail.</p>
+              <p class="tl"><code>skipStarted</code> exists for exactly one caller: transform, whose "started" moment IS extract's plugin call — one call, two recorded stages.</p>
+              <p class="tl">The caller gets the stage's result straight back — the ceremony is invisible on the happy path.</p>
+              <p class="tl">First act: write a durable "started" row to <code>ingestion_events</code> — the <span class="term" data-definition="The one function that walks a source through every pipeline stage and records an event at each transition — so every stage's start, finish, and failure are captured identically, in one place.">stage driver</span> records an event at every transition; the trail is a table, not a log line.</p>
+              <p class="tl">Start the clock — every completed/failed event carries a real <code>durationMs</code>.</p>
+              <p class="tl">Everything below runs under one shared failure ritual.</p>
+              <p class="tl">Run the stage's actual work — the only line that differs between stages.</p>
+              <p class="tl">Success writes "completed" with the stage's chosen detail (sections=4, chunks=1, …) and the elapsed time.</p>
+              <p class="tl">Hand the result to the next stage.</p>
+              <p class="tl">Any throw — typed error or raw crash — enters the one shared failure path.</p>
+              <p class="tl">Normalize before recording anything:</p>
+              <p class="tl">an already-typed <code>DomainError</code> passes through untouched…</p>
+              <p class="tl">…keeping its original class and seam…</p>
+              <p class="tl">…while anything else gets wrapped, so nothing untyped ever escapes the pipeline.</p>
+              <p class="tl">Unknown crashes are labeled honestly: an internal fault, not a user mistake.</p>
+              <p class="tl">The wrapper stamps WHICH stage failed — debuggable from the error alone, no SSH required.</p>
+              <p class="tl">A stable, generic message — the raw crash text stays in <code>cause</code>, never in the recorded copy.</p>
+              <p class="tl">The original error rides along for local debugging.</p>
+              <p class="tl">Past this line, every failure is a typed, seam-tagged <code>DomainError</code>.</p>
+              <p class="tl">Write the "failed" event with the SAME timing discipline as success — and only the scrubbed class + message, nothing raw.</p>
+              <p class="tl">Second write: flip the source row itself…</p>
+              <p class="tl">…the status a polling operator actually reads…</p>
+              <p class="tl">…setting three fields at once:</p>
+              <p class="tl">the status flips to failed,</p>
+              <p class="tl"><code>lastError</code> gets a scrubbed snapshot — class, stage, message. The event trail stays the authoritative history; this is the quick status read.</p>
+              <p class="tl">and the timestamp moves so the flip is visible.</p>
+              <p class="tl">That's the whole update…</p>
+              <p class="tl">…scoped to exactly this source.</p>
+              <p class="tl">Re-throw: the worker's job loop must see the failure too, so queue retries and backoff still work.</p>
+              <p class="tl">End of the ritual — recorded, flipped, re-thrown.</p>
+              <p class="tl">One function; every stage of every ingest passes through it.</p>
             </div>
           </div>
         </div>
@@ -1125,15 +1230,30 @@
         <p>Right before writing anything, the driver computes a <span class="term" data-definition="An id computed from content + position (never random) — the same job re-run twice derives the exact same id, which makes retries idempotent for free (research R9).">deterministic id</span> for every section and chunk it's about to create.</p>
         <p>Full treatment of what this buys you is Module 4's whole subject — here it's just the seam to notice: the id comes from what the row <em>is</em>, not from a random generator.</p>
 
-        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
-<span class="code-comment">// File: packages/ingestion/src/ingest-source.ts:270-290</span>
-<span class="code-line">  <span class="code-comment">// Deterministic identities for everything we are about to write (R9).</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/ingestion/src/ingest-source.ts:270-276</span>
+            <pre><code><span class="code-line">  <span class="code-comment">// Deterministic identities for everything we are about to write (R9).</span></span>
 <span class="code-line">  <span class="code-keyword">const</span> idInput = {</span>
 <span class="code-line">    <span class="code-property">sourceFingerprint</span>: source.fingerprint,</span>
 <span class="code-line">    <span class="code-property">pluginName</span>: decision.plugin.name,</span>
 <span class="code-line">    <span class="code-property">pluginVersion</span>: decision.plugin.version,</span>
 <span class="code-line">    <span class="code-property">generation</span>: targetGeneration,</span>
 <span class="code-line">  };</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment cites the research decision: ids are derived, never random (R9).</p>
+              <p class="tl">One shared ingredient list feeds every section id and chunk id in this run:</p>
+              <p class="tl">the content fingerprint of the uploaded bytes — same file, same fingerprint,</p>
+              <p class="tl">which plugin interpreted it,</p>
+              <p class="tl">at which version — a plugin upgrade changes the ids on purpose,</p>
+              <p class="tl">and the TARGET generation, stamped into every id before a single row is written.</p>
+              <p class="tl">Hash these plus each row's index (and, for chunks, corpus + content hash) — sha256 over <code>corpus:fingerprint:plugin@version:generation:index:content-hash</code> — and a retried job derives the exact same ids, so <code>ON CONFLICT DO NOTHING</code> makes retries idempotent (SC-004).</p>
+            </div>
+          </div>
         </div>
 
         <div class="callout callout-accent">
@@ -1316,7 +1436,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/index-chunks.ts:71-107</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">commitGeneration</span>(</span>
 <span class="code-line">  db: Database,</span>
@@ -1335,7 +1455,6 @@
 <span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> Date(),</span>
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">where</span>(sql`${sources.id} = ${input.sourceId}`);</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// Sweep is AFTER the flip, same transaction: a reader either saw the old</span></span>
 <span class="code-line">    <span class="code-comment">// generation before the transaction or the new one after — never neither.</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> sweptSections = <span class="code-keyword">await</span> tx</span>
@@ -1344,18 +1463,50 @@
 <span class="code-line">        <span class="code-function">and</span>(</span>
 <span class="code-line">          sql`${documentSections.sourceId} = ${input.sourceId}`,</span>
 <span class="code-line">          <span class="code-function">lt</span>(documentSections.generation, input.generation),</span>
+<span class="code-line">        ),</span>
+<span class="code-line">      )</span>
+<span class="code-line">      .<span class="code-function">returning</span>({ <span class="code-property">id</span>: documentSections.id });</span>
+<span class="code-line">    <span class="code-comment">// … sweptChunks: the identical delete against the chunks table, elided …</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">sweptSections</span>: sweptSections.length, <span class="code-property">sweptChunks</span>: sweptChunks.length };</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Takes the db, the sourceId, the target generation number, and the contract version — everything needed to make generation N official.</p>
-              <p class="tl">Everything runs inside one db transaction: it all lands, or none of it does.</p>
-              <p class="tl">The comment says it outright — this UPDATE below IS the commit. Nothing before it was ever visible to a reader.</p>
-              <p class="tl">Update the source's row and set currentGeneration to the new value, flip status to ingested, record the contract version, clear lastError, stamp updatedAt.</p>
-              <p class="tl">That one UPDATE, scoped to this sourceId, is the entire flip.</p>
-              <p class="tl">Now the sweep — still the same transaction. The comment repeats the guarantee: a reader either saw the old generation before this commits, or the new one after. Never neither.</p>
-              <p class="tl">Delete every documentSections row for this source whose generation is less than the new one — only rows OLDER than what just became current get removed.</p>
+              <p class="tl">The pipeline's final stage calls this once generation N is fully built aside — chunked, embedded, indexed. Nothing else in the codebase ever moves the pointer.</p>
+              <p class="tl">Takes the same db handle the stage driver holds…</p>
+              <p class="tl">…plus everything needed to make generation N official: which source, which generation, and the contract version its rows were built under.</p>
+              <p class="tl">It reports back a CommitResult — the sweep counts you'll see assembled at the bottom.</p>
+              <p class="tl">One transaction wraps both moves, flip then sweep: it all lands, or none of it does.</p>
+              <p class="tl">The comment says it outright: the UPDATE below IS the commit…</p>
+              <p class="tl">…every row written before this line was invisible build-aside work. No reader has seen generation N yet.</p>
+              <p class="tl">The flip begins — one statement against the sources table.</p>
+              <p class="tl">sources holds the pointer. This is blue-green deployment shrunk to one integer column.</p>
+              <p class="tl">Five fields change together, in one atomic UPDATE:</p>
+              <p class="tl">The flip itself: currentGeneration moves to N. Old and new rows could coexist until now only because generation is part of every row's <span class="term" data-definition="Section and chunk ids are derived deterministically from source id + generation + position (research R8) — so a replay writes the SAME ids and a new generation writes DIFFERENT ones.">identity hash</span> — gen N and gen N−1 ids can never collide.</p>
+              <p class="tl">Status flips to ingested — the ticket page reports success from here on.</p>
+              <p class="tl">Record which NormalizedDocument contract version these rows conform to.</p>
+              <p class="tl">Wipe any earlier failure's message — this run made it.</p>
+              <p class="tl">Touch updatedAt, as every writer of this row does.</p>
+              <p class="tl">End of the field list — still one statement.</p>
+              <p class="tl">Scoped to exactly this one source. Nothing else in the corpus is touched.</p>
+              <p class="tl">Now the sweep — and the comment restates the guarantee…</p>
+              <p class="tl">…a reader either saw the old generation before this transaction commits, or the new one after. Never neither, never both.</p>
+              <p class="tl">Delete the stale section rows, counting what goes.</p>
+              <p class="tl">Sections first; chunks get the identical treatment below.</p>
+              <p class="tl">Two conditions scope the delete…</p>
+              <p class="tl">…joined with and():</p>
+              <p class="tl">only this source's rows…</p>
+              <p class="tl">…and only generations OLDER than the one that just went live — lt is "less than". Generation N itself is untouchable: it IS the corpus now.</p>
+              <p class="tl">Close the and()…</p>
+              <p class="tl">…and the where().</p>
+              <p class="tl">returning() hands back the deleted ids so the result can count them — no second query.</p>
+              <p class="tl">Trimmed for the lesson: sweptChunks is the identical delete — same source, lt(generation) — against the chunks table.</p>
+              <p class="tl">Report how much was swept. On a first ingestion, where nothing older exists, both counts are legitimately zero.</p>
+              <p class="tl">The transaction commits here — only now does any reader see generation N, with the old rows already gone.</p>
+              <p class="tl">Flip, then sweep, one transaction. That is the whole reason a re-ingest can never leave a half-old, half-new source.</p>
             </div>
           </div>
         </div>
@@ -1376,7 +1527,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/reingest.ts:47-69</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">reingestSource</span>(db: Database, input: ReingestSourceInput): Promise&lt;Job&gt; {</span>
 <span class="code-line">  <span class="code-keyword">const</span> [source] = <span class="code-keyword">await</span> db.<span class="code-function">select</span>().<span class="code-function">from</span>(sources).<span class="code-function">where</span>(<span class="code-function">eq</span>(sources.id, input.sourceId));</span>
@@ -1395,7 +1546,6 @@
 <span class="code-line">      <span class="code-property">message</span>: `Source ${input.sourceId} has never completed an ingestion (currentGeneration=0); re-ingest applies only to a source with an existing generation.`,</span>
 <span class="code-line">    });</span>
 <span class="code-line">  }</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">enqueue</span>(db, {</span>
 <span class="code-line">    <span class="code-property">kind</span>: <span class="code-string">"ingest_source"</span>,</span>
 <span class="code-line">    <span class="code-property">payload</span>: { <span class="code-property">sourceId</span>: source.id, <span class="code-property">targetGeneration</span>: source.currentGeneration + <span class="code-number">1</span> },</span>
@@ -1406,13 +1556,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Takes just a sourceId — the entire re-ingest trigger is one id.</p>
-              <p class="tl">Look the source up. If it doesn't exist, refuse: unknown_thing, naming the missing id.</p>
-              <p class="tl">Guard: currentGeneration less than 1 means this source has never finished a first ingestion.</p>
-              <p class="tl">There's no prior generation to build past yet — the very first ingest is the plain intake path's job (generation 1), not this function's.</p>
-              <p class="tl">Refuse with unsupported_type, spelling out exactly why re-ingest doesn't apply yet.</p>
-              <p class="tl">Otherwise: enqueue a new job. kind is "ingest_source" — the same kind every first-time ingestion uses. Re-ingestion isn't a different code path.</p>
-              <p class="tl">payload carries the same sourceId plus targetGeneration set to currentGeneration + 1 — the ONLY thing that changes is which generation the stage driver builds toward.</p>
+              <p class="tl">A domain function that returns the enqueued Job — deliberately NOT an HTTP endpoint. Mutation verbs like this wait for the corpus-lifecycle spec's own dry-run/confirm guardrails (<span class="term" data-definition="Constitution principle: slow or destructive work is accept-then-async with explicit operator guardrails — never a fire-and-forget mutation from a web request.">Principle IV</span>); 008 ships the tested primitive, not the exposed trigger.</p>
+              <p class="tl">The entire trigger is one sourceId — look the source up, whole row, currentGeneration included.</p>
+              <p class="tl">First guard: the id must name a real source.</p>
+              <p class="tl">Refuse with a typed DomainError — domain code never speaks HTTP; the status-code mapping lives in exactly one place, apps/api's app.ts.</p>
+              <p class="tl">unknown_thing: the caller named something that doesn't exist.</p>
+              <p class="tl">The message names the missing id, verbatim.</p>
+              <p class="tl">End of the error object.</p>
+              <p class="tl">End of the not-found guard.</p>
+              <p class="tl">Second guard: below 1 means nothing has ever committed for this source.</p>
+              <p class="tl">The comment explains why that is a refusal: there is no prior generation to build past…</p>
+              <p class="tl">…the FIRST ingestion belongs to the plain intake path…</p>
+              <p class="tl">…an ingest_source job at generation 1. Re-ingestion only ever redoes something that already exists.</p>
+              <p class="tl">Same typed-error discipline:</p>
+              <p class="tl">unsupported_type — re-ingest does not apply to this source yet.</p>
+              <p class="tl">And the message spells out exactly why, id and all.</p>
+              <p class="tl">End of the error object.</p>
+              <p class="tl">End of the guard. Past here we hold a real, committed source.</p>
+              <p class="tl">The happy path is ONE enqueue — no pipeline runs inline. Slow work is accept-then-async off the Postgres jobs table (D12).</p>
+              <p class="tl">kind is ingest_source — the exact same job kind every first-time ingestion uses. "Redo" never got its own code path.</p>
+              <p class="tl">Same sourceId, targetGeneration = currentGeneration + 1. That +1 is the entire difference from a retry, which replays the SAME generation and no-ops on deterministic ids. And note what is absent: the archive — it is never touched (<span class="term" data-definition="FR-023: re-ingestion re-derives everything from the stored original archive; the original bytes are never modified or replaced.">FR-023</span>), the stage driver just re-reads the original bytes.</p>
+              <p class="tl">The enqueued Job is the function's whole output.</p>
+              <p class="tl">Decide +1, enqueue, done. Module 3's stage driver does everything else on its next claim — it has no idea this is a redo.</p>
             </div>
           </div>
         </div>
@@ -1675,20 +1840,16 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — sniff.ts:52-78</span>
-            <pre><code>
-<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">sniffMediaType</span>(filename: string, bytes: Uint8Array): SniffResult | null {</span>
+            <span class="translation-label">CODE — packages/ingestion/src/sniff.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">sniffMediaType</span>(filename: string, bytes: Uint8Array): SniffResult | null {</span>
 <span class="code-line">  <span class="code-keyword">const</span> extension = <span class="code-function">extensionOf</span>(filename);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">if</span> (<span class="code-function">hasMagic</span>(bytes, ZIP_MAGIC)) {</span>
 <span class="code-line">    <span class="code-comment">// A ZIP is a ZIP whatever it is named — but only the .zip extension is an</span></span>
 <span class="code-line">    <span class="code-comment">// intended batch; a renamed one is a mismatch the caller refuses.</span></span>
 <span class="code-line">    <span class="code-keyword">return</span> extension === <span class="code-string">"zip"</span> ? { <span class="code-property">mediaType</span>: <span class="code-string">"application/zip"</span> } : <span class="code-keyword">null</span>;</span>
 <span class="code-line">  }</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> binary = <span class="code-function">looksBinary</span>(bytes);</span>
 <span class="code-line">  <span class="code-keyword">if</span> (binary) <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">// renamed binary or genuinely unsupported (e.g. PDF)</span></span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">switch</span> (extension) {</span>
 <span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"html"</span>:</span>
 <span class="code-line">    <span class="code-keyword">case</span> <span class="code-string">"htm"</span>:</span>
@@ -1703,18 +1864,35 @@
 <span class="code-line">    <span class="code-keyword">default</span>:</span>
 <span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
 <span class="code-line">  }</span>
-<span class="code-line">}</span>
-            </code></pre>
+<span class="code-line">}</span></code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Takes the filename AND the raw bytes — the extension is only ever a hint, never trusted alone.</p>
-              <p class="tl">ZIP magic bytes present? Then only a <code>.zip</code> extension is treated as the intended batch format — a ZIP renamed to something else is refused, not silently accepted.</p>
-              <p class="tl"><code>looksBinary</code> runs next: anything binary — a PDF's bytes, a renamed image — is refused HERE, before any extension is even looked at.</p>
-              <p class="tl">Only once the bytes pass as plausibly-text does the extension get to pick WHICH text format: html/htm, md/markdown, txt.</p>
-              <p class="tl">A <code>.zip</code> extension with no ZIP magic gets its own explicit refusal — the mismatch is a named case, not a fallthrough.</p>
-              <p class="tl">Everything else: <code>null</code>. There is no branch anywhere in here that trusts the client's declared content type.</p>
+              <p class="tl">Takes the filename AND the raw bytes. The extension is only ever a hint — nothing in this function reads the client's declared <code>Content-Type</code>, ever.</p>
+              <p class="tl">Pull the extension once, lowercased — held for later. The bytes get the first word.</p>
+              <p class="tl">First check is pure bytes: <code>PK\x03\x04</code> at offset zero means this IS a ZIP, whatever it's named.</p>
+              <p class="tl">The comment carries the doctrine: what the bytes ARE and what the name CLAIMS are separate questions&hellip;</p>
+              <p class="tl">&hellip;and when they disagree, the answer is an honest refusal (US3), never a best-effort guess.</p>
+              <p class="tl">Only bytes-say-ZIP <em>plus</em> name-says-<code>.zip</code> earns <code>application/zip</code> — the intended batch format. A ZIP renamed <code>.html</code> gets <code>null</code>.</p>
+              <p class="tl">End of the ZIP fast path — anything reaching past this brace has non-ZIP leading bytes.</p>
+              <p class="tl">Second gate: <code>looksBinary</code> scans known magic prefixes — PDF, PNG, JPEG, GIF — plus NUL bytes in the first 512.</p>
+              <p class="tl">Anything binary — a PDF's bytes, a renamed image — is refused HERE, before the extension is even looked at. This is where the <code>report.html</code>-that's-really-a-PNG trap springs.</p>
+              <p class="tl">Only bytes that pass as plausibly-text reach this switch. NOW the extension gets to pick WHICH text format.</p>
+              <p class="tl"><code>.html</code>&hellip;</p>
+              <p class="tl">&hellip;and <code>.htm</code> share a case&hellip;</p>
+              <p class="tl">&hellip;both map to <code>text/html</code>.</p>
+              <p class="tl"><code>.md</code>&hellip;</p>
+              <p class="tl">&hellip;and <code>.markdown</code>&hellip;</p>
+              <p class="tl">&hellip;are <code>text/markdown</code>.</p>
+              <p class="tl"><code>.txt</code>&hellip;</p>
+              <p class="tl">&hellip;is <code>text/plain</code>. Three text types plus ZIP is the ENTIRE supported set — PDF is deliberately absent in v3.</p>
+              <p class="tl">A <code>.zip</code> name that already failed the magic check up top lands here&hellip;</p>
+              <p class="tl">&hellip;and gets its own named refusal — a renamed non-zip is an explicit case, not a fallthrough accident.</p>
+              <p class="tl">Everything else &mdash;</p>
+              <p class="tl"><code>null</code>. Unrecognized means refused, full stop.</p>
+              <p class="tl">End of the extension switch — the only place extensions matter, and only after the bytes vouched for them.</p>
+              <p class="tl"><code>null</code> here never mentions HTTP: the CALLER phrases the refusal as an <code>unsupported_type</code> <span class="term" data-definition="One of four typed failure categories — unknown_thing / unsupported_type / dependency_down / internal_fault. Code throws by class; only the API boundary maps a class to an HTTP status.">DomainError class</span>, and only the API boundary turns that into a 415.</p>
             </div>
           </div>
         </div>
@@ -1737,11 +1915,9 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — admit.ts:33-68</span>
-            <pre><code>
-<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">admitSource</span>(db: Database, input: AdmitSourceInput): Promise&lt;AdmitSourceResult&gt; {</span>
+            <span class="translation-label">CODE — packages/ingestion/src/admit.ts</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">admitSource</span>(db: Database, input: AdmitSourceInput): Promise&lt;AdmitSourceResult&gt; {</span>
 <span class="code-line">  <span class="code-keyword">const</span> fingerprint = <span class="code-function">deriveArchiveFingerprint</span>(input.bytes);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) =&gt; {</span>
 <span class="code-line">    <span class="code-comment">// Content-addressed: same bytes, same row — re-insert is a no-op (R1).</span></span>
 <span class="code-line">    <span class="code-keyword">await</span> tx</span>
@@ -1753,7 +1929,6 @@
 <span class="code-line">        <span class="code-property">mediaType</span>: input.mediaType,</span>
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">onConflictDoNothing</span>();</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> inserted = <span class="code-keyword">await</span> tx</span>
 <span class="code-line">      .<span class="code-function">insert</span>(sources)</span>
 <span class="code-line">      .<span class="code-function">values</span>({</span>
@@ -1764,7 +1939,6 @@
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">onConflictDoNothing</span>({ target: [sources.corpusId, sources.fingerprint] })</span>
 <span class="code-line">      .<span class="code-function">returning</span>();</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">const</span> source = inserted[0];</span>
 <span class="code-line">    <span class="code-keyword">if</span> (!source) {</span>
 <span class="code-line">      <span class="code-comment">// Conflict = this corpus already has this CONTENT (filename is never</span></span>
@@ -1775,17 +1949,51 @@
 <span class="code-line">        .<span class="code-function">where</span>(<span class="code-function">and</span>(<span class="code-string">sql`${sources.corpusId} = ${input.corpusId}`</span>, <span class="code-string">sql`${sources.fingerprint} = ${fingerprint}`</span>));</span>
 <span class="code-line">      <span class="code-keyword">return</span> { source: existing!, duplicate: <span class="code-keyword">true</span> };</span>
 <span class="code-line">    }</span>
-            </code></pre>
+<span class="code-line">    <span class="code-comment">// …</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> { source, duplicate: <span class="code-keyword">false</span> };</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Fingerprint the bytes FIRST — identity comes from content, never from whatever the client named the file.</p>
-              <p class="tl">Everything below runs in ONE transaction: archive row, source row, and the eventual job either all land, or none do.</p>
-              <p class="tl">Insert the archive keyed by fingerprint — if that exact content is already archived, <code>onConflictDoNothing</code> makes the re-insert a silent no-op.</p>
-              <p class="tl">Insert the source row scoped to <code>(corpus_id, fingerprint)</code> — this IS the "does it exist?" check, not a separate query before it.</p>
-              <p class="tl">If the insert came back empty, the unique constraint just fired — some insert already claimed this exact content in this corpus.</p>
-              <p class="tl">Look up whichever row actually won and hand back ITS ticket, flagged <code>duplicate: true</code> — "nothing new happened, here's what already exists."</p>
+              <p class="tl">The ONE admission path — API intake and the worker's ZIP expansion both call this, so dedupe and archiving can never disagree between the two doors.</p>
+              <p class="tl">Fingerprint the bytes FIRST — sha256 of content, never of whatever the client named the file. A renamed re-upload hashes identical (FR-003).</p>
+              <p class="tl">Everything below runs in ONE transaction: archive row, source row, and the eventual job either all land, or none do — zero residue by construction, not by cleanup.</p>
+              <p class="tl">The comment IS the design: same bytes, same row, so re-inserting is a defined no-op rather than an error to handle.</p>
+              <p class="tl">First write: archive the raw bytes&hellip;</p>
+              <p class="tl">&hellip;into <code>source_archives</code>, whose PRIMARY KEY is the fingerprint — content-addressed bytea storage, so dedupe is a primary-key lookup, no extra index, no filesystem (FR-003).</p>
+              <p class="tl">Four columns describe the archived content:</p>
+              <p class="tl">the fingerprint — identity derived from the bytes, unspoofable by renaming,</p>
+              <p class="tl">the payload itself, as Postgres bytea — one datastore, no blob store on the side,</p>
+              <p class="tl">the byte count — the in-stream size cap already fired upstream, so this is always under the limit,</p>
+              <p class="tl">and the SNIFFED media type — what the bytes proved, never what the client declared.</p>
+              <p class="tl">That closes the archive row.</p>
+              <p class="tl">If this exact content was ever archived before, <code>onConflictDoNothing</code> makes the re-insert a silent no-op — a collision here is agreement, not an error.</p>
+              <p class="tl">Second write — the load-bearing one. Whatever this insert returns decides new-vs-duplicate.</p>
+              <p class="tl">Insert into <code>sources</code> OPTIMISTICALLY — there is no "does this exist?" query anywhere before this line.</p>
+              <p class="tl">A source is content placed in a corpus:</p>
+              <p class="tl">which corpus — dedupe is scoped per corpus, not global,</p>
+              <p class="tl">the parent batch, when this file arrived inside a ZIP,</p>
+              <p class="tl">the same <span class="term" data-definition="A sha256 hash of the uploaded bytes themselves — never the filename. Two uploads with different names but identical content produce the same fingerprint (FR-003).">content fingerprint</span> — one half of the identity pair,</p>
+              <p class="tl">and the filename — kept for DISPLAY only; it participates in no uniqueness check.</p>
+              <p class="tl">End of the row.</p>
+              <p class="tl">THIS is the dedupe check: the unique <code>(corpus_id, fingerprint)</code> index. "Does it exist?" and "create it" are the same statement — the database arbitrates the race.</p>
+              <p class="tl"><code>.returning()</code> hands back the inserted row — or nothing at all, if the constraint fired.</p>
+              <p class="tl">Unpack the verdict: a row means genuinely new content&hellip;</p>
+              <p class="tl">&hellip;empty means the constraint fired — this corpus already holds these exact bytes, whatever they were called.</p>
+              <p class="tl">The comment names the invariant: filename is never identity&hellip;</p>
+              <p class="tl">&hellip;and a duplicate is ANSWERED, not rejected — the caller gets the existing ticket (FR-003).</p>
+              <p class="tl">Fetch whichever row actually won the race &mdash;</p>
+              <p class="tl">a plain select,</p>
+              <p class="tl">from the same table,</p>
+              <p class="tl">keyed by the exact <code>(corpus_id, fingerprint)</code> pair the constraint enforces — guaranteed to find exactly one row.</p>
+              <p class="tl">Hand back the EXISTING source's ticket, flagged <code>duplicate: true</code> — an honest 200, not a 409: "nothing new happened, here's what already exists."</p>
+              <p class="tl">End of the duplicate branch — the transaction commits having changed nothing.</p>
+              <p class="tl">Elided: the new-content path enqueues the <code>ingest_source</code> job and records the intake event — inside this SAME transaction, so accepting the upload and scheduling its slow work are atomic (accept-then-async, D12).</p>
+              <p class="tl">New content's answer: the fresh source's ticket, <code>duplicate: false</code> — handed back well inside the 2-second claim-a-ticket budget (SC-002), while parsing happens later on the worker.</p>
+              <p class="tl">Commit — only now do archive, source, and job become visible, and they become visible together.</p>
+              <p class="tl">One path, one transaction, one honest answer either way.</p>
             </div>
           </div>
         </div>
@@ -2004,7 +2212,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/markdown/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">  // `title` must be OMITTED, never `undefined` — JSON.stringify drops absent</span></span>
 <span class="code-line"><span class="code-comment">  // keys but keeps `undefined`-valued ones out of the wire shape differently</span></span>
@@ -2018,10 +2226,13 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment is the scar tissue: it names the exact invariant this line protects, so the next person doesn't relearn it the hard way.</p>
-              <p class="tl">Branch explicitly on whether <code>title</code> is undefined...</p>
-              <p class="tl">...and if it is, build the object with NO <code>title</code> key at all...</p>
-              <p class="tl">...only include the key when there's a real value to put in it. No spread, no accidental <code>undefined</code>-valued key.</p>
+              <p class="tl">The comment is the scar tissue, and it opens with the rule: omit the key entirely — never assign <code>undefined</code> to it.</p>
+              <p class="tl">Why: a key holding <code>undefined</code> exists in memory but vanishes when serialized — two "empty" states that aren't the same thing...</p>
+              <p class="tl">...and that gap is exactly what the round-trip purity check compares: the object before <code>JSON.stringify</code> versus after.</p>
+              <p class="tl">The scar ends by naming the law it obeys — <code>NormalizedDocument</code> invariant 7 — so the next author can look it up instead of relearning it.</p>
+              <p class="tl">Branch explicitly on whether <code>title</code> is undefined. No spread, so no way to smuggle in an <code>undefined</code>-valued key.</p>
+              <p class="tl">If it is undefined, build the object with NO <code>title</code> key at all — absent, not empty.</p>
+              <p class="tl">Only include the key when there's a real value to put in it. Presence of the key now tracks presence of a value.</p>
             </div>
           </div>
         </div>
@@ -2032,7 +2243,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/demo/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">const</span> MARKER = <span class="code-string">/^@@\s+(.+)$/m</span>;</span>
             </code></pre>
@@ -2040,8 +2251,7 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The marker pattern itself was never wrong — it was missing one character: the trailing <code>m</code> flag.</p>
-              <p class="tl">Without <code>m</code>, <code>^</code> and <code>$</code> anchor to the whole string's start and end. With it, they anchor to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
+              <p class="tl">The pattern was never wrong — the fix is one character, the trailing <code>m</code> flag. Without it, <code>^</code> and <code>$</code> anchor to the whole string's start and end; with it, to each line's — which is what "recognize my format from the first few lines" actually needs.</p>
             </div>
           </div>
         </div>
@@ -2066,7 +2276,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/html/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">import type</span> { Cheerio, CheerioAPI } <span class="code-keyword">from</span> <span class="code-string">"cheerio"</span>;</span>
 <span class="code-line"><span class="code-keyword">import type</span> { AnyNode } <span class="code-keyword">from</span> <span class="code-string">"domhandler"</span>;</span>
@@ -2075,7 +2285,8 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Keep the types cheerio genuinely owns coming from cheerio — and get <code>AnyNode</code> straight from <code>domhandler</code>, the package that actually defines it.</p>
+              <p class="tl">The types cheerio genuinely owns keep coming from cheerio — nothing wrong with this line.</p>
+              <p class="tl">The fix: <code>AnyNode</code> comes straight from <code>domhandler</code>, the package that actually defines it. Importing it from <code>"cheerio"</code> compiled locally but failed CI's <code>tsc --noEmit</code> — cheerio re-exports the type inconsistently across its subpath exports.</p>
             </div>
           </div>
         </div>
@@ -2086,7 +2297,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — docker-compose.yml</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">      # BOTH sides must track V3_API_PORT: main.ts binds to</span></span>
 <span class="code-line"><span class="code-comment">      # process.env.V3_API_PORT (passed through above), so unlike web's fixed</span></span>
@@ -2100,7 +2311,13 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Same variable, both sides of the colon: host mapping and container listen port move together, whatever a worktree sets <code>V3_API_PORT</code> to.</p>
+              <p class="tl">The scar comment opens with the coupling itself: BOTH sides of this mapping must track <code>V3_API_PORT</code>...</p>
+              <p class="tl">...because the API's own process reads that env var at startup and binds whatever it says...</p>
+              <p class="tl">...which makes the API the one service whose container-side port moves — web's is a fixed <code>PORT=4400</code>, so 4401 here is only a default, never a fact.</p>
+              <p class="tl">And worktrees DO move it: the spec-cycle port-block convention gives every parallel worktree its own port range...</p>
+              <p class="tl">...so the host mapping and the container's own listen port have to change as one...</p>
+              <p class="tl">...or the healthcheck a few lines down probes a port nothing is listening on — exactly how this bug surfaced.</p>
+              <p class="tl">The fix: same variable on both sides of the colon. Host mapping and container listen port now move together, whatever a worktree sets.</p>
             </div>
           </div>
         </div>
@@ -2109,7 +2326,7 @@
         <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-8)">Also worth a mention — #2, the fallback title that wouldn't build</h3>
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion-plugins/src/markdown/index.ts</span>
             <pre><code>
 <span class="code-line">    <span class="code-keyword">const</span> title = headings.find((h) =&gt; h.level === <span class="code-number">1</span>)?.text ?? (leadingText.slice(<span class="code-number">0</span>, <span class="code-number">80</span>) || <span class="code-string">"Untitled document"</span>);</span>
             </code></pre>

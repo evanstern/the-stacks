@@ -84,7 +84,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/index-chunks.ts:71-107</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">commitGeneration</span>(</span>
 <span class="code-line">  db: Database,</span>
@@ -103,7 +103,6 @@
 <span class="code-line">        <span class="code-property">updatedAt</span>: <span class="code-keyword">new</span> Date(),</span>
 <span class="code-line">      })</span>
 <span class="code-line">      .<span class="code-function">where</span>(sql`${sources.id} = ${input.sourceId}`);</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// Sweep is AFTER the flip, same transaction: a reader either saw the old</span></span>
 <span class="code-line">    <span class="code-comment">// generation before the transaction or the new one after — never neither.</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> sweptSections = <span class="code-keyword">await</span> tx</span>
@@ -112,18 +111,50 @@
 <span class="code-line">        <span class="code-function">and</span>(</span>
 <span class="code-line">          sql`${documentSections.sourceId} = ${input.sourceId}`,</span>
 <span class="code-line">          <span class="code-function">lt</span>(documentSections.generation, input.generation),</span>
+<span class="code-line">        ),</span>
+<span class="code-line">      )</span>
+<span class="code-line">      .<span class="code-function">returning</span>({ <span class="code-property">id</span>: documentSections.id });</span>
+<span class="code-line">    <span class="code-comment">// … sweptChunks: the identical delete against the chunks table, elided …</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">sweptSections</span>: sweptSections.length, <span class="code-property">sweptChunks</span>: sweptChunks.length };</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Takes the db, the sourceId, the target generation number, and the contract version — everything needed to make generation N official.</p>
-              <p class="tl">Everything runs inside one db transaction: it all lands, or none of it does.</p>
-              <p class="tl">The comment says it outright — this UPDATE below IS the commit. Nothing before it was ever visible to a reader.</p>
-              <p class="tl">Update the source's row and set currentGeneration to the new value, flip status to ingested, record the contract version, clear lastError, stamp updatedAt.</p>
-              <p class="tl">That one UPDATE, scoped to this sourceId, is the entire flip.</p>
-              <p class="tl">Now the sweep — still the same transaction. The comment repeats the guarantee: a reader either saw the old generation before this commits, or the new one after. Never neither.</p>
-              <p class="tl">Delete every documentSections row for this source whose generation is less than the new one — only rows OLDER than what just became current get removed.</p>
+              <p class="tl">The pipeline's final stage calls this once generation N is fully built aside — chunked, embedded, indexed. Nothing else in the codebase ever moves the pointer.</p>
+              <p class="tl">Takes the same db handle the stage driver holds…</p>
+              <p class="tl">…plus everything needed to make generation N official: which source, which generation, and the contract version its rows were built under.</p>
+              <p class="tl">It reports back a CommitResult — the sweep counts you'll see assembled at the bottom.</p>
+              <p class="tl">One transaction wraps both moves, flip then sweep: it all lands, or none of it does.</p>
+              <p class="tl">The comment says it outright: the UPDATE below IS the commit…</p>
+              <p class="tl">…every row written before this line was invisible build-aside work. No reader has seen generation N yet.</p>
+              <p class="tl">The flip begins — one statement against the sources table.</p>
+              <p class="tl">sources holds the pointer. This is blue-green deployment shrunk to one integer column.</p>
+              <p class="tl">Five fields change together, in one atomic UPDATE:</p>
+              <p class="tl">The flip itself: currentGeneration moves to N. Old and new rows could coexist until now only because generation is part of every row's <span class="term" data-definition="Section and chunk ids are derived deterministically from source id + generation + position (research R8) — so a replay writes the SAME ids and a new generation writes DIFFERENT ones.">identity hash</span> — gen N and gen N−1 ids can never collide.</p>
+              <p class="tl">Status flips to ingested — the ticket page reports success from here on.</p>
+              <p class="tl">Record which NormalizedDocument contract version these rows conform to.</p>
+              <p class="tl">Wipe any earlier failure's message — this run made it.</p>
+              <p class="tl">Touch updatedAt, as every writer of this row does.</p>
+              <p class="tl">End of the field list — still one statement.</p>
+              <p class="tl">Scoped to exactly this one source. Nothing else in the corpus is touched.</p>
+              <p class="tl">Now the sweep — and the comment restates the guarantee…</p>
+              <p class="tl">…a reader either saw the old generation before this transaction commits, or the new one after. Never neither, never both.</p>
+              <p class="tl">Delete the stale section rows, counting what goes.</p>
+              <p class="tl">Sections first; chunks get the identical treatment below.</p>
+              <p class="tl">Two conditions scope the delete…</p>
+              <p class="tl">…joined with and():</p>
+              <p class="tl">only this source's rows…</p>
+              <p class="tl">…and only generations OLDER than the one that just went live — lt is "less than". Generation N itself is untouchable: it IS the corpus now.</p>
+              <p class="tl">Close the and()…</p>
+              <p class="tl">…and the where().</p>
+              <p class="tl">returning() hands back the deleted ids so the result can count them — no second query.</p>
+              <p class="tl">Trimmed for the lesson: sweptChunks is the identical delete — same source, lt(generation) — against the chunks table.</p>
+              <p class="tl">Report how much was swept. On a first ingestion, where nothing older exists, both counts are legitimately zero.</p>
+              <p class="tl">The transaction commits here — only now does any reader see generation N, with the old rows already gone.</p>
+              <p class="tl">Flip, then sweep, one transaction. That is the whole reason a re-ingest can never leave a half-old, half-new source.</p>
             </div>
           </div>
         </div>
@@ -144,7 +175,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/reingest.ts:47-69</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">reingestSource</span>(db: Database, input: ReingestSourceInput): Promise&lt;Job&gt; {</span>
 <span class="code-line">  <span class="code-keyword">const</span> [source] = <span class="code-keyword">await</span> db.<span class="code-function">select</span>().<span class="code-function">from</span>(sources).<span class="code-function">where</span>(<span class="code-function">eq</span>(sources.id, input.sourceId));</span>
@@ -163,7 +194,6 @@
 <span class="code-line">      <span class="code-property">message</span>: `Source ${input.sourceId} has never completed an ingestion (currentGeneration=0); re-ingest applies only to a source with an existing generation.`,</span>
 <span class="code-line">    });</span>
 <span class="code-line">  }</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">enqueue</span>(db, {</span>
 <span class="code-line">    <span class="code-property">kind</span>: <span class="code-string">"ingest_source"</span>,</span>
 <span class="code-line">    <span class="code-property">payload</span>: { <span class="code-property">sourceId</span>: source.id, <span class="code-property">targetGeneration</span>: source.currentGeneration + <span class="code-number">1</span> },</span>
@@ -174,13 +204,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Takes just a sourceId — the entire re-ingest trigger is one id.</p>
-              <p class="tl">Look the source up. If it doesn't exist, refuse: unknown_thing, naming the missing id.</p>
-              <p class="tl">Guard: currentGeneration less than 1 means this source has never finished a first ingestion.</p>
-              <p class="tl">There's no prior generation to build past yet — the very first ingest is the plain intake path's job (generation 1), not this function's.</p>
-              <p class="tl">Refuse with unsupported_type, spelling out exactly why re-ingest doesn't apply yet.</p>
-              <p class="tl">Otherwise: enqueue a new job. kind is "ingest_source" — the same kind every first-time ingestion uses. Re-ingestion isn't a different code path.</p>
-              <p class="tl">payload carries the same sourceId plus targetGeneration set to currentGeneration + 1 — the ONLY thing that changes is which generation the stage driver builds toward.</p>
+              <p class="tl">A domain function that returns the enqueued Job — deliberately NOT an HTTP endpoint. Mutation verbs like this wait for the corpus-lifecycle spec's own dry-run/confirm guardrails (<span class="term" data-definition="Constitution principle: slow or destructive work is accept-then-async with explicit operator guardrails — never a fire-and-forget mutation from a web request.">Principle IV</span>); 008 ships the tested primitive, not the exposed trigger.</p>
+              <p class="tl">The entire trigger is one sourceId — look the source up, whole row, currentGeneration included.</p>
+              <p class="tl">First guard: the id must name a real source.</p>
+              <p class="tl">Refuse with a typed DomainError — domain code never speaks HTTP; the status-code mapping lives in exactly one place, apps/api's app.ts.</p>
+              <p class="tl">unknown_thing: the caller named something that doesn't exist.</p>
+              <p class="tl">The message names the missing id, verbatim.</p>
+              <p class="tl">End of the error object.</p>
+              <p class="tl">End of the not-found guard.</p>
+              <p class="tl">Second guard: below 1 means nothing has ever committed for this source.</p>
+              <p class="tl">The comment explains why that is a refusal: there is no prior generation to build past…</p>
+              <p class="tl">…the FIRST ingestion belongs to the plain intake path…</p>
+              <p class="tl">…an ingest_source job at generation 1. Re-ingestion only ever redoes something that already exists.</p>
+              <p class="tl">Same typed-error discipline:</p>
+              <p class="tl">unsupported_type — re-ingest does not apply to this source yet.</p>
+              <p class="tl">And the message spells out exactly why, id and all.</p>
+              <p class="tl">End of the error object.</p>
+              <p class="tl">End of the guard. Past here we hold a real, committed source.</p>
+              <p class="tl">The happy path is ONE enqueue — no pipeline runs inline. Slow work is accept-then-async off the Postgres jobs table (D12).</p>
+              <p class="tl">kind is ingest_source — the exact same job kind every first-time ingestion uses. "Redo" never got its own code path.</p>
+              <p class="tl">Same sourceId, targetGeneration = currentGeneration + 1. That +1 is the entire difference from a retry, which replays the SAME generation and no-ops on deterministic ids. And note what is absent: the archive — it is never touched (<span class="term" data-definition="FR-023: re-ingestion re-derives everything from the stored original archive; the original bytes are never modified or replaced.">FR-023</span>), the stage driver just re-reads the original bytes.</p>
+              <p class="tl">The enqueued Job is the function's whole output.</p>
+              <p class="tl">Decide +1, enqueue, done. Module 3's stage driver does everything else on its next claim — it has no idea this is a redo.</p>
             </div>
           </div>
         </div>

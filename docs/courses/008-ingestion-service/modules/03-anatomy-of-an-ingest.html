@@ -216,7 +216,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — apps/api/src/ingestion/routes.ts:41-79</span>
+            <span class="translation-label">CODE — apps/api/src/ingestion/routes.ts:43-81</span>
             <pre><code><span class="code-line">  app.post(<span class="code-string">"/api/uploads"</span>, <span class="code-keyword">async</span> (request, reply) =&gt; {</span>
 <span class="code-line">    <span class="code-keyword">const</span> file = <span class="code-keyword">await</span> request.<span class="code-function">file</span>();</span>
 <span class="code-line">    <span class="code-keyword">if</span> (!file) {</span>
@@ -225,7 +225,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">"Upload requires exactly one multipart 'file' field."</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-keyword">let</span> bytes: Buffer;</span>
 <span class="code-line">    <span class="code-keyword">try</span> {</span>
 <span class="code-line">      bytes = <span class="code-keyword">await</span> file.<span class="code-function">toBuffer</span>();</span>
@@ -236,7 +235,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`File exceeds the upload size limit (${maxUploadBytes} bytes, INGEST_MAX_UPLOAD_BYTES).`</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-comment">// Magic bytes + extension — the client's declared content type is never</span></span>
 <span class="code-line">    <span class="code-comment">// trusted (renamed-binary edge case sniffs as null and is refused here).</span></span>
 <span class="code-line">    <span class="code-keyword">const</span> sniffed = <span class="code-function">sniffMediaType</span>(file.filename, bytes);</span>
@@ -246,7 +244,6 @@
 <span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`Unsupported file type: "${file.filename}". Supported: HTML, Markdown, plain text, ZIP. (PDF is deliberately unsupported in v3.)`</span>,</span>
 <span class="code-line">      });</span>
 <span class="code-line">    }</span>
-<span class="code-line">&nbsp;</span>
 <span class="code-line">    <span class="code-keyword">const</span> corpusField = file.fields[<span class="code-string">"corpus"</span>];</span>
 <span class="code-line">    <span class="code-keyword">const</span> corpusName =</span>
 <span class="code-line">      corpusField &amp;&amp; <span class="code-string">"value"</span> <span class="code-keyword">in</span> corpusField &amp;&amp; <span class="code-keyword">typeof</span> corpusField.value === <span class="code-string">"string"</span></span>
@@ -256,16 +253,51 @@
 <span class="code-line">    <span class="code-keyword">if</span> (!corpus) {</span>
 <span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({ <span class="code-property">class</span>: <span class="code-string">"unknown_thing"</span>, <span class="code-property">message</span>: <span class="code-string">`No such corpus: "${corpusName}".`</span> });</span>
 <span class="code-line">    }</span>
+<span class="code-line">    <span class="code-comment">// … the accept side is trimmed: one transaction writes archive + source + job rows, then answers 201 with the ticket …</span></span>
+<span class="code-line">  });</span>
 </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Require exactly one uploaded file. No file field, no further work — refuse immediately.</p>
-              <p class="tl">Buffer the upload. If Fastify's own size limit trips mid-stream, that's a typed refusal too — the file is never held whole past the cap.</p>
-              <p class="tl">Sniff the real bytes and filename. A client's claimed content type is never trusted; anything outside HTML, Markdown, plain text, or ZIP is refused (no PDF in v3).</p>
-              <p class="tl">Read the optional <code>corpus</code> field off the multipart form, defaulting to "default" if it's missing.</p>
-              <p class="tl">Look the corpus up by name. Unknown corpus — refused. Every refusal above this line happens before a single row exists.</p>
+              <p class="tl">The customs checkpoint. This one route owns intake, and its whole job is validate → archive → enqueue → answer (<span class="term" data-definition="The API's only job is validate, archive, and enqueue, then answer — all real work happens off a queue (Principle IV). A 201 means &quot;accepted,&quot; not &quot;done.&quot;">accept-then-async</span>).</p>
+              <p class="tl">Pull the single multipart <code>file</code> field off the request stream.</p>
+              <p class="tl">No file field at all?</p>
+              <p class="tl">Refuse with a typed error — routes never pick HTTP statuses; the mapping to 415 lives only in <code>app.ts</code>.</p>
+              <p class="tl">The machine-readable class is the contract clients branch on.</p>
+              <p class="tl">The human-readable half tells the operator exactly what to fix.</p>
+              <p class="tl">First refusal complete — and no row exists yet.</p>
+              <p class="tl">Past this brace, there is definitely a file.</p>
+              <p class="tl">Declare the buffer outside the try so the rest of the handler can reach it.</p>
+              <p class="tl">Buffering is the one step that can trip the size cap mid-stream.</p>
+              <p class="tl">Read the upload into memory — <code>@fastify/multipart</code> enforces <code>limits.fileSize</code> inside the stream, so an oversized file is never buffered whole (R7).</p>
+              <p class="tl">The cap tripping surfaces here as an aborted buffer.</p>
+              <p class="tl">The why-comment names the library behavior this catch depends on.</p>
+              <p class="tl">Oversized is a refusal too, in the same typed shape.</p>
+              <p class="tl">Same class as every other intake refusal — clients keep one branch.</p>
+              <p class="tl">The message names both the limit and the env var that sets it — debuggable from the error alone.</p>
+              <p class="tl">Second refusal done; still zero residue.</p>
+              <p class="tl">Buffer in hand, size proven under the cap.</p>
+              <p class="tl">Doctrine: the client's declared content type is attacker-controlled input, so it is never trusted…</p>
+              <p class="tl">…a binary renamed to <code>.html</code> sniffs as null and is refused right here.</p>
+              <p class="tl">Sniff the real bytes plus the filename — never the Content-Type header.</p>
+              <p class="tl">Nothing recognizable?</p>
+              <p class="tl">Third refusal, same typed shape as the first two.</p>
+              <p class="tl">Still <code>unsupported_type</code> — the client's error handling doesn't grow.</p>
+              <p class="tl">The message lists what IS supported — HTML, Markdown, plain text, ZIP — and says PDF is a decision, not an oversight.</p>
+              <p class="tl">Unknown formats never reach a parser.</p>
+              <p class="tl">From here the media type is known and trusted.</p>
+              <p class="tl">Read the optional <code>corpus</code> field riding alongside the file.</p>
+              <p class="tl">Multipart fields are loosely typed, so the name is derived defensively:</p>
+              <p class="tl">only a real string value counts…</p>
+              <p class="tl">…use it when it is one…</p>
+              <p class="tl">…otherwise the upload lands in the "default" corpus.</p>
+              <p class="tl">Look the corpus up by name — the route's only database read before the intake transaction.</p>
+              <p class="tl">No such corpus?</p>
+              <p class="tl">A different class on purpose — <code>unknown_thing</code> maps to 404, not 415, because the file was fine; the destination wasn't.</p>
+              <p class="tl">Every refusal is now behind us — and not a single row has been written.</p>
+              <p class="tl">Trimmed here: the accept side — archive, source, and job rows written in ONE transaction, then the ticket answers before any parsing begins.</p>
+              <p class="tl">End of the checkpoint. A 201 means "accepted," not "done."</p>
             </div>
           </div>
         </div>
@@ -330,12 +362,41 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">One generic helper wraps every stage — detect, extract, transform, chunk, embed, index — with the same started/completed/failed timing.</p>
-              <p class="tl">Unless told to skip it, emit "started" first and start a clock.</p>
-              <p class="tl">Run the stage's real work. On success, emit "completed" with whatever detail that stage wants recorded, plus how long it took.</p>
-              <p class="tl">On any failure, normalize it into a DomainError tagged with which stage it happened in — even a raw crash becomes a typed, seam-tagged error.</p>
-              <p class="tl">Emit a "failed" event with the same timing discipline, then flip the source row to failed with a scrubbed <code>lastError</code> snapshot.</p>
-              <p class="tl">Re-throw. The worker's job loop sees the failure too, so retries and alerting still work.</p>
+              <p class="tl">The doc comment is the thesis: one helper owns every stage's ceremony — events, timing, failure…</p>
+              <p class="tl">…so no stage's failure path is ever hand-written twice.</p>
+              <p class="tl">Generic over the result type — detect returns a decision, chunk returns drafts, embed returns vectors; one wrapper fits all eight stages.</p>
+              <p class="tl">The stage name is a typed union — the canonical stage names from doc 05, nothing free-form.</p>
+              <p class="tl">The real work arrives as a closure returning both a result for the next stage and the <code>detail</code> to record in the trail.</p>
+              <p class="tl"><code>skipStarted</code> exists for exactly one caller: transform, whose "started" moment IS extract's plugin call — one call, two recorded stages.</p>
+              <p class="tl">The caller gets the stage's result straight back — the ceremony is invisible on the happy path.</p>
+              <p class="tl">First act: write a durable "started" row to <code>ingestion_events</code> — the <span class="term" data-definition="The one function that walks a source through every pipeline stage and records an event at each transition — so every stage's start, finish, and failure are captured identically, in one place.">stage driver</span> records an event at every transition; the trail is a table, not a log line.</p>
+              <p class="tl">Start the clock — every completed/failed event carries a real <code>durationMs</code>.</p>
+              <p class="tl">Everything below runs under one shared failure ritual.</p>
+              <p class="tl">Run the stage's actual work — the only line that differs between stages.</p>
+              <p class="tl">Success writes "completed" with the stage's chosen detail (sections=4, chunks=1, …) and the elapsed time.</p>
+              <p class="tl">Hand the result to the next stage.</p>
+              <p class="tl">Any throw — typed error or raw crash — enters the one shared failure path.</p>
+              <p class="tl">Normalize before recording anything:</p>
+              <p class="tl">an already-typed <code>DomainError</code> passes through untouched…</p>
+              <p class="tl">…keeping its original class and seam…</p>
+              <p class="tl">…while anything else gets wrapped, so nothing untyped ever escapes the pipeline.</p>
+              <p class="tl">Unknown crashes are labeled honestly: an internal fault, not a user mistake.</p>
+              <p class="tl">The wrapper stamps WHICH stage failed — debuggable from the error alone, no SSH required.</p>
+              <p class="tl">A stable, generic message — the raw crash text stays in <code>cause</code>, never in the recorded copy.</p>
+              <p class="tl">The original error rides along for local debugging.</p>
+              <p class="tl">Past this line, every failure is a typed, seam-tagged <code>DomainError</code>.</p>
+              <p class="tl">Write the "failed" event with the SAME timing discipline as success — and only the scrubbed class + message, nothing raw.</p>
+              <p class="tl">Second write: flip the source row itself…</p>
+              <p class="tl">…the status a polling operator actually reads…</p>
+              <p class="tl">…setting three fields at once:</p>
+              <p class="tl">the status flips to failed,</p>
+              <p class="tl"><code>lastError</code> gets a scrubbed snapshot — class, stage, message. The event trail stays the authoritative history; this is the quick status read.</p>
+              <p class="tl">and the timestamp moves so the flip is visible.</p>
+              <p class="tl">That's the whole update…</p>
+              <p class="tl">…scoped to exactly this source.</p>
+              <p class="tl">Re-throw: the worker's job loop must see the failure too, so queue retries and backoff still work.</p>
+              <p class="tl">End of the ritual — recorded, flipped, re-thrown.</p>
+              <p class="tl">One function; every stage of every ingest passes through it.</p>
             </div>
           </div>
         </div>
@@ -476,15 +537,30 @@
         <p>Right before writing anything, the driver computes a <span class="term" data-definition="An id computed from content + position (never random) — the same job re-run twice derives the exact same id, which makes retries idempotent for free (research R9).">deterministic id</span> for every section and chunk it's about to create.</p>
         <p>Full treatment of what this buys you is Module 4's whole subject — here it's just the seam to notice: the id comes from what the row <em>is</em>, not from a random generator.</p>
 
-        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
-<span class="code-comment">// File: packages/ingestion/src/ingest-source.ts:270-290</span>
-<span class="code-line">  <span class="code-comment">// Deterministic identities for everything we are about to write (R9).</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/ingestion/src/ingest-source.ts:270-276</span>
+            <pre><code><span class="code-line">  <span class="code-comment">// Deterministic identities for everything we are about to write (R9).</span></span>
 <span class="code-line">  <span class="code-keyword">const</span> idInput = {</span>
 <span class="code-line">    <span class="code-property">sourceFingerprint</span>: source.fingerprint,</span>
 <span class="code-line">    <span class="code-property">pluginName</span>: decision.plugin.name,</span>
 <span class="code-line">    <span class="code-property">pluginVersion</span>: decision.plugin.version,</span>
 <span class="code-line">    <span class="code-property">generation</span>: targetGeneration,</span>
 <span class="code-line">  };</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment cites the research decision: ids are derived, never random (R9).</p>
+              <p class="tl">One shared ingredient list feeds every section id and chunk id in this run:</p>
+              <p class="tl">the content fingerprint of the uploaded bytes — same file, same fingerprint,</p>
+              <p class="tl">which plugin interpreted it,</p>
+              <p class="tl">at which version — a plugin upgrade changes the ids on purpose,</p>
+              <p class="tl">and the TARGET generation, stamped into every id before a single row is written.</p>
+              <p class="tl">Hash these plus each row's index (and, for chunks, corpus + content hash) — sha256 over <code>corpus:fingerprint:plugin@version:generation:index:content-hash</code> — and a retried job derives the exact same ids, so <code>ON CONFLICT DO NOTHING</code> makes retries idempotent (SC-004).</p>
+            </div>
+          </div>
         </div>
 
         <div class="callout callout-accent">

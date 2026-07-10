@@ -1,5 +1,7 @@
 /* =============================================================
    CODEBASE-TO-COURSE — COMPLETE DESIGN SYSTEM
+   chrome v2 — inline translation engine (comments-on-top)
+   (no version header = v1, the retired side-by-side renderer)
    Copy this file verbatim into the course output directory.
    Never regenerate it — customize only via :root overrides
    in _base.html (accent color only).
@@ -11,6 +13,8 @@
 
 /* ── DESIGN TOKENS ─────────────────────────────────────────── */
 :root {
+  color-scheme: light;
+
   /* BACKGROUNDS */
   --color-bg:             #FAF7F2;
   --color-bg-warm:        #F5F0E8;
@@ -22,6 +26,7 @@
   --color-border-light:   #EEEBE5;
   --color-surface:        #FFFFFF;
   --color-surface-warm:   #FDF9F3;
+  --nav-bg:               rgba(250,247,242,0.92);
 
   /* ACCENT — overridden per course in _base.html */
   --color-accent:         #D94F30;
@@ -109,6 +114,66 @@
   --stagger-delay:   120ms;
 }
 
+/* ── DARK THEME ─────────────────────────────────────────────────
+   Applied via data-theme="dark" on <html> (set by the pre-paint
+   script in _base.html + toggled by main.js). Warm charcoal, never
+   cold gray. Per-course accents carry over; the light tints
+   (accent/semantic *-light) are re-derived against the dark surface
+   with color-mix so any accent palette works in both themes.
+   ──────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg:             #171412;
+  --color-bg-warm:        #1E1A16;
+  --color-text:           #EDE6DC;
+  --color-text-secondary: #B3AA9F;
+  --color-text-muted:     #857C72;
+  --color-border:         #3B352E;
+  --color-border-light:   #2E2925;
+  --color-surface:        #221E1B;
+  --color-surface-warm:   #272220;
+  --nav-bg:               rgba(23,20,18,0.92);
+
+  --color-accent-light:   color-mix(in srgb, var(--color-accent) 22%, #221E1B);
+
+  --color-success:        #4CAF78;
+  --color-success-light:  color-mix(in srgb, #4CAF78 20%, #221E1B);
+  --color-error:          #E06868;
+  --color-error-light:    color-mix(in srgb, #E06868 20%, #221E1B);
+  --color-info:           #5AA9C9;
+  --color-info-light:     color-mix(in srgb, #5AA9C9 20%, #221E1B);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.40);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.50);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.60);
+}
+
+/* ── PRAXIS SHARED TOKEN SCHEMA (aliases) ───────────────────────
+   The shared praxis token NAMES mapped onto the course palette, so
+   toolkit modules (praxis lib/toolkit — snippets written against
+   --ink/--accent/…) drop into a course page unchanged. Aliases
+   resolve through the course tokens above, so they flip with dark
+   mode automatically. Names are the shared contract (praxis
+   docs/skill-patterns.md §8); VALUES stay the course's own. ──── */
+:root {
+  --bg:     var(--color-bg);
+  --card:   var(--color-surface);
+  --ink:    var(--color-text);
+  --muted:  var(--color-text-secondary);
+  --accent: var(--color-accent);
+  --accent2:var(--color-info);
+  --warn:   var(--color-error);
+  --line:   var(--color-border);
+  --chip:   var(--color-bg-warm);
+  --callout-bg: var(--color-accent-light);
+  --warn-bg:    var(--color-error-light);
+  --ok-bg:      var(--color-success-light);
+  --sans:   var(--font-body);
+  --mono:   var(--font-mono);
+}
+
 /* ── RESET & BASE ───────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -125,9 +190,10 @@ body {
   background: var(--color-bg);
   background-image: radial-gradient(
     ellipse at 20% 50%,
-    rgba(217,79,48,0.03) 0%,
+    color-mix(in srgb, var(--color-accent) 3%, transparent) 0%,
     transparent 50%
   );
+  transition: background var(--duration-normal), color var(--duration-normal);
 }
 
 /* ── SCROLLBAR ──────────────────────────────────────────────── */
@@ -166,7 +232,7 @@ pre::-webkit-scrollbar { display: none; }
   top: 0; left: 0; right: 0;
   height: var(--nav-height);
   z-index: 1000;
-  background: rgba(250,247,242,0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border-light);
 }
@@ -243,6 +309,156 @@ pre::-webkit-scrollbar { display: none; }
 .nav-dot.visited {
   border-color: var(--color-accent-muted);
   background: var(--color-accent-muted);
+}
+
+/* ── THEME TOGGLE (injected by main.js into .nav-inner) ─────── */
+.theme-toggle {
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--duration-fast), transform var(--duration-fast);
+}
+.theme-toggle:hover { border-color: var(--color-accent-muted); transform: rotate(15deg); }
+
+/* ── TABLE OF CONTENTS (injected by main.js) ────────────────── */
+.toc {
+  position: fixed;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 216px;
+  z-index: 900;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-4);
+}
+.toc.hidden { display: none; }
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.toc-title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+}
+.toc-hide-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+.toc-hide-btn:hover { color: var(--color-accent); background: var(--color-bg-warm); }
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toc-link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid transparent;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  line-height: var(--leading-snug);
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+.toc-link:hover { background: var(--color-bg-warm); color: var(--color-text); }
+.toc-link.active {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border-left-color: var(--color-accent);
+  font-weight: 600;
+}
+.toc-num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* Reopen tab shown while the ToC is hidden */
+.toc-tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--color-border-light);
+  border-left: none;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  transition: color var(--duration-fast), padding var(--duration-fast);
+}
+.toc-tab:hover { color: var(--color-accent); padding-left: var(--space-3); }
+.toc-tab.hidden { display: none; }
+
+/* ☰ nav button (injected by main.js) — only shown at drawer widths */
+.toc-nav-btn {
+  display: none;
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--duration-fast), color var(--duration-fast);
+}
+.toc-nav-btn:hover { border-color: var(--color-accent-muted); color: var(--color-accent); }
+
+/* No room beside the content column — the ToC becomes a slide-out
+   drawer under the nav, toggled by the ☰ button in the header. */
+@media (max-width: 1279px) {
+  .toc-tab { display: none !important; }
+  .toc-nav-btn { display: flex; }
+  .toc {
+    display: block !important;   /* the desktop 'hidden' state doesn't apply here */
+    left: 0;
+    top: calc(var(--nav-height) + var(--space-2));
+    transform: translateX(-105%);
+    transition: transform var(--duration-normal) var(--ease-out);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    width: min(280px, 84vw);
+    max-height: calc(100dvh - var(--nav-height) - var(--space-8));
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+  }
+  .toc.open { transform: translateX(0); }
+  .toc-hide-btn { display: none; } /* drawer closes via ☰, a link tap, or tapping outside */
 }
 
 /* ── MODULE STRUCTURE ───────────────────────────────────────── */
@@ -373,6 +589,95 @@ p:last-child { margin-bottom: 0; }
 }
 .translation-lines .tl:last-child { border-bottom: none; }
 
+/* Comments-on-top view (built by main.js; replaces the two-panel
+   layout at every size): one wide code panel with the English notes
+   interleaved as comment lines above their code lines, plus a
+   per-block show/hide toggle. Sized so ~100 mono characters fit per
+   line on desktop — the panel breaks out of the 800px content column
+   (100 ch × ~8.4px at 14px JetBrains Mono + padding ≈ 920px). */
+.translation-inline { display: none; }
+
+.translation-block.inlined {
+  --ti-width: min(920px, calc(100vw - 2 * var(--space-6)));
+  display: block;
+  position: relative;
+  left: 50%;
+  width: var(--ti-width);
+  margin-left: calc(var(--ti-width) / -2);
+}
+/* Desktop ToC rail is fixed on the left — don't slide under it */
+@media (min-width: 1280px) {
+  .translation-block.inlined { --ti-width: min(920px, calc(100vw - 2 * 248px)); }
+}
+.translation-block.inlined .translation-code,
+.translation-block.inlined .translation-english { display: none; }
+.translation-block.inlined .translation-inline {
+  display: block;
+  background: var(--color-bg-code);
+  color: #CDD6F4;
+  padding: var(--space-5) var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  tab-size: 2; /* any tabs left mid-line stay compact */
+}
+/* Keep the character count up as the panel narrows */
+@media (max-width: 920px) {
+  .translation-block.inlined .translation-inline { font-size: 13px; }
+}
+@media (max-width: 600px) {
+  .translation-block.inlined .translation-inline { font-size: 12px; }
+}
+
+/* Header bar: label + notes toggle */
+.ti-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.ti-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+.ti-toggle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: #CDD6F4;
+  cursor: pointer;
+  transition: border-color var(--duration-fast), background var(--duration-fast);
+}
+.ti-toggle:hover { border-color: var(--color-accent-muted); background: rgba(255,255,255,0.10); }
+
+.translation-inline.notes-hidden .tl-inline { display: none; }
+
+.tl-inline {
+  display: block;
+  /* Mono + inherited size, so the JS-applied `ch` indent lines up
+     exactly with the code line below at every breakpoint. */
+  font-family: var(--font-mono);
+  color: #9399B2;
+  padding: var(--space-2) 0 var(--space-1);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: var(--space-2);
+}
+.tl-inline:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.tl-inline::before {
+  content: '// ';
+  color: #6C7086;
+  font-family: var(--font-mono);
+}
+/* Glossary terms stay visible against the dark code background */
+.tl-inline .term { border-bottom-color: #89B4FA; }
+.tl-inline .term:hover, .tl-inline .term.active { color: #89B4FA; }
+
 /* ── QUIZ ───────────────────────────────────────────────────── */
 .quiz-container {
   background: var(--color-surface);
@@ -430,10 +735,10 @@ p:last-child { margin-bottom: 0; }
 .quiz-option.selected .quiz-option-radio {
   border-color: var(--color-accent);
   background: var(--color-accent);
-  box-shadow: inset 0 0 0 3px white;
+  box-shadow: inset 0 0 0 3px var(--color-surface);
 }
-.quiz-option.correct .quiz-option-radio  { border-color: var(--color-success); background: var(--color-success); box-shadow: inset 0 0 0 3px white; }
-.quiz-option.incorrect .quiz-option-radio{ border-color: var(--color-error);   background: var(--color-error);   box-shadow: inset 0 0 0 3px white; }
+.quiz-option.correct .quiz-option-radio  { border-color: var(--color-success); background: var(--color-success); box-shadow: inset 0 0 0 3px var(--color-surface); }
+.quiz-option.incorrect .quiz-option-radio{ border-color: var(--color-error);   background: var(--color-error);   box-shadow: inset 0 0 0 3px var(--color-surface); }
 
 .quiz-feedback {
   max-height: 0;
@@ -702,7 +1007,7 @@ p:last-child { margin-bottom: 0; }
 .flow-actor.active .flow-actor-icon {
   border-color: var(--color-accent);
   background: var(--color-accent-light);
-  box-shadow: 0 0 0 3px var(--color-accent-light), 0 0 20px rgba(217,79,48,0.15);
+  box-shadow: 0 0 0 3px var(--color-accent-light), 0 0 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
   transform: scale(1.1);
 }
 
@@ -713,7 +1018,7 @@ p:last-child { margin-bottom: 0; }
   position: absolute;
   pointer-events: none;
   display: none;
-  box-shadow: 0 0 8px rgba(217,79,48,0.5);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
 .flow-step-label {
@@ -1169,11 +1474,17 @@ p:last-child { margin-bottom: 0; }
     --text-5xl: 1.875rem;
     --text-6xl: 2.25rem;
   }
-  .module { padding: var(--space-8) var(--space-4); }
+  .module {
+    padding: var(--space-8) var(--space-4);
+    /* Keep clearing the fixed nav — a bare padding override buries the
+       module header under the header bar. */
+    padding-top: calc(var(--nav-height) + var(--space-8));
+  }
   .pattern-cards { grid-template-columns: 1fr; }
   .flow-steps { flex-direction: column; }
   .flow-arrow { transform: rotate(90deg); }
-  .nav-title { max-width: 140px; }
+  /* ☰ + theme toggle now share the bar — truncate the title sooner */
+  .nav-title { max-width: 110px; }
 }
 
 /* ── KEYFRAMES ──────────────────────────────────────────────── */
