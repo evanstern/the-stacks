@@ -159,7 +159,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — v3/apps/api/src/main.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">main</span>(): Promise&lt;<span class="code-keyword">void</span>&gt; {</span>
 <span class="code-line">  <span class="code-function">assertRequiredEnv</span>();</span>
@@ -167,13 +167,10 @@
 <span class="code-line"><span class="code-comment">  // The API never embeds — the worker does — but validating here surfaces a bad</span></span>
 <span class="code-line"><span class="code-comment">  // embedding config at deploy time instead of on the first queued run.</span></span>
 <span class="code-line">  <span class="code-function">resolveModelRole</span>(<span class="code-string">"embedding"</span>);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> { db, pool } = <span class="code-function">createDbClient</span>(process.env.DATABASE_URL!);</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-comment">  // Migrations apply before the port binds — /ready therefore implies</span></span>
 <span class="code-line"><span class="code-comment">  // schema-current (research R10, FR-002).</span></span>
 <span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">runMigrations</span>(db);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> app = <span class="code-keyword">await</span> <span class="code-function">buildApp</span>({</span>
 <span class="code-line">    <span class="code-property">db</span>,</span>
 <span class="code-line">    <span class="code-property">pool</span>,</span>
@@ -181,7 +178,6 @@
 <span class="code-line">    <span class="code-property">sessionSecret</span>: process.env.SESSION_SECRET!,</span>
 <span class="code-line">    <span class="code-property">sessionCookieSecure</span>: process.env.SESSION_COOKIE_SECURE === <span class="code-string">"true"</span>,</span>
 <span class="code-line">  });</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-keyword">const</span> port = Number.<span class="code-function">parseInt</span>(process.env.V3_API_PORT ?? <span class="code-string">"4401"</span>, <span class="code-number">10</span>);</span>
 <span class="code-line">  <span class="code-keyword">await</span> app.<span class="code-function">listen</span>({ <span class="code-property">host</span>: <span class="code-string">"0.0.0.0"</span>, <span class="code-property">port</span> });</span>
 <span class="code-line">}</span>
@@ -190,18 +186,27 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">One async boot function. Any throw below kills the container — and compose reports exactly which link died.</p>
-              <p class="tl">Check every required env var up front, and report ALL missing vars at once — not one per restart.</p>
-              <p class="tl">The comments say it plainly: this validation is on behalf of a service that is not this one.</p>
-              <p class="tl">The API validates a model role it never uses — deploy-time surfacing. A bad embedding config stops boot here instead of stranding the first queued job hours later.</p>
-              <p class="tl">Open the connection pool to Postgres — which compose guarantees is already healthy.</p>
-              <p class="tl">Migrate-then-listen. Because this line runs before the port opens, /ready becomes a schema certificate.</p>
-              <p class="tl">Assemble the Fastify app: database handles plus auth material —</p>
-              <p class="tl">— the operator&apos;s password hash and the secret that seals the
+              <p class="tl">One async boot function owns the whole process. Any throw below kills the container — and compose&apos;s <code>--wait</code> reports exactly which link died.</p>
+              <p class="tl">Env gate first: collect and report ALL missing vars in one error — not one per restart.</p>
+              <p class="tl">A why-comment where the doctrine lives: fail fast, and name the offending variable in the error…</p>
+              <p class="tl">…while conceding the oddity up front — the API never embeds; the Worker does…</p>
+              <p class="tl">…so the call below is purely about timing: surface a bad config at deploy, not on the first queued run.</p>
+              <p class="tl">Validate a model role this service never uses. Model roles resolve env-first — no hardcoded model IDs (Principle VII / D14) — so a malformed embedding config stops boot here instead of stranding a Worker job hours later.</p>
+              <p class="tl">Open the Drizzle client and its raw pg pool — compose&apos;s <code>service_healthy</code> gate guarantees Postgres already answers.</p>
+              <p class="tl">Migrate-then-listen, stated as doctrine exactly where it is enforced…</p>
+              <p class="tl">…with the receipts cited: research R10 and FR-002 pin this ordering as a requirement, not a taste.</p>
+              <p class="tl">The await that makes /ready a schema certificate: no applied migrations, no port.</p>
+              <p class="tl">Assemble the Fastify app via the pure composition root (app.ts) — the process entry injects everything, so tests never come through main().</p>
+              <p class="tl">The Drizzle handle the routes query with…</p>
+              <p class="tl">…and the raw pool — /ready uses it for the cheapest possible &ldquo;is Postgres there&rdquo; probe, a bare <code>select 1</code>.</p>
+              <p class="tl">Auth material from env: the single operator&apos;s bcrypt hash (every <code>$</code> escaped as <code>$$</code> in .env, or compose interpolation mangles it)…</p>
+              <p class="tl">…and the secret that seals the
                 <span class="term" data-definition="A session cookie whose contents are encrypted and authenticated with a server-side secret. The browser stores it but can neither read nor forge it.">sealed cookie</span> sessions.</p>
-              <p class="tl">Cookie security flag comes from env, so dev over http and prod over https use the same code path.</p>
-              <p class="tl">Port from env with a 4401 default.</p>
-              <p class="tl">Only NOW does the socket open. Anything that can answer on :4401 has, by construction, already migrated.</p>
+              <p class="tl">The cookie Secure flag comes from env, so dev over http and prod over https share one code path — only the prod overlay flips it true.</p>
+              <p class="tl">That is the app&apos;s entire dependency list; everything else is constructed inside buildApp.</p>
+              <p class="tl">Port from env with a 4401 default — the same value compose publishes and the healthcheck probes.</p>
+              <p class="tl">Only NOW does the socket open. Anything that answers on :4401 has, by construction, already migrated.</p>
+              <p class="tl">End of boot — from here, &ldquo;is it healthy&rdquo; belongs to the compose healthcheck probing the /ready this ordering just made meaningful.</p>
             </div>
           </div>
         </div>
@@ -222,7 +227,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">API HEALTHCHECK</span>
+            <span class="translation-label">CODE — v3/docker-compose.yml (api healthcheck)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">    # node -e fetch(): no curl/wget in node:22-slim, so probe with node itself.</span></span>
 <span class="code-line"><span class="code-comment">    # /ready (not /health) so "healthy" means migrated + serving.</span></span>
@@ -232,23 +237,30 @@
 <span class="code-line">          <span class="code-string">"CMD"</span>,</span>
 <span class="code-line">          <span class="code-string">"node"</span>,</span>
 <span class="code-line">          <span class="code-string">"-e"</span>,</span>
-<span class="code-line">          <span class="code-string">"fetch('http://localhost:4401/ready').then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
+<span class="code-line">          <span class="code-string">"fetch(&#39;http://localhost:4401/ready&#39;).then(r=&gt;process.exit(r.ok?0:1)).catch(()=&gt;process.exit(1))"</span>,</span>
 <span class="code-line">        ]</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The slim base image ships no curl or wget — so the probe is a one-liner of Node itself.</p>
-              <p class="tl">And it hits <code>/ready</code>, not <code>/health</code>: the check inherits the migrate-then-listen guarantee from the boot sequence.</p>
-              <p class="tl">Exit 0 on a 2xx, exit 1 on anything else — including a refused connection. Docker translates that into healthy or unhealthy.</p>
+              <p class="tl">The constraint, documented in place: node:22-slim ships neither curl nor wget — so the probe is a one-liner of Node itself.</p>
+              <p class="tl">And the target is <code>/ready</code>, not <code>/health</code> — &ldquo;healthy&rdquo; here inherits the migrate-then-listen guarantee from the boot sequence.</p>
+              <p class="tl">The compose health block: this command&apos;s exit code is the signal every downstream <code>service_healthy</code> gate reads.</p>
+              <p class="tl">The probe command…</p>
+              <p class="tl">…in exec-array form: an argv handed straight to the container, no shell in between.</p>
+              <p class="tl"><code>CMD</code>, not <code>CMD-SHELL</code> — run the binary directly.</p>
+              <p class="tl">The app&apos;s own runtime doubles as the probe binary.</p>
+              <p class="tl">Evaluate a one-line script…</p>
+              <p class="tl">…that maps HTTP truth onto exit codes: a 2xx exits 0, anything else — including a refused connection, via the catch — exits 1. Docker turns that into healthy or unhealthy.</p>
+              <p class="tl">Five argv tokens, zero packages installed just to ask &ldquo;are you up?&rdquo;</p>
             </div>
           </div>
         </div>
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">WORKER HEALTHCHECK</span>
+            <span class="translation-label">CODE — v3/docker-compose.yml (worker healthcheck)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">    # Worker has no HTTP surface, so health = "heartbeat file touched within the</span></span>
 <span class="code-line"><span class="code-comment">    # last minute". The poll loop refreshes /tmp/worker-heartbeat each tick; if</span></span>
@@ -260,9 +272,11 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The Worker exposes no port, so there is nothing to fetch. Instead, its poll loop touches a file on every tick.</p>
-              <p class="tl">The check asks: was that file modified within the last minute? A wedged loop stops touching it, the file goes stale, the container flips unhealthy.</p>
-              <p class="tl">Health here means &ldquo;the loop is actually looping&rdquo; — a strictly stronger claim than &ldquo;the process is alive.&rdquo;</p>
+              <p class="tl">The Worker exposes no port, so there is nothing to fetch — the comment redefines health for a poll-loop service…</p>
+              <p class="tl">…as freshness: the loop touches <code>/tmp/worker-heartbeat</code> on every tick…</p>
+              <p class="tl">…so a wedged loop stops touching it, the mtime goes stale, and the check fails — while the process is still technically &ldquo;alive.&rdquo;</p>
+              <p class="tl">Same compose mechanism as the API&apos;s check — a different definition of healthy plugs into the identical <code>service_healthy</code> gating.</p>
+              <p class="tl"><code>find -mmin -1</code> matches only if the file changed within the last minute; <code>grep -q .</code> converts &ldquo;matched anything&rdquo; into exit 0. Health means &ldquo;the loop is actually looping&rdquo; — strictly stronger than &ldquo;the process runs.&rdquo;</p>
             </div>
           </div>
         </div>

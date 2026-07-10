@@ -144,7 +144,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">v3/scripts/check-boundaries.mjs</span>
+            <span class="translation-label">CODE &mdash; v3/scripts/check-boundaries.mjs</span>
             <pre><code><span class="code-line"><span class="code-comment">#!/usr/bin/env node</span></span>
 <span class="code-line"><span class="code-comment">// Fails the build on structural boundary violations the type system can't</span></span>
 <span class="code-line"><span class="code-comment">// catch on its own (FR-019, FR-005, SC-006). Run via `pnpm verify`.</span></span>
@@ -166,15 +166,27 @@
 <span class="code-line"><span class="code-comment">// same spirit as the append-only-by-construction event table.</span></span></code></pre>
           </div>
           <div class="translation-english">
-            <span class="translation-label">What it buys you</span>
+            <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">A build gate: it kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
-              <p class="tl"><strong>Rule 1:</strong> web can only ever break the API contract, never the schema. The UI physically cannot couple itself to the database.</p>
-              <p class="tl">TypeScript would compile that import happily — the scan exists precisely because the compiler won't object.</p>
-              <p class="tl"><strong>Rule 2:</strong> v2 can be deleted without grep-ing v3. No import ever crosses the <code>v3/</code> root, so retirement stays a delete.</p>
-              <p class="tl"><strong>Rule 3:</strong> swapping the embedding model is an env change, not a code change. Model ids live in config, never in source.</p>
-              <p class="tl">Deliberately blunt: plain text scans, no AST, no dependencies. Cheap enough to run on every single verify.</p>
-              <p class="tl">The last line names the doctrine — make invariants structural, and you never have to remember them.</p>
+              <p class="tl">Plain Node, zero dependencies — the inspector has to be cheap enough to run on every single verify.</p>
+              <p class="tl">The mission statement: a build gate. It kills <code>pnpm verify</code> the moment a structural rule breaks — before any human reviews the code.</p>
+              <p class="tl">The doctrine pins (FR-019, FR-005, SC-006) and the trigger. TypeScript would compile every one of these violations happily — the scan exists precisely because the compiler won't object.</p>
+              <p class="tl">A beat, then the contract itself.</p>
+              <p class="tl">Every rule cites the doctrine that demanded it — these are constitutional decisions, not style preferences.</p>
+              <p class="tl"><strong>Rule 1:</strong> web touches neither the schema nor any other app's source. Its only doorway into the system is HTTP.</p>
+              <p class="tl">The pin: FR-019. If web needs data, it earns an API endpoint — never a workspace import.</p>
+              <p class="tl">The failure mode being prevented: a compile-clean workspace import that quietly couples the UI&hellip;</p>
+              <p class="tl">&hellip;to the database schema. The scan objects exactly where the compiler stays silent — so web can only ever break the API contract, never the schema.</p>
+              <p class="tl"><strong>Rule 2:</strong> nothing under <code>v3/</code> may import v2 code — D1's clean-rebuild wall, checked lexically.</p>
+              <p class="tl">One stray <code>../../</code> relative import escaping the root is all it would take&hellip;</p>
+              <p class="tl">&hellip;to re-entangle the trees. This rule is why v2 can be deleted without grep-ing v3 — retirement stays a delete, not a migration.</p>
+              <p class="tl"><strong>Rule 3:</strong> model identifiers never appear in product code (<span class="term" data-definition="Constitutional principle: no hardcoded model identifiers in product code — model roles resolve from the environment first, so model choice stays configuration, never source.">Principle VII</span>). Swapping the embedding model is an env change, not a code change.</p>
+              <p class="tl">Models are configuration: resolved env-first through <code>@stacks/core</code>&hellip;</p>
+              <p class="tl">&hellip;whose model-roles helper fails fast at boot when a role is unset (FR-013/D14). A literal id in source would bypass&hellip;</p>
+              <p class="tl">&hellip;that resolution entirely and pin every deploy to one model. The wall keeps model choice an ops decision.</p>
+              <p class="tl">The implementation is deliberately blunt: lexical scans over source text — no AST, no lint framework&hellip;</p>
+              <p class="tl">&hellip;and bluntness is the point: cheap enough to run on every verify, strict enough to fail CI&hellip;</p>
+              <p class="tl">&hellip;in the same doctrine as the append-only event table you'll meet in Module 4 — make invariants structural, and nobody has to remember them.</p>
             </div>
           </div>
         </div>
@@ -191,7 +203,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">v3/packages/db/src/index.ts</span>
+            <span class="translation-label">CODE &mdash; v3/packages/db/src/index.ts</span>
             <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * @stacks/db — the persistence seam: drizzle schemas, the pooled client,</span></span>
 <span class="code-line"><span class="code-comment"> * boot-time migrations, and the two data disciplines of the skeleton (the</span></span>
@@ -201,11 +213,15 @@
 <span class="code-line"><span class="code-comment"> */</span></span></code></pre>
           </div>
           <div class="translation-english">
-            <span class="translation-label">What it buys you</span>
+            <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Everything that touches Postgres lives behind this one barrel: schemas, the pooled client, boot migrations.</p>
-              <p class="tl">It also hosts the skeleton's two data disciplines — the job queue and the append-only event trail.</p>
-              <p class="tl">The header names its own enforcement: who may import it, and exactly which script fails CI if anyone else tries.</p>
+              <p class="tl">A doc header as a load-bearing sign: the package announces its own import rules.</p>
+              <p class="tl">Everything that touches Postgres lives behind this one barrel: drizzle schemas, the pooled client&hellip;</p>
+              <p class="tl">&hellip;boot-time migrations (the API applies them before binding its port), plus the skeleton's two data disciplines&hellip;</p>
+              <p class="tl">&hellip;the Postgres-backed job queue (<span class="term" data-definition="Fixed constitutional decision #12: background work runs off a jobs table in Postgres — no Redis, no separate message broker to operate.">D12</span>) and the append-only event trail (Principle IV). No second store, no extra broker.</p>
+              <p class="tl">The consumer allowlist, spelled out: api and worker in, web explicitly out&hellip;</p>
+              <p class="tl">&hellip;with the doctrine pin (FR-019) and the exact script that fails CI if anyone else tries.</p>
+              <p class="tl">Header closes. The ban is now documented on both sides of the wall — here and in the inspector itself.</p>
             </div>
           </div>
         </div>

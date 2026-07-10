@@ -1,5 +1,7 @@
 /**
  * CODEBASE-TO-COURSE — COMPLETE JS ENGINE
+ * chrome v2 — inline translation engine (comments-on-top)
+ * (no version header = v1, the retired side-by-side renderer — upgrade it)
  * Copy this file verbatim into the course output directory.
  * Never regenerate it. It handles all interactivity generically.
  *
@@ -15,6 +17,8 @@
  *  - Architecture diagram
  *  - "Spot the bug" challenge
  *  - Layer toggle
+ *  - Dark mode (system default + persisted toggle, injected into nav)
+ *  - Table of contents (self-built from .module sections, collapsible)
  */
 (function () {
   'use strict';
@@ -23,10 +27,150 @@
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
   function $$(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
 
+  function storageGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function storageSet(key, val) { try { localStorage.setItem(key, val); } catch (e) { /* private mode */ } }
+
+  /* ── DARK MODE ────────────────────────────────────────────────
+     _base.html sets data-theme before first paint (no flash); this
+     engine keeps it in sync, injects the nav toggle, and persists
+     explicit choices. No stored choice → follow the OS setting live. */
+  const THEME_KEY  = 'course-theme';
+  const mediaDark  = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    const btn = $('.theme-toggle');
+    if (btn) {
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙'; // ☀️ / 🌙
+      btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+  }
+
+  (function initTheme() {
+    const navInner = $('.nav-inner');
+    if (navInner) {
+      const btn = document.createElement('button');
+      btn.className = 'theme-toggle';
+      btn.type = 'button';
+      btn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        storageSet(THEME_KEY, next);
+        applyTheme(next);
+      });
+      navInner.appendChild(btn);
+    }
+    applyTheme(storageGet(THEME_KEY) || (mediaDark.matches ? 'dark' : 'light'));
+    mediaDark.addEventListener('change', e => {
+      if (!storageGet(THEME_KEY)) applyTheme(e.matches ? 'dark' : 'light');
+    });
+  })();
+
   /* ── NAVIGATION & PROGRESS BAR ────────────────────────────── */
   const progressBar = $('#progress-bar');
   const navDots     = $$('.nav-dot');
   const modules     = $$('.module');
+
+  /* ── TABLE OF CONTENTS ────────────────────────────────────────
+     Self-built from the .module sections (title from .module-title,
+     falling back to the matching nav-dot tooltip), so courses need
+     no extra authoring. Collapsible; hidden state persists. The
+     active entry is driven by the same scroll-spy as the nav dots. */
+  const TOC_KEY = 'course-toc-hidden';
+  const tocLinks = [];
+
+  (function initToc() {
+    if (modules.length < 2) return;
+
+    const toc = document.createElement('aside');
+    toc.className = 'toc';
+    toc.setAttribute('aria-label', 'Table of contents');
+
+    const header = document.createElement('div');
+    header.className = 'toc-header';
+    const title = document.createElement('span');
+    title.className = 'toc-title';
+    title.textContent = 'Contents';
+    const hideBtn = document.createElement('button');
+    hideBtn.className = 'toc-hide-btn';
+    hideBtn.type = 'button';
+    hideBtn.textContent = '⟨ hide';
+    hideBtn.setAttribute('aria-label', 'Hide table of contents');
+    header.appendChild(title);
+    header.appendChild(hideBtn);
+    toc.appendChild(header);
+
+    const list = document.createElement('ul');
+    list.className = 'toc-list';
+    modules.forEach((mod, i) => {
+      const titleEl = $('.module-title', mod);
+      const dot     = navDots[i];
+      const label   = (titleEl && titleEl.textContent.trim()) ||
+                      (dot && dot.dataset.tooltip) || ('Module ' + (i + 1));
+      const li   = document.createElement('li');
+      const link = document.createElement('a');
+      link.className = 'toc-link';
+      link.href = '#' + mod.id;
+      const num = document.createElement('span');
+      num.className = 'toc-num';
+      num.textContent = String(i + 1).padStart(2, '0');
+      const text = document.createElement('span');
+      text.textContent = label;
+      link.appendChild(num);
+      link.appendChild(text);
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        mod.scrollIntoView({ behavior: 'smooth' });
+        closeDrawer(); // no-op on desktop; collapses the mobile drawer
+      });
+      li.appendChild(link);
+      list.appendChild(li);
+      tocLinks.push(link);
+    });
+    toc.appendChild(list);
+
+    const tab = document.createElement('button');
+    tab.className = 'toc-tab';
+    tab.type = 'button';
+    tab.textContent = '☰';
+    tab.setAttribute('aria-label', 'Show table of contents');
+
+    function setHidden(hidden) {
+      toc.classList.toggle('hidden', hidden);
+      tab.classList.toggle('hidden', !hidden);
+      storageSet(TOC_KEY, hidden ? '1' : '0');
+    }
+    hideBtn.addEventListener('click', () => setHidden(true));
+    tab.addEventListener('click', () => setHidden(false));
+
+    // Mobile / narrow screens: CSS (≤1279px) turns the ToC into a slide-out
+    // drawer under the nav; this ☰ button in the header toggles it.
+    const navBtn = document.createElement('button');
+    navBtn.className = 'toc-nav-btn';
+    navBtn.type = 'button';
+    navBtn.textContent = '☰';
+    navBtn.setAttribute('aria-label', 'Toggle table of contents');
+    navBtn.setAttribute('aria-expanded', 'false');
+
+    function closeDrawer() {
+      toc.classList.remove('open');
+      navBtn.setAttribute('aria-expanded', 'false');
+    }
+    navBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = toc.classList.toggle('open');
+      navBtn.setAttribute('aria-expanded', String(open));
+    });
+    // Tap outside the open drawer → close (drawer only; harmless on desktop)
+    document.addEventListener('click', e => {
+      if (toc.classList.contains('open') && !toc.contains(e.target)) closeDrawer();
+    });
+    const navInner = $('.nav-inner');
+    if (navInner) navInner.insertBefore(navBtn, navInner.firstChild);
+
+    document.body.appendChild(toc);
+    document.body.appendChild(tab);
+    setHidden(storageGet(TOC_KEY) === '1');
+  })();
 
   function updateProgress() {
     if (!progressBar) return;
@@ -41,19 +185,22 @@
   function updateNavDots() {
     const scrollMid = window.scrollY + window.innerHeight / 2;
     modules.forEach((mod, i) => {
-      const dot = navDots[i];
-      if (!dot) return;
       const top    = mod.offsetTop;
       const bottom = top + mod.offsetHeight;
-      if (scrollMid >= top && scrollMid < bottom) {
-        dot.classList.add('active');
-        dot.classList.remove('visited');
-      } else if (window.scrollY + window.innerHeight > top) {
-        dot.classList.remove('active');
-        dot.classList.add('visited');
-      } else {
-        dot.classList.remove('active', 'visited');
+      const isActive = scrollMid >= top && scrollMid < bottom;
+      const dot = navDots[i];
+      if (dot) {
+        if (isActive) {
+          dot.classList.add('active');
+          dot.classList.remove('visited');
+        } else if (window.scrollY + window.innerHeight > top) {
+          dot.classList.remove('active');
+          dot.classList.add('visited');
+        } else {
+          dot.classList.remove('active', 'visited');
+        }
       }
+      if (tocLinks[i]) tocLinks[i].classList.toggle('active', isActive);
     });
   }
 
@@ -147,7 +294,7 @@
     if (activeTooltip === tip) activeTooltip = null;
   }
 
-  $$('.term').forEach(term => {
+  function wireTermTooltip(term) {
     const tip = document.createElement('span');
     tip.className = 'term-tooltip';
     tip.textContent = term.dataset.definition;
@@ -158,10 +305,109 @@
       e.stopPropagation();
       tip.classList.contains('visible') ? hideTooltip(tip) : showTooltip(term, tip);
     });
-  });
+  }
+
+  $$('.term').forEach(wireTermTooltip);
 
   document.addEventListener('click', () => {
     if (activeTooltip) { activeTooltip.classList.remove('visible'); activeTooltip.remove(); activeTooltip = null; }
+  });
+
+  /* ── TRANSLATION BLOCKS: COMMENTS-ON-TOP VIEW ─────────────────
+     The authored two-panel layout can't keep code and English
+     aligned once code lines wrap, and it halves the code's width.
+     Replace it (at every screen size) with one full-width code
+     panel where each English note sits as a comment-style line
+     ABOVE its code line — positional pairing: note i belongs to
+     code line i. A per-block toggle hides the notes for a pure-code
+     read. The original panels remain as the no-JS fallback. */
+  // Removes the leading whitespace run from a cloned code line. The
+  // run may span several text nodes (e.g. a bare "\t" before the
+  // first syntax span), so keep stripping until real content appears.
+  function stripLeadingWS(el) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      node.nodeValue = node.nodeValue.replace(/^[\t ]+/, '');
+      if (node.nodeValue !== '') break;
+    }
+  }
+
+  $$('.translation-block').forEach(block => {
+    const codeLines = $$('.code-line', block);
+    const notes     = $$('.translation-lines .tl', block);
+    if (!codeLines.length || !notes.length) return;
+    const count = Math.max(codeLines.length, notes.length);
+
+    // Display-only reformat: the code tokens are untouched, but the
+    // layout is normalized for the panel. Strip the indentation the
+    // whole snippet shares (mid-function extracts start tabs deep),
+    // re-express nesting as 2 columns per tab, and apply it as
+    // padding so wrapped continuations align under the code instead
+    // of snapping back to column 0.
+    const wsOf   = el => (el.textContent.match(/^[\t ]*/) || [''])[0];
+    const prefixes = codeLines
+      .filter(el => el.textContent.trim() !== '')
+      .map(wsOf);
+    const common = prefixes.length ? prefixes.reduce((a, b) => {
+      let i = 0;
+      while (i < a.length && i < b.length && a[i] === b[i]) i++;
+      return a.slice(0, i);
+    }) : '';
+    const indentCols = el => {
+      let cols = 0;
+      for (const ch of wsOf(el).slice(common.length)) cols += (ch === '\t' ? 2 : 1);
+      return Math.min(cols, 16);
+    };
+
+    const inline = document.createElement('div');
+    inline.className = 'translation-inline';
+
+    const bar = document.createElement('div');
+    bar.className = 'ti-bar';
+    const label = document.createElement('span');
+    label.className = 'ti-label';
+    const toggle = document.createElement('button');
+    toggle.className = 'ti-toggle';
+    toggle.type = 'button';
+    function setNotesHidden(hidden) {
+      inline.classList.toggle('notes-hidden', hidden);
+      toggle.textContent = hidden ? 'show notes' : 'hide notes';
+      toggle.setAttribute('aria-pressed', String(hidden));
+      label.textContent = hidden ? 'CODE' : 'CODE · PLAIN ENGLISH';
+    }
+    toggle.addEventListener('click', () =>
+      setNotesHidden(!inline.classList.contains('notes-hidden')));
+    bar.appendChild(label);
+    bar.appendChild(toggle);
+    inline.appendChild(bar);
+
+    const pre  = document.createElement('pre');
+    const code = document.createElement('code');
+    for (let i = 0; i < count; i++) {
+      const cols = codeLines[i] ? indentCols(codeLines[i]) : 0;
+      if (notes[i]) {
+        const note = document.createElement('span');
+        note.className = 'tl-inline';
+        note.innerHTML = notes[i].innerHTML;
+        // Same indent as the code line below — the note reads as that
+        // line's comment. ch units match because notes render in mono.
+        note.style.paddingLeft = cols + 'ch';
+        $$('.term', note).forEach(wireTermTooltip); // clones need their own tooltip wiring
+        code.appendChild(note);
+      }
+      if (codeLines[i]) {
+        const clone = codeLines[i].cloneNode(true);
+        stripLeadingWS(clone);
+        clone.style.paddingLeft = cols + 'ch';
+        code.appendChild(clone);
+      }
+    }
+    pre.appendChild(code);
+    inline.appendChild(pre);
+    block.appendChild(inline);
+    setNotesHidden(false);
+    block.classList.add('inlined');
   });
 
   /* ── QUIZ ENGINE ───────────────────────────────────────────── */

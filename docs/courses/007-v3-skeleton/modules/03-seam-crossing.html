@@ -176,12 +176,10 @@
 <span class="code-line">        .<span class="code-function">where</span>(sql`${jobs.id} = ${job!.id}`);</span>
 <span class="code-line">      <span class="code-keyword">return</span> createdRun!;</span>
 <span class="code-line">    });</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-comment">// 'queued' is emitted AFTER the commit: an event must never describe a run</span></span>
 <span class="code-line">    <span class="code-comment">// that a rollback could erase. Events are observability, not state — losing</span></span>
 <span class="code-line">    <span class="code-comment">// this one to a crash is acceptable; a phantom event is not.</span></span>
 <span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">recordEvent</span>(db, { <span class="code-property">runId</span>: run.id, <span class="code-property">seam</span>: <span class="code-string">"queued"</span> });</span>
-<span class="code-line"></span>
 <span class="code-line">    reply.<span class="code-function">code</span>(<span class="code-number">202</span>);</span>
 <span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">run</span>: { <span class="code-property">id</span>: run.id, <span class="code-property">status</span>: run.status, <span class="code-property">createdAt</span>: run.createdAt } };</span>
 <span class="code-line">  });</span></code></pre>
@@ -189,15 +187,32 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the input sentence is fixed.</p>
-              <p class="tl">The comment is the contract: one transaction creates run + job here; the worker does the real seam-crossing later, off this queue entry.</p>
-              <p class="tl">Open a single transaction — everything inside commits together or vanishes together. A crash mid-accept leaves nothing behind.</p>
-              <p class="tl">Insert the job first with an empty payload; we need its id before the run row can point at it.</p>
-              <p class="tl">Insert the run, wired to the job via <code>jobId</code> and carrying the fixed sentence.</p>
-              <p class="tl">Back-fill the job payload with the run id — each row needs the other, and <code>jobs.payload</code> is the cheaper side to update.</p>
-              <p class="tl">Return the run out of the callback. This is the commit point: run and job now exist atomically.</p>
-              <p class="tl">Only <em>after</em> the commit does <code>queued</code> get recorded — an event must never describe a run a rollback could erase.</p>
-              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;. Hand back the run id the web page will poll.</p>
+              <p class="tl">Register the POST handler. The <code>_request</code> underscore says it all: the body is ignored — the tracer sentence is fixed.</p>
+              <p class="tl">The comment carries the doctrine: <span class="term" data-definition="The API&rsquo;s only job is to record the request and return 202; all real work happens off a queue — constitution Principle IV.">accept-then-async</span> — one transaction creates run + job here (FR-009)…</p>
+              <p class="tl">…the worker does the actual seam-crossing later, off this queue entry (D12, Principle IV).</p>
+              <p class="tl">…and one transaction means no window where a run exists without its job…</p>
+              <p class="tl">…or vice versa — a crash mid-accept leaves nothing behind, in either direction.</p>
+              <p class="tl">…the insertion order is declared up front too: job first, runId back-filled…</p>
+              <p class="tl">…because each row needs the other&rsquo;s id, and <code>jobs.payload</code> is the cheaper side to update.</p>
+              <p class="tl">Open the single transaction — everything inside commits together or vanishes together.</p>
+              <p class="tl">Insert the job first, payload empty; its id must exist before the run row can point at it.</p>
+              <p class="tl">Second insert begins: the run itself…</p>
+              <p class="tl">…into <code>skeleton_check_runs</code>…</p>
+              <p class="tl">…wired to the job via <code>jobId</code> and carrying the fixed tracer sentence…</p>
+              <p class="tl">…and <code>returning()</code> hands the created row back so the route can answer with its id.</p>
+              <p class="tl">Third statement: back to the job row we created empty…</p>
+              <p class="tl">…an UPDATE on <code>jobs</code>…</p>
+              <p class="tl">…back-filling the payload with the run id — the circular reference resolved on the cheap side…</p>
+              <p class="tl">…scoped to exactly this job. The <code>sql</code>-tag interpolation is a bound parameter, not string splicing.</p>
+              <p class="tl">Return the run out of the callback — this value outlives the transaction.</p>
+              <p class="tl">The commit point. Run and job now exist atomically, or not at all.</p>
+              <p class="tl">Second doctrine comment: <code>queued</code> is emitted only AFTER the commit…</p>
+              <p class="tl">…because an event must never describe a run a rollback could erase. Events are observability, not state…</p>
+              <p class="tl">…so losing this event to a crash is acceptable; a phantom event is not. The callout below unpacks the asymmetry.</p>
+              <p class="tl">The emission itself: <code>recordEvent</code> — the sole writer to the append-only events table — records seam #1.</p>
+              <p class="tl">202 Accepted means &ldquo;recorded, work will happen&rdquo; — not &ldquo;done&rdquo;.</p>
+              <p class="tl">Hand back id, status, <code>createdAt</code> — everything the web page needs to start polling.</p>
+              <p class="tl">Handler ends ~5ms after it began. The other five seams belong to the worker.</p>
             </div>
           </div>
         </div>
@@ -300,10 +315,18 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Insert the vector row under its deterministic id.</p>
-              <p class="tl">The row carries the text, the 384 floats, and the full coordinates of its embedding space — provider, model, dimensions stamped right on it.</p>
-              <p class="tl">If that id already exists, skip silently — no error, no duplicate.</p>
-              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the event learns to say <code>deduplicated: true</code>.</p>
+              <p class="tl">Capture the insert&rsquo;s result — how many rows come back is the dedup signal, so it matters.</p>
+              <p class="tl">Target <code>skeleton_vectors</code>, the pgvector table.</p>
+              <p class="tl">Open the row…</p>
+              <p class="tl">…keyed by the deterministic id from <code>deriveVectorId</code> — this primary key is what turns a re-run into a collision instead of a duplicate.</p>
+              <p class="tl">…the raw text rides along, so the row is self-describing without a join.</p>
+              <p class="tl">…the 384 floats the sidecar just returned.</p>
+              <p class="tl">Then the row&rsquo;s embedding-space coordinates: provider…</p>
+              <p class="tl">…model — resolved env-first from the model role, never hardcoded (Principle VII / D14)…</p>
+              <p class="tl">…and dimensions. The readback filter will match on all three.</p>
+              <p class="tl">Row closed.</p>
+              <p class="tl">If that id already exists, skip silently — no error, no duplicate; the second run&rsquo;s write is a no-op.</p>
+              <p class="tl"><code>returning()</code> comes back empty on a dedup — that empty array is exactly how the <code>vector_write</code> event learns to say <code>deduplicated: true</code>.</p>
             </div>
           </div>
         </div>
@@ -334,14 +357,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Start the clock — the readback duration lands in the event detail.</p>
-              <p class="tl">Serialize the embedding we just wrote into a pgvector literal.</p>
-              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — the nearest-neighbor operator.</p>
-              <p class="tl">Ask for the closest vector&rsquo;s id and its distance...</p>
-              <p class="tl">...but only among vectors from the same model,</p>
-              <p class="tl">the same provider,</p>
-              <p class="tl">and the same dimensions. Other embedding spaces are invisible to this query.</p>
-              <p class="tl">Sort by distance, take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
+              <p class="tl">Start the clock — the readback duration lands in the <code>vector_readback</code> event detail.</p>
+              <p class="tl">Serialize the embedding we just wrote into pgvector&rsquo;s <code>[f1,f2,…]</code> literal form.</p>
+              <p class="tl"><code>&lt;=&gt;</code> is <span class="term" data-definition="pgvector&rsquo;s &lt;=&gt; operator: how far apart two vectors point, from 0.0 (identical direction) to 2.0 (opposite). Distance 0.0 here means we found the exact vector we just wrote.">cosine distance</span> — build the nearest-neighbor expression once, so SELECT and ORDER BY share it.</p>
+              <p class="tl">Ask for exactly one row and destructure it straight off the result.</p>
+              <p class="tl">All we want back: the neighbor&rsquo;s id and how far away it is.</p>
+              <p class="tl">Search the same table the write just landed in.</p>
+              <p class="tl">But not the whole table — the filter opens…</p>
+              <p class="tl">…only vectors from the same model,</p>
+              <p class="tl">…the same provider,</p>
+              <p class="tl">…and the same dimensions. Other embedding spaces are invisible to this query.</p>
+              <p class="tl">Filter closed — config drift is now a <em>detectable</em> mismatch, never a silent cross-space comparison (Principle VII).</p>
+              <p class="tl">Sort by that distance expression, nearest first.</p>
+              <p class="tl">Take one. If the loop is closed, it is our own vector — <code>8d6a97…</code> at distance <code>0.0</code>.</p>
             </div>
           </div>
         </div>

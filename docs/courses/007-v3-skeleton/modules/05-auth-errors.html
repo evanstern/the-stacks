@@ -66,7 +66,6 @@
           <div class="translation-code">
             <span class="translation-label">CODE — v3/apps/api/src/auth/session.ts</span>
             <pre><code><span class="code-line"><span class="code-keyword">const</span> EXEMPT = <span class="code-keyword">new</span> <span class="code-function">Set</span>([<span class="code-string">"GET /health"</span>, <span class="code-string">"GET /ready"</span>, <span class="code-string">"POST /api/auth/login"</span>, <span class="code-string">"POST /api/auth/logout"</span>]);</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">// A global onRequest hook (not preHandler) so it also applies to routes that</span></span>
 <span class="code-line">  <span class="code-comment">// don't exist yet — "every other route requires a valid session" (contracts/api.md).</span></span>
 <span class="code-line">  <span class="code-comment">// Consequence worth knowing: an unauthenticated request to an unknown path</span></span>
@@ -79,7 +78,6 @@
 <span class="code-line">    <span class="code-keyword">if</span> (EXEMPT.<span class="code-function">has</span>(key)) {</span>
 <span class="code-line">      <span class="code-keyword">return</span>;</span>
 <span class="code-line">    }</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">isSessionAuthenticated</span>(request)) {</span>
 <span class="code-line">      <span class="code-comment">// Same fixed "Sign-in failed." body as every credential failure — the</span></span>
 <span class="code-line">      <span class="code-comment">// response never distinguishes missing vs. tampered vs. expired session.</span></span>
@@ -91,14 +89,24 @@
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
               <p class="tl">The full escape hatch: four literal <code>METHOD pattern</code> strings — health, ready, login, logout. Everything else lives behind auth.</p>
-              <p class="tl"><code>onRequest</code>, not <code>preHandler</code>: it fires before routing resolves a handler, so even paths with no route are guarded.</p>
-              <p class="tl">That&rsquo;s the deliberate consequence — unknown path, no session, 401. The route map is invisible to the unauthenticated.</p>
-              <p class="tl">Registered once, app-wide. There is no per-route guard to forget.</p>
-              <p class="tl">The key uses the route <em>pattern</em> (<code>/api/x/:id</code>), never the raw URL — you can&rsquo;t craft a URL that string-matches an exemption.</p>
-              <p class="tl">Raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
-              <p class="tl">Exempt key? Fall through to the route, no session needed.</p>
+              <p class="tl">The why-comment opens with the load-bearing choice: <code>onRequest</code>, not <code>preHandler</code>&hellip;</p>
+              <p class="tl">&hellip;because it fires before routing resolves a handler, even paths with no route are guarded — &ldquo;every other route requires a valid session&rdquo; taken literally.</p>
+              <p class="tl">&hellip;and it names the consequence up front instead of leaving it as a surprise&hellip;</p>
+              <p class="tl">&hellip;unknown path, no session → 401, not 404. The route map is invisible to the unauthenticated.</p>
+              <p class="tl">Registered once, app-wide. There is no per-route guard to forget — that&rsquo;s the whole <span class="term" data-definition="Everything requires a valid session unless explicitly exempted. Safety comes from the default, not from remembering to add a guard to each route.">deny-by-default</span> mechanism.</p>
+              <p class="tl">Next comment: the exemption key is built from the route <em>pattern</em>&hellip;</p>
+              <p class="tl">&hellip;so what&rsquo;s keyed is <code>/api/x/:id</code>, not whatever URL the caller typed — you can&rsquo;t craft a URL that string-matches an exemption&hellip;</p>
+              <p class="tl">&hellip;the raw URL only fills in for unmatched, 404-bound requests — and those are never in the set anyway.</p>
+              <p class="tl">Build the key: <code>METHOD pattern</code>, raw URL only as the routing-found-nothing fallback.</p>
+              <p class="tl">Is this one of the four named exemptions?</p>
+              <p class="tl">Yes — fall through to the route handler, no session needed.</p>
+              <p class="tl">&hellip;end of the exemption check.</p>
               <p class="tl">Everyone else must present a cookie that unseals cleanly.</p>
-              <p class="tl">One fixed body — <code>"Sign-in failed."</code> — whether the seal is missing, tampered, or expired. The response teaches an attacker nothing.</p>
+              <p class="tl">The comment pins the anti-oracle rule: the same fixed body as every credential failure&hellip;</p>
+              <p class="tl">&hellip;missing, tampered, and expired seals are indistinguishable on the wire.</p>
+              <p class="tl">One fixed 401 — <code>"Sign-in failed."</code> — that teaches an attacker nothing.</p>
+              <p class="tl">&hellip;end of the auth check.</p>
+              <p class="tl">&hellip;and the hook closes. That&rsquo;s the entire auth story for every route in the API.</p>
             </div>
           </div>
         </div>
@@ -162,11 +170,9 @@
 <span class="code-line">  <span class="code-property">internal_fault</span>: <span class="code-number">500</span>,</span>
 <span class="code-line">  <span class="code-property">unauthorized</span>: <span class="code-number">401</span>,</span>
 <span class="code-line">};</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">statusForErrorClass</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>): <span class="code-keyword">number</span> {</span>
 <span class="code-line">  <span class="code-keyword">return</span> STATUS_BY_CLASS[errorClass];</span>
 <span class="code-line">}</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">errorEnvelope</span>(errorClass: ErrorClass | <span class="code-string">"unauthorized"</span>, message: <span class="code-keyword">string</span>) {</span>
 <span class="code-line">  <span class="code-keyword">return</span> { <span class="code-property">error</span>: { <span class="code-property">code</span>: errorClass, message } };</span>
 <span class="code-line">}</span></code></pre>
@@ -174,15 +180,19 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The only place in the codebase that knows an HTTP status. Four domain classes plus the auth bolt-on.</p>
-              <p class="tl">No such thing → 404.</p>
-              <p class="tl">Wrong kind of input → 415.</p>
-              <p class="tl">Dependency unreachable → 503 — a retryable answer.</p>
-              <p class="tl">Our bug → 500.</p>
-              <p class="tl">Broken seal → 401. Note the type: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code>, it&rsquo;s bolted on at the edge only.</p>
-              <p class="tl">End of doctrine.</p>
-              <p class="tl">Tag in, status out — a pure lookup, zero logic.</p>
-              <p class="tl">And every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+              <p class="tl">The only place in the codebase that knows an HTTP status. The type says it: the four domain classes plus the auth-only bolt-on.</p>
+              <p class="tl">No such thing → 404. Check the id, not the system.</p>
+              <p class="tl">Wrong kind of input → 415. Retrying the same thing changes nothing.</p>
+              <p class="tl">Dependency unreachable or not ready → 503 — the one retryable answer.</p>
+              <p class="tl">Our own bug or misconfiguration → 500.</p>
+              <p class="tl">Broken seal → 401. Note the type above: <code>unauthorized</code> isn&rsquo;t an <code>ErrorClass</code> — the worker has no auth concept, so it&rsquo;s bolted on at the edge only.</p>
+              <p class="tl">End of doctrine. Each row is pinned by a contract test (<span class="term" data-definition="Spec requirement: the four error classes are each pinned by at least one contract test.">FR-018</span>), so the table can&rsquo;t drift silently.</p>
+              <p class="tl">The translator the edge calls: tag in, status out.</p>
+              <p class="tl">A pure lookup — zero logic, zero branches.</p>
+              <p class="tl">&hellip;that&rsquo;s the whole function.</p>
+              <p class="tl">The wire format, built in exactly one place.</p>
+              <p class="tl">Every failure body has the same shape: <code>{ error: { code, message } }</code>. Clients parse one envelope, forever.</p>
+              <p class="tl">&hellip;two functions and a table — the entire transport mapping.</p>
             </div>
           </div>
         </div>
@@ -206,7 +216,6 @@
 <span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"Inference sidecar is not ready."</span>,</span>
 <span class="code-line">    });</span>
 <span class="code-line">  }</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">// Any other non-2xx (400 unknown model, 404, ...) means we sent something</span></span>
 <span class="code-line">  <span class="code-comment">// the contract doesn't allow — a misconfiguration on our side, so it must</span></span>
 <span class="code-line">  <span class="code-comment">// NOT masquerade as a down dependency: the operator should go fix config,</span></span>
@@ -222,15 +231,27 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;still loading&rdquo; answer — reachable, just not serving yet.</p>
-              <p class="tl">From the run&rsquo;s point of view that&rsquo;s still a down dependency, and crucially: a temporary one.</p>
-              <p class="tl">So the tag is <code>dependency_down</code> — retryable. The operator&rsquo;s move is <em>wait</em>.</p>
-              <p class="tl">The error notes which seam failed and why, in one line.</p>
-              <p class="tl">Same for connection timeouts and refused connections, handled just above this block.</p>
-              <p class="tl">Any <em>other</em> non-2xx — 400 unknown model, 404 — means we sent something the contract doesn&rsquo;t allow.</p>
-              <p class="tl">That must not masquerade as a down dependency: the sidecar is up and answering; <em>our config</em> is wrong.</p>
-              <p class="tl">So the tag is <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar to &ldquo;come back&rdquo; would wait forever.</p>
-              <p class="tl">The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
+              <p class="tl">503 is the sidecar&rsquo;s documented &ldquo;model still loading / not ready&rdquo; answer, per contracts/ml-sidecar.md&hellip;</p>
+              <p class="tl">&hellip;reachable but not serving — from the run&rsquo;s point of view, still a down dependency&hellip;</p>
+              <p class="tl">&hellip;and crucially a temporary one: retryable.</p>
+              <p class="tl">Match that documented status exactly.</p>
+              <p class="tl">Throw a typed <code>DomainError</code> — the class is chosen here, at the seam that failed; translation to HTTP happens only at the API edge.</p>
+              <p class="tl">The tag: <code>dependency_down</code>. The operator&rsquo;s move is <em>wait</em> — it heals without you.</p>
+              <p class="tl">Which seam failed: inference.</p>
+              <p class="tl">One line of context for the log — a triage tag, not an incident novel.</p>
+              <p class="tl">&hellip;close the error object.</p>
+              <p class="tl">&hellip;end of the 503 branch. Connection timeouts and refused connections, handled just above this excerpt, throw the same class.</p>
+              <p class="tl">Now the opposite call. Any <em>other</em> non-2xx — 400 unknown model, 404 — means <em>we</em> sent something the contract doesn&rsquo;t allow&hellip;</p>
+              <p class="tl">&hellip;a misconfiguration on our side of the seam&hellip;</p>
+              <p class="tl">&hellip;which must NOT masquerade as a down dependency&hellip;</p>
+              <p class="tl">&hellip;because the operator should go fix config, not wait for the sidecar to &ldquo;come back&rdquo;.</p>
+              <p class="tl">Every remaining non-2xx lands here — the sidecar is up and answering; the request was wrong.</p>
+              <p class="tl">Same typed throw, opposite diagnosis.</p>
+              <p class="tl">The tag: <code>internal_fault</code>. The operator&rsquo;s move is <em>go fix config</em> — waiting for the sidecar would wait forever.</p>
+              <p class="tl">Same seam — the split lives in the class, not the location.</p>
+              <p class="tl">The message carries the actual status, for the log.</p>
+              <p class="tl">&hellip;close the error object.</p>
+              <p class="tl">&hellip;end of the branch. The class <em>is</em> the operator&rsquo;s next action, encoded.</p>
             </div>
           </div>
         </div>
