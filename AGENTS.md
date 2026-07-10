@@ -54,10 +54,11 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
   (`scripts/check-courses.mjs`), spec-artifact closure (`scripts/check-spec-artifacts.mjs`
   — a fully-checked tasks.md owes evidence.md + the feature course), ADR format
   (`scripts/check-adrs.mjs`), and the version bump (PRs). The praxis gates run through
-  the official composite action (`uses: evanstern/praxis@<tag>`) plus a `PRAXIS_REF`-
-  pinned checkout for the course wrapper — both pins ride the same tag; bumping is a
-  deliberate PR. Locally, always resolve a praxis checkout to its PHYSICAL path before
-  spawning `run-gates.mjs` (its run-as-CLI guard silently no-ops through symlinks).
+  praxis's versioned consumer contract (`run-gates.mjs`) from a `PRAXIS_REF`-pinned
+  checkout (the composite action can't resolve: public repo, private praxis); bumping
+  the pin is a deliberate PR. Locally, always resolve a praxis checkout to its
+  PHYSICAL path before spawning `run-gates.mjs` (its run-as-CLI guard silently
+  no-ops through symlinks).
 - Local mirrors: enable git hooks once per clone with `git config core.hooksPath
   .githooks` (pre-commit: fast gates; pre-push: bump + freshness); the Claude Stop hook
   (`.claude/settings.json` → `scripts/stop-gates.mjs`) blocks a turn ending with stale

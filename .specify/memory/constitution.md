@@ -243,10 +243,10 @@ be introduced.
   check, the course gate, spec-artifact closure, ADR format, and the version-bump
   contract — is the enforcement point. `.githooks/` and the Claude Stop hook are
   convenience mirrors and MUST NOT be treated as the authority. The praxis gates run
-  through praxis's official consumption surface — the composite GitHub Action
-  (`uses: evanstern/praxis@<tag>`) and its `run-gates.mjs` contract — pinned by tag
-  (the `uses:` line and `PRAXIS_REF` ride the same tag); upgrading the pin is a
-  deliberate, reviewed change.
+  through praxis's versioned consumer contract (`run-gates.mjs`) from a checkout
+  pinned by tag (`PRAXIS_REF` in the workflows); upgrading the pin is a deliberate,
+  reviewed change. (The composite-action form of the same contract cannot be used
+  while this repo is public and praxis is private.)
 
 ## Governance
 
