@@ -77,13 +77,12 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE</span>
+            <span class="translation-label">CODE — packages/ingestion/src/registry.ts</span>
             <pre><code>
 <span class="code-line">    <span class="code-function">detect</span>(input) {</span>
 <span class="code-line">      <span class="code-keyword">const</span> candidates: Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt; = {};</span>
 <span class="code-line">      <span class="code-keyword">let</span> winner: IngestionPlugin | <span class="code-keyword">null</span> = <span class="code-keyword">null</span>;</span>
 <span class="code-line">      <span class="code-keyword">let</span> winning = <span class="code-number">0</span>;</span>
-<span class="code-line"></span>
 <span class="code-line">      <span class="code-keyword">for</span> (<span class="code-keyword">const</span> plugin <span class="code-keyword">of</span> plugins) {</span>
 <span class="code-line">        <span class="code-keyword">if</span> (!plugin.accepts.<span class="code-function">includes</span>(input.mediaType)) <span class="code-keyword">continue</span>;</span>
 <span class="code-line">        <span class="code-keyword">let</span> confidence = <span class="code-number">0</span>;</span>
@@ -99,7 +98,6 @@
 <span class="code-line">          winning = confidence;</span>
 <span class="code-line">        }</span>
 <span class="code-line">      }</span>
-<span class="code-line"></span>
 <span class="code-line">      <span class="code-keyword">if</span> (!winner || winning &lt;= <span class="code-number">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
 <span class="code-line">      <span class="code-keyword">return</span> { plugin: winner, confidence: winning, candidates };</span>
 <span class="code-line">    },</span>
@@ -108,14 +106,28 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Start a scoreboard: every plugin's confidence goes in <code>candidates</code>; nobody is winning yet.</p>
-              <p class="tl">Skip any plugin whose <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span> does not include this file's media type — it is not even asked.</p>
-              <p class="tl">Ask the plugin to score itself. If <code>detect()</code> throws, treat that as a confidence of exactly 0 — a crashing detector is scored as "not mine," not allowed to take detection down.</p>
-              <p class="tl">Write every consulted plugin's score into the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span>, honestly, even when the score is 0.</p>
-              <p class="tl">Only take the new plugin as winner if its confidence is <strong>strictly greater</strong> than the current best — an equal score never displaces the plugin already in the lead.</p>
-              <p class="tl">That strict "greater than" is the whole tie-break rule: whoever got compared first stays winner until someone beats it, which means
-                <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span> falls out for free.</p>
-              <p class="tl">If nobody scored above 0, there is no winner — return <code>null</code> and let the caller report an honest "unsupported type."</p>
+              <p class="tl">The registry's dispatch method (FR-011): the hiring panel convenes. The registry — never a plugin — decides who gets this file.</p>
+              <p class="tl">Start the scoreboard: the <span class="term" data-definition="A record of every consulted plugin's confidence, kept on the winning decision — so an operator can see WHY a plugin won, not just that it did.">candidates map</span> will record every consulted plugin's score, not just the winner's.</p>
+              <p class="tl">Nobody is winning yet.</p>
+              <p class="tl">The bar to beat starts at 0 — a plugin must score <em>above</em> zero to claim anything.</p>
+              <p class="tl">Walk the plugins in registration order — <code>shipped.ts</code> fixed that order, and it becomes load-bearing five lines down.</p>
+              <p class="tl">The <span class="term" data-definition="The list of media types a plugin declares it can handle — e.g. text/html or text/markdown. The registry only asks a plugin to detect() when the incoming file's media type is on this list.">accepts filter</span>: a plugin that never declared this media type is not even asked — this is why markdown never sees <code>text/html</code>.</p>
+              <p class="tl">Every consulted plugin's score defaults to 0 — "not mine" until it says otherwise.</p>
+              <p class="tl"><code>detect()</code> is plugin code, i.e. potentially buggy code — so it runs fenced.</p>
+              <p class="tl">Ask the plugin to score itself against the raw input.</p>
+              <p class="tl">If its detector throws, that crash must not take detection down for the whole file&hellip;</p>
+              <p class="tl">&hellip;so a throw is scored as exactly 0 — same as an honest "not mine." The conformance suite, not this loop, is where the plugin bug gets surfaced.</p>
+              <p class="tl">Either way we leave with a number, never a propagating exception.</p>
+              <p class="tl">Write the score down — zeros included. Honest bookkeeping is what makes Screen 4's real event readable.</p>
+              <p class="tl">The why-comment names the invariant the next line encodes.</p>
+              <p class="tl"><strong>Strictly greater</strong>: an equal score never displaces the current leader — this one comparison IS <span class="term" data-definition="A deterministic rule: when two plugins report equal confidence, the one registered first wins. Never ambiguous, never random.">tie-break by registration order</span>, for free.</p>
+              <p class="tl">New leader&hellip;</p>
+              <p class="tl">&hellip;and the bar rises to its score — a later fallback floating at the 0.1 <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span> can never clear a real detector's 0.85+.</p>
+              <p class="tl">A tie or a lower score changes nothing.</p>
+              <p class="tl">Every accepting plugin has now been asked — detection is never "first plugin to say yes."</p>
+              <p class="tl">All zeros means no winner: return <code>null</code> so the caller can fail detection with an honest, typed "unsupported type" (FR-012).</p>
+              <p class="tl">The winning decision — plugin, confidence, and the full candidates map — exactly what gets recorded on the source and in the <code>detect</code> event.</p>
+              <p class="tl">One method, one deterministic answer.</p>
             </div>
           </div>
         </div>
@@ -128,7 +140,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE — shipped.ts (full file)</span>
+            <span class="translation-label">CODE — packages/ingestion/src/shipped.ts (full file)</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * The SHIPPED plugin lineup (008 FR-028) — the one place the in-tree plugin</span></span>
@@ -142,10 +154,8 @@
 <span class="code-line"><span class="code-comment"> * US5's demo plugin is test-only and deliberately NOT in this list.</span></span>
 <span class="code-line"><span class="code-comment"> */</span></span>
 <span class="code-line"><span class="code-keyword">import</span> { ddbSavedHtmlPlugin, genericHtmlPlugin, markdownPlugin } <span class="code-keyword">from</span> <span class="code-string">"@stacks/ingestion-plugins"</span>;</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">import type</span> { PluginRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
 <span class="code-line"><span class="code-keyword">import</span> { createRegistry } <span class="code-keyword">from</span> <span class="code-string">"./registry"</span>;</span>
-<span class="code-line"></span>
 <span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">createShippedRegistry</span>(): PluginRegistry {</span>
 <span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">createRegistry</span>([ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]);</span>
 <span class="code-line">}</span>
@@ -154,11 +164,23 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">The comment says the quiet part out loud: this ORDER is load-bearing, not decorative — it is the tie-break rule in disguise.</p>
-              <p class="tl">Pull in the three real plugins that ship with the pipeline.</p>
-              <p class="tl">Pull in the registry constructor this list gets handed to.</p>
-              <p class="tl">Build the actual shipped registry — one function, one array, one order.</p>
-              <p class="tl">The array literal <code>[ddbSavedHtmlPlugin, markdownPlugin, genericHtmlPlugin]</code> IS the tie-break table: ddb first, fallbacks after.</p>
+              <p class="tl">The file is nine-tenths why-comment on purpose — the doctrine IS the module.</p>
+              <p class="tl">The ONE place the shipped lineup is wired (FR-028) — no plugin registers itself from anywhere else.</p>
+              <p class="tl">In-tree packaging was a researched decision (R13), not a default.</p>
+              <p class="tl">The quiet part said out loud: this ORDER is load-bearing, not decorative — specific plugins before fallbacks.</p>
+              <p class="tl">It points straight back at the strictly-greater comparison you just read: registration order is the tie-break rule in disguise.</p>
+              <p class="tl"><code>ddb-saved-html</code> leads because it is the only plugin that ever outbids the floor on <code>text/html</code>&hellip;</p>
+              <p class="tl">&hellip;while the two fallbacks float at the 0.1 <span class="term" data-definition="A deliberately low, flat score a fallback plugin always returns for its accepted types. High enough to win when nothing else claims a source, never high enough to outbid a real detector.">confidence floor</span> — high enough to catch what nothing claims, never enough to outbid a real detector.</p>
+              <p class="tl">Each fallback is the sole claimant of its own media types, so <em>their</em> relative order genuinely does not matter.</p>
+              <p class="tl">A beat, then the exception:</p>
+              <p class="tl">Module 6's demo plugin exists — but only in tests. It proves the seam without joining the lineup.</p>
+              <p class="tl">End of doctrine; three statements of code remain.</p>
+              <p class="tl">Pull in the three real plugins. This import list is alphabetical — it carries NO order meaning.</p>
+              <p class="tl">The return type, imported type-only.</p>
+              <p class="tl">The registry constructor the lineup gets handed to.</p>
+              <p class="tl">One factory builds the production registry — API and worker both call this, so they can never disagree about the lineup.</p>
+              <p class="tl">This array literal IS the tie-break table: <code>ddbSavedHtmlPlugin</code> first, fallbacks after. Put a fallback first and a tie could hand a real DDB page to <code>generic-html</code>.</p>
+              <p class="tl">That is the whole file — one order, written down exactly once.</p>
             </div>
           </div>
         </div>

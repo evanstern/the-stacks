@@ -71,7 +71,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; contracts/plugin-contract.md:14-29</span>
+            <span class="translation-label">CODE &mdash; specs/008-ingestion-service/contracts/plugin-contract.md</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">interface</span> IngestionPlugin {</span>
 <span class="code-line">  <span class="code-comment">/** Stable unique name, e.g. "ddb-saved-html", "markdown", "generic-html". */</span></span>
@@ -82,10 +82,8 @@
 <span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">accepts</span>: <span class="code-keyword">readonly</span> <span class="code-keyword">string</span>[];   <span class="code-comment">// e.g. ["text/html"]</span></span>
 <span class="code-line">  <span class="code-comment">/** Optional soft guidance to the pipeline-owned chunker (FR-019). */</span></span>
 <span class="code-line">  <span class="code-keyword">readonly</span> <span class="code-property">chunkingHints</span>?: ChunkingHints;</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">/** Cheap, side-effect-free recognition. MUST NOT throw on garbage input. */</span></span>
 <span class="code-line">  <span class="code-function">detect</span>(input: DetectInput): DetectResult;</span>
-<span class="code-line"></span>
 <span class="code-line">  <span class="code-comment">/** Full extraction + transformation to the normalized document. */</span></span>
 <span class="code-line">  <span class="code-function">transform</span>(input: TransformInput): Promise&lt;NormalizedDocument&gt;;</span>
 <span class="code-line">}</span>
@@ -94,10 +92,20 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Identity: a stable name, and a semver version stamped onto every source this plugin ever produces (FR-016) &mdash; so a version bump can name exactly which documents need re-ingestion.</p>
-              <p class="tl"><code>accepts</code> pre-filters which media types this plugin even looks at; <code>chunkingHints</code> is optional soft guidance to the chunker downstream.</p>
-              <p class="tl"><code>detect()</code> must be cheap, side-effect-free, and never throw &mdash; even on garbage input. It returns a confidence score, not a decision (Module 2 traces how the pipeline picks a winner).</p>
-              <p class="tl"><code>transform()</code> is the only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one shape every plugin is held to, and nothing else.</p>
+              <p class="tl">The whole contract. Every plugin &mdash; shipped or future third-party &mdash; is held to exactly these six members and nothing more (FR-013).</p>
+              <p class="tl">The docstring pins the naming register: short, stable, kebab-case &mdash; and those three example names are the shipped plugins you&rsquo;ll meet on the next screen.</p>
+              <p class="tl">Identity. The pipeline stamps this name on every source it ingests, so &ldquo;which plugin produced this document?&rdquo; is always answerable.</p>
+              <p class="tl">Why the version matters: it&rsquo;s recorded per-source at produce time (FR-016)&hellip;</p>
+              <p class="tl">&hellip;so a plugin semver bump can enumerate exactly which documents are stale and need re-ingestion &mdash; no guessing, no full re-crawl.</p>
+              <p class="tl">A cheap pre-filter: if the sniffed media type isn&rsquo;t in <code>accepts</code>, this plugin&rsquo;s <code>detect()</code> is never even called.</p>
+              <p class="tl">Declared as data, not code &mdash; so the registry can filter candidates without running anything.</p>
+              <p class="tl">Soft guidance only (FR-019): the chunker is pipeline-owned and free to ignore hints&hellip;</p>
+              <p class="tl">&hellip;which is why the field is optional &mdash; a plugin with no chunking opinion simply omits it.</p>
+              <p class="tl">The two MUSTs of detection: cheap (it runs for every registered plugin on every upload) and never-throws (garbage input is normal input here).</p>
+              <p class="tl">Synchronous and side-effect-free. It returns a confidence score, not a decision &mdash; Module 2 traces how the pipeline picks the winner.</p>
+              <p class="tl">One call, two observed pipeline stages &mdash; this is the <code>extract</code>/<code>transform</code> badge from the hero diagram.</p>
+              <p class="tl">The only place real work happens: raw bytes in, a <code>Promise</code> of <code>NormalizedDocument</code> out &mdash; the one plug shape, and nothing else.</p>
+              <p class="tl">That&rsquo;s the entire surface. No <code>save()</code>, no <code>fetch()</code>, no db handle &mdash; &ldquo;nothing else&rdquo; is the contract, not a convention.</p>
             </div>
           </div>
         </div>
@@ -114,7 +122,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; contracts/normalized-document.md:17-24</span>
+            <span class="translation-label">CODE &mdash; specs/008-ingestion-service/contracts/normalized-document.md</span>
             <pre><code>
 <span class="code-line"><span class="code-keyword">interface</span> NormalizedDocument {</span>
 <span class="code-line">  <span class="code-property">contractVersion</span>: <span class="code-keyword">string</span>;          <span class="code-comment">// = NORMALIZED_DOCUMENT_VERSION at produce time</span></span>
@@ -129,12 +137,15 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">Stamped with the shape&rsquo;s own version &mdash; so a future breaking change can enumerate exactly which sources need re-ingestion.</p>
+              <p class="tl">The one plug shape (FR-017/018). Six fields &mdash; everything downstream of <code>transform</code> was written against exactly this, once.</p>
+              <p class="tl">Stamped with the shape&rsquo;s own version at produce time &mdash; so a future breaking change to the contract can enumerate exactly which sources need re-ingestion, the same way a plugin bump can.</p>
               <p class="tl">A best-effort title, never empty &mdash; even a nameless plain-text file must produce something here.</p>
-              <p class="tl">An optional language hint, only when the plugin actually knows it.</p>
-              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose. Each section carries an
+              <p class="tl">An optional BCP-47 language hint, present only when the plugin actually knows it &mdash; the contract bakes in no guessing.</p>
+              <p class="tl">The ordered content itself &mdash; allowed to be empty on purpose: an honest &ldquo;nothing ingestible&rdquo; outcome, not a silent zero. Each section carries an
                 <span class="term" data-definition="A section's address inside its sanitized display artifact — the citation deep-link target, Principle III.">anchor</span> back into the artifact it came from.</p>
-              <p class="tl">Sanitized HTML fragments the archive viewer renders (never raw bytes), plus non-fatal extraction notes an operator can read.</p>
+              <p class="tl">Sanitized HTML fragments for the archive viewer &mdash; the viewer renders these, never raw bytes (Principle III&rsquo;s one safe shape).</p>
+              <p class="tl">Non-fatal extraction notes, written for an operator to read &mdash; problems that shouldn&rsquo;t fail the ingest but shouldn&rsquo;t vanish either.</p>
+              <p class="tl">Six fields, closed. Adding one is a contract-version event (FR-013), not a quiet edit.</p>
             </div>
           </div>
         </div>
@@ -148,7 +159,7 @@
 
         <div class="translation-block animate-in">
           <div class="translation-code">
-            <span class="translation-label">CODE &mdash; ingestion-plugins/src/index.ts:1-15</span>
+            <span class="translation-label">CODE &mdash; packages/ingestion-plugins/src/index.ts</span>
             <pre><code>
 <span class="code-line"><span class="code-comment">/**</span></span>
 <span class="code-line"><span class="code-comment"> * @stacks/ingestion-plugins — the shipped ingesters for spec 008 (FR-028):</span></span>
@@ -170,10 +181,21 @@
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
-              <p class="tl">This package ships the real ingesters: ddb-saved-html as the flagship, markdown and generic-html as fallbacks, plus a test-only demo-format plugin that exists purely to prove new formats are addable.</p>
-              <p class="tl">The doctrine in one phrase: PURE TRANSFORM. Bytes in, <code>NormalizedDocument</code> out. Nothing here may import <code>@stacks/db</code>, <code>@stacks/core</code>, <code>@stacks/ingestion</code>, or any HTTP/model client &mdash; only the contract package.</p>
-              <p class="tl">That restriction isn&rsquo;t enforced by a reviewer&rsquo;s memory &mdash; <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if it&rsquo;s violated. Parsing libraries like cheerio and sanitize-html are only allowed to live here (rule 5).</p>
-              <p class="tl">Test fixtures are synthetic, DDB-shaped look-alikes &mdash; never real proprietary text.</p>
+              <p class="tl">A package-level doc comment &mdash; the doctrine sits at the top of the entry file, where no contributor opening this package can miss it.</p>
+              <p class="tl">The roster: this package ships the real ingesters delivered by spec 008 (FR-028).</p>
+              <p class="tl">ddb-saved-html is the flagship; markdown and generic-html are the fallback floor&hellip;</p>
+              <p class="tl">&hellip;plus a test-only demo-format plugin whose entire job is proving that adding a new format is a small, isolated task (SC-007 &mdash; Module 6 walks that proof).</p>
+              <p class="tl">A breath &mdash; roster above, doctrine below.</p>
+              <p class="tl">The doctrine, named and cited: FR-014 is the seam that makes &ldquo;write a new ingester&rdquo; a plugin task instead of a risky pipeline-core change.</p>
+              <p class="tl">The phrase to remember: PURE TRANSFORM &mdash; bytes in, <code>NormalizedDocument</code> out, no side effects.</p>
+              <p class="tl">The import blacklist is explicit: no <code>@stacks/db</code>, no <code>@stacks/core</code>, no <code>@stacks/ingestion</code>&hellip;</p>
+              <p class="tl">&hellip;and no HTTP or model client either &mdash; the contract package is the ONLY internal dependency a plugin may reach for.</p>
+              <p class="tl">Not a promise, a linter: <code>scripts/check-boundaries.mjs</code> rule 4 fails the build if any of those imports appear.</p>
+              <p class="tl">The confinement cuts both ways &mdash; parsing libraries (cheerio, sanitize-html) may live here and ONLY here (rule 5), so no other package quietly grows a DOM parser.</p>
+              <p class="tl">Second breath &mdash; doctrine above, provenance below.</p>
+              <p class="tl">Test fixtures are synthetic look-alikes: they exercise DDB-shaped structure&hellip;</p>
+              <p class="tl">&hellip;without a single line of proprietary text (constitution Principle I, FR-024) &mdash; the repo never ships real game content.</p>
+              <p class="tl">End of the header. Everything below it is just export lines.</p>
             </div>
           </div>
         </div>
