@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import type { Database } from "../src/client";
 import { createDbClient } from "../src/client";
+import { ensureSuiteDatabase } from "../src/test-db";
 import { jobs } from "../src/schema/jobs";
 import { runMigrations } from "../src/migrate";
 import { claimNext, complete, enqueue, fail, reclaimStale } from "../src/queue";
@@ -16,7 +17,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("queue", () => {
   let close: () => Promise<void>;
 
   beforeAll(async () => {
-    const client = createDbClient(DATABASE_URL);
+    const client = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "db_queue"),
+    );
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);

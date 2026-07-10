@@ -15,6 +15,7 @@ import {
   claimNext,
   corpora,
   createDbClient,
+  ensureSuiteDatabase,
   documentSections,
   ingestionEvents,
   jobs,
@@ -50,7 +51,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("mixed-ZIP expand -> pipe
   let corpusId: string;
 
   beforeAll(async () => {
-    const client = createDbClient(DATABASE_URL);
+    const client = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "worker_ingest_pipeline"),
+    );
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);

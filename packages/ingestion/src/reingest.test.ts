@@ -21,6 +21,7 @@ import {
   claimNext,
   corpora,
   createDbClient,
+  ensureSuiteDatabase,
   jobs,
   runMigrations,
   sourceArchives,
@@ -69,7 +70,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("reingest domain operatio
   let deps: IngestDeps;
 
   beforeAll(async () => {
-    const client = createDbClient(DATABASE_URL);
+    const client = createDbClient(
+      // TASK-8: a database of our own — beforeEach TRUNCATEs can never race
+      // another package's suite (isolation by construction, not by locking).
+      await ensureSuiteDatabase(DATABASE_URL, "ingestion_reingest"),
+    );
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);
