@@ -1,5 +1,7 @@
 /**
  * CODEBASE-TO-COURSE — COMPLETE JS ENGINE
+ * chrome v2 — inline translation engine (comments-on-top)
+ * (no version header = v1, the retired side-by-side renderer — upgrade it)
  * Copy this file verbatim into the course output directory.
  * Never regenerate it. It handles all interactivity generically.
  *

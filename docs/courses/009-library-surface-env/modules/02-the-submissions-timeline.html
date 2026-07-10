@@ -222,6 +222,8 @@
 <span class="code-line">              WHERE ds.source_id IN (${idList(sourceIds)}) AND ds.generation = s.current_generation</span>
 <span class="code-line">              GROUP BY ds.source_id</span>
 <span class="code-line">            `),</span>
+<span class="code-line">        <span class="code-comment">// … the chunks aggregate — the exact twin over the chunks table — elided …</span></span>
+<span class="code-line">      ]);</span>
 </code></pre>
           </div>
           <div class="translation-english">
@@ -238,7 +240,9 @@
               <p class="tl">…joined back to each row's source, solely to reach one number: <code>current_generation</code>.</p>
               <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at. And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
               <p class="tl">One grouped count for the whole page — <code>GROUP BY ds.source_id</code> is the anti-N+1: fifty sources, still one query.</p>
-              <p class="tl">…close the statement; the chunks aggregate (not shown) is its exact twin over <code>document_chunks</code>.</p>
+              <p class="tl">…close the statement.</p>
+              <p class="tl">The second Promise.all entry (elided): the chunks aggregate, character-for-character the same shape over the <code>chunks</code> table.</p>
+              <p class="tl">…and both aggregates resolve together — the destructure up top receives them in order.</p>
             </div>
           </div>
         </div>
@@ -284,19 +288,34 @@
 
         <p>That scenario is not hypothetical — it is seeded, verbatim, in the contract suite (one of the 10 listing contract tests, 39 API tests green this cycle):</p>
 
-        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
-          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">apps/api/test/ingestion-list.contract.test.ts — US3 AC-1</span>
-          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;"><code><span class="code-line">    <span class="code-comment">// Generation 1 is current: 2 sections, 3 chunks. Generation 2 is a</span></span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/test/ingestion-list.contract.test.ts (US3 AC-1)</span>
+            <pre><code><span class="code-line">    <span class="code-comment">// Generation 1 is current: 2 sections, 3 chunks. Generation 2 is a</span></span>
 <span class="code-line">    <span class="code-comment">// re-ingest being written ASIDE — the listing must not count it.</span></span>
 <span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">0</span>);</span>
 <span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">1</span>);</span>
 <span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">2</span>, <span class="code-number">0</span>);</span>
 <span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">3</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">1</span>, i);</span>
 <span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">2</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">2</span>, i);</span>
-<span class="code-line"></span>
 <span class="code-line">    <span class="code-function">expect</span>(item.generation).<span class="code-function">toBe</span>(<span class="code-number">1</span>);</span>
 <span class="code-line">    <span class="code-function">expect</span>(item.counts).<span class="code-function">toEqual</span>({ <span class="code-property">sections</span>: <span class="code-number">2</span>, <span class="code-property">chunks</span>: <span class="code-number">3</span> });</span>
 </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The contract test states the trap in its own comment: two generations share the table…</p>
+              <p class="tl">…and only the current one may ever be counted — write-aside rows are invisible by predicate.</p>
+              <p class="tl">Seed section 0 of generation 1 — the current generation.</p>
+              <p class="tl">Seed section 1 of generation 1: that's the "2 sections" the assertion expects.</p>
+              <p class="tl">Seed a generation-2 section — the re-ingest being written aside. Bait for a buggy count.</p>
+              <p class="tl">Three generation-1 chunks: the "3 chunks" side of the expected counts.</p>
+              <p class="tl">Two generation-2 chunks — more bait; a naive count would say 5.</p>
+              <p class="tl">The listing reports generation 1 as current…</p>
+              <p class="tl">…and counts exactly 2 and 3. The JOIN predicate — not cleanup, not filtering in JS — is the entire isolation mechanism.</p>
+            </div>
+          </div>
         </div>
 
         <div class="callout callout-accent">
