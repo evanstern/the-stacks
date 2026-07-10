@@ -51,13 +51,11 @@ jobs:
     env:
       RUN_DB_INTEGRATION_TESTS: "1"
       DATABASE_URL: postgresql://stacks_v3:stacks_v3@localhost:5442/stacks_v3
-      # The DB-gated suites share ONE Postgres, and pnpm -r runs up to four
-      # package suites concurrently — the api migration-lifecycle suite resets
-      # schema while the worker e2e is mid-flight (FK violations, "unknown
-      # batch"; flaked on this PR's own runs). Serialize package suites while
-      # DB tests are live; the durable fix (per-suite schemas or databases) is
-      # tracked on the board (task-8).
-      npm_config_workspace_concurrency: "1"
+      # Note: the DB-gated suites share ONE Postgres and contaminate each
+      # other when package suites run concurrently (failed on this PR's own
+      # runs). pnpm verify serializes its test leg (--workspace-concurrency=1
+      # in the root script — env-var config was ignored by pnpm); TASK-8
+      # tracks the durable per-suite isolation fix.
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
