@@ -94,13 +94,19 @@ confirm it's self-contained and renders offline (no build step, no server — a 
 the operator double-clicks).
 
 ### 6. Close the loop (mandatory — the cycle is incomplete without it)
+- **Pass the course gate**: `node scripts/check-courses.mjs` must report the new course
+  dir OK (it runs the praxis codebase-to-course gate: self-containment, chrome version
+  stamp, quiz/translation-block structure). A failing course is not done — fix it before
+  linking. CI runs the same gate from a pinned praxis checkout; only the pre-gate
+  007/008/009 courses are baselined as warnings.
 - **Link from evidence**: add the course under a "Feature course" entry in
   `specs/<feature>/evidence.md`, noting it's the skilled-developer register, seeded from the
   feature's spec artifacts via `/codebase-to-course`.
 - **Commit** to the repo with a message that records the register, the seed, and the module
   list. Co-author the model that rendered it.
 - A spec cycle without its linked, committed learning artifact is **not done** (constitution
-  Development Workflow closure step, §181).
+  Development Workflow closure step) — and machine-checked: `check-spec-artifacts.mjs`
+  fails CI when a fully-checked tasks.md lacks the course.
 
 ## Guardrails
 

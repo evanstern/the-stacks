@@ -1,35 +1,32 @@
 <!--
 Sync Impact Report
-- Version change: 2.1.0 -> 2.2.0
-- Rationale: MINOR — materially expanded guidance in Principle V (Operator Control and
-  Observability): every delivered capability MUST have a visibility avenue. Operator-
-  facing capabilities surface in the web UI (Records-style, URL-addressable, reachable
-  by navigation — not URL folklore); capabilities without a warranted web surface
-  (developer tooling, protocols, background machinery) surface through CLI output, log
-  files, or documented inspection paths. Specs/plans record which avenue each capability
-  satisfies and why; a capability with no visibility avenue is incomplete, the same way
-  a cycle without its Principle VIII learning artifact is incomplete. Requested by the
-  operator 2026-07-09 after 008-ingestion-service shipped web pages unreachable by
-  navigation and capabilities with no UI avenue at all; 009-library-surface-env (FR-018)
-  is the first spec gated on this.
-- Modified principles: V. Operator Control and Observability (expanded with the
-  visibility-avenue mandate; not renamed). I-IV and VI-VIII carried forward unchanged.
-- Added sections: Development Workflow gains the visibility-avenue recording step.
+- Version change: 2.2.0 -> 2.3.0
+- Rationale: MINOR — materially expanded Development Workflow guidance codifying the
+  process architecture adopted 2026-07-10 (ADR 0002): (1) the Backlog.md kanban is a
+  derived view over Spec Kit artifacts (spec-bridge linkage; status must never exceed
+  what artifacts prove); (2) docs/wiki is a pinned grounding corpus (verified_against +
+  sources per note, mechanically checked freshness) replacing the `updated:` date
+  convention; (3) merge commits only on main — squash merges orphan pinned SHAs;
+  (4) single repo-level semver with automatic tag + release on main; (5) the CI gate
+  suite is authoritative, with .githooks/ and the Claude Stop hook as local mirrors.
+  Principle VIII closure (evidence + course per completed cycle) is now machine-checked.
+- Modified principles: none renamed or redefined; I–VIII carried forward unchanged.
+  Development Workflow's wiki bullet now points at docs/wiki/INDEX.md (corpus spine)
+  instead of the retired Home.md and requires re-verify-then-re-pin on wiki changes.
+- Added sections: Development Workflow gains "Process automation, board, and release".
 - Removed sections: none.
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md (Constitution Check gate is generated per plan
-    from the current version; plans authored after 2.2.0 must gate on the visibility
-    avenue)
+    from the current version; plans authored after 2.3.0 must gate on board linkage and
+    the pinned-wiki impact decision)
   - ✅ .specify/templates/spec-template.md (principle-agnostic; no edits needed)
-  - ✅ .specify/templates/tasks-template.md (principle-agnostic; task lists generated
-    after 2.2.0 must carry the visibility-avenue verification where a capability lacks a
-    web surface)
+  - ✅ .specify/templates/tasks-template.md (principle-agnostic; no edits needed)
 - Follow-up TODOs:
-  - TODO(007-RETROFIT): 007-v3-skeleton predates the 2.1.0 amendment — it owes a
-    teaching-comment pass over v3/ and its feature course/lesson under Principle VIII.
-  - TODO(008-VISIBILITY-RETROFIT): 008-ingestion-service predates this amendment — its
-    unreachable pages and avenue-less capabilities are being retrofitted by
-    009-library-surface-env; re-ingestion's avenue lands with the corpus-lifecycle spec.
+  - TODO(007-RETROFIT): carried forward — 007-v3-skeleton owes a teaching-comment pass
+    under Principle VIII (its course exists; the comment pass is the open half).
+  - TODO(COURSE-REBUILDS): the pre-gate 007/008/009 courses fail the course gate's
+    chrome contract and are baselined as warnings in scripts/check-courses.mjs;
+    rebuilds are board tasks 4-6, then task 7 empties the baseline (ADR 0002).
 -->
 
 # The Stacks Constitution
@@ -197,11 +194,15 @@ be introduced.
   plumbing only, `main/` is the deploy-oriented app worktree, development happens in
   separate worktrees, and `.omo/` remains at the repository root beside worktrees.
 - Durable architecture, contract, lifecycle, and cross-layer decisions MUST be
-  recorded in `docs/wiki/` and linked from `docs/wiki/Home.md` once they settle.
-  Architectural work MUST include a wiki-impact decision: either the relevant wiki
-  page was updated and linked, or the work explicitly records why no durable wiki
-  update was needed. Routine bug fixes and implementation-only changes do not require
-  wiki pages.
+  recorded in `docs/wiki/` and listed in `docs/wiki/INDEX.md` once they settle. The
+  wiki is a pinned grounding corpus (code dialect of the praxis corpus spec v1): every
+  note carries `sources:` (the files whose change invalidates it) and
+  `verified_against:` (the commit its claims were last verified at). Changing a note
+  MUST mean re-reading the diff against its sources and re-pinning — never bump a pin
+  blind. Architectural work MUST include a wiki-impact decision: either the relevant
+  wiki note was updated/re-pinned and indexed, or the work explicitly records why no
+  durable wiki update was needed. Routine bug fixes and implementation-only changes do
+  not require wiki pages.
 - Any v3 design that violates a product principle from
   `docs/grounding/01-vision-and-scope.md` requires an ADR.
 - Every feature MUST declare its visibility avenue (Principle V): specs/plans record,
@@ -214,7 +215,36 @@ be introduced.
   repository (e.g. `docs/courses/<feature>/`), and link it from the feature's
   evidence. The canonical mechanism is the `/spec-cycle-course` skill, which pins the
   skilled-developer register and the briefs-first workflow; use it rather than
-  hand-rolling the artifact. A spec cycle without its learning artifact is incomplete.
+  hand-rolling the artifact. A spec cycle without its learning artifact is incomplete —
+  and machine-checked: `scripts/check-spec-artifacts.mjs` fails CI when a fully-checked
+  `tasks.md` lacks `evidence.md` or `docs/courses/<feature>/index.html`, and the course
+  must pass the course gate (`scripts/check-courses.mjs`).
+
+### Process automation, board, and release
+
+- **The kanban is a derived view over specs.** The committed `backlog/` (Backlog.md)
+  board is linked to spec dirs by spec-bridge: every spec cycle gets exactly one linked
+  task (`Spec: specs/NNN-…` marker; `Spec phase:` acceptance criteria mirrored from
+  `tasks.md`). Derivation is one-way — artifacts drive the board; a linked task's
+  status MUST never exceed what its spec dir proves (the spec-bridge gate blocks it).
+  The board is synced (`/spec-bridge:sync`) at cycle gates and at cycle close; linked
+  tasks are written only through the `backlog` CLI, never by hand.
+- **Merge policy.** PRs merge into `main` via merge commits. Squash merges and history
+  rewrites on `main` are prohibited: wiki `verified_against` pins and evidence
+  reference commit SHAs that MUST remain reachable.
+- **Versioning and release.** The repo ships as one stack under a single semver in the
+  root `package.json`. A change to released surface (`apps/`, `packages/`, `scripts/`,
+  the compose files, root manifests — the authoritative list is
+  `scripts/check-version-bump.mjs`) MUST ship with a semver increase whose `v<version>`
+  tag is unused; versions are never reused. Each merge to `main` carrying a new version
+  is tagged and released automatically (`.github/workflows/release.yml`).
+- **CI is the authority.** The gate suite in `.github/workflows/ci.yml` — `pnpm verify`
+  with live DB integration, the ML sidecar suite, wiki freshness, the spec-bridge
+  check, the course gate, spec-artifact closure, ADR format, and the version-bump
+  contract — is the enforcement point. `.githooks/` and the Claude Stop hook are
+  convenience mirrors and MUST NOT be treated as the authority. The praxis gate CLIs
+  run from a source checkout pinned by tag (`PRAXIS_REF` in the workflows); upgrading
+  the pin is a deliberate, reviewed change.
 
 ## Governance
 
@@ -237,4 +267,4 @@ Compliance review expectations:
   when a check cannot run.
 - Exceptions MUST be documented in the relevant spec, plan, or OMO evidence.
 
-**Version**: 2.2.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-09
+**Version**: 2.3.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-10
