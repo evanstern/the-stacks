@@ -27,7 +27,14 @@ export default function LibraryUpload({ actionData }: Route.ComponentProps) {
 
   return (
     <main className="mx-auto max-w-xl space-y-6 p-8">
-      <h1 className="text-2xl font-semibold">Add to the library</h1>
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-2xl font-semibold">Add to the library</h1>
+        {/* Upload ↔ listing cross-links (009 US1 AC-5): each library surface
+            can reach the other without the nav detour. */}
+        <Link className="text-sm underline" to="/library">
+          View library
+        </Link>
+      </div>
       <p className="text-sm text-muted-foreground">
         Upload your own lawfully owned material: a saved D&D Beyond page (HTML), a ZIP export,
         Markdown, or plain text. Processing is asynchronous — you get a claim ticket immediately.

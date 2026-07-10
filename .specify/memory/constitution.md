@@ -1,25 +1,35 @@
 <!--
 Sync Impact Report
-- Version change: 2.0.0 -> 2.1.0
-- Rationale: MINOR — new principle added (VIII. The Work Must Teach) making learning
-  artifacts a deliverable of every spec cycle: teaching-grade code comments, a
-  feature-scoped visual course/lesson at the end of each specify->converge cycle, and a
-  visual-first presentation doctrine for reporting to the operator. Development Workflow
-  expanded with the end-of-cycle learning-artifact step and its scoping/pre-loading
-  guidance.
-- Modified principles: none renamed or redefined; I-VII carried forward unchanged.
-- Added sections: VIII. The Work Must Teach (new principle); Development Workflow gains
-  the learning-artifact closure step.
+- Version change: 2.1.0 -> 2.2.0
+- Rationale: MINOR — materially expanded guidance in Principle V (Operator Control and
+  Observability): every delivered capability MUST have a visibility avenue. Operator-
+  facing capabilities surface in the web UI (Records-style, URL-addressable, reachable
+  by navigation — not URL folklore); capabilities without a warranted web surface
+  (developer tooling, protocols, background machinery) surface through CLI output, log
+  files, or documented inspection paths. Specs/plans record which avenue each capability
+  satisfies and why; a capability with no visibility avenue is incomplete, the same way
+  a cycle without its Principle VIII learning artifact is incomplete. Requested by the
+  operator 2026-07-09 after 008-ingestion-service shipped web pages unreachable by
+  navigation and capabilities with no UI avenue at all; 009-library-surface-env (FR-018)
+  is the first spec gated on this.
+- Modified principles: V. Operator Control and Observability (expanded with the
+  visibility-avenue mandate; not renamed). I-IV and VI-VIII carried forward unchanged.
+- Added sections: Development Workflow gains the visibility-avenue recording step.
 - Removed sections: none.
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md (Constitution Check gate is generated per plan
-    from the current version; plans authored after 2.1.0 must gate on Principle VIII)
+    from the current version; plans authored after 2.2.0 must gate on the visibility
+    avenue)
   - ✅ .specify/templates/spec-template.md (principle-agnostic; no edits needed)
   - ✅ .specify/templates/tasks-template.md (principle-agnostic; task lists generated
-    after 2.1.0 must include the learning-artifact task in their final phase)
+    after 2.2.0 must carry the visibility-avenue verification where a capability lacks a
+    web surface)
 - Follow-up TODOs:
-  - TODO(007-RETROFIT): 007-v3-skeleton predates this amendment — it owes a
-    teaching-comment pass over v3/ and its feature course/lesson under this principle.
+  - TODO(007-RETROFIT): 007-v3-skeleton predates the 2.1.0 amendment — it owes a
+    teaching-comment pass over v3/ and its feature course/lesson under Principle VIII.
+  - TODO(008-VISIBILITY-RETROFIT): 008-ingestion-service predates this amendment — its
+    unreachable pages and avenue-less capabilities are being retrofitted by
+    009-library-surface-env; re-ingestion's avenue lands with the corpus-lifecycle spec.
 -->
 
 # The Stacks Constitution
@@ -86,6 +96,20 @@ action. The auth model is single-operator (D13); multi-user accounts, sharing, a
 permissions are out of scope and MUST NOT be partially introduced. Conversation tool
 use is bounded to the per-conversation scratch workspace and corpus retrieval/read
 tools (D9); new tool surfaces require a spec.
+
+Every delivered capability MUST have a visibility avenue — being able to see inside is
+a property of each feature, not only of the system:
+
+- Operator-facing capabilities MUST be visible in the web UI: Records-style,
+  URL-addressable, and reachable through the product's navigation. A page reachable
+  only by typing its URL does not satisfy this.
+- Where a web surface is not warranted or not yet feasible — developer-facing tooling,
+  protocols, background machinery — the capability MUST instead be visible through
+  other output: CLI output, log files, or a documented inspection path.
+- Each feature's spec or plan MUST record which visibility avenue every delivered
+  capability satisfies and why that avenue is the right one.
+- A capability with no visibility avenue at all is incomplete, the same way a spec
+  cycle without its Principle VIII learning artifact is incomplete.
 
 ### VI. Boring, Bounded Infrastructure
 
@@ -180,6 +204,10 @@ be introduced.
   wiki pages.
 - Any v3 design that violates a product principle from
   `docs/grounding/01-vision-and-scope.md` requires an ADR.
+- Every feature MUST declare its visibility avenue (Principle V): specs/plans record,
+  per delivered capability, whether it surfaces in the web UI or — where a web surface
+  is not warranted — through CLI output, logs, or a documented inspection path, and
+  converge/evidence MUST verify the declared avenue actually exists.
 - Every spec cycle MUST close with the Principle VIII learning artifact: after
   `/speckit-converge` reports converged, generate the feature's course or lesson —
   scoped to the feature's files and seeded with its spec artifacts — commit it to the
@@ -209,4 +237,4 @@ Compliance review expectations:
   when a check cannot run.
 - Exceptions MUST be documented in the relevant spec, plan, or OMO evidence.
 
-**Version**: 2.1.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-05
+**Version**: 2.2.0 | **Ratified**: 2026-06-05 | **Last Amended**: 2026-07-09

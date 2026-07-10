@@ -16,6 +16,7 @@ import { admitBatch, admitSource, sniffMediaType } from "@stacks/ingestion";
 import { sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 
+import { registerListRoutes } from "./list";
 import { registerStatusRoutes } from "./status";
 
 export interface IngestionRoutesDeps {
@@ -36,6 +37,7 @@ export async function registerIngestionRoutes(
   // an oversized upload is refused without ever being buffered whole (R7).
   await app.register(multipart, { limits: { fileSize: maxUploadBytes, files: 1 } });
 
+  registerListRoutes(app, { db });
   registerStatusRoutes(app, { db });
 
   app.post("/api/uploads", async (request, reply) => {

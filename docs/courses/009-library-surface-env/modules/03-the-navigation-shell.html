@@ -1,0 +1,290 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm); --color-accent:#6B5AE0; --color-accent-hover:#5747C7; --color-accent-light:#EAE6FB; --color-accent-muted:#A79DED;">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">The Navigation Shell</h1>
+      <p class="module-subtitle">The fix for &ldquo;no link to /library/upload&rdquo; was NOT adding a link to /library/upload — it was fixing the navigation model, once, in the one place every page inherits from.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO: the layout-nesting animation           -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Fix the Lobby, Not the Rooms</h2>
+        <p>A library can have perfect shelves, but if the lobby has no signage and no librarian, visitors wander back out. That was the-stacks before 009: the upload page worked, the ticket page worked — and both were reachable only by typing the URL.</p>
+        <p>The obvious patch is to add a link somewhere. The actual fix is structural: every authenticated route already nests under the <span class="term" data-definition="The RR7 layout route every non-login route nests under — the ONE place auth is checked, and now the ONE place nav renders — 007 R9 / 009 R5.">protected layout</span>. Put a nav header <em>there</em>, and every protected page — including pages that don't exist yet — renders it. The layout is the lobby. Fix the signage in the lobby and every room inherits it.</p>
+        <p>Watch the header slot in once and light up the whole tree.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-routes","label":"routes.ts declares the tree: every non-login route nests under one layout route. The nesting already existed for auth (007 R9)."},
+          {"highlight":"flow-layout","label":"009 slots the nav header into protected-layout.tsx, right above the Outlet. One file changed.","packet":true,"from":"routes","to":"layout"},
+          {"highlight":"flow-home","label":"/ inherits the header. Zero edits to the home page.","packet":true,"from":"layout","to":"home"},
+          {"highlight":"flow-library","label":"/library inherits it — the new listing ships already reachable.","packet":true,"from":"layout","to":"library"},
+          {"highlight":"flow-upload","label":"/library/upload inherits it — the missing-link bug is now structurally impossible.","packet":true,"from":"layout","to":"upload"},
+          {"highlight":"flow-ticket","label":"/library/uploads/:ticket inherits it too — and so will every protected page you have not written yet.","packet":true,"from":"layout","to":"ticket"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-routes">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🗺️</div>
+              <span>routes.ts</span>
+            </div>
+            <div class="flow-actor" id="flow-layout">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">🛎️</div>
+              <span>protected-layout</span>
+            </div>
+            <div class="flow-actor" id="flow-home">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🏠</div>
+              <span>/</span>
+            </div>
+            <div class="flow-actor" id="flow-library">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">📚</div>
+              <span>/library</span>
+            </div>
+            <div class="flow-actor" id="flow-upload">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">⬆️</div>
+              <span>/library/upload</span>
+            </div>
+            <div class="flow-actor" id="flow-ticket">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-6)">🎫</div>
+              <span>/library/uploads/:ticket</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Symptom-fixes add links; model-fixes make missing links structurally impossible. There is no per-page nav work left to forget, because there is no per-page nav work.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — The one-place rule: nav JSX + header comment        -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The One-Place Rule</h2>
+        <p>The layout was already the ONE place auth is checked — its <span class="term" data-definition="RR7's server-side data function; the browser never calls the API — 007 FR-019.">loader</span> turns unauthenticated traffic away before any child renders. 009 makes it the ONE place navigation renders, and the file's header comment says so out loud, with the doctrine attached.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/protected-layout.tsx:1-7, 28-46</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * The auth gate — and, since 009, the navigation shell. Every non-login route</span></span>
+<span class="code-line"><span class="code-comment"> * nests under this layout (routes.ts), so this loader is the ONE place</span></span>
+<span class="code-line"><span class="code-comment"> * unauthenticated traffic gets turned away — child routes never re-check the</span></span>
+<span class="code-line"><span class="code-comment"> * session — and the header below is the ONE place navigation renders on every</span></span>
+<span class="code-line"><span class="code-comment"> * authenticated page (009 FR-001; constitution v2.2.0 Principle V: a page</span></span>
+<span class="code-line"><span class="code-comment"> * reachable only by typed URL doesn't count as visible).</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">default</span> <span class="code-keyword">function</span> <span class="code-function">ProtectedLayout</span>() {</span>
+<span class="code-line">  <span class="code-keyword">return</span> (</span>
+<span class="code-line">    &lt;&gt;</span>
+<span class="code-line">      &lt;<span class="code-tag">nav</span></span>
+<span class="code-line">        <span class="code-attr">aria-label</span>=<span class="code-string">"Primary"</span></span>
+<span class="code-line">        <span class="code-attr">className</span>=<span class="code-string">"mx-auto flex max-w-4xl items-center gap-6 px-8 pt-6 text-sm"</span></span>
+<span class="code-line">      &gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"font-semibold"</span>&gt;The Stacks&lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">Link</span> <span class="code-attr">className</span>=<span class="code-string">"underline-offset-4 hover:underline"</span> <span class="code-attr">to</span>=<span class="code-string">"/"</span>&gt;</span>
+<span class="code-line">          Home</span>
+<span class="code-line">        &lt;/<span class="code-tag">Link</span>&gt;</span>
+<span class="code-line">        &lt;<span class="code-tag">Link</span> <span class="code-attr">className</span>=<span class="code-string">"underline-offset-4 hover:underline"</span> <span class="code-attr">to</span>=<span class="code-string">"/library"</span>&gt;</span>
+<span class="code-line">          Library</span>
+<span class="code-line">        &lt;/<span class="code-tag">Link</span>&gt;</span>
+<span class="code-line">      &lt;/<span class="code-tag">nav</span>&gt;</span>
+<span class="code-line">      &lt;<span class="code-tag">Outlet</span> /&gt;</span>
+<span class="code-line">    &lt;/&gt;</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The header comment names the invariant: this file is the ONE place for auth AND the ONE place for nav, and cites the rule that forced it — a page reachable only by typed URL doesn't count as visible.</p>
+              <p class="tl">The component is deliberately boring: a landmark <code>&lt;nav aria-label="Primary"&gt;</code>, the product name, two links.</p>
+              <p class="tl">Home and Library are <code>Link</code>s — client-side navigations, no full reload.</p>
+              <p class="tl">Then <code>&lt;Outlet /&gt;</code>: whatever child route matched renders below the header. Every protected page gets the shell without asking.</p>
+              <p class="tl">That's the whole nav model. Two links today; adding a third someday is one edit in one file, visible everywhere at once.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Verified live</strong>
+            <p>The evidence run walks it: nav header → <code>/library</code> → row link → ticket page. Three interactions, no URL typing (SC-001), with the nav confirmed present on <code>/</code> and <code>/library</code> in server-rendered HTML.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — The Evidence column: per-kind rendering             -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Evidence Column</h2>
+        <p>Reachable is half the job. The other half is that the listing page (<code>/library</code>) tells you something worth reaching: each row's Evidence cell renders a different story per kind of item — a discriminated union, one branch per story.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/library.tsx:24-52</span>
+            <pre><code><span class="code-line"><span class="code-comment">/** The per-row evidence cell — one component per kind's story (US3). */</span></span>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">Evidence</span>({ item }: { <span class="code-property">item</span>: LibraryListItem }) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (item.kind === <span class="code-string">"batch"</span>) {</span>
+<span class="code-line">    <span class="code-keyword">const</span> { ingested, skipped, failed, total } = item.entrySummary;</span>
+<span class="code-line">    <span class="code-keyword">return</span> (</span>
+<span class="code-line">      &lt;<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">        {total} entries: {ingested} ingested · {skipped} skipped ·{<span class="code-string">" "</span>}</span>
+<span class="code-line">        &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>={failed &gt; 0 ? <span class="code-string">"text-destructive"</span> : <span class="code-string">""</span>}&gt;{failed} failed&lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">      &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">if</span> (item.lastError) {</span>
+<span class="code-line">    <span class="code-comment">// The scrubbed why, one glance deep — full trail stays on the detail page.</span></span>
+<span class="code-line">    <span class="code-keyword">return</span> (</span>
+<span class="code-line">      &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"text-destructive"</span>&gt;</span>
+<span class="code-line">        failed at {item.lastError.stage} ({item.lastError.class})</span>
+<span class="code-line">      &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!item.plugin) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> &lt;<span class="code-tag">span</span> <span class="code-attr">className</span>=<span class="code-string">"text-muted-foreground"</span>&gt;awaiting detect&lt;/<span class="code-tag">span</span>&gt;;</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> (</span>
+<span class="code-line">    &lt;<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">      {item.plugin.name}@{item.plugin.version} · gen {item.generation} · {item.counts.sections}{<span class="code-string">" "</span>}</span>
+<span class="code-line">      sections · {item.counts.chunks} passages</span>
+<span class="code-line">    &lt;/<span class="code-tag">span</span>&gt;</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Batch rows summarize their entries — ingested, skipped, failed — and the failed count goes destructive-red only when it's nonzero. Zero failures shouldn't shout.</p>
+              <p class="tl">A source with a <code>lastError</code> shows the scrubbed why — which stage, which error class — one glance deep. The full stage trail stays on the detail page where it belongs.</p>
+              <p class="tl">No plugin yet? The worker hasn't run detect. Say exactly that — "awaiting detect" — instead of faking a blank.</p>
+              <p class="tl">The happy path is the receipt: plugin@version, generation, and how much of the corpus this source contributes right now.</p>
+              <p class="tl">One component, four honest stories. Order matters: batch first (it has no lastError shape), then failure, then pending, then success.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>These aren't hypothetical renders — the live run produced each branch:</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">ddb-saved-html@1.0.0 · gen 1 · … sections · … passages</code>
+            <span class="badge-desc">source branch — real worker output, plugin attribution + generation from Module 2's run</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">4 entries: 2 ingested · 2 skipped · 0 failed</code>
+            <span class="badge-desc">batch branch — the live ZIP summary, failed count staying quiet at zero</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">failed at chunk (internal_fault)</code>
+            <span class="badge-desc">failure branch — seeded lastError in tests; row carries data-failed="true" + destructive styling</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">awaiting detect</code>
+            <span class="badge-desc">pending branch — accepted, queued, worker not there yet</span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>Failed rows are "visibly distinguished" by contract, not by convention — tests pin the <code>data-failed</code> attribute and the destructive styling. This per-kind Evidence pattern is the house style for every listing the product grows next.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Honesty at the edges: empty state + paging          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Honesty at the Edges</h2>
+        <p>Two edges betray a listing page: the empty case and the too-big case. <code>/library</code> handles both by telling the truth.</p>
+        <p><strong>Empty:</strong> a blank page lies — it reads as broken. An empty library is a normal answer, so the empty state says so and points at the exit: <em>"Nothing in the library yet. Upload your first document — a saved HTML page, Markdown, plain text, or a ZIP of them."</em> The upload page links back to the listing too — the two surfaces cross-reference each other (US1 AC-5).</p>
+        <p><strong>Too big:</strong> paging. And the offset doesn't live in component state — it rides the URL, because paging is <span class="term" data-definition="Paging/state rides the URL so views are bookmarkable — Principle V.">URL-addressable state</span>.</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
+<span class="code-comment">// File: apps/web/app/routes/library.tsx:54-62</span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">loader</span>({ request }: Route.LoaderArgs) {</span>
+<span class="code-line">  <span class="code-comment">// Offset rides the page URL so paging is addressable/bookmarkable</span></span>
+<span class="code-line">  <span class="code-comment">// (Principle V: URL-addressable state). The API clamps; we only parse.</span></span>
+<span class="code-line">  <span class="code-keyword">const</span> url = <span class="code-keyword">new</span> <span class="code-function">URL</span>(request.url);</span>
+<span class="code-line">  <span class="code-keyword">const</span> rawOffset = Number.<span class="code-function">parseInt</span>(url.searchParams.<span class="code-function">get</span>(<span class="code-string">"offset"</span>) ?? <span class="code-string">"0"</span>, 10);</span>
+<span class="code-line">  <span class="code-keyword">const</span> offset = Number.<span class="code-function">isNaN</span>(rawOffset) || rawOffset &lt; 0 ? 0 : rawOffset;</span>
+<span class="code-line">  <span class="code-keyword">const</span> page = <span class="code-keyword">await</span> <span class="code-function">listUploads</span>(request, { offset });</span>
+<span class="code-line">  <span class="code-keyword">return</span> { page };</span>
+<span class="code-line">}</span>
+        </div>
+
+        <p>The live run proves the arithmetic against the real ledger: at <strong>57 submissions</strong>, the last page renders <code>Showing 51 – 57 of 57</code> with a <strong>Newer</strong> link only — no Older link past the end, because the links render conditionally off the same <code>total</code> the API reported. The count is the real ledger size, not a guess.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🧭</div>
+          <div class="callout-content">
+            <strong class="callout-title">One polling surface is enough</strong>
+            <p>Deliberate non-feature: the listing does NOT live-poll. It reflects reality at load/refresh; the ticket page from 008 stays the live-updating surface. Two surfaces polling the same pipeline is how you get flicker, drift, and double the API chatter for zero new information.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Quiz + handoff to Module 4                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check the Model</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="none-layout"
+               data-explanation-right="Exactly. The settings route nests under the protected layout in routes.ts like every other non-login route, so the nav shell already wraps it the moment it exists. Whether it earns its own LINK in the header is a separate product decision — reachability of the page's chrome is free."
+               data-explanation-wrong="Re-run the hero animation: the header lives in protected-layout.tsx, above the Outlet. Any route nested under the layout renders inside that shell automatically — that was the whole point of fixing the model instead of the missing link. Per-page nav work is the symptom-fix this module exists to bury.">
+            <h3 class="quiz-question">You add <code>/library/settings</code> next month. What nav work is needed for it to render inside the navigation shell?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="link-every-page" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a link to it on every existing page so users can find it.</span>
+              </button>
+              <button class="quiz-option" data-value="none-layout" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>None — it nests under the protected layout, so the shell already wraps it.</span>
+              </button>
+              <button class="quiz-option" data-value="routes-and-headers" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Update routes.ts AND each page's header component to include the new route.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+
+        <p>The shell makes every page reachable; the Evidence column makes every row honest; the URL makes every page of the ledger addressable. All of that assumed the request itself was well-formed. Module 4 asks the rude question: what does this surface do when it isn't — <code>offset=banana</code>, a ticket that never existed, a session that expired mid-click? That's <strong>Whose Fault Is It</strong> — typed refusals.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

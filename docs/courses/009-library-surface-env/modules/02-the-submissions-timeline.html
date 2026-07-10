@@ -1,0 +1,385 @@
+<section class="module" id="module-2" style="background: var(--color-bg-warm); --color-accent:#6D4FB8; --color-accent-hover:#5A3FA3; --color-accent-light:#EFEAFA; --color-accent-muted:#A491D4;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Submissions Timeline</h1>
+      <p class="module-subtitle">A checkout ledger, not two filing cabinets: one merged page, five queries, constant cost — no matter what landed in the library.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO: the five-query constant-cost animation -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five Queries. Always Five.</h2>
+        <p>Design question: a 200-entry ZIP lands in your library. Is that one row in your timeline, or 200?</p>
+        <p>One. Rows are <strong>submissions</strong> — what the operator uploaded — and the database stores those submissions in TWO tables (<code>sources</code> and <code>batches</code>). The listing's job is to answer as the ledger the operator remembers, not as the cabinets the schema uses. And it must do it without the classic listing failure mode: an
+          <span class="term" data-definition="one query per row — the listing anti-pattern research R3 forbids">N+1</span>
+          that gets slower with every row on the page.</p>
+        <p>Here is the whole read model in motion. The canonical five, in order: <strong>page query (UNION ALL) → total → sections aggregate → chunks aggregate → member-status aggregate</strong>. The numbers are the live 009 stack — 57 real submissions, last page.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-lst-req","label":"GET /api/uploads arrives. The live library holds 57 submissions; this request wants the last page of them."},
+          {"highlight":"flow-lst-page","label":"Query 1 - page (UNION ALL): standalone sources stacked with batches, ORDER BY created_at DESC with id DESC tiebreak, LIMIT/OFFSET cut AFTER the merge. Seven rows come back, each already carrying plugin, generation, last_error, entry_report.","packet":true,"from":"lst-req","to":"lst-page"},
+          {"highlight":"flow-lst-total","label":"Query 2 - total: two index-only counts summed to 57 - the honest more-exist number behind the pager.","packet":true,"from":"lst-page","to":"lst-total"},
+          {"highlight":"flow-lst-sections","label":"Query 3 - sections aggregate: ONE grouped count over exactly the page source ids, joined on generation = current_generation.","packet":true,"from":"lst-page","to":"lst-sections"},
+          {"highlight":"flow-lst-chunks","label":"Query 4 - chunks aggregate: same shape, same reader predicate, same page ids - never one query per row.","packet":true,"from":"lst-page","to":"lst-chunks"},
+          {"highlight":"flow-lst-members","label":"Query 5 - member statuses: GROUP BY batch_id, status over the page batch rows - what each admitted ZIP member did AFTER expand.","packet":true,"from":"lst-page","to":"lst-members"},
+          {"highlight":"flow-lst-env","label":"Rows assemble into the envelope: items, total 57, limit, offset - rendered live as Showing 51 - 57 of 57.","packet":true,"from":"lst-members","to":"lst-env"},
+          {"highlight":"flow-lst-env","label":"Count the round trips: five. Now change the page size below - watch the count refuse to move."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-lst-req">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">🧭</div>
+              <span>GET /api/uploads</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-page">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🗂️</div>
+              <span>1 · page (UNION ALL)</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-total">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">🧮</div>
+              <span>2 · total</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-sections">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">📑</div>
+              <span>3 · sections</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-chunks">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">🧩</div>
+              <span>4 · chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-members">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">📦</div>
+              <span>5 · member statuses</span>
+            </div>
+            <div class="flow-actor" id="flow-lst-env">
+              <div class="flow-actor-icon" style="border-color: var(--color-accent)">📜</div>
+              <span>Timeline envelope</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Constant cost is not a promise in a code review — it is enforced by shape. The aggregates are <em>grouped</em> queries over exactly the page's ids, so the query count cannot grow with the page. Toggle the page size and count the cards:</p>
+
+        <div class="layer-demo">
+          <div class="layer-tabs">
+            <button class="layer-tab active" onclick="showLayer('layer-lst-10', this)">Page of 10 rows</button>
+            <button class="layer-tab" onclick="showLayer('layer-lst-50', this)">Page of 50 rows</button>
+          </div>
+          <div class="layer-viewport">
+            <div class="layer" id="layer-lst-10">
+              <div class="flow-steps">
+                <div class="flow-step"><div class="flow-step-num">1</div><p>page (UNION ALL)</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">2</div><p>total</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">3</div><p>sections agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">4</div><p>chunks agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">5</div><p>member statuses</p></div>
+              </div>
+              <p class="layer-description">10 rows → <strong>5 queries</strong>. The aggregates take 10 ids each; the query count never noticed.</p>
+            </div>
+            <div class="layer" id="layer-lst-50" style="display:none">
+              <div class="flow-steps">
+                <div class="flow-step"><div class="flow-step-num">1</div><p>page (UNION ALL)</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">2</div><p>total</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">3</div><p>sections agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">4</div><p>chunks agg</p></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-step-num">5</div><p>member statuses</p></div>
+              </div>
+              <p class="layer-description">50 rows → <strong>5 queries</strong>. Same five cards. An N+1 shape would have fired 100+ by now.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why should I care?</strong>
+            <p>This is the repo's canonical <strong>collection read model</strong>. The retrieval and corpus-lifecycle specs will copy this exact shape — one merged page query, grouped aggregates over the page's ids, an honest total. Learn it once here.</p>
+          </div>
+        </div>
+
+        <p>One honest footnote from the evidence: research R3 budgeted <em>three</em> constant queries; the shipped count is <strong>five</strong> (1 page + 1 total + 3 grouped aggregates). The third aggregate exists because the expand report cannot know post-admission member outcomes — Screen 4's whole subject. The requirement that held is "constant regardless of page size," and it did.</p>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — Submissions, not members: the UNION ALL page query  -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Submissions, Not Members</h2>
+        <p>So: the 200-entry ZIP. Its members live in <code>sources</code> like any other document — but they were never <em>submitted</em>, so the timeline must never show them as rows (research R2). And the merge of the two tables into one newest-first ledger has to page correctly, which means it cannot happen in TypeScript: only the database can sort <em>before</em> it cuts the page.</p>
+        <p>Both rules are one query. This is
+          <span class="term" data-definition="stack two SELECTs into one result set without dedupe cost — the merge happens in the database">UNION ALL</span>
+          doing structural work, verbatim from the route:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:74-95</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// One UNION ALL page query: sorting sources and batches into a single</span></span>
+<span class="code-line">      <span class="code-comment">// timeline is the database's job, not a TS merge — LIMIT/OFFSET stay</span></span>
+<span class="code-line">      <span class="code-comment">// correct across both kinds by construction. Kind-specific columns ride</span></span>
+<span class="code-line">      <span class="code-comment">// as NULLs on the other kind. id DESC tiebreaks same-millisecond rows</span></span>
+<span class="code-line">      <span class="code-comment">// so paging is deterministic.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> page = <span class="code-keyword">await</span> db.<span class="code-function">execute</span>(sql`</span>
+<span class="code-line">        SELECT kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">               plugin_name, plugin_version, detect_confidence, current_generation,</span>
+<span class="code-line">               last_error, entry_report</span>
+<span class="code-line">        FROM (</span>
+<span class="code-line">          SELECT <span class="code-string">'source'</span> AS kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">                 plugin_name, plugin_version, detect_confidence, current_generation,</span>
+<span class="code-line">                 last_error, NULL::jsonb AS entry_report</span>
+<span class="code-line">            FROM sources WHERE batch_id IS NULL</span>
+<span class="code-line">          UNION ALL</span>
+<span class="code-line">          SELECT <span class="code-string">'batch'</span> AS kind, id, original_filename, status, created_at, updated_at,</span>
+<span class="code-line">                 NULL, NULL, NULL, NULL, NULL::jsonb, entry_report</span>
+<span class="code-line">            FROM batches</span>
+<span class="code-line">        ) submissions</span>
+<span class="code-line">        ORDER BY created_at DESC, id DESC</span>
+<span class="code-line">        LIMIT ${limit} OFFSET ${offset}</span>
+<span class="code-line">      `);</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The comment is the doctrine: merging two tables into one ledger is the <strong>database's job</strong> — LIMIT/OFFSET are only correct if the sort runs before the page is cut, and only the database can do both in one pass.</p>
+              <p class="tl">Arm one: standalone sources. <code>WHERE batch_id IS NULL</code> is the R2 exclusion — a ZIP member has a <code>batch_id</code>, so this query <em>cannot see it</em>. Not filtered later by discipline; invisible by shape.</p>
+              <p class="tl">Arm two: batches ride the identical column list, with NULLs where source-only evidence goes (plugin, generation, last_error) and <code>entry_report</code> where sources carry NULL. Kind-specific columns as NULL passengers keep the UNION legal.</p>
+              <p class="tl">UNION <em>ALL</em>, not UNION: stack the two result sets with zero dedupe cost. Safe because there is nothing to dedupe — see the callout below.</p>
+              <p class="tl">Newest first, with <code>id DESC</code> as tiebreak — two rows born in the same millisecond page in the same order every time. Deterministic paging is what makes "Older" a link you can trust.</p>
+              <p class="tl">Cut the page <em>after</em> the merge. The database pages the ledger, not each cabinet separately.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why UNION ALL is free here</strong>
+            <p>008's intake dedupes by fingerprint: re-upload <code>goblin-page.html</code> and you get the SAME source row back (<code>duplicate=true</code>), never a second one. One record per stored upload means there are no duplicate rows for a plain UNION to remove — so the query skips the dedupe pass entirely. No duplicate timeline rows, ever, and no cost paid to guarantee it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — The reader predicate applied to observability       -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Counting Only What Readers May See</h2>
+        <p>Each source row shows <code>sections</code> and <code>chunks</code> counts — live in the 009 stack as <code>ddb-saved-html@1.0.0 · gen 1 · sections · passages</code>. But 008's re-ingestion writes a source's next generation <em>aside</em> while the old one stays live. If the listing counted naively, a half-written re-ingest would inflate the numbers mid-flight.</p>
+        <p>It cannot, because the aggregates apply the
+          <span class="term" data-definition="readers filter on generation = current_generation, so a half-written re-ingest is invisible until its one-UPDATE flip — 008 R8">reader predicate</span>
+          to observability itself — the counts JOIN through <code>s.current_generation</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:104-115 (sections aggregate)</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// Grouped aggregates for exactly the page's sources, joined through</span></span>
+<span class="code-line">      <span class="code-comment">// current_generation — the reader predicate applied to observability.</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> [sectionCounts, chunkCounts] = <span class="code-keyword">await</span> Promise.<span class="code-function">all</span>([</span>
+<span class="code-line">        sourceIds.length === <span class="code-number">0</span></span>
+<span class="code-line">          ? { <span class="code-property">rows</span>: [] <span class="code-keyword">as</span> Array&lt;Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">unknown</span>&gt;&gt; }</span>
+<span class="code-line">          : db.<span class="code-function">execute</span>(sql`</span>
+<span class="code-line">              SELECT ds.source_id, count(*) AS n</span>
+<span class="code-line">              FROM document_sections ds</span>
+<span class="code-line">              JOIN sources s ON s.id = ds.source_id</span>
+<span class="code-line">              WHERE ds.source_id IN (${idList(sourceIds)}) AND ds.generation = s.current_generation</span>
+<span class="code-line">              GROUP BY ds.source_id</span>
+<span class="code-line">            `),</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment names the move: 008 R8's reader rule, reused for counting. Anything a reader may not retrieve, the dashboard may not count.</p>
+              <p class="tl">If the page holds zero source rows, the aggregate does not run at all — the constant five is a ceiling, not a floor.</p>
+              <p class="tl">One grouped count for the whole page — <code>GROUP BY ds.source_id</code> is the anti-N+1: fifty sources, still one query.</p>
+              <p class="tl"><code>IN (${idList(sourceIds)})</code> pins the work to exactly the page's ids — the aggregate never scans sources you are not looking at.</p>
+              <p class="tl">And the load-bearing clause: <code>ds.generation = s.current_generation</code>. Rows from a generation still being written aside fail the predicate and simply do not exist to this query.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Watch the predicate work. These are the contract test's real numbers — generation 1 current with 2 sections and 3 chunks, generation 2 written aside:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-gen-src","label":"The JOIN reads one number off the source row: current_generation = 1."},
+          {"highlight":"flow-gen-agg","label":"That number becomes the predicate: count only rows WHERE generation = 1.","packet":true,"from":"gen-src","to":"gen-agg"},
+          {"highlight":"flow-gen-g1","label":"Generation 1 rows pass: 2 sections and 3 chunks are counted.","packet":true,"from":"gen-g1","to":"gen-agg"},
+          {"highlight":"flow-gen-g2","label":"Generation 2 rows - the re-ingest being written aside - fail the predicate. Greyed out. Never counted, never even scanned into the result."},
+          {"highlight":"flow-gen-agg","label":"counts = sections 2, chunks 3 - exactly what the test asserts. Generation 2 becomes visible only at its one-UPDATE flip."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-gen-src">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">📄</div>
+              <span>sources row · current_generation = 1</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-g1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-5)">📗</div>
+              <span>gen 1 · 2 sections + 3 chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-g2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">📕</div>
+              <span>gen 2 (aside) · 1 section + 2 chunks</span>
+            </div>
+            <div class="flow-actor" id="flow-gen-agg">
+              <div class="flow-actor-icon" style="border-color: var(--color-accent)">🧮</div>
+              <span>aggregate</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>That scenario is not hypothetical — it is seeded, verbatim, in the contract suite (one of the 10 listing contract tests, 39 API tests green this cycle):</p>
+
+        <div style="background: var(--color-bg-code); color: #CDD6F4; border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); position: relative; margin: var(--space-6) 0;">
+          <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">apps/api/test/ingestion-list.contract.test.ts — US3 AC-1</span>
+          <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;"><code><span class="code-line">    <span class="code-comment">// Generation 1 is current: 2 sections, 3 chunks. Generation 2 is a</span></span>
+<span class="code-line">    <span class="code-comment">// re-ingest being written ASIDE — the listing must not count it.</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">0</span>);</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">1</span>, <span class="code-number">1</span>);</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">seedSection</span>(ticket.id, <span class="code-number">2</span>, <span class="code-number">0</span>);</span>
+<span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">3</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">1</span>, i);</span>
+<span class="code-line">    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">2</span>; i++) <span class="code-keyword">await</span> <span class="code-function">seedChunk</span>(ticket.id, <span class="code-number">2</span>, i);</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-function">expect</span>(item.generation).<span class="code-function">toBe</span>(<span class="code-number">1</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(item.counts).<span class="code-function">toEqual</span>({ <span class="code-property">sections</span>: <span class="code-number">2</span>, <span class="code-property">chunks</span>: <span class="code-number">3</span> });</span>
+</code></pre>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Aha!</strong>
+            <p>The gen-2 rows are sitting in the same table, same indexes, same source id — and the count is still 2 and 3, not 3 and 5. One JOIN clause is the entire isolation mechanism. When the re-ingest's one-UPDATE flip lands, the same query starts answering with generation 2's rows, atomically.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Why member statuses need their own aggregate        -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Question the Entry Report Cannot Answer</h2>
+        <p>Batch rows summarize their members without being opened. The obvious source for that summary is the
+          <span class="term" data-definition="the per-entry outcome list a batch records at expand completion — 008 FR-009">entry report</span>
+          — but the report is a photograph taken <em>at expand time</em>. It knows admitted-vs-skipped. It cannot know what an admitted member did afterwards: whether its own ingest pipeline finished or failed lives only on the member source row, written later, by a different job.</p>
+        <p>That is why query 5 exists — and why the summary is assembled from <strong>both</strong> truths:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/ingestion/list.ts:129-131, 183-193</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// Batch summaries need member STATUSES, not just the expand report: the</span></span>
+<span class="code-line">      <span class="code-comment">// report says admitted-vs-skipped at expand time; whether an admitted</span></span>
+<span class="code-line">      <span class="code-comment">// member then ingested or failed lives on the member source row.</span></span>
+<span class="code-line"></span>
+<span class="code-line">          <span class="code-keyword">const</span> report = (row.entry_report <span class="code-keyword">as</span> EntryReportEntry[] | <span class="code-keyword">null</span>) ?? [];</span>
+<span class="code-line">          <span class="code-keyword">const</span> members = byBatch.<span class="code-function">get</span>(base.id) ?? <span class="code-keyword">new</span> Map&lt;<span class="code-keyword">string</span>, <span class="code-keyword">number</span>&gt;();</span>
+<span class="code-line">          <span class="code-keyword">return</span> {</span>
+<span class="code-line">            ...base,</span>
+<span class="code-line">            <span class="code-property">entrySummary</span>: {</span>
+<span class="code-line">              <span class="code-property">ingested</span>: members.<span class="code-function">get</span>(<span class="code-string">"ingested"</span>) ?? <span class="code-number">0</span>,</span>
+<span class="code-line">              <span class="code-property">skipped</span>: report.<span class="code-function">filter</span>((entry) =&gt; entry.outcome === <span class="code-string">"skipped"</span>).length,</span>
+<span class="code-line">              <span class="code-property">failed</span>: members.<span class="code-function">get</span>(<span class="code-string">"failed"</span>) ?? <span class="code-number">0</span>,</span>
+<span class="code-line">              <span class="code-property">total</span>: report.length,</span>
+<span class="code-line">            },</span>
+<span class="code-line">          };</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment states the split: the report is frozen at expand completion; member fate keeps evolving afterwards.</p>
+              <p class="tl"><code>report</code> is the photograph — the frozen per-entry outcome list off the batch row (query 1 already fetched it; no extra trip).</p>
+              <p class="tl"><code>members</code> is the live feed — this batch's status counts from query 5, the member-status aggregate.</p>
+              <p class="tl"><code>ingested</code> and <code>failed</code> come from the live feed: only member source rows know what happened after admission.</p>
+              <p class="tl"><code>skipped</code> comes from the photograph: skipped entries never became source rows at all — the report is the only place they exist.</p>
+              <p class="tl"><code>total</code> is the report's length: every entry the ZIP contained, whatever became of it. Two data sources, one honest line per batch.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📦</div>
+          <div class="callout-content">
+            <strong class="callout-title">Real row, live stack</strong>
+            <p>This cycle's validation run rendered exactly this assembly for <code>export-mixed.zip</code>: <strong>4 entries: 2 ingested · 2 skipped · 0 failed</strong> — the skipped two from the frozen report, the ingested two from live member statuses (evidence.md, SC-003). The contract suite's mixed case pins the harder shape: a batch reading <code>{ ingested: 1, skipped: 1, failed: 1, total: 3 }</code>, which no single data source could produce.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Quiz + handoff to Module 3                          -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="gen2-only"
+               data-explanation-right="The aggregates join on s.current_generation, which is still 2 until the re-ingest commits its one-UPDATE flip. Generation 3 rows fail the predicate and are invisible — same mechanism the contract test pins with its aside-written generation 2."
+               data-explanation-wrong="Re-read the JOIN in the sections aggregate: ds.generation = s.current_generation. The listing never locks anything and never mixes generations — it counts exactly the rows a reader could retrieve, which stay generation 2 until the flip lands.">
+            <h3 class="quiz-question">A re-ingest is writing generation 3 aside while the listing loads. What do the counts show?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="mixed" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A mix of generation 2 and generation 3 rows, depending on how far the re-ingest has gotten</span>
+              </button>
+              <button class="quiz-option" data-value="gen2-only" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Generation 2's counts — the aggregates join on current_generation, so gen 3 is invisible until the flip</span>
+              </button>
+              <button class="quiz-option" data-value="locked" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>An error — the source is locked while a re-ingest is in flight</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">➡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Next: Module 3 — The Navigation Shell</strong>
+            <p>You now know what the five queries assemble. Module 3 is the page you actually see: how <code>/library</code> renders this envelope server-side, why the browser never touches the API, and where "Showing 51 – 57 of 57" comes from.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

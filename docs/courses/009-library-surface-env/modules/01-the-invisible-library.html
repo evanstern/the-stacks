@@ -1,0 +1,261 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Invisible Library</h1>
+      <p class="module-subtitle">008 shipped a working ingestion pipeline &mdash; upload page, ticket page, an eight-stage worker, a pgvector index. Then the operator asked: &ldquo;is there more to this than the home page?&rdquo; There was. Nobody could see it.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + exists-vs-visible HERO -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A library with no card catalog</h2>
+        <p>Picture a library where the books are real, shelved, and indexed &mdash; but there is no catalog, no signage, no front desk. The only way to find a book is the receipt you were handed at the door. Lose the receipt, and the book might as well not exist. That was The Stacks after 008: every
+          <span class="term" data-definition="What the operator actually uploaded: a standalone source or a batch — 009 research R2.">submission</span> got a
+          <span class="term" data-definition="The {kind, id} receipt the intake answers with before any processing — 008 accept-then-async, Principle IV.">claim ticket</span>, and the ticket URL was the ONLY door back in.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid #6B5AE0">
+            <div class="pattern-icon" style="background: #6B5AE0">📚</div>
+            <h4 class="pattern-title">What existed</h4>
+            <div class="stagger-children">
+              <p class="pattern-desc animate-in"><code>/library/upload</code> &mdash; a working upload form (<code>library.upload.tsx</code>)</p>
+              <p class="pattern-desc animate-in"><code>/library/uploads/:ticket</code> &mdash; a live claim-ticket status page (<code>library.uploads.$ticket.tsx</code>)</p>
+              <p class="pattern-desc animate-in"><code>POST /api/uploads</code> &mdash; accept-then-async intake, sub-second tickets</p>
+              <p class="pattern-desc animate-in">An eight-stage worker pipeline, batch expansion, a pgvector index, an append-only event trail</p>
+            </div>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-text-secondary)">
+            <div class="pattern-icon" style="background: var(--color-text-secondary)">🚪</div>
+            <h4 class="pattern-title">What you could see</h4>
+            <div class="stagger-children">
+              <p class="pattern-desc animate-in">The home page. Its nav had <strong>no library link</strong> &mdash; nothing pointed at any of it.</p>
+              <p class="pattern-desc animate-in">Both library pages were reachable only by typing the URL from memory.</p>
+              <p class="pattern-desc animate-in">Lost your ticket URL? Your upload still exists &mdash; you just can&rsquo;t reach it without querying the database.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Concretely: the only recovery path for a lost submission was operational, not product. Trace it:</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="POST /api/uploads answers in under a second with the {kind, id} receipt — before any processing runs.">upload</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="The claim-ticket URL — /library/uploads/:ticket — the ONLY product surface that knows this submission exists.">ticket URL</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="Bookmark it, paste it somewhere, or memorize a UUID. There is no step 3b.">keep it safe</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="Lost the URL? The remaining option is querying Postgres by hand — which is DB access, not a product surface.">&hellip;or psql</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">not a surface</span>
+          </div>
+        </div>
+
+        <p>By the time 009 converged, the live library held <strong>57 submissions</strong> &mdash; the last page of the listing reads &ldquo;Showing 51 &ndash; 57 of 57&rdquo; &mdash; including this course&rsquo;s two recurring actors: <code>goblin-page.html</code> (a standalone source, rendered as <code>ddb-saved-html@1.0.0 &middot; gen 1</code>) and <code>export-mixed.zip</code> (a batch: <code>4 entries: 2 ingested &middot; 2 skipped &middot; 0 failed</code>). Before 009, not one of those 57 was findable without its receipt.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">The gap, precisely</strong>
+            <p>Nothing was broken. Every capability worked &mdash; the pipeline ingested, the ticket page polled, the events recorded. The gap was that <em>working</em> and <em>visible</em> turned out to be different properties, and 008&rsquo;s spec had only gated on the first one.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: The amendment (constitution v2.2.0) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The amendment: visibility becomes law</h2>
+        <p>The operator&rsquo;s 2026-07-09 request didn&rsquo;t become a bug ticket &mdash; it became a constitutional amendment. Version 2.2.0 expands Principle V (Operator Control and Observability) with a mandate: every delivered capability must have a
+          <span class="term" data-definition="The surface a capability is seeable through — web UI when operator-facing, CLI/logs/docs otherwise — Principle V, v2.2.0.">visibility avenue</span>. That&rsquo;s the right altitude for this fix: a nav link would have patched 008&rsquo;s pages, but the failure mode &mdash; shipping a capability whose spec never asks &ldquo;how does the operator see this?&rdquo; &mdash; would recur in every future spec. So the rule moved into the document every spec is gated on. Here is the new text, verbatim:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; .specify/memory/constitution.md (Principle V, v2.2.0)</span>
+            <pre><code>
+<span class="code-line">Every delivered capability MUST have a visibility avenue — being able to see inside is</span>
+<span class="code-line">a property of each feature, not only of the system:</span>
+<span class="code-line"></span>
+<span class="code-line">- Operator-facing capabilities MUST be visible in the web UI: Records-style,</span>
+<span class="code-line">  URL-addressable, and reachable through the product's navigation. A page reachable</span>
+<span class="code-line">  only by typing its URL does not satisfy this.</span>
+<span class="code-line">- Where a web surface is not warranted or not yet feasible — developer-facing tooling,</span>
+<span class="code-line">  protocols, background machinery — the capability MUST instead be visible through</span>
+<span class="code-line">  other output: CLI output, log files, or a documented inspection path.</span>
+<span class="code-line">- Each feature's spec or plan MUST record which visibility avenue every delivered</span>
+<span class="code-line">  capability satisfies and why that avenue is the right one.</span>
+<span class="code-line">- A capability with no visibility avenue at all is incomplete, the same way a spec</span>
+<span class="code-line">  cycle without its Principle VIII learning artifact is incomplete.</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The headline reframe: visibility is a property of each FEATURE, not of the system. &ldquo;The system has an observability surface somewhere&rdquo; no longer counts &mdash; each capability must name its own.</p>
+              <p class="tl">If it&rsquo;s operator-facing, the avenue is the web UI &mdash; and the page must be reachable through navigation. A page you can only reach by typing its URL is explicitly called out as NOT satisfying this. That sentence is 008&rsquo;s upload page, described exactly.</p>
+              <p class="tl">Not everything warrants a web page. Developer tooling, protocols, background machinery get a different avenue: CLI output, log files, or a documented inspection path. The mandate is an avenue, not a UI.</p>
+              <p class="tl">The avenue is recorded in the spec or plan, with a reason &mdash; and a capability with none at all is <em>incomplete</em>, by the same standard that makes a cycle without its learning artifact incomplete. Incomplete means the gate fails.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">📜</div>
+          <div class="callout-content">
+            <strong class="callout-title">The four-line rule</strong>
+            <p>Web UI when operator-facing. CLI/logs/docs otherwise. The spec records which avenue and why. No avenue = incomplete. That&rsquo;s the whole amendment &mdash; and 009 (FR-018) is the first spec gated on it.</p>
+          </div>
+        </div>
+
+        <p>009 itself had to file under this rule. Its converge evidence records four avenues: the library listing and upload/ticket pages (web UI, reachable via nav on every protected page), <code>GET /api/uploads</code> (consumed by the web UI, contract documented), the worktree env protocol (CLI output plus <code>contracts/environment.md</code>), and the Docker lifecycle rules (documentation). Every capability, an avenue, a reason.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔁</div>
+          <div class="callout-content">
+            <strong class="callout-title">Amendments come with debts</strong>
+            <p>The amendment&rsquo;s sync-impact record names its own retrofit: 008 predates v2.2.0, so its unreachable pages and avenue-less capabilities are explicitly tagged <code>TODO(008-VISIBILITY-RETROFIT)</code> &mdash; the debt 009 pays. Re-ingestion&rsquo;s avenue is deliberately NOT part of that payment; it lands with the corpus-lifecycle spec. Keep that carve-out in mind &mdash; it&rsquo;s the next screen&rsquo;s scope line.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: The slice map + the read-only scope line -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The slice: two parts and a hard scope line</h2>
+        <p>009 is the retrofit spec that pays 008&rsquo;s visibility debt &mdash; plus a second, unrelated-looking half that Module 5 will justify. The slice map:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid #6B5AE0">
+            <div class="pattern-icon" style="background: #6B5AE0">🗂️</div>
+            <h4 class="pattern-title">Part A &mdash; the library surface</h4>
+            <p class="pattern-desc">A nav link on every protected page, a paged <code>/library</code> listing of all submissions with evidence columns (plugin, generation, section/passage counts, batch outcomes), each row linking to its ticket page. Strictly read-only.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #8A7CE8">
+            <div class="pattern-icon" style="background: #8A7CE8">🌲</div>
+            <h4 class="pattern-title">Part B &mdash; the worktree protocol</h4>
+            <p class="pattern-desc">A deterministic environment protocol so every worktree gets its own ports, compose project, and volumes by arithmetic &mdash; two stacks running side by side with zero collisions. Modules 5 and 6 live here.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid #5546C8">
+            <div class="pattern-icon" style="background: #5546C8">🚫</div>
+            <h4 class="pattern-title">Deliberately absent</h4>
+            <p class="pattern-desc">No retry, no delete, no re-ingest, no corpus management &mdash; anywhere in the slice. Not deferred by omission: pinned by name to the corpus-lifecycle spec, by the operator, on 2026-07-07.</p>
+          </div>
+        </div>
+
+        <p>The scope line matters as much as the scope. A listing page is one temptation away from becoming a management console &mdash; a &ldquo;retry&rdquo; button here, a &ldquo;delete&rdquo; there. FR-009 slams that door:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; specs/009-library-surface-env/spec.md &mdash; FR-009</span>
+            <pre><code>
+<span class="code-line">- **FR-009**: The listing capability MUST be read-only end to end: this slice adds no</span>
+<span class="code-line">  operation that creates, mutates, or deletes library content, and no re-ingestion or</span>
+<span class="code-line">  corpus-management operation (those stay pinned to the corpus-lifecycle spec per the</span>
+<span class="code-line">  2026-07-07 decision).</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">&ldquo;End to end&rdquo; is load-bearing: not just no delete button in the UI, but no new mutating route in the API, no new write path anywhere in the slice.</p>
+              <p class="tl">Re-ingestion and corpus management aren&rsquo;t forgotten &mdash; they&rsquo;re PINNED to a named future spec by a dated operator decision. A scope line with a forwarding address, not a shrug.</p>
+              <p class="tl">Note what this makes read-only mean here: an actual functional requirement with a testable surface (grep the API for mutating routes), not a styling choice about which buttons the listing renders.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And it was verified as a requirement, not a vibe: the converge evidence greps <code>apps/api/src/ingestion/</code> and finds exactly one mutating route &mdash; 008&rsquo;s <code>POST /api/uploads</code>. 009&rsquo;s entire diff adds one <code>GET</code> (SC-007: zero new mutating operations).</p>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">The 2026-07-07 pin</strong>
+            <p>Two days BEFORE the visibility amendment, the operator had already pinned re-ingestion and corpus management to the corpus-lifecycle spec. So when 009 was specified, &ldquo;make the library visible&rdquo; could not quietly grow into &ldquo;make the library editable&rdquo; &mdash; the pin predated the temptation.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🧪</div>
+          <div class="callout-content">
+            <strong class="callout-title">US1&rsquo;s independent test</strong>
+            <p>The acceptance bar for the surface is behavioral: reach any submission&rsquo;s detail page with <strong>no URL typing and no DB access</strong>, in at most 3 interactions &mdash; and lost-ticket recovery in under 30 seconds at 100+ submissions (verified live at 57, SC-002).</p>
+          </div>
+        </div>
+
+        <p>The verified SC-001 path, as run against the live 009 stack &mdash; compare it with the pre-009 flow in screen one:</p>
+
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p><span class="term" data-definition="The library link lives in the protected layout, so it appears on EVERY authenticated page — Module 3's subject.">nav header</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p><span class="term" data-definition="The paged, newest-first listing of all submissions with their evidence columns — Module 2's subject.">/library</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p><span class="term" data-definition="Every row links to its submission's detail — the same ticket page 008 built, now reachable without the receipt.">row link</span></p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p><span class="term" data-definition="008's claim-ticket page, unchanged — 009 didn't rebuild the destination, it built the road.">ticket page</span></p>
+            <span class="badge-code" style="font-size: var(--text-xs);">3 interactions</span>
+          </div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary);">Four boxes, three clicks &mdash; the nav header is where you already are. Hover any step for its one-line job. The psql box from screen one has no counterpart here; that&rsquo;s the point.</p>
+      </section>
+
+      <!-- SCREEN 4: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Test the rule</h2>
+        <p>The amendment&rsquo;s teeth are in its second bullet as much as its first. Reason from the text you just read:</p>
+
+        <div class="quiz-container" id="quiz-module-1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the mandate is an avenue, not a UI. A web surface is only mandatory when the capability is operator-facing; background machinery satisfies Principle V through CLI output, log files, or a documented inspection path, as long as the spec records which avenue and why. That's precisely how 009's own worktree protocol filed: CLI output + contracts/environment.md, no web page."
+               data-explanation-wrong="Not quite. Re-read the second bullet: where a web surface is not warranted — developer tooling, protocols, background machinery — the capability MUST instead be visible through CLI output, log files, or a documented inspection path. The web UI is only mandatory for operator-facing capabilities; but 'internal' with NO recorded avenue at all is exactly what the fourth bullet calls incomplete.">
+            <h3 class="quiz-question">A worker-only capability ships with no web page. Under constitution v2.2.0, is it compliant?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No &mdash; every delivered capability must be visible in the web UI, full stop</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, IF its spec records a CLI/log/docs avenue &mdash; a web surface is only mandatory when the capability is operator-facing</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, automatically &mdash; worker capabilities are internal, and internal machinery is exempt from Principle V</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Check Answer</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Try Again</button>
+        </div>
+
+        <p>So the library gets a listing page. But a listing of 57 submissions &mdash; standalone sources and batches mixed, some ingested, some skipped, some failed &mdash; needs a read model that can answer &ldquo;what&rsquo;s in my corpus?&rdquo; in constant queries per page. Next up &mdash; Module 2, &ldquo;The Submissions Timeline&rdquo;: the read model behind the listing.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
