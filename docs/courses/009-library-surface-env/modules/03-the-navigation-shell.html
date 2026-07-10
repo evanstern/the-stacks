@@ -270,9 +270,10 @@
         <p><strong>Empty:</strong> a blank page lies — it reads as broken. An empty library is a normal answer, so the empty state says so and points at the exit: <em>"Nothing in the library yet. Upload your first document — a saved HTML page, Markdown, plain text, or a ZIP of them."</em> The upload page links back to the listing too — the two surfaces cross-reference each other (US1 AC-5).</p>
         <p><strong>Too big:</strong> paging. And the offset doesn't live in component state — it rides the URL, because paging is <span class="term" data-definition="Paging/state rides the URL so views are bookmarkable — Principle V.">URL-addressable state</span>.</p>
 
-        <div style="background: var(--color-bg-code); color: #CDD6F4; padding: var(--space-6); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: var(--space-6) 0;">
-<span class="code-comment">// File: apps/web/app/routes/library.tsx:54-62</span>
-<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">loader</span>({ request }: Route.LoaderArgs) {</span>
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/web/app/routes/library.tsx:54-62</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">loader</span>({ request }: Route.LoaderArgs) {</span>
 <span class="code-line">  <span class="code-comment">// Offset rides the page URL so paging is addressable/bookmarkable</span></span>
 <span class="code-line">  <span class="code-comment">// (Principle V: URL-addressable state). The API clamps; we only parse.</span></span>
 <span class="code-line">  <span class="code-keyword">const</span> url = <span class="code-keyword">new</span> <span class="code-function">URL</span>(request.url);</span>
@@ -281,6 +282,22 @@
 <span class="code-line">  <span class="code-keyword">const</span> page = <span class="code-keyword">await</span> <span class="code-function">listUploads</span>(request, { offset });</span>
 <span class="code-line">  <span class="code-keyword">return</span> { page };</span>
 <span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A server-side loader — the browser never calls the API itself (007 FR-019).</p>
+              <p class="tl">The why-comment carries the doctrine: paging state lives in the URL, so any page is bookmarkable…</p>
+              <p class="tl">…and the trust split is explicit — the API clamps limits; the loader only parses what the URL says.</p>
+              <p class="tl">Read the page's own URL — the offset arrives as a query parameter, not component state.</p>
+              <p class="tl">Parse it as a base-10 integer, defaulting to "0" when absent.</p>
+              <p class="tl">Garbage or negative input degrades to page one — never an error page for a mangled bookmark.</p>
+              <p class="tl">One call through the server-only API client, offset forwarded; the session cookie rides along.</p>
+              <p class="tl">Hand the page to the component — data flows loader → render, nothing else.</p>
+              <p class="tl">…and that's the whole loader: nine lines, URL in, page out.</p>
+            </div>
+          </div>
         </div>
 
         <p>The live run proves the arithmetic against the real ledger: at <strong>57 submissions</strong>, the last page renders <code>Showing 51 – 57 of 57</code> with a <strong>Newer</strong> link only — no Older link past the end, because the links render conditionally off the same <code>total</code> the API reported. The count is the real ledger size, not a guess.</p>

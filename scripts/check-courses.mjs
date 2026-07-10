@@ -26,11 +26,11 @@ import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Pre-gate courses, tolerated until rebuilt (board tasks 4–7). Add nothing
-// here — entries only leave (007: TASK-4, 008: TASK-5 chrome-v2 rebuilds).
-const LEGACY = new Set([
-  "009-library-surface-env",
-]);
+// The pre-gate legacy baseline is EMPTY and stays that way: every course is
+// held to the gate. It existed only for the v1-chrome courses shipped before
+// this gate did (007/008/009 — rebuilt and removed by board tasks 4–7,
+// ADR 0002). Add nothing here.
+const LEGACY = new Set([]);
 
 export function findPraxis(argv, env = process.env, home = homedir()) {
   const i = argv.indexOf("--praxis");

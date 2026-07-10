@@ -1,5 +1,7 @@
 /* =============================================================
    CODEBASE-TO-COURSE — COMPLETE DESIGN SYSTEM
+   chrome v2 — inline translation engine (comments-on-top)
+   (no version header = v1, the retired side-by-side renderer)
    Copy this file verbatim into the course output directory.
    Never regenerate it — customize only via :root overrides
    in _base.html (accent color only).
@@ -149,11 +151,11 @@
 }
 
 /* ── PRAXIS SHARED TOKEN SCHEMA (aliases) ───────────────────────
-   The shared praxis token NAMES mapped onto the course palette, so
-   toolkit modules (praxis lib/toolkit — snippets written against
+   The shared praxisflux token NAMES mapped onto the course palette, so
+   toolkit modules (praxisflux lib/toolkit — snippets written against
    --ink/--accent/…) drop into a course page unchanged. Aliases
    resolve through the course tokens above, so they flip with dark
-   mode automatically. Names are the shared contract (praxis
+   mode automatically. Names are the shared contract (praxisflux
    docs/skill-patterns.md §8); VALUES stay the course's own. ──── */
 :root {
   --bg:     var(--color-bg);

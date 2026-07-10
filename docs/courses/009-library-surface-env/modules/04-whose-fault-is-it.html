@@ -59,19 +59,19 @@
           <div class="layer-viewport">
             <div class="layer" id="layer-nope-before" style="display: none; padding: var(--space-5); background: var(--color-bg-code);">
               <pre><code>
-<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
-<span class="code-line"><span class="code-keyword">HTTP/1.1 500 Internal Server Error</span></span>
-<span class="code-line"></span>
-<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"internal_fault"</span>,<span class="code-property">"message"</span>:<span class="code-string">"An internal error occurred."</span>}}</span>
+<span><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span><span class="code-keyword">HTTP/1.1 500 Internal Server Error</span></span>
+<span></span>
+<span>{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"internal_fault"</span>,<span class="code-property">"message"</span>:<span class="code-string">"An internal error occurred."</span>}}</span>
               </code></pre>
               <p class="layer-description">The scrubbed catch-all. It blames the server, tells the caller nothing actionable, and pages an operator about a typo.</p>
             </div>
             <div class="layer" id="layer-nope-after" style="padding: var(--space-5); background: var(--color-bg-code);">
               <pre><code>
-<span class="code-line"><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
-<span class="code-line"><span class="code-keyword">HTTP/1.1 400 Bad Request</span></span>
-<span class="code-line"></span>
-<span class="code-line">{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"invalid_input"</span>,<span class="code-property">"message"</span>:<span class="code-string">"querystring/limit must be integer"</span>}}</span>
+<span><span class="code-comment">$ curl -i "http://127.0.0.1:4491/api/uploads?limit=nope" -b cookies.txt</span></span>
+<span><span class="code-keyword">HTTP/1.1 400 Bad Request</span></span>
+<span></span>
+<span>{<span class="code-string">"error"</span>:{<span class="code-property">"code"</span>:<span class="code-string">"invalid_input"</span>,<span class="code-property">"message"</span>:<span class="code-string">"querystring/limit must be integer"</span>}}</span>
               </code></pre>
               <p class="layer-description">Same envelope shape as every other error, correct blame, and a message that names the exact parameter and what it must be.</p>
             </div>
@@ -110,6 +110,8 @@
 <span class="code-line">        .<span class="code-function">send</span>(<span class="code-function">errorEnvelope</span>(<span class="code-string">"invalid_input"</span>, error.message));</span>
 <span class="code-line">      <span class="code-keyword">return</span>;</span>
 <span class="code-line">    }</span>
+<span class="code-line">    <span class="code-comment">// … content-type branches and the scrubbed internal_fault catch-all elided …</span></span>
+<span class="code-line">  });</span>
             </code></pre>
           </div>
           <div class="translation-english">
@@ -132,6 +134,8 @@
               <p class="tl">…and the standard envelope carrying ajv's text. Same <code>errorEnvelope</code> helper as every other error — the wire shape stays singular.</p>
               <p class="tl">Handled — return before falling through.</p>
               <p class="tl">…end of the validation branch.</p>
+              <p class="tl">Below (elided): the FST_ERR_CTP content-type branches (415, FR-018), then the catch-all — full diagnostics to operator logs, a scrubbed generic 500 to the wire.</p>
+              <p class="tl">…and the handler closes. Every error class the API can emit passed through this one function.</p>
             </div>
           </div>
         </div>
