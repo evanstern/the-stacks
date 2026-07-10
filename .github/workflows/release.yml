@@ -1,0 +1,71 @@
+# release.yml — merge to main with a new version ⇒ exactly one tagged GitHub
+# Release; docs-only merges (no bump) publish nothing. Idempotent by tag
+# check: re-runs and same-version races skip cleanly (the second of two PRs
+# that bumped to the same version rides the next release).
+#
+# Nothing is published as an asset — the repo ships as a deployed compose
+# stack, so a release is the tag plus generated notes (the durable "what
+# changed at v<X>" record the constitution's versioning policy points at).
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+env:
+  PRAXIS_REF: v0.4.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: version
+        name: is this version already released?
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "v$version already released — nothing to do"
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.version.outputs.new == 'true'
+      - uses: actions/setup-node@v5
+        if: steps.version.outputs.new == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/checkout@v5
+        if: steps.version.outputs.new == 'true'
+        with:
+          repository: evanstern/praxis
+          ref: ${{ env.PRAXIS_REF }}
+          path: .praxis
+          token: ${{ secrets.PRAXIS_READ_TOKEN }}
+      # Re-verify at the merge commit before tagging it. pnpm verify runs
+      # without the DB env here (the DB-gated suites skip themselves; the
+      # merged PR's ci run was the full check) — this catches a bad merge,
+      # not a bad branch. run-gates.mjs is praxis's versioned consumer
+      # contract (the same surface the composite action wraps in ci.yml).
+      - name: re-verify
+        if: steps.version.outputs.new == 'true'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm verify
+          node .praxis/scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
+          node scripts/check-courses.mjs --praxis .praxis --require-praxis
+          node scripts/check-spec-artifacts.mjs
+          node scripts/check-adrs.mjs
+      - name: tag and release
+        if: steps.version.outputs.new == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v${{ steps.version.outputs.version }}" --title "v${{ steps.version.outputs.version }}" --generate-notes
