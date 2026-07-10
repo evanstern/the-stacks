@@ -12,8 +12,9 @@ layout, enter a worktree before touching app code. `.bare/` is shared Git plumbi
   `docs/wiki/Ingestion.md`; the wiki spine is `docs/wiki/Home.md`. Update wiki
   `updated` frontmatter when changing those pages.
 - Spec history lives in `specs/` (spec-kit). Delivered slices: `specs/007-v3-skeleton/`
-  (foundation) and `specs/008-ingestion-service/` (extensible ingestion pipeline).
-  Retrieval and chat are the next specs.
+  (foundation), `specs/008-ingestion-service/` (extensible ingestion pipeline), and
+  `specs/009-library-surface-env/` (library operator surface + worktree environment
+  protocol). Retrieval and chat are the next specs.
 - v2 was retired 2026-07-06 (`docs/adr/0001-retire-v2-before-parity.md`); its code lives in
   git history only. Do not resurrect v2 patterns from the wiki's historical pages without
   checking them against the v3 constitution.
