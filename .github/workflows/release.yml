@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  PRAXIS_REF: v0.3.2
+  PRAXIS_REF: v0.4.0
 
 jobs:
   release:
@@ -53,14 +53,14 @@ jobs:
       # Re-verify at the merge commit before tagging it. pnpm verify runs
       # without the DB env here (the DB-gated suites skip themselves; the
       # merged PR's ci run was the full check) — this catches a bad merge,
-      # not a bad branch.
+      # not a bad branch. run-gates.mjs is praxis's versioned consumer
+      # contract (the same surface the composite action wraps in ci.yml).
       - name: re-verify
         if: steps.version.outputs.new == 'true'
         run: |
           pnpm install --frozen-lockfile
           pnpm verify
-          node .praxis/grounding-wiki/gates/cli.mjs freshness . docs/wiki
-          node .praxis/spec-bridge/gates/cli.mjs check .
+          node .praxis/scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
           node scripts/check-courses.mjs --praxis .praxis --require-praxis
           node scripts/check-spec-artifacts.mjs
           node scripts/check-adrs.mjs

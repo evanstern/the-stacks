@@ -17,10 +17,17 @@ The repo adopts the process architecture proven in the praxis repo, in three par
 2. **CI as the authoritative gate suite** (`.github/workflows/ci.yml`): `pnpm verify` with
    live DB-integration suites, the ML sidecar suite, wiki freshness, the spec-bridge board
    check, the per-spec course gate, spec-artifact closure (Principle VIII), ADR format,
-   and a version-bump contract on PRs. The praxis gate CLIs run from a source checkout
-   **pinned by tag** — currently `v0.3.2`, set in both workflows' `PRAXIS_REF`; upgrading
-   the pin is a deliberate PR. Local mirrors (`.githooks/`, the Claude Stop hook in
-   `.claude/settings.json`) are conveniences, never the authority.
+   and a version-bump contract on PRs. Wiki-freshness and spec-bridge run through
+   praxis's **official consumption surface**: the composite GitHub Action
+   (`uses: evanstern/praxis@v0.4.0`; gate names, inputs, and exit codes are praxis's
+   semver'd consumer contract, its `docs/consuming-gates.md`). The course gate still
+   enumerates `docs/courses/*/` through `scripts/check-courses.mjs` against a praxis
+   checkout pinned by `PRAXIS_REF` — the action's course input is single-dir and this
+   repo carries one course per spec plus the legacy baseline. Both pins ride the same
+   tag; upgrading is a deliberate PR. Local mirrors (`.githooks/`, the Claude Stop hook
+   in `.claude/settings.json`) prefer the same versioned runner
+   (`scripts/run-gates.mjs`) from a local checkout and are conveniences, never the
+   authority.
 3. **Single repo-level semver + automatic releases** (`.github/workflows/release.yml`):
    one version in the root `package.json`; a PR touching released surface (`apps/`,
    `packages/`, `scripts/`, compose files, root manifests) must increase it; each merge to
@@ -53,8 +60,12 @@ from an `updated:`-date convention to the praxis corpus-spec v1 code dialect
 - **Squash merges are prohibited on `main`.** Wiki pins and evidence reference commit
   SHAs that must stay reachable; squashing orphans them (and CI's freshness gate would
   fail on unknown pins). Merge commits only.
-- CI needs the `PRAXIS_READ_TOKEN` repo secret (fine-grained read-only PAT for the
-  private `evanstern/praxis` repo) to check out the pinned gate CLIs.
+- Because praxis is private, CI needs two access grants: the praxis repo must allow
+  **Actions access from user-owned repositories** (praxis Settings → Actions → General →
+  Access) so `uses: evanstern/praxis@<tag>` resolves, and this repo needs the
+  `PRAXIS_READ_TOKEN` secret (fine-grained read-only PAT) for the course-gate checkout.
+- The `uses:` pin and `PRAXIS_REF` must stay on the same tag; the v0.4.0 pin requires
+  praxis PR #23 (the composite action) to be merged and released first.
 - Any PR touching released surface now carries a version bump, and every such merge
   produces a tagged GitHub Release — `git tag` becomes the deploy history.
 - The constitution's Development Workflow section codifies these rules (v2.3.0

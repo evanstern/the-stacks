@@ -20,7 +20,7 @@
 // The spec-bridge plugin ships its own Stop hook for the board gate (status
 // can't exceed artifacts) — deliberately not duplicated here.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -43,7 +43,11 @@ function findPraxisFor(subpath) {
     join(homedir(), "projects", "praxis"),
     join(REPO_ROOT, ".praxis"),
   ].filter(Boolean);
-  return candidates.find((c) => existsSync(join(c, subpath))) ?? null;
+  const found = candidates.find((c) => existsSync(join(c, subpath)));
+  // Physical path: run-gates.mjs's run-as-CLI guard breaks when spawned via a
+  // symlinked path (import.meta.url is symlink-resolved, process.argv[1]
+  // isn't) — it exits 0 having run nothing.
+  return found ? realpathSync(found) : null;
 }
 
 export function main() {
@@ -58,10 +62,16 @@ export function main() {
   problems.push(...adrs.problems);
   warnings.push(...adrs.warnings);
 
+  // Prefer praxis's versioned consumer contract (scripts/run-gates.mjs,
+  // v0.4.0+); fall back to the plugin's own CLI for older checkouts.
+  const runner = "scripts/run-gates.mjs";
   const freshnessCli = "grounding-wiki/gates/cli.mjs";
-  const praxis = findPraxisFor(freshnessCli);
+  const praxis = findPraxisFor(runner) ?? findPraxisFor(freshnessCli);
   if (praxis) {
-    const res = spawnSync(process.execPath, [join(praxis, freshnessCli), "freshness", REPO_ROOT, "docs/wiki"], { encoding: "utf8" });
+    const args = existsSync(join(praxis, runner))
+      ? [join(praxis, runner), "--gates", "wiki-freshness", "--path", REPO_ROOT]
+      : [join(praxis, freshnessCli), "freshness", REPO_ROOT, "docs/wiki"];
+    const res = spawnSync(process.execPath, args, { encoding: "utf8" });
     if (res.status !== 0) {
       problems.push(
         `docs/wiki is stale or broken — re-verify and re-pin (/grounding-wiki:wiki-update):\n` +
