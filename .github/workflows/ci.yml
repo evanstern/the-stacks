@@ -51,6 +51,11 @@ jobs:
     env:
       RUN_DB_INTEGRATION_TESTS: "1"
       DATABASE_URL: postgresql://stacks_v3:stacks_v3@localhost:5442/stacks_v3
+      # Note: the DB-gated suites share ONE Postgres and contaminate each
+      # other when package suites run concurrently (failed on this PR's own
+      # runs). pnpm verify serializes its test leg (--workspace-concurrency=1
+      # in the root script — env-var config was ignored by pnpm); TASK-8
+      # tracks the durable per-suite isolation fix.
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -98,6 +103,10 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          # setup-node v5 auto-enables pnpm caching when package.json declares
+          # packageManager — but this job never installs pnpm (gates are plain
+          # node), so the auto-detection would fail the job.
+          package-manager-cache: false
       - name: wiki freshness + spec-bridge (praxis run-gates contract)
         run: node .praxis/scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
       # The runner's course gate is single-dir; this repo holds one course PER

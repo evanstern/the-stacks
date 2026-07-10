@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "echo 'use: docker compose up -d --build --wait' && exit 1",
-    "verify": "node scripts/check-boundaries.mjs && node --test 'scripts/*.test.mjs' && pnpm -r run typecheck && pnpm -r run test",
+    "verify": "node scripts/check-boundaries.mjs && node --test 'scripts/*.test.mjs' && pnpm -r run typecheck && pnpm -r --workspace-concurrency=1 run test",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test"
   }
