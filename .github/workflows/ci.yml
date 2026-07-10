@@ -1,0 +1,105 @@
+# ci.yml — the authoritative gate suite (constitution Development Workflow:
+# CI gates; .githooks/ and the Claude Stop hook are convenience mirrors of
+# this). Three jobs:
+#
+#   verify         pnpm verify (boundaries + gate unit tests + typecheck +
+#                  vitest) with the DB-gated integration suites live against a
+#                  pgvector service container — the same image compose runs.
+#   ml             the Python sidecar's own suite (pytest + pyright); kept out
+#                  of pnpm verify by design (007 FR-017).
+#   process-gates  the doctrine gates: wiki freshness, spec-bridge board
+#                  check, per-spec course gate, spec-artifact closure, ADR
+#                  format, and (PRs only) the version-bump contract. The
+#                  praxis gate CLIs run from a source checkout PINNED BY TAG —
+#                  upgrading the pin is a deliberate PR (ADR 0002).
+#
+# fetch-depth: 0 everywhere history is judged: merge-base for the bump gate,
+# tags for "version never reused", and `git log <pin>..HEAD` for wiki
+# freshness all need real history. Squash merges are prohibited for the same
+# reason (wiki pins must stay reachable).
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  PRAXIS_REF: v0.3.2
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: stacks_v3
+          POSTGRES_USER: stacks_v3
+          POSTGRES_PASSWORD: stacks_v3
+        ports:
+          - "5442:5432"
+        options: >-
+          --health-cmd "pg_isready -U stacks_v3"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      RUN_DB_INTEGRATION_TESTS: "1"
+      DATABASE_URL: postgresql://stacks_v3:stacks_v3@localhost:5442/stacks_v3
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+
+  ml:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/ml
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest
+      - run: pyright --project .
+
+  process-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      # praxis is a private repo; GITHUB_TOKEN can't read across repos, so the
+      # checkout needs PRAXIS_READ_TOKEN (fine-grained read-only PAT for
+      # evanstern/praxis). The dot-dir path keeps it out of every scan
+      # (spec-bridge's root discovery skips dot-dirs; it's not released surface).
+      - uses: actions/checkout@v5
+        with:
+          repository: evanstern/praxis
+          ref: ${{ env.PRAXIS_REF }}
+          path: .praxis
+          token: ${{ secrets.PRAXIS_READ_TOKEN }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: wiki freshness (pinned corpus proves current)
+        run: node .praxis/grounding-wiki/gates/cli.mjs freshness . docs/wiki
+      - name: spec-bridge (board status cannot exceed artifacts)
+        run: node .praxis/spec-bridge/gates/cli.mjs check .
+      - name: course gate (Principle VIII chrome contract)
+        run: node scripts/check-courses.mjs --praxis .praxis --require-praxis
+      - name: spec artifacts (Principle VIII closure)
+        run: node scripts/check-spec-artifacts.mjs
+      - name: ADR format
+        run: node scripts/check-adrs.mjs
+      - name: version bump (released surface ⇒ semver increase)
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-version-bump.mjs --base "origin/${{ github.base_ref }}"

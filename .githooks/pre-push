@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# pre-push — the gates that only make sense against origin: the version-bump
+# contract and wiki freshness. Enable once per clone: git config core.hooksPath .githooks
+# CI stays authoritative; this exists to fail before the round-trip.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+node scripts/check-version-bump.mjs --base origin/main
+
+# Wiki freshness needs the praxis gate CLI; locally that's a source checkout
+# (PRAXIS_DIR or ~/projects/praxis). Absent praxis we defer to CI rather than block.
+praxis="${PRAXIS_DIR:-$HOME/projects/praxis}"
+if [ -f "$praxis/grounding-wiki/gates/cli.mjs" ]; then
+  node "$praxis/grounding-wiki/gates/cli.mjs" freshness . docs/wiki
+else
+  echo "warn: praxis not found at $praxis — wiki freshness deferred to CI" >&2
+fi
