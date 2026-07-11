@@ -99,8 +99,10 @@ function renderAt(path: string) {
         },
         {
           path: "/records/retrievals/:run",
-          Component: detailRoute.default,
-          loader: detailRoute.loader,
+          // Param'd typegen loaders don't structurally match the stub's
+          // LoaderFunction — same cast the library-ticket test uses.
+          Component: detailRoute.default as never,
+          loader: detailRoute.loader as never,
         },
       ],
     },
@@ -151,7 +153,7 @@ describe("/records/retrievals", () => {
     expect(screen.getByText(/rewritten by a later re-ingest/)).toBeInTheDocument();
     // exactly ONE superseded badge — the derivation is per-result
     expect(screen.getAllByTestId("superseded-badge")).toHaveLength(1);
-    expect(screen.getByTestId("timings").textContent).toContain("rerank —");
+    expect(screen.getByTestId("timings")).toHaveTextContent("rerank —");
     expect(screen.getByText(/local-sidecar\/all-MiniLM-L6-v2@384/)).toBeInTheDocument();
   });
 });
