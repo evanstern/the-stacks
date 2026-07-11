@@ -43,10 +43,10 @@
 **Goal**: runs list + URL-addressable detail that outlives re-ingestion.
 **Independent Test**: perform a search, open its run URL, re-ingest the source (generation flip + sweep), reload the URL — snapshots render, swept passages marked superseded (SC-002).
 
-- [ ] T016 [US2] TDD: contract tests for `GET /api/retrieval/runs` (paging shape per 009's listing contract) and `GET /api/retrieval/runs/:id` — including the superseded derivation: seed run, flip generation + sweep, detail marks the swept result — in `apps/api/test/retrieval-runs.contract.test.ts` (suite DB `api_retrieval_runs`); write first
-- [ ] T017 [US2] Implement runs list + detail in `apps/api/src/retrieval/routes.ts` with the view-time superseded query (data-model.md derivation); T016 green
-- [ ] T018 [US2] Web `/records/retrievals` (list) and `/records/retrievals/$run` (receipt detail: config, timings, per-stage scores, prerank positions, superseded badges) in `apps/web/app/routes/`; "Retrievals" joins the Records nav section
-- [ ] T019 [US2] Web tests for both routes
+- [x] T016 [US2] TDD: contract tests for `GET /api/retrieval/runs` (paging shape per 009's listing contract) and `GET /api/retrieval/runs/:id` — including the superseded derivation: seed run, flip generation + sweep, detail marks the swept result — in `apps/api/test/retrieval-runs.contract.test.ts` (suite DB `api_retrieval_runs`); write first
+- [x] T017 [US2] Implement runs list + detail in `apps/api/src/retrieval/routes.ts` with the view-time superseded query (data-model.md derivation); T016 green
+- [x] T018 [US2] Web `/records/retrievals` (list) and `/records/retrievals/$run` (receipt detail: config, timings, per-stage scores, prerank positions, superseded badges) in `apps/web/app/routes/`; "Retrievals" joins the Records nav section
+- [x] T019 [US2] Web tests for both routes
 
 **Checkpoint**: US2 independently demonstrable (quickstart §2).
 

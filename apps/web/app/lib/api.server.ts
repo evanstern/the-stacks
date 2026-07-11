@@ -324,3 +324,60 @@ export async function searchLibrary(request: Request, query: string): Promise<Se
   }
   return (await response.json()) as SearchResponse;
 }
+
+/** Run-list item (spec 010 US2, contracts/api.md §2). */
+export interface RetrievalRunListItem {
+  id: string;
+  query: string;
+  origin: "interactive" | "eval";
+  resultCount: number;
+  createdAt: string;
+  configName: string;
+}
+
+export interface RetrievalRunListPage {
+  items: RetrievalRunListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface RetrievalRunDetail {
+  id: string;
+  query: string;
+  origin: string;
+  config: { configName: string; fusion: string; k: number } & Record<string, unknown>;
+  embedding: { provider: string; model: string; dimensions: number };
+  timings: Record<string, number | null>;
+  createdAt: string;
+  results: Array<
+    SearchResultItem & {
+      /** DERIVED at view time: no current-generation chunk carries this
+       *  text's hash anymore — the snapshot below is the only copy. */
+      superseded: boolean;
+    }
+  >;
+}
+
+export async function listRetrievalRuns(
+  request: Request,
+  opts: { limit?: number; offset?: number } = {},
+): Promise<RetrievalRunListPage> {
+  const params = new URLSearchParams();
+  if (opts.limit !== undefined) params.set("limit", String(opts.limit));
+  if (opts.offset !== undefined) params.set("offset", String(opts.offset));
+  const query = params.size > 0 ? `?${params.toString()}` : "";
+  const response = await apiFetch(request, `/api/retrieval/runs${query}`);
+  if (!response.ok) {
+    throw new Response("Failed to load retrieval runs", { status: response.status });
+  }
+  return (await response.json()) as RetrievalRunListPage;
+}
+
+export async function getRetrievalRun(request: Request, id: string): Promise<RetrievalRunDetail> {
+  const response = await apiFetch(request, `/api/retrieval/runs/${id}`);
+  if (!response.ok) {
+    throw new Response("Retrieval run not found", { status: response.status });
+  }
+  return (await response.json()) as RetrievalRunDetail;
+}

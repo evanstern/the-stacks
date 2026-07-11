@@ -42,6 +42,9 @@ export default function ProtectedLayout() {
         <Link className="underline-offset-4 hover:underline" to="/library">
           Library
         </Link>
+        <Link className="underline-offset-4 hover:underline" to="/records/retrievals">
+          Retrievals
+        </Link>
       </nav>
       <Outlet />
     </>
