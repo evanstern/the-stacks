@@ -266,6 +266,31 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)(lightningcss@1.32.0)
 
+  packages/retrieval:
+    dependencies:
+      '@stacks/core':
+        specifier: workspace:*
+        version: link:../core
+      '@stacks/db':
+        specifier: workspace:*
+        version: link:../db
+      '@stacks/ingestion':
+        specifier: workspace:*
+        version: link:../ingestion
+      drizzle-orm:
+        specifier: ^0.36.0
+        version: 0.36.4(@types/pg@8.20.0)(@types/react@19.2.17)(pg@8.22.0)(react@19.2.7)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)(lightningcss@1.32.0)
+
 packages:
 
   '@adobe/css-tools@4.5.0':

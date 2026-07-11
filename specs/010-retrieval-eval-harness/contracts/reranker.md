@@ -6,7 +6,7 @@ status codes. `/ready` gains the reranker's state.
 
 ## Role resolution (startup)
 
-- `RERANKER_MODEL` + `RERANKER_PROVIDER` env vars (D14 — no hardcoded ids).
+- `RERANKER_MODEL_ID` + `RERANKER_PROVIDER` env vars (sidecar receives `ML_RERANKER_MODEL=${RERANKER_MODEL_ID}`, mirroring the embedding role's pattern) (D14 — no hardcoded ids).
 - Unset ⇒ role `disabled`: `/ready` reports `reranker: "disabled"`, `/v1/rerank`
   answers `503` with code `model_not_configured`. The TS engine refuses
   `RETRIEVAL_RERANK=on` at config resolution when the role is disabled — fail
@@ -20,7 +20,7 @@ status codes. `/ready` gains the reranker's state.
 Request:
 ```json
 {
-  "model": "<must equal the configured RERANKER_MODEL>",
+  "model": "<must equal the configured reranker model id>",
   "query": "operator's query text",
   "passages": [ { "id": "chunk-id", "text": "passage text" }, ... ]
 }

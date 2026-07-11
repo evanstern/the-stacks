@@ -65,8 +65,8 @@ RETRIEVAL_CANDIDATE_DEPTH=50      # per-signal candidates fetched before fusion
 RETRIEVAL_K=10                    # results returned/recorded
 RETRIEVAL_RERANK=off              # off | on — on REQUIRES the reranker role live (R9)
 RETRIEVAL_RERANK_DEPTH=50         # fused candidates sent to the reranker
-RERANKER_PROVIDER=                # e.g. sentence-transformers (empty = role disabled)
-RERANKER_MODEL=                   # cross-encoder model id — never hardcoded (D14)
+RERANKER_PROVIDER=                # empty = role disabled (fail-fast at config resolution)
+RERANKER_MODEL_ID=                # cross-encoder model id — never hardcoded (D14)
 ```
 
 Mint-tool note: none are port-coupled; `mint-worktree-env` copies them verbatim.

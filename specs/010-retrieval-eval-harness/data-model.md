@@ -87,7 +87,7 @@ Resolved from env by `resolveRetrievalConfig`:
 `RETRIEVAL_WEIGHT_ALPHA` (0.5, weighted only), `RETRIEVAL_CANDIDATE_DEPTH` (50),
 `RETRIEVAL_K` (10), `RETRIEVAL_RERANK` (off|on, default off),
 `RETRIEVAL_RERANK_DEPTH` (50), plus the existing `EMBEDDING_*` role and new
-`RERANKER_MODEL` / `RERANKER_PROVIDER` roles. All documented in `.env.example`
+`RERANKER_MODEL_ID` / `RERANKER_PROVIDER` roles. All documented in `.env.example`
 (the 009 environment contract) — none are ports; the worktree protocol is
 untouched.
 

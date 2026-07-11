@@ -165,7 +165,7 @@ real model in CI (network/weights dependency — exactly what FR-017 forbids).
 
 **Decision**: new sidecar endpoint `POST /v1/rerank` — `{ model, query,
 passages: [{id, text}] }` → `{ model, scores: [{id, score}] }` — serving the
-env-first `RERANKER_MODEL` role (sentence-transformers CrossEncoder), loaded at
+env-first `RERANKER_MODEL_ID` role (sentence-transformers CrossEncoder), loaded at
 startup alongside the embedding model with its state reported by `/ready`;
 `404` on wrong model name, `503` while loading/failed, `415` on malformed input —
 the exact status semantics `/v1/embed` pinned in 007. Engine-side,
@@ -176,7 +176,7 @@ the exact status semantics `/v1/embed` pinned in 007. Engine-side,
 (query+passage jointly scored — a different signal class than bi-encoder cosine);
 serving it in the sidecar is exactly D2's "Python where the ML ecosystem genuinely
 requires it". Mirroring the embed contract's shape and status taxonomy keeps the
-sidecar's surface one idea. If `RERANKER_MODEL` is unset, `/ready` reports the
+sidecar's surface one idea. If `RERANKER_MODEL_ID` is unset, `/ready` reports the
 role `disabled` and the engine refuses `RETRIEVAL_RERANK=on` at config resolution —
 misconfiguration fails fast, not per-request.
 

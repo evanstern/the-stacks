@@ -59,7 +59,7 @@ quickstart), `.env` carrying the new `RETRIEVAL_*` defaults (mint/check via the
 
 ## 6. Reranker (US5)
 
-1. Set `RERANKER_PROVIDER`/`RERANKER_MODEL` (a small cross-encoder), restart the
+1. Set `RERANKER_PROVIDER`/`RERANKER_MODEL_ID` (a small cross-encoder), restart the
    sidecar; `/ready` reports `reranker: "ready"`. Set `RETRIEVAL_RERANK=on`.
 2. Repeat a step-1 search: the run detail shows prerank vs postrank ordering and
    rerank scores with the model identity.

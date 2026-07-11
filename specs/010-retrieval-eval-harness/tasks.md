@@ -9,18 +9,18 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 [P] Add the `RETRIEVAL_*` / `RERANKER_*` variables to `.env.example` exactly per contracts/api.md §5 (with teaching comments); confirm `node scripts/mint-worktree-env.mjs --check` reports the drift in an un-updated worktree env (the 009 environment contract at work)
-- [ ] T002 Scaffold `packages/retrieval` (package.json `@stacks/retrieval`, tsconfig, vitest config, src/index.ts) mirroring `packages/ingestion`'s layout; add to workspace; `pnpm -r run typecheck` green
+- [x] T001 [P] Add the `RETRIEVAL_*` / `RERANKER_*` variables to `.env.example` exactly per contracts/api.md §5 (with teaching comments); confirm `node scripts/mint-worktree-env.mjs --check` reports the drift in an un-updated worktree env (the 009 environment contract at work)
+- [x] T002 Scaffold `packages/retrieval` (package.json `@stacks/retrieval`, tsconfig, vitest config, src/index.ts) mirroring `packages/ingestion`'s layout; add to workspace; `pnpm -r run typecheck` green
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T003 [P] TDD: unit tests for `resolveRetrievalConfig` — defaults from empty env, each override, `RETRIEVAL_RERANK=on` with disabled reranker role REFUSES at resolution (fail-fast, research R9/R10) — in `packages/retrieval/src/config.test.ts`; write first, watch fail
-- [ ] T004 Implement `packages/retrieval/src/config.ts` (pure core + env reader) to pass T003
-- [ ] T005 [P] TDD: unit tests for fusion — RRF formula incl. missing-from-one-list handling and rank stability, weighted-sum with normalization, both against hand-computed examples — in `packages/retrieval/src/fusion.test.ts`; write first
-- [ ] T006 Implement `packages/retrieval/src/fusion.ts` (pure, no DB) to pass T005
-- [ ] T007 New tables `retrieval_runs`, `retrieval_results`, `gold_items`, `eval_runs` in `packages/db/src/schema/retrieval.ts` per data-model.md (teaching headers citing invariants) + `pnpm --filter @stacks/db generate --name retrieval-tables` migration
-- [ ] T008 TDD: DB-gated test for `recordRetrievalRun` — one-transaction insert of run+results, and the append-only construction (no update/delete helper exists; grep-able single writer) — in `packages/db/test/retrieval-runs.test.ts` (per-suite DB `db_retrieval_runs`, TASK-8 helper); write first
-- [ ] T009 Implement `packages/db/src/retrieval-runs.ts` (sole writer, `recordEvent`-style teaching comment) + export from `packages/db/src/index.ts`; T008 green
+- [x] T003 [P] TDD: unit tests for `resolveRetrievalConfig` — defaults from empty env, each override, `RETRIEVAL_RERANK=on` with disabled reranker role REFUSES at resolution (fail-fast, research R9/R10) — in `packages/retrieval/src/config.test.ts`; write first, watch fail
+- [x] T004 Implement `packages/retrieval/src/config.ts` (pure core + env reader) to pass T003
+- [x] T005 [P] TDD: unit tests for fusion — RRF formula incl. missing-from-one-list handling and rank stability, weighted-sum with normalization, both against hand-computed examples — in `packages/retrieval/src/fusion.test.ts`; write first
+- [x] T006 Implement `packages/retrieval/src/fusion.ts` (pure, no DB) to pass T005
+- [x] T007 New tables `retrieval_runs`, `retrieval_results`, `gold_items`, `eval_runs` in `packages/db/src/schema/retrieval.ts` per data-model.md (teaching headers citing invariants) + `pnpm --filter @stacks/db generate --name retrieval-tables` migration
+- [x] T008 TDD: DB-gated test for `recordRetrievalRun` — one-transaction insert of run+results, and the append-only construction (no update/delete helper exists; grep-able single writer) — in `packages/db/test/retrieval-runs.test.ts` (per-suite DB `db_retrieval_runs`, TASK-8 helper); write first
+- [x] T009 Implement `packages/db/src/retrieval-runs.ts` (sole writer, `recordEvent`-style teaching comment) + export from `packages/db/src/index.ts`; T008 green
 
 **Checkpoint**: pure cores + persistence exist — user stories can start.
 
