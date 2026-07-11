@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-11 04:55'
-updated_date: '2026-07-11 11:04'
+updated_date: '2026-07-11 11:40'
 labels: []
 dependencies: []
 ordinal: 9000
@@ -21,9 +21,9 @@ Spec: specs/010-retrieval-eval-harness
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec phase: Setup (Shared Infrastructure)
-- [ ] #2 Spec phase: Foundational (Blocking Prerequisites)
-- [ ] #3 Spec phase: User Story 1 — Search the library and get cited passages (Priority: P1) 🎯 MVP
+- [x] #1 Spec phase: Setup (Shared Infrastructure)
+- [x] #2 Spec phase: Foundational (Blocking Prerequisites)
+- [x] #3 Spec phase: User Story 1 — Search the library and get cited passages (Priority: P1) 🎯 MVP
 - [ ] #4 Spec phase: User Story 2 — Every search is a receipt (Priority: P2)
 - [ ] #5 Spec phase: User Story 3 — Build a gold set from my own corpus (Priority: P3)
 - [ ] #6 Spec phase: User Story 4 — Measure before choosing (Priority: P4)
@@ -36,4 +36,6 @@ Spec: specs/010-retrieval-eval-harness
 
 <!-- SECTION:NOTES:BEGIN -->
 spec-bridge sync: tasks.md generated — 9 phases, 42 tasks, 0/42 (phase ACs seeded)
+
+spec-bridge sync: Setup 2/2 · Foundational 7/7 · US1 6/6 · US2 0/4 · US3 0/4 · US4 0/10 · US5 0/4 · Polish 0/3 · Convergence 0/2
 <!-- SECTION:NOTES:END -->
