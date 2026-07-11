@@ -9,3 +9,5 @@
  */
 export * from "./config";
 export * from "./fusion";
+export * from "./search";
+export * from "./eval/fixture/deterministic-embedding";

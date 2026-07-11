@@ -36,6 +36,9 @@ export default function ProtectedLayout() {
         <Link className="underline-offset-4 hover:underline" to="/">
           Home
         </Link>
+        <Link className="underline-offset-4 hover:underline" to="/search">
+          Search
+        </Link>
         <Link className="underline-offset-4 hover:underline" to="/library">
           Library
         </Link>

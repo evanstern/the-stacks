@@ -25,6 +25,10 @@ export interface ResolvedRetrievalConfig {
   rrfK: number;
   /** weighted only: the vector signal's weight in [0,1]; FTS gets 1 - alpha. */
   weightAlpha: number;
+  /** Vector floor: candidates below this cosine similarity are dropped —
+   *  pure nearest-neighbor always answers with SOMETHING, so honest empty
+   *  results (US1) require a floor. */
+  minSimilarity: number;
   /** Per-signal candidates fetched before fusion. */
   candidateDepth: number;
   /** Results returned and recorded. */
@@ -79,6 +83,7 @@ export function resolveRetrievalConfig(
     fusion: overrides.fusion ?? fusionRaw,
     rrfK: overrides.rrfK ?? envInt(env, "RETRIEVAL_RRF_K", 60),
     weightAlpha: overrides.weightAlpha ?? envFloat(env, "RETRIEVAL_WEIGHT_ALPHA", 0.5),
+    minSimilarity: overrides.minSimilarity ?? envFloat(env, "RETRIEVAL_MIN_SIMILARITY", 0.3),
     candidateDepth: overrides.candidateDepth ?? envInt(env, "RETRIEVAL_CANDIDATE_DEPTH", 50),
     k: overrides.k ?? envInt(env, "RETRIEVAL_K", 10),
     rerank: overrides.rerank ?? rerankRaw === "on",
@@ -88,6 +93,9 @@ export function resolveRetrievalConfig(
   if (config.rrfK < 1) throw new Error(`RETRIEVAL_RRF_K must be >= 1, got: ${config.rrfK}`);
   if (config.weightAlpha < 0 || config.weightAlpha > 1) {
     throw new Error(`RETRIEVAL_WEIGHT_ALPHA must be in [0,1], got: ${config.weightAlpha}`);
+  }
+  if (config.minSimilarity < -1 || config.minSimilarity > 1) {
+    throw new Error(`RETRIEVAL_MIN_SIMILARITY must be in [-1,1], got: ${config.minSimilarity}`);
   }
   if (config.candidateDepth < 1 || config.candidateDepth > 500) {
     throw new Error(`RETRIEVAL_CANDIDATE_DEPTH must be in [1,500], got: ${config.candidateDepth}`);

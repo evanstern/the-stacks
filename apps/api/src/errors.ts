@@ -10,17 +10,18 @@
  * format; every non-2xx body in the system goes through errorEnvelope so
  * clients (and tests) can rely on one shape.
  *
- * "invalid_input" (400) joined "unauthorized" as an API-only code in 009: a
- * request whose SHAPE is wrong (malformed query params caught by Fastify
- * schema validation) is neither an unknown thing nor an unsupported payload
- * type — and letting it fall through to the scrubbed 500 would lie about
- * whose fault it is. Like unauthorized, it stays out of the shared ErrorClass
- * union because only the HTTP edge can have malformed requests.
+ * "invalid_input" (400) joined "unauthorized" as an API-only code in 009 (a
+ * request whose SHAPE is wrong — malformed query params caught by Fastify
+ * schema validation — must not fall through to the scrubbed 500). 010 then
+ * promoted invalid_input into the shared ErrorClass union: the engine's
+ * embedding-stamp refusal is a domain-level input refusal, so "only the HTTP
+ * edge can have malformed requests" stopped being true. "unauthorized"
+ * remains genuinely boundary-only.
  */
 import type { ErrorClass } from "@stacks/core";
 
 /** ErrorClass plus the codes that only exist at the HTTP boundary. */
-export type ApiErrorCode = ErrorClass | "unauthorized" | "invalid_input";
+export type ApiErrorCode = ErrorClass | "unauthorized";
 
 const STATUS_BY_CLASS: Record<ApiErrorCode, number> = {
   unknown_thing: 404,

@@ -19,6 +19,7 @@ describe("resolveRetrievalConfig", () => {
       fusion: "rrf",
       rrfK: 60,
       weightAlpha: 0.5,
+      minSimilarity: 0.3,
       candidateDepth: 50,
       k: 10,
       rerank: false,
@@ -59,6 +60,7 @@ describe("resolveRetrievalConfig", () => {
     expect(() => resolveRetrievalConfig({ RETRIEVAL_FUSION: "vibes" })).toThrow(/RETRIEVAL_FUSION/);
     expect(() => resolveRetrievalConfig({ RETRIEVAL_RRF_K: "zero" })).toThrow(/RETRIEVAL_RRF_K/);
     expect(() => resolveRetrievalConfig({ RETRIEVAL_WEIGHT_ALPHA: "1.5" })).toThrow(/RETRIEVAL_WEIGHT_ALPHA/);
+    expect(() => resolveRetrievalConfig({ RETRIEVAL_MIN_SIMILARITY: "2" })).toThrow(/RETRIEVAL_MIN_SIMILARITY/);
     expect(() => resolveRetrievalConfig({ RETRIEVAL_K: "0" })).toThrow(/RETRIEVAL_K/);
     // k can't exceed what fusion produces
     expect(() =>

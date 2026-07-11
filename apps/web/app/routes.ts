@@ -12,6 +12,7 @@ export default [
   route("login", "routes/login.tsx"),
   layout("routes/protected-layout.tsx", [
     index("routes/home.tsx"),
+    route("search", "routes/search.tsx"),
     route("skeleton-checks/:id", "routes/skeleton-check-detail.tsx"),
     route("library", "routes/library.tsx"),
     route("library/upload", "routes/library.upload.tsx"),

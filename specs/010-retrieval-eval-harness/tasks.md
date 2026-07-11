@@ -29,12 +29,12 @@
 **Goal**: query → fused, attributed, current-generation results in the web UI.
 **Independent Test**: fixture corpus ingested; a verbatim-term query and a paraphrase query each place their expected passage top-5 with source attribution and anchors (SC-001).
 
-- [ ] T010 [US1] TDD: engine integration test — seed two-source fixture chunks with deterministic embeddings (stub embed client), then: verbatim hit ranks top, paraphrase hit ranks top-5 via vector signal, generation predicate excludes written-aside rows, no-match query returns empty, embedding-stamp mismatch REFUSES (R4) — in `packages/retrieval/src/search.test.ts` (suite DB `retrieval_search`); write first, watch fail
-- [ ] T011 [US1] Implement `packages/retrieval/src/search.ts`: FTS candidates (`websearch_to_tsquery('english', $q)` + `ts_rank_cd`, R3), vector candidates (exact `<=>` scan, R2), both under the reader predicate; stamp check; fusion (T006); record via `recordRetrievalRun` (query-length clamp per contracts/api.md §1); T010 green
-- [ ] T012 [US1] TDD: API contract test for `POST /api/retrieval/search` — 401 unauthenticated, 400 `invalid_input` on empty/oversized query, 200 receipt shape per contracts/api.md, 503 `dependency_down` with stubbed-down embed client — in `apps/api/test/retrieval-search.contract.test.ts` (suite DB `api_retrieval_search`); write first
-- [ ] T013 [US1] Implement `apps/api/src/retrieval/routes.ts` (search route, schema-validated) and wire into `apps/api/src/app.ts`; T012 green
-- [ ] T014 [US1] Web `/search`: `apps/web/app/routes/search.tsx` (action via `app/lib/api.server.ts` — browser never calls the API), results with passage text, source attribution linking to the source detail view, per-signal scores, honest empty state; "Search" added to primary nav
-- [ ] T015 [US1] Web test for `/search` in `apps/web` (existing route-test idiom): renders results, empty state, and the nav entry
+- [x] T010 [US1] TDD: engine integration test — seed two-source fixture chunks with deterministic embeddings (stub embed client), then: verbatim hit ranks top, paraphrase hit ranks top-5 via vector signal, generation predicate excludes written-aside rows, no-match query returns empty, embedding-stamp mismatch REFUSES (R4) — in `packages/retrieval/src/search.test.ts` (suite DB `retrieval_search`); write first, watch fail
+- [x] T011 [US1] Implement `packages/retrieval/src/search.ts`: FTS candidates (`websearch_to_tsquery('english', $q)` + `ts_rank_cd`, R3), vector candidates (exact `<=>` scan, R2), both under the reader predicate; stamp check; fusion (T006); record via `recordRetrievalRun` (query-length clamp per contracts/api.md §1); T010 green
+- [x] T012 [US1] TDD: API contract test for `POST /api/retrieval/search` — 401 unauthenticated, 400 `invalid_input` on empty/oversized query, 200 receipt shape per contracts/api.md, 503 `dependency_down` with stubbed-down embed client — in `apps/api/test/retrieval-search.contract.test.ts` (suite DB `api_retrieval_search`); write first
+- [x] T013 [US1] Implement `apps/api/src/retrieval/routes.ts` (search route, schema-validated) and wire into `apps/api/src/app.ts`; T012 green
+- [x] T014 [US1] Web `/search`: `apps/web/app/routes/search.tsx` (action via `app/lib/api.server.ts` — browser never calls the API), results with passage text, source attribution linking to the source detail view, per-signal scores, honest empty state; "Search" added to primary nav
+- [x] T015 [US1] Web test for `/search` in `apps/web` (existing route-test idiom): renders results, empty state, and the nav entry
 
 **Checkpoint**: US1 independently demonstrable (quickstart §1) — the MVP.
 

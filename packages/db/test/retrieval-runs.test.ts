@@ -38,15 +38,14 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("recordRetrievalRun", () 
     db = client.db;
     close = () => client.pool.end();
     await runMigrations(db);
+    // The suite database persists across runs by design (TASK-8); each run
+    // starts from a clean slate it owns.
+    await db.execute(
+      sql`TRUNCATE TABLE retrieval_results, retrieval_runs, sources, source_archives, corpora CASCADE`,
+    );
 
-    const [corpus] = await db
-      .insert(corpora)
-      .values({ name: "retrieval-runs-test" })
-      .onConflictDoNothing()
-      .returning();
-    corpusId =
-      corpus?.id ??
-      (await db.select().from(corpora).where(sql`name = 'retrieval-runs-test'`))[0]!.id;
+    const [corpus] = await db.insert(corpora).values({ name: "retrieval-runs-test" }).returning();
+    corpusId = corpus!.id;
     await db
       .insert(sourceArchives)
       .values({ fingerprint: "f".repeat(64), bytes: Buffer.from("x"), byteSize: 1, mediaType: "text/plain" })

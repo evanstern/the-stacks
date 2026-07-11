@@ -25,6 +25,9 @@ importers:
       '@stacks/ingestion':
         specifier: workspace:*
         version: link:../../packages/ingestion
+      '@stacks/retrieval':
+        specifier: workspace:*
+        version: link:../../packages/retrieval
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1

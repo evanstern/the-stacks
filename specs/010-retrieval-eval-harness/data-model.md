@@ -84,7 +84,7 @@ their gold snapshot — gold-set edits after the run change nothing retroactivel
 
 Resolved from env by `resolveRetrievalConfig`:
 `RETRIEVAL_FUSION` (rrf|weighted, default rrf), `RETRIEVAL_RRF_K` (60),
-`RETRIEVAL_WEIGHT_ALPHA` (0.5, weighted only), `RETRIEVAL_CANDIDATE_DEPTH` (50),
+`RETRIEVAL_WEIGHT_ALPHA` (0.5, weighted only), `RETRIEVAL_MIN_SIMILARITY` (0.3 — the vector floor that makes empty results possible), `RETRIEVAL_CANDIDATE_DEPTH` (50),
 `RETRIEVAL_K` (10), `RETRIEVAL_RERANK` (off|on, default off),
 `RETRIEVAL_RERANK_DEPTH` (50), plus the existing `EMBEDDING_*` role and new
 `RERANKER_MODEL_ID` / `RERANKER_PROVIDER` roles. All documented in `.env.example`

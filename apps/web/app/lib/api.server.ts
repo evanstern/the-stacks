@@ -281,3 +281,46 @@ export async function getSkeletonCheck(request: Request, id: string): Promise<Ru
   const data = (await response.json()) as { run: RunDetail };
   return data.run;
 }
+
+/** One search hit as the wire carries it (spec 010, contracts/api.md §1). */
+export interface SearchResultItem {
+  rank: number;
+  chunkId: string;
+  sourceId: string;
+  generation: number;
+  content: string;
+  anchor: { headingTrail?: string[] } & Record<string, unknown>;
+  scores: { fts: number | null; vector: number | null; fused: number; rerank: number | null };
+  prerankPosition: number | null;
+}
+
+export interface SearchResponse {
+  runId: string;
+  query: string;
+  config: { configName: string; fusion: string; k: number } & Record<string, unknown>;
+  results: SearchResultItem[];
+  timings: Record<string, number | null>;
+}
+
+/** Hybrid search over the corpus (spec 010 US1). The response is the
+ * receipt's content — runId links to /records/retrievals/:id (US2). A non-OK
+ * status surfaces the API's own error envelope message where possible: a 503
+ * with the failing stage named is operator-actionable, not a generic fail. */
+export async function searchLibrary(request: Request, query: string): Promise<SearchResponse> {
+  const response = await apiFetch(request, "/api/retrieval/search", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  if (!response.ok) {
+    let message = "Search failed";
+    try {
+      const envelope = (await response.json()) as { error?: { message?: string } };
+      if (envelope.error?.message) message = envelope.error.message;
+    } catch {
+      // fall through with the generic message
+    }
+    throw new Response(message, { status: response.status });
+  }
+  return (await response.json()) as SearchResponse;
+}
