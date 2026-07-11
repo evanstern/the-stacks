@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-11 04:55'
-updated_date: '2026-07-11 11:40'
+updated_date: '2026-07-11 13:55'
 labels: []
 dependencies: []
 ordinal: 9000
@@ -24,7 +24,7 @@ Spec: specs/010-retrieval-eval-harness
 - [x] #1 Spec phase: Setup (Shared Infrastructure)
 - [x] #2 Spec phase: Foundational (Blocking Prerequisites)
 - [x] #3 Spec phase: User Story 1 — Search the library and get cited passages (Priority: P1) 🎯 MVP
-- [ ] #4 Spec phase: User Story 2 — Every search is a receipt (Priority: P2)
+- [x] #4 Spec phase: User Story 2 — Every search is a receipt (Priority: P2)
 - [ ] #5 Spec phase: User Story 3 — Build a gold set from my own corpus (Priority: P3)
 - [ ] #6 Spec phase: User Story 4 — Measure before choosing (Priority: P4)
 - [ ] #7 Spec phase: User Story 5 — Sharpen the ranking with a reranker (Priority: P5)
@@ -38,4 +38,6 @@ Spec: specs/010-retrieval-eval-harness
 spec-bridge sync: tasks.md generated — 9 phases, 42 tasks, 0/42 (phase ACs seeded)
 
 spec-bridge sync: Setup 2/2 · Foundational 7/7 · US1 6/6 · US2 0/4 · US3 0/4 · US4 0/10 · US5 0/4 · Polish 0/3 · Convergence 0/2
+
+spec-bridge sync: US2 complete (4/4) — receipts surface live; superseded derivation proven against a simulated generation sweep
 <!-- SECTION:NOTES:END -->
