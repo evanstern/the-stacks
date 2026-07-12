@@ -1,11 +1,11 @@
 ---
 id: TASK-9
 title: Retrieval & Evaluation Harness
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-11 04:55'
-updated_date: '2026-07-12 02:16'
+updated_date: '2026-07-12 04:26'
 labels: []
 dependencies: []
 ordinal: 9000
@@ -29,7 +29,7 @@ Spec: specs/010-retrieval-eval-harness
 - [x] #6 Spec phase: User Story 4 — Measure before choosing (Priority: P4)
 - [x] #7 Spec phase: User Story 5 — Sharpen the ranking with a reranker (Priority: P5)
 - [x] #8 Spec phase: Polish & Cross-Cutting Concerns
-- [ ] #9 Spec phase: Convergence
+- [x] #9 Spec phase: Convergence
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -48,4 +48,12 @@ spec-bridge sync: US4 complete (10/10) — harness live, CI floor armed inside p
 spec-bridge sync: US5 complete (4/4) — all five user stories done; Polish + Convergence remain
 
 spec-bridge sync: Polish 3/3 · Convergence 1/2 (T042 rides the course) — converge verdict: CONVERGED; SC-005/006 partial by operator decision → TASK-10
+
+spec-bridge sync: Setup (Shared Infrastructure): 2/2 · Foundational (Blocking Prerequisites): 7/7 · User Story 1 — Search the library and get cited passages (Priority: P1) 🎯 MVP: 6/6 · User Story 2 — Every search is a receipt (Priority: P2): 4/4 · User Story 3 — Build a gold set from my own corpus (Priority: P3): 4/4 · User Story 4 — Measure before choosing (Priority: P4): 10/10 · User Story 5 — Sharpen the ranking with a reranker (Priority: P5): 4/4 · Polish & Cross-Cutting Concerns: 3/3 · Convergence: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 2/2 · Foundational (Blocking Prerequisites): 7/7 · User Story 1 — Search the library and get cited passages (Priority: P1) 🎯 MVP: 6/6 · User Story 2 — Every search is a receipt (Priority: P2): 4/4 · User Story 3 — Build a gold set from my own corpus (Priority: P3): 4/4 · User Story 4 — Measure before choosing (Priority: P4): 10/10 · User Story 5 — Sharpen the ranking with a reranker (Priority: P5): 4/4 · Polish & Cross-Cutting Concerns: 3/3 · Convergence: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
