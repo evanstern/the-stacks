@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-11 04:55'
-updated_date: '2026-07-12 01:44'
+updated_date: '2026-07-12 01:54'
 labels: []
 dependencies: []
 ordinal: 9000
@@ -27,7 +27,7 @@ Spec: specs/010-retrieval-eval-harness
 - [x] #4 Spec phase: User Story 2 — Every search is a receipt (Priority: P2)
 - [x] #5 Spec phase: User Story 3 — Build a gold set from my own corpus (Priority: P3)
 - [x] #6 Spec phase: User Story 4 — Measure before choosing (Priority: P4)
-- [ ] #7 Spec phase: User Story 5 — Sharpen the ranking with a reranker (Priority: P5)
+- [x] #7 Spec phase: User Story 5 — Sharpen the ranking with a reranker (Priority: P5)
 - [ ] #8 Spec phase: Polish & Cross-Cutting Concerns
 - [ ] #9 Spec phase: Convergence
 <!-- AC:END -->
@@ -44,4 +44,6 @@ spec-bridge sync: US2 complete (4/4) — receipts surface live; superseded deriv
 spec-bridge sync: US3 complete (4/4) — gold bench live; auto-heal + re-confirmation proven against a simulated re-ingest
 
 spec-bridge sync: US4 complete (10/10) — harness live, CI floor armed inside pnpm verify and proven to bite
+
+spec-bridge sync: US5 complete (4/4) — all five user stories done; Polish + Convergence remain
 <!-- SECTION:NOTES:END -->
