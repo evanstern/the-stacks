@@ -13,6 +13,10 @@ v2 wiki is archived under `.v2/wiki/` and describes no running code.
 - [[ingestion]] — the extensible ingestion pipeline (spec 008): the NormalizedDocument
   plugin seam, detection dispatch, structure-aware chunking, generation-flip
   re-ingestion, one-Postgres storage.
+- [[retrieval]] — query-side hybrid retrieval + the eval harness (spec 010): FTS/vector
+  fusion under the reader predicate, append-only run receipts with view-time superseded
+  derivation, content-hash gold labels, pinned metrics with the deterministic CI floor,
+  the optional sidecar reranker.
 - [[worktree-environments]] — the per-worktree environment protocol (spec 009):
   deterministic `10×NNN` port blocks, per-worktree compose identity, the
   `mint-worktree-env` tool, docker lifecycle isolation.

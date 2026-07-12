@@ -18,7 +18,7 @@ sources:
   - packages/db/src/queue.ts
   - packages/db/src/schema/skeleton-vectors.ts
   - scripts/check-boundaries.mjs
-verified_against: 4bb6d323acb096c572043b1a27d10f693deac6e6
+verified_against: e753367d49b9459aded0341da542971abc186ef4
 ---
 
 # Walking Skeleton
@@ -131,7 +131,10 @@ that) / `POST /v1/embed` (batch-in/batch-out; wrong `model` → 404, empty or
 non-string inputs → 415, not-ready → 503). Model loading runs as a background
 task at startup so `/health` stays reachable while a large model downloads
 into the `hf-cache` named volume — first start pays the download once, warm
-starts load from cache.
+starts load from cache. Since 010 the sidecar also serves `POST /v1/rerank`
+(the OPTIONAL cross-encoder role — disabled when `ML_RERANKER_MODEL` is
+unset, reported additively on `/ready` without affecting overall readiness;
+same guard order and error taxonomy as embed) — see [[retrieval]].
 
 ## Testing posture
 
