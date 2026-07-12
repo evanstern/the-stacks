@@ -85,10 +85,10 @@
 **Goal**: env-configured CrossEncoder stage via the sidecar; no silent fallback.
 **Independent Test**: rerank off/on same query shows recorded pre/post orderings; sidecar down + rerank on ⇒ honest 503 naming the stage (quickstart §6).
 
-- [ ] T034 [US5] TDD: sidecar pytest for `/v1/rerank` — role-disabled 503 `model_not_configured`, wrong-model 404, malformed 415 (empty passages, >256, oversized query), happy path with monkeypatched CrossEncoder scorer, `/ready` reranker states — in `apps/ml/tests/test_rerank.py`; write first
-- [ ] T035 [US5] Implement `/v1/rerank` + `RERANKER_*` role loading/reporting in `apps/ml/src/ml/` (main.py endpoint, models.py loader, schemas.py request/response) per contracts/reranker.md; pytest + pyright green
-- [ ] T036 [US5] TDD: `rerank-client.ts` unit test (typed `DomainError`s per status, never returns partial) + engine stage test (on: prerank positions + rerank scores recorded; off: stage marked skipped, no HTTP call; sidecar down + on: `dependency_down`, FR-021) — extend `packages/retrieval/src/search.test.ts` + new `packages/retrieval/src/rerank-client.test.ts`; write first
-- [ ] T037 [US5] Implement `packages/retrieval/src/rerank-client.ts` + the rerank stage in `search.ts` (config-gated, `RETRIEVAL_RERANK_DEPTH` candidates); T036 green
+- [x] T034 [US5] TDD: sidecar pytest for `/v1/rerank` — role-disabled 503 `model_not_configured`, wrong-model 404, malformed 415 (empty passages, >256, oversized query), happy path with monkeypatched CrossEncoder scorer, `/ready` reranker states — in `apps/ml/tests/test_rerank.py`; write first
+- [x] T035 [US5] Implement `/v1/rerank` + `RERANKER_*` role loading/reporting in `apps/ml/src/ml/` (main.py endpoint, models.py loader, schemas.py request/response) per contracts/reranker.md; pytest + pyright green
+- [x] T036 [US5] TDD: `rerank-client.ts` unit test (typed `DomainError`s per status, never returns partial) + engine stage test (on: prerank positions + rerank scores recorded; off: stage marked skipped, no HTTP call; sidecar down + on: `dependency_down`, FR-021) — extend `packages/retrieval/src/search.test.ts` + new `packages/retrieval/src/rerank-client.test.ts`; write first
+- [x] T037 [US5] Implement `packages/retrieval/src/rerank-client.ts` + the rerank stage in `search.ts` (config-gated, `RETRIEVAL_RERANK_DEPTH` candidates); T036 green
 
 **Checkpoint**: US5 independently demonstrable — all stories complete.
 

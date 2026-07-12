@@ -23,7 +23,7 @@ import {
 import { DomainError } from "@stacks/core";
 
 import { resolveRetrievalConfig } from "./config";
-import { searchCorpus, type QueryEmbedder } from "./search";
+import { searchCorpus, type QueryEmbedder, type RerankScorer } from "./search";
 import {
   deterministicEmbedding,
   FIXTURE_EMBEDDING_STAMP,
@@ -184,6 +184,67 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("searchCorpus", () => {
       constructor: DomainError,
       class: "invalid_input",
       message: expect.stringMatching(/fixture.*some-other-model|some-other-model.*fixture/s),
+    });
+  });
+
+  describe("rerank stage (US5)", () => {
+    const rerankConfig = resolveRetrievalConfig(
+      { RERANKER_PROVIDER: "local-sidecar", RERANKER_MODEL_ID: "rr" },
+      { rerank: true, rerankDepth: 10 },
+    );
+
+    it("on: re-orders by rerank score, recording prerank positions and scores", async () => {
+      // Score STEALTH highest regardless of fused order.
+      const scorer: RerankScorer = {
+        rerank: async (_query, passages) =>
+          new Map(passages.map((p) => [p.id, p.id === "chunk-stealth" ? 10 : 1])),
+      };
+      const search = await searchCorpus(
+        { ...deps(), rerank: scorer },
+        { corpusId, query: "grapple or stealth or fireball", config: rerankConfig },
+      );
+      expect(search.results[0]!.chunkId).toBe("chunk-stealth");
+      expect(search.results[0]!.rerankScore).toBe(10);
+      // prerankPosition records where fusion had it BEFORE the re-order.
+      expect(search.results[0]!.prerankPosition).toBeGreaterThanOrEqual(1);
+      expect(search.stageTimings.rerank).not.toBeNull();
+    });
+
+    it("off: no scorer call, stage recorded as skipped", async () => {
+      let called = false;
+      const scorer: RerankScorer = {
+        rerank: async () => {
+          called = true;
+          return new Map();
+        },
+      };
+      const search = await searchCorpus(
+        { ...deps(), rerank: scorer },
+        { corpusId, query: "grapple", config },
+      );
+      expect(called).toBe(false);
+      expect(search.stageTimings.rerank).toBeNull();
+      expect(search.results[0]!.rerankScore).toBeNull();
+    });
+
+    it("on + scorer failing: honest dependency_down, NO receipt recorded (FR-021)", async () => {
+      const before = await db.execute(sql`SELECT count(*)::int AS n FROM retrieval_runs`);
+      const scorer: RerankScorer = {
+        rerank: async () => {
+          throw new DomainError({ class: "dependency_down", seam: "rerank", message: "Sidecar unreachable." });
+        },
+      };
+      await expect(
+        searchCorpus({ ...deps(), rerank: scorer }, { corpusId, query: "grapple", config: rerankConfig }),
+      ).rejects.toMatchObject({ class: "dependency_down", seam: "rerank" });
+      const after = await db.execute(sql`SELECT count(*)::int AS n FROM retrieval_runs`);
+      expect(after.rows[0]).toEqual(before.rows[0]);
+    });
+
+    it("on without a scorer wired is an internal fault (wiring bug, not a fallback)", async () => {
+      await expect(
+        searchCorpus(deps(), { corpusId, query: "grapple", config: rerankConfig }),
+      ).rejects.toMatchObject({ class: "internal_fault" });
     });
   });
 });

@@ -72,6 +72,9 @@ export async function createEvalRun(db: Database, input: CreateEvalRunInput): Pr
 export interface EvalDeps {
   db: Database;
   embedQuery: QueryEmbedder;
+  /** Wired by the worker when the reranker role is live; eval configs with
+   *  rerank on fail honestly without it (same rule as interactive search). */
+  rerank?: import("../rerank-client").RerankScorer;
 }
 
 export async function executeEvalRun(deps: EvalDeps, evalRunId: string): Promise<void> {

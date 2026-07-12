@@ -23,6 +23,7 @@ import {
   resolveRetrievalConfig,
   searchCorpus,
   type QueryEmbedder,
+  type RerankScorer,
   type ResolvedRetrievalConfig,
 } from "@stacks/retrieval";
 
@@ -30,6 +31,7 @@ export interface RetrievalRouteDeps {
   db: Database;
   embedQuery: QueryEmbedder;
   config: ResolvedRetrievalConfig;
+  rerank?: RerankScorer;
 }
 
 /** Receipt line → wire shape (scores grouped for reading, nothing added). */
@@ -81,7 +83,7 @@ export function registerRetrievalRoutes(app: FastifyInstance, deps: RetrievalRou
       }
 
       const search = await searchCorpus(
-        { db: deps.db, embedQuery: deps.embedQuery },
+        { db: deps.db, embedQuery: deps.embedQuery, rerank: deps.rerank },
         { corpusId: corpus.id, query: request.body.query, config: deps.config },
       );
 

@@ -20,8 +20,10 @@ import { registerAuthRoutes } from "./auth/routes";
 import { resolveModelRole } from "@stacks/core";
 import { createEmbedClient } from "@stacks/ingestion";
 import {
+  createRerankClient,
   resolveRetrievalConfig,
   type QueryEmbedder,
+  type RerankScorer,
   type ResolvedRetrievalConfig,
 } from "@stacks/retrieval";
 
@@ -47,6 +49,10 @@ export interface AppDeps {
   /** Resolved retrieval config; defaults from process.env (all knobs have
    *  safe defaults — resolution cannot fail on an empty env). */
   retrievalConfig?: ResolvedRetrievalConfig;
+  /** Rerank scorer (spec 010 US5); injectable in tests, env-built when the
+   *  RERANKER_* role is configured, absent otherwise (config resolution
+   *  refuses rerank=on with a disabled role before this matters). */
+  rerank?: RerankScorer;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
@@ -114,6 +120,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     db: deps.db,
     embedQuery: deps.embedQuery ?? lazySidecarEmbedder(),
     config: deps.retrievalConfig ?? resolveRetrievalConfig(process.env),
+    rerank: deps.rerank ?? envRerankScorer(),
   });
   registerRetrievalRecordRoutes(app, { db: deps.db });
   registerGoldRoutes(app, { db: deps.db });
@@ -155,4 +162,17 @@ function lazySidecarEmbedder(): QueryEmbedder {
     }
     return embedder(text);
   };
+}
+
+/** The production rerank scorer when the role is configured; undefined when
+ * disabled (Principle VII: empty provider = role off — and config resolution
+ * already refuses RETRIEVAL_RERANK=on in that case, so an undefined scorer
+ * can only coexist with rerank=off). */
+function envRerankScorer(): RerankScorer | undefined {
+  if (!process.env.RERANKER_PROVIDER) return undefined;
+  return createRerankClient({
+    endpoint: process.env.EMBEDDING_ENDPOINT ?? "http://ml:4402",
+    modelId: process.env.RERANKER_MODEL_ID ?? "",
+    timeoutMs: Number(process.env.ML_REQUEST_TIMEOUT_MS ?? 15000),
+  });
 }

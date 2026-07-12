@@ -10,6 +10,7 @@
 export * from "./config";
 export * from "./fusion";
 export * from "./search";
+export * from "./rerank-client";
 export * from "./gold";
 export * from "./eval/metrics";
 export * from "./eval/run-eval";

@@ -13,7 +13,7 @@
 import { resolveModelRole } from "@stacks/core";
 import type { Database, Job } from "@stacks/db";
 import { createEmbedClient } from "@stacks/ingestion";
-import { executeEvalRun, type QueryEmbedder } from "@stacks/retrieval";
+import { createRerankClient, executeEvalRun, type QueryEmbedder, type RerankScorer } from "@stacks/retrieval";
 
 let embedderOverride: QueryEmbedder | null = null;
 let cachedEmbedder: QueryEmbedder | null = null;
@@ -45,10 +45,22 @@ function evalEmbedder(): QueryEmbedder {
   return cachedEmbedder;
 }
 
+function envRerankScorer(): RerankScorer | undefined {
+  if (!process.env.RERANKER_PROVIDER) return undefined;
+  return createRerankClient({
+    endpoint: process.env.EMBEDDING_ENDPOINT ?? "http://ml:4402",
+    modelId: process.env.RERANKER_MODEL_ID ?? "",
+    timeoutMs: Number(process.env.ML_REQUEST_TIMEOUT_MS ?? 15000),
+  });
+}
+
 export async function evalRunHandler(db: Database, job: Job): Promise<void> {
   const payload = job.payload as Partial<{ evalRunId: string }>;
   if (!payload.evalRunId) {
     throw new Error(`eval_run job ${job.id} has a malformed payload`);
   }
-  await executeEvalRun({ db, embedQuery: evalEmbedder() }, payload.evalRunId);
+  await executeEvalRun(
+    { db, embedQuery: evalEmbedder(), rerank: envRerankScorer() },
+    payload.evalRunId,
+  );
 }

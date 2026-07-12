@@ -29,6 +29,9 @@ import {
 
 import type { ResolvedRetrievalConfig } from "./config";
 import { fuse, type SignalCandidate } from "./fusion";
+import type { RerankScorer } from "./rerank-client";
+
+export type { RerankScorer } from "./rerank-client";
 
 export type QueryEmbedder = (text: string) => Promise<{
   vector: number[];
@@ -40,6 +43,9 @@ export type QueryEmbedder = (text: string) => Promise<{
 export interface SearchDeps {
   db: Database;
   embedQuery: QueryEmbedder;
+  /** Required when config.rerank is on; its absence then is a WIRING bug
+   *  (internal_fault), never a silent skip — FR-021. */
+  rerank?: RerankScorer;
 }
 
 export interface SearchInput {
@@ -188,22 +194,58 @@ export async function searchCorpus(
   const fused = fuse(config, asSignal(ftsCandidateRows), asSignal(vectorCandidateRows));
   timings.fusion = Math.round(performance.now() - fusionStart);
 
-  const results: RetrievalResultLine[] = fused.slice(0, config.k).map((candidate, index) => {
-    const row = byId.get(candidate.chunkId)!;
+  // The rerank stage (US5): the top rerankDepth fused candidates are
+  // re-scored by the cross-encoder and re-ordered by its scores (ties keep
+  // fused order — determinism again). A failing scorer FAILS the search
+  // (FR-021: never silently the unreranked order); a missing scorer with
+  // rerank=on is a wiring bug, since config resolution already proved the
+  // role live.
+  let ordered: Array<{ candidate: (typeof fused)[number]; rerankScore: number | null; prerankPosition: number | null }>;
+  if (config.rerank) {
+    if (!deps.rerank) {
+      throw new DomainError({
+        class: "internal_fault",
+        seam: "rerank",
+        message: "RETRIEVAL_RERANK=on but no rerank client is wired — composition bug.",
+      });
+    }
+    const rerankInput = fused.slice(0, config.rerankDepth);
+    const scores = await timed("rerank", () =>
+      deps.rerank!.rerank(
+        query,
+        rerankInput.map((candidate) => ({
+          id: candidate.chunkId,
+          text: byId.get(candidate.chunkId)!.content,
+        })),
+      ),
+    );
+    ordered = rerankInput
+      .map((candidate, index) => ({
+        candidate,
+        rerankScore: scores.get(candidate.chunkId)!,
+        prerankPosition: index + 1,
+      }))
+      .sort((a, b) => b.rerankScore! - a.rerankScore! || a.prerankPosition! - b.prerankPosition!);
+  } else {
+    ordered = fused.map((candidate) => ({ candidate, rerankScore: null, prerankPosition: null }));
+  }
+
+  const results: RetrievalResultLine[] = ordered.slice(0, config.k).map((entry, index) => {
+    const row = byId.get(entry.candidate.chunkId)!;
     return {
       rank: index + 1,
-      chunkId: candidate.chunkId,
+      chunkId: entry.candidate.chunkId,
       sourceId: row.source_id,
       generation: row.generation,
       contentSnapshot: row.content,
       anchorSnapshot: row.anchor,
       sectionIds: row.section_ids,
       contentSha256: createHash("sha256").update(row.content, "utf8").digest("hex"),
-      ftsScore: candidate.ftsScore,
-      vectorScore: candidate.vectorScore,
-      fusedScore: candidate.fusedScore,
-      rerankScore: null,
-      prerankPosition: null,
+      ftsScore: entry.candidate.ftsScore,
+      vectorScore: entry.candidate.vectorScore,
+      fusedScore: entry.candidate.fusedScore,
+      rerankScore: entry.rerankScore,
+      prerankPosition: entry.prerankPosition,
     };
   });
 

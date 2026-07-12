@@ -8,7 +8,7 @@ status codes. `/ready` gains the reranker's state.
 
 - `RERANKER_MODEL_ID` + `RERANKER_PROVIDER` env vars (sidecar receives `ML_RERANKER_MODEL=${RERANKER_MODEL_ID}`, mirroring the embedding role's pattern) (D14 — no hardcoded ids).
 - Unset ⇒ role `disabled`: `/ready` reports `reranker: "disabled"`, `/v1/rerank`
-  answers `503` with code `model_not_configured`. The TS engine refuses
+  answers `503 dependency_down` with a role-disabled message. The TS engine refuses
   `RETRIEVAL_RERANK=on` at config resolution when the role is disabled — fail
   fast at boot/config time, not per request.
 - Set ⇒ loaded as a background task at startup (like the embedding model — the
@@ -40,13 +40,17 @@ Response `200`:
   response only; never persisted as normalized values (the run record stores
   them raw, contracts/metrics.md never mixes them across runs).
 
-## Errors (mirrors /v1/embed exactly)
+## Errors (mirrors /v1/embed exactly — ONE error taxonomy across the stack)
 
 | Status | Code | When |
 |---|---|---|
-| 404 | `unknown_model` | body.model ≠ configured role |
-| 415 | `invalid_input` | empty passages, non-string text, > 256 passages, query > 1024 chars |
-| 503 | `model_loading` / `model_failed` / `model_not_configured` | not ready to score |
+| 404 | `unknown_thing` | body.model ≠ configured role ("a thing we don't have") |
+| 415 | `unsupported_type` | empty passages, non-string text, > 256 passages, query > 1024 chars |
+| 503 | `dependency_down` | role disabled, still loading, or failed — the message says which |
+
+(An earlier draft invented reranker-specific codes; they were dropped for the
+shared taxonomy the 007 sidecar contract pinned — callers keep one error
+shape and one code vocabulary everywhere.)
 
 ## Limits & determinism
 
