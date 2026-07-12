@@ -15,6 +15,13 @@
       "when": 1783402179521,
       "tag": "0002_ingestion",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783768950405,
+      "tag": "0003_retrieval-tables",
+      "breakpoints": true
     }
   ]
 }

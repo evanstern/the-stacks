@@ -17,10 +17,21 @@ import type { createDbClient } from "@stacks/db";
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 
 import { registerAuthRoutes } from "./auth/routes";
+import { resolveModelRole } from "@stacks/core";
+import { createEmbedClient } from "@stacks/ingestion";
+import {
+  createRerankClient,
+  resolveRetrievalConfig,
+  type QueryEmbedder,
+  type RerankScorer,
+  type ResolvedRetrievalConfig,
+} from "@stacks/retrieval";
+
 import { registerSession } from "./auth/session";
 import { errorEnvelope, statusForErrorClass } from "./errors";
 import { registerHealthRoutes } from "./health";
 import { registerIngestionRoutes } from "./ingestion/routes";
+import { registerEvalRunRoutes, registerGoldRoutes, registerRetrievalRecordRoutes, registerRetrievalRoutes } from "./retrieval/routes";
 import { registerSkeletonCheckRoutes } from "./skeleton-checks/routes";
 
 export interface AppDeps {
@@ -31,6 +42,17 @@ export interface AppDeps {
   sessionCookieSecure: boolean;
   /** Ingestion intake cap; env-resolved in main.ts, injectable in tests. */
   maxUploadBytes?: number;
+  /** Query embedder for retrieval (spec 010); injectable in tests. Absent,
+   *  a REAL sidecar-backed embedder is built LAZILY on first search — so
+   *  suites that never touch retrieval carry no embedding env burden. */
+  embedQuery?: QueryEmbedder;
+  /** Resolved retrieval config; defaults from process.env (all knobs have
+   *  safe defaults — resolution cannot fail on an empty env). */
+  retrievalConfig?: ResolvedRetrievalConfig;
+  /** Rerank scorer (spec 010 US5); injectable in tests, env-built when the
+   *  RERANKER_* role is configured, absent otherwise (config resolution
+   *  refuses rerank=on with a disabled role before this matters). */
+  rerank?: RerankScorer;
 }
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
@@ -94,6 +116,15 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   registerAuthRoutes(app, { operatorPasswordHash: deps.operatorPasswordHash });
   registerSkeletonCheckRoutes(app, { db: deps.db });
   await registerIngestionRoutes(app, { db: deps.db, maxUploadBytes: deps.maxUploadBytes });
+  registerRetrievalRoutes(app, {
+    db: deps.db,
+    embedQuery: deps.embedQuery ?? lazySidecarEmbedder(),
+    config: deps.retrievalConfig ?? resolveRetrievalConfig(process.env),
+    rerank: deps.rerank ?? envRerankScorer(),
+  });
+  registerRetrievalRecordRoutes(app, { db: deps.db });
+  registerGoldRoutes(app, { db: deps.db });
+  registerEvalRunRoutes(app, { db: deps.db });
 
   return app;
 }
@@ -102,4 +133,46 @@ declare module "fastify" {
   interface FastifyInstance {
     deps: AppDeps;
   }
+}
+
+/** The production QueryEmbedder: the 008 embed client pointed at the same
+ * EMBEDDING_* role the index was stamped with (research R4 — one role, so
+ * query and index can only drift if config drifts, and the engine's stamp
+ * check catches exactly that). Built lazily on FIRST use: tests that never
+ * search never pay the env-resolution cost. */
+function lazySidecarEmbedder(): QueryEmbedder {
+  let embedder: QueryEmbedder | null = null;
+  return async (text: string) => {
+    if (!embedder) {
+      const role = resolveModelRole("embedding");
+      const client = createEmbedClient({
+        config: role,
+        maxBatch: 1,
+        timeoutMs: Number(process.env.ML_REQUEST_TIMEOUT_MS ?? 15000),
+      });
+      embedder = async (query: string) => {
+        const [vector] = await client.embedAll([query]);
+        return {
+          vector: vector!,
+          provider: role.provider,
+          model: role.modelId,
+          dimensions: role.dimensions,
+        };
+      };
+    }
+    return embedder(text);
+  };
+}
+
+/** The production rerank scorer when the role is configured; undefined when
+ * disabled (Principle VII: empty provider = role off — and config resolution
+ * already refuses RETRIEVAL_RERANK=on in that case, so an undefined scorer
+ * can only coexist with rerank=off). */
+function envRerankScorer(): RerankScorer | undefined {
+  if (!process.env.RERANKER_PROVIDER) return undefined;
+  return createRerankClient({
+    endpoint: process.env.EMBEDDING_ENDPOINT ?? "http://ml:4402",
+    modelId: process.env.RERANKER_MODEL_ID ?? "",
+    timeoutMs: Number(process.env.ML_REQUEST_TIMEOUT_MS ?? 15000),
+  });
 }

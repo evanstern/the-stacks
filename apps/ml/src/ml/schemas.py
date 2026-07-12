@@ -28,3 +28,36 @@ class EmbedResponse(BaseModel):
     dimensions: int
     embeddings: list[list[float]]
     duration_ms: int
+
+
+class RerankPassage(BaseModel):
+    """One candidate for rescoring; `id` is the caller's correlation key —
+    the sidecar never interprets it (contracts/reranker.md: the caller owns
+    ordering, the sidecar owns scoring)."""
+
+    id: StrictStr = Field(min_length=1)
+    text: StrictStr = Field(min_length=1)
+
+
+class RerankRequest(BaseModel):
+    """Cross-encoder rescoring request (spec 010 US5). The 256 cap is the
+    contract's hard per-call bound — engine-side RETRIEVAL_RERANK_DEPTH is
+    validated to fit under it at config time."""
+
+    model: str
+    query: StrictStr = Field(min_length=1, max_length=1024)
+    passages: list[RerankPassage] = Field(min_length=1, max_length=256)
+
+
+class RerankScore(BaseModel):
+    id: str
+    score: float
+
+
+class RerankResponse(BaseModel):
+    """Raw cross-encoder logits per passage — comparable within ONE response
+    only; callers re-sort and must never normalize across runs."""
+
+    model: str
+    scores: list[RerankScore]
+    duration_ms: int

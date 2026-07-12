@@ -16,11 +16,12 @@ import { randomUUID } from "node:crypto";
 import { writeFileSync } from "node:fs";
 
 import { DomainError } from "@stacks/core";
-import { claimNext, createDbClient, fail, reclaimStale } from "@stacks/db";
+import { claimNext, complete, createDbClient, fail, reclaimStale } from "@stacks/db";
 
 import { ingestBatchExpandHandler } from "./handlers/ingest-batch-expand";
 import { ingestSourceHandler } from "./handlers/ingest-source";
 import { skeletonCheckHandler } from "./handlers/skeleton-check";
+import { evalRunHandler } from "./handlers/eval-run";
 import { getHandler, registerHandler } from "./handlers/registry";
 
 // The one place job kinds are wired to handlers. New job kinds register here;
@@ -28,6 +29,7 @@ import { getHandler, registerHandler } from "./handlers/registry";
 registerHandler("skeleton_check", skeletonCheckHandler);
 registerHandler("ingest_source", ingestSourceHandler);
 registerHandler("ingest_batch_expand", ingestBatchExpandHandler);
+registerHandler("eval_run", evalRunHandler);
 
 const HEARTBEAT_PATH = process.env.WORKER_HEARTBEAT_PATH ?? "/tmp/worker-heartbeat";
 
@@ -98,6 +100,14 @@ async function main(): Promise<void> {
         } else {
           try {
             await handler(db, job);
+            // A handled job MUST be marked succeeded, or it never leaves
+            // `claimed`: reclaimStale would return it to the queue every
+            // visibility timeout and the worker would re-run it forever —
+            // observed live as an ingest job at 38 attempts (max 3) and an
+            // eval run re-executing once a minute (TASK-10). Handlers are
+            // idempotent by design (R8/R9), which is exactly why this bug
+            // shipped unseen: every re-run converged to the same rows.
+            await complete(db, job.id);
             log("job_handled", { jobId: job.id, kind: job.kind });
           } catch (error) {
             // Preserve the DomainError class/seam into jobs.last_error so the

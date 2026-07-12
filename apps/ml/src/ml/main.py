@@ -21,8 +21,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .models import ModelState, load_model
-from .schemas import EmbedRequest, EmbedResponse
+from .models import ModelState, RerankerState, load_model, load_reranker
+from .schemas import EmbedRequest, EmbedResponse, RerankRequest, RerankResponse, RerankScore
 
 
 @asynccontextmanager
@@ -42,12 +42,28 @@ async def lifespan(app: FastAPI):
     state = ModelState(status="loading", model_id=model_id)
     app.state.model_state = state
 
+    # The reranker role is OPTIONAL (spec 010 R9): .get, not [...] — an empty
+    # or absent id means "disabled", reported honestly on /ready, never an
+    # error. Contrast with the embedding role above, which must exist.
+    reranker_id = os.environ.get("ML_RERANKER_MODEL", "").strip()
+    reranker_state = (
+        RerankerState(status="loading", model_id=reranker_id)
+        if reranker_id
+        else RerankerState(status="disabled", model_id="")
+    )
+    app.state.reranker_state = reranker_state
+
     task = asyncio.create_task(load_model(state))
+    reranker_task = (
+        asyncio.create_task(load_reranker(reranker_state)) if reranker_id else None
+    )
     try:
         yield
     finally:
-        # Shutdown: cancel an in-flight load so uvicorn can exit promptly.
+        # Shutdown: cancel in-flight loads so uvicorn can exit promptly.
         task.cancel()
+        if reranker_task is not None:
+            reranker_task.cancel()
 
 
 def _error(code: str, message: str) -> dict:
@@ -78,14 +94,26 @@ def create_app() -> FastAPI:
         # (load_model never leaks the raw exception). Compose healthchecks and
         # api-side callers gate on this endpoint, not /health.
         state: ModelState = app.state.model_state
+        # Additive since 010: the reranker role's state rides along, but the
+        # stack's overall readiness stays the EMBEDDING role's story — a
+        # disabled/loading optional role must not fail compose healthchecks.
+        reranker: RerankerState = app.state.reranker_state
+        reranker_report = {"status": reranker.status, "model": reranker.model_id or None}
+        if reranker.status == "disabled":
+            reranker_report = {"status": "disabled"}
 
         if state.status == "ready":
-            return {"status": "ready", "model": state.model_id, "dimensions": state.dimensions}
+            return {
+                "status": "ready",
+                "model": state.model_id,
+                "dimensions": state.dimensions,
+                "reranker": reranker_report,
+            }
 
         response.status_code = 503
         if state.status == "failed":
-            return {"status": "failed", "message": state.error_message}
-        return {"status": "loading"}
+            return {"status": "failed", "message": state.error_message, "reranker": reranker_report}
+        return {"status": "loading", "reranker": reranker_report}
 
     @app.post("/v1/embed")
     async def embed(body: EmbedRequest, response: Response):
@@ -128,6 +156,48 @@ def create_app() -> FastAPI:
             model=state.model_id,
             dimensions=state.dimensions,  # type: ignore[arg-type]
             embeddings=embeddings,
+            duration_ms=duration_ms,
+        )
+
+    @app.post("/v1/rerank")
+    async def rerank(body: RerankRequest, response: Response):
+        # Cross-encoder rescoring (spec 010, contracts/reranker.md). Guard
+        # order mirrors /v1/embed: not-ready (503) -> model mismatch (404) ->
+        # infer. Shape errors (empty/oversized batch, blank query) never
+        # reach here — Pydantic rejects them and the handler above converts
+        # to 415. ONE error taxonomy across the stack: dependency_down /
+        # unknown_thing / unsupported_type, same as every other seam.
+        state: RerankerState = app.state.reranker_state
+
+        if state.status == "disabled":
+            response.status_code = 503
+            return _error(
+                "dependency_down",
+                "Reranker role is disabled (ML_RERANKER_MODEL is unset).",
+            )
+        if state.status != "ready":
+            response.status_code = 503
+            return _error("dependency_down", f"Reranker model is not ready ({state.status}).")
+
+        if body.model != state.model_id:
+            response.status_code = 404
+            return _error("unknown_thing", f"Model '{body.model}' is not the loaded reranker.")
+
+        try:
+            start = time.perf_counter()
+            pairs = [(body.query, passage.text) for passage in body.passages]
+            raw_scores = state.model.predict(pairs)  # type: ignore[union-attr]
+            duration_ms = int((time.perf_counter() - start) * 1000)
+        except Exception:
+            response.status_code = 500
+            return _error("internal_fault", "Rerank inference failed.")
+
+        return RerankResponse(
+            model=state.model_id,
+            scores=[
+                RerankScore(id=passage.id, score=float(score))
+                for passage, score in zip(body.passages, raw_scores)
+            ],
             duration_ms=duration_ms,
         )
 

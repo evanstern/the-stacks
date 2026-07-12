@@ -12,9 +12,14 @@ export default [
   route("login", "routes/login.tsx"),
   layout("routes/protected-layout.tsx", [
     index("routes/home.tsx"),
+    route("search", "routes/search.tsx"),
     route("skeleton-checks/:id", "routes/skeleton-check-detail.tsx"),
     route("library", "routes/library.tsx"),
     route("library/upload", "routes/library.upload.tsx"),
     route("library/uploads/:kind/:id", "routes/library.uploads.$ticket.tsx"),
+    route("records/retrievals", "routes/records.retrievals.tsx"),
+    route("records/retrievals/:run", "routes/records.retrievals.$run.tsx"),
+    route("evals", "routes/evals.tsx"),
+    route("evals/gold", "routes/evals.gold.tsx"),
   ]),
 ] satisfies RouteConfig;

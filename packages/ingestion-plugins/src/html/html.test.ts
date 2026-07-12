@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { DETECT_HEAD_BYTES } from "@stacks/ingestion-contract";
 import { describeConformance } from "@stacks/ingestion-contract/conformance";
 import { describe, expect, it } from "vitest";
 
@@ -22,11 +23,25 @@ const GOBLIN = fixture("ddb/goblin-page.html");
 const TRUNCATED = fixture("rejects/truncated.html");
 const NON_HTML = fixture("markdown/notes.md");
 
+/**
+ * Same real-page geometry the ddb plugin's tests pin (TASK-10): a big saved
+ * page's inlined <head> pushes <body> past DETECT_HEAD_BYTES, so a
+ * body-text-based detect sees nothing extractable in the prefix and the file
+ * falls through EVERY plugin ("No registered ingester recognizes …").
+ * The fallback must still claim well-formed HTML it can only prove is HTML.
+ */
+const LARGE_PREAMBLE = (() => {
+  const html = new TextDecoder().decode(PLAIN_ARTICLE);
+  const filler = `<style>/* ${"padding ".repeat(2 * DETECT_HEAD_BYTES / 8)} */</style>`;
+  return new TextEncoder().encode(html.replace("</head>", `${filler}</head>`));
+})();
+
 describeConformance({
   plugin: genericHtmlPlugin,
   fixtures: {
     positive: [
       { name: "plain non-DDB article", mediaType: "text/html", filename: "plain-article.html", bytes: PLAIN_ARTICLE, minConfidence: 0.1 },
+      { name: "real-geometry article (body past DETECT_HEAD_BYTES)", mediaType: "text/html", filename: "big-article.html", bytes: LARGE_PREAMBLE, minConfidence: 0.1 },
     ],
     negative: [
       { name: "a markdown file (wrong media type)", mediaType: "text/markdown", filename: "notes.md", bytes: NON_HTML },

@@ -9,15 +9,24 @@
  * See specs/007-v3-skeleton/data-model.md for the class taxonomy.
  */
 
-// The four classes are a closed set, deliberately coarse:
+// The classes are a closed set, deliberately coarse:
 // - unknown_thing:     the caller referenced something that doesn't exist (404-shaped)
 // - unsupported_type:  we recognized the request but don't handle that variant (422-shaped)
+// - invalid_input:     the request/configuration the caller supplied contradicts
+//                      itself or the data it targets (400-shaped). 009 introduced
+//                      this at the API edge only, arguing "only the HTTP edge can
+//                      have malformed requests" — 010's embedding-stamp refusal
+//                      (a query role that cannot serve the index it targets,
+//                      research R4) is a DOMAIN-level input refusal, so the code
+//                      joined the shared union. The message must name what to fix;
+//                      it is never scrubbed like internal_fault.
 // - dependency_down:   an external dependency (Postgres, ML sidecar) is unreachable (503-shaped)
 // - internal_fault:    our own bug or invariant violation (500-shaped)
 // The HTTP shapes above are hints for the API mapper only — never encode them here.
 export type ErrorClass =
   | "unknown_thing"
   | "unsupported_type"
+  | "invalid_input"
   | "dependency_down"
   | "internal_fault";
 

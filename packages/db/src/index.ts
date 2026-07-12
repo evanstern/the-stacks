@@ -7,12 +7,14 @@
  */
 export * from "./schema/ingestion";
 export * from "./schema/jobs";
+export * from "./schema/retrieval";
 export * from "./schema/skeleton-checks";
 export * from "./schema/skeleton-vectors";
 export * from "./client";
 export * from "./migrate";
 export * from "./test-db";
 export * from "./queue";
+export * from "./retrieval-runs";
 export * from "./events";
 export * from "./ingestion-events";
 

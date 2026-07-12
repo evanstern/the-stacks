@@ -281,3 +281,233 @@ export async function getSkeletonCheck(request: Request, id: string): Promise<Ru
   const data = (await response.json()) as { run: RunDetail };
   return data.run;
 }
+
+/** One search hit as the wire carries it (spec 010, contracts/api.md §1). */
+export interface SearchResultItem {
+  rank: number;
+  chunkId: string;
+  sourceId: string;
+  generation: number;
+  content: string;
+  anchor: { headingTrail?: string[] } & Record<string, unknown>;
+  scores: { fts: number | null; vector: number | null; fused: number; rerank: number | null };
+  prerankPosition: number | null;
+}
+
+export interface SearchResponse {
+  runId: string;
+  query: string;
+  config: { configName: string; fusion: string; k: number } & Record<string, unknown>;
+  results: SearchResultItem[];
+  timings: Record<string, number | null>;
+}
+
+/** Hybrid search over the corpus (spec 010 US1). The response is the
+ * receipt's content — runId links to /records/retrievals/:id (US2). A non-OK
+ * status surfaces the API's own error envelope message where possible: a 503
+ * with the failing stage named is operator-actionable, not a generic fail. */
+export async function searchLibrary(request: Request, query: string): Promise<SearchResponse> {
+  const response = await apiFetch(request, "/api/retrieval/search", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  if (!response.ok) {
+    let message = "Search failed";
+    try {
+      const envelope = (await response.json()) as { error?: { message?: string } };
+      if (envelope.error?.message) message = envelope.error.message;
+    } catch {
+      // fall through with the generic message
+    }
+    throw new Response(message, { status: response.status });
+  }
+  return (await response.json()) as SearchResponse;
+}
+
+/** Run-list item (spec 010 US2, contracts/api.md §2). */
+export interface RetrievalRunListItem {
+  id: string;
+  query: string;
+  origin: "interactive" | "eval";
+  resultCount: number;
+  createdAt: string;
+  configName: string;
+}
+
+export interface RetrievalRunListPage {
+  items: RetrievalRunListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface RetrievalRunDetail {
+  id: string;
+  query: string;
+  origin: string;
+  config: { configName: string; fusion: string; k: number } & Record<string, unknown>;
+  embedding: { provider: string; model: string; dimensions: number };
+  timings: Record<string, number | null>;
+  createdAt: string;
+  results: Array<
+    SearchResultItem & {
+      /** DERIVED at view time: no current-generation chunk carries this
+       *  text's hash anymore — the snapshot below is the only copy. */
+      superseded: boolean;
+    }
+  >;
+}
+
+export async function listRetrievalRuns(
+  request: Request,
+  opts: { limit?: number; offset?: number } = {},
+): Promise<RetrievalRunListPage> {
+  const params = new URLSearchParams();
+  if (opts.limit !== undefined) params.set("limit", String(opts.limit));
+  if (opts.offset !== undefined) params.set("offset", String(opts.offset));
+  const query = params.size > 0 ? `?${params.toString()}` : "";
+  const response = await apiFetch(request, `/api/retrieval/runs${query}`);
+  if (!response.ok) {
+    throw new Response("Failed to load retrieval runs", { status: response.status });
+  }
+  return (await response.json()) as RetrievalRunListPage;
+}
+
+export async function getRetrievalRun(request: Request, id: string): Promise<RetrievalRunDetail> {
+  const response = await apiFetch(request, `/api/retrieval/runs/${id}`);
+  if (!response.ok) {
+    throw new Response("Retrieval run not found", { status: response.status });
+  }
+  return (await response.json()) as RetrievalRunDetail;
+}
+
+/** Gold-set surfaces (spec 010 US3, contracts/api.md §3). */
+export interface GoldItem {
+  id: string;
+  question: string;
+  expected: Array<{ chunkId: string; sourceId: string; contentSha256: string }>;
+  split: "tuning" | "heldout";
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  needsReconfirmation: boolean;
+}
+
+export async function listGoldItems(request: Request): Promise<GoldItem[]> {
+  const response = await apiFetch(request, "/api/evals/gold");
+  if (!response.ok) throw new Response("Failed to load the gold set", { status: response.status });
+  return ((await response.json()) as { items: GoldItem[] }).items;
+}
+
+async function goldError(response: Response): Promise<string> {
+  try {
+    const envelope = (await response.json()) as { error?: { message?: string } };
+    return envelope.error?.message ?? "Gold-set request failed";
+  } catch {
+    return "Gold-set request failed";
+  }
+}
+
+export async function createGoldItem(
+  request: Request,
+  input: { question: string; chunkIds: string[]; split?: "tuning" | "heldout"; notes?: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const response = await apiFetch(request, "/api/evals/gold", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      question: input.question,
+      expected: input.chunkIds.map((chunkId) => ({ chunkId })),
+      ...(input.split ? { split: input.split } : {}),
+      ...(input.notes ? { notes: input.notes } : {}),
+    }),
+  });
+  if (!response.ok) return { ok: false, message: await goldError(response) };
+  return { ok: true };
+}
+
+export async function relabelGoldItem(
+  request: Request,
+  id: string,
+  input: { question: string; chunkIds: string[]; notes?: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const response = await apiFetch(request, `/api/evals/gold/${id}`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      question: input.question,
+      expected: input.chunkIds.map((chunkId) => ({ chunkId })),
+      ...(input.notes ? { notes: input.notes } : {}),
+    }),
+  });
+  if (!response.ok) return { ok: false, message: await goldError(response) };
+  return { ok: true };
+}
+
+/** Eval runs (spec 010 US4, contracts/api.md §4). */
+export interface SliceMetricsWire {
+  items: number;
+  recallAt5: number;
+  recallAt10: number;
+  mrr: number;
+  ndcgAt10: number;
+}
+
+export interface EvalRunListItem {
+  id: string;
+  configName: string;
+  status: "running" | "completed" | "failed";
+  createdAt: string;
+  completedAt: string | null;
+  metrics: {
+    tuning: SliceMetricsWire | null;
+    heldout: SliceMetricsWire | null;
+    unresolvableCount: number;
+  } | null;
+}
+
+export interface EvalRunDetail extends EvalRunListItem {
+  config: Record<string, unknown>;
+  itemOutcomes: Array<{
+    goldItemId: string;
+    split: "tuning" | "heldout";
+    status: "hit" | "miss" | "unresolvable";
+    firstHitRank: number | null;
+  }> | null;
+  retrievalRunIds: string[] | null;
+  goldSnapshot: Array<{ id: string; question: string }>;
+  error: string | null;
+}
+
+export async function listEvalRuns(request: Request): Promise<EvalRunListItem[]> {
+  const response = await apiFetch(request, "/api/evals/runs");
+  if (!response.ok) throw new Response("Failed to load eval runs", { status: response.status });
+  return ((await response.json()) as { items: EvalRunListItem[] }).items;
+}
+
+export async function getEvalRun(request: Request, id: string): Promise<EvalRunDetail> {
+  const response = await apiFetch(request, `/api/evals/runs/${id}`);
+  if (!response.ok) throw new Response("Eval run not found", { status: response.status });
+  return (await response.json()) as EvalRunDetail;
+}
+
+export async function startEvalRun(
+  request: Request,
+  input: { configName: string; overrides?: Record<string, unknown> },
+): Promise<{ ok: true; evalRunId: string } | { ok: false; message: string }> {
+  const response = await apiFetch(request, "/api/evals/runs", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    try {
+      const envelope = (await response.json()) as { error?: { message?: string } };
+      return { ok: false, message: envelope.error?.message ?? "Eval run failed to start" };
+    } catch {
+      return { ok: false, message: "Eval run failed to start" };
+    }
+  }
+  return { ok: true, evalRunId: ((await response.json()) as { evalRunId: string }).evalRunId };
+}

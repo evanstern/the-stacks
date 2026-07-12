@@ -110,8 +110,17 @@ export const genericHtmlPlugin: IngestionPlugin = {
   detect(input: DetectInput): DetectResult {
     if (!ACCEPTS.includes(input.mediaType)) return { confidence: 0 };
     try {
-      const $ = cheerio.load(decoder.decode(input.head));
-      return documentRoot($) ? { confidence: FALLBACK_CONFIDENCE } : { confidence: 0 };
+      const head = decoder.decode(input.head);
+      const $ = cheerio.load(head);
+      if (documentRoot($)) return { confidence: FALLBACK_CONFIDENCE };
+      // A big saved page inlines everything into <head>, so the detect
+      // prefix may end before <body> ever starts (TASK-10, same geometry
+      // the ddb plugin pins). The prefix proving "this IS an HTML document"
+      // is all a fallback can honestly ask of it — transform() sees the
+      // full bytes and still throws `malformed` when nothing is extractable.
+      return /<!doctype\s+html|<html[\s>]/i.test(head)
+        ? { confidence: FALLBACK_CONFIDENCE }
+        : { confidence: 0 };
     } catch {
       return { confidence: 0 };
     }

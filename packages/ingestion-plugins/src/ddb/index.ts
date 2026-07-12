@@ -241,10 +241,16 @@ export const ddbSavedHtmlPlugin: IngestionPlugin = {
   detect(input: DetectInput): DetectResult {
     try {
       const signals = detectSignals(decode(input.head));
-      if (!signals.article) return { confidence: 0 };
       // §1 confidence mapping: URL identity beats marker-only identity.
+      // URL identity must NOT require the article in the prefix: real saved
+      // pages inline every stylesheet/script into <head>, pushing <body>
+      // past DETECT_HEAD_BYTES (observed at byte ~135k of a 733k page,
+      // TASK-10) — while the saved-from stamp and canonical/og:url metas
+      // always sit in the first few KiB. transform() re-checks the article
+      // on the FULL bytes and throws `unrecognized` if a page that claims
+      // to be DDB has no article-like body.
       if (signals.url) return { confidence: 0.95 };
-      if (signals.chunkMarkers) return { confidence: 0.85 };
+      if (signals.article && signals.chunkMarkers) return { confidence: 0.85 };
       return { confidence: 0 };
     } catch {
       return { confidence: 0 }; // detect never throws (conformance assertion 2)

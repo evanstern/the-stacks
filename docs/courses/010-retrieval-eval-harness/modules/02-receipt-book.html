@@ -1,0 +1,487 @@
+<section class="module" id="module-2" style="background: var(--color-bg); --color-accent:#7c3aed; --color-accent-hover:#6d28d9; --color-accent-light:color-mix(in srgb, #7c3aed 14%, var(--color-bg)); --color-accent-muted:#a78bfa; --color-actor-8:#336791;">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Receipt Book</h1>
+      <p class="module-subtitle">Every search writes a carbon-copy receipt nobody can tear out or edit — and "this item was discontinued" is stamped on when you look, never written into the book.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + group-chat animation (the one-transaction write) -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A Page Nobody Can Tear Out</h2>
+
+        <p>Open a months-old search — say run <code>8571faef…</code> from this cycle's live validation. The source was re-ingested twice since. The <span class="term" data-definition="A retrieval run's append-only record: the query, the resolved config, and every result with its snapshot (Principle III: citations are receipts).">receipt</span> still renders every passage it returned — and truthfully marks which ones no longer exist.</p>
+
+        <p>The mechanism is a carbon-copy receipt book. Every sale writes through to a page that can't be edited afterward; when the shop renovates, old receipts still read perfectly. Module 1 closed with "every search you just saw was recorded." Here's that recording happening:</p>
+
+        <div class="chat-window" id="chat-receipt">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+                <p><code>POST /api/retrieval/search</code> — same hybrid search you watched in Module 1.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="search" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🔌</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">/search route</span>
+                <p>Engine's done — two signals fused, ranked, floored. But before anyone sees a result: recordRetrievalRun, write this down.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="writer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">✍️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">recordRetrievalRun</span>
+                <p>One transaction. The run header — query, resolved config, embedding stamp, stage timings — plus one line per result, in rank order, with the passage text copied onto each line.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-8)">🐘</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-8)">Postgres</span>
+                <p>BEGIN … INSERT retrieval_runs … INSERT retrieval_results … COMMIT. Run <code>080e49f5…</code> will read exactly the same in six months.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+                <p>What if the process dies between the header and the lines?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="writer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">✍️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">recordRetrievalRun</span>
+                <p>Then COMMIT never runs and neither lands. Header + every line, or nothing — a torn receipt is unrepresentable.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="operator" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+                <p>And my keyboard-mash search — <code>zqxv kjw</code> — the one that returned nothing?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="7" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-8)">🐘</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-8)">Postgres</span>
+                <p>Got its own row: <code>result_count 0</code>, zero lines. An honest empty search is still a fact worth keeping.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="8" data-sender="search" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🔌</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">/search route → Operator</span>
+                <p>Here's your response — and it isn't a summary of the receipt. It IS the receipt's content: same results, same scores, same config the row recorded.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="chat-receipt-typing" style="display:none">
+            <div class="chat-avatar" id="chat-receipt-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn btn-primary chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🧾</div>
+          <div class="callout-content">
+            <strong class="callout-title">The response IS the receipt's content</strong>
+            <p>Straight from the route file's doctrine header (<code>apps/api/src/retrieval/routes.ts</code>): "The wire response for a search IS the receipt's content: same results, same scores, same config the retrieval_runs row recorded. Anything else would give the caller a story the record can't back."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — Snippet A: the one writer, one transaction         -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Only Writer, and It Only INSERTs</h2>
+
+        <p>Immutability here isn't a code-review policy — it's <span class="term" data-definition="The module exports exactly one writer and no UPDATE/DELETE path exists anywhere in product code — the recordEvent posture, reused.">append-only by construction</span>. One module owns all writes to the receipt tables, and the only verb it contains is INSERT. Read the header first: the doctrine is written where the code lives.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/db/src/retrieval-runs.ts:1-94 (interfaces &amp; score fields elided)</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * retrieval_runs / retrieval_results — append-only BY CONSTRUCTION</span></span>
+<span class="code-line"><span class="code-comment"> * (spec 010, Principle III: citations are receipts).</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * This module is the ONLY writer, and it only ever INSERTs — one transaction</span></span>
+<span class="code-line"><span class="code-comment"> * per receipt, header and lines together, so a torn receipt is</span></span>
+<span class="code-line"><span class="code-comment"> * unrepresentable. There is deliberately no update or delete helper here and</span></span>
+<span class="code-line"><span class="code-comment"> * none may be added: "superseded" is derived at view time, corrections are</span></span>
+<span class="code-line"><span class="code-comment"> * new runs, and history never changes shape. Same construction — and same</span></span>
+<span class="code-line"><span class="code-comment"> * warning — as recordEvent in ./events.ts.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-comment">// … imports and the typed input/output interfaces …</span></span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">recordRetrievalRun</span>(</span>
+<span class="code-line">  db: Database,</span>
+<span class="code-line">  input: RecordRetrievalRunInput,</span>
+<span class="code-line">): <span class="code-function">Promise</span>&lt;RecordedRetrievalRun&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> db.<span class="code-function">transaction</span>(<span class="code-keyword">async</span> (tx) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">const</span> [run] = <span class="code-keyword">await</span> tx</span>
+<span class="code-line">      .<span class="code-function">insert</span>(retrievalRuns)</span>
+<span class="code-line">      .<span class="code-function">values</span>({</span>
+<span class="code-line">        <span class="code-property">query</span>: input.query,</span>
+<span class="code-line">        <span class="code-property">config</span>: input.config,</span>
+<span class="code-line">        <span class="code-comment">// … corpusId, origin, the embedding stamp, stageTimings …</span></span>
+<span class="code-line">        <span class="code-comment">// Derived HERE from the lines actually inserted below — a caller</span></span>
+<span class="code-line">        <span class="code-comment">// cannot make the denormalization disagree with the receipt.</span></span>
+<span class="code-line">        <span class="code-property">resultCount</span>: input.results.length,</span>
+<span class="code-line">      })</span>
+<span class="code-line">      .<span class="code-function">returning</span>({ <span class="code-property">id</span>: retrievalRuns.id, <span class="code-property">createdAt</span>: retrievalRuns.createdAt });</span>
+<span class="code-line">    <span class="code-keyword">if</span> (input.results.length &gt; <span class="code-number">0</span>) {</span>
+<span class="code-line">      <span class="code-keyword">await</span> tx.<span class="code-function">insert</span>(retrievalResults).<span class="code-function">values</span>(</span>
+<span class="code-line">        input.results.<span class="code-function">map</span>((r) =&gt; ({</span>
+<span class="code-line">          <span class="code-property">runId</span>: run!.id,</span>
+<span class="code-line">          <span class="code-property">rank</span>: r.rank,</span>
+<span class="code-line">          <span class="code-property">chunkId</span>: r.chunkId,</span>
+<span class="code-line">          <span class="code-property">sourceId</span>: r.sourceId,</span>
+<span class="code-line">          <span class="code-property">generation</span>: r.generation,</span>
+<span class="code-line">          <span class="code-property">contentSnapshot</span>: r.contentSnapshot,</span>
+<span class="code-line">          <span class="code-property">anchorSnapshot</span>: r.anchorSnapshot,</span>
+<span class="code-line">          <span class="code-property">sectionIds</span>: r.sectionIds,</span>
+<span class="code-line">          <span class="code-property">contentSha256</span>: r.contentSha256,</span>
+<span class="code-line">          <span class="code-comment">// … ftsScore, vectorScore, fusedScore, rerankScore, prerankPosition …</span></span>
+<span class="code-line">        })),</span>
+<span class="code-line">      );</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">return</span> { <span class="code-property">id</span>: run!.id, <span class="code-property">resultCount</span>: input.results.length, <span class="code-property">createdAt</span>: run!.createdAt };</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Doctrine first: the header is the contract every reviewer holds this file to.</p>
+              <p class="tl">The two receipt tables, and the whole posture in four words: append-only BY CONSTRUCTION.</p>
+              <p class="tl">The governing principle — citations are receipts, so receipts must never change shape.</p>
+              <p class="tl">So —</p>
+              <p class="tl">One writer in the entire codebase, and the only verb it knows is INSERT.</p>
+              <p class="tl">Header and line items travel in a single transaction…</p>
+              <p class="tl">…making a torn receipt unrepresentable. No update helper, no delete helper…</p>
+              <p class="tl">…and none allowed later, because "superseded" is computed at read time (two screens from now)…</p>
+              <p class="tl">…and a wrong run is fixed by recording a new run. The book only grows.</p>
+              <p class="tl">Same construction as recordEvent — this repo's original append-only writer.</p>
+              <p class="tl">Doctrine over; the code below merely complies.</p>
+              <p class="tl">Imports and the typed input/output shapes, skipped here — nothing doctrinal in them.</p>
+              <p class="tl">The one exported writer.</p>
+              <p class="tl">Takes a database handle…</p>
+              <p class="tl">…and everything the receipt must capture: query, config, ranked results.</p>
+              <p class="tl">Promises back only the receipt's id, count, and timestamp.</p>
+              <p class="tl">Everything inside this callback commits together — or none of it does.</p>
+              <p class="tl">First write: the run header…</p>
+              <p class="tl">…into retrieval_runs…</p>
+              <p class="tl">…with the values the engine actually used:</p>
+              <p class="tl">The operator's question, verbatim.</p>
+              <p class="tl">The fully RESOLVED config — a receipt never depends on ambient env.</p>
+              <p class="tl">Corpus, origin (interactive or eval), which embedding space, per-stage timings — all stamped on. Elided here.</p>
+              <p class="tl">The why-comment: result_count is computed from the very array inserted below…</p>
+              <p class="tl">…so no caller can claim 12 results and insert 7.</p>
+              <p class="tl">input.results.length — the receipt agrees with itself by construction.</p>
+              <p class="tl">Header assembled.</p>
+              <p class="tl">Postgres hands back the generated id and timestamp for the return value.</p>
+              <p class="tl">If the search found anything — the zqxv kjw run legitimately stops here at zero…</p>
+              <p class="tl">…write every result line inside the same transaction…</p>
+              <p class="tl">…one row per ranked result:</p>
+              <p class="tl">Tied to the header just written.</p>
+              <p class="tl">Final position, 1-based.</p>
+              <p class="tl">The chunk's durable id — a reference, not a guarantee (next screen).</p>
+              <p class="tl">Which source the passage came from.</p>
+              <p class="tl">Which generation of that source was live at retrieval time.</p>
+              <p class="tl">THE SNAPSHOT: the passage text itself, copied onto the receipt line.</p>
+              <p class="tl">Where in the document it sat — also copied.</p>
+              <p class="tl">The section trail — copied too.</p>
+              <p class="tl">The content fingerprint that powers the superseded check (two screens ahead).</p>
+              <p class="tl">Plus the five per-signal scores from Module 1, verbatim. Elided here.</p>
+              <p class="tl">Close each line…</p>
+              <p class="tl">…and the bulk insert.</p>
+              <p class="tl">End of the zero-results guard.</p>
+              <p class="tl">Report back: id, count, timestamp — all a caller may know.</p>
+              <p class="tl">COMMIT happens here: header + every line, or nothing.</p>
+              <p class="tl">That's the entire write surface of the receipt book.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🔒</div>
+          <div class="callout-content">
+            <strong class="callout-title">The invariant is a unit test on the export list</strong>
+            <p><code>packages/db/test/retrieval-runs.test.ts:118-120</code> asserts <code>Object.keys(retrievalRunsModule)</code> equals <code>["recordRetrievalRun"]</code>. Sneak an <code>updateRetrievalRun</code> into the module and CI fails before any reviewer reads the diff — "append-only" is machine-checked, not remembered.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — Snippet B: the snapshot columns                    -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Snapshots: The Receipt Outlives the Shelf</h2>
+
+        <p>When the shop renovates — a <span class="term" data-definition="008's re-ingest discipline: a source's derived rows are rebuilt under a bumped generation number and the old generation's chunks are deleted.">generation sweep</span> deletes every chunk of the old generation — what keeps an old receipt readable? Each result line carries a <span class="term" data-definition="Passage text and anchor copied ONTO the result row at retrieval time, so the receipt outlives generation sweeps (FR-009).">snapshot</span>: the passage itself, copied onto the row at retrieval time.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🔗</div>
+            <h4 class="pattern-title">The pointer</h4>
+            <p class="pattern-desc"><code>chunk_id</code> — durable identity, deliberately NOT a foreign key. It's allowed to dangle after a sweep; the receipt keeps rendering anyway.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📄</div>
+            <h4 class="pattern-title">The copy</h4>
+            <p class="pattern-desc"><code>content_snapshot</code> + <code>anchor_snapshot</code> + <code>section_ids</code> — what the operator actually saw, self-sufficient forever.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔏</div>
+            <h4 class="pattern-title">The fingerprint</h4>
+            <p class="pattern-desc"><code>content_sha256</code> — lets "is this text still live?" be answered without ever comparing full passages.</p>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/db/src/schema/retrieval.ts:69-83 (retrieval_results columns)</span>
+            <pre><code><span class="code-line">    <span class="code-comment">// Durable identity, deliberately NOT an FK: the chunk row may be swept</span></span>
+<span class="code-line">    <span class="code-comment">// by a later re-ingest — the receipt outlives it (data-model.md).</span></span>
+<span class="code-line">    <span class="code-property">chunkId</span>: <span class="code-function">text</span>(<span class="code-string">"chunk_id"</span>).<span class="code-function">notNull</span>(),</span>
+<span class="code-line">    <span class="code-comment">// Sources are never deleted this cycle, so attribution keeps a real FK.</span></span>
+<span class="code-line">    <span class="code-property">sourceId</span>: <span class="code-function">uuid</span>(<span class="code-string">"source_id"</span>)</span>
+<span class="code-line">      .<span class="code-function">notNull</span>()</span>
+<span class="code-line">      .<span class="code-function">references</span>(() =&gt; sources.id),</span>
+<span class="code-line">    <span class="code-property">generation</span>: <span class="code-function">integer</span>(<span class="code-string">"generation"</span>).<span class="code-function">notNull</span>(),</span>
+<span class="code-line">    <span class="code-comment">// The snapshot: what the operator (or a future citation) actually saw.</span></span>
+<span class="code-line">    <span class="code-property">contentSnapshot</span>: <span class="code-function">text</span>(<span class="code-string">"content_snapshot"</span>).<span class="code-function">notNull</span>(),</span>
+<span class="code-line">    <span class="code-property">anchorSnapshot</span>: <span class="code-function">jsonb</span>(<span class="code-string">"anchor_snapshot"</span>).<span class="code-function">notNull</span>(),</span>
+<span class="code-line">    <span class="code-property">sectionIds</span>: <span class="code-function">jsonb</span>(<span class="code-string">"section_ids"</span>).<span class="code-function">notNull</span>(),</span>
+<span class="code-line">    <span class="code-comment">// Enables the view-time superseded/auto-heal derivations without</span></span>
+<span class="code-line">    <span class="code-comment">// comparing full text.</span></span>
+<span class="code-line">    <span class="code-property">contentSha256</span>: <span class="code-function">text</span>(<span class="code-string">"content_sha256"</span>).<span class="code-function">notNull</span>(),</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Why chunk_id is plain text and not a foreign key…</p>
+              <p class="tl">…a re-ingest may delete the chunk row, and the receipt must keep reading anyway.</p>
+              <p class="tl">So: a durable identity that is allowed to dangle.</p>
+              <p class="tl">Sources DO stick around this cycle, so this reference can afford enforcement.</p>
+              <p class="tl">A real foreign key…</p>
+              <p class="tl">…required…</p>
+              <p class="tl">…and checked by Postgres on every insert.</p>
+              <p class="tl">Which generation of the source this passage belonged to when retrieved.</p>
+              <p class="tl">Here comes the carbon copy:</p>
+              <p class="tl">The passage text, written onto the receipt line itself — this is what renders forever.</p>
+              <p class="tl">Its anchor — where in the document — copied, not referenced.</p>
+              <p class="tl">The section trail, copied as well.</p>
+              <p class="tl">And a SHA-256 fingerprint of the content, so "is this text still live?"…</p>
+              <p class="tl">…never requires comparing full passages.</p>
+              <p class="tl">That hash is the star of the next screen — and of Module 3.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Snippet C: the superseded derivation               -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">"Superseded" Is a Question, Not a Column</h2>
+
+        <p>If old passages can vanish, receipts must say so — but a stored flag would need an UPDATE, and this design makes UPDATEs unrepresentable. So <span class="term" data-definition="Derived at view time: no current-generation chunk carries this result's content hash. Never stored as a column — a stored flag would need an UPDATE.">superseded</span> is derived fresh, every time someone views a run. Three things can have happened to a passage since its receipt was written:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Source untouched</strong>
+              <p>The hash still exists at the current generation → no mark. The receipt reads clean.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Re-ingested, text identical</strong>
+              <p>New chunk id, same bytes, same hash → still found at the current generation → no mark. That's <span class="term" data-definition="When re-ingested text is byte-identical, its SHA-256 survives under a new chunk id, so the view-time derivation still finds it — the receipt reads clean again without any write.">auto-heal</span>.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Re-ingested, text rewritten</strong>
+              <p>The hash is gone from the current generation → the viewer stamps <em>superseded</em> on that line. Nothing was written to say so.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>All three outcomes fall out of one <code>NOT EXISTS</code> subquery in the run-view route:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — apps/api/src/retrieval/routes.ts:185-216 (row-shape interface elided)</span>
+            <pre><code><span class="code-line">      <span class="code-comment">// The receipt renders from its own snapshots; "superseded" is DERIVED</span></span>
+<span class="code-line">      <span class="code-comment">// here and only here (data-model.md): no chunk with this content hash</span></span>
+<span class="code-line">      <span class="code-comment">// exists at the source's CURRENT generation. An identical re-ingest</span></span>
+<span class="code-line">      <span class="code-comment">// keeps the hash alive under a new chunk id — not superseded.</span></span>
+<span class="code-line">      <span class="code-comment">// … the ReceiptRow row-shape interface …</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> resultRows = <span class="code-keyword">await</span> db.<span class="code-function">execute</span>&lt;ReceiptRow&gt;(sql`</span>
+<span class="code-line">        <span class="code-keyword">SELECT</span> r.*,</span>
+<span class="code-line">               <span class="code-keyword">NOT EXISTS</span> (</span>
+<span class="code-line">                 <span class="code-keyword">SELECT</span> <span class="code-number">1</span> <span class="code-keyword">FROM</span> chunks c</span>
+<span class="code-line">                 <span class="code-keyword">JOIN</span> sources s <span class="code-keyword">ON</span> s.id = c.source_id</span>
+<span class="code-line">                 <span class="code-keyword">WHERE</span> c.source_id = r.source_id</span>
+<span class="code-line">                   <span class="code-keyword">AND</span> c.generation = s.current_generation</span>
+<span class="code-line">                   <span class="code-keyword">AND</span> <span class="code-function">encode</span>(<span class="code-function">sha256</span>(<span class="code-function">convert_to</span>(c.content, <span class="code-string">'UTF8'</span>)), <span class="code-string">'hex'</span>) = r.content_sha256</span>
+<span class="code-line">               ) <span class="code-keyword">AS</span> superseded</span>
+<span class="code-line">        <span class="code-keyword">FROM</span> retrieval_results r</span>
+<span class="code-line">        <span class="code-keyword">WHERE</span> r.run_id = ${request.params.id}</span>
+<span class="code-line">        <span class="code-keyword">ORDER BY</span> r.rank</span>
+<span class="code-line">      `);</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The rule, stated where the query lives: receipts render from their own snapshots…</p>
+              <p class="tl">…and "superseded" is derived in exactly one place — this query.</p>
+              <p class="tl">The definition: superseded = this content hash is absent from the source's current generation.</p>
+              <p class="tl">The corollary the callout below celebrates: identical re-ingested text keeps the hash alive.</p>
+              <p class="tl">A TypeScript interface describing the row shape — skipped.</p>
+              <p class="tl">One SQL round trip renders the whole receipt:</p>
+              <p class="tl">Every stored receipt column, exactly as written…</p>
+              <p class="tl">…plus one derived boolean: TRUE when NO chunk exists…</p>
+              <p class="tl">…searching the live chunks table…</p>
+              <p class="tl">…joined to its owning source…</p>
+              <p class="tl">…same source as this receipt line…</p>
+              <p class="tl">…at that source's CURRENT generation…</p>
+              <p class="tl">…whose content hashes to the fingerprint stored on the line.</p>
+              <p class="tl">Name the verdict: superseded.</p>
+              <p class="tl">Evaluated for every line of this receipt…</p>
+              <p class="tl">…for the run being viewed…</p>
+              <p class="tl">…in recorded rank order.</p>
+              <p class="tl">End of query. No UPDATE anywhere — ask again after the next re-ingest and the answer simply recomputes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🩹</div>
+          <div class="callout-content">
+            <strong class="callout-title">Auto-heal: repair without a write</strong>
+            <p>Re-ingest a source with identical text and every old receipt quietly reads clean again — the hash survives under a new chunk id, so the derivation finds it. A stored flag would have needed a second UPDATE to un-mark those rows. Deriving the answer means there was never a mark to remove.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — Quiz + handoff                                     -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Audit the Receipt Book</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="update-unrepresentable"
+               data-explanation-right="Exactly. A stored superseded flag would need an UPDATE the moment a re-ingest lands — and retrieval_results has no UPDATE path by construction. Deriving the answer at view time keeps the table pure history and keeps the flag correct for free."
+               data-explanation-wrong="Not quite. Think about what a stored flag would require the day a source is re-ingested: some process would have to go back and UPDATE old receipt rows — and this table's whole design makes an UPDATE unrepresentable.">
+            <h3 class="quiz-question">Why is <code>superseded</code> derived by the <code>NOT EXISTS</code> query instead of stored as a column on <code>retrieval_results</code>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="performance" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Performance — computing it at read time avoids write amplification during re-ingests.</span>
+              </button>
+              <button class="quiz-option" data-value="update-unrepresentable" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A stored flag would need an UPDATE when a re-ingest lands — and the append-only construction makes UPDATEs unrepresentable.</span>
+              </button>
+              <button class="quiz-option" data-value="save-storage" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>To save storage — a boolean per result row would bloat the table.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="nothing-landed"
+               data-explanation-right="Right — header and lines are written inside one db.transaction, so COMMIT never ran and Postgres rolled everything back. A torn receipt isn't cleaned up; it's unrepresentable in the first place."
+               data-explanation-wrong="Look back at recordRetrievalRun: both INSERTs happen inside a single db.transaction. If the process dies before COMMIT, Postgres rolls back everything — so what state can the crash actually leave behind?">
+            <h3 class="quiz-question">The API process is killed right after the <code>retrieval_runs</code> header INSERT but before the <code>retrieval_results</code> lines INSERT. What does the database hold afterward?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="header-zero-lines" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A header row with zero lines — a cleanup job later reconciles it using result_count.</span>
+              </button>
+              <button class="quiz-option" data-value="desync" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A header whose result_count disagrees with its lines until the next write repairs it.</span>
+              </button>
+              <button class="quiz-option" data-value="nothing-landed" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — both INSERTs ride one transaction, so a crash before COMMIT means neither row ever landed.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="no-mark"
+               data-explanation-right="Exactly — auto-heal. The rebuilt chunks carry new ids but identical bytes, so the content hash still exists at the current generation and the NOT EXISTS check comes back false. No mark, and nothing was ever written to achieve that."
+               data-explanation-wrong="Follow the derivation, not the chunk id. The check asks whether any current-generation chunk's content hashes to the stored content_sha256 — and identical text produces an identical hash, whatever id the new chunk row carries.">
+            <h3 class="quiz-question">A source is re-ingested and every passage comes back byte-identical (new chunk ids, same text). You open a receipt from before the sweep. What does it show?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="superseded-mark" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Every line marked superseded — the old chunk ids no longer exist.</span>
+              </button>
+              <button class="quiz-option" data-value="render-error" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A render error — the chunk_id foreign key now points at deleted rows.</span>
+              </button>
+              <button class="quiz-option" data-value="no-mark" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No mark at all — identical text means the content hash still exists at the current generation, so the receipt reads clean.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <p>Hold on to that last answer. A content hash that survives re-ingestion is a reference more durable than any row id — and the receipt book isn't the only place this repo needs one. Module 3 uses the exact same hash trick to build <strong>answer keys that survive</strong>: gold labels that point at passages by <code>content_sha256</code>, so re-ingesting your library never invalidates your test set.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

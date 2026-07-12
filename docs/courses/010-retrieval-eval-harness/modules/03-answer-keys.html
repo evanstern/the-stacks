@@ -1,0 +1,360 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm); --color-accent: #059669; --color-accent-hover: #047857; --color-accent-light: color-mix(in srgb, #059669 14%, var(--color-surface)); --color-accent-muted: color-mix(in srgb, #059669 55%, var(--color-surface));">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Answer Keys That Survive</h1>
+      <p class="module-subtitle">The gold set references passages by what they say, not where they live — labels that heal themselves, flag themselves, and never silently lie.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── Screen 1: hook + data-flow animation ─────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">An Answer Key Written Against Content, Not Page Numbers</h2>
+
+        <p>You labeled 40 questions last month. Today you re-ingested three sources — how many of those labels are now lies? <strong>Exactly the flagged ones</strong>, and zero of them will silently score as misses.</p>
+
+        <p>A <span class="term" data-definition="A question plus the passages whose text ALONE answers it — the eval program's ground truth (FR-011/012).">gold item</span> is a teacher's answer key written against the <em>content</em> of the textbook, not its page numbers. New edition, same paragraph — the key still works. Paragraph rewritten — the key flags itself for re-grading instead of silently marking students wrong.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-m3-operator","label":"You label the live question — how does a riposte work — against the one passage whose text alone answers it (FR-012)."},
+          {"highlight":"flow-m3-gold","packet":true,"from":"m3-operator","to":"m3-gold","label":"The server resolves your picked chunks into content hashes: sha256 of the passage text, not the chunk id."},
+          {"highlight":"flow-m3-corpus","label":"Re-ingest #1 sweeps the source: every chunk gets a fresh id — but the passage text is byte-identical."},
+          {"highlight":"flow-m3-gold","packet":true,"from":"m3-corpus","to":"m3-gold","label":"Auto-heal: the hash still matches a current-generation chunk. Nothing flags, nobody is paged."},
+          {"highlight":"flow-m3-corpus","label":"Re-ingest #2: an editor rewrote that passage — no current chunk carries the old text anymore."},
+          {"highlight":"flow-m3-gold","packet":true,"from":"m3-corpus","to":"m3-gold","label":"The orphaned hash flips the derived flag: this item needs re-confirmation."},
+          {"highlight":"flow-m3-operator","packet":true,"from":"m3-gold","to":"m3-operator","label":"Eval runs report the item unresolvable — excluded from denominators, never a silent miss — until you re-label it."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-m3-operator">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">🖊️</div>
+              <span>Operator</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-gold">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">🔑</div>
+              <span>Gold item</span>
+            </div>
+            <div class="flow-actor" id="flow-m3-corpus">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">📚</div>
+              <span>Corpus</span>
+            </div>
+          </div>
+          <div class="flow-packet"></div>
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Each expected passage is stored as a <span class="term" data-definition="An expected passage referenced by sha256(content), resolved server-side at labeling time (research R6).">content-hash reference</span>, which buys two behaviors for free: <span class="term" data-definition="Identical re-ingested text keeps the hash alive under a new chunk id — no flag (research R6).">auto-heal</span> when re-ingested text is identical, and a self-raised flag when it is not. The whole lifecycle is one chain:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Label — hashes resolved server-side</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Split assigned — immutable</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Re-ingest sweeps the source</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Auto-heal <em>or</em> flag</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>Re-label — only the flagged</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 2: server-side resolution (Snippet A) ─────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Resolution Happens Server-Side</h2>
+
+        <p>The UI never lets you type a passage reference by hand: you run a real search on <code>/search</code>, and each result offers <strong>"label as expected"</strong>. The client sends bare chunk ids; <code>resolveExpectedPassages</code> in <code>packages/retrieval/src/gold.ts</code> turns them into durable references — and refuses anything a reader could not actually retrieve.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📏</div>
+          <div class="callout-content">
+            <strong class="callout-title">The labeling standard is on the page (FR-012)</strong>
+            <p>The <code>/evals/gold</code> screen shows it at authoring time, verbatim: <em>"an expected passage is one whose text ALONE answers the question — not one that merely mentions its topic. Label from real search results (each result offers 'label as expected')."</em> The standard travels with the form, not with tribal memory.</p>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/gold.ts:42–70</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** Resolve bare chunk ids into durable references. Refuses chunks that are</span></span>
+<span class="code-line"><span class="code-comment"> *  not current-generation: labeling against text a reader can't retrieve</span></span>
+<span class="code-line"><span class="code-comment"> *  would be a lie at birth. */</span></span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">resolveExpectedPassages</span>(</span>
+<span class="code-line">  db: Database,</span>
+<span class="code-line">  chunkIds: <span class="code-keyword">string</span>[],</span>
+<span class="code-line">): Promise&lt;ExpectedPassage[]&gt; {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (chunkIds.length <span class="code-operator">===</span> <span class="code-number">0</span>) {</span>
+<span class="code-line">    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({ <span class="code-property">class</span>: <span class="code-string">"invalid_input"</span>, <span class="code-property">message</span>: <span class="code-string">"expected must name at least one chunk."</span> });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> rows = <span class="code-keyword">await</span> db.<span class="code-function">execute</span>&lt;{ <span class="code-property">id</span>: <span class="code-keyword">string</span>; <span class="code-property">source_id</span>: <span class="code-keyword">string</span>; <span class="code-property">hash</span>: <span class="code-keyword">string</span> }&gt;(sql<span class="code-string">`</span></span>
+<span class="code-line"><span class="code-string">    SELECT c.id, c.source_id,</span></span>
+<span class="code-line"><span class="code-string">           encode(sha256(convert_to(c.content, 'UTF8')), 'hex') AS hash</span></span>
+<span class="code-line"><span class="code-string">    FROM chunks c JOIN sources s ON s.id = c.source_id</span></span>
+<span class="code-line"><span class="code-string">    WHERE c.id IN (</span>${sql.<span class="code-function">join</span>(chunkIds.<span class="code-function">map</span>((id) =&gt; sql<span class="code-string">`</span>${id}<span class="code-string">`</span>), sql<span class="code-string">`, `</span>)}<span class="code-string">)</span></span>
+<span class="code-line"><span class="code-string">      AND c.generation = s.current_generation</span></span>
+<span class="code-line"><span class="code-string">  `</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> byId = <span class="code-keyword">new</span> <span class="code-function">Map</span>(rows.rows.<span class="code-function">map</span>((r) =&gt; [r.id, r]));</span>
+<span class="code-line">  <span class="code-keyword">return</span> chunkIds.<span class="code-function">map</span>((chunkId) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">const</span> row = byId.<span class="code-function">get</span>(chunkId);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-operator">!</span>row) {</span>
+<span class="code-line">      <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">        <span class="code-property">class</span>: <span class="code-string">"invalid_input"</span>,</span>
+<span class="code-line">        <span class="code-property">message</span>: <span class="code-string">`Chunk ${chunkId} is not a current-generation passage — expected passages must be retrievable as labeled.`</span>,</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">return</span> { chunkId, <span class="code-property">sourceId</span>: row.source_id, <span class="code-property">contentSha256</span>: row.hash };</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The contract: bare chunk ids in, durable references out — and some ids get refused.</p>
+              <p class="tl">Refused because they are not current-generation: text no reader can retrieve today…</p>
+              <p class="tl">…would make the label a lie at birth. The refusal doctrine lives in the doc comment.</p>
+              <p class="tl">Both create and re-label funnel every reference through this one function.</p>
+              <p class="tl">It takes a database handle…</p>
+              <p class="tl">…and the bare chunk ids the operator picked from live search results.</p>
+              <p class="tl">Out come durable ExpectedPassage triples.</p>
+              <p class="tl">A label with zero expected passages is meaningless…</p>
+              <p class="tl">…so refuse it as the caller's mistake before touching the database.</p>
+              <p class="tl">End of the empty-input guard.</p>
+              <p class="tl">One query resolves every id at once, typed on the three columns coming back.</p>
+              <p class="tl">Fetch each chunk's id and which source it belongs to…</p>
+              <p class="tl">…and compute sha256 of its text IN Postgres — the same hash expression every other consumer uses.</p>
+              <p class="tl">Join to the source table to learn which generation is current.</p>
+              <p class="tl">Keep only the chunks the operator actually named…</p>
+              <p class="tl">…and only if they sit in the source's current generation. Stale chunks simply never come back.</p>
+              <p class="tl">End of the SQL.</p>
+              <p class="tl">Index the survivors by id, ready for the reconciliation pass.</p>
+              <p class="tl">Walk the REQUESTED ids — not the returned rows — so nothing is skipped quietly…</p>
+              <p class="tl">…looking each one up among the survivors.</p>
+              <p class="tl">Any id the query dropped was stale or bogus…</p>
+              <p class="tl">…and that is the refusal: a typed DomainError, not a warning…</p>
+              <p class="tl">…classed as the caller's mistake (HTTP mapping happens only at the API edge)…</p>
+              <p class="tl">…naming the exact chunk and the rule it broke: expected passages must be retrievable as labeled.</p>
+              <p class="tl">Close the error payload.</p>
+              <p class="tl">End of the missing-row branch.</p>
+              <p class="tl">A good id becomes the durable triple: chunk id, source id, content hash.</p>
+              <p class="tl">Close the reconciliation loop.</p>
+              <p class="tl">Done — every reference in the label is now anchored to content, not position.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 3: the derivation twin (Snippet B) ─────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Derivation Twin</h2>
+
+        <p><code>needsReconfirmation</code> is never stored — there is no boolean column to go stale. Every time gold items are listed, one SQL fragment re-derives the flag from the corpus as it is <em>right now</em>.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/gold.ts:81–92</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> RECONFIRM_SQL = sql<span class="code-string">`</span></span>
+<span class="code-line"><span class="code-string">  EXISTS (</span></span>
+<span class="code-line"><span class="code-string">    SELECT 1 FROM jsonb_array_elements(</span>${goldItems.expected}<span class="code-string">) AS exp(entry)</span></span>
+<span class="code-line"><span class="code-string">    WHERE NOT EXISTS (</span></span>
+<span class="code-line"><span class="code-string">      SELECT 1 FROM chunks c</span></span>
+<span class="code-line"><span class="code-string">      JOIN sources s ON s.id = c.source_id</span></span>
+<span class="code-line"><span class="code-string">      WHERE c.source_id = (exp.entry-&gt;&gt;'sourceId')::uuid</span></span>
+<span class="code-line"><span class="code-string">        AND c.generation = s.current_generation</span></span>
+<span class="code-line"><span class="code-string">        AND encode(sha256(convert_to(c.content, 'UTF8')), 'hex') = exp.entry-&gt;&gt;'contentSha256'</span></span>
+<span class="code-line"><span class="code-string">    )</span></span>
+<span class="code-line"><span class="code-string">  )</span></span>
+<span class="code-line"><span class="code-string">`</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A SQL fragment, not a column — the flag is computed fresh on every read.</p>
+              <p class="tl">The item flags itself if ANY of its expected passages is orphaned…</p>
+              <p class="tl">…unpacking the stored expected JSON array into one row per reference…</p>
+              <p class="tl">…and asking, per reference: is there NO living chunk that still carries this text?</p>
+              <p class="tl">Scan the chunks…</p>
+              <p class="tl">…joined to their sources, to know which generation is current…</p>
+              <p class="tl">…restricted to the source the label pointed at…</p>
+              <p class="tl">…counting only current-generation chunks — the same rule resolution enforced at label time…</p>
+              <p class="tl">…matched by the same sha256-of-content expression the reference was minted with.</p>
+              <p class="tl">Close the inner probe: no match means the text is gone from the live corpus.</p>
+              <p class="tl">Close the outer check: one orphaned reference flags the whole item.</p>
+              <p class="tl">End of the fragment — listGoldItems selects it as the derived needsReconfirmation column.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🪞</div>
+          <div class="callout-content">
+            <strong class="callout-title">Same hash trick, opposite consumer</strong>
+            <p>Module 2's receipts derive <code>superseded</code> with a <code>NOT EXISTS</code> over current-generation hashes — the record admits <em>the past</em> has been overtaken. <code>RECONFIRM_SQL</code> runs the identical probe for gold items — the label admits <em>the future</em> needs re-checking. One hash expression, two directions of honesty, zero stored booleans to drift.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 4: split immutability (Snippet C) ──────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Split Is Not Negotiable</h2>
+
+        <p>Every gold item lands in one of two piles at creation, and the <span class="term" data-definition="Items excluded from tuning metrics; they exist to validate the final choice (FR-013).">held-out split</span> is the pile you are not allowed to study from. Question, passages, notes — all freely editable forever. The split is not.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">🔧</div>
+            <h4 class="pattern-title">Tuning (~75%)</h4>
+            <p class="pattern-desc">Measure freely. Compare configurations, iterate, chase these numbers — they exist to guide choices.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">🔒</div>
+            <h4 class="pattern-title">Held-out (~25%)</h4>
+            <p class="pattern-desc">Excluded from every choose-between-configs metric. Spent only to validate the final choice — the exam you never studied from.</p>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/gold.ts:146–170 (guard verbatim, rest elided)</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">relabelGoldItem</span>(db: Database, input: RelabelGoldItemInput): Promise&lt;GoldItemView&gt; {</span>
+<span class="code-line">  <span class="code-comment">// … load the existing item; an unknown id gets its own typed refusal …</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (input.split <span class="code-operator">!==</span> <span class="code-keyword">undefined</span> <span class="code-operator">&amp;&amp;</span> input.split <span class="code-operator">!==</span> item.split) {</span>
+<span class="code-line">    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"invalid_input"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">`The split is immutable after creation (FR-013): moving items into or out of the holdout after tuning began would let configuration choices leak into it.`</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-comment">// … re-resolve chunk ids through resolveExpectedPassages, then update question / expected / notes …</span></span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Re-labeling is allowed — gold items are curation, not receipts. The caller sends the full new labeling.</p>
+              <p class="tl">(Trimmed: the item is fetched first; a missing id fails as unknown_thing.)</p>
+              <p class="tl">But if the caller supplies a split that differs from the stored one…</p>
+              <p class="tl">…the answer is a typed refusal — not a warning, not an audit-log entry…</p>
+              <p class="tl">…classed as the caller's mistake…</p>
+              <p class="tl">…with the doctrine spelled out in the message, verbatim FR-013: moving items into or out of the holdout after tuning began would let configuration choices leak into it.</p>
+              <p class="tl">Close the refusal.</p>
+              <p class="tl">End of the guard.</p>
+              <p class="tl">(Trimmed: legitimate edits — question, passages, notes — all flow through the same hash resolution from the previous screen.)</p>
+              <p class="tl">Everything about a gold item may evolve except which side of the exam it sits on.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🎲</div>
+          <div class="callout-content">
+            <strong class="callout-title">Every 4th item — zero randomness to argue about</strong>
+            <p><code>defaultSplit</code> counts the corpus's existing items and assigns <code>(n + 1) % 4 === 0 → "heldout"</code>: a deterministic ~25% holdout with no seed, no shuffle, no debate. The operator may override the default at creation — and never again after.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 5: quiz + handoff ──────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module-3">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — chunk ids die at every re-ingest, but content usually survives. Referencing by sha256(content) means the only labels that flag are the ones whose TEXT actually changed."
+               data-explanation-wrong="Not quite. Trace what RECONFIRM_SQL actually compares: it never mentions chunk ids — only the source, the current generation, and sha256 of the content. Identical text under a brand-new id still matches.">
+            <h3 class="quiz-question">A nightly job re-ingests a source. The diff shows zero text changes, but chunking hands every passage a fresh chunk id. What happens to the gold items labeled against that source?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>They all flag for re-confirmation — the chunk ids they referenced no longer exist</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — the references are content hashes, and identical text keeps every hash alive under the new ids</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Eval runs score those items as recall 0 until an operator re-labels them</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — once you have tuned against the tuning slice, moving items across the boundary lets those tuning choices leak into the holdout. The held-out numbers would then be validating decisions that were partly made on the same items."
+               data-explanation-wrong="Not quite. The refusal message names the real stake: the holdout exists to validate the FINAL choice. Reshuffle items after tuning began and the exam now contains questions you studied from — the validation stops meaning anything.">
+            <h3 class="quiz-question">Held-out items score lower than tuning items, and a teammate proposes moving a few stubborn held-out items into tuning "so we can iterate on them." The API refuses. What is the refusal protecting?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Referential integrity — the split participates in how expected-passage hashes are resolved</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The every-4th ratio — moving items would drift the holdout away from ~25%</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The holdout's honesty — moving items after tuning began leaks configuration choices into the set meant to validate the final choice</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — a flagged item is reported unresolvable and excluded from metric denominators. The failure is visible in the run, but it can never masquerade as the engine missing a passage that no longer exists."
+               data-explanation-wrong="Not quite. Scoring it as a miss would blame the engine for text that no longer exists, and skipping it silently would hide the staleness. The design goal from the top of gold.ts: flagged items are reported unresolvable — never a silent miss.">
+            <h3 class="quiz-question">Mid-run, an eval reaches a gold item whose expected hash no longer exists in any current-generation chunk. What does the run record for that item?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Unresolvable — reported visibly and excluded from the metric denominators</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Recall 0 — the expected passage was not retrieved, and a miss is a miss</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — the item is silently skipped so run-to-run averages stay comparable</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-3')">Try Again</button>
+        </div>
+
+        <p>The answer key is written, hashed, and split. Module 4 builds the machine that grades with it: the eval harness consumes these labels — and pins them — so "which configuration is better" stops being an opinion. And keep an eye on that live gold item, <em>"how does a riposte work"</em>: it is sitting in the gold set right now, and Module 6 is its story.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

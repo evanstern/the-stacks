@@ -18,7 +18,7 @@ sources:
   - packages/db/src/queue.ts
   - packages/db/src/schema/skeleton-vectors.ts
   - scripts/check-boundaries.mjs
-verified_against: a908b1b67e7115c487cbd5531b13130fc98f153b
+verified_against: dacd6c245d7f333752adcddf3e523477b523bd15
 ---
 
 # Walking Skeleton
@@ -88,9 +88,12 @@ port and flip `SESSION_COOKIE_SECURE=true`.
 ## Queue, event, and vector doctrine
 
 - **Queue**: one generic `jobs` Postgres table (D12). Claim is `FOR UPDATE SKIP
-  LOCKED`; retry is `attempts`/`max_attempts` with backoff via `run_at`; a
-  claim whose `claimed_at` exceeds `WORKER_VISIBILITY_TIMEOUT_MS` is
-  reclaimable (recovers a worker restart mid-check).
+  LOCKED`; a handled job is marked `succeeded` via `complete()` — the loop
+  MUST do this, or the job stays `claimed` and reclaim re-runs it forever
+  (idempotent handlers hide the bug; TASK-10 caught one at 38 attempts). Retry
+  is `attempts`/`max_attempts` with backoff via `run_at`; a claim whose
+  `claimed_at` exceeds `WORKER_VISIBILITY_TIMEOUT_MS` is reclaimable (recovers
+  a worker that genuinely died mid-job).
 - **Events**: `skeleton_check_events` is append-only by construction — the only
   write path is `@stacks/db`'s `recordEvent` insert helper, no UPDATE/DELETE in
   code. A successful run shows exactly six events (`queued`, `claimed`,
@@ -103,9 +106,11 @@ port and flip `SESSION_COOKIE_SECURE=true`.
   `sha256(input_text + provider/model/dimensions)` — so identical input+config
   reuses the same row (`INSERT ... ON CONFLICT DO NOTHING`), making re-runs
   idempotent by construction rather than by dedup logic.
-- **Errors**: every DomainError carries a `class` (`unknown_thing` /
-  `unsupported_type` / `dependency_down` / `internal_fault`) and an optional
-  `seam`; the API boundary maps class→HTTP code, and the worker stamps the
+- **Errors**: every DomainError carries a `class` from a closed union
+  (`unknown_thing` / `unsupported_type` / `invalid_input` / `dependency_down` /
+  `internal_fault` — 007 shipped the other four; `invalid_input`, 400-shaped,
+  joined in spec 010 when the embedding-stamp refusal made domain-level input
+  rejection real) and an optional `seam`; the API boundary maps class→HTTP code, and the worker stamps the
   same class onto `jobs.last_error` / `skeleton_check_runs.outcome`. A
   dependency-down failure (sidecar unreachable/timeout/503) and an
   internal-fault failure (our bug — e.g. a dimension mismatch) are
@@ -129,12 +134,15 @@ that) / `POST /v1/embed` (batch-in/batch-out; wrong `model` → 404, empty or
 non-string inputs → 415, not-ready → 503). Model loading runs as a background
 task at startup so `/health` stays reachable while a large model downloads
 into the `hf-cache` named volume — first start pays the download once, warm
-starts load from cache.
+starts load from cache. Since 010 the sidecar also serves `POST /v1/rerank`
+(the OPTIONAL cross-encoder role — disabled when `ML_RERANKER_MODEL` is
+unset, reported additively on `/ready` without affecting overall readiness;
+same guard order and error taxonomy as embed) — see [[retrieval]].
 
 ## Testing posture
 
 One TS runner (Vitest) across every package; `fastify.inject()` contract tests
-pin the four error classes with zero network. `pnpm verify` = boundary check +
+pin the error classes with zero network. `pnpm verify` = boundary check +
 `tsc --noEmit` + tests across all TS packages, deliberately excluding the
 Python sidecar (its own `pytest`/`pyright` run separately, since FR-017 scopes
 `pnpm verify` to the TS side). DB-integration tests (queue semantics, the
@@ -148,4 +156,7 @@ that flag is set.
 This slice deliberately has no ingestion, retrieval, or chat — those were the
 next specs, building on `packages/ingestion-contract`'s placeholder and the
 model-role config machinery this spec introduced. [[ingestion]] (spec 008) has
-since landed on these seams; retrieval and chat are still ahead.
+since landed on these seams, and retrieval (spec 010) is landing now — the API
+composition root (`apps/api/src/app.ts`) additionally mounts retrieval routes
+(search, receipts, gold sets) with a lazily-built sidecar query embedder, and
+`app/lib/api.server.ts` gained the matching relays. Chat is still ahead.
