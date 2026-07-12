@@ -55,10 +55,10 @@
 **Goal**: label questions with expected passages; splits enforced; re-ingest honesty.
 **Independent Test**: author items against the fixture corpus; splits assigned; changed-text re-ingest flags the item, identical-text re-ingest auto-heals (quickstart §3).
 
-- [ ] T020 [US3] TDD: contract tests for gold routes — create resolves chunkId → `{chunkId, sourceId, contentSha256}` and rejects non-current-generation chunks (`invalid_input`), split defaults every-4th-heldout and is immutable on PUT, re-label updates expected list, `needsReconfirmation` derives true after changed-text sweep and false after identical-text re-ingest — in `apps/api/test/evals-gold.contract.test.ts` (suite DB `api_evals_gold`); write first
-- [ ] T021 [US3] Implement `packages/retrieval/src/gold.ts` domain functions + gold routes in `apps/api/src/retrieval/routes.ts`; T020 green
-- [ ] T022 [US3] Web `/evals/gold`: authoring flow (mark-as-expected affordance on `/search` results + question entry), list with split badges and the re-confirmation queue, labeling standard visible at authoring time (FR-012) — `apps/web/app/routes/evals.gold.tsx` (+ the search-result affordance in `search.tsx`)
-- [ ] T023 [US3] Web tests for gold authoring + re-confirmation display
+- [x] T020 [US3] TDD: contract tests for gold routes — create resolves chunkId → `{chunkId, sourceId, contentSha256}` and rejects non-current-generation chunks (`invalid_input`), split defaults every-4th-heldout and is immutable on PUT, re-label updates expected list, `needsReconfirmation` derives true after changed-text sweep and false after identical-text re-ingest — in `apps/api/test/evals-gold.contract.test.ts` (suite DB `api_evals_gold`); write first
+- [x] T021 [US3] Implement `packages/retrieval/src/gold.ts` domain functions + gold routes in `apps/api/src/retrieval/routes.ts`; T020 green
+- [x] T022 [US3] Web `/evals/gold`: authoring flow (mark-as-expected affordance on `/search` results + question entry), list with split badges and the re-confirmation queue, labeling standard visible at authoring time (FR-012) — `apps/web/app/routes/evals.gold.tsx` (+ the search-result affordance in `search.tsx`)
+- [x] T023 [US3] Web tests for gold authoring + re-confirmation display
 
 **Checkpoint**: US3 independently demonstrable.
 

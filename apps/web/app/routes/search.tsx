@@ -95,6 +95,13 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   >
                     view source
                   </Link>
+                  {/* US3: labeling flows FROM search — chunk id + question prefill the bench. */}
+                  <Link
+                    className="text-sm underline underline-offset-4"
+                    to={`/evals/gold?chunkId=${encodeURIComponent(result.chunkId)}&q=${encodeURIComponent(search.query)}`}
+                  >
+                    label as expected
+                  </Link>
                   {Array.isArray(result.anchor.headingTrail) &&
                     result.anchor.headingTrail.length > 0 && (
                       <span className="text-xs text-muted-foreground">

@@ -19,5 +19,6 @@ export default [
     route("library/uploads/:kind/:id", "routes/library.uploads.$ticket.tsx"),
     route("records/retrievals", "routes/records.retrievals.tsx"),
     route("records/retrievals/:run", "routes/records.retrievals.$run.tsx"),
+    route("evals/gold", "routes/evals.gold.tsx"),
   ]),
 ] satisfies RouteConfig;

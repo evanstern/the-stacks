@@ -29,7 +29,7 @@ import { registerSession } from "./auth/session";
 import { errorEnvelope, statusForErrorClass } from "./errors";
 import { registerHealthRoutes } from "./health";
 import { registerIngestionRoutes } from "./ingestion/routes";
-import { registerRetrievalRecordRoutes, registerRetrievalRoutes } from "./retrieval/routes";
+import { registerGoldRoutes, registerRetrievalRecordRoutes, registerRetrievalRoutes } from "./retrieval/routes";
 import { registerSkeletonCheckRoutes } from "./skeleton-checks/routes";
 
 export interface AppDeps {
@@ -116,6 +116,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     config: deps.retrievalConfig ?? resolveRetrievalConfig(process.env),
   });
   registerRetrievalRecordRoutes(app, { db: deps.db });
+  registerGoldRoutes(app, { db: deps.db });
 
   return app;
 }

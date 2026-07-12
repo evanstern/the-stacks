@@ -15,7 +15,10 @@ import { sql } from "drizzle-orm";
 import { DomainError } from "@stacks/core";
 import { corpora, retrievalRuns, type Database, type RetrievalResultLine } from "@stacks/db";
 import {
+  createGoldItem,
+  listGoldItems,
   QUERY_MAX_CHARS,
+  relabelGoldItem,
   searchCorpus,
   type QueryEmbedder,
   type ResolvedRetrievalConfig,
@@ -238,5 +241,104 @@ export function registerRetrievalRecordRoutes(
         })),
       };
     },
+  );
+}
+
+/** Gold-set routes (US3, contracts/api.md §3). Thin: schema-validate,
+ *  resolve the corpus, delegate to the gold domain functions — split
+ *  immutability and hash resolution live there, not here. */
+export function registerGoldRoutes(app: FastifyInstance, deps: { db: Database }): void {
+  const { db } = deps;
+
+  const expectedSchema = {
+    type: "array",
+    minItems: 1,
+    items: {
+      type: "object",
+      required: ["chunkId"],
+      additionalProperties: false,
+      properties: { chunkId: { type: "string", minLength: 1 } },
+    },
+  } as const;
+
+  const defaultCorpus = async () => {
+    const [corpus] = await db.select().from(corpora).where(sql`${corpora.name} = 'default'`);
+    if (!corpus) {
+      throw new DomainError({ class: "unknown_thing", message: 'No such corpus: "default".' });
+    }
+    return corpus;
+  };
+
+  app.post<{
+    Body: { question: string; expected: Array<{ chunkId: string }>; split?: "tuning" | "heldout"; notes?: string };
+  }>(
+    "/api/evals/gold",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["question", "expected"],
+          additionalProperties: false,
+          properties: {
+            question: { type: "string", minLength: 1, maxLength: 1024 },
+            expected: expectedSchema,
+            split: { type: "string", enum: ["tuning", "heldout"] },
+            notes: { type: "string", maxLength: 4096 },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const corpus = await defaultCorpus();
+      const item = await createGoldItem(db, {
+        corpusId: corpus.id,
+        question: request.body.question,
+        chunkIds: request.body.expected.map((e) => e.chunkId),
+        split: request.body.split,
+        notes: request.body.notes,
+      });
+      reply.code(201);
+      return item;
+    },
+  );
+
+  app.get("/api/evals/gold", async () => {
+    const corpus = await defaultCorpus();
+    return { items: await listGoldItems(db, corpus.id) };
+  });
+
+  app.put<{
+    Params: { id: string };
+    Body: { question: string; expected: Array<{ chunkId: string }>; split?: string; notes?: string };
+  }>(
+    "/api/evals/gold/:id",
+    {
+      schema: {
+        params: {
+          type: "object",
+          required: ["id"],
+          properties: { id: { type: "string", format: "uuid" } },
+        },
+        body: {
+          type: "object",
+          required: ["question", "expected"],
+          additionalProperties: false,
+          properties: {
+            question: { type: "string", minLength: 1, maxLength: 1024 },
+            expected: expectedSchema,
+            split: { type: "string" },
+            notes: { type: "string", maxLength: 4096 },
+          },
+        },
+      },
+    },
+    async (request) =>
+      relabelGoldItem(db, {
+        id: request.params.id,
+        question: request.body.question,
+        chunkIds: request.body.expected.map((e) => e.chunkId),
+        notes: request.body.notes,
+        split: request.body.split,
+      }),
   );
 }

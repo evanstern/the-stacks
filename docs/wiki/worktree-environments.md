@@ -8,7 +8,7 @@ sources:
   - docker-compose.yml
   - .env.example
   - specs/009-library-surface-env/contracts/environment.md
-verified_against: a908b1b67e7115c487cbd5531b13130fc98f153b
+verified_against: 1945f70cde1d77824872ddd7eca4fe0b3151b284
 ---
 
 # Worktree Environments

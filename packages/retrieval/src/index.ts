@@ -10,4 +10,5 @@
 export * from "./config";
 export * from "./fusion";
 export * from "./search";
+export * from "./gold";
 export * from "./eval/fixture/deterministic-embedding";

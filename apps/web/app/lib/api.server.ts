@@ -381,3 +381,66 @@ export async function getRetrievalRun(request: Request, id: string): Promise<Ret
   }
   return (await response.json()) as RetrievalRunDetail;
 }
+
+/** Gold-set surfaces (spec 010 US3, contracts/api.md §3). */
+export interface GoldItem {
+  id: string;
+  question: string;
+  expected: Array<{ chunkId: string; sourceId: string; contentSha256: string }>;
+  split: "tuning" | "heldout";
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  needsReconfirmation: boolean;
+}
+
+export async function listGoldItems(request: Request): Promise<GoldItem[]> {
+  const response = await apiFetch(request, "/api/evals/gold");
+  if (!response.ok) throw new Response("Failed to load the gold set", { status: response.status });
+  return ((await response.json()) as { items: GoldItem[] }).items;
+}
+
+async function goldError(response: Response): Promise<string> {
+  try {
+    const envelope = (await response.json()) as { error?: { message?: string } };
+    return envelope.error?.message ?? "Gold-set request failed";
+  } catch {
+    return "Gold-set request failed";
+  }
+}
+
+export async function createGoldItem(
+  request: Request,
+  input: { question: string; chunkIds: string[]; split?: "tuning" | "heldout"; notes?: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const response = await apiFetch(request, "/api/evals/gold", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      question: input.question,
+      expected: input.chunkIds.map((chunkId) => ({ chunkId })),
+      ...(input.split ? { split: input.split } : {}),
+      ...(input.notes ? { notes: input.notes } : {}),
+    }),
+  });
+  if (!response.ok) return { ok: false, message: await goldError(response) };
+  return { ok: true };
+}
+
+export async function relabelGoldItem(
+  request: Request,
+  id: string,
+  input: { question: string; chunkIds: string[]; notes?: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const response = await apiFetch(request, `/api/evals/gold/${id}`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      question: input.question,
+      expected: input.chunkIds.map((chunkId) => ({ chunkId })),
+      ...(input.notes ? { notes: input.notes } : {}),
+    }),
+  });
+  if (!response.ok) return { ok: false, message: await goldError(response) };
+  return { ok: true };
+}
