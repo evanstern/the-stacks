@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { artifactTextContent } from "@stacks/ingestion-contract";
+import { DETECT_HEAD_BYTES, artifactTextContent } from "@stacks/ingestion-contract";
 import { describeConformance } from "@stacks/ingestion-contract/conformance";
 import { describe, expect, it } from "vitest";
 
@@ -21,6 +21,22 @@ const GOBLIN = fixture("ddb/goblin-page.html");
 const SPELL = fixture("ddb/glimmerburst-spell.html");
 const TABLE = fixture("ddb/trinket-table.html");
 
+/**
+ * Real saved DDB pages have the geometry the small fixtures above do not:
+ * the browser inlines every stylesheet and script into <head>, pushing
+ * <body> (and the article) far past DETECT_HEAD_BYTES. Observed live on a
+ * real Monster Manual listing page — <body> at byte ~135k of 733k — where
+ * detect() returned 0 despite the identity signals (saved-from stamp,
+ * canonical, og:url) all sitting inside the first 64 KiB (TASK-10).
+ * Synthesized here from the goblin fixture so no real DDB content is
+ * committed (constitution Principle I).
+ */
+const LARGE_PREAMBLE = (() => {
+  const html = new TextDecoder().decode(GOBLIN);
+  const filler = `<style>/* ${"padding ".repeat(2 * DETECT_HEAD_BYTES / 8)} */</style>`;
+  return new TextEncoder().encode(html.replace("</head>", `${filler}</head>`));
+})();
+
 describeConformance({
   plugin: ddbSavedHtmlPlugin,
   fixtures: {
@@ -28,6 +44,7 @@ describeConformance({
       { name: "stat-block page (saved-from + canonical)", mediaType: "text/html", filename: "goblin-page.html", bytes: GOBLIN },
       { name: "spell page (og:url only)", mediaType: "text/html", filename: "glimmerburst-spell.html", bytes: SPELL },
       { name: "table page (saved-from only)", mediaType: "text/html", filename: "trinket-table.html", bytes: TABLE },
+      { name: "real-geometry page (body past DETECT_HEAD_BYTES)", mediaType: "text/html", filename: "monsters-g.html", bytes: LARGE_PREAMBLE, minConfidence: 0.9 },
     ],
     negative: [
       {
@@ -51,6 +68,15 @@ describeConformance({
 describe("ddb-saved-html specifics (ddb-rules.md)", () => {
   const transform = (bytes: Uint8Array, filename: string) =>
     ddbSavedHtmlPlugin.transform({ mediaType: "text/html", filename, bytes });
+
+  it("detects on identity signals alone when the article sits past the detect prefix (TASK-10)", () => {
+    const result = ddbSavedHtmlPlugin.detect({
+      mediaType: "text/html",
+      filename: "monsters-g.html",
+      head: LARGE_PREAMBLE.slice(0, DETECT_HEAD_BYTES),
+    });
+    expect(result.confidence).toBeGreaterThanOrEqual(0.9);
+  });
 
   it("classifies the stat block section as stat_block (§7)", async () => {
     const doc = await transform(GOBLIN, "goblin-page.html");

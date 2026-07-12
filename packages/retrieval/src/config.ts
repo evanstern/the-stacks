@@ -83,7 +83,12 @@ export function resolveRetrievalConfig(
     fusion: overrides.fusion ?? fusionRaw,
     rrfK: overrides.rrfK ?? envInt(env, "RETRIEVAL_RRF_K", 60),
     weightAlpha: overrides.weightAlpha ?? envFloat(env, "RETRIEVAL_WEIGHT_ALPHA", 0.5),
-    minSimilarity: overrides.minSimilarity ?? envFloat(env, "RETRIEVAL_MIN_SIMILARITY", 0.3),
+    // Floor lowered 0.3 → 0.2 on real-corpus evidence (TASK-10, eval report
+    // 2026-07-12): 0.3 dropped natural-question phrasings whose answer is one
+    // sentence in a multi-topic chunk (question-vs-whole-chunk cosine ~0.21);
+    // 0.2 recovered them (tuning recall@5 0.94 → 1.0) while 0.0 REGRESSED MRR
+    // by admitting weak matches above the true answer. 0.2 is the measured knee.
+    minSimilarity: overrides.minSimilarity ?? envFloat(env, "RETRIEVAL_MIN_SIMILARITY", 0.2),
     candidateDepth: overrides.candidateDepth ?? envInt(env, "RETRIEVAL_CANDIDATE_DEPTH", 50),
     k: overrides.k ?? envInt(env, "RETRIEVAL_K", 10),
     rerank: overrides.rerank ?? rerankRaw === "on",

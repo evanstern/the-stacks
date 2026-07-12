@@ -19,7 +19,7 @@ describe("resolveRetrievalConfig", () => {
       fusion: "rrf",
       rrfK: 60,
       weightAlpha: 0.5,
-      minSimilarity: 0.3,
+      minSimilarity: 0.2,
       candidateDepth: 50,
       k: 10,
       rerank: false,

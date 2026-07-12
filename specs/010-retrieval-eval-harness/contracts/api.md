@@ -61,7 +61,7 @@ validated ⇒ `invalid_input` 400 beyond).
 RETRIEVAL_FUSION=rrf              # rrf | weighted — fusion strategy (research R1)
 RETRIEVAL_RRF_K=60                # RRF dampening constant
 RETRIEVAL_WEIGHT_ALPHA=0.5        # weighted only: vector weight (0..1)
-RETRIEVAL_MIN_SIMILARITY=0.3      # vector floor: below it, a chunk is not a candidate (honest empty)
+RETRIEVAL_MIN_SIMILARITY=0.2      # vector floor: below it, a chunk is not a candidate (honest empty); real-corpus-tuned (TASK-10)
 RETRIEVAL_CANDIDATE_DEPTH=50      # per-signal candidates fetched before fusion
 RETRIEVAL_K=10                    # results returned/recorded
 RETRIEVAL_RERANK=off              # off | on — on REQUIRES the reranker role live (R9)

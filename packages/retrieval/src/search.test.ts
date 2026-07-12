@@ -116,7 +116,13 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("searchCorpus", () => {
     await close();
   });
 
-  const config = resolveRetrievalConfig({});
+  // Pin the floor at 0.3 explicitly: these tests run against the CONSTRUCTED
+  // hash-embedding fixture, whose geometry does NOT have real MiniLM's
+  // "unrelated text sits near 0" property (nonsense lands ~0.2–0.3 here). The
+  // honest-empty assertion below depends on that 0.3 floor. The shipped
+  // operational default is 0.2 (TASK-10, real-corpus-tuned) — a different
+  // number for a different, real embedding space, deliberately not inherited.
+  const config = resolveRetrievalConfig({}, { minSimilarity: 0.3 });
   const deps = () => ({ db, embedQuery: embedderFor({ "hold an enemy in place": GRAPPLE }) });
 
   it("verbatim term: FTS carries the expected chunk to the top, attributed and scored", async () => {

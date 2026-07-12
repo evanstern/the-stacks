@@ -65,7 +65,11 @@ describe.skipIf(!process.env.RUN_DB_INTEGRATION_TESTS)("deterministic CI floor (
     }
     const evalRunId = await createEvalRun(db, {
       corpusId: fixture.corpusId,
-      config: resolveRetrievalConfig({}, { configName: "fixture-baseline" }),
+      // Floor pinned at 0.3 (not the shipped 0.2 default): the fixture's
+      // hash embeddings put unrelated text ~0.2–0.3, so this deterministic
+      // math-proving corpus is calibrated to 0.3 — decoupled from the
+      // real-corpus operational default on purpose (TASK-10; eval report).
+      config: resolveRetrievalConfig({}, { configName: "fixture-baseline", minSimilarity: 0.3 }),
     });
     await executeEvalRun({ db, embedQuery: fixtureQueryEmbedder }, evalRunId);
     const row = await db.execute<{

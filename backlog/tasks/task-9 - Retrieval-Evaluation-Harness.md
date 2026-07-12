@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-11 04:55'
-updated_date: '2026-07-12 01:54'
+updated_date: '2026-07-12 02:16'
 labels: []
 dependencies: []
 ordinal: 9000
@@ -28,7 +28,7 @@ Spec: specs/010-retrieval-eval-harness
 - [x] #5 Spec phase: User Story 3 — Build a gold set from my own corpus (Priority: P3)
 - [x] #6 Spec phase: User Story 4 — Measure before choosing (Priority: P4)
 - [x] #7 Spec phase: User Story 5 — Sharpen the ranking with a reranker (Priority: P5)
-- [ ] #8 Spec phase: Polish & Cross-Cutting Concerns
+- [x] #8 Spec phase: Polish & Cross-Cutting Concerns
 - [ ] #9 Spec phase: Convergence
 <!-- AC:END -->
 
@@ -46,4 +46,6 @@ spec-bridge sync: US3 complete (4/4) — gold bench live; auto-heal + re-confirm
 spec-bridge sync: US4 complete (10/10) — harness live, CI floor armed inside pnpm verify and proven to bite
 
 spec-bridge sync: US5 complete (4/4) — all five user stories done; Polish + Convergence remain
+
+spec-bridge sync: Polish 3/3 · Convergence 1/2 (T042 rides the course) — converge verdict: CONVERGED; SC-005/006 partial by operator decision → TASK-10
 <!-- SECTION:NOTES:END -->
