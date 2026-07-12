@@ -1,0 +1,410 @@
+<section class="module" id="module-6" style="background: var(--color-bg); --color-accent: #ca8a04; --color-accent-hover: #a16207; --color-accent-light: color-mix(in srgb, #ca8a04 14%, var(--color-bg)); --color-accent-muted: color-mix(in srgb, #ca8a04 55%, var(--color-bg));">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">The Day-One Finding</h1>
+      <p class="module-subtitle">Search "riposte": rank 1 in 0.09 seconds. Ask "how does a riposte work": nothing. Same passage, same engine, same day — and the eval run scored it honestly: recall 0. That zero is the best evidence in the whole cycle.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── Screen 1: hook + live-walkthrough data flow ───────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Smoke Detector Went Off at the Housewarming</h2>
+
+        <p>Module 5 left one question open: what happened when the whole machine met reality? Answer: on the very first live day, the smoke detector went off during the housewarming party. Annoying? No — <strong>it is the proof the thing works</strong>. Step through the walkthrough as it actually ran:</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-m6-operator","label":"Cycle close, live stack: the operator uploads the Emberfall homebrew rules page. Real ingestion, real MiniLM embeddings."},
+          {"highlight":"flow-m6-engine","packet":true,"from":"m6-operator","to":"m6-engine","label":"The pipeline chunks, embeds, and indexes it — the corpus is live."},
+          {"highlight":"flow-m6-receipts","packet":true,"from":"m6-engine","to":"m6-receipts","label":"Search riposte: FTS lands the passage at rank 1, wall time 0.09s. Receipt recorded."},
+          {"highlight":"flow-m6-receipts","packet":true,"from":"m6-engine","to":"m6-receipts","label":"Search striking back after a missed attack: zero shared keywords — the vector signal carries it at similarity 0.316. Receipt recorded."},
+          {"highlight":"flow-m6-receipts","packet":true,"from":"m6-engine","to":"m6-receipts","label":"Search pure gibberish: zero results. The similarity floor holds the honest empty. Receipt recorded."},
+          {"highlight":"flow-m6-engine","label":"Ask how does a riposte work: nothing comes back. Same passage, same engine, same day."},
+          {"highlight":"flow-m6-eval","packet":true,"from":"m6-receipts","to":"m6-eval","label":"The one-item eval run scores it honestly: recall 0. The zero goes on the record."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-m6-operator">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">🧑‍💻</div>
+              <span>Operator</span>
+            </div>
+            <div class="flow-actor" id="flow-m6-engine">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">⚙️</div>
+              <span>Engine</span>
+            </div>
+            <div class="flow-actor" id="flow-m6-receipts">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">🧾</div>
+              <span>Receipts</span>
+            </div>
+            <div class="flow-actor" id="flow-m6-eval">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">📊</div>
+              <span>Eval run</span>
+            </div>
+          </div>
+          <div class="flow-packet"></div>
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Three successes and one honest zero — from the <em>same</em> engine, in the <em>same</em> hour. The successes are what make the zero meaningful: nothing was broken, misconfigured, or down. Something specific and mechanical happened to that one query, and the rest of this module is the system finding out exactly what — the whole arc in five words:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Observe — live receipts</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Measure — eval run, recall 0</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Record — report + evidence</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Defer — TASK-10, with data to gather</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>Close — floor 0.3 → 0.2, with receipts</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 2: the two mechanisms (Snippet A) ──────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two Mechanisms, One Miss</h2>
+
+        <p>Both signals from Module 1 failed the same query at once — for two completely different reasons. FTS died on <span class="term" data-definition="websearch_to_tsquery requires EVERY term; one absent word = no FTS match — a known engine characteristic, recorded in the eval report.">AND semantics</span>; the vector died on the floor.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">🔤</div>
+            <h4 class="pattern-title">Mechanism 1 — FTS AND</h4>
+            <p class="pattern-desc"><code>websearch_to_tsquery</code> turns "how does a riposte work" into <code>riposte &amp; work</code>. The passage has "riposte" but not "work" — the FTS signal returns nothing. The bare keyword still hits; the natural question cannot.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">📉</div>
+            <h4 class="pattern-title">Mechanism 2 — the floor</h4>
+            <p class="pattern-desc">The riposte rule is one sentence inside a multi-topic page, so the question-vs-whole-page cosine sits low — under the 0.3 similarity floor. The vector signal, the one that should rescue natural questions, dropped it too.</p>
+          </div>
+        </div>
+
+        <p>Here is the uncomfortable part: mechanism 1 was <em>never a surprise</em>. The fixture corpus from Module 4 recorded it, at fixture level, before any live query existed:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/eval/fixture/corpus.ts:56–69</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** Paraphrase queries → the passage seed text whose vector they inherit.</span></span>
+<span class="code-line"><span class="code-comment"> *  Anything here is VECTOR-carried by construction. Note the entries that</span></span>
+<span class="code-line"><span class="code-comment"> *  look like keyword queries ("grapple stamina cost"): websearch_to_tsquery</span></span>
+<span class="code-line"><span class="code-comment"> *  has AND semantics, so one absent word ("cost") kills the FTS hit — in</span></span>
+<span class="code-line"><span class="code-comment"> *  production the real embedding model catches these; in the fixture, this</span></span>
+<span class="code-line"><span class="code-comment"> *  map plays that role. The engine lesson is recorded in the eval report. */</span></span>
+<span class="code-line"><span class="code-keyword">const</span> PARAPHRASE_TARGETS: Record&lt;<span class="code-keyword">string</span>, <span class="code-keyword">string</span>&gt; = {</span>
+<span class="code-line">  <span class="code-string">"holding an enemy so it cannot move"</span>: COMBAT[<span class="code-number">0</span>]!.text, <span class="code-comment">// fx-grapple</span></span>
+<span class="code-line">  <span class="code-string">"striking back after a whiffed attack"</span>: COMBAT[<span class="code-number">1</span>]!.text, <span class="code-comment">// fx-riposte</span></span>
+<span class="code-line">  <span class="code-string">"seeing in the dark with a flame"</span>: EXPLORATION[<span class="code-number">0</span>]!.text, <span class="code-comment">// fx-torchlight</span></span>
+<span class="code-line">  <span class="code-string">"protective ash cloak spell"</span>: EXPLORATION[<span class="code-number">2</span>]!.text, <span class="code-comment">// fx-emberveil</span></span>
+<span class="code-line">  <span class="code-string">"grapple stamina cost"</span>: COMBAT[<span class="code-number">0</span>]!.text, <span class="code-comment">// fx-grapple — "cost" defeats FTS AND</span></span>
+<span class="code-line">  <span class="code-string">"recovering stamina and resolve"</span>: COMBAT[<span class="code-number">3</span>]!.text, <span class="code-comment">// fx-stamina — multi-expected, split vocab</span></span>
+<span class="code-line">};</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The fixture embedder has no model — this map is the stand-in: each paraphrase inherits the vector of the passage it should find.</p>
+              <p class="tl">Whatever appears here is carried by the vector signal alone, by construction…</p>
+              <p class="tl">…including entries that LOOK like keyword queries — and here comes the engine characteristic…</p>
+              <p class="tl">…AND semantics: every term must match, so one absent word ("cost") kills the FTS hit outright.</p>
+              <p class="tl">In production, the real embedding model is what catches those queries…</p>
+              <p class="tl">…so this map plays that role in the fixture — and the lesson was written into the eval report before any live query existed.</p>
+              <p class="tl">The map itself: paraphrase text on the left, the passage seed whose vector it inherits on the right.</p>
+              <p class="tl">A grapple paraphrase with zero shared keywords — vector-carried by design.</p>
+              <p class="tl">The riposte paraphrase — the exact shape of the live query that would later miss.</p>
+              <p class="tl">Torchlight found by meaning, not by term.</p>
+              <p class="tl">The Emberveil spell, same trick.</p>
+              <p class="tl">And the recorded gotcha itself: "cost" is absent from the grapple passage, so AND semantics defeat FTS.</p>
+              <p class="tl">A multi-passage case whose vocabulary splits across chunks.</p>
+              <p class="tl">End of the map — the AND-semantics lesson sat here, at fixture level, from day one.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔬</div>
+          <div class="callout-content">
+            <strong class="callout-title">The day-one numbers, side by side</strong>
+            <p>"riposte" → rank 1 in 0.09 s. "striking back after a missed attack" → hit, vector 0.316. Gibberish → honest empty. "how does a riposte work" → recall 0. The fixture had predicted the FTS half; the floor half needed a real corpus to measure — which is exactly where this story goes next.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 3: the evidence trail ──────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What the System Did With Its Own Failure</h2>
+
+        <p>Nobody patched anything that afternoon. Instead, the failure was <em>filed</em> — through every layer this course has built, in order:</p>
+
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>The receipt (Module 2)</strong>
+              <p>The missed search left a retrieval run like any other — query, config, stage timings, zero results. The failure is a first-class record, not a shrug.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The eval run (Module 4)</strong>
+              <p>A one-item eval run against the live gold item "how does a riposte work" scored recall 0 — honestly. No fudging, no re-run until green.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>The eval report</strong>
+              <p>Both mechanisms went into the report's known characteristics: FTS AND semantics dropped "work"; the question-vs-page cosine fell under the 0.3 floor.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>The board task</strong>
+              <p>TASK-10 opened with the finding as its first question: is 0.3 too high for natural-question phrasing against real embeddings? With instructions to gather real-corpus data before answering.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🔔</div>
+          <div class="callout-content">
+            <strong class="callout-title">"The harness earning its keep" — the evidence file's own words</strong>
+            <p>The spec's evidence ledger records the zero under that verbatim heading, and closes with the doctrine: changing the default without measurement "would invert D11 — the harness exists precisely to catch this." A retrieval stack that can prove it failed is one you can improve deliberately. One that cannot is one you tune by vibes.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 4: why not lower the floor that afternoon ──────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why the Fix Did Not Ship That Afternoon</h2>
+
+        <p>The tempting patch was obvious within minutes: the cosine fell under 0.3, so lower <code>RETRIEVAL_MIN_SIMILARITY</code>. One env var. The whole apparatus exists to say <em>not yet</em> — <span class="term" data-definition="D11: no tuning change ships without a measurement receipt — even when the fix looks obvious.">measure before choosing</span>.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">🩹</div>
+            <h4 class="pattern-title">The vibes path</h4>
+            <p class="pattern-desc">Lower the floor to whatever makes today's query pass. No idea what it does to every other query, no receipt, no way to argue about the next tweak either.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-success)">
+            <div class="pattern-icon" style="background: var(--color-success)">📐</div>
+            <h4 class="pattern-title">The D11 path</h4>
+            <p class="pattern-desc">Build a gold set worth trusting over a real corpus, sweep the candidate values, read the metrics, and move the default only where the measurement points — with run ids attached.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">⚖️</div>
+          <div class="callout-content">
+            <strong class="callout-title">What the day-one evidence could actually justify: nothing</strong>
+            <p>The zero came from a <strong>1-item gold set on a 1-chunk corpus</strong>. It proves the miss is real; it cannot tell you whether 0.2 fixes it, breaks something else, or whether the floor should exist at all. TASK-10's job was to gather the data that <em>can</em> — and only then touch the default.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 5: TASK-10 closes the loop (the payoff) ────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">TASK-10 Closes the Loop</h2>
+
+        <p>TASK-10 built the measurement the afternoon patch lacked: a <strong>41-item gold set</strong> (31 tuning / 10 heldout, split immutable per Module 3) over the operator's <em>real</em> corpus — a saved DDB "Monsters (G)" page (36 chunks, ingested by <code>ddb-saved-html</code>) plus the Emberfall homebrew page (1 multi-topic chunk) — real MiniLM embeddings, real engine, every item leaving an eval-origin receipt. Then it swept the floor: 0.3 / 0.2 / 0.15 / 0.0.</p>
+
+        <div style="overflow-x: auto; margin: var(--space-6) 0;">
+          <table style="width: 100%; border-collapse: collapse; font-size: var(--text-sm); background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Floor</th>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Eval run (receipt)</th>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Tuning r@5</th>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Tuning MRR</th>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">What happened</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);">0.3</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);">7be1e7a6…</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">0.935</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">0.871</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">The ONLY misses: the two riposte natural-questions</td>
+              </tr>
+              <tr style="background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface));">
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);"><strong>0.2</strong></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);">a2354392…</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);"><strong>1.000</strong></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);"><strong>0.898</strong></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">Both riposte questions recover — the new default</td>
+              </tr>
+              <tr>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);">0.0</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-family: var(--font-mono);">53cf40a3…</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">1.000</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">0.882</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);">REGRESSION — weak matches outrank true answers</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>0.15 ties 0.2 on every metric, so 0.2 wins as the <span class="term" data-definition="The measured value where the metric curve bends — lower buys nothing more, higher loses recall. Here: 0.2, measured, not guessed (D11 / SC-005).">knee</span> with the most headroom against honest-empty. And the report measured the day-one mechanisms directly, cosine by cosine:</p>
+
+        <blockquote style="margin: var(--space-8) 0; padding: var(--space-5) var(--space-6); border-left: 4px solid var(--color-accent); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg)); border-radius: var(--radius-sm); font-size: var(--text-base); line-height: var(--leading-normal);">
+          <p style="margin: 0 0 var(--space-4) 0;">The riposte rule is <em>one sentence</em> inside a chunk dominated by grappling and torchlight. Query-vs-whole-chunk cosine for riposte phrasings: <code>riposte</code> 0.161, <code>what is a riposte</code> 0.167, <strong><code>how does a riposte work</code> 0.209</strong> — all below the 0.3 floor. (By contrast <code>how does grappling work</code> scores 0.542: grappling <em>is</em> the chunk.)</p>
+          <p style="margin: 0;">FTS can't rescue the natural question either: <code>websearch_to_tsquery</code>'s AND-semantics turn <code>"how does a riposte work"</code> into <code>riposte &amp; work</code>; the chunk has "riposte" but not "work", so the FTS signal returns nothing. The bare keyword <code>riposte</code> still hits via FTS — which is why the <em>keyword</em> gold item passes and only the <em>natural-question</em> one failed.</p>
+          <footer style="margin-top: var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted);">docs/eval-reports/010-retrieval-baseline.md — "Answer 2 — the floor: 0.3 was too high; 0.2 is the measured knee"</footer>
+        </blockquote>
+
+        <p>Only then did the default move — and the code carries the receipt in its own margin:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/config.ts:86–91</span>
+            <pre><code>
+<span class="code-line">    <span class="code-comment">// Floor lowered 0.3 → 0.2 on real-corpus evidence (TASK-10, eval report</span></span>
+<span class="code-line">    <span class="code-comment">// 2026-07-12): 0.3 dropped natural-question phrasings whose answer is one</span></span>
+<span class="code-line">    <span class="code-comment">// sentence in a multi-topic chunk (question-vs-whole-chunk cosine ~0.21);</span></span>
+<span class="code-line">    <span class="code-comment">// 0.2 recovered them (tuning recall@5 0.94 → 1.0) while 0.0 REGRESSED MRR</span></span>
+<span class="code-line">    <span class="code-comment">// by admitting weak matches above the true answer. 0.2 is the measured knee.</span></span>
+<span class="code-line">    <span class="code-property">minSimilarity</span>: overrides.minSimilarity ?? <span class="code-function">envFloat</span>(env, <span class="code-string">"RETRIEVAL_MIN_SIMILARITY"</span>, <span class="code-number">0.2</span>),</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The why-comment IS the receipt pointer: which task, which report, which date.</p>
+              <p class="tl">What 0.3 broke: natural questions whose answer is one sentence in a multi-topic chunk…</p>
+              <p class="tl">…with the measured cosine right in the margin — about 0.21, under the old floor.</p>
+              <p class="tl">What 0.2 fixed — recall back to 1.0 — and why not zero: no floor REGRESSED the rank metric…</p>
+              <p class="tl">…because weak matches outrank true answers. The knee, not the extremes.</p>
+              <p class="tl">The default itself: per-run overrides first, env next (D14), and the fallback is 0.2 — the measured value.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Real data paid a second dividend nobody ordered — two engine bugs the synthetic fixtures structurally never could have caught:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🕵️</div>
+            <h4 class="pattern-title">Detect vs. real saved pages</h4>
+            <p class="pattern-desc">A browser's "Save Page As" inlines every stylesheet into <code>&lt;head&gt;</code>, pushing <code>&lt;body&gt;</code> past <code>ddb-saved-html</code>'s 64 KiB detect prefix — the real page scored 0 and fell through as unsupported. Fixed to detect on prefix-stable identity signals; pinned by regression tests.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">♻️</div>
+            <h4 class="pattern-title">The job that never finished</h4>
+            <p class="pattern-desc">The worker handled jobs but never called <code>complete()</code> — every job sat claimed and was re-run each visibility timeout, forever. Idempotent handlers hid it until real data showed a job at <strong>38 attempts (max 3)</strong>. Measured validation pays twice.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🧊</div>
+          <div class="callout-content">
+            <strong class="callout-title">The CI floor did NOT move</strong>
+            <p>The deterministic per-PR slice keeps its <em>own</em> floor pinned at 0.3: its hash-constructed embeddings place unrelated text at ~0.2–0.3, where real MiniLM puts it near 0, so its honest-empty guarantee is calibrated to 0.3. The operational default and the fixture floor are decoupled <em>on purpose</em> — a different number for a different embedding space.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 6: quiz + course close ─────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module-6">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — two independent mechanisms, one miss. websearch_to_tsquery demands EVERY term, so the absent word kills the FTS hit; and the answer being one sentence in a multi-topic chunk drags the question-vs-whole-chunk cosine (measured: 0.209) under the 0.3 floor, so the vector signal drops it too."
+               data-explanation-wrong="Not quite. Nothing downstream of the two signals was involved — rerank shipped off, and receipts only record. Trace the day-one report: the FTS signal died on AND semantics (riposte &amp; work, no &quot;work&quot; in the chunk) and the vector signal died at the 0.3 similarity floor (cosine 0.209).">
+            <h3 class="quiz-question">A teammate reads the day-one story and asks: same passage, same engine — the keyword "riposte" hits at rank 1 while "how does a riposte work" returns nothing at all. Which pair of mechanisms produces that split?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reranker demoted the question phrasing, and RRF fused the two signals in the wrong order</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>FTS AND semantics dropped the query ("work" is absent from the chunk), and the question-vs-whole-chunk cosine fell under the similarity floor</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The receipt for that search was marked superseded by a re-ingest, so its results were filtered out of the response</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — D11: no tuning change ships without a measurement receipt. The day-one evidence was a 1-item gold set on a 1-chunk corpus — it proves the miss, not the fix. TASK-10 built the 41-item real-corpus gold set, swept the floor, found the knee at 0.2, and only THEN did the default move — run ids attached."
+               data-explanation-wrong="Not quite. Nothing technical blocked the edit — it is one env default. What blocked it was doctrine: measure before choosing (D11). A 1-item gold set on a 1-chunk corpus justifies no tuning change; TASK-10 existed to gather the data that could, and the default moved only after the sweep.">
+            <h3 class="quiz-question">The zero was diagnosed within hours, and the "fix" was one env default. Why didn't RETRIEVAL_MIN_SIMILARITY change that afternoon?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The CI floor test pins 0.3, so lowering the default would have turned every PR red until the fixture was rebuilt</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The floor is resolved at eval-run time only, so changing the env default could not have fixed the live query anyway</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>D11 — a 1-item gold set on a 1-chunk corpus justifies nothing; TASK-10 gathered real-corpus measurements first, and only then did the default move</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — recall@5 was already perfect at 0.2, so 0.0 could only add noise: with no floor, weak vector matches surface ABOVE the true answer on some items, and the rank-sensitive MRR pays for it (0.898 → 0.882). The floor earns its keep — it was set too high, not wrong to exist."
+               data-explanation-wrong="Not quite. Look at what MRR measures: the rank of the first correct answer. At floor 0.0 recall@5 stayed 1.000 — nothing disappeared — but MRR dropped, meaning true answers were pushed DOWN by weak vector matches that the floor used to hold back. The floor was mis-set at 0.3, not useless.">
+            <h3 class="quiz-question">In the sweep, floor 0.0 kept tuning recall@5 at a perfect 1.000 — yet scored WORSE than floor 0.2 on MRR (0.882 vs 0.898). What does that tell you?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>With no floor, weak vector matches surface above the true answer on some items — the floor earns its keep, it was just set too high</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>At floor 0.0 the vector signal is disabled entirely, so only FTS ranks results and natural questions lose their rescue path</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Admitting every chunk blew the candidate set past its depth limit, so some true answers were truncated before fusion</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-6')">Try Again</button>
+        </div>
+
+        <p>That is the whole loop, closed exactly as designed: observe → measure → record → defer → change <em>with receipts</em>. What 010 hands the next specs: Quick Ask will land on an engine whose every search leaves a receipt; every future tuning change walks through the harness the way the floor just did; and one measurement is still owed — rerank on/off ships <code>off</code> citing exactly that absence, and board <strong>TASK-11</strong> is the measurement. The durable doctrine — engine, receipts, gold, harness, config — lives in the wiki note <code>docs/wiki/retrieval.md</code>, pinned to the code that would invalidate it. Which is, after six modules, precisely the point: nothing in this stack asks to be believed. Everything shows its receipt.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

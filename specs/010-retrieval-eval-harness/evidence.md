@@ -76,6 +76,19 @@ Shipped defaults (`RETRIEVAL_FUSION=rrf`, `RETRIEVAL_RERANK=off`) ←
 `6e05e95f…`, `b1cf8bae…`, `b0079b04…` ← per-question `origin:"eval"`
 retrieval runs. Re-proven on every PR by the CI floor.
 
+## Post-converge addendum (2026-07-12, TASK-10)
+
+The SC-005 deferral resolved on-branch before merge: TASK-10 built a 41-item
+gold set (31 tuning / 10 heldout) over the operator's REAL corpus (a saved DDB
+"Monsters (G)" page, 36 chunks via ddb-saved-html, + the Emberfall homebrew
+page) and re-ran the program — RRF re-confirmed (ties weighted-α0.5 on real
+embeddings); `RETRIEVAL_MIN_SIMILARITY` default tuned 0.3 → 0.2 on the measured
+knee (the "harness earning its keep" finding below, closed with receipts:
+eval runs `7be1e7a6…`, `a2354392…`, `53cf40a3…`). The eval report was
+superseded in place. Real data also exposed and fixed two engine bugs
+(ddb-saved-html detect vs >64 KiB-preamble saved pages; the worker never
+calling `complete()`). SC-006 (rerank on/off) remains open → board TASK-11.
+
 ## Feature course
 
 Feature course: docs/courses/010-retrieval-eval-harness/ (Principle VIII —

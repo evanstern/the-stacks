@@ -1,0 +1,352 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">Two Signals, One Answer</h1>
+      <p class="module-subtitle">Search &ldquo;grapple&rdquo; and the exact-match librarian wins. Search &ldquo;holding an enemy in place&rdquo; &mdash; no shared words at all &mdash; and the passage still surfaces. Same engine, one ranking. How?</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: Hook + pipeline data-flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two librarians, one desk</h2>
+        <p>The Stacks answers every search with
+          <span class="term" data-definition="Two independent relevance signals fused into one ranking &mdash; spec 010 FR-001.">hybrid retrieval</span>:
+          two librarians read the same corpus and never talk to each other. <strong>The literalist</strong> matches exact words &mdash; Postgres full-text search. <strong>The associative</strong> matches meaning &mdash; pgvector embeddings. Neither is trusted alone; a rank-based vote at the fusion desk merges their ballots into one answer.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📖</div>
+            <h4 class="pattern-title">The literalist (FTS)</h4>
+            <p class="pattern-desc">Finds chunks whose <em>words</em> match the query. Wins &ldquo;grapple&rdquo; instantly. Handed &ldquo;holding an enemy in place&rdquo;, it shrugs &mdash; no shared terms, no matches.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">🧭</div>
+            <h4 class="pattern-title">The associative (vectors)</h4>
+            <p class="pattern-desc">Finds chunks whose <em>meaning</em> sits near the query in embedding space. The paraphrase surfaces the grappling passage with zero words in common.</p>
+          </div>
+        </div>
+
+        <p>Here is one live search, end to end &mdash; <strong>0.09s on the wall clock</strong>. Step through the stages; the labels are the exact stage names the engine uses.</p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-m1-query","label":"stamp check — before comparing anything, the engine samples the index embedding stamp and refuses a mismatched query role outright"},
+          {"highlight":"flow-m1-query","label":"embed — the trimmed query text becomes a vector via the injected embedder (38ms on the live wall)"},
+          {"highlight":"flow-m1-fts","packet":true,"from":"m1-query","to":"m1-fts","label":"fts ∥ vector — the literalist matches exact words under websearch semantics (3ms)"},
+          {"highlight":"flow-m1-vector","packet":true,"from":"m1-query","to":"m1-vector","label":"fts ∥ vector — the associative scans every embedding for nearby meaning (4ms)"},
+          {"highlight":"flow-m1-fuse","packet":true,"from":"m1-fts","to":"m1-fuse","label":"fuse — each librarian submits a best-first ballot; a rank-based vote merges them into one order"},
+          {"highlight":"flow-m1-receipt","packet":true,"from":"m1-fuse","to":"m1-receipt","label":"record — the full run is written into the receipt book BEFORE the caller sees anything"},
+          {"highlight":"flow-m1-query","packet":true,"from":"m1-receipt","to":"m1-query","label":"results — one fused ranking returns; total wall time 0.09s"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-m1-query">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">🔍</div>
+              <span>Query</span>
+            </div>
+            <div class="flow-actor" id="flow-m1-fts">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">📖</div>
+              <span>FTS librarian</span>
+            </div>
+            <div class="flow-actor" id="flow-m1-vector">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">🧭</div>
+              <span>Vector librarian</span>
+            </div>
+            <div class="flow-actor" id="flow-m1-fuse">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">⚖️</div>
+              <span>Fusion desk</span>
+            </div>
+            <div class="flow-actor" id="flow-m1-receipt">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">🧾</div>
+              <span>Receipt book</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click &ldquo;Next Step&rdquo; to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Why care about this engine in particular? Because Quick Ask and Conversations will call <em>exactly</em> this code path &mdash; and every tuning question you will ever ask routes through its config knobs, all resolved env-first (Principle VII).</p>
+      </section>
+
+      <!-- SCREEN 2: The two candidate queries -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What each librarian actually runs</h2>
+        <p>Both librarians run one SQL query each, against the same <code>chunks</code> table, and both carry the same guard: the
+          <span class="term" data-definition="chunks.generation = sources.current_generation &mdash; readers never see a half-swapped source &mdash; FR-002.">reader predicate</span>.
+          The literalist&rsquo;s side in two strokes:</p>
+
+        <div class="badge-list stagger-children">
+          <div class="badge-item animate-in">
+            <code class="badge-code">websearch_to_tsquery</code>
+            <span class="badge-desc">Accepts raw human input safely (research R3) &mdash; and every term must match (AND semantics). A query about nothing in the corpus matches <em>nothing</em>.</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">ts_rank_cd</code>
+            <span class="badge-desc">Scores matches by how <em>close together</em> the terms sit &mdash; proximity, which is what relevance looks like in passage-sized chunks.</span>
+          </div>
+        </div>
+
+        <p>The associative&rsquo;s query is the more interesting one &mdash; it carries the reader predicate <em>and</em> the
+          <span class="term" data-definition="Vector candidates below RETRIEVAL_MIN_SIMILARITY are not candidates &mdash; honest empty results exist because of it.">similarity floor</span>, and its comment records a deliberate decision:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; packages/retrieval/src/search.ts:147&ndash;163</span>
+            <pre><code>
+<span class="code-line">    <span class="code-keyword">const</span> vectorLiteral = <span class="code-string">`[${queryStamp.vector.join(",")}]`</span>;</span>
+<span class="code-line">    <span class="code-comment">// Exact scan by design (research R2): no ANN index below ~100k chunks,</span></span>
+<span class="code-line">    <span class="code-comment">// so recall measurements reflect ranking math, not index approximation.</span></span>
+<span class="code-line">    vectorCandidateRows = <span class="code-keyword">await</span> <span class="code-function">timed</span>(<span class="code-string">"vector"</span>, <span class="code-keyword">async</span> () =&gt; {</span>
+<span class="code-line">      <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> db.<span class="code-function">execute</span>&lt;CandidateRow&gt;(sql<span class="code-string">`</span></span>
+<span class="code-line">    <span class="code-string">    SELECT c.id, c.source_id, c.generation, c.content, c.anchor,</span></span>
+<span class="code-line">    <span class="code-string">           c.section_ids, 1 - (c.embedding &lt;=&gt; ${vectorLiteral}::vector) AS score</span></span>
+<span class="code-line">    <span class="code-string">    FROM chunks c JOIN sources s ON s.id = c.source_id</span></span>
+<span class="code-line">    <span class="code-string">    WHERE c.corpus_id = ${corpusId}</span></span>
+<span class="code-line">    <span class="code-string">      AND c.embedding IS NOT NULL</span></span>
+<span class="code-line">    <span class="code-string">      AND c.generation = s.current_generation</span></span>
+<span class="code-line">    <span class="code-string">      AND 1 - (c.embedding &lt;=&gt; ${vectorLiteral}::vector) &gt;= ${config.minSimilarity}</span></span>
+<span class="code-line">    <span class="code-string">    ORDER BY c.embedding &lt;=&gt; ${vectorLiteral}::vector</span></span>
+<span class="code-line">    <span class="code-string">    LIMIT ${config.candidateDepth}</span></span>
+<span class="code-line">      <span class="code-string">`</span>);</span>
+<span class="code-line">      <span class="code-keyword">return</span> res.rows;</span>
+<span class="code-line">    });</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Turn the query embedding into a pgvector literal &mdash; a bracketed list of numbers SQL can compare against.</p>
+              <p class="tl">This comment is a decision, not decoration: the scan is exact <em>on purpose</em> (research R2)&hellip;</p>
+              <p class="tl">&hellip;because below ~100k chunks an approximate index would only add noise to the recall measurements this cycle exists to take.</p>
+              <p class="tl">Run the vector stage under a timer &mdash; its milliseconds land on the receipt.</p>
+              <p class="tl">One SQL query does the entire candidate fetch:</p>
+              <p class="tl">select everything a result line will need &mdash; id, source, generation, content, anchor&hellip;</p>
+              <p class="tl">&hellip;plus the score: cosine similarity, computed as 1 minus the &lt;=&gt; cosine-distance operator.</p>
+              <p class="tl">Join each chunk to its source row &mdash; the reader predicate needs both sides&hellip;</p>
+              <p class="tl">&hellip;scope to the corpus being searched&hellip;</p>
+              <p class="tl">&hellip;only chunks that actually have an embedding&hellip;</p>
+              <p class="tl">&hellip;the reader predicate itself: the chunk&rsquo;s generation must be the source&rsquo;s CURRENT one. A half-swapped re-ingestion is structurally invisible.</p>
+              <p class="tl">&hellip;and the similarity floor: below RETRIEVAL_MIN_SIMILARITY, a nearby-but-meaningless chunk is not a candidate at all.</p>
+              <p class="tl">Nearest first &mdash; best-first order is exactly what the fusion desk&rsquo;s rank math consumes.</p>
+              <p class="tl">Stop at candidateDepth (50 by default) &mdash; each librarian proposes at most that many.</p>
+              <p class="tl">End of the SQL.</p>
+              <p class="tl">Hand back the candidate rows&hellip;</p>
+              <p class="tl">&hellip;and close the timed stage.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📏</div>
+          <div class="callout-content">
+            <strong class="callout-title">Exact scan, deferred index (R2)</strong>
+            <p>There is no ANN index because the corpus is small enough not to need one &mdash; and adding one now would make every recall number partly measure the <em>index&rsquo;s</em> approximation instead of the ranking math. The index is deferred until ~100k chunks, when it becomes worth paying for.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: The fusion math -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The fusion desk throws the scores away</h2>
+        <p>Here is the problem the fusion desk faces: <code>ts_rank_cd</code> is unbounded and corpus-dependent; cosine similarity lives in [&minus;1,&thinsp;1]. The two scales are <strong>incomparable</strong> &mdash; adding them is adding meters to fahrenheit. So the default strategy,
+          <span class="term" data-definition="Reciprocal-rank fusion: 1/(k+rank) summed per signal; ranks only, scores ignored &mdash; research R1.">RRF</span>,
+          ignores the scores entirely and votes with <em>rank positions</em> &mdash; needing zero per-corpus calibration:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; packages/retrieval/src/fusion.ts:62&ndash;82</span>
+            <pre><code>
+<span class="code-line">  <span class="code-keyword">const</span> fusedScoreOf = (() =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (knobs.fusion === <span class="code-string">"rrf"</span>) {</span>
+<span class="code-line">      <span class="code-comment">// rank position is 1-based within each signal's best-first list;</span></span>
+<span class="code-line">      <span class="code-comment">// absence contributes nothing (the standard RRF missing-list rule).</span></span>
+<span class="code-line">      <span class="code-keyword">const</span> ftsRank = <span class="code-keyword">new</span> <span class="code-function">Map</span>(ftsCandidates.<span class="code-function">map</span>((c, i) =&gt; [c.chunkId, i + <span class="code-number">1</span>]));</span>
+<span class="code-line">      <span class="code-keyword">const</span> vectorRank = <span class="code-keyword">new</span> <span class="code-function">Map</span>(vectorCandidates.<span class="code-function">map</span>((c, i) =&gt; [c.chunkId, i + <span class="code-number">1</span>]));</span>
+<span class="code-line">      <span class="code-keyword">return</span> (id: <span class="code-keyword">string</span>) =&gt; {</span>
+<span class="code-line">        <span class="code-keyword">let</span> score = <span class="code-number">0</span>;</span>
+<span class="code-line">        <span class="code-keyword">const</span> fr = ftsRank.<span class="code-function">get</span>(id);</span>
+<span class="code-line">        <span class="code-keyword">if</span> (fr !== <span class="code-keyword">undefined</span>) score += <span class="code-number">1</span> / (knobs.rrfK + fr);</span>
+<span class="code-line">        <span class="code-keyword">const</span> vr = vectorRank.<span class="code-function">get</span>(id);</span>
+<span class="code-line">        <span class="code-keyword">if</span> (vr !== <span class="code-keyword">undefined</span>) score += <span class="code-number">1</span> / (knobs.rrfK + vr);</span>
+<span class="code-line">        <span class="code-keyword">return</span> score;</span>
+<span class="code-line">      };</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">const</span> ftsNorm = <span class="code-function">normalized</span>(ftsCandidates);</span>
+<span class="code-line">    <span class="code-keyword">const</span> vectorNorm = <span class="code-function">normalized</span>(vectorCandidates);</span>
+<span class="code-line">    <span class="code-keyword">return</span> (id: <span class="code-keyword">string</span>) =&gt;</span>
+<span class="code-line">      knobs.weightAlpha * (vectorNorm.<span class="code-function">get</span>(id) ?? <span class="code-number">0</span>) +</span>
+<span class="code-line">      (<span class="code-number">1</span> - knobs.weightAlpha) * (ftsNorm.<span class="code-function">get</span>(id) ?? <span class="code-number">0</span>);</span>
+<span class="code-line">  })();</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Build the scoring function once, up front &mdash; which strategy you get is decided here, not per candidate.</p>
+              <p class="tl">The default branch: reciprocal-rank fusion.</p>
+              <p class="tl">The comment states rule one: ranks are 1-based within each signal&rsquo;s best-first ballot&hellip;</p>
+              <p class="tl">&hellip;and rule two: a chunk missing from a ballot simply adds nothing. No penalty, no invented score &mdash; the standard RRF missing-list rule.</p>
+              <p class="tl">Map each chunk the literalist proposed to its rank: first place is 1, second is 2&hellip;</p>
+              <p class="tl">&hellip;same for the associative&rsquo;s ballot. Notice what is NOT kept: the raw scores.</p>
+              <p class="tl">The scorer for one chunk id:</p>
+              <p class="tl">start at zero&hellip;</p>
+              <p class="tl">&hellip;look up its rank on the FTS ballot&hellip;</p>
+              <p class="tl">&hellip;if present, add 1/(k + rank) &mdash; first place with the default k=60 is worth 1/61.</p>
+              <p class="tl">&hellip;same lookup on the vector ballot&hellip;</p>
+              <p class="tl">&hellip;if present, add its 1/(k + rank) too. Appearing on BOTH ballots is how a chunk wins.</p>
+              <p class="tl">The fused score is just those two votes, summed.</p>
+              <p class="tl">End of the per-chunk scorer.</p>
+              <p class="tl">That closes the RRF branch.</p>
+              <p class="tl">The rival strategy (weighted sum): min-max normalize the FTS scores onto [0,1]&hellip;</p>
+              <p class="tl">&hellip;and the vector scores too. This normalization is precisely the calibration step RRF never needs.</p>
+              <p class="tl">Its scorer:</p>
+              <p class="tl">alpha times the normalized vector score&hellip;</p>
+              <p class="tl">&hellip;plus (1 &minus; alpha) times the normalized FTS score &mdash; two tuning surfaces (alpha, normalization) where RRF has none.</p>
+              <p class="tl">Invoke immediately &mdash; fusedScoreOf is now a plain function from chunk id to fused score.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">⚖️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Ties break lexicographically &mdash; on purpose</strong>
+            <p>When two chunks fuse to the exact same score, the winner is decided by <code>chunkId.localeCompare</code> &mdash; never by Map iteration order. Determinism is a <em>receipt property</em>: the same query against the same corpus must produce the same recorded ranking, or the record is worthless as evidence.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: The similarity floor -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The floor: teaching the associative to say &ldquo;nothing&rdquo;</h2>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🚨</div>
+          <div class="callout-content">
+            <strong class="callout-title">A true story from this cycle</strong>
+            <p>The first honest test asked the engine about something the corpus doesn&rsquo;t contain &mdash; and the vector signal answered anyway. It always will: pure nearest-neighbor returns the <em>nearest</em> chunk, and &ldquo;nearest&rdquo; exists even for nonsense. <code>RETRIEVAL_MIN_SIMILARITY</code> was born mid-cycle to fix exactly this.</p>
+          </div>
+        </div>
+
+        <p>The knob ships with its reasoning attached &mdash; and with real numbers. The paraphrase from the opening hook scored <strong>cosine 0.316</strong>, comfortably above the floor; unrelated text sits near 0:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE &mdash; .env.example:80&ndash;86</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment"># Vector candidates below this cosine similarity are NOT candidates: pure</span></span>
+<span class="code-line"><span class="code-comment"># nearest-neighbor always answers with SOMETHING, so honest empty results</span></span>
+<span class="code-line"><span class="code-comment"># (US1) need a floor. Unrelated text sits near 0; related prose well above.</span></span>
+<span class="code-line"><span class="code-comment"># 0.2 is the real-corpus-measured knee (TASK-10 eval report): high enough to</span></span>
+<span class="code-line"><span class="code-comment"># still return honest-empty on unrelated text, low enough to keep a</span></span>
+<span class="code-line"><span class="code-comment"># natural-question answer buried in a multi-topic chunk (cosine ~0.21).</span></span>
+<span class="code-line">RETRIEVAL_MIN_SIMILARITY=<span class="code-number">0.2</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The rule: below this cosine similarity, a vector match is NOT a candidate&hellip;</p>
+              <p class="tl">&hellip;because pure nearest-neighbor ALWAYS answers with something &mdash; there is a &ldquo;nearest&rdquo; chunk even for a question about nothing in the corpus&hellip;</p>
+              <p class="tl">&hellip;so honest empty results need a floor. The scales help: unrelated text scores near 0, related prose well above it.</p>
+              <p class="tl">0.2 was not guessed &mdash; it is the measured knee from the real-corpus eval report&hellip;</p>
+              <p class="tl">&hellip;high enough that unrelated text still comes back honestly empty&hellip;</p>
+              <p class="tl">&hellip;low enough that a real answer buried in a multi-topic chunk (measured at cosine ~0.21) stays above the line.</p>
+              <p class="tl">The knob itself &mdash; env-first, like every retrieval knob (Principle VII).</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Put the two signals&rsquo; exits side by side and &ldquo;zero results&rdquo; becomes a <em>feature</em>: the literalist returns nothing when the words don&rsquo;t match (AND semantics), and the associative returns nothing when no meaning clears the floor. Both empties are honest &mdash; and both still get recorded.</p>
+      </section>
+
+      <!-- SCREEN 5: Quiz + handoff -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your ranking</h2>
+
+        <div class="quiz-container" id="quiz-module1">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — ts_rank_cd is unbounded and corpus-dependent, cosine lives in [−1,1]. RRF never compares the scores, only rank positions, so a fresh corpus needs zero tuning. The weighted sum is kept as the eval rival, not the default."
+               data-explanation-wrong="Not quite. Look at what each branch of fusedScoreOf consumes: the weighted branch must min-max normalize both score lists before it can add them — that normalization IS a per-corpus calibration. RRF sidesteps it by voting with ranks alone.">
+            <h3 class="quiz-question">You are standing up hybrid retrieval on a brand-new corpus nobody has tuned. Why is RRF the default instead of the weighted sum?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>RRF is cheaper to compute than normalizing two score lists</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>ts_rank_cd and cosine similarity are incomparable scales &mdash; RRF votes with ranks only, so it needs no per-corpus calibration</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The weighted sum cannot handle a chunk that appears on only one librarian&rsquo;s ballot</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right — both candidate queries carry the same join and WHERE clause, so a half-swapped source is structurally invisible to readers (FR-002). No cleanup job, no race window."
+               data-explanation-wrong="Not this one. The floor filters by similarity, and fusion happily keeps single-ballot chunks (a missing list just adds nothing). The exclusion happens earlier — in the WHERE clause both candidate queries share.">
+            <h3 class="quiz-question">A source is mid-re-ingestion: its new generation of chunks is fully written but not yet swapped in. A search runs right now. What keeps those new rows out of the results?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The similarity floor &mdash; unswapped rows score below RETRIEVAL_MIN_SIMILARITY</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reader predicate &mdash; both candidate queries require chunks.generation = sources.current_generation</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fusion &mdash; a chunk proposed by only one signal is dropped from the fused ranking</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Both signals can honestly say no: websearch_to_tsquery requires every term to actually match, and the floor keeps meaningless nearest-neighbors from ever becoming candidates. Empty in, empty out — and the run is still recorded."
+               data-explanation-wrong="Those knobs shape the ranking; they never empty it. Re-check each signal&rsquo;s exit: the FTS match can genuinely find nothing, and the floor exists precisely because nearest-neighbor alone never would.">
+            <h3 class="quiz-question">A search returns zero results &mdash; and that is correct behavior, not a bug. Which two mechanisms make an honest empty possible?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>FTS websearch AND semantics (every term must match) plus the vector similarity floor</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The rrfK constant plus the candidateDepth limit</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The embedding stamp check plus the lexicographic tie-break</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+
+        <p>One stage of the pipeline got a single sentence in this module: <strong>record</strong>. Every search you just watched &mdash; query, resolved config, both raw scores, the fused order, the stage timings &mdash; was written down <em>before</em> the caller saw a single result. That append-only ledger is the receipt book, and it outlives the corpus itself. Module 2 opens it.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,533 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm); --color-accent:#dc2626; --color-accent-hover:#b91c1c; --color-accent-light:color-mix(in srgb, #dc2626 14%, var(--color-bg)); --color-accent-muted:color-mix(in srgb, #dc2626 55%, var(--color-bg));">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">The Optional Specialist</h1>
+      <p class="module-subtitle">The reranker is a consultant the clinic hires by config &mdash; reported honestly when off, refused loudly when hired-but-unreachable, and receipted twice over when it actually runs.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── Screen 1: hook + group chat ───────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Hired by Config, Never Faked</h2>
+
+        <p>The reranker isn&rsquo;t on. That&rsquo;s not an oversight &mdash; it&rsquo;s the most principled configuration in the repo: nobody has measured it earning its latency yet. The live stack&rsquo;s <code>/ready</code> says so, today, in public: <code>"reranker": {"status": "disabled"}</code>.</p>
+
+        <p>The house doctors &mdash; Module 1&rsquo;s two signals plus fusion &mdash; handle every patient. The <span class="term" data-definition="A model that scores query+passage JOINTLY — a sharper, slower second opinion than bi-encoder cosine (research R9).">cross-encoder</span> is an optional specialist consultant: hired only when its <span class="term" data-definition="A named env-first configuration; empty provider = role disabled (Principle VII/D14).">model role</span> is configured, and if hired but unreachable, the clinic <em>refuses the appointment</em> rather than quietly pretending the consult happened. That refusal-over-pretending rule has a name: <span class="term" data-definition="Rerank-on with a dead dependency FAILS the search; it never quietly returns the unreranked order (FR-021).">no silent fallback</span>. Watch both failure shapes:</p>
+
+        <div class="chat-window" id="m5-chat">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="config" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🎛️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Config</span>
+                <p>Boot. <code>RETRIEVAL_RERANK=on</code> &mdash; someone wants the specialist consulted on every search. One question before I accept that: <code>RERANKER_PROVIDER</code>?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="config" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🎛️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Config</span>
+                <p>Empty. Empty provider = role disabled. I refuse the <em>entire configuration</em>, right now: <code>RETRIEVAL_RERANK=on requires the reranker role: set RERANKER_PROVIDER and RERANKER_MODEL_ID</code>. No search will ever launch under that contradiction.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="ready" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">🩺</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Sidecar /ready</span>
+                <p>And I&rsquo;ve been reporting it honestly the whole time: <code>200 OK</code>, <code>"reranker": {"status": "disabled"}</code>. An optional role that&rsquo;s off is a fact, not a failure &mdash; the stack stays green.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="engine" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🔀</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Engine</span>
+                <p>Scenario one: refused at config time, before a single request. Scenario two &mdash; the role IS live, rerank is on, a query just fused. Sending the top rerankDepth candidates over for the second opinion&hellip;</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="rerank" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">/v1/rerank</span>
+                <p>(connection refused &mdash; the sidecar container just died mid-flight)</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="engine" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🔀</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Engine</span>
+                <p>Then this search FAILS. Typed error, class <code>dependency_down</code>, seam <code>rerank</code> &mdash; the operator gets a 503 that names the stage that died.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="config" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">🎛️</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Config</span>
+                <p>You could just&hellip; return the fused order? It was sitting right there, already ranked.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="7" data-sender="engine" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🔀</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Engine</span>
+                <p>Never. Rerank-on promised a reranked answer; handing back the unreranked order and letting it <em>look</em> reranked is exactly the lie FR-021 forbids. Degrading silently is worse than failing loudly.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="8" data-sender="engine" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">🔀</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Engine</span>
+                <p>And no receipt &mdash; Module 2&rsquo;s book records searches that <em>completed</em>, and this one didn&rsquo;t. When the consult does run, the receipt carries both orderings: the specialist&rsquo;s, and where fusion had every passage before.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="m5-chat-typing" style="display:none">
+            <div class="chat-avatar" id="m5-chat-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <p>Two failure shapes, two completely different answers &mdash; and neither one is a degraded search result:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-info)">
+            <div class="pattern-icon" style="background: var(--color-info)">🚪</div>
+            <h4 class="pattern-title">Hired, not configured</h4>
+            <p class="pattern-desc">Dies at config resolution, before any request exists: one message naming the exact variables to set. Zero searches ever start.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+            <div class="pattern-icon" style="background: var(--color-accent)">💥</div>
+            <h4 class="pattern-title">Hired, dies mid-flight</h4>
+            <p class="pattern-desc">The search fails with a typed 503 naming the rerank seam &mdash; and no receipt, because nothing completed.</p>
+          </div>
+        </div>
+
+        <p>When the specialist <em>is</em> hired and healthy, one chain runs end to end:</p>
+
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Role resolution &mdash; disabled | loading | ready | failed</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Config gate &mdash; rerank=on needs a live role, fail fast</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Stage &mdash; top rerankDepth fused candidates</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p>Re-order by cross-encoder score</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <p>Record both orderings on the receipt</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 2: the sidecar side (Snippet A) ────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Sidecar Side: One Error Taxonomy</h2>
+
+        <p><code>/v1/rerank</code> is the specialist&rsquo;s consulting room, and its guards run in the same order as <code>/v1/embed</code> next door: not-ready, then wrong model, then infer. Same envelope, same three error codes &mdash; a caller that learned one endpoint has learned them all.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🩺</div>
+          <div class="callout-content">
+            <strong class="callout-title">/ready grew a field &mdash; not a failure mode</strong>
+            <p>The reranker&rsquo;s state rides along on <code>/ready</code> as an <em>additive</em> field, but overall readiness stays the embedding role&rsquo;s story: a disabled or still-loading OPTIONAL role must never fail the stack&rsquo;s healthcheck. That&rsquo;s why the live response is <code>200</code> with <code>"reranker": {"status": "disabled"}</code> &mdash; honest, and green.</p>
+          </div>
+        </div>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">apps/ml/src/ml/main.py:162&ndash;202</span>
+            <pre><code>
+<span class="code-line"><span class="code-function">@app.post</span>(<span class="code-string">"/v1/rerank"</span>)</span>
+<span class="code-line"><span class="code-keyword">async</span> <span class="code-keyword">def</span> <span class="code-function">rerank</span>(body: RerankRequest, response: Response):</span>
+<span class="code-line">    <span class="code-comment"># Cross-encoder rescoring (spec 010, contracts/reranker.md). Guard</span></span>
+<span class="code-line">    <span class="code-comment"># order mirrors /v1/embed: not-ready (503) -> model mismatch (404) -></span></span>
+<span class="code-line">    <span class="code-comment"># infer. Shape errors (empty/oversized batch, blank query) never</span></span>
+<span class="code-line">    <span class="code-comment"># reach here — Pydantic rejects them and the handler above converts</span></span>
+<span class="code-line">    <span class="code-comment"># to 415. ONE error taxonomy across the stack: dependency_down /</span></span>
+<span class="code-line">    <span class="code-comment"># unknown_thing / unsupported_type, same as every other seam.</span></span>
+<span class="code-line">    state: RerankerState = app.state.reranker_state</span>
+<span class="code-line">    <span class="code-keyword">if</span> state.status <span class="code-operator">==</span> <span class="code-string">"disabled"</span>:</span>
+<span class="code-line">        response.status_code = <span class="code-number">503</span></span>
+<span class="code-line">        <span class="code-keyword">return</span> <span class="code-function">_error</span>(</span>
+<span class="code-line">            <span class="code-string">"dependency_down"</span>,</span>
+<span class="code-line">            <span class="code-string">"Reranker role is disabled (ML_RERANKER_MODEL is unset)."</span>,</span>
+<span class="code-line">        )</span>
+<span class="code-line">    <span class="code-keyword">if</span> state.status <span class="code-operator">!=</span> <span class="code-string">"ready"</span>:</span>
+<span class="code-line">        response.status_code = <span class="code-number">503</span></span>
+<span class="code-line">        <span class="code-keyword">return</span> <span class="code-function">_error</span>(<span class="code-string">"dependency_down"</span>, f<span class="code-string">"Reranker model is not ready ({state.status})."</span>)</span>
+<span class="code-line">    <span class="code-keyword">if</span> body.model <span class="code-operator">!=</span> state.model_id:</span>
+<span class="code-line">        response.status_code = <span class="code-number">404</span></span>
+<span class="code-line">        <span class="code-keyword">return</span> <span class="code-function">_error</span>(<span class="code-string">"unknown_thing"</span>, f<span class="code-string">"Model '{body.model}' is not the loaded reranker."</span>)</span>
+<span class="code-line">    <span class="code-keyword">try</span>:</span>
+<span class="code-line">        start = time.<span class="code-function">perf_counter</span>()</span>
+<span class="code-line">        pairs = [(body.query, passage.text) <span class="code-keyword">for</span> passage <span class="code-keyword">in</span> body.passages]</span>
+<span class="code-line">        raw_scores = state.model.<span class="code-function">predict</span>(pairs)  <span class="code-comment"># type: ignore[union-attr]</span></span>
+<span class="code-line">        duration_ms = <span class="code-function">int</span>((time.<span class="code-function">perf_counter</span>() - start) * <span class="code-number">1000</span>)</span>
+<span class="code-line">    <span class="code-keyword">except</span> Exception:</span>
+<span class="code-line">        response.status_code = <span class="code-number">500</span></span>
+<span class="code-line">        <span class="code-keyword">return</span> <span class="code-function">_error</span>(<span class="code-string">"internal_fault"</span>, <span class="code-string">"Rerank inference failed."</span>)</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">RerankResponse</span>(</span>
+<span class="code-line">        model=state.model_id,</span>
+<span class="code-line">        scores=[</span>
+<span class="code-line">            <span class="code-function">RerankScore</span>(id=passage.id, score=<span class="code-function">float</span>(score))</span>
+<span class="code-line">            <span class="code-keyword">for</span> passage, score <span class="code-keyword">in</span> <span class="code-function">zip</span>(body.passages, raw_scores)</span>
+<span class="code-line">        ],</span>
+<span class="code-line">        duration_ms=duration_ms,</span>
+<span class="code-line">    )</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The sidecar&rsquo;s second inference endpoint &mdash; same FastAPI app and same envelope as /v1/embed.</p>
+              <p class="tl">Pydantic already shape-checked the body: empty batches, oversized batches, blank queries all bounced as 415 before this line runs.</p>
+              <p class="tl">The doctrine comment: this is spec 010&rsquo;s reranker contract&hellip;</p>
+              <p class="tl">&hellip;and the guards run in the SAME order as /v1/embed &mdash; not-ready first, wrong model second&hellip;</p>
+              <p class="tl">&hellip;then inference. Shape problems never get this far&hellip;</p>
+              <p class="tl">&hellip;the validation handler upstream already turned them into 415s&hellip;</p>
+              <p class="tl">&hellip;so this handler needs exactly the shared codes: dependency_down&hellip;</p>
+              <p class="tl">&hellip;unknown_thing, unsupported_type. ONE taxonomy, the same at every seam in the stack.</p>
+              <p class="tl">Grab the reranker role&rsquo;s state &mdash; loaded at boot, tracked separately from the embedding role.</p>
+              <p class="tl">Guard one, the honest-optionality case: nobody configured the role&hellip;</p>
+              <p class="tl">&hellip;so calling it means your dependency is down &mdash; not that you sent a bad request&hellip;</p>
+              <p class="tl">&hellip;answered with the stack-wide envelope&hellip;</p>
+              <p class="tl">&hellip;using the same code a crashed sidecar would earn&hellip;</p>
+              <p class="tl">&hellip;and a message naming the exact env var to set. No guessing.</p>
+              <p class="tl">Close the refusal.</p>
+              <p class="tl">Still guard one&rsquo;s family: configured but loading, or failed to load&hellip;</p>
+              <p class="tl">&hellip;same class of problem &mdash; the dependency is not usable right now&hellip;</p>
+              <p class="tl">&hellip;with the actual status interpolated so the operator knows which case it is.</p>
+              <p class="tl">Guard two: every caller asserts the model it was configured for, on every single call&hellip;</p>
+              <p class="tl">&hellip;and asking for a model we don&rsquo;t serve is a request for a thing that doesn&rsquo;t exist&hellip;</p>
+              <p class="tl">&hellip;never a silent &ldquo;close enough.&rdquo; Silent model mixing is how rankings rot.</p>
+              <p class="tl">Guards passed. Now the actual inference&hellip;</p>
+              <p class="tl">&hellip;timed, because the duration rides back on the response&hellip;</p>
+              <p class="tl">&hellip;every passage paired with the SAME query &mdash; this joint scoring is what makes a cross-encoder sharper than cosine&hellip;</p>
+              <p class="tl">&hellip;and one model call scores the whole batch.</p>
+              <p class="tl">Milliseconds as an int &mdash; the same convention as the embed endpoint.</p>
+              <p class="tl">Anything the model throws&hellip;</p>
+              <p class="tl">&hellip;is an internal fault: our bug, not the caller&rsquo;s&hellip;</p>
+              <p class="tl">&hellip;details stay in the logs, never in the response body.</p>
+              <p class="tl">The success shape:</p>
+              <p class="tl">&hellip;echo which model actually scored&hellip;</p>
+              <p class="tl">&hellip;and one score per passage:</p>
+              <p class="tl">&hellip;each id paired with a plain Python float &mdash; callers never see numpy types&hellip;</p>
+              <p class="tl">&hellip;in input order, every input id exactly once. The client will hold us to that promise.</p>
+              <p class="tl">Close the scores list.</p>
+              <p class="tl">&hellip;plus how long inference took.</p>
+              <p class="tl">Done &mdash; three guards, one taxonomy, one honest answer.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 3: the client (Snippet B) ──────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Client: Translate, Never Invent</h2>
+
+        <p>On the TypeScript side, <code>rerank-client.ts</code> is deliberately thin and strict: one POST per rerank, the configured model asserted on every call, and the sidecar&rsquo;s envelope codes adopted <em>verbatim</em> as <code>DomainError</code> classes. Nothing is invented at this seam &mdash; and nothing is trusted without a count.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/rerank-client.ts:64&ndash;91</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (<span class="code-operator">!</span>response.ok) {</span>
+<span class="code-line">  <span class="code-keyword">let</span> code = <span class="code-string">"dependency_down"</span>;</span>
+<span class="code-line">  <span class="code-keyword">let</span> message = <span class="code-string">`Rerank failed with HTTP ${response.status}.`</span>;</span>
+<span class="code-line">  <span class="code-keyword">try</span> {</span>
+<span class="code-line">    <span class="code-keyword">const</span> envelope = (<span class="code-keyword">await</span> response.<span class="code-function">json</span>()) <span class="code-keyword">as</span> { <span class="code-property">error</span>?: { <span class="code-property">code</span>?: <span class="code-keyword">string</span>; <span class="code-property">message</span>?: <span class="code-keyword">string</span> } };</span>
+<span class="code-line">    <span class="code-keyword">if</span> (envelope.error?.code <span class="code-operator">&amp;&amp;</span> ENVELOPE_CLASSES.<span class="code-function">has</span>(envelope.error.code)) {</span>
+<span class="code-line">      code = envelope.error.code;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="code-keyword">if</span> (envelope.error?.message) message = envelope.error.message;</span>
+<span class="code-line">  } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">    <span class="code-comment">// keep the HTTP-status message</span></span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({ <span class="code-property">class</span>: code <span class="code-keyword">as</span> ErrorClass, <span class="code-property">seam</span>: <span class="code-string">"rerank"</span>, message });</span>
+<span class="code-line">}</span>
+<span class="code-line"><span class="code-keyword">const</span> body = (<span class="code-keyword">await</span> response.<span class="code-function">json</span>()) <span class="code-keyword">as</span> { <span class="code-property">scores</span>?: Array&lt;{ <span class="code-property">id</span>: <span class="code-keyword">string</span>; <span class="code-property">score</span>: <span class="code-keyword">number</span> }&gt; };</span>
+<span class="code-line"><span class="code-keyword">const</span> scores = <span class="code-keyword">new</span> <span class="code-function">Map</span>((body.scores ?? []).<span class="code-function">map</span>((entry) =&gt; [entry.id, entry.score]));</span>
+<span class="code-line"><span class="code-comment">// The contract promises every input id exactly once; a sidecar that</span></span>
+<span class="code-line"><span class="code-comment">// broke that would silently corrupt rankings — refuse loudly instead.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> missing = passages.<span class="code-function">filter</span>((p) =&gt; <span class="code-operator">!</span>scores.<span class="code-function">has</span>(p.id));</span>
+<span class="code-line"><span class="code-keyword">if</span> (missing.length &gt; <span class="code-number">0</span>) {</span>
+<span class="code-line">  <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">    <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">    <span class="code-property">seam</span>: <span class="code-string">"rerank"</span>,</span>
+<span class="code-line">    <span class="code-property">message</span>: <span class="code-string">`Rerank response missed ${missing.length} passage id(s) — contract violation.`</span>,</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+<span class="code-line"><span class="code-keyword">return</span> scores;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The sidecar answered, but with an error status &mdash; time to translate, not invent.</p>
+              <p class="tl">Default assumption: the dependency is unhealthy&hellip;</p>
+              <p class="tl">&hellip;and the fallback message at least names the HTTP status we saw.</p>
+              <p class="tl">Now try to do better by reading the envelope:</p>
+              <p class="tl">&hellip;parse the body in the stack-wide error-envelope shape&hellip;</p>
+              <p class="tl">&hellip;and if the code is one of the five shared taxonomy classes&hellip;</p>
+              <p class="tl">&hellip;adopt it VERBATIM. The sidecar&rsquo;s word becomes the DomainError class&hellip;</p>
+              <p class="tl">&hellip;nothing gets renamed at this seam.</p>
+              <p class="tl">Same for the human-readable message &mdash; the sidecar&rsquo;s own words travel intact.</p>
+              <p class="tl">If the body wasn&rsquo;t parseable JSON&hellip;</p>
+              <p class="tl">&hellip;the HTTP-status fallback from above still stands&hellip;</p>
+              <p class="tl">&hellip;and we move on.</p>
+              <p class="tl">Either way: a typed throw, seam &ldquo;rerank.&rdquo; The engine decides what failure means; this client just refuses honestly.</p>
+              <p class="tl">End of the error path.</p>
+              <p class="tl">Success path: parse the scores array.</p>
+              <p class="tl">Index the scores by passage id, ready for the check that comes next.</p>
+              <p class="tl">The contract&rsquo;s core promise: every input id, exactly once&hellip;</p>
+              <p class="tl">&hellip;because a sidecar that broke it would silently corrupt rankings. Refuse loudly instead.</p>
+              <p class="tl">So: which of OUR inputs came back with no score at all?</p>
+              <p class="tl">Any at all&hellip;</p>
+              <p class="tl">&hellip;and this becomes a typed refusal&hellip;</p>
+              <p class="tl">&hellip;classed internal_fault &mdash; a broken machine, not a down one&hellip;</p>
+              <p class="tl">&hellip;at the rerank seam&hellip;</p>
+              <p class="tl">&hellip;saying exactly how many ids went missing, and calling it what it is: a contract violation.</p>
+              <p class="tl">Close the throw.</p>
+              <p class="tl">End of the every-id-once check.</p>
+              <p class="tl">Only a complete score map ever reaches the engine.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🕳️</div>
+          <div class="callout-content">
+            <strong class="callout-title">The quietest corruption there is</strong>
+            <p>Imagine the sidecar dropped one passage&rsquo;s score. No exception, no bad status &mdash; just a ranking where one candidate got sorted on a missing number. Nobody would ever notice; the results would simply be <em>wrong</em>. That&rsquo;s why the client counts ids instead of trusting: a broken every-id-once promise is refused loudly as <code>internal_fault</code>, never absorbed.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 4: the stage (Snippet C) ───────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Stage: Fail the Search, Record Both Orderings</h2>
+
+        <p>Back in the engine, the rerank stage slots between fusion and the receipt. Config resolution already proved the role live before any search ran &mdash; so if the config says <em>on</em> but no scorer was wired in, that&rsquo;s a composition bug (<code>internal_fault</code>), not a down dependency. And every line the reranker touches remembers its <span class="term" data-definition="Where fusion had a result before the reranker moved it — recorded on every receipt line (FR-022).">prerank position</span>.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">packages/retrieval/src/search.ts:197&ndash;231</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// The rerank stage (US5): the top rerankDepth fused candidates are</span></span>
+<span class="code-line"><span class="code-comment">// re-scored by the cross-encoder and re-ordered by its scores (ties keep</span></span>
+<span class="code-line"><span class="code-comment">// fused order — determinism again). A failing scorer FAILS the search</span></span>
+<span class="code-line"><span class="code-comment">// (FR-021: never silently the unreranked order); a missing scorer with</span></span>
+<span class="code-line"><span class="code-comment">// rerank=on is a wiring bug, since config resolution already proved the</span></span>
+<span class="code-line"><span class="code-comment">// role live.</span></span>
+<span class="code-line"><span class="code-keyword">let</span> ordered: Array&lt;{ <span class="code-property">candidate</span>: (<span class="code-keyword">typeof</span> fused)[<span class="code-keyword">number</span>]; <span class="code-property">rerankScore</span>: <span class="code-keyword">number</span> | <span class="code-keyword">null</span>; <span class="code-property">prerankPosition</span>: <span class="code-keyword">number</span> | <span class="code-keyword">null</span> }&gt;;</span>
+<span class="code-line"><span class="code-keyword">if</span> (config.rerank) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (<span class="code-operator">!</span>deps.rerank) {</span>
+<span class="code-line">    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"internal_fault"</span>,</span>
+<span class="code-line">      <span class="code-property">seam</span>: <span class="code-string">"rerank"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"RETRIEVAL_RERANK=on but no rerank client is wired — composition bug."</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> rerankInput = fused.<span class="code-function">slice</span>(<span class="code-number">0</span>, config.rerankDepth);</span>
+<span class="code-line">  <span class="code-keyword">const</span> scores = <span class="code-keyword">await</span> <span class="code-function">timed</span>(<span class="code-string">"rerank"</span>, () =&gt;</span>
+<span class="code-line">    deps.rerank<span class="code-operator">!</span>.<span class="code-function">rerank</span>(</span>
+<span class="code-line">      query,</span>
+<span class="code-line">      rerankInput.<span class="code-function">map</span>((candidate) =&gt; ({</span>
+<span class="code-line">        <span class="code-property">id</span>: candidate.chunkId,</span>
+<span class="code-line">        <span class="code-property">text</span>: byId.<span class="code-function">get</span>(candidate.chunkId)<span class="code-operator">!</span>.content,</span>
+<span class="code-line">      })),</span>
+<span class="code-line">    ),</span>
+<span class="code-line">  );</span>
+<span class="code-line">  ordered = rerankInput</span>
+<span class="code-line">    .<span class="code-function">map</span>((candidate, index) =&gt; ({</span>
+<span class="code-line">      candidate,</span>
+<span class="code-line">      <span class="code-property">rerankScore</span>: scores.<span class="code-function">get</span>(candidate.chunkId)<span class="code-operator">!</span>,</span>
+<span class="code-line">      <span class="code-property">prerankPosition</span>: index + <span class="code-number">1</span>,</span>
+<span class="code-line">    }))</span>
+<span class="code-line">    .<span class="code-function">sort</span>((a, b) =&gt; b.rerankScore<span class="code-operator">!</span> - a.rerankScore<span class="code-operator">!</span> <span class="code-operator">||</span> a.prerankPosition<span class="code-operator">!</span> - b.prerankPosition<span class="code-operator">!</span>);</span>
+<span class="code-line">} <span class="code-keyword">else</span> {</span>
+<span class="code-line">  ordered = fused.<span class="code-function">map</span>((candidate) =&gt; ({ candidate, <span class="code-property">rerankScore</span>: <span class="code-keyword">null</span>, <span class="code-property">prerankPosition</span>: <span class="code-keyword">null</span> }));</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The stage&rsquo;s doctrine, in the code where it applies: the top rerankDepth fused candidates&hellip;</p>
+              <p class="tl">&hellip;get re-scored by the cross-encoder and re-ordered by its scores &mdash; ties keep&hellip;</p>
+              <p class="tl">&hellip;the fused order, so equal scores can never shuffle between runs. A failing scorer FAILS the search&hellip;</p>
+              <p class="tl">&hellip;that&rsquo;s FR-021: never silently the unreranked order&hellip;</p>
+              <p class="tl">&hellip;and a missing scorer with rerank=on can only be a wiring bug&hellip;</p>
+              <p class="tl">&hellip;because config resolution already proved the role live before any search ran.</p>
+              <p class="tl">Every candidate leaves this stage carrying three facts: itself, a rerank score, and where fusion had it.</p>
+              <p class="tl">Only if the resolved config says the specialist is hired:</p>
+              <p class="tl">Config says on, but composition never handed us a scorer?</p>
+              <p class="tl">Refuse as our own bug&hellip;</p>
+              <p class="tl">&hellip;internal_fault: the machine is mis-assembled &mdash; dependency_down is reserved for things that were wired and died&hellip;</p>
+              <p class="tl">&hellip;at the rerank seam&hellip;</p>
+              <p class="tl">&hellip;with the message naming it plainly: composition bug.</p>
+              <p class="tl">Close the refusal.</p>
+              <p class="tl">End of the wiring guard.</p>
+              <p class="tl">The specialist sees only the top rerankDepth fused candidates &mdash; a depth config validated into the sidecar&rsquo;s hard cap.</p>
+              <p class="tl">The call is timed; its duration lands on the receipt like every other stage&hellip;</p>
+              <p class="tl">&hellip;handing the scorer&hellip;</p>
+              <p class="tl">&hellip;the original query&hellip;</p>
+              <p class="tl">&hellip;and each candidate as&hellip;</p>
+              <p class="tl">&hellip;its chunk id&hellip;</p>
+              <p class="tl">&hellip;plus its full passage text &mdash; cross-encoders score the actual words, not a stored vector.</p>
+              <p class="tl">Close each passage object.</p>
+              <p class="tl">Close the scorer call. If it throws, the throw propagates: the search is over, and no receipt is written.</p>
+              <p class="tl">End of the timed stage.</p>
+              <p class="tl">Survived? Then re-order:</p>
+              <p class="tl">&hellip;each candidate keeps&hellip;</p>
+              <p class="tl">&hellip;its fused self&hellip;</p>
+              <p class="tl">&hellip;gains the specialist&rsquo;s score &mdash; guaranteed present, because the client enforced every-id-once&hellip;</p>
+              <p class="tl">&hellip;and remembers its prerank position: where fusion had it, 1-based, before anything moved.</p>
+              <p class="tl">Close the enrichment.</p>
+              <p class="tl">Sort by rerank score descending &mdash; and on a tie, by prerank position, so equal scores keep the fused order. Determinism again.</p>
+              <p class="tl">Specialist not hired?</p>
+              <p class="tl">The fused order stands, with both rerank fields honestly null &mdash; never a fake zero.</p>
+              <p class="tl">Either way, downstream sees one shape: candidates that know both their orderings.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Two fields on every receipt line make the consult auditable after the fact:</p>
+
+        <div class="badge-list">
+          <div class="badge-item">
+            <code class="badge-code">rerankScore</code>
+            <span class="badge-desc">The cross-encoder&rsquo;s opinion of this passage for this query &mdash; null on unreranked searches, never a fake zero</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">prerankPosition</code>
+            <span class="badge-desc">Where fusion had this passage before the specialist moved it &mdash; the receipt proves what the reranker changed (FR-022)</span>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">📏</div>
+          <div class="callout-content">
+            <strong class="callout-title">The 256 cap lives in two places on purpose</strong>
+            <p><code>contracts/reranker.md</code> caps a single rerank call at 256 passages &mdash; and config validation refuses any <code>RETRIEVAL_RERANK_DEPTH</code> outside <code>[1, 256]</code> at resolution time. The config gate mirrors the wire contract, so an oversized batch is unrepresentable by construction instead of a runtime 415 surprise.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Screen 5: quiz + handoff ──────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module-5">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the config gate fails fast. Empty provider means the role is disabled, and rerank=on with a disabled role is a contradiction the resolver refuses once, at resolution, naming the exact variables to set. No search ever launches under it."
+               data-explanation-wrong="Not quite. A 503 from the rerank stage is the OTHER story — a live role dying mid-flight. And /ready never goes unhealthy over an optional role: it reports disabled and stays green. This contradiction dies earlier than both: at config resolution, before any request exists.">
+            <h3 class="quiz-question">You flip <code>RETRIEVAL_RERANK=on</code> in a worktree&rsquo;s <code>.env</code> but leave <code>RERANKER_PROVIDER</code> empty. Where does this configuration die?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The first search reaches the rerank stage and fails with a typed 503 from the sidecar</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>At config resolution, before any request: rerank=on with a disabled role is refused, naming the variables to set</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It runs, but <code>/ready</code> turns unhealthy over the misconfigured role and compose restarts the stack</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — no silent fallback (FR-021) plus Module 2's rule that the receipt book records completed searches. The operator gets a typed 503 that names the rerank seam, and the record shows nothing rather than something that pretends."
+               data-explanation-wrong="Not quite. Returning the fused order is precisely the silent fallback FR-021 forbids — rerank-on promised a reranked answer. And a null rerank timing is how a stage skipped BY DESIGN records itself (like vector search on an un-embedded corpus), not how a dead dependency hides. The search fails, typed and loud, and no receipt is written.">
+            <h3 class="quiz-question">Rerank is properly on and the role is live. Mid-search, the sidecar dies before scoring returns. What does the operator see, and what lands in the receipt book?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Results in fused order, with the rerank timing recorded as null so the skip stays visible</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A 200 whose receipt carries null rerank fields plus a warning that the specialist was unavailable</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A typed 503 naming the rerank seam &mdash; and NO receipt, because the search never completed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — FR-022. With the fused ordering preserved beside the reranked one, every receipt proves what the specialist actually changed, and Module 4's eval program can measure reranked against plain-fusion configurations from the records themselves."
+               data-explanation-wrong="Not quite. The tie-break does use prerank position in flight — but that's an in-memory index; determinism wouldn't require storing it. And nothing replays recorded orderings. The stored field exists for the audit: the receipt must prove what the reranker changed, and the eval program needs both orderings to judge whether the specialist earns its latency.">
+            <h3 class="quiz-question">Every reranked receipt line stores a prerank position next to its final rank. What is that field <em>for</em>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The receipt must prove what the reranker changed &mdash; both orderings on one record is what lets the eval program measure the specialist against plain fusion</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It&rsquo;s the sort&rsquo;s tiebreaker &mdash; without persisting it, equal scores would order nondeterministically</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>So a repeated search can skip the rerank stage and replay the recorded ordering</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-5')">Try Again</button>
+        </div>
+
+        <p>So the specialist is hired only by explicit config, reported honestly when off, refused loudly when faked, and receipted twice over when it runs &mdash; the template for every optional model role this stack will ever grow. It still has to earn its place on Module 4&rsquo;s dyno, and it hasn&rsquo;t yet: <code>reranker: disabled</code> is the measurement-honest default. Module 6 is what happened when the whole machine met reality &mdash; a real corpus, day one, and a finding nobody expected.</p>
+      </section>
+
+    </div>
+  </div>
+</section>

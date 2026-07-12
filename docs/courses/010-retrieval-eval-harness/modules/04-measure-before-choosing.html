@@ -1,0 +1,586 @@
+<section class="module" id="module-4" style="background: var(--color-bg); --color-accent:#ea580c; --color-accent-hover:#c2410c; --color-accent-light:color-mix(in srgb, #ea580c 14%, var(--color-bg)); --color-accent-muted:color-mix(in srgb, #ea580c 55%, var(--color-bg));">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Measure Before Choosing</h1>
+      <p class="module-subtitle">RRF or weighted fusion? &alpha; 0.5 or 0.7? Rerank on? The constitution&rsquo;s answer: you don&rsquo;t get an opinion &mdash; you get a measurement.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 1 — Hook + HERO data-flow animation                    -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A Dyno for the Search Engine</h2>
+
+        <p>Module 1 left the engine&rsquo;s knobs hanging: which fusion strategy, which parameters, whether the reranker earns its latency. You don&rsquo;t ship an engine mod because it <em>feels</em> faster &mdash; you strap the engine to the dyno, change one thing at a time, and the printout goes in the file. That dyno pull is an <span class="term" data-definition="One gold set × one named config, executed as REAL engine searches, with metrics computed per the pinned contract (D11: eval-justified choice).">eval run</span>.</p>
+
+        <p>And the <span class="term" data-definition="The deterministic fixture eval that runs inside pnpm verify; any metric below its pinned floor fails the build (SC-004).">CI floor</span> is the dyno bolted into the build: every PR re-proves the baseline before it merges. Here is one pull, end to end &mdash; the fixture set&rsquo;s 12 questions, from POST to completed:</p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-m4-api","label":"create — POST /api/evals/runs resolves the named config and calls createEvalRun"},
+          {"highlight":"flow-m4-run","packet":true,"from":"m4-api","to":"m4-run","label":"create — the gold snapshot and the fully resolved config are pinned onto a new eval_runs row, born with status running"},
+          {"highlight":"flow-m4-jobs","packet":true,"from":"m4-api","to":"m4-jobs","label":"enqueue (D12) — a job of kind eval_run lands on the Postgres jobs table and the API answers 202 with the run id immediately"},
+          {"highlight":"flow-m4-worker","packet":true,"from":"m4-jobs","to":"m4-worker","label":"execute — the worker claims the job; the slow half begins"},
+          {"highlight":"flow-m4-engine","packet":true,"from":"m4-worker","to":"m4-engine","label":"execute (real searches) — every snapshot question runs through the REAL engine, stamped origin eval"},
+          {"highlight":"flow-m4-engine","label":"receipts — all 12 searches write their own retrieval-run receipts, exactly as Module 2 taught; nothing about eval is a simulation"},
+          {"highlight":"flow-m4-run","packet":true,"from":"m4-engine","to":"m4-run","label":"metrics per slice — tuning and heldout are computed per the pinned contract and land on the run row, next to the snapshot"},
+          {"highlight":"flow-m4-run","label":"completed (exactly once) — status flips running to completed; a finished measurement is history and can never be re-executed"},
+          {"highlight":"flow-m4-api","label":"compare — two completed rows differ by exactly one variable; the decision reads straight off the table"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-m4-api">
+              <div class="flow-actor-icon" style="background: var(--color-actor-1)">🔌</div>
+              <span>POST /api/evals/runs</span>
+            </div>
+            <div class="flow-actor" id="flow-m4-run">
+              <div class="flow-actor-icon" style="background: var(--color-actor-4)">📌</div>
+              <span>eval_runs row</span>
+            </div>
+            <div class="flow-actor" id="flow-m4-jobs">
+              <div class="flow-actor-icon" style="background: var(--color-actor-2)">📮</div>
+              <span>jobs table</span>
+            </div>
+            <div class="flow-actor" id="flow-m4-worker">
+              <div class="flow-actor-icon" style="background: var(--color-actor-3)">⚙️</div>
+              <span>worker</span>
+            </div>
+            <div class="flow-actor" id="flow-m4-engine">
+              <div class="flow-actor-icon" style="background: var(--color-actor-5)">🔍</div>
+              <span>engine</span>
+            </div>
+          </div>
+
+          <div class="flow-packet"></div>
+
+          <div class="flow-step-label">Click &ldquo;Next Step&rdquo; to strap the engine in</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">📮</div>
+          <div class="callout-content">
+            <strong class="callout-title">Accept, then async (Principle IV / D12)</strong>
+            <p>The route does exactly two things &mdash; <code>createEvalRun</code> pins the row, <code>enqueue</code> drops <code>{ kind: "eval_run" }</code> on the jobs table &mdash; and returns <code>202</code> with the run id (<code>apps/api/src/retrieval/routes.ts:397-400</code>). Twelve real searches happen later, on the worker; the operator watches <code>/evals</code> flip from running to completed.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 2 — Snippet A: snapshot pinning + exactly-once         -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Pin History Before You Measure</h2>
+
+        <p>A dyno printout is worthless if someone can re-tune the reference engine afterward. So <code>createEvalRun</code> does two things in one breath: copy the answer key onto the run row &mdash; the <span class="term" data-definition="The gold items AS EVALUATED, copied onto the run row at creation — later re-labeling can&rsquo;t rewrite history.">gold snapshot</span> &mdash; and mark the run <code>running</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/retrieval/src/eval/run-eval.ts:42-70</span>
+            <pre><code><span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">async</span> <span class="code-keyword">function</span> <span class="code-function">createEvalRun</span>(db: Database, input: CreateEvalRunInput): <span class="code-function">Promise</span>&lt;<span class="code-keyword">string</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> items = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">select</span>({</span>
+<span class="code-line">      <span class="code-property">id</span>: goldItems.id,</span>
+<span class="code-line">      <span class="code-property">question</span>: goldItems.question,</span>
+<span class="code-line">      <span class="code-property">expected</span>: goldItems.expected,</span>
+<span class="code-line">      <span class="code-property">split</span>: goldItems.split,</span>
+<span class="code-line">    })</span>
+<span class="code-line">    .<span class="code-function">from</span>(goldItems)</span>
+<span class="code-line">    .<span class="code-function">where</span>(sql`${goldItems.corpusId} = ${input.corpusId}`)</span>
+<span class="code-line">    .<span class="code-function">orderBy</span>(sql`${goldItems.createdAt} ASC`);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (items.length === <span class="code-number">0</span>) {</span>
+<span class="code-line">    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"invalid_input"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">"The gold set is empty — label at least one item before running an eval."</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> [row] = <span class="code-keyword">await</span> db</span>
+<span class="code-line">    .<span class="code-function">insert</span>(evalRuns)</span>
+<span class="code-line">    .<span class="code-function">values</span>({</span>
+<span class="code-line">      <span class="code-property">corpusId</span>: input.corpusId,</span>
+<span class="code-line">      <span class="code-property">config</span>: input.config,</span>
+<span class="code-line">      <span class="code-property">configName</span>: input.config.configName,</span>
+<span class="code-line">      <span class="code-property">goldSnapshot</span>: items,</span>
+<span class="code-line">      <span class="code-property">status</span>: <span class="code-string">"running"</span>,</span>
+<span class="code-line">    })</span>
+<span class="code-line">    .<span class="code-function">returning</span>({ <span class="code-property">id</span>: evalRuns.id });</span>
+<span class="code-line">  <span class="code-keyword">return</span> row!.id;</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The fast half of the harness &mdash; called by the API route the moment the operator asks.</p>
+              <p class="tl">First act: read the whole answer key&hellip;</p>
+              <p class="tl">&hellip;selecting exactly the four things a measurement needs:</p>
+              <p class="tl">Each label&rsquo;s durable id.</p>
+              <p class="tl">The question, as it reads right now.</p>
+              <p class="tl">The expected passages &mdash; Module 3&rsquo;s content-hash references.</p>
+              <p class="tl">And each item&rsquo;s split: tuning or heldout.</p>
+              <p class="tl">Selection closed.</p>
+              <p class="tl">From the gold_items table Module 3 built.</p>
+              <p class="tl">Only the corpus under measurement.</p>
+              <p class="tl">Oldest-first &mdash; the same gold set always snapshots in the same order.</p>
+              <p class="tl">An empty answer key cannot grade anything&hellip;</p>
+              <p class="tl">&hellip;so refuse before any row exists&hellip;</p>
+              <p class="tl">&hellip;typed as the caller&rsquo;s input problem &mdash; HTTP mapping stays in app.ts, per repo doctrine&hellip;</p>
+              <p class="tl">&hellip;with a message that says what to do next, not where it crashed.</p>
+              <p class="tl">Refusal assembled.</p>
+              <p class="tl">End of the guard.</p>
+              <p class="tl">Now the history pin: one INSERT&hellip;</p>
+              <p class="tl">&hellip;into eval_runs&hellip;</p>
+              <p class="tl">&hellip;carrying everything a future reader needs:</p>
+              <p class="tl">Which corpus this measurement covers.</p>
+              <p class="tl">The FULLY resolved config &mdash; every knob&rsquo;s actual value, never a name that might drift.</p>
+              <p class="tl">Plus the short name that will label this row in the report table.</p>
+              <p class="tl">THE GOLD SNAPSHOT: the items exactly as just read, copied onto the row.</p>
+              <p class="tl">Born running &mdash; the operator sees the run exist before a single search fires.</p>
+              <p class="tl">Row assembled.</p>
+              <p class="tl">Postgres hands back the new run&rsquo;s id.</p>
+              <p class="tl">That id is the entire response &mdash; the 202 the API sends while the queue does the work.</p>
+              <p class="tl">The fast half ends here. Nothing has searched yet &mdash; and the history pin is already in.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The slow half, <code>executeEvalRun</code>, opens with a wall. A queue retry, a double-click, a curious teammate &mdash; nobody gets to run a finished measurement again:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/retrieval/src/eval/run-eval.ts:87-94</span>
+            <pre><code><span class="code-line">  <span class="code-keyword">if</span> (run.status !== <span class="code-string">"running"</span>) {</span>
+<span class="code-line">    <span class="code-comment">// Exactly-once discipline: a completed measurement is history, and a</span></span>
+<span class="code-line">    <span class="code-comment">// failed one is retried as a NEW run so no receipt is ever overwritten.</span></span>
+<span class="code-line">    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">DomainError</span>({</span>
+<span class="code-line">      <span class="code-property">class</span>: <span class="code-string">"invalid_input"</span>,</span>
+<span class="code-line">      <span class="code-property">message</span>: <span class="code-string">`Eval run ${evalRunId} is ${run.status}; runs execute exactly once.`</span>,</span>
+<span class="code-line">    });</span>
+<span class="code-line">  }</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Any status but running means this measurement already happened &mdash; or already failed.</p>
+              <p class="tl">The doctrine, written where the refusal lives: a completed measurement is history&hellip;</p>
+              <p class="tl">&hellip;and a failed one becomes a NEW run, so no receipt is ever overwritten.</p>
+              <p class="tl">Refuse loudly&hellip;</p>
+              <p class="tl">&hellip;as a typed domain error, not a crash&hellip;</p>
+              <p class="tl">&hellip;naming the run, its current status, and the rule itself.</p>
+              <p class="tl">No partial re-execution, no silent overwrite.</p>
+              <p class="tl">A retried queue job hits this wall and stops &mdash; exactly once, by construction.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong class="callout-title">Re-labeling after the run changes nothing &mdash; proven brutally</strong>
+            <p><code>packages/retrieval/src/eval/run-eval.test.ts:100-114</code> creates a run, then runs <code>UPDATE gold_items SET question = 'REWRITTEN'</code> &mdash; every question in the table, rewritten in place &mdash; and asserts the run&rsquo;s snapshot is byte-identical to before. The run still executes to <code>completed</code> against the pinned snapshot. History does not take edits.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 3 — Snippet B: metrics with a contract                 -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Metrics With a Contract</h2>
+
+        <p>Two dyno pulls are only comparable if the gauges never get recalibrated between them. The harness reports <span class="term" data-definition="The pinned metric trio — definitions are transcribed from contracts/metrics.md and may never silently change.">recall@5 / MRR / nDCG@10</span> per slice, and their meanings are fixed:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🎯</div>
+            <h4 class="pattern-title">recall@5 / @10</h4>
+            <p class="pattern-desc">Did any expected passage surface in the top k? The fraction of items answering yes.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🥇</div>
+            <h4 class="pattern-title">MRR</h4>
+            <p class="pattern-desc">How high was the <em>first</em> hit? Mean of 1/rank &mdash; rank 1 scores 1.0, rank 3 scores 0.333.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📐</div>
+            <h4 class="pattern-title">nDCG@10</h4>
+            <p class="pattern-desc">Are <em>all</em> expected passages ordered well? High placements earn more, normalized against the ideal ordering.</p>
+          </div>
+        </div>
+
+        <p>The implementation is pure arithmetic over hash lists &mdash; and it opens with its own rules of engagement:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/retrieval/src/eval/metrics.ts:1-12, 51-73 (interfaces elided)</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * Pinned metric definitions (spec 010 US4) — the ONLY metric semantics the</span></span>
+<span class="code-line"><span class="code-comment"> * harness may implement, transcribed from contracts/metrics.md. Pure</span></span>
+<span class="code-line"><span class="code-comment"> * arithmetic over hash lists: no DB, no engine — the deterministic CI floor</span></span>
+<span class="code-line"><span class="code-comment"> * (T031) and every eval report stand on these functions computing exactly</span></span>
+<span class="code-line"><span class="code-comment"> * what the contract says, forever.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * Matching is by content hash (a re-ingested identical passage still</span></span>
+<span class="code-line"><span class="code-comment"> * counts); `unresolvable` items are EXCLUDED from every denominator and</span></span>
+<span class="code-line"><span class="code-comment"> * surfaced as their own count — a stale answer key is a labeling problem to</span></span>
+<span class="code-line"><span class="code-comment"> * fix, never a silent miss to absorb.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-comment">// … input/output interfaces and NDCG_DEPTH (10) elided …</span></span>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">outcomeOf</span>(item: EvalItemInput): EvalItemOutcome {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (item.unresolvable) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> {</span>
+<span class="code-line">      <span class="code-property">goldItemId</span>: item.goldItemId,</span>
+<span class="code-line">      <span class="code-property">split</span>: item.split,</span>
+<span class="code-line">      <span class="code-property">status</span>: <span class="code-string">"unresolvable"</span>,</span>
+<span class="code-line">      <span class="code-property">firstHitRank</span>: <span class="code-keyword">null</span>,</span>
+<span class="code-line">      <span class="code-property">hitRanks</span>: [],</span>
+<span class="code-line">    };</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">const</span> expected = <span class="code-keyword">new</span> <span class="code-function">Set</span>(item.expectedHashes);</span>
+<span class="code-line">  <span class="code-keyword">const</span> hitRanks: <span class="code-keyword">number</span>[] = [];</span>
+<span class="code-line">  item.resultHashes.<span class="code-function">forEach</span>((hash, index) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (expected.<span class="code-function">has</span>(hash)) hitRanks.<span class="code-function">push</span>(index + <span class="code-number">1</span>);</span>
+<span class="code-line">  });</span>
+<span class="code-line">  <span class="code-keyword">return</span> {</span>
+<span class="code-line">    <span class="code-property">goldItemId</span>: item.goldItemId,</span>
+<span class="code-line">    <span class="code-property">split</span>: item.split,</span>
+<span class="code-line">    <span class="code-property">status</span>: hitRanks.length &gt; <span class="code-number">0</span> ? <span class="code-string">"hit"</span> : <span class="code-string">"miss"</span>,</span>
+<span class="code-line">    <span class="code-property">firstHitRank</span>: hitRanks[<span class="code-number">0</span>] ?? <span class="code-keyword">null</span>,</span>
+<span class="code-line">    <span class="code-property">hitRanks</span>,</span>
+<span class="code-line">  };</span>
+<span class="code-line">}</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Doctrine header &mdash; read it before touching a single formula.</p>
+              <p class="tl">These are the ONLY metric semantics the harness may implement&hellip;</p>
+              <p class="tl">&hellip;transcribed from contracts/metrics.md &mdash; code follows contract, not the other way round.</p>
+              <p class="tl">Pure arithmetic over hash lists: no database, no engine, no network&hellip;</p>
+              <p class="tl">&hellip;which is exactly why the CI floor and every report can trust them&hellip;</p>
+              <p class="tl">&hellip;to compute what the contract says. Forever.</p>
+              <p class="tl">Second rule:</p>
+              <p class="tl">Matching is by content hash &mdash; a re-ingested identical passage still counts (Module 2&rsquo;s auto-heal, again).</p>
+              <p class="tl">And unresolvable items leave every denominator entirely&hellip;</p>
+              <p class="tl">&hellip;surfaced as their own count instead&hellip;</p>
+              <p class="tl">&hellip;because a stale answer key is a labeling problem to fix&hellip;</p>
+              <p class="tl">&hellip;never a silent miss to absorb. End of doctrine.</p>
+              <p class="tl">The typed shapes and the nDCG depth constant &mdash; skipped here.</p>
+              <p class="tl">Grade one gold item: turn a result list into a verdict.</p>
+              <p class="tl">First question: does the answer key itself still resolve?</p>
+              <p class="tl">If not, the verdict is neither hit nor miss:</p>
+              <p class="tl">Which label this outcome belongs to.</p>
+              <p class="tl">Which slice it would have counted in.</p>
+              <p class="tl">The third status &mdash; the honest one Module 3 promised.</p>
+              <p class="tl">No rank claimed&hellip;</p>
+              <p class="tl">&hellip;no hits claimed&hellip;</p>
+              <p class="tl">&hellip;and, crucially, no denominator joined.</p>
+              <p class="tl">Unresolvable handled before any math runs.</p>
+              <p class="tl">Otherwise: the expected passage hashes become a lookup set.</p>
+              <p class="tl">Collect every position where the engine surfaced one.</p>
+              <p class="tl">Walk the returned results in rank order&hellip;</p>
+              <p class="tl">&hellip;recording the 1-based rank whenever a result&rsquo;s hash matches an expected hash.</p>
+              <p class="tl">Content-hash equality &mdash; where the passage lives today is irrelevant.</p>
+              <p class="tl">The verdict:</p>
+              <p class="tl">Same label&hellip;</p>
+              <p class="tl">&hellip;same slice&hellip;</p>
+              <p class="tl">&hellip;hit if anything expected surfaced, miss if nothing did.</p>
+              <p class="tl">The first hit&rsquo;s rank &mdash; the number MRR is built from.</p>
+              <p class="tl">Every hit position &mdash; nDCG later scores the ones at depth &le; 10.</p>
+              <p class="tl">One item, one outcome.</p>
+              <p class="tl">recall@5, recall@10, MRR, nDCG@10 are all just averages over these outcomes, per slice.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">📜</div>
+          <div class="callout-content">
+            <strong class="callout-title">Changing a metric is a contract change, not a refactor</strong>
+            <p>The definitions are transcribed from <code>contracts/metrics.md</code> &mdash; the header says so, and the doc-comment on <code>ndcgAt10</code> cites the contract for its DCG/IDCG formula. Tweak a denominator and every historical run row silently changes meaning; that&rsquo;s why the semantics live in a versioned contract, and why two runs from different months stay comparable.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 4 — Snippet C: the CI floor                            -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Dyno Bolted Into the Build</h2>
+
+        <p>Everything so far runs when an operator asks. The CI floor runs whether anyone asks or not: a deterministic eval &mdash; fixture corpus, hash-built embeddings, zero network beyond Postgres &mdash; executed by the REAL harness inside every <code>pnpm verify</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — packages/retrieval/src/eval/ci-floor.test.ts:1-15, 66-73, 79-84, 97-107 (setup elided)</span>
+            <pre><code><span class="code-line"><span class="code-comment">/**</span></span>
+<span class="code-line"><span class="code-comment"> * T031 (010 US4): the deterministic CI floor — SC-004 as a running test.</span></span>
+<span class="code-line"><span class="code-comment"> * This suite is `pnpm verify`&apos;s retrieval-correctness tripwire: it seeds the</span></span>
+<span class="code-line"><span class="code-comment"> * synthetic fixture corpus (deterministic embeddings, zero network beyond</span></span>
+<span class="code-line"><span class="code-comment"> * Postgres), runs the REAL harness in-process under `fixture-baseline`, and</span></span>
+<span class="code-line"><span class="code-comment"> * asserts the pinned floor. Breaking fusion, the reader predicate, metric</span></span>
+<span class="code-line"><span class="code-comment"> * math, or candidate SQL moves these numbers — and fails the build naming</span></span>
+<span class="code-line"><span class="code-comment"> * what regressed.</span></span>
+<span class="code-line"><span class="code-comment"> *</span></span>
+<span class="code-line"><span class="code-comment"> * The floors are the 2026-07-11 fixture-construction values (probe logged</span></span>
+<span class="code-line"><span class="code-comment"> * in the eval report). They are FLOORS, not snapshots: a change that</span></span>
+<span class="code-line"><span class="code-comment"> * IMPROVES ranking passes; one that degrades it does not. Changing the</span></span>
+<span class="code-line"><span class="code-comment"> * fixture or the embedding generator legitimately moves them — do it</span></span>
+<span class="code-line"><span class="code-comment"> * deliberately, in the same commit, with the eval report updated.</span></span>
+<span class="code-line"><span class="code-comment"> */</span></span>
+<span class="code-line"><span class="code-comment">// … suite setup: its own database, migrations, fixture corpus + 12 gold labels …</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> evalRunId = <span class="code-keyword">await</span> <span class="code-function">createEvalRun</span>(db, {</span>
+<span class="code-line">      <span class="code-property">corpusId</span>: fixture.corpusId,</span>
+<span class="code-line">      <span class="code-comment">// Floor pinned at 0.3 (not the shipped 0.2 default): the fixture&apos;s</span></span>
+<span class="code-line">      <span class="code-comment">// hash embeddings put unrelated text ~0.2–0.3, so this deterministic</span></span>
+<span class="code-line">      <span class="code-comment">// math-proving corpus is calibrated to 0.3 — decoupled from the</span></span>
+<span class="code-line">      <span class="code-comment">// real-corpus operational default on purpose (TASK-10; eval report).</span></span>
+<span class="code-line">      <span class="code-property">config</span>: <span class="code-function">resolveRetrievalConfig</span>({}, { <span class="code-property">configName</span>: <span class="code-string">"fixture-baseline"</span>, <span class="code-property">minSimilarity</span>: <span class="code-number">0.3</span> }),</span>
+<span class="code-line">    });</span>
+<span class="code-line"><span class="code-comment">// … executeEvalRun in-process, then metrics read back off the run row …</span></span>
+<span class="code-line">    <span class="code-comment">// The probe line CI logs on every run — regressions name themselves.</span></span>
+<span class="code-line">    console.<span class="code-function">log</span>(</span>
+<span class="code-line">      <span class="code-string">`[ci-floor] tuning r@5=${tuning.recallAt5.toFixed(3)} r@10=${tuning.recallAt10.toFixed(3)} `</span> +</span>
+<span class="code-line">        <span class="code-string">`mrr=${tuning.mrr.toFixed(3)} ndcg=${tuning.ndcgAt10.toFixed(3)} · `</span> +</span>
+<span class="code-line">        <span class="code-string">`heldout r@5=${heldout.recallAt5.toFixed(3)} mrr=${heldout.mrr.toFixed(3)}`</span>,</span>
+<span class="code-line">    );</span>
+<span class="code-line"><span class="code-comment">// … afterAll teardown and the every-item-evaluated assertions …</span></span>
+<span class="code-line">  <span class="code-function">it</span>(<span class="code-string">"tuning slice holds the pinned floor"</span>, () =&gt; {</span>
+<span class="code-line">    <span class="code-function">expect</span>(tuning.recallAt5).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.85</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(tuning.recallAt10).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.85</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(tuning.mrr).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.8</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(tuning.ndcgAt10).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.75</span>);</span>
+<span class="code-line">  });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-function">it</span>(<span class="code-string">"held-out slice holds the pinned floor (the paraphrase channel)"</span>, () =&gt; {</span>
+<span class="code-line">    <span class="code-function">expect</span>(heldout.recallAt5).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.99</span>);</span>
+<span class="code-line">    <span class="code-function">expect</span>(heldout.mrr).<span class="code-function">toBeGreaterThanOrEqual</span>(<span class="code-number">0.99</span>);</span>
+<span class="code-line">  });</span></code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Fifteen lines of doctrine before a single import.</p>
+              <p class="tl">The success criterion itself &mdash; SC-004 &mdash; restated as a test suite.</p>
+              <p class="tl">It runs inside pnpm verify: every PR, every local check, no opt-out.</p>
+              <p class="tl">The corpus is synthetic and the embeddings deterministic &mdash; no model, no network&hellip;</p>
+              <p class="tl">&hellip;yet the harness under test is the REAL one, run in-process&hellip;</p>
+              <p class="tl">&hellip;against a pinned floor. Break fusion, the reader predicate&hellip;</p>
+              <p class="tl">&hellip;metric math, or the candidate SQL, and these numbers move&hellip;</p>
+              <p class="tl">&hellip;failing the build with the regression named.</p>
+              <p class="tl">Second paragraph: what the numbers mean.</p>
+              <p class="tl">The values date from fixture construction, and the probe below logs them on every run.</p>
+              <p class="tl">FLOORS, not snapshots:</p>
+              <p class="tl">&hellip;an improvement sails through; a degradation does not.</p>
+              <p class="tl">Legitimate moves exist &mdash; a new fixture, a new embedding generator&hellip;</p>
+              <p class="tl">&hellip;but they are deliberate: same commit, eval report updated.</p>
+              <p class="tl">Doctrine over.</p>
+              <p class="tl">Setup elided: a per-suite database, migrations, the Emberfall fixture corpus, its 12 gold items.</p>
+              <p class="tl">The same createEvalRun from screen 2 &mdash; no test-only backdoor.</p>
+              <p class="tl">Pointed at the fixture corpus.</p>
+              <p class="tl">A why-comment earning its keep: this suite pins its own similarity floor&hellip;</p>
+              <p class="tl">&hellip;because hash-built embeddings score unrelated text around 0.2&ndash;0.3&hellip;</p>
+              <p class="tl">&hellip;so the math-proving corpus calibrates its honest-empty guarantee to 0.3&hellip;</p>
+              <p class="tl">&hellip;deliberately decoupled from the real-corpus default (TASK-10 &mdash; Module 6&rsquo;s story).</p>
+              <p class="tl">The named config every CI run measures: fixture-baseline, floor 0.3 pinned explicitly.</p>
+              <p class="tl">Run created &mdash; snapshot pinned, exactly as production would.</p>
+              <p class="tl">Execution and readback elided &mdash; the real harness, no worker needed for determinism.</p>
+              <p class="tl">Before asserting anything, print the actual numbers.</p>
+              <p class="tl">One log line per CI run&hellip;</p>
+              <p class="tl">&hellip;the tuning slice: both recalls&hellip;</p>
+              <p class="tl">&hellip;MRR and nDCG&hellip;</p>
+              <p class="tl">&hellip;then the held-out slice, separately.</p>
+              <p class="tl">When a floor bites, the culprit metric is already on screen.</p>
+              <p class="tl">Teardown and the every-item-evaluated assertions, elided.</p>
+              <p class="tl">The tuning floor:</p>
+              <p class="tl">recall@5 may never fall below 0.85 &mdash; it measures 1.000 today.</p>
+              <p class="tl">recall@10 likewise.</p>
+              <p class="tl">MRR floor 0.8 against a measured 0.944 &mdash; honest headroom, not a snapshot.</p>
+              <p class="tl">nDCG@10 floor 0.75 against a measured 0.916.</p>
+              <p class="tl">GreaterThanOrEqual is the floors-not-snapshots posture, in code.</p>
+              <p class="tl">And the held-out slice gets its own, stricter wall &mdash;</p>
+              <p class="tl">&hellip;the paraphrase channel: questions deliberately phrased unlike their passages.</p>
+              <p class="tl">Held-out recall must stay effectively perfect&hellip;</p>
+              <p class="tl">&hellip;and held-out MRR too. This is the line the sabotage run crossed at 0.667.</p>
+              <p class="tl">Two slices, two floors, zero blending.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Does the floor actually bite? During convergence it was tested the honest way &mdash; by sabotage. Fusion was deliberately inverted (worst candidates first) and <code>pnpm verify</code> re-run:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="background: var(--color-bg-code); border-top: 3px solid var(--color-success);">
+            <p style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: #6C7086; margin: 0 0 var(--space-3);">pnpm verify &mdash; fusion intact</p>
+            <p style="font-family: var(--font-mono); font-size: var(--text-xs); color: #CDD6F4; margin: 0 0 var(--space-3); word-break: break-word;">[ci-floor] tuning r@5=1.000 r@10=1.000 mrr=0.944 ndcg=0.916 &middot; heldout r@5=1.000 mrr=1.000</p>
+            <p style="font-family: var(--font-mono); font-size: var(--text-sm); color: #A6E3A1; margin: 0;">✓ tuning slice holds the pinned floor<br>✓ held-out slice holds the pinned floor</p>
+          </div>
+          <div class="pattern-card animate-in" style="background: var(--color-bg-code); border-top: 3px solid var(--color-error);">
+            <p style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: #6C7086; margin: 0 0 var(--space-3);">pnpm verify &mdash; fusion inverted</p>
+            <p style="font-family: var(--font-mono); font-size: var(--text-xs); color: #CDD6F4; margin: 0 0 var(--space-3); word-break: break-word;">[ci-floor] &hellip; heldout mrr=<span style="color:#F38BA8; font-weight:600;">0.667</span></p>
+            <p style="font-family: var(--font-mono); font-size: var(--text-sm); color: #F38BA8; margin: 0;">✕ held-out slice holds the pinned floor<br><span style="color:#CDD6F4;">expected 0.667 to be &ge; 0.99</span></p>
+          </div>
+        </div>
+
+        <p>Red, naming the slice and the metric. Fusion restored: green (evidence.md, SC-004). The dyno doesn&rsquo;t argue &mdash; it prints.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🧪</div>
+          <div class="callout-content">
+            <strong class="callout-title">Slices never blend (FR-013)</strong>
+            <p>Tuning and held-out get separate metrics, separate floors, even separate clauses in the probe line. You calibrate against one channel and verify against the other &mdash; Module 3 made splits immutable precisely so a config can&rsquo;t quietly overfit the questions it was tuned on and call that a win.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 5 — The report: the decision table                     -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Report: A Decision You Can Re-Run</h2>
+
+        <p>Completed runs compose into <code>docs/eval-reports/010-retrieval-baseline.md</code>. This is its <strong>first edition</strong> &mdash; 2026-07-11, the fixture baseline, the report that justified the shipped defaults. Three configs, one variable at a time, every row a live receipt:</p>
+
+        <div class="animate-in" style="overflow-x: auto; margin: var(--space-6) 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-sm);">
+          <table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: var(--text-sm);">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">Config</th>
+                <th style="text-align: left; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">Eval run id</th>
+                <th style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">tuning r@5</th>
+                <th style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">tuning MRR</th>
+                <th style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">tuning nDCG@10</th>
+                <th style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border);">heldout</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background: color-mix(in srgb, var(--color-accent) 9%, transparent);">
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); font-weight: 600;"><code>rrf-default</code> (rrf, k=60) <span style="display: inline-block; margin-left: var(--space-2); padding: 1px var(--space-2); background: var(--color-accent); color: #fff; border-radius: var(--radius-full); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.05em;">SHIPS</span></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);"><code>6e05e95f&hellip;</code></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">1.000</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono); font-weight: 700;">0.944</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono); font-weight: 700;">0.916</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">1.000</td>
+              </tr>
+              <tr>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);"><code>weighted-a05</code> (&alpha;=0.5)</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light);"><code>b1cf8bae&hellip;</code></td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">1.000</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">0.944</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">0.916</td>
+                <td style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border-light); text-align: right; font-family: var(--font-mono);">1.000</td>
+              </tr>
+              <tr>
+                <td style="padding: var(--space-3) var(--space-4);"><code>weighted-a07</code> (&alpha;=0.7)</td>
+                <td style="padding: var(--space-3) var(--space-4);"><code>b0079b04&hellip;</code></td>
+                <td style="padding: var(--space-3) var(--space-4); text-align: right; font-family: var(--font-mono);">1.000</td>
+                <td style="padding: var(--space-3) var(--space-4); text-align: right; font-family: var(--font-mono);">0.833 <span style="display: inline-block; margin-left: var(--space-1); padding: 1px var(--space-2); background: var(--color-error-light); color: var(--color-error); border-radius: var(--radius-full); font-size: var(--text-xs);">&minus;0.111</span></td>
+                <td style="padding: var(--space-3) var(--space-4); text-align: right; font-family: var(--font-mono);">0.834</td>
+                <td style="padding: var(--space-3) var(--space-4); text-align: right; font-family: var(--font-mono);">1.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Read it like the report does: RRF and weighted-&alpha;0.5 <strong>tie on every metric</strong>. Push &alpha; to 0.7 and tuning MRR drops 0.111 &mdash; the weighted family is sensitive to a calibration knob with no principled per-corpus value. A tie under measurement resolves to the option with no knob: <strong>RRF ships</strong>.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🚫</div>
+          <div class="callout-content">
+            <strong class="callout-title">Rerank ships OFF &mdash; because nothing justifies ON</strong>
+            <p><code>RETRIEVAL_RERANK=off</code> cites the <em>absence</em> of measurement: SC-006&rsquo;s on/off comparison needs a live cross-encoder role, and none was configured. Turning it on before measuring would invert D11. Not-yet-measured is a first-class, documented state &mdash; the report says so in writing.</p>
+          </div>
+        </div>
+
+        <p><em>First edition, deliberately.</em> These numbers prove the machinery on constructed vector geometry &mdash; ranking, fusion, metric math &mdash; not semantic quality. The same dyno re-ran later on a <strong>real corpus</strong> with real embeddings and a 41-item gold set: it re-confirmed RRF, and overturned something else entirely. That story is Module 6&rsquo;s.</p>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SCREEN 6 — Quiz + handoff                                     -->
+      <!-- ============================================================ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Prove You Can Read the Dyno</h2>
+
+        <div class="quiz-container" id="quiz-module-4">
+
+          <div class="quiz-question-block"
+               data-correct="receipts-compose"
+               data-explanation-right="Exactly — receipts compose. The harness runs the REAL engine, so every question leaves the same append-only receipt Module 2 taught, and the run row keeps their ids. A slice metric is an average you can explode into individual, snapshot-carrying searches."
+               data-explanation-wrong="Not quite. Remember what Module 2 guaranteed for every search the engine performs — and note that executeEvalRun refuses to run twice, so on-demand reproduction can&rsquo;t be the mechanism. Something durable was written the first time.">
+            <h3 class="quiz-question">A teammate reviewing the report table asks: &ldquo;tuning MRR 0.944 &mdash; how would I audit what the harness <em>actually searched</em> to get that number?&rdquo; What makes that possible?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="log-excerpt" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Each eval run stores an excerpt of the engine&rsquo;s log output on the run row for later inspection.</span>
+              </button>
+              <button class="quiz-option" data-value="receipts-compose" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Every snapshot question executed as a real search with origin <code>eval</code>, each leaving its own retrieval-run receipt &mdash; and the eval row records those run ids.</span>
+              </button>
+              <button class="quiz-option" data-value="re-execute" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The worker can re-execute the eval run on demand to reproduce the searches.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="snapshot-pinned"
+               data-explanation-right="Right. The run graded its gold snapshot — the items AS EVALUATED, copied onto the row at creation — proven by the test that rewrites every question in place and finds the snapshot byte-identical. Your edit shapes future runs only."
+               data-explanation-wrong="Careful — view-time recomputation is Module 2&rsquo;s trick for superseded marks, and this is the opposite case: a metric is a recorded measurement, not a derived annotation. Look at what createEvalRun copied onto the row before any search ran.">
+            <h3 class="quiz-question">The morning after run <code>6e05e95f&hellip;</code> completed, you rewrite a badly-phrased gold question. What happens to that run&rsquo;s recorded metrics?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="recompute-on-view" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>They recompute the next time someone views the run &mdash; like superseded marks do.</span>
+              </button>
+              <button class="quiz-option" data-value="flips-failed" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The run flips to <code>failed</code> because its gold set no longer matches the table.</span>
+              </button>
+              <button class="quiz-option" data-value="snapshot-pinned" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing &mdash; the run graded its gold snapshot, pinned at creation; the edit only shapes runs that haven&rsquo;t been created yet.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="build-fails-named"
+               data-explanation-right="Exactly — SC-004. 0.667 fails the held-out assertion (floor 0.99), and the probe line already printed the numbers, so the regression names itself in the CI output. This precise bite was rehearsed with a deliberately inverted fusion: red, then restored, then green."
+               data-explanation-wrong="Not how floors work. They&rsquo;re pinned in the test file and move only by deliberate edit — same commit, eval report updated. Below the floor means a red build that names the slice and the metric.">
+            <h3 class="quiz-question">A PR refactors fusion &ldquo;for clarity&rdquo; and quietly degrades ranking &mdash; held-out MRR would now measure 0.667. What happens when CI runs <code>pnpm verify</code>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="build-fails-named" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The build fails &mdash; the CI-floor suite&rsquo;s held-out assertion trips, naming the slice and metric that fell below the pinned floor.</span>
+              </button>
+              <button class="quiz-option" data-value="warning-only" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The build passes with a logged warning &mdash; metric floors are advisory, not blocking.</span>
+              </button>
+              <button class="quiz-option" data-value="floor-repins" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The floor re-pins itself to 0.667 &mdash; floors track the latest measurement automatically.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary quiz-check-btn" onclick="checkQuiz('quiz-module-4')">Check Answers</button>
+          <button class="btn quiz-reset-btn" onclick="resetQuiz('quiz-module-4')">Try Again</button>
+        </div>
+
+        <p>One stage of the pipeline has been conspicuously quiet: the reranker &mdash; a cross-encoder specialist that re-orders the top candidates, shipped <code>off</code>, its adoption blocked on a measurement that doesn&rsquo;t exist yet. Module 5 is its audition: <strong>the stage that must earn its place on this dyno</strong>.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
