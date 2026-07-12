@@ -100,7 +100,7 @@
 
 ## Phase 9: Convergence
 
-- [ ] T041 Run `/speckit-analyze` then `/speckit-converge`; fold any unbuilt work back into this file and complete it
+- [x] T041 Run `/speckit-analyze` then `/speckit-converge`; fold any unbuilt work back into this file and complete it
 - [ ] T042 Author `specs/010-retrieval-eval-harness/evidence.md`: SC verdict table with live evidence, FR spot-verification, visibility-avenue table (plan.md's, verified live), wiki-impact decision, link to the eval report — the converge-gate record
 
 ## Dependencies & Execution Order
