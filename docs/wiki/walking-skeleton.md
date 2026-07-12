@@ -18,7 +18,7 @@ sources:
   - packages/db/src/queue.ts
   - packages/db/src/schema/skeleton-vectors.ts
   - scripts/check-boundaries.mjs
-verified_against: e753367d49b9459aded0341da542971abc186ef4
+verified_against: dacd6c245d7f333752adcddf3e523477b523bd15
 ---
 
 # Walking Skeleton
@@ -88,9 +88,12 @@ port and flip `SESSION_COOKIE_SECURE=true`.
 ## Queue, event, and vector doctrine
 
 - **Queue**: one generic `jobs` Postgres table (D12). Claim is `FOR UPDATE SKIP
-  LOCKED`; retry is `attempts`/`max_attempts` with backoff via `run_at`; a
-  claim whose `claimed_at` exceeds `WORKER_VISIBILITY_TIMEOUT_MS` is
-  reclaimable (recovers a worker restart mid-check).
+  LOCKED`; a handled job is marked `succeeded` via `complete()` — the loop
+  MUST do this, or the job stays `claimed` and reclaim re-runs it forever
+  (idempotent handlers hide the bug; TASK-10 caught one at 38 attempts). Retry
+  is `attempts`/`max_attempts` with backoff via `run_at`; a claim whose
+  `claimed_at` exceeds `WORKER_VISIBILITY_TIMEOUT_MS` is reclaimable (recovers
+  a worker that genuinely died mid-job).
 - **Events**: `skeleton_check_events` is append-only by construction — the only
   write path is `@stacks/db`'s `recordEvent` insert helper, no UPDATE/DELETE in
   code. A successful run shows exactly six events (`queued`, `claimed`,

@@ -17,7 +17,7 @@ sources:
   - apps/worker/src/handlers/eval-run.ts
   - apps/ml/src/ml/main.py
   - specs/010-retrieval-eval-harness/contracts/metrics.md
-verified_against: e753367d49b9459aded0341da542971abc186ef4
+verified_against: dacd6c245d7f333752adcddf3e523477b523bd15
 ---
 
 # Retrieval
@@ -44,9 +44,15 @@ query ─► stamp check ─► embed (sidecar) ─► FTS ∥ vector (exact sca
   per-corpus calibration. Weighted-sum (min-max normalized, `α` on the vector
   side) exists as the measured rival. Ties break lexicographically — receipts
   and metrics never depend on iteration order.
-- **The vector signal has a floor** (`RETRIEVAL_MIN_SIMILARITY`, default 0.3):
+- **The vector signal has a floor** (`RETRIEVAL_MIN_SIMILARITY`, default 0.2):
   pure nearest-neighbor always answers with *something*, so honest empty
-  results require dropping candidates below the floor.
+  results require dropping candidates below the floor. The 0.2 default is
+  real-corpus-tuned (TASK-10, `docs/eval-reports/010-retrieval-baseline.md`):
+  0.3 dropped natural-question phrasings whose answer is one sentence buried in
+  a multi-topic chunk (cosine ~0.21), while 0.0 regressed ranking by admitting
+  weak matches above the true answer. The deterministic CI-floor fixture pins
+  its *own* floor at 0.3 — its constructed hash embeddings lack real MiniLM's
+  "unrelated sits near 0" property, so its honest-empty guarantee needs 0.3.
 - **Embedding-space mismatch refuses at read time**: the engine samples the
   index's provider/model/dimensions stamp and compares it to the query
   embedder's; a mismatch is an `invalid_input` DomainError naming both stamps
