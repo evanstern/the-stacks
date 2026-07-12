@@ -44,6 +44,14 @@ the passage ("grapple stamina **cost**") misses that passage entirely on the FTS
 signal — the vector signal absorbs this in production. A future eval candidate:
 OR-relaxed fallback FTS queries, measured before adopted.
 
+Observed LIVE during the 010 walkthrough (real MiniLM embeddings, one-chunk
+corpus): the natural question "how does a riposte work" missed a passage the
+bare keyword "riposte" found — "work" defeated the FTS AND, and the
+question-vs-whole-page cosine similarity (~<0.3) fell under the default
+`RETRIEVAL_MIN_SIMILARITY` floor. The harness measured it honestly (eval run
+scored recall 0 with its receipt). Floor tuning on a real corpus is TASK-10's
+first question.
+
 ## Limitations, honestly
 
 1. The fixture's vector geometry is **constructed** (hash embeddings + a

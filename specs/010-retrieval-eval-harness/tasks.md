@@ -96,7 +96,7 @@
 
 - [x] T038 [P] Wiki: author `docs/wiki/retrieval.md` (corpus note — engine, receipts, harness doctrine; `sources` + `verified_against` pinned honestly) and add it to `docs/wiki/INDEX.md`; re-verify/re-pin `ingestion.md` only if its listed sources changed
 - [x] T039 [P] The eval report (FR-019/SC-005/SC-006): run `rrf-default` vs `weighted-a05` (and rerank on/off where the role is live) over the fixture gold set plus a real gold set of ≥ 30 items; commit `docs/eval-reports/010-retrieval-baseline.md` recording configs, run ids, per-slice metrics, and the shipped-default decision
-- [ ] T040 Live quickstart walkthrough end-to-end (§1–§7) capturing SC-001..SC-006 evidence for evidence.md; full `pnpm verify` (DB-backed) + `apps/ml` pytest/pyright green; version bump owed check (`node scripts/check-version-bump.mjs --base origin/main`)
+- [x] T040 Live quickstart walkthrough end-to-end (§1–§7) capturing SC-001..SC-006 evidence for evidence.md; full `pnpm verify` (DB-backed) + `apps/ml` pytest/pyright green; version bump owed check (`node scripts/check-version-bump.mjs --base origin/main`)
 
 ## Phase 9: Convergence
 
