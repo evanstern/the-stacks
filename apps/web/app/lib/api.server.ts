@@ -444,3 +444,70 @@ export async function relabelGoldItem(
   if (!response.ok) return { ok: false, message: await goldError(response) };
   return { ok: true };
 }
+
+/** Eval runs (spec 010 US4, contracts/api.md §4). */
+export interface SliceMetricsWire {
+  items: number;
+  recallAt5: number;
+  recallAt10: number;
+  mrr: number;
+  ndcgAt10: number;
+}
+
+export interface EvalRunListItem {
+  id: string;
+  configName: string;
+  status: "running" | "completed" | "failed";
+  createdAt: string;
+  completedAt: string | null;
+  metrics: {
+    tuning: SliceMetricsWire | null;
+    heldout: SliceMetricsWire | null;
+    unresolvableCount: number;
+  } | null;
+}
+
+export interface EvalRunDetail extends EvalRunListItem {
+  config: Record<string, unknown>;
+  itemOutcomes: Array<{
+    goldItemId: string;
+    split: "tuning" | "heldout";
+    status: "hit" | "miss" | "unresolvable";
+    firstHitRank: number | null;
+  }> | null;
+  retrievalRunIds: string[] | null;
+  goldSnapshot: Array<{ id: string; question: string }>;
+  error: string | null;
+}
+
+export async function listEvalRuns(request: Request): Promise<EvalRunListItem[]> {
+  const response = await apiFetch(request, "/api/evals/runs");
+  if (!response.ok) throw new Response("Failed to load eval runs", { status: response.status });
+  return ((await response.json()) as { items: EvalRunListItem[] }).items;
+}
+
+export async function getEvalRun(request: Request, id: string): Promise<EvalRunDetail> {
+  const response = await apiFetch(request, `/api/evals/runs/${id}`);
+  if (!response.ok) throw new Response("Eval run not found", { status: response.status });
+  return (await response.json()) as EvalRunDetail;
+}
+
+export async function startEvalRun(
+  request: Request,
+  input: { configName: string; overrides?: Record<string, unknown> },
+): Promise<{ ok: true; evalRunId: string } | { ok: false; message: string }> {
+  const response = await apiFetch(request, "/api/evals/runs", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    try {
+      const envelope = (await response.json()) as { error?: { message?: string } };
+      return { ok: false, message: envelope.error?.message ?? "Eval run failed to start" };
+    } catch {
+      return { ok: false, message: "Eval run failed to start" };
+    }
+  }
+  return { ok: true, evalRunId: ((await response.json()) as { evalRunId: string }).evalRunId };
+}

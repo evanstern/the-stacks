@@ -13,12 +13,14 @@ import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 
 import { DomainError } from "@stacks/core";
-import { corpora, retrievalRuns, type Database, type RetrievalResultLine } from "@stacks/db";
+import { corpora, enqueue, evalRuns, retrievalRuns, type Database, type RetrievalResultLine } from "@stacks/db";
 import {
+  createEvalRun,
   createGoldItem,
   listGoldItems,
   QUERY_MAX_CHARS,
   relabelGoldItem,
+  resolveRetrievalConfig,
   searchCorpus,
   type QueryEmbedder,
   type ResolvedRetrievalConfig,
@@ -340,5 +342,116 @@ export function registerGoldRoutes(app: FastifyInstance, deps: { db: Database })
         notes: request.body.notes,
         split: request.body.split,
       }),
+  );
+}
+
+/** Eval-run routes (US4, contracts/api.md §4). POST is accept-then-async
+ *  (Principle IV): the row exists (`running`) and the D12 job is queued the
+ *  moment the operator asks; the worker executes. Overrides are the A/B
+ *  mechanism and ride the SAME validation as env (research R10). */
+export function registerEvalRunRoutes(app: FastifyInstance, deps: { db: Database }): void {
+  const { db } = deps;
+
+  const defaultCorpus = async () => {
+    const [corpus] = await db.select().from(corpora).where(sql`${corpora.name} = 'default'`);
+    if (!corpus) {
+      throw new DomainError({ class: "unknown_thing", message: 'No such corpus: "default".' });
+    }
+    return corpus;
+  };
+
+  app.post<{ Body: { configName: string; overrides?: Record<string, unknown> } }>(
+    "/api/evals/runs",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["configName"],
+          additionalProperties: false,
+          properties: {
+            configName: { type: "string", minLength: 1, maxLength: 128 },
+            overrides: { type: "object" },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const corpus = await defaultCorpus();
+      let config;
+      try {
+        config = resolveRetrievalConfig(process.env, {
+          ...(request.body.overrides ?? {}),
+          configName: request.body.configName,
+        });
+      } catch (error) {
+        // Config guards throw plain Errors with the variable named — at this
+        // boundary they are the caller's override problem, hence 400.
+        throw new DomainError({
+          class: "invalid_input",
+          message: error instanceof Error ? error.message : "Invalid overrides.",
+        });
+      }
+      const evalRunId = await createEvalRun(db, { corpusId: corpus.id, config });
+      await enqueue(db, { kind: "eval_run", payload: { evalRunId } });
+      reply.code(202);
+      return { evalRunId };
+    },
+  );
+
+  app.get("/api/evals/runs", async () => {
+    const rows = await db.execute<{
+      id: string;
+      config_name: string;
+      status: string;
+      created_at: string;
+      completed_at: string | null;
+      metrics: unknown;
+    }>(sql`
+      SELECT id, config_name, status, created_at, completed_at, metrics
+      FROM eval_runs ORDER BY created_at DESC LIMIT 200
+    `);
+    return {
+      items: rows.rows.map((row) => ({
+        id: row.id,
+        configName: row.config_name,
+        status: row.status,
+        createdAt: row.created_at,
+        completedAt: row.completed_at,
+        metrics: row.metrics,
+      })),
+    };
+  });
+
+  app.get<{ Params: { id: string } }>(
+    "/api/evals/runs/:id",
+    {
+      schema: {
+        params: {
+          type: "object",
+          required: ["id"],
+          properties: { id: { type: "string", format: "uuid" } },
+        },
+      },
+    },
+    async (request) => {
+      const rows = await db.select().from(evalRuns).where(sql`${evalRuns.id} = ${request.params.id}`);
+      const run = rows[0];
+      if (!run) {
+        throw new DomainError({ class: "unknown_thing", message: `No eval run ${request.params.id}.` });
+      }
+      return {
+        id: run.id,
+        configName: run.configName,
+        config: run.config,
+        status: run.status,
+        metrics: run.metrics,
+        itemOutcomes: run.itemOutcomes,
+        retrievalRunIds: run.retrievalRunIds,
+        goldSnapshot: run.goldSnapshot,
+        error: run.error,
+        createdAt: run.createdAt,
+        completedAt: run.completedAt,
+      };
+    },
   );
 }

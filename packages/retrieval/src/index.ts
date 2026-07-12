@@ -11,4 +11,7 @@ export * from "./config";
 export * from "./fusion";
 export * from "./search";
 export * from "./gold";
+export * from "./eval/metrics";
+export * from "./eval/run-eval";
+export * from "./eval/fixture/corpus";
 export * from "./eval/fixture/deterministic-embedding";

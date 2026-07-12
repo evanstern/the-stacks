@@ -18,7 +18,7 @@ sources:
   - packages/db/src/queue.ts
   - packages/db/src/schema/skeleton-vectors.ts
   - scripts/check-boundaries.mjs
-verified_against: 1945f70cde1d77824872ddd7eca4fe0b3151b284
+verified_against: 4bb6d323acb096c572043b1a27d10f693deac6e6
 ---
 
 # Walking Skeleton
@@ -152,5 +152,5 @@ next specs, building on `packages/ingestion-contract`'s placeholder and the
 model-role config machinery this spec introduced. [[ingestion]] (spec 008) has
 since landed on these seams, and retrieval (spec 010) is landing now — the API
 composition root (`apps/api/src/app.ts`) additionally mounts retrieval routes
-with a lazily-built sidecar query embedder, and `app/lib/api.server.ts` gained
-the search/receipt relays. Chat is still ahead.
+(search, receipts, gold sets) with a lazily-built sidecar query embedder, and
+`app/lib/api.server.ts` gained the matching relays. Chat is still ahead.

@@ -21,6 +21,7 @@ import { claimNext, createDbClient, fail, reclaimStale } from "@stacks/db";
 import { ingestBatchExpandHandler } from "./handlers/ingest-batch-expand";
 import { ingestSourceHandler } from "./handlers/ingest-source";
 import { skeletonCheckHandler } from "./handlers/skeleton-check";
+import { evalRunHandler } from "./handlers/eval-run";
 import { getHandler, registerHandler } from "./handlers/registry";
 
 // The one place job kinds are wired to handlers. New job kinds register here;
@@ -28,6 +29,7 @@ import { getHandler, registerHandler } from "./handlers/registry";
 registerHandler("skeleton_check", skeletonCheckHandler);
 registerHandler("ingest_source", ingestSourceHandler);
 registerHandler("ingest_batch_expand", ingestBatchExpandHandler);
+registerHandler("eval_run", evalRunHandler);
 
 const HEARTBEAT_PATH = process.env.WORKER_HEARTBEAT_PATH ?? "/tmp/worker-heartbeat";
 

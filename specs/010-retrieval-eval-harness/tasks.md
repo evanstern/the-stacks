@@ -67,16 +67,16 @@
 **Goal**: eval runs with pinned metrics; deterministic CI slice; comparison view.
 **Independent Test**: two eval runs over the fixture gold set report per-slice metrics side by side; the deterministic suite runs in `pnpm verify` with zero model calls and a pinned floor (quickstart §4–5, SC-004).
 
-- [ ] T024 [US4] TDD: unit tests for metrics — recall@5/10, MRR (incl. no-hit ⇒ 0), nDCG@10 (multi-expected ideal ordering), unresolvable exclusion from denominators — each against contracts/metrics.md's hand-computed examples, in `packages/retrieval/src/eval/metrics.test.ts`; write first
-- [ ] T025 [US4] Implement `packages/retrieval/src/eval/metrics.ts` (pure) to pass T024
-- [ ] T026 [US4] Fixture: `packages/retrieval/src/eval/fixture/` — synthetic mini-corpus (Principle I: invented content), fixture gold set (≥ 12 items, both splits), and `deterministicEmbedding(text, dims=32)` (hash-seeded, unit-normalized, stamped `provider=fixture` — research R8) with a determinism unit test
-- [ ] T027 [US4] TDD: `runEval` integration test — executes fixture gold set × two configs, writes `eval_runs` with per-slice metrics, pins `gold_snapshot` (later re-label changes nothing), reports `unresolvable` items separately, each question leaves an `origin:"eval"` retrieval run — in `packages/retrieval/src/eval/run-eval.test.ts` (suite DB `retrieval_eval`); write first
-- [ ] T028 [US4] Implement `packages/retrieval/src/eval/run-eval.ts` + the `eval_runs` status-transition writer; T027 green
-- [ ] T029 [US4] Worker: TDD handler test then implement `apps/worker/src/handlers/eval-run.ts` (D12 job: running → completed/failed exactly once, scrubbed error on failure) + registry entry in `apps/worker/src/handlers/registry.ts` — test in `apps/worker/test/eval-run.test.ts` (suite DB `worker_eval_run`)
-- [ ] T030 [US4] TDD then implement `POST /api/evals/runs` (202 + enqueue) and `GET /api/evals/runs[/:id]` in `apps/api/src/retrieval/routes.ts` — contract test `apps/api/test/evals-runs.contract.test.ts` (suite DB `api_evals_runs`)
-- [ ] T031 [US4] The deterministic CI slice: `packages/retrieval/src/eval/ci-floor.test.ts` — seeds fixture corpus, runs the harness in-process under `fixture-baseline` config, asserts the PINNED metric floor (values fixed here, cited in the eval report); deliberately breaking fusion must fail it (prove once on a scratch commit, per quickstart §5)
-- [ ] T032 [US4] Web `/evals`: runs list, run detail (status, per-slice metrics, item outcomes → linked retrieval runs), two-run comparison with deltas — `apps/web/app/routes/evals.tsx`; "Evals" joins nav
-- [ ] T033 [US4] Web tests for evals list/detail/compare
+- [x] T024 [US4] TDD: unit tests for metrics — recall@5/10, MRR (incl. no-hit ⇒ 0), nDCG@10 (multi-expected ideal ordering), unresolvable exclusion from denominators — each against contracts/metrics.md's hand-computed examples, in `packages/retrieval/src/eval/metrics.test.ts`; write first
+- [x] T025 [US4] Implement `packages/retrieval/src/eval/metrics.ts` (pure) to pass T024
+- [x] T026 [US4] Fixture: `packages/retrieval/src/eval/fixture/` — synthetic mini-corpus (Principle I: invented content), fixture gold set (≥ 12 items, both splits), and `deterministicEmbedding(text, dims=32)` (hash-seeded, unit-normalized, stamped `provider=fixture` — research R8) with a determinism unit test
+- [x] T027 [US4] TDD: `runEval` integration test — executes fixture gold set × two configs, writes `eval_runs` with per-slice metrics, pins `gold_snapshot` (later re-label changes nothing), reports `unresolvable` items separately, each question leaves an `origin:"eval"` retrieval run — in `packages/retrieval/src/eval/run-eval.test.ts` (suite DB `retrieval_eval`); write first
+- [x] T028 [US4] Implement `packages/retrieval/src/eval/run-eval.ts` + the `eval_runs` status-transition writer; T027 green
+- [x] T029 [US4] Worker: TDD handler test then implement `apps/worker/src/handlers/eval-run.ts` (D12 job: running → completed/failed exactly once, scrubbed error on failure) + registry entry in `apps/worker/src/handlers/registry.ts` — test in `apps/worker/test/eval-run.test.ts` (suite DB `worker_eval_run`)
+- [x] T030 [US4] TDD then implement `POST /api/evals/runs` (202 + enqueue) and `GET /api/evals/runs[/:id]` in `apps/api/src/retrieval/routes.ts` — contract test `apps/api/test/evals-runs.contract.test.ts` (suite DB `api_evals_runs`)
+- [x] T031 [US4] The deterministic CI slice: `packages/retrieval/src/eval/ci-floor.test.ts` — seeds fixture corpus, runs the harness in-process under `fixture-baseline` config, asserts the PINNED metric floor (values fixed here, cited in the eval report); deliberately breaking fusion must fail it (prove once on a scratch commit, per quickstart §5)
+- [x] T032 [US4] Web `/evals`: runs list, run detail (status, per-slice metrics, item outcomes → linked retrieval runs), two-run comparison with deltas — `apps/web/app/routes/evals.tsx`; "Evals" joins nav
+- [x] T033 [US4] Web tests for evals list/detail/compare
 
 **Checkpoint**: US4 independently demonstrable — measurement exists.
 
