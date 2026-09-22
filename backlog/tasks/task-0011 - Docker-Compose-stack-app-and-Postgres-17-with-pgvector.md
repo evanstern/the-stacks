@@ -36,18 +36,6 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [x] #11 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -72,6 +60,8 @@ T015 PASS: both services healthy in ~15-20s from clean state incl. image build (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 All 26 tasks done. T016 re-verified by orchestrator end to end after the pool fix: healthy -> db stopped -> app stays Up reporting degraded/HTTP 200 -> flips to (unhealthy) at ~54s -> db restarted -> healthy again, no manual app restart. Also fixed .dockerignore (bare *.tsbuildinfo missed nested files, breaking the build on any checkout where gates had run) and cleared 2 lint warnings this task introduced, including declaring APP_PORT/DATABASE_URL in turbo.json globalEnv for cache correctness.
+
+spec-bridge sync: Setup (Shared Infrastructure): 2/2 · Foundational (blocking prerequisites): 4/4 · User Story 1 — A stranger can run this project (P1): 11/11 · User Story 2 — An operator's data survives restarts and upgrades (P1): 4/4 · User Story 3 — The database is ready for what the project will need (P2): 2/2 · Polish & Cross-Cutting Concerns: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
