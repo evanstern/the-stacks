@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { RecordedEvent } from "../events/log.js";
 
 /**
  * The WebSocket frame schemas (contracts/ws-protocol.md, binding for
@@ -73,6 +74,27 @@ export type OutboundFrame =
   | RecordedEventFrame
   | ReplayCompleteFrame
   | ErrorFrame;
+
+/**
+ * Converts a stored event (events/log.ts) into the wire shape — used by
+ * both the live-send path (gateway.ts) and the replay path (subscribe.ts)
+ * so the two never drift into two different mappings of the same row
+ * (contracts/ws-protocol.md: deliberately the same frame shape for both).
+ */
+export function toEventPayload(
+  event: RecordedEvent,
+): RecordedEventFrame["event"] {
+  return {
+    sessionId: event.sessionId,
+    seq: event.seq,
+    actor: event.actor,
+    type: event.type,
+    payload: event.payload,
+    payloadVersion: event.payloadVersion,
+    visibility: event.visibility,
+    ts: event.ts.toISOString(),
+  };
+}
 
 export type ParsedInboundFrame =
   | { ok: true; frame: InboundFrame }

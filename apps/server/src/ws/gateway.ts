@@ -10,9 +10,10 @@ import type {
 } from "../auth/session.js";
 import { append } from "../events/log.js";
 import type { ErrorFrame, RecordedEventFrame, SendFrame } from "./protocol.js";
-import { parseInboundFrame } from "./protocol.js";
+import { parseInboundFrame, toEventPayload } from "./protocol.js";
 import type { Connection } from "./registry.js";
 import { createRegistry } from "./registry.js";
+import { subscribe as subscribeWithReplay } from "./subscribe.js";
 
 /** GET /ws — the only path this gateway upgrades (contracts/ws-protocol.md). */
 const WS_PATH = "/ws";
@@ -140,6 +141,7 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
         userId: identity.userId,
         role: identity.role,
         sessionId: null,
+        pendingQueue: null,
       };
       handleConnection(conn);
     });
@@ -182,11 +184,16 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
     }
 
     if (parsed.frame.type === "subscribe") {
-      // Registers the connection for LIVE delivery only. Replaying missed
-      // history from `afterSeq` is Phase 5's boundary (research D1,
-      // ws/subscribe.ts, T025-T027) — out of scope for this dispatch
-      // (T001-T015) and not implemented here.
-      registry.subscribe(conn, parsed.frame.sessionId);
+      // The replay/live boundary (research D1, ws/subscribe.ts): joins the
+      // registry with delivery queued, replays from afterSeq in bounded
+      // batches, then drains the queue with a position-based skip.
+      await subscribeWithReplay(
+        db,
+        registry,
+        conn,
+        parsed.frame.sessionId,
+        parsed.frame.afterSeq ?? 0,
+      );
       return;
     }
 
@@ -213,16 +220,7 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
 
     const eventFrame: RecordedEventFrame = {
       type: "event",
-      event: {
-        sessionId: recorded.sessionId,
-        seq: recorded.seq,
-        actor: recorded.actor,
-        type: recorded.type,
-        payload: recorded.payload,
-        payloadVersion: recorded.payloadVersion,
-        visibility: recorded.visibility,
-        ts: recorded.ts.toISOString(),
-      },
+      event: toEventPayload(recorded),
     };
     registry.broadcast(frame.sessionId, eventFrame);
   }

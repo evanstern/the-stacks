@@ -1,6 +1,6 @@
 import type { WebSocket } from "ws";
 import type { Role } from "../auth/session.js";
-import type { OutboundFrame } from "./protocol.js";
+import type { RecordedEventFrame } from "./protocol.js";
 
 /**
  * One open, authenticated WebSocket (data-model.md, "Connection"). Built
@@ -17,6 +17,34 @@ export interface Connection {
   role: Role;
   /** The play session subscribed to, or null until a `subscribe` frame arrives. */
   sessionId: string | null;
+  /**
+   * Live events buffered while a replay is in flight (research D1). `null`
+   * means "not replaying" — deliver directly. Non-null (even `[]`) means
+   * "queue instead of sending"; subscribe.ts sets this the moment a
+   * connection joins a session and clears it once the queue is drained.
+   *
+   * data-model.md also names `deliveredThroughSeq` on this entity, but
+   * nothing ever reads a connection's highest-delivered position back —
+   * each reconnect supplies its own `afterSeq` cursor — so it is omitted
+   * here rather than carried as unread state (ponytail: add it if a
+   * feature needs to inspect a live connection's watermark).
+   */
+  pendingQueue: RecordedEventFrame["event"][] | null;
+}
+
+/**
+ * Visibility is minimal in M0 (spec.md assumptions): the public marker
+ * reaches everyone; any other value reaches only the connection whose
+ * `userId` it names — whisper-style per-person visibility (spec 005
+ * contract, validate-session.md). Exported so subscribe.ts's replay path
+ * makes the exact same decision as the live path below (research D2) —
+ * one function, not two implementations that could drift.
+ */
+export function isVisible(
+  conn: Connection,
+  event: { visibility: string },
+): boolean {
+  return event.visibility === "public" || event.visibility === conn.userId;
 }
 
 /**
@@ -61,14 +89,27 @@ export function createRegistry() {
    * — or roll back — delivery to every other subscriber of an event the
    * log has already committed. A closed socket is pruned from the
    * registry as it's found, same as an explicit disconnect.
+   *
+   * `isVisible` is the single per-recipient filtering decision (research
+   * D2) — applied here for every live event, and by subscribe.ts's replay
+   * loop for every replayed one, so a filtered recipient never receives
+   * the event through either path. A connection mid-replay (`pendingQueue`
+   * non-null) gets the event queued instead of sent (research D1) — only
+   * events that pass this same filter ever enter the queue, so draining it
+   * later needs no second filtering decision.
    */
-  function broadcast(sessionId: string, frame: OutboundFrame): void {
+  function broadcast(sessionId: string, frame: RecordedEventFrame): void {
     const set = bySession.get(sessionId);
     if (!set) return;
     const message = JSON.stringify(frame);
     for (const conn of set) {
       if (conn.socket.readyState !== conn.socket.OPEN) {
         set.delete(conn);
+        continue;
+      }
+      if (!isVisible(conn, frame.event)) continue;
+      if (conn.pendingQueue) {
+        conn.pendingQueue.push(frame.event);
         continue;
       }
       try {
