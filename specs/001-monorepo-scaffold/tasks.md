@@ -15,18 +15,18 @@ from this spec directory and the branch's commits.
 
 ## Phase 2 — TypeScript baseline
 
-- [ ] `tsconfig.base.json` with `strict: true` and shared compiler options
-- [ ] Project-references wiring so `apps/*` can consume `packages/shared` in build order
-- [ ] Root `typecheck` script defined
-- [ ] `pnpm typecheck` passes
+- [x] `tsconfig.base.json` with `strict: true` and shared compiler options
+- [x] Project-references wiring so `apps/*` can consume `packages/shared` in build order
+- [x] Root `typecheck` script defined
+- [x] `pnpm typecheck` passes
 
 ## Phase 3 — The three packages
 
-- [ ] `packages/shared`: `package.json`, `tsconfig.json` extending the base, one minimal real export
-- [ ] `apps/server`: `package.json`, `tsconfig.json`, placeholder importing the shared export
-- [ ] `apps/web`: `package.json`, `tsconfig.json`, placeholder importing the shared export
-- [ ] All three packages typecheck; the shared import resolves through project references
-- [ ] No server, database, or client implementation added (that is TASK-0013 / 0012 / 0016)
+- [x] `packages/shared`: `package.json`, `tsconfig.json` extending the base, one minimal real export
+- [x] `apps/server`: `package.json`, `tsconfig.json`, placeholder importing the shared export
+- [x] `apps/web`: `package.json`, `tsconfig.json`, placeholder importing the shared export
+- [x] All three packages typecheck; the shared import resolves through project references
+- [x] No server, database, or client implementation added (that is TASK-0013 / 0012 / 0016)
 
 ## Phase 4 — Pipeline and lint baseline
 
