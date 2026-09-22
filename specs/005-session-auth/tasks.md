@@ -29,10 +29,10 @@ machinery; US2's seam is what TASK-0015 waits on.
 
 **Purpose**: No new dependencies (research D1) — this phase is schema only.
 
-- [ ] T001 Define `users`, `auth_sessions`, and `invitations` in `apps/server/src/schema/auth.ts` per data-model.md. **Name the table `auth_sessions`, never `sessions`** — `events.session_id` is a *play* session and the collision is a real trap
-- [ ] T002 Add the unique functional index on `lower(username)` to the schema in `apps/server/src/schema/auth.ts`, so `Alice` and `alice` cannot both exist
-- [ ] T003 Add the unique index on `auth_sessions.token_hash` and the index on `auth_sessions.user_id` per data-model.md
-- [ ] T004 Generate the migration with `pnpm --filter @the-stacks/server db:generate` and **commit the generated SQL**; verify it applies to a fresh database and that a second run is a no-op
+- [x] T001 Define `users`, `auth_sessions`, and `invitations` in `apps/server/src/schema/auth.ts` per data-model.md. **Name the table `auth_sessions`, never `sessions`** — `events.session_id` is a *play* session and the collision is a real trap
+- [x] T002 Add the unique functional index on `lower(username)` to the schema in `apps/server/src/schema/auth.ts`, so `Alice` and `alice` cannot both exist
+- [x] T003 Add the unique index on `auth_sessions.token_hash` and the index on `auth_sessions.user_id` per data-model.md
+- [x] T004 Generate the migration with `pnpm --filter @the-stacks/server db:generate` and **commit the generated SQL**; verify it applies to a fresh database and that a second run is a no-op
 
 **Checkpoint**: three tables exist; `pnpm --filter @the-stacks/server db:migrate` twice is idempotent.
 
@@ -44,11 +44,11 @@ machinery; US2's seam is what TASK-0015 waits on.
 
 ⚠️ No user story can start until this phase completes.
 
-- [ ] T005 Implement `hashPassword` and `verifyPassword` in `apps/server/src/auth/password.ts` using `node:crypto` `scrypt` at N=2^15, r=8, p=1, 64-byte key, 16-byte random salt. **Pass an explicit `maxmem` of 64 MiB — the default is 32 MiB and N=2^15 THROWS SYNCHRONOUSLY without it** (research D1, measured). Store salt and parameters with the hash
-- [ ] T006 Compare hashes with `timingSafeEqual` in `apps/server/src/auth/password.ts`, never `===`
-- [ ] T007 Enforce the maximum accepted password length in `apps/server/src/auth/password.ts` — over the bound is a **refusal**, never a silent truncation (FR-016)
-- [ ] T008 [P] Implement token generation and hashing in `apps/server/src/auth/tokens.ts`: 32 random bytes base64url for the token, **SHA-256 for what is stored** (research D2). Note in a comment why this is SHA-256 and not scrypt — the token is already high-entropy, so a memory-hard hash on every request buys nothing
-- [ ] T009 [P] Write `apps/server/test/auth.password.test.ts` (no database): hash→verify round-trip, wrong password fails, the same password hashes differently twice (salt is random), an over-length password is refused not truncated
+- [x] T005 Implement `hashPassword` and `verifyPassword` in `apps/server/src/auth/password.ts` using `node:crypto` `scrypt` at N=2^15, r=8, p=1, 64-byte key, 16-byte random salt. **Pass an explicit `maxmem` of 64 MiB — the default is 32 MiB and N=2^15 THROWS SYNCHRONOUSLY without it** (research D1, measured). Store salt and parameters with the hash
+- [x] T006 Compare hashes with `timingSafeEqual` in `apps/server/src/auth/password.ts`, never `===`
+- [x] T007 Enforce the maximum accepted password length in `apps/server/src/auth/password.ts` — over the bound is a **refusal**, never a silent truncation (FR-016)
+- [x] T008 [P] Implement token generation and hashing in `apps/server/src/auth/tokens.ts`: 32 random bytes base64url for the token, **SHA-256 for what is stored** (research D2). Note in a comment why this is SHA-256 and not scrypt — the token is already high-entropy, so a memory-hard hash on every request buys nothing
+- [x] T009 [P] Write `apps/server/test/auth.password.test.ts` (no database): hash→verify round-trip, wrong password fails, the same password hashes differently twice (salt is random), an over-length password is refused not truncated
 
 **Checkpoint**: passwords hash and verify; tokens generate and hash. T009 passes.
 
@@ -63,19 +63,19 @@ wrong and be refused.
 
 ### Tests for User Story 1
 
-- [ ] T010 [US1] Create `apps/server/test/auth.integration.test.ts` with spec 004's loud-skip harness (`TEST_DATABASE_URL` first, then `DATABASE_URL`; a printed notice on skip). Fresh usernames per test — the database is shared and not reset
-- [ ] T011 [US1] Test successful sign-in: correct credentials return 200 with a user body and set a cookie
-- [ ] T012 [US1] Test wrong password and unknown username return **byte-identical** status and body (FR-004, SC-003)
-- [ ] T013 [US1] Test that a session cookie authenticates a later request to `/auth/me`
-- [ ] T014 [US1] Test sign-out: the cookie stops working **immediately**, not at expiry (FR-005), and a second sign-out is also a success (idempotent)
+- [x] T010 [US1] Create `apps/server/test/auth.integration.test.ts` with spec 004's loud-skip harness (`TEST_DATABASE_URL` first, then `DATABASE_URL`; a printed notice on skip). Fresh usernames per test — the database is shared and not reset
+- [x] T011 [US1] Test successful sign-in: correct credentials return 200 with a user body and set a cookie
+- [x] T012 [US1] Test wrong password and unknown username return **byte-identical** status and body (FR-004, SC-003)
+- [x] T013 [US1] Test that a session cookie authenticates a later request to `/auth/me`
+- [x] T014 [US1] Test sign-out: the cookie stops working **immediately**, not at expiry (FR-005), and a second sign-out is also a success (idempotent)
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `createSession` and `endSession` in `apps/server/src/auth/session.ts`: create stores only the token hash and a 30-day `expires_at`; end deletes the row
-- [ ] T016 [US1] Implement the sign-in, sign-out, and `me` routes in `apps/server/src/routes/auth.ts` per contracts/http-auth.md, with Zod-validated bodies
-- [ ] T017 [US1] **Verify a hash even when no user is found**, so response time does not distinguish unknown-username from wrong-password (contracts/http-auth.md). A fast "no such user" leaks the account list as surely as a different message
-- [ ] T018 [US1] Set the session cookie with `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age` matching the lifetime, and **`Secure` only when serving over HTTPS** — unconditional `Secure` silently breaks localhost (research D4)
-- [ ] T019 [US1] Mount the auth routes in `apps/server/src/app.ts`
+- [x] T015 [US1] Implement `createSession` and `endSession` in `apps/server/src/auth/session.ts`: create stores only the token hash and a 30-day `expires_at`; end deletes the row
+- [x] T016 [US1] Implement the sign-in, sign-out, and `me` routes in `apps/server/src/routes/auth.ts` per contracts/http-auth.md, with Zod-validated bodies
+- [x] T017 [US1] **Verify a hash even when no user is found**, so response time does not distinguish unknown-username from wrong-password (contracts/http-auth.md). A fast "no such user" leaks the account list as surely as a different message
+- [x] T018 [US1] Set the session cookie with `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age` matching the lifetime, and **`Secure` only when serving over HTTPS** — unconditional `Secure` silently breaks localhost (research D4)
+- [x] T019 [US1] Mount the auth routes in `apps/server/src/app.ts`
 
 **Checkpoint**: a person can sign in, be recognized, and sign out. US1 tests pass.
 
@@ -94,16 +94,16 @@ operator checkpoint, not an implementer decision.
 
 ### Tests for User Story 2
 
-- [ ] T020 [US2] Test `validateSession` returns `{userId, role}` for a live session, called **without any HTTP request object** — that callability is the contract
-- [ ] T021 [US2] Test it returns `null` for unknown, malformed, signed-out, and expired tokens — **the same `null` for all four** (contracts/validate-session.md), since distinguishing them is an oracle for probing real tokens
-- [ ] T022 [US2] Test it does **not** extend a session's lifetime: validate repeatedly, confirm `expires_at` is unchanged (FR-008, SC-007). Without this a polling WebSocket keeps a session alive forever
-- [ ] T023 [P] [US2] Test that HTTP middleware and a direct `validateSession` call resolve the same session to the same identity (SC-002)
+- [x] T020 [US2] Test `validateSession` returns `{userId, role}` for a live session, called **without any HTTP request object** — that callability is the contract
+- [x] T021 [US2] Test it returns `null` for unknown, malformed, signed-out, and expired tokens — **the same `null` for all four** (contracts/validate-session.md), since distinguishing them is an oracle for probing real tokens
+- [x] T022 [US2] Test it does **not** extend a session's lifetime: validate repeatedly, confirm `expires_at` is unchanged (FR-008, SC-007). Without this a polling WebSocket keeps a session alive forever
+- [x] T023 [P] [US2] Test that HTTP middleware and a direct `validateSession` call resolve the same session to the same identity (SC-002)
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `validateSession(token)` in `apps/server/src/auth/session.ts` exactly per contract: hashes the presented token, looks up by hash, checks expiry, returns `{userId, role}` or `null`. **Takes a token string only — no `Request`, no socket, no cookie header** (the WS upgrade handler has no Hono context)
-- [ ] T025 [US2] **Throw, do not return `null`, when the datastore is unreachable** (FR-009). A database blip reported as "not signed in" signs out every user at once
-- [ ] T026 [US2] Implement HTTP middleware in `apps/server/src/auth/middleware.ts` that extracts the cookie and calls `validateSession` — extraction is the caller's job, validation is the seam's
+- [x] T024 [US2] Implement `validateSession(token)` in `apps/server/src/auth/session.ts` exactly per contract: hashes the presented token, looks up by hash, checks expiry, returns `{userId, role}` or `null`. **Takes a token string only — no `Request`, no socket, no cookie header** (the WS upgrade handler has no Hono context)
+- [x] T025 [US2] **Throw, do not return `null`, when the datastore is unreachable** (FR-009). A database blip reported as "not signed in" signs out every user at once
+- [x] T026 [US2] Implement HTTP middleware in `apps/server/src/auth/middleware.ts` that extracts the cookie and calls `validateSession` — extraction is the caller's job, validation is the seam's
 
 **Checkpoint**: one validation path serves both transports. TASK-0015 can be dispatched.
 
