@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    healthcheck:
+      # Parses the /health body — see healthcheck.js and
+      # contracts/healthcheck.md. A status-code-only check would report
+      # healthy with the database down (research D1).
+      test: ["CMD", "node", "/app/healthcheck.js"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      # Grace period so a database that is up but not yet accepting
+      # connections doesn't fail the app before it can converge (D2).
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: pgvector/pgvector:pg17
+    env_file: .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  db-data:
