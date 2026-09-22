@@ -35,16 +35,6 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [x] #10 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -65,6 +55,8 @@ phases: 1-3 done (d43c239, d13e7cd, T001-T013). Verified by orchestrator: 3/3 te
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 phases: 1-5 all done, 25/25 tasks.md boxes. Gates re-run by orchestrator after merging main in: typecheck/lint/9 tests/build all green. APP_PORT reconciliation landed (57eb648).
+
+spec-bridge sync: Setup (Shared Infrastructure): 3/3 · Foundational (blocking prerequisites): 4/4 · User Story 1 — The operator can tell whether their install is healthy (P1): 6/6 · User Story 2 — A client gets predictable, validated answers (P2): 9/9 · Polish & Cross-Cutting Concerns: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
