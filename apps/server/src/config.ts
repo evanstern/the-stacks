@@ -16,10 +16,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     throw new Error("DATABASE_URL environment variable is required");
   }
 
-  const portRaw = env.PORT ?? "3000";
+  const portRaw = env.APP_PORT ?? "3000";
   const port = Number(portRaw);
   if (!Number.isInteger(port) || port <= 0) {
-    throw new Error(`PORT must be a positive integer, got "${portRaw}"`);
+    throw new Error(`APP_PORT must be a positive integer, got "${portRaw}"`);
   }
 
   return { databaseUrl, port };
