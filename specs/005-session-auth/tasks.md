@@ -117,14 +117,14 @@ operator checkpoint, not an implementer decision.
 
 ### Tests for User Story 3
 
-- [ ] T027 [US3] Test that provisioning creates an operator that can sign in
-- [ ] T028 [US3] Test that a second run **refuses** rather than creating a second operator or overwriting the first (US3 scenario 2) — a silent re-run is how an install gets taken over
+- [x] T027 [US3] Test that provisioning creates an operator that can sign in
+- [x] T028 [US3] Test that a second run **refuses** rather than creating a second operator or overwriting the first (US3 scenario 2) — a silent re-run is how an install gets taken over
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `apps/server/scripts/create-operator.ts` per research D6: reads a password from the environment or a prompt, creates the operator, refuses when one exists. Loads `.env` like `db:migrate` does
-- [ ] T030 [US3] Add the `auth:create-operator` script to `apps/server/package.json`
-- [ ] T031 [US3] Document provisioning in `apps/server/README.md`, including that re-running refuses and that **no default credential ships** (FR-011)
+- [x] T029 [US3] Implement `apps/server/scripts/create-operator.ts` per research D6: reads a password from the environment or a prompt, creates the operator, refuses when one exists. Loads `.env` like `db:migrate` does
+- [x] T030 [US3] Add the `auth:create-operator` script to `apps/server/package.json`
+- [x] T031 [US3] Document provisioning in `apps/server/README.md`, including that re-running refuses and that **no default credential ships** (FR-011)
 
 **Checkpoint**: a fresh install reaches a working operator account by one documented command.
 
@@ -139,17 +139,17 @@ same invitation again and be refused.
 
 ### Tests for User Story 4
 
-- [ ] T032 [US4] Test that an operator can issue an invitation and a **player cannot** (FR-012, 403)
-- [ ] T033 [US4] Test redemption creates a player account that can sign in with the password they chose
-- [ ] T034 [US4] Test that redeeming an already-redeemed invitation is refused, and an expired one too
-- [ ] T035 [US4] **Test the race**: fire simultaneous redemptions of one invitation and assert **exactly one** account is created (SC-005). This is the test that catches a read-then-write implementation, which passes every non-concurrent test
-- [ ] T036 [US4] **Prove T035 has teeth**: temporarily replace the conditional UPDATE with read-then-write, watch T035 fail, restore. Record the observed failure. A test that passes either way is worse than none
+- [x] T032 [US4] Test that an operator can issue an invitation and a **player cannot** (FR-012, 403)
+- [x] T033 [US4] Test redemption creates a player account that can sign in with the password they chose
+- [x] T034 [US4] Test that redeeming an already-redeemed invitation is refused, and an expired one too
+- [x] T035 [US4] **Test the race**: fire simultaneous redemptions of one invitation and assert **exactly one** account is created (SC-005). This is the test that catches a read-then-write implementation, which passes every non-concurrent test
+- [x] T036 [US4] **Prove T035 has teeth**: temporarily replace the conditional UPDATE with read-then-write, watch T035 fail, restore. Record the observed failure. A test that passes either way is worse than none
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Implement `issueInvitation` in `apps/server/src/auth/invitations.ts`: operator-only, stores only the token hash, returns the token **once**
-- [ ] T038 [US4] Implement `redeemInvitation` in `apps/server/src/auth/invitations.ts` using a **conditional UPDATE** (`... WHERE id = $1 AND redeemed_at IS NULL`) and creating the account only when it reports a row changed (research D5) — never read-then-write
-- [ ] T039 [US4] Add the invitation routes to `apps/server/src/routes/auth.ts` per contracts/http-auth.md, signing the new player in on successful redemption
+- [x] T037 [US4] Implement `issueInvitation` in `apps/server/src/auth/invitations.ts`: operator-only, stores only the token hash, returns the token **once**
+- [x] T038 [US4] Implement `redeemInvitation` in `apps/server/src/auth/invitations.ts` using a **conditional UPDATE** (`... WHERE id = $1 AND redeemed_at IS NULL`) and creating the account only when it reports a row changed (research D5) — never read-then-write
+- [x] T039 [US4] Add the invitation routes to `apps/server/src/routes/auth.ts` per contracts/http-auth.md, signing the new player in on successful redemption
 
 **Checkpoint**: all four user stories complete.
 
@@ -157,16 +157,16 @@ same invitation again and be refused.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T040 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and paste literal output into the PR body — the evidence standing in for the CI TASK-0017 has not built
-- [ ] T041 Run `quickstart.md` end to end, including the manual `curl` checks for cookie flags and indistinguishable refusals
-- [ ] T042 [P] Confirm `apps/server/README.md` documents both the migration and the provisioning command
+- [x] T040 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and paste literal output into the PR body — the evidence standing in for the CI TASK-0017 has not built
+- [x] T041 Run `quickstart.md` end to end, including the manual `curl` checks for cookie flags and indistinguishable refusals
+- [x] T042 [P] Confirm `apps/server/README.md` documents both the migration and the provisioning command
 
 ### Constitution Compliance (the-stacks)
 
-- [ ] T043 Agent-facing interface exercised by a test, not only a human path (Principle I) — every endpoint is JSON in/JSON out and tests drive them directly
-- [ ] T044 Cross-plane boundary respected (Principle III) — this feature reads and writes only session-plane tables
-- [ ] T045 No default credential ships anywhere (Principle VIII, FR-011) — verify by checking a fresh install has no signable account before provisioning
-- [ ] T046 `docker compose up` still works from a clean clone (Principle IX)
+- [x] T043 Agent-facing interface exercised by a test, not only a human path (Principle I) — every endpoint is JSON in/JSON out and tests drive them directly
+- [x] T044 Cross-plane boundary respected (Principle III) — this feature reads and writes only session-plane tables
+- [x] T045 No default credential ships anywhere (Principle VIII, FR-011) — verify by checking a fresh install has no signable account before provisioning
+- [x] T046 `docker compose up` still works from a clean clone (Principle IX)
 
 ---
 
