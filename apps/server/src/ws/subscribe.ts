@@ -39,19 +39,37 @@ function sendFrame(
  *    overlap harmless instead of duplicated — then switch to direct
  *    delivery by clearing the queue.
  */
+/**
+ * Seam for testing the replay/live boundary deterministically.
+ *
+ * The window this algorithm closes is a SYNCHRONOUS gap in the broken
+ * ordering, so no amount of concurrent write pressure reliably lands an
+ * append inside it — the end-to-end test (T022) was measured catching a
+ * reintroduced bug only about 1 run in 7. Injecting the log read lets a
+ * test append at exactly the right moment instead of racing for it, which
+ * is what makes ws.subscribe.test.ts deterministic.
+ *
+ * A default parameter, not test-only scaffolding: production callers omit
+ * it and get the real `readFrom`.
+ */
+export interface SubscribeDeps {
+  readFrom: typeof readFrom;
+}
+
 export async function subscribe(
   db: DbClient,
   registry: Registry,
   conn: Connection,
   sessionId: string,
   afterSeq: number,
+  deps: SubscribeDeps = { readFrom },
 ): Promise<void> {
   conn.pendingQueue = [];
   registry.subscribe(conn, sessionId);
 
   let throughSeq = afterSeq;
   for (;;) {
-    const batch = await readFrom(db, {
+    const batch = await deps.readFrom(db, {
       sessionId,
       afterSeq: throughSeq,
       limit: REPLAY_BATCH_SIZE,
