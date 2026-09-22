@@ -36,24 +36,14 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #11 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec: specs/002-compose-stack
 
 HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loop named the Spec Kit cycle as prose without binding it to the speckit-* skills, and spec 001 was hand-authored as a result. Runbook amendment in progress; spec authoring resumes against the amended loop.
+
+Spec set complete via Spec Kit skills: spec.md, plan.md, tasks.md (26 tasks), research.md, data-model.md, quickstart.md, contracts/ (configuration, healthcheck), checklists/. 6 phase ACs seeded. Phases 1-2 dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
