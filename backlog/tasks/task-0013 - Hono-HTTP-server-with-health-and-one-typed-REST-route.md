@@ -1,7 +1,7 @@
 ---
 id: TASK-0013
 title: Hono HTTP server with health and one typed REST route
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
 updated_date: '2026-09-22 14:47'
@@ -56,6 +56,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 phases: 1-5 all done, 25/25 tasks.md boxes. Gates re-run by orchestrator after merging main in: typecheck/lint/9 tests/build all green. APP_PORT reconciliation landed (57eb648).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 3/3 · Foundational (blocking prerequisites): 4/4 · User Story 1 — The operator can tell whether their install is healthy (P1): 6/6 · User Story 2 — A client gets predictable, validated answers (P2): 9/9 · Polish & Cross-Cutting Concerns: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
