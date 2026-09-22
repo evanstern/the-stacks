@@ -4,7 +4,7 @@ title: 'Database foundation: Drizzle, migrations, and the session event log'
 status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 18:25'
+updated_date: '2026-09-22 18:26'
 labels: []
 milestone: m-0
 dependencies:
@@ -192,6 +192,18 @@ for missing mandatory fields, since it would sit inert and manufacture
 confidence -- the exact anti-pattern tasks.md warns against for T020.
 
 spec-bridge sync: Setup (Shared Infrastructure): 4/4 · Foundational (Blocking Prerequisites): 6/6 · User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP: 7/7 · User Story 3 — Append safely while several writers act at once (Priority: P2): 5/5 · User Story 2 — Stand up the schema on a fresh database (Priority: P2): 3/3 · User Story 4 — Carry who may see an event, and which shape it has (Priority: P3): 4/4 · Polish & Cross-Cutting Concerns: 7/7 — status In Progress → Done
+
+Merge resolved (2026-09-22): the operator reviewed and merged PR #8 at cc830c4.
+Verified via gh api (.merged=true). Root fast-forwarded; gates re-run green on
+main (typecheck, lint, build). Board moved In Progress -> Done by spec-bridge
+sync, computed from the spec artifacts rather than hand-set.
+
+The earlier merge block is therefore closed: it was the auto-mode classifier
+refusing a session's merge of its own unreviewed work, which is the guardrail
+behaving correctly. A human reviewed and merged it.
+
+Worktree .worktrees/task-0012 removed; branch task-0012-event-log deleted after
+confirming every commit is contained in main.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
