@@ -1,8 +1,10 @@
 import { eq, sql } from "drizzle-orm";
+import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { ZodError } from "zod";
 import { z } from "zod";
+import { issueInvitation, redeemInvitation } from "../auth/invitations.js";
 import type { AuthVariables } from "../auth/middleware.js";
 import {
   createAuthMiddleware,
@@ -11,16 +13,29 @@ import {
 import { MAX_PASSWORD_LENGTH, verifyPassword } from "../auth/password.js";
 import type { DbClient, ValidateSession } from "../auth/session.js";
 import { createSession, endSession } from "../auth/session.js";
-import { UnauthorizedError, ValidationError } from "../errors.js";
+import {
+  ConflictError,
+  ForbiddenError,
+  UnauthorizedError,
+  ValidationError,
+} from "../errors.js";
 import { users } from "../schema/auth.js";
 
-/**
- * Sign-in, sign-out, and `me` (contracts/http-auth.md). Invitations and
- * operator provisioning are later phases of spec 005 and aren't here yet.
- */
+/** Sign-in, sign-out, `me`, and invitations (contracts/http-auth.md). */
 
 const SignInSchema = z.object({
   username: z.string().min(1),
+  password: z.string().min(1).max(MAX_PASSWORD_LENGTH),
+});
+
+const IssueInvitationSchema = z.object({
+  expiresInDays: z.number().int().positive().optional(),
+});
+
+const RedeemInvitationSchema = z.object({
+  token: z.string().min(1),
+  username: z.string().min(1),
+  displayName: z.string().min(1),
   password: z.string().min(1).max(MAX_PASSWORD_LENGTH),
 });
 
@@ -59,6 +74,34 @@ async function parseJsonBody<T>(
   return parsed.data;
 }
 
+/**
+ * Like `parseJsonBody`, but an empty body parses as `{}` — for
+ * `POST /invitations`, whose body is entirely optional
+ * (contracts/http-auth.md: `{ expiresInDays?: number }`) and whose
+ * documented `curl` call (quickstart.md step 6) sends none at all.
+ */
+async function parseOptionalJsonBody<T>(
+  c: { req: { text(): Promise<string> } },
+  schema: z.ZodType<T>,
+): Promise<T> {
+  const text = await c.req.text();
+  let json: unknown = {};
+  if (text.trim().length > 0) {
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new ValidationError([
+        { path: "(root)", message: "Request body must be valid JSON." },
+      ]);
+    }
+  }
+  const parsed = schema.safeParse(json);
+  if (!parsed.success) {
+    throw new ValidationError(toIssues(parsed.error));
+  }
+  return parsed.data;
+}
+
 function publicUser(user: typeof users.$inferSelect) {
   return { id: user.id, displayName: user.displayName, role: user.role };
 }
@@ -75,6 +118,20 @@ function publicUser(user: typeof users.$inferSelect) {
  */
 function isHttps(c: { req: { url: string } }): boolean {
   return new URL(c.req.url).protocol === "https:";
+}
+
+/** Shared by sign-in and invitation redemption — both sign the caller in. */
+function setSessionCookie(
+  c: Context<{ Variables: AuthVariables }>,
+  token: string,
+) {
+  setCookie(c, SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "Lax",
+    path: "/",
+    maxAge: SESSION_COOKIE_MAX_AGE_SECONDS,
+    secure: isHttps(c),
+  });
 }
 
 export interface CreateAuthRoutesOptions {
@@ -111,13 +168,7 @@ export function createAuthRoutes({
     }
 
     const session = await createSession(db, user.id);
-    setCookie(c, SESSION_COOKIE_NAME, session.token, {
-      httpOnly: true,
-      sameSite: "Lax",
-      path: "/",
-      maxAge: SESSION_COOKIE_MAX_AGE_SECONDS,
-      secure: isHttps(c),
-    });
+    setSessionCookie(c, session.token);
 
     return c.json({ user: publicUser(user) });
   });
@@ -149,6 +200,50 @@ export function createAuthRoutes({
       throw new UnauthorizedError();
     }
     return c.json({ user: publicUser(user) });
+  });
+
+  route.post("/invitations", authMiddleware, async (c) => {
+    const identity = c.get("identity");
+    if (!identity) {
+      throw new UnauthorizedError();
+    }
+    // Operator-only (FR-012). A player is authenticated but not
+    // permitted — 403, not 401 (contracts/http-auth.md).
+    if (identity.role !== "operator") {
+      throw new ForbiddenError("Only the operator can create invitations.");
+    }
+    const input = await parseOptionalJsonBody(c, IssueInvitationSchema);
+    const invitation = await issueInvitation(db, identity.userId, input);
+    return c.json(
+      {
+        token: invitation.token,
+        expiresAt: invitation.expiresAt.toISOString(),
+      },
+      201,
+    );
+  });
+
+  route.post("/invitations/redeem", async (c) => {
+    const input = await parseJsonBody(c, RedeemInvitationSchema);
+    const result = await redeemInvitation(db, input);
+
+    if (!result.ok) {
+      if (result.reason === "conflict") {
+        throw new ConflictError("That username is already taken.");
+      }
+      // Unknown, expired, or already redeemed — deliberately
+      // indistinguishable (FR-013, contracts/http-auth.md).
+      throw new ValidationError([
+        {
+          path: "token",
+          message: "This invitation is invalid, expired, or already redeemed.",
+        },
+      ]);
+    }
+
+    const session = await createSession(db, result.user.id);
+    setSessionCookie(c, session.token);
+    return c.json({ user: publicUser(result.user) }, 201);
   });
 
   return route;

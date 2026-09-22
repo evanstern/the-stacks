@@ -1,15 +1,17 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
+import { redeemInvitation } from "../src/auth/invitations.js";
 import { hashPassword } from "../src/auth/password.js";
+import { createOperator } from "../src/auth/provisioning.js";
 import { createSession, createValidateSession } from "../src/auth/session.js";
 import { generateToken, hashToken } from "../src/auth/tokens.js";
 import { createDb, probeReachable } from "../src/db.js";
-import { authSessions, users } from "../src/schema/auth.js";
+import { authSessions, invitations, users } from "../src/schema/auth.js";
 
 /**
- * Integration tests for session auth (spec 005, US1 and US2), reusing spec
+ * Integration tests for session auth (spec 005, US1–US4), reusing spec
  * 004's loud-skip harness (T010): a silent skip and a fake pass are both
  * green, so this notice is what makes "proved nothing" look different
  * from "proved something" (research D2's event-log precedent).
@@ -41,7 +43,7 @@ afterAll(async () => {
   await db?.$client.end();
 });
 
-describe.skipIf(!reachable)("session auth (US1, US2, integration)", () => {
+describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
   const app = reachable
     ? createApp({
         databaseProbe: { reachable: async () => true },
@@ -55,12 +57,15 @@ describe.skipIf(!reachable)("session auth (US1, US2, integration)", () => {
   }
 
   /** Fresh account per test: the users table is shared and not reset. */
-  async function createTestUser(password: string) {
+  async function createTestUser(
+    password: string,
+    role: "operator" | "player" = "player",
+  ) {
     const username = `test-${randomUUID()}`;
     const passwordHash = await hashPassword(password);
     const [user] = await requireDb()
       .insert(users)
-      .values({ username, displayName: username, role: "player", passwordHash })
+      .values({ username, displayName: username, role, passwordHash })
       .returning();
     return { user, username, password };
   }
@@ -69,6 +74,19 @@ describe.skipIf(!reachable)("session auth (US1, US2, integration)", () => {
     const setCookie = res.headers.get("set-cookie");
     if (!setCookie) throw new Error("expected a Set-Cookie header");
     return setCookie.split(";")[0];
+  }
+
+  /** Directly seeds a redeemable invitation, bypassing the HTTP layer. */
+  async function createTestInvitation(createdBy: string) {
+    const token = generateToken();
+    await requireDb()
+      .insert(invitations)
+      .values({
+        tokenHash: hashToken(token),
+        createdBy,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      });
+    return token;
   }
 
   it("T011: successful sign-in returns 200 with a user body and sets a cookie", async () => {
@@ -252,5 +270,219 @@ describe.skipIf(!reachable)("session auth (US1, US2, integration)", () => {
 
     expect(direct).toEqual({ userId: user.id, role: "player" });
     expect(meBody.user.id).toBe(direct?.userId);
+  });
+
+  it("T027/T028: create-operator provisions the first operator (who can sign in), and refuses a second run (US3 scenario 2)", async () => {
+    const db = requireDb();
+
+    // "operator" is a global singleton by design (single-tenant, research
+    // D6) — unlike every other fixture in this file, it can't be
+    // freshened per test, and the users table is shared and not reset
+    // across runs. Only assert the positive, sign-in-capable path when
+    // this run is actually the one that wins first provisioning.
+    const [existingOperator] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.role, "operator"))
+      .limit(1);
+
+    if (!existingOperator) {
+      const username = `operator-${randomUUID()}`;
+      const password = "operator password long enough";
+      const created = await createOperator(db, { username, password });
+      expect(created.created).toBe(true);
+
+      const res = await requireApp().request("/auth/sign-in", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      expect(res.status).toBe(200);
+      expect((await res.json()).user.role).toBe("operator");
+    }
+
+    // T028: whether this run just created the first operator above, or
+    // one already existed from an earlier run against this database, a
+    // second attempt must refuse — never a second operator, never an
+    // overwrite.
+    const second = await createOperator(db, {
+      username: `operator-${randomUUID()}`,
+      password: "a completely different password",
+    });
+    expect(second.created).toBe(false);
+  });
+
+  it("T032: an operator can issue an invitation and a player cannot (FR-012, 403)", async () => {
+    const { username, password } = await createTestUser(
+      "operator password long enough",
+      "operator",
+    );
+    const operatorSignIn = await requireApp().request("/auth/sign-in", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const operatorCookie = extractCookie(operatorSignIn);
+
+    const issued = await requireApp().request("/auth/invitations", {
+      method: "POST",
+      headers: { cookie: operatorCookie },
+    });
+    expect(issued.status).toBe(201);
+    const issuedBody = await issued.json();
+    expect(typeof issuedBody.token).toBe("string");
+    expect(typeof issuedBody.expiresAt).toBe("string");
+
+    const player = await createTestUser("player password long enough");
+    const playerSignIn = await requireApp().request("/auth/sign-in", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        username: player.username,
+        password: player.password,
+      }),
+    });
+    const playerCookie = extractCookie(playerSignIn);
+
+    const refused = await requireApp().request("/auth/invitations", {
+      method: "POST",
+      headers: { cookie: playerCookie },
+    });
+    expect(refused.status).toBe(403);
+  });
+
+  it("T033: redemption creates a player account that can sign in with the password they chose", async () => {
+    const { user: operator } = await createTestUser(
+      "operator password long enough",
+      "operator",
+    );
+    const token = await createTestInvitation(operator.id);
+    const username = `redeemed-${randomUUID()}`;
+    const password = "the password the player picked";
+
+    const redeem = await requireApp().request("/auth/invitations/redeem", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token,
+        username,
+        displayName: "Redeemed Player",
+        password,
+      }),
+    });
+    expect(redeem.status).toBe(201);
+    const redeemBody = await redeem.json();
+    expect(redeemBody.user.role).toBe("player");
+    // Redemption signs the new player in immediately (contracts/http-auth.md).
+    expect(redeem.headers.get("set-cookie")).toContain("session=");
+
+    const signIn = await requireApp().request("/auth/sign-in", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    expect(signIn.status).toBe(200);
+  });
+
+  it("T034: redeeming an already-redeemed or expired invitation is refused", async () => {
+    const { user: operator } = await createTestUser(
+      "operator password long enough",
+      "operator",
+    );
+
+    const redeemedToken = await createTestInvitation(operator.id);
+    const firstRedeem = await requireApp().request("/auth/invitations/redeem", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token: redeemedToken,
+        username: `already-${randomUUID()}`,
+        displayName: "Already Redeemed",
+        password: "some password entirely",
+      }),
+    });
+    expect(firstRedeem.status).toBe(201);
+
+    const secondRedeem = await requireApp().request(
+      "/auth/invitations/redeem",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          token: redeemedToken,
+          username: `already-${randomUUID()}`,
+          displayName: "Second Attempt",
+          password: "some other password",
+        }),
+      },
+    );
+    expect(secondRedeem.status).toBe(400);
+
+    // A token whose expires_at is already in the past — inserted
+    // directly, bypassing createTestInvitation's 7-day default.
+    const expiredToken = generateToken();
+    await requireDb()
+      .insert(invitations)
+      .values({
+        tokenHash: hashToken(expiredToken),
+        createdBy: operator.id,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+    const expiredRedeem = await requireApp().request(
+      "/auth/invitations/redeem",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          token: expiredToken,
+          username: `expired-${randomUUID()}`,
+          displayName: "Too Late",
+          password: "yet another password",
+        }),
+      },
+    );
+    expect(expiredRedeem.status).toBe(400);
+  });
+
+  it("T035: simultaneous redemptions of one invitation create exactly one account (SC-005)", async () => {
+    const db = requireDb();
+    const { user: operator } = await createTestUser(
+      "operator password long enough",
+      "operator",
+    );
+    const token = await createTestInvitation(operator.id);
+    const usernameBase = `race-${randomUUID()}`;
+
+    // Distinct usernames so a loser can only fail on the INVITATION guard,
+    // never on the username's own uniqueness — isolating exactly the
+    // mechanism SC-005 is about (research D5).
+    const [resultA, resultB] = await Promise.all([
+      redeemInvitation(db, {
+        token,
+        username: `${usernameBase}-a`,
+        displayName: "Racer A",
+        password: "racer a password",
+      }),
+      redeemInvitation(db, {
+        token,
+        username: `${usernameBase}-b`,
+        displayName: "Racer B",
+        password: "racer b password",
+      }),
+    ]);
+
+    const outcomes = [resultA, resultB];
+    expect(outcomes.filter((r) => r.ok)).toHaveLength(1);
+    expect(outcomes.filter((r) => !r.ok)).toHaveLength(1);
+
+    // The direct, DB-level proof of SC-005: exactly one account exists
+    // under either candidate username, regardless of which won.
+    const created = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(
+        inArray(users.username, [`${usernameBase}-a`, `${usernameBase}-b`]),
+      );
+    expect(created).toHaveLength(1);
   });
 });

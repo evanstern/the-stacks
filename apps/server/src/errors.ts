@@ -6,7 +6,9 @@ export type ErrorKind =
   | "validation"
   | "internal"
   | "not_found"
-  | "unauthorized";
+  | "unauthorized"
+  | "forbidden"
+  | "conflict";
 
 export interface ErrorIssue {
   path: string;
@@ -25,6 +27,8 @@ const STATUS_BY_KIND = {
   validation: 400,
   not_found: 404,
   unauthorized: 401,
+  forbidden: 403,
+  conflict: 409,
   internal: 500,
 } as const;
 
@@ -63,6 +67,27 @@ export class UnauthorizedError extends Error {
   }
 }
 
+/**
+ * Thrown when a caller is authenticated but their role doesn't permit the
+ * action — e.g. a player calling the operator-only invitation endpoint
+ * (FR-012, contracts/http-auth.md). Distinct from UnauthorizedError, which
+ * means "who are you" rather than "you can't do that".
+ */
+export class ForbiddenError extends Error {
+  constructor(message = "You do not have permission to perform this action.") {
+    super(message);
+    this.name = "ForbiddenError";
+  }
+}
+
+/** Thrown when a request conflicts with existing state — e.g. a taken username (contracts/http-auth.md). */
+export class ConflictError extends Error {
+  constructor(message = "The request conflicts with existing state.") {
+    super(message);
+    this.name = "ConflictError";
+  }
+}
+
 function errorBody(
   kind: ErrorKind,
   message: string,
@@ -96,6 +121,15 @@ export const errorHandler: ErrorHandler = (err, c: Context) => {
       errorBody("unauthorized", err.message),
       STATUS_BY_KIND.unauthorized,
     );
+  }
+  if (err instanceof ForbiddenError) {
+    return c.json(
+      errorBody("forbidden", err.message),
+      STATUS_BY_KIND.forbidden,
+    );
+  }
+  if (err instanceof ConflictError) {
+    return c.json(errorBody("conflict", err.message), STATUS_BY_KIND.conflict);
   }
 
   console.error(err);
