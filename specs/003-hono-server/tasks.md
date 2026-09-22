@@ -61,12 +61,12 @@ process is serving AND whether its database is reachable.
 **Independent test**: Start against a reachable database → reports healthy. Stop the
 database → reports the database unreachable, promptly, without hanging or claiming health.
 
-- [ ] T008 [US1] Implement the bounded database liveness probe in `apps/server/src/db.ts` — an explicit timeout, where a timeout returns unreachable rather than throwing or hanging (research D1, SC-002)
-- [ ] T009 [US1] Implement `GET /health` in `apps/server/src/routes/health.ts` per `contracts/health.md` — always `200`, with `status`, `process.uptimeSeconds`, and `database.reachable`
-- [ ] T010 [US1] Ensure `status` is derived, never independently set: `"ok"` only when every dependency fact is true (data-model.md validation rule)
-- [ ] T011 [P] [US1] Test in `apps/server/test/health.test.ts`: database reachable → `status: "ok"`, `database.reachable: true`, positive uptime
-- [ ] T012 [P] [US1] Test in `apps/server/test/health.test.ts`: database unreachable → still `200`, `status: "degraded"`, `database.reachable: false`
-- [ ] T013 [US1] Test that health answers within the 5-second bound when the database is unreachable or hung — the assertion that catches the hang, not merely the wrong body (SC-002, edge case 1)
+- [x] T008 [US1] Implement the bounded database liveness probe in `apps/server/src/db.ts` — an explicit timeout, where a timeout returns unreachable rather than throwing or hanging (research D1, SC-002)
+- [x] T009 [US1] Implement `GET /health` in `apps/server/src/routes/health.ts` per `contracts/health.md` — always `200`, with `status`, `process.uptimeSeconds`, and `database.reachable`
+- [x] T010 [US1] Ensure `status` is derived, never independently set: `"ok"` only when every dependency fact is true (data-model.md validation rule)
+- [x] T011 [P] [US1] Test in `apps/server/test/health.test.ts`: database reachable → `status: "ok"`, `database.reachable: true`, positive uptime
+- [x] T012 [P] [US1] Test in `apps/server/test/health.test.ts`: database unreachable → still `200`, `status: "degraded"`, `database.reachable: false`
+- [x] T013 [US1] Test that health answers within the 5-second bound when the database is unreachable or hung — the assertion that catches the hang, not merely the wrong body (SC-002, edge case 1)
 
 **Checkpoint**: US1 is independently shippable. TASK-0011's compose healthcheck now has a
 live endpoint matching the contract it was written against.
