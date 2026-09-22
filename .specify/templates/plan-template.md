@@ -40,7 +40,31 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Answer each gate for this feature. A "no" MUST be justified in Complexity Tracking
+or the plan does not proceed.
+
+- [ ] **I. Agent-operable** — names the interface an agent uses to drive this
+      feature. No human-only path.
+- [ ] **II. Content contract** — any new codex entity declares a Zod schema with
+      identity, portrayal, and hooks, and passes portrayal-completeness.
+- [ ] **III. Data planes** — every piece of new state belongs to exactly one plane
+      (library, codex, session). Cross-plane access goes through a declared seam.
+- [ ] **IV. Event sourcing** — play state changes are append-only typed events,
+      server-validated, versioned, with visibility set where information is hidden.
+- [ ] **V. Citations** — any library-derived claim carries a source anchor, and
+      retrieval changes ship fixture-based evals.
+- [ ] **VI. System-agnostic** — no 5e assumption leaks into core; mechanics sit
+      behind the system-module interface and conformance still passes.
+- [ ] **VII. Structured first** — generated artifacts are validated data before
+      render; assets store prompt, provider, and seed.
+- [ ] **VIII. Operator-owned content** — ships no rulebook content and reproduces
+      no book text beyond cited quotes. NON-NEGOTIABLE.
+- [ ] **IX. Self-hostable** — works from `docker compose up`; model and image
+      access stay behind their seams; no new container without proven need.
+
+**Stack conformance** — the feature stays within the Architecture Constraints
+table (TypeScript, one Node process, Hono, React SPA, PixiJS, Postgres, Drizzle,
+Zod). Any departure is an amendment, not a plan decision.
 
 ## Project Structure
 
