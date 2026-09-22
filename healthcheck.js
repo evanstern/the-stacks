@@ -4,9 +4,10 @@
 // healthy. This parses the body and exits 0 only when status is "ok".
 // Uses Node's built-in http module: node:22-alpine has no curl/jq, and the
 // runtime already has Node.
-"use strict";
 const http = require("node:http");
 
+// APP_PORT is supplied by compose via env_file (.env) — see
+// specs/002-compose-stack/contracts/configuration.md
 const port = process.env.APP_PORT || 3000;
 const req = http.get(
   { host: "127.0.0.1", port, path: "/health", timeout: 2000 },
