@@ -4,6 +4,7 @@ title: Monorepo scaffold and toolchain baseline
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:43'
+updated_date: '2026-09-22 14:01'
 labels: []
 milestone: m-0
 dependencies: []
@@ -27,6 +28,12 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [ ] #4 Lint and format run from the root and pass on a clean tree
 - [ ] #5 Node 22 is pinned for the project
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
