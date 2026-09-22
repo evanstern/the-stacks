@@ -33,10 +33,10 @@ Monorepo from TASK-0010. All work lands in `apps/server/` per plan.md's Structur
 
 **Purpose**: Make Drizzle's migration workflow exist before any schema is written.
 
-- [ ] T001 Add `drizzle-kit` as a devDependency in `apps/server/package.json` and run `pnpm install` from the repo root
-- [ ] T002 Create `apps/server/drizzle.config.ts` pointing at `src/schema/`, output dir `drizzle/`, dialect postgresql, reading `DATABASE_URL` from the environment
-- [ ] T003 Add `db:generate` and `db:migrate` scripts to `apps/server/package.json` per research D3 (generate compiles schema to SQL; migrate applies committed SQL)
-- [ ] T004 Declare `DATABASE_URL` in `turbo.json` `globalEnv` if not already present, so Turborepo cache correctness holds for the new scripts
+- [x] T001 Add `drizzle-kit` as a devDependency in `apps/server/package.json` and run `pnpm install` from the repo root
+- [x] T002 Create `apps/server/drizzle.config.ts` pointing at `src/schema/`, output dir `drizzle/`, dialect postgresql, reading `DATABASE_URL` from the environment
+- [x] T003 Add `db:generate` and `db:migrate` scripts to `apps/server/package.json` per research D3 (generate compiles schema to SQL; migrate applies committed SQL)
+- [x] T004 Declare `DATABASE_URL` in `turbo.json` `globalEnv` if not already present, so Turborepo cache correctness holds for the new scripts
 
 **Checkpoint**: `pnpm --filter @the-stacks/server db:generate --help` runs without error.
 
@@ -48,12 +48,12 @@ Monorepo from TASK-0010. All work lands in `apps/server/` per plan.md's Structur
 
 ⚠️ No user story can start until this phase completes.
 
-- [ ] T005 Define the `events` table in `apps/server/src/schema/events.ts` per data-model.md: `session_id` uuid, `seq` bigint, `actor` text, `type` text, `payload` jsonb, `payload_version` integer, `visibility` text defaulting to the public marker, `ts` timestamptz defaulting to now — all NOT NULL
-- [ ] T006 Declare the composite primary key `(session_id, seq)` and the check constraints `seq > 0` and `payload_version > 0` in `apps/server/src/schema/events.ts`
-- [ ] T007 Add the Drizzle client to `apps/server/src/db.ts`, reusing the existing pool wiring rather than opening a second connection path (spec Assumptions). **Do not remove or alter the existing `pool.on("error")` handler** — the T016 finding documents the crash its absence caused
-- [ ] T008 Generate the initial migration with `pnpm --filter @the-stacks/server db:generate` and **commit the generated SQL and journal** under `apps/server/drizzle/`
-- [ ] T009 Add the append-only guard to the migration (data-model.md): a trigger function rejecting `UPDATE` and `DELETE` on `events`, wired as a BEFORE trigger. Hand-add this to the generated migration file, since it is not expressible in the Drizzle schema
-- [ ] T010 Create `apps/server/scripts/migrate.ts` running Drizzle's migrator against `DATABASE_URL`, exiting nonzero on failure with the error message
+- [x] T005 Define the `events` table in `apps/server/src/schema/events.ts` per data-model.md: `session_id` uuid, `seq` bigint, `actor` text, `type` text, `payload` jsonb, `payload_version` integer, `visibility` text defaulting to the public marker, `ts` timestamptz defaulting to now — all NOT NULL
+- [x] T006 Declare the composite primary key `(session_id, seq)` and the check constraints `seq > 0` and `payload_version > 0` in `apps/server/src/schema/events.ts`
+- [x] T007 Add the Drizzle client to `apps/server/src/db.ts`, reusing the existing pool wiring rather than opening a second connection path (spec Assumptions). **Do not remove or alter the existing `pool.on("error")` handler** — the T016 finding documents the crash its absence caused
+- [x] T008 Generate the initial migration with `pnpm --filter @the-stacks/server db:generate` and **commit the generated SQL and journal** under `apps/server/drizzle/`
+- [x] T009 Add the append-only guard to the migration (data-model.md): a trigger function rejecting `UPDATE` and `DELETE` on `events`, wired as a BEFORE trigger. Hand-add this to the generated migration file, since it is not expressible in the Drizzle schema
+- [x] T010 Create `apps/server/scripts/migrate.ts` running Drizzle's migrator against `DATABASE_URL`, exiting nonzero on failure with the error message
 
 **Checkpoint**: `docker compose up -d db` then `pnpm --filter @the-stacks/server db:migrate` creates the table; running it twice is a no-op (FR-011, SC-006).
 
