@@ -4,6 +4,7 @@ title: 'Docker Compose stack: app and Postgres 17 with pgvector'
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 14:17'
 labels: []
 milestone: m-0
 dependencies:
@@ -28,6 +29,12 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #4 Configuration is supplied by environment variables with a committed .env.example
 - [ ] #5 The app container reaches the database and reports healthy
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loop named the Spec Kit cycle as prose without binding it to the speckit-* skills, and spec 001 was hand-authored as a result. Runbook amendment in progress; spec authoring resumes against the amended loop.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
