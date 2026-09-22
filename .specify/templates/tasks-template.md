@@ -158,6 +158,28 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 
+### Constitution Compliance (the-stacks)
+
+**Purpose**: principle-driven work that is easy to omit and expensive to retrofit.
+Include each task that applies; delete the rest.
+
+- [ ] TXXX Zod schema for each new codex entity, with identity, portrayal, hooks
+      (Principle II)
+- [ ] TXXX Portrayal-completeness lint covers the new entity types (Principle II)
+- [ ] TXXX Cross-plane boundary check updated for any new package or seam
+      (Principle III)
+- [ ] TXXX Event types versioned, with visibility set where information is hidden
+      (Principle IV)
+- [ ] TXXX Projection tolerates unknown and future event types (Principle IV)
+- [ ] TXXX Retrieval eval fixtures added or extended for new library surfaces
+      (Principle V)
+- [ ] TXXX System-module conformance suite passes for dnd5e and fate-core
+      (Principle VI)
+- [ ] TXXX Generated assets persist prompt, provider, and seed (Principle VII)
+- [ ] TXXX Agent-facing interface exercised by a test, not only the human UI
+      (Principle I)
+- [ ] TXXX `docker compose up` still works from a clean clone (Principle IX)
+
 ---
 
 ## Dependencies & Execution Order

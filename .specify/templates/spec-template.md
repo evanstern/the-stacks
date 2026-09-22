@@ -98,6 +98,26 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Constitution-Driven Requirements *(mandatory)*
+
+<!--
+  ACTION REQUIRED: These come from .specify/memory/constitution.md. Keep the rows
+  that apply and write a real requirement for each. Delete rows that genuinely do
+  not apply to this feature; do not delete a row merely because it is inconvenient.
+-->
+
+- **CR-001** (I. Agent-operable): An agent MUST be able to drive [capability]
+  through [the same interface a human uses].
+- **CR-002** (II. Content contract): Any entity this feature creates MUST carry
+  identity, portrayal, and hooks, complete enough for an agent to generate new
+  in-character content from it alone.
+- **CR-003** (V. Citations): Any claim this feature draws from the library MUST
+  carry a verifiable source anchor.
+- **CR-004** (VI. System-agnostic): This feature MUST NOT assume 5e mechanics
+  outside a system module.
+- **CR-005** (VIII. Operator-owned content): This feature MUST NOT ship or
+  reproduce rulebook content beyond cited quotes.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
