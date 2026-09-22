@@ -7,8 +7,7 @@ created_date: '2026-09-22 01:14'
 updated_date: '2026-09-22 06:43'
 labels: []
 milestone: m-0
-dependencies:
-  - TASK-4
+dependencies: []
 documentation:
   - docs/design/architecture.md
 priority: high
