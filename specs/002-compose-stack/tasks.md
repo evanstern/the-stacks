@@ -35,8 +35,8 @@ resolves them and where a stranger looks.
 
 **Purpose**: The build context and ignore rules every later task depends on.
 
-- [ ] T001 Create `.dockerignore` at the repo root excluding `node_modules/`, build output, `.git/`, and `.env` so they never enter the build context
-- [ ] T002 Extend `.gitignore` so the operator's filled-in `.env` is never tracked, preserving the existing entries from TASK-0010 (FR-006, research D3)
+- [x] T001 Create `.dockerignore` at the repo root excluding `node_modules/`, build output, `.git/`, and `.env` so they never enter the build context
+- [x] T002 Extend `.gitignore` so the operator's filled-in `.env` is never tracked, preserving the existing entries from TASK-0010 (FR-006, research D3)
 
 ---
 
@@ -45,10 +45,10 @@ resolves them and where a stranger looks.
 **Purpose**: The image and the service definitions everything else builds on. **No user
 story can be verified before this phase is done.**
 
-- [ ] T003 Write the multi-stage `Dockerfile` at the repo root building the server workspace on Node 22 with pnpm — install the workspace so the server's dependency on `@the-stacks/shared` resolves, and keep build tooling out of the runtime stage (research D5)
-- [ ] T004 Create `docker-compose.yml` at the repo root declaring exactly two services, `app` and `db`, and no third service (plan.md Complexity Tracking)
-- [ ] T005 [US3] Configure the `db` service to use a published Postgres 17 image that already includes pgvector, rather than building a custom image (research D4, FR-003)
-- [ ] T006 [US2] Declare a NAMED volume for the Postgres data directory — not anonymous, not a bind mount (data-model.md; an anonymous volume is discarded on recreate, which is silent data loss)
+- [x] T003 Write the multi-stage `Dockerfile` at the repo root building the server workspace on Node 22 with pnpm — install the workspace so the server's dependency on `@the-stacks/shared` resolves, and keep build tooling out of the runtime stage (research D5)
+- [x] T004 Create `docker-compose.yml` at the repo root declaring exactly two services, `app` and `db`, and no third service (plan.md Complexity Tracking)
+- [x] T005 [US3] Configure the `db` service to use a published Postgres 17 image that already includes pgvector, rather than building a custom image (research D4, FR-003)
+- [x] T006 [US2] Declare a NAMED volume for the Postgres data directory — not anonymous, not a bind mount (data-model.md; an anonymous volume is discarded on recreate, which is silent data loss)
 
 **Checkpoint**: the stack is defined. Nothing is verified yet.
 
