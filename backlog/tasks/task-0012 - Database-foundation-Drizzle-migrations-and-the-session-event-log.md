@@ -190,6 +190,8 @@ apps/server/tsconfig.json scopes include to ['src'], so test/ is never
 typechecked. The implementer correctly declined to add a @ts-expect-error test
 for missing mandatory fields, since it would sit inert and manufacture
 confidence -- the exact anti-pattern tasks.md warns against for T020.
+
+spec-bridge sync: Setup (Shared Infrastructure): 4/4 · Foundational (Blocking Prerequisites): 6/6 · User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP: 7/7 · User Story 3 — Append safely while several writers act at once (Priority: P2): 5/5 · User Story 2 — Stand up the schema on a fresh database (Priority: P2): 3/3 · User Story 4 — Carry who may see an event, and which shape it has (Priority: P3): 4/4 · Polish & Cross-Cutting Concerns: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
