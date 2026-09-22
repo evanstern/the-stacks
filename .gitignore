@@ -11,3 +11,6 @@ build/
 
 # Turborepo
 .turbo/
+
+# Environment
+.env

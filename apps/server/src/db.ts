@@ -43,6 +43,19 @@ export function createDatabaseProbe(
     connectionString: databaseUrl,
     connectionTimeoutMillis: timeoutMs,
   });
+  // pg.Pool is an EventEmitter; when Postgres drops an idle connection in the
+  // pool (e.g. 57P01 "terminating connection due to administrator command",
+  // which happens when the db container stops), it emits 'error' on the pool
+  // itself. With no listener, Node's default behavior for an unhandled
+  // EventEmitter 'error' is to throw — crashing the whole process before
+  // /health ever gets a chance to report degraded. Do not remove this: it
+  // looks like a no-op, but it is what keeps the server alive during a
+  // database outage.
+  pool.on("error", (err) => {
+    // pg-pool attaches the dead client to `err.client`; log the message only
+    // so this doesn't dump a whole pg.Client (sockets, buffers) to stderr.
+    console.error("Database pool error (connection dropped):", err.message);
+  });
   return {
     reachable: () => probeReachable(pool, timeoutMs),
     close: () => pool.end(),

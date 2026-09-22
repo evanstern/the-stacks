@@ -12,5 +12,6 @@
     "test": {
       "dependsOn": ["^build"]
     }
-  }
+  },
+  "globalEnv": ["APP_PORT", "DATABASE_URL"]
 }
