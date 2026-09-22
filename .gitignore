@@ -1,2 +1,13 @@
 .handoff/
 .worktrees/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Turborepo
+.turbo/

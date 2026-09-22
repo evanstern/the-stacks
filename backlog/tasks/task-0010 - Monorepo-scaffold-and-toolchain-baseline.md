@@ -1,10 +1,10 @@
 ---
 id: TASK-0010
 title: Monorepo scaffold and toolchain baseline
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:43'
-updated_date: '2026-09-22 14:01'
+updated_date: '2026-09-22 14:09'
 labels: []
 milestone: m-0
 dependencies: []
@@ -32,9 +32,17 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
+Spec: specs/001-monorepo-scaffold/ (sweep: docs/design/m0-skeleton-sweep-runbook.md, Lane 1)
+
+Spec set complete: spec.md + plan.md + tasks.md on task-0010-monorepo-scaffold. 4 phases; dispatching phase-scoped at tier=sonnet.
+
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
-phases: 1 done (e30f1c0), 2 dispatched
+phases: 1-3 done (e30f1c0, 4e1c175), 4 dispatched. Verified: clean tsc -b rebuild emits shared/dist first (real project references).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-4 all done. PR #2 open. Gates verified by orchestrator: install/typecheck/lint/build/test all green; 21/21 tasks.md boxes ticked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

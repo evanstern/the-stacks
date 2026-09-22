@@ -1,0 +1,14 @@
+{
+  "name": "@the-stacks/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "test": "echo \"no tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@the-stacks/shared": "workspace:*"
+  }
+}
