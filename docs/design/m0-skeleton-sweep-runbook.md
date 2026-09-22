@@ -13,6 +13,8 @@ carries only ordering, doctrine, and the log.
 **Status:** signed-off · operator sign-off on lanes: 2026-09-22
 **Amended 2026-09-22 (A1):** the per-task spec cycle now names the `speckit-*`
 skills as invocations. See "Amendment A1" below. Re-signed by the operator.
+**Amended 2026-09-22 (A2):** dispatch from a neutral cwd; every dispatch prompt opens
+with a location check. See "Amendment A2" below.
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -388,6 +390,38 @@ inconsistency rather than silently normalized. If uniformity is wanted later, th
 board card of its own, not a quiet rewrite of merged history.
 
 **Operator checkpoint:** this amendment was raised by the operator, not self-detected.
+
+## Amendment A2 — dispatches inherit the orchestrator's cwd (2026-09-22)
+
+**What went wrong.** Lane 2's two tasks were dispatched in parallel. The second dispatch
+(spec 002, compose stack) was launched while the orchestrator's working directory was
+`.worktrees/task-0013` — the *other* task's worktree. The subagent inherited that cwd and
+woke up in the wrong checkout, holding instructions for a branch it was not on.
+
+**It was caught by the implementer, not by the orchestrator.** The agent ran `pwd` and
+`git branch --show-current`, found its environment contradicted its prompt, and refused
+both available wrong answers: silently `cd`-ing into a worktree another process might own,
+and writing root infrastructure files onto a branch named for a different task. It stopped
+after two read-only tool calls with no files changed and no commits. That refusal is the
+only reason this is a near-miss rather than a corrupted branch.
+
+**The rule, for every dispatch in this sweep and any other:**
+
+- [ ] **Dispatch from a neutral cwd** — the repository root, never a task worktree. A
+      subagent inherits the orchestrator's working directory, so dispatching from inside
+      worktree A hands worktree A to an agent told to work in worktree B.
+- [ ] **Every dispatch prompt opens with a location check** the agent must perform before
+      anything else: `cd <worktree> && pwd && git branch --show-current`, naming the exact
+      branch it must see, and instructing it to STOP and report rather than guess if it
+      sees anything else.
+
+**Why this is a gate line and not advice.** Parallel lanes are the whole point of laning,
+and every parallel lane multiplies this risk: with one worktree in play the orchestrator's
+cwd is usually right by accident; with two or more it is a coin flip. The runbook's lane
+plan therefore *creates* the condition this rule exists to handle.
+
+**No corrective work was needed.** Both worktrees were verified clean and on their correct
+branches afterward; the task was simply re-dispatched with the location check added.
 
 ## Execution log
 
