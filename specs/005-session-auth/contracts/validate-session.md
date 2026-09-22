@@ -22,6 +22,27 @@ validateSession(token: string): Promise<{ userId: string; role: Role } | null>
 `Role` is `"operator" | "player"` — the two roles FR-002 requires and the constitution's
 auth row names ("Operator plus invited players").
 
+**How it is obtained (clarified 2026-09-22, no behavioral change).** The signature above is
+what a **caller holds and invokes**. It is produced by a factory that captures the database
+client at wiring time:
+
+```ts
+const validateSession = createValidateSession(db);   // once, in app wiring
+const identity = await validateSession(token);       // per call — the signature above
+```
+
+This was raised by the implementer as a possible contract departure and is resolved here as
+**conforming, not a change**: the value passed to and called by both the HTTP middleware and
+the WebSocket upgrade handler has exactly the fixed shape — one string in, identity or
+`null` out, no `Request`, no socket, no cookie header. Threading `db` per call would have
+been the alternative (it is what `events/log.ts` does for `append`/`readFrom`), but that
+would put a second parameter in the seam TASK-0015 consumes, which the contract forbids.
+Capturing it in a closure keeps the seam's shape and avoids a singleton.
+
+**TASK-0015 imports `createValidateSession`, calls it once during setup, and passes the
+returned function around** — or, more simply, receives the already-wired function from the
+app's composition. It must never call the factory per request.
+
 ## Semantics
 
 - **Returns the identity** when the token names a live, unexpired session.

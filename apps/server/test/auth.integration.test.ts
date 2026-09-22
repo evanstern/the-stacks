@@ -15,7 +15,7 @@ import { authSessions, users } from "../src/schema/auth.js";
  * from "proved something" (research D2's event-log precedent).
  */
 
-const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
+const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
 const db = databaseUrl ? createDb(databaseUrl) : undefined;
 const reachable = db ? await probeReachable(db.$client, 2000) : false;
 
