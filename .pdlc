@@ -1,0 +1,17 @@
+{
+  "planted": "pdlc:bootstrap",
+  "version": "0.65.3",
+  "name": "the-stacks",
+  "peers": [
+    "backlog",
+    "spec-kit"
+  ],
+  "peersOmitted": [
+    "jira"
+  ],
+  "hooks": [
+    "root-guard"
+  ],
+  "localOnly": false,
+  "plantedAt": "2026-09-21T17:22:12.798Z"
+}
