@@ -1,10 +1,10 @@
 ---
 id: TASK-0012
 title: 'Database foundation: Drizzle, migrations, and the session event log'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 17:52'
+updated_date: '2026-09-22 18:25'
 labels: []
 milestone: m-0
 dependencies:
@@ -61,6 +61,7 @@ Dispatch plan: phase-scoped to sonnet-implementer. Phases 1+2 grouped (the
 migration is generated FROM the schema; splitting them means a second dispatch to
 fix the first one's output). Phases 3-7 follow.
 <!-- SECTION:PLAN:END -->
+
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -190,6 +191,12 @@ typechecked. The implementer correctly declined to add a @ts-expect-error test
 for missing mandatory fields, since it would sit inert and manufacture
 confidence -- the exact anti-pattern tasks.md warns against for T020.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 4/4 · Foundational (Blocking Prerequisites): 6/6 · User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP: 7/7 · User Story 3 — Append safely while several writers act at once (Priority: P2): 5/5 · User Story 2 — Stand up the schema on a fresh database (Priority: P2): 3/3 · User Story 4 — Carry who may see an event, and which shape it has (Priority: P3): 4/4 · Polish & Cross-Cutting Concerns: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
