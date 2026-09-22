@@ -1,9 +1,10 @@
 ---
 id: TASK-0012
 title: 'Database foundation: Drizzle, migrations, and the session event log'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 17:03'
 labels: []
 milestone: m-0
 dependencies:
@@ -18,6 +19,8 @@ ordinal: 3000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Establish the persistence layer and the single most load-bearing table in the system: the append-only session event log from architecture A4. Events are versioned from day one because event-log schema churn is a standing risk in milestones.md.
+
+Spec: specs/004-event-log
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
