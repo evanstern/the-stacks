@@ -95,14 +95,14 @@ is already exercised by every test in this phase and US1.
 
 ### Tests for User Story 3
 
-- [ ] T018 [US3] Add the concurrency test to `apps/server/test/events.integration.test.ts`: fire at least 50 concurrent appends at one session, then assert `count == max(seq) == count(distinct seq)` (quickstart.md step 4)
-- [ ] T019 [P] [US3] Add the cross-session independence test: concurrent appends to two sessions number each session's positions independently (FR-003)
-- [ ] T020 [US3] **Prove the concurrency test fails without the lock.** Temporarily remove the advisory lock from the append path, watch T018 fail, restore it. A test that passes either way is worse than none. Record the observed failure in the PR body
+- [x] T018 [US3] Add the concurrency test to `apps/server/test/events.integration.test.ts`: fire at least 50 concurrent appends at one session, then assert `count == max(seq) == count(distinct seq)` (quickstart.md step 4)
+- [x] T019 [P] [US3] Add the cross-session independence test: concurrent appends to two sessions number each session's positions independently (FR-003)
+- [x] T020 [US3] **Prove the concurrency test fails without the lock.** Temporarily remove the advisory lock from the append path, watch T018 fail, restore it. A test that passes either way is worse than none. Record the observed failure in the PR body
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Wrap `append` in a transaction taking `pg_advisory_xact_lock` keyed per session (research D1), computing `seq = COALESCE(MAX(seq), 0) + 1` inside it. Use the two-argument form with a fixed namespace key so this feature's locks cannot collide with another advisory-lock user
-- [ ] T022 [US3] Hash non-integer session identifiers into the lock's integer key, with a comment noting that a hash collision serializes two sessions — a performance effect, never a correctness one (research D1, Collision note)
+- [x] T021 [US3] Wrap `append` in a transaction taking `pg_advisory_xact_lock` keyed per session (research D1), computing `seq = COALESCE(MAX(seq), 0) + 1` inside it. Use the two-argument form with a fixed namespace key so this feature's locks cannot collide with another advisory-lock user
+- [x] T022 [US3] Hash non-integer session identifiers into the lock's integer key, with a comment noting that a hash collision serializes two sessions — a performance effect, never a correctness one (research D1, Collision note)
 
 **Checkpoint**: 50-writer concurrency holds (SC-003), and T020 has proven the test has teeth.
 

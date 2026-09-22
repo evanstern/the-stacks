@@ -4,7 +4,7 @@ title: 'Database foundation: Drizzle, migrations, and the session event log'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 17:37'
+updated_date: '2026-09-22 17:41'
 labels: []
 milestone: m-0
 dependencies:
@@ -29,12 +29,12 @@ Spec: specs/004-event-log
 - [ ] #2 Migrations run automatically or by a documented command on a fresh database
 - [ ] #3 An events table exists keyed by (session_id, seq) with actor, type, payload, visibility, and timestamp columns
 - [ ] #4 Event payloads carry a schema version field
-- [ ] #5 Appending events is race-safe under concurrent writers to the same session
+- [x] #5 Appending events is race-safe under concurrent writers to the same session
 - [ ] #6 Tests cover append and ordered read-back from a seq cursor
 - [x] #7 Spec phase: Setup (Shared Infrastructure)
 - [x] #8 Spec phase: Foundational (Blocking Prerequisites)
 - [x] #9 Spec phase: User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP
-- [ ] #10 Spec phase: User Story 3 — Append safely while several writers act at once (Priority: P2)
+- [x] #10 Spec phase: User Story 3 — Append safely while several writers act at once (Priority: P2)
 - [ ] #11 Spec phase: User Story 2 — Stand up the schema on a fresh database (Priority: P2)
 - [ ] #12 Spec phase: User Story 4 — Carry who may see an event, and which shape it has (Priority: P3)
 - [ ] #13 Spec phase: Polish & Cross-Cutting Concerns
@@ -106,6 +106,35 @@ rejects duplicate positions, so nothing is corrupted and what survives is
 gapless, but events vanish. This confirms the (session_id, seq) PK backstop
 works AND that the advisory lock in T021 is required, not belt-and-braces.
 T020's 'prove the test fails without the fix' is therefore already evidenced.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 4 (US3, T018-T022) dispatched to sonnet-implementer and verified by the
+orchestrator. Served model from transcript: 48 occurrences of claude-sonnet-5.
+
+THE MEASUREMENT THAT MATTERS -- orchestrator's own race probe, same script that
+measured the pre-lock baseline:
+  BEFORE (no lock): 28/50, 29/50, 27/50 stored -- 21-23 events LOST per run
+  AFTER  (locked):  50/50, 50/50, 50/50 stored -- 0 lost, positions 1..50,
+                    gapless and duplicate-free, three runs in a row
+AC#5 (race-safe under concurrent writers) is therefore proven by independent
+measurement, not by the implementer's own test alone.
+
+Also verified independently:
+- FR-003 cross-session independence: 25 concurrent appends to each of two
+  sessions -> both numbered 1..25 independently, 50 appends in 107ms. The lock
+  is per-session, not global (a global lock would pass T018 and break the
+  feature).
+- Lock form is pg_advisory_xact_lock (transaction-scoped) with the two-argument
+  namespaced form, keyed by hashtext(sessionId) under a fixed EVLG namespace.
+- ZERO advisory locks held in pg_locks after 200+ concurrent appends: the xact
+  form releases at commit/rollback, so no pooled connection is ever returned
+  still holding a lock (the deadlock the session-scoped form would cause).
+- T020 re-proven by the orchestrator, not accepted on report: disabling only the
+  lock line makes T018 AND T019 fail with 'duplicate key value violates unique
+  constraint events_session_id_seq_pk'. Restored byte-identical (empty diff),
+  16/16 pass again.
+- Gates green: 16/16 tests, typecheck, lint, build.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
