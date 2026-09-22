@@ -18,7 +18,15 @@ import { append, readFrom } from "../src/events/log.js";
  * generates its own fresh session_id and never assumes the table is empty.
  */
 
-const databaseUrl = process.env.DATABASE_URL;
+// TEST_DATABASE_URL first, DATABASE_URL second. These are two different
+// callers needing two different addresses: DATABASE_URL is what the APP
+// CONTAINER uses, so it must stay `@db:5432` (the compose service name) for
+// `docker compose up` to work at all. Host-run tests can't resolve `db` —
+// they need `@localhost:<DB_PORT>`, the loopback-published port from runbook
+// amendment A3. One variable cannot serve both, and the failure is silent:
+// with the container's URL, this whole suite skips and a green run proves
+// nothing about the event log.
+const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const db = databaseUrl ? createDb(databaseUrl) : undefined;
 // T015: loud-skip harness. A silent skip and a fake pass are both green;
 // this notice is what makes "proved nothing" look different from "proved
@@ -28,9 +36,10 @@ const reachable = db ? await probeReachable(db.$client, 2000) : false;
 if (!reachable) {
   console.warn(
     `\n⚠️  SKIPPING apps/server/test/events.integration.test.ts — no reachable database ` +
-      `(DATABASE_URL=${databaseUrl ?? "<unset>"}). These are the event-log integration ` +
+      `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the event-log integration ` +
       `tests (spec 004 US1); a skip here proves NOTHING about append/cursor/ordering ` +
-      `behavior. Start one with: docker compose -p task-0012 up -d db\n`,
+      `behavior. Start one with: docker compose up -d db, then set ` +
+      `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`,
   );
 }
 
