@@ -56,6 +56,8 @@ phases: 1-3 done (942db84, 4592cbe, T001-T014). Healthcheck verified: healthchec
 SEQUENCING: T015-T017 (docker compose up convergence checks) require a running server, which TASK-0013 delivers. Lane 2's tasks are parallel through development but serial at the finish — 0013 merges first, then 0011's branch merges main in and runs its validation phase against a real /health. Recorded in tasks.md line 124 at spec time.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+All 26 tasks done. T016 re-verified by orchestrator end to end after the pool fix: healthy -> db stopped -> app stays Up reporting degraded/HTTP 200 -> flips to (unhealthy) at ~54s -> db restarted -> healthy again, no manual app restart. Also fixed .dockerignore (bare *.tsbuildinfo missed nested files, breaking the build on any checkout where gates had run) and cleared 2 lint warnings this task introduced, including declaring APP_PORT/DATABASE_URL in turbo.json globalEnv for cache correctness.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
