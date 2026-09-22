@@ -27,7 +27,10 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [ ] #3 TypeScript strict mode is on and typecheck passes across every workspace package
 - [ ] #4 Lint and format run from the root and pass on a clean tree
 - [ ] #5 Node 22 is pinned for the project
+- [ ] #6 Spec phase: Phase 1 — Workspace root
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
