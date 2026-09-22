@@ -4,10 +4,10 @@ title: 'Docker Compose stack: app and Postgres 17 with pgvector'
 status: To Do
 assignee: []
 created_date: '2026-09-22 01:14'
+updated_date: '2026-09-22 06:43'
 labels: []
 milestone: m-0
-dependencies:
-  - TASK-1
+dependencies: []
 documentation:
   - docs/design/architecture.md
 priority: high
