@@ -46,6 +46,8 @@ HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loo
 Spec set complete via Spec Kit skills: spec.md, plan.md, tasks.md (26 tasks), research.md, data-model.md, quickstart.md, contracts/ (configuration, healthcheck), checklists/. 6 phase ACs seeded. Phases 1-2 dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-2 done (942db84, T001-T006). Verified by orchestrator: docker compose config parses (2 services, 1 named volume, exit 0); .gitignore extended not replaced; pgvector/pgvector:pg17 prebuilt per D4; runtime stage carries dist only. Phase 3 next. NOTE: first dispatch of this task landed in the wrong worktree (inherited orchestrator cwd) and correctly refused — see runbook amendment A2.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
