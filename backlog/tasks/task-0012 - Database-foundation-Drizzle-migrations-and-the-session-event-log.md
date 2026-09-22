@@ -4,7 +4,7 @@ title: 'Database foundation: Drizzle, migrations, and the session event log'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 17:03'
+updated_date: '2026-09-22 17:12'
 labels: []
 milestone: m-0
 dependencies:
@@ -31,7 +31,16 @@ Spec: specs/004-event-log
 - [ ] #4 Event payloads carry a schema version field
 - [ ] #5 Appending events is race-safe under concurrent writers to the same session
 - [ ] #6 Tests cover append and ordered read-back from a seq cursor
+- [ ] #7 Spec phase: Setup (Shared Infrastructure)
+- [ ] #8 Spec phase: Foundational (Blocking Prerequisites)
+- [ ] #9 Spec phase: User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP
+- [ ] #10 Spec phase: User Story 3 — Append safely while several writers act at once (Priority: P2)
+- [ ] #11 Spec phase: User Story 2 — Stand up the schema on a fresh database (Priority: P2)
+- [ ] #12 Spec phase: User Story 4 — Carry who may see an event, and which shape it has (Priority: P3)
+- [ ] #13 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
