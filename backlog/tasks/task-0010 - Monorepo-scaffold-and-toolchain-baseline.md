@@ -33,6 +33,8 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1 done (e30f1c0), 2 dispatched
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
