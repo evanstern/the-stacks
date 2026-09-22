@@ -4,10 +4,10 @@ title: Session auth for operator and invited players
 status: To Do
 assignee: []
 created_date: '2026-09-22 01:14'
+updated_date: '2026-09-22 06:43'
 labels: []
 milestone: m-0
 dependencies:
-  - TASK-3
   - TASK-4
 documentation:
   - docs/design/architecture.md
