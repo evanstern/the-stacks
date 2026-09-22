@@ -29,7 +29,10 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [ ] #5 Node 22 is pinned for the project
 - [ ] #6 Spec phase: Phase 1 — Workspace root
 - [ ] #7 Spec phase: Phase 2 — TypeScript baseline
+- [ ] #8 Spec phase: Phase 3 — The three packages
 <!-- AC:END -->
+
+
 
 
 
