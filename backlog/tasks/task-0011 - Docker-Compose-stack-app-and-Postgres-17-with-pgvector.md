@@ -4,7 +4,7 @@ title: 'Docker Compose stack: app and Postgres 17 with pgvector'
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:42'
+updated_date: '2026-09-22 14:58'
 labels: []
 milestone: m-0
 dependencies:
@@ -36,6 +36,8 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loop named the Spec Kit cycle as prose without binding it to the speckit-* skills, and spec 001 was hand-authored as a result. Runbook amendment in progress; spec authoring resumes against the amended loop.
 
 SEQUENCING: T015-T017 (docker compose up convergence checks) require a running server, which TASK-0013 delivers. Lane 2's tasks are parallel through development but serial at the finish — 0013 merges first, then 0011's branch merges main in and runs its validation phase against a real /health. Recorded in tasks.md line 124 at spec time.
+
+T015 PASS: both services healthy in ~15-20s from clean state incl. image build (SC-002 budget 2min). APP_PORT reconciliation held empirically — compose publishes, healthcheck.js probes, and config.ts reads the same variable. T016 FAIL: app container does not go unhealthy when db stops — it exits 1 in under a second, before the healthcheck can fire. Root cause is upstream of the healthcheck: missing pg.Pool error handler in apps/server/src/db.ts. Operator decision: fix + regression test on this branch, then re-run T016-T026.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
