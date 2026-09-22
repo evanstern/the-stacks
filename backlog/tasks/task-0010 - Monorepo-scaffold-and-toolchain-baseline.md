@@ -37,6 +37,8 @@ Spec: specs/001-monorepo-scaffold/ (sweep: docs/design/m0-skeleton-sweep-runbook
 Spec set complete: spec.md + plan.md + tasks.md on task-0010-monorepo-scaffold. 4 phases; dispatching phase-scoped at tier=sonnet.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-3 done (e30f1c0, 4e1c175), 4 dispatched. Verified: clean tsc -b rebuild emits shared/dist first (real project references).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
