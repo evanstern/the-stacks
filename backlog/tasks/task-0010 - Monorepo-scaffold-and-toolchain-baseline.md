@@ -4,7 +4,7 @@ title: Monorepo scaffold and toolchain baseline
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:43'
-updated_date: '2026-09-22 13:58'
+updated_date: '2026-09-22 14:00'
 labels: []
 milestone: m-0
 dependencies: []
@@ -33,6 +33,8 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec: specs/001-monorepo-scaffold/ (sweep: docs/design/m0-skeleton-sweep-runbook.md, Lane 1)
+
+Spec set complete: spec.md + plan.md + tasks.md on task-0010-monorepo-scaffold. 4 phases; dispatching phase-scoped at tier=sonnet.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
