@@ -4,6 +4,7 @@ title: Hono HTTP server with health and one typed REST route
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 14:17'
 labels: []
 milestone: m-0
 dependencies:
@@ -28,6 +29,12 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #4 Errors return a consistent structured shape rather than raw stack traces
 - [ ] #5 Tests cover the route and the health check
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loop named the Spec Kit cycle as prose without binding it to the speckit-* skills, and spec 001 was hand-authored as a result. Runbook amendment in progress; spec authoring resumes against the amended loop.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
