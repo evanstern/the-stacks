@@ -7,5 +7,6 @@ build/
 .turbo/
 **/.turbo/
 *.tsbuildinfo
+**/*.tsbuildinfo
 .git/
 .env
