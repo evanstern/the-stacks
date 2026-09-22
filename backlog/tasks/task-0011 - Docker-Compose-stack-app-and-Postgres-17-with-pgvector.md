@@ -29,7 +29,10 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #4 Configuration is supplied by environment variables with a committed .env.example
 - [ ] #5 The app container reaches the database and reports healthy
 - [ ] #6 Spec phase: Setup (Shared Infrastructure)
+- [ ] #7 Spec phase: Foundational (blocking prerequisites)
 <!-- AC:END -->
+
+
 
 
 
