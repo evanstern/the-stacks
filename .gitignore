@@ -1,2 +1,12 @@
 .handoff/
 .worktrees/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Turborepo
+.turbo/

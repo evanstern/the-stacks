@@ -7,11 +7,11 @@ from this spec directory and the branch's commits.
 
 ## Phase 1 — Workspace root
 
-- [ ] Root `package.json`: private, `packageManager` pinned (pnpm), `engines.node` set to 22
-- [ ] `pnpm-workspace.yaml` declaring `apps/*` and `packages/*`
-- [ ] `.nvmrc` pinning Node 22
-- [ ] `.gitignore` covers `node_modules/`, build output, and the Turborepo cache
-- [ ] `pnpm install` succeeds at the root
+- [x] Root `package.json`: private, `packageManager` pinned (pnpm), `engines.node` set to 22
+- [x] `pnpm-workspace.yaml` declaring `apps/*` and `packages/*`
+- [x] `.nvmrc` pinning Node 22
+- [x] `.gitignore` covers `node_modules/`, build output, and the Turborepo cache
+- [x] `pnpm install` succeeds at the root
 
 ## Phase 2 — TypeScript baseline
 
