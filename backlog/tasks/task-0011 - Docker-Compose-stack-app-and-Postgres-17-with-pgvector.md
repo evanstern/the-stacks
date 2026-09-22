@@ -30,7 +30,10 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #5 The app container reaches the database and reports healthy
 - [ ] #6 Spec phase: Setup (Shared Infrastructure)
 - [ ] #7 Spec phase: Foundational (blocking prerequisites)
+- [ ] #8 Spec phase: User Story 1 — A stranger can run this project (P1)
 <!-- AC:END -->
+
+
 
 
 
