@@ -4,7 +4,7 @@ title: Hono HTTP server with health and one typed REST route
 status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:47'
+updated_date: '2026-09-22 14:58'
 labels: []
 milestone: m-0
 dependencies:
@@ -57,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 phases: 1-5 all done, 25/25 tasks.md boxes. Gates re-run by orchestrator after merging main in: typecheck/lint/9 tests/build all green. APP_PORT reconciliation landed (57eb648).
 
 spec-bridge sync: Setup (Shared Infrastructure): 3/3 · Foundational (blocking prerequisites): 4/4 · User Story 1 — The operator can tell whether their install is healthy (P1): 6/6 · User Story 2 — A client gets predictable, validated answers (P2): 9/9 · Polish & Cross-Cutting Concerns: 3/3 — status In Progress → Done
+
+DEFECT FOUND AFTER MERGE by TASK-0011's T016 validation: createDatabaseProbe builds a pg.Pool with no 'error' listener. When Postgres terminates idle connections (57P01, e.g. the db container restarting), pg.Pool emits 'error' on an EventEmitter with no handler and Node throws — the server process exits 1 rather than reporting degraded. Unit tests missed it because they inject fake probes that never touch a real pool. Fix (pool.on('error')) + regression test land on TASK-0011's branch per operator decision, since that is where the failing validation lives.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
