@@ -4,7 +4,7 @@ title: Monorepo scaffold and toolchain baseline
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:43'
-updated_date: '2026-09-22 14:05'
+updated_date: '2026-09-22 14:09'
 labels: []
 milestone: m-0
 dependencies: []
@@ -39,6 +39,8 @@ Spec set complete: spec.md + plan.md + tasks.md on task-0010-monorepo-scaffold. 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 phases: 1-3 done (e30f1c0, 4e1c175), 4 dispatched. Verified: clean tsc -b rebuild emits shared/dist first (real project references).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
