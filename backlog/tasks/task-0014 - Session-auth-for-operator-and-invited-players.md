@@ -4,7 +4,7 @@ title: Session auth for operator and invited players
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 18:26'
+updated_date: '2026-09-22 18:33'
 labels: []
 milestone: m-0
 dependencies:
@@ -33,7 +33,16 @@ Spec: specs/005-session-auth
 - [ ] #5 The operator can invite a player who can then sign in
 - [ ] #6 WebSocket connections can authenticate using the same session
 - [ ] #7 Tests cover sign-in, rejection of bad credentials, and session expiry
+- [ ] #8 Spec phase: Setup (Shared Infrastructure)
+- [ ] #9 Spec phase: Foundational (Blocking Prerequisites)
+- [ ] #10 Spec phase: User Story 1 — Sign in and stay signed in (Priority: P1) 🎯 MVP
+- [ ] #11 Spec phase: User Story 2 — One identity, recognized on every channel (Priority: P1)
+- [ ] #12 Spec phase: User Story 3 — The operator gets in on a fresh install (Priority: P2)
+- [ ] #13 Spec phase: User Story 4 — The operator invites a player (Priority: P2)
+- [ ] #14 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
