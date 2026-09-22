@@ -1,9 +1,10 @@
 ---
 id: TASK-0010
 title: Monorepo scaffold and toolchain baseline
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:43'
+updated_date: '2026-09-22 13:58'
 labels: []
 milestone: m-0
 dependencies: []
@@ -27,6 +28,12 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [ ] #4 Lint and format run from the root and pass on a clean tree
 - [ ] #5 Node 22 is pinned for the project
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec: specs/001-monorepo-scaffold/ (sweep: docs/design/m0-skeleton-sweep-runbook.md, Lane 1)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
