@@ -30,10 +30,10 @@ from this spec directory and the branch's commits.
 
 ## Phase 4 — Pipeline and lint baseline
 
-- [ ] `turbo.json` declaring `build`, `lint`, `typecheck`, `test` with `^build` ordering
-- [ ] Root lint configuration covering every workspace from one invocation
-- [ ] Root format configuration, shared not duplicated
-- [ ] Root scripts fan out: `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
-- [ ] `test` task exits 0 on a tree with no tests yet
-- [ ] Full run green: `pnpm install && pnpm typecheck && pnpm lint && pnpm build`
-- [ ] Terminal output of that run captured for the PR body (stands in for CI until TASK-0017)
+- [x] `turbo.json` declaring `build`, `lint`, `typecheck`, `test` with `^build` ordering
+- [x] Root lint configuration covering every workspace from one invocation
+- [x] Root format configuration, shared not duplicated
+- [x] Root scripts fan out: `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
+- [x] `test` task exits 0 on a tree with no tests yet
+- [x] Full run green: `pnpm install && pnpm typecheck && pnpm lint && pnpm build`
+- [x] Terminal output of that run captured for the PR body (stands in for CI until TASK-0017)

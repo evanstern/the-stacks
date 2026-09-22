@@ -6,9 +6,15 @@
     "node": "22"
   },
   "scripts": {
-    "typecheck": "tsc -b"
+    "build": "turbo run build",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc -b",
+    "test": "turbo run test"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "turbo": "^2.11.2",
     "typescript": "^5.9.3"
   }
 }
