@@ -9,5 +9,8 @@
     "build": "tsc -b",
     "typecheck": "tsc -b",
     "test": "echo \"no tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
   }
 }

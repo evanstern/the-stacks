@@ -1,3 +1,13 @@
-import { SHARED_VERSION } from "@the-stacks/shared";
+import { serve } from "@hono/node-server";
+import { createApp } from "./app.js";
+import { loadConfig } from "./config.js";
+import { createDatabaseProbe } from "./db.js";
 
-export const serverPlaceholder = SHARED_VERSION;
+const config = loadConfig();
+const app = createApp({
+  databaseProbe: createDatabaseProbe(config.databaseUrl),
+});
+
+serve({ fetch: app.fetch, port: config.port }, (info) => {
+  console.log(`Server listening on port ${info.port}`);
+});
