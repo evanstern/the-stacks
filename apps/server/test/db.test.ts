@@ -44,17 +44,23 @@ function createFakePostgresServer() {
   const server = net.createServer((socket) => {
     sockets.push(socket);
     socket.on("error", () => {});
-    let startedUp = false;
+    // Answers exactly the startup message, then exactly one query, then goes
+    // silent — so a later stray byte from the client (e.g. the Terminate
+    // message `client.end()` sends while the test is tearing the connection
+    // down) is never mistaken for a second query and answered.
+    let stage: "startup" | "query" | "done" = "startup";
     socket.on("data", () => {
-      if (!startedUp) {
-        startedUp = true;
+      if (stage === "startup") {
+        stage = "query";
         socket.write(Buffer.concat([authenticationOk(), readyForQuery()]));
         return;
       }
-      // Any later message is treated as the simple query "SELECT 1".
-      socket.write(
-        Buffer.concat([commandComplete("SELECT 1"), readyForQuery()]),
-      );
+      if (stage === "query") {
+        stage = "done";
+        socket.write(
+          Buffer.concat([commandComplete("SELECT 1"), readyForQuery()]),
+        );
+      }
     });
   });
   return { server, sockets };
