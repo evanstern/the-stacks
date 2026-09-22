@@ -27,9 +27,9 @@ fakes (the T016 finding).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Add `ws` and `@types/ws` to `apps/server/package.json` and run `pnpm install`. This is the constraints table's own Server row, not a new choice
-- [ ] T002 Define the frame schemas in `apps/server/src/ws/protocol.ts` with Zod, per contracts/ws-protocol.md: `subscribe`, `send` inbound; `event`, `replay-complete`, `error` outbound
-- [ ] T003 [P] Write `apps/server/test/ws.protocol.test.ts` (no socket, no database): valid frames parse, malformed JSON is refused, an unknown `type` is refused, and **a `send` carrying `actor`/`seq`/`ts` parses with those fields ignored** (data-model.md — a client sending them is confused, not hostile)
+- [x] T001 Add `ws` and `@types/ws` to `apps/server/package.json` and run `pnpm install`. This is the constraints table's own Server row, not a new choice
+- [x] T002 Define the frame schemas in `apps/server/src/ws/protocol.ts` with Zod, per contracts/ws-protocol.md: `subscribe`, `send` inbound; `event`, `replay-complete`, `error` outbound
+- [x] T003 [P] Write `apps/server/test/ws.protocol.test.ts` (no socket, no database): valid frames parse, malformed JSON is refused, an unknown `type` is refused, and **a `send` carrying `actor`/`seq`/`ts` parses with those fields ignored** (data-model.md — a client sending them is confused, not hostile)
 
 **Checkpoint**: frames validate. T003 passes.
 
@@ -41,11 +41,11 @@ fakes (the T016 finding).
 
 ⚠️ No user story can start until this phase completes.
 
-- [ ] T004 Attach a `ws` server to the existing HTTP server in `apps/server/src/index.ts`, sharing one port and one process (FR-001, architecture A2)
-- [ ] T005 Implement upgrade-time authentication in `apps/server/src/ws/gateway.ts`: extract the session token from the upgrade request's cookie header, call spec 005's `validateSession`, and **refuse the upgrade** on `null` (research D4). The socket must never open unauthenticated
-- [ ] T006 Distinguish the two refusals in `apps/server/src/ws/gateway.ts`: `401` for an invalid session, `503` when validation **throws** (datastore unreachable). A client retries these differently, and treating a database blip as "signed out" logs users out spuriously (FR-013)
-- [ ] T007 Implement the subscriber registry in `apps/server/src/ws/registry.ts`: `sessionId` → set of connections, with removal on disconnect and deletion of empty sets so a long-running process does not leak an entry per session ever visited
-- [ ] T008 [P] Build the integration test harness in `apps/server/test/ws.integration.test.ts`: starts a real server on an ephemeral port, opens real `ws` clients, and reuses spec 004's **loud-skip** pattern when no database is reachable
+- [x] T004 Attach a `ws` server to the existing HTTP server in `apps/server/src/index.ts`, sharing one port and one process (FR-001, architecture A2)
+- [x] T005 Implement upgrade-time authentication in `apps/server/src/ws/gateway.ts`: extract the session token from the upgrade request's cookie header, call spec 005's `validateSession`, and **refuse the upgrade** on `null` (research D4). The socket must never open unauthenticated
+- [x] T006 Distinguish the two refusals in `apps/server/src/ws/gateway.ts`: `401` for an invalid session, `503` when validation **throws** (datastore unreachable). A client retries these differently, and treating a database blip as "signed out" logs users out spuriously (FR-013)
+- [x] T007 Implement the subscriber registry in `apps/server/src/ws/registry.ts`: `sessionId` → set of connections, with removal on disconnect and deletion of empty sets so a long-running process does not leak an entry per session ever visited
+- [x] T008 [P] Build the integration test harness in `apps/server/test/ws.integration.test.ts`: starts a real server on an ephemeral port, opens real `ws` clients, and reuses spec 004's **loud-skip** pattern when no database is reachable
 
 **Checkpoint**: an authenticated client can open a socket; an unauthenticated one cannot.
 
@@ -59,16 +59,16 @@ fakes (the T016 finding).
 
 ### Tests for User Story 1
 
-- [ ] T009 [US1] Test fan-out: two subscribers to one session both receive a message sent by one of them — **including the sender** (contracts/ws-protocol.md: one path for everyone)
-- [ ] T010 [US1] Test session isolation: a subscriber to session A receives nothing when a message is sent in session B (FR-008)
-- [ ] T011 [US1] Test durability: after delivery, reading the log finds the event (SC-002) — delivery and durability are the same act
-- [ ] T012 [P] [US1] Test ordering: several concurrent senders, and every subscriber observes the same sequence (FR-007)
+- [x] T009 [US1] Test fan-out: two subscribers to one session both receive a message sent by one of them — **including the sender** (contracts/ws-protocol.md: one path for everyone)
+- [x] T010 [US1] Test session isolation: a subscriber to session A receives nothing when a message is sent in session B (FR-008)
+- [x] T011 [US1] Test durability: after delivery, reading the log finds the event (SC-002) — delivery and durability are the same act
+- [x] T012 [P] [US1] Test ordering: several concurrent senders, and every subscriber observes the same sequence (FR-007)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Handle the `send` frame in `apps/server/src/ws/gateway.ts`: validate the envelope, then **append through spec 004's `append` BEFORE broadcasting** (FR-004). Never the reverse — a broadcast that precedes the append can deliver what was never recorded
-- [ ] T014 [US1] Set `actor` from the connection's authenticated identity, never from the frame (FR-005). Let the log assign `seq` and `ts` (FR-006)
-- [ ] T015 [US1] Implement fan-out in `apps/server/src/ws/registry.ts`, sending the `event` frame to each subscriber of that session
+- [x] T013 [US1] Handle the `send` frame in `apps/server/src/ws/gateway.ts`: validate the envelope, then **append through spec 004's `append` BEFORE broadcasting** (FR-004). Never the reverse — a broadcast that precedes the append can deliver what was never recorded
+- [x] T014 [US1] Set `actor` from the connection's authenticated identity, never from the frame (FR-005). Let the log assign `seq` and `ts` (FR-006)
+- [x] T015 [US1] Implement fan-out in `apps/server/src/ws/registry.ts`, sending the `event` frame to each subscriber of that session
 
 **Checkpoint**: the realtime channel works. US1 tests pass.
 
