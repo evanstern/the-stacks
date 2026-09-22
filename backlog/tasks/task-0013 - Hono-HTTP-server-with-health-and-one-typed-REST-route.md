@@ -28,12 +28,14 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #3 At least one typed REST route validates its input and output with Zod
 - [ ] #4 Errors return a consistent structured shape rather than raw stack traces
 - [ ] #5 Tests cover the route and the health check
-- [ ] #6 Spec phase: Setup (Shared Infrastructure)
+- [x] #6 Spec phase: Setup (Shared Infrastructure)
 - [ ] #7 Spec phase: Foundational (blocking prerequisites)
 - [ ] #8 Spec phase: User Story 1 — The operator can tell whether their install is healthy (P1)
 - [ ] #9 Spec phase: User Story 2 — A client gets predictable, validated answers (P2)
 - [ ] #10 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
