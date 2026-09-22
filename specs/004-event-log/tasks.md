@@ -117,12 +117,12 @@ Run it again; confirm it changes nothing.
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] Add a test asserting the append-only guard is enforced **at the database**: a direct `UPDATE` and a direct `DELETE` against `events` are both rejected (FR-004, data-model.md)
+- [x] T023 [P] [US2] Add a test asserting the append-only guard is enforced **at the database**: a direct `UPDATE` and a direct `DELETE` against `events` are both rejected (FR-004, data-model.md)
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Document the migration command in `apps/server/README.md` (create if absent) — prerequisites, the command, and the expectation that a second run is a no-op
-- [ ] T025 [US2] Verify idempotency by hand: run `db:migrate` twice against a fresh database, confirm the second run applies nothing and exits 0 (SC-006). Record the output in the PR body
+- [x] T024 [US2] Document the migration command in `apps/server/README.md` (create if absent) — prerequisites, the command, and the expectation that a second run is a no-op
+- [x] T025 [US2] Verify idempotency by hand: run `db:migrate` twice against a fresh database, confirm the second run applies nothing and exits 0 (SC-006). Record the output in the PR body
 
 **Checkpoint**: A self-hoster reaches the full schema with one command (SC-001).
 
@@ -137,13 +137,13 @@ confirm both come back unaltered and an unrecognized version is still returned.
 
 ### Tests for User Story 4
 
-- [ ] T026 [P] [US4] Add the round-trip test: visibility and payloadVersion survive append and read unchanged (FR-005, FR-013)
-- [ ] T027 [P] [US4] Add the default-visibility test: an append omitting visibility records the public marker, never null (FR-013)
-- [ ] T028 [P] [US4] Add the unknown-tolerance test: an event with an unrecognized `type` and an unrecognized `payloadVersion` is still returned by a read (FR-012, constitution IV)
+- [x] T026 [P] [US4] Add the round-trip test: visibility and payloadVersion survive append and read unchanged (FR-005, FR-013)
+- [x] T027 [P] [US4] Add the default-visibility test: an append omitting visibility records the public marker, never null (FR-013)
+- [x] T028 [P] [US4] Add the unknown-tolerance test: an event with an unrecognized `type` and an unrecognized `payloadVersion` is still returned by a read (FR-012, constitution IV)
 
 ### Implementation for User Story 4
 
-- [ ] T029 [US4] Confirm `append` defaults visibility when omitted and that `readFrom` applies no type or version filtering — implemented in T016/T017; this task is verification against the three tests above, not new code
+- [x] T029 [US4] Confirm `append` defaults visibility when omitted and that `readFrom` applies no type or version filtering — implemented in T016/T017; this task is verification against the three tests above, not new code
 
 **Checkpoint**: All four user stories complete.
 
@@ -151,16 +151,16 @@ confirm both come back unaltered and an unrecognized version is still returned.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T030 [P] Add unit-level tests in `apps/server/test/events.test.ts` for input validation that needs no database (rejecting caller-supplied `seq`/`ts`, requiring the mandatory fields)
-- [ ] T031 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` in the worktree and paste the literal output into the PR body — this is the evidence standing in for the CI TASK-0017 has not built
-- [ ] T032 Run the full `quickstart.md` validation end to end, including the manual `psql` checks in step 4
+- [x] T030 [P] Add unit-level tests in `apps/server/test/events.test.ts` for input validation that needs no database (rejecting caller-supplied `seq`/`ts`, requiring the mandatory fields)
+- [x] T031 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` in the worktree and paste the literal output into the PR body — this is the evidence standing in for the CI TASK-0017 has not built
+- [x] T032 Run the full `quickstart.md` validation end to end, including the manual `psql` checks in step 4
 
 ### Constitution Compliance (the-stacks)
 
-- [ ] T033 Event types versioned, with visibility present on every event (Principle IV) — verified by T026–T028
-- [ ] T034 Reads tolerate unknown and future event types (Principle IV) — verified by T028
-- [ ] T035 Agent-facing interface exercised by a test, not only a human path (Principle I) — the append/read seam is the only interface and every test drives it
-- [ ] T036 `docker compose up` still works from a clean clone (Principle IX) — verify after the schema and migration land
+- [x] T033 Event types versioned, with visibility present on every event (Principle IV) — verified by T026–T028
+- [x] T034 Reads tolerate unknown and future event types (Principle IV) — verified by T028
+- [x] T035 Agent-facing interface exercised by a test, not only a human path (Principle I) — the append/read seam is the only interface and every test drives it
+- [x] T036 `docker compose up` still works from a clean clone (Principle IX) — verify after the schema and migration land
 
 ---
 

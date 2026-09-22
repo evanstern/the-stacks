@@ -33,8 +33,15 @@ run that re-applies or errors is a failure of this check, not a quirk.
 ## 3. Run the test suite
 
 ```bash
+export TEST_DATABASE_URL=postgres://stacks:<your-password>@localhost:${DB_PORT:-5432}/stacks
 pnpm test
 ```
+
+**`TEST_DATABASE_URL` is required, and its absence is silent.** `DATABASE_URL`
+names the database the way the *app container* reaches it (`@db:5432`, a compose
+service name); a host process running the tests cannot resolve that name. Without
+`TEST_DATABASE_URL` the integration suite skips and the run goes green having
+proven nothing.
 
 **Expected**: unit tests plus the integration tests covering append, cursor read-back, and
 concurrent appends to one session.

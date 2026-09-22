@@ -4,7 +4,7 @@ title: 'Database foundation: Drizzle, migrations, and the session event log'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 17:41'
+updated_date: '2026-09-22 17:52'
 labels: []
 milestone: m-0
 dependencies:
@@ -25,19 +25,19 @@ Spec: specs/004-event-log
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Drizzle ORM is wired with a committed, versioned migration workflow
-- [ ] #2 Migrations run automatically or by a documented command on a fresh database
-- [ ] #3 An events table exists keyed by (session_id, seq) with actor, type, payload, visibility, and timestamp columns
-- [ ] #4 Event payloads carry a schema version field
+- [x] #1 Drizzle ORM is wired with a committed, versioned migration workflow
+- [x] #2 Migrations run automatically or by a documented command on a fresh database
+- [x] #3 An events table exists keyed by (session_id, seq) with actor, type, payload, visibility, and timestamp columns
+- [x] #4 Event payloads carry a schema version field
 - [x] #5 Appending events is race-safe under concurrent writers to the same session
-- [ ] #6 Tests cover append and ordered read-back from a seq cursor
+- [x] #6 Tests cover append and ordered read-back from a seq cursor
 - [x] #7 Spec phase: Setup (Shared Infrastructure)
 - [x] #8 Spec phase: Foundational (Blocking Prerequisites)
 - [x] #9 Spec phase: User Story 1 — Record a session's happenings and replay them in order (Priority: P1) 🎯 MVP
 - [x] #10 Spec phase: User Story 3 — Append safely while several writers act at once (Priority: P2)
-- [ ] #11 Spec phase: User Story 2 — Stand up the schema on a fresh database (Priority: P2)
-- [ ] #12 Spec phase: User Story 4 — Carry who may see an event, and which shape it has (Priority: P3)
-- [ ] #13 Spec phase: Polish & Cross-Cutting Concerns
+- [x] #11 Spec phase: User Story 2 — Stand up the schema on a fresh database (Priority: P2)
+- [x] #12 Spec phase: User Story 4 — Carry who may see an event, and which shape it has (Priority: P3)
+- [x] #13 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -135,6 +135,39 @@ Also verified independently:
   constraint events_session_id_seq_pk'. Restored byte-identical (empty diff),
   16/16 pass again.
 - Gates green: 16/16 tests, typecheck, lint, build.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phases 5-7 (T023-T036) dispatched to sonnet-implementer and verified. Served
+model from transcript: 99 occurrences of claude-sonnet-5. All 36 tasks in
+tasks.md are now ticked; 22/22 tests pass with the integration suite genuinely
+running (not skipped).
+
+ORCHESTRATOR FINDING, fixed in 61049ce -- DATABASE_URL could not serve both
+callers, and the failure was silent:
+  container URL (@db:5432)   -> compose works, 10 integration tests SKIP
+  host URL (@localhost:5433) -> tests run, app container reports degraded
+The skip is the dangerous half: a green run proving nothing about append,
+ordering, or race-safety -- the blind spot research D2 and the T016 finding
+exist to prevent. Tests now read TEST_DATABASE_URL first, DATABASE_URL second.
+The committed .env.example keeps DATABASE_URL=@db:5432 so a self-hoster's
+docker compose up is unchanged, and documents TEST_DATABASE_URL. Both declared
+in turbo.json globalEnv for cache correctness. Quickstart step 3 updated, since
+following it verbatim produced a green run with 10 tests skipped.
+
+T036 (docker compose up, constitution IX) PASSES: full stack built and started
+from this worktree, both containers healthy, /health returns
+{status:ok, database:{reachable:true}}. The implementer's 'degraded' reading was
+an artifact of the local .env being repointed for host tests, not a defect.
+
+Quickstart step 4 verified by the orchestrator: every 50-append session shows
+events = highest = distinct_positions = 50, gapless and unique.
+
+Known gap, NOT fixed here (belongs to TASK-0017, out of sweep scope):
+apps/server/tsconfig.json scopes include to ['src'], so test/ is never
+typechecked. The implementer correctly declined to add a @ts-expect-error test
+for missing mandatory fields, since it would sit inert and manufacture
+confidence -- the exact anti-pattern tasks.md warns against for T020.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
