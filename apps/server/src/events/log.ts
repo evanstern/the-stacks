@@ -4,13 +4,22 @@ import { events } from "../schema/events.js";
 
 /**
  * The event-log seam (contracts/event-log.md), binding for TASK-0015 and
- * TASK-0014. This phase (US1) implements append + readFrom without the
- * concurrency lock — T021 (Phase 4) adds `pg_advisory_xact_lock`; a plain
- * `MAX(seq)+1` is correct and expected here (tasks.md T016 note).
+ * TASK-0014.
  */
 
 export type DbClient = ReturnType<typeof createDb>;
 export type RecordedEvent = typeof events.$inferSelect;
+
+/**
+ * Fixed namespace for this feature's `pg_advisory_xact_lock` keys (research
+ * D1, Collision note). The two-argument form takes (namespace, key); a
+ * fixed namespace here means this feature's per-session locks can never
+ * collide with an unrelated advisory-lock user elsewhere in the process,
+ * regardless of what key that other user picks. Arbitrary but fixed —
+ * never change this once shipped, or in-flight locks from an old process
+ * stop meaning the same thing as new ones.
+ */
+const EVENT_LOG_LOCK_NAMESPACE = 0x4556_4c47; // ASCII "EVLG"
 
 export interface AppendInput {
   sessionId: string;
@@ -39,6 +48,16 @@ export interface ReadFromInput {
  * rules). The check is a runtime guard, not just a TypeScript one, because
  * a caller (e.g. TASK-0015, deserializing a client message) may hand this
  * function an object built from untrusted JSON.
+ *
+ * Race-safety (research D1): the whole body runs in one transaction that
+ * first takes a transaction-scoped advisory lock keyed on `sessionId`
+ * (`pg_advisory_xact_lock`, not the session-scoped `pg_advisory_lock` —
+ * the xact form releases automatically at commit or rollback, so a
+ * pooled connection can never be handed back to another caller still
+ * holding a lock). `seq` is computed from `MAX(seq)` for this session
+ * *inside* that locked transaction, so only one writer per session can
+ * ever be mid-computation at a time. The `(session_id, seq)` primary key
+ * stays as the backstop; this lock is what keeps it from ever firing.
  */
 export async function append(
   db: DbClient,
@@ -50,29 +69,39 @@ export async function append(
     );
   }
 
-  const values: Record<string, unknown> = {
-    sessionId: input.sessionId,
-    actor: input.actor,
-    type: input.type,
-    payload: input.payload,
-    payloadVersion: input.payloadVersion,
-    // seq = COALESCE(MAX(seq), 0) + 1 for this session, computed in the
-    // same INSERT so there's no separate read step to race against
-    // (research D1; the advisory lock that makes this race-safe under
-    // concurrency is T021, Phase 4 — out of scope here).
-    seq: sql`COALESCE((SELECT MAX(${events.seq}) FROM ${events} WHERE ${events.sessionId} = ${input.sessionId}), 0) + 1`,
-  };
-  // Omit visibility entirely when not supplied, rather than passing
-  // undefined, so the column's DB default ("public") applies (FR-013).
-  if (input.visibility !== undefined) {
-    values.visibility = input.visibility;
-  }
+  return db.transaction(async (tx) => {
+    // Session ids are UUIDs, not integers; hashtext(...) folds the id into
+    // the int4 key pg_advisory_xact_lock's two-argument form requires. A
+    // hash collision serializes two unrelated sessions against each
+    // other — a performance effect, never a correctness one, since seq is
+    // still computed per session below (research D1, Collision note).
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(${EVENT_LOG_LOCK_NAMESPACE}, hashtext(${input.sessionId}))`,
+    );
 
-  const [row] = await db
-    .insert(events)
-    .values(values as never)
-    .returning();
-  return row;
+    const values: Record<string, unknown> = {
+      sessionId: input.sessionId,
+      actor: input.actor,
+      type: input.type,
+      payload: input.payload,
+      payloadVersion: input.payloadVersion,
+      // seq = COALESCE(MAX(seq), 0) + 1 for this session. Safe against
+      // concurrent writers only because the advisory lock above has
+      // already serialized every other appender to this same session.
+      seq: sql`COALESCE((SELECT MAX(${events.seq}) FROM ${events} WHERE ${events.sessionId} = ${input.sessionId}), 0) + 1`,
+    };
+    // Omit visibility entirely when not supplied, rather than passing
+    // undefined, so the column's DB default ("public") applies (FR-013).
+    if (input.visibility !== undefined) {
+      values.visibility = input.visibility;
+    }
+
+    const [row] = await tx
+      .insert(events)
+      .values(values as never)
+      .returning();
+    return row;
+  });
 }
 
 /**

@@ -124,5 +124,72 @@ describe.skipIf(!reachable)(
       expect(result).toHaveLength(2);
       expect(result.map((e) => e.seq)).toEqual([1, 2]);
     });
+
+    it("T018: 50 concurrent appends to one session are gapless and duplicate-free (SC-003)", async () => {
+      const WRITER_COUNT = 50;
+
+      const recorded = await Promise.all(
+        Array.from({ length: WRITER_COUNT }, (_, i) =>
+          append(requireDb(), {
+            sessionId,
+            actor: "test-actor",
+            type: "narration",
+            payload: { i },
+            payloadVersion: 1,
+          }),
+        ),
+      );
+
+      const seqs = recorded.map((e) => e.seq);
+      const distinctSeqs = new Set(seqs);
+
+      expect(recorded).toHaveLength(WRITER_COUNT);
+      expect(distinctSeqs.size).toBe(WRITER_COUNT);
+      expect(Math.max(...seqs)).toBe(WRITER_COUNT);
+
+      const stored = await readFrom(requireDb(), { sessionId, limit: 100 });
+      expect(stored.map((e) => e.seq)).toEqual(
+        Array.from({ length: WRITER_COUNT }, (_, i) => i + 1),
+      );
+    });
+
+    it("T019: concurrent appends to two sessions number each session independently (FR-003)", async () => {
+      const sessionA = randomUUID();
+      const sessionB = randomUUID();
+      const PER_SESSION = 25;
+
+      const [recordedA, recordedB] = await Promise.all([
+        Promise.all(
+          Array.from({ length: PER_SESSION }, (_, i) =>
+            append(requireDb(), {
+              sessionId: sessionA,
+              actor: "test-actor",
+              type: "narration",
+              payload: { i },
+              payloadVersion: 1,
+            }),
+          ),
+        ),
+        Promise.all(
+          Array.from({ length: PER_SESSION }, (_, i) =>
+            append(requireDb(), {
+              sessionId: sessionB,
+              actor: "test-actor",
+              type: "narration",
+              payload: { i },
+              payloadVersion: 1,
+            }),
+          ),
+        ),
+      ]);
+
+      const expectedSeqs = Array.from({ length: PER_SESSION }, (_, i) => i + 1);
+      expect(recordedA.map((e) => e.seq).sort((a, b) => a - b)).toEqual(
+        expectedSeqs,
+      );
+      expect(recordedB.map((e) => e.seq).sort((a, b) => a - b)).toEqual(
+        expectedSeqs,
+      );
+    });
   },
 );
