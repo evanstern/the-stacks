@@ -4,7 +4,7 @@ title: 'Docker Compose stack: app and Postgres 17 with pgvector'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:38'
+updated_date: '2026-09-22 14:42'
 labels: []
 milestone: m-0
 dependencies:
@@ -52,6 +52,8 @@ phases: 1-2 done (942db84, T001-T006). Verified by orchestrator: docker compose 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 phases: 1-3 done (942db84, 4592cbe, T001-T014). Healthcheck verified: healthcheck.js uses Node's built-in http (no curl in node:22-alpine), parses the body, exits 1 on degraded despite HTTP 200 — contract honored. CROSS-TASK DEFECT FOUND AND FIXED: contract defined APP_PORT only as the published host port; 002 probes APP_PORT, 003's server reads PORT. Contract now states APP_PORT is one number on both sides; TASK-0013 owes a one-line reconciliation.
+
+SEQUENCING: T015-T017 (docker compose up convergence checks) require a running server, which TASK-0013 delivers. Lane 2's tasks are parallel through development but serial at the finish — 0013 merges first, then 0011's branch merges main in and runs its validation phase against a real /health. Recorded in tasks.md line 124 at spec time.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
