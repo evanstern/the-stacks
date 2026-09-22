@@ -26,7 +26,7 @@ import { append, readFrom } from "../src/events/log.js";
 // amendment A3. One variable cannot serve both, and the failure is silent:
 // with the container's URL, this whole suite skips and a green run proves
 // nothing about the event log.
-const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
+const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
 const db = databaseUrl ? createDb(databaseUrl) : undefined;
 // T015: loud-skip harness. A silent skip and a fake pass are both green;
 // this notice is what makes "proved nothing" look different from "proved

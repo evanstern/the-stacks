@@ -2,15 +2,21 @@ import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import type { DatabaseProbe } from "../src/db.js";
+import { createDb } from "../src/db.js";
 import { errorHandler } from "../src/errors.js";
 
 function fakeProbe(reachable: boolean): DatabaseProbe {
   return { reachable: async () => reachable };
 }
 
+// The echo route never touches the database, so a Pool that's never
+// queried (and therefore never connects) is enough — createApp now
+// requires `db` unconditionally since the auth routes need one.
+const unusedDb = createDb("postgres://unused:unused@127.0.0.1:1/unused");
+
 describe("POST /api/echo", () => {
   it("returns 200 and a body matching the declared output shape for valid input", async () => {
-    const app = createApp({ databaseProbe: fakeProbe(true) });
+    const app = createApp({ databaseProbe: fakeProbe(true), db: unusedDb });
     const res = await app.request("/api/echo", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -30,7 +36,7 @@ describe("POST /api/echo", () => {
   ])(
     "returns 400 kind:validation naming the offending path for %s",
     async (_label, payload) => {
-      const app = createApp({ databaseProbe: fakeProbe(true) });
+      const app = createApp({ databaseProbe: fakeProbe(true), db: unusedDb });
       const res = await app.request("/api/echo", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -46,7 +52,7 @@ describe("POST /api/echo", () => {
   );
 
   it("returns kind:not_found in the same structured shape for an unknown path", async () => {
-    const app = createApp({ databaseProbe: fakeProbe(true) });
+    const app = createApp({ databaseProbe: fakeProbe(true), db: unusedDb });
     const res = await app.request("/api/does-not-exist");
 
     expect(res.status).toBe(404);

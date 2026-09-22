@@ -7,8 +7,18 @@ import { createDb } from "../src/db.ts";
 // not compiled by tsc, so it can't use the .js-suffixed imports src/ uses
 // for its own bundler-resolved build.
 
+// TEST_DATABASE_URL first, DATABASE_URL second — the same precedence the
+// integration tests use, and for the same reason. This script runs on the
+// HOST (quickstart step 2, `pnpm --filter @the-stacks/server db:migrate`),
+// but DATABASE_URL names the database the way the APP CONTAINER reaches it
+// (`@db:5432`, a compose service name) and the host cannot resolve that.
+// Without this precedence the documented command fails with
+// "Failed query: CREATE SCHEMA IF NOT EXISTS drizzle" on every fresh setup.
+// Inside the container TEST_DATABASE_URL is unset, so DATABASE_URL applies
+// and container-run migration is unaffected.
 const config = loadConfig();
-const db = createDb(config.databaseUrl);
+const databaseUrl = process.env.TEST_DATABASE_URL || config.databaseUrl;
+const db = createDb(databaseUrl);
 
 try {
   await migrate(db, { migrationsFolder: "./drizzle" });

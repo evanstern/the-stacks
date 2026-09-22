@@ -23,7 +23,12 @@ race-safety criterion and cannot be satisfied by test doubles (research D2).
 pnpm --filter @the-stacks/server db:migrate
 ```
 
-**Expected**: the command reports applied migrations and exits 0. The `events` table now
+**Expected**: the command reports applied migrations and exits 0.
+
+**This runs on the HOST**, so it needs a host-reachable address. The command prefers
+`TEST_DATABASE_URL` (loopback) over `DATABASE_URL` (`@db:5432`, which only resolves inside
+the compose network) for exactly that reason — set `TEST_DATABASE_URL` as step 3 describes,
+or this fails with `Failed query: CREATE SCHEMA IF NOT EXISTS "drizzle"`. The `events` table now
 exists with the primary key, check constraints, and append-only guard from
 [data-model.md](./data-model.md).
 
