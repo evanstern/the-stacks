@@ -4,7 +4,7 @@ title: Hono HTTP server with health and one typed REST route
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:17'
+updated_date: '2026-09-22 14:23'
 labels: []
 milestone: m-0
 dependencies:
@@ -28,7 +28,10 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #3 At least one typed REST route validates its input and output with Zod
 - [ ] #4 Errors return a consistent structured shape rather than raw stack traces
 - [ ] #5 Tests cover the route and the health check
+- [ ] #6 Spec phase: Setup (Shared Infrastructure)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
