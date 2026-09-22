@@ -17,11 +17,13 @@
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.8",
     "pg": "^8.23.0",
+    "ws": "^8.18.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",
     "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.11",
     "vitest": "^5.0.1"
   }
