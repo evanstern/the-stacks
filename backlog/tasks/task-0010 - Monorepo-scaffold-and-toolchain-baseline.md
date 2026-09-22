@@ -33,14 +33,6 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [x] #9 Spec phase: Phase 4 — Pipeline and lint baseline
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -57,6 +49,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 phases: 1-4 all done. PR #2 open. Gates verified by orchestrator: install/typecheck/lint/build/test all green; 21/21 tasks.md boxes ticked.
 
 Spec: specs/001-monorepo-scaffold
+
+spec-bridge sync: Phase 1 — Workspace root: 5/5 · Phase 2 — TypeScript baseline: 4/4 · Phase 3 — The three packages: 5/5 · Phase 4 — Pipeline and lint baseline: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
