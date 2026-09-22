@@ -1,7 +1,7 @@
 ---
 id: TASK-0010
 title: Monorepo scaffold and toolchain baseline
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:43'
 updated_date: '2026-09-22 14:14'
@@ -33,14 +33,6 @@ Stand up the pnpm + Turborepo workspace that every other M0 task builds inside. 
 - [ ] #9 Spec phase: Phase 4 — Pipeline and lint baseline
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -58,6 +50,12 @@ phases: 1-4 all done. PR #2 open. Gates verified by orchestrator: install/typech
 
 Spec: specs/001-monorepo-scaffold
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Workspace root: 5/5 · Phase 2 — TypeScript baseline: 4/4 · Phase 3 — The three packages: 5/5 · Phase 4 — Pipeline and lint baseline: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
