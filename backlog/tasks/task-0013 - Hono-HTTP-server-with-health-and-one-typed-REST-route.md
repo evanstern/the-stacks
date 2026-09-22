@@ -29,7 +29,10 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #4 Errors return a consistent structured shape rather than raw stack traces
 - [ ] #5 Tests cover the route and the health check
 - [ ] #6 Spec phase: Setup (Shared Infrastructure)
+- [ ] #7 Spec phase: Foundational (blocking prerequisites)
 <!-- AC:END -->
+
+
 
 
 
