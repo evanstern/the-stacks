@@ -30,10 +30,12 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #5 Tests cover the route and the health check
 - [x] #6 Spec phase: Setup (Shared Infrastructure)
 - [x] #7 Spec phase: Foundational (blocking prerequisites)
-- [ ] #8 Spec phase: User Story 1 — The operator can tell whether their install is healthy (P1)
+- [x] #8 Spec phase: User Story 1 — The operator can tell whether their install is healthy (P1)
 - [ ] #9 Spec phase: User Story 2 — A client gets predictable, validated answers (P2)
 - [ ] #10 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 
 
