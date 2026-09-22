@@ -1,11 +1,12 @@
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.js";
 import { loadConfig } from "./config.js";
-import { createDatabaseProbe } from "./db.js";
+import { createDatabaseProbe, createDb } from "./db.js";
 
 const config = loadConfig();
 const app = createApp({
   databaseProbe: createDatabaseProbe(config.databaseUrl),
+  db: createDb(config.databaseUrl),
 });
 
 serve({ fetch: app.fetch, port: config.port }, (info) => {

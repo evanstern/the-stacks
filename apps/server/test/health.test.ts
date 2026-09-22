@@ -1,15 +1,24 @@
 import net from "node:net";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
-import { createDatabaseProbe, type DatabaseProbe } from "../src/db.js";
+import {
+  createDatabaseProbe,
+  createDb,
+  type DatabaseProbe,
+} from "../src/db.js";
 
 function fakeProbe(reachable: boolean): DatabaseProbe {
   return { reachable: async () => reachable };
 }
 
+// /health never touches the database directly (it only calls the injected
+// probe), so a Pool that's never queried is enough — createApp now
+// requires `db` unconditionally since the auth routes need one.
+const unusedDb = createDb("postgres://unused:unused@127.0.0.1:1/unused");
+
 describe("GET /health", () => {
   it("reports ok when the database is reachable", async () => {
-    const app = createApp({ databaseProbe: fakeProbe(true) });
+    const app = createApp({ databaseProbe: fakeProbe(true), db: unusedDb });
     const res = await app.request("/health");
 
     expect(res.status).toBe(200);
@@ -20,7 +29,7 @@ describe("GET /health", () => {
   });
 
   it("stays 200 and reports degraded when the database is unreachable", async () => {
-    const app = createApp({ databaseProbe: fakeProbe(false) });
+    const app = createApp({ databaseProbe: fakeProbe(false), db: unusedDb });
     const res = await app.request("/health");
 
     expect(res.status).toBe(200);
@@ -52,7 +61,7 @@ describe("GET /health", () => {
       `postgres://user:pass@127.0.0.1:${port}/db`,
       1000,
     );
-    const app = createApp({ databaseProbe: probe });
+    const app = createApp({ databaseProbe: probe, db: unusedDb });
 
     const start = Date.now();
     const res = await app.request("/health");
