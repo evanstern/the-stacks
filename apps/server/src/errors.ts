@@ -2,7 +2,11 @@ import type { Context, NotFoundHandler } from "hono";
 import type { ErrorHandler } from "hono/types";
 
 /** The structured error contract — see specs/003-hono-server/contracts/errors.md */
-export type ErrorKind = "validation" | "internal" | "not_found";
+export type ErrorKind =
+  | "validation"
+  | "internal"
+  | "not_found"
+  | "unauthorized";
 
 export interface ErrorIssue {
   path: string;
@@ -20,6 +24,7 @@ export interface ErrorResponseBody {
 const STATUS_BY_KIND = {
   validation: 400,
   not_found: 404,
+  unauthorized: 401,
   internal: 500,
 } as const;
 
@@ -42,6 +47,19 @@ export class NotFoundError extends Error {
   constructor(message = "The requested resource was not found.") {
     super(message);
     this.name = "NotFoundError";
+  }
+}
+
+/**
+ * Thrown when a request isn't authenticated, or authenticates as the wrong
+ * credentials. Sign-in uses this for BOTH an unknown username and a wrong
+ * password with the same fixed message (FR-004, SC-003, contracts/http-auth.md)
+ * — distinguishing them would leak which usernames exist.
+ */
+export class UnauthorizedError extends Error {
+  constructor(message = "Authentication required.") {
+    super(message);
+    this.name = "UnauthorizedError";
   }
 }
 
@@ -71,6 +89,12 @@ export const errorHandler: ErrorHandler = (err, c: Context) => {
     return c.json(
       errorBody("not_found", err.message),
       STATUS_BY_KIND.not_found,
+    );
+  }
+  if (err instanceof UnauthorizedError) {
+    return c.json(
+      errorBody("unauthorized", err.message),
+      STATUS_BY_KIND.unauthorized,
     );
   }
 
