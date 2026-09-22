@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { DatabaseProbe } from "./db.js";
 import { errorHandler, notFoundHandler } from "./errors.js";
+import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
 
 export interface CreateAppOptions {
@@ -18,6 +19,7 @@ export function createApp({ databaseProbe }: CreateAppOptions) {
   app.onError(errorHandler);
   app.notFound(notFoundHandler);
   app.route("/health", createHealthRoute(databaseProbe));
+  app.route("/api/echo", createEchoRoute());
   return app;
 }
 

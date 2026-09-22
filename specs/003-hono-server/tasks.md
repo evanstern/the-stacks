@@ -81,15 +81,15 @@ matching the declared shape, or a structured error naming what was wrong.
 **Independent test**: Valid request → declared response shape. Malformed request →
 structured validation error naming the offending input, no stack trace, no partial success.
 
-- [ ] T014 [P] [US2] Define the route's input and output Zod schemas in `packages/shared/src/` — in the shared package so TASK-0016's client imports the same object rather than a copy (research D4, constitution II)
-- [ ] T015 [US2] Export the new schemas from `packages/shared/src/index.ts`, keeping the existing `SHARED_VERSION` export intact
-- [ ] T016 [US2] Implement `POST /api/echo` in `apps/server/src/routes/echo.ts` per `contracts/echo-route.md`, importing the schemas from `@the-stacks/shared`
-- [ ] T017 [US2] Validate input BEFORE any handler logic runs, so unvalidated data never reaches the handler (FR-005)
-- [ ] T018 [US2] Validate the response against the output schema before sending, so a handler bug cannot emit a shape-violating response (FR-004)
-- [ ] T019 [P] [US2] Test in `apps/server/test/echo.test.ts`: valid input → `200` and a body matching the declared output shape
-- [ ] T020 [P] [US2] Test in `apps/server/test/echo.test.ts`: missing field, wrong type, and over-length string each → `400`, `kind: "validation"`, and an `issues` entry naming the offending path
-- [ ] T021 [P] [US2] Test that an internal failure returns `kind: "internal"` with no stack trace and no varying detail (FR-006)
-- [ ] T022 [US2] Test that an unknown path returns `kind: "not_found"` in the same structured shape
+- [x] T014 [P] [US2] Define the route's input and output Zod schemas in `packages/shared/src/` — in the shared package so TASK-0016's client imports the same object rather than a copy (research D4, constitution II)
+- [x] T015 [US2] Export the new schemas from `packages/shared/src/index.ts`, keeping the existing `SHARED_VERSION` export intact
+- [x] T016 [US2] Implement `POST /api/echo` in `apps/server/src/routes/echo.ts` per `contracts/echo-route.md`, importing the schemas from `@the-stacks/shared`
+- [x] T017 [US2] Validate input BEFORE any handler logic runs, so unvalidated data never reaches the handler (FR-005)
+- [x] T018 [US2] Validate the response against the output schema before sending, so a handler bug cannot emit a shape-violating response (FR-004)
+- [x] T019 [P] [US2] Test in `apps/server/test/echo.test.ts`: valid input → `200` and a body matching the declared output shape
+- [x] T020 [P] [US2] Test in `apps/server/test/echo.test.ts`: missing field, wrong type, and over-length string each → `400`, `kind: "validation"`, and an `issues` entry naming the offending path
+- [x] T021 [P] [US2] Test that an internal failure returns `kind: "internal"` with no stack trace and no varying detail (FR-006)
+- [x] T022 [US2] Test that an unknown path returns `kind: "not_found"` in the same structured shape
 
 **Checkpoint**: both stories complete. The validation seam every later route inherits now
 exists and is proven.
@@ -98,9 +98,9 @@ exists and is proven.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T023 Run the full quickstart manual validation (all five scenarios in `quickstart.md`), including stopping the database to confirm the bound holds
-- [ ] T024 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and capture the literal terminal output for the PR body — it stands in for the CI that TASK-0017 has not built yet
-- [ ] T025 Confirm no server code imports across a plane boundary and no game-system assumption leaked into the route or error shape (constitution III, VI; CR-004)
+- [x] T023 Run the full quickstart manual validation (all five scenarios in `quickstart.md`), including stopping the database to confirm the bound holds
+- [x] T024 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and capture the literal terminal output for the PR body — it stands in for the CI that TASK-0017 has not built yet
+- [x] T025 Confirm no server code imports across a plane boundary and no game-system assumption leaked into the route or error shape (constitution III, VI; CR-004)
 
 ---
 
