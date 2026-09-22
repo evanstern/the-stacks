@@ -28,13 +28,15 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #3 Database data persists across container restarts via a named volume
 - [ ] #4 Configuration is supplied by environment variables with a committed .env.example
 - [ ] #5 The app container reaches the database and reports healthy
-- [ ] #6 Spec phase: Setup (Shared Infrastructure)
+- [x] #6 Spec phase: Setup (Shared Infrastructure)
 - [ ] #7 Spec phase: Foundational (blocking prerequisites)
 - [ ] #8 Spec phase: User Story 1 — A stranger can run this project (P1)
 - [ ] #9 Spec phase: User Story 2 — An operator's data survives restarts and upgrades (P1)
 - [ ] #10 Spec phase: User Story 3 — The database is ready for what the project will need (P2)
 - [ ] #11 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
