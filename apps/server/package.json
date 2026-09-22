@@ -6,9 +6,19 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",
-    "test": "echo \"no tests yet\" && exit 0"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@the-stacks/shared": "workspace:*"
+    "@hono/node-server": "^2.1.1",
+    "@the-stacks/shared": "workspace:*",
+    "drizzle-orm": "^0.45.3",
+    "hono": "^4.13.8",
+    "pg": "^8.23.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/pg": "^8.23.1",
+    "vitest": "^5.0.1"
   }
 }

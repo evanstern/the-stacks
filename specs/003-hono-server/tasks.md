@@ -33,9 +33,9 @@ Monorepo per plan.md: server code in `apps/server/`, shared schemas in
 
 **Purpose**: Dependencies and the test runner this feature is the first to need.
 
-- [ ] T001 Add Hono, Zod, and a Postgres driver to `apps/server/package.json`; add Zod to `packages/shared/package.json`
-- [ ] T002 Add a test runner to `apps/server/package.json` and wire its `test` script so `pnpm test` runs real tests instead of TASK-0010's no-op placeholder
-- [ ] T003 [P] Add environment-variable configuration reading for the database connection in `apps/server/src/config.ts`
+- [x] T001 Add Hono, Zod, and a Postgres driver to `apps/server/package.json`; add Zod to `packages/shared/package.json`
+- [x] T002 Add a test runner to `apps/server/package.json` and wire its `test` script so `pnpm test` runs real tests instead of TASK-0010's no-op placeholder
+- [x] T003 [P] Add environment-variable configuration reading for the database connection in `apps/server/src/config.ts`
 
 ---
 
@@ -44,10 +44,10 @@ Monorepo per plan.md: server code in `apps/server/`, shared schemas in
 **Purpose**: The app-construction seam and error handling every route depends on. **No
 user story can be completed before this phase is done.**
 
-- [ ] T004 Create the composable app factory in `apps/server/src/app.ts` — builds and returns the configured app WITHOUT binding a port, so tests exercise it in-process (research D3)
-- [ ] T005 Create the process entrypoint in `apps/server/src/index.ts` that binds the port and starts the app, replacing TASK-0010's placeholder export
-- [ ] T006 Implement the structured error shape and the error handler in `apps/server/src/errors.ts` per `contracts/errors.md` — the three `kind` values, `issues` only for validation, and a fixed generic message for `internal` that discloses nothing (FR-006, FR-007)
-- [ ] T007 Register the unknown-path handler so a missing route returns `kind: "not_found"` in the same structured shape rather than a framework default page (spec edge case 3)
+- [x] T004 Create the composable app factory in `apps/server/src/app.ts` — builds and returns the configured app WITHOUT binding a port, so tests exercise it in-process (research D3)
+- [x] T005 Create the process entrypoint in `apps/server/src/index.ts` that binds the port and starts the app, replacing TASK-0010's placeholder export
+- [x] T006 Implement the structured error shape and the error handler in `apps/server/src/errors.ts` per `contracts/errors.md` — the three `kind` values, `issues` only for validation, and a fixed generic message for `internal` that discloses nothing (FR-006, FR-007)
+- [x] T007 Register the unknown-path handler so a missing route returns `kind: "not_found"` in the same structured shape rather than a framework default page (spec edge case 3)
 
 **Checkpoint**: the app builds, starts, and returns structured errors. No feature routes yet.
 
