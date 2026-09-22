@@ -1,10 +1,10 @@
 ---
 id: TASK-0014
 title: Session auth for operator and invited players
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 19:12'
+updated_date: '2026-09-22 19:17'
 labels: []
 milestone: m-0
 dependencies:
@@ -124,6 +124,12 @@ because raw 'node --experimental-strip-types' cannot resolve the .js-suffixed
 imports src/ uses for its compiled path. Same constraint migrate.ts documents.
 Documented in both files.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 4/4 · Foundational (Blocking Prerequisites): 5/5 · User Story 1 — Sign in and stay signed in (Priority: P1) 🎯 MVP: 10/10 · User Story 2 — One identity, recognized on every channel (Priority: P1): 7/7 · User Story 3 — The operator gets in on a fresh install (Priority: P2): 5/5 · User Story 4 — The operator invites a player (Priority: P2): 8/8 · Polish & Cross-Cutting Concerns: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
