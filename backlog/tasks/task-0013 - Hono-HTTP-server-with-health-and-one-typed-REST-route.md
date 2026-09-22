@@ -32,8 +32,10 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [x] #7 Spec phase: Foundational (blocking prerequisites)
 - [x] #8 Spec phase: User Story 1 — The operator can tell whether their install is healthy (P1)
 - [x] #9 Spec phase: User Story 2 — A client gets predictable, validated answers (P2)
-- [ ] #10 Spec phase: Polish & Cross-Cutting Concerns
+- [x] #10 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 
 
