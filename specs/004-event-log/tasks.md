@@ -68,16 +68,16 @@ confirm the same events return in append order.
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Write `apps/server/test/events.integration.test.ts` covering append-then-read-back: appended events return in ascending `seq` order starting at 1
-- [ ] T012 [P] [US1] Extend that file with cursor tests: reading from cursor 3 of a 5-event session returns exactly events 4 and 5 (strictly-after semantics, contracts/event-log.md)
-- [ ] T013 [P] [US1] Extend with the empty-result test: a cursor at or beyond the newest position returns an empty list, not an error (FR-009)
-- [ ] T014 [P] [US1] Extend with the `limit` test: a read never returns more than the caller's maximum (FR-007)
-- [ ] T015 [US1] Add the loud-skip harness to the integration test file: when no `DATABASE_URL` is reachable, tests skip with a **printed notice**, never a silent pass (research D2)
+- [x] T011 [P] [US1] Write `apps/server/test/events.integration.test.ts` covering append-then-read-back: appended events return in ascending `seq` order starting at 1
+- [x] T012 [P] [US1] Extend that file with cursor tests: reading from cursor 3 of a 5-event session returns exactly events 4 and 5 (strictly-after semantics, contracts/event-log.md)
+- [x] T013 [P] [US1] Extend with the empty-result test: a cursor at or beyond the newest position returns an empty list, not an error (FR-009)
+- [x] T014 [P] [US1] Extend with the `limit` test: a read never returns more than the caller's maximum (FR-007)
+- [x] T015 [US1] Add the loud-skip harness to the integration test file: when no `DATABASE_URL` is reachable, tests skip with a **printed notice**, never a silent pass (research D2)
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `append` in `apps/server/src/events/log.ts` per contracts/event-log.md: accepts sessionId, actor, type, payload, payloadVersion, optional visibility; rejects caller-supplied `seq` or `ts`; returns the recorded event
-- [ ] T017 [US1] Implement `readFrom` in `apps/server/src/events/log.ts`: takes sessionId, optional `afterSeq` defaulting to 0, required `limit`; returns events strictly after the cursor in ascending order, unfiltered by visibility or type (FR-012)
+- [x] T016 [US1] Implement `append` in `apps/server/src/events/log.ts` per contracts/event-log.md: accepts sessionId, actor, type, payload, payloadVersion, optional visibility; rejects caller-supplied `seq` or `ts`; returns the recorded event
+- [x] T017 [US1] Implement `readFrom` in `apps/server/src/events/log.ts`: takes sessionId, optional `afterSeq` defaulting to 0, required `limit`; returns events strictly after the cursor in ascending order, unfiltered by visibility or type (FR-012)
 
 **Checkpoint**: US1 tests pass against a real database. The feature is usable on its own.
 
