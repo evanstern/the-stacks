@@ -1,9 +1,10 @@
 ---
 id: TASK-0014
 title: Session auth for operator and invited players
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 18:26'
 labels: []
 milestone: m-0
 dependencies:
@@ -19,6 +20,8 @@ ordinal: 5000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Implement the self-rolled, Lucia-style session auth from architecture A1. Single-tenant and self-hosted: one operator account plus players the operator invites. No external identity provider. The M0 demo needs two distinct signed-in users, so this task must support at least two real accounts.
+
+Spec: specs/005-session-auth
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
