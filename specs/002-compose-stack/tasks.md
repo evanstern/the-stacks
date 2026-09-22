@@ -62,14 +62,14 @@ in three documented steps.
 **Independent test**: On a machine with only Docker, clone, copy the example env file, run
 one command, and watch both containers reach healthy.
 
-- [ ] T007 [US1] Write `.env.example` at the repo root enumerating EVERY variable the stack requires, with placeholder values and no real secret, per `contracts/configuration.md` (FR-005, SC-004, SC-005)
-- [ ] T008 [US1] Make the database host in the example `DATABASE_URL` the compose service name rather than `localhost`, with a comment saying why — the most common first-run mistake (contracts/configuration.md)
-- [ ] T009 [US1] Wire both services to read their configuration from environment variables, with no value hardcoded in `docker-compose.yml` that belongs in `.env`
-- [ ] T010 [US1] Implement the `app` service healthcheck that requests `GET /health` and **parses the response body**, reporting healthy only when the overall status reads `ok` — a status-code-only check would report a database-down container as healthy (research D1, contracts/healthcheck.md, FR-007)
-- [ ] T011 [US1] Add a healthcheck to the `db` service so its readiness is a real state the app service can depend on, not merely "the container started" (research D2)
-- [ ] T012 [US1] Make the `app` service wait on the `db` service reaching healthy, AND give the app's own healthcheck a start-up grace period so early failures do not count against it — both halves are required for convergence (FR-008, research D2)
-- [ ] T013 [US1] Ensure a missing or incomplete `.env` fails at startup naming the missing configuration, rather than surfacing an opaque connection error (FR-010)
-- [ ] T014 [US1] Write the three-step quickstart into `README.md` — clone, copy and edit the env file, start — because an undocumented working stack fails FR-001 and SC-001
+- [x] T007 [US1] Write `.env.example` at the repo root enumerating EVERY variable the stack requires, with placeholder values and no real secret, per `contracts/configuration.md` (FR-005, SC-004, SC-005)
+- [x] T008 [US1] Make the database host in the example `DATABASE_URL` the compose service name rather than `localhost`, with a comment saying why — the most common first-run mistake (contracts/configuration.md)
+- [x] T009 [US1] Wire both services to read their configuration from environment variables, with no value hardcoded in `docker-compose.yml` that belongs in `.env`
+- [x] T010 [US1] Implement the `app` service healthcheck that requests `GET /health` and **parses the response body**, reporting healthy only when the overall status reads `ok` — a status-code-only check would report a database-down container as healthy (research D1, contracts/healthcheck.md, FR-007)
+- [x] T011 [US1] Add a healthcheck to the `db` service so its readiness is a real state the app service can depend on, not merely "the container started" (research D2)
+- [x] T012 [US1] Make the `app` service wait on the `db` service reaching healthy, AND give the app's own healthcheck a start-up grace period so early failures do not count against it — both halves are required for convergence (FR-008, research D2)
+- [x] T013 [US1] Ensure a missing or incomplete `.env` fails at startup naming the missing configuration, rather than surfacing an opaque connection error (FR-010)
+- [x] T014 [US1] Write the three-step quickstart into `README.md` — clone, copy and edit the env file, start — because an undocumented working stack fails FR-001 and SC-001
 - [ ] T015 [US1] Run quickstart validation 1: `docker compose up -d` from a clean state; both services reach healthy within 2 minutes including image build (SC-002)
 - [ ] T016 [US1] Run quickstart validation 2 — **the one a passing-looking implementation silently fails**: stop the `db` service and confirm the `app` container goes UNHEALTHY despite `/health` still returning `200`; restart `db` and confirm it recovers with no manual intervention
 - [ ] T017 [US1] Run quickstart validation 6: move `.env` aside, start, and confirm the failure names the missing configuration

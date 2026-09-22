@@ -27,5 +27,6 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..."
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/server/dist apps/server/dist
+COPY healthcheck.js ./healthcheck.js
 WORKDIR /app/apps/server
 CMD ["node", "dist/index.js"]
