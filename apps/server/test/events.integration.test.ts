@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, probeReachable } from "../src/db.js";
 import { append, readFrom } from "../src/events/log.js";
@@ -190,6 +191,90 @@ describe.skipIf(!reachable)(
       expect(recordedB.map((e) => e.seq).sort((a, b) => a - b)).toEqual(
         expectedSeqs,
       );
+    });
+
+    it("T023: a direct UPDATE and DELETE against events are both rejected at the database (FR-004)", async () => {
+      // Raw SQL through the Drizzle client, not append/readFrom: those expose
+      // no update or delete, so calling them would prove nothing about the
+      // trigger (data-model.md, Append-only enforcement).
+      const [recorded] = await appendN(1);
+
+      // Drizzle wraps the driver error in "Failed query: ..."; the trigger's
+      // own message ("events is append-only: ... is not permitted") is on
+      // `.cause`, so assert there rather than on the wrapper's message.
+      async function expectAppendOnlyRejection(query: Promise<unknown>) {
+        await expect(query).rejects.toSatisfy((err: unknown) => {
+          const cause = err instanceof Error ? err.cause : undefined;
+          const message =
+            cause instanceof Error ? cause.message : String(cause);
+          return /append-only/i.test(message);
+        });
+      }
+
+      await expectAppendOnlyRejection(
+        requireDb().execute(
+          sql`UPDATE events SET actor = 'tampered' WHERE session_id = ${sessionId} AND seq = ${recorded.seq}`,
+        ),
+      );
+
+      await expectAppendOnlyRejection(
+        requireDb().execute(
+          sql`DELETE FROM events WHERE session_id = ${sessionId} AND seq = ${recorded.seq}`,
+        ),
+      );
+
+      // The row is still there, unchanged, proving the rejections weren't a
+      // silent no-op.
+      const stillThere = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(stillThere).toHaveLength(1);
+      expect(stillThere[0].actor).toBe("test-actor");
+    });
+
+    it("T026: visibility and payloadVersion survive append and read unchanged (FR-005, FR-013)", async () => {
+      const recorded = await append(requireDb(), {
+        sessionId,
+        actor: "test-actor",
+        type: "narration",
+        payload: { text: "hi" },
+        payloadVersion: 3,
+        visibility: "gm-only",
+      });
+
+      expect(recorded.visibility).toBe("gm-only");
+      expect(recorded.payloadVersion).toBe(3);
+
+      const [read] = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(read.visibility).toBe("gm-only");
+      expect(read.payloadVersion).toBe(3);
+    });
+
+    it("T027: an append omitting visibility records the public marker, never null (FR-013)", async () => {
+      const recorded = await append(requireDb(), {
+        sessionId,
+        actor: "test-actor",
+        type: "narration",
+        payload: {},
+        payloadVersion: 1,
+      });
+
+      expect(recorded.visibility).toBe("public");
+
+      const [read] = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(read.visibility).toBe("public");
+    });
+
+    it("T028: an event with an unrecognized type and payloadVersion is still returned by a read (FR-012, constitution IV)", async () => {
+      await append(requireDb(), {
+        sessionId,
+        actor: "test-actor",
+        type: "some-future-type-nobody-has-written-yet",
+        payload: { anything: true },
+        payloadVersion: 999,
+      });
+
+      const [read] = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(read.type).toBe("some-future-type-nobody-has-written-yet");
+      expect(read.payloadVersion).toBe(999);
     });
   },
 );
