@@ -1,9 +1,10 @@
 ---
 id: TASK-0015
 title: WebSocket gateway with event-log append and cursor replay
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 18:52'
 labels: []
 milestone: m-0
 dependencies:
@@ -19,6 +20,8 @@ ordinal: 6000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Prove the realtime seam that all of M4 later rests on, per architecture A4. A client connects, sends a message, the server validates and appends it to the event log, and every subscriber receives it. Reconnect replays from a seq cursor. Authority is server-side: clients never write events directly.
+
+Spec: specs/006-ws-gateway
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
