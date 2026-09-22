@@ -453,36 +453,57 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     const token = await createTestInvitation(operator.id);
     const usernameBase = `race-${randomUUID()}`;
 
+    // TWENTY concurrent redemptions, not two — and read the note below before
+    // trusting this test to prove what its name says.
+    //
+    // T036 (revert-and-watch-it-fail) was run by the orchestrator against a
+    // read-then-write implementation. THIS TEST STILL PASSED, 3/3, even at 20
+    // racers. What caught the bug was T034 (redeeming an already-redeemed
+    // invitation), deterministically.
+    //
+    // The reason is worth keeping: redemption runs inside `db.transaction`,
+    // so Postgres's row lock on the invitation serializes the competing
+    // UPDATEs regardless of whether the WHERE clause carries the
+    // `redeemed_at IS NULL` guard. The transaction is doing the mutual
+    // exclusion; the guard is what makes the LOSER notice it lost. Remove the
+    // guard and the loser silently overwrites instead of failing — which
+    // shows up as a re-redeemable invitation (T034), not as two accounts.
+    //
+    // So: this test proves the outcome SC-005 states, and T034 is the test
+    // with teeth against this particular defect. Both are kept. The width is
+    // still 20 rather than 2 because a narrow concurrency test proves even
+    // less, and spec 004 set the precedent at 50 writers for the event log.
+    const RACERS = 20;
+
     // Distinct usernames so a loser can only fail on the INVITATION guard,
     // never on the username's own uniqueness — isolating exactly the
     // mechanism SC-005 is about (research D5).
-    const [resultA, resultB] = await Promise.all([
-      redeemInvitation(db, {
-        token,
-        username: `${usernameBase}-a`,
-        displayName: "Racer A",
-        password: "racer a password",
-      }),
-      redeemInvitation(db, {
-        token,
-        username: `${usernameBase}-b`,
-        displayName: "Racer B",
-        password: "racer b password",
-      }),
-    ]);
+    const usernames = Array.from(
+      { length: RACERS },
+      (_, i) => `${usernameBase}-${i}`,
+    );
+    const outcomes = await Promise.all(
+      usernames.map((username, i) =>
+        redeemInvitation(db, {
+          token,
+          username,
+          displayName: `Racer ${i}`,
+          password: "a racer password long enough",
+        }),
+      ),
+    );
 
-    const outcomes = [resultA, resultB];
     expect(outcomes.filter((r) => r.ok)).toHaveLength(1);
-    expect(outcomes.filter((r) => !r.ok)).toHaveLength(1);
+    expect(outcomes.filter((r) => !r.ok)).toHaveLength(RACERS - 1);
 
-    // The direct, DB-level proof of SC-005: exactly one account exists
-    // under either candidate username, regardless of which won.
+    // The direct, DB-level proof of SC-005: exactly one account exists across
+    // every candidate username, regardless of which won. This also proves the
+    // losers' speculative account inserts were rolled back — 19 orphan
+    // accounts would be a silent data defect the outcome counts above miss.
     const created = await db
       .select({ id: users.id })
       .from(users)
-      .where(
-        inArray(users.username, [`${usernameBase}-a`, `${usernameBase}-b`]),
-      );
+      .where(inArray(users.username, usernames));
     expect(created).toHaveLength(1);
   });
 });

@@ -37,15 +37,15 @@ async function readPassword(): Promise<string> {
 
 try {
   const username = process.env.OPERATOR_USERNAME || "operator";
-  const password = await readPassword();
-  if (!password) {
-    throw new Error(
-      "a non-empty password is required (set OPERATOR_PASSWORD or enter one)",
-    );
-  }
 
   // Refuses to clobber (research D6, US3 scenario 2): a second run must
   // not create a second operator or overwrite the first.
+  //
+  // CHECK BEFORE PROMPTING, deliberately. Prompting first makes an operator
+  // type a secret that is then thrown away, and — worse — a non-interactive
+  // run (CI, a provisioning script, `docker compose run`) HANGS on a prompt
+  // for input that never arrives, instead of failing fast with a clear
+  // message. Refuse before asking for anything.
   const [existing] = await db
     .select({ id: users.id })
     .from(users)
@@ -59,6 +59,12 @@ try {
     );
     process.exitCode = 1;
   } else {
+    const password = await readPassword();
+    if (!password) {
+      throw new Error(
+        "a non-empty password is required (set OPERATOR_PASSWORD or enter one)",
+      );
+    }
     const passwordHash = await hashPassword(password);
     const [user] = await db
       .insert(users)
