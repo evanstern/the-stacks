@@ -70,9 +70,9 @@ one command, and watch both containers reach healthy.
 - [x] T012 [US1] Make the `app` service wait on the `db` service reaching healthy, AND give the app's own healthcheck a start-up grace period so early failures do not count against it — both halves are required for convergence (FR-008, research D2)
 - [x] T013 [US1] Ensure a missing or incomplete `.env` fails at startup naming the missing configuration, rather than surfacing an opaque connection error (FR-010)
 - [x] T014 [US1] Write the three-step quickstart into `README.md` — clone, copy and edit the env file, start — because an undocumented working stack fails FR-001 and SC-001
-- [ ] T015 [US1] Run quickstart validation 1: `docker compose up -d` from a clean state; both services reach healthy within 2 minutes including image build (SC-002)
-- [ ] T016 [US1] Run quickstart validation 2 — **the one a passing-looking implementation silently fails**: stop the `db` service and confirm the `app` container goes UNHEALTHY despite `/health` still returning `200`; restart `db` and confirm it recovers with no manual intervention
-- [ ] T017 [US1] Run quickstart validation 6: move `.env` aside, start, and confirm the failure names the missing configuration
+- [x] T015 [US1] Run quickstart validation 1: `docker compose up -d` from a clean state; both services reach healthy within 2 minutes including image build (SC-002)
+- [x] T016 [US1] Run quickstart validation 2 — **the one a passing-looking implementation silently fails**: stop the `db` service and confirm the `app` container goes UNHEALTHY despite `/health` still returning `200`; restart `db` and confirm it recovers with no manual intervention
+- [x] T017 [US1] Run quickstart validation 6: move `.env` aside, start, and confirm the failure names the missing configuration
 
 **Checkpoint**: a stranger can run the project, and its health is honest.
 
@@ -85,10 +85,10 @@ deliberate teardown does.
 
 **Independent test**: Write a value, fully stop and start the stack, read it back.
 
-- [ ] T018 [US2] Run quickstart validation 3: write a row, `docker compose down` (NOT `-v`), `up -d`, and read the row back — expect it present (SC-003, FR-004)
-- [ ] T019 [US2] Run quickstart validation 4: rebuild the app image and restart; confirm database contents are unaffected (FR-004)
-- [ ] T020 [US2] Run quickstart validation 7: `docker compose down -v` removes the volume, confirming deliberate deletion is possible and documented — and visibly distinct from the plain `down` in T018 (FR-009)
-- [ ] T021 [US2] Document the destructive teardown in `README.md`, clearly marked as data-destroying and distinct from an ordinary stop
+- [x] T018 [US2] Run quickstart validation 3: write a row, `docker compose down` (NOT `-v`), `up -d`, and read the row back — expect it present (SC-003, FR-004)
+- [x] T019 [US2] Run quickstart validation 4: rebuild the app image and restart; confirm database contents are unaffected (FR-004)
+- [x] T020 [US2] Run quickstart validation 7: `docker compose down -v` removes the volume, confirming deliberate deletion is possible and documented — and visibly distinct from the plain `down` in T018 (FR-009)
+- [x] T021 [US2] Document the destructive teardown in `README.md`, clearly marked as data-destroying and distinct from an ordinary stop
 
 **Checkpoint**: the operator's content is safe across every ordinary operation.
 
@@ -101,16 +101,16 @@ arrives.
 
 **Independent test**: Query the running database for its version and the vector extension.
 
-- [ ] T022 [P] [US3] Run quickstart validation 5: confirm the database reports major version 17
-- [ ] T023 [P] [US3] Confirm the `vector` extension is AVAILABLE — not enabled; enabling it in a database is a migration and belongs to TASK-0012 (FR-003)
+- [x] T022 [P] [US3] Run quickstart validation 5: confirm the database reports major version 17
+- [x] T023 [P] [US3] Confirm the `vector` extension is AVAILABLE — not enabled; enabling it in a database is a migration and belongs to TASK-0012 (FR-003)
 
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T024 Confirm no real secret appears in any tracked file, and that a filled-in `.env` is ignored by git (SC-005, FR-006)
-- [ ] T025 Confirm the stack still declares exactly two long-lived services — no worker, no proxy, no migration container crept in (FR-002, plan.md Complexity Tracking)
-- [ ] T026 Capture the literal terminal output of the full quickstart run for the PR body; it stands in for the CI that TASK-0017 has not built yet
+- [x] T024 Confirm no real secret appears in any tracked file, and that a filled-in `.env` is ignored by git (SC-005, FR-006)
+- [x] T025 Confirm the stack still declares exactly two long-lived services — no worker, no proxy, no migration container crept in (FR-002, plan.md Complexity Tracking)
+- [x] T026 Capture the literal terminal output of the full quickstart run for the PR body; it stands in for the CI that TASK-0017 has not built yet
 
 ---
 
