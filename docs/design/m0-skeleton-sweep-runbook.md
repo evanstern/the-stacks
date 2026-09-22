@@ -11,6 +11,8 @@ log. Direction is decided; do not re-litigate it: `docs/design/vision.md`,
 carries only ordering, doctrine, and the log.
 
 **Status:** signed-off · operator sign-off on lanes: 2026-09-22
+**Amended 2026-09-22 (A1):** the per-task spec cycle now names the `speckit-*`
+skills as invocations. See "Amendment A1" below. Re-signed by the operator.
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -24,6 +26,9 @@ carries only ordering, doctrine, and the log.
    rules, summarized under "Per-PR gates" below.
 4. `backlog task list --plain` — live state; other sessions move it while you work.
 5. The task you're about to execute (`backlog task view TASK-<n> --plain`).
+6. `.specify/templates/spec-template.md` and `plan-template.md` — the shapes the
+   `speckit-*` skills populate. Read them BEFORE authoring any spec, so you recognize
+   what a correctly-produced artifact looks like. See Amendment A1.
 
 ## State when this runbook was written (2026-09-22)
 
@@ -215,12 +220,32 @@ Per-TASK obligations — the per-PR gates above are project machinery; this sect
 what every scoped task must have produced. **No PR opens for a task until each line
 below checks true for it.**
 
-- [ ] `specs/{{NNN}}-{{slug}}/` carries a real `spec.md` (problem + requirements mapped
-      to the card's ACs), `plan.md` (run against `.specify/memory/constitution.md`
-      v1.0.0 — it IS ratified here, so the Constitution Check gate is real, not
-      skippable, and a justified violation goes in the plan's Complexity Tracking
-      table), and `tasks.md` (phased checkboxes the bridge derives from), committed on
-      the task's branch. A claim stub reserves the number; it satisfies nothing here.
+- [ ] **The spec set was PRODUCED BY THE SPEC KIT SKILLS, not hand-authored.** Run, in
+      order, as skill invocations — the skill name is the instruction, and a
+      hand-written file of the same name does not satisfy this line:
+      1. **`speckit-specify`** → `specs/NNN-<slug>/spec.md`. Populates
+         `.specify/templates/spec-template.md`: prioritized user stories (P1/P2/P3),
+         each INDEPENDENTLY TESTABLE, with Given/When/Then acceptance scenarios.
+         Requirements prose organized under my own headings is NOT this template.
+      2. **`speckit-clarify`** — only when the spec has genuine ambiguity. Skippable
+         on a task whose direction architecture A1–A9 already settles; say so in the
+         task's note rather than silently omitting it.
+      3. **`speckit-plan`** → `plan.md`, populating
+         `.specify/templates/plan-template.md`. Its **Constitution Check is a
+         nine-checkbox gate** keyed to principles I–IX, each answered for this
+         feature, and *"a 'no' MUST be justified in Complexity Tracking or the plan
+         does not proceed."* Filling a differently-shaped table of my own invention
+         does not clear this gate — the checkbox list is what a later reader and any
+         downstream tooling expect to find.
+      4. **`speckit-tasks`** → `tasks.md`, phased checkboxes the bridge derives
+         status from.
+      The `.specify/scripts/bash/` helpers (`create-new-feature.sh`, `setup-plan.sh`,
+      `setup-tasks.sh`, `check-prerequisites.sh`) are what those skills call; they
+      resolve a feature by `SPECIFY_FEATURE` or the spec-dir basename when no branch
+      matches, so they work correctly inside a sweep worktree. A claim stub reserves
+      the number; it satisfies nothing here.
+- [ ] Optionally **`speckit-analyze`** after tasks.md, for cross-artifact consistency.
+      Required only where `.spec-bridge.json` sets `strictDone` (it does not here).
 - [ ] The card carries its Spec marker from the claim commit (`spec-bridge:link`
       against the stub), and phase ACs are seeded from tasks.md (link update mode)
       before implementation dispatch.
@@ -335,6 +360,34 @@ below checks true for it.**
   Until it exists there is no freshness gate to satisfy — after it exists, every later
   sweep owes it.
 - This file's execution log complete and its status flipped to `done`.
+
+## Amendment A1 — bind the spec cycle to the Spec Kit skills (2026-09-22)
+
+**What went wrong.** This runbook's per-task loop said "Spec Kit cycle (specify →
+clarify → plan → tasks)" as prose and required three files by name. It never said to
+INVOKE the `speckit-*` skills. Spec 001 (TASK-0010, merged) was consequently
+hand-authored with heredocs: right filenames, right directory, wrong process. It has no
+prioritized user stories, no Given/When/Then acceptance scenarios, and a
+Constitution Check table of my own shape rather than the plan template's
+nine-checkbox gate.
+
+**Why prose was not enough.** A named artifact is satisfiable by writing a file with
+that name. Only a named *skill* is satisfiable solely by running it. Every other gate
+in this runbook is written as a command or a checkable string; the spec cycle was the
+one obligation expressed as narrative, and it is the one that drifted. That is the
+lesson, not a coincidence.
+
+**The fix.** The "Per-task artifacts required before PR" section above now names the
+four skills as an ordered, numbered invocation list, states what each produces, and
+says explicitly that a hand-written file of the same name does not satisfy the line.
+
+**Scope of the correction.** Specs 002 and 003 were claimed (stubs only, no authoring)
+when this was caught; they proceed under the amended loop. Spec 001 stays as merged —
+its content is sound and TASK-0010 is Done — and is recorded here as a known
+inconsistency rather than silently normalized. If uniformity is wanted later, that is a
+board card of its own, not a quiet rewrite of merged history.
+
+**Operator checkpoint:** this amendment was raised by the operator, not self-detected.
 
 ## Execution log
 
