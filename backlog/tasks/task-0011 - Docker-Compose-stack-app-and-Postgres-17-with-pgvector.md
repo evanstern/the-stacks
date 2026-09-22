@@ -32,9 +32,11 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [x] #7 Spec phase: Foundational (blocking prerequisites)
 - [x] #8 Spec phase: User Story 1 — A stranger can run this project (P1)
 - [x] #9 Spec phase: User Story 2 — An operator's data survives restarts and upgrades (P1)
-- [ ] #10 Spec phase: User Story 3 — The database is ready for what the project will need (P2)
+- [x] #10 Spec phase: User Story 3 — The database is ready for what the project will need (P2)
 - [ ] #11 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 
 
