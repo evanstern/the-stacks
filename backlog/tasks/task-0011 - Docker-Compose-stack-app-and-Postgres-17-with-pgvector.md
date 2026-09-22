@@ -4,7 +4,7 @@ title: 'Docker Compose stack: app and Postgres 17 with pgvector'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:17'
+updated_date: '2026-09-22 14:28'
 labels: []
 milestone: m-0
 dependencies:
@@ -28,7 +28,10 @@ Deliver the two-container compose stack from architecture A1: one Node app conta
 - [ ] #3 Database data persists across container restarts via a named volume
 - [ ] #4 Configuration is supplied by environment variables with a committed .env.example
 - [ ] #5 The app container reaches the database and reports healthy
+- [ ] #6 Spec phase: Setup (Shared Infrastructure)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
