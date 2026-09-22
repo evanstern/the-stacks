@@ -4,7 +4,7 @@ title: Hono HTTP server with health and one typed REST route
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 14:46'
+updated_date: '2026-09-22 14:47'
 labels: []
 milestone: m-0
 dependencies:
@@ -53,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 phases: 1-3 done (d43c239, d13e7cd, T001-T013). Verified by orchestrator: 3/3 tests pass; hang test completes in 1011ms against a 1000ms probe timeout, proving the bound fires (raw TCP server that accepts and never answers — a genuine hang, not a refusal). status derived inline from reachable. OWED: reconcile config.ts to read APP_PORT, not PORT — see TASK-0011 contract fix.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-5 all done, 25/25 tasks.md boxes. Gates re-run by orchestrator after merging main in: typecheck/lint/9 tests/build all green. APP_PORT reconciliation landed (57eb648).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
