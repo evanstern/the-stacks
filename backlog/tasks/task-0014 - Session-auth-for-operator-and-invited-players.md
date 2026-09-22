@@ -123,6 +123,8 @@ duplicates the check-then-insert logic rather than importing provisioning.ts,
 because raw 'node --experimental-strip-types' cannot resolve the .js-suffixed
 imports src/ uses for its compiled path. Same constraint migrate.ts documents.
 Documented in both files.
+
+spec-bridge sync: Setup (Shared Infrastructure): 4/4 · Foundational (Blocking Prerequisites): 5/5 · User Story 1 — Sign in and stay signed in (Priority: P1) 🎯 MVP: 10/10 · User Story 2 — One identity, recognized on every channel (Priority: P1): 7/7 · User Story 3 — The operator gets in on a fresh install (Priority: P2): 5/5 · User Story 4 — The operator invites a player (Priority: P2): 8/8 · Polish & Cross-Cutting Concerns: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
