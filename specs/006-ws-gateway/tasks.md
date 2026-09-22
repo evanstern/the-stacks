@@ -83,14 +83,14 @@ specifying its own position — each refused or overridden, with nothing spuriou
 
 ### Tests for User Story 2
 
-- [ ] T016 [US2] Test that a malformed frame produces an `error` frame, the connection **stays open**, and nothing is appended (FR-003)
-- [ ] T017 [US2] Test that a `send` claiming a different `actor` records the **connection's** identity (FR-005, SC-004)
-- [ ] T018 [US2] Test that client-supplied `seq` and `ts` are ignored and the server's values are used (FR-006)
-- [ ] T019 [US2] **Test that a refused message leaves no trace**: read the session's stream afterwards and assert no gap and no stray event (US2 scenario 4)
+- [x] T016 [US2] Test that a malformed frame produces an `error` frame, the connection **stays open**, and nothing is appended (FR-003)
+- [x] T017 [US2] Test that a `send` claiming a different `actor` records the **connection's** identity (FR-005, SC-004)
+- [x] T018 [US2] Test that client-supplied `seq` and `ts` are ignored and the server's values are used (FR-006)
+- [x] T019 [US2] **Test that a refused message leaves no trace**: read the session's stream afterwards and assert no gap and no stray event (US2 scenario 4)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement the `error` frame path in `apps/server/src/ws/gateway.ts` per contracts/ws-protocol.md, keeping the connection open — one bad frame is not a reason to disconnect a client that may immediately send a good one
+- [x] T020 [US2] Implement the `error` frame path in `apps/server/src/ws/gateway.ts` per contracts/ws-protocol.md, keeping the connection open — one bad frame is not a reason to disconnect a client that may immediately send a good one
 
 **Checkpoint**: the log is a record of what the server decided, not what clients claimed.
 
@@ -107,16 +107,16 @@ from the last position seen, receive exactly the missed ones then live ones.
 
 ### Tests for User Story 3
 
-- [ ] T021 [US3] Test basic replay: subscribing from position N delivers every event after N in order, and none at or before N
-- [ ] T022 [US3] **Test the boundary — the load-bearing test.** Subscribe from a cursor **while another client is actively sending**, and assert the subscriber's received positions are ascending, contain no duplicate, and contain **no gap** between the replayed and live ranges (SC-003, quickstart step 2)
-- [ ] T023 [US3] **Prove T022 has teeth.** Temporarily reorder the implementation to replay-then-subscribe, watch T022 fail (events appended in the window are lost), restore. Record the observed failure. A test that passes either way manufactures confidence
-- [ ] T024 [P] [US3] Test subscribing with no cursor delivers history from the beginning, and subscribing from the newest position delivers nothing and is simply live (US3 scenarios 3–4)
+- [x] T021 [US3] Test basic replay: subscribing from position N delivers every event after N in order, and none at or before N
+- [x] T022 [US3] **Test the boundary — the load-bearing test.** Subscribe from a cursor **while another client is actively sending**, and assert the subscriber's received positions are ascending, contain no duplicate, and contain **no gap** between the replayed and live ranges (SC-003, quickstart step 2)
+- [x] T023 [US3] **Prove T022 has teeth.** Temporarily reorder the implementation to replay-then-subscribe, watch T022 fail (events appended in the window are lost), restore. Record the observed failure. A test that passes either way manufactures confidence
+- [x] T024 [P] [US3] Test subscribing with no cursor delivers history from the beginning, and subscribing from the newest position delivers nothing and is simply live (US3 scenarios 3–4)
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement the boundary in `apps/server/src/ws/subscribe.ts` per research D1: join the registry **with delivery queued**, replay via `readFrom` in bounded batches, then drain the queue skipping positions the replay already covered, then switch to direct delivery
-- [ ] T026 [US3] Deliver replay in **bounded batches**, never one unbounded read (FR-010) — one reconnecting client with a long history must not be able to exhaust the server
-- [ ] T027 [US3] Send `replay-complete` once, after the last replayed event and before live delivery (contracts/ws-protocol.md)
+- [x] T025 [US3] Implement the boundary in `apps/server/src/ws/subscribe.ts` per research D1: join the registry **with delivery queued**, replay via `readFrom` in bounded batches, then drain the queue skipping positions the replay already covered, then switch to direct delivery
+- [x] T026 [US3] Deliver replay in **bounded batches**, never one unbounded read (FR-010) — one reconnecting client with a long history must not be able to exhaust the server
+- [x] T027 [US3] Send `replay-complete` once, after the last replayed event and before live delivery (contracts/ws-protocol.md)
 
 **Checkpoint**: reconnect is exactly-once. T023 has proven the boundary test detects regressions.
 
@@ -128,14 +128,14 @@ from the last position seen, receive exactly the missed ones then live ones.
 
 ### Tests for User Story 4
 
-- [ ] T028 [US4] Test that a public event reaches every subscriber
-- [ ] T029 [US4] Test that a restricted event reaches only its intended recipient, and **nothing is sent in its place** to others (FR-011)
-- [ ] T030 [US4] Test that **replay applies the same filtering** — replay must not be a way to receive what live delivery withheld (US4 scenario 3). Two filtering points is how the paths drift, and that drift is a disclosure bug
-- [ ] T031 [P] [US4] Test that a filtered recipient's received positions may have **gaps**, and that this is correct (US4 scenario 4, research D2)
+- [x] T028 [US4] Test that a public event reaches every subscriber
+- [x] T029 [US4] Test that a restricted event reaches only its intended recipient, and **nothing is sent in its place** to others (FR-011)
+- [x] T030 [US4] Test that **replay applies the same filtering** — replay must not be a way to receive what live delivery withheld (US4 scenario 3). Two filtering points is how the paths drift, and that drift is a disclosure bug
+- [x] T031 [P] [US4] Test that a filtered recipient's received positions may have **gaps**, and that this is correct (US4 scenario 4, research D2)
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] Implement per-recipient filtering at the **single send point** in `apps/server/src/ws/registry.ts` (research D2), so live and replayed events pass through exactly one decision
+- [x] T032 [US4] Implement per-recipient filtering at the **single send point** in `apps/server/src/ws/registry.ts` (research D2), so live and replayed events pass through exactly one decision
 
 **Checkpoint**: all four user stories complete.
 
@@ -143,17 +143,17 @@ from the last position seen, receive exactly the missed ones then live ones.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T033 Implement per-socket send isolation in `apps/server/src/ws/registry.ts` (research D5): catch and discard per-socket failures, remove closed sockets. **Do not `Promise.all` the sends** — one dead client would deprive everyone of an event the log already holds
-- [ ] T034 Test that killing a subscriber abruptly mid-broadcast leaves the remaining subscribers receiving the event (FR-012, SC-007)
-- [ ] T035 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and paste literal output into the PR body — the evidence standing in for the CI TASK-0017 has not built
-- [ ] T036 Run `quickstart.md` end to end, including the boundary check (step 2) and the authority checks (step 3)
+- [x] T033 Implement per-socket send isolation in `apps/server/src/ws/registry.ts` (research D5): catch and discard per-socket failures, remove closed sockets. **Do not `Promise.all` the sends** — one dead client would deprive everyone of an event the log already holds
+- [x] T034 Test that killing a subscriber abruptly mid-broadcast leaves the remaining subscribers receiving the event (FR-012, SC-007)
+- [x] T035 Run `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` and paste literal output into the PR body — the evidence standing in for the CI TASK-0017 has not built
+- [x] T036 Run `quickstart.md` end to end, including the boundary check (step 2) and the authority checks (step 3)
 
 ### Constitution Compliance (the-stacks)
 
-- [ ] T037 Events versioned with visibility set where information is hidden (Principle IV) — verified by T028–T031
-- [ ] T038 Projection tolerates unknown and future event types (Principle IV) — the gateway never interprets a payload, so an unknown type is delivered unchanged
-- [ ] T039 Agent-facing interface exercised by a test, not only a human path (Principle I) — every test drives the protocol directly, with no browser
-- [ ] T040 `docker compose up` still works from a clean clone (Principle IX)
+- [x] T037 Events versioned with visibility set where information is hidden (Principle IV) — verified by T028–T031
+- [x] T038 Projection tolerates unknown and future event types (Principle IV) — the gateway never interprets a payload, so an unknown type is delivered unchanged
+- [x] T039 Agent-facing interface exercised by a test, not only a human path (Principle I) — every test drives the protocol directly, with no browser
+- [x] T040 `docker compose up` still works from a clean clone (Principle IX)
 
 ---
 
