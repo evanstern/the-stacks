@@ -10,7 +10,7 @@ log. Direction is decided; do not re-litigate it: `docs/design/vision.md`,
 `.specify/memory/constitution.md` v1.0.0 win. Plan-of-record is the board; this file
 carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-22
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
