@@ -4,7 +4,7 @@ title: Monorepo scaffold and toolchain baseline
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:43'
-updated_date: '2026-09-22 14:09'
+updated_date: '2026-09-22 14:14'
 labels: []
 milestone: m-0
 dependencies: []
@@ -43,6 +43,8 @@ phases: 1-3 done (e30f1c0, 4e1c175), 4 dispatched. Verified: clean tsc -b rebuil
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 phases: 1-4 all done. PR #2 open. Gates verified by orchestrator: install/typecheck/lint/build/test all green; 21/21 tasks.md boxes ticked.
+
+Spec: specs/001-monorepo-scaffold
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
