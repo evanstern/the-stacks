@@ -434,11 +434,47 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-22 | TASK-0010 | [#2](https://github.com/evanstern/the-stacks/pull/2) | pending | ~694k subagent tokens, 3 dispatches | phases: 1-4 all done (e30f1c0, 4e1c175, 5a05ed4). tier=sonnet, served=claude-sonnet-5 verified from all 3 transcripts. Gates run by orchestrator: install/typecheck/lint/build/test green; 21/21 tasks.md boxes. **Blocked on merge permission** — see note below. |
+| 2026-09-22 | TASK-0010 | [#2](https://github.com/evanstern/the-stacks/pull/2) | `a1b1c9c` | ~694k subagent tokens, 3 dispatches | phases 1-4 done (e30f1c0, 4e1c175, 5a05ed4). tier=sonnet, served=claude-sonnet-5 from all 3 transcripts. Gates by orchestrator: install/typecheck/lint/build/test green; 21/21 boxes. Board Done via spec-bridge. |
+| 2026-09-22 | TASK-0013 | [#5](https://github.com/evanstern/the-stacks/pull/5) | merged | ~766k subagent tokens, 3 dispatches | phases 1-5 done (d43c239, d13e7cd, 57eb648, aa8164f). tier=sonnet, served=claude-sonnet-5 from all 3 transcripts. 25/25 boxes, 9 tests. Bounded probe verified: hang test returns in 1011ms against a 1000ms timeout. Carries the APP_PORT reconciliation. Board Done via spec-bridge. |
+| 2026-09-22 | TASK-0011 | [#6](https://github.com/evanstern/the-stacks/pull/6) | `3693233` | ~1.05M subagent tokens, 4 dispatches (one refused, see A2) | phases 1-6 done (942db84, 4592cbe, 39676d3, 632c56a, 380f3f6) + orchestrator fixes (55530bd, 49c8c6e). tier=sonnet, served=claude-sonnet-5 from all transcripts. 26/26 boxes, 10 tests. **T016 caught a crash in merged TASK-0013 code** — see the finding note below. Board Done via spec-bridge. |
+
+## Finding — T016 caught a production crash in already-merged code (2026-09-22)
+
+**The defect.** `apps/server/src/db.ts`'s `createDatabaseProbe` built a `pg.Pool` with no
+`'error'` listener. `pg.Pool` is an EventEmitter; when Postgres terminates an idle
+connection (`57P01`, which is what `docker compose stop db` produces) it emits `'error'`
+on the pool. With no listener, Node's default is to throw — uncaught, and the process
+exits 1 in under a second. A self-hoster restarting their database would have found the
+app permanently down, needing a manual `up -d`.
+
+**It was live on `main`** through TASK-0013's merge and several commits after.
+
+**Why every earlier gate passed it.** The unit tests inject fake probes
+(`{ reachable: async () => false }`) that never construct a real pool — correct design for
+testing the *route*, but it means no test touched the connection path. `tsc` cannot see
+runtime EventEmitter semantics. The `/health` endpoint and the container healthcheck were
+both already correct; the process simply did not survive to answer. **Only booting the real
+stack and stopping the real database could find it.**
+
+**What this says about validation tasks.** T016 was written as a spec task with a stated
+reason — "the one a passing-looking implementation silently fails". That framing is why it
+was run as a real check instead of being waved through, and why the implementer stopped
+rather than continuing to tick boxes around an unresolved failure. **Keep writing
+validation tasks that name what they would catch.** A task that says "verify the stack
+works" gets rubber-stamped; one that says "this is the check a broken implementation
+passes" does not.
+
+**Fixed** in `39676d3` (handler + comment warning against removing an apparent no-op) with
+a regression test that builds a real `pg.Pool` against a raw TCP server speaking enough
+Postgres wire protocol to authenticate, answer `SELECT 1`, and then emit a genuine `57P01`.
+The orchestrator verified the test fails without the fix.
 
 ## Execution note — merge permission (2026-09-22)
 
-The sweep is blocked at its first merge. The auto-mode classifier refuses
+**RESOLVED 2026-09-22** — the operator added `"permissions": {"allow": ["Bash(gh pr merge:*)"]}`
+to `.claude/settings.json`. Merges have run unattended since. Kept for the record.
+
+The sweep was blocked at its first merge. The auto-mode classifier refuses
 `gh pr merge` on a PR this session authored (no human review), and separately
 refuses to let this session edit `.claude/settings.json` to grant itself that
 permission — correctly: an agent granting itself merge rights is the same
