@@ -1,9 +1,10 @@
 ---
 id: TASK-0013
 title: Hono HTTP server with health and one typed REST route
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-22 14:15'
 labels: []
 milestone: m-0
 dependencies:
@@ -28,6 +29,12 @@ Bring up the single Node process that hosts the API, per architecture A1 and A2.
 - [ ] #4 Errors return a consistent structured shape rather than raw stack traces
 - [ ] #5 Tests cover the route and the health check
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec: specs/003-hono-server
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
