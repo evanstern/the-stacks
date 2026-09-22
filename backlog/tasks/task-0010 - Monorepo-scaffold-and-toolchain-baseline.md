@@ -41,6 +41,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 phases: 1-3 done (e30f1c0, 4e1c175), 4 dispatched. Verified: clean tsc -b rebuild emits shared/dist first (real project references).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-4 all done. PR #2 open. Gates verified by orchestrator: install/typecheck/lint/build/test all green; 21/21 tasks.md boxes ticked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
