@@ -45,6 +45,8 @@ HELD 2026-09-22: Lane 2 paused before spec authoring. The runbook's per-task loo
 Spec set complete via Spec Kit skills (speckit-specify/plan/tasks): spec.md, plan.md, tasks.md (25 tasks), research.md, data-model.md, quickstart.md, contracts/ (health, echo-route, errors), checklists/. 5 phase ACs seeded. Phases 1-2 dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-2 done (d43c239, T001-T007). Gates verified by orchestrator: typecheck/lint/build green. Error contract verified: internal message is a module constant, caught error goes to console.error only, issues omitted unless validation. Phase 3 next.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
