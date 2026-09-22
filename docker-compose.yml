@@ -22,6 +22,13 @@ services:
   db:
     image: pgvector/pgvector:pg17
     env_file: .env
+    ports:
+      # Bound to 127.0.0.1 DELIBERATELY, not 0.0.0.0. The host needs to reach
+      # Postgres so integration tests can run against a real database (spec 004
+      # research D2); the LAN does not. An unqualified "5432:5432" would publish
+      # a self-hoster's database to their whole network. Override DB_PORT if
+      # 5432 is already taken on the host. See runbook amendment A3.
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:

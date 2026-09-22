@@ -1,3 +1,4 @@
+import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
 /**
@@ -34,11 +35,14 @@ export function probeReachable(
   ]).catch(() => false);
 }
 
-/** Production wiring: a bounded probe backed by a real Postgres pool. */
-export function createDatabaseProbe(
-  databaseUrl: string,
-  timeoutMs = DEFAULT_PROBE_TIMEOUT_MS,
-): DatabaseProbe {
+/**
+ * Builds a `pg.Pool` with the error handler every pool in this module needs
+ * (see the comment below). Both the health probe and the Drizzle client are
+ * built through this one helper rather than each wiring a pool by hand —
+ * that duplication is exactly how a second, unprotected connection path
+ * could reappear.
+ */
+function createPool(databaseUrl: string, timeoutMs: number): Pool {
   const pool = new Pool({
     connectionString: databaseUrl,
     connectionTimeoutMillis: timeoutMs,
@@ -56,8 +60,27 @@ export function createDatabaseProbe(
     // so this doesn't dump a whole pg.Client (sockets, buffers) to stderr.
     console.error("Database pool error (connection dropped):", err.message);
   });
+  return pool;
+}
+
+/** Production wiring: a bounded probe backed by a real Postgres pool. */
+export function createDatabaseProbe(
+  databaseUrl: string,
+  timeoutMs = DEFAULT_PROBE_TIMEOUT_MS,
+): DatabaseProbe {
+  const pool = createPool(databaseUrl, timeoutMs);
   return {
     reachable: () => probeReachable(pool, timeoutMs),
     close: () => pool.end(),
   };
+}
+
+/**
+ * The Drizzle client for the event log (and any later table). Built on the
+ * same pool wiring as the health probe (see `createPool`) rather than a
+ * second connection path. The return type exposes `$client` (the
+ * underlying pool) so callers — e.g. scripts/migrate.ts — can close it.
+ */
+export function createDb(databaseUrl: string) {
+  return drizzle(createPool(databaseUrl, DEFAULT_PROBE_TIMEOUT_MS));
 }

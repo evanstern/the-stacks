@@ -15,6 +15,8 @@ carries only ordering, doctrine, and the log.
 skills as invocations. See "Amendment A1" below. Re-signed by the operator.
 **Amended 2026-09-22 (A2):** dispatch from a neutral cwd; every dispatch prompt opens
 with a location check. See "Amendment A2" below.
+**Amended 2026-09-22 (A3):** publish the database port on loopback so race-safety can be
+tested against a real Postgres. See "Amendment A3" below. Operator-selected.
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -422,6 +424,54 @@ plan therefore *creates* the condition this rule exists to handle.
 
 **No corrective work was needed.** Both worktrees were verified clean and on their correct
 branches afterward; the task was simply re-dispatched with the location check added.
+
+## Amendment A3 — publish the database port on loopback (2026-09-22)
+
+**What was found.** Spec 004 (TASK-0012) requires, in research D2, that race-safety be
+proven against a **real** Postgres rather than a test double — the direct lesson of the
+T016 finding. While specifying Lane 3 the orchestrator found that `docker-compose.yml`
+publishes **no host port** for the `db` service: `5432/tcp` is exposed to the compose
+network only. Verified both directions with the stack up: the host cannot open 5432, and
+`docker compose exec db psql` connects fine from inside.
+
+**Why it blocks.** The test suite runs on the host. With no published port, every
+integration test would take its loud-skip path on every run, forever — so the evidence
+for TASK-0012 AC#5 ("race-safe under concurrent writers") would be **structurally
+unobtainable**, and the criterion could never be honestly ticked. A guarantee that cannot
+be tested is a guarantee nobody should believe.
+
+**This was a gap, not a ratified choice.** Spec 002 never decided against publishing the
+port; it never addressed the question, because nothing before Lane 3 needed host access to
+Postgres. Recorded here so a later reader does not mistake this for overturning a decision.
+
+**The fix, operator-selected:** publish the port bound to loopback only —
+
+```yaml
+  db:
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+```
+
+Binding `127.0.0.1` rather than the default `0.0.0.0` is the whole point: the database
+becomes reachable from the host that runs the tests, and remains unreachable from the LAN.
+An unqualified `"5432:5432"` would expose a self-hoster's database to their entire network,
+which constitution IX's self-hosting posture does not accept. `DB_PORT` is overridable for
+anyone whose host already runs Postgres on 5432.
+
+**Consequence for `DATABASE_URL`.** It stays `@db:5432` in `.env` — that is what the *app
+container* uses, and it is correct there. Host-run tests need `@localhost:5432`, which is a
+different connection string for a different caller. The two must not be conflated: `db`
+resolves only inside the compose network, and `localhost` inside the app container means
+the app container.
+
+**Scope.** `docker-compose.yml` and `.env.example` belong to TASK-0011 (merged). This
+amendment authorizes TASK-0012 to touch them, since the task that needs the port is the one
+that discovered the gap and no separate deliverable would carry the change. Recorded rather
+than done silently, per this runbook's rule that a merged task's surface is not edited on a
+whim.
+
+**Operator checkpoint:** the loopback-vs-network-vs-both choice was put to the operator and
+decided before any file was edited.
 
 ## Execution log
 
