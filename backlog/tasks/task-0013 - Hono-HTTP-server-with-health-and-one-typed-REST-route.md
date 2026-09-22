@@ -49,6 +49,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 phases: 1-2 done (d43c239, T001-T007). Gates verified by orchestrator: typecheck/lint/build green. Error contract verified: internal message is a module constant, caught error goes to console.error only, issues omitted unless validation. Phase 3 next.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+phases: 1-3 done (d43c239, d13e7cd, T001-T013). Verified by orchestrator: 3/3 tests pass; hang test completes in 1011ms against a 1000ms probe timeout, proving the bound fires (raw TCP server that accepts and never answers — a genuine hang, not a refusal). status derived inline from reachable. OWED: reconcile config.ts to read APP_PORT, not PORT — see TASK-0011 contract fix.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
