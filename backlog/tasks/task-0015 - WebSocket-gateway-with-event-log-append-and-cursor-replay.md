@@ -4,7 +4,7 @@ title: WebSocket gateway with event-log append and cursor replay
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 18:52'
+updated_date: '2026-09-22 19:23'
 labels: []
 milestone: m-0
 dependencies:
@@ -33,7 +33,16 @@ Spec: specs/006-ws-gateway
 - [ ] #5 Events carrying restricted visibility are filtered per viewer
 - [ ] #6 Disconnect and reconnect are handled without dropping or double-delivering events
 - [ ] #7 Tests cover append, fan-out, and replay from a cursor
+- [ ] #8 Spec phase: Setup (Shared Infrastructure)
+- [ ] #9 Spec phase: Foundational (Blocking Prerequisites)
+- [ ] #10 Spec phase: User Story 1 — Say something and have everyone see it (Priority: P1) 🎯 MVP
+- [ ] #11 Spec phase: User Story 2 — Only the server decides what happened (Priority: P1)
+- [ ] #12 Spec phase: User Story 3 — Come back and miss nothing (Priority: P1)
+- [ ] #13 Spec phase: User Story 4 — See only what you are meant to see (Priority: P2)
+- [ ] #14 Spec phase: Polish & Cross-Cutting Concerns
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
