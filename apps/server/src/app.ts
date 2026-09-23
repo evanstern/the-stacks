@@ -6,10 +6,13 @@ import { errorHandler, notFoundHandler } from "./errors.js";
 import { createAuthRoutes } from "./routes/auth.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
+import { createStaticMiddleware } from "./static.js";
 
 export interface CreateAppOptions {
   databaseProbe: DatabaseProbe;
   db: DbClient;
+  /** Override for the SPA's static root — tests point this at a fixture. */
+  staticRoot?: string;
 }
 
 /**
@@ -24,7 +27,7 @@ export interface CreateAppOptions {
  * `createValidateSession(db)` again with the same `db` — the function
  * itself takes only a token, never a Hono context.
  */
-export function createApp({ databaseProbe, db }: CreateAppOptions) {
+export function createApp({ databaseProbe, db, staticRoot }: CreateAppOptions) {
   const app = new Hono();
   app.onError(errorHandler);
   app.notFound(notFoundHandler);
@@ -34,6 +37,9 @@ export function createApp({ databaseProbe, db }: CreateAppOptions) {
     "/auth",
     createAuthRoutes({ db, validateSession: createValidateSession(db) }),
   );
+  // Mounted LAST (plan D2): the SPA fallback must never shadow the routes
+  // above, whose unknown sub-paths keep returning the structured JSON 404.
+  app.use("*", createStaticMiddleware(staticRoot));
   return app;
 }
 
