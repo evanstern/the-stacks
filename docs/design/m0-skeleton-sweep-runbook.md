@@ -10,7 +10,13 @@ log. Direction is decided; do not re-litigate it: `docs/design/vision.md`,
 `.specify/memory/constitution.md` v1.0.0 win. Plan-of-record is the board; this file
 carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-22
+**Status:** done · operator sign-off on lanes: 2026-09-22 · swept closed 2026-09-23
+
+All seven tasks (TASK-0010 → TASK-0016) are Done on the board, each by its own merged
+PR, each status derived by `spec-bridge:sync` rather than hand-set. **M0 is delivered:**
+TASK-0016's AC#7 — the two-browser demo — was performed against `docker compose up` and
+passed 8/8, so the milestone rests on an observation rather than on test reports.
+Out of scope and still open: TASK-0017 (CI) and TASK-0018 (root-guard non-ASCII).
 **Amended 2026-09-22 (A1):** the per-task spec cycle now names the `speckit-*`
 skills as invocations. See "Amendment A1" below. Re-signed by the operator.
 **Amended 2026-09-22 (A2):** dispatch from a neutral cwd; every dispatch prompt opens
@@ -506,6 +512,7 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 | 2026-09-22 | TASK-0012 | [#8](https://github.com/evanstern/the-stacks/pull/8) | `cc830c4` | ~1.11M subagent tokens, 4 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from all 4 transcripts. 36/36 boxes, 22 tests. **Race-safety measured by the orchestrator, not asserted**: lock-free append lost 21-23 of 50 concurrent writes per run; with `pg_advisory_xact_lock`, 50/50 stored gapless, 3 runs. Amendment A3 (db port) came out of this lane. Board Done via spec-bridge. |
 | 2026-09-22 | TASK-0014 | [#9](https://github.com/evanstern/the-stacks/pull/9) | `ce16c74` | ~728k subagent tokens, 2 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from both transcripts. 46/46 boxes, 40 tests. **Zero new dependencies** — stdlib `scrypt` over native argon2/bcrypt (constitution IX); N=2^15 throws synchronously without an explicit `maxmem`, measured. Orchestrator found and fixed: `db:migrate` broken from the host, and `create-operator` prompting before its existence check (hung non-interactive runs). Board Done via spec-bridge. |
 | 2026-09-23 | TASK-0015 | [#10](https://github.com/evanstern/the-stacks/pull/10) | `0f9d07e` | ~753k subagent tokens, 2 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from both transcripts. 40/40 boxes, 67 tests. **The implementer reported its own boundary test was only ~1-in-7 effective and diagnosed why** (a synchronous, un-interleavable window); the orchestrator turned that diagnosis into a deterministic guard — 5/5 failures against a broken ordering. Gateway verified live with real sockets. Board Done via spec-bridge. |
+| 2026-09-23 | TASK-0016 | [#12](https://github.com/evanstern/the-stacks/pull/12) | `7878d4d` | ~624k subagent tokens, 2 dispatches | phases 1-6 done (57afc81, fc28ae5) + orchestrator spec/quickstart/merge (209414f, b98dd60, 9dff1a0, 0d99526, 088c766). tier=sonnet, served=claude-sonnet-5 from both transcripts. 30/30 boxes, 72 tests, 0 skipped. **The M0 demo RAN — 8/8 checks in two real browsers from `docker compose up`**, the check every prior lane carried forward as owed: two identities, the message crossing, sender seeing it exactly once, reply back, replay after reload, no duplicates, still signed in. Event log holds seq 1 (operator) and seq 2 (player), so it went through Postgres. Orchestrator corrected its own plan (D2 named the wrong hazard: `serveStatic` falls through, the shell fallback is what shadows) and caught a typecheck-green claim that was false on the committed tree. Board Done via spec-bridge. |
 
 ## Finding — the most useful implementer report of this sweep was an admission (2026-09-23)
 
