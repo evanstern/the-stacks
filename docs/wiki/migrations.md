@@ -1,0 +1,66 @@
+---
+name: migrations
+description: drizzle-kit generate writes committed SQL to apps/server/drizzle/; the db:migrate script runs on the HOST via Node's native TypeScript stripping, and prefers TEST_DATABASE_URL over DATABASE_URL for exactly that reason.
+kind: pipeline
+sources:
+  - apps/server/scripts/migrate.ts
+  - apps/server/drizzle.config.ts
+  - apps/server/package.json
+verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+---
+
+# Migrations
+
+Schema changes flow: edit `apps/server/src/schema/*.ts` → `pnpm db:generate` (`drizzle-kit
+generate`, config in `apps/server/drizzle.config.ts`) writes a new SQL file into
+`apps/server/drizzle/`, which is **committed** — this project never uses drizzle-kit's `push`.
+Applying that SQL to a running database is a separate step: `pnpm db:migrate`.
+
+## How it works
+
+`drizzle.config.ts` points `drizzle-kit generate` at `schema: "./src/schema"`,
+`out: "./drizzle"`, `dialect: "postgresql"`, reading `DATABASE_URL` for the connection it
+introspects against. `db:generate` is a build-time tool run by a developer; it never runs in
+the container.
+
+`db:migrate` (in `apps/server/package.json`) is:
+
+```
+node --env-file-if-exists=../../.env --experimental-strip-types scripts/migrate.ts
+```
+
+Two things about that command matter. First, `--env-file-if-exists=../../.env` loads the
+repo-root `.env` if present, but doesn't fail if it's absent — the command works whether or
+not local overrides exist. Second, `--experimental-strip-types` runs `scripts/migrate.ts`
+directly as TypeScript via Node's native type-stripping, **not** compiled by `tsc` — which is
+why the script must be invoked with an explicit `.ts` extension and, per its own comment,
+cannot use the `.js`-suffixed imports the rest of `src/` uses for its bundler-resolved build
+(a raw-executed file resolving a `.js` import would fail one level deeper).
+
+`scripts/migrate.ts` itself resolves the database URL as
+`process.env.TEST_DATABASE_URL || config.databaseUrl` (where `config.databaseUrl` comes from
+`DATABASE_URL` via `loadConfig`) — **`TEST_DATABASE_URL` first**. This script runs on the
+**host** (the documented quickstart command is
+`pnpm --filter @the-stacks/server db:migrate`, invoked from a developer's shell), but
+`DATABASE_URL` names the address the **app container** uses (`@db:5432`, a compose service
+name) — a name the host's DNS cannot resolve. Without this precedence the documented command
+fails on every fresh setup with `Failed query: CREATE SCHEMA IF NOT EXISTS drizzle`.
+`TEST_DATABASE_URL` names the same database from the host's perspective
+(`@localhost:<DB_PORT>`). Inside the container `TEST_DATABASE_URL` is unset, so
+`DATABASE_URL` applies and container-run migration is unaffected. Once resolved, the script
+calls `drizzle-orm/node-postgres/migrator`'s `migrate(db, { migrationsFolder: "./drizzle" })`,
+logs success or failure, and always closes the pool (`db.$client.end()`) in a `finally`.
+
+## Connections
+
+Applies the schema declared for [[database-schema]], via the pool wiring in
+[[database-access]]. The host-vs-container URL split is the general rule documented in
+[[configuration]]; [[operator-provisioning]]'s `create-operator` script resolves its database
+URL the identical way, for the identical reason.
+
+## Operational notes
+
+Generated migration files are committed and reviewed like any other source change — including
+the hand-added append-only trigger described in [[database-schema]], which `drizzle-kit
+generate` cannot produce and a later `generate` run will not remove (it only appends new
+files, never edits existing ones).
