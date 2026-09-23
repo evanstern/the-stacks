@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:34'
+updated_date: '2026-09-23 04:35'
 labels: []
 milestone: m-0
 dependencies:
@@ -71,6 +71,15 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Scope: User Story 2 (T011-T016, sign-in + /auth/me on load) and User Story 3 (T017-T024, subscribe/replay/live/send). US4 and quickstart.md deliberately withheld -- the two-browser demo is the orchestrator's to verify.
 
 Pre-verified for the implementer so it need not guess: TanStack Router 1.170.38 code-based API confirmed present (createRouter/createRoute/createRootRoute/RouterProvider/useParams/useNavigate/Outlet/Link), so no file-based router plugin is needed; session cookie is HttpOnly/SameSite=Lax/path=/ with Secure only over HTTPS, so it rides same-origin fetches and the WS upgrade on localhost automatically.
+
+US4 demo infrastructure prepared and PROVEN, ahead of the implementer finishing US2/US3.
+
+Two Chrome-for-Testing 149 instances launch on ports 9222/9223 with separate --user-data-dir profiles. Isolation was verified empirically rather than assumed: set a cookie in browser A via CDP Storage.setCookies, then read cookies from both. Present in A, absent in B -- two genuinely separate jars. Two tabs in one profile share one session cookie and could never demonstrate AC#7.
+
+Demo session id (session_id is a uuid column, so it must be a real UUID): 44f0a6ae-c13b-41a8-a22c-29b84cbe3f60
+Session cookie name: session
+
+Launcher kept at the job tmp dir with start/stop/check verbs; browsers are stopped until the demo.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
