@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 13:17'
+updated_date: '2026-09-23 13:18'
 labels: []
 milestone: m-0
 dependencies:
@@ -140,6 +140,8 @@ Exactly one file conflicted -- the TASK-0016 card. No source file overlapped, so
 Resolved to main's version because it is a strict superset: 15 checked ACs against the snapshot's 0, both Dispatch lines, and every finding recorded during verification. Status identical on both sides, so nothing about the claim changed.
 
 Merged main in with git merge (never rebase -- the root-guard hook forbids it), then re-ran all gates unconditionally as the handoff requires: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 skipped, build ok. Still green after the merge.
+
+spec-bridge sync: Setup (Shared Infrastructure): 4/4 · User Story 1 — The SPA is served by the app container (Priority: P1): 6/6 · User Story 2 — Sign in, and stay signed in across reload (Priority: P1): 6/6 · User Story 3 — Live and replayed events in one view (Priority: P1): 8/8 · User Story 4 — The two-browser demo (Priority: P1): 5/5 · Gates: 1/1 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
