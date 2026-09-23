@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:32'
+updated_date: '2026-09-23 04:34'
 labels: []
 milestone: m-0
 dependencies:
@@ -65,6 +65,12 @@ Gates re-run with the database actually up (docker compose up -d db on DB_PORT=5
 The implementer's own run reported 30 passed / 42 skipped -- correct for a run without TEST_DATABASE_URL, but it proves nothing about the auth/events/ws integration suites. With the DB up all 72 execute and pass, so the SPA work breaks none of the merged server behaviour.
 
 Implementer finding worth keeping: c.finalized does NOT flip when one middleware invokes another directly (it only reflects the outer dispatch assigning to c.res), so static.ts distinguishes hit from miss by the return value of serve(c, async () => undefined). Their first draft had this wrong and silently served the shell in place of real assets.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Scope: User Story 2 (T011-T016, sign-in + /auth/me on load) and User Story 3 (T017-T024, subscribe/replay/live/send). US4 and quickstart.md deliberately withheld -- the two-browser demo is the orchestrator's to verify.
+
+Pre-verified for the implementer so it need not guess: TanStack Router 1.170.38 code-based API confirmed present (createRouter/createRoute/createRootRoute/RouterProvider/useParams/useNavigate/Outlet/Link), so no file-based router plugin is needed; session cookie is HttpOnly/SameSite=Lax/path=/ with Secure only over HTTPS, so it rides same-origin fetches and the WS upgrade on localhost automatically.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
