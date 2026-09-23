@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:38'
+updated_date: '2026-09-23 04:41'
 labels: []
 milestone: m-0
 dependencies:
@@ -90,6 +90,16 @@ Resolution: the demo runs against a freshly reset volume (docker compose down -v
 T025 (quickstart.md) done and VERIFIED by execution, not transcription. On a freshly reset volume: db:migrate applied; auth:create-operator created 'operator' non-interactively via OPERATOR_PASSWORD; signed in (200 with the operator's id); POST /auth/invitations returned a 43-char token; redeem created 'player'; GET /auth/me with the redeem cookie returned that player -- confirming redemption signs them in directly.
 
 Also noted while verifying: the server reads APP_PORT, not PORT (config.ts:19). And serveStatic logs a non-fatal warning when apps/server/public is absent, which is the case when running dist/ directly on the host rather than from the image -- harmless, but it looks alarming in logs.
+
+Two demo-critical server behaviours verified by the orchestrator directly against the running server, so the implementer's claims can be checked rather than trusted:
+
+1. Empty session: subscribe to a session with no events returns {"type":"replay-complete","throughSeq":0} immediately, with no event frames before it. The demo starts from exactly this state, so the SPA can tell 'caught up and quiet' from 'still loading' on the first subscribe. No special-casing needed.
+
+2. Sender echo: a send produced exactly ONE event frame back to the sender (seq 1, actor = the connection's identity, not anything the client supplied). That is the server half of FR-013/SC-004. If the browser shows a message twice, the defect is client-side optimistic rendering, and this is the baseline that proves it.
+
+Incidental finding: attempting to DELETE the probe's event was REFUSED by the database -- 'events is append-only: DELETE is not permitted' from the events_append_only() trigger. Constitution IV is enforced at the datastore, not merely by convention. Consequence: a polluted session id cannot be cleaned; use a fresh UUID instead.
+
+Demo session id updated to eecc199a-d65f-4b05-96e2-e9721c5349b1 (the previous one now holds the probe event).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
