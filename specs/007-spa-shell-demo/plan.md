@@ -102,8 +102,21 @@ Therefore:
   `/auth/*`. Those keep returning the structured JSON 404 for unknown sub-paths — a spec 003
   contract that an over-broad fallback would silently break.
 
-**This is the single highest-risk edit in the feature**, because breaking it turns a JSON 404
-into an HTML page and no existing test would necessarily notice.
+**Verified against the installed source** (`@hono/node-server` 2.1.1,
+`dist/serve-static.mjs` ~lines 74-94): when no file matches, `serveStatic` calls
+`onNotFound` and then `return next()` — it **falls through rather than responding**. So
+`serveStatic` itself is *not* the hazard: `/api/unknown` finds no file, falls through, and
+still reaches `notFoundHandler` with its structured JSON body. It also rejects paths
+containing `..` or backslashes before touching the filesystem, so no extra traversal guard is
+needed.
+
+**The hazard is the SPA-shell fallback mounted after it** — the handler that returns
+`index.html` so client-side deep links survive a direct load (FR-002). That one *does*
+respond, and a catch-all version silently turns the API's JSON 404 into an HTML page. Scope
+the shell fallback by path so it never answers for `/health`, `/api/*`, or `/auth/*`.
+
+**This is the single highest-risk edit in the feature**, and the deliberate break to test
+T008 against is a *catch-all shell fallback*, not a mis-mounted `serveStatic`.
 
 ### D3 — The client learns identity by asking (FR-007)
 
