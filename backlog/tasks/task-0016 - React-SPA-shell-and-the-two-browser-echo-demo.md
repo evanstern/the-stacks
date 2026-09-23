@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:41'
+updated_date: '2026-09-23 04:43'
 labels: []
 milestone: m-0
 dependencies:
@@ -100,6 +100,12 @@ Two demo-critical server behaviours verified by the orchestrator directly agains
 Incidental finding: attempting to DELETE the probe's event was REFUSED by the database -- 'events is append-only: DELETE is not permitted' from the events_append_only() trigger. Constitution IV is enforced at the datastore, not merely by convention. Consequence: a polluted session id cannot be cleaned; use a fresh UUID instead.
 
 Demo session id updated to eecc199a-d65f-4b05-96e2-e9721c5349b1 (the previous one now holds the probe event).
+
+Design note worth keeping from the US2/US3 client (reviewed in the worktree before commit): FR-014 needs the client to tell a 401 upgrade refusal (sign in again) from a 503 (retry), but the browser WebSocket API deliberately never exposes a refused upgrade's HTTP status -- a non-101 response fails the connection generically (close 1006, empty reason) so page script cannot port-scan through it.
+
+The client resolves this by probing GET /auth/me before connecting: it exercises the identical validateSession seam the upgrade does and DOES expose its status. 401 flips identity and returns to sign-in; anything else schedules a retry. Sound, and worth explaining in the PR because a reviewer will otherwise ask why a fetch precedes every socket connect.
+
+Also reviewed and correct ahead of verification: useSession tracks the highest DELIVERED seq with Math.max and passes it verbatim as afterSeq (D4/FR-011 -- no incrementing, no contiguity assumption), and play.tsx does not optimistically append on submit, rendering only when the event frame returns (D5/FR-013). Both still to be proven in a browser.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
