@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:48'
+updated_date: '2026-09-23 13:15'
 labels: []
 milestone: m-0
 dependencies:
@@ -130,6 +130,16 @@ PR opened: https://github.com/evanstern/the-stacks/pull/12 (6 commits, task-0016
 Body carries the literal gate output (72 passed / 0 skipped, with the database up), the 8/8 demo transcript, the event-log rows proving two distinct actors, both Dispatch lines, the typecheck-claim correction, and a 'not done, and not claimed' section naming CI (TASK-0017), the untypechecked test/ dir, the absent client test framework, and the four orphaned containers.
 
 Cannot self-merge: the auto-mode classifier refuses gh pr merge on a session's own PR, independent of the granted permission -- an agent merging its own unreviewed work is the pattern regardless of who asked. Awaiting operator.
+
+PR #12 merge conflict resolved (merge commit 088c766). GitHub now reports mergeable=true, mergeable_state=clean, 7 commits, 25 files.
+
+Cause: BOTH sides of the conflict were mine. The two-track landing rule puts board bookkeeping directly on main, so 16 'Update task TASK-0016' commits accumulated there while the branch still carried the claim-time snapshot of the same card, committed alongside the spec dir. Same file, two histories.
+
+Exactly one file conflicted -- the TASK-0016 card. No source file overlapped, so the SPA work was never at risk.
+
+Resolved to main's version because it is a strict superset: 15 checked ACs against the snapshot's 0, both Dispatch lines, and every finding recorded during verification. Status identical on both sides, so nothing about the claim changed.
+
+Merged main in with git merge (never rebase -- the root-guard hook forbids it), then re-ran all gates unconditionally as the handoff requires: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 skipped, build ok. Still green after the merge.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
