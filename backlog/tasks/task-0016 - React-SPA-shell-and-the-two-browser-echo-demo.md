@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:15'
+updated_date: '2026-09-23 04:18'
 labels: []
 milestone: m-0
 dependencies:
@@ -39,6 +39,14 @@ Deliver the client half of the walking skeleton and the M0 demo itself: two brow
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Scope: Phase 1 (T001-T004) + User Story 1 (T005-T010) — Vite workspace, static serving, Dockerfile. Served model read from the dispatch transcript, not inferred from the pin.
+
+AC#7 two-browser verification is possible in this session (resolves the handoff's open question).
+
+Branded Chrome is NOT installed, so both browser MCP servers fail at their default path. Available and verified instead:
+- Google Chrome for Testing 149.0.7827.55 at ~/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/ -- launched with --remote-debugging-port and an isolated --user-data-dir, confirmed live on the DevTools endpoint, then stopped.
+- Brave Browser (/Applications), offered by the operator as a Playwright executablePath.
+
+Approach for T026: two Chrome-for-Testing instances on separate debug ports with separate --user-data-dir profiles = two genuinely isolated cookie jars, attached via chrome-devtools-mcp --browserUrl. Two tabs in one profile share one session cookie and would prove nothing.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
