@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:43'
+updated_date: '2026-09-23 04:46'
 labels: []
 milestone: m-0
 dependencies:
@@ -26,20 +26,22 @@ Spec: specs/007-spa-shell-demo
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A React 19 + Vite SPA builds and is served by the app container
-- [ ] #2 TanStack Router and TanStack Query are wired
-- [ ] #3 A sign-in view authenticates against the session auth and persists the session across reload
-- [ ] #4 A minimal view subscribes over WebSocket and renders events from the log
-- [ ] #5 A user can send a message that reaches the other signed-in browser
-- [ ] #6 Reloading the page replays prior events from the log rather than showing an empty view
-- [ ] #7 The M0 demo runs end to end from docker compose up with two browsers signed in as different users
+- [x] #1 A React 19 + Vite SPA builds and is served by the app container
+- [x] #2 TanStack Router and TanStack Query are wired
+- [x] #3 A sign-in view authenticates against the session auth and persists the session across reload
+- [x] #4 A minimal view subscribes over WebSocket and renders events from the log
+- [x] #5 A user can send a message that reaches the other signed-in browser
+- [x] #6 Reloading the page replays prior events from the log rather than showing an empty view
+- [x] #7 The M0 demo runs end to end from docker compose up with two browsers signed in as different users
 - [x] #8 Spec phase: Setup (Shared Infrastructure)
 - [x] #9 Spec phase: User Story 1 — The SPA is served by the app container (Priority: P1)
-- [ ] #10 Spec phase: User Story 2 — Sign in, and stay signed in across reload (Priority: P1)
-- [ ] #11 Spec phase: User Story 3 — Live and replayed events in one view (Priority: P1)
-- [ ] #12 Spec phase: User Story 4 — The two-browser demo (Priority: P1)
+- [x] #10 Spec phase: User Story 2 — Sign in, and stay signed in across reload (Priority: P1)
+- [x] #11 Spec phase: User Story 3 — Live and replayed events in one view (Priority: P1)
+- [x] #12 Spec phase: User Story 4 — The two-browser demo (Priority: P1)
 - [ ] #13 Spec phase: Gates
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
