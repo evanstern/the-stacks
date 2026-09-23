@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 13:18'
+updated_date: '2026-09-23 13:27'
 labels: []
 milestone: m-0
 dependencies:
@@ -142,6 +142,17 @@ Resolved to main's version because it is a strict superset: 15 checked ACs again
 Merged main in with git merge (never rebase -- the root-guard hook forbids it), then re-ran all gates unconditionally as the handoff requires: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 skipped, build ok. Still green after the merge.
 
 spec-bridge sync: Setup (Shared Infrastructure): 4/4 · User Story 1 — The SPA is served by the app container (Priority: P1): 6/6 · User Story 2 — Sign in, and stay signed in across reload (Priority: P1): 6/6 · User Story 3 — Live and replayed events in one view (Priority: P1): 8/8 · User Story 4 — The two-browser demo (Priority: P1): 5/5 · Gates: 1/1 — status In Progress → Done
+
+Grounding wiki built and PR'd (#14): docs/wiki with 26 notes + INDEX + generated CAPSULES.md, all pinned to e472b47. Freshness gate exit 0, 26 notes fresh, every wikilink resolving (checked independently by diffing link set against note set).
+
+Three dispatches to sonnet-implementer, all served=claude-sonnet-5 verified from transcripts, grouped platform/server, data/auth, realtime/client.
+
+Notes were written against the SOURCE, which caught three things a spec-derived corpus would have got wrong:
+- loadConfig never reads TEST_DATABASE_URL; the or-fallback is in scripts/migrate.ts and must be || rather than ?? because compose blanks the variable to empty string. My dispatch brief had this wrong and the agent corrected it from the code.
+- create-operator.ts does NOT call provisioning.ts despite duplicate logic -- raw --experimental-strip-types cannot resolve the .js-suffixed schema import. Documented as not-DRY rather than implied shared.
+- In invitation redemption the row lock serializes; redeemed_at IS NULL is how the loser detects the loss. Two mechanisms, worth recording before someone drops the guard as redundant.
+
+Sweep obligations now all discharged. Open for operator: PR #13 (runbook closure) and PR #14 (wiki), both mergeable=clean.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
