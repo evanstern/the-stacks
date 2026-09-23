@@ -15,9 +15,11 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm --filter "@the-stacks/server..." run build
+RUN pnpm --filter "@the-stacks/web" run build
 
 # Runtime: only the server's production deps and built output — no build
-# tooling, no source, no devDependencies (research D5).
+# tooling, no source, no devDependencies (research D5). The client's build
+# output is static files, not tooling, so it belongs here (FR-004).
 FROM base AS runtime
 ENV NODE_ENV=production
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
@@ -27,6 +29,9 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..."
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/server/dist apps/server/dist
+# apps/server/public is where src/static.ts resolves its default root from
+# (module-relative, not cwd — plan D1), so the SPA build output lands there.
+COPY --from=build /app/apps/web/dist apps/server/public
 COPY healthcheck.js ./healthcheck.js
 WORKDIR /app/apps/server
 CMD ["node", "dist/index.js"]

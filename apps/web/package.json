@@ -4,11 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b",
+    "build": "vite build",
     "typecheck": "tsc -b",
     "test": "echo \"no tests yet\" && exit 0"
   },
   "dependencies": {
-    "@the-stacks/shared": "workspace:*"
+    "@tanstack/react-query": "^5.103.2",
+    "@tanstack/react-router": "^1.170.38",
+    "@the-stacks/shared": "workspace:*",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.0"
   }
 }
