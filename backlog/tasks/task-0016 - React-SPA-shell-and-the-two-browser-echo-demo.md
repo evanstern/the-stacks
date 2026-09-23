@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:46'
+updated_date: '2026-09-23 04:47'
 labels: []
 milestone: m-0
 dependencies:
@@ -38,8 +38,10 @@ Spec: specs/007-spa-shell-demo
 - [x] #10 Spec phase: User Story 2 — Sign in, and stay signed in across reload (Priority: P1)
 - [x] #11 Spec phase: User Story 3 — Live and replayed events in one view (Priority: P1)
 - [x] #12 Spec phase: User Story 4 — The two-browser demo (Priority: P1)
-- [ ] #13 Spec phase: Gates
+- [x] #13 Spec phase: Gates
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
