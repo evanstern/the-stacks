@@ -1,10 +1,10 @@
 ---
 id: TASK-0016
 title: React SPA shell and the two-browser echo demo
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 13:15'
+updated_date: '2026-09-23 13:17'
 labels: []
 milestone: m-0
 dependencies:
@@ -141,6 +141,12 @@ Resolved to main's version because it is a strict superset: 15 checked ACs again
 
 Merged main in with git merge (never rebase -- the root-guard hook forbids it), then re-ran all gates unconditionally as the handoff requires: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 skipped, build ok. Still green after the merge.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 4/4 · User Story 1 — The SPA is served by the app container (Priority: P1): 6/6 · User Story 2 — Sign in, and stay signed in across reload (Priority: P1): 6/6 · User Story 3 — Live and replayed events in one view (Priority: P1): 8/8 · User Story 4 — The two-browser demo (Priority: P1): 5/5 · Gates: 1/1). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
