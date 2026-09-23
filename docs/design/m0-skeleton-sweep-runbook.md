@@ -34,6 +34,21 @@ tested against a real Postgres. See "Amendment A3" below. Operator-selected.
    `speckit-*` skills populate. Read them BEFORE authoring any spec, so you recognize
    what a correctly-produced artifact looks like. See Amendment A1.
 
+## Current state (updated 2026-09-23 — read this before the snapshot below)
+
+**Six of seven tasks are Done and merged.** Only **TASK-0016** (React SPA + the two-browser
+demo) remains, and its AC#7 *is* the M0 milestone. See
+[`lane-5-handoff.md`](./lane-5-handoff.md) for the executing contract.
+
+`main` is at `3009838` with all gates green from a clean checkout: migration applies, 67/67
+tests across 10 files, typecheck, lint, build. No worktrees, no stale branches.
+
+Three amendments are in force: **A1** (the spec cycle must invoke the `speckit-*` skills),
+**A2** (dispatch from a neutral cwd), **A3** (publish the database port on loopback).
+
+The snapshot below is preserved as written on 2026-09-22 and describes a greenfield repo that
+no longer exists. It is history, not current state.
+
 ## State when this runbook was written (2026-09-22)
 
 - **Done already:** nothing in this scope. The repo is greenfield — `docs/`, `backlog/`,
@@ -487,6 +502,37 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 | 2026-09-22 | TASK-0010 | [#2](https://github.com/evanstern/the-stacks/pull/2) | `a1b1c9c` | ~694k subagent tokens, 3 dispatches | phases 1-4 done (e30f1c0, 4e1c175, 5a05ed4). tier=sonnet, served=claude-sonnet-5 from all 3 transcripts. Gates by orchestrator: install/typecheck/lint/build/test green; 21/21 boxes. Board Done via spec-bridge. |
 | 2026-09-22 | TASK-0013 | [#5](https://github.com/evanstern/the-stacks/pull/5) | merged | ~766k subagent tokens, 3 dispatches | phases 1-5 done (d43c239, d13e7cd, 57eb648, aa8164f). tier=sonnet, served=claude-sonnet-5 from all 3 transcripts. 25/25 boxes, 9 tests. Bounded probe verified: hang test returns in 1011ms against a 1000ms timeout. Carries the APP_PORT reconciliation. Board Done via spec-bridge. |
 | 2026-09-22 | TASK-0011 | [#6](https://github.com/evanstern/the-stacks/pull/6) | `3693233` | ~1.05M subagent tokens, 4 dispatches (one refused, see A2) | phases 1-6 done (942db84, 4592cbe, 39676d3, 632c56a, 380f3f6) + orchestrator fixes (55530bd, 49c8c6e). tier=sonnet, served=claude-sonnet-5 from all transcripts. 26/26 boxes, 10 tests. **T016 caught a crash in merged TASK-0013 code** — see the finding note below. Board Done via spec-bridge. |
+
+| 2026-09-22 | TASK-0012 | [#8](https://github.com/evanstern/the-stacks/pull/8) | `cc830c4` | ~1.11M subagent tokens, 4 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from all 4 transcripts. 36/36 boxes, 22 tests. **Race-safety measured by the orchestrator, not asserted**: lock-free append lost 21-23 of 50 concurrent writes per run; with `pg_advisory_xact_lock`, 50/50 stored gapless, 3 runs. Amendment A3 (db port) came out of this lane. Board Done via spec-bridge. |
+| 2026-09-22 | TASK-0014 | [#9](https://github.com/evanstern/the-stacks/pull/9) | `ce16c74` | ~728k subagent tokens, 2 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from both transcripts. 46/46 boxes, 40 tests. **Zero new dependencies** — stdlib `scrypt` over native argon2/bcrypt (constitution IX); N=2^15 throws synchronously without an explicit `maxmem`, measured. Orchestrator found and fixed: `db:migrate` broken from the host, and `create-operator` prompting before its existence check (hung non-interactive runs). Board Done via spec-bridge. |
+| 2026-09-23 | TASK-0015 | [#10](https://github.com/evanstern/the-stacks/pull/10) | `0f9d07e` | ~753k subagent tokens, 2 dispatches | phases 1-7 done. tier=sonnet, served=claude-sonnet-5 from both transcripts. 40/40 boxes, 67 tests. **The implementer reported its own boundary test was only ~1-in-7 effective and diagnosed why** (a synchronous, un-interleavable window); the orchestrator turned that diagnosis into a deterministic guard — 5/5 failures against a broken ordering. Gateway verified live with real sockets. Board Done via spec-bridge. |
+
+## Finding — the most useful implementer report of this sweep was an admission (2026-09-23)
+
+**What happened.** TASK-0015's Phase 4-7 implementer was asked to prove its replay-boundary
+test had teeth (revert the fix, watch the test fail). It ran the experiment and reported,
+unprompted, that **its first test design never failed — 0 failures in 10 attempts** — then
+strengthened the test and reported that even the improved version caught the defect only
+about **1 run in 7**.
+
+**Why that is worth recording.** The dispatch prompt had explicitly said: *if the test passes
+against the broken version, say so — that is a finding, not a failure.* It did, and the
+finding was more valuable than a clean pass would have been. It also diagnosed the cause:
+the vulnerable window is a **synchronous, no-`await` gap**, so nothing in a single-threaded
+Node process can interleave inside it and concurrent write pressure essentially never lands
+a commit there. Raising concurrency did not help, which fits a fixed tiny window rather than
+one proportional to load.
+
+**What it unlocked.** That diagnosis is exactly what made a deterministic test possible: a
+window unreachable by racing is trivially reachable by controlling the clock. The
+orchestrator added `apps/server/test/ws.subscribe.test.ts`, which calls `subscribe()`
+directly against a fake log and appends *during* the replay's own await — 2/2 pass against
+the correct implementation, **2/2 fail across five runs** against replay-then-subscribe.
+
+**The lesson, stated for the next runbook author:** keep writing dispatch prompts that name
+the honest-negative outcome as an acceptable answer. An implementer that believes "the test
+failed to catch it" is a reportable result will tell you; one that believes only a clean
+proof is acceptable will produce a clean-looking proof.
 
 ## Finding — T016 caught a production crash in already-merged code (2026-09-22)
 
