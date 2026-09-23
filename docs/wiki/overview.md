@@ -1,0 +1,77 @@
+---
+name: overview
+description: The system's shape at M0 — one Node process serving an HTTP API, a WebSocket gateway, and a React SPA, over a single Postgres holding an append-only event log. Read this before any other note; it names the three data planes, the entry points, and which seams exist versus which are still empty.
+kind: concept
+sources:
+  - docs/design/architecture.md
+  - docs/design/milestones.md
+  - .specify/memory/constitution.md
+  - apps/server/src/index.ts
+  - docker-compose.yml
+  - package.json
+verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+---
+
+# Overview
+
+the-stacks is a self-hosted tabletop RPG platform, built so an agent can sit at the table as
+a participant rather than as a bolted-on feature. At this commit the repository is at **M0,
+the walking skeleton**: every architectural seam exists and has been demonstrated end to
+end, but almost nothing is built on top of them yet.
+
+The shape is deliberately small. **One Node process** serves the HTTP API, the WebSocket
+gateway, and the built client. **One Postgres** holds relational data and the append-only
+event log — and will later hold vectors and the job queue, rather than those arriving as new
+services. **Two containers and a volume** is the whole deployment.
+
+## How it works
+
+A request arrives at the single Node process defined in `apps/server/src/index.ts`. That file
+does three things in order: builds the Hono app (`createApp`), calls `serve()` from
+`@hono/node-server`, and attaches the WebSocket gateway to the **same underlying server**
+that `serve()` returns — not a second listener. One port carries the API, the client, and
+the socket.
+
+Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
+order: `/health`, `/api/echo`, `/auth`, and then the SPA's static middleware **last**, so it
+can never shadow the routes above (see [[static-serving]]). `/ws` is not a Hono route at all —
+it is handled at the HTTP upgrade, before Hono routing, by [[websocket-gateway]].
+
+State is divided into **three planes**, a constitutional rule rather than a convention:
+
+| plane | what it holds | at this commit |
+|---|---|---|
+| library | imported reference content | empty — M1 |
+| codex | campaign entities | empty — M2 |
+| session | what happened at the table | the event log, live |
+
+Only the session plane is populated at M0, as [[event-log]]. Play state is **event-sourced
+with server authority**: a client never writes to the log, it asks the server to append
+(see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
+
+The client is a Vite-built React SPA ([[spa-shell]]) served by the same container. It is not
+SSR — that choice is fixed in the architecture's constraints table, along with Hono, `ws`,
+Drizzle, and Postgres 17.
+
+## Connections
+
+Entry points: [[server-entrypoint-and-app]] for the process, [[compose-stack]] for the
+deployment, [[spa-shell]] for the client. The platform beneath them is
+[[monorepo-and-toolchain]] and [[container-image]].
+
+The two seams M0 exists to prove are [[session-auth]] — one `validateSession` shared by HTTP
+and the socket — and the realtime path: [[websocket-gateway]] into [[event-log]] and back out
+through [[replay-live-boundary]]. The milestone check that ties them together is [[m0-demo]].
+
+## Operational notes
+
+`docker compose up` from a clean clone is a hard requirement, not an aspiration: the
+constitution's self-hostability principle makes a setup only the author can reproduce a
+failure. The demo path is documented in `specs/007-spa-shell-demo/quickstart.md`.
+
+The environment contract has one trap worth knowing before anything else:
+`DATABASE_URL` names the address the **container** uses (`@db:5432`, a compose service name)
+while `TEST_DATABASE_URL` names the **host's** (`@localhost:<DB_PORT>`). See [[configuration]].
+
+There is **no CI at this commit**. Gates are run by hand and their output pasted into each
+pull request. That is tracked as TASK-0017 and is the largest known gap.
