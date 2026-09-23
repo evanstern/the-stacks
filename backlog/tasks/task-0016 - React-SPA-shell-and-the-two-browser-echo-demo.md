@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:35'
+updated_date: '2026-09-23 04:37'
 labels: []
 milestone: m-0
 dependencies:
@@ -80,6 +80,12 @@ Demo session id (session_id is a uuid column, so it must be a real UUID): 44f0a6
 Session cookie name: session
 
 Launcher kept at the job tmp dir with start/stop/check verbs; browsers are stopped until the demo.
+
+Finding while verifying the quickstart (T025): running the full test suite POLLUTES the demo database. After one 72/72 run the DB held 40 users (5 with role=operator) and 433 events -- the integration suites insert real rows.
+
+Consequence for anyone following the quickstart afterwards: auth:create-operator correctly refuses ('An operator account already exists'), but with a password nobody knows, so the demo cannot proceed. The guard is not at fault -- the tests insert directly rather than through that script, which is why five operators coexist.
+
+Resolution: the demo runs against a freshly reset volume (docker compose down -v), which is what the quickstart promises anyway ('from a clean clone'). Recorded because the same trap will bite the next person who runs gates and then tries to demo on the same database.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
