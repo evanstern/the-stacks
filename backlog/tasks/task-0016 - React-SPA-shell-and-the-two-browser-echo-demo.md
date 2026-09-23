@@ -4,6 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: To Do
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-23 04:15'
 labels: []
 milestone: m-0
 dependencies:
@@ -31,6 +32,14 @@ Deliver the client half of the walking skeleton and the M0 demo itself: two brow
 - [ ] #6 Reloading the page replays prior events from the log rather than showing an empty view
 - [ ] #7 The M0 demo runs end to end from docker compose up with two browsers signed in as different users
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Scope: Phase 1 (T001-T004) + User Story 1 (T005-T010) — Vite workspace, static serving, Dockerfile. Served model read from the dispatch transcript, not inferred from the pin.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
