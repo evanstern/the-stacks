@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:47'
+updated_date: '2026-09-23 04:48'
 labels: []
 milestone: m-0
 dependencies:
@@ -40,8 +40,6 @@ Spec: specs/007-spa-shell-demo
 - [x] #12 Spec phase: User Story 4 — The two-browser demo (Priority: P1)
 - [x] #13 Spec phase: Gates
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -126,6 +124,12 @@ Not a UI illusion: the event log holds seq 1 actor ba892bec (operator) and seq 2
 Before that, my own gate run on a clean tree with the DB up: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 SKIPPED, build ok (vite 8.3.0).
 
 One correction to the implementer's report: it claimed gates green at commit, but pnpm typecheck FAILED on the committed tree because five leftover probe .mjs files (cross-session-probe, guard-probe, invite-race-probe, race-probe, seam-probe) were untracked in apps/server and got typechecked. Removing them made it pass. They were never committed, so the branch itself is clean -- but the claim was not reproducible as stated until the worktree was tidied.
+
+PR opened: https://github.com/evanstern/the-stacks/pull/12 (6 commits, task-0016-spa-demo -> main).
+
+Body carries the literal gate output (72 passed / 0 skipped, with the database up), the 8/8 demo transcript, the event-log rows proving two distinct actors, both Dispatch lines, the typecheck-claim correction, and a 'not done, and not claimed' section naming CI (TASK-0017), the untypechecked test/ dir, the absent client test framework, and the four orphaned containers.
+
+Cannot self-merge: the auto-mode classifier refuses gh pr merge on a session's own PR, independent of the granted permission -- an agent merging its own unreviewed work is the pattern regardless of who asked. Awaiting operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
