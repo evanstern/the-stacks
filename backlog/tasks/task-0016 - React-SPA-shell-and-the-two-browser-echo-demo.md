@@ -41,8 +41,6 @@ Spec: specs/007-spa-shell-demo
 - [ ] #13 Spec phase: Gates
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -108,6 +106,24 @@ Design note worth keeping from the US2/US3 client (reviewed in the worktree befo
 The client resolves this by probing GET /auth/me before connecting: it exercises the identical validateSession seam the upgrade does and DOES expose its status. 401 flips identity and returns to sign-in; anything else schedules a retry. Sound, and worth explaining in the PR because a reviewer will otherwise ask why a fetch precedes every socket connect.
 
 Also reviewed and correct ahead of verification: useSession tracks the highest DELIVERED seq with Math.max and passes it verbatim as afterSeq (D4/FR-011 -- no incrementing, no contiguity assumption), and play.tsx does not optimistically append on submit, rendering only when the event frame returns (D5/FR-013). Both still to be proven in a browser.
+
+THE M0 DEMO RAN. 8/8 checks passed in two real browsers against docker compose up -- the verification this sweep has never been able to perform.
+
+Setup: image rebuilt with the SPA inside, full stack up, two Chrome-for-Testing instances with separate profiles (separate cookie jars, proven earlier by a CDP probe). Driven over raw CDP, so no dependency on the absent branded Chrome.
+
+PASS  two browsers show DIFFERENT identities (alice=operator, bob=Player)
+PASS  message CROSSES to the other browser
+PASS  sender sees its own message EXACTLY ONCE (count=1) -- FR-013/SC-004, the defect most likely here and invisible to shell-only checks
+PASS  reply crosses back the other way
+PASS  RELOAD replays prior events (both browsers)
+PASS  no duplicates after replay (msg=1 reply=1)
+PASS  still signed in after reload -- AC#3 via GET /auth/me, no client-side identity store
+
+Not a UI illusion: the event log holds seq 1 actor ba892bec (operator) and seq 2 actor c8804e67 (player) with the exact message texts. The messages went through Postgres.
+
+Before that, my own gate run on a clean tree with the DB up: typecheck clean, lint 65 files, test 11 files / 72 passed / 0 SKIPPED, build ok (vite 8.3.0).
+
+One correction to the implementer's report: it claimed gates green at commit, but pnpm typecheck FAILED on the committed tree because five leftover probe .mjs files (cross-session-probe, guard-probe, invite-race-probe, race-probe, seam-probe) were untracked in apps/server and got typechecked. Removing them made it pass. They were never committed, so the branch itself is clean -- but the claim was not reproducible as stated until the worktree was tidied.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
