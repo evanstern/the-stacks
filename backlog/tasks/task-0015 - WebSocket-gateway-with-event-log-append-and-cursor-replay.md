@@ -1,10 +1,10 @@
 ---
 id: TASK-0015
 title: WebSocket gateway with event-log append and cursor replay
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-22 20:05'
+updated_date: '2026-09-23 04:01'
 labels: []
 milestone: m-0
 dependencies:
@@ -132,6 +132,12 @@ NOT DONE, and not claimed: quickstart step 6, the two-browser docker compose
 demo. It is a shell-only dispatch with no interactive browser. That check is
 TASK-0016's AC#7 and the M0 milestone itself.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup (Shared Infrastructure): 3/3 · Foundational (Blocking Prerequisites): 5/5 · User Story 1 — Say something and have everyone see it (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — Only the server decides what happened (Priority: P1): 5/5 · User Story 3 — Come back and miss nothing (Priority: P1): 7/7 · User Story 4 — See only what you are meant to see (Priority: P2): 5/5 · Polish & Cross-Cutting Concerns: 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
