@@ -4,7 +4,7 @@ title: React SPA shell and the two-browser echo demo
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-23 04:37'
+updated_date: '2026-09-23 04:38'
 labels: []
 milestone: m-0
 dependencies:
@@ -86,6 +86,10 @@ Finding while verifying the quickstart (T025): running the full test suite POLLU
 Consequence for anyone following the quickstart afterwards: auth:create-operator correctly refuses ('An operator account already exists'), but with a password nobody knows, so the demo cannot proceed. The guard is not at fault -- the tests insert directly rather than through that script, which is why five operators coexist.
 
 Resolution: the demo runs against a freshly reset volume (docker compose down -v), which is what the quickstart promises anyway ('from a clean clone'). Recorded because the same trap will bite the next person who runs gates and then tries to demo on the same database.
+
+T025 (quickstart.md) done and VERIFIED by execution, not transcription. On a freshly reset volume: db:migrate applied; auth:create-operator created 'operator' non-interactively via OPERATOR_PASSWORD; signed in (200 with the operator's id); POST /auth/invitations returned a 43-char token; redeem created 'player'; GET /auth/me with the redeem cookie returned that player -- confirming redemption signs them in directly.
+
+Also noted while verifying: the server reads APP_PORT, not PORT (config.ts:19). And serveStatic logs a non-fatal warning when apps/server/public is absent, which is the case when running dist/ directly on the host rather than from the image -- harmless, but it looks alarming in logs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
