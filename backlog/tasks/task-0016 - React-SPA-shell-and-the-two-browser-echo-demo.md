@@ -41,8 +41,6 @@ Spec: specs/007-spa-shell-demo
 - [ ] #13 Spec phase: Gates
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -53,6 +51,20 @@ Scope: Phase 1 (T001-T004) + User Story 1 (T005-T010) — Vite workspace, static
 AC#7 two-browser verification is possible in this session (resolves the handoff's open question). Branded Chrome is NOT installed, so both browser MCP servers fail at their default path. Verified available instead: Google Chrome for Testing 149.0.7827.55 from the Playwright cache, launched with --remote-debugging-port and an isolated --user-data-dir, confirmed live on the DevTools endpoint, then stopped; and Brave Browser, offered by the operator as a Playwright executablePath. Approach for T026: two Chrome-for-Testing instances on separate debug ports with separate profiles = two genuinely isolated cookie jars. Two tabs in one profile share one session cookie and would prove nothing.
 
 Demo environment prepared: .env in the worktree (gitignored) with DB_PORT=5436, since 5432-5435 are held by four orphaned containers from earlier lanes. APP_PORT=3000.
+
+Phase 1 + US1 verified by the orchestrator independently, not accepted from the report (commit 57afc81).
+
+T008 proven effective both directions BY RE-RUNNING IT: disabled the isReservedPath guard, 2 tests failed catching /api/* and /auth/* returning 200 (the SPA shell) instead of the structured 404; restored, 5/5 pass. This is a real regression test, not one that passes against a broken implementation.
+
+Gates re-run with the database actually up (docker compose up -d db on DB_PORT=5436, migrations applied, env loaded via set -a):
+  pnpm typecheck  clean
+  pnpm lint       Checked 56 files. No fixes applied.
+  pnpm test       11 files, 72/72 passed, 0 skipped
+  pnpm build      vite 8.3.0, built in 74ms
+
+The implementer's own run reported 30 passed / 42 skipped -- correct for a run without TEST_DATABASE_URL, but it proves nothing about the auth/events/ws integration suites. With the DB up all 72 execute and pass, so the SPA work breaks none of the merged server behaviour.
+
+Implementer finding worth keeping: c.finalized does NOT flip when one middleware invokes another directly (it only reflects the outer dispatch assigning to c.res), so static.ts distinguishes hit from miss by the return value of serve(c, async () => undefined). Their first draft had this wrong and silently served the shell in place of real assets.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
