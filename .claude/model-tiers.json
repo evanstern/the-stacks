@@ -15,8 +15,8 @@
       "for": "the default implementer — work to an existing pattern or a written spec, where the judgment calls are already made"
     },
     "opus": {
-      "model": "cc/claude-opus-5[1m]",
-      "fallback": "cc/claude-fable-5[1m]",
+      "model": "cc/claude-opus-5-5[1m]",
+      "fallback": "cc/claude-fable-5-1[1m]",
       "contextWindow": "1M",
       "escalation": true,
       "for": "escalation only — design work, cross-surface doctrine, anything with a real judgment call the spec does not already settle"
