@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { createDb } from "../src/db.js";
+import type { ErrorResponseBody } from "../src/errors.js";
+import type { HealthReport } from "../src/routes/health.js";
 
 function fakeProbe(reachable: boolean) {
   return { reachable: async () => reachable };
@@ -48,21 +50,21 @@ describe("SPA static serving (FR-002, FR-003, plan D2)", () => {
   it("does NOT shadow /api/*: an unknown sub-path still returns the structured JSON 404", async () => {
     const res = await app.request("/api/does-not-exist");
     expect(res.status).toBe(404);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as ErrorResponseBody;
     expect(body.error.kind).toBe("not_found");
   });
 
   it("does NOT shadow /auth/*: an unknown sub-path still returns the structured JSON 404", async () => {
     const res = await app.request("/auth/does-not-exist");
     expect(res.status).toBe(404);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as ErrorResponseBody;
     expect(body.error.kind).toBe("not_found");
   });
 
   it("still serves /health normally, unaffected by the static mount", async () => {
     const res = await app.request("/health");
     expect(res.status).toBe(200);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as HealthReport;
     expect(body.status).toBe("ok");
   });
 });

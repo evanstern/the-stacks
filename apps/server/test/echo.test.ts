@@ -1,12 +1,19 @@
+import type { EchoResponse } from "@the-stacks/shared";
 import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import type { DatabaseProbe } from "../src/db.js";
 import { createDb } from "../src/db.js";
+import type { ErrorIssue, ErrorResponseBody } from "../src/errors.js";
 import { errorHandler } from "../src/errors.js";
 
 function fakeProbe(reachable: boolean): DatabaseProbe {
   return { reachable: async () => reachable };
+}
+
+/** The validation-error body always carries `issues` — unlike the general shape. */
+interface ValidationErrorBody {
+  error: { kind: "validation"; message: string; issues: ErrorIssue[] };
 }
 
 // The echo route never touches the database, so a Pool that's never
@@ -24,7 +31,7 @@ describe("POST /api/echo", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as EchoResponse;
     expect(body.message).toBe("hello");
     expect(new Date(body.receivedAt).toString()).not.toBe("Invalid Date");
   });
@@ -44,7 +51,7 @@ describe("POST /api/echo", () => {
       });
 
       expect(res.status).toBe(400);
-      const body = (await res.json()) as any;
+      const body = (await res.json()) as ValidationErrorBody;
       expect(body.error.kind).toBe("validation");
       expect(body.error.issues.length).toBeGreaterThan(0);
       expect(body.error.issues[0].path).toBe("message");
@@ -56,7 +63,7 @@ describe("POST /api/echo", () => {
     const res = await app.request("/api/does-not-exist");
 
     expect(res.status).toBe(404);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as ErrorResponseBody;
     expect(body.error.kind).toBe("not_found");
     expect(typeof body.error.message).toBe("string");
   });
@@ -74,7 +81,7 @@ describe("POST /api/echo", () => {
     const res = await app.request("/boom");
 
     expect(res.status).toBe(500);
-    const body = (await res.json()) as any;
+    const body = (await res.json()) as ErrorResponseBody;
     expect(body.error.kind).toBe("internal");
     expect(body.error.message).toBe("An internal error occurred.");
     expect(body.error).not.toHaveProperty("issues");
