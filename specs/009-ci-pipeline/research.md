@@ -7,6 +7,7 @@
   check step is `pnpm ci:check`.
 - **Rationale**: one definition serves CI and local runs (FR-008); adding a suite is one
   `&& pnpm <suite>` edit in one file (FR-009). Turbo already fans out per package.
+- **Cache fix (T015)**: `test` is `cache: false` in turbo.json: suite outcome depends on database reachability, which turbo cannot hash; a cached replay made a db-down local run report green (found in T015, 2026-09-27).
 - **Alternatives**: separate YAML steps per check (clearer per-step UI, but the local
   command then drifts from CI); a turbo `ci` task (hides ordering across root scripts).
 
