@@ -43,22 +43,14 @@ Spec: specs/008-rootguard-nonascii
 - [x] #10 Spec phase: Polish & proof
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 T012 done: real board-sync commit at root with a non-ASCII staged backlog/ path (milestone file 'm-0 - m0-—-skeleton.md'), allowed by the fixed hook — commit 80be209 on main. PR #16 merged as 256497a.
+
+spec-bridge sync: Test harness (foundational): 3/3 · User Story 1 — non-ASCII board commits allowed (Priority: P1) 🎯 MVP: 2/2 · User Story 2 — non-board paths stay blocked (Priority: P1): 1/1 · User Story 3 — sibling checks audited (Priority: P2): 3/3 · Polish & proof: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
