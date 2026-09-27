@@ -3,7 +3,8 @@
 ## Local reproduction (the documented command)
 
     docker compose up -d db
-    export DATABASE_URL=postgres://stacks:stacks@localhost:5432/stacks
+    set -a; . ./.env; set +a   # POSTGRES_USER/PASSWORD/DB, DB_PORT
+    export DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:${DB_PORT:-5432}/$POSTGRES_DB
     export TEST_DATABASE_URL=$DATABASE_URL REQUIRE_DATABASE=1
     pnpm install --frozen-lockfile
     pnpm --filter @the-stacks/server db:migrate
