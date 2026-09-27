@@ -39,18 +39,12 @@ Spec: specs/009-ci-pipeline
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+spec-bridge sync: Foundational — the one command: 2/2 · User Story 4 — test files typechecked (Priority: P2, foundational for CI green): 2/2 · User Story 2 — integration tests cannot skip in CI (Priority: P1): 2/2 · User Story 3 — boundary check (Priority: P1): 4/4 · User Story 1 — the workflow (Priority: P1) 🎯 MVP gate: 0/2 · User Story 5 — document and extend (Priority: P2): 0/2 · Polish & re-ground: 0/2
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
