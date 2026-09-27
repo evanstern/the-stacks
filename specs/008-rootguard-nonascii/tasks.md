@@ -60,8 +60,8 @@ Test file: `.claude/hooks/root-guard-hook.test.mjs`. Run tests with `node --test
 
 ## Phase 5: Polish & proof
 
-- [ ] T010 Run `node --test .claude/hooks/`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test` from the worktree. All green. Paste outputs into the PR body.
-- [ ] T011 Run `specs/008-rootguard-nonascii/quickstart.md` section 2 (real root index, branch hook vs main hook, four exit codes). Clean up the root checkout afterward. Paste the exit codes into the PR body.
+- [x] T010 Run `node --test .claude/hooks/`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test` from the worktree. All green. Paste outputs into the PR body.
+- [x] T011 Run `specs/008-rootguard-nonascii/quickstart.md` section 2 (real root index, branch hook vs main hook, four exit codes). Clean up the root checkout afterward. Paste the exit codes into the PR body.
 - [ ] T012 After merge: run quickstart.md section 3 (rename the milestone back to `M0 — Skeleton` and commit at root). Record the commit hash on TASK-0018.
 
 ## Dependencies & Execution Order

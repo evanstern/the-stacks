@@ -2,7 +2,7 @@
 
 ## 1. Regression suite
 
-    node --test .claude/hooks/
+    node --test '.claude/hooks/*.test.mjs'   # the bare-directory form fails on Node 22.23 (MODULE_NOT_FOUND)
 
 Expected: all tests pass, including the non-ASCII allowed and blocked cases.
 
