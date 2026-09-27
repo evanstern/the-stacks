@@ -1,9 +1,10 @@
 ---
 id: TASK-0018
 title: Fix root-guard false positive on non-ASCII staged paths
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-27 15:06'
 labels:
   - bug
   - tooling
