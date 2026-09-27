@@ -10,7 +10,7 @@ data planes), `docs/design/milestones.md` (M0), and `.specify/memory/constitutio
 v1.0.0 (III: "a forbidden cross-plane import is a CI failure") win. Plan-of-record is the
 board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -110,6 +110,10 @@ the transcript.
       non-ASCII non-`backlog/` path; record exit 2. Unstage afterward. Paste both in the PR.
 - [ ] **TASK-0017 only — the CI run is green on its own PR**, and the documented local
       command reproduces it (card AC #5).
+- [ ] **TASK-0017 only — the three operator rulings are honored:** CI provisions a
+      `pgvector/pgvector:pg17` service and the integration suites RUN (0 skipped in CI);
+      the boundary check adds no dependency and ships a failing fixture proving it fires;
+      `apps/server/test/` is under `pnpm typecheck`.
 - **Escape lines (operator-signed only):** none.
 
 ## Concurrency & conflict doctrine
@@ -136,19 +140,19 @@ the transcript.
 
 ## Operator checkpoints (do not proceed silently)
 
-- **Lane sign-off on this runbook.**
-- **TASK-0017: CI database.** Proposed: a `pgvector/pgvector:pg17` service container
+- **Lane sign-off on this runbook.** Signed 2026-09-27 by the operator.
+- **TASK-0017: CI database.** RULED 2026-09-27 (operator): proposal accepted — a `pgvector/pgvector:pg17` service container
   (the image `docker-compose.yml` already uses), migrations applied, `TEST_DATABASE_URL`
   set — so the 42 integration tests run instead of loud-skipping. The alternative (skip
   in CI) leaves every auth, event-log, and gateway test unproven by the gate.
-- **TASK-0017: boundary-check mechanism.** Proposed: no new dependency. Use Biome's
+- **TASK-0017: boundary-check mechanism.** RULED 2026-09-27 (operator): proposal accepted — no new dependency. Use Biome's
   `noRestrictedImports` via `overrides` if it expresses the rules, else a stdlib Node
   script. Rules today: `apps/web` must not import `apps/server`; `packages/shared`
   imports no app. Plane rules (Library / Codex / Session) are declared now but only
   Session code exists, so the plane check ships with a failing fixture proving it fires.
   Adding a dependency such as dependency-cruiser is a Complexity Tracking entry and
   needs your yes.
-- **TASK-0017: `test/` typechecking.** Proposed: bring `apps/server/test/` under
+- **TASK-0017: `test/` typechecking.** RULED 2026-09-27 (operator): proposal accepted — bring `apps/server/test/` under
   `tsc` (the wiki records this as a known gap assigned to TASK-0017). Fixing any type
   errors this exposes is in scope.
 - Any escalation to the `opus` tier; any lane amendment; softening any gate above.
