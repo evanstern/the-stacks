@@ -4,7 +4,7 @@ title: 'CI pipeline: lint, typecheck, test, build, and boundary check'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:29'
+updated_date: '2026-09-27 15:46'
 labels: []
 milestone: m-0
 dependencies:
@@ -45,6 +45,12 @@ Spec: specs/009-ci-pipeline
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 spec-bridge sync: Foundational — the one command: 2/2 · User Story 4 — test files typechecked (Priority: P2, foundational for CI green): 2/2 · User Story 2 — integration tests cannot skip in CI (Priority: P1): 2/2 · User Story 3 — boundary check (Priority: P1): 4/4 · User Story 1 — the workflow (Priority: P1) 🎯 MVP gate: 0/2 · User Story 5 — document and extend (Priority: P2): 0/2 · Polish & re-ground: 0/2
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
