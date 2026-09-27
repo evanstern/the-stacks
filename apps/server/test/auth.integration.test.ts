@@ -101,7 +101,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.user).toEqual({
       id: user.id,
       displayName: user.displayName,
@@ -148,7 +148,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     });
 
     expect(me.status).toBe(200);
-    const body = await me.json();
+    const body = (await me.json()) as any;
     expect(body.user.id).toBe(user.id);
   });
 
@@ -263,7 +263,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     const token = cookie.split("=")[1];
 
     const me = await requireApp().request("/auth/me", { headers: { cookie } });
-    const meBody = await me.json();
+    const meBody = (await me.json()) as any;
 
     const validateSession = createValidateSession(requireDb());
     const direct = await validateSession(token);
@@ -298,7 +298,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
         body: JSON.stringify({ username, password }),
       });
       expect(res.status).toBe(200);
-      expect((await res.json()).user.role).toBe("operator");
+      expect(((await res.json()) as any).user.role).toBe("operator");
     }
 
     // T028: whether this run just created the first operator above, or
@@ -329,7 +329,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
       headers: { cookie: operatorCookie },
     });
     expect(issued.status).toBe(201);
-    const issuedBody = await issued.json();
+    const issuedBody = (await issued.json()) as any;
     expect(typeof issuedBody.token).toBe("string");
     expect(typeof issuedBody.expiresAt).toBe("string");
 
@@ -371,7 +371,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
       }),
     });
     expect(redeem.status).toBe(201);
-    const redeemBody = await redeem.json();
+    const redeemBody = (await redeem.json()) as any;
     expect(redeemBody.user.role).toBe("player");
     // Redemption signs the new player in immediately (contracts/http-auth.md).
     expect(redeem.headers.get("set-cookie")).toContain("session=");

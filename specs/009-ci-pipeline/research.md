@@ -62,6 +62,10 @@
   `tsc -b` covers it. If `composite`+`noEmit` conflicts, set `composite: false` and add
   a dedicated `typecheck:test` script (`tsc -p apps/server/test --noEmit`) wired into
   the server's `typecheck` script. Record which one worked here.
+- **Verified**: the primary variant (`composite` inherited `true` from the base config,
+  `noEmit: true` added, `include: ["."]`, `references` to `..` and `../../../packages/shared`)
+  worked with no `composite`/`noEmit` conflict — `tsc -b` ran straight to real type
+  errors in the test files, never to a config error. No fallback needed.
 - **Rationale**: FR-007; keeps `pnpm typecheck` as the single entry.
 
 ## R6 — Triggers and concurrency

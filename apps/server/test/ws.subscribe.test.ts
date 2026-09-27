@@ -98,7 +98,10 @@ describe("replay/live boundary (research D1, deterministic)", () => {
     // queued and drained afterwards.
     let firstRead = true;
     const db = {} as never;
-    const readFromFake = async (opts: { afterSeq?: number; limit: number }) => {
+    const readFromFake = async (
+      _db: unknown,
+      opts: { afterSeq?: number; limit: number },
+    ) => {
       const after = opts.afterSeq ?? 0;
       if (firstRead) {
         firstRead = false;
@@ -147,7 +150,10 @@ describe("replay/live boundary (research D1, deterministic)", () => {
     // the log, so it arrives by both paths. The position skip is what makes
     // the overlap harmless instead of a duplicate (research D1).
     let firstRead = true;
-    const readFromFake = async (opts: { afterSeq?: number; limit: number }) => {
+    const readFromFake = async (
+      _db: unknown,
+      opts: { afterSeq?: number; limit: number },
+    ) => {
       const after = opts.afterSeq ?? 0;
       if (firstRead) {
         firstRead = false;

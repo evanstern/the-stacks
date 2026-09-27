@@ -22,7 +22,7 @@ describe("GET /health", () => {
     const res = await app.request("/health");
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.status).toBe("ok");
     expect(body.database.reachable).toBe(true);
     expect(body.process.uptimeSeconds).toBeGreaterThan(0);
@@ -33,7 +33,7 @@ describe("GET /health", () => {
     const res = await app.request("/health");
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.status).toBe("degraded");
     expect(body.database.reachable).toBe(false);
   });
@@ -69,7 +69,7 @@ describe("GET /health", () => {
 
     expect(elapsedMs).toBeLessThan(5000);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.status).toBe("degraded");
     expect(body.database.reachable).toBe(false);
 

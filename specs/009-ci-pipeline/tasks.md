@@ -28,8 +28,8 @@ zero-skip guard (US2). No new unit tests otherwise.
 
 **Independent Test**: a deliberate type error in a test file fails `pnpm typecheck`.
 
-- [ ] T003 [US4] Create `apps/server/test/tsconfig.json` per research R5 (extends `../../../tsconfig.base.json`, `include: ["."]`, references the server and shared projects). Add it to root `tsconfig.json` `references`. Record in `specs/009-ci-pipeline/research.md` R5 which variant (composite+noEmit, or a dedicated `typecheck:test` script) actually worked.
-- [ ] T004 [US4] Run `pnpm typecheck`; fix every type error it exposes in `apps/server/test/*.ts` without changing test behavior. Confirm with the quickstart negative check 3, then revert the probe.
+- [x] T003 [US4] Create `apps/server/test/tsconfig.json` per research R5 (extends `../../../tsconfig.base.json`, `include: ["."]`, references the server and shared projects). Add it to root `tsconfig.json` `references`. Record in `specs/009-ci-pipeline/research.md` R5 which variant (composite+noEmit, or a dedicated `typecheck:test` script) actually worked.
+- [x] T004 [US4] Run `pnpm typecheck`; fix every type error it exposes in `apps/server/test/*.ts` without changing test behavior. Confirm with the quickstart negative check 3, then revert the probe.
 
 **Checkpoint**: typecheck green with tests included.
 

@@ -24,7 +24,7 @@ describe("POST /api/echo", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.message).toBe("hello");
     expect(new Date(body.receivedAt).toString()).not.toBe("Invalid Date");
   });
@@ -44,7 +44,7 @@ describe("POST /api/echo", () => {
       });
 
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as any;
       expect(body.error.kind).toBe("validation");
       expect(body.error.issues.length).toBeGreaterThan(0);
       expect(body.error.issues[0].path).toBe("message");
@@ -56,7 +56,7 @@ describe("POST /api/echo", () => {
     const res = await app.request("/api/does-not-exist");
 
     expect(res.status).toBe(404);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.error.kind).toBe("not_found");
     expect(typeof body.error.message).toBe("string");
   });
@@ -74,7 +74,7 @@ describe("POST /api/echo", () => {
     const res = await app.request("/boom");
 
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as any;
     expect(body.error.kind).toBe("internal");
     expect(body.error.message).toBe("An internal error occurred.");
     expect(body.error).not.toHaveProperty("issues");
