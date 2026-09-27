@@ -4,7 +4,7 @@ title: Fix root-guard false positive on non-ASCII staged paths
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:10'
+updated_date: '2026-09-27 15:20'
 labels:
   - bug
   - tooling
@@ -47,6 +47,8 @@ Spec: specs/008-rootguard-nonascii
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+T012 done: real board-sync commit at root with a non-ASCII staged backlog/ path (milestone file 'm-0 - m0-—-skeleton.md'), allowed by the fixed hook — commit 80be209 on main. PR #16 merged as 256497a.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
