@@ -70,7 +70,7 @@ zero-skip guard (US2). No new unit tests otherwise.
 
 ## Phase 6: User Story 5 — document and extend (Priority: P2)
 
-- [ ] T013 [US5] Add a "Checks" section to `README.md`: the quickstart's local reproduction block, and "To add a suite: define a script and append `&& pnpm <script>` to `ci:check`." Keep it under 25 lines.
+- [x] T013 [US5] Add a "Checks" section to `README.md`: the quickstart's local reproduction block, and "To add a suite: define a script and append `&& pnpm <script>` to `ci:check`." Keep it under 25 lines.
 - [ ] T014 [US5] After TASK-0018 merges: merge `origin/main` into this branch (never rebase), confirm `pnpm check:hooks` runs the hook tests, and re-run `pnpm ci:check`.
 
 ## Phase 7: Polish & re-ground
