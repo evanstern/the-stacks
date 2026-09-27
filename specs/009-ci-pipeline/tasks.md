@@ -76,7 +76,7 @@ zero-skip guard (US2). No new unit tests otherwise.
 ## Phase 7: Polish & re-ground
 
 - [ ] T015 Run the full quickstart (local reproduction + all four negative checks); paste results into the PR body.
-- [ ] T016 Run `/grounding-wiki:wiki-update`: notes `test-suite` and `monorepo-and-toolchain` are NEEDS-REVIEW (test/ now typechecked; new scripts, `.nvmrc`, CI). Re-verify prose against this branch's diff, then re-pin. Freshness gate prints OK.
+- [x] T016 Run `/grounding-wiki:wiki-update`: notes `test-suite` and `monorepo-and-toolchain` are NEEDS-REVIEW (test/ now typechecked; new scripts, `.nvmrc`, CI). Re-verify prose against this branch's diff, then re-pin. Freshness gate prints OK.
 
 ## Dependencies & Execution Order
 
