@@ -4,7 +4,7 @@ title: Fix root-guard false positive on non-ASCII staged paths
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:06'
+updated_date: '2026-09-27 15:09'
 labels:
   - bug
   - tooling
@@ -36,7 +36,14 @@ Spec: specs/008-rootguard-nonascii
 - [ ] #3 A commit staging a genuinely non-backlog path is still blocked, including when that path contains non-ASCII characters
 - [ ] #4 The explicit-pathspec branch and the pre-write path check are audited for the same quoting assumption and fixed if affected
 - [ ] #5 A regression test covers a non-ASCII backlog path in both the allowed and the blocked direction
+- [ ] #6 Spec phase: Test harness (foundational)
+- [ ] #7 Spec phase: User Story 1 — non-ASCII board commits allowed (Priority: P1) 🎯 MVP
+- [ ] #8 Spec phase: User Story 2 — non-board paths stay blocked (Priority: P1)
+- [ ] #9 Spec phase: User Story 3 — sibling checks audited (Priority: P2)
+- [ ] #10 Spec phase: Polish & proof
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
