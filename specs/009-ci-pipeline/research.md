@@ -37,6 +37,16 @@
   an explicitly passed path, fall back to a separate
   `fixtures/boundary-violations/biome.json` that `extends` the root config with the dir
   included; record which one worked in this file.
+- **Verified**: the primary form alone was not enough — `biome lint fixtures/boundary-violations`,
+  run from the repo root, refuses with "these paths were provided but ignored" even
+  with the nested `biome.json` present, because the root's `files.includes` exclusion
+  is applied before path arguments are resolved. The fallback fixed it, with one
+  addition beyond `extends` + `files.includes`: the nested config also needs
+  `"vcs": { "enabled": false }` — inheriting the root's `vcs.useIgnoreFile` made Biome
+  look for a `.gitignore` relative to the fixture directory itself and fail with
+  `internalError/fs`. `check-boundaries.mjs` therefore runs Biome with
+  `cwd: fixturesDir` (not a path argument from the root), `--reporter=json`, and reads
+  `diagnostics[].location.path` to confirm every fixture was flagged.
 - **Alternatives**: a test inside Vitest (couples a lint concern to the server's test
   runner).
 
