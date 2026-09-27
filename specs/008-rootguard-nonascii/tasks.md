@@ -19,9 +19,9 @@ Test file: `.claude/hooks/root-guard-hook.test.mjs`. Run tests with `node --test
 
 **Purpose**: a temp-repo fixture every story's tests reuse. Blocks all stories.
 
-- [ ] T001 Create `.claude/hooks/root-guard-hook.test.mjs` using only `node:test`, `node:assert/strict`, `node:child_process`, `node:fs`, `node:os`, `node:path`. Add a `makeRepo()` helper: `mkdtempSync` under `os.tmpdir()`, `git init -q`, set local `user.name`/`user.email`, make one initial commit, and return its `realpathSync` path. Register cleanup with `t.after` (or `after`) removing the directory.
-- [ ] T002 In the same file add `stage(repo, relPath, content)`: create parent dirs, write the file, `git add -- relPath` via `execFileSync` (argument array, never a shell string). Import `classifyBoardSyncCommit` and `boardPathspecOk` from `./root-guard-hook.mjs`.
-- [ ] T003 Add a baseline test: an ASCII `backlog/tasks/a.md` staged ⇒ `classifyBoardSyncCommit(['-m','x'], repo, repo)` deep-equals `{ ok: true }`; an ASCII `docs/a.md` staged ⇒ `ok:false`, `reason:'staged-outside'`, `token:'docs/a.md'`. Run `node --test .claude/hooks/` — must pass on the unmodified hook.
+- [x] T001 Create `.claude/hooks/root-guard-hook.test.mjs` using only `node:test`, `node:assert/strict`, `node:child_process`, `node:fs`, `node:os`, `node:path`. Add a `makeRepo()` helper: `mkdtempSync` under `os.tmpdir()`, `git init -q`, set local `user.name`/`user.email`, make one initial commit, and return its `realpathSync` path. Register cleanup with `t.after` (or `after`) removing the directory.
+- [x] T002 In the same file add `stage(repo, relPath, content)`: create parent dirs, write the file, `git add -- relPath` via `execFileSync` (argument array, never a shell string). Import `classifyBoardSyncCommit` and `boardPathspecOk` from `./root-guard-hook.mjs`.
+- [x] T003 Add a baseline test: an ASCII `backlog/tasks/a.md` staged ⇒ `classifyBoardSyncCommit(['-m','x'], repo, repo)` deep-equals `{ ok: true }`; an ASCII `docs/a.md` staged ⇒ `ok:false`, `reason:'staged-outside'`, `token:'docs/a.md'`. Run `node --test .claude/hooks/` — must pass on the unmodified hook.
 
 **Checkpoint**: harness works against the current hook; ASCII behavior pinned.
 
