@@ -1,1 +1,3 @@
-{"feature_directory":"specs/007-spa-shell-demo"}
+{
+  "feature_directory": "specs/008-rootguard-nonascii"
+}
