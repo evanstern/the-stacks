@@ -25,6 +25,8 @@ At .claude/hooks/root-guard-hook.mjs:422 the staged set is read with 'git diff -
 Observed on 2026-09-22 while seeding this board: a milestone titled with an em-dash produced exactly this denial. Renaming the milestone to ASCII worked around it, but any task, decision, or milestone whose title carries an em-dash, an accented letter, or any other non-ASCII character will trip the guard again. Backlog titles are free text, so this is reachable by ordinary use.
 
 The explicit-pathspec branch and the pre-write path check deserve the same review, since they compare raw git output the same way.
+
+Spec: specs/008-rootguard-nonascii
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
