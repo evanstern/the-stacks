@@ -20,6 +20,7 @@
   `shell-scan`, never from git output. The shell has already removed quoting, so a
   non-ASCII token reaches it verbatim. Absolute tokens resolve through `realpath`,
   which returns filesystem bytes as UTF-8 strings.
+- Confirmed by tests T007/T008 on 2026-09-27.
 
 ## R3 — Is the pre-write check affected?
 
@@ -27,6 +28,7 @@
 - **Rationale**: pre-write compares `realpath` results as strings and consumes only
   the exit code of `git check-ignore -q`, never its stdout. No quoted git output is
   parsed anywhere on that path.
+- Confirmed by tests T007/T008 on 2026-09-27.
 
 ## R4 — How to test without the stdin contract
 

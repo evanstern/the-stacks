@@ -42,7 +42,7 @@ Test file: `.claude/hooks/root-guard-hook.test.mjs`. Run tests with `node --test
 
 **Independent Test**: all T006 cases pass.
 
-- [ ] T006 [US2] Add tests in `.claude/hooks/root-guard-hook.test.mjs`: (a) `docs/café.md` + a `backlog/` file staged ⇒ `ok:false`, `reason:'staged-outside'`, `token:'docs/café.md'` exactly; (b) `backlog—x/a.md` staged ⇒ refused with that token; (c) a file named `backlog/a\nb.md` (literal newline in the name) staged ⇒ `{ ok: true }`, and `docs/a\nb.md` ⇒ refused with the full name as token; (d) a path containing `"` under `backlog/` ⇒ `{ ok: true }`; (e) nothing staged ⇒ `reason:'nothing-staged'`; (f) a repo where `git config core.quotepath false` is set locally still gives (a)'s result. Run — all pass with T005 in place; if any fail, fix `classifyBoardSyncCommit` only.
+- [x] T006 [US2] Add tests in `.claude/hooks/root-guard-hook.test.mjs`: (a) `docs/café.md` + a `backlog/` file staged ⇒ `ok:false`, `reason:'staged-outside'`, `token:'docs/café.md'` exactly; (b) `backlog—x/a.md` staged ⇒ refused with that token; (c) a file named `backlog/a\nb.md` (literal newline in the name) staged ⇒ `{ ok: true }`, and `docs/a\nb.md` ⇒ refused with the full name as token; (d) a path containing `"` under `backlog/` ⇒ `{ ok: true }`; (e) nothing staged ⇒ `reason:'nothing-staged'`; (f) a repo where `git config core.quotepath false` is set locally still gives (a)'s result. Run — all pass with T005 in place; if any fail, fix `classifyBoardSyncCommit` only.
 
 **Checkpoint**: blocked direction proven, including edge cases.
 
@@ -52,9 +52,9 @@ Test file: `.claude/hooks/root-guard-hook.test.mjs`. Run tests with `node --test
 
 **Independent Test**: T007 and T008 pass against the hook.
 
-- [ ] T007 [P] [US3] Add explicit-pathspec tests in `.claude/hooks/root-guard-hook.test.mjs`: `classifyBoardSyncCommit(['-m','x','--','backlog/tâche.md'], repo, repo)` ⇒ `{ ok: true }`; with `docs/tâche.md` ⇒ `reason:'pathspec-outside'`, `token:'docs/tâche.md'`; `boardPathspecOk(<absolute path to repo/backlog/tâche.md after creating it>, repo)` ⇒ `true`.
-- [ ] T008 [P] [US3] Add pre-write end-to-end tests in `.claude/hooks/root-guard-hook.test.mjs`: spawn `node .claude/hooks/root-guard-hook.mjs pre-write` with `CLAUDE_PROJECT_DIR=<repo>` and stdin `{"tool_input":{"file_path":"<repo>/docs/tâche.md"},"cwd":"<repo>"}` after creating that file ⇒ exit 2; same with the file under `<repo>/.worktrees/x/tâche.md` ⇒ exit 0. Use `spawnSync` with `input:` for stdin.
-- [ ] T009 [US3] If T007 or T008 failed, fix the affected check in `.claude/hooks/root-guard-hook.mjs` and re-run; if both passed, change no hook code. Either way, append one line to `specs/008-rootguard-nonascii/research.md` under R2/R3: "Confirmed by tests T007/T008 on <date>".
+- [x] T007 [P] [US3] Add explicit-pathspec tests in `.claude/hooks/root-guard-hook.test.mjs`: `classifyBoardSyncCommit(['-m','x','--','backlog/tâche.md'], repo, repo)` ⇒ `{ ok: true }`; with `docs/tâche.md` ⇒ `reason:'pathspec-outside'`, `token:'docs/tâche.md'`; `boardPathspecOk(<absolute path to repo/backlog/tâche.md after creating it>, repo)` ⇒ `true`.
+- [x] T008 [P] [US3] Add pre-write end-to-end tests in `.claude/hooks/root-guard-hook.test.mjs`: spawn `node .claude/hooks/root-guard-hook.mjs pre-write` with `CLAUDE_PROJECT_DIR=<repo>` and stdin `{"tool_input":{"file_path":"<repo>/docs/tâche.md"},"cwd":"<repo>"}` after creating that file ⇒ exit 2; same with the file under `<repo>/.worktrees/x/tâche.md` ⇒ exit 0. Use `spawnSync` with `input:` for stdin.
+- [x] T009 [US3] If T007 or T008 failed, fix the affected check in `.claude/hooks/root-guard-hook.mjs` and re-run; if both passed, change no hook code. Either way, append one line to `specs/008-rootguard-nonascii/research.md` under R2/R3: "Confirmed by tests T007/T008 on <date>".
 
 **Checkpoint**: all three checks covered for non-ASCII.
 
