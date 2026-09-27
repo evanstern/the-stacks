@@ -39,8 +39,8 @@ zero-skip guard (US2). No new unit tests otherwise.
 
 **Independent Test**: quickstart negative check 4.
 
-- [ ] T005 [US2] In each of `apps/server/test/auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts`: where the file computes `reachable` and loud-skips, add — before the `describe.skipIf` — `if (!reachable && process.env.REQUIRE_DATABASE === "1") throw new Error(<the same notice text>)`. Local behavior without the variable stays unchanged.
-- [ ] T006 [US2] Add `REQUIRE_DATABASE` to `turbo.json` `globalEnv` (turbo filters undeclared env vars from tasks). Verify: db stopped + `REQUIRE_DATABASE=1 pnpm test` fails; db up + migrated + same command passes with 0 skipped.
+- [x] T005 [US2] In each of `apps/server/test/auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts`: where the file computes `reachable` and loud-skips, add — before the `describe.skipIf` — `if (!reachable && process.env.REQUIRE_DATABASE === "1") throw new Error(<the same notice text>)`. Local behavior without the variable stays unchanged.
+- [x] T006 [US2] Add `REQUIRE_DATABASE` to `turbo.json` `globalEnv` (turbo filters undeclared env vars from tasks). Verify: db stopped + `REQUIRE_DATABASE=1 pnpm test` fails; db up + migrated + same command passes with 0 skipped.
 
 **Checkpoint**: skips impossible under the CI flag.
 

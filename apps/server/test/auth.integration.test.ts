@@ -22,14 +22,15 @@ const db = databaseUrl ? createDb(databaseUrl) : undefined;
 const reachable = db ? await probeReachable(db.$client, 2000) : false;
 
 if (!reachable) {
-  console.warn(
+  const notice =
     `\n⚠️  SKIPPING apps/server/test/auth.integration.test.ts — no reachable database ` +
-      `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the ` +
-      `session-auth integration tests (spec 005 US1/US2); a skip here proves NOTHING about ` +
-      `sign-in, refusal, expiry, or the validateSession seam. Start one with: ` +
-      `docker compose up -d db, then set ` +
-      `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`,
-  );
+    `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the ` +
+    `session-auth integration tests (spec 005 US1/US2); a skip here proves NOTHING about ` +
+    `sign-in, refusal, expiry, or the validateSession seam. Start one with: ` +
+    `docker compose up -d db, then set ` +
+    `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`;
+  console.warn(notice);
+  if (process.env.REQUIRE_DATABASE === "1") throw new Error(notice);
 }
 
 function requireDb() {

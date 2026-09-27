@@ -34,13 +34,14 @@ const db = databaseUrl ? createDb(databaseUrl) : undefined;
 const reachable = db ? await probeReachable(db.$client, 2000) : false;
 
 if (!reachable) {
-  console.warn(
+  const notice =
     `\n⚠️  SKIPPING apps/server/test/events.integration.test.ts — no reachable database ` +
-      `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the event-log integration ` +
-      `tests (spec 004 US1); a skip here proves NOTHING about append/cursor/ordering ` +
-      `behavior. Start one with: docker compose up -d db, then set ` +
-      `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`,
-  );
+    `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the event-log integration ` +
+    `tests (spec 004 US1); a skip here proves NOTHING about append/cursor/ordering ` +
+    `behavior. Start one with: docker compose up -d db, then set ` +
+    `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`;
+  console.warn(notice);
+  if (process.env.REQUIRE_DATABASE === "1") throw new Error(notice);
 }
 
 afterAll(async () => {
