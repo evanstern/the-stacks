@@ -1,10 +1,10 @@
 ---
 id: TASK-0017
 title: 'CI pipeline: lint, typecheck, test, build, and boundary check'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:52'
+updated_date: '2026-09-27 15:59'
 labels: []
 milestone: m-0
 dependencies:
@@ -56,6 +56,12 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — the one command: 2/2 · User Story 4 — test files typechecked (Priority: P2, foundational for CI green): 2/2 · User Story 2 — integration tests cannot skip in CI (Priority: P1): 2/2 · User Story 3 — boundary check (Priority: P1): 4/4 · User Story 1 — the workflow (Priority: P1) 🎯 MVP gate: 2/2 · User Story 5 — document and extend (Priority: P2): 2/2 · Polish & re-ground: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
