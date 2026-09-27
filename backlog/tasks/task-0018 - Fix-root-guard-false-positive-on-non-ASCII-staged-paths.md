@@ -4,7 +4,7 @@ title: Fix root-guard false positive on non-ASCII staged paths
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:09'
+updated_date: '2026-09-27 15:10'
 labels:
   - bug
   - tooling
@@ -43,7 +43,11 @@ Spec: specs/008-rootguard-nonascii
 - [ ] #10 Spec phase: Polish & proof
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
