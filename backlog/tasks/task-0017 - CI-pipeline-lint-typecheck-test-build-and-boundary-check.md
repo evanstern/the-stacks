@@ -1,9 +1,10 @@
 ---
 id: TASK-0017
 title: 'CI pipeline: lint, typecheck, test, build, and boundary check'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-27 15:10'
 labels: []
 milestone: m-0
 dependencies:
