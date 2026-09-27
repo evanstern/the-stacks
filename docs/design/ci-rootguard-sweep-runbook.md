@@ -174,3 +174,5 @@ the transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-27 | TASK-0018 | [#16](https://github.com/evanstern/the-stacks/pull/16) | `256497a` | ~126k subagent tokens, 1 dispatch (phases 1-4 grouped) | tier=sonnet, served=claude-sonnet-5 (transcript). Orchestrator ran phase 5: hook tests 16/16; real root index main-hook exit 2 / branch exit 0 (board-only), exit 2 both (non-board). T012 real root commit `80be209` (milestone em-dash title restored). Board Done via spec-bridge sync on the TASK-0017 branch. Finding: `node --test <dir>` fails on Node 22.23 — quoted glob used everywhere. |
+| 2026-09-27 | TASK-0017 | — | — | ~197k subagent tokens so far | phases: 1-4 done (dispatch A: bb2d8c2..d68a96c; 72/72 tests, 0 skipped, 5/5 fixtures flagged), main merged in (893d023), 5-6 next. tier=sonnet, served=claude-sonnet-5. |

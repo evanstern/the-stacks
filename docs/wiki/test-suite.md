@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What the server's 11 test files / 72 tests cover, the environment-gated integration suites that loud-skip to 30 passed / 42 skipped without a database, and that apps/server/tsconfig.json excludes test/ from typechecking (TASK-0017).
+description: What the server's 11 test files / 72 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference.
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -16,7 +16,9 @@ sources:
   - apps/server/test/ws.subscribe.test.ts
   - apps/server/package.json
   - apps/server/tsconfig.json
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+  - apps/server/test/tsconfig.json
+  - tsconfig.json
+verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
 ---
 
 # Test suite
@@ -32,37 +34,44 @@ protocol/subscribe modules in isolation.
 
 ## How it works
 
-**The environment-gated pattern (loud-skip).** Each integration file resolves
-`TEST_DATABASE_URL || DATABASE_URL` at module load, builds a client and probes it with
-`probeReachable`, and wraps its whole `describe` block in `describe.skipIf(!reachable)`. When
-unreachable, it does not fail — it `console.warn`s a multi-line notice naming the file, which
-spec/user-story it would have exercised, and the exact `docker compose up -d db` +
-`TEST_DATABASE_URL=...` incantation to fix it, then Vitest reports the suite `skipped`, not
-`failed`. This is deliberate: **a silent skip and a fake pass would both be green**, and the
-whole point of the notice is to make "proved nothing" visibly different from "proved
-something" in the run's output.
+**The environment-gated pattern (loud-skip, or throw under `REQUIRE_DATABASE`).** Each
+integration file resolves `TEST_DATABASE_URL || DATABASE_URL` at module load, builds a client
+and probes it with `probeReachable`, and wraps its whole `describe` block in
+`describe.skipIf(!reachable)`. When unreachable, it builds a multi-line notice naming the
+file, which spec/user-story it would have exercised, and the exact `docker compose up -d db`
++ `TEST_DATABASE_URL=...` incantation to fix it. By default it only `console.warn`s that
+notice and Vitest reports the suite `skipped`, not `failed` — deliberate, since **a silent
+skip and a fake pass would both be green**, and the notice's job is to make "proved nothing"
+visibly different from "proved something" in the run's output. When `REQUIRE_DATABASE=1` is
+set, the same notice is `throw`n instead of warned, turning an unreachable database into a
+hard failure — this is what [[ci-pipeline]] sets so CI cannot silently skip the suites it
+exists to run.
 
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
-DATABASE_URL`, `pnpm install` + building `packages/shared` first so imports resolve): **8
-test files pass, 3 skip** (the three integration files above), out of 11 — **30 tests pass,
-42 skip**, out of 72. A green run in this state proves the unit-level behavior only; every
-session-auth flow, every event-log write/read, and the entire WebSocket gateway (including
-[[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
-pass/fail summary, not the warning text, would not notice.
+DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
+resolve): **8 test files pass, 3 skip** (the three integration files above), out of 11 — **30
+tests pass, 42 skip**, out of 72. A green run in this state proves the unit-level behavior
+only; every session-auth flow, every event-log write/read, and the entire WebSocket gateway
+(including [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone
+reading only a pass/fail summary, not the warning text, would not notice. With a reachable
+database and `REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **72 tests pass, 0 skip**.
 
-**`test/` is not typechecked.** `apps/server/tsconfig.json` scopes `"include": ["src"]` —
-`test/` is outside it. `pnpm typecheck` (which runs `tsc -b`) never sees the test files at all;
-a type error introduced only in a test is invisible until Vitest actually transpiles and runs
-that file. This is a known, tracked gap (TASK-0017), not an oversight this note is the first
-to notice.
+**`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
+(`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`
+and `packages/shared`) is a fourth entry in root `tsconfig.json`'s `references` array,
+alongside `packages/shared`, `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
+root) now builds this reference too, so a type error introduced only in a test fails
+`typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
+closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` itself is unchanged (still
+scopes `"include": ["src"]`, so `test/` stays out of the `src` build's own output).
 
 ## Connections
 
 Exercises [[websocket-gateway]], [[replay-live-boundary]], [[subscriber-registry]],
 [[ws-protocol]], [[session-auth]], and [[event-log]]. The manual, human-run counterpart that
-exercises the same seams end to end through the real client is [[m0-demo]] — there is **no
-CI** at this commit (see [[overview]]), so both this suite and the manual demo are run and
-their output pasted into each PR by hand.
+exercises the same seams end to end through the real client is [[m0-demo]]. [[ci-pipeline]]
+runs this suite on every PR and push with `REQUIRE_DATABASE=1`; the manual demo is still run
+and pasted into each PR by hand.
 
 ## Operational notes
 

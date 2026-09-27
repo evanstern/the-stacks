@@ -52,10 +52,10 @@ been delivered.
 
 Exercises the full realtime path end to end: [[websocket-gateway]] → [[event-log]] →
 [[replay-live-boundary]] / [[subscriber-registry]] → [[client-session-hook]] →
-[[spa-shell]]'s `PlayView`. The automated counterpart that covers the same seams (when a
-database is available) is [[test-suite]]'s integration files — this manual procedure is what
-is actually run and pasted into each PR, since there is **no CI** at this commit (see
-[[overview]]).
+[[spa-shell]]'s `PlayView`. The automated counterpart is [[test-suite]]'s integration
+files, which [[ci-pipeline]] runs against a real database on every PR and push to main;
+this manual procedure remains the check that the demo works in real browsers, which no
+automated suite covers.
 
 ## Operational notes
 

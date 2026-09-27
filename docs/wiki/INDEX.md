@@ -58,4 +58,5 @@ modules, or agents yet; those are M1 and beyond.
 ## Testing and verification
 
 - [[test-suite]] — what is covered, the environment-gated integration suites, and the skip trap.
+- [[ci-pipeline]] — GitHub Actions CI, the `ci:check` aggregate script, and the boundary-rules check.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.

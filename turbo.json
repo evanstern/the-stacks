@@ -10,8 +10,15 @@
       "dependsOn": ["^typecheck"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": false
     }
   },
-  "globalEnv": ["APP_PORT", "DATABASE_URL", "TEST_DATABASE_URL", "DB_PORT"]
+  "globalEnv": [
+    "APP_PORT",
+    "DATABASE_URL",
+    "TEST_DATABASE_URL",
+    "DB_PORT",
+    "REQUIRE_DATABASE"
+  ]
 }

@@ -9,7 +9,8 @@ sources:
   - apps/server/src/index.ts
   - docker-compose.yml
   - package.json
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+  - .github/workflows/ci.yml
+verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
 ---
 
 # Overview
@@ -73,5 +74,7 @@ The environment contract has one trap worth knowing before anything else:
 `DATABASE_URL` names the address the **container** uses (`@db:5432`, a compose service name)
 while `TEST_DATABASE_URL` names the **host's** (`@localhost:<DB_PORT>`). See [[configuration]].
 
-There is **no CI at this commit**. Gates are run by hand and their output pasted into each
-pull request. That is tracked as TASK-0017 and is the largest known gap.
+CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job provisions a
+Postgres service and runs `pnpm ci:check` (lint, typecheck, build, test, boundary check, hook
+tests) with `REQUIRE_DATABASE=1`, so the integration suites are proven rather than
+loud-skipped. TASK-0017 closed the "gates run by hand" gap this note previously described.

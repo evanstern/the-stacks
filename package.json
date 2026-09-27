@@ -10,7 +10,10 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc -b",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

@@ -3,9 +3,138 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!.claude", "!.specify", "!backlog", "!docs", "!specs"]
+    "includes": [
+      "**",
+      "!.claude",
+      "!.specify",
+      "!backlog",
+      "!docs",
+      "!specs",
+      "!fixtures"
+    ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
   "linter": { "enabled": true },
-  "javascript": { "formatter": { "quoteStyle": "double" } }
+  "javascript": { "formatter": { "quoteStyle": "double" } },
+  "overrides": [
+    {
+      "includes": ["apps/web/**", "fixtures/boundary-violations/apps/web/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@the-stacks/server": "apps/web must not import the server plane directly (constitution III)."
+                },
+                "patterns": [
+                  {
+                    "group": ["**/apps/server/**"],
+                    "message": "apps/web must not import server files by relative path (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/shared/**",
+        "fixtures/boundary-violations/packages/shared/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@the-stacks/server": "packages/shared must not import the server plane (constitution III).",
+                  "@the-stacks/web": "packages/shared must not import the web plane (constitution III)."
+                },
+                "patterns": [
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "packages/shared must not import app code by relative path (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/server/src/library/**",
+        "fixtures/boundary-violations/apps/server/src/library/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/codex/**", "**/session/**"],
+                    "message": "library must not import codex or session directly — go through a declared seam module (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/server/src/codex/**",
+        "fixtures/boundary-violations/apps/server/src/codex/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/library/**", "**/session/**"],
+                    "message": "codex must not import library or session directly — go through a declared seam module (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/server/src/session/**",
+        "fixtures/boundary-violations/apps/server/src/session/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/library/**", "**/codex/**"],
+                    "message": "session must not import library or codex directly — go through a declared seam module (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -10,6 +10,17 @@ import { generateToken, hashToken } from "../src/auth/tokens.js";
 import { createDb, probeReachable } from "../src/db.js";
 import { authSessions, invitations, users } from "../src/schema/auth.js";
 
+/** Shape of the `{ user: ... }` body returned by sign-in, /auth/me, and redeem. */
+interface AuthUserBody {
+  user: { id: string; displayName: string; role: string };
+}
+
+/** Shape of the body returned by `POST /auth/invitations`. */
+interface InvitationIssuedBody {
+  token: string;
+  expiresAt: string;
+}
+
 /**
  * Integration tests for session auth (spec 005, US1–US4), reusing spec
  * 004's loud-skip harness (T010): a silent skip and a fake pass are both
@@ -22,14 +33,15 @@ const db = databaseUrl ? createDb(databaseUrl) : undefined;
 const reachable = db ? await probeReachable(db.$client, 2000) : false;
 
 if (!reachable) {
-  console.warn(
+  const notice =
     `\n⚠️  SKIPPING apps/server/test/auth.integration.test.ts — no reachable database ` +
-      `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the ` +
-      `session-auth integration tests (spec 005 US1/US2); a skip here proves NOTHING about ` +
-      `sign-in, refusal, expiry, or the validateSession seam. Start one with: ` +
-      `docker compose up -d db, then set ` +
-      `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`,
-  );
+    `(tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). These are the ` +
+    `session-auth integration tests (spec 005 US1/US2); a skip here proves NOTHING about ` +
+    `sign-in, refusal, expiry, or the validateSession seam. Start one with: ` +
+    `docker compose up -d db, then set ` +
+    `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:${process.env.DB_PORT ?? "5432"}/<db>\n`;
+  console.warn(notice);
+  if (process.env.REQUIRE_DATABASE === "1") throw new Error(notice);
 }
 
 function requireDb() {
@@ -101,7 +113,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as AuthUserBody;
     expect(body.user).toEqual({
       id: user.id,
       displayName: user.displayName,
@@ -148,7 +160,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     });
 
     expect(me.status).toBe(200);
-    const body = await me.json();
+    const body = (await me.json()) as AuthUserBody;
     expect(body.user.id).toBe(user.id);
   });
 
@@ -263,7 +275,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     const token = cookie.split("=")[1];
 
     const me = await requireApp().request("/auth/me", { headers: { cookie } });
-    const meBody = await me.json();
+    const meBody = (await me.json()) as AuthUserBody;
 
     const validateSession = createValidateSession(requireDb());
     const direct = await validateSession(token);
@@ -298,7 +310,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
         body: JSON.stringify({ username, password }),
       });
       expect(res.status).toBe(200);
-      expect((await res.json()).user.role).toBe("operator");
+      expect(((await res.json()) as AuthUserBody).user.role).toBe("operator");
     }
 
     // T028: whether this run just created the first operator above, or
@@ -329,7 +341,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
       headers: { cookie: operatorCookie },
     });
     expect(issued.status).toBe(201);
-    const issuedBody = await issued.json();
+    const issuedBody = (await issued.json()) as InvitationIssuedBody;
     expect(typeof issuedBody.token).toBe("string");
     expect(typeof issuedBody.expiresAt).toBe("string");
 
@@ -371,7 +383,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
       }),
     });
     expect(redeem.status).toBe(201);
-    const redeemBody = await redeem.json();
+    const redeemBody = (await redeem.json()) as AuthUserBody;
     expect(redeemBody.user.role).toBe("player");
     // Redemption signs the new player in immediately (contracts/http-auth.md).
     expect(redeem.headers.get("set-cookie")).toContain("session=");
