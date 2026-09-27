@@ -1,10 +1,10 @@
 ---
 id: TASK-0018
 title: Fix root-guard false positive on non-ASCII staged paths
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:20'
+updated_date: '2026-09-27 15:29'
 labels:
   - bug
   - tooling
@@ -50,6 +50,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 T012 done: real board-sync commit at root with a non-ASCII staged backlog/ path (milestone file 'm-0 - m0-—-skeleton.md'), allowed by the fixed hook — commit 80be209 on main. PR #16 merged as 256497a.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Test harness (foundational): 3/3 · User Story 1 — non-ASCII board commits allowed (Priority: P1) 🎯 MVP: 2/2 · User Story 2 — non-board paths stay blocked (Priority: P1): 1/1 · User Story 3 — sibling checks audited (Priority: P2): 3/3 · Polish & proof: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
