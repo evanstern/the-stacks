@@ -39,12 +39,6 @@ Spec: specs/009-ci-pipeline
 - [x] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +55,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5
 Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
+
+spec-bridge sync: Foundational — the one command: 2/2 · User Story 4 — test files typechecked (Priority: P2, foundational for CI green): 2/2 · User Story 2 — integration tests cannot skip in CI (Priority: P1): 2/2 · User Story 3 — boundary check (Priority: P1): 4/4 · User Story 1 — the workflow (Priority: P1) 🎯 MVP gate: 2/2 · User Story 5 — document and extend (Priority: P2): 2/2 · Polish & re-ground: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
