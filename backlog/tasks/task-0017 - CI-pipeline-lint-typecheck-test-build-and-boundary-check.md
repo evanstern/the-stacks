@@ -4,7 +4,7 @@ title: 'CI pipeline: lint, typecheck, test, build, and boundary check'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:13'
+updated_date: '2026-09-27 15:29'
 labels: []
 milestone: m-0
 dependencies:
@@ -39,7 +39,11 @@ Spec: specs/009-ci-pipeline
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
