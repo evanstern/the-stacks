@@ -419,9 +419,12 @@ function classifyBoardSyncCommit(args, effDir, realProjectDir) {
   }
 
   // No pathspecs: the staged set decides — non-empty and entirely backlog/.
-  const staged = tryExec('git', ['-C', effDir, 'diff', '--cached', '--name-only']);
+  // `-z` makes git emit paths verbatim, NUL-terminated: no C-quoting of
+  // non-ASCII bytes (independent of core.quotepath), and no ambiguity for a
+  // path containing a newline, tab, quote, or backslash (spec 008 R1).
+  const staged = tryExec('git', ['-C', effDir, 'diff', '--cached', '--name-only', '-z']);
   if (staged.status !== 0) return { ok: false, reason: 'staged-query-failed' };
-  const files = staged.stdout.split('\n').filter((l) => l.trim() !== '');
+  const files = staged.stdout.split('\0').filter((l) => l !== '');
   if (files.length === 0) return { ok: false, reason: 'nothing-staged' };
   for (const f of files) {
     if (!f.startsWith('backlog/')) return { ok: false, reason: 'staged-outside', token: f };

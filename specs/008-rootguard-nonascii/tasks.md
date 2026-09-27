@@ -31,8 +31,8 @@ Test file: `.claude/hooks/root-guard-hook.test.mjs`. Run tests with `node --test
 
 **Independent Test**: T004 fails before T005 and passes after.
 
-- [ ] T004 [US1] Add failing tests in `.claude/hooks/root-guard-hook.test.mjs`: (a) only `backlog/milestones/m-0 - m0-—-skeleton.md` staged ⇒ `{ ok: true }`; (b) that file plus ASCII `backlog/tasks/a.md` staged ⇒ `{ ok: true }`. Run and confirm (a) and (b) FAIL with `staged-outside` — record the failure output in the commit message.
-- [ ] T005 [US1] In `.claude/hooks/root-guard-hook.mjs` `classifyBoardSyncCommit`, change the staged read to `['-C', effDir, 'diff', '--cached', '--name-only', '-z']` and split on `'\0'`, filtering out empty strings only (do NOT trim — a path may legitimately contain spaces). Keep every other line of the function unchanged. Run tests — T003 and T004 pass.
+- [x] T004 [US1] Add failing tests in `.claude/hooks/root-guard-hook.test.mjs`: (a) only `backlog/milestones/m-0 - m0-—-skeleton.md` staged ⇒ `{ ok: true }`; (b) that file plus ASCII `backlog/tasks/a.md` staged ⇒ `{ ok: true }`. Run and confirm (a) and (b) FAIL with `staged-outside` — record the failure output in the commit message.
+- [x] T005 [US1] In `.claude/hooks/root-guard-hook.mjs` `classifyBoardSyncCommit`, change the staged read to `['-C', effDir, 'diff', '--cached', '--name-only', '-z']` and split on `'\0'`, filtering out empty strings only (do NOT trim — a path may legitimately contain spaces). Keep every other line of the function unchanged. Run tests — T003 and T004 pass.
 
 **Checkpoint**: MVP — the reported defect is fixed.
 

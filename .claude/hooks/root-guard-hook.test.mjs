@@ -54,3 +54,18 @@ describe('classifyBoardSyncCommit — baseline (Phase 1)', () => {
     });
   });
 });
+
+describe('classifyBoardSyncCommit — US1 non-ASCII board commits allowed (Phase 2)', () => {
+  test('a lone non-ASCII backlog/ path staged is allowed', (t) => {
+    const repo = makeRepo(t);
+    stage(repo, 'backlog/milestones/m-0 - m0-—-skeleton.md');
+    assert.deepEqual(classifyBoardSyncCommit(['-m', 'x'], repo, repo), { ok: true });
+  });
+
+  test('a non-ASCII backlog/ path plus an ASCII backlog/ path is allowed', (t) => {
+    const repo = makeRepo(t);
+    stage(repo, 'backlog/milestones/m-0 - m0-—-skeleton.md');
+    stage(repo, 'backlog/tasks/a.md');
+    assert.deepEqual(classifyBoardSyncCommit(['-m', 'x'], repo, repo), { ok: true });
+  });
+});
