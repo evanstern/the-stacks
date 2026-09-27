@@ -26,3 +26,14 @@ the repository root; `HOOK` is this branch's hook file.
    them. Confirm `git -C "$ROOT" status --short` shows no leftovers.
 
 Paste the four exit codes into the PR body.
+
+## 3. Real commit after merge (closes card DoD #3)
+
+Section 2 replays the hook against the root's real index but commits nothing. Once this
+branch merges, root runs the fixed hook, so make one genuine non-ASCII board commit:
+
+1. Restore the milestone's original title, which the bug forced to ASCII:
+   `backlog milestone rename "M0 - skeleton" "M0 — skeleton"` (confirm the current name
+   with `backlog milestone list` first).
+2. Stage the renamed `backlog/` files in one Bash call; `git commit` in the next.
+3. Expected: the hook allows the commit. Record the commit hash on the TASK-0018 card.
