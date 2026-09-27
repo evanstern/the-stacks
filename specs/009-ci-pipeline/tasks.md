@@ -71,11 +71,11 @@ zero-skip guard (US2). No new unit tests otherwise.
 ## Phase 6: User Story 5 — document and extend (Priority: P2)
 
 - [x] T013 [US5] Add a "Checks" section to `README.md`: the quickstart's local reproduction block, and "To add a suite: define a script and append `&& pnpm <script>` to `ci:check`." Keep it under 25 lines.
-- [ ] T014 [US5] After TASK-0018 merges: merge `origin/main` into this branch (never rebase), confirm `pnpm check:hooks` runs the hook tests, and re-run `pnpm ci:check`.
+- [x] T014 [US5] After TASK-0018 merges: merge `origin/main` into this branch (never rebase), confirm `pnpm check:hooks` runs the hook tests, and re-run `pnpm ci:check`.
 
 ## Phase 7: Polish & re-ground
 
-- [ ] T015 Run the full quickstart (local reproduction + all four negative checks); paste results into the PR body.
+- [x] T015 Run the full quickstart (local reproduction + all four negative checks); paste results into the PR body.
 - [x] T016 Run `/grounding-wiki:wiki-update`: notes `test-suite` and `monorepo-and-toolchain` are NEEDS-REVIEW (test/ now typechecked; new scripts, `.nvmrc`, CI). Re-verify prose against this branch's diff, then re-pin. Freshness gate prints OK.
 
 ## Dependencies & Execution Order
