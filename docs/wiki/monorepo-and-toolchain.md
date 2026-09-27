@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
+verified_against: cd359ab7e3389075b413a1bd653a961ffc87471b
 ---
 
 # Monorepo and toolchain
@@ -34,10 +34,11 @@ proves and how CI runs this same script.
 
 `turbo.json` defines the task graph: `build` depends on `^build` (each workspace's
 dependencies build first) and declares `dist/**` as its cacheable output; `typecheck` depends
-on `^typecheck` the same way; `test` depends on `^build` so integration code always runs
-against fresh output; `lint` has no dependencies. `globalEnv` lists `APP_PORT`, `DATABASE_URL`,
+on `^typecheck` the same way; `test` depends on `^build`, has `"cache": false` (its result
+depends on database reachability, which Turbo cannot hash), and runs against fresh output;
+`lint` has no dependencies. `globalEnv` lists `APP_PORT`, `DATABASE_URL`,
 `TEST_DATABASE_URL`, `DB_PORT`, `REQUIRE_DATABASE` — the environment variables whose value
-changes must bust Turbo's cache, since none of them appear in any task's input files.
+changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
 `apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
@@ -73,4 +74,4 @@ in one gate.
 `tsc -b` is incremental by nature (composite references); a workspace whose `references` list
 is wrong fails silently at the *consumer's* type-check, not at the missing package's. Turbo
 task outputs (`dist/**`) are cached per-workspace; changing a `globalEnv` variable without
-changing any file still invalidates every task's cache.
+changing any file still invalidates the cached tasks' cache, but `test` is never cached.

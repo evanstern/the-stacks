@@ -7,9 +7,10 @@ sources:
   - package.json
   - scripts/check-boundaries.mjs
   - biome.json
+  - turbo.json
   - specs/009-ci-pipeline/contracts/boundary-rules.md
   - README.md
-verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
+verified_against: cd359ab7e3389075b413a1bd653a961ffc87471b
 ---
 
 # CI pipeline
@@ -31,8 +32,9 @@ The workflow provisions a `pgvector/pgvector:pg17` service container (`POSTGRES_
 `POSTGRES_PASSWORD`, `POSTGRES_DB` all `stacks`) health-checked with `pg_isready`, runs
 `pnpm --filter @the-stacks/server db:migrate`, then `pnpm ci:check` with `DATABASE_URL`,
 `TEST_DATABASE_URL`, and `REQUIRE_DATABASE=1` all set. `REQUIRE_DATABASE` is declared in
-`turbo.json`'s `globalEnv` so its value busts Turbo's task cache like the other environment
-variables. With `REQUIRE_DATABASE=1` and a reachable database, [[test-suite]]'s three
+`turbo.json`'s `globalEnv` because Turbo filters undeclared variables out of task environments,
+and the `test` task is `cache: false` so a local run can never replay a green result recorded
+while the database was up. With `REQUIRE_DATABASE=1` and a reachable database, [[test-suite]]'s three
 integration suites run instead of loud-skipping — CI proves all 72 tests, not the 30 that a
 database-less run proves.
 
