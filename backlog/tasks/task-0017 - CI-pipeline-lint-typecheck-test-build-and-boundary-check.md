@@ -36,8 +36,10 @@ Spec: specs/009-ci-pipeline
 - [x] #9 Spec phase: User Story 3 — boundary check (Priority: P1)
 - [x] #10 Spec phase: User Story 1 — the workflow (Priority: P1) 🎯 MVP gate
 - [x] #11 Spec phase: User Story 5 — document and extend (Priority: P2)
-- [ ] #12 Spec phase: Polish & re-ground
+- [x] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
