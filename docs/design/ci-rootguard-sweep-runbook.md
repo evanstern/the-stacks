@@ -10,7 +10,7 @@ data planes), `docs/design/milestones.md` (M0), and `.specify/memory/constitutio
 v1.0.0 (III: "a forbidden cross-plane import is a CI failure") win. Plan-of-record is the
 board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-27
+**Status:** done · operator sign-off on lanes: 2026-09-27 · swept closed 2026-09-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -175,4 +175,4 @@ the transcript.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-27 | TASK-0018 | [#16](https://github.com/evanstern/the-stacks/pull/16) | `256497a` | ~126k subagent tokens, 1 dispatch (phases 1-4 grouped) | tier=sonnet, served=claude-sonnet-5 (transcript). Orchestrator ran phase 5: hook tests 16/16; real root index main-hook exit 2 / branch exit 0 (board-only), exit 2 both (non-board). T012 real root commit `80be209` (milestone em-dash title restored). Board Done via spec-bridge sync on the TASK-0017 branch. Finding: `node --test <dir>` fails on Node 22.23 — quoted glob used everywhere. |
-| 2026-09-27 | TASK-0017 | — | — | ~197k subagent tokens so far | phases: 1-4 done (dispatch A: bb2d8c2..d68a96c; 72/72 tests, 0 skipped, 5/5 fixtures flagged), main merged in (893d023), 5-6 next. tier=sonnet, served=claude-sonnet-5. |
+| 2026-09-27 | TASK-0017 | [#17](https://github.com/evanstern/the-stacks/pull/17) | `66cd289` | ~709k subagent tokens, 6 dispatches (3 sonnet: phases 1-4 · 5-6 + as-any cleanup · wiki; 3 haiku: m0-demo claim · turbo cache fix · wiki re-pin) | All 6 served as pinned (transcripts). Orchestrator T015: ci:check exit 0, 72/72 tests 0 skipped, 5/5 boundary, 16/16 hooks; 4 negative checks fail as designed. Finding: turbo cached `test`, so a db-down local run replayed green; fixed `cache: false` (cd359ab). PR CI green twice (36331196433, 36331353607); push:main CI green on 66cd289 (36331524868). Board Done via spec-bridge sync in wrap-up PR. Deviation: one haiku dispatch amended an unpushed commit against instructions — content identical, disclosed in PR #17. |
