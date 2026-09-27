@@ -1,9 +1,10 @@
 ---
 id: TASK-0018
 title: Fix root-guard false positive on non-ASCII staged paths
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
+updated_date: '2026-09-27 15:20'
 labels:
   - bug
   - tooling
@@ -24,6 +25,8 @@ At .claude/hooks/root-guard-hook.mjs:422 the staged set is read with 'git diff -
 Observed on 2026-09-22 while seeding this board: a milestone titled with an em-dash produced exactly this denial. Renaming the milestone to ASCII worked around it, but any task, decision, or milestone whose title carries an em-dash, an accented letter, or any other non-ASCII character will trip the guard again. Backlog titles are free text, so this is reachable by ordinary use.
 
 The explicit-pathspec branch and the pre-write path check deserve the same review, since they compare raw git output the same way.
+
+Spec: specs/008-rootguard-nonascii
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -33,7 +36,20 @@ The explicit-pathspec branch and the pre-write path check deserve the same revie
 - [ ] #3 A commit staging a genuinely non-backlog path is still blocked, including when that path contains non-ASCII characters
 - [ ] #4 The explicit-pathspec branch and the pre-write path check are audited for the same quoting assumption and fixed if affected
 - [ ] #5 A regression test covers a non-ASCII backlog path in both the allowed and the blocked direction
+- [ ] #6 Spec phase: Test harness (foundational)
+- [ ] #7 Spec phase: User Story 1 — non-ASCII board commits allowed (Priority: P1) 🎯 MVP
+- [ ] #8 Spec phase: User Story 2 — non-board paths stay blocked (Priority: P1)
+- [ ] #9 Spec phase: User Story 3 — sibling checks audited (Priority: P2)
+- [ ] #10 Spec phase: Polish & proof
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+T012 done: real board-sync commit at root with a non-ASCII staged backlog/ path (milestone file 'm-0 - m0-—-skeleton.md'), allowed by the fixed hook — commit 80be209 on main. PR #16 merged as 256497a.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
