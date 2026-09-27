@@ -19,6 +19,8 @@ ordinal: 8000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Put the gate in place that every later milestone extends. M1 adds retrieval eval fixtures and M3 adds the system-module conformance suite, so CI must be structured to grow. The boundary check enforces the three data planes from architecture A3 and keeps the plane discipline from eroding by accident.
+
+Spec: specs/009-ci-pipeline
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
