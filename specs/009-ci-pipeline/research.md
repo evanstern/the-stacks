@@ -73,6 +73,11 @@
 
 ## R7 — Hook tests before TASK-0018 merges
 
-- **Decision**: `check:hooks` = `node --test .claude/hooks/`. This branch merges `main`
-  in after TASK-0018 lands, so the hook test file exists by PR time. Until then the
-  script is added but not yet asserted.
+- **Decision**: `check:hooks` = `node --test '.claude/hooks/*.test.mjs'` — quoted, so
+  Node's own glob matching resolves it identically under any shell. This branch merges
+  `main` in after TASK-0018 lands, so the hook test file exists by PR time. Until then
+  the script is added but not yet asserted.
+- **Deviation (T002)**: the plain directory form `node --test .claude/hooks/` fails on
+  Node 22.23 with `MODULE_NOT_FOUND` — Node does not recurse a bare directory argument.
+  Verified on this branch: with no `*.test.mjs` file yet present, the quoted-glob form
+  reports 0 tests found and exits 0 (not an error) — acceptable until `main` merges in.

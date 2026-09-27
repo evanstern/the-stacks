@@ -17,8 +17,8 @@ zero-skip guard (US2). No new unit tests otherwise.
 
 **Purpose**: the single check-set entry point every story plugs into.
 
-- [ ] T001 Add `.nvmrc` containing `22` at the repository root.
-- [ ] T002 In root `package.json` add scripts: `"check:boundaries": "node scripts/check-boundaries.mjs"`, `"check:hooks": "node --test .claude/hooks/"`, and `"ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks"`. Create a placeholder `scripts/check-boundaries.mjs` that exits 0 (filled in Phase 4). If `.claude/hooks/*.test.mjs` does not exist yet on this branch, `check:hooks` will report no tests — acceptable until main is merged in (research R7).
+- [x] T001 Add `.nvmrc` containing `22` at the repository root.
+- [x] T002 In root `package.json` add scripts: `"check:boundaries": "node scripts/check-boundaries.mjs"`, `"check:hooks": "node --test '.claude/hooks/*.test.mjs'"` (quoted glob — see research R7 deviation), and `"ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks"`. Create a placeholder `scripts/check-boundaries.mjs` that exits 0 (filled in Phase 4). If `.claude/hooks/*.test.mjs` does not exist yet on this branch, `check:hooks` will report no tests — acceptable until main is merged in (research R7).
 
 **Checkpoint**: `pnpm ci:check` runs locally and reaches the end.
 
