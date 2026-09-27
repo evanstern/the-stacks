@@ -4,7 +4,7 @@ title: 'CI pipeline: lint, typecheck, test, build, and boundary check'
 status: In Progress
 assignee: []
 created_date: '2026-09-22 06:44'
-updated_date: '2026-09-27 15:10'
+updated_date: '2026-09-27 15:13'
 labels: []
 milestone: m-0
 dependencies:
@@ -30,7 +30,16 @@ Spec: specs/009-ci-pipeline
 - [ ] #3 A boundary check fails the build when a forbidden cross-plane or cross-package import is introduced
 - [ ] #4 The pipeline is structured so later milestones can add suites without restructuring it
 - [ ] #5 A green run is reproducible locally with a documented command
+- [ ] #6 Spec phase: Foundational — the one command
+- [ ] #7 Spec phase: User Story 4 — test files typechecked (Priority: P2, foundational for CI green)
+- [ ] #8 Spec phase: User Story 2 — integration tests cannot skip in CI (Priority: P1)
+- [ ] #9 Spec phase: User Story 3 — boundary check (Priority: P1)
+- [ ] #10 Spec phase: User Story 1 — the workflow (Priority: P1) 🎯 MVP gate
+- [ ] #11 Spec phase: User Story 5 — document and extend (Priority: P2)
+- [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
