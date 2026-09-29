@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:02'
+updated_date: '2026-09-29 15:33'
 labels:
   - infra
 milestone: m-1
@@ -33,6 +33,13 @@ Spec: specs/016-hosted-dev-cd
 - [ ] #5 dev is reachable over HTTPS on the tailnet and from nowhere else
 - [ ] #6 A runbook documents deploy, rollback, and restore on vm-104
 - [x] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
+- [ ] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
+- [ ] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
+- [ ] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
+- [ ] #11 Spec phase: User Story 3 — drift is caught (P2)
+- [ ] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
+- [ ] #13 Spec phase: User Story 5 — the ops runbook (P3)
+- [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -45,6 +52,9 @@ vm-104 prerequisites, 2026-09-28 (done by orchestrator under a temporary NOPASSW
 4. Tailscale: NOT DONE, needs operator. Correction to doc-0002: tailscaled is not broken. The host unit is masked on purpose; Tailscale runs in the docker container 'tailscale' (tailscale/tailscale:stable, host network, state in /home/evan/config/tailscale). The socket lives inside that container, which is why the host CLI failed. The container reports 'Logged out', so vm-104 has left the tailnet; that is why tailnet SSH times out. Re-login needs an interactive auth URL or auth key.
 
 4. Tailscale: DONE 2026-09-28. Operator re-authenticated the tailscale container. Verified from the Mac: ssh evan@vm-104.tailb3c1b6.ts.net and ssh stacks@vm-104.tailb3c1b6.ts.net both connect; stacks is in the docker group. All four prerequisites verified.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+(spec authoring; standing escalation sign-off 2026-09-28; ~182k tokens). Open operator questions (plan.md 'Operator checkpoints'): tailnet HTTPS on 8443 (Traefik holds 443); drift cadence hourly :17 with 30-min grace; merge on pre-merge manual deploy/rollback proof with run URLs recorded post-merge; tailnet HTTPS certs may need enabling. Phase 1 (local, pure logic) dispatched; nothing touches vm-104 before operator answers.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
