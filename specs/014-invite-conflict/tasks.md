@@ -85,7 +85,7 @@ watch it fail.
   If any `description:` changes, regenerate `docs/wiki/CAPSULES.md`.
 - [x] T014 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`.
   It MUST print `OK`. Never use `gates/freshness.mjs`.
-- [ ] T015 Run `pnpm env:down` in the worktree. Run `pnpm env:prune --check`; it MUST exit 0.
+- [x] T015 Run `pnpm env:down` in the worktree. Run `pnpm env:prune --check`; it MUST exit 0.
 - [ ] T016 After merge: tick this file and run `spec-bridge:sync`.
 
 ## Dependencies & Execution Order
