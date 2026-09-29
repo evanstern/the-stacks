@@ -34,12 +34,6 @@ Spec: specs/022-root-env-inherit
 - [x] #9 Spec phase: Documentation, verification, re-grounding, cleanup (US4)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -47,6 +41,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~124k tokens)
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (all phases, one grouped dispatch; 6 new env-lib tests; key-names-only proof; env.test.mjs no longer asserts on raw .env text). Orchestrator verified: the inherited-keys log prints Object.keys only. check:env self-skipped (task-0029/0030 stacks up); run unskipped before the PR leaves draft.
+
+spec-bridge sync: Merge seam (US1, US2, US3): 3/3 · Wiring, output, contract (US1, US3): 4/4 · Documentation, verification, re-grounding, cleanup (US4): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
