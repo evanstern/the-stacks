@@ -135,3 +135,14 @@ MVP = Phases 1–4: a real D&D Beyond export in any delivered shape uploads with
 wall and becomes a stored, chunked, embedded book. Phase 5 adds the P2 formats and the
 status routes that TASK-0028 reads. Phase 6 proves it on the operator's real books and
 re-grounds the wiki. The PR is not merge-ready until T034's record is in its body.
+
+## Deviation (Phase 4, T024)
+
+Added `apps/server/vitest.config.ts` (`fileParallelism: false`), not named in any task.
+`worker.integration.test.ts`'s background `startIngestWorker` polls the real, shared `jobs`
+table; run in Vitest's default cross-file parallelism, `jobs.integration.test.ts`'s
+`drainQueue()` (Phase 1, a different worker/process) could claim and fail a job this suite
+was waiting on before its own worker got to it — a latent hazard since Phase 1 that stayed
+invisible until a suite started polling a shared queue to a terminal outcome. Confirmed
+flaky under `pnpm ci:check` (full suite) without the config, stable across repeated runs
+with it. No task's own behavior changed; this only serializes test-file execution.
