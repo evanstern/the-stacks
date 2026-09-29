@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
+verified_against: 66f6c026d9aee137ccb9c236dd7874359c02d6ae
 ---
 
 # Monorepo and toolchain
@@ -34,7 +34,9 @@ check:hooks && pnpm check:scripts && pnpm check:host-scripts`): `check:boundarie
 `scripts/*lib.test.mjs`), and `check:host-scripts` — see [[ci-pipeline]] for what each gate
 proves and how CI runs this same script. `env:up`/`env:down`/`env:status`/`env:prune`/
 `env:main` (also spec 010) are the per-worktree stack CLI — see [[runtime-stacks]] — and are
-deliberately not part of `ci:check`.
+deliberately not part of `ci:check`. `bench:load` (spec 021) delegates to
+`@the-stacks/server`'s own `bench:load` (`tsc -b && node dist/bench/load/cli.js`) — the load
+bench's process-level CLI, run on demand rather than as part of `ci:check`; see [[benchmarks]].
 
 `turbo.json` defines the task graph: `build` depends on `^build` (each workspace's
 dependencies build first) and declares `dist/**` as its cacheable output; `typecheck` depends

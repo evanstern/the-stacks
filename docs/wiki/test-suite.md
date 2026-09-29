@@ -15,12 +15,15 @@ sources:
   - apps/server/test/ws.integration.test.ts
   - apps/server/test/ws.protocol.test.ts
   - apps/server/test/ws.subscribe.test.ts
+  - apps/server/test/bench/load.test.ts
+  - apps/server/test/bench/load.integration.test.ts
+  - apps/server/test/bench/load-db.integration.test.ts
   - apps/server/package.json
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 66f6c026d9aee137ccb9c236dd7874359c02d6ae
 ---
 
 # Test suite
@@ -29,6 +32,10 @@ The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
 added a much larger suite alongside them under `apps/server/test/library/` — see [[ingestion]]
 for that one, and its `ai.*.test.ts` siblings predate this note and aren't covered here either.
+TASK-0030 added a third such subdirectory, `apps/server/test/bench/` (one unit file, two
+environment-gated integration files, the same loud-skip pattern as this note's three) — see
+[[benchmarks]] for what it covers and why 5 of its tests are *always* skipped, by name, even
+with a reachable database.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
 session auth (US1–US4), the event log's append/read/visibility, and the WebSocket gateway's
@@ -85,8 +92,9 @@ scopes `"include": ["src"]`, so `test/` stays out of the `src` build's own outpu
 Exercises [[websocket-gateway]], [[replay-live-boundary]], [[subscriber-registry]],
 [[ws-protocol]], [[session-auth]], [[event-log]], and, for `config.test.ts`, [[configuration]].
 The manual, human-run counterpart that exercises the same seams end to end through the real
-client is [[m0-demo]]. [[ci-pipeline]] runs this suite (and [[ingestion]]'s) on every PR and
-push with `REQUIRE_DATABASE=1`; the manual demo is still run and pasted into each PR by hand.
+client is [[m0-demo]]. [[ci-pipeline]] runs this suite (and [[ingestion]]'s and
+[[benchmarks]]' every-commit-tier suite) on every PR and push with `REQUIRE_DATABASE=1`; the
+manual demo is still run and pasted into each PR by hand.
 
 ## Operational notes
 

@@ -80,3 +80,4 @@ on vm-104 ([[hosted-dev]]).
 - [[test-suite]] — what is covered, the environment-gated integration suites, and the skip trap.
 - [[ci-pipeline]] — GitHub Actions CI, the `ci:check` aggregate script, and the boundary-rules check.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.
+- [[benchmarks]] — the load and stress bench: tiers, the isolated `_load` database, the decision-0005 ingest-scaling measurement, both stress cases, and the dev tier's read-only safety design.

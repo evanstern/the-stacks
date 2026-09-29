@@ -18,7 +18,10 @@ sources:
   - apps/server/test/library/worker.integration.test.ts
   - apps/server/test/library/collect.test.ts
   - apps/server/test/library/zip.test.ts
-verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
+  - apps/server/src/bench/load/ingest.ts
+  - apps/server/src/bench/load/stress.ts
+  - specs/021-load-bench/tasks.md
+verified_against: 66f6c026d9aee137ccb9c236dd7874359c02d6ae
 ---
 
 # Ingestion
@@ -130,3 +133,10 @@ serialize through `JobStatusSchema`, which never exposes `uploadPath` — a malf
 id is `404 not_found`, not a validation error. `JobResult` carries counts (`pages`,
 `duplicatePages`, `ignoredEntries`, `skippedEntries`, `chunkCount`) and the embedding outcome,
 never book text.
+
+**Measured throughput and recovery** ([[benchmarks]]'s `ingest-scaling`/`restart-mid-ingest`,
+decision-0005). Measured, not decided: 1 worker sustains 1.75 jobs/s, degrading between 100-250
+queued jobs; 2 workers sustain 3.25 jobs/s (~2x), degrading between 250-500. Killing a worker
+mid-`embed` confirmed `claimJob`'s `ORDER BY created_at` empirically — the killed job, being
+oldest, is always what a second worker reclaims and succeeds on attempt 2, followers unaffected,
+no duplicate document.
