@@ -26,3 +26,21 @@ Invariants (each has a test):
 8. Startup rejects: purpose → undeclared provider; purpose op unsupported by provider kind; used provider's `apiKeyEnv` unset.
 9. 429/5xx before output → retried up to the bound, honoring `Retry-After`; other 4xx never retried; no retry after the first `text` event; abort during backoff stops retrying.
 10. No provider name, vendor name, or key variable name appears in `apps/server/src/ai/` (checked by a test that greps the source).
+
+## `.env.example` block (verbatim target for T017)
+
+```sh
+# --- AI gateway (all optional; unset = no model features) ---
+# Providers are named by YOU. Each has an adapter kind, a base URL, and optionally the
+# NAME of the env var holding its key. No provider is built in or preferred.
+# Kinds today: openai-compatible, fake. A native kind (e.g. anthropic) can be added later
+# behind the same Provider interface.
+# AI_PROVIDERS={"hosted":{"kind":"openai-compatible","baseUrl":"https://api.example.com/v1","apiKeyEnv":"HOSTED_API_KEY"},"local":{"kind":"openai-compatible","baseUrl":"http://localhost:11434/v1"}}
+# HOSTED_API_KEY=
+#
+# Purposes map to a provider name and a model. op defaults to "chat".
+# AI_PURPOSES={"answering":{"provider":"hosted","model":"your-chat-model"},"embedding":{"provider":"local","model":"your-embedding-model","op":"embed"}}
+#
+# Prices per provider/model, USD per million tokens. Unpriced calls record cost as unknown.
+# AI_PRICES={"hosted/your-chat-model":{"inputPerMTok":0,"outputPerMTok":0}}
+```
