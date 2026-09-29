@@ -57,6 +57,8 @@ Phase 3 (T010-T013) done in 1ea7bc7: walk.ts + parseDdbExport wired; 10 tests (o
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 4 (T014-T016) done in 3d091d4: extract.ts (tables, stat blocks) wired into walk.ts; tests-first (8 red then green). Cave Skitterer emits one whole block. Design calls: colspan cell kept once; ability scores appended after data lines.
+
+Correction: implementer reported 52 ddb tests; vitest shows 22 test cases (some loop over every block). Orchestrator-verified count: 22/22.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
