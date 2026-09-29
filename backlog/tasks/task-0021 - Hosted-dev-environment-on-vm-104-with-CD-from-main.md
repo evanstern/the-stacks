@@ -64,6 +64,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase grouping (orchestrator call): local code tasks T004-T006, T009-T010, T012-T013, T017-T018 in one sonnet dispatch; vm-104 steps T007/T008/T011/T014/T015/T016/T019 run by the orchestrator under operator ruling (3).
 
 Checkpoint 1 (T007) 2026-09-29: operator go given; orchestrator ran init-secrets from origin/task-0021-hosted-dev-cd@9c14e42 via git archive | ssh. Result: /home/stacks/dev/.env mode 600 owner stacks (13 keys, template values; no AI provider key placed). Bootstrap copy at /home/stacks/dev/bootstrap.
+
+Correction to the checkpoint-1 note: '13 keys' counted comment lines. Active keys: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DATABASE_URL, DB_PORT, APP_PORT, STACKS_ENV; AI_* lines are commented out.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
