@@ -18,6 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   deployDecision,
+  driftVerdict,
   healthMatches,
   renderDevEnv,
   tagsToPrune,
@@ -314,6 +315,28 @@ async function deploy(
   process.exit(1);
 }
 
+/**
+ * `main` HEAD vs. what `/health` reports (research R7). No Docker: git plus
+ * one HTTP request, so the hourly workflow needs nothing else.
+ */
+async function drift() {
+  let expected, expectedAgeMin;
+  try {
+    expected = git(["rev-parse", "HEAD"]);
+    const committedAt = Number(git(["log", "-1", "--format=%ct"]));
+    expectedAgeMin = (Date.now() / 1000 - committedAt) / 60;
+  } catch (err) {
+    environmentError(err.message);
+  }
+  const body = await fetchHealthBody(envPort(), 5000);
+  const observed = body?.commit ?? null;
+  const verdict = driftVerdict({ expected, observed, expectedAgeMin });
+  console.log(
+    `${verdict}: expected ${expected}, observed ${observed ?? "unreachable"}`,
+  );
+  process.exit(verdict === "drift" ? 1 : 0);
+}
+
 async function status() {
   if (!dockerReachable()) environmentError("Docker is not reachable.");
   const prev = getPrevCommit();
@@ -375,11 +398,14 @@ switch (verb) {
   case "status":
     await status();
     break;
+  case "drift":
+    await drift();
+    break;
   case "init-secrets":
     initSecrets();
     break;
   default:
     console.error(`unknown or not-yet-implemented verb "${verb}"`);
-    console.error("usage: deploy-dev.mjs <deploy|status|init-secrets>");
+    console.error("usage: deploy-dev.mjs <deploy|status|drift|init-secrets>");
     process.exit(2);
 }

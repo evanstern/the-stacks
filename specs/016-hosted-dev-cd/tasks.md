@@ -129,12 +129,12 @@ the job. (AC #3)
 
 **Independent Test**: quickstart.md §3.
 
-- [ ] T012 [P] [US3] Create `.github/workflows/drift-dev.yml` per contracts/workflows.md:
+- [x] T012 [P] [US3] Create `.github/workflows/drift-dev.yml` per contracts/workflows.md:
   `schedule: - cron: '17 * * * *'`, `workflow_dispatch`, `runs-on: [self-hosted, vm-104]`,
   `concurrency: { group: drift-dev, cancel-in-progress: true }`,
   `permissions: { contents: read }`, checkout `ref: main` depth 1, then
   `node scripts/deploy-dev.mjs drift`.
-- [ ] T013 [US3] Add the `drift` verb to `scripts/deploy-dev.mjs`: expected =
+- [x] T013 [US3] Add the `drift` verb to `scripts/deploy-dev.mjs`: expected =
   `git rev-parse HEAD`, age from `git log -1 --format=%ct`, observed from `/health`
   (5 s timeout; unreachable → `null`), verdict via `driftVerdict`; print expected, observed,
   and verdict; exit per contracts/deploy-cli.md.

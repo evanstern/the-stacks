@@ -225,9 +225,7 @@ test("deploy-dev.yml carries the exact job guard from research R1", () => {
   );
 });
 
-test("drift-dev.yml has no pull_request / pull_request_target trigger", {
-  todo: "pending T012 (Phase 4)",
-}, () => {
+test("drift-dev.yml has no pull_request / pull_request_target trigger", () => {
   const text = readWorkflow("drift-dev.yml");
   assert.doesNotMatch(text, /pull_request/);
 });
