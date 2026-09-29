@@ -1,5 +1,7 @@
+import type { ZodError } from "zod";
 import { z } from "zod";
 import { ValidationError } from "../../errors.js";
+import { walkPages } from "./walk.js";
 
 /** specs/012-ddb-parser/data-model.md#ParseInput */
 export const ParseInputSchema = z.object({
@@ -47,12 +49,40 @@ export const ParsedBookSchema = z.object({
 });
 export type ParsedBook = z.infer<typeof ParsedBookSchema>;
 
+function toIssues(error: ZodError) {
+  return error.issues.map((issue) => ({
+    path: issue.path.join(".") || "(root)",
+    message: issue.message,
+  }));
+}
+
 /**
  * Turns saved D&D Beyond export pages into a `ParsedBook`. Pure function: no
  * database, network, or file-system access (FR-009, contracts/parser.md #6).
- *
- * Stub — implemented in Phase 3 (specs/012-ddb-parser/tasks.md T011-T012).
+ * Never returns partial output: any failure throws `ValidationError` before
+ * a `ParsedBook` is built (data-model.md #Errors).
  */
-export function parseDdbExport(_input: ParseInput): ParsedBook {
-  throw new ValidationError([{ path: "(root)", message: "not implemented" }]);
+export function parseDdbExport(input: ParseInput): ParsedBook {
+  const parsedInput = ParseInputSchema.safeParse(input);
+  if (!parsedInput.success) {
+    throw new ValidationError(toIssues(parsedInput.error));
+  }
+  const { book, pages } = parsedInput.data;
+
+  const { text, blocks } = walkPages(book, pages);
+  if (blocks.length === 0) {
+    throw new ValidationError([
+      {
+        path: "pages",
+        message:
+          "No book content found: no D&D Beyond content root or body text in the given pages.",
+      },
+    ]);
+  }
+
+  const parsedOutput = ParsedBookSchema.safeParse({ book, text, blocks });
+  if (!parsedOutput.success) {
+    throw new ValidationError(toIssues(parsedOutput.error));
+  }
+  return parsedOutput.data;
 }
