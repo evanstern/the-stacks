@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { redeemInvitation } from "../src/auth/invitations.js";
 import { hashPassword } from "../src/auth/password.js";
-import { createOperator } from "../src/auth/provisioning.js";
+import { createOperator, hasOperator } from "../src/auth/provisioning.js";
 import { createSession, createValidateSession } from "../src/auth/session.js";
 import { generateToken, hashToken } from "../src/auth/tokens.js";
 import { createDb, probeReachable } from "../src/db.js";
@@ -303,6 +303,7 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
       const password = "operator password long enough";
       const created = await createOperator(db, { username, password });
       expect(created.created).toBe(true);
+      expect(await hasOperator(db)).toBe(true);
 
       const res = await requireApp().request("/auth/sign-in", {
         method: "POST",

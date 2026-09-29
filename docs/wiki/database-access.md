@@ -29,7 +29,7 @@ client (sockets, buffers) to `err.client`.
 `createDb(databaseUrl)` wraps `drizzle(createPool(databaseUrl, DEFAULT_PROBE_TIMEOUT_MS))`
 (`DEFAULT_PROBE_TIMEOUT_MS` = 3000ms). The returned client exposes `$client` — the underlying
 pool — so callers that need to shut down cleanly (`scripts/migrate.ts`,
-`scripts/create-operator.ts`) can call `db.$client.end()`.
+`src/cli/create-operator.ts`) can call `db.$client.end()`.
 
 `createDatabaseProbe(databaseUrl, timeoutMs)` builds its own pool the same way and returns a
 `DatabaseProbe` with `reachable()` and an optional `close()` (`pool.end()` — tests use it, the
@@ -59,7 +59,7 @@ Feeds [[health-check]] (via `createDatabaseProbe`) and [[event-log]] / [[databas
 ## Operational notes
 
 `createDb` and `createDatabaseProbe` both require a full Postgres connection string; neither
-reads the environment itself — callers (`apps/server/src/index.ts`, the scripts under
-`apps/server/scripts/`) resolve `DATABASE_URL`/`TEST_DATABASE_URL` first and pass the string
-in. A dropped idle connection degrades the pool but never crashes the process, by design of
+reads the environment itself — callers (`apps/server/src/index.ts`, `scripts/migrate.ts`,
+`src/cli/create-operator.ts`) resolve `DATABASE_URL`/`TEST_DATABASE_URL` first and pass the
+string in. A dropped idle connection degrades the pool but never crashes the process, by design of
 the `error` handler above.

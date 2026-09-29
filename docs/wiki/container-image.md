@@ -52,7 +52,10 @@ server code uses resolves from `apps/server/`, not the repo root.
 Consumes the build output of [[monorepo-and-toolchain]] (pnpm workspace, `tsc -b`/Turbo
 build). Produces the layout [[static-serving]] depends on (`apps/server/public`) and the
 `/app/healthcheck.js` path [[health-check]]'s compose healthcheck invokes. Run inside the
-`app` service described in [[compose-stack]].
+`app` service described in [[compose-stack]]. The copied `apps/server/dist` also carries
+`dist/cli/create-operator.js` (TASK-0036) — no Dockerfile change was needed, since any file
+under `src/` that `tsc -b` compiles lands in `dist` and rides the same `COPY`; see
+[[operator-provisioning]].
 
 ## Operational notes
 

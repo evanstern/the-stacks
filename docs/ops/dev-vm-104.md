@@ -23,6 +23,26 @@ Watch the run: run `gh run watch`.
 Check the result: run `curl -s https://vm-104.tailb3c1b6.ts.net:8443/health`.
 Confirm `status` is `ok`. Confirm `commit` matches the deployed commit.
 
+## Create the first operator
+
+Do this once, after the first deploy. Dev ships with no account.
+
+Run this on vm-104, as `stacks`, from the checkout:
+`docker compose -p stacks-dev -f docker-compose.yml -f
+deploy/dev/compose.dev.yml --env-file /home/stacks/dev/.env exec app node
+dist/cli/create-operator.js`.
+
+Type the password at the `Operator password:` prompt. Never put it on the
+command line.
+
+Expect `Operator account created: operator`.
+
+Choose another username: add `-e OPERATOR_USERNAME=<name>` after `exec`.
+
+A second run refuses. It exits 1 and changes nothing.
+
+Sign in at the public URL with that username and password.
+
 ## Rollback to a named commit
 
 Run `gh workflow run deploy-dev.yml -f commit=<sha>`. This deploys that
