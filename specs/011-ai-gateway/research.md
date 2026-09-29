@@ -1,71 +1,84 @@
 # Research: AI Gateway — First Slice
 
+Revised 2026-09-28 for operator ruling decision-0007 (provider-agnostic gateway).
+
 ## R1. Stream shape exposed to callers
 
-**Decision**: `chat()` returns `AsyncIterable<ChatEvent>` where `ChatEvent` is
-`{type:"text", text}` | `{type:"done", usage}` | `{type:"error", error, usage}`.
-Cancellation is an `AbortSignal` on the request.
+**Decision**: `chat()` returns `AsyncIterable<ChatEvent>`: `{type:"text", text}` |
+`{type:"done", usage}` | `{type:"error", kind, message, usage}`. Cancellation is an
+`AbortSignal` on the request.
 
 **Rationale**: async iteration composes with Hono's `streamSSE` for TASK-0027 without an
-adapter; a terminal event makes the error-vs-complete distinction explicit (spec US1 #3).
+adapter; the terminal event makes error-vs-complete explicit (spec US1 #3).
 
-**Alternatives**: callback/EventEmitter (harder to cancel and test); Web `ReadableStream`
-(no advantage over async iterables in Node here).
+## R2. Vendor SDKs — REJECTED by operator ruling
 
-## R2. Anthropic transport — SDK vs fetch (OPERATOR CHECKPOINT)
+**Decision**: no vendor SDK (`@anthropic-ai/sdk` or any other). Recorded in decision-0007
+(doc-0001), 2026-09-28.
 
-**Decision (proposed)**: `@anthropic-ai/sdk`, `client.messages.stream(...)`, iterate events
-for `content_block_delta`/`text_delta`, then `await stream.finalMessage()` for `usage`.
-Pass `signal` in request options for cancellation. Catch `Anthropic.APIError` subclasses and
-map to gateway error kinds.
+**Rationale (operator)**: the gateway must be fully provider-agnostic; a vendor SDK privileges
+one provider and adds a dependency. The gateway itself owns what the SDK would have provided:
+SSE parsing (R3), error mapping (R7), and bounded retry (R8).
 
-**Rationale**: the claude-api reference makes the SDK the default for TypeScript and warns
-against hand-rolling streaming; the SDK owns retries (408/409/429/5xx), typed errors, and
-usage accounting at stream end. The API surface drifts (thinking config, refusal stop
-reason); the SDK absorbs that.
+**Consequence**: any vendor is reached through an OpenAI-compatible interface this slice.
+A native adapter kind (for example `anthropic`, speaking `/v1/messages`) can be added later
+behind the same `Provider` interface without changing callers.
 
-**Alternative**: `fetch` + hand-written SSE parser — no dependency, but ~150 lines of
-protocol code the project must keep current. Rejected unless the operator prefers zero deps.
+## R3. Chat transport — OpenAI-compatible streaming
 
-**Model defaults** (config, not code): answering → `claude-opus-5-5`; extraction →
-`claude-haiku-4-5`. `stop_reason: "refusal"` surfaces as an `error` event of kind `refusal`.
-Server-side fallbacks are not enabled in this slice; noted for TASK-0027.
+**Decision**: stdlib `fetch` POST `{baseUrl}/chat/completions` with
+`{model, messages, max_tokens, stream: true, stream_options: {include_usage: true}}`.
+Parse the body as SSE (`sse.ts`): split on blank lines, read `data:` lines, stop on
+`data: [DONE]`. Each chunk's `choices[0].delta.content` → a `text` event. The final chunk's
+`usage.{prompt_tokens, completion_tokens}` → the `done` usage. `finish_reason:
+"content_filter"` → `error{kind:"refusal"}`.
 
-## R3. Embeddings transport
+**Rationale**: `/chat/completions` streaming with `include_usage` is the de facto shared
+surface across hosted and local servers. A system prompt is sent as a `system` role message.
 
-**Decision**: stdlib `fetch` POST `{baseUrl}/embeddings` with
-`{model, input: string[], dimensions: 1024, encoding_format: "float"}`; read
-`data[].embedding` (sorted by `index`) and `usage.prompt_tokens`. No SDK.
-
-**Rationale**: decision-0002 fixes the OpenAI-compatible interface; the request is one POST
-with a flat JSON body; Voyage, OpenAI, and local servers (Ollama, vLLM) accept it. Providers
-that ignore `dimensions` are caught by the gateway's length check (FR-005).
+**Edge**: a stream that ends without `[DONE]` or without a usage chunk → `upstream` error,
+usage recorded with counts seen (zero if none).
 
 ## R4. Usage persistence
 
-**Decision**: no table in this slice. `UsageSink` interface with `logSink` (one structured
-JSON line per call via `console.log`) and `memorySink` (tests, benchmarks).
+**Decision**: no table this slice. `UsageSink` with `logSink` (one JSON line per call) and
+`memorySink` (tests, benchmarks). A table sink comes later behind the same interface.
 
-**Rationale**: TASK-0022 owns `apps/server/drizzle/` this wave; a migration here would
-conflict on the journal. Per-campaign attribution (A7) needs M2's campaigns table anyway.
-A later task adds a `usage` table sink behind the same interface.
+**Rationale**: TASK-0022 owns `apps/server/drizzle/` this wave; per-campaign attribution needs
+M2's campaigns.
 
 ## R5. Configuration shape
 
-**Decision**: two JSON env vars parsed with Zod, plus per-provider keys.
+**Decision**: three JSON env vars parsed with Zod, cross-validated at startup.
 
-- `AI_PURPOSES` — `{"answering":{"provider":"anthropic","model":"claude-opus-5-5"}, "embedding":{"provider":"openai-compatible","model":"voyage-3.5"}}`
-- `AI_PRICES` — `{"claude-opus-5-5":{"inputPerMTok":4,"outputPerMTok":20}}` (USD)
-- `ANTHROPIC_API_KEY`; `EMBEDDINGS_BASE_URL`, `EMBEDDINGS_API_KEY`; `EMBEDDINGS_BATCH_SIZE` (default 128)
+- `AI_PROVIDERS` — name → `{kind: "openai-compatible" | "fake", baseUrl: string, apiKeyEnv?: string}`
+- `AI_PURPOSES` — purpose → `{provider: <name>, model: string, maxTokens?: number, batchSize?: number}`
+- `AI_PRICES` — `"<provider>/<model>"` → `{inputPerMTok, outputPerMTok}` (USD)
 
-All optional at startup: an unset `AI_PURPOSES` yields a gateway with no purposes (M0 behavior
-unchanged). A purpose that names a provider whose key/URL is missing fails startup.
+Validation: every purpose's provider exists; its kind supports the purpose's operation
+(the operation is named by the purpose: `embedding`-type purposes declare `op: "embed"`,
+others default `op: "chat"`); every used provider's `apiKeyEnv`, when given, is set. Unset
+`AI_PURPOSES` → gateway with no purposes; M0 behavior unchanged.
 
-**Alternatives**: a config file (new mount path for self-hosters; env matches the existing
-`loadConfig` contract).
+Provider and purpose names are operator-chosen strings. The code contains none.
 
-## R6. Fake provider
+## R6. Fake adapter
 
-**Decision**: `createFakeProvider({chat: [...scripted events], embed: (texts) => vectors,
-fail?: {...}})`, recording every request it received. Deterministic vectors derived from
-text hash so retrieval tests in later tasks get stable output.
+**Decision**: `kind: "fake"`, scripted chat events, deterministic hash-derived embeddings,
+injectable failures and HTTP-status sequences, request recording.
+
+## R7. Error mapping
+
+HTTP → `ChatEvent` error kind: 400/404/422 → `config`; 401/403 → `auth`; 429 → `rate_limit`;
+5xx and network failures → `upstream`; caller abort → `cancelled`; content filter → `refusal`.
+Error messages carry status and the provider's error message; never request text.
+
+## R8. Bounded retry
+
+**Decision**: `retry.ts` wraps the request (not the stream). Retry on 429 and 5xx and network
+errors, only before the first output byte is delivered. Defaults: 3 attempts total, base delay
+500 ms, doubling, full jitter, capped at 8 s; `Retry-After` (seconds or HTTP date) overrides
+the computed delay when present, capped at 30 s. The sleep is abort-aware. Each attempt's
+failure is not a separate usage record; the call emits one record.
+
+**Tested**: against a `fetch` double and an injected clock/sleep so tests do not wait.

@@ -31,5 +31,6 @@
 
 ## Notes
 
-- Provider names (Anthropic, OpenAI-compatible) appear because the card and decision-0002 fix them as requirements, not as implementation choices.
-- speckit-clarify skipped: A7 and decision-0002 settle direction; the one open scope question (usage persistence) is resolved in Assumptions to avoid the TASK-0022 migrations hotspot.
+- "OpenAI-compatible" appears as an adapter kind because decision-0002 and decision-0007 fix it as a requirement.
+- Revised 2026-09-28 for decision-0007 (provider-agnostic); re-validated, all items pass.
+- speckit-clarify skipped: A7, decision-0002, and decision-0007 settle direction; the one open scope question (usage persistence) is resolved in Assumptions to avoid the TASK-0022 migrations hotspot.
