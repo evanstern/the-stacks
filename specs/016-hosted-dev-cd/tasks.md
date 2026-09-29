@@ -88,7 +88,7 @@ Data persists. (AC #1, AC #2)
   (3 s interval, 180 s deadline); prunes with `tagsToPrune` and
   `docker image prune -f --filter label=org.the-stacks.env=dev`. Exit codes per the contract.
   Never echo the env file; never `set -x`-equivalent logging of compose's environment.
-- [ ] T007 [US1] **Operator checkpoint 1** (plan.md): name the `init-secrets` command, stop,
+- [x] T007 [US1] **Operator checkpoint 1** (plan.md): name the `init-secrets` command, stop,
   and run it only after a yes (or hand it to the operator). Record on the card: the path
   printed, and nothing else.
 - [ ] T008 [US1] Pre-merge proof on vm-104, as `stacks`, from a clone of this branch under
