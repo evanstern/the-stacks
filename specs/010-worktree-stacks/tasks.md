@@ -126,7 +126,7 @@ root `git status` unchanged; `pnpm env:down main` → nothing left, `env-main` w
 
 ## Phase 5: Polish & re-ground
 
-- [ ] T019 Run `pnpm ci:check` and `pnpm check:env`; paste both results into the PR body.
+- [x] T019 Run `pnpm ci:check` and `pnpm check:env`; paste both results into the PR body.
 - [x] T020 Run `/grounding-wiki:wiki-update`. Expected NEEDS-REVIEW: `compose-stack`,
   `health-check`, `configuration`, `container-image`. Add a note for the env tooling. The
   freshness gate (`gates/cli.mjs freshness . docs/wiki`) prints `OK`.
