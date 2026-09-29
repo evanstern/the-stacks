@@ -9,8 +9,8 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
-  DERIVED_KEYS,
   classifyStacks,
+  DERIVED_KEYS,
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
@@ -218,7 +218,12 @@ test("mergeEnvFile: shared beats existing for an example key", () => {
 });
 
 test("mergeEnvFile: shared supplies a key absent from example and existing", () => {
-  const merged = mergeEnvFile("APP_PORT=3000", "", {}, "HOSTED_API_KEY=root-key");
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "",
+    {},
+    "HOSTED_API_KEY=root-key",
+  );
   assert.ok(merged.split("\n").includes("HOSTED_API_KEY=root-key"));
 });
 
@@ -243,7 +248,7 @@ test("mergeEnvFile: shared never supplies a DERIVED_KEYS key, even env:main shap
   }
 });
 
-test("mergeEnvFile: sharedText undefined and \"\" give output identical to the three-argument call", () => {
+test('mergeEnvFile: sharedText undefined and "" give output identical to the three-argument call', () => {
   const example = "APP_PORT=3000\nPOSTGRES_PASSWORD=changeme";
   const existing = "POSTGRES_PASSWORD=super-secret";
   const derived = { APP_PORT: "3020" };
@@ -252,10 +257,15 @@ test("mergeEnvFile: sharedText undefined and \"\" give output identical to the t
   assert.equal(mergeEnvFile(example, existing, derived, ""), base);
 });
 
-test("mergeEnvFile: a JSON value with =, {, :, and \" round-trips verbatim", () => {
+test('mergeEnvFile: a JSON value with =, {, :, and " round-trips verbatim', () => {
   const jsonValue =
     '{"hosted":{"kind":"openai-compatible","baseUrl":"https://x/v1","apiKeyEnv":"K"}}';
-  const merged = mergeEnvFile("APP_PORT=3000", "", {}, `AI_PROVIDERS=${jsonValue}`);
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "",
+    {},
+    `AI_PROVIDERS=${jsonValue}`,
+  );
   assert.ok(merged.split("\n").includes(`AI_PROVIDERS=${jsonValue}`));
 });
 
@@ -266,7 +276,9 @@ test("mergeEnvFile: a key in both shared and existing, absent from example, appe
     {},
     "HOSTED_API_KEY=root-value",
   );
-  const lines = merged.split("\n").filter((l) => l.startsWith("HOSTED_API_KEY="));
+  const lines = merged
+    .split("\n")
+    .filter((l) => l.startsWith("HOSTED_API_KEY="));
   assert.deepEqual(lines, ["HOSTED_API_KEY=root-value"]);
 });
 
