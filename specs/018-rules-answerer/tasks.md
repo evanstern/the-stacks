@@ -154,16 +154,16 @@ quote, and `done.dropped` is 1.
 **Independent Test**: a scripted mid-stream `error{upstream}` yields the text so far, then one
 `error` event, then close.
 
-- [ ] T018 [US3] In `answer.ts`: map chat `error{kind}` (not `refusal`, not `cancelled`) to
+- [x] T018 [US3] In `answer.ts`: map chat `error{kind}` (not `refusal`, not `cancelled`) to
   `error{kind}` with a fixed message per kind (contracts/ask-sse.md table); wrap the
   `retrieve()` call so a throw yields `error{kind:"retrieval"}`; any other throw after the first
   yield becomes `error{kind:"internal"}`, logged with `console.error` (no question text). On
   `req.signal` abort, or chat `error{cancelled}`, return with no further yield.
-- [ ] T019 [US3] In `answer.test.ts`: mid-stream `error{upstream}` → deltas then one `error`;
+- [x] T019 [US3] In `answer.test.ts`: mid-stream `error{upstream}` → deltas then one `error`;
   an unconfigured purpose (gateway config without `answering`) → one `error{config}` and a
   `UsageRecord`-free sink; a throwing stubbed `retrieve` → `error{retrieval}`; aborting the
   signal mid-stream → no terminal event and the fake stops yielding.
-- [ ] T020 [US3] In `ask.integration.test.ts`: no cookie → 401 JSON; player cookie → 403 JSON
+- [x] T020 [US3] In `ask.integration.test.ts`: no cookie → 401 JSON; player cookie → 403 JSON
   and zero chat calls (SC-005); `{}` body, `{"question":"  "}`, and a 2001-character question →
   400 JSON `validation`; a non-JSON body → 400; the route with no `answer` deps → one
   `error{config}` event.

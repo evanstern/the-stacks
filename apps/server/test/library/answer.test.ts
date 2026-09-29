@@ -425,3 +425,99 @@ describe("answer() — US2 refuse when nothing is relevant", () => {
     });
   });
 });
+
+/**
+ * Phase 4 unit tests (T019): every non-happy terminal state — gateway error
+ * mapping, a failing retrieve(), an unconfigured purpose, and cancellation.
+ */
+describe("answer() — US3 failures, auth, and cancellation", () => {
+  it("a mid-stream error{upstream} yields the deltas so far, then one error, last", async () => {
+    const { grapple } = makePassages();
+    const fake = new FakeProvider().scriptChat([
+      { type: "text", text: "Partial answer. " },
+      {
+        type: "error",
+        kind: "upstream",
+        message: "the provider's own message, never surfaced",
+        usage: { inputTokens: 1, outputTokens: 1 },
+      },
+    ]);
+    const deps = buildDeps({ fake, passages: [grapple] });
+    const events = await collect(deps);
+    expect(events.filter((e) => e.type === "delta")).toHaveLength(1);
+    expect(events.filter((e) => e.type === "error")).toHaveLength(1);
+    expect(events.at(-1)).toMatchObject({
+      type: "error",
+      kind: "upstream",
+      message: expect.any(String),
+    });
+  });
+
+  it("an unconfigured answering purpose yields one error{config} and records no usage", async () => {
+    const { grapple } = makePassages();
+    const sink = memorySink();
+    const gateway = createGateway({
+      config: { providers: {}, purposes: {}, prices: {} }, // no "answering" entry
+      sink,
+    });
+    const result: RetrievalResult = {
+      mode: "hybrid",
+      embeddingModel: null,
+      candidates: { vector: null, fts: 1 },
+      passages: [grapple],
+    };
+    const deps: AnswerDeps = {
+      db: {} as AnswerDeps["db"],
+      gateway,
+      retrieval: { mode: "hybrid", k: 8, embedPurpose: "embedding" },
+      config: { minSimilarity: 0.3 },
+      retrieve: async () => result,
+    };
+    const events = await collect(deps);
+    expect(events).toEqual([
+      { type: "error", kind: "config", message: expect.any(String) },
+    ]);
+    expect(sink.records).toHaveLength(0);
+  });
+
+  it("a throwing retrieve() yields error{retrieval}; no chat call is made", async () => {
+    const fake = new FakeProvider();
+    const deps = buildDeps({ fake, passages: [] });
+    deps.retrieve = async () => {
+      throw new Error("db exploded");
+    };
+    const events = await collect(deps);
+    expect(events).toEqual([
+      { type: "error", kind: "retrieval", message: expect.any(String) },
+    ]);
+    expect(fake.chatCalls).toHaveLength(0);
+  });
+
+  it("aborting the signal mid-stream ends with no terminal event; the provider saw the abort", async () => {
+    const { grapple } = makePassages();
+    const fake = new FakeProvider().scriptChat([
+      { type: "text", text: "First part. " },
+      { type: "text", text: "Second part." },
+      { type: "done", usage: { inputTokens: 1, outputTokens: 1 } },
+    ]);
+    const deps = buildDeps({ fake, passages: [grapple] });
+    const controller = new AbortController();
+    const events: AnswerEvent[] = [];
+    for await (const event of answer(deps, {
+      question: "How does grappling work?",
+      signal: controller.signal,
+    })) {
+      events.push(event);
+      if (events.length === 1) controller.abort();
+    }
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ type: "delta" });
+    expect(
+      events.some(
+        (e) => e.type === "done" || e.type === "refusal" || e.type === "error",
+      ),
+    ).toBe(false);
+    // Proves the provider itself observed the abort, not just the caller's loop.
+    expect(fake.chatCalls[0]?.request.signal?.aborted).toBe(true);
+  });
+});

@@ -148,6 +148,7 @@ async function signInCookie(app: App, role: "operator" | "player") {
   return setCookie.split(";")[0];
 }
 const operatorCookie = (app: App) => signInCookie(app, "operator");
+const playerCookie = (app: App) => signInCookie(app, "player");
 
 interface SseEvent {
   event: string;
@@ -315,6 +316,71 @@ describe.skipIf(!reachable)(
       const aboveRes = await ask(aboveApp, aboveCookie, "anything");
       await readSse(aboveRes);
       expect(fakeAbove.chatCalls).toHaveLength(1);
+    });
+  },
+);
+
+describe.skipIf(!reachable)(
+  "POST /library/ask — US3 failures, auth, and cancellation (integration)",
+  () => {
+    it("T020: 401 without a session, before any stream opens", async () => {
+      const app = buildApp(buildAnswerGateway(new FakeProvider(), "m"), "fts");
+      const res = await app.request("/library/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: "anything" }),
+      });
+      expect(res.status).toBe(401);
+      const body = (await res.json()) as { error: { kind: string } };
+      expect(body.error.kind).toBe("unauthorized");
+    });
+
+    it("T020: 403 for a player, before any stream opens, zero chat calls (SC-005)", async () => {
+      const fake = new FakeProvider();
+      const app = buildApp(buildAnswerGateway(fake, "m"), "fts");
+      const cookie = await playerCookie(app);
+      const res = await ask(app, cookie, "anything");
+      expect(res.status).toBe(403);
+      const body = (await res.json()) as { error: { kind: string } };
+      expect(body.error.kind).toBe("forbidden");
+      expect(fake.chatCalls).toHaveLength(0);
+    });
+
+    it.each([
+      ["an empty body", "{}"],
+      ["a blank question", JSON.stringify({ question: "  " })],
+      [
+        "an over-length question",
+        JSON.stringify({ question: "a".repeat(2001) }),
+      ],
+      ["a non-JSON body", "not json"],
+    ])("T020: 400 validation for %s", async (_label, body) => {
+      const app = buildApp(buildAnswerGateway(new FakeProvider(), "m"), "fts");
+      const cookie = await operatorCookie(app);
+      const res = await app.request("/library/ask", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body,
+      });
+      expect(res.status).toBe(400);
+      const responseBody = (await res.json()) as { error: { kind: string } };
+      expect(responseBody.error.kind).toBe("validation");
+    });
+
+    it("T020: no answer deps configured → one error{config} event", async () => {
+      const app: App = createApp({
+        databaseProbe: { reachable: async () => true },
+        db: requireDb(),
+      });
+      const cookie = await operatorCookie(app);
+      const res = await ask(app, cookie, "anything");
+      const events = await readSse(res);
+      expect(events).toEqual([
+        {
+          event: "error",
+          data: { kind: "config", message: expect.any(String) },
+        },
+      ]);
     });
   },
 );

@@ -5,7 +5,11 @@ import type { ErrorIssue } from "../errors.js";
 import { ValidationError } from "../errors.js";
 import type { CiteToken } from "./cite.js";
 import { createCiteParser, locateQuote } from "./cite.js";
-import type { RetrievalConfig, RetrievedPassage } from "./retrieve.js";
+import type {
+  RetrievalConfig,
+  RetrievalResult,
+  RetrievedPassage,
+} from "./retrieve.js";
 import { retrieve } from "./retrieve.js";
 import type { DbClient } from "./store.js";
 
@@ -152,6 +156,16 @@ const REFUSAL_MESSAGES: Record<RefusalReason, string> = {
   unverified: "No answer could be verified against the library.",
 };
 
+/** contracts/ask-sse.md's `error` table: fixed, display-safe message per kind. */
+const ERROR_MESSAGES: Record<AnswerErrorKind, string> = {
+  config: "The rules answerer is not configured.",
+  auth: "The AI provider rejected the configured credentials.",
+  rate_limit: "The AI provider is rate limiting requests. Try again shortly.",
+  upstream: "The model provider failed. Try again.",
+  retrieval: "The library search failed.",
+  internal: "An internal error occurred.",
+};
+
 /** research R6: states the citation syntax and the refusal rule; names no game system. */
 function buildSystemPrompt(): string {
   return [
@@ -261,130 +275,152 @@ export async function* answer(
   const question = validateQuestion(req.question);
   const retrieveFn = deps.retrieve ?? retrieve;
 
-  const result = await retrieveFn(
-    { db: deps.db, gateway: deps.gateway, config: deps.retrieval },
-    { question, signal: req.signal },
-  );
-
-  const relevant = result.passages.filter((p) =>
-    isRelevant(p, deps.config.minSimilarity),
-  );
-  if (relevant.length === 0) {
-    yield {
-      type: "refusal",
-      reason: "nothing_relevant",
-      message: REFUSAL_MESSAGES.nothing_relevant,
-    };
-    return;
-  }
-
-  // A per-call controller chained to req.signal (research R5/R2): lets a
-  // `<refuse/>` marker abort just the chat call, independent of the
-  // caller's own cancellation.
-  const chatController = new AbortController();
-  const onAbort = () => chatController.abort();
-  if (req.signal) {
-    if (req.signal.aborted) chatController.abort();
-    else req.signal.addEventListener("abort", onAbort);
-  }
-
-  const citationsByKey = new Map<string, number>();
-  let dropped = 0;
-  const countDropped = () => {
-    dropped += 1;
-  };
-  const parser = createCiteParser();
-
+  // Anything below throws only on a genuine bug or a failed retrieve() call
+  // (invariant: answer() never lets an exception escape once it may have
+  // already opened the stream) — mapped to a terminal `error` event instead
+  // of propagating, and logged server-side only (T018).
   try {
-    const chat = deps.gateway.chat({
-      purpose: ANSWER_PURPOSE,
-      system: buildSystemPrompt(),
-      messages: [
-        { role: "user", content: buildUserMessage(relevant, question) },
-      ],
-      signal: chatController.signal,
-    });
-
-    for await (const event of chat) {
-      if (event.type === "text") {
-        const gen = emitFromTokens(
-          parser.push(event.text),
-          relevant,
-          citationsByKey,
-          countDropped,
-        );
-        let step = gen.next();
-        while (!step.done) {
-          yield step.value;
-          step = gen.next();
-        }
-        if (step.value) {
-          chatController.abort();
-          yield {
-            type: "refusal",
-            reason: "model_declined",
-            message: REFUSAL_MESSAGES.model_declined,
-          };
-          return;
-        }
-        continue;
-      }
-
-      if (event.type === "done") {
-        const gen = emitFromTokens(
-          parser.end(),
-          relevant,
-          citationsByKey,
-          countDropped,
-        );
-        let step = gen.next();
-        while (!step.done) {
-          yield step.value;
-          step = gen.next();
-        }
-        if (step.value) {
-          chatController.abort();
-          yield {
-            type: "refusal",
-            reason: "model_declined",
-            message: REFUSAL_MESSAGES.model_declined,
-          };
-          return;
-        }
-        if (citationsByKey.size === 0) {
-          yield {
-            type: "refusal",
-            reason: "unverified",
-            message: REFUSAL_MESSAGES.unverified,
-          };
-          return;
-        }
-        yield {
-          type: "done",
-          citations: citationsByKey.size,
-          dropped,
-          passages: relevant.length,
-          promptVersion: PROMPT_VERSION,
-        };
-        return;
-      }
-
-      // event.type === "error"
-      if (event.kind === "cancelled") return; // no terminal event on cancellation
-      if (event.kind === "refusal") {
-        yield {
-          type: "refusal",
-          reason: "model_declined",
-          message: REFUSAL_MESSAGES.model_declined,
-        };
-        return;
-      }
-      // Every other error kind (config/auth/rate_limit/upstream), and a
-      // failing retrieve() call, get their fixed-message mapping and
-      // logging in Phase 4 (T018) — out of this phase's scope.
+    let result: RetrievalResult;
+    try {
+      result = await retrieveFn(
+        { db: deps.db, gateway: deps.gateway, config: deps.retrieval },
+        { question, signal: req.signal },
+      );
+    } catch {
+      yield {
+        type: "error",
+        kind: "retrieval",
+        message: ERROR_MESSAGES.retrieval,
+      };
       return;
     }
-  } finally {
-    req.signal?.removeEventListener("abort", onAbort);
+
+    const relevant = result.passages.filter((p) =>
+      isRelevant(p, deps.config.minSimilarity),
+    );
+    if (relevant.length === 0) {
+      yield {
+        type: "refusal",
+        reason: "nothing_relevant",
+        message: REFUSAL_MESSAGES.nothing_relevant,
+      };
+      return;
+    }
+
+    // A per-call controller chained to req.signal (research R5/R2): lets a
+    // `<refuse/>` marker abort just the chat call, independent of the
+    // caller's own cancellation.
+    const chatController = new AbortController();
+    const onAbort = () => chatController.abort();
+    if (req.signal) {
+      if (req.signal.aborted) chatController.abort();
+      else req.signal.addEventListener("abort", onAbort);
+    }
+
+    const citationsByKey = new Map<string, number>();
+    let dropped = 0;
+    const countDropped = () => {
+      dropped += 1;
+    };
+    const parser = createCiteParser();
+
+    try {
+      const chat = deps.gateway.chat({
+        purpose: ANSWER_PURPOSE,
+        system: buildSystemPrompt(),
+        messages: [
+          { role: "user", content: buildUserMessage(relevant, question) },
+        ],
+        signal: chatController.signal,
+      });
+
+      for await (const event of chat) {
+        if (event.type === "text") {
+          const gen = emitFromTokens(
+            parser.push(event.text),
+            relevant,
+            citationsByKey,
+            countDropped,
+          );
+          let step = gen.next();
+          while (!step.done) {
+            yield step.value;
+            step = gen.next();
+          }
+          if (step.value) {
+            chatController.abort();
+            yield {
+              type: "refusal",
+              reason: "model_declined",
+              message: REFUSAL_MESSAGES.model_declined,
+            };
+            return;
+          }
+          continue;
+        }
+
+        if (event.type === "done") {
+          const gen = emitFromTokens(
+            parser.end(),
+            relevant,
+            citationsByKey,
+            countDropped,
+          );
+          let step = gen.next();
+          while (!step.done) {
+            yield step.value;
+            step = gen.next();
+          }
+          if (step.value) {
+            chatController.abort();
+            yield {
+              type: "refusal",
+              reason: "model_declined",
+              message: REFUSAL_MESSAGES.model_declined,
+            };
+            return;
+          }
+          if (citationsByKey.size === 0) {
+            yield {
+              type: "refusal",
+              reason: "unverified",
+              message: REFUSAL_MESSAGES.unverified,
+            };
+            return;
+          }
+          yield {
+            type: "done",
+            citations: citationsByKey.size,
+            dropped,
+            passages: relevant.length,
+            promptVersion: PROMPT_VERSION,
+          };
+          return;
+        }
+
+        // event.type === "error"
+        if (event.kind === "cancelled") return; // no terminal event on cancellation
+        if (event.kind === "refusal") {
+          yield {
+            type: "refusal",
+            reason: "model_declined",
+            message: REFUSAL_MESSAGES.model_declined,
+          };
+          return;
+        }
+        // config/auth/rate_limit/upstream: fixed message per kind.
+        yield {
+          type: "error",
+          kind: event.kind,
+          message: ERROR_MESSAGES[event.kind],
+        };
+        return;
+      }
+    } finally {
+      req.signal?.removeEventListener("abort", onAbort);
+    }
+  } catch (err) {
+    console.error(err);
+    yield { type: "error", kind: "internal", message: ERROR_MESSAGES.internal };
   }
 }
