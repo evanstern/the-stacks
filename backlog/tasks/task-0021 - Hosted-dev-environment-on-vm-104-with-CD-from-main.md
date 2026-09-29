@@ -42,18 +42,6 @@ Spec: specs/016-hosted-dev-cd
 - [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -93,6 +81,8 @@ T019 2026-09-29 (operator go): backup --name t019 -> /home/stacks/dev/backups/ma
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 7 T021-T023: ci:check green; wiki ci-pipeline/runtime-stacks/health-check/compose-stack NEEDS-REVIEW amended; new note hosted-dev; freshness OK 33). Open: T020 (vm-104 proof cleanup, announced), T024 (post-merge CD + drift run URLs).
+
+spec-bridge sync: Foundational — pure deploy logic and workflow invariants: 3/3 · User Story 1 — main is always running on dev (P1) 🎯 MVP: 5/5 · User Story 2 — a bad deploy never takes dev down (P1): 3/3 · User Story 3 — drift is caught (P2): 3/3 · User Story 4 — only the tailnet reaches dev (P2): 2/2 · User Story 5 — the ops runbook (P3): 3/3 · Polish, re-ground, and the merge condition: 4/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
