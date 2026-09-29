@@ -13,15 +13,22 @@ import { createAuthMiddleware } from "../auth/middleware.js";
 import type { DbClient, ValidateSession } from "../auth/session.js";
 import {
   ForbiddenError,
+  NotFoundError,
   PayloadTooLargeError,
   UnauthorizedError,
   ValidationError,
 } from "../errors.js";
 import {
   enqueueIngest,
+  getJob,
   type JobFormat,
   type JobStatus,
+  listJobs,
 } from "../library/ingest/jobs.js";
+
+const JobsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 
 /**
  * `POST /library/uploads` (specs/017-ingestion-pipeline
@@ -324,6 +331,33 @@ export function createLibraryRoutes({
     const job = await handleUpload(c, { db, uploadMaxBytes, uploadDir });
     onEnqueued();
     return c.json({ job }, 202);
+  });
+
+  route.get("/jobs", async (c) => {
+    requireOperator(c);
+    const parsedQuery = JobsQuerySchema.safeParse({
+      limit: c.req.query("limit"),
+    });
+    if (!parsedQuery.success) {
+      throw new ValidationError([
+        { path: "limit", message: "limit must be an integer 1-100." },
+      ]);
+    }
+    // listJobs already serializes each row through JobStatusSchema.
+    const jobs = await listJobs(db, parsedQuery.data.limit);
+    return c.json({ jobs });
+  });
+
+  route.get("/jobs/:id", async (c) => {
+    requireOperator(c);
+    const id = c.req.param("id");
+    if (!z.string().uuid().safeParse(id).success) {
+      throw new NotFoundError();
+    }
+    // getJob already serializes through JobStatusSchema.
+    const job = await getJob(db, id);
+    if (!job) throw new NotFoundError();
+    return c.json({ job });
   });
 
   return route;

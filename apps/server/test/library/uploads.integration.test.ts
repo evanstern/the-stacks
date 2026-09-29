@@ -9,7 +9,12 @@ import { createApp } from "../../src/app.js";
 import { hashPassword } from "../../src/auth/password.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import type { ErrorResponseBody } from "../../src/errors.js";
-import type { JobStatus } from "../../src/library/ingest/jobs.js";
+import {
+  claimJob,
+  finishJob,
+  type JobStatus,
+  setStage,
+} from "../../src/library/ingest/jobs.js";
 import { users } from "../../src/schema/auth.js";
 
 /**
@@ -139,6 +144,22 @@ describe.skipIf(!reachable)("POST /library/uploads (US2, integration)", () => {
     return setCookie.split(";")[0];
   }
   const operatorCookie = (app: App) => signInCookie(app, "operator");
+
+  /**
+   * Drains every claimable job (jobs.integration.test.ts's pattern): the
+   * claim query picks the OLDEST claimable job table-wide, so a job left
+   * `queued` by an earlier test in this file (no worker runs against this
+   * app) would otherwise get claimed ahead of a job a later test just made.
+   */
+  async function drainQueue() {
+    for (;;) {
+      const claimed = await claimJob(requireDb());
+      if (!claimed) break;
+      await finishJob(requireDb(), claimed, {
+        error: "drained for test isolation",
+      });
+    }
+  }
 
   async function upload(
     app: App,
@@ -367,6 +388,108 @@ describe.skipIf(!reachable)("POST /library/uploads (US2, integration)", () => {
     });
     expect(res.status).not.toBe(202);
     expect(await readdir(uploadDir)).toEqual([]);
+  });
+
+  it("T028: GET /library/jobs lists newest-created first, operator-only", async () => {
+    const { app } = await buildApp();
+    const cookie = await operatorCookie(app);
+    const first = await upload(app, cookie, fileFormData(freshBook("List A")));
+    const second = await upload(app, cookie, fileFormData(freshBook("List B")));
+    const { job: jobA } = (await first.json()) as { job: JobStatus };
+    const { job: jobB } = (await second.json()) as { job: JobStatus };
+
+    const res = await app.request("/library/jobs?limit=2", {
+      headers: { cookie },
+    });
+    expect(res.status).toBe(200);
+    const { jobs } = (await res.json()) as { jobs: JobStatus[] };
+    const ids = jobs.map((j) => j.id);
+    expect(ids.indexOf(jobB.id)).toBeLessThan(ids.indexOf(jobA.id));
+  });
+
+  it("T028: GET /library/jobs is 401 without a session and 403 for a player", async () => {
+    const { app } = await buildApp();
+    const anon = await app.request("/library/jobs");
+    expect(anon.status).toBe(401);
+
+    const playerCookie = await signInCookie(app, "player");
+    const forbidden = await app.request("/library/jobs", {
+      headers: { cookie: playerCookie },
+    });
+    expect(forbidden.status).toBe(403);
+  });
+
+  it("T028: GET /library/jobs/:id returns the job by id", async () => {
+    const { app } = await buildApp();
+    const cookie = await operatorCookie(app);
+    const uploaded = await upload(
+      app,
+      cookie,
+      fileFormData(freshBook("Get By Id")),
+    );
+    const { job } = (await uploaded.json()) as { job: JobStatus };
+
+    const res = await app.request(`/library/jobs/${job.id}`, {
+      headers: { cookie },
+    });
+    expect(res.status).toBe(200);
+    const { job: fetched } = (await res.json()) as { job: JobStatus };
+    expect(fetched.id).toBe(job.id);
+    expect(fetched.book).toBe(job.book);
+  });
+
+  it("T028: GET /library/jobs/:id is 404 for an unknown or malformed id", async () => {
+    const { app } = await buildApp();
+    const cookie = await operatorCookie(app);
+
+    const unknown = await app.request(`/library/jobs/${randomUUID()}`, {
+      headers: { cookie },
+    });
+    expect(unknown.status).toBe(404);
+
+    const malformed = await app.request("/library/jobs/not-a-uuid", {
+      headers: { cookie },
+    });
+    expect(malformed.status).toBe(404);
+  });
+
+  it("T028: while a job runs, stage is non-null; once it ends, result/error is set", async () => {
+    const { app } = await buildApp();
+    const cookie = await operatorCookie(app);
+    await drainQueue();
+    const uploaded = await upload(
+      app,
+      cookie,
+      fileFormData(freshBook("Stage Status")),
+    );
+    const { job } = (await uploaded.json()) as { job: JobStatus };
+
+    // Simulate the worker: claim, advance a stage, then finish — without
+    // running the full pipeline — to prove the route reflects live state.
+    const claimed = await claimJob(requireDb());
+    if (!claimed) throw new Error("expected a claimable job");
+    await setStage(requireDb(), claimed, "parse");
+
+    const running = await app.request(`/library/jobs/${job.id}`, {
+      headers: { cookie },
+    });
+    const { job: runningJob } = (await running.json()) as { job: JobStatus };
+    expect(runningJob.status).toBe("running");
+    expect(runningJob.stage).toBe("parse");
+    expect(runningJob.result).toBeNull();
+    expect(runningJob.error).toBeNull();
+
+    await finishJob(requireDb(), claimed, { error: "simulated failure" });
+    const finished = await app.request(`/library/jobs/${job.id}`, {
+      headers: { cookie },
+    });
+    const { job: finishedJob } = (await finished.json()) as {
+      job: JobStatus;
+    };
+    expect(finishedJob.status).toBe("failed");
+    expect(finishedJob.stage).toBeNull();
+    expect(finishedJob.error).toBe("simulated failure");
+    expect(finishedJob.result).toBeNull();
   });
 
   it("T013 (heavy): a large streamed upload lands intact with bounded memory growth", async () => {
