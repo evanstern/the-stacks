@@ -4,7 +4,7 @@ title: 'Separate test compose stack: DB-only, per worktree, CI parity'
 status: Done
 assignee: []
 created_date: '2026-09-29 18:37'
-updated_date: '2026-09-29 19:53'
+updated_date: '2026-09-29 19:54'
 labels:
   - infra
   - test
@@ -35,9 +35,11 @@ Spec: specs/020-test-compose
 - [x] #7 Spec phase: Foundational — derivation and the test compose file
 - [x] #8 Spec phase: US2 — CI parity (Priority: P1)
 - [x] #9 Spec phase: US1 + US3 — env machinery (Priority: P1/P2)
-- [ ] #10 Spec phase: US4 — documentation (Priority: P3)
+- [x] #10 Spec phase: US4 — documentation (Priority: P3)
 - [ ] #11 Spec phase: Verification, re-grounding, cleanup
 <!-- AC:END -->
+
+
 
 
 
