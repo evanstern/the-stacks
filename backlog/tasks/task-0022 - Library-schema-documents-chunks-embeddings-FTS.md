@@ -4,7 +4,7 @@ title: 'Library schema: documents, chunks, embeddings, FTS'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:04'
+updated_date: '2026-09-29 05:13'
 labels:
   - library
 milestone: m-1
@@ -42,6 +42,10 @@ Spec: specs/013-library-schema
 spec-bridge sync: Foundational — schema and migration: 0/3 · User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP: 0/3 · User Story 2 — keyword search on every chunk (Priority: P1): 0/1 · User Story 3 — embeddings from several models (Priority: P2): 0/3 · Immutability and polish: 0/5
 
 Spec 013 authored 2026-09-29 (speckit-specify → plan → tasks; clarify skipped: decision-0002, A3 and the parser contract settle every choice). No new dependency. Awaiting implementation dispatch.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 (T001-T003) done in e11dc3d: migration 0002_tiny_odin.sql (3 tables, vector extension, immutability triggers, GIN + HNSW cosine). ci:check with REQUIRE_DATABASE=1 green against stacks-task-0022 (3022/15022). Fresh-volume apply proven; implementer's 'docker compose down -v' reset only stacks-task-0022 (orchestrator verified: the-stacks-db-1 and its volume untouched; .env untracked). ~167k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
