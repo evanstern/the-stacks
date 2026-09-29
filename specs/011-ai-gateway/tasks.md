@@ -39,11 +39,11 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 
 ## Phase 4: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
 
-- [ ] T010 [P] Create `apps/server/src/ai/sse.ts`: parse a fetch response body into `data:` payloads; blank-line framing; multi-line `data:`; ignore comments; stop at `[DONE]`; report a stream that ends without `[DONE]` (research R3)
-- [ ] T011 [P] Create `apps/server/src/ai/retry.ts`: bounded attempts, exponential backoff with full jitter and cap, `Retry-After` seconds/HTTP-date override, abort-aware sleep, injectable clock (research R8)
-- [ ] T012 Tests `apps/server/test/ai.sse.test.ts` and `apps/server/test/ai.retry.test.ts`: chunk boundaries split mid-line, `[DONE]`, truncated stream; retry on 429/5xx/network, none on 400/401/403, `Retry-After`, abort during backoff; no real waiting
-- [ ] T013 Create `apps/server/src/ai/adapters/openai-compatible.ts`: chat via `POST {baseUrl}/chat/completions` (`stream: true`, `stream_options.include_usage`), content deltas → `text`, final usage chunk → `done`, `content_filter` → `refusal`; embeddings via `POST {baseUrl}/embeddings` (`dimensions: 1024`, sort by `index`, `usage.prompt_tokens`); `Authorization: Bearer` only when `apiKeyEnv` is set; HTTP → error kinds per research R7; requests wrapped in `retry.ts`, never after first output
-- [ ] T014 Test `apps/server/test/ai.openai-compatible.test.ts` against a `fetch` double: request bodies and headers, SSE translation, usage, content filter, error mapping, retry-then-success yields one usage record with `attempts`, no retry after first text, keyless provider sends no auth header (invariant 9)
+- [x] T010 [P] Create `apps/server/src/ai/sse.ts`: parse a fetch response body into `data:` payloads; blank-line framing; multi-line `data:`; ignore comments; stop at `[DONE]`; report a stream that ends without `[DONE]` (research R3)
+- [x] T011 [P] Create `apps/server/src/ai/retry.ts`: bounded attempts, exponential backoff with full jitter and cap, `Retry-After` seconds/HTTP-date override, abort-aware sleep, injectable clock (research R8)
+- [x] T012 Tests `apps/server/test/ai.sse.test.ts` and `apps/server/test/ai.retry.test.ts`: chunk boundaries split mid-line, `[DONE]`, truncated stream; retry on 429/5xx/network, none on 400/401/403, `Retry-After`, abort during backoff; no real waiting
+- [x] T013 Create `apps/server/src/ai/adapters/openai-compatible.ts`: chat via `POST {baseUrl}/chat/completions` (`stream: true`, `stream_options.include_usage`), content deltas → `text`, final usage chunk → `done`, `content_filter` → `refusal`; embeddings via `POST {baseUrl}/embeddings` (`dimensions: 1024`, sort by `index`, `usage.prompt_tokens`); `Authorization: Bearer` only when `apiKeyEnv` is set; HTTP → error kinds per research R7; requests wrapped in `retry.ts`, never after first output
+- [x] T014 Test `apps/server/test/ai.openai-compatible.test.ts` against a `fetch` double: request bodies and headers, SSE translation, usage, content filter, error mapping, retry-then-success yields one usage record with `attempts`, no retry after first text, keyless provider sends no auth header (invariant 9)
 
 ## Phase 5: US6 + wiring — no-key test run and startup
 

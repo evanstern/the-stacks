@@ -5,6 +5,7 @@
  */
 
 import { FakeProvider } from "./adapters/fake.js";
+import { createOpenAiCompatibleProvider } from "./adapters/openai-compatible.js";
 import type { AiConfig } from "./config.js";
 import type {
   AdapterFactory,
@@ -44,6 +45,7 @@ export interface GatewayOptions {
 
 const DEFAULT_ADAPTERS: Record<string, AdapterFactory> = {
   fake: () => new FakeProvider(),
+  "openai-compatible": createOpenAiCompatibleProvider,
 };
 
 const NO_USAGE: UsageSummary = { inputTokens: 0, outputTokens: 0 };
@@ -159,9 +161,9 @@ export function createGateway(opts: GatewayOptions): Gateway {
             usage.outputTokens,
           ),
           durationMs: Date.now() - startedAt,
-          // retry.ts (Phase 4) will make this vary; fixed at 1 until the
-          // gateway wraps provider calls in retry.
-          attempts: 1,
+          // The provider reports attempts on its terminal event's usage
+          // (retry.ts wraps its own request); absent means it never retried.
+          attempts: usage.attempts ?? 1,
           outcome,
           at: new Date().toISOString(),
         });
@@ -202,6 +204,7 @@ export function createGateway(opts: GatewayOptions): Gateway {
       try {
         const vectors: EmbedResult["vectors"] = [];
         let inputTokens = 0;
+        let attempts = 0;
         for (const batch of batches) {
           // Called as `provider.embed(...)` (not detached) to keep `this`
           // bound inside the provider's own implementation.
@@ -215,7 +218,8 @@ export function createGateway(opts: GatewayOptions): Gateway {
             vectors.push({ vector, model: purpose.model, dim: EMBED_DIM });
           }
           inputTokens += result.inputTokens;
-          usage = { inputTokens, outputTokens: 0 };
+          attempts += result.attempts ?? 1;
+          usage = { inputTokens, outputTokens: 0, attempts };
         }
         return { vectors, usage };
       } catch (err) {
@@ -236,7 +240,7 @@ export function createGateway(opts: GatewayOptions): Gateway {
             usage.outputTokens,
           ),
           durationMs: Date.now() - startedAt,
-          attempts: 1,
+          attempts: usage.attempts ?? 1,
           outcome,
           at: new Date().toISOString(),
         });

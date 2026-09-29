@@ -51,6 +51,8 @@ export type ErrorKind =
 export interface UsageSummary {
   inputTokens: number;
   outputTokens: number;
+  /** HTTP attempts the provider made for this call (retry.ts); default 1 when omitted. */
+  attempts?: number;
 }
 
 /** `chat()` yields zero or more `text`, then exactly one `done` or `error`. */
@@ -101,7 +103,7 @@ export interface Provider {
     model: string,
     texts: string[],
     signal?: AbortSignal,
-  ): Promise<{ vectors: number[][]; inputTokens: number }>;
+  ): Promise<{ vectors: number[][]; inputTokens: number; attempts?: number }>;
 }
 
 export type AdapterFactory = (
