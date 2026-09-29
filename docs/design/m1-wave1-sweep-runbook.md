@@ -9,7 +9,7 @@ environment rulings), `docs/design/architecture.md` (A7, A9), and
 `docs/design/milestones.md` (M1) win. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-28
 
 ## Read first (in this order)
 
