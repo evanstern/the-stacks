@@ -1,4 +1,8 @@
-import { type AiConfig, loadAiConfig } from "./ai/config.js";
+// No relative imports in this file. scripts/migrate.ts and
+// scripts/create-operator.ts run it on the host under
+// `node --experimental-strip-types`, which cannot follow src/'s
+// .js-suffixed imports (see the comment at the top of those scripts) —
+// checked by `pnpm check:host-scripts`.
 
 /** Server configuration, read from environment variables. */
 export interface ServerConfig {
@@ -6,8 +10,6 @@ export interface ServerConfig {
   databaseUrl: string;
   /** Port the HTTP server binds to. */
   port: number;
-  /** AI gateway config (optional AI_* env vars); empty when none are set. */
-  ai?: AiConfig;
 }
 
 /**
@@ -26,5 +28,5 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     throw new Error(`APP_PORT must be a positive integer, got "${portRaw}"`);
   }
 
-  return { databaseUrl, port, ai: loadAiConfig(env) };
+  return { databaseUrl, port };
 }

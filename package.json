@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
-    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks"
+    "check:host-scripts": "node --experimental-strip-types -e \"await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts'); await import('./apps/server/src/auth/password.ts'); await import('./apps/server/src/schema/auth.ts');\"",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:host-scripts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

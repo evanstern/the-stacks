@@ -1,54 +1,53 @@
 # `env -u AI_PROVIDERS -u AI_PURPOSES -u AI_PRICES pnpm ci:check` (T018, SC-004)
 # Exit code: 0. Tail below.
-      ...
     1..7
 ok 3 - classifyBoardSyncCommit — US2 non-board paths stay blocked (Phase 3)
   ---
-  duration_ms: 1289.822167
+  duration_ms: 1204.38475
   type: 'suite'
   ...
 # Subtest: classifyBoardSyncCommit — US3 explicit-pathspec audit (Phase 4, T007)
     # Subtest: a non-ASCII backlog/ pathspec is allowed
     ok 1 - a non-ASCII backlog/ pathspec is allowed
       ---
-      duration_ms: 153.760583
+      duration_ms: 146.324958
       type: 'test'
       ...
     # Subtest: a non-ASCII non-backlog pathspec is refused as pathspec-outside
     ok 2 - a non-ASCII non-backlog pathspec is refused as pathspec-outside
       ---
-      duration_ms: 148.750542
+      duration_ms: 146.10525
       type: 'test'
       ...
     # Subtest: boardPathspecOk resolves an absolute non-ASCII backlog/ path
     ok 3 - boardPathspecOk resolves an absolute non-ASCII backlog/ path
       ---
-      duration_ms: 163.69375
+      duration_ms: 143.193292
       type: 'test'
       ...
     1..3
 ok 4 - classifyBoardSyncCommit — US3 explicit-pathspec audit (Phase 4, T007)
   ---
-  duration_ms: 466.342917
+  duration_ms: 435.740208
   type: 'suite'
   ...
 # Subtest: classifyBoardSyncCommit — US3 pre-write audit (Phase 4, T008)
     # Subtest: a non-ASCII tracked path at the root is blocked (exit 2)
     ok 1 - a non-ASCII tracked path at the root is blocked (exit 2)
       ---
-      duration_ms: 183.572541
+      duration_ms: 186.483875
       type: 'test'
       ...
     # Subtest: the same non-ASCII path under .worktrees/ is allowed (exit 0)
     ok 2 - the same non-ASCII path under .worktrees/ is allowed (exit 0)
       ---
-      duration_ms: 163.080541
+      duration_ms: 158.587417
       type: 'test'
       ...
     1..2
 ok 5 - classifyBoardSyncCommit — US3 pre-write audit (Phase 4, T008)
   ---
-  duration_ms: 346.748583
+  duration_ms: 345.159667
   type: 'suite'
   ...
 1..5
@@ -59,4 +58,5 @@ ok 5 - classifyBoardSyncCommit — US3 pre-write audit (Phase 4, T008)
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2888.03325
+# duration_ms 2776.128834
+$ node --experimental-strip-types -e "await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts'); await import('./apps/server/src/auth/password.ts'); await import('./apps/server/src/schema/auth.ts');"

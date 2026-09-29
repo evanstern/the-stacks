@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: ba9fcbb4fa3bdc10f8e66f403cdee90a2093f752
+verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
 ---
 
 # AI gateway
@@ -63,18 +63,20 @@ the initial request (never a stream already producing text) in bounded attempts 
 with full-jitter exponential backoff, honoring `Retry-After` (seconds or HTTP-date), abort-aware
 sleeping, and an injectable clock/jitter for tests.
 
-**Wiring**: `apps/server/src/config.ts`'s `loadConfig` calls `loadAiConfig(env)` and sets it on
-`ServerConfig.ai` (optional field; always populated, possibly empty). `apps/server/src/index.ts`
-constructs the gateway once via `createGateway({config: config.ai, sink: logSink})` right after
-`loadConfig()`. With no `AI_*` env vars set, `config.ai` is the empty config and the gateway is
-inert — startup behavior is unchanged from before this slice.
+**Wiring**: `apps/server/src/index.ts` calls `loadAiConfig(process.env)` directly (not through
+`loadConfig`) and constructs the gateway once via `createGateway({config: aiConfig, sink:
+logSink})` right after `loadConfig()`. `config.ts` stays free of this import deliberately — it
+runs on the host under `node --experimental-strip-types` (see [[configuration]]) and must not
+gain a relative import, so AI config loading lives in `index.ts` instead of `ServerConfig`.
+With no `AI_*` env vars set, `aiConfig` is the empty config and the gateway is inert — startup
+behavior is unchanged from before this slice.
 
 ## Connections
 
-Reads [[configuration]]'s `loadConfig` (now also constructing `AiConfig`) and is constructed
-in [[server-entrypoint-and-app]]'s `index.ts` alongside the WebSocket gateway. `.env.example`
-documents the three env vars under "AI gateway". No plane imports it yet — see [[overview]]
-for the three data planes any future caller will sit in.
+Constructed in [[server-entrypoint-and-app]]'s `index.ts`, via `loadAiConfig(process.env)`
+called directly (not through [[configuration]]'s `loadConfig`), alongside the WebSocket
+gateway. `.env.example` documents the three env vars under "AI gateway". No plane imports it
+yet — see [[overview]] for the three data planes any future caller will sit in.
 
 ## Operational notes
 

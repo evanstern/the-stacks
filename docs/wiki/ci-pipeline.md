@@ -10,7 +10,7 @@ sources:
   - turbo.json
   - specs/009-ci-pipeline/contracts/boundary-rules.md
   - README.md
-verified_against: 872b0aba2bfefe65e85bf5010dde46f9e725b736
+verified_against: a4e1d3cae60c1a807c2587ca1b397d64b4c1e62a
 ---
 
 # CI pipeline
@@ -24,7 +24,7 @@ ran anywhere — gates were run by hand and their output pasted into the PR.
 
 Root `package.json`'s `ci:check` script is the single aggregate:
 `pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks`. CI runs exactly this one command (`pnpm ci:check`), so there is no drift
+check:hooks && pnpm check:host-scripts`. CI runs exactly this one command (`pnpm ci:check`), so there is no drift
 between what CI enforces and what a contributor can reproduce locally — see README.md's
 "Checks" section for the exact local reproduction steps.
 
@@ -53,6 +53,14 @@ code is nonzero.
 
 `check:hooks` runs `node --test '.claude/hooks/*.test.mjs'` — the project's own Claude Code
 hooks get the same CI gate as application code.
+
+`check:host-scripts` imports `apps/server/src/config.ts`, `db.ts`, `auth/password.ts`, and
+`schema/auth.ts` under `node --experimental-strip-types` — the same runtime
+`apps/server/scripts/migrate.ts` and `create-operator.ts` use — so a relative import that
+Node's native TypeScript stripping can't resolve (host scripts can't follow `src/`'s
+`.js`-suffixed imports; see [[configuration]]) fails `ci:check` instead of only `db:migrate`.
+Added after TASK-0023 shipped a `config.ts` import that broke `db:migrate` in CI while
+`ci:check` (which never runs `db:migrate`) stayed green.
 
 ## Connections
 
