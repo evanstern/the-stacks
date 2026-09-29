@@ -33,6 +33,12 @@ const env = process.env;
 const DEV_ENV_FILE = env.DEV_ENV_FILE || "/home/stacks/dev/.env";
 const BASE_COMPOSE = path.join(ROOT, "docker-compose.yml");
 const DEV_COMPOSE = path.join(ROOT, "deploy/dev/compose.dev.yml");
+// FR-012 only — applied to the swap step by `--force-unhealthy`, never to
+// the rollback swap. See deploy/dev/compose.force-unhealthy.yml.
+const FORCE_UNHEALTHY_COMPOSE = path.join(
+  ROOT,
+  "deploy/dev/compose.force-unhealthy.yml",
+);
 const BACKUPS_DIR = path.join(path.dirname(DEV_ENV_FILE), "backups");
 
 function git(args, cwd = ROOT) {
@@ -264,7 +270,10 @@ function preflightOrExit(sha, allowStale) {
   }
 }
 
-async function deploy(sha, { allowStale = false } = {}) {
+async function deploy(
+  sha,
+  { allowStale = false, forceUnhealthy = false } = {},
+) {
   preflightOrExit(sha, allowStale);
   const prev = getPrevCommit();
 
@@ -283,15 +292,26 @@ async function deploy(sha, { allowStale = false } = {}) {
   }
   if (runCompose(["run", "--rm", "migrate"], sha).status !== 0)
     reportFailure(prev);
-  if (runCompose(["up", "-d", "--no-build", "app"], sha).status !== 0)
-    reportFailure(prev);
+  const swapFiles = forceUnhealthy ? [FORCE_UNHEALTHY_COMPOSE] : [];
+  const swapped =
+    runCompose(["up", "-d", "--no-build", "app"], sha, swapFiles).status === 0;
 
-  const ok = await verify(sha);
-  if (!ok) reportFailure(prev);
+  const ok = swapped && (await verify(sha));
+  if (ok) {
+    pruneImages();
+    console.log(`dev is serving ${sha}`);
+    process.exit(0);
+  }
 
-  pruneImages();
-  console.log(`dev is serving ${sha}`);
-  process.exit(0);
+  // Verify failure (research R6 step 9): roll back to `prev` without the
+  // force-unhealthy file, then verify it. No `prev` means this was the
+  // first deploy — nothing to roll back to.
+  if (!prev) reportFailure(prev);
+  const rolledBack =
+    runCompose(["up", "-d", "--no-build", "app"], prev).status === 0 &&
+    (await verify(prev));
+  console.log(rolledBack ? `dev is serving ${prev}` : "dev is not serving");
+  process.exit(1);
 }
 
 async function status() {
@@ -346,7 +366,10 @@ switch (verb) {
       );
       process.exit(2);
     }
-    await deploy(sha, { allowStale: rest.includes("--allow-stale") });
+    await deploy(sha, {
+      allowStale: rest.includes("--allow-stale"),
+      forceUnhealthy: rest.includes("--force-unhealthy"),
+    });
     break;
   }
   case "status":

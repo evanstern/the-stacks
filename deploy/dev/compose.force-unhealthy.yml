@@ -1,0 +1,8 @@
+# deploy/dev/compose.force-unhealthy.yml — FR-012 only. Applied by
+# `scripts/deploy-dev.mjs deploy --force-unhealthy` during the swap step,
+# to prove the rollback path on a real host with no broken commit on `main`
+# and no app code change (research R6). Never used for a real deploy.
+services:
+  app:
+    environment:
+      DATABASE_URL: postgres://unreachable@127.0.0.1:1/none

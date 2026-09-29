@@ -107,10 +107,10 @@ the job. (AC #3)
 
 **Independent Test**: quickstart.md §2.
 
-- [ ] T009 [P] [US2] Create `deploy/dev/compose.force-unhealthy.yml` setting only
+- [x] T009 [P] [US2] Create `deploy/dev/compose.force-unhealthy.yml` setting only
   `app.environment.DATABASE_URL: postgres://unreachable@127.0.0.1:1/none`, with a header
   comment naming FR-012 and saying it is never used for a real deploy.
-- [ ] T010 [US2] Extend `deploy` in `scripts/deploy-dev.mjs` with research R6 step 9: on a
+- [x] T010 [US2] Extend `deploy` in `scripts/deploy-dev.mjs` with research R6 step 9: on a
   verify timeout, recreate `app` at `STACKS_COMMIT=<prev>` **without** the force-unhealthy
   file and with `--no-build`, verify `<prev>`, print `dev is serving <prev>`, exit 1; with no
   `<prev>`, print `first deploy failed; dev is not serving`, exit 1. Build and migrate
