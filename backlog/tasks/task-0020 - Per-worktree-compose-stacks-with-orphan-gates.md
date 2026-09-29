@@ -34,10 +34,12 @@ Spec: specs/010-worktree-stacks
 - [ ] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
 - [x] #8 Spec phase: Foundational — pure derivation library
 - [x] #9 Spec phase: User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP
-- [ ] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
+- [x] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
 - [ ] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
