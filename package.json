@@ -14,6 +14,7 @@
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
     "check:scripts": "node --test 'scripts/*lib.test.mjs'",
+    "check:env": "node --test scripts/env.test.mjs",
     "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts",
     "env:up": "node scripts/env.mjs up",
     "env:down": "node scripts/env.mjs down",

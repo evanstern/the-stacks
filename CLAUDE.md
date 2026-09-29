@@ -221,3 +221,13 @@ Features are specified with GitHub Spec Kit (`specify`) under `specs/NNN-<featur
   mirrored criteria are internal breakdown, not PR boundaries.
 <!-- pdlc:peer:spec-kit END -->
 <!-- pdlc:grounding END -->
+
+## Runtime stacks
+
+Each worktree gets its own compose stack. See `specs/010-worktree-stacks/contracts/env-cli.md`
+for the full command reference.
+
+- Run `pnpm env:up` in a worktree that needs a database.
+- Run `pnpm env:down` before `git worktree remove`.
+- Run `pnpm env:prune --check` at sweep start and after post-merge cleanup.
+- A nonzero exit from `pnpm env:prune --check` blocks until the orphan is removed.
