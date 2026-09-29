@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:13'
+updated_date: '2026-09-29 03:24'
 labels:
   - library
 milestone: m-1
@@ -39,6 +39,8 @@ Spec: specs/012-ddb-parser
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec 012 authored (f7a2794): spec, plan, research, data-model, contracts/parser.md, quickstart, tasks (22 tasks, 6 phases). Clarify skipped — A9 and decision-0003 settle direction. OPERATOR CHECKPOINT: new runtime dependency parse5 ^8 (research R2) needs approval before Phase 1 dispatch.
+
+Operator rulings 2026-09-28: parse5 APPROVED. Real exports available at /Volumes/evan/dnd-sourcebooks (NAS, operator machine only; never commit): players-handbook-zip/ (39 per-chapter zips), dmg-zip.zip (zip of 22 chapter zips), monster_manual.zip (one zip, 3219 files, includes __MACOSX/ junk), xanathars-guide-to-everything.zip, lost-mines-of-phandelver-zip/ (per-part zips + a combined zip of zips). Each chapter is a saved D&D Beyond page: one .html (~400 KB) plus png/js/css assets. Observed in PHB '23 - Combat': headings are h2/h3/h4 with class 'compendium-hr heading-anchor'; page title h1.page-title; inline links carry *-tooltip classes (rule/condition/spell/monster/item/action/skill-tooltip); site chrome uses quick-menu*, ddb-footer*, and hashed _xxx_ classes. Research R3 selectors are unverified until the private suite runs against these. Merge condition: private suite run against PHB, DMG, MM, and LMoP, results in the PR.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
