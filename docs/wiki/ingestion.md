@@ -21,7 +21,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: 66f6c026d9aee137ccb9c236dd7874359c02d6ae
+verified_against: 788261d9152946f53780d3750d5419d901e029e5
 ---
 
 # Ingestion
@@ -40,11 +40,11 @@ part is streamed straight to disk through `busboy` — never `parseBody`/`formDa
 enforced twice: an early `Content-Length` check over `uploadMaxBytes + 1 MiB` (see
 [[configuration]]'s `UPLOAD_MAX_BYTES`), and, independently, busboy's `fileSize` limit plus a
 `ByteCounter` transform for a body that lies about or omits `Content-Length` — both throw
-`PayloadTooLargeError` (413 `too_large`, see [[error-contract]]). Any non-202 outcome deletes the partial temp file (`safeUnlink`,
-awaited with the in-flight pipeline so a slow write can't recreate it after cleanup). `detectFormat` sniffs the first 4 bytes for a
-zip signature, else the `.md`/`.markdown` extension, else HTML. `enqueueIngest` returns `409
-conflict` (`jobs_active_book_key`, see [[database-schema]]) if that book already has an active
-job — never two at once.
+`PayloadTooLargeError` (413 `too_large`, see [[error-contract]]). Any non-202 outcome deletes
+the partial temp file (`safeUnlink`, awaited with the in-flight pipeline). `detectFormat`
+sniffs the first 4 bytes for a zip signature, else the `.md`/`.markdown` extension, else HTML.
+`enqueueIngest` returns `409 conflict` (`jobs_active_book_key`, see [[database-schema]]) if
+that book already has an active job — never two at once.
 
 **Zip reader** (`zip.ts`), a thin wrapper over `yauzl`; callers never import `yauzl` directly.
 `guardOpenable` rejects encrypted entries and any compression method but store/deflate before a
@@ -54,11 +54,10 @@ stream opens; each entry's declared size debits a shared `ZipBudget` (`EXTRACT_B
 and throws `ZipError` on a mismatch; zip64 is supported natively.
 
 Extracted nested zips get temp file names from `crypto.randomUUID()`, not a per-`walkZip`-call
-counter. Found in T034's real-export spot check: LMoP nests a combined-book zip as the first
-entry at its level (held open for the whole walk below it), whose own first inner chapter-zip
-independently restarted its counter at 1 too — both wrote `<tmpDir>/1.zip`, and the inner write
-truncated the file the outer read was still streaming from. A UUID can't collide at any depth
-or sibling order. Reproduced without the real export in `collect.test.ts`.
+counter — T034's real-export spot check found a nested zip and its own first inner chapter-zip
+each independently restarting a counter at 1, both writing `<tmpDir>/1.zip`, the inner write
+truncating the file the outer read was still streaming from. A UUID can't collide at any depth.
+Reproduced without the real export in `collect.test.ts`.
 
 **Filtering and dedup** (`collect.ts`). `isIgnoredEntry` drops `__MACOSX/`, `.DS_Store`, `._*`,
 and any `*_files/` asset folder unextracted. A `.zip` entry recurses (up to `MAX_ZIP_DEPTH` =
@@ -86,30 +85,25 @@ Output re-uses [[ddb-parser]]'s `ParsedBook` shape, so `storeParsedBook` needs n
 as `status`/`stage`/`attempts`/`claim_token`/`heartbeat_at` advance. `claimJob` is one SQL
 statement: `UPDATE ... WHERE id = (SELECT ... WHERE status='queued' OR (status='running' AND
 heartbeat_at < now() - LEASE_MS) ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING
-...` — `SKIP LOCKED` lets concurrent claims never block each other, and folding "queued" and
+...` — `SKIP LOCKED` lets concurrent claims never block, and folding "queued" and
 "lease-expired running" into one `WHERE` needs no separate recovery path. `LEASE_MS` = 60s,
-`HEARTBEAT_MS` = 10s (refreshed on an interval; a heartbeat returning `false` aborts the job's
-`AbortController` — fenced out). Every write after a claim filters on `claim_token`, so a
-worker whose lease expired and later wakes up can't corrupt a job another worker reclaimed —
-the write updates zero rows and `requireStage` throws `FencedOutError`, which the outer loop
-treats as "someone else owns this now", not a failure worth recording. A claim pushing `attempts` past `MAX_ATTEMPTS` (3) is immediately marked
-`failed` ("abandoned 3 times…") with its upload file deleted right there — no worker runs that
-claim's own cleanup. `startIngestWorker` runs one job at a time, polling every `POLL_MS` (2s)
-or on `nudge()` (the upload route's `onEnqueued` callback), and sweeps orphaned upload
-files/job dirs untouched 10+ minutes with no active job referencing them, as a backstop.
+`HEARTBEAT_MS` = 10s (a heartbeat returning `false` aborts the job's `AbortController` — fenced
+out). Every write after a claim filters on `claim_token`, so a worker whose lease expired and
+later wakes up can't corrupt a job another worker reclaimed — the write updates zero rows and
+`requireStage` throws `FencedOutError`, treated as "someone else owns this now", not a failure.
+A claim past `MAX_ATTEMPTS` (3) is immediately marked `failed`, upload file deleted right
+there. `startIngestWorker` runs one job at a time, polling every `POLL_MS` (2s) or on
+`nudge()`, and sweeps orphaned upload files/job dirs untouched 10+ minutes as a backstop.
 
 **Embedding obligation** (`worker.ts`'s `embedChunks`, the `embed` stage). Batches of
 `EMBED_BATCH_SIZE` (256) chunks go through [[ai-gateway]]'s `embed()`, using the purpose named
-by [[retrieval]]'s `RETRIEVAL_EMBED_PURPOSE` when boot wiring confirms it exists and does
-`op: "embed"`; otherwise the job still **succeeds**, `embedding: { status: "skipped", reason:
-"no embedding purpose configured" }` — a book stays `fts`-searchable with no AI provider
-configured. `attachEmbeddings` validates every vector's dimension before any database call.
+by [[retrieval]]'s `RETRIEVAL_EMBED_PURPOSE` when boot wiring confirms it exists; otherwise the
+job still **succeeds**, `embedding: { status: "skipped", reason: "no embedding purpose
+configured" }` — a book stays `fts`-searchable with no AI provider configured.
 
 **Temp files.** Uploads land under `os.tmpdir()/the-stacks-uploads` (survives a `restart`, not
 a `recreate` — a job whose file is then gone just fails with `"upload file missing"`). Each
 running job gets its own `job-<id>/` subdirectory, removed on a terminal state or fence-out.
-The upload route's own temp file is deleted on any non-202 outcome and, on success, by the same
-terminal cleanup.
 
 **`vitest.config.ts`'s `fileParallelism: false`** (server-wide — see [[test-suite]]).
 `worker.integration.test.ts`'s background worker polls the shared `jobs` table; default
