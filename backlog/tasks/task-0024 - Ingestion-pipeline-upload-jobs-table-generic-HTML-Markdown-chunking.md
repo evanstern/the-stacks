@@ -1,10 +1,10 @@
 ---
 id: TASK-0024
 title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 18:32'
+updated_date: '2026-09-29 18:38'
 labels:
   - library
 milestone: m-1
@@ -34,12 +34,12 @@ Spec: specs/017-ingestion-pipeline
 - [ ] #5 Job status is visible to the operator
 - [ ] #6 Upload accepts D&D Beyond exports as delivered: a zip of chapter pages, a zip of zips, or a single HTML page; __MACOSX and .DS_Store entries are ignored; assets other than HTML are skipped
 - [ ] #7 No arbitrarily low upload size limit: a 310 MB export (Monster Manual) uploads; the body is streamed to disk, never buffered whole in memory; the configured ceiling defaults to at least 1 GB and is documented
-- [ ] #8 Spec phase: Foundational — config, error kind, jobs table, job store
-- [ ] #9 Spec phase: User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1)
-- [ ] #10 Spec phase: User Story 3 — structure-preserving chunker (Priority: P1)
-- [ ] #11 Spec phase: User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP
-- [ ] #12 Spec phase: User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2)
-- [ ] #13 Spec phase: Polish, merge condition, re-grounding, and gates
+- [x] #8 Spec phase: Foundational — config, error kind, jobs table, job store
+- [x] #9 Spec phase: User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1)
+- [x] #10 Spec phase: User Story 3 — structure-preserving chunker (Priority: P1)
+- [x] #11 Spec phase: User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP
+- [x] #12 Spec phase: User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2)
+- [x] #13 Spec phase: Polish, merge condition, re-grounding, and gates
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -78,7 +78,15 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (flaky-test investigation, no commits). Finding (post-#30 reconcile, 2026-09-29): worker.integration T023 fails ~10-15% LOCALLY because the worktree stack's app container runs startIngestWorker (index.ts:38) against the same jobs table the tests use; it claims test-enqueued jobs, cannot see the host tmpdir upload path, fails them 'upload file missing'. Latent since the worker was wired into the app; CI has no app container. Operator decision pending on the fix direction.
+
+spec-bridge sync: Foundational — config, error kind, jobs table, job store: 9/9 · User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1): 6/6 · User Story 3 — structure-preserving chunker (Priority: P1): 2/2 · User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP: 8/8 · User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2): 6/6 · Polish, merge condition, re-grounding, and gates: 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — config, error kind, jobs table, job store: 9/9 · User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1): 6/6 · User Story 3 — structure-preserving chunker (Priority: P1): 2/2 · User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP: 8/8 · User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2): 6/6 · Polish, merge condition, re-grounding, and gates: 9/9). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

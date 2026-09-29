@@ -4,6 +4,7 @@ import type { DbClient } from "./auth/session.js";
 import { createValidateSession } from "./auth/session.js";
 import type { DatabaseProbe } from "./db.js";
 import { errorHandler, notFoundHandler } from "./errors.js";
+import type { AnswerDeps } from "./library/answer.js";
 import { createAuthRoutes } from "./routes/auth.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
@@ -25,6 +26,8 @@ export interface CreateAppOptions {
     uploadMaxBytes?: number;
     uploadDir?: string;
     onEnqueued?: () => void;
+    /** `POST /library/ask` wiring (specs/018-rules-answerer). Absent: `error{config}`. */
+    answer?: Omit<AnswerDeps, "db">;
   };
 }
 
@@ -62,6 +65,7 @@ export function createApp({
       uploadMaxBytes: library?.uploadMaxBytes ?? DEFAULT_UPLOAD_MAX_BYTES,
       uploadDir: library?.uploadDir ?? os.tmpdir(),
       onEnqueued: library?.onEnqueued ?? (() => {}),
+      answer: library?.answer,
     }),
   );
   // Mounted LAST (plan D2): the SPA fallback must never shadow the routes

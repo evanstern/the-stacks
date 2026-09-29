@@ -6,7 +6,7 @@ sources:
   - docker-compose.yml
   - .env.example
   - healthcheck.js
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
 ---
 
 # Compose stack

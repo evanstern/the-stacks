@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 17:50'
+updated_date: '2026-09-29 18:38'
 labels:
   - infra
 milestone: m-1
@@ -33,12 +33,12 @@ Spec: specs/016-hosted-dev-cd
 - [ ] #5 dev is reachable over HTTPS on the tailnet and from nowhere else
 - [ ] #6 A runbook documents deploy, rollback, and restore on vm-104
 - [x] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
-- [ ] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
-- [ ] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
-- [ ] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
-- [ ] #11 Spec phase: User Story 3 — drift is caught (P2)
-- [ ] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
-- [ ] #13 Spec phase: User Story 5 — the ops runbook (P3)
+- [x] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
+- [x] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
+- [x] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
+- [x] #11 Spec phase: User Story 3 — drift is caught (P2)
+- [x] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
+- [x] #13 Spec phase: User Story 5 — the ops runbook (P3)
 - [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
 
@@ -81,6 +81,8 @@ T019 2026-09-29 (operator go): backup --name t019 -> /home/stacks/dev/backups/ma
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 7 T021-T023: ci:check green; wiki ci-pipeline/runtime-stacks/health-check/compose-stack NEEDS-REVIEW amended; new note hosted-dev; freshness OK 33). Open: T020 (vm-104 proof cleanup, announced), T024 (post-merge CD + drift run URLs).
+
+spec-bridge sync: Foundational — pure deploy logic and workflow invariants: 3/3 · User Story 1 — main is always running on dev (P1) 🎯 MVP: 5/5 · User Story 2 — a bad deploy never takes dev down (P1): 3/3 · User Story 3 — drift is caught (P2): 3/3 · User Story 4 — only the tailnet reaches dev (P2): 2/2 · User Story 5 — the ops runbook (P3): 3/3 · Polish, re-ground, and the merge condition: 4/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

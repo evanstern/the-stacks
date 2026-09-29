@@ -1,0 +1,25 @@
+TASK-0027 Phase 5 (T023) — CI evidence
+Run date: 2026-09-29
+Command: REQUIRE_DATABASE=1 pnpm ci:check (worktree stacks-task-0027, TEST_DATABASE_URL from .env)
+
+Full run result: PASS, no failures.
+- lint (biome): Checked 127 files, no fixes applied.
+- typecheck (tsc -b): clean.
+- build (turbo run build): 3 successful, 3 total.
+- test (turbo run test): 4 successful, 4 total.
+  - @the-stacks/server:test — Test Files: 34 passed | 1 skipped (35); Tests: 352 passed (352).
+    The 1 skipped file is test/library/ddb.private.test.ts, the pre-existing private-fixture
+    suite (skips without fixtures/private/ddb/ content) — not a task-0027 test, 0 unexpected
+    skips among ask/retrieve/store integration suites.
+- check:boundaries: clean.
+- check:hooks (node --test .claude/hooks/*.test.mjs): 33/33 pass.
+- check:scripts (node --test scripts/*lib.test.mjs): 33/33 pass.
+- check:host-scripts (import smoke check): exit 0, no host-run script or host-imported
+  module added by this task, so this check is unchanged.
+
+Known-flake re-runs (per TASK-0033 caveat and T012 ws.integration note): neither flake
+occurred in the full run above. Re-ran both files in isolation to double-confirm:
+- test/library/worker.integration.test.ts: 1 file passed, 12/12 tests passed.
+- test/ws.integration.test.ts: 1 file passed, 19/19 tests passed.
+
+Conclusion: gate is green. No failures attributable to this task's code or environment.
