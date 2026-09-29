@@ -4,7 +4,7 @@ title: 'Benchmark system: retrieval quality across embedding models and strategi
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 20:21'
+updated_date: '2026-09-29 21:15'
 labels:
   - bench
 milestone: m-1
@@ -53,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (resumed phase 2-3 agent via SendMessage for the operator keep-alive ruling: warmUpModel + model-outer runMatrix, commit a4b71c1, +2 tests, 375 pass). Orchestrator note: the phase 4-5 dispatch had also been told to build the warm-up; told it to pull a4b71c1 and not duplicate.
+
+Operator ruling 2026-09-29 (tie-break, option 1): retrieve() breaks score ties deterministically by content — score DESC, then book, then anchor start (then chunk id only as a last resort for exact-duplicate anchors) — replacing the random-UUID tiebreak. Amends specs/015-hybrid-retrieval/contracts/retrieval.md. Rides this task's PR with a determinism test (ingest twice, identical results). The per-commit gate keeps its strict 1/N slack and all three modes.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
