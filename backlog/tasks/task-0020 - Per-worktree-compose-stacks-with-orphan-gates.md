@@ -1,10 +1,10 @@
 ---
 id: TASK-0020
 title: Per-worktree compose stacks with orphan gates
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:00'
+updated_date: '2026-09-29 09:36'
 labels:
   - infra
 milestone: m-1
@@ -74,6 +74,12 @@ spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 
 
 Merged in PR #24 (5e5f05f); main CI green. Post-merge: env:prune --check exit 0 (no orphans). Remaining: T021 (praxisflux upstream request) awaits operator decision; task stays In Progress until then. Old root M0 stack (compose project the-stacks) left running: teardown needs operator approval.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
