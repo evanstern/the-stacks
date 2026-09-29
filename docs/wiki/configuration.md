@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
+verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
 ---
 
 # Configuration
@@ -72,7 +72,8 @@ suffixes the compiled server code needs.
 Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unconditionally)
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
-[[ai-gateway]]). See [[overview]]'s "environment contract" callout for the same
+[[ai-gateway]]) and retrieval's three (see [[retrieval]]). See [[overview]]'s "environment
+contract" callout for the same
 `DATABASE_URL`-vs-`TEST_DATABASE_URL` trap stated at a higher level.
 
 ## Operational notes
@@ -81,7 +82,10 @@ Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional:
 (default `3000`, must parse to a positive integer), `GIT_COMMIT` (default `"unknown"`, set via
 the Dockerfile build arg, never from `.env`). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
 by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
-[[ai-gateway]]; unset means no model features, not an error). `TEST_DATABASE_URL` is consulted
+[[ai-gateway]]; unset means no model features, not an error). `RETRIEVAL_MODE`/`RETRIEVAL_K`/
+`RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s
+`loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
+`TEST_DATABASE_URL` is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running
 server; leaving it unset makes the event-log integration tests skip rather than fail (per
 `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.

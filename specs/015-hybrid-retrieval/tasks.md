@@ -129,11 +129,11 @@ chunks still appear; the order matches `fuseRrf` computed from the two candidate
 
 ## Phase 5: Polish and gates
 
-- [ ] T015 Run the full gate with the database required on this worktree's stack
+- [x] T015 Run the full gate with the database required on this worktree's stack
   (`pnpm env:up` first): `REQUIRE_DATABASE=1 pnpm ci:check`. The retrieval and store
   integration suites report 0 skipped. Save the summary to
   `specs/015-hybrid-retrieval/ci-evidence.txt`.
-- [ ] T016 Wiki: add `docs/wiki/retrieval.md` (sources: `apps/server/src/library/retrieve.ts`,
+- [x] T016 Wiki: add `docs/wiki/retrieval.md` (sources: `apps/server/src/library/retrieve.ts`,
   `apps/server/src/index.ts`, `.env.example`) describing modes, RRF k = 60, OR-semantics keyword
   query, iterative scan, the model filter, and the TASK-0024 embedding obligation. Review
   `library-schema` (its "retrieval out of scope" note now points at `[[retrieval]]`) and
@@ -143,7 +143,7 @@ chunks still appear; the order matches `fuseRrf` computed from the two candidate
   `docs/wiki/INDEX.md` under Library, and update INDEX's "state of the codebase" line.
   Regenerate `docs/wiki/CAPSULES.md` because a note was added and any changed `description:`
   must match.
-- [ ] T017 Freshness: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`
+- [x] T017 Freshness: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`
   prints `OK`.
 - [ ] T018 `pnpm env:down`; `pnpm env:prune --check` exits 0.
 - [ ] T019 After merge: tick this file and run `spec-bridge:sync`.

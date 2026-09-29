@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
+verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
 ---
 
 # Server entrypoint and app
@@ -22,7 +22,10 @@ via `createApp` without binding a port.
 [[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
 imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
 `createGateway`. This slice adds no route, so the AI gateway is unused until TASK-0027; with no
-`AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
+`AI_*` env vars set it is inert. Between `aiConfig` and `aiGateway`, it also calls
+`loadRetrievalConfig(process.env)` (from `library/retrieve.ts`, see [[retrieval]]) so a bad
+`RETRIEVAL_*` value fails fast at boot; the result is unused until TASK-0027 wires a route to it.
+Then `createDb(config.databaseUrl)`,
 `createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db, commit: config.commit })`,
 then `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
@@ -52,7 +55,8 @@ runs.
 ## Connections
 
 Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, unused this
-slice), [[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
+slice), [[retrieval]] (`loadRetrievalConfig`, validated here, unused until TASK-0027),
+[[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
 guarantee), [[session-auth]] (`createValidateSession` shared by both transports), and the
 websocket gateway. See [[overview]] for the "one process, one port" framing this file
 implements.
