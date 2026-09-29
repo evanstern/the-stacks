@@ -1,0 +1,27 @@
+Phase 6 (T021) — pnpm ci:check summary, 2026-09-29
+Re-run post-merge of origin/main (PR #22, config.ts import-free + check:host-scripts gate),
+merge commit 019bbb09735d0b96b296c88edec05213b8fb0c76.
+
+$ pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:host-scripts
+
+lint (biome check .): Checked 88 files. No errors.
+typecheck (tsc -b): clean, no output.
+build (turbo run build): @the-stacks/web + @the-stacks/server + @the-stacks/shared built OK.
+test (turbo run test, vitest run per workspace):
+  @the-stacks/server:
+    Test Files  17 passed | 3 skipped (20)
+    Tests       138 passed | 42 skipped (180)
+    - test/library/ddb.test.ts        22 tests, 12ms
+    - test/library/ddb.perf.test.ts    1 test,  282ms  (T019: ~300-page book, well under the 10s bound)
+    - test/library/ddb.private.test.ts 24 tests, 2027ms (real fixtures present locally this run: dmg, lmop, mm, phb;
+      not committed — fixtures/private/ is gitignored)
+    - 3 skipped files are the DB-gated integration suites (no DATABASE_URL in this shell; expected)
+  @the-stacks/web: passes (no test script / no-op)
+check:boundaries (scripts/check-boundaries.mjs): boundary rules: 5/5 fixtures flagged
+  (T020: apps/server/src/library/ddb/** falls under the existing
+  apps/server/src/library/** override in biome.json — no config change needed)
+check:hooks (node --test .claude/hooks/*.test.mjs): 16/16 tests pass, 5/5 suites pass
+check:host-scripts (node --experimental-strip-types importing config.ts/db.ts/auth/password.ts/schema/auth.ts):
+  clean, no output (new gate from origin/main; config.ts import-free per TASK-0023)
+
+Overall: green, exit 0.

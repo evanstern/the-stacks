@@ -1,0 +1,22 @@
+Real-export merge-condition run — TASK-0025 (specs/012-ddb-parser), 2026-09-28
+Source: operator-owned D&D Beyond HTML exports, read-only, extracted into the
+worktree's gitignored fixtures/private/ddb/<book>/ (constitution VIII). Counts
+only below — no book text.
+
+Command: pnpm --filter @the-stacks/server test -- library/ddb.private
+Result: 1 test file passed, 24/24 tests passed.
+
+Per-book summary (console.log output from ddb.private.test.ts):
+
+[ddb private] dmg:  pages=22 blocks=4837 byKind={heading:1048, prose:3413, table:270, sidebar:26, list:77, statBlock:3}   zeroBlockPages=[]
+[ddb private] lmop: pages=7  blocks=1183 byKind={heading:304,  prose:730,  sidebar:106, list:13, table:3, statBlock:27}   zeroBlockPages=[]
+[ddb private] mm:   pages=30 blocks=2899 byKind={heading:624,  prose:1658, statBlock:428, sidebar:130, list:46, table:13} zeroBlockPages=[]
+[ddb private] phb:  pages=39 blocks=8055 byKind={heading:1504, sidebar:78, prose:6175, list:109, table:158, statBlock:31} zeroBlockPages=[]
+
+All T017 assertions held for all four books: >=1 block, every anchor
+round-trips, no empty block text, every path non-empty, spans strictly
+increasing and non-overlapping. No page in any book yielded zero blocks — no
+parser bugs found against these real exports; no source changes were needed.
+
+`git status --short` showed nothing from fixtures/private/ before or after
+the run (folder is gitignored).

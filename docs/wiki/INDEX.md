@@ -5,10 +5,12 @@ verified against. Load this index first and route; load notes just-in-time rathe
 bulk-loading the corpus. `CAPSULES.md` carries the same one-liners for whole-corpus
 orientation.
 
-**State of the codebase at this pin:** M0, the walking skeleton. Every seam exists and is
-demonstrated end to end — monorepo, compose stack, Postgres event log, session auth, a
-WebSocket gateway, and a React SPA — but only the skeleton. No library, codex, system
-modules, or agents yet; those are M1 and beyond.
+**State of the codebase at this pin:** M0, the walking skeleton, plus the first `library`
+module. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
+Postgres event log, session auth, a WebSocket gateway, and a React SPA — and one `library`
+module (the D&D Beyond export parser, [[ddb-parser]]) has landed. The provider-agnostic AI
+gateway ([[ai-gateway]]) has landed. No codex, system modules, or agents yet — the gateway
+has no caller until the rules-answerer.
 
 ## Start here
 
@@ -56,6 +58,10 @@ modules, or agents yet; those are M1 and beyond.
 - [[spa-shell]] — the Vite SPA, its route tree, and how it is served.
 - [[client-identity]] — why the client asks the server who it is instead of storing an answer.
 - [[client-session-hook]] — subscribe, cursor tracking, send, and the reconnect preflight.
+
+## Library
+
+- [[ddb-parser]] — turning saved D&D Beyond export HTML into ordered, anchored blocks.
 
 ## Testing and verification
 

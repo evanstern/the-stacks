@@ -60,7 +60,9 @@ reference (`apps/server/test/tsconfig.json`: `noEmit: true`, `include: ["."]`, r
 `biome.json` is the single formatter and linter (`quoteStyle: "double"` for JS), reading
 `.gitignore` (`vcs.useIgnoreFile: true`) and additionally excluding `.claude`, `.specify`,
 `backlog`, `docs`, `specs`, `fixtures` from its `files.includes` — non-source directories it
-never touches. Five `overrides` entries add a `noRestrictedImports` rule scoped to
+never touches — plus one narrower carve-out, `apps/server/test/fixtures/ddb` (raw
+export-shaped HTML fixtures, not app code; see [[ddb-parser]]). Five `overrides` entries add
+a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,
 each forbidding imports of the others (constitution III's plane isolation) — see
 [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
