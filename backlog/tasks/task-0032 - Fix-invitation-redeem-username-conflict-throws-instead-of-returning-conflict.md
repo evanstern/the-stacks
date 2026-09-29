@@ -4,7 +4,7 @@ title: 'Fix invitation redeem: username conflict throws instead of returning con
 status: In Progress
 assignee: []
 created_date: '2026-09-29 05:35'
-updated_date: '2026-09-29 15:07'
+updated_date: '2026-09-29 15:12'
 labels:
   - bug
   - auth
@@ -35,6 +35,9 @@ Spec: specs/014-invite-conflict
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~147k tokens)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 1-2, ~139k tokens; fail->pass proven, 36/36 with REQUIRE_DATABASE=1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
