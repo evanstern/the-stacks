@@ -38,9 +38,11 @@ Spec: specs/017-ingestion-pipeline
 - [x] #9 Spec phase: User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1)
 - [x] #10 Spec phase: User Story 3 — structure-preserving chunker (Priority: P1)
 - [x] #11 Spec phase: User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP
-- [ ] #12 Spec phase: User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2)
+- [x] #12 Spec phase: User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2)
 - [ ] #13 Spec phase: Polish, merge condition, re-grounding, and gates
 <!-- AC:END -->
+
+
 
 
 
