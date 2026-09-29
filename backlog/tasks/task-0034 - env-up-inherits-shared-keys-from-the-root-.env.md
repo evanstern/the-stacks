@@ -30,9 +30,11 @@ Spec: specs/022-root-env-inherit
 - [ ] #5 No secret value is ever printed by env:up, status, or tests
 - [ ] #6 The runtime-stacks wiki note and .env.example document where shared keys and secrets live
 - [x] #7 Spec phase: Merge seam (US1, US2, US3)
-- [ ] #8 Spec phase: Wiring, output, contract (US1, US3)
+- [x] #8 Spec phase: Wiring, output, contract (US1, US3)
 - [ ] #9 Spec phase: Documentation, verification, re-grounding, cleanup (US4)
 <!-- AC:END -->
+
+
 
 
 
