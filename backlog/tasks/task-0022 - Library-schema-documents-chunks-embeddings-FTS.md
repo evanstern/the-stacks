@@ -4,7 +4,7 @@ title: 'Library schema: documents, chunks, embeddings, FTS'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:00'
+updated_date: '2026-09-29 05:04'
 labels:
   - library
 milestone: m-1
@@ -29,7 +29,10 @@ Spec: specs/013-library-schema
 - [ ] #2 Every embedding row stores model and dim
 - [ ] #3 Chunks carry a full-text search column with a GIN index and a vector index
 - [ ] #4 Chunks store source anchors: book, section path, and character span
+- [ ] #5 Spec phase: Foundational — schema and migration
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
