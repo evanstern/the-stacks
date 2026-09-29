@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 04:07'
+updated_date: '2026-09-29 04:31'
 labels:
   - library
 milestone: m-1
@@ -67,6 +67,12 @@ Phase 5 (T017-T018) done in 5b07fa6/178daf1/5b842ce. T017 amended by orchestrato
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 6 (T019-T022) done in 872b0ab/9ed4f41: perf test (300 synthetic pages, ~150-280ms, bound 10s), boundary rule confirmed, ci-evidence.txt, wiki note ddb-parser + monorepo-and-toolchain amended; ci-pipeline/migrations/test-suite RE-PIN-ONLY (orchestrator checked: only source change is the parse5 dependency line, not described in prose). Freshness OK 28 notes. ~147k subagent tokens.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Merges: origin/main after #21 (b6986fb, haiku: INDEX paragraph + merge commit) and after #22 (019bbb0 + c2c1ea5 re-pin + 8685c35 evidence, sonnet). Also carries close-task-0023 (TASK-0023 T020 tick + Done sync), per sweep rule that closures ride the next task branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
