@@ -1,10 +1,10 @@
 ---
 id: TASK-0024
 title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:24'
+updated_date: '2026-09-29 15:02'
 labels:
   - library
 milestone: m-1
@@ -21,6 +21,8 @@ ordinal: 15000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 A9 pipeline minus the D&D Beyond parser, on the jobs table per decision-0005.
+
+Spec: specs/017-ingestion-pipeline
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
