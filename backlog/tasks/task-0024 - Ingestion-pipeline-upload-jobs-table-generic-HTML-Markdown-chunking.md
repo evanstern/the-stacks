@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:52'
+updated_date: '2026-09-29 16:00'
 labels:
   - library
 milestone: m-1
@@ -51,6 +51,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28). Plan checkpoint open: zip reader (stdlib node:zlib vs yauzl@3), upload transport (raw body + query params vs multipart/busboy), requestTimeout 300s->1h, merge-condition embeddings on fake provider unless paid run approved.
 
 Operator rulings 2026-09-29 (plan checkpoint): (1) zip reading uses yauzl@3 (approved runtime dependency), not the stdlib reader; (2) upload transport is multipart via busboy (approved runtime dependency), not raw body + query params; (3) requestTimeout 300s -> 1h approved; (4) merge-condition real-export run embeds with the fake provider. Spec revision (plan/contracts/tasks) dispatched to opus before implementation.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+(spec revision for operator rulings: yauzl@^3.4.0, busboy@^1.6.0 + @types; commit 0e09134; ~136k tokens). Phase grouping: P1 alone; P2+P3 together; P4 alone; P5 alone; P6 (gates + real-export merge condition) alone.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
