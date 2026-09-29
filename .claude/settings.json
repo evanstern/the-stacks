@@ -1,4 +1,5 @@
 {
+  "permissions": { "allow": ["Bash(ssh stacks@vm-104.tailb3c1b6.ts.net:*)"] },
   "hooks": {
     "PreToolUse": [
       {
