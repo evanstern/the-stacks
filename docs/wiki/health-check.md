@@ -6,7 +6,7 @@ sources:
   - apps/server/src/routes/health.ts
   - healthcheck.js
   - docker-compose.yml
-verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
+verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
 ---
 
 # Health check
@@ -32,7 +32,10 @@ lets tests exercise both reachable and unreachable cases without a real Postgres
 fixed-seam `specs/003-hono-server/contracts/health.md` additively): [[configuration]]'s
 `loadConfig` reads it from the baked-in `GIT_COMMIT` build arg (`"unknown"` if unset) and
 `index.ts` passes it straight through to `createHealthRoute`. It never feeds `status` — an
-`"unknown"` commit is not a degraded one — it just names which build is answering.
+`"unknown"` commit is not a degraded one — it just names which build is answering. Since
+TASK-0021 (spec 016), `commit` is also the hosted `dev` environment's deploy success signal:
+`scripts/deploy-dev.mjs`'s `verify()` polls `/health` until `commit` matches the sha it just
+deployed — see [[hosted-dev]].
 
 `healthcheck.js`, copied to `/app/healthcheck.js` by the Dockerfile (see
 [[container-image]]) and invoked by `docker-compose.yml`'s `app.healthcheck.test: ["CMD",

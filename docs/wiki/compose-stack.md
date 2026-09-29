@@ -6,7 +6,7 @@ sources:
   - docker-compose.yml
   - .env.example
   - healthcheck.js
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
 ---
 
 # Compose stack
@@ -59,7 +59,9 @@ uses `||`, not `??` — see [[configuration]].
 this file's variables feed into. [[health-check]] is what `healthcheck.js` calls and what
 `db`'s `pg_isready` stands in for. [[overview]] frames this as "two containers and a volume is
 the whole deployment." [[runtime-stacks]] is what sets the `org.the-stacks.*`/`STACKS_COMMIT`
-values this file only consumes.
+values this file only consumes. [[hosted-dev]]'s `deploy/dev/compose.dev.yml` (TASK-0021,
+spec 016) layers on top of this file on vm-104: a fixed secrets path in place of `.env`, and
+`app`'s port rebound to loopback-only, matching `db`'s existing bind.
 
 ## Operational notes
 

@@ -184,11 +184,11 @@ the job. (AC #3)
 
 - [ ] T020 Remove `/home/stacks/dev/proof` and `/home/stacks/dev/bootstrap` on vm-104. Leave
   `stacks-dev` running, the secrets file, and the backups.
-- [ ] T021 Run `pnpm ci:check` in the worktree; it passes, including `check:scripts` with the
+- [x] T021 Run `pnpm ci:check` in the worktree; it passes, including `check:scripts` with the
   T002 workflow invariants green. Paste the result into the PR body. State in the PR body:
   the deploy workflow runs on the self-hosted runner only for pushes to `main` after CI
   succeeds, never on `pull_request` (runbook per-task artifact line).
-- [ ] T022 Run `/grounding-wiki:wiki-update`. Review, and re-pin honestly (edit body text
+- [x] T022 Run `/grounding-wiki:wiki-update`. Review, and re-pin honestly (edit body text
   where the note's claims changed; re-pin only when the note is still true):
   `ci-pipeline` (CI unchanged, but name the two new workflows and that `check:scripts` now
   covers `deploy-lib`), `runtime-stacks` (`dev` is now real: link the new note; reserved-name
@@ -199,7 +199,7 @@ the job. (AC #3)
   `deploy/dev/compose.dev.yml`, `deploy/dev/compose.force-unhealthy.yml`,
   `docs/ops/dev-vm-104.md`) and route it from `INDEX.md`; regenerate `CAPSULES.md` if any
   `description:` changed.
-- [ ] T023 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs
+- [x] T023 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs
   freshness . docs/wiki`; it prints `OK`.
 - [ ] T024 Merge condition (runbook "Task-specific merge conditions", TASK-0021). Record the
   pre-merge proofs (T008, T011) in the PR body. After the operator merges, and after
