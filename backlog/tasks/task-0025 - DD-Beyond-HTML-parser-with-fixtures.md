@@ -35,14 +35,6 @@ Spec: specs/012-ddb-parser
 - [x] #10 Spec phase: Polish & cross-cutting
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -81,6 +73,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Merges: origin/main after #21 (b6986fb, haiku: INDEX paragraph + merge commit) and after #22 (019bbb0 + c2c1ea5 re-pin + 8685c35 evidence, sonnet). Also carries close-task-0023 (TASK-0023 T020 tick + Done sync), per sweep rule that closures ride the next task branch.
+
+spec-bridge sync: Setup: 3/3 · Foundational — types, selectors, fixtures: 6/6 · User Story 1 — anchored sections (Priority: P1) 🎯 MVP: 4/4 · User Story 2 — tables and stat blocks whole (Priority: P2): 3/3 · User Story 3 — private real-export suite (Priority: P3): 2/2 · Polish & cross-cutting: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
