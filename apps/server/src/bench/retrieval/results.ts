@@ -1,11 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import {
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { MatrixSchema } from "./load.js";
@@ -166,8 +161,16 @@ const REPORT_COLUMNS: {
   { label: "R@5", width: 6, value: (_r, row) => row.recall5.toFixed(3) },
   { label: "R@10", width: 6, value: (_r, row) => row.recall10.toFixed(3) },
   { label: "MRR", width: 6, value: (_r, row) => row.mrr10.toFixed(3) },
-  { label: "p50ms", width: 8, value: (_r, row) => row.latencyMs.p50.toFixed(1) },
-  { label: "p95ms", width: 8, value: (_r, row) => row.latencyMs.p95.toFixed(1) },
+  {
+    label: "p50ms",
+    width: 8,
+    value: (_r, row) => row.latencyMs.p50.toFixed(1),
+  },
+  {
+    label: "p95ms",
+    width: 8,
+    value: (_r, row) => row.latencyMs.p95.toFixed(1),
+  },
   {
     label: "tokens",
     width: 8,
@@ -195,7 +198,9 @@ export function report(
 
   let files: string[] = [];
   try {
-    files = readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
+    files = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .sort();
   } catch {
     files = [];
   }
@@ -209,8 +214,7 @@ export function report(
       warn(`report: skipping "${file}" — not valid JSON`);
       continue;
     }
-    const version = (raw as { schemaVersion?: unknown } | null)
-      ?.schemaVersion;
+    const version = (raw as { schemaVersion?: unknown } | null)?.schemaVersion;
     if (version !== 1) {
       warn(
         `report: skipping "${file}" — unknown schemaVersion ${JSON.stringify(version)}`,

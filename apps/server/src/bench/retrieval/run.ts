@@ -174,7 +174,10 @@ export async function runMatrix(
         // of the "unpriced" a genuinely-unconfigured model would show.
         prices: {
           ...deps.ai.prices,
-          [`${BUILTIN_BOW_PROVIDER}/bow`]: { inputPerMTok: 0, outputPerMTok: 0 },
+          [`${BUILTIN_BOW_PROVIDER}/bow`]: {
+            inputPerMTok: 0,
+            outputPerMTok: 0,
+          },
         },
       }
     : deps.ai;

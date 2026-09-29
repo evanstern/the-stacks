@@ -434,7 +434,9 @@ describe("writeResults (contract invariant 8)", () => {
       corpusHash: "deadbeef",
       questionsHash: "deadbeef",
       models: { bow: { embeddingModel: "bow", provider: "builtin" } },
-      rows: [fixtureRow({ questions: questions.length, misses: [questions[0].id] })],
+      rows: [
+        fixtureRow({ questions: questions.length, misses: [questions[0].id] }),
+      ],
     });
 
     const contents = readFileSync(filePath, "utf8");

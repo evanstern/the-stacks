@@ -6,7 +6,13 @@ import type { AiConfig } from "../../ai/config.js";
 import { loadAiConfig } from "../../ai/config.js";
 import { createDb } from "../../db.js";
 import { ensureBenchDb, migrateBenchDb, resolveBenchUrl } from "./db.js";
-import { loadCorpus, loadMatrix, loadQuestions, matrixHash, type Matrix } from "./load.js";
+import {
+  loadCorpus,
+  loadMatrix,
+  loadQuestions,
+  matrixHash,
+  type Matrix,
+} from "./load.js";
 import {
   fmtCost,
   report,
