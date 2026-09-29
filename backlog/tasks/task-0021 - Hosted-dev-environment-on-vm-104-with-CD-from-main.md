@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 17:44'
+updated_date: '2026-09-29 17:50'
 labels:
   - infra
 milestone: m-1
@@ -78,6 +78,9 @@ T015 2026-09-29: operator ran checkpoint 2 personally: tailscale serve --bg --ht
 T016 2026-09-29: from the Mac over tailnet, https://vm-104.tailb3c1b6.ts.net:8443/health -> 200, cert verify 0, commit 7b24509. LAN (vm-104.local.infinity-node.win) ports 3000/5432/8443 closed; tailnet IP :3000 closed (loopback bind). AC #5 proven.
 
 T019 2026-09-29 (operator go): backup --name t019 -> /home/stacks/dev/backups/manual-t019.dump (20,095 B), exit 0. Rollback by script verb to a423fe2 -> exit 0, /health ok on a423fe2. Redeploy 7b24509 -> exit 0, /health ok on 7b24509. Logs /home/stacks/dev/t019-{rollback,redeploy}.log. All vm-104 pre-merge proofs (T007/T008/T011/T014/T015/T016/T019) done.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 7 T021-T023: ci:check green; wiki ci-pipeline/runtime-stacks/health-check/compose-stack NEEDS-REVIEW amended; new note hosted-dev; freshness OK 33). Open: T020 (vm-104 proof cleanup, announced), T024 (post-merge CD + drift run URLs).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
