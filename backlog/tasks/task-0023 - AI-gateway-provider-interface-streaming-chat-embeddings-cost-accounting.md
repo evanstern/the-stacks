@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:17'
+updated_date: '2026-09-29 03:20'
 labels:
   - ai
 milestone: m-1
@@ -28,14 +28,10 @@ Spec: specs/011-ai-gateway
 - [ ] #1 One provider interface covers streaming chat and embeddings
 - [ ] #2 Token usage and cost are recorded per call
 - [ ] #3 Tests use a fake provider; no test needs a network key
-- [ ] #4 Spec phase: Foundational — types, config, fake, usage
-- [ ] #5 Spec phase: User Story 1 + 3 + 4 — streaming chat through the gateway (P1) 🎯 MVP
-- [ ] #6 Spec phase: User Story 2 — embeddings through the gateway (P1)
-- [ ] #7 Spec phase: User Story 2 + 1 — real providers (P1)
-- [ ] #8 Spec phase: User Story 5 + wiring — no-key test run and startup
-- [ ] #9 Spec phase: Polish & re-ground
-- [ ] #10 Providers are named config entries (adapter kind, base URL, key env var); an openai-compatible adapter covers streaming chat and embeddings on stdlib fetch; no vendor SDK and no hard-coded provider name or key variable; purpose-to-provider-and-model is config
+- [ ] #4 Providers are named config entries (adapter kind, base URL, key env var); an openai-compatible adapter covers streaming chat and embeddings on stdlib fetch; no vendor SDK and no hard-coded provider name or key variable; purpose-to-provider-and-model is config
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
