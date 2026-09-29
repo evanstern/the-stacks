@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 16:15'
+updated_date: '2026-09-29 17:42'
 labels:
   - infra
 milestone: m-1
@@ -72,6 +72,10 @@ T008 part 1, 2026-09-29: first dev deploy run by the operator (command announced
 T008 part 2, 2026-09-29 (operator go): sentinel row in t008_persist -> redeploy same commit (exit 0, 'dev is serving 7b24509...') -> row read back 'T008 sentinel' -> table dropped. AC #1 persistence proven. Log /home/stacks/dev/t008-deploy2.log. Operator added Bash(ssh stacks@vm-104.tailb3c1b6.ts.net:*) to .claude/settings.json (uncommitted local edit in root).
 
 T011 2026-09-29 (operator go): throwaway local commit 8967b87 (never pushed) deployed with --force-unhealthy -> exit 1, last line 'dev is serving 7b2450909e852d19e7c9ebebcae37d589cd1cad5', /health ok on 7b24509. AC #3 proven. Observation for review: the rollback re-created the previous app container (uptime 3s after), so a failed deploy costs a brief restart window rather than zero downtime — consistent with research R6's swap-then-rollback design. Log /home/stacks/dev/t011-rollback.log.
+
+T014 2026-09-29 (operator go): drift at serving commit 7b24509 -> ok, exit 0; at older 4d168d3 (2h, past 30-min grace) -> 'drift: expected 4d168d3, observed 7b24509', exit 1. Clone restored to 7b24509. AC #4 proven.
+T015 2026-09-29: operator ran checkpoint 2 personally: tailscale serve --bg --https=8443 -> 127.0.0.1:3000 (tailnet only). First TLS handshake waited ~30s for Tailscale cert issuance (SetDNS/ACME); a 15s curl timed out before it finished.
+T016 2026-09-29: from the Mac over tailnet, https://vm-104.tailb3c1b6.ts.net:8443/health -> 200, cert verify 0, commit 7b24509. LAN (vm-104.local.infinity-node.win) ports 3000/5432/8443 closed; tailnet IP :3000 closed (loopback bind). AC #5 proven.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
