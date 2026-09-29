@@ -10,7 +10,7 @@ sources:
   - turbo.json
   - specs/009-ci-pipeline/contracts/boundary-rules.md
   - README.md
-verified_against: a4e1d3cae60c1a807c2587ca1b397d64b4c1e62a
+verified_against: 019bbb09735d0b96b296c88edec05213b8fb0c76
 ---
 
 # CI pipeline
