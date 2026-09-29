@@ -44,8 +44,8 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 
 ## Phase 4: US4 — documentation (Priority: P3)
 
-- [ ] T014 [P] [US4] `.env.example`: rewrite the `TEST_DATABASE_URL` comment to say it points at the per-worktree **test** stack (`env:up` writes it); add `TEST_DB_PORT` with a comment; document the one-command override for migrating the app database from the host (research R7).
-- [ ] T015 [P] [US4] Confirm `deploy/dev/compose.dev.yml` needs no change (it names no image). Record the check in the commit body.
+- [x] T014 [P] [US4] `.env.example`: rewrite the `TEST_DATABASE_URL` comment to say it points at the per-worktree **test** stack (`env:up` writes it); add `TEST_DB_PORT` with a comment; document the one-command override for migrating the app database from the host (research R7).
+- [x] T015 [P] [US4] Confirm `deploy/dev/compose.dev.yml` needs no change (it names no image). Record the check in the commit body.
 
 ## Phase 5: Verification, re-grounding, cleanup
 
