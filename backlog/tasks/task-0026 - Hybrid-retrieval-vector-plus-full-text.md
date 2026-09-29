@@ -4,7 +4,7 @@ title: 'Hybrid retrieval: vector plus full-text'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:52'
+updated_date: '2026-09-29 15:53'
 labels:
   - library
 milestone: m-1
@@ -28,12 +28,14 @@ Spec: specs/015-hybrid-retrieval
 - [ ] #1 Retrieval runs vector, FTS, or hybrid by config
 - [ ] #2 Hybrid fuses both result lists with a documented rank-fusion method
 - [ ] #3 Results carry chunk anchors
-- [ ] #4 Spec phase: Foundational — contract types, config, fusion
+- [x] #4 Spec phase: Foundational — contract types, config, fusion
 - [ ] #5 Spec phase: User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP
 - [ ] #6 Spec phase: User Story 2 — choose the retrieval mode by configuration (Priority: P1)
 - [ ] #7 Spec phase: User Story 3 — hybrid fuses both lists (Priority: P1)
 - [ ] #8 Spec phase: Polish and gates
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
