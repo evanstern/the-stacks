@@ -15,7 +15,8 @@ embed, via a `jobs` queue). A read path over that storage now exists too ([[retr
 vector/fts/hybrid search, fused by RRF) but has no HTTP caller until the rules-answerer
 (TASK-0027) — though ingestion already reads its embed-purpose config. The provider-agnostic
 AI gateway ([[ai-gateway]]) has landed, and ingestion is its first real caller. No codex,
-system modules, or agents yet.
+system modules, or agents yet. `main` is now continuously deployed to a real hosted `dev`
+environment on vm-104 ([[hosted-dev]]).
 
 ## Start here
 
@@ -27,6 +28,7 @@ system modules, or agents yet.
 - [[compose-stack]] — the two-container topology, health checks, and the port/URL split that catches everyone.
 - [[container-image]] — the multi-stage Dockerfile, what ships in the runtime layer, and why.
 - [[runtime-stacks]] — `pnpm env:*`, one labeled compose stack per git worktree, orphan detection, and the local `origin/main` stack.
+- [[hosted-dev]] — the vm-104 `dev` environment: CD from `main`, deploy/rollback/drift/backup verbs, and tailnet-only exposure.
 
 ## Server
 

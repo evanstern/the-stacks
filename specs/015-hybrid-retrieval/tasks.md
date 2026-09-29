@@ -146,7 +146,7 @@ chunks still appear; the order matches `fuseRrf` computed from the two candidate
 - [x] T017 Freshness: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`
   prints `OK`.
 - [x] T018 `pnpm env:down`; `pnpm env:prune --check` exits 0.
-- [ ] T019 After merge: tick this file and run `spec-bridge:sync`.
+- [x] T019 After merge: tick this file and run `spec-bridge:sync`.
 
 ## Dependencies & Execution Order
 

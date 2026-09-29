@@ -1,0 +1,52 @@
+# deploy/dev/compose.dev.yml — vm-104 ONLY. Applied by scripts/deploy-dev.mjs
+# after docker-compose.yml (research R3). A self-hoster's `docker compose up`
+# never needs this file — every vm-104 fact (the secrets path, the fixed
+# ports, the migrate service) lives here, not in the base file.
+services:
+  app:
+    # Tags the built image by commit, so rollback is a restart, not a
+    # rebuild (research R6).
+    image: stacks-dev-app:${STACKS_COMMIT}
+    build:
+      labels:
+        # Lets `docker image ls`/`prune` select only dev's images —
+        # distinct from the container labels below (spec 010).
+        org.the-stacks.env: dev
+    # !override replaces the base file's relative `env_file: .env`, which
+    # would otherwise require a `.env` in the checkout (research R3).
+    env_file: !override
+      - ${DEV_ENV_FILE:-/home/stacks/dev/.env}
+    # Loopback only (FR-015) — replaces the base file's unqualified port.
+    ports: !override
+      - "127.0.0.1:${APP_PORT}:${APP_PORT}"
+
+  db:
+    env_file: !override
+      - ${DEV_ENV_FILE:-/home/stacks/dev/.env}
+
+  # One-off migration container built from the Dockerfile's `build` stage
+  # (research R5) — it already holds drizzle/ and the full dependency tree,
+  # so the host needs no pnpm install and no pinned pnpm version.
+  migrate:
+    profiles: [migrate]
+    build:
+      context: .
+      target: build
+      labels:
+        org.the-stacks.env: dev
+    image: stacks-dev-migrate:${STACKS_COMMIT}
+    working_dir: /app/apps/server
+    env_file:
+      - ${DEV_ENV_FILE:-/home/stacks/dev/.env}
+    environment:
+      # See docker-compose.yml's app service: DATABASE_URL (@db:5432) must
+      # govern inside the compose network, not a host-only TEST_DATABASE_URL.
+      TEST_DATABASE_URL: ""
+    command: ["node", "--experimental-strip-types", "scripts/migrate.ts"]
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      org.the-stacks.env: dev
+      org.the-stacks.worktree: ${STACKS_WORKTREE:-}
+      org.the-stacks.commit: ${STACKS_COMMIT:-unknown}

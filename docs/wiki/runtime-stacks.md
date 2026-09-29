@@ -26,8 +26,8 @@ Docker.
 
 **Identity.** `deriveIdentity({ toplevel, rootToplevel })` throws if `toplevel` is the root
 checkout (root is read-only for this tooling — use `main` below) or if the worktree's
-sanitized basename is a reserved env (`main`, `dev` — vm-104's hosted environment,
-TASK-0021). Otherwise: `task-<n>` (1 ≤ n ≤ 999) maps to the fixed range `3000+n`/`15000+n`;
+sanitized basename is a reserved env (`main`, `dev` — vm-104's hosted environment, now real
+as of TASK-0021/spec 016; see [[hosted-dev]]). Otherwise: `task-<n>` (1 ≤ n ≤ 999) maps to the fixed range `3000+n`/`15000+n`;
 anything else gets a `sha256`-hashed range (`4000`–`11999`/`16000`–`23999`) so an unnumbered
 worktree name still works with no registry. `env up` writes `.env` via `mergeEnvFile`
 (derived keys — `APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DATABASE_URL` — always win;
