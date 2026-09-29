@@ -5,23 +5,25 @@
 
 ## Summary
 
-The operator streams a book export to `POST /library/uploads` as a raw request body. The
-body goes to a temp file under a 1 GiB default ceiling, and a row lands in a new `jobs`
-table. An in-process worker claims jobs with `FOR UPDATE SKIP LOCKED` under a heartbeat
-lease. It reads zips (nested ≤ 3 levels) with a small stdlib reader and collects HTML and
-Markdown pages. It parses them with the existing D&D Beyond parser (or its new
+The operator streams a book export to `POST /library/uploads` as `multipart/form-data`.
+`busboy` parses the stream; the file part goes to a temp file under a 1 GiB default
+ceiling, and a row lands in a new `jobs` table. An in-process worker claims jobs with
+`FOR UPDATE SKIP LOCKED` under a heartbeat lease. It reads zips (nested ≤ 3 levels) with
+`yauzl`, extracting inner zips to temp files, and collects HTML and Markdown pages. It parses them with the existing D&D Beyond parser (or its new
 all-headings mode, or a small Markdown splitter). A pure chunker merges blocks within a
 section and keeps tables and stat blocks whole. The unchanged `storeParsedBook` stores the
 result, and the worker embeds it through the AI gateway under retrieval's purpose. Job
-status is readable at `GET /library/jobs[/:id]`. **No new runtime dependency.**
+status is readable at `GET /library/jobs[/:id]`. **Two new runtime dependencies,
+approved by the operator ruling 2026-09-29: `yauzl` and `busboy`.**
 
 ## Technical Context
 
 **Language/Version**: TypeScript on Node 22 (≥ 22.2 for `zlib.crc32`; image `node:22-alpine`)
 
-**Primary Dependencies**: existing only — Hono, `@hono/node-server`, drizzle-orm, pg,
-parse5, zod. Stdlib: `node:zlib`, `node:fs/promises`, `node:stream/promises`,
-`node:crypto`, `node:os`.
+**Primary Dependencies**: existing — Hono, `@hono/node-server`, drizzle-orm, pg, parse5,
+zod. New (operator ruling 2026-09-29) — `yauzl@^3.4.0` (zip reading) and `busboy@^1.6.0`
+(multipart parsing). Stdlib: `node:zlib` (`crc32`), `node:fs/promises`,
+`node:stream/promises`, `node:crypto`, `node:os`.
 
 **Storage**: Postgres 17 + pgvector. New `jobs` table (migration `0003_*`). Existing
 `library_*` tables unchanged.
@@ -36,9 +38,10 @@ parse5, zod. Stdlib: `node:zlib`, `node:fs/promises`, `node:stream/promises`,
 **Performance Goals**: a 310 MB upload streams at link speed with flat memory. MM
 (30 pages, 13 MB HTML) ingests in minutes, not hours.
 
-**Constraints**: body never buffered whole (AC #7). The outer zip is never loaded whole;
-it is read by offset. Only HTML entries are inflated (≤ ~1 MB each). Inner zips (≤ 12 MB)
-are held in memory one at a time.
+**Constraints**: body never buffered whole (AC #7); `parseBody` is never called. The
+outer zip is never loaded whole: `yauzl.open` with `lazyEntries` reads it by offset. Only
+page entries are inflated into memory (≤ ~1 MB each). Inner zips are streamed to temp files
+and opened with `yauzl` the same way.
 
 **Scale/Scope**: single operator, one job at a time per process, books of 30–40 pages and
 up to ~10k blocks.
@@ -69,7 +72,8 @@ up to ~10k blocks.
       read in place from the operator's volume and never copied into the repo. Job
       records, errors, and logs carry counts and names, never page text. Uploaded books land
       only in the operator's database volume; temp files are deleted at job end.
-- [x] **IX. Self-hostable** — no new container, service, or dependency. Works from
+- [x] **IX. Self-hostable** — no new container or service. Two small pure-JS runtime
+      dependencies (`yauzl`, `busboy`), approved by the operator ruling 2026-09-29. Works from
       `docker compose up`. Embeddings go through the AI gateway; unset AI config skips
       embedding and the job still succeeds.
 
@@ -78,30 +82,32 @@ the existing Node process, which the table names.
 
 ## Operator checkpoints
 
-**Stop here for a yes before implementation dispatch.**
+**All decided by the operator ruling 2026-09-29** (card TASK-0024 implementation notes).
+Implementation dispatch is cleared.
 
-1. **New runtime dependencies: none proposed.**
-   - Zip reading: a ~150-line stdlib reader (`node:zlib` `inflateRaw` + `crc32`) covering
-     exactly what all five real exports use: stored/deflate, no zip64, no encryption, and
-     fewer than 65,535 entries (research R2, observed with `unzip -Zv`).
-     *Declined:* `yauzl` (+ `buffer-crc32`, `pend`). It is the upgrade path if a future
-     export needs zip64 or another method, and the swap stays inside `zip.ts`. Shell
-     `unzip` was also declined: it is a different tool on host and alpine, it needs output
-     parsing, and it extracts to disk.
-   - Markdown: a line-based splitter (research R4). *Declined:* `marked` / `micromark`.
-   - Multipart: not needed; see transport.
-   **Operator decision requested:** accept the stdlib zip reader (recommended), or approve
-   `yauzl@3` as a runtime dependency instead.
-2. **Upload transport: raw request body, streamed to disk** (research R1). The file is the
-   request body; `book` and `filename` are query parameters. `@hono/node-server` exposes the
-   body as a backpressured stream, which is piped through a byte counter to a temp file.
-   `parseBody` is never called. No multipart parser means no dependency. Clients: SPA
-   `fetch(url, { method: "POST", body: file })`; `curl --data-binary @file`.
-   **Operator decision requested:** accept raw-body upload (recommended), or require
-   multipart, which brings in `busboy` as a runtime dependency.
-3. **Also note:** the Node server's `requestTimeout` rises from its 300 s default to one
-   hour, so a large upload over a slow link is not cut off (research R1). A new error kind,
+1. **Zip reading: `yauzl` — decided.** The plan's stdlib reader was declined. Add
+   `yauzl@^3.4.0` (deps: `pend`). It reads by offset with `lazyEntries`, so the outer zip
+   is never loaded whole. It handles zip64 and validates entry sizes. Inner zips are
+   extracted to temp files, then opened with `yauzl` (research R2).
+2. **Upload transport: multipart via `busboy` — decided.** The plan's raw body plus query
+   parameters was declined. Add `busboy@^1.6.0` (deps: `streamsearch`). `book` travels as a
+   form field; the one file part streams to the temp file. `parseBody` is never called
+   (research R1). Clients: SPA `FormData` + `fetch`; `curl -F`.
+3. **`requestTimeout` 300 s → 1 h — approved as planned** (research R1). A new error kind,
    `too_large` (HTTP 413), joins the closed `ErrorKind` union (research R9).
+4. **Merge-condition real-export run embeds with the `fake` provider — approved as
+   planned.** A paid run is out of scope.
+
+**Exact additions to `apps/server/package.json`** (one commit, T000):
+
+| Section | Package | Range |
+|---|---|---|
+| `dependencies` | `busboy` | `^1.6.0` |
+| `dependencies` | `yauzl` | `^3.4.0` |
+| `devDependencies` | `@types/busboy` | `^1.5.4` |
+| `devDependencies` | `@types/yauzl` | `^3.4.0` |
+
+Neither runtime package ships its own types, so both `@types` packages are needed.
 
 ## Requirements carried from other tasks
 
@@ -139,10 +145,10 @@ heartbeat. This behaviour is published for TASK-0030 in `contracts/http-ingest.m
 
 | Concern | Decision | Ref |
 |---|---|---|
-| Transport | raw body → `pipeline(Readable.fromWeb(body), counter, createWriteStream)` | R1 |
+| Transport | multipart: `Readable.fromWeb(body)` → `busboy` (`limits.fileSize` = ceiling, `files: 1`) → file part → `createWriteStream` | R1 |
 | Ceiling | `UPLOAD_MAX_BYTES`, default 1 GiB, in `loadConfig`; 413 `too_large`; documented in `.env.example` + wiki `configuration` | R9 |
-| Temp files | `os.tmpdir()/the-stacks-uploads/<uuid>.upload`; deleted on refusal, abort, and terminal job; orphan sweep at worker start | R8 |
-| Zip | stdlib reader, offset reads, ≤ 3 nesting levels, size + CRC checks | R2 |
+| Temp files | `os.tmpdir()/the-stacks-uploads/<uuid>.upload`, plus a per-job `job-<uuid>/` dir for inner zips; deleted on refusal, abort, and terminal job; orphan sweep at worker start | R8 |
+| Zip | `yauzl` (`lazyEntries`, `validateEntrySizes`); inner zips extracted to temp files; ≤ 3 nesting levels; page CRC via `zlib.crc32` | R2 |
 | Filtering | ignore `__MACOSX`, `.DS_Store`, `._*`, `*_files/`, dirs; skip non-page entries uninflated; numeric-collated order; sha-256 de-dup | R3 |
 | Parsing | DDB markup → `parseDdbExport`; other HTML → `parseDdbExport(…, { headings: "all" })`; Markdown → `parseMarkdown` | R4 |
 | Chunking | pure `chunkBook`: merge within a section to 2000 chars; tables and stat blocks whole; spans contiguous | R5 |

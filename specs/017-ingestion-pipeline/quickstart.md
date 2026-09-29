@@ -26,7 +26,8 @@ curl -s -c /tmp/t24.cookies -H 'content-type: application/json' \
 To embed during the run without a paid provider, set in `.env` before `env:up`:
 `AI_PROVIDERS={"fake":{"kind":"fake","baseUrl":"fake"}}` and
 `AI_PURPOSES={"embedding":{"provider":"fake","model":"fake-embed","op":"embed"}}`.
-A real provider is an operator checkpoint (paid run).
+The merge-condition run uses this `fake` provider (operator ruling 2026-09-29); a paid run
+is out of scope.
 
 ## 3. Merge condition (runbook, TASK-0024)
 
@@ -37,15 +38,16 @@ directory of per-chapter zips into a scratch file outside the repo first:
 S=/Volumes/evan/dnd-sourcebooks; T=$(mktemp -d)
 (cd "$S" && zip -0 -r "$T/phb.zip" players-handbook-zip)
 (cd "$S" && zip -0 -r "$T/lmop.zip" lost-mines-of-phandelver-zip)
-up() { curl -s -b /tmp/t24.cookies -o /dev/stderr -w '%{http_code}\n' -X POST \
-  --data-binary @"$2" "http://localhost:3024/library/uploads?book=$1&filename=$(basename "$2")"; }
-up "Players%20Handbook"  "$T/phb.zip"
-up "Lost%20Mine"         "$T/lmop.zip"
-up "Dungeon%20Masters%20Guide" "$S/dmg-zip.zip"
-up "Monster%20Manual"    "$S/monster_manual.zip"
-up "Xanathars"           "$S/xanathars-guide-to-everything.zip"
-up "Single%20Page"       <one extracted chapter .html, in $T>
-up "Markdown%20Sample"   <any .md file, e.g. README.md>
+# multipart/form-data (operator ruling 2026-09-29): `book` field first, then the file part.
+up() { curl -s -b /tmp/t24.cookies -o /dev/stderr -w '%{http_code}\n' \
+  -F "book=$1" -F "file=@$2" http://localhost:3024/library/uploads; }
+up "Players Handbook"  "$T/phb.zip"
+up "Lost Mine"         "$T/lmop.zip"
+up "Dungeon Masters Guide" "$S/dmg-zip.zip"
+up "Monster Manual"    "$S/monster_manual.zip"
+up "Xanathars"         "$S/xanathars-guide-to-everything.zip"
+up "Single Page"       <one extracted chapter .html, in $T>
+up "Markdown Sample"   <any .md file, e.g. README.md>
 ```
 
 Upload one at a time; wait for each job to reach a terminal state before the next.
@@ -56,7 +58,7 @@ container. Sample its RSS every 0.5 s for exactly the duration of the MM `curl`:
 ```sh
 P=stacks-task-0024
 ( while :; do docker compose -p $P exec -T app awk '/VmRSS/{print $2}' /proc/1/status; sleep 0.5; done ) > "$T/rss.txt" &
-up "Monster%20Manual" "$S/monster_manual.zip"; kill %1
+up "Monster Manual" "$S/monster_manual.zip"; kill %1
 sort -n "$T/rss.txt" | sed -n '1p;$p'    # baseline (min) and peak (max), kB
 ```
 

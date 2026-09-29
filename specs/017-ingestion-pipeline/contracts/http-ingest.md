@@ -10,46 +10,60 @@ issues? } }` shape from `errors.ts`.
 
 ## `POST /library/uploads`
 
-Query parameters:
+Request: `Content-Type: multipart/form-data` (operator ruling 2026-09-29; research R1).
+The body is streamed through `busboy` and never buffered.
 
-| Name | Required | Rule |
-|---|---|---|
-| `book` | yes | trimmed, 1..200 chars |
-| `filename` | no | the original file name, ≤ 255 chars; used for format detection and display. Default `upload`. |
+| Part | Kind | Required | Rule |
+|---|---|---|---|
+| `book` | text field | yes | trimmed, 1..200 chars. May come before or after `file`; send it first. |
+| `file` | file part | yes, exactly one | the export. Its `Content-Disposition` `filename` is the original name (≤ 255 chars; default `upload`), used for format detection and display. |
 
-Body: the file's raw bytes. Any `Content-Type`. Not multipart, not JSON.
+Unknown text fields are ignored (at most 4 fields, 1 KiB each, 5 parts in all).
 
-Format detection (research R4): body begins `PK\x03\x04` or `PK\x05\x06` → `zip`;
+Format detection (research R4): file bytes begin `PK\x03\x04` or `PK\x05\x06` → `zip`;
 else `filename` ends `.md`/`.markdown` → `markdown`; else `html`.
 
 Responses:
 
 | Status | Body | When |
 |---|---|---|
-| `202` | `{ job: JobStatus }` | Body fully on disk and job queued. |
-| `400 validation` | issues on `book` / `filename`, or `(root)` "Upload body is empty." | Bad query or empty body. |
+| `202` | `{ job: JobStatus }` | File part fully on disk and job queued. |
+| `400 validation` | issues on `book`, `file`, or `(root)` | Not multipart; missing or invalid `book`; no `file` part; a file part under another name; more than one file part; an empty file; field limits exceeded. |
 | `401` / `403` | — | Auth. |
 | `409 conflict` | "A job for this book is already queued or running." | Active job for the same `lower(trim(book))`. |
-| `413 too_large` | "Upload exceeds the configured limit of N bytes (UPLOAD_MAX_BYTES)." | `Content-Length` or streamed bytes exceed `UPLOAD_MAX_BYTES`. |
+| `413 too_large` | "Upload exceeds the configured limit of N bytes (UPLOAD_MAX_BYTES)." | `Content-Length` over `UPLOAD_MAX_BYTES` + 1 MiB (framing allowance), or the file part's streamed bytes over `UPLOAD_MAX_BYTES`. |
 
 Guarantees:
-1. The body is streamed to disk; it is never held whole in memory.
+1. The body is streamed to disk; it is never held whole in memory. `parseBody` is never
+   called.
 2. On any non-`202` outcome, and on client disconnect, the partial file is deleted and no
    job row exists.
 3. A `413` decided from `Content-Length` reads no body.
-4. Zip contents are not inspected at upload time; a bad zip fails the job, not the request.
+4. An early refusal while the client is still sending responds with `Connection: close`.
+5. Zip contents are not inspected at upload time; a bad zip fails the job, not the request.
+6. The `413` limit applies to the file part's bytes, not the multipart framing.
 
 Examples:
 
 ```sh
-curl -b cookies -X POST --data-binary @book.zip \
-  "http://localhost:3000/library/uploads?book=Monster%20Manual&filename=monster_manual.zip"
+curl -b cookies -F 'book=Monster Manual' -F 'file=@monster_manual.zip' \
+  http://localhost:3000/library/uploads
 ```
 
+How TASK-0028's UI uploads — `FormData` + `fetch`. Do not set `Content-Type`; the browser
+sets it with the boundary. The browser streams the `File` from disk.
+
 ```ts
-await fetch(`/library/uploads?book=${encodeURIComponent(book)}&filename=${encodeURIComponent(file.name)}`,
-  { method: "POST", body: file }); // streams the File
+const form = new FormData();
+form.append("book", book);            // field first
+form.append("file", file, file.name); // a File from <input type="file">
+const res = await fetch("/library/uploads", { method: "POST", body: form, credentials: "same-origin" });
+if (res.status === 202) { const { job } = await res.json(); /* poll GET /library/jobs/:id */ }
 ```
+
+`fetch` exposes no upload progress. `ponytail:` if TASK-0028 needs a progress bar, send the
+same `FormData` with `XMLHttpRequest` and `upload.onprogress`; the server contract does not
+change.
 
 ## `GET /library/jobs`
 

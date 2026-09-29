@@ -6,18 +6,48 @@ claim).
 
 ## `zip.ts`
 
-```ts
-export interface ZipSource { size: number; read(offset: number, length: number): Promise<Buffer>; }
-export function fileSource(handle: import("node:fs/promises").FileHandle, size: number): ZipSource;
-export function bufferSource(buf: Buffer): ZipSource;
+A thin wrapper over `yauzl@^3.4.0` (operator ruling 2026-09-29; research R2). Callers never
+import `yauzl` directly.
 
-export interface ZipEntry { name: string; method: 0 | 8; compressedSize: number; size: number; crc32: number; offset: number; isDirectory: boolean; }
-export function listEntries(src: ZipSource): Promise<ZipEntry[]>;
-export function readEntry(src: ZipSource, entry: ZipEntry): Promise<Buffer>;
+```ts
+export const MAX_ZIP_DEPTH = 3;
+export const MAX_PAGE_BYTES = 16 * 1024 * 1024;
+export const EXTRACT_BUDGET_BYTES = 2 * 1024 * 1024 * 1024;
+
+export class ZipError extends Error {}
+
+export interface ZipEntryInfo { name: string; size: number; compressedSize: number; crc32: number; isDirectory: boolean; }
+
+/** What the visitor wants done with an entry. */
+export type EntryAction = "skip" | "read" | "extract";
+
+export interface ZipBudget { remaining: number; }   // shared across one job's nested walk
+
+/**
+ * Open the zip file at `path` with yauzl (`lazyEntries: true`, `autoClose: false`,
+ * `validateEntrySizes: true`) and visit its entries one at a time, in central-directory
+ * order. The handle is closed in a finally.
+ *   - "skip":    no read stream is opened; nothing is inflated.
+ *   - "read":    the entry is inflated into a Buffer (≤ MAX_PAGE_BYTES), CRC-checked with
+ *                zlib.crc32, and passed to onRead.
+ *   - "extract": the entry is streamed, CRC-checked, into `<tmpDir>/<n>.zip`; onExtract gets
+ *                the path; the file is deleted after onExtract resolves.
+ * Every read/extract debits `budget.remaining` by the entry's declared size.
+ */
+export function walkZip(path: string, opts: {
+  tmpDir: string;
+  budget: ZipBudget;
+  decide(entry: ZipEntryInfo): EntryAction;
+  onRead(entry: ZipEntryInfo, data: Buffer): Promise<void> | void;
+  onExtract(entry: ZipEntryInfo, innerZipPath: string): Promise<void>;
+}): Promise<void>;
 ```
 
-Throws `ZipError` (message names the problem) on: missing EOCD, zip64, encryption, method
-not 0/8, CRC mismatch, inflated size ≠ declared size.
+Throws `ZipError` (message names the problem, never entry content) on: a yauzl open error
+(no End of Central Directory, malformed metadata, an invalid file name); an encrypted entry;
+a compression method other than 0/8; a size mismatch (from `validateEntrySizes`); a page
+over `MAX_PAGE_BYTES`; the extraction budget exhausted; a CRC mismatch. zip64 is supported.
+Depth is the caller's concern (`collect.ts` passes depth through `onExtract`).
 
 ## `collect.ts`
 
@@ -26,10 +56,13 @@ export interface CollectedPages {
   pages: { path: string; format: "html" | "markdown"; text: string }[];  // ordered, de-duplicated
   duplicatePages: number; ignoredEntries: number; skippedEntries: number;
 }
-export function collectPages(filePath: string, format: "zip" | "html" | "markdown", filename: string): Promise<CollectedPages>;
+export function collectPages(filePath: string, format: "zip" | "html" | "markdown", filename: string, opts: { tmpDir: string }): Promise<CollectedPages>;
 ```
 
 Rules: research R3 (filter, recurse ≤ 3 levels, numeric-collated order, sha-256 de-dup).
+Implemented over `walkZip`: `decide` applies the filter (`.zip` → `extract`, page → `read`,
+else `skip`); `onExtract` recurses with depth + 1 (deeper than `MAX_ZIP_DEPTH` →
+`ValidationError`). Inner zips go to `tmpDir`, a per-job directory the worker owns.
 Zero pages → throws `ValidationError` "No HTML or Markdown pages found in the upload."
 
 ## `markdown.ts`

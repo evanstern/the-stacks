@@ -21,61 +21,127 @@ deflate (8). Every entry count is under 65,535. Asset folders are named `<page>_
 hold extensionless files (`background`, `jquery`, `cobalt`); they must be excluded by folder,
 not by extension. HTML pages are at most ~1 MB each.
 
-## R1 — Upload transport: raw request body, streamed to disk
+## Reversal — operator ruling 2026-09-29
 
-**Decision**: `POST /library/uploads?book=<name>&filename=<name>` with the file as the raw
-request body (any `Content-Type`). The handler reads `c.req.raw.body` (a web
-`ReadableStream`), converts it with `Readable.fromWeb`, and `stream/promises.pipeline`s it
-through a byte-counting `Transform` into `fs.createWriteStream`. The counter throws when the
-running total exceeds `UPLOAD_MAX_BYTES`. A `Content-Length` over the ceiling is refused
-before reading a byte.
+The first draft of this file chose a stdlib zip reader (R2) and a raw-body upload with query
+parameters (R1), both to add no runtime dependency. The operator reviewed the plan
+checkpoint and ruled the other way on both (card TASK-0024, implementation notes, "Operator
+rulings 2026-09-29"):
 
-**Rationale**: `@hono/node-server` 2.1.1 exposes the incoming request as
+1. Zip reading uses `yauzl@3`, an approved runtime dependency.
+2. Upload transport is `multipart/form-data` parsed with `busboy`, an approved runtime
+   dependency.
+3. `requestTimeout` 300 s → 1 h: approved as planned.
+4. The merge-condition real-export run embeds with the `fake` provider: approved as planned.
+
+Why the reversal holds up: a hand-written zip reader is ~150 lines of format parsing that
+this project would own, test, and extend (zip64, data descriptors) the first time an export
+leaves the observed subset; `yauzl` already handles those and is the reference Node reader.
+Multipart is what a browser `FormData` upload and `curl -F` send by default, so the UI
+(TASK-0028) and agents use the standard shape instead of a bespoke query-string contract.
+Both packages are small, pure JS, and stream-oriented, so AC #7 (never buffer the body,
+never load the outer zip whole) still holds. R1 and R2 below record the ruled design; the
+superseded choices are kept under "Superseded".
+
+## R1 — Upload transport: multipart via `busboy`, streamed to disk
+
+**Decision**: `POST /library/uploads` with `Content-Type: multipart/form-data`. Parts:
+
+- `book` — text field, required.
+- `file` — exactly one file part. Its `filename` (from `Content-Disposition`) is the display
+  name and a format hint; default `upload` when absent.
+
+The handler never calls `parseBody`, `formData`, `arrayBuffer`, or `text`. It converts
+`c.req.raw.body` with `Readable.fromWeb` and pipes it into
+`busboy({ headers, limits: { files: 1, fields: 4, fieldSize: 1024, parts: 5, fileSize: uploadMaxBytes } })`.
+On the `file` event it pipes the part stream through a byte-counting `Transform` (it records
+the total and the first 4 bytes for format detection) into
+`fs.createWriteStream(<uploadDir>/<uuid>.upload)`. The response waits for both busboy
+`close` and the write stream's `finish`, then validates fields, inserts the job, and
+returns `202`.
+
+**Edge-case decisions**:
+
+| Case | Decision |
+|---|---|
+| Not `multipart/form-data`, or no boundary | `busboy()` throws → `400 validation` "Expected multipart/form-data." No body read. |
+| `Content-Length` over `uploadMaxBytes + 1 MiB` | `413 too_large` before reading a byte. The 1 MiB allowance covers multipart framing and fields. No `Content-Length` (chunked) is allowed; the stream limit still applies. |
+| Fields after the file part | Accepted. Fields are collected into a map and validated only after busboy `close`, when the file is already on disk. A bad or missing `book` then deletes the file → `400`. Clients SHOULD append `book` first; the server does not depend on it. |
+| No file part | `400 validation` on `file`: "A file part is required." No temp file was created. |
+| Empty file part (0 bytes) | `400 validation` "Upload body is empty."; file deleted. |
+| File part under another name than `file` | `400 validation` on `file`; the part is drained (`resume()`), never written. |
+| Two or more file parts | `limits.files: 1`; busboy emits `filesLimit` when the second arrives → `400 validation` "Exactly one file part is allowed."; the first file is deleted. |
+| Too many fields / parts; a field value over 1 KiB | `fieldsLimit` / `partsLimit` / `valueTruncated` → `400 validation`. |
+| Size ceiling | **busboy is the one authority**: `limits.fileSize = uploadMaxBytes`. busboy's `limit` event on the file stream → `413 too_large`. As a backstop, `stream.truncated === true` at the end is also `413`. The byte counter records `bytes` only and holds no second ceiling, so the two can never disagree. |
+| Client abort mid-upload | The source stream errors or ends early; busboy errors "Unexpected end of form"; the pipeline rejects → file deleted, no job. |
+| Early refusal (413, 400) while the client is still sending | Unpipe busboy, destroy the file stream and the source stream, delete the file, and respond with `Connection: close` so the unsent remainder is dropped rather than drained. |
+| Any error before the job insert commits | One `finally` deletes the temp file if it exists. After the insert, the worker owns the file. |
+
+**Rationale**: `@hono/node-server` 2.1.x exposes the incoming request as
 `Readable.toWeb(incoming)` (pull-based, backpressured; verified in its `dist/index.mjs`), so
-nothing is buffered unless a handler calls `parseBody`/`arrayBuffer`. The SPA can send a
-`File` with `fetch(url, { method: "POST", body: file })`, which streams; `curl -T file` and
-`--data-binary @file` work for agents and the merge-condition run. Stdlib only.
-
-**Alternatives rejected**:
-- Hono `parseBody` / `c.req.formData()`: buffers the whole body (the runbook's stated reason).
-- A streaming multipart parser (`busboy`, `@fastify/busboy`): a new runtime dependency to
-  carry one field (the book name) that a query parameter carries for free.
-- Hand-rolled multipart parsing: boundary scanning across chunk edges is real code with real
-  bugs, for no gain over a raw body.
+nothing is buffered unless a handler calls `parseBody` or similar. busboy is a streaming
+parser: its memory is bounded by its field limits and the stream's high-water mark,
+regardless of the file size. Browsers send `FormData` bodies as streamed multipart, and
+`curl -F file=@book.zip` does the same.
 
 **Node server timeout**: Node's `http.Server.requestTimeout` defaults to 300 s, which would
 cut a 310 MB upload on a slow link. Pass `serverOptions: { requestTimeout: 60 * 60 * 1000 }`
-to `serve()` in `index.ts`. `ponytail:` fixed one-hour ceiling; make it config when a
-self-hoster reports a slower link.
+to `serve()` in `index.ts` (approved 2026-09-29). `ponytail:` fixed one-hour ceiling; make
+it config when a self-hoster reports a slower link.
 
-## R2 — Zip reading: a minimal stdlib reader (no dependency)
+**Superseded** (first draft): raw request body with `book`/`filename` as query parameters.
+Declined by the operator ruling 2026-09-29 in favour of the standard multipart shape.
 
-**Decision**: `apps/server/src/library/ingest/zip.ts`, ~150 lines on `node:zlib` and
-`node:fs/promises`. It reads the End-of-Central-Directory record, walks the central
-directory, and for each wanted entry reads the local header and inflates the payload with
-`zlib.inflateRaw` (async, `maxOutputLength` = declared size), then checks `zlib.crc32`
-(Node ≥ 22.2; the repo pins Node 22, the image is `node:22-alpine`). The reader works over a
-`{ size, read(offset, length) }` source, so the outer zip is read from its file handle by
-offset (never loaded whole) and an inner zip is read from a `Buffer`.
+**Still rejected**: Hono `parseBody` / `c.req.formData()` (buffers the whole body);
+hand-rolled multipart parsing (boundary scanning across chunk edges).
 
-It refuses, with a named reason: zip64 markers (`0xFFFF`/`0xFFFFFFFF` fields), encrypted
-entries (flag bit 0), methods other than 0/8, a CRC mismatch, an entry whose inflated size
-differs from the declared size, and nesting deeper than 3.
+## R2 — Zip reading: `yauzl`, inner zips via temp files
 
-**Rationale**: every real export uses exactly the subset above (table). The job needs
-read-only, whole-entry, in-memory access to a few dozen ~1 MB pages; the central directory
-gives sizes up front, so data descriptors never matter. No extraction to disk means no path
-traversal surface. `maxOutputLength` plus the declared-size check is the zip-bomb guard.
+**Decision**: `apps/server/src/library/ingest/zip.ts` wraps `yauzl@^3.4.0`. It opens a zip
+**file** with `yauzl.open(path, { lazyEntries: true, autoClose: false, decodeStrings: true,
+validateEntrySizes: true, strictFileNames: false })`. `yauzl` reads the central directory
+and entry data by offset from the file descriptor, so the outer zip is never loaded whole.
+Entries are visited one at a time (`readEntry()` after each visit completes), and the
+handle is closed in a `finally`.
 
-**Alternatives considered**:
-- `yauzl` (3.x, deps `buffer-crc32`, `pend`): mature, handles zip64. Rejected for now:
-  a runtime dependency plus two transitive ones for a subset stdlib covers. **Upgrade
-  path**: if a real export needs zip64 or another method, swap `zip.ts`'s internals for
-  `yauzl` behind the same function signature.
-- `fflate` / `adm-zip` / `jszip`: whole-archive-in-memory APIs; contradict AC #7.
-- Shell `unzip` in the image: busybox `unzip` exists on alpine, macOS has Info-ZIP; two
-  different tools across host tests and container, output parsing, and extraction to disk.
-  Rejected.
+For each visited entry the caller either:
+
+- **reads a page** into memory (`openReadStream` → collect, ≤ `MAX_PAGE_BYTES`), then
+  checks `zlib.crc32(buffer) === entry.crc32`; or
+- **extracts an inner zip** to `<jobDir>/<counter>.zip` (`openReadStream` → CRC `Transform`
+  using `zlib.crc32(chunk, running)` → `createWriteStream`), then opens that file with
+  `yauzl.open` and recurses. The file is deleted after its subtree is walked. Temp names are
+  counters, never entry names, so no entry name reaches the filesystem; `yauzl` also rejects
+  absolute and `..` names; or
+- **skips** the entry without opening a read stream (nothing is inflated).
+
+**Guards** (each throws `ZipError` naming the problem; the job fails with that message):
+
+- `yauzl` open errors: missing or malformed End of Central Directory, invalid file names.
+- Encrypted entry (`entry.isEncrypted()`), or a compression method other than 0/8 — checked
+  before opening a stream.
+- Inflated size ≠ declared size (`validateEntrySizes`; zip-bomb guard 1).
+- A page entry declared over `MAX_PAGE_BYTES` = 16 MiB (observed pages ≤ ~1 MB).
+- The job's total declared bytes inflated (pages + extracted inner zips) over
+  `EXTRACT_BUDGET_BYTES` = 2 GiB (zip-bomb guard 2). `ponytail:` fixed constants; make them
+  config when a real export exceeds them.
+- CRC mismatch (`yauzl` does not verify CRC-32; the wrapper does, with `zlib.crc32`, Node ≥ 22.2).
+- Nesting deeper than 3 levels.
+
+zip64 is now **supported** (yauzl reads the zip64 extra field); the spec's edge case is
+narrowed to encryption and unsupported methods.
+
+**Rationale**: `yauzl` is the correctness-first Node zip reader: random access via the
+central directory, zip64, strict entry-size validation, safe file-name checks. Extracting
+inner zips to disk keeps memory flat regardless of inner-zip size (DMG's chapter zips are
+up to ~12 MB; nothing bounds a future export's). `yauzl.fromBuffer` would work for small
+inner zips, but one code path over files is simpler and has no size ceiling.
+
+**Superseded** (first draft): a ~150-line stdlib reader on `node:zlib` covering only the
+observed subset. Declined by the operator ruling 2026-09-29.
+
+**Still rejected**: `fflate` / `adm-zip` / `jszip` (whole-archive-in-memory APIs, contradict
+AC #7); shell `unzip` (different tools on host and alpine, output parsing).
 
 ## R3 — Entry filtering and page order
 
@@ -188,10 +254,13 @@ constraint, not an application check (it holds across processes).
 ## R8 — Temp-file lifecycle
 
 **Decision**: upload files live in `path.join(os.tmpdir(), "the-stacks-uploads")` as
-`<uuid>.upload` (created `recursive: true` at startup). Order: stream to file → insert job →
+`<uuid>.upload` (created `recursive: true` at startup). During a job, extracted inner zips live
+in `<uploadDir>/job-<jobId>/`; the worker removes that directory (`rm -r`) when the job
+reaches any terminal state, and on a fenced-out abort. A re-run (lease reclaim) removes a leftover
+`job-<jobId>/` before `extract` starts. Order: stream to file → insert job →
 respond `202`. Any failure before the insert commits (ceiling, client abort, validation,
 conflict) deletes the file in a `finally`. The worker deletes the file when a job reaches
-`succeeded` or `failed`. At worker start, delete files in the directory that no
+`succeeded` or `failed`. At worker start, delete files and `job-*` directories that no
 queued/running job references and whose `mtime` is older than 10 minutes (an in-flight
 upload keeps its mtime fresh). `ponytail:` directory not configurable; add `UPLOAD_DIR` when
 a self-hoster's tmp is too small.

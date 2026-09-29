@@ -149,8 +149,9 @@ The worker reclaims it, finishes it, and the book has exactly one set of chunks.
   and the combined zip): identical pages are ingested once.
 - An upload with zero HTML or Markdown pages after filtering: the job fails with "no pages".
 - Nesting deeper than three zip levels: the job fails with a clear reason.
-- A zip using an unsupported feature (encryption, zip64, a compression method other than
-  stored/deflate): the job fails naming the feature.
+- A zip using an unsupported feature (encryption, or a compression method other than
+  stored/deflate): the job fails naming the feature. zip64 is supported (operator ruling
+  2026-09-29: `yauzl`).
 - A zip whose entries inflate beyond their declared size, or beyond the extraction budget:
   the job fails (zip-bomb guard).
 - The embedding purpose is not configured: the job still succeeds with chunks stored; its
