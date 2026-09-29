@@ -73,10 +73,10 @@ checkpoint). Do not start without that approval recorded on TASK-0025.
 
 ## Phase 6: Polish & cross-cutting
 
-- [ ] T019 [P] Create `apps/server/test/library/ddb.perf.test.ts`: build a ~300-page book by repeating the three fixtures' content roots, parse it, assert under 10 s (SC-004).
-- [ ] T020 [P] Confirm the library boundary rule covers `apps/server/src/library/ddb/**` (it matches `apps/server/src/library/**`); run `pnpm check:boundaries`.
-- [ ] T021 Run `pnpm ci:check`; all green. Paste the output summary in the PR body.
-- [ ] T022 Run the wiki freshness gate (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`) and write a new `docs/wiki/ddb-parser.md` note via `/grounding-wiki:wiki-update`; any `.gitignore`-sourced note is re-verified.
+- [x] T019 [P] Create `apps/server/test/library/ddb.perf.test.ts`: build a ~300-page book by repeating the three fixtures' content roots, parse it, assert under 10 s (SC-004).
+- [x] T020 [P] Confirm the library boundary rule covers `apps/server/src/library/ddb/**` (it matches `apps/server/src/library/**`); run `pnpm check:boundaries`.
+- [x] T021 Run `pnpm ci:check`; all green. Paste the output summary in the PR body.
+- [x] T022 Run the wiki freshness gate (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`) and write a new `docs/wiki/ddb-parser.md` note via `/grounding-wiki:wiki-update`; any `.gitignore`-sourced note is re-verified.
 
 ## Dependencies
 
