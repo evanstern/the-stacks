@@ -9,14 +9,12 @@ import { createApp } from "./app.js";
 import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
+import { startIngestWorker } from "./library/ingest/worker.js";
 import { createGateway } from "./ws/gateway.js";
 
 const config = loadConfig();
 const aiConfig = loadAiConfig(process.env);
 
-// Constructed once; unused until a route calls it (TASK-0027). Unset AI env
-// leaves aiConfig's providers/purposes empty, so this is a no-op today.
-// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027's routes.
 const aiGateway = createAiGateway({
   config: aiConfig,
   sink: logSink,
@@ -28,6 +26,21 @@ const db = createDb(config.databaseUrl);
 const uploadDir = path.join(os.tmpdir(), "the-stacks-uploads");
 mkdirSync(uploadDir, { recursive: true });
 
+// ponytail: TASK-0026's loadRetrievalConfig() isn't on this branch yet
+// (research R10) — read the same variable, with the same default, in this
+// one place. Swap to loadRetrievalConfig().embedPurpose at the T031
+// reconcile merge.
+const embedPurposeName = process.env.RETRIEVAL_EMBED_PURPOSE ?? "embedding";
+const embedPurpose =
+  aiConfig.purposes[embedPurposeName]?.op === "embed" ? embedPurposeName : null;
+
+const ingestWorker = startIngestWorker({
+  db,
+  gateway: aiGateway,
+  embedPurpose,
+  uploadDir,
+});
+
 const app = createApp({
   databaseProbe: createDatabaseProbe(config.databaseUrl),
   db,
@@ -35,8 +48,7 @@ const app = createApp({
   library: {
     uploadMaxBytes: config.uploadMaxBytes,
     uploadDir,
-    // Replaced with the ingest worker's `nudge` in T021/T022.
-    onEnqueued: () => {},
+    onEnqueued: ingestWorker.nudge,
   },
 });
 
