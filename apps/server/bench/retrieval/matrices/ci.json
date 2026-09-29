@@ -1,0 +1,11 @@
+{
+  "name": "ci",
+  "models": [
+    { "name": "bow", "source": { "builtin": "bow" }, "dims": [1024, 256] }
+  ],
+  "chunking": [
+    { "name": "block", "maxChars": 0 },
+    { "name": "c2000", "maxChars": 2000 }
+  ],
+  "modes": ["vector", "fts", "hybrid"]
+}

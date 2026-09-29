@@ -2,7 +2,9 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { runCommand } from "../../src/bench/retrieval/cli.js";
+import { resolveBenchUrl } from "../../src/bench/retrieval/db.js";
 import { bowEmbed, truncateVector } from "../../src/bench/retrieval/embed.js";
 import {
   loadCorpus,
@@ -14,8 +16,9 @@ import { ValidationError } from "../../src/errors.js";
 import type { RetrievedPassage } from "../../src/library/retrieve.js";
 
 /**
- * Phase 2 unit tests (specs/019-retrieval-bench tasks.md T009): the pure
- * load/score/embed helpers, no database. Contract invariants 1-4.
+ * Phase 2/3 unit tests (specs/019-retrieval-bench tasks.md T009, T015): the
+ * pure load/score/embed helpers plus the CLI's input-validation exits, no
+ * real database. Contract invariants 1-5, 9.
  */
 
 const CORPUS_DIR = fileURLToPath(
@@ -256,5 +259,86 @@ describe("loadMatrix", () => {
       }),
     );
     expect(() => loadMatrix(file)).toThrow();
+  });
+});
+
+describe("resolveBenchUrl (contract invariant 5)", () => {
+  it("appends _bench to the base database name", () => {
+    const { baseUrl, benchUrl } = resolveBenchUrl({
+      DATABASE_URL: "postgres://u:p@localhost:5432/stacks",
+    } as NodeJS.ProcessEnv);
+    expect(baseUrl).toBe("postgres://u:p@localhost:5432/stacks");
+    expect(benchUrl).toBe("postgres://u:p@localhost:5432/stacks_bench");
+  });
+
+  it("prefers TEST_DATABASE_URL over DATABASE_URL for the base", () => {
+    const { baseUrl } = resolveBenchUrl({
+      TEST_DATABASE_URL: "postgres://u:p@localhost:5432/test_db",
+      DATABASE_URL: "postgres://u:p@db:5432/app_db",
+    } as NodeJS.ProcessEnv);
+    expect(baseUrl).toBe("postgres://u:p@localhost:5432/test_db");
+  });
+
+  it("honors an explicit BENCH_DATABASE_URL", () => {
+    const { benchUrl } = resolveBenchUrl({
+      DATABASE_URL: "postgres://u:p@localhost:5432/stacks",
+      BENCH_DATABASE_URL: "postgres://u:p@localhost:5432/custom_bench",
+    } as NodeJS.ProcessEnv);
+    expect(benchUrl).toBe("postgres://u:p@localhost:5432/custom_bench");
+  });
+
+  it("throws when the bench URL equals the base URL", () => {
+    expect(() =>
+      resolveBenchUrl({
+        DATABASE_URL: "postgres://u:p@localhost:5432/stacks",
+        BENCH_DATABASE_URL: "postgres://u:p@localhost:5432/stacks",
+      } as NodeJS.ProcessEnv),
+    ).toThrow();
+  });
+});
+
+describe("runCommand paid-run refusal (contract invariant 9)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("exits 2 with no database connection opened for a non-fake provider without --allow-paid", async () => {
+    vi.stubEnv(
+      "AI_PROVIDERS",
+      JSON.stringify({
+        openai: {
+          kind: "openai-compatible",
+          baseUrl: "https://example.invalid",
+        },
+      }),
+    );
+    vi.stubEnv(
+      "AI_PURPOSES",
+      JSON.stringify({
+        "embed-a": { provider: "openai", model: "text-embed", op: "embed" },
+      }),
+    );
+    // Syntactically valid but unreachable — proves the refusal happens
+    // before any connection attempt, not merely that one later fails.
+    vi.stubEnv("DATABASE_URL", "postgres://u:p@127.0.0.1:1/nope");
+
+    const tmpDir = mkdtempSync(path.join(tmpdir(), "bench-paid-matrix-"));
+    const file = path.join(tmpDir, "matrix.json");
+    writeFileSync(
+      file,
+      JSON.stringify({
+        name: "paid",
+        models: [{ name: "m", source: { purpose: "embed-a" }, dims: [1024] }],
+        chunking: [{ name: "block", maxChars: 0 }],
+        modes: ["vector"],
+      }),
+    );
+
+    const exitCode = await runCommand({
+      matrix: file,
+      dryRun: false,
+      allowPaid: false,
+    });
+    expect(exitCode).toBe(2);
   });
 });
