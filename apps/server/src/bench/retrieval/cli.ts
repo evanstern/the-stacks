@@ -10,13 +10,13 @@ import {
   loadCorpus,
   loadMatrix,
   loadQuestions,
-  matrixHash,
   type Matrix,
+  matrixHash,
 } from "./load.js";
 import {
   fmtCost,
-  report,
   type Results,
+  report,
   writeBaseline,
   writeResults,
 } from "./results.js";

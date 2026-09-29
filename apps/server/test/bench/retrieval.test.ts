@@ -14,8 +14,8 @@ import {
   loadCorpus,
   loadMatrix,
   loadQuestions,
-  matrixHash,
   type Matrix,
+  matrixHash,
 } from "../../src/bench/retrieval/load.js";
 import { report, writeResults } from "../../src/bench/retrieval/results.js";
 import type { BenchRow } from "../../src/bench/retrieval/run.js";

@@ -64,11 +64,25 @@ simulation described in this dispatch's report before commit.
 
 ## Phase 5: User Story 2 — per-commit recall regression gate (P1, AC #5)
 
-- [ ] T020 [US2] Create `apps/server/test/bench/retrieval.integration.test.ts`. Use the loud-skip harness copied from `retrieve.integration.test.ts` and probe the base URL. Load `matrices/ci.json`, the corpus, and the questions. Call `ensureBenchDb` and `migrateBenchDb`, then `runMatrix`. Assert: the hashes equal `baseline.json`'s (on a mismatch, fail with "corpus/questions/matrix changed; run --write-baseline"); every cell's recall@5 ≥ `baseline − 1/N` (on failure, name the cell, the baseline, and the measured value); invariant 6 (`jobs` in the bench database has 0 rows); invariant 7 (fts rows have null embed fields, and the usage sink recorded no fts-phase embed). Print a notice when any cell beats its baseline. Give the case a 120 s timeout.
-- [ ] T021 [US2] Implement `--write-baseline` in `cli.ts` (bow-only matrices). Generate `apps/server/bench/retrieval/baseline.json` from the CI matrix and commit it.
-- [ ] T022 [US2] Prove the gate by hand. Raise one baseline value by 0.1 in a scratch edit, run the case, and record the failure text. Revert the edit. Record both outcomes in the PR body.
+- [x] T020 [US2] Create `apps/server/test/bench/retrieval.integration.test.ts`. Use the loud-skip harness copied from `retrieve.integration.test.ts` and probe the base URL. Load `matrices/ci.json`, the corpus, and the questions. Call `ensureBenchDb` and `migrateBenchDb`, then `runMatrix`. Assert: the hashes equal `baseline.json`'s (on a mismatch, fail with "corpus/questions/matrix changed; run --write-baseline"); every cell's recall@5 ≥ `baseline − 1/N` (on failure, name the cell, the baseline, and the measured value); invariant 6 (`jobs` in the bench database has 0 rows); invariant 7 (fts rows have null embed fields, and the usage sink recorded no fts-phase embed). Print a notice when any cell beats its baseline. Give the case a 120 s timeout.
+- [x] T021 [US2] Implement `--write-baseline` in `cli.ts` (bow-only matrices). Generate `apps/server/bench/retrieval/baseline.json` from the CI matrix and commit it.
+- [x] T022 [US2] Prove the gate by hand. Raise one baseline value by 0.1 in a scratch edit, run the case, and record the failure text. Revert the edit. Record both outcomes in the PR body.
 
 **Checkpoint**: the gate fails on a real drop and passes on the committed baseline.
+
+**Deviation (operator ruling 2026-09-29, tie-break option 1):** before Phase 5 could produce a
+trustworthy baseline, `retrieve()`'s tie-break was found and fixed to be content-ordered rather
+than ordered by `library_chunks.id` (a random UUID regenerated on every ingest) — see
+`specs/015-hybrid-retrieval/contracts/retrieval.md` invariant 9 and `docs/wiki/retrieval.md`.
+`fts`/`vector` SQL and `fuseRrf`'s fusion now all break ties by `book` ascending, then anchor
+`start` ascending, then `chunkId` ascending as a last resort. `baseline.json` was regenerated
+with `--write-baseline` against the fixed code (not the pre-fix numbers the previous dispatch
+had generated, which were stale — hybrid and fts recall@5 had moved by up to 3 questions across
+6 identical runs before the fix). `matrices/ci.json` was then run 5 times and every cell's
+recall@5 came back bit-identical across all 5 runs (`ci-evidence.txt`), proving the fix. T020's
+gate was proven to pass on the committed (post-fix) baseline and to fail with a named cell,
+baseline, and floor when one cell's baseline was raised by 0.1 in a scratch edit, immediately
+reverted afterward (`ci-evidence.txt`).
 
 ## Phase 6: Polish, re-grounding, and gates
 

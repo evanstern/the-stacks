@@ -26,8 +26,8 @@ export type { Baseline, Results } from "./results.js";
 export {
   BaselineSchema,
   fmtCost,
-  report,
   ResultsSchema,
+  report,
   writeBaseline,
   writeResults,
 } from "./results.js";

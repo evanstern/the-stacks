@@ -1,0 +1,48 @@
+TASK-0029 Phase 5 (T020-T022) — evidence
+=========================================
+
+Context: operator ruling 2026-09-29 (tie-break, option 1) fixed retrieve()'s
+tie-break in apps/server/src/library/retrieve.ts to order by content (score
+DESC, book ASC, anchor start ASC, chunk id ASC only as a final tiebreak)
+instead of the random-UUID chunk id. baseline.json was regenerated on the
+fixed code with `pnpm bench:retrieval run --matrix matrices/ci.json
+--write-baseline --no-save`.
+
+1. Determinism proof: matrices/ci.json run 5 times on the worktree stack
+   (bow-only, no network), `--no-save`. recall@5 per cell across all 5 runs:
+
+   key                       run1   run2   run3   run4   run5
+   bow@1024|block|vector     0.453  0.453  0.453  0.453  0.453
+   bow@1024|block|hybrid     0.531  0.531  0.531  0.531  0.531
+   bow@256|block|vector      0.188  0.188  0.188  0.188  0.188
+   bow@256|block|hybrid      0.391  0.391  0.391  0.391  0.391
+   bow@1024|c2000|vector     0.625  0.625  0.625  0.625  0.625
+   bow@1024|c2000|hybrid     0.641  0.641  0.641  0.641  0.641
+   bow@256|c2000|vector      0.328  0.328  0.328  0.328  0.328
+   bow@256|c2000|hybrid      0.500  0.500  0.500  0.500  0.500
+   -|block|fts               0.438  0.438  0.438  0.438  0.438
+   -|c2000|fts                0.594  0.594  0.594  0.594  0.594
+
+   Every cell's recall@5 is bit-identical across all 5 runs. No cell moved.
+   (R@1, R@10, and MRR were also identical run-to-run; only latency varied,
+   as expected.)
+
+2. Gate pass on the unmodified baseline: `apps/server/test/bench/retrieval.integration.test.ts`
+   T020, run under REQUIRE_DATABASE=1 against the committed baseline.json —
+   PASS (0 failures across all 10 cells; the strict `baseline - 1/N` floor
+   held for every mode: vector, fts, hybrid).
+
+3. Gate fails on an injected regression: raised
+   `recall5["bow@1024|c2000|hybrid"]` in baseline.json by 0.1 (0.640625 ->
+   0.740625) as a scratch edit, re-ran the same test case:
+
+   FAIL: cell "bow@1024|c2000|hybrid": recall@5 0.641 fell below baseline
+   0.741 (floor 0.725)
+
+   The edit was reverted immediately after (git checkout --
+   apps/server/bench/retrieval/baseline.json); the committed baseline.json
+   is the one written by --write-baseline in step 1's context, unmodified.
+
+Conclusion: the tie-break fix makes fts/vector/hybrid recall@5 fully
+deterministic across re-ingests on the CI matrix, and the per-commit gate
+(T020) correctly passes the real baseline and fails a real regression.
