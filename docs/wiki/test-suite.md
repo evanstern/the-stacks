@@ -18,7 +18,7 @@ sources:
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - tsconfig.json
-verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
+verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
 ---
 
 # Test suite

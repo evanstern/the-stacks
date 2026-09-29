@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
+verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
 ---
 
 # Monorepo and toolchain
