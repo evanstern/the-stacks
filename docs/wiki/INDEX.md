@@ -6,11 +6,12 @@ bulk-loading the corpus. `CAPSULES.md` carries the same one-liners for whole-cor
 orientation.
 
 **State of the codebase at this pin:** M0, the walking skeleton, plus the first `library`
-module. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
-Postgres event log, session auth, a WebSocket gateway, and a React SPA — and one `library`
-module (the D&D Beyond export parser, [[ddb-parser]]) has landed. The provider-agnostic AI
-gateway ([[ai-gateway]]) has landed. No codex, system modules, or agents yet — the gateway
-has no caller until the rules-answerer.
+plane work. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
+Postgres event log, session auth, a WebSocket gateway, and a React SPA. The `library` plane
+now has a parser ([[ddb-parser]]) and its storage ([[library-schema]]: documents, chunks,
+embeddings, immutable after ingestion) — but no ingestion job writes to it yet (TASK-0024).
+The provider-agnostic AI gateway ([[ai-gateway]]) has landed. No codex, system modules, or
+agents yet — the gateway has no caller until the rules-answerer.
 
 ## Start here
 
@@ -62,6 +63,7 @@ has no caller until the rules-answerer.
 ## Library
 
 - [[ddb-parser]] — turning saved D&D Beyond export HTML into ordered, anchored blocks.
+- [[library-schema]] — the library plane's storage: documents/chunks/embeddings, the immutability trigger, and the one write path (storeParsedBook, attachEmbeddings).
 
 ## Testing and verification
 

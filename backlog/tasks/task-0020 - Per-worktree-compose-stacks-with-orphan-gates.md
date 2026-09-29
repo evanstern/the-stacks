@@ -1,10 +1,10 @@
 ---
 id: TASK-0020
 title: Per-worktree compose stacks with orphan gates
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 04:48'
+updated_date: '2026-09-29 09:36'
 labels:
   - infra
 milestone: m-1
@@ -25,18 +25,18 @@ Spec: specs/010-worktree-stacks
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 scripts/env.mjs provides up, down, status, and prune; prune --check exits nonzero on any orphan
-- [ ] #2 Compose project name and ports derive from the worktree, so two worktrees and the main stack run at once without collision
-- [ ] #3 Every container carries org.the-stacks.env, .worktree, and .commit labels
-- [ ] #4 /health reports the running commit
-- [ ] #5 A test proves up then down leaves no container, network, or volume
-- [ ] #6 Sweep precondition and post-merge cleanup run env prune --check; a Stop hook warns on orphans
-- [ ] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
-- [ ] #8 Spec phase: Foundational — pure derivation library
-- [ ] #9 Spec phase: User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP
-- [ ] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
-- [ ] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
-- [ ] #12 Spec phase: Polish & re-ground
+- [x] #1 scripts/env.mjs provides up, down, status, and prune; prune --check exits nonzero on any orphan
+- [x] #2 Compose project name and ports derive from the worktree, so two worktrees and the main stack run at once without collision
+- [x] #3 Every container carries org.the-stacks.env, .worktree, and .commit labels
+- [x] #4 /health reports the running commit
+- [x] #5 A test proves up then down leaves no container, network, or volume
+- [x] #6 Sweep precondition and post-merge cleanup run env prune --check; a Stop hook warns on orphans
+- [x] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
+- [x] #8 Spec phase: Foundational — pure derivation library
+- [x] #9 Spec phase: User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP
+- [x] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
+- [x] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
+- [x] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -69,10 +69,24 @@ Phases 4-5 (3a8cdcc, b5469e1) and post-#22 merge (77683a0, 15dbde0, d5853b0). Or
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Merge with main after #23 (77a2547, pins 8204d23, evidence ff21389): conflicts only on verified_against lines + feature.json + CAPSULES; test counts recomputed from merged tree. Also carries close-task-0025 (TASK-0025 Done sync).
+
+spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 2/3
+
+Merged in PR #24 (5e5f05f); main CI green. Post-merge: env:prune --check exit 0 (no orphans). Remaining: T021 (praxisflux upstream request) awaits operator decision; task stays In Progress until then. Old root M0 stack (compose project the-stacks) left running: teardown needs operator approval.
+
+spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 3/3 — status In Progress → Done
+
+Human-authored ACs verified at close (2026-09-29): #1 env.mjs up/down/status/prune, prune --check exit codes (contracts/env-cli.md, env.test.mjs); #2 derived project/ports, two stacks up at once (T010 proof); #3 labels on every container (docker-compose.yml, check:env); #4 /health commit field (check:env asserts it matches HEAD); #5 check:env proves up->down leaves zero resources; #6 in-repo gates: Stop hook, CLAUDE.md Runtime stacks, runbook gate lines. The upstream praxisflux half (T021) was dropped by operator ruling 2026-09-29; #7 pnpm env:main from detached .worktrees/env-main, root unchanged (manual-proof.txt). Used end to end by TASK-0022 (PR #25). Old pre-label root stack (compose project the-stacks) torn down on operator approval 2026-09-29.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
