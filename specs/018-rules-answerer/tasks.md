@@ -167,7 +167,7 @@ quote, and `done.dropped` is 1.
   and zero chat calls (SC-005); `{}` body, `{"question":"  "}`, and a 2001-character question →
   400 JSON `validation`; a non-JSON body → 400; the route with no `answer` deps → one
   `error{config}` event.
-- [ ] T021 [US3] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`); green.
+- [x] T021 [US3] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`); green.
 
 **Checkpoint**: all spec acceptance scenarios have passing tests.
 
