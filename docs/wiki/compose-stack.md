@@ -4,17 +4,21 @@ description: The two-service docker-compose topology (app, db), their health che
 kind: component
 sources:
   - docker-compose.yml
+  - docker-compose.test.yml
   - .env.example
   - healthcheck.js
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
 ---
 
 # Compose stack
 
 The whole deployment is two `docker-compose.yml` services — `app` (built from the repo's
 `Dockerfile`) and `db` (`pgvector/pgvector:pg17`) — plus one named volume, `db-data`, for
-Postgres's data directory. `app` publishes `${APP_PORT}:${APP_PORT}` on all interfaces; `db`
-publishes only to loopback.
+Postgres's data directory. `app` publishes `${APP_PORT:-3000}:${APP_PORT:-3000}` on all
+interfaces; `db` publishes only to loopback. The `:-3000` default matters beyond
+self-hoster convenience: `docker-compose.test.yml` (spec 020, see below) `extends` this
+file, and CI runs that file with no `APP_PORT` set at all — an unset interpolation would
+otherwise fail compose's config resolution.
 
 Every container also carries three labels — `org.the-stacks.env`,
 `org.the-stacks.worktree`, `org.the-stacks.commit` — read from `STACKS_ENV`/`STACKS_WORKTREE`/
@@ -53,20 +57,34 @@ it set would make anything that prefers it break. Blanking it lets `DATABASE_URL
 govern inside the container. This only works because the code that chooses between the two
 uses `||`, not `??` — see [[configuration]].
 
+**The test compose file (spec 020).** `docker-compose.test.yml` is a separate, DB-only
+project (`stacks-<env>-test`) whose one service, `db`, `extends: { file: docker-compose.yml,
+service: db }` rather than repeating the `pgvector/pgvector:pg17` pin — the image is named in
+exactly one tracked place, this file, so a version bump there reaches the app stack, the test
+stack, and CI alike (spec 020 FR-003). The test file overrides `env_file` (`!reset []`,
+fixed throwaway credentials `stacks`/`stacks`/`stacks` instead of `.env`), `volumes` (`!reset
+[]`, replaced by a `tmpfs` mount — no named volume, so the data is disposable and `down -v`
+is trivially clean), and `ports` (`!override`, its own `TEST_DB_PORT` range rather than
+`DB_PORT`'s). See [[runtime-stacks]] for how `env up`/`env down` drive this second project
+alongside the app one, and [[test-suite]]/[[ci-pipeline]] for who connects to it.
+
 ## Connections
 
 [[container-image]] builds the image `app` runs. [[configuration]] is the env-var contract
 this file's variables feed into. [[health-check]] is what `healthcheck.js` calls and what
 `db`'s `pg_isready` stands in for. [[overview]] frames this as "two containers and a volume is
 the whole deployment." [[runtime-stacks]] is what sets the `org.the-stacks.*`/`STACKS_COMMIT`
-values this file only consumes. [[hosted-dev]]'s `deploy/dev/compose.dev.yml` (TASK-0021,
-spec 016) layers on top of this file on vm-104: a fixed secrets path in place of `.env`, and
-`app`'s port rebound to loopback-only, matching `db`'s existing bind.
+values this file only consumes, and what brings `docker-compose.test.yml`'s project up/down
+alongside this one. [[hosted-dev]]'s `deploy/dev/compose.dev.yml` (TASK-0021, spec 016)
+layers on top of this file on vm-104: a fixed secrets path in place of `.env`, and `app`'s
+port rebound to loopback-only, matching `db`'s existing bind.
 
 ## Operational notes
 
 Env vars in play: `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` (db credentials, no
 default password), `DATABASE_URL` (container-side connection string, host `db`), `DB_PORT`
 (host-side Postgres port, default 5432), `APP_PORT` (both the app's listen port and its
-published host port). A fresh clone with a filled-in `.env` must succeed with `docker compose
-up` alone — see [[overview]]'s self-hostability note.
+published host port, default 3000), `TEST_DB_PORT` (the test stack's host-side port, default
+5433 — read only by `docker-compose.test.yml`, not this file). A fresh clone with a
+filled-in `.env` must succeed with `docker compose up` alone — see [[overview]]'s
+self-hostability note.

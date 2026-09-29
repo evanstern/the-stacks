@@ -49,13 +49,45 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 
 ## Phase 5: Verification, re-grounding, cleanup
 
-- [ ] T016 Run `pnpm ci:check` in the worktree. Expect exit 0 and 0 skipped DB suites with `REQUIRE_DATABASE=1` against the test stack. Record the tail in `specs/020-test-compose/ci-evidence.txt`.
+- [x] T016 Run `pnpm ci:check` in the worktree. Expect exit 0 and 0 skipped DB suites with `REQUIRE_DATABASE=1` against the test stack. Record the tail in `specs/020-test-compose/ci-evidence.txt`.
 - [ ] T017 Run `pnpm check:env` with Docker up and no other labeled stacks. Expect all cases pass (not skipped). Record the tail in `ci-evidence.txt`.
-- [ ] T018 [US1] AC #5 proof, per quickstart.md: `pnpm env:up`; migrate both databases; confirm `app` healthy; run `worker.integration.test.ts` 20 consecutive times with `REQUIRE_DATABASE=1`. Record 20/20 passes, the app container id, and the commit in `specs/020-test-compose/manual-proof.txt`. On any failure, STOP and report.
-- [ ] T019 Wiki re-pin with `/grounding-wiki:wiki-update`: `runtime-stacks` (test stack, ports, `-test` reservation, backward-compat remedy; add `docker-compose.test.yml` to sources), `compose-stack` (the test file, the `APP_PORT` default, the one image home), `test-suite` (tests target the test stack; the split), `ci-pipeline` (compose step replaces `services:`), `configuration` (`TEST_DB_PORT`, `TEST_DATABASE_URL` target, migrate override). Re-verify `hosted-dev` only if the plan step flags it. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
-- [ ] T020 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
-- [ ] T021 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
-- [ ] T022 Run `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
+- [x] T018 [US1] AC #5 proof, per quickstart.md: `pnpm env:up`; migrate both databases; confirm `app` healthy; run `worker.integration.test.ts` 20 consecutive times with `REQUIRE_DATABASE=1`. Record 20/20 passes, the app container id, and the commit in `specs/020-test-compose/ci-evidence.txt`. On any failure, STOP and report.
+- [x] T019 Wiki re-pin with `/grounding-wiki:wiki-update`: `runtime-stacks` (test stack, ports, `-test` reservation, backward-compat remedy; add `docker-compose.test.yml` to sources), `compose-stack` (the test file, the `APP_PORT` default, the one image home), `test-suite` (tests target the test stack; the split), `ci-pipeline` (compose step replaces `services:`), `configuration` (`TEST_DB_PORT`, `TEST_DATABASE_URL` target, migrate override). Re-verify `hosted-dev` only if the plan step flags it. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
+- [x] T020 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
+- [x] T021 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
+- [x] T022 Run `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
+
+### T019 note classification (2026-09-29)
+
+The freshness gate's actual stale list (driven by real source diffs, not the guess above)
+was: `ai-gateway`, `ci-pipeline`, `configuration`, `health-check`, `overview`, `retrieval` —
+plus `runtime-stacks` and `compose-stack` from Phases 1-3. `test-suite` and `hosted-dev`
+listed none of this branch's changed files and needed no touch.
+
+- `runtime-stacks`: NEEDS-REVIEW. Added the test stack section (testProject, `+10000` port
+  shift, `-test` reservation, two-project `env up`/`env down`/orphan behavior). Added
+  `docker-compose.test.yml` to sources.
+- `compose-stack`: NEEDS-REVIEW. Documented `docker-compose.test.yml`'s `extends`
+  relationship (one image pin), the `APP_PORT:-3000` default's reason, and `TEST_DB_PORT`.
+  Added `docker-compose.test.yml` to sources.
+- `ci-pipeline`: NEEDS-REVIEW. Replaced the "provisions a `pgvector/pgvector:pg17` service
+  container" paragraph with the actual `docker compose -f docker-compose.test.yml up -d
+  --wait` step; added `docker-compose.test.yml` to sources.
+- `configuration`: NEEDS-REVIEW. Added the paragraph on `TEST_DATABASE_URL` now naming a
+  separate throwaway stack, the `db:migrate`-now-targets-test consequence, and the
+  app-database override (research R7); added `TEST_DB_PORT` to Operational notes.
+- `overview`: NEEDS-REVIEW. Its "environment contract" callout and its CI paragraph both
+  described the pre-020 shape (`TEST_DATABASE_URL` as "the host's view of `DB_PORT`"; CI "a
+  Postgres service"); corrected both. Added `docker-compose.test.yml` to sources.
+- `ai-gateway`: RE-PIN-ONLY. Its only changed source is `.env.example`; the diff is entirely
+  `TEST_DATABASE_URL`/`TEST_DB_PORT` comments, unrelated to `AI_PROVIDERS`/`AI_PURPOSES`.
+- `retrieval`: RE-PIN-ONLY. Same reasoning — `.env.example`'s diff doesn't touch
+  `RETRIEVAL_*`.
+- `health-check`: RE-PIN-ONLY. Its only changed source is `docker-compose.yml`, and the only
+  change there is the `APP_PORT:-3000` default, which this note doesn't describe.
+- `test-suite`, `hosted-dev`: not touched — no listed source changed on this branch.
+
+`docs/wiki/CAPSULES.md` regenerated (`ci-pipeline`'s description changed).
 
 ## Dependencies
 
@@ -77,3 +109,13 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
   that line still present, makes `pnpm check:scripts` (and therefore `pnpm ci:check`) fail
   on a Phase-1-only commit, which the Phase 1 gate requires to stay green. Deferred to land
   alongside T007 in Phase 2, where it can actually go green.
+- T017 (Phase 5 implementer, 2026-09-29): not run this phase, per the orchestrator's
+  dispatch (its Phase 5 bullet list omits `pnpm check:env`). `docker ps` showed another
+  worktree's labeled stack (`task-0027`) up concurrently; `pnpm check:env`'s own end-to-end
+  case skips itself rather than risk pruning another session's resources ("labeled stacks
+  are already running — refusing to risk pruning them"), so a non-skipped run needs an
+  operator/orchestrator window with no other worktree's stack up. Left unchecked, not
+  claimed.
+- T018 (Phase 5 implementer, 2026-09-29): recorded the AC #5 proof in
+  `specs/020-test-compose/ci-evidence.txt` (one evidence file for the whole phase) rather
+  than a separate `manual-proof.txt`, per the orchestrator's explicit dispatch instruction.

@@ -8,10 +8,11 @@ sources:
   - .claude/hooks/env-orphan-hook.mjs
   - .claude/settings.json
   - docker-compose.yml
+  - docker-compose.test.yml
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
 ---
 
 # Runtime stacks
@@ -25,27 +26,46 @@ Docker.
 ## How it works
 
 **Identity.** `deriveIdentity({ toplevel, rootToplevel })` throws if `toplevel` is the root
-checkout (root is read-only for this tooling — use `main` below) or if the worktree's
-sanitized basename is a reserved env (`main`, `dev` — vm-104's hosted environment, now real
-as of TASK-0021/spec 016; see [[hosted-dev]]). Otherwise: `task-<n>` (1 ≤ n ≤ 999) maps to the fixed range `3000+n`/`15000+n`;
-anything else gets a `sha256`-hashed range (`4000`–`11999`/`16000`–`23999`) so an unnumbered
-worktree name still works with no registry. `env up` writes `.env` via `mergeEnvFile`
-(derived keys — `APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DATABASE_URL` — always win;
-operator-set keys and `.env.example`'s comments survive), probes both ports on `127.0.0.1`
-first and refuses if either is already bound, then runs `docker compose -p stacks-<env> up
--d --build --wait` with `STACKS_ENV`/`STACKS_WORKTREE`/`STACKS_COMMIT` in its environment.
+checkout (root is read-only for this tooling — use `main` below), if the worktree's sanitized
+basename is a reserved env (`main`, `dev` — vm-104's hosted environment, now real as of
+TASK-0021/spec 016; see [[hosted-dev]]), or if it ends in `-test` (spec 020 R9: `foo-test`'s
+own app project would collide with `foo`'s test project — see below). Otherwise: `task-<n>`
+(1 ≤ n ≤ 999) maps to the fixed range `3000+n`/`15000+n`/`25000+n` (app/db/test-db);
+anything else gets a `sha256`-hashed range (`4000`–`11999`/`16000`–`23999`/`26000`–`33999`)
+so an unnumbered worktree name still works with no registry — the test port is always the
+db port shifted by `+10000`, so one worktree's three ports read as a triple (e.g.
+`3033`/`15033`/`25033`). `env up` writes `.env` via `mergeEnvFile` (derived keys —
+`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`, `TEST_DATABASE_URL` — always win;
+operator-set keys and `.env.example`'s comments survive), probes all three ports on
+`127.0.0.1` first and refuses if any is already bound, brings the [[compose-stack|test
+stack]] up first (`docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d
+--wait`, exits 1 on failure), then runs `docker compose -p stacks-<env> up -d --build --wait`
+for the app stack with `STACKS_ENV`/`STACKS_WORKTREE`/`STACKS_COMMIT` in its environment.
 Those three flow into `docker-compose.yml`'s `org.the-stacks.*` container labels and the
 `GIT_COMMIT` build arg (see [[compose-stack]] and [[container-image]]), which
 `apps/server/src/config.ts` reads back out and [[health-check]] surfaces at `/health` —
-"which build is this" is never a guess. `env down` runs `docker compose -p stacks-<env> down
--v --remove-orphans` and succeeds even when nothing is running.
+"which build is this" is never a guess. `env down` tears the test project down first, then
+the app project (`docker compose -p <project> down -v --remove-orphans` each), and succeeds
+even when either or both are absent (`env:main` has no test project to tear down).
+
+**The test stack (spec 020).** Every non-`main` worktree gets a second, DB-only compose
+project, `stacks-<env>-test`, from `docker-compose.test.yml` — a database with fixed,
+throwaway credentials (`stacks`/`stacks`/`stacks`) on `tmpfs`, no named volume, and no app
+service, so integration tests never share a database with the worktree's own running app
+(TASK-0024's worker-claims-test-jobs flake). `.env`'s `TEST_DATABASE_URL` now always points
+at this test stack's port, never at the app database's credentials — see [[configuration]].
+Because the reservation above refuses a worktree name ending in `-test`, `stacks-<env>-test`
+can never collide with another worktree's own project name.
 
 **Orphans.** `env status`/`env prune[--check]` list every container labeled
-`org.the-stacks.env` (one entry per compose project) and classify a stack `ORPHAN` when its
-env isn't exempt (`main`, `dev`) and its `org.the-stacks.worktree` path is absent from `git
-worktree list --porcelain` — a stack left behind by a deleted worktree. `prune` tears each
-orphan down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can gate
-without side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
+`org.the-stacks.env` (one entry per compose project — the test stack's own project,
+`stacks-<env>-test`, is a separate entry from `stacks-<env>` even though both carry the same
+`org.the-stacks.env` value) and classify a stack `ORPHAN` when its env isn't exempt (`main`,
+`dev`) and its `org.the-stacks.worktree` path is absent from `git worktree list --porcelain`
+— a stack left behind by a deleted worktree. A worktree removed without `env down` therefore
+leaves both projects orphaned, and `prune --check` names both. `prune` tears each orphan
+down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can gate without
+side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
 hook (`.claude/settings.json`) and **only ever warns** — on exit 1 it prints the orphan list
 to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always itself exits 0, so an
 orphan never blocks ending a session. `CLAUDE.md`'s "Runtime stacks" section (outside the

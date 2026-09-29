@@ -1,9 +1,10 @@
 ---
 name: ci-pipeline
-description: GitHub Actions CI (pgvector/pg17 service, REQUIRE_DATABASE=1), the pnpm ci:check aggregate script, and the boundary-rules check that proves Biome's plane-isolation lint actually fires. Load for CI, build-gate, or "does main enforce this" questions.
+description: GitHub Actions CI (the docker-compose.test.yml test stack, REQUIRE_DATABASE=1), the pnpm ci:check aggregate script, and the boundary-rules check that proves Biome's plane-isolation lint actually fires. Load for CI, build-gate, or "does main enforce this" questions.
 kind: pipeline
 sources:
   - .github/workflows/ci.yml
+  - docker-compose.test.yml
   - package.json
   - scripts/check-boundaries.mjs
   - biome.json
@@ -12,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
+verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
 ---
 
 # CI pipeline
@@ -39,8 +40,11 @@ Docker-dependent sibling, `check:env`, proves the same tooling
 against real containers but is deliberately **not** in `ci:check` (no Docker-in-Docker in
 this repo's CI today; [[runtime-stacks]] covers it).
 
-The workflow provisions a `pgvector/pgvector:pg17` service container (`POSTGRES_USER`,
-`POSTGRES_PASSWORD`, `POSTGRES_DB` all `stacks`) health-checked with `pg_isready`, runs
+The workflow brings up `docker-compose.test.yml`'s throwaway `db` stack (`TEST_DB_PORT=5432
+docker compose -f docker-compose.test.yml up -d --wait`, spec 020) — the same file and the
+same `pgvector/pgvector:pg17` image (named once, in `docker-compose.yml`'s `db` service, and
+`extend`ed here) a developer's own `pnpm env:up` uses locally; there is no separate
+`services:` container declaration to drift out of sync (see [[compose-stack]]). It then runs
 `pnpm --filter @the-stacks/server db:migrate`, then `pnpm ci:check` with `DATABASE_URL`,
 `TEST_DATABASE_URL`, and `REQUIRE_DATABASE=1` all set. `REQUIRE_DATABASE` is declared in
 `turbo.json`'s `globalEnv` because Turbo filters undeclared variables out of task environments,
