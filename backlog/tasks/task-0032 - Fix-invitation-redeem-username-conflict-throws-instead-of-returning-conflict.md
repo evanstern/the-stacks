@@ -26,9 +26,11 @@ Spec: specs/014-invite-conflict
 - [x] #1 Redeeming an invitation with an already-taken username returns reason conflict, proven by an integration test against a real database
 - [x] #2 One shared unique-violation helper serves auth and library; no duplicate copies remain
 - [x] #3 Spec phase: Failing tests first
-- [ ] #4 Spec phase: One shared helper and the fix (US1 + US2)
+- [x] #4 Spec phase: One shared helper and the fix (US1 + US2)
 - [ ] #5 Spec phase: Gates and grounding
 <!-- AC:END -->
+
+
 
 
 
