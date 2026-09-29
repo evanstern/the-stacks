@@ -27,8 +27,10 @@ Spec: specs/014-invite-conflict
 - [x] #2 One shared unique-violation helper serves auth and library; no duplicate copies remain
 - [x] #3 Spec phase: Failing tests first
 - [x] #4 Spec phase: One shared helper and the fix (US1 + US2)
-- [ ] #5 Spec phase: Gates and grounding
+- [x] #5 Spec phase: Gates and grounding
 <!-- AC:END -->
+
+
 
 
 
