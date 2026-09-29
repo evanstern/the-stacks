@@ -4,7 +4,7 @@ title: 'Benchmark system: retrieval quality across embedding models and strategi
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 21:27'
+updated_date: '2026-09-29 21:44'
 labels:
   - bench
 milestone: m-1
@@ -58,6 +58,8 @@ Operator ruling 2026-09-29 (tie-break, option 1): retrieve() breaks score ties d
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (tie-break fix 10b5b02: ORDER BY score, book, start_offset, id; fuseRrf takes {chunkId,book,start}; determinism test green; contract 015 amended. Phase 5 523333a: baseline regenerated, ci.json 5x bit-identical, strict gate passes/fails correctly; 380 pass). Orchestrator found retrieval.md pinned to the pre-fix commit (stale per freshness gate) — corrected in phase 6.
+
+T026 real run 2026-09-29 (orchestrator, local Ollama, $0): bge-m3@1024 over block/c1000/c2000/c4000 x vector/fts/hybrid in 1m47s; models stayed pinned (keep_alive -1). Best: c1000 vector R@5 0.953 / MRR 0.836; hybrid trails vector on this corpus (c1000 R@5 0.844); fts best R@5 0.594. nomic-embed-text (768) blocked: gateway enforces 1024 dims (gateway.ts:213) and Ollama ignores 'dimensions' — spec checkpoint (2), carded as follow-up.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
