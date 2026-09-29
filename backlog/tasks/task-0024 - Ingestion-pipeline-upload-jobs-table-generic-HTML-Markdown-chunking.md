@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 16:00'
+updated_date: '2026-09-29 16:15'
 labels:
   - library
 milestone: m-1
@@ -54,6 +54,9 @@ Operator rulings 2026-09-29 (plan checkpoint): (1) zip reading uses yauzl@3 (app
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec revision for operator rulings: yauzl@^3.4.0, busboy@^1.6.0 + @types; commit 0e09134; ~136k tokens). Phase grouping: P1 alone; P2+P3 together; P4 alone; P5 alone; P6 (gates + real-export merge condition) alone.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 1 Foundational; deps yauzl/busboy + @types; migration 0003_dazzling_cargill; 188 pass under REQUIRE_DATABASE=1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
