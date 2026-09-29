@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 22:36'
+updated_date: '2026-09-29 22:58'
 labels:
   - bench
 milestone: m-1
@@ -60,6 +60,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 8 minus T026: merged main twice incl. #35; filled benchmarks.md 'Load and stress' (size_budget_exempt, two benches in one note by orchestrator instruction); 8 wiki notes reviewed; freshness OK 36; env down, prune clean). T026 dev run: operator checkpoint, pending.
+
+T026 deferred by operator 2026-09-29 (option A): dev has no operator account (users table empty) and the runtime image does not ship scripts/create-operator.ts. Carded TASK-0036; the dev load run happens after it merges. The PR does not wait on T026 (spec).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
