@@ -17,11 +17,11 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 
 **Purpose**: everything every story needs. Blocks all later phases.
 
-- [ ] T001 Create `apps/server/src/ai/types.ts` with `ProviderConfig`, `PurposeConfig`, `ChatRequest`, `ChatEvent`, `EmbedResult`, `UsageRecord`, `Provider`, `AdapterFactory`, `UsageSink` per data-model.md and contracts/gateway.md
-- [ ] T002 [P] Create `apps/server/src/ai/config.ts`: Zod-parse `AI_PROVIDERS`, `AI_PURPOSES`, `AI_PRICES`; cross-validate (undeclared provider, unsupported op, unset `apiKeyEnv` for a used provider); unset `AI_PURPOSES` → no purposes (research R5)
-- [ ] T003 [P] Create `apps/server/src/ai/usage.ts`: `computeCost` keyed `"<provider>/<model>"` (null when unpriced), `logSink`, `memorySink`
-- [ ] T004 [P] Create `apps/server/src/ai/adapters/fake.ts`: scripted chat events, deterministic hash-derived embeddings, injectable failures, request recording (research R6)
-- [ ] T005 Tests `apps/server/test/ai.config.test.ts` and `apps/server/test/ai.usage.test.ts`: contract invariant 8; malformed JSON names the variable; unpriced → null
+- [x] T001 Create `apps/server/src/ai/types.ts` with `ProviderConfig`, `PurposeConfig`, `ChatRequest`, `ChatEvent`, `EmbedResult`, `UsageRecord`, `Provider`, `AdapterFactory`, `UsageSink` per data-model.md and contracts/gateway.md
+- [x] T002 [P] Create `apps/server/src/ai/config.ts`: Zod-parse `AI_PROVIDERS`, `AI_PURPOSES`, `AI_PRICES`; cross-validate (undeclared provider, unsupported op, unset `apiKeyEnv` for a used provider); unset `AI_PURPOSES` → no purposes (research R5)
+- [x] T003 [P] Create `apps/server/src/ai/usage.ts`: `computeCost` keyed `"<provider>/<model>"` (null when unpriced), `logSink`, `memorySink`
+- [x] T004 [P] Create `apps/server/src/ai/adapters/fake.ts`: scripted chat events, deterministic hash-derived embeddings, injectable failures, request recording (research R6)
+- [x] T005 Tests `apps/server/test/ai.config.test.ts` and `apps/server/test/ai.usage.test.ts`: contract invariant 8; malformed JSON names the variable; unpriced → null
 
 **Checkpoint**: config and usage are testable in isolation.
 
