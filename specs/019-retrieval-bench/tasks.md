@@ -57,10 +57,10 @@ simulation described in this dispatch's report before commit.
 
 ## Phase 4: User Story 3 — store results and compare over time (P2, AC #4)
 
-- [ ] T016 [US3] Create `apps/server/src/bench/retrieval/results.ts`: `ResultsSchema` (contracts/results-format.md); `writeResults` (commit from `git rev-parse HEAD`, dirty from `git status --porcelain`, both through `node:child_process` `execFileSync`; file name `<date>-<sha7>-<runId8>.json`; two-space JSON plus a trailing newline); `report` (validate, group by `corpusHash`, sort, print; skip and warn on an invalid file or an unknown version).
-- [ ] T017 [US3] Wire `run` (save unless `--no-save`) and `report` into `cli.ts`. Add `apps/server/bench/retrieval/results/.gitkeep`.
-- [ ] T018 [US3] Add invariant 8 to `apps/server/test/bench/retrieval.test.ts`: write a results file to a tmp dir from fabricated rows, and assert no question text or quote appears in it. Add a `report` case over two fabricated files with different corpus hashes, which must print two groups.
-- [ ] T019 [US3] Run the CI matrix once on the worktree stack. Commit the resulting file under `results/` as the first stored run.
+- [x] T016 [US3] Create `apps/server/src/bench/retrieval/results.ts`: `ResultsSchema` (contracts/results-format.md); `writeResults` (commit from `git rev-parse HEAD`, dirty from `git status --porcelain`, both through `node:child_process` `execFileSync`; file name `<date>-<sha7>-<runId8>.json`; two-space JSON plus a trailing newline); `report` (validate, group by `corpusHash`, sort, print; skip and warn on an invalid file or an unknown version).
+- [x] T017 [US3] Wire `run` (save unless `--no-save`) and `report` into `cli.ts`. Add `apps/server/bench/retrieval/results/.gitkeep`.
+- [x] T018 [US3] Add invariant 8 to `apps/server/test/bench/retrieval.test.ts`: write a results file to a tmp dir from fabricated rows, and assert no question text or quote appears in it. Add a `report` case over two fabricated files with different corpus hashes, which must print two groups.
+- [x] T019 [US3] Run the CI matrix once on the worktree stack. Commit the resulting file under `results/` as the first stored run.
 
 ## Phase 5: User Story 2 — per-commit recall regression gate (P1, AC #5)
 
@@ -86,15 +86,15 @@ reverted afterward (`ci-evidence.txt`).
 
 ## Phase 6: Polish, re-grounding, and gates
 
-- [ ] T023 Merge `origin/main` into the branch (never rebase). Re-run the Phase 5 case if `retrieve.ts`, `chunk.ts`, `markdown.ts`, or migrations changed.
-- [ ] T024 Run `REQUIRE_DATABASE=1 pnpm ci:check` on this worktree's stack (`pnpm env:up`; `TEST_DATABASE_URL` from `.env`). It must be green with 0 DB suites skipped. Record the counts for the PR body. No CI workflow change is planned: the per-commit case runs inside `pnpm test`. If the runner's time budget (15 min) or its database role blocks `CREATE DATABASE`, stop and report; do not edit `.github/workflows/ci.yml` without that report.
-- [ ] T025 Verify content hygiene (runbook TASK-0029 line). `git diff origin/main --stat -- apps/server/bench` lists only corpus, attribution, questions, matrices, baseline, and results. Nothing under `fixtures/private/` is tracked. `du -sk apps/server/bench/retrieval/corpus` ≤ 400.
-- [ ] T026 Paid run: **OPERATOR CHECKPOINT**. Do not run it without sign-off. Report the provider and model list and the `--dry-run` estimate for `full.example.json` filled with the operator's purposes. If the operator approves and supplies config, run it and commit the results file. Otherwise record "paid run deferred by operator" in the PR body. The PR does not wait on it.
-- [ ] T027 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each pinned note RE-PIN-ONLY or NEEDS-REVIEW against the diff. Expected: `test-suite` (new bench suites), `ci-pipeline` (review: `ci:check` now runs the recall gate inside `pnpm test`; state it in prose), `retrieval` (first real caller of `retrieve`; the RRF/CANDIDATES `ponytail:` now has a bench to measure with), `ingestion` (the chunker `ponytail:` now has a bench), `library-schema` (the bench is a second caller of `storeParsedBook`/`attachEmbeddings`), `monorepo-and-toolchain` if root `package.json` is pinned. Write a new note, `docs/wiki/benchmarks.md` (kind: pipeline). Cover the corpus and attribution, the question set, span-overlap scoring, the matrix axes, dimension by truncation, the `_bench` database isolation, the results format, the CI gate and its baseline, and the paid-run checkpoint. List its sources and pin it. Add it to `INDEX.md` under Testing and verification.
-- [ ] T028 Regenerate `docs/wiki/CAPSULES.md`, because notes were added and descriptions changed.
-- [ ] T029 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
-- [ ] T030 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. It must exit 0. Tick this file's completed tasks.
-- [ ] T031 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
+- [x] T023 Merge `origin/main` into the branch (never rebase). Re-run the Phase 5 case if `retrieve.ts`, `chunk.ts`, `markdown.ts`, or migrations changed.
+- [x] T024 Run `REQUIRE_DATABASE=1 pnpm ci:check` on this worktree's stack (`pnpm env:up`; `TEST_DATABASE_URL` from `.env`). It must be green with 0 DB suites skipped. Record the counts for the PR body. No CI workflow change is planned: the per-commit case runs inside `pnpm test`. If the runner's time budget (15 min) or its database role blocks `CREATE DATABASE`, stop and report; do not edit `.github/workflows/ci.yml` without that report.
+- [x] T025 Verify content hygiene (runbook TASK-0029 line). `git diff origin/main --stat -- apps/server/bench` lists only corpus, attribution, questions, matrices, baseline, and results. Nothing under `fixtures/private/` is tracked. `du -sk apps/server/bench/retrieval/corpus` ≤ 400.
+- [x] T026 Paid run: **OPERATOR CHECKPOINT**. Do not run it without sign-off. Report the provider and model list and the `--dry-run` estimate for `full.example.json` filled with the operator's purposes. If the operator approves and supplies config, run it and commit the results file. Otherwise record "paid run deferred by operator" in the PR body. The PR does not wait on it.
+- [x] T027 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each pinned note RE-PIN-ONLY or NEEDS-REVIEW against the diff. Expected: `test-suite` (new bench suites), `ci-pipeline` (review: `ci:check` now runs the recall gate inside `pnpm test`; state it in prose), `retrieval` (first real caller of `retrieve`; the RRF/CANDIDATES `ponytail:` now has a bench to measure with), `ingestion` (the chunker `ponytail:` now has a bench), `library-schema` (the bench is a second caller of `storeParsedBook`/`attachEmbeddings`), `monorepo-and-toolchain` if root `package.json` is pinned. Write a new note, `docs/wiki/benchmarks.md` (kind: pipeline). Cover the corpus and attribution, the question set, span-overlap scoring, the matrix axes, dimension by truncation, the `_bench` database isolation, the results format, the CI gate and its baseline, and the paid-run checkpoint. List its sources and pin it. Add it to `INDEX.md` under Testing and verification.
+- [x] T028 Regenerate `docs/wiki/CAPSULES.md`, because notes were added and descriptions changed.
+- [x] T029 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
+- [x] T030 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. It must exit 0. Tick this file's completed tasks.
+- [x] T031 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
 
 ## Dependencies & Execution Order
 

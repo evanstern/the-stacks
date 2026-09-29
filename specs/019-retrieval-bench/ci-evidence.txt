@@ -46,3 +46,8 @@ fixed code with `pnpm bench:retrieval run --matrix matrices/ci.json
 Conclusion: the tie-break fix makes fts/vector/hybrid recall@5 fully
 deterministic across re-ingests on the CI matrix, and the per-commit gate
 (T020) correctly passes the real baseline and fails a real regression.
+
+## T026 real run (orchestrator, 2026-09-29)
+
+Operator ruling: local Ollama, no metered spend. `matrices/local.json` limited to bge-m3 (1024) for the run; results `results/2026-09-29-1a20a99-10b1cef9.json`, 1m47s, both models pinned (keep_alive -1, expiry 2319).
+nomic-embed-text (768) could not run: the gateway enforces 1024-dim vectors (gateway.ts EMBED_DIM, decision-0002) and Ollama ignores the `dimensions` request field. This is the spec checkpoint (2) case: a sub-1024 model needs a gateway change, which is a new card.
