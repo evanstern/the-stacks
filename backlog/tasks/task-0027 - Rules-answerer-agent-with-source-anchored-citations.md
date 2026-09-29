@@ -35,16 +35,6 @@ Spec: specs/018-rules-answerer
 - [x] #9 Spec phase: Polish, re-grounding, and gates
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -62,6 +52,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 5: 352 pass under REQUIRE_DATABASE=1; new wiki note rules-answerer; freshness OK 35; env down, prune clean)
+
+spec-bridge sync: Foundational — citation parser, quote verification, config: 7/7 · User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — refuse when nothing is relevant (Priority: P1): 3/3 · User Story 3 — failures, auth, and cancellation (Priority: P2): 4/4 · Polish, re-grounding, and gates: 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
