@@ -4,7 +4,7 @@ title: 'Separate test compose stack: DB-only, per worktree, CI parity'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 18:37'
-updated_date: '2026-09-29 19:02'
+updated_date: '2026-09-29 19:03'
 labels:
   - infra
   - test
@@ -44,6 +44,8 @@ Spec: specs/020-test-compose
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~159k tokens). Plan flags 3 operator items (CI services->compose step; host db:migrate targets the test DB; '-test' worktree suffix reserved) — put to operator before implementation dispatch.
+
+Operator rulings 2026-09-29 (plan checkpoint): (1) CI drops services: for docker compose -f docker-compose.test.yml up -d --wait; (2) host pnpm db:migrate targets the test DB, app-DB override documented in .env.example and runtime-stacks; (3) worktree names ending in -test are reserved; env:up refuses them. Phase grouping: P1 alone; P2+P3; P4+P5.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
