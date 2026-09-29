@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
 ---
 
 # Configuration
@@ -79,7 +79,8 @@ suffixes the compiled server code needs.
 Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unconditionally)
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
-[[ai-gateway]]) and retrieval's three (see [[retrieval]]). See [[overview]]'s "environment
+[[ai-gateway]]), retrieval's three (see [[retrieval]]), and (TASK-0027) answering's one,
+`ASK_MIN_SIMILARITY` (see [[rules-answerer]]). See [[overview]]'s "environment
 contract" callout for the same
 `DATABASE_URL`-vs-`TEST_DATABASE_URL` trap stated at a higher level.
 
@@ -93,7 +94,9 @@ by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (s
 [[ai-gateway]]; unset means no model features, not an error). `RETRIEVAL_MODE`/`RETRIEVAL_K`/
 `RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s
 `loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
-`TEST_DATABASE_URL` is consulted
+`ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
+Zod-validated by `library/answer.ts`'s `loadAnswerConfig`, also called by `index.ts` (see
+[[rules-answerer]]). `TEST_DATABASE_URL` is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running
 server; leaving it unset makes the event-log integration tests skip rather than fail (per
 `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.

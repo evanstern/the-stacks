@@ -175,22 +175,22 @@ quote, and `done.dropped` is 1.
 
 **Purpose**: the runbook's per-PR gates (`docs/design/m1-wave2-sweep-runbook.md`).
 
-- [ ] T022 Merge `origin/main` into the branch (never rebase). Re-run T021 if anything merged.
-- [ ] T023 Run the full gate with the database required on this worktree's stack (`pnpm env:up`
+- [x] T022 Merge `origin/main` into the branch (never rebase). Re-run T021 if anything merged.
+- [x] T023 Run the full gate with the database required on this worktree's stack (`pnpm env:up`
   first; `TEST_DATABASE_URL` from `.env`): `REQUIRE_DATABASE=1 pnpm ci:check`. The ask, retrieve,
   and store integration suites report 0 skipped. TASK-0033 caveat: if `worker.integration`
   flakes because the app container's ingest worker claimed a test job, record it and re-run;
   this task's own suites never enqueue jobs. No host-run script or host-imported module is
   added, so `check:host-scripts` is unchanged; state that in the PR body. Save the summary to
   `specs/018-rules-answerer/ci-evidence.txt`.
-- [ ] T024 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each note
+- [x] T024 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each note
   whose sources changed as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD --
   <sources>`; amend prose before bumping a NEEDS-REVIEW pin. Expected: `ai-gateway` (its
   `index.ts`/`.env.example` sources; `chat()` now has a caller), `server-entrypoint-and-app`
   (`index.ts`, `app.ts`), `retrieval` (`retrieve()` now called; `index.ts`), `ingestion`
   (`routes/library.ts`), `configuration` and `compose-stack` (`.env.example`), `overview`,
   `static-serving`.
-- [ ] T025 Write a new note `docs/wiki/rules-answerer.md` (kind: component; sources:
+- [x] T025 Write a new note `docs/wiki/rules-answerer.md` (kind: component; sources:
   `apps/server/src/library/answer.ts`, `apps/server/src/library/cite.ts`,
   `apps/server/src/routes/library.ts`, `.env.example`) covering: the route and SSE events
   (link `specs/018-rules-answerer/contracts/ask-sse.md`), the relevance rule and
@@ -198,12 +198,12 @@ quote, and `done.dropped` is 1.
   rule, the `answering` purpose, operator-only auth and why (constitution VIII), and the
   `answer()` agent seam. Pin it to HEAD. Add `[[rules-answerer]]` to `docs/wiki/INDEX.md`
   under Library and update INDEX's state line.
-- [ ] T026 Regenerate `docs/wiki/CAPSULES.md`: `node
+- [x] T026 Regenerate `docs/wiki/CAPSULES.md`: `node
   ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/scripts/capsules.mjs . docs/wiki`
   (a note was added; any changed `description:` must match).
-- [ ] T027 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs
+- [x] T027 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs
   freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
-- [ ] T028 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`.
+- [x] T028 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`.
   It must exit 0. Tick this file's completed tasks.
 - [ ] T029 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
 

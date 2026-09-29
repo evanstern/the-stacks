@@ -12,11 +12,12 @@ now has a parser ([[ddb-parser]]), its storage ([[library-schema]]: documents, c
 embeddings, immutable after ingestion), and an end-to-end ingestion pipeline
 ([[ingestion]], TASK-0024: streamed upload → zip/HTML/Markdown → parse → chunk → store →
 embed, via a `jobs` queue). A read path over that storage now exists too ([[retrieval]]:
-vector/fts/hybrid search, fused by RRF) but has no HTTP caller until the rules-answerer
-(TASK-0027) — though ingestion already reads its embed-purpose config. The provider-agnostic
-AI gateway ([[ai-gateway]]) has landed, and ingestion is its first real caller. No codex,
-system modules, or agents yet. `main` is now continuously deployed to a real hosted `dev`
-environment on vm-104 ([[hosted-dev]]).
+vector/fts/hybrid search, fused by RRF) now has its first HTTP caller: the rules answerer
+([[rules-answerer]], TASK-0027, `POST /library/ask`) streams a cited, verified answer over SSE,
+operator-only. The provider-agnostic AI gateway ([[ai-gateway]]) has landed, with two callers
+now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. No codex, system
+modules, or agents yet. `main` is now continuously deployed to a real hosted `dev` environment
+on vm-104 ([[hosted-dev]]).
 
 ## Start here
 
@@ -72,6 +73,7 @@ environment on vm-104 ([[hosted-dev]]).
 - [[library-schema]] — the library plane's storage: documents/chunks/embeddings, the immutability trigger, and the one write path (storeParsedBook, attachEmbeddings).
 - [[ingestion]] — the library plane's write path: streamed upload, zip reader, parse routing, chunker, the jobs queue's claim/lease/fencing/recovery, and the embedding obligation.
 - [[retrieval]] — the library plane's read path: vector/fts/hybrid search fused by Reciprocal Rank Fusion.
+- [[rules-answerer]] — POST /library/ask: streamed cited answers, citation-marker verification, refusal rules, operator-only auth.
 
 ## Testing and verification
 
