@@ -32,8 +32,10 @@ Spec: specs/012-ddb-parser
 - [x] #7 Spec phase: User Story 1 — anchored sections (Priority: P1) 🎯 MVP
 - [x] #8 Spec phase: User Story 2 — tables and stat blocks whole (Priority: P2)
 - [x] #9 Spec phase: User Story 3 — private real-export suite (Priority: P3)
-- [ ] #10 Spec phase: Polish & cross-cutting
+- [x] #10 Spec phase: Polish & cross-cutting
 <!-- AC:END -->
+
+
 
 
 
