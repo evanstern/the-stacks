@@ -1,0 +1,24 @@
+T012: REQUIRE_DATABASE=1 pnpm ci:check — against this worktree's stack (stacks-task-0022, db :15022)
+
+Command: `set -a && source .env && set +a && REQUIRE_DATABASE=1 pnpm ci:check`
+Result: exit 0
+
+Summary:
+- lint (biome check .): pass, 0 errors
+- typecheck (tsc -b): pass
+- build (turbo run build): 3/3 tasks successful
+- test (turbo run test, @the-stacks/server vitest run):
+    Test Files  21 passed | 1 skipped (22)
+    Tests       174 passed (174)
+  - test/library/store.integration.test.ts: 11 tests passed, 0 skipped
+      (US1 round-trip/replace x4, US2 keyword search/GIN x1, US3
+      attachEmbeddings x4, Phase 5 immutability x2)
+  - test/library/store.test.ts: 6 tests passed, 0 skipped
+      (US1 span validation x4, US3 attachEmbeddings dim validation x2)
+  - the only skipped file is test/library/ddb.private.test.ts, which
+    self-skips with no real D&D Beyond export fixtures present (unrelated
+    to this feature; expected)
+- check:boundaries (node scripts/check-boundaries.mjs): boundary rules 5/5 fixtures flagged
+- check:hooks (node --test '.claude/hooks/*.test.mjs'): 20/20 passed
+- check:scripts (node --test 'scripts/*lib.test.mjs'): 12/12 passed
+- check:host-scripts: schema/config/db/auth modules import cleanly, no error

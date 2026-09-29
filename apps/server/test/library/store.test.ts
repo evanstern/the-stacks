@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ValidationError } from "../../src/errors.js";
 import type { ParsedBook } from "../../src/library/ddb/index.js";
-import type { DbClient } from "../../src/library/store.js";
-import { storeParsedBook } from "../../src/library/store.js";
+import type { AttachEmbeddingsRow, DbClient } from "../../src/library/store.js";
+import { attachEmbeddings, storeParsedBook } from "../../src/library/store.js";
 
 /**
  * US1 unit tests (specs/013-library-schema/tasks.md T004, contracts/
@@ -133,5 +133,36 @@ describe("storeParsedBook — span validation (US1, no DB)", () => {
     await expect(storeParsedBook(untouchableDb, input)).rejects.toBeInstanceOf(
       ValidationError,
     );
+  });
+});
+
+/**
+ * attachEmbeddings unit tests (specs/013-library-schema/tasks.md T008,
+ * contracts/library-store.md invariant 5): dimension validation happens
+ * before any database call, same untouchableDb pattern as T004.
+ */
+function embeddingRow(
+  overrides: Partial<AttachEmbeddingsRow> = {},
+): AttachEmbeddingsRow {
+  return {
+    chunkId: "00000000-0000-0000-0000-000000000000",
+    model: "test-model",
+    dim: 1024,
+    vector: new Array(1024).fill(0),
+    ...overrides,
+  };
+}
+
+describe("attachEmbeddings — input validation (US3, no DB)", () => {
+  it("T008: rejects dim !== 1024", async () => {
+    await expect(
+      attachEmbeddings(untouchableDb, [embeddingRow({ dim: 512 })]),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("T008: rejects vector.length !== 1024", async () => {
+    await expect(
+      attachEmbeddings(untouchableDb, [embeddingRow({ vector: [0, 0, 0] })]),
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 });

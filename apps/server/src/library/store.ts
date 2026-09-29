@@ -3,13 +3,31 @@ import { eq, sql } from "drizzle-orm";
 import type { ZodError } from "zod";
 import type { createDb } from "../db.js";
 import { ConflictError, type ErrorIssue, ValidationError } from "../errors.js";
-import { libraryChunks, libraryDocuments } from "../schema/library.js";
+import {
+  libraryChunks,
+  libraryDocuments,
+  libraryEmbeddings,
+} from "../schema/library.js";
 import { type ParsedBook, ParsedBookSchema } from "./ddb/index.js";
 
 /**
  * The library plane's only write path (contracts/library-store.md,
- * specs/013-library-schema US1). `attachEmbeddings` (US3) is a later phase.
+ * specs/013-library-schema US1, US3).
  */
+
+/** The dimension every embedding must have (decision-0002, `library_embeddings_dim_valid`). */
+const EMBEDDING_DIM = 1024;
+
+export interface AttachEmbeddingsRow {
+  chunkId: string;
+  model: string;
+  dim: number;
+  vector: number[];
+}
+
+export interface AttachEmbeddingsResult {
+  inserted: number;
+}
 
 export type DbClient = ReturnType<typeof createDb>;
 
@@ -31,14 +49,15 @@ const CHUNK_INSERT_BATCH_SIZE = 2000;
 
 const POSTGRES_UNIQUE_VIOLATION = "23505";
 
-// Same shape and reasoning as auth/invitations.ts's isUniqueViolation: the
-// pg driver's raw error, not wrapped by Drizzle, for insert operations.
+// Similar shape to auth/invitations.ts's isUniqueViolation, but also checks
+// `.cause`: drizzle-orm wraps every driver error in a DrizzleQueryError, so
+// the pg driver's own `code` lands on `err.cause`, not `err` itself.
 function isUniqueViolation(err: unknown): boolean {
+  const code = (err as { code?: unknown })?.code;
+  const causeCode = (err as { cause?: { code?: unknown } })?.cause?.code;
   return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code?: unknown }).code === POSTGRES_UNIQUE_VIOLATION
+    code === POSTGRES_UNIQUE_VIOLATION ||
+    causeCode === POSTGRES_UNIQUE_VIOLATION
   );
 }
 
@@ -168,6 +187,61 @@ export async function storeParsedBook(
     if (isUniqueViolation(err)) {
       throw new ConflictError(
         "A document with this book name was just created by another writer.",
+      );
+    }
+    throw err;
+  }
+}
+
+/**
+ * Attaches embedding vectors to already-stored chunks (contracts/
+ * library-store.md, US3). Validates every row's dimension before touching
+ * the database (invariant 5); one transaction for the whole call, so a
+ * duplicate `(chunkId, model)` anywhere in the batch (invariant 6) leaves
+ * nothing written.
+ */
+export async function attachEmbeddings(
+  db: DbClient,
+  rows: AttachEmbeddingsRow[],
+): Promise<AttachEmbeddingsResult> {
+  const issues: ErrorIssue[] = [];
+  rows.forEach((row, i) => {
+    if (row.dim !== EMBEDDING_DIM) {
+      issues.push({
+        path: `${i}.dim`,
+        message: `dim must be ${EMBEDDING_DIM}`,
+      });
+    }
+    if (row.vector.length !== EMBEDDING_DIM) {
+      issues.push({
+        path: `${i}.vector`,
+        message: `vector must have length ${EMBEDDING_DIM}`,
+      });
+    }
+  });
+  if (issues.length > 0) {
+    throw new ValidationError(issues);
+  }
+
+  try {
+    return await db.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(libraryEmbeddings)
+        .values(
+          rows.map((row) => ({
+            chunkId: row.chunkId,
+            model: row.model,
+            dim: row.dim,
+            embedding: row.vector,
+          })),
+        )
+        .returning({ id: libraryEmbeddings.id });
+      return { inserted: inserted.length };
+    });
+  } catch (err) {
+    if (isUniqueViolation(err)) {
+      throw new ConflictError(
+        "An embedding for this chunk and model already exists.",
       );
     }
     throw err;
