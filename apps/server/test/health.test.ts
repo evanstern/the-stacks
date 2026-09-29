@@ -27,6 +27,20 @@ describe("GET /health", () => {
     expect(body.status).toBe("ok");
     expect(body.database.reachable).toBe(true);
     expect(body.process.uptimeSeconds).toBeGreaterThan(0);
+    expect(body.commit).toBe("unknown");
+  });
+
+  it("reports the given commit without affecting status", async () => {
+    const app = createApp({
+      databaseProbe: fakeProbe(true),
+      db: unusedDb,
+      commit: "abc1234",
+    });
+    const res = await app.request("/health");
+
+    const body = (await res.json()) as HealthReport;
+    expect(body.commit).toBe("abc1234");
+    expect(body.status).toBe("ok");
   });
 
   it("stays 200 and reports degraded when the database is unreachable", async () => {

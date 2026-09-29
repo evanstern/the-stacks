@@ -40,22 +40,22 @@ run in `ci:check`.
 **Independent Test**: two worktrees up at once on distinct ports; one down leaves the other
 healthy and leaves nothing of itself behind.
 
-- [ ] T004 [P] [US1] `docker-compose.yml`: add `labels` (`org.the-stacks.env`,
+- [x] T004 [P] [US1] `docker-compose.yml`: add `labels` (`org.the-stacks.env`,
   `org.the-stacks.worktree`, `org.the-stacks.commit`, from `STACKS_ENV`, `STACKS_WORKTREE`,
   `STACKS_COMMIT` with defaults `default`/empty/`unknown`) to both `app` and `db`; change
   `app.build` to the long form with `args.GIT_COMMIT: ${STACKS_COMMIT:-unknown}`. Keep every
   existing comment. Plain `docker compose config` from a clean clone must still validate.
-- [ ] T005 [P] [US1] `Dockerfile` runtime stage: `ARG GIT_COMMIT=unknown` and
+- [x] T005 [P] [US1] `Dockerfile` runtime stage: `ARG GIT_COMMIT=unknown` and
   `ENV GIT_COMMIT=$GIT_COMMIT`, placed after the dependency install so the arg does not bust
   the install layer cache.
-- [ ] T006 [P] [US1] Server: `apps/server/src/config.ts` adds `commit: string` read from
+- [x] T006 [P] [US1] Server: `apps/server/src/config.ts` adds `commit: string` read from
   `GIT_COMMIT` (default `"unknown"`); `routes/health.ts` adds `commit` to `HealthReport` and
   the response per `contracts/health.md`; thread it through `app.ts`/`index.ts` without
   changing any other route. `apps/server/test/health.test.ts` asserts `commit` is present, is
   `"unknown"` by default, and does not affect `status`. Update any `loadConfig` test.
-- [ ] T007 [P] [US1] `.env.example`: document `STACKS_ENV` and state that `pnpm env:up`
+- [x] T007 [P] [US1] `.env.example`: document `STACKS_ENV` and state that `pnpm env:up`
   writes `APP_PORT`, `DB_PORT`, `STACKS_ENV`, and `TEST_DATABASE_URL` for the worktree.
-- [ ] T008 [US1] Create `scripts/env.mjs` with verbs `up` and `down` per
+- [x] T008 [US1] Create `scripts/env.mjs` with verbs `up` and `down` per
   `contracts/env-cli.md`: resolve toplevel via `git rev-parse --show-toplevel` and root via
   `git rev-parse --path-format=absolute --git-common-dir`; derive identity (T001); probe both
   ports on 127.0.0.1 with `node:net` and refuse naming a bound port; write `.env` (T001
@@ -63,7 +63,7 @@ healthy and leaves nothing of itself behind.
   `docker compose -p <project> up -d --build --wait`; print project, URLs, and commit. `down`
   runs `docker compose -p <project> down -v --remove-orphans` and succeeds when nothing runs.
   Docker unreachable → one message, exit 2.
-- [ ] T009 [US1] Root `package.json`: add `env:up`, `env:down`, `env:status`, `env:prune`,
+- [x] T009 [US1] Root `package.json`: add `env:up`, `env:down`, `env:status`, `env:prune`,
   `env:main` scripts calling `node scripts/env.mjs <verb>`; confirm `pnpm env:prune --check`
   forwards the flag.
 - [ ] T010 [US1] Manual proof, recorded in the task's board notes: from this worktree and a

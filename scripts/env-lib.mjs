@@ -55,7 +55,8 @@ export function mainIdentity() {
   return { env: "main", project: "stacks-main", appPort: 3000, dbPort: 5432 };
 }
 
-function parseEnvKeys(text) {
+/** Parse `KEY=value` lines out of a `.env`-style text (ignores comments/blank lines). */
+export function parseEnvKeys(text) {
   const out = {};
   for (const line of text.split("\n")) {
     const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);

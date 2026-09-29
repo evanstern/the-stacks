@@ -4,6 +4,8 @@ export interface ServerConfig {
   databaseUrl: string;
   /** Port the HTTP server binds to. */
   port: number;
+  /** Git commit the running build came from (GIT_COMMIT build arg); "unknown" if unset. */
+  commit: string;
 }
 
 /**
@@ -22,5 +24,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     throw new Error(`APP_PORT must be a positive integer, got "${portRaw}"`);
   }
 
-  return { databaseUrl, port };
+  const commit = env.GIT_COMMIT ?? "unknown";
+
+  return { databaseUrl, port, commit };
 }

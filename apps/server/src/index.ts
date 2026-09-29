@@ -10,6 +10,7 @@ const db = createDb(config.databaseUrl);
 const app = createApp({
   databaseProbe: createDatabaseProbe(config.databaseUrl),
   db,
+  commit: config.commit,
 });
 
 // The WebSocket gateway shares this one port and one process with the HTTP
