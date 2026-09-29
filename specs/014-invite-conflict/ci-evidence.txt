@@ -1,0 +1,19 @@
+T010: REQUIRE_DATABASE=1 TEST_DATABASE_URL=postgres://stacks:changeme@localhost:15032/stacks pnpm ci:check
+Exit code: 0
+
+pnpm lint: fixed 2 pre-existing format violations (apps/server/src/db.ts,
+apps/server/test/auth.integration.test.ts) via `pnpm exec biome format --write`, then
+biome check passed with 0 errors.
+
+@the-stacks/server:test — Test Files: 21 passed | 1 skipped (22)
+                          Tests: 185 passed (185)
+
+The 1 skipped file is the D&D Beyond real-export suite (skipped without
+fixtures/private/ddb/ fixtures) — unrelated to the database. DB-backed suites ran with 0
+skips:
+  - test/db.test.ts (11 tests, incl. new isUniqueViolation describe block)
+  - test/auth.integration.test.ts (14 tests, incl. new T002 redeem-conflict case)
+  - test/library/store.integration.test.ts (11 tests)
+
+typecheck, build, check:boundaries, check:hooks, check:scripts, check:host-scripts: all
+passed with no errors.
