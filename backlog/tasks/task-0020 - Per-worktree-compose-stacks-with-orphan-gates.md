@@ -35,9 +35,11 @@ Spec: specs/010-worktree-stacks
 - [x] #8 Spec phase: Foundational — pure derivation library
 - [x] #9 Spec phase: User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP
 - [x] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
-- [ ] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
+- [x] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
