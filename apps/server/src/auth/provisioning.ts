@@ -18,6 +18,16 @@ export type CreateOperatorResult =
   | { created: true; user: typeof users.$inferSelect }
   | { created: false };
 
+/** True if an operator account already exists (research R2). */
+export async function hasOperator(db: DbClient): Promise<boolean> {
+  const [existing] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.role, "operator"))
+    .limit(1);
+  return Boolean(existing);
+}
+
 /**
  * Creates the first operator account. Refuses — returns `{created: false}`
  * rather than throwing — when an operator already exists, so a second run
@@ -32,12 +42,7 @@ export async function createOperator(
   db: DbClient,
   input: CreateOperatorInput,
 ): Promise<CreateOperatorResult> {
-  const [existing] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.role, "operator"))
-    .limit(1);
-  if (existing) {
+  if (await hasOperator(db)) {
     return { created: false };
   }
 
