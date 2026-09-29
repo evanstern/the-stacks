@@ -63,8 +63,8 @@ the ceiling returns 413; aborts and refusals leave no file and no job.
 **Goal**: pure `chunkBook` (AC #3). **Independent test**: unit invariants 1–7 in
 contracts/ingest-modules.md. Parallel with Phase 2: no shared files.
 
-- [ ] T015 [P] [US3] Create `apps/server/src/library/ingest/chunk.ts`: `CHUNK_MAX_CHARS = 2000` and `chunkBook(book, { maxChars })` per research R5. Merge consecutive blocks with equal `path`; never merge a `table` or `statBlock`; keep a merged span within `maxChars`; span = `[first.start, last.end)`; text = `book.text.slice(span)`; single-block kind kept, merged → `prose`; `maxChars: 0` ⇒ identity. Add a `ponytail:` comment: character budget, not tokens; TASK-0029 may revisit.
-- [ ] T016 [P] [US3] Create `apps/server/test/library/chunk.test.ts`. Assert invariants 1–7 over the three committed DDB fixtures (`parseDdbExport` output) and hand-built books: a heading plus short paragraphs merge; a 5,000-char table stays one chunk; two sections never merge; an oversize single prose block stays whole; astral-plane text keeps span equality.
+- [x] T015 [P] [US3] Create `apps/server/src/library/ingest/chunk.ts`: `CHUNK_MAX_CHARS = 2000` and `chunkBook(book, { maxChars })` per research R5. Merge consecutive blocks with equal `path`; never merge a `table` or `statBlock`; keep a merged span within `maxChars`; span = `[first.start, last.end)`; text = `book.text.slice(span)`; single-block kind kept, merged → `prose`; `maxChars: 0` ⇒ identity. Add a `ponytail:` comment: character budget, not tokens; TASK-0029 may revisit.
+- [x] T016 [P] [US3] Create `apps/server/test/library/chunk.test.ts`. Assert invariants 1–7 over the three committed DDB fixtures (`parseDdbExport` output) and hand-built books: a heading plus short paragraphs merge; a 5,000-char table stays one chunk; two sections never merge; an oversize single prose block stays whole; astral-plane text keeps span equality.
 
 **Checkpoint**: the chunker is proven in isolation and ready for TASK-0029.
 
