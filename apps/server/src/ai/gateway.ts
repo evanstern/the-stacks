@@ -1,7 +1,7 @@
 /**
  * The AI gateway (contracts/gateway.md). `chat()` routes a purpose to its
  * named provider, streams text, and emits exactly one usage record per call.
- * `embed()` lands in Phase 3.
+ * `embed()` does the same for batch embeddings (Phase 3).
  */
 
 import { FakeProvider } from "./adapters/fake.js";
@@ -10,6 +10,7 @@ import type {
   AdapterFactory,
   ChatEvent,
   ChatRequest,
+  EmbedResult,
   Provider,
   ProviderConfig,
   UsageRecord,
@@ -18,8 +19,18 @@ import type {
 } from "./types.js";
 import { computeCost } from "./usage.js";
 
+/** Every embedding vector returned to a caller has exactly this length (FR-004). */
+const EMBED_DIM = 1024;
+
+export interface EmbedRequest {
+  purpose: string;
+  texts: string[];
+  signal?: AbortSignal;
+}
+
 export interface Gateway {
   chat(req: ChatRequest): AsyncIterable<ChatEvent>;
+  embed(req: EmbedRequest): Promise<EmbedResult>;
 }
 
 export interface GatewayOptions {
@@ -150,6 +161,81 @@ export function createGateway(opts: GatewayOptions): Gateway {
           durationMs: Date.now() - startedAt,
           // retry.ts (Phase 4) will make this vary; fixed at 1 until the
           // gateway wraps provider calls in retry.
+          attempts: 1,
+          outcome,
+          at: new Date().toISOString(),
+        });
+      }
+    },
+
+    async embed(req: EmbedRequest): Promise<EmbedResult> {
+      const startedAt = Date.now();
+      const purpose = config.purposes[req.purpose];
+
+      // Symmetric with chat's invariant 1: unknown purpose fails before any
+      // provider call or usage record — no provider/model to attribute one to.
+      if (!purpose) {
+        throw new Error(`unknown purpose "${req.purpose}"`);
+      }
+
+      // Invariant 5: empty input short-circuits — no provider call, no usage record.
+      if (req.texts.length === 0) {
+        return { vectors: [], usage: NO_USAGE };
+      }
+
+      const providerCfg = config.providers[purpose.provider];
+      const provider = resolveProvider(purpose.provider, providerCfg);
+      if (!provider.embed) {
+        throw new Error(
+          `provider "${purpose.provider}" declares no embed operation`,
+        );
+      }
+
+      const batchSize = purpose.batchSize ?? 128;
+      const batches: string[][] = [];
+      for (let i = 0; i < req.texts.length; i += batchSize) {
+        batches.push(req.texts.slice(i, i + batchSize));
+      }
+
+      let usage: UsageSummary = NO_USAGE;
+      let outcome: UsageRecord["outcome"] = "ok";
+      try {
+        const vectors: EmbedResult["vectors"] = [];
+        let inputTokens = 0;
+        for (const batch of batches) {
+          // Called as `provider.embed(...)` (not detached) to keep `this`
+          // bound inside the provider's own implementation.
+          const result = await provider.embed(purpose.model, batch, req.signal);
+          for (const vector of result.vectors) {
+            if (vector.length !== EMBED_DIM) {
+              throw new Error(
+                `provider "${purpose.provider}" returned an embedding of length ${vector.length}, expected ${EMBED_DIM}`,
+              );
+            }
+            vectors.push({ vector, model: purpose.model, dim: EMBED_DIM });
+          }
+          inputTokens += result.inputTokens;
+          usage = { inputTokens, outputTokens: 0 };
+        }
+        return { vectors, usage };
+      } catch (err) {
+        outcome = req.signal?.aborted ? "cancelled" : "error";
+        throw err instanceof Error ? err : new Error(String(err));
+      } finally {
+        sink.record({
+          purpose: req.purpose,
+          provider: purpose.provider,
+          model: purpose.model,
+          inputTokens: usage.inputTokens,
+          outputTokens: usage.outputTokens,
+          costUsd: computeCost(
+            config.prices,
+            purpose.provider,
+            purpose.model,
+            usage.inputTokens,
+            usage.outputTokens,
+          ),
+          durationMs: Date.now() - startedAt,
           attempts: 1,
           outcome,
           at: new Date().toISOString(),

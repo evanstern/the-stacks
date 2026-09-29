@@ -215,3 +215,123 @@ describe("gateway.chat", () => {
     expect(sink.records[0]?.costUsd).toBeNull();
   });
 });
+
+/** Builds a gateway wired to one named fake embedding provider. */
+function buildEmbedGateway(
+  provider: FakeProvider,
+  purposeOverrides: Partial<AiConfig["purposes"][string]> = {},
+) {
+  const config: AiConfig = {
+    providers: {
+      "embed-provider": { kind: "fake", baseUrl: "http://fake/embed-provider" },
+    },
+    purposes: {
+      embedding: {
+        provider: "embed-provider",
+        model: "embed-model",
+        op: "embed",
+        ...purposeOverrides,
+      },
+    },
+    prices: {},
+  };
+  const sink = memorySink();
+  const gateway = createGateway({
+    config,
+    sink,
+    adapters: { fake: () => provider },
+  });
+  return { gateway, sink };
+}
+
+/** A 1024-length vector identifiable by its first element, for order assertions. */
+function marker(n: number): number[] {
+  const vector = new Array(1024).fill(0);
+  vector[0] = n;
+  return vector;
+}
+
+describe("gateway.embed", () => {
+  it("returns one vector per text in input order, each length 1024, labeled with model and dim (US2 AC1, invariant 4)", async () => {
+    const provider = new FakeProvider();
+    const { gateway, sink } = buildEmbedGateway(provider);
+
+    const result = await gateway.embed({
+      purpose: "embedding",
+      texts: ["a", "b", "c"],
+    });
+
+    expect(result.vectors).toHaveLength(3);
+    for (const v of result.vectors) {
+      expect(v.vector).toHaveLength(1024);
+      expect(v.model).toBe("embed-model");
+      expect(v.dim).toBe(1024);
+    }
+    expect(sink.records).toHaveLength(1);
+    expect(sink.records[0]).toMatchObject({
+      purpose: "embedding",
+      provider: "embed-provider",
+      model: "embed-model",
+      outcome: "ok",
+      attempts: 1,
+    });
+  });
+
+  it("rejects the whole call, naming expected and actual dimension, when the provider returns a wrong-length vector (US2 AC2, invariant 4)", async () => {
+    const provider = new FakeProvider();
+    provider.scriptEmbed({ vectors: [new Array(512).fill(0)] });
+    const { gateway, sink } = buildEmbedGateway(provider);
+
+    await expect(
+      gateway.embed({ purpose: "embedding", texts: ["only"] }),
+    ).rejects.toThrow(/512/);
+    expect(sink.records).toHaveLength(1);
+    expect(sink.records[0]).toMatchObject({ outcome: "error" });
+  });
+
+  it("returns an empty result without calling the provider or recording usage for an empty batch (US2 AC3, invariant 5)", async () => {
+    const provider = new FakeProvider();
+    const { gateway, sink } = buildEmbedGateway(provider);
+
+    const result = await gateway.embed({ purpose: "embedding", texts: [] });
+
+    expect(result).toEqual({
+      vectors: [],
+      usage: { inputTokens: 0, outputTokens: 0 },
+    });
+    expect(provider.embedCalls).toHaveLength(0);
+    expect(sink.records).toHaveLength(0);
+  });
+
+  it("splits a batch larger than batchSize into multiple provider calls, preserving input order (spec edge case)", async () => {
+    const provider = new FakeProvider();
+    provider.scriptEmbed(
+      { vectors: [marker(1), marker(2)] },
+      { vectors: [marker(3), marker(4)] },
+      { vectors: [marker(5)] },
+    );
+    const { gateway } = buildEmbedGateway(provider, { batchSize: 2 });
+
+    const result = await gateway.embed({
+      purpose: "embedding",
+      texts: ["a", "b", "c", "d", "e"],
+    });
+
+    expect(provider.embedCalls.map((c) => c.texts)).toEqual([
+      ["a", "b"],
+      ["c", "d"],
+      ["e"],
+    ]);
+    expect(result.vectors.map((v) => v.vector[0])).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it("fails immediately with an error naming the purpose for an unknown purpose, without calling any provider (invariant 1 symmetry)", async () => {
+    const provider = new FakeProvider();
+    const { gateway } = buildEmbedGateway(provider);
+
+    await expect(
+      gateway.embed({ purpose: "missing", texts: ["x"] }),
+    ).rejects.toThrow(/missing/);
+    expect(provider.embedCalls).toHaveLength(0);
+  });
+});

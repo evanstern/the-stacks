@@ -34,8 +34,8 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 
 ## Phase 3: US2 — embeddings through the gateway (P1)
 
-- [ ] T008 Add `embed()` to `apps/server/src/ai/gateway.ts`: split by the purpose's `batchSize` (default 128), order preserved, any length ≠ 1024 rejects the whole call, empty input short-circuits with no usage record
-- [ ] T009 Tests in `apps/server/test/ai.gateway.test.ts` for invariants 4 and 5 and spec US2 #1–#3, including a split batch
+- [x] T008 Add `embed()` to `apps/server/src/ai/gateway.ts`: split by the purpose's `batchSize` (default 128), order preserved, any length ≠ 1024 rejects the whole call, empty input short-circuits with no usage record
+- [x] T009 Tests in `apps/server/test/ai.gateway.test.ts` for invariants 4 and 5 and spec US2 #1–#3, including a split batch
 
 ## Phase 4: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
 
