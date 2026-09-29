@@ -24,13 +24,13 @@ quickstart.md)
 
 **Purpose**: the pure modules and the load database every case needs.
 
-- [ ] T003 [P] Create `apps/server/src/bench/load/profile.ts`: `TierSchema`, `ProfileSchema` (data-model.md, including the ascending, dev ≤ 25 users, dev ≤ 180 s, and dev `wsSend: false` rules), `loadProfile(path)`, and `profileHash` (sha-256 of canonical sorted-key JSON).
-- [ ] T004 [P] Create `apps/server/src/bench/load/stats.ts`: nearest-rank `percentile(sorted, p)`, `ingestVerdict(steps, thresholds)`, and `concurrencyVerdict(steps, thresholds)`. Apply research R5 rules exactly, including the absolute floors (100 ms service, 20 ms enqueue, 50 ms latency). Compute one ingest verdict per worker count.
-- [ ] T005 [P] Create `apps/server/src/bench/load/synth.ts`: `synthDoc(seed, bytes)` per research R2. Use a mulberry32 PRNG and an in-code list of about 200 plain English words written for this file. Emit `#`/`##`/`###` headings, paragraphs, and bullet lists. Use no rulebook text.
-- [ ] T006 [P] Create `apps/server/src/bench/load/db.ts`: `resolveLoadUrl(env)` (research R3: `LOAD_DATABASE_URL`, else `TEST_DATABASE_URL || DATABASE_URL` with the database name suffixed `_load`; throw on equal URLs and on a non-loopback host); `recreateLoadDb` (refuse when `pg_stat_activity` shows another connection to it, then `DROP DATABASE IF EXISTS`, `CREATE DATABASE` with a quoted identifier, and migrate with `migrationsFolder` resolved from `import.meta.url`); `dropLoadDb`; `seedUsers(db, n)` (player users plus `createSession` cookies, research R9); and `preloadHistory(db, rows)` (one `INSERT ... SELECT generate_series` of `succeeded` jobs rows).
-- [ ] T007 Create `apps/server/src/bench/load/cases.ts` with the `Case` type and the `CASES` registry of all 7 cases from research R10, each with id, tier, target, and summary. Stub each `run` to return `fail` with reason `not implemented`. Add `selectCases(tier, only)`, which returns `run` and `skipped` per contracts/bench-cli.md with the fixed reasons.
-- [ ] T008 Create `apps/server/src/bench/load/results.ts`: `LoadResultsSchema` and `CaseOutcomeSchema` (contracts/results-format.md, data-model.md); `writeResults` (commit via `git rev-parse HEAD`, dirty via `git status --porcelain`, both with `execFileSync`; host facts from `node:os`; name `<date>-<sha7>-<runId8>.json`; two-space JSON plus a trailing newline).
-- [ ] T009 Create `apps/server/test/bench/load.test.ts`. Cover contract invariants 1–6 and 8, and add invariant 9 with fabricated outcomes. Run it; it needs no database.
+- [x] T003 [P] Create `apps/server/src/bench/load/profile.ts`: `TierSchema`, `ProfileSchema` (data-model.md, including the ascending, dev ≤ 25 users, dev ≤ 180 s, and dev `wsSend: false` rules), `loadProfile(path)`, and `profileHash` (sha-256 of canonical sorted-key JSON).
+- [x] T004 [P] Create `apps/server/src/bench/load/stats.ts`: nearest-rank `percentile(sorted, p)`, `ingestVerdict(steps, thresholds)`, and `concurrencyVerdict(steps, thresholds)`. Apply research R5 rules exactly, including the absolute floors (100 ms service, 20 ms enqueue, 50 ms latency). Compute one ingest verdict per worker count.
+- [x] T005 [P] Create `apps/server/src/bench/load/synth.ts`: `synthDoc(seed, bytes)` per research R2. Use a mulberry32 PRNG and an in-code list of about 200 plain English words written for this file. Emit `#`/`##`/`###` headings, paragraphs, and bullet lists. Use no rulebook text.
+- [x] T006 [P] Create `apps/server/src/bench/load/db.ts`: `resolveLoadUrl(env)` (research R3: `LOAD_DATABASE_URL`, else `TEST_DATABASE_URL || DATABASE_URL` with the database name suffixed `_load`; throw on equal URLs and on a non-loopback host); `recreateLoadDb` (refuse when `pg_stat_activity` shows another connection to it, then `DROP DATABASE IF EXISTS`, `CREATE DATABASE` with a quoted identifier, and migrate with `migrationsFolder` resolved from `import.meta.url`); `dropLoadDb`; `seedUsers(db, n)` (player users plus `createSession` cookies, research R9); and `preloadHistory(db, rows)` (one `INSERT ... SELECT generate_series` of `succeeded` jobs rows).
+- [x] T007 Create `apps/server/src/bench/load/cases.ts` with the `Case` type and the `CASES` registry of all 7 cases from research R10, each with id, tier, target, and summary. Stub each `run` to return `fail` with reason `not implemented`. Add `selectCases(tier, only)`, which returns `run` and `skipped` per contracts/bench-cli.md with the fixed reasons.
+- [x] T008 Create `apps/server/src/bench/load/results.ts`: `LoadResultsSchema` and `CaseOutcomeSchema` (contracts/results-format.md, data-model.md); `writeResults` (commit via `git rev-parse HEAD`, dirty via `git status --porcelain`, both with `execFileSync`; host facts from `node:os`; name `<date>-<sha7>-<runId8>.json`; two-space JSON plus a trailing newline).
+- [x] T009 Create `apps/server/test/bench/load.test.ts`. Cover contract invariants 1–6 and 8, and add invariant 9 with fabricated outcomes. Run it; it needs no database.
 
 **Checkpoint**: `pnpm --filter @the-stacks/server test -- test/bench/load.test.ts` is green without a database.
 
@@ -116,3 +116,13 @@ MVP = Phases 1–5: the registry, the ingest measurement decision-0005 needs, th
 measurement, and the every-commit cases with visible skips. Phase 6 adds stress cases. Phase 7
 adds stored comparison. Phase 8 re-grounds, runs the gates, and records the one dev run. No new
 dependency, no migration, no CI workflow change, no command on vm-104.
+
+## Deviation
+
+T009's checkpoint runs with no database, as written. In addition, this implementer added
+`apps/server/test/bench/load-db.integration.test.ts` (loud-skip harness, `describe.skipIf`) to
+exercise `db.ts`'s three refusal guards — equal-URL and non-loopback-host at the unit level in
+`load.test.ts`, and the `pg_stat_activity` "database in use" guard, which needs a real Postgres
+connection to trigger — against the worktree's test stack. This is a separate file from Phase
+5's `load.integration.test.ts` (T018) to avoid colliding with that later task; it covers only
+Phase 2's `db.ts`, not the case registry.
