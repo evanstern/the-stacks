@@ -37,10 +37,12 @@ Spec: specs/016-hosted-dev-cd
 - [x] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
 - [x] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
 - [x] #11 Spec phase: User Story 3 — drift is caught (P2)
-- [ ] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
+- [x] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
 - [ ] #13 Spec phase: User Story 5 — the ops runbook (P3)
 - [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
+
+
 
 
 
