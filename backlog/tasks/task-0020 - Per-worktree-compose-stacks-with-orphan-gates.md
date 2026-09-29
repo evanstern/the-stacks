@@ -39,14 +39,6 @@ Spec: specs/010-worktree-stacks
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -77,6 +69,8 @@ Phases 4-5 (3a8cdcc, b5469e1) and post-#22 merge (77683a0, 15dbde0, d5853b0). Or
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Merge with main after #23 (77a2547, pins 8204d23, evidence ff21389): conflicts only on verified_against lines + feature.json + CAPSULES; test counts recomputed from merged tree. Also carries close-task-0025 (TASK-0025 Done sync).
+
+spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 2/3
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
