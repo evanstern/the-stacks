@@ -19,6 +19,7 @@ modules, or agents yet; those are M1 and beyond.
 - [[monorepo-and-toolchain]] — pnpm workspaces, Turborepo, TypeScript project references, Biome.
 - [[compose-stack]] — the two-container topology, health checks, and the port/URL split that catches everyone.
 - [[container-image]] — the multi-stage Dockerfile, what ships in the runtime layer, and why.
+- [[runtime-stacks]] — `pnpm env:*`, one labeled compose stack per git worktree, orphan detection, and the local `origin/main` stack.
 
 ## Server
 

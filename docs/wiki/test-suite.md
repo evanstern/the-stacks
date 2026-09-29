@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What the server's 11 test files / 72 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference.
+description: What the server's 11 test files / 73 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference.
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -18,7 +18,7 @@ sources:
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - tsconfig.json
-verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
+verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
 ---
 
 # Test suite
@@ -49,12 +49,14 @@ exists to run.
 
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
-resolve): **8 test files pass, 3 skip** (the three integration files above), out of 11 — **30
-tests pass, 42 skip**, out of 72. A green run in this state proves the unit-level behavior
-only; every session-auth flow, every event-log write/read, and the entire WebSocket gateway
-(including [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone
-reading only a pass/fail summary, not the warning text, would not notice. With a reachable
-database and `REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **72 tests pass, 0 skip**.
+resolve): **8 test files pass, 3 skip** (the three integration files above), out of 11 — **31
+tests pass, 42 skip**, out of 73 (spec 010 added one `health.test.ts` case for the `/health`
+`commit` field — see [[health-check]] — to the unit-level 31). A green run in this state
+proves the unit-level behavior only; every session-auth flow, every event-log write/read, and
+the entire WebSocket gateway (including [[replay-live-boundary]] and [[subscriber-registry]])
+goes unverified. Anyone reading only a pass/fail summary, not the warning text, would not
+notice. With a reachable database and `REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all
+**73 tests pass, 0 skip**.
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`

@@ -6,7 +6,7 @@ sources:
   - apps/server/src/routes/health.ts
   - healthcheck.js
   - docker-compose.yml
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
 ---
 
 # Health check
@@ -18,15 +18,21 @@ is `healthcheck.js`, run as a separate process by `docker-compose.yml`.
 
 ## How it works
 
-`createHealthRoute(databaseProbe: DatabaseProbe)` registers `GET /` on its own sub-router
-(mounted at `/health` in `app.ts`). The handler calls `await databaseProbe.reachable()` and
-builds a `HealthReport`: `{ status: reachable ? "ok" : "degraded", process: { uptimeSeconds:
-process.uptime() }, database: { reachable } }`. `status` is explicitly **derived**, never set
-independently — the code comment is emphatic that it's `"ok"` only when every dependency
-fact below it is true, which at M0 means only the one database check. `databaseProbe` is
-injected (constructed in `index.ts` from `createDatabaseProbe(config.databaseUrl)`, see
-[[server-entrypoint-and-app]]), which is what lets tests exercise both reachable and
-unreachable cases without a real Postgres connection.
+`createHealthRoute(databaseProbe: DatabaseProbe, commit: string)` registers `GET /` on its
+own sub-router (mounted at `/health` in `app.ts`). The handler calls `await
+databaseProbe.reachable()` and builds a `HealthReport`: `{ status: reachable ? "ok" :
+"degraded", process: { uptimeSeconds: process.uptime() }, database: { reachable }, commit }`.
+`status` is explicitly **derived**, never set independently — the code comment is emphatic
+that it's `"ok"` only when every dependency fact below it is true, which at M0 means only the
+one database check. `databaseProbe` is injected (constructed in `index.ts` from
+`createDatabaseProbe(config.databaseUrl)`, see [[server-entrypoint-and-app]]), which is what
+lets tests exercise both reachable and unreachable cases without a real Postgres connection.
+
+`commit` is spec 010's addition (`specs/010-worktree-stacks/contracts/health.md`, amending the
+fixed-seam `specs/003-hono-server/contracts/health.md` additively): [[configuration]]'s
+`loadConfig` reads it from the baked-in `GIT_COMMIT` build arg (`"unknown"` if unset) and
+`index.ts` passes it straight through to `createHealthRoute`. It never feeds `status` — an
+`"unknown"` commit is not a degraded one — it just names which build is answering.
 
 `healthcheck.js`, copied to `/app/healthcheck.js` by the Dockerfile (see
 [[container-image]]) and invoked by `docker-compose.yml`'s `app.healthcheck.test: ["CMD",

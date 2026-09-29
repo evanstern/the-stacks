@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
 ---
 
 # Server entrypoint and app
@@ -17,7 +17,8 @@ via `createApp` without binding a port.
 ## How it works
 
 `index.ts` runs, in order: `loadConfig()` (see [[configuration]]), `createDb(config.databaseUrl)`,
-`createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db })`, then
+`createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db, commit: config.commit })`,
+then
 `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
 the callback logs `Server listening on port ${info.port}`. The load-bearing line is the last
@@ -31,9 +32,10 @@ inside `createApp` (threaded into the auth routes) and once here for the gateway
 the same `db`, so HTTP and WebSocket share one session-validation seam (see
 [[session-auth]]).
 
-`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot? }` (`staticRoot` is a
-test-only override for the SPA's static root) and returns a plain `Hono` app with no port
-bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
+`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit? }` (`staticRoot` is a
+test-only override for the SPA's static root; `commit` defaults to `"unknown"` and is passed
+straight to `createHealthRoute` — see [[health-check]]) and returns a plain `Hono` app with no
+port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
 `app.notFound(notFoundHandler)` first, then `app.route("/health", ...)`, `app.route("/api/echo",
 ...)`, `app.route("/auth", ...)`, and finally `app.use("*", createStaticMiddleware(staticRoot))`.
 The static middleware is mounted **last** on purpose: it is a catch-all (`"*"`) SPA fallback,
