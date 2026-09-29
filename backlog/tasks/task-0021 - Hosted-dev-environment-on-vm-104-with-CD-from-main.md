@@ -60,6 +60,8 @@ Operator rulings 2026-09-29 (plan checkpoint): (1) tailnet HTTPS on 8443 — htt
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1 Foundational; 16 unit + 5 workflow-invariant tests, 3 todo pending T005/T012)
+
+Phase grouping (orchestrator call): local code tasks T004-T006, T009-T010, T012-T013, T017-T018 in one sonnet dispatch; vm-104 steps T007/T008/T011/T014/T015/T016/T019 run by the orchestrator under operator ruling (3).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
