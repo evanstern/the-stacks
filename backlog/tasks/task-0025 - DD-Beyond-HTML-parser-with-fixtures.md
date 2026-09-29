@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:45'
+updated_date: '2026-09-29 03:51'
 labels:
   - library
 milestone: m-1
@@ -53,6 +53,10 @@ Phases 1-2 (T001-T009) done in 5388ad3; orchestrator verified: transcript shows 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 3 (T010-T013) done in 1ea7bc7: walk.ts + parseDdbExport wired; 10 tests (orchestrator re-ran). Anchor invariant text.slice(start,end)===block.text proven for all 17 basic-rules blocks. Lists flatten to one text run (ponytail note). page-title fallback heading deferred to Phase 4+.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 4 (T014-T016) done in 3d091d4: extract.ts (tables, stat blocks) wired into walk.ts; tests-first (8 red then green). Cave Skitterer emits one whole block. Design calls: colspan cell kept once; ability scores appended after data lines.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
