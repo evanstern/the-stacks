@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 20:25'
+updated_date: '2026-09-29 20:44'
 labels:
   - bench
 milestone: m-1
@@ -48,6 +48,9 @@ Spec: specs/021-load-bench
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-29; ~196k tokens). No blocking checkpoint: no new dependency (fetch + existing ws); isolated <base>_load DB on the TASK-0033 test stack; generated original-word Markdown. Checkpoint T026: dev run from the Mac with --allow-dev, operator go on the exact command, operator supplies credentials; one sign-in session row, signed out in finally; no vm-104 command. Phase grouping: P1+P2; P3+P4; P5+P6+P7; P8.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 1-2: profile/stats/synth/db/cases/results; 25 unit + 1 live-guard integration test; 378 pass under REQUIRE_DATABASE=1). Deviation accepted: extra load-db.integration.test.ts for the live DB-in-use guard.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
