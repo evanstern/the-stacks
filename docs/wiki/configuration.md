@@ -1,6 +1,6 @@
 ---
 name: configuration
-description: loadConfig's env-var contract — APP_PORT not PORT, the required DATABASE_URL, and the TEST_DATABASE_URL/DATABASE_URL split between the running server and host-run scripts, including why migrate.ts uses || rather than ??. Load for any env-var or "why did config throw" question.
+description: loadConfig's env-var contract — APP_PORT not PORT, the required DATABASE_URL, UPLOAD_MAX_BYTES, and the TEST_DATABASE_URL/DATABASE_URL split between the running server and host-run scripts, including why migrate.ts uses || rather than ??. Load for any env-var or "why did config throw" question.
 kind: concept
 sources:
   - apps/server/src/config.ts
@@ -8,16 +8,17 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Configuration
 
 `apps/server/src/config.ts` exports `loadConfig(env = process.env): ServerConfig`, reading
-three things: `DATABASE_URL` (required — throws `"DATABASE_URL environment variable is
-required"` if unset), the port the server binds to, and `GIT_COMMIT` (optional, `"unknown"` if
-unset — surfaced at `/health`, see [[health-check]]). `ServerConfig` is `{ databaseUrl: string,
-port: number, commit: string }`.
+four things: `DATABASE_URL` (required — throws `"DATABASE_URL environment variable is
+required"` if unset), the port the server binds to, `GIT_COMMIT` (optional, `"unknown"` if
+unset — surfaced at `/health`, see [[health-check]]), and, since TASK-0024
+(specs/017-ingestion-pipeline), `UPLOAD_MAX_BYTES`. `ServerConfig` is `{ databaseUrl: string,
+port: number, commit: string, uploadMaxBytes: number }`.
 
 **`config.ts` has no relative imports, on purpose.** `apps/server/scripts/migrate.ts` and
 `apps/server/scripts/create-operator.ts` run it on the host under
@@ -37,6 +38,12 @@ The port variable is **`APP_PORT`, not `PORT`** — there is no fallback to the 
 `` `APP_PORT must be a positive integer, got "${portRaw}"` `` if the result isn't a positive
 integer. `??` is correct here because the only value that should trigger the default is
 "unset" (`undefined`) — there's no case where `APP_PORT` is legitimately an empty string.
+
+`uploadMaxBytes` is `Number(env.UPLOAD_MAX_BYTES ?? "1073741824")` (1 GiB default), validated
+the same way as `APP_PORT` — throws `` `UPLOAD_MAX_BYTES must be a positive integer, got
+"${raw}"` `` for anything that isn't a positive integer. It ceilings a single upload's file
+part in [[ingestion]]'s `/library/uploads` route; see that note for how the route enforces it
+both from `Content-Length` and mid-stream.
 
 `commit` is `env.GIT_COMMIT ?? "unknown"` — no validation, since any string (or its absence)
 is a legitimate answer. It is baked into the image at build time (spec 010's `GIT_COMMIT`
@@ -80,7 +87,8 @@ contract" callout for the same
 
 Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional: `APP_PORT`
 (default `3000`, must parse to a positive integer), `GIT_COMMIT` (default `"unknown"`, set via
-the Dockerfile build arg, never from `.env`). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
+the Dockerfile build arg, never from `.env`), `UPLOAD_MAX_BYTES` (default `1073741824`, must
+parse to a positive integer). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
 by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
 [[ai-gateway]]; unset means no model features, not an error). `RETRIEVAL_MODE`/`RETRIEVAL_K`/
 `RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s

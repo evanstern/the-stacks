@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/static.ts
   - apps/server/src/app.ts
-verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Static serving
@@ -52,10 +52,10 @@ middleware invoked directly like this.
 
 ## Connections
 
-Mounted last in [[server-entrypoint-and-app]]'s `app.ts`, after `/health`, `/api/echo`, and
-`/auth` — that ordering, not anything inside this file, is what actually prevents API
-shadowing. Its default root is populated by [[container-image]]'s Dockerfile. Serves
-[[spa-shell]]'s build output.
+Mounted last in [[server-entrypoint-and-app]]'s `app.ts`, after `/health`, `/api/echo`,
+`/auth`, and `/library` ([[ingestion]], TASK-0024) — that ordering, not anything inside this
+file, is what actually prevents API shadowing. Its default root is populated by
+[[container-image]]'s Dockerfile. Serves [[spa-shell]]'s build output.
 
 ## Operational notes
 

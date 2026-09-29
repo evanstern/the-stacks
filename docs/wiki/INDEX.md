@@ -8,11 +8,14 @@ orientation.
 **State of the codebase at this pin:** M0, the walking skeleton, plus the first `library`
 plane work. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
 Postgres event log, session auth, a WebSocket gateway, and a React SPA. The `library` plane
-now has a parser ([[ddb-parser]]) and its storage ([[library-schema]]: documents, chunks,
-embeddings, immutable after ingestion) — but no ingestion job writes to it yet (TASK-0024). A
-read path over that storage now exists too ([[retrieval]]: vector/fts/hybrid search, fused by
-RRF) but has no caller until the rules-answerer (TASK-0027). The provider-agnostic AI gateway
-([[ai-gateway]]) has landed. No codex, system modules, or agents yet.
+now has a parser ([[ddb-parser]]), its storage ([[library-schema]]: documents, chunks,
+embeddings, immutable after ingestion), and an end-to-end ingestion pipeline
+([[ingestion]], TASK-0024: streamed upload → zip/HTML/Markdown → parse → chunk → store →
+embed, via a `jobs` queue). A read path over that storage now exists too ([[retrieval]]:
+vector/fts/hybrid search, fused by RRF) but has no HTTP caller until the rules-answerer
+(TASK-0027) — though ingestion already reads its embed-purpose config. The provider-agnostic
+AI gateway ([[ai-gateway]]) has landed, and ingestion is its first real caller. No codex,
+system modules, or agents yet.
 
 ## Start here
 
@@ -65,6 +68,7 @@ RRF) but has no caller until the rules-answerer (TASK-0027). The provider-agnost
 
 - [[ddb-parser]] — turning saved D&D Beyond export HTML into ordered, anchored blocks.
 - [[library-schema]] — the library plane's storage: documents/chunks/embeddings, the immutability trigger, and the one write path (storeParsedBook, attachEmbeddings).
+- [[ingestion]] — the library plane's write path: streamed upload, zip reader, parse routing, chunker, the jobs queue's claim/lease/fencing/recovery, and the embedding obligation.
 - [[retrieval]] — the library plane's read path: vector/fts/hybrid search fused by Reciprocal Rank Fusion.
 
 ## Testing and verification

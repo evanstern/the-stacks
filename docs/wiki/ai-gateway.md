@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # AI gateway
@@ -23,8 +23,9 @@ verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
 with `chat()` (an async-iterable stream of text ending in exactly one `done`/`error`) and
 `embed()` (batch of 1024-length vectors). No vendor SDK is installed and no vendor or
 provider name is ever hard-coded in this directory (decision-0007) — a test enforces that by
-grepping the source (see "Operational notes"). This slice wires the gateway into startup but
-adds no route; nothing calls it yet (TASK-0027 onward will).
+grepping the source (see "Operational notes"). As of TASK-0024 (specs/017-ingestion-pipeline),
+[[ingestion]]'s worker is the gateway's first real caller: it calls `embed()` for each stored
+book's chunks. No HTTP route calls it yet (TASK-0027 onward will).
 
 ## How it works
 
@@ -68,15 +69,23 @@ sleeping, and an injectable clock/jitter for tests.
 logSink})` right after `loadConfig()`. `config.ts` stays free of this import deliberately — it
 runs on the host under `node --experimental-strip-types` (see [[configuration]]) and must not
 gain a relative import, so AI config loading lives in `index.ts` instead of `ServerConfig`.
-With no `AI_*` env vars set, `aiConfig` is the empty config and the gateway is inert — startup
-behavior is unchanged from before this slice.
+With no `AI_*` env vars set, `aiConfig` is the empty config and calls into it fail (or, for
+ingestion, are skipped — see below) rather than silently no-op-ing at startup.
+
+`index.ts` passes this same `aiGateway` into `startIngestWorker({db, gateway: aiGateway,
+embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s `loadRetrievalConfig(process.env
+).embedPurpose` name, resolved to that name only when `aiConfig.purposes[name]?.op ===
+"embed"` — otherwise it's `null` and the worker's `embed()` call is skipped (`embedding.status
+=== "skipped"`) rather than thrown. This is the gateway's only caller today; a bad or
+unconfigured purpose degrades ingestion (no vectors), it never crashes the server at boot.
 
 ## Connections
 
 Constructed in [[server-entrypoint-and-app]]'s `index.ts`, via `loadAiConfig(process.env)`
 called directly (not through [[configuration]]'s `loadConfig`), alongside the WebSocket
-gateway. `.env.example` documents the three env vars under "AI gateway". No plane imports it
-yet — see [[overview]] for the three data planes any future caller will sit in.
+gateway. `.env.example` documents the three env vars under "AI gateway". [[ingestion]]'s
+worker (library plane, TASK-0024) is its first caller, via `embed()` — see [[overview]] for
+the three data planes.
 
 ## Operational notes
 

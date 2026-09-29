@@ -1,22 +1,25 @@
 ---
 name: database-schema
-description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane tables are [[library-schema]].
+description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane content tables are [[library-schema]]; the library plane's operational jobs table is here.
 kind: component
 sources:
   - apps/server/src/schema/events.ts
   - apps/server/src/schema/auth.ts
+  - apps/server/src/schema/jobs.ts
   - apps/server/drizzle/0000_mushy_thor_girl.sql
-verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
+  - apps/server/drizzle/0003_dazzling_cargill.sql
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Database Schema
 
-This note covers the session and auth planes. Four tables across two Drizzle schema files:
-`events` (`apps/server/src/schema/events.ts`, the session plane) and `users` / `auth_sessions`
-/ `invitations` (`apps/server/src/schema/auth.ts`). The library plane's three tables
-(`library_documents`/`library_chunks`/`library_embeddings`, TASK-0022) are documented
-separately in [[library-schema]] — same repo, same pattern for its own immutability trigger,
-different concept.
+This note covers the session and auth planes, plus the library plane's operational `jobs`
+table. Five tables across three Drizzle schema files: `events` (`apps/server/src/schema/
+events.ts`, the session plane), `users` / `auth_sessions` / `invitations`
+(`apps/server/src/schema/auth.ts`), and `jobs` (`apps/server/src/schema/jobs.ts`, TASK-0024).
+The library plane's three *content* tables (`library_documents`/`library_chunks`/
+`library_embeddings`, TASK-0022) are documented separately in [[library-schema]] — same repo,
+same pattern for its own immutability trigger, different concept.
 
 ## How it works
 
@@ -70,13 +73,24 @@ system's hottest read into a write, and it is the seed of an accidental sliding 
 is a permanent backdoor), and `redeemedAt`/`redeemedBy`, null meaning unredeemed and set
 exactly once via a conditional `UPDATE` (see [[invitations]]) — never read-then-write.
 
+**`jobs`** (TASK-0024, `apps/server/drizzle/0003_dazzling_cargill.sql`) — one row per upload,
+tracking ingestion's operational state (`queued → running → succeeded|failed`, `stage`,
+`attempts`, a per-claim `claim_token`/`heartbeat_at` lease). Unlike every table above,
+**it is not append-only or immutable** — rows update in place as a job advances, and it carries
+no trigger. `jobs_claim_idx` (`status`, `created_at`) serves the oldest-first claim query;
+`jobs_active_book_key`, a **partial** unique index (`WHERE status IN ('queued', 'running')`)
+on `lower(trim(book))`, allows a finished job's book to be re-uploaded while still refusing a
+second concurrent upload of the same book. Full lease/fencing/recovery mechanics are
+[[ingestion]]'s, not this note's.
+
 ## Connections
 
-Consumed by [[event-log]] (`events`), [[session-auth]] (`users`, `auth_sessions`), and
-[[invitations]] (`invitations`). Generated and applied per [[migrations]]. `events`'
-append-only trigger is the first instance of a pattern [[library-schema]] repeats for its own
-three tables (a different trigger function, `library_immutable`, refusing `UPDATE` only —
-library rows are deletable, `events` rows are not).
+Consumed by [[event-log]] (`events`), [[session-auth]] (`users`, `auth_sessions`),
+[[invitations]] (`invitations`), and [[ingestion]] (`jobs`). Generated and applied per
+[[migrations]]. `events`' append-only trigger is the first instance of a pattern
+[[library-schema]] repeats for its own three tables (a different trigger function,
+`library_immutable`, refusing `UPDATE` only — library rows are deletable, `events` rows are
+not); `jobs` deliberately breaks that pattern, since its whole point is in-place updates.
 
 ## Operational notes
 

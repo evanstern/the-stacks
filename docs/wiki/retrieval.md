@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Retrieval
@@ -14,8 +14,11 @@ verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
 `apps/server/src/library/retrieve.ts` is the library plane's only **read** path
 (contracts/retrieval.md, spec 015): a question in, cited passages out, via keyword search
 (`fts`), vector search (`vector`), or both fused with Reciprocal Rank Fusion (`hybrid`, the
-default). It never writes to the database. Nothing calls it yet this slice — the declared
-consumers are the rules answerer (TASK-0027) and the retrieval benchmark (TASK-0029).
+default). It never writes to the database. `retrieve()` itself is still uncalled — the
+declared consumers are the rules answerer (TASK-0027) and the retrieval benchmark
+(TASK-0029) — but its config has a caller already: TASK-0024's [[ingestion]] reads
+`loadRetrievalConfig(...).embedPurpose` to pick which [[ai-gateway]] purpose embeds each
+stored chunk, so the two features share one "which purpose is embedding" answer.
 
 ## How it works
 
@@ -25,10 +28,10 @@ default 8), `RETRIEVAL_EMBED_PURPOSE` (non-empty string, default `"embedding"`).
 value throws naming the variable and its allowed values; the function never checks
 `AI_PURPOSES` itself, so a server with no AI config configured still starts (a bad
 `RETRIEVAL_EMBED_PURPOSE` only surfaces when a `vector`/`hybrid` call actually tries to embed).
-`RETRIEVAL_EMBED_PURPOSE` must name the same [[ai-gateway]] purpose ingestion (TASK-0024) used
-to embed the library's chunks — retrieval embeds the question with this purpose and filters
-`library_embeddings` by the model *that purpose's provider reports back*, never a name read
-from config, so a mismatched purpose finds nothing rather than erroring.
+`RETRIEVAL_EMBED_PURPOSE` must name the same [[ai-gateway]] purpose [[ingestion]] (TASK-0024)
+used to embed the library's chunks — retrieval embeds the question with this purpose and
+filters `library_embeddings` by the model *that purpose's provider reports back*, never a name
+read from config, so a mismatched purpose finds nothing rather than erroring.
 
 **Per-request overrides**: `retrieve(deps, req)` takes `{question, mode?, k?, signal?}`.
 `question` must be non-empty after trimming; `mode`/`k` override the config for that call only.
@@ -70,16 +73,17 @@ for a search that didn't run.
 ## Connections
 
 Reads [[library-schema]]'s `library_chunks`/`library_embeddings` (never writes); embeds through
-[[ai-gateway]]'s `embed()`, matched to ingestion's purpose (TASK-0024, [[library-schema]]).
-Config is loaded and validated at boot by [[server-entrypoint-and-app]]'s `index.ts`, alongside
-[[configuration]]'s `loadConfig` and the AI gateway's own config — unused until TASK-0027 wires
-a route to it. `.env.example` documents the three `RETRIEVAL_*` vars under "Retrieval" (see
-[[configuration]]).
+[[ai-gateway]]'s `embed()`, matched to [[ingestion]]'s purpose (TASK-0024). Config is loaded
+and validated at boot by [[server-entrypoint-and-app]]'s `index.ts`, alongside
+[[configuration]]'s `loadConfig` and the AI gateway's own config; `embedPurpose` is read by
+[[ingestion]]'s worker at boot, but the `retrieve()` read path itself is unused until TASK-0027
+wires a route to it. `.env.example` documents the three `RETRIEVAL_*` vars under "Retrieval"
+(see [[configuration]]).
 
 ## Operational notes
 
 All three env vars are optional; unset, retrieval defaults to `hybrid` mode, `k=8`, embed
 purpose `"embedding"`. A `vector`/`hybrid` request against an `AI_PURPOSES` config that doesn't
 declare that purpose fails at the embed call, not at boot. `RETRIEVAL_EMBED_PURPOSE` not
-matching the purpose TASK-0024's ingestion job used to embed chunks is a silent-empty-results
+matching the purpose [[ingestion]]'s job used to embed chunks is a silent-empty-results
 trap, not an error — the model filter just won't match any row.

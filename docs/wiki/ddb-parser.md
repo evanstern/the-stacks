@@ -1,6 +1,6 @@
 ---
 name: ddb-parser
-description: How parseDdbExport turns saved D&D Beyond export HTML pages into one ordered, anchored ParsedBook — the single-pass parse5 walk, chrome-stripping, table/stat-block whole-unit extraction, and how the fixture and private-suite carve-outs fit biome.json and .gitignore.
+description: How parseDdbExport turns saved D&D Beyond export HTML pages (or, with headings:"all", any generic HTML page) into one ordered, anchored ParsedBook — the single-pass parse5 walk, chrome-stripping, table/stat-block whole-unit extraction, and how the fixture and private-suite carve-outs fit biome.json and .gitignore.
 kind: concept
 sources:
   - apps/server/src/library/ddb/index.ts
@@ -9,12 +9,12 @@ sources:
   - apps/server/src/library/ddb/selectors.ts
   - biome.json
   - .gitignore
-verified_against: 872b0aba2bfefe65e85bf5010dde46f9e725b736
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # DDB parser
 
-`parseDdbExport({ book, pages })` (`apps/server/src/library/ddb/index.ts`) is a pure
+`parseDdbExport({ book, pages }, options?)` (`apps/server/src/library/ddb/index.ts`) is a pure
 function — no database, network, or filesystem access — that turns one or more saved D&D
 Beyond export HTML pages into a `ParsedBook`: one continuous normalized `text` string plus an
 ordered array of `Block`s (`heading`, `prose`, `list`, `table`, `statBlock`, `sidebar`), each
@@ -23,6 +23,12 @@ output are both validated with Zod schemas (`ParseInputSchema`, `BlockSchema`,
 `ParsedBookSchema`); any validation failure, or zero blocks found across all pages, throws
 `ValidationError` before any partial `ParsedBook` is built — the function never returns a
 half-parsed result.
+
+`options?.headings` (TASK-0024, specs/017-ingestion-pipeline research R4) is `"ddb"` (default,
+unchanged byte-for-byte) or `"all"`: generic HTML from another source rarely carries DDB's
+`heading-anchor` class, so [[ingestion]] passes `{ headings: "all" }` for any non-DDB HTML
+upload, making every `h1`-`h6` a section heading by tag alone rather than requiring that
+class. A saved D&D Beyond export never needs this option.
 
 ## How it works
 
@@ -41,7 +47,8 @@ hashed CSS-module classes) is skipped entirely, including inside text collection
 whose flattened text is empty after chrome-stripping and whitespace collapse is dropped, not
 emitted. Headings track a path stack keyed by tag rank (`h1`-`h6`), popped back to the
 incoming heading's level before pushing — the content root's own top `h1` (the chapter title)
-is a heading by tag alone; every other real section heading carries `heading-anchor`.
+is a heading by tag alone; every other real section heading carries `heading-anchor`, unless
+`headings: "all"` is set, in which case every `h1`-`h6` counts regardless of class.
 `<table>` and `.stat-block-background` subtrees are handed to `extract.ts` and emitted as one
 whole `table`/`statBlock` block — never also recursed into as prose, so neither is
 double-counted. `<p>` becomes `prose`; `<ul>`/`<ol>` becomes one `list` block with flattened
@@ -82,4 +89,6 @@ Sits in the `library` plane, so [[monorepo-and-toolchain]]'s Biome `noRestricted
 override for `apps/server/src/library/**` already covers `ddb/` — importing `codex` or
 `session` directly from here fails lint with no config change needed
 (`pnpm check:boundaries`). See [[test-suite]] for the server's broader test layout; the DDB
-suites are `apps/server` unit tests, not database-gated integration suites.
+suites are `apps/server` unit tests, not database-gated integration suites. [[ingestion]]'s
+worker is this function's only caller: it routes DDB-marked HTML through the default, and
+every other HTML upload through `{ headings: "all" }`.

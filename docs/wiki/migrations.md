@@ -6,7 +6,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/drizzle.config.ts
   - apps/server/package.json
-verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Migrations
@@ -67,4 +67,7 @@ far: the append-only trigger described in [[database-schema]], and, in
 `apps/server/drizzle/0002_tiny_odin.sql` ([[library-schema]]), a leading
 `CREATE EXTENSION IF NOT EXISTS vector;` (pgvector isn't enabled by drizzle-kit, so it's
 added by hand as the migration's first statement) plus that table set's own
-`library_immutable` trigger.
+`library_immutable` trigger. `0003_dazzling_cargill.sql` (`jobs`, TASK-0024, [[ingestion]])
+needed no hand-added SQL at all — its CHECK constraints and partial unique index are both
+expressible directly in the Drizzle schema (`schema/jobs.ts`), unlike `0002`'s extension and
+trigger.
