@@ -6,6 +6,7 @@ import {
 import { runIngestSeries } from "./ingest.js";
 import type { Profile, Tier } from "./profile.js";
 import type { CaseOutcome } from "./results.js";
+import { runDbExhaustion, runRestartMidIngest } from "./stress.js";
 
 /**
  * The case registry (specs/021-load-bench research R10): every case
@@ -24,21 +25,6 @@ export interface Case {
   target: "local" | "dev";
   summary: string;
   run: (ctx: RunContext, profile: Profile) => Promise<CaseOutcome>;
-}
-
-function notImplemented(
-  id: string,
-  tier: Tier,
-  target: "local" | "dev",
-): Case["run"] {
-  return async () => ({
-    id,
-    tier,
-    target,
-    status: "fail",
-    reason: "not implemented",
-    durationMs: 0,
-  });
 }
 
 export const CASES: readonly Case[] = [
@@ -91,7 +77,7 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "Disrupts every connection to the test stack server; measures degrade and recovery.",
-    run: notImplemented("db-exhaustion", "demand", "local"),
+    run: runDbExhaustion,
   },
   {
     id: "restart-mid-ingest",
@@ -99,7 +85,7 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "Kills a worker mid-embed; measures lease reclaim and no duplicate documents.",
-    run: notImplemented("restart-mid-ingest", "demand", "local"),
+    run: runRestartMidIngest,
   },
   {
     id: "concurrency-dev",

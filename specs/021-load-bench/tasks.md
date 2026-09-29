@@ -69,8 +69,8 @@ quickstart.md)
 
 **Goal**: record how the system fails and recovers. **Independent test**: `pnpm bench:load run --tier demand --case db-exhaustion --case restart-mid-ingest` prints each expectation with pass or fail.
 
-- [ ] T020 [US3] Implement `db-exhaustion` in `apps/server/src/bench/load/stress.ts` per research R7. Refuse under `VITEST`. `startApp`, seed and warm one session, wait 11 s, read `max_connections`, and open raw `pg` clients until `53300` or the limit. Probe for `holdMs` once per second: `/health` degraded within 5 s, `/auth/me` any 5xx within 10 s, WS upgrade `503` not `401`, process alive. End every held client in a `finally`. Record `recoverySec` until `/health` is `ok` and `/auth/me` is 200, `heldConnections`, and `maxConnections`.
-- [ ] T021 [US3] Implement `restart-mid-ingest` in `apps/server/src/bench/load/stress.ts` per research R6. Enqueue 1 target and `followers` jobs, fork a `LOAD_HOLD_EMBED=1` worker, wait for `embed-held`, and `SIGKILL` it. Fork a normal worker. Poll until all jobs are terminal or `reclaimTimeoutMs` (default 120 000) passes. Record `followers-succeeded`, `target-attempts-2`, `target-succeeded`, `one-document-per-book`, and `reclaimSec`. Stop the worker in a `finally`.
+- [x] T020 [US3] Implement `db-exhaustion` in `apps/server/src/bench/load/stress.ts` per research R7. Refuse under `VITEST`. `startApp`, seed and warm one session, wait 11 s, read `max_connections`, and open raw `pg` clients until `53300` or the limit. Probe for `holdMs` once per second: `/health` degraded within 5 s, `/auth/me` any 5xx within 10 s, WS upgrade `503` not `401`, process alive. End every held client in a `finally`. Record `recoverySec` until `/health` is `ok` and `/auth/me` is 200, `heldConnections`, and `maxConnections`.
+- [x] T021 [US3] Implement `restart-mid-ingest` in `apps/server/src/bench/load/stress.ts` per research R6. Enqueue 1 target and `followers` jobs, fork a `LOAD_HOLD_EMBED=1` worker, wait for `embed-held`, and `SIGKILL` it. Fork a normal worker. Poll until all jobs are terminal or `reclaimTimeoutMs` (default 120 000) passes. Record `followers-succeeded`, `target-attempts-2`, `target-succeeded`, `one-document-per-book`, and `reclaimSec`. Stop the worker in a `finally`.
 
 **Checkpoint**: both stress cases run to completion and record every expectation.
 
@@ -126,3 +126,28 @@ exercise `db.ts`'s three refusal guards — equal-URL and non-loopback-host at t
 connection to trigger — against the worktree's test stack. This is a separate file from Phase
 5's `load.integration.test.ts` (T018) to avoid colliding with that later task; it covers only
 Phase 2's `db.ts`, not the case registry.
+
+T020's `db-exhaustion` (research R7) describes a single sequential `/auth/me` request and a
+single WebSocket upgrade attempt per probe. Running it for real showed why that never observes
+the outage: the app's own `db` pool (shared by the ingest worker, which polls `jobs` every
+`POLL_MS` regardless of whether any job exists) always keeps one connection warm, and a lone
+request just reuses that idle connection rather than opening a new one — Postgres refusing
+*new* connections never touches it. `/health` uses its own separate, otherwise-idle pool, so it
+alone showed `degraded` as written. Fix: each probe round fires 8 concurrent attempts (`BURST`
+in `stress.ts`) instead of one, so at least one needs a connection beyond that single warm one;
+verified live against the worktree's test stack — all five expectations pass. Marked
+`ponytail:` in `stress.ts` pointing back here.
+
+T021's `restart-mid-ingest` was handed back reporting "worker did not reach embed-held within
+15000ms" against the live case (1 target + 3 followers), with a standalone one-job repro of the
+same fork+IPC path passing. Instrumented re-runs (targetId/followerIds logged before fork, and
+every IPC message logged) across 3 live executions — isolated, and immediately after
+`db-exhaustion` in the same process — all passed cleanly with the held worker claiming the
+target job every time (`target-attempts-2`, `target-succeeded`, `one-document-per-book` all
+pass), matching `claimJob`'s `ORDER BY created_at` and research R6: the target is enqueued
+first, so it is the oldest queued row and is always the one claimed. No claim-ordering bug
+found; the fork path was never observed to claim a follower instead. The prior failure is most
+consistent with the 15s fork-to-embed-held budget being tight for real, unmocked I/O (process
+fork, module load, DB connect, then extract/parse/store for the target job) under host load —
+not a logic defect. Fix: raised `FORK_TIMEOUT_MS` in `stress.ts` from 15s to 30s for both the
+held and normal fork waits; the assertion is unchanged (still fails hard on a genuine hang).
