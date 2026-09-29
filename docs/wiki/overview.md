@@ -10,7 +10,7 @@ sources:
   - docker-compose.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 3d69c280e3d0b8254d6081d2ca62ec5f8d65a607
+verified_against: 868da061600bc626092aaf5bc953c326ab0d82b4
 ---
 
 # Overview
