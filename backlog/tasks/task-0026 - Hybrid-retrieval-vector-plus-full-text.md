@@ -35,14 +35,6 @@ Spec: specs/015-hybrid-retrieval
 - [ ] #8 Spec phase: Polish and gates
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -57,6 +49,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 5 gates+wiki; new note retrieval; 202/202 under REQUIRE_DATABASE=1)
+
+spec-bridge sync: Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 4/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
