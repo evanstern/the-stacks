@@ -9,9 +9,10 @@ orientation.
 plane work. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
 Postgres event log, session auth, a WebSocket gateway, and a React SPA. The `library` plane
 now has a parser ([[ddb-parser]]) and its storage ([[library-schema]]: documents, chunks,
-embeddings, immutable after ingestion) — but no ingestion job writes to it yet (TASK-0024).
-The provider-agnostic AI gateway ([[ai-gateway]]) has landed. No codex, system modules, or
-agents yet — the gateway has no caller until the rules-answerer.
+embeddings, immutable after ingestion) — but no ingestion job writes to it yet (TASK-0024). A
+read path over that storage now exists too ([[retrieval]]: vector/fts/hybrid search, fused by
+RRF) but has no caller until the rules-answerer (TASK-0027). The provider-agnostic AI gateway
+([[ai-gateway]]) has landed. No codex, system modules, or agents yet.
 
 ## Start here
 
@@ -64,6 +65,7 @@ agents yet — the gateway has no caller until the rules-answerer.
 
 - [[ddb-parser]] — turning saved D&D Beyond export HTML into ordered, anchored blocks.
 - [[library-schema]] — the library plane's storage: documents/chunks/embeddings, the immutability trigger, and the one write path (storeParsedBook, attachEmbeddings).
+- [[retrieval]] — the library plane's read path: vector/fts/hybrid search fused by Reciprocal Rank Fusion.
 
 ## Testing and verification
 

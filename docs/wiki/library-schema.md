@@ -6,7 +6,7 @@ sources:
   - apps/server/src/schema/library.ts
   - apps/server/src/library/store.ts
   - apps/server/drizzle/0002_tiny_odin.sql
-verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
+verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
 ---
 
 # Library schema
@@ -63,8 +63,9 @@ ingestion or by an agent through the same interface (constitution I):
 - `attachEmbeddings(db, rows)` — validates every row's `dim`/`vector.length === 1024` before
   any database call, then inserts all rows in one transaction. A duplicate `(chunkId, model)`
   anywhere in the batch throws `ConflictError` and writes nothing from that call — Postgres's
-  unique-violation error (`23505`) arrives wrapped in a `DrizzleQueryError`, so the
-  detector checks both `err.code` and `err.cause.code`.
+  unique-violation error (`23505`) arrives wrapped in a `DrizzleQueryError`, detected by the
+  shared `isUniqueViolation` in [[database-access]]'s `db.ts` (also used by [[invitations]]'s
+  redeem path), which checks both `err.code` and `err.cause.code`.
 
 **Immutability is a database trigger, not application logic** (research R4), the same pattern
 as `events`' append-only guard in [[database-schema]]: `library_immutable()` raises on any
@@ -79,14 +80,16 @@ Depends on [[ddb-parser]]'s `ParsedBook` shape as `storeParsedBook`'s input, and
 [[ai-gateway]]'s `embed()` output shape (`{vector, model, dim}`) as `attachEmbeddings`'s
 input — neither module imports the other directly. Migration mechanics (hand-added
 `CREATE EXTENSION IF NOT EXISTS vector;` and the trigger) follow the pattern in
-[[migrations]]. See [[database-schema]] for the session/auth-plane tables this note doesn't
-cover.
+[[migrations]]. Shares its unique-violation detector with [[invitations]] via
+[[database-access]]. [[retrieval]] is this schema's read path — `library_chunks.tsv` and
+`library_embeddings.embedding` are queried, never written, by `retrieve.ts`. See
+[[database-schema]] for the session/auth-plane tables this note doesn't cover.
 
 ## Operational notes
 
-Retrieval queries, ingestion jobs, and chunking strategy are out of scope here (TASK-0024,
-TASK-0026) — this schema only guarantees the indexes those later features need exist and are
-used, which the integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
+Ingestion jobs and chunking strategy are out of scope here (TASK-0024) — this schema only
+guarantees the indexes retrieval and later features need exist and are used, which the
+integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
 must name `library_chunks_tsv_idx` for a keyword query, and `library_embeddings_embedding_idx`
 for a per-model nearest-neighbour query (with `enable_bitmapscan`/`enable_sort` also disabled
 in the test — on a tiny table Postgres otherwise prefers the `model` btree index plus an

@@ -10,7 +10,7 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 ordering, doctrine, and the log. This runbook is new; it does not adopt the wave-1 runbook,
 but it carries forward that runbook's gates and its retrospective (cited per line below).
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** executing · operator sign-off on lanes: 2026-09-29 (merged PR #27)
 
 ## Read first (in this order)
 
@@ -81,9 +81,12 @@ tasks for sign-off and session boundaries; they are not barriers beyond those de
 - **TASK-0030 (sonnet · `cc/claude-sonnet-5[1m]` — doc-0001 and decision-0005 settle what
   is measured and why)** — load and stress benchmark. Starts after: 0024 and 0021.
 
-**Lane 3:**
-- **TASK-0028 (sonnet · `cc/claude-sonnet-5[1m]` — the ACs are functional, on the existing
-  SPA shell; see the checkpoint on design rounds)** — chat UI. Starts after: 0027 and 0024.
+**Lane 3 — handed off, not swept (amendment 2026-09-29, operator ruling on merging #27):**
+- **TASK-0028 runs through `pdlc:design-rounds` in an operator-run sister session.** This
+  sweep never claims, specs, or dispatches it. When 0027 and 0024 have both merged, the
+  orchestrator tells the operator and posts a brief handoff blurb (card, merged contracts
+  it builds on, per-worktree stack command, gates). The sweep then waits for 0028's merged
+  PR before Lane 4.
 
 **Lane 4 — last; gates M1 close:**
 - **TASK-0031 (sonnet · `cc/claude-sonnet-5[1m]` for the stand-up/teardown script and the
@@ -246,9 +249,8 @@ mechanical merge-reconcile step, as in wave 1; record it as its own dispatch lin
 - **Paid provider runs:** TASK-0029's full matrix and any real-provider run cost money.
   Stop before the first one with the provider, model list, and an estimate. The operator
   supplies `AI_PROVIDERS` / keys; implementers never see or commit a key.
-- **TASK-0028 design rounds?** This runbook treats 0028 as functional work on the
-  existing SPA shell (its ACs are behavioural). If the operator wants visual options
-  first, 0028 leaves this sweep for `pdlc:design-rounds`; decide at sign-off.
+- **TASK-0028 handoff:** ruled 2026-09-29 — design-rounds in a sister session (Lane 3).
+  Stop and hand off when 0027 and 0024 have merged.
 - **TASK-0031 walkthrough.** The operator drives it; the orchestrator prompts one M1
   criterion at a time and records the verdict. A failed criterion becomes a card and
   blocks M1 close. Closing milestone `m-1` is the operator's call, after this sweep.
@@ -257,8 +259,8 @@ mechanical merge-reconcile step, as in wave 1; record it as its own dispatch lin
 
 ## Done means
 
-- TASK-0021, 0024, 0026, 0027, 0028, 0029, 0030, 0031, 0032 each **Done on the board via
-  its own merged PR**, status derived by `spec-bridge:sync`, Spec marker still on each card.
+- TASK-0021, 0024, 0026, 0027, 0029, 0030, 0031, 0032 each **Done on the board via its own
+  merged PR**; TASK-0028 merged by its design-rounds session before Lane 4 starts, status derived by `spec-bridge:sync`, Spec marker still on each card.
 - Each task's `specs/NNN-*/` holds `spec.md`, `plan.md`, and `tasks.md`.
 - Every card carries its `Dispatch:` lines with real `served=` IDs.
 - `pnpm ci:check` green on `main`; CI and the deploy job green on the last merge; `dev`'s
@@ -273,3 +275,5 @@ mechanical merge-reconcile step, as in wave 1; record it as its own dispatch lin
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-29 | (runbook) | — | — | — | Authored as draft. Adds 0024 as a hard dependency of 0029 (chunking axis). Awaiting lane sign-off. |
+| 2026-09-29 | (runbook) | [#27](https://github.com/evanstern/the-stacks/pull/27) | `b4a178d` | — | Signed off by merge. Amended on the TASK-0032 branch: TASK-0028 → design-rounds sister session. Lane 1 claimed: 014 (0032), 015 (0026), 016 (0021), 017 (0024). |
+| 2026-09-29 | TASK-0032 | [#28](https://github.com/evanstern/the-stacks/pull/28) | `4c67d52` | ~422k: spec ~147k (opus), impl ~275k (sonnet ×2) | Shared `isUniqueViolation` in `db.ts`; redeem returns 409 conflict. Fail→pass proven on its own stack. Follow-up for triage: `test-suite` wiki note pins 11 of 22 server test files. Closures (T016, sync → Done) rode the TASK-0026 branch. |

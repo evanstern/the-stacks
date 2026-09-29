@@ -1,6 +1,6 @@
 import net from "node:net";
 import { describe, expect, it } from "vitest";
-import { createDatabaseProbe } from "../src/db.js";
+import { createDatabaseProbe, isUniqueViolation } from "../src/db.js";
 
 // --- Minimal Postgres wire-protocol message builders, just enough to fake a
 // backend that authenticates a connection and answers one simple query. ---
@@ -118,4 +118,21 @@ describe("createDatabaseProbe — pool error survival", () => {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
   }, 10_000);
+});
+
+describe("isUniqueViolation", () => {
+  it.each([
+    ["a raw pg error", { code: "23505" }, true],
+    ["a drizzle-wrapped error", { cause: { code: "23505" } }, true],
+    ["a different bare code", { code: "23503" }, false],
+    ["a different wrapped code", { cause: { code: "40001" } }, false],
+    ["null", null, false],
+    ["undefined", undefined, false],
+    ["a string", "23505", false],
+    ["a number", 42, false],
+    ["an empty object", {}, false],
+    ["a null cause", { cause: null }, false],
+  ])("%s -> %s", (_label, input, expected) => {
+    expect(isUniqueViolation(input)).toBe(expected);
+  });
 });

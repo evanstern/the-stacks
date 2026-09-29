@@ -1,21 +1,11 @@
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import { isUniqueViolation } from "../db.js";
 import { invitations, users } from "../schema/auth.js";
 import { hashPassword } from "./password.js";
 import type { DbClient } from "./session.js";
 import { generateToken, hashToken } from "./tokens.js";
 
 /** Invitations (research D5, US4): operator-only, single-use. */
-
-const POSTGRES_UNIQUE_VIOLATION = "23505";
-
-function isUniqueViolation(err: unknown): boolean {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code?: unknown }).code === POSTGRES_UNIQUE_VIOLATION
-  );
-}
 
 // No lifetime is pinned by the spec; seven days is a deliberate, documented
 // default rather than an unbounded invitation (data-model.md: "an
