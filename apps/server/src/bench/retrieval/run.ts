@@ -168,7 +168,14 @@ export async function runMatrix(
             op: "embed",
           },
         },
-        prices: deps.ai.prices,
+        // `bow` is known free (no network call, deterministic hash), not
+        // merely unpriced (research R8): priced at $0 so a real run's rows
+        // print "$0.0000", matching `estimate()`'s own bow branch, instead
+        // of the "unpriced" a genuinely-unconfigured model would show.
+        prices: {
+          ...deps.ai.prices,
+          [`${BUILTIN_BOW_PROVIDER}/bow`]: { inputPerMTok: 0, outputPerMTok: 0 },
+        },
       }
     : deps.ai;
 

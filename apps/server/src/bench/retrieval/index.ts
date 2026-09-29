@@ -22,6 +22,15 @@ export {
   QuestionSchema,
   QuestionSetSchema,
 } from "./load.js";
+export type { Baseline, Results } from "./results.js";
+export {
+  BaselineSchema,
+  fmtCost,
+  report,
+  ResultsSchema,
+  writeBaseline,
+  writeResults,
+} from "./results.js";
 export type { BenchRow, Estimate, EstimateModel } from "./run.js";
 export { estimate, runMatrix } from "./run.js";
 export { scoreQuestion, summarize } from "./score.js";

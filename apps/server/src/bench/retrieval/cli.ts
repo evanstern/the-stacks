@@ -6,19 +6,29 @@ import type { AiConfig } from "../../ai/config.js";
 import { loadAiConfig } from "../../ai/config.js";
 import { createDb } from "../../db.js";
 import { ensureBenchDb, migrateBenchDb, resolveBenchUrl } from "./db.js";
-import { loadCorpus, loadMatrix, loadQuestions, type Matrix } from "./load.js";
+import { loadCorpus, loadMatrix, loadQuestions, matrixHash, type Matrix } from "./load.js";
+import {
+  fmtCost,
+  report,
+  type Results,
+  writeBaseline,
+  writeResults,
+} from "./results.js";
 import { type BenchRow, type Estimate, estimate, runMatrix } from "./run.js";
 
 /**
- * The retrieval bench CLI (contracts/bench-cli.md). Phase 3 (US1) wires the
- * `run` subcommand through step 8 (print the table); saving a results file
- * and `report` are Phase 4/5 (`ponytail:` — T016/T017/T021 add them here).
+ * The retrieval bench CLI (contracts/bench-cli.md). `run` covers steps 1-9:
+ * validate, estimate, the paid-run gate, run the matrix, print the table,
+ * save a results file (T016/T017) and optionally the baseline (T021).
+ * `report` prints every stored run (T017).
  */
 
 const BENCH_DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../bench/retrieval",
 );
+const RESULTS_DIR = path.join(BENCH_DIR, "results");
+const BASELINE_PATH = path.join(BENCH_DIR, "baseline.json");
 
 /** A relative `--matrix` resolves against the bench data dir first, then cwd. */
 function resolveMatrixPath(input: string): string {
@@ -51,12 +61,6 @@ function findPaidModel(matrix: Matrix, ai: AiConfig): string | null {
     if (provider && provider.kind !== "fake") return model.name;
   }
   return null;
-}
-
-function fmtCost(v: number | null | undefined): string {
-  if (v === undefined) return "-";
-  if (v === null) return "unpriced";
-  return `$${v.toFixed(4)}`;
 }
 
 function printEstimate(est: Estimate): void {
@@ -92,10 +96,31 @@ function printTable(rows: BenchRow[]): void {
   }
 }
 
+/** matrix model name -> what actually served it (contracts/results-format.md `models`). */
+function modelsServed(
+  matrix: Matrix,
+  rows: BenchRow[],
+  ai: AiConfig,
+): Results["models"] {
+  const out: Results["models"] = {};
+  for (const model of matrix.models) {
+    const row = rows.find((r) => r.model === model.name && r.embeddingModel);
+    if (!row?.embeddingModel) continue;
+    const provider =
+      "builtin" in model.source
+        ? "builtin"
+        : (ai.purposes[model.source.purpose]?.provider ?? "unknown");
+    out[model.name] = { embeddingModel: row.embeddingModel, provider };
+  }
+  return out;
+}
+
 export async function runCommand(args: {
   matrix: string;
   dryRun: boolean;
   allowPaid: boolean;
+  noSave?: boolean;
+  writeBaseline?: boolean;
 }): Promise<number> {
   const ai = loadAiConfig(process.env);
 
@@ -113,11 +138,25 @@ export async function runCommand(args: {
     return 1;
   }
 
+  if (
+    args.writeBaseline &&
+    !matrix.models.every(
+      (m) => "builtin" in m.source && m.source.builtin === "bow",
+    )
+  ) {
+    console.error(
+      '--write-baseline requires every model in the matrix to be builtin "bow"',
+    );
+    return 1;
+  }
+
   let books: ReturnType<typeof loadCorpus>["books"];
+  let corpusHash: string;
   let questions: ReturnType<typeof loadQuestions>["questions"];
+  let questionsHash: string;
   try {
-    ({ books } = loadCorpus(path.join(BENCH_DIR, "corpus")));
-    ({ questions } = loadQuestions(
+    ({ books, hash: corpusHash } = loadCorpus(path.join(BENCH_DIR, "corpus")));
+    ({ questions, hash: questionsHash } = loadQuestions(
       path.join(BENCH_DIR, "questions.json"),
       books,
     ));
@@ -140,6 +179,7 @@ export async function runCommand(args: {
     }
   }
 
+  const startedAt = new Date();
   const { baseUrl, benchUrl } = resolveBenchUrl(process.env);
   await ensureBenchDb(baseUrl, benchUrl);
   await migrateBenchDb(benchUrl);
@@ -151,6 +191,29 @@ export async function runCommand(args: {
       { matrix, books, questions },
     );
     printTable(rows);
+
+    if (args.writeBaseline) {
+      writeBaseline(BASELINE_PATH, {
+        matrixHash: matrixHash(matrix),
+        corpusHash,
+        questionsHash,
+        rows,
+      });
+      console.log(`wrote baseline to ${BASELINE_PATH}`);
+    }
+
+    if (!args.noSave) {
+      const { filePath } = writeResults(RESULTS_DIR, {
+        startedAt,
+        matrix,
+        matrixHash: matrixHash(matrix),
+        corpusHash,
+        questionsHash,
+        models: modelsServed(matrix, rows, ai),
+        rows,
+      });
+      console.log(`wrote results to ${filePath}`);
+    }
   } finally {
     await db.$client.end();
   }
@@ -182,12 +245,19 @@ async function main(): Promise<void> {
       matrix: values.matrix,
       dryRun: Boolean(values["dry-run"]),
       allowPaid: Boolean(values["allow-paid"]),
+      noSave: Boolean(values["no-save"]),
+      writeBaseline: Boolean(values["write-baseline"]),
     });
     return;
   }
 
-  // ponytail: "report" reads results/*.json (T016-T017, Phase 4) — not built yet.
-  console.error(`unknown or not-yet-implemented subcommand "${subcommand}"`);
+  if (subcommand === "report") {
+    report(values.dir ? path.resolve(process.cwd(), values.dir) : RESULTS_DIR);
+    process.exitCode = 0;
+    return;
+  }
+
+  console.error(`unknown subcommand "${subcommand}"`);
   process.exitCode = 1;
 }
 

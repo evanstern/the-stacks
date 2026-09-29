@@ -14,7 +14,11 @@ import {
   loadCorpus,
   loadMatrix,
   loadQuestions,
+  matrixHash,
+  type Matrix,
 } from "../../src/bench/retrieval/load.js";
+import { report, writeResults } from "../../src/bench/retrieval/results.js";
+import type { BenchRow } from "../../src/bench/retrieval/run.js";
 import { scoreQuestion, summarize } from "../../src/bench/retrieval/score.js";
 import { ValidationError } from "../../src/errors.js";
 import type { RetrievedPassage } from "../../src/library/retrieve.js";
@@ -378,5 +382,104 @@ describe("runCommand paid-run refusal (contract invariant 9)", () => {
       allowPaid: false,
     });
     expect(exitCode).toBe(2);
+  });
+});
+
+const FIXTURE_MATRIX: Matrix = {
+  name: "fixture",
+  models: [{ name: "bow", source: { builtin: "bow" }, dims: [1024] }],
+  chunking: [{ name: "block", maxChars: 0 }],
+  modes: ["vector"],
+  k: 10,
+};
+
+function fixtureRow(overrides: Partial<BenchRow> = {}): BenchRow {
+  return {
+    key: "bow@1024|block|vector",
+    model: "bow",
+    embeddingModel: "bow",
+    dim: 1024,
+    dimMethod: "native",
+    chunking: "block",
+    maxChars: 0,
+    mode: "vector",
+    chunks: 10,
+    questions: 60,
+    recall1: 0.5,
+    recall5: 0.8,
+    recall10: 0.9,
+    mrr10: 0.6,
+    latencyMs: { p50: 1, p95: 2 },
+    corpusEmbed: { tokens: 100, costUsd: 0 },
+    questionEmbed: { tokens: 10, costUsd: 0 },
+    misses: [],
+    ...overrides,
+  };
+}
+
+describe("writeResults (contract invariant 8)", () => {
+  it("never writes a question's text or expected quote (question ids only)", () => {
+    const { books } = loadCorpus(CORPUS_DIR);
+    const { questions } = loadQuestions(QUESTIONS_PATH, books);
+    const rawQuestions = JSON.parse(readFileSync(QUESTIONS_PATH, "utf8")) as {
+      question: string;
+      expected: { quote: string }[];
+    }[];
+
+    const tmpDir = mkdtempSync(path.join(tmpdir(), "bench-results-"));
+    const { filePath } = writeResults(tmpDir, {
+      startedAt: new Date(),
+      matrix: FIXTURE_MATRIX,
+      matrixHash: matrixHash(FIXTURE_MATRIX),
+      corpusHash: "deadbeef",
+      questionsHash: "deadbeef",
+      models: { bow: { embeddingModel: "bow", provider: "builtin" } },
+      rows: [fixtureRow({ questions: questions.length, misses: [questions[0].id] })],
+    });
+
+    const contents = readFileSync(filePath, "utf8");
+    for (const q of rawQuestions) {
+      expect(contents).not.toContain(q.question);
+      for (const exp of q.expected) expect(contents).not.toContain(exp.quote);
+    }
+  });
+});
+
+describe("report (contract US3 AC2)", () => {
+  it("prints one group per distinct corpusHash", () => {
+    const tmpDir = mkdtempSync(path.join(tmpdir(), "bench-report-"));
+    for (const corpusHash of ["corpus-a", "corpus-b"]) {
+      writeResults(tmpDir, {
+        startedAt: new Date(),
+        matrix: FIXTURE_MATRIX,
+        matrixHash: matrixHash(FIXTURE_MATRIX),
+        corpusHash,
+        questionsHash: "q-hash",
+        models: { bow: { embeddingModel: "bow", provider: "builtin" } },
+        rows: [fixtureRow()],
+      });
+    }
+
+    const lines: string[] = [];
+    report(tmpDir, { log: (line) => lines.push(line) });
+
+    const groupLines = lines.filter((line) => line.startsWith("\ncorpus "));
+    expect(groupLines).toHaveLength(2);
+  });
+
+  it("skips an invalid file and an unknown schemaVersion, warning by name", () => {
+    const tmpDir = mkdtempSync(path.join(tmpdir(), "bench-report-invalid-"));
+    writeFileSync(path.join(tmpDir, "broken.json"), "{not json");
+    writeFileSync(
+      path.join(tmpDir, "future.json"),
+      JSON.stringify({ schemaVersion: 2 }),
+    );
+
+    const messages: string[] = [];
+    expect(() =>
+      report(tmpDir, { warn: (line) => messages.push(line) }),
+    ).not.toThrow();
+    expect(messages.some((m) => m.includes("broken.json"))).toBe(true);
+    expect(messages.some((m) => m.includes("future.json"))).toBe(true);
   });
 });
