@@ -32,7 +32,10 @@ Spec: specs/013-library-schema
 - [ ] #5 Spec phase: Foundational — schema and migration
 - [ ] #6 Spec phase: User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP
 - [ ] #7 Spec phase: User Story 2 — keyword search on every chunk (Priority: P1)
+- [ ] #8 Spec phase: User Story 3 — embeddings from several models (Priority: P2)
 <!-- AC:END -->
+
+
 
 
 
