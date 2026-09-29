@@ -1,9 +1,13 @@
+import { type AiConfig, loadAiConfig } from "./ai/config.js";
+
 /** Server configuration, read from environment variables. */
 export interface ServerConfig {
   /** Postgres connection string, e.g. postgres://user:pass@host:5432/db */
   databaseUrl: string;
   /** Port the HTTP server binds to. */
   port: number;
+  /** AI gateway config (optional AI_* env vars); empty when none are set. */
+  ai?: AiConfig;
 }
 
 /**
@@ -22,5 +26,5 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     throw new Error(`APP_PORT must be a positive integer, got "${portRaw}"`);
   }
 
-  return { databaseUrl, port };
+  return { databaseUrl, port, ai: loadAiConfig(env) };
 }

@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { FakeProvider } from "../src/ai/adapters/fake.js";
 import type { AiConfig } from "../src/ai/config.js";
@@ -333,5 +336,32 @@ describe("gateway.embed", () => {
       gateway.embed({ purpose: "missing", texts: ["x"] }),
     ).rejects.toThrow(/missing/);
     expect(provider.embedCalls).toHaveLength(0);
+  });
+});
+
+describe("no vendor lock-in (decision-0007, invariant 10)", () => {
+  it("names no provider, vendor, or key variable anywhere in apps/server/src/ai/", () => {
+    const aiDir = fileURLToPath(new URL("../src/ai/", import.meta.url));
+    const files = readdirSync(aiDir, { recursive: true })
+      .filter((f): f is string => typeof f === "string" && f.endsWith(".ts"))
+      .map((f) => join(aiDir, f));
+    expect(files.length).toBeGreaterThan(0);
+
+    // Vendors/providers no source file may hard-code by name. The literal
+    // protocol kind "openai-compatible" is allowed and stripped before matching.
+    const vendorPattern =
+      /\b(openai|anthropic|claude|gpt|azure|google|gemini|cohere|mistral|groq|together|perplexity|huggingface|bedrock|vertex|palm|ollama|deepseek|xai|grok)\b/i;
+    // A literal, all-caps env var name for a key (e.g. OPENAI_API_KEY) — the
+    // generic `apiKeyEnv` identifier is camelCase and does not match.
+    const keyVarPattern = /\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(API_)?KEY\b/;
+
+    for (const file of files) {
+      const content = readFileSync(file, "utf8").replaceAll(
+        "openai-compatible",
+        "",
+      );
+      expect(content, file).not.toMatch(vendorPattern);
+      expect(content, file).not.toMatch(keyVarPattern);
+    }
   });
 });
