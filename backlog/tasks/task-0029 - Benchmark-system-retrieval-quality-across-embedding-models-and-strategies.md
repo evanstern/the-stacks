@@ -1,9 +1,10 @@
 ---
 id: TASK-0029
 title: 'Benchmark system: retrieval quality across embedding models and strategies'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 18:38'
 labels:
   - bench
 milestone: m-1
@@ -17,6 +18,8 @@ ordinal: 20000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Operator requirement (doc-0001, 2026-09-28): compare configurations apples to apples. Replaces the M1 'retrieval eval fixtures in CI' item.
+
+Spec: specs/019-retrieval-bench
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
