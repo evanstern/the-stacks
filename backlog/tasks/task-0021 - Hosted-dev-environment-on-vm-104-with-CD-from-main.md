@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:38'
+updated_date: '2026-09-29 15:56'
 labels:
   - infra
 milestone: m-1
@@ -62,6 +62,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1 Foundational; 16 unit + 5 workflow-invariant tests, 3 todo pending T005/T012)
 
 Phase grouping (orchestrator call): local code tasks T004-T006, T009-T010, T012-T013, T017-T018 in one sonnet dispatch; vm-104 steps T007/T008/T011/T014/T015/T016/T019 run by the orchestrator under operator ruling (3).
+
+Checkpoint 1 (T007) 2026-09-29: operator go given; orchestrator ran init-secrets from origin/task-0021-hosted-dev-cd@9c14e42 via git archive | ssh. Result: /home/stacks/dev/.env mode 600 owner stacks (13 keys, template values; no AI provider key placed). Bootstrap copy at /home/stacks/dev/bootstrap.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
