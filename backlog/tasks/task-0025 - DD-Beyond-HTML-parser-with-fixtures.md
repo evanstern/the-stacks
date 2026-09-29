@@ -1,9 +1,10 @@
 ---
 id: TASK-0025
 title: D&D Beyond HTML parser with fixtures
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 03:08'
 labels:
   - library
 milestone: m-1
@@ -16,6 +17,8 @@ ordinal: 16000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 First-class DDB export parser per A9 and decision-0003.
+
+Spec: specs/012-ddb-parser
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
