@@ -4,7 +4,7 @@ title: 'Hybrid retrieval: vector plus full-text'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:25'
+updated_date: '2026-09-29 15:37'
 labels:
   - library
 milestone: m-1
@@ -43,6 +43,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1 Foundational; 11 unit tests)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 2-4, US1-US3; 12 integration tests; 202 pass under REQUIRE_DATABASE=1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
