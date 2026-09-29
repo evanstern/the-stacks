@@ -72,18 +72,18 @@ watch it fail.
   (lint, typecheck, build, test, boundaries, hooks, scripts, check:host-scripts). Save the
   summary, including DB suite skip counts (must be 0), to
   `specs/014-invite-conflict/ci-evidence.txt`.
-- [ ] T011 Wiki: review `docs/wiki/invitations.md` against this branch's diff. Amend the
+- [x] T011 Wiki: review `docs/wiki/invitations.md` against this branch's diff. Amend the
   unique-violation paragraph: detection now uses the shared `isUniqueViolation` from
   `db.ts`, which checks `err.cause.code` because drizzle wraps pg errors. Re-pin
   `verified_against` to the branch HEAD only after the text is true.
-- [ ] T012 [P] Wiki: review `docs/wiki/library-schema.md`. Amend the `attachEmbeddings`
+- [x] T012 [P] Wiki: review `docs/wiki/library-schema.md`. Amend the `attachEmbeddings`
   bullet to say the detector is the shared one in `db.ts`. Re-pin honestly.
-- [ ] T013 [P] Wiki: review `docs/wiki/database-access.md` (its source `db.ts` changed) and
+- [x] T013 [P] Wiki: review `docs/wiki/database-access.md` (its source `db.ts` changed) and
   `docs/wiki/test-suite.md` (its sources `db.test.ts` and `auth.integration.test.ts` changed;
   fix any test counts it states, or re-pin with a note that counts were re-verified). Add a
   link to [[database-access]] from `invitations` and `library-schema` if it helps routing.
   If any `description:` changes, regenerate `docs/wiki/CAPSULES.md`.
-- [ ] T014 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`.
+- [x] T014 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`.
   It MUST print `OK`. Never use `gates/freshness.mjs`.
 - [ ] T015 Run `pnpm env:down` in the worktree. Run `pnpm env:prune --check`; it MUST exit 0.
 - [ ] T016 After merge: tick this file and run `spec-bridge:sync`.
