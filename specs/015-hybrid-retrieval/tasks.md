@@ -53,7 +53,7 @@ test goes through the gateway's `fake` adapter; no network.
 **Independent Test**: store a synthetic book; ask a question naming a word in one passage; that
 passage comes back first and its span slices back to its text.
 
-- [ ] T008 [US1] Write `apps/server/test/library/retrieve.integration.test.ts` with the repo's
+- [x] T008 [US1] Write `apps/server/test/library/retrieve.integration.test.ts` with the repo's
   loud-skip harness (copy the header from `store.integration.test.ts`: `TEST_DATABASE_URL ||
   DATABASE_URL`, `probeReachable`, `REQUIRE_DATABASE=1` throws). Build a helper that stores a
   small synthetic `ParsedBook` (original text written in the test, each block with correct
@@ -64,10 +64,10 @@ passage comes back first and its span slices back to its text.
   returns `passages: []`; a question with `& | ! ( ) : * '` does not throw (invariant 7); a
   stop-word-only question returns `[]`; `EXPLAIN` of the keyword query with
   `enable_seqscan = off` names `library_chunks_tsv_idx`.
-- [ ] T009 [US1] Add to `retrieve.test.ts` (no DB): empty or whitespace `question`, `k = 0`,
+- [x] T009 [US1] Add to `retrieve.test.ts` (no DB): empty or whitespace `question`, `k = 0`,
   `k = 51`, and an unknown request `mode` each throw `ValidationError` before any db or gateway
   call. Inject a db double and a gateway double that fail the test if touched (invariant 1).
-- [ ] T010 [US1] Implement in `retrieve.ts`: request validation (Zod, `ValidationError` via the
+- [x] T010 [US1] Implement in `retrieve.ts`: request validation (Zod, `ValidationError` via the
   same `zodIssues` shape `store.ts` uses), and the keyword search per research R2 — one query
   joining `library_chunks` to `library_documents`, query
   `replace(plainto_tsquery('english', $q)::text, ' & ', ' | ')::tsquery`, `tsv @@ query`,

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { fuseRrf, loadRetrievalConfig } from "../../src/library/retrieve.js";
+import { ValidationError } from "../../src/errors.js";
+import type { RetrieveDeps } from "../../src/library/retrieve.js";
+import {
+  fuseRrf,
+  loadRetrievalConfig,
+  retrieve,
+} from "../../src/library/retrieve.js";
 
 /**
  * Phase 1 unit tests (specs/015-hybrid-retrieval/tasks.md T004, contracts/
@@ -74,5 +80,64 @@ describe("fuseRrf", () => {
   it("returns identical output on a second call with the same inputs (SC-005)", () => {
     const lists = { vector: ["c", "a", "b"], fts: ["b", "a"] };
     expect(fuseRrf(lists)).toEqual(fuseRrf(lists));
+  });
+});
+
+/**
+ * Phase 2 unit tests (T009, contract invariant 1): request validation fails
+ * before any db or gateway call. Both doubles fail the test if touched.
+ */
+describe("retrieve — request validation", () => {
+  function untouchableDeps(): RetrieveDeps {
+    return {
+      db: new Proxy(
+        {},
+        {
+          get() {
+            throw new Error("must not touch the database");
+          },
+        },
+      ) as RetrieveDeps["db"],
+      gateway: {
+        embed() {
+          throw new Error("must not call gateway.embed");
+        },
+      },
+      config: { mode: "hybrid", k: 8, embedPurpose: "embedding" },
+    };
+  }
+
+  it("rejects an empty question", async () => {
+    await expect(
+      retrieve(untouchableDeps(), { question: "" }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("rejects a whitespace-only question", async () => {
+    await expect(
+      retrieve(untouchableDeps(), { question: "   " }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("rejects k = 0", async () => {
+    await expect(
+      retrieve(untouchableDeps(), { question: "grapple", k: 0 }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("rejects k = 51", async () => {
+    await expect(
+      retrieve(untouchableDeps(), { question: "grapple", k: 51 }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("rejects an unknown request mode", async () => {
+    await expect(
+      retrieve(untouchableDeps(), {
+        question: "grapple",
+        // @ts-expect-error — deliberately invalid at the type level too
+        mode: "bogus",
+      }),
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 });
