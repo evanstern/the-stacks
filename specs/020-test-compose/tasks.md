@@ -50,7 +50,7 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 ## Phase 5: Verification, re-grounding, cleanup
 
 - [x] T016 Run `pnpm ci:check` in the worktree. Expect exit 0 and 0 skipped DB suites with `REQUIRE_DATABASE=1` against the test stack. Record the tail in `specs/020-test-compose/ci-evidence.txt`.
-- [ ] T017 Run `pnpm check:env` with Docker up and no other labeled stacks. Expect all cases pass (not skipped). Record the tail in `ci-evidence.txt`.
+- [x] T017 Run `pnpm check:env` with Docker up and no other labeled stacks. Expect all cases pass (not skipped). Record the tail in `ci-evidence.txt`.
 - [x] T018 [US1] AC #5 proof, per quickstart.md: `pnpm env:up`; migrate both databases; confirm `app` healthy; run `worker.integration.test.ts` 20 consecutive times with `REQUIRE_DATABASE=1`. Record 20/20 passes, the app container id, and the commit in `specs/020-test-compose/ci-evidence.txt`. On any failure, STOP and report.
 - [x] T019 Wiki re-pin with `/grounding-wiki:wiki-update`: `runtime-stacks` (test stack, ports, `-test` reservation, backward-compat remedy; add `docker-compose.test.yml` to sources), `compose-stack` (the test file, the `APP_PORT` default, the one image home), `test-suite` (tests target the test stack; the split), `ci-pipeline` (compose step replaces `services:`), `configuration` (`TEST_DB_PORT`, `TEST_DATABASE_URL` target, migrate override). Re-verify `hosted-dev` only if the plan step flags it. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
 - [x] T020 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.

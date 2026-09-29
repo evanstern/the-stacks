@@ -59,3 +59,7 @@ run 19: PASS
 run 20: PASS
 
 Result: 20/20 passed. Each run: 1 test file, 12 tests passed.
+
+## T017 (orchestrator, 2026-09-29)
+
+`pnpm check:env` with no other the-stacks stack running: tests 2, pass 2, fail 0, skipped 0.
