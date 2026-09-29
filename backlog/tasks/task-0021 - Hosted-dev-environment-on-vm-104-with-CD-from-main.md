@@ -35,12 +35,14 @@ Spec: specs/016-hosted-dev-cd
 - [x] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
 - [x] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
 - [x] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
-- [ ] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
+- [x] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
 - [ ] #11 Spec phase: User Story 3 — drift is caught (P2)
 - [ ] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
 - [ ] #13 Spec phase: User Story 5 — the ops runbook (P3)
 - [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
+
+
 
 
 
