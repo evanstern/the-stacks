@@ -1,0 +1,139 @@
+import {
+  runConcurrencyDev,
+  runConcurrencyLocal,
+  runConcurrencySmoke,
+} from "./concurrency.js";
+import { runIngestSeries } from "./ingest.js";
+import type { Profile, Tier } from "./profile.js";
+import type { CaseOutcome } from "./results.js";
+import { runDbExhaustion, runRestartMidIngest } from "./stress.js";
+
+/**
+ * The case registry (specs/021-load-bench research R10): every case
+ * declares exactly one tier and a target. `run` bodies are filled in by
+ * later phases (US1-US3); here they stub out `fail: not implemented` so
+ * `list` and `selectCases` are usable from Phase 2 on.
+ */
+
+export interface RunContext {
+  runId: string;
+}
+
+export interface Case {
+  id: string;
+  tier: Tier;
+  target: "local" | "dev";
+  summary: string;
+  run: (ctx: RunContext, profile: Profile) => Promise<CaseOutcome>;
+}
+
+export const CASES: readonly Case[] = [
+  {
+    id: "ingest-smoke",
+    tier: "commit",
+    target: "local",
+    summary:
+      "2 steps (3, 6 jobs), 1 in-process worker; every job succeeds, one document per book.",
+    run: (ctx, profile) =>
+      runIngestSeries(ctx, profile, {
+        id: "ingest-smoke",
+        tier: "commit",
+        inProcess: true,
+        verifyOneDocPerBook: true,
+      }),
+  },
+  {
+    id: "concurrency-smoke",
+    tier: "commit",
+    target: "local",
+    summary:
+      "In-process app on port 0, 3 users, 2 s; zero errors, every WebSocket round trip arrives.",
+    run: () => runConcurrencySmoke(),
+  },
+  {
+    id: "ingest-scaling",
+    tier: "demand",
+    target: "local",
+    summary:
+      "The decision-0005 measurement: ingest throughput by worker count and volume.",
+    run: (ctx, profile) =>
+      runIngestSeries(ctx, profile, {
+        id: "ingest-scaling",
+        tier: "demand",
+        inProcess: false,
+      }),
+  },
+  {
+    id: "concurrency-local",
+    tier: "demand",
+    target: "local",
+    summary:
+      "Users 1-100 against the built app: HTTP and WebSocket latency and errors.",
+    run: runConcurrencyLocal,
+  },
+  {
+    id: "db-exhaustion",
+    tier: "demand",
+    target: "local",
+    summary:
+      "Disrupts every connection to the test stack server; measures degrade and recovery.",
+    run: runDbExhaustion,
+  },
+  {
+    id: "restart-mid-ingest",
+    tier: "demand",
+    target: "local",
+    summary:
+      "Kills a worker mid-embed; measures lease reclaim and no duplicate documents.",
+    run: runRestartMidIngest,
+  },
+  {
+    id: "concurrency-dev",
+    tier: "dev",
+    target: "dev",
+    summary:
+      "Read-only concurrency probe against the real deployed dev target.",
+    run: runConcurrencyDev,
+  },
+];
+
+export interface SelectCasesResult {
+  run: Case[];
+  skipped: CaseOutcome[];
+}
+
+function skip(c: Case, reason: string): CaseOutcome {
+  return {
+    id: c.id,
+    tier: c.tier,
+    target: c.target,
+    status: "skipped",
+    reason,
+    durationMs: 0,
+  };
+}
+
+/**
+ * Splits the registry into the cases a run selected and every other case as
+ * a `skipped` outcome with a fixed reason (contracts/bench-cli.md, research
+ * R10). `run` ∪ `skipped` is always all of `CASES`.
+ */
+export function selectCases(
+  tier: Tier,
+  only: string[] | undefined,
+): SelectCasesResult {
+  const run: Case[] = [];
+  const skipped: CaseOutcome[] = [];
+  for (const c of CASES) {
+    if (c.tier !== tier) {
+      skipped.push(skip(c, `tier ${c.tier} not selected`));
+      continue;
+    }
+    if (only && only.length > 0 && !only.includes(c.id)) {
+      skipped.push(skip(c, "not selected by --case"));
+      continue;
+    }
+    run.push(c);
+  }
+  return { run, skipped };
+}

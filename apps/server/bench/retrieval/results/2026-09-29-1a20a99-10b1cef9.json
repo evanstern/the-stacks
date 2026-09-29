@@ -20,9 +20,7 @@
         "source": {
           "purpose": "bge-m3"
         },
-        "dims": [
-          1024
-        ]
+        "dims": [1024]
       }
     ],
     "chunking": [
@@ -43,11 +41,7 @@
         "maxChars": 4000
       }
     ],
-    "modes": [
-      "vector",
-      "fts",
-      "hybrid"
-    ],
+    "modes": ["vector", "fts", "hybrid"],
     "k": 10
   },
   "models": {
@@ -84,15 +78,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q006",
-        "q015",
-        "q030",
-        "q035",
-        "q036",
-        "q040",
-        "q060"
-      ]
+      "misses": ["q006", "q015", "q030", "q035", "q036", "q040", "q060"]
     },
     {
       "key": "bge-m3@1024|block|hybrid",
@@ -162,9 +148,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q019"
-      ]
+      "misses": ["q019"]
     },
     {
       "key": "bge-m3@1024|c1000|hybrid",
@@ -193,12 +177,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q006",
-        "q008",
-        "q019",
-        "q036"
-      ]
+      "misses": ["q006", "q008", "q019", "q036"]
     },
     {
       "key": "bge-m3@1024|c2000|vector",
@@ -227,11 +206,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q019",
-        "q045",
-        "q049"
-      ]
+      "misses": ["q019", "q045", "q049"]
     },
     {
       "key": "bge-m3@1024|c2000|hybrid",
@@ -260,12 +235,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q006",
-        "q008",
-        "q019",
-        "q036"
-      ]
+      "misses": ["q006", "q008", "q019", "q036"]
     },
     {
       "key": "bge-m3@1024|c4000|vector",
@@ -294,10 +264,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q019",
-        "q049"
-      ]
+      "misses": ["q019", "q049"]
     },
     {
       "key": "bge-m3@1024|c4000|hybrid",
@@ -326,12 +293,7 @@
         "tokens": 2288,
         "costUsd": null
       },
-      "misses": [
-        "q006",
-        "q019",
-        "q036",
-        "q038"
-      ]
+      "misses": ["q006", "q019", "q036", "q038"]
     },
     {
       "key": "-|block|fts",

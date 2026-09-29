@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
+verified_against: 788261d9152946f53780d3750d5419d901e029e5
 ---
 
 # CI pipeline
@@ -49,9 +49,14 @@ same `pgvector/pgvector:pg17` image (named once, in `docker-compose.yml`'s `db` 
 `TEST_DATABASE_URL`, and `REQUIRE_DATABASE=1` all set. `REQUIRE_DATABASE` is declared in
 `turbo.json`'s `globalEnv` because Turbo filters undeclared variables out of task environments,
 and the `test` task is `cache: false` so a local run can never replay a green result recorded
-while the database was up. With `REQUIRE_DATABASE=1` and a reachable database, [[test-suite]]'s three
-integration suites run instead of loud-skipping — CI proves all 72 tests, not the 30 that a
-database-less run proves.
+while the database was up. With `REQUIRE_DATABASE=1` and a reachable database, every
+environment-gated integration suite ([[test-suite]]'s three, [[ingestion]]'s, and
+[[benchmarks]]' every-commit-tier suites) runs instead of loud-skipping — CI proves 411 of 416
+tests (5 skipped are the load bench's `demand`/`dev`-tier cases, named-skipped on purpose
+inside `test/bench/load.integration.test.ts`, not silently absent), not the 289 a
+database-less run proves. `pnpm test` is also where the load bench's two `commit`-tier cases (`ingest-smoke`,
+`concurrency-smoke`) actually run on every push — they are Vitest tests, not a separate
+`bench:load` invocation; see [[benchmarks]].
 
 `check:boundaries` (`node scripts/check-boundaries.mjs`) proves the `noRestrictedImports`
 zone rules in `biome.json` actually fire, rather than trusting the config was written

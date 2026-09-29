@@ -81,3 +81,4 @@ on vm-104 ([[hosted-dev]]).
 - [[ci-pipeline]] — GitHub Actions CI, the `ci:check` aggregate script, and the boundary-rules check.
 - [[benchmarks]] — the retrieval benchmark: the SRD corpus, the question set, the model/dim/chunking/mode matrix, and the deterministic per-commit recall gate.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.
+- [[benchmarks]] — the load and stress bench: tiers, the isolated `_load` database, the decision-0005 ingest-scaling measurement, both stress cases, and the dev tier's read-only safety design.

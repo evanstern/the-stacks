@@ -1,0 +1,25 @@
+{
+  "tier": "commit",
+  "ingest": {
+    "volumes": [3, 6],
+    "workers": [1],
+    "docBytes": 8192,
+    "historyRows": 100,
+    "stepTimeoutMs": 30000,
+    "thresholds": {
+      "throughputFloor": 0.7,
+      "serviceMultiple": 2.0,
+      "enqueueMultiple": 3.0
+    }
+  },
+  "concurrency": {
+    "users": [1, 3],
+    "durationMs": 2000,
+    "thinkMs": 250,
+    "wsSend": true,
+    "thresholds": {
+      "latencyMultiple": 3.0,
+      "errorRate": 0.01
+    }
+  }
+}
