@@ -10,7 +10,8 @@
       "!backlog",
       "!docs",
       "!specs",
-      "!fixtures"
+      "!fixtures",
+      "!apps/server/test/fixtures/ddb"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },

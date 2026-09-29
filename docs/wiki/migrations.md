@@ -6,7 +6,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/drizzle.config.ts
   - apps/server/package.json
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 872b0aba2bfefe65e85bf5010dde46f9e725b736
 ---
 
 # Migrations

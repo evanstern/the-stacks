@@ -16,6 +16,7 @@
     "@the-stacks/shared": "workspace:*",
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.8",
+    "parse5": "^8.0.1",
     "pg": "^8.23.0",
     "ws": "^8.18.3",
     "zod": "^4.6.5"
