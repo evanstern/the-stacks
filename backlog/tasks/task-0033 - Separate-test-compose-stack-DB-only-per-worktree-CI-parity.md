@@ -36,8 +36,10 @@ Spec: specs/020-test-compose
 - [x] #8 Spec phase: US2 — CI parity (Priority: P1)
 - [x] #9 Spec phase: US1 + US3 — env machinery (Priority: P1/P2)
 - [x] #10 Spec phase: US4 — documentation (Priority: P3)
-- [ ] #11 Spec phase: Verification, re-grounding, cleanup
+- [x] #11 Spec phase: Verification, re-grounding, cleanup
 <!-- AC:END -->
+
+
 
 
 
