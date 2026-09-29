@@ -4,7 +4,7 @@ title: 'env:up inherits shared keys from the root .env'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 20:19'
-updated_date: '2026-09-29 20:19'
+updated_date: '2026-09-29 20:38'
 labels:
   - infra
 milestone: m-1
@@ -29,7 +29,19 @@ Spec: specs/022-root-env-inherit
 - [ ] #4 A missing root .env is not an error; env:up behaves as today
 - [ ] #5 No secret value is ever printed by env:up, status, or tests
 - [ ] #6 The runtime-stacks wiki note and .env.example document where shared keys and secrets live
+- [ ] #7 Spec phase: Merge seam (US1, US2, US3)
+- [ ] #8 Spec phase: Wiring, output, contract (US1, US3)
+- [ ] #9 Spec phase: Documentation, verification, re-grounding, cleanup (US4)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+(spec authoring; standing escalation sign-off 2026-09-28; ~124k tokens)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(all phases, one grouped dispatch; 6 new env-lib tests; key-names-only proof; env.test.mjs no longer asserts on raw .env text). Orchestrator verified: the inherited-keys log prints Object.keys only. check:env self-skipped (task-0029/0030 stacks up); run unskipped before the PR leaves draft.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
