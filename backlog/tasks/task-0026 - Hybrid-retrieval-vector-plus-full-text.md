@@ -1,10 +1,10 @@
 ---
 id: TASK-0026
 title: 'Hybrid retrieval: vector plus full-text'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:53'
+updated_date: '2026-09-29 15:56'
 labels:
   - library
 milestone: m-1
@@ -52,6 +52,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 spec-bridge sync: Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 4/5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
