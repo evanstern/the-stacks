@@ -16,10 +16,10 @@ watch it fail.
 
 **Purpose**: prove the bug on a real database before any source change.
 
-- [ ] T001 Run `pnpm env:up` in `.worktrees/task-0032`. Read `TEST_DATABASE_URL` from the
+- [x] T001 Run `pnpm env:up` in `.worktrees/task-0032`. Read `TEST_DATABASE_URL` from the
   generated `.env`. Build `packages/shared` if imports do not resolve (see
   `docs/wiki/test-suite.md`, Operational notes).
-- [ ] T002 [US1] In `apps/server/test/auth.integration.test.ts`, add one case (e.g.
+- [x] T002 [US1] In `apps/server/test/auth.integration.test.ts`, add one case (e.g.
   `"TASK-0032: redeeming with a taken username is a conflict, not a 500"`) inside the existing
   `describe.skipIf(!reachable)` block. Use the file's `createTestUser` and
   `createTestInvitation` helpers. Assert, in order:
@@ -29,12 +29,12 @@ watch it fail.
   (3) `POST /auth/invitations/redeem` with the existing username answers 409 and
   `body.error.kind === "conflict"`;
   (4) the same invitation then redeems with a fresh `randomUUID()` username and answers 201.
-- [ ] T003 [P] [US2] In `apps/server/test/db.test.ts`, add a `describe("isUniqueViolation")`
+- [x] T003 [P] [US2] In `apps/server/test/db.test.ts`, add a `describe("isUniqueViolation")`
   with the table in `contracts/unique-violation.md`: true for `{ code: "23505" }` and
   `{ cause: { code: "23505" } }`; false for other codes, `null`, `undefined`, `"23505"`, `42`,
   `{}`, `{ cause: null }`. Import `isUniqueViolation` from `../src/db.js` (it fails to import
   until T004; that failure is expected).
-- [ ] T004 Run `REQUIRE_DATABASE=1 TEST_DATABASE_URL=<url> pnpm --filter @the-stacks/server exec vitest run test/auth.integration.test.ts`.
+- [x] T004 Run `REQUIRE_DATABASE=1 TEST_DATABASE_URL=<url> pnpm --filter @the-stacks/server exec vitest run test/auth.integration.test.ts`.
   Confirm the T002 case fails because `redeemInvitation` throws a `DrizzleQueryError`.
   Paste the failing assertion line into the commit message.
 
