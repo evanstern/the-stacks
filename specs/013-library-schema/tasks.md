@@ -71,7 +71,7 @@ span slices the stored text back to the stored chunk text.
 **Independent Test**: store a book; a keyword query finds the one chunk with a unique term;
 `EXPLAIN` names the GIN index.
 
-- [ ] T007 [US2] Add to `store.integration.test.ts`: after storing, `tsv` is non-null for every
+- [x] T007 [US2] Add to `store.integration.test.ts`: after storing, `tsv` is non-null for every
   chunk; `WHERE tsv @@ plainto_tsquery('english', <term unique to one fixture chunk>)` returns
   that chunk (invariant 9); with `SET LOCAL enable_seqscan = off`, `EXPLAIN` of that query
   mentions the GIN index name (SC-002).
@@ -85,33 +85,33 @@ span slices the stored text back to the stored chunk text.
 **Independent Test**: two models' vectors on one chunk coexist; a single-model
 nearest-neighbour query uses the HNSW index and returns only that model's rows.
 
-- [ ] T008 [P] [US3] Add to `store.test.ts` (no DB): `attachEmbeddings` rejects `dim !== 1024`
+- [x] T008 [P] [US3] Add to `store.test.ts` (no DB): `attachEmbeddings` rejects `dim !== 1024`
   and `vector.length !== 1024` with `ValidationError` before any database call (invariant 5).
-- [ ] T009 [US3] Add to `store.integration.test.ts`: vectors under models `"a"` and `"b"` on one
+- [x] T009 [US3] Add to `store.integration.test.ts`: vectors under models `"a"` and `"b"` on one
   chunk both persist with model and dim (AC1); a duplicate `(chunk, model)` raises
   `ConflictError` and the whole call writes nothing (invariant 6); deleting the document
   removes its embeddings (invariant 8); with `SET LOCAL enable_seqscan = off`, `EXPLAIN` of
   `WHERE model = 'a' ORDER BY embedding <=> $1 LIMIT 5` mentions the HNSW index (SC-003). Use
   deterministic synthetic vectors (e.g. from the AI gateway's fake adapter), never a network.
-- [ ] T010 [US3] Implement `attachEmbeddings` in `store.ts` per the contract (one transaction;
+- [x] T010 [US3] Implement `attachEmbeddings` in `store.ts` per the contract (one transaction;
   validation first). Make T008 and T009 pass.
 
 **Checkpoint**: multi-model embeddings stored and searchable per model.
 
 ## Phase 5: Immutability and polish
 
-- [ ] T011 Add to `store.integration.test.ts`: a raw `UPDATE` on each of the three tables raises
+- [x] T011 Add to `store.integration.test.ts`: a raw `UPDATE` on each of the three tables raises
   the `library_immutable` error (invariant 7, SC-004); a raw `DELETE` of a document succeeds
   and cascades.
-- [ ] T012 Run the full gate with the database required:
+- [x] T012 Run the full gate with the database required:
   `REQUIRE_DATABASE=1 pnpm ci:check` against this worktree's stack — library integration
   suites report 0 skipped. Save the summary to `specs/013-library-schema/ci-evidence.txt`.
-- [ ] T013 Wiki: add `docs/wiki/library-schema.md` (sources: `src/schema/library.ts`,
+- [x] T013 Wiki: add `docs/wiki/library-schema.md` (sources: `src/schema/library.ts`,
   `src/library/store.ts`, the new migration SQL); review `database-schema` and `migrations`
   against this branch's diff (amend the table count, the extension step, and the trigger
   list, then re-pin); add the note to INDEX.md; regenerate CAPSULES.md. Freshness gate prints
   OK.
-- [ ] T014 `pnpm env:down`; `pnpm env:prune --check` exits 0.
+- [x] T014 `pnpm env:down`; `pnpm env:prune --check` exits 0.
 - [ ] T015 After merge: tick this file and run `spec-bridge:sync`.
 
 ## Dependencies & Execution Order
