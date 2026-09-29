@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:58'
+updated_date: '2026-09-29 04:07'
 labels:
   - library
 milestone: m-1
@@ -63,6 +63,10 @@ Correction: implementer reported 52 ddb tests; vitest shows 22 test cases (some 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 5 (T017-T018) done in 5b07fa6/178daf1/5b842ce. T017 amended by orchestrator: per-book layout fixtures/private/ddb/<book>/. MERGE CONDITION MET: real-export suite passes for all four books (orchestrator re-ran: 24/24). phb 39 pages/8055 blocks/31 statBlocks; dmg 22/4837/3; mm 30/2899/428; lmop 7/1183/27. No zero-block pages; no parser fixes needed. Evidence: specs/012-ddb-parser/real-export-evidence.txt (counts only). fixtures/private untracked, verified.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 6 (T019-T022) done in 872b0ab/9ed4f41: perf test (300 synthetic pages, ~150-280ms, bound 10s), boundary rule confirmed, ci-evidence.txt, wiki note ddb-parser + monorepo-and-toolchain amended; ci-pipeline/migrations/test-suite RE-PIN-ONLY (orchestrator checked: only source change is the parse5 dependency line, not described in prose). Freshness OK 28 notes. ~147k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
