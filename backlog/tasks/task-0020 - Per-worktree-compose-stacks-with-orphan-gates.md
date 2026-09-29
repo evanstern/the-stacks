@@ -10,7 +10,7 @@ labels:
 milestone: m-1
 dependencies: []
 documentation:
-  - backlog/docs/doc-0002 - Runtime-environments-—-proposal.md
+  - backlog/docs/doc-0002 - Runtime-environments-—-rulings.md
 priority: high
 ordinal: 11000
 ---
