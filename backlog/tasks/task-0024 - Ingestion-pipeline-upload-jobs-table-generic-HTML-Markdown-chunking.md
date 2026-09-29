@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 18:00'
+updated_date: '2026-09-29 18:32'
 labels:
   - library
 milestone: m-1
@@ -75,6 +75,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 6 T036-T039: 13 wiki notes reviewed, new note ingestion; freshness OK 33; 302/302 under REQUIRE_DATABASE=1; env down, prune clean).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(flaky-test investigation, no commits). Finding (post-#30 reconcile, 2026-09-29): worker.integration T023 fails ~10-15% LOCALLY because the worktree stack's app container runs startIngestWorker (index.ts:38) against the same jobs table the tests use; it claims test-enqueued jobs, cannot see the host tmpdir upload path, fails them 'upload file missing'. Latent since the worker was wired into the app; CI has no app container. Operator decision pending on the fix direction.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
