@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 22:08'
+updated_date: '2026-09-29 22:36'
 labels:
   - bench
 milestone: m-1
@@ -57,6 +57,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 6-7: both stress cases pass live; restart-mid-ingest fix = bench fork timeout 15s->30s after 3 instrumented runs showed correct claim order, no product change; decision-0005 demand run committed). decision-0005 measurement: 1 worker 1.75 jobs/s, knee 100-250 queued; 2 workers 3.25 jobs/s, knee 250-500. Recorded measurement only; any worker split needs its own decision record (operator).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 8 minus T026: merged main twice incl. #35; filled benchmarks.md 'Load and stress' (size_budget_exempt, two benches in one note by orchestrator instruction); 8 wiki notes reviewed; freshness OK 36; env down, prune clean). T026 dev run: operator checkpoint, pending.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
