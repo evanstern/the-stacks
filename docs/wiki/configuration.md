@@ -1,6 +1,6 @@
 ---
 name: configuration
-description: loadConfig's env-var contract — APP_PORT not PORT, the required DATABASE_URL, UPLOAD_MAX_BYTES, and the TEST_DATABASE_URL/DATABASE_URL split between the running server and host-run scripts, including why migrate.ts uses || rather than ??. Load for any env-var or "why did config throw" question.
+description: loadConfig's env-var contract — APP_PORT not PORT, the required DATABASE_URL, UPLOAD_MAX_BYTES, the TEST_DATABASE_URL/DATABASE_URL split between the running server and host-run scripts (why migrate.ts uses || rather than ??), and where secrets/shared keys (AI_PROVIDERS, AI_PURPOSES, API keys) actually live — the root checkout's .env, not each worktree's. Load for any env-var, "why did config throw", or "where do I put my API key" question.
 kind: concept
 sources:
   - apps/server/src/config.ts
@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
+verified_against: d0c82c0486627cae5cfe5947eb640f7fe9c6e594
 ---
 
 # Configuration
@@ -84,6 +84,19 @@ the same `||` picks it up normally.
 internally: it runs directly via Node's native TypeScript stripping (per its `package.json`
 script), not through the `tsc`-built `dist/`, so it can't use the bundler-resolved `.js`
 suffixes the compiled server code needs.
+
+## Where secrets and shared keys live (spec 022)
+
+`.env.example` is a per-worktree template, but secrets and config meant to be shared across
+every worktree — API keys, `AI_PROVIDERS`, `AI_PURPOSES`, `AI_PRICES` — belong in the **root
+checkout's** `.env`, not in a worktree's. `pnpm env:up` (see [[runtime-stacks]]) copies every
+key from the root `.env` into the worktree's own `.env`, except the five derived keys
+(`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`, `TEST_DATABASE_URL`), which are always
+per-worktree and never come from root. Root's value wins over whatever the worktree's `.env`
+already had for that key, so editing the root file and re-running `env:up` is how a shared
+key (a rotated `NINEROUTER_API_KEY`, a changed `AI_PURPOSES`) reaches every worktree — there
+is no per-worktree override. `env:up` prints the inherited key names (never values); `.env`
+itself, in any worktree, is still git-ignored and never committed.
 
 ## Connections
 
