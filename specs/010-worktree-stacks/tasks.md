@@ -66,7 +66,7 @@ healthy and leaves nothing of itself behind.
 - [x] T009 [US1] Root `package.json`: add `env:up`, `env:down`, `env:status`, `env:prune`,
   `env:main` scripts calling `node scripts/env.mjs <verb>`; confirm `pnpm env:prune --check`
   forwards the flag.
-- [ ] T010 [US1] Manual proof, recorded in the task's board notes: from this worktree and a
+- [x] T010 [US1] Manual proof, recorded in the task's board notes: from this worktree and a
   scratch worktree, both `pnpm env:up` at once; both `/health` report `ok` with their own
   commit; `pnpm env:down` in one; the other still `ok`.
 

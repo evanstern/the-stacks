@@ -139,12 +139,15 @@ function down() {
     environmentError(
       "Docker is not reachable — start Docker Desktop and try again.",
     );
-  const { project } = resolveIdentityOrRefuse(cwd);
+  const {
+    toplevel,
+    identity: { project },
+  } = resolveIdentityOrRefuse(cwd);
 
   const result = spawnSync(
     "docker",
     ["compose", "-p", project, "down", "-v", "--remove-orphans"],
-    { cwd, stdio: "inherit" },
+    { cwd: toplevel, stdio: "inherit" },
   );
   if (result.status !== 0) {
     console.error(`${project}: docker compose down failed.`);
