@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 16:15'
+updated_date: '2026-09-29 16:43'
 labels:
   - library
 milestone: m-1
@@ -57,6 +57,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1 Foundational; deps yauzl/busboy + @types; migration 0003_dazzling_cargill; 188 pass under REQUIRE_DATABASE=1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 2-3: busboy streaming upload + chunker; 25 new tests incl. 320 MB streaming RSS<64MB; 213 pass under REQUIRE_DATABASE=1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
