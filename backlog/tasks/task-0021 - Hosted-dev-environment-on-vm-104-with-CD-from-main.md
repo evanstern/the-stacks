@@ -39,8 +39,10 @@ Spec: specs/016-hosted-dev-cd
 - [x] #11 Spec phase: User Story 3 — drift is caught (P2)
 - [x] #12 Spec phase: User Story 4 — only the tailnet reaches dev (P2)
 - [x] #13 Spec phase: User Story 5 — the ops runbook (P3)
-- [ ] #14 Spec phase: Polish, re-ground, and the merge condition
+- [x] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
+
+
 
 
 
