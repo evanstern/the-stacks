@@ -11,6 +11,16 @@ import { basename } from "node:path";
 
 const RESERVED = new Set(["main", "dev"]);
 
+// The shared (root .env) layer never supplies these — they are per-worktree
+// identity and must never go stale or leak from root (research R5).
+export const DERIVED_KEYS = [
+  "APP_PORT",
+  "DB_PORT",
+  "STACKS_ENV",
+  "TEST_DB_PORT",
+  "TEST_DATABASE_URL",
+];
+
 function sanitizeEnv(name) {
   return name.toLowerCase().replace(/[^a-z0-9-]/g, "-");
 }
@@ -82,31 +92,43 @@ export function parseEnvKeys(text) {
 }
 
 /**
- * Merge `.env.example` with an existing `.env` and the derived keys for
- * this stack. Derived keys always win (a stale port must never survive);
- * operator-set keys are preserved; comments and layout come from the
- * example file (research R5).
+ * Merge `.env.example` with an existing `.env`, the root checkout's shared
+ * `.env` (`sharedText`, optional — research R1/022), and the derived keys
+ * for this stack. Precedence per key: derived, then shared, then existing,
+ * then the example default. The shared layer never supplies a
+ * `DERIVED_KEYS` key (research R5). Comments and layout come from the
+ * example file; values are copied verbatim.
+ *
+ * ponytail: no multi-line values (a value cannot span lines — upgrade:
+ * teach `parseEnvKeys` continuation lines); no per-worktree override of a
+ * shared key (upgrade: a git-ignored `.env.local` layer between derived and
+ * shared, research R2).
  */
-export function mergeEnvFile(exampleText, existingText, derived) {
+export function mergeEnvFile(exampleText, existingText, derived, sharedText) {
   const existing = parseEnvKeys(existingText ?? "");
+  const shared = { ...parseEnvKeys(sharedText ?? "") };
+  for (const key of DERIVED_KEYS) delete shared[key];
+  const pick = (key, fallback) =>
+    Object.hasOwn(derived, key)
+      ? derived[key]
+      : Object.hasOwn(shared, key)
+        ? shared[key]
+        : (existing[key] ?? fallback);
+
   const seen = new Set();
   const lines = exampleText.split("\n").map((line) => {
     const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=/);
     if (!match) return line;
     const key = match[1];
     seen.add(key);
-    const value = Object.hasOwn(derived, key)
-      ? derived[key]
-      : (existing[key] ?? line.slice(key.length + 1));
-    return `${key}=${value}`;
+    return `${key}=${pick(key, line.slice(key.length + 1))}`;
   });
-  for (const [key, value] of Object.entries(derived)) {
-    if (!seen.has(key)) lines.push(`${key}=${value}`);
-  }
-  for (const [key, value] of Object.entries(existing)) {
-    if (!seen.has(key) && !Object.hasOwn(derived, key)) {
-      seen.add(key);
-      lines.push(`${key}=${value}`);
+  for (const layer of [derived, shared, existing]) {
+    for (const key of Object.keys(layer)) {
+      if (!seen.has(key)) {
+        seen.add(key);
+        lines.push(`${key}=${pick(key)}`);
+      }
     }
   }
   return lines.join("\n");
