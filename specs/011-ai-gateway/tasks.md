@@ -55,7 +55,7 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 ## Phase 6: Polish & re-ground
 
 - [x] T019 Wiki: add an `ai-gateway` note; review `configuration` and `server-entrypoint-and-app` (NEEDS-REVIEW per runbook); `gates/cli.mjs freshness` prints `OK`
-- [ ] T020 Tick this file and run `spec-bridge:sync` after merge
+- [x] T020 Tick this file and run `spec-bridge:sync` after merge
 
 ## Dependencies & Execution Order
 
