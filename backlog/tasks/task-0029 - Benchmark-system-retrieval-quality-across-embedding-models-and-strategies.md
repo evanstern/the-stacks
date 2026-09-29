@@ -31,11 +31,13 @@ Spec: specs/019-retrieval-bench
 - [ ] #5 A small fake-provider case runs on every commit and fails on a recall regression; the full matrix runs on demand
 - [x] #6 Spec phase: Corpus and question set (AC #1)
 - [x] #7 Spec phase: Foundational — load, score, embed helpers (pure)
-- [ ] #8 Spec phase: User Story 1 — run a matrix and print a comparable table (P1, AC #2, #3)
+- [x] #8 Spec phase: User Story 1 — run a matrix and print a comparable table (P1, AC #2, #3)
 - [ ] #9 Spec phase: User Story 3 — store results and compare over time (P2, AC #4)
 - [ ] #10 Spec phase: User Story 2 — per-commit recall regression gate (P1, AC #5)
 - [ ] #11 Spec phase: Polish, re-grounding, and gates
 <!-- AC:END -->
+
+
 
 
 
