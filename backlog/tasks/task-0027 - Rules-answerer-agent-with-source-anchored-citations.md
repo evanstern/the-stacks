@@ -1,9 +1,10 @@
 ---
 id: TASK-0027
 title: Rules-answerer agent with source-anchored citations
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 18:38'
 labels:
   - ai
 milestone: m-1
@@ -17,6 +18,8 @@ ordinal: 18000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Grounded Q&A over the library. SSE transport per decision-0004.
+
+Spec: specs/018-rules-answerer
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
