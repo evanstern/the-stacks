@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: ba9fcbb4fa3bdc10f8e66f403cdee90a2093f752
+verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
 ---
 
 # Server entrypoint and app
@@ -16,11 +16,13 @@ via `createApp` without binding a port.
 
 ## How it works
 
-`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then constructs the AI
-gateway (see [[ai-gateway]]) via `createGateway({ config: config.ai, sink: logSink })` from
-`ai/gateway.ts` — imported under the alias `createAiGateway` to avoid colliding with the
-WebSocket module's own `createGateway`. This slice adds no route, so the AI gateway is unused
-until TASK-0027; with no `AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
+`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `loadAiConfig(process.env)`
+(from `ai/config.ts`, called directly here rather than through `loadConfig` — see
+[[configuration]]'s "no relative imports" note), then constructs the AI gateway (see
+[[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
+imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
+`createGateway`. This slice adds no route, so the AI gateway is unused until TASK-0027; with no
+`AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
 `createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db })`, then
 `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and

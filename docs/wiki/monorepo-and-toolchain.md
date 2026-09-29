@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: cd359ab7e3389075b413a1bd653a961ffc87471b
+verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
 ---
 
 # Monorepo and toolchain
@@ -27,10 +27,11 @@ true }` to let esbuild's install script run under pnpm's default script-blocking
 `package.json` scripts delegate to the tools rather than reimplementing anything: `build` and
 `test` run `turbo run build` / `turbo run test`, `lint` runs `biome check .`, `format` runs
 `biome format --write .`, and `typecheck` runs `tsc -b` (build mode, driven by project
-references, not `turbo`). Three more scripts exist only to be composed by `ci:check`
+references, not `turbo`). Four more scripts exist only to be composed by `ci:check`
 (`pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks`): `check:boundaries` and `check:hooks` — see [[ci-pipeline]] for what each gate
-proves and how CI runs this same script.
+check:hooks && pnpm check:host-scripts`): `check:boundaries`, `check:hooks`, and
+`check:host-scripts` — see [[ci-pipeline]] for what each gate proves and how CI runs this
+same script.
 
 `turbo.json` defines the task graph: `build` depends on `^build` (each workspace's
 dependencies build first) and declares `dist/**` as its cacheable output; `typecheck` depends
