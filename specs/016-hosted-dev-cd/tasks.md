@@ -176,7 +176,7 @@ the job. (AC #3)
   redeploys); Exposure (the `tailscale serve` command and its undo); Destroy (the only place
   `down -v` appears, marked operator-only with a backup first); Failure triage (what each
   deploy exit line means).
-- [ ] T019 [US5] Follow the runbook's Backup and Rollback sections once against `dev` from the
+- [x] T019 [US5] Follow the runbook's Backup and Rollback sections once against `dev` from the
   T008 clone (rollback by the script verb, since the workflows are not on `main` yet); record
   outputs. Then redeploy the branch HEAD.
 
