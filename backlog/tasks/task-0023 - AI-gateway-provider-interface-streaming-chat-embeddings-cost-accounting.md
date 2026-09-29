@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:20'
+updated_date: '2026-09-29 03:32'
 labels:
   - ai
 milestone: m-1
@@ -45,6 +45,10 @@ Spec 011 authored via speckit-specify/plan/tasks (c2045eb). speckit-clarify skip
 AC 'Anthropic chat + OpenAI-compatible embeddings' replaced 2026-09-28 by operator ruling decision-0007 (provider-agnostic gateway, doc-0001). Supersedes the @anthropic-ai/sdk proposal in spec 011's first plan; spec 011 is revised before any implementation dispatch. Phase ACs will be re-seeded from the revised tasks.md.
 
 Spec 011 revised for decision-0007 (a0958e9, 4031722): vendor SDK rejected; providers are named AI_PROVIDERS entries; openai-compatible + fake adapter kinds; gateway owns SSE, error mapping, bounded retry. No new dependency. The earlier @anthropic-ai/sdk checkpoint is withdrawn.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 (T001-T005) done in ca2fbf6: types, config (AI_PROVIDERS/AI_PURPOSES/AI_PRICES), usage, fake adapter; 11 tests; ci:check green. Orchestrator grep: only 'openai-compatible' (protocol kind) appears, no vendor or key names. crossValidate op-support guard is unreachable with current kinds (both support chat+embed); kept as a tested forward guard. ~154k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
