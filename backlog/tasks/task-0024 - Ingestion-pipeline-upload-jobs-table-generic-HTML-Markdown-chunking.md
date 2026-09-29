@@ -42,18 +42,6 @@ Spec: specs/017-ingestion-pipeline
 - [x] #13 Spec phase: Polish, merge condition, re-grounding, and gates
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -90,6 +78,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (flaky-test investigation, no commits). Finding (post-#30 reconcile, 2026-09-29): worker.integration T023 fails ~10-15% LOCALLY because the worktree stack's app container runs startIngestWorker (index.ts:38) against the same jobs table the tests use; it claims test-enqueued jobs, cannot see the host tmpdir upload path, fails them 'upload file missing'. Latent since the worker was wired into the app; CI has no app container. Operator decision pending on the fix direction.
+
+spec-bridge sync: Foundational — config, error kind, jobs table, job store: 9/9 · User Story 2 — stream uploads to disk under a 1 GiB ceiling (Priority: P1): 6/6 · User Story 3 — structure-preserving chunker (Priority: P1): 2/2 · User Story 1 — ingest D&D Beyond exports as delivered (Priority: P1) 🎯 MVP: 8/8 · User Stories 4 and 5 — generic HTML, Markdown, job status, crash recovery (Priority: P2): 6/6 · Polish, merge condition, re-grounding, and gates: 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
