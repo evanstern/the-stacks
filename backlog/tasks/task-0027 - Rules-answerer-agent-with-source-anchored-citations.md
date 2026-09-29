@@ -4,7 +4,7 @@ title: Rules-answerer agent with source-anchored citations
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 18:52'
+updated_date: '2026-09-29 19:05'
 labels:
   - ai
 milestone: m-1
@@ -40,6 +40,9 @@ Spec: specs/018-rules-answerer
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~194k tokens). No operator checkpoint: operator-only auth follows constitution VIII / A9; no new dependency; no migration. SSE contract: specs/018-rules-answerer/contracts/ask-sse.md (TASK-0028 builds against it). Phase grouping: P1; P2+P3; P4; P5.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 1: cite.ts parser + quote verification, answer.ts config; 24 unit tests; removed a dead biome-ignore in index.ts, no behavior change)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
