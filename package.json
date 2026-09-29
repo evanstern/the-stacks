@@ -22,6 +22,7 @@
     "env:status": "node scripts/env.mjs status",
     "env:prune": "node scripts/env.mjs prune",
     "env:main": "node scripts/env.mjs main",
+    "bench:load": "pnpm --filter @the-stacks/server bench:load",
     "bench:retrieval": "pnpm --filter @the-stacks/server bench:retrieval"
   },
   "devDependencies": {

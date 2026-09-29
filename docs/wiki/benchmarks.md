@@ -1,7 +1,8 @@
 ---
 name: benchmarks
-description: The retrieval benchmark (specs/019-retrieval-bench, TASK-0029) — the licensed SRD corpus and its attribution, the question set, the model/dim/chunking/mode matrix, span-overlap scoring, the isolated `_bench` Postgres database, stored results and the report, and the deterministic per-commit recall gate that runs inside `pnpm test`. Load for any "how does the retrieval bench work" or "why did the recall gate fail" question.
+description: Two independent benches. Retrieval (specs/019-retrieval-bench, TASK-0029) — SRD corpus, question set, model/dim/chunking/mode matrix, span-overlap scoring, `_bench` database, per-commit recall gate. Load and stress (specs/021-load-bench, TASK-0030) — tiers, visible skips, `_load` database, synthetic content, decision-0005's ingest-scaling measurement, concurrency, stress cases, dev tier's read-only design. Load for "how does a bench work" or "why a bench gate failed".
 kind: pipeline
+size_budget_exempt: two independent benches (TASK-0029 retrieval, TASK-0030 load/stress) share one note by explicit orchestrator instruction (no new note); each bench's own section is independently well under budget.
 sources:
   - apps/server/bench/retrieval/corpus/ATTRIBUTION.md
   - apps/server/bench/retrieval/questions.json
@@ -19,10 +20,32 @@ sources:
   - apps/server/src/bench/retrieval/cli.ts
   - apps/server/test/bench/retrieval.test.ts
   - apps/server/test/bench/retrieval.integration.test.ts
-  - apps/server/package.json
   - specs/019-retrieval-bench/contracts/bench-cli.md
   - specs/019-retrieval-bench/contracts/results-format.md
-verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
+  - apps/server/src/bench/load/cases.ts
+  - apps/server/src/bench/load/cli.ts
+  - apps/server/src/bench/load/index.ts
+  - apps/server/src/bench/load/db.ts
+  - apps/server/src/bench/load/profile.ts
+  - apps/server/src/bench/load/synth.ts
+  - apps/server/src/bench/load/ingest.ts
+  - apps/server/src/bench/load/concurrency.ts
+  - apps/server/src/bench/load/stress.ts
+  - apps/server/src/bench/load/users.ts
+  - apps/server/src/bench/load/stats.ts
+  - apps/server/src/bench/load/results.ts
+  - apps/server/bench/load/profiles/commit.json
+  - apps/server/bench/load/profiles/demand.json
+  - apps/server/bench/load/profiles/dev.json
+  - apps/server/test/bench/load.test.ts
+  - apps/server/test/bench/load.integration.test.ts
+  - apps/server/test/bench/load-db.integration.test.ts
+  - apps/server/package.json
+  - package.json
+  - specs/021-load-bench/tasks.md
+  - specs/021-load-bench/research.md
+  - specs/021-load-bench/contracts/results-format.md
+verified_against: cba07c8983ef25ef918e4fbc438ecb4612a9d0ce
 ---
 
 # Benchmarks
@@ -32,7 +55,10 @@ caller: it ingests a fixed corpus, asks it a fixed set of questions through `ret
 scores where the right passage landed in the ranking — across a matrix of embedding models,
 vector dimensions, chunking strategies, and search modes. `pnpm bench:retrieval run --matrix
 <path>` (root) or `pnpm bench:retrieval` inside `apps/server` runs it; `report` prints every
-stored run. It never touches the app's own database.
+stored run. It never touches the app's own database. The load and stress bench
+(specs/021-load-bench, TASK-0030) is a separate case registry, run either through Vitest
+(every commit) or its own standalone CLI (`pnpm bench:load`, on demand, or against the real
+hosted `dev` environment under an operator checkpoint).
 
 ## How it works
 
@@ -119,16 +145,94 @@ sized before it is approved.
 
 ## Load and stress
 
-_(placeholder — TASK-0030)_
+**Tiers and visible skips.** Every case in `cases.ts`'s `CASES` registry declares exactly one
+tier — `commit`, `demand`, or `dev` — and a target (`local` or `dev`). `selectCases(tier,
+only)` splits the full registry into cases to run and every other case as a named `skipped`
+outcome with a fixed reason (`"tier X not selected"` or `"not selected by --case"`); `run ∪
+skipped` is always all 7 cases, so a reader of any run's output never has to wonder whether a
+case ran silently. `commit` (`ingest-smoke`, `concurrency-smoke`) runs inside
+`apps/server/test/bench/load.integration.test.ts` on every `pnpm test` — see [[test-suite]] and
+[[ci-pipeline]] — where the other 5 cases show up as individually named `it.skip` entries
+(`<id> [tier <tier>] — tier <tier> not selected`), not an absence. `demand` (`ingest-scaling`,
+`concurrency-local`, `db-exhaustion`, `restart-mid-ingest`) and `dev` (`concurrency-dev`) run
+only through the CLI (`pnpm bench:load run --tier demand|dev`), never under Vitest —
+`db-exhaustion` and `restart-mid-ingest` explicitly refuse (`status: "skipped"`) when
+`process.env.VITEST` is set, since both disrupt or kill real processes/connections that other
+suites in the same run depend on.
+
+**The isolated `_load` database and its guards** (`db.ts`, research R3). Every `local`-target
+case runs against its own database — `LOAD_DATABASE_URL`, or else `TEST_DATABASE_URL ||
+DATABASE_URL` with `_load` appended — never the worktree's app database or the shared test
+database other suites use. `resolveLoadUrl` throws if the load URL equals the base URL, or if
+its host isn't loopback: a local case can never reach a shared server. `recreateLoadDb`
+connects to the *base* URL to `DROP`/`CREATE` the load database (a database can't drop
+itself), first refusing if `pg_stat_activity` shows any existing connection to it — no two
+local cases, or two runs, can stomp each other. `dropLoadDb` is best-effort CLI cleanup.
+
+**Synthetic content** (`synth.ts`, research R2). `synthDoc(seed, bytes)` is a small seedable
+PRNG (`mulberry32` — no dependency) emitting deterministic Markdown from a fixed list of ~200
+plain English words original to this file — no SRD, book text, or fixture content anywhere
+near it (constitution VIII). Same `seed` and `bytes` always produce byte-identical output,
+within 5% of the requested size.
+
+**Ingest scaling — the decision-0005 measurement** (`ingest.ts`, `ingest-scaling`). Forks real
+worker processes and measures wall time, throughput, queue-wait and service percentiles across
+a profile's `volumes` × `workers` matrix, via `ingestVerdict`'s ratio-plus-floor rules to find
+the degradation knee. Run for real on local Postgres: **1 worker sustains 1.75 jobs/s** (volume
+100 in 57.2s), degrading between **100 and 250** queued jobs; **2 workers sustain 3.25 jobs/s**
+— roughly double — degrading between **250 and 500**. A recorded measurement of real
+local-Postgres throughput, not a capacity decision; see [[ingestion]] for what it implies about
+the `jobs` queue's claim/lease/recovery path, and for the `restart-mid-ingest` finding below.
+
+**Concurrency** (`concurrency.ts`, research R8/R9). Simulated users (`users.ts`'s `runUsers`)
+each hold one HTTP+WebSocket session and loop HTTP requests plus optional WS traffic for a
+fixed duration; `concurrency-smoke` (commit tier) runs 3 users in-process on port 0;
+`concurrency-local` (demand tier) runs the profile's user counts against the real built app on
+the load database; `concurrencyVerdict` finds the first user count where latency or error-rate
+thresholds fire. Sessions come from `db.ts`'s `seedUsers` — one scrypt hash computed once and
+reused for every seeded user, so sign-in cost never dominates a step's latency (research R9).
+
+**Both stress cases** (`stress.ts`, research R6/R7). `db-exhaustion` opens raw `pg` clients
+against the load database until Postgres refuses new connections, then probes the running app:
+`/health` degrading, `/auth/me` bounding its response, a WebSocket upgrade refused `503` not
+`401`, and the process staying alive — each probe round fires 8 concurrent attempts (`BURST`)
+rather than one, since the app's own pool always keeps one connection warm, so a single
+sequential probe never observes the outage. Held connections are released in a `finally`, then
+recovery is measured. `restart-mid-ingest` forks a worker, holds it mid-`embed`, `SIGKILL`s it,
+forks a normal worker, and measures lease-reclaim: the target job (enqueued first, so it's the
+oldest queued row) is always the one reclaimed — `claimJob`'s `ORDER BY created_at` verified
+empirically — succeeding on its second attempt with followers unaffected and no duplicate
+document stored (see [[ingestion]]).
+
+**Results and report** (`results.ts`, contracts/results-format.md). Every run writes
+`apps/server/bench/load/results/<date>-<sha7>-<runId8>.json` (schemaVersion 1): git
+commit/dirty state, host facts, the tier, target provenance, the profile and its hash, and
+every case's outcome — run or skipped, with reason. `pnpm bench:load report` groups results by
+`(case id, target)` so local and dev runs for the same case never mix into one trend line.
+
+**The dev-tier safety design** (`concurrency.ts`'s `runConcurrencyDev`, research R11).
+Read-only end to end, gated hard: the CLI refuses (exit 2) without `--allow-dev`, checked
+before any network call; `LOAD_DEV_URL` unset skips `concurrency-dev` cleanly (exit 0). A real
+run does exactly one sign-in — one session — runs with `wsSend` forced `false`
+(`ProfileSchema` also rejects `wsSend: true`, >25 users, or >180s total for a `dev` profile),
+and signs that session out in a `finally` regardless of outcome, verifying it with a follow-up
+`/auth/me` expecting `401`. A failed sign-out itself fails the case rather than silently
+leaving a live session. No results file the dev tier writes ever carries the dev URL, host,
+username, password, or session cookie — enforced by a dedicated unit test (invariant 9).
 
 ## Connections
 
 Calls [[retrieval]]'s `retrieve()` as its only read path and [[library-schema]]'s
 `storeParsedBook`/`attachEmbeddings` as its only write path; embeds real matrices through
-[[ai-gateway]]. [[ci-pipeline]] runs the per-commit gate as part of `pnpm test` under
-`REQUIRE_DATABASE=1`, alongside every other integration suite ([[test-suite]]). The corpus is
-parsed with [[ingestion]]'s own `parseMarkdown`/`chunkBook`, so a chunker change is measured
-here before it reaches production ingestion.
+[[ai-gateway]]. [[ci-pipeline]] runs both benches' per-commit gates as part of `pnpm test`
+under `REQUIRE_DATABASE=1`, alongside every other integration suite ([[test-suite]]). The
+retrieval corpus is parsed with [[ingestion]]'s own `parseMarkdown`/`chunkBook`; the load
+bench's `ingest-scaling`/`restart-mid-ingest` exercise [[ingestion]]'s `jobs` queue directly,
+forking the same worker entry point it starts in production, and its concurrency cases
+exercise [[websocket-gateway]] and [[session-auth]] through a real running app.
+`concurrency-dev` is the only case that ever touches [[hosted-dev]]'s real deployed target,
+and only under an operator-approved run (T026). Both benches' root scripts are covered by
+[[monorepo-and-toolchain]].
 
 ## Operational notes
 
@@ -136,5 +240,10 @@ here before it reaches production ingestion.
 cli.js`) requires a built `dist/`; the CI/integration-test path instead imports the `src/`
 module directly. `du -sk apps/server/bench/retrieval/corpus` must stay ≤400 (currently ~200) —
 the corpus is a benchmark fixture, not a general-purpose library seed, and nothing under a
-`fixtures/private/` path is ever tracked. A paid matrix run is an **operator checkpoint**: it is
-never run without sign-off on the provider/model list and the `--dry-run` estimate.
+`fixtures/private/` path is ever tracked. A paid matrix run is an **operator checkpoint**: it
+is never run without sign-off on the provider/model list and the `--dry-run` estimate.
+
+`pnpm bench:load list` prints all 7 load-bench cases with their tier and target. A `--tier
+demand` run takes roughly 10-15 minutes and drops its load database afterward (best-effort); a
+`--tier commit` run finishes in seconds. Case tables and `VERDICT`/`PASS`/`FAIL`/`SKIP` lines
+print as each case finishes, so a long `demand` run's progress is visible live.
