@@ -25,10 +25,10 @@ Spec: specs/013-library-schema
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Migrations create documents, chunks, and embeddings tables with a pgvector column of dimension 1024
-- [ ] #2 Every embedding row stores model and dim
-- [ ] #3 Chunks carry a full-text search column with a GIN index and a vector index
-- [ ] #4 Chunks store source anchors: book, section path, and character span
+- [x] #1 Migrations create documents, chunks, and embeddings tables with a pgvector column of dimension 1024
+- [x] #2 Every embedding row stores model and dim
+- [x] #3 Chunks carry a full-text search column with a GIN index and a vector index
+- [x] #4 Chunks store source anchors: book, section path, and character span
 - [x] #5 Spec phase: Foundational — schema and migration
 - [x] #6 Spec phase: User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP
 - [x] #7 Spec phase: User Story 2 — keyword search on every chunk (Priority: P1)
@@ -56,6 +56,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phases 3-5 (T007-T014) done in 83ebc51/574a890/bca3043: tsv/GIN, attachEmbeddings (multi-model, dim 1024 enforced), immutability tests on all three tables; 17 library tests. Fixed isUniqueViolation to read err.cause.code (drizzle wraps driver errors); the same latent bug in auth/invitations.ts is carded as TASK-0032, out of scope here. Wiki: library-schema added; database-schema, migrations, overview amended. Stack torn down; prune --check exit 0. ~227k subagent tokens.
 
 spec-bridge sync: Foundational — schema and migration: 3/3 · User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — keyword search on every chunk (Priority: P1): 1/1 · User Story 3 — embeddings from several models (Priority: P2): 3/3 · Immutability and polish: 5/5 — status In Progress → Done
+
+Human-authored ACs verified at close (2026-09-29): #1 migration 0002 creates library_documents/chunks/embeddings with vector(1024); #2 model and dim stored per embedding row, dim CHECK 1024 (attachEmbeddings tests); #3 generated tsvector + GIN and HNSW cosine index (T007/T009 EXPLAIN); #4 chunks store book, section path, start/end, round-trip enforced before insert (store.test.ts, store.integration.test.ts). Landed in PR #25 (merge b7144c6); 174/174 with REQUIRE_DATABASE=1 on a fresh stack.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -66,6 +68,6 @@ All spec tasks complete (Foundational — schema and migration: 3/3 · User Stor
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
