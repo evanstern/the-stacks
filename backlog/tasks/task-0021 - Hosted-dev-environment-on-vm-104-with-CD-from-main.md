@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:35'
+updated_date: '2026-09-29 15:38'
 labels:
   - infra
 milestone: m-1
@@ -57,6 +57,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~182k tokens). Open operator questions (plan.md 'Operator checkpoints'): tailnet HTTPS on 8443 (Traefik holds 443); drift cadence hourly :17 with 30-min grace; merge on pre-merge manual deploy/rollback proof with run URLs recorded post-merge; tailnet HTTPS certs may need enabling. Phase 1 (local, pure logic) dispatched; nothing touches vm-104 before operator answers.
 
 Operator rulings 2026-09-29 (plan checkpoint): (1) tailnet HTTPS on 8443 — https://vm-104.tailb3c1b6.ts.net:8443; (2) pre-merge hand-run deploy + forced-unhealthy rollback proof on vm-104 suffices to merge; real CD run URLs recorded post-merge; (3) vm-104 checkpoint commands (init-secrets, tailscale serve, first deploy, forced-unhealthy run) are run by the orchestrator, each announced to the operator with an explicit go before running; implementers never run them; (4) drift check hourly at :17 with 30-min grace.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 1 Foundational; 16 unit + 5 workflow-invariant tests, 3 todo pending T005/T012)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
