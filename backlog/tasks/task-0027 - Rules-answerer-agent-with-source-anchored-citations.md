@@ -1,10 +1,10 @@
 ---
 id: TASK-0027
 title: Rules-answerer agent with source-anchored citations
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 19:45'
+updated_date: '2026-09-29 19:50'
 labels:
   - ai
 milestone: m-1
@@ -53,6 +53,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 5: 352 pass under REQUIRE_DATABASE=1; new wiki note rules-answerer; freshness OK 35; env down, prune clean)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — citation parser, quote verification, config: 7/7 · User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — refuse when nothing is relevant (Priority: P1): 3/3 · User Story 3 — failures, auth, and cancellation (Priority: P2): 4/4 · Polish, re-grounding, and gates: 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
