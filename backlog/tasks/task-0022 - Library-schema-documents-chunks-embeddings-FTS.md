@@ -29,12 +29,14 @@ Spec: specs/013-library-schema
 - [ ] #2 Every embedding row stores model and dim
 - [ ] #3 Chunks carry a full-text search column with a GIN index and a vector index
 - [ ] #4 Chunks store source anchors: book, section path, and character span
-- [ ] #5 Spec phase: Foundational — schema and migration
+- [x] #5 Spec phase: Foundational — schema and migration
 - [ ] #6 Spec phase: User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP
 - [ ] #7 Spec phase: User Story 2 — keyword search on every chunk (Priority: P1)
 - [ ] #8 Spec phase: User Story 3 — embeddings from several models (Priority: P2)
 - [ ] #9 Spec phase: Immutability and polish
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
