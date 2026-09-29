@@ -4,6 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 15:01'
 labels:
   - ui
 milestone: m-1
@@ -27,6 +28,12 @@ The M1 demo surface. Not droppable.
 - [ ] #3 Clicking a citation opens the source passage with the quoted span highlighted
 - [ ] #4 The M1 demo runs in two browsers from the per-worktree stack
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-09-29 (on merging PR #27, the M1 wave-2 runbook): TASK-0028 runs through pdlc:design-rounds in a sister session, not through the wave-2 sweep. The sweep orchestrator announces when 0027 and 0024 have merged and hands off a brief blurb.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
