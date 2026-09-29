@@ -182,7 +182,7 @@ the job. (AC #3)
 
 ## Phase 7: Polish, re-ground, and the merge condition
 
-- [ ] T020 Remove `/home/stacks/dev/proof` and `/home/stacks/dev/bootstrap` on vm-104. Leave
+- [x] T020 Remove `/home/stacks/dev/proof` and `/home/stacks/dev/bootstrap` on vm-104. Leave
   `stacks-dev` running, the secrets file, and the backups.
 - [x] T021 Run `pnpm ci:check` in the worktree; it passes, including `check:scripts` with the
   T002 workflow invariants green. Paste the result into the PR body. State in the PR body:
