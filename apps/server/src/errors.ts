@@ -8,7 +8,8 @@ export type ErrorKind =
   | "not_found"
   | "unauthorized"
   | "forbidden"
-  | "conflict";
+  | "conflict"
+  | "too_large";
 
 export interface ErrorIssue {
   path: string;
@@ -29,6 +30,7 @@ const STATUS_BY_KIND = {
   unauthorized: 401,
   forbidden: 403,
   conflict: 409,
+  too_large: 413,
   internal: 500,
 } as const;
 
@@ -88,6 +90,14 @@ export class ConflictError extends Error {
   }
 }
 
+/** Thrown when an upload's declared or streamed size exceeds UPLOAD_MAX_BYTES (specs/017-ingestion-pipeline/contracts/http-ingest.md). */
+export class PayloadTooLargeError extends Error {
+  constructor(message = "Upload exceeds the configured limit.") {
+    super(message);
+    this.name = "PayloadTooLargeError";
+  }
+}
+
 function errorBody(
   kind: ErrorKind,
   message: string,
@@ -130,6 +140,12 @@ export const errorHandler: ErrorHandler = (err, c: Context) => {
   }
   if (err instanceof ConflictError) {
     return c.json(errorBody("conflict", err.message), STATUS_BY_KIND.conflict);
+  }
+  if (err instanceof PayloadTooLargeError) {
+    return c.json(
+      errorBody("too_large", err.message),
+      STATUS_BY_KIND.too_large,
+    );
   }
 
   console.error(err);
