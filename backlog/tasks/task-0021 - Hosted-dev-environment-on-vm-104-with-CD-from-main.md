@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 16:10'
+updated_date: '2026-09-29 16:15'
 labels:
   - infra
 milestone: m-1
@@ -70,6 +70,8 @@ Correction to the checkpoint-1 note: '13 keys' counted comment lines. Active key
 T008 part 1, 2026-09-29: first dev deploy run by the operator (command announced by the orchestrator; the orchestrator's own ssh was blocked by the permission classifier). Proof clone /home/stacks/dev/proof @ 7b2450909e852d19e7c9ebebcae37d589cd1cad5 (git bundle; stacks has no GitHub creds). deploy --allow-stale -> exit 0; migrations applied; 'dev is serving 7b24509...'; /health {status:ok, database.reachable:true, commit:7b2450909e852d19e7c9ebebcae37d589cd1cad5}. Log: /home/stacks/dev/t008-deploy1.log. Remaining in T008: persistence check (create invitation, redeploy, confirm survives).
 
 T008 part 2, 2026-09-29 (operator go): sentinel row in t008_persist -> redeploy same commit (exit 0, 'dev is serving 7b24509...') -> row read back 'T008 sentinel' -> table dropped. AC #1 persistence proven. Log /home/stacks/dev/t008-deploy2.log. Operator added Bash(ssh stacks@vm-104.tailb3c1b6.ts.net:*) to .claude/settings.json (uncommitted local edit in root).
+
+T011 2026-09-29 (operator go): throwaway local commit 8967b87 (never pushed) deployed with --force-unhealthy -> exit 1, last line 'dev is serving 7b2450909e852d19e7c9ebebcae37d589cd1cad5', /health ok on 7b24509. AC #3 proven. Observation for review: the rollback re-created the previous app container (uptime 3s after), so a failed deploy costs a brief restart window rather than zero downtime — consistent with research R6's swap-then-rollback design. Log /home/stacks/dev/t011-rollback.log.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
