@@ -4,7 +4,7 @@ title: Rules-answerer agent with source-anchored citations
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 19:05'
+updated_date: '2026-09-29 19:23'
 labels:
   - ai
 milestone: m-1
@@ -43,6 +43,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1: cite.ts parser + quote verification, answer.ts config; 24 unit tests; removed a dead biome-ignore in index.ts, no behavior change)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 2-3: answer() generator, POST /library/ask via streamSSE, citation verification + 3 refusal reasons; +14 unit, +3 integration tests). Flakes seen on full local run, each green in isolation: worker.integration (known TASK-0033 caveat) and ws.integration T012 (503 under parallel port pressure) — the latter is new; for post-sweep triage unless it recurs in CI.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
