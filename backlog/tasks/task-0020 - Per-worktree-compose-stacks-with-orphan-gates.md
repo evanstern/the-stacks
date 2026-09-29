@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:40'
+updated_date: '2026-09-29 03:43'
 labels:
   - infra
 milestone: m-1
@@ -48,11 +48,13 @@ Both healthy simultaneously on distinct derived ports; docker ps confirmed 4 run
 
 T010 teardown proof: `node scripts/env.mjs down` in env-t010-manual removed its containers/network/volume; task-0020's stack stayed healthy (curl :3020/health still ok) — confirmed via `docker ps -a --filter label=com.docker.compose.project=stacks-env-t010-manual` (containers/networks/volumes all empty). Then `down` in task-0020 too; same empty-filter check confirmed zero stacks-task-0020 resources remained. Scratch worktree removed (`git worktree remove --force .worktrees/env-t010-manual`, no unique commits — detached at the shared commit).
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-4-5-20250929
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=cc/claude-sonnet-5[1m]
 
 Deviation found+fixed during manual proof: env.mjs down() initially destructured `project` from the wrong return shape (resolveIdentity returns {toplevel, identity}, not {project}), so `docker compose -p undefined down` no-opped harmlessly. Fixed before commit; re-verified full teardown as above.
 
 Phase 2 only (T004-T010) per dispatch scope. Phase 3 (status/prune/orphan hook) and Phase 4 (env:main) not started.
+
+Note: this task's branch-local backlog/task-0020 copy (In Progress, spec-link, Phase 1 notes) is the deliverable-state superset per the two-track-landing doctrine; this root copy carries only the bookkeeping notes above until PR merge reconciles them.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
