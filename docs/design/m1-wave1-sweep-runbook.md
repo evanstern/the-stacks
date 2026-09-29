@@ -9,7 +9,7 @@ environment rulings), `docs/design/architecture.md` (A7, A9), and
 `docs/design/milestones.md` (M1) win. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-28
+**Status:** done · operator sign-off on lanes: 2026-09-28 · swept closed 2026-09-29
 
 ## Read first (in this order)
 
@@ -159,3 +159,15 @@ exited **0** on 2026-09-28. No task needs the `opus` escalation tier.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-28 | (runbook) | — | — | — | Authored. Carries the `overview` wiki re-pin: PR #19 changed only milestone dates in `docs/design/milestones.md`; the note states no dates → RE-PIN-ONLY. |
+| 2026-09-29 | TASK-0023 | [#21](https://github.com/evanstern/the-stacks/pull/21) + [#22](https://github.com/evanstern/the-stacks/pull/22) | `4afc87c`, `cee6c24` | ~1.64M subagent tokens: spec ~620k (opus fork, incl. decision-0007 revision), impl ~1.02M (sonnet, 6 dispatches + 1 fix) | Provider-agnostic gateway per **decision-0007** (operator ruling mid-plan: no vendor SDK, named providers). **#21 merged with CI red:** `config.ts` imported `./ai/config.js`, which `db:migrate` cannot load under strip-types; local `ci:check` never ran host scripts. #22 fixed it and added the `check:host-scripts` gate. served=claude-sonnet-5 on all impl dispatches. |
+| 2026-09-29 | TASK-0025 | [#23](https://github.com/evanstern/the-stacks/pull/23) | `f29b501` | ~1.33M: spec ~262k (opus fork), impl ~1.07M (sonnet ×6, haiku ×1 merge step) | `parse5` approved. **Real-markup survey corrected a wrong guessed selector** (stat block), which synthetic fixtures alone would have hidden. Merge condition met: PHB/DMG/MM/LMoP parse with 0 zero-block pages, 17,974 blocks, anchors round-trip (24/24). One implementer over-reported its test count (52 vs 22); corrected on the card. |
+| 2026-09-29 | TASK-0020 | [#24](https://github.com/evanstern/the-stacks/pull/24) | `5e5f05f` | ~1.43M: spec ~259k (opus fork), impl ~1.18M (sonnet ×7 incl. 2 merge-reconcile) | Merged third, not first as planned: #21/#22 landed ahead, costing two reconcile merges. The T010 manual proof caught `env down` silently no-opping. Spec T011–T016 ticks were lost in a merge and re-ticked on the TASK-0022 branch. T021 (upstream praxisflux request) **dropped by operator ruling**; AC #6 met in-repo. |
+| 2026-09-29 | TASK-0022 | [#25](https://github.com/evanstern/the-stacks/pull/25) | `b7144c6` | ~1.0M: spec ~444k (opus fork), impl ~553k (sonnet ×3) | First task run end to end on its own per-worktree stack (`stacks-task-0022`, 3022/15022); 174/174 with `REQUIRE_DATABASE=1`. Found drizzle wrapping pg errors (`err.cause.code`); the same latent bug in `auth/invitations.ts` is carded as **TASK-0032**. |
+| 2026-09-29 | (close) | wrap-up PR | — | — | Operator housekeeping this sweep: 3 orphan volumes plus the pre-label `the-stacks` root stack torn down. |
+
+## Sweep retrospective (2026-09-29)
+
+- **Spec authoring on the opus fork cost about as much as implementation per task.** Four specs took ~1.6M tokens against ~3.8M of sonnet implementation. Next sweep: dispatch spec authoring to a tier, not a session fork, or record the fork as an operator-signed escalation.
+- **Local `ci:check` did not match CI.** Host scripts (`db:migrate`) ran only in CI. `check:host-scripts` closes that gap; check any future CI-only step for a local twin.
+- **Board MCP tools write root's card copy, not the branch's.** Implementers were told not to touch cards after one did; keep that line in every dispatch prompt.
+- **The planned merge order did not survive the operator merging in whatever order PRs turned green.** Expect PRs to merge as they turn green, not in lane order, and budget a reconcile merge per late PR.
