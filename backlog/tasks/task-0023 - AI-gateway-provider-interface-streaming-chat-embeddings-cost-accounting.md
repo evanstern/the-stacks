@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:51'
+updated_date: '2026-09-29 03:59'
 labels:
   - ai
 milestone: m-1
@@ -61,6 +61,10 @@ Phase 3 (T008-T009) done in a612dfa: gateway.embed(); invariants 4,5 covered; 11
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 4 (T010-T014) done in 162682c: sse.ts, retry.ts (bounded, jittered, Retry-After, abort-aware), openai-compatible adapter on stdlib fetch; 38 new tests, no network. Deviations accepted: optional attempts on UsageSummary/embed result; adapter registered in gateway DEFAULT_ADAPTERS.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phases 5-6 (T015-T019) done in ba9fcbb/8b6e23f/02e09d4: gateway wired into config.ts/index.ts (inert without AI env), invariant-10 no-vendor-names test, .env.example block, ci-evidence.txt. Wiki: new ai-gateway note; configuration, server-entrypoint-and-app, overview amended and re-pinned; compose-stack RE-PIN-ONLY (orchestrator reviewed the overview/compose-stack diffs). Freshness OK 28 notes. ~158k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
