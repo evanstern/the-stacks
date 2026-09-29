@@ -90,3 +90,8 @@ hand" gap this note previously described.
 Each worktree can run its own isolated compose stack (`pnpm env:*`, [[runtime-stacks]]):
 labeled containers, derived ports, and a `commit` baked into the image and surfaced at
 `/health` so which build is answering is never a guess.
+
+A retrieval benchmark (`pnpm bench:retrieval`, TASK-0029, [[benchmarks]]) measures
+[[retrieval]]'s recall across embedding models, dimensions, and chunking strategies against a
+licensed corpus, and its `bow`-only cell runs as a per-commit regression gate inside `pnpm
+test`.

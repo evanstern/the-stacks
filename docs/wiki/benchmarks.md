@@ -1,8 +1,27 @@
 ---
 name: benchmarks
-description: The load and stress bench (specs/021-load-bench, TASK-0030) — the case registry and its three tiers, the isolated `_load` database, synthetic content, the decision-0005 ingest-scaling measurement, concurrency, both stress cases, results/report, and the dev-tier's read-only safety design. Load for any load/stress/throughput/degradation or "how do I bench this" question.
+description: Two independent benches. Retrieval (specs/019-retrieval-bench, TASK-0029) — SRD corpus, question set, model/dim/chunking/mode matrix, span-overlap scoring, `_bench` database, per-commit recall gate. Load and stress (specs/021-load-bench, TASK-0030) — tiers, visible skips, `_load` database, synthetic content, decision-0005's ingest-scaling measurement, concurrency, stress cases, dev tier's read-only design. Load for "how does a bench work" or "why a bench gate failed".
 kind: pipeline
+size_budget_exempt: two independent benches (TASK-0029 retrieval, TASK-0030 load/stress) share one note by explicit orchestrator instruction (no new note); each bench's own section is independently well under budget.
 sources:
+  - apps/server/bench/retrieval/corpus/ATTRIBUTION.md
+  - apps/server/bench/retrieval/questions.json
+  - apps/server/bench/retrieval/baseline.json
+  - apps/server/bench/retrieval/matrices/ci.json
+  - apps/server/bench/retrieval/matrices/local.json
+  - apps/server/bench/retrieval/matrices/full.example.json
+  - apps/server/src/bench/retrieval/index.ts
+  - apps/server/src/bench/retrieval/load.ts
+  - apps/server/src/bench/retrieval/score.ts
+  - apps/server/src/bench/retrieval/embed.ts
+  - apps/server/src/bench/retrieval/db.ts
+  - apps/server/src/bench/retrieval/run.ts
+  - apps/server/src/bench/retrieval/results.ts
+  - apps/server/src/bench/retrieval/cli.ts
+  - apps/server/test/bench/retrieval.test.ts
+  - apps/server/test/bench/retrieval.integration.test.ts
+  - specs/019-retrieval-bench/contracts/bench-cli.md
+  - specs/019-retrieval-bench/contracts/results-format.md
   - apps/server/src/bench/load/cases.ts
   - apps/server/src/bench/load/cli.ts
   - apps/server/src/bench/load/index.ts
@@ -15,8 +34,6 @@ sources:
   - apps/server/src/bench/load/users.ts
   - apps/server/src/bench/load/stats.ts
   - apps/server/src/bench/load/results.ts
-  - apps/server/src/bench/load/app-proc.ts
-  - apps/server/src/bench/load/worker-proc.ts
   - apps/server/bench/load/profiles/commit.json
   - apps/server/bench/load/profiles/demand.json
   - apps/server/bench/load/profiles/dev.json
@@ -27,18 +44,104 @@ sources:
   - package.json
   - specs/021-load-bench/tasks.md
   - specs/021-load-bench/research.md
-  - specs/021-load-bench/quickstart.md
   - specs/021-load-bench/contracts/results-format.md
 verified_against: 66f6c026d9aee137ccb9c236dd7874359c02d6ae
 ---
 
 # Benchmarks
 
-The load and stress bench (specs/021-load-bench, TASK-0030): a case registry, run either
-through Vitest (every commit) or the standalone CLI (on demand, or against the real hosted
-`dev` environment under an operator checkpoint). This note's "Load and stress" section is the
-first in this file; TASK-0029's separate retrieval-quality benchmark (embedding models,
-chunking strategies, recall@k) is expected to add its own section here once it lands.
+The retrieval benchmark (specs/019-retrieval-bench, TASK-0029) is [[retrieval]]'s first real
+caller: it ingests a fixed corpus, asks it a fixed set of questions through `retrieve()`, and
+scores where the right passage landed in the ranking — across a matrix of embedding models,
+vector dimensions, chunking strategies, and search modes. `pnpm bench:retrieval run --matrix
+<path>` (root) or `pnpm bench:retrieval` inside `apps/server` runs it; `report` prints every
+stored run. It never touches the app's own database. The load and stress bench
+(specs/021-load-bench, TASK-0030) is a separate case registry, run either through Vitest
+(every commit) or its own standalone CLI (`pnpm bench:load`, on demand, or against the real
+hosted `dev` environment under an operator checkpoint).
+
+## How it works
+
+**Corpus and attribution.** `apps/server/bench/retrieval/corpus/` holds 8 Markdown files (200
+KiB total) extracted once from Wizards of the Coast's SRD 5.1 PDF, licensed CC-BY-4.0.
+`corpus/ATTRIBUTION.md` (`loadCorpus` skips it by name — prose, not a question document)
+records the source URL, its SHA-256, the extraction command (`pdftotext -raw SRD_CC_v5.1.pdf
+...`), and the required "changes" disclosure: `-raw` is the only poppler mode that reads this
+PDF's two-column pages (spell/monster stat blocks) in correct, non-interleaved order. Edits
+are limited to rejoining page-layout line breaks, stripping headers/page numbers, and adding
+Markdown structure; no wording changed, and the three largest sections carry only a
+representative subset, to hold the corpus to budget.
+
+**Question set.** `questions.json` (64 questions, min 50 enforced by `QuestionSetSchema`) each
+name a target document and an exact quote; `loadQuestions` resolves each quote to a `{start,
+end}` span in the parsed book's text and throws if it's missing or ambiguous (occurs more than
+once). At least half must be `style: "paraphrase"` rather than `"lexical"` (53 of 64) — `bow`
+scores lexical overlap almost trivially, so paraphrase questions are what stresses semantic
+retrieval.
+
+**Matrix axes** (`MatrixSchema`, one JSON file per run — `matrices/ci.json`, `local.json`, and
+`full.example.json` as a template). A matrix names: **models**, each either `{ builtin: "bow" }`
+(the bench's own free, deterministic embedding) or `{ purpose: "<name>" }` (a real
+[[ai-gateway]] embed purpose); **dims** per model (each ≤1024); **chunking** strategies (a name
+plus [[ingestion]]'s `maxChars`, `0` meaning one chunk per structural block); and **modes**
+(`vector`/`fts`/`hybrid`). Every combination is one scored cell, keyed
+`"<model>@<dim>|<chunking>|<mode>"`.
+
+**Dimension by truncation.** A model's vectors are always produced at their native size, then
+`truncateVector` keeps the first `dim` components, L2-renormalizes them, and zero-pads back to
+1024 — so every dim (including the native 1024) shares one naming rule: `withDim` wraps the
+gateway's `embed()` to both truncate and suffix the model name `@<dim>`. `dimMethod` in each
+result row is `"native"` at 1024, `"truncate"` otherwise.
+
+**The `_bench` database.** `resolveBenchUrl` takes `BENCH_DATABASE_URL` if set, otherwise the
+same base URL `db:migrate` resolves (`TEST_DATABASE_URL || DATABASE_URL`) with its database name
+suffixed `_bench`, and refuses to run if that still equals the base URL — the bench must never
+run against the app's or the test suite's own database. `ensureBenchDb`/`migrateBenchDb` create
+and migrate it on demand with drizzle's committed migrations; `resetLibrary` (a bare `DELETE
+FROM library_documents`, cascading to chunks/embeddings) wipes it between chunking strategies.
+Every cell stores and embeds directly through [[library-schema]]'s `storeParsedBook`/
+`attachEmbeddings` — the bench is a second caller of both, alongside [[ingestion]] — and never
+enqueues a `jobs` row.
+
+**Running a matrix** (`runMatrix`, model-outer / chunking-inner / dim-inner, operator ruling
+2026-09-29): every cell for one model runs back to back, so a real (Ollama-hosted) model is
+warmed up once and never evicted mid-run by another model's cells landing in between. Before a
+non-bow model's first cell, `warmUpModel` posts straight to Ollama's own `/api/embed` (not
+through the gateway) with `keep_alive: -1`, pinning the model in memory for every cell that
+follows; `bow` needs no warm-up. Each cell embeds the corpus in batches of 256, then runs every
+question through `retrieve()` at `k=10`, scoring with `scoreQuestion` (span-overlap, research
+R4): a passage hits when its book matches a target and the two spans overlap by at least half
+the target's length; the first hit's rank is the question's rank, `null` if none of the top-10
+hit. `summarize` turns a set of ranks into recall@1/5/10 and MRR@10. `fts` cells need no
+embedding model and run once per chunking strategy, independent of the model loop.
+
+**Results format** (`schemaVersion: 1`, `contracts/results-format.md`). `writeResults` reads
+`commit`/`dirty` straight from git (never a passed-in value) and writes one JSON file per run
+under `bench/retrieval/results/<date>-<sha7>-<runId8>.json`. No corpus, passage, or question
+text is ever written to a results or baseline file — only hashes, counts, ranks, and timings
+(constitution VIII). `report` reads every stored file, groups rows by `corpusHash` so runs over
+different corpora are never compared, and skips an invalid or unversioned file with a warning.
+
+**The per-commit gate is now deterministic.** `apps/server/test/bench/retrieval.integration.test.ts`
+runs `matrices/ci.json` — `bow` only, two dims, two chunking strategies, all three modes, no
+network — against a real `_bench` Postgres and compares every cell's `recall5` to
+`baseline.json`'s committed floor, failing if a cell drops more than one question's worth of
+recall (`1 / questionCount`) below it. This is safe to gate on because `bow`'s hash-based
+embedding is a pure function of the token stream and [[retrieval]]'s tie-break (operator ruling
+2026-09-29) orders ties by content — book, then anchor start, chunk id last — not by
+`library_chunks.id`, a random UUID regenerated on every ingest. Before that fix the same
+corpus, re-ingested, could re-order tied results and flip a cell's recall with no code change;
+the gate would have been comparing noise to a fixed baseline. It follows the same
+loud-skip-or-throw pattern as every other integration suite ([[test-suite]]), and a
+`matrixHash`/`corpusHash`/`questionsHash` mismatch against the baseline fails fast, naming
+`--write-baseline` as the fix, rather than silently comparing incomparable runs.
+
+**Local real-model runs.** `matrices/local.json` targets two local Ollama embed purposes
+(`bge-m3` at 1024 dims, `nomic-embed-text` at 768) across four chunking strategies — real
+network calls, gated behind `--allow-paid` (any model with a non-`fake` provider needs it),
+never run in CI. `full.example.json` is an unfilled template for a wider, multi-provider paid
+matrix; `run --dry-run` prints `estimate()`'s token/cost projection first, so a paid run is
+sized before it is approved.
 
 ## Load and stress
 
@@ -61,29 +164,25 @@ suites in the same run depend on.
 case runs against its own database — `LOAD_DATABASE_URL`, or else `TEST_DATABASE_URL ||
 DATABASE_URL` with `_load` appended — never the worktree's app database or the shared test
 database other suites use. `resolveLoadUrl` throws if the load URL equals the base URL, or if
-its host isn't loopback (`localhost`/`127.0.0.1`/`::1`): a local case can never reach a shared
-server. `recreateLoadDb` connects to the *base* URL to `DROP`/`CREATE` the load database (a
-database can't drop itself), first refusing if `pg_stat_activity` shows any existing connection
-to it — no two local cases, or two runs, can stomp each other. `dropLoadDb` is best-effort
-cleanup after a CLI run; a failure there only warns.
+its host isn't loopback: a local case can never reach a shared server. `recreateLoadDb`
+connects to the *base* URL to `DROP`/`CREATE` the load database (a database can't drop
+itself), first refusing if `pg_stat_activity` shows any existing connection to it — no two
+local cases, or two runs, can stomp each other. `dropLoadDb` is best-effort CLI cleanup.
 
 **Synthetic content** (`synth.ts`, research R2). `synthDoc(seed, bytes)` is a small seedable
-PRNG (`mulberry32` — no dependency) emitting deterministic Markdown (headings, paragraphs,
-bullet lists) from a fixed list of ~200 plain English words original to this file — no SRD,
-book text, or fixture content anywhere near it (constitution VIII). Same `seed` and `bytes`
-always produce byte-identical output, within 5% of the requested size.
+PRNG (`mulberry32` — no dependency) emitting deterministic Markdown from a fixed list of ~200
+plain English words original to this file — no SRD, book text, or fixture content anywhere
+near it (constitution VIII). Same `seed` and `bytes` always produce byte-identical output,
+within 5% of the requested size.
 
 **Ingest scaling — the decision-0005 measurement** (`ingest.ts`, `ingest-scaling`). Forks real
-worker processes (not in-process) and measures wall time, throughput, queue-wait and service
-percentiles across a profile's `volumes` × `workers` matrix, comparing each step's numbers
-against the previous step's via `ingestVerdict`'s ratio-plus-floor rules (throughput floor,
-service/enqueue multiples, any failure) to find the degradation knee. Run for real on this
-worktree's local Postgres (`pnpm bench:load run --tier demand`): **1 worker sustains 1.75
-jobs/s** (volume 100 in 57.2s), degrading somewhere **between 100 and 250** queued jobs; **2
-workers sustain 3.25 jobs/s** — roughly double — degrading **between 250 and 500**. This is a
-recorded measurement of real local-Postgres throughput, not a capacity decision; see
-[[ingestion]] for what it implies about the `jobs` queue's claim/lease/recovery path,
-specifically the `restart-mid-ingest` finding below.
+worker processes and measures wall time, throughput, queue-wait and service percentiles across
+a profile's `volumes` × `workers` matrix, via `ingestVerdict`'s ratio-plus-floor rules to find
+the degradation knee. Run for real on local Postgres: **1 worker sustains 1.75 jobs/s** (volume
+100 in 57.2s), degrading between **100 and 250** queued jobs; **2 workers sustain 3.25 jobs/s**
+— roughly double — degrading between **250 and 500**. A recorded measurement of real
+local-Postgres throughput, not a capacity decision; see [[ingestion]] for what it implies about
+the `jobs` queue's claim/lease/recovery path, and for the `restart-mid-ingest` finding below.
 
 **Concurrency** (`concurrency.ts`, research R8/R9). Simulated users (`users.ts`'s `runUsers`)
 each hold one HTTP+WebSocket session and loop HTTP requests plus optional WS traffic for a
@@ -94,22 +193,20 @@ thresholds fire. Sessions come from `db.ts`'s `seedUsers` — one scrypt hash co
 reused for every seeded user, so sign-in cost never dominates a step's latency (research R9).
 
 **Both stress cases** (`stress.ts`, research R6/R7). `db-exhaustion` opens raw `pg` clients
-against the load database until Postgres refuses new connections, then probes the running
-app: `/health` degrading, `/auth/me` bounding its response, a WebSocket upgrade refused `503`
-not `401`, and the process staying alive — each probe round fires 8 concurrent attempts
-(`BURST`) rather than one, because the app's own pool always keeps one connection warm (the
-ingest worker polls `jobs` regardless of load), so a single sequential probe never observes the
-outage. Held connections are released in a `finally`, then recovery is measured. `restart-mid-
-ingest` forks a worker, holds it mid-`embed` (an IPC flag), `SIGKILL`s it, forks a normal
-worker, and measures lease-reclaim: the target job (enqueued first, so it's the oldest queued
-row) is always the one reclaimed — `claimJob`'s `ORDER BY created_at` verified empirically, not
-just by reading the SQL — succeeding on its second attempt with followers unaffected and no
-duplicate document stored (see [[ingestion]]).
+against the load database until Postgres refuses new connections, then probes the running app:
+`/health` degrading, `/auth/me` bounding its response, a WebSocket upgrade refused `503` not
+`401`, and the process staying alive — each probe round fires 8 concurrent attempts (`BURST`)
+rather than one, since the app's own pool always keeps one connection warm, so a single
+sequential probe never observes the outage. Held connections are released in a `finally`, then
+recovery is measured. `restart-mid-ingest` forks a worker, holds it mid-`embed`, `SIGKILL`s it,
+forks a normal worker, and measures lease-reclaim: the target job (enqueued first, so it's the
+oldest queued row) is always the one reclaimed — `claimJob`'s `ORDER BY created_at` verified
+empirically — succeeding on its second attempt with followers unaffected and no duplicate
+document stored (see [[ingestion]]).
 
 **Results and report** (`results.ts`, contracts/results-format.md). Every run writes
 `apps/server/bench/load/results/<date>-<sha7>-<runId8>.json` (schemaVersion 1): git
-commit/dirty state, host facts, the tier, target provenance (Postgres version and
-`max_connections` for `local`; nothing but a boolean for `dev`), the profile and its hash, and
+commit/dirty state, host facts, the tier, target provenance, the profile and its hash, and
 every case's outcome — run or skipped, with reason. `pnpm bench:load report` groups results by
 `(case id, target)` so local and dev runs for the same case never mix into one trend line.
 
@@ -120,25 +217,33 @@ run does exactly one sign-in — one session — runs with `wsSend` forced `fals
 (`ProfileSchema` also rejects `wsSend: true`, >25 users, or >180s total for a `dev` profile),
 and signs that session out in a `finally` regardless of outcome, verifying it with a follow-up
 `/auth/me` expecting `401`. A failed sign-out itself fails the case rather than silently
-leaving a live session (it still expires in 30 days on its own). No results file the dev tier
-writes ever carries the dev URL, host, username, password, or session cookie — enforced by a
-dedicated unit test (`load.test.ts`, invariant 9).
+leaving a live session. No results file the dev tier writes ever carries the dev URL, host,
+username, password, or session cookie — enforced by a dedicated unit test (invariant 9).
 
 ## Connections
 
-`ingest-smoke` and `concurrency-smoke` run inside [[test-suite]]'s Vitest process, gated the
-same loud-skip way as its own three integration suites; [[ci-pipeline]] runs them with
-`REQUIRE_DATABASE=1` on every PR and push. `ingest-scaling` and `restart-mid-ingest` exercise
-[[ingestion]]'s `jobs` queue directly, forking the same worker entry point it starts in
-production. `concurrency-local`/`-smoke`/`-dev` exercise [[websocket-gateway]] and
-[[session-auth]] through a real running app. `concurrency-dev` is the only case that ever
-touches [[hosted-dev]]'s real deployed target, and only under an operator-approved run
-(T026). Root `package.json`'s `bench:load` script and `apps/server`'s own are covered by
+Calls [[retrieval]]'s `retrieve()` as its only read path and [[library-schema]]'s
+`storeParsedBook`/`attachEmbeddings` as its only write path; embeds real matrices through
+[[ai-gateway]]. [[ci-pipeline]] runs both benches' per-commit gates as part of `pnpm test`
+under `REQUIRE_DATABASE=1`, alongside every other integration suite ([[test-suite]]). The
+retrieval corpus is parsed with [[ingestion]]'s own `parseMarkdown`/`chunkBook`; the load
+bench's `ingest-scaling`/`restart-mid-ingest` exercise [[ingestion]]'s `jobs` queue directly,
+forking the same worker entry point it starts in production, and its concurrency cases
+exercise [[websocket-gateway]] and [[session-auth]] through a real running app.
+`concurrency-dev` is the only case that ever touches [[hosted-dev]]'s real deployed target,
+and only under an operator-approved run (T026). Both benches' root scripts are covered by
 [[monorepo-and-toolchain]].
 
 ## Operational notes
 
-`pnpm bench:load list` prints all 7 cases with their tier and target. A `--tier demand` run
-takes roughly 10-15 minutes and drops its load database afterward (best-effort); a `--tier
-commit` run finishes in seconds. Case tables and `VERDICT`/`PASS`/`FAIL`/`SKIP` lines print as
-each case finishes, not only at the end, so a long `demand` run's progress is visible live.
+`pnpm bench:retrieval` (root, delegates to `apps/server`'s `tsc -b && node dist/bench/retrieval/
+cli.js`) requires a built `dist/`; the CI/integration-test path instead imports the `src/`
+module directly. `du -sk apps/server/bench/retrieval/corpus` must stay ≤400 (currently ~200) —
+the corpus is a benchmark fixture, not a general-purpose library seed, and nothing under a
+`fixtures/private/` path is ever tracked. A paid matrix run is an **operator checkpoint**: it
+is never run without sign-off on the provider/model list and the `--dry-run` estimate.
+
+`pnpm bench:load list` prints all 7 load-bench cases with their tier and target. A `--tier
+demand` run takes roughly 10-15 minutes and drops its load database afterward (best-effort); a
+`--tier commit` run finishes in seconds. Case tables and `VERDICT`/`PASS`/`FAIL`/`SKIP` lines
+print as each case finishes, so a long `demand` run's progress is visible live.

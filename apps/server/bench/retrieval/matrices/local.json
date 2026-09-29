@@ -1,0 +1,18 @@
+{
+  "name": "local",
+  "models": [
+    { "name": "bge-m3", "source": { "purpose": "bge-m3" }, "dims": [1024] },
+    {
+      "name": "nomic-embed-text",
+      "source": { "purpose": "nomic-embed-text" },
+      "dims": [768]
+    }
+  ],
+  "chunking": [
+    { "name": "block", "maxChars": 0 },
+    { "name": "c1000", "maxChars": 1000 },
+    { "name": "c2000", "maxChars": 2000 },
+    { "name": "c4000", "maxChars": 4000 }
+  ],
+  "modes": ["vector", "fts", "hybrid"]
+}

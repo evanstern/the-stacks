@@ -51,10 +51,10 @@ same `pgvector/pgvector:pg17` image (named once, in `docker-compose.yml`'s `db` 
 and the `test` task is `cache: false` so a local run can never replay a green result recorded
 while the database was up. With `REQUIRE_DATABASE=1` and a reachable database, every
 environment-gated integration suite ([[test-suite]]'s three, [[ingestion]]'s, and
-[[benchmarks]]' every-commit-tier suite) runs instead of loud-skipping — CI proves 383 of 388
-tests (5 skipped are [[benchmarks]]' `demand`/`dev`-tier cases, named-skipped on purpose inside
-`test/bench/load.integration.test.ts`, not silently absent), not the 263 a database-less run
-proves. `pnpm test` is also where the load bench's two `commit`-tier cases (`ingest-smoke`,
+[[benchmarks]]' every-commit-tier suites) runs instead of loud-skipping — CI proves 411 of 416
+tests (5 skipped are the load bench's `demand`/`dev`-tier cases, named-skipped on purpose
+inside `test/bench/load.integration.test.ts`, not silently absent), not the 289 a
+database-less run proves. `pnpm test` is also where the load bench's two `commit`-tier cases (`ingest-smoke`,
 `concurrency-smoke`) actually run on every push — they are Vitest tests, not a separate
 `bench:load` invocation; see [[benchmarks]].
 

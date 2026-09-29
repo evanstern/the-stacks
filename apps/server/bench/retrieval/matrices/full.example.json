@@ -1,0 +1,22 @@
+{
+  "name": "full.example",
+  "models": [
+    {
+      "name": "embed-a",
+      "source": { "purpose": "embed-a" },
+      "dims": [1024, 512, 256]
+    },
+    {
+      "name": "embed-b",
+      "source": { "purpose": "embed-b" },
+      "dims": [1024, 512, 256]
+    }
+  ],
+  "chunking": [
+    { "name": "block", "maxChars": 0 },
+    { "name": "c1000", "maxChars": 1000 },
+    { "name": "c2000", "maxChars": 2000 },
+    { "name": "c4000", "maxChars": 4000 }
+  ],
+  "modes": ["vector", "fts", "hybrid"]
+}

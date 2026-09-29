@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/migrate.ts",
     "auth:create-operator": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/create-operator.ts",
-    "bench:load": "tsc -b && node --env-file-if-exists=../../.env dist/bench/load/cli.js"
+    "bench:load": "tsc -b && node --env-file-if-exists=../../.env dist/bench/load/cli.js",
+    "bench:retrieval": "tsc -b && node --env-file-if-exists=../../.env dist/bench/retrieval/cli.js"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",

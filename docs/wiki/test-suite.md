@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference. The larger, separate ingestion-pipeline suite under test/library/ is [[ingestion]].
+description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference. The larger, separate ingestion-pipeline suite under test/library/ is [[ingestion]]; the retrieval benchmark's own suite under test/bench/ is [[benchmarks]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -32,10 +32,11 @@ The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
 added a much larger suite alongside them under `apps/server/test/library/` — see [[ingestion]]
 for that one, and its `ai.*.test.ts` siblings predate this note and aren't covered here either.
-TASK-0030 added a third such subdirectory, `apps/server/test/bench/` (one unit file, two
-environment-gated integration files, the same loud-skip pattern as this note's three) — see
-[[benchmarks]] for what it covers and why 5 of its tests are *always* skipped, by name, even
-with a reachable database.
+TASK-0029 and TASK-0030 share a third such subdirectory, `apps/server/test/bench/`: TASK-0029's
+`bow`-embedding determinism unit test plus its per-commit recall regression gate, and
+TASK-0030's unit file plus two environment-gated integration files, all run the same
+loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], including why 5 of
+the load bench's tests are *always* skipped, by name, even with a reachable database.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
 session auth (US1–US4), the event log's append/read/visibility, and the WebSocket gateway's

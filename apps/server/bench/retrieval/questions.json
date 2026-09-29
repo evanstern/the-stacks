@@ -1,0 +1,706 @@
+[
+  {
+    "id": "q001",
+    "question": "How do I figure out my ability modifier from a score?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "To determine an ability modifier without consulting the table, subtract 10 from the ability score and then divide the total by 2 (round down)."
+      }
+    ]
+  },
+  {
+    "id": "q002",
+    "question": "What happens when I have both advantage and disadvantage on the same roll?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "If circumstances cause a roll to have both advantage and disadvantage, you are considered to have neither of them, and you roll one d20."
+      }
+    ]
+  },
+  {
+    "id": "q003",
+    "question": "What is a contest in the ability check rules?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "In situations like these, the outcome is determined by a special form of ability check, called a contest."
+      }
+    ]
+  },
+  {
+    "id": "q004",
+    "question": "Can a character with a negative proficiency check still benefit from a feature that doubles it?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "For that check your proficiency bonus is 0, given the fact that multiplying 0 by any number is still 0."
+      }
+    ]
+  },
+  {
+    "id": "q005",
+    "question": "How do you calculate a passive check total?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "Here's how to determine a character's total for a passive check: 10 + all modifiers that normally apply to the check."
+      }
+    ]
+  },
+  {
+    "id": "q006",
+    "question": "What lets several people pool their effort on one task using a single roll?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "To make a group ability check, everyone in the group makes the ability check. If at least half the group succeeds, the whole group succeeds."
+      }
+    ]
+  },
+  {
+    "id": "q007",
+    "question": "How much weight can my character normally carry before being encumbered?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "Carrying Capacity. Your carrying capacity is your Strength score multiplied by 15."
+      }
+    ]
+  },
+  {
+    "id": "q008",
+    "question": "What ability score do wizards rely on to cast their spells?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "using-ability-scores",
+        "quote": "Wizards use Intelligence as their spellcasting ability, which helps determine the saving throw DCs of spells they cast."
+      }
+    ]
+  },
+  {
+    "id": "q009",
+    "question": "How long is a single combat round supposed to represent?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "In combat and other fast-paced situations, the game relies on rounds, a 6-second span of time."
+      }
+    ]
+  },
+  {
+    "id": "q010",
+    "question": "If my party pushes on past the usual 8 hours of travel in a day, what happens?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "For each additional hour of travel beyond 8 hours, the characters cover the distance shown in the Hour column for their pace, and each character must make a Constitution saving throw at the end of the hour."
+      }
+    ]
+  },
+  {
+    "id": "q011",
+    "question": "What's the penalty for moving through terrain that's difficult to cross?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "You move at half speed in difficult terrain—moving 1 foot in difficult terrain costs 2 feet of speed—so you can cover only half the normal distance in a minute, an hour, or a day."
+      }
+    ]
+  },
+  {
+    "id": "q012",
+    "question": "How far can I normally jump if I get a running start?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "When you make a long jump, you cover a number of feet up to your Strength score if you move at least 10 feet on foot immediately before the jump."
+      }
+    ]
+  },
+  {
+    "id": "q013",
+    "question": "What's the difference between a lightly obscured area and a heavily obscured one?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "A heavily obscured area—such as darkness, opaque fog, or dense foliage—blocks vision entirely."
+      }
+    ]
+  },
+  {
+    "id": "q014",
+    "question": "How long can someone survive without eating before it starts to hurt them?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "A character can go without food for a number of days equal to 3 + his or her Constitution modifier (minimum 1)."
+      }
+    ]
+  },
+  {
+    "id": "q015",
+    "question": "What benefit does a short rest give a character?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "A character can spend one or more Hit Dice at the end of a short rest, up to the character's maximum number of Hit Dice, which is equal to the character's level."
+      }
+    ]
+  },
+  {
+    "id": "q016",
+    "question": "Can I take more than one long rest in a single day and keep getting the benefits?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "adventuring",
+        "quote": "A character can't benefit from more than one long rest in a 24-hour period, and a character must have at least 1 hit point at the start of the rest to gain its benefits."
+      }
+    ]
+  },
+  {
+    "id": "q017",
+    "question": "What happens on my first turn of combat if I get caught by surprise?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "If you're surprised, you can't move or take an action on your first turn of the combat, and you can't take a reaction until that turn ends."
+      }
+    ]
+  },
+  {
+    "id": "q018",
+    "question": "How many bonus actions am I allowed to use on my own turn?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "You can take only one bonus action on your turn, so you must choose which bonus action to use when you have more than one available."
+      }
+    ]
+  },
+  {
+    "id": "q019",
+    "question": "What happens to my speed if a spell lets me fly and then that magic ends while I'm airborne?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "If a flying creature is knocked prone, has its speed reduced to 0, or is otherwise deprived of the ability to move, the creature falls, unless it has the ability to hover or it is being held aloft by magic, such as by the fly spell."
+      }
+    ]
+  },
+  {
+    "id": "q020",
+    "question": "What's special about rolling a natural 20 on an attack?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "If the d20 roll for an attack is a 20, the attack hits regardless of any modifiers or the target's AC. This is called a critical hit."
+      }
+    ]
+  },
+  {
+    "id": "q021",
+    "question": "Does firing a bow at an enemy standing right next to me work normally?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "When you make a ranged attack with a weapon, a spell, or some other means, you have disadvantage on the attack roll if you are within 5 feet of a hostile creature who can see you and who isn't incapacitated."
+      }
+    ]
+  },
+  {
+    "id": "q022",
+    "question": "How much does an unarmed punch hurt?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "On a hit, an unarmed strike deals bludgeoning damage equal to 1 + your Strength modifier."
+      }
+    ]
+  },
+  {
+    "id": "q023",
+    "question": "How much extra protection does hiding behind a low wall give against attacks?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "A target with half cover has a +2 bonus to AC and Dexterity saving throws."
+      }
+    ]
+  },
+  {
+    "id": "q024",
+    "question": "What happens to my hit points if I take more damage than my maximum while already reduced to 0?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "When damage reduces you to 0 hit points and there is damage remaining, you die if the remaining damage equals or exceeds your hit point maximum."
+      }
+    ]
+  },
+  {
+    "id": "q025",
+    "question": "How many successful death saves does it take to stop dying?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "combat",
+        "quote": "On your third success, you become stable (see below). On your third failure, you die."
+      }
+    ]
+  },
+  {
+    "id": "q026",
+    "question": "Can a spellcaster refill their used-up spell slots without waiting for a long rest?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "Finishing a long rest restores any expended spell slots."
+      }
+    ]
+  },
+  {
+    "id": "q027",
+    "question": "What's the extra cost of casting a spell as a ritual instead of normally?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "The ritual version of a spell takes 10 minutes longer to cast than normal. It also doesn't expend a spell slot, which means the ritual version of a spell can't be cast at a higher level."
+      }
+    ]
+  },
+  {
+    "id": "q028",
+    "question": "Why can't a gagged character cast most spells?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "Thus, a character who is gagged or in an area of silence, such as one created by the silence spell, can't cast a spell with a verbal component."
+      }
+    ]
+  },
+  {
+    "id": "q029",
+    "question": "What breaks a spellcaster's concentration when they get hurt?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "Taking damage. Whenever you take damage while you are concentrating on a spell, you must make a Constitution saving throw to maintain your concentration."
+      }
+    ]
+  },
+  {
+    "id": "q030",
+    "question": "Can I aim a spell at a spot behind a wall I can't see past?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "To target something, you must have a clear path to it, so it can't be behind total cover."
+      }
+    ]
+  },
+  {
+    "id": "q031",
+    "question": "What are the five basic shapes an area-of-effect spell can take?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "A spell's description specifies its area of effect, which typically has one of five different shapes: cone, cube, cylinder, line, or sphere."
+      }
+    ]
+  },
+  {
+    "id": "q032",
+    "question": "How is the difficulty number to resist my spells worked out?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "The DC to resist one of your spells equals 8 + your spellcasting ability modifier + your proficiency bonus + any special modifiers."
+      }
+    ]
+  },
+  {
+    "id": "q033",
+    "question": "What kind of magic do enchantment spells specialize in?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spellcasting",
+        "quote": "Enchantment spells affect the minds of others, influencing or controlling their behavior."
+      }
+    ]
+  },
+  {
+    "id": "q034",
+    "question": "Which cantrip lets me throw fire that gets stronger as I level up?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "This spell's damage increases by 1d10 when you reach 5th level (2d10), 11th level (3d10), and 17th level (4d10)."
+      }
+    ]
+  },
+  {
+    "id": "q035",
+    "question": "What does the magic missile spell do when it hits?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range."
+      }
+    ]
+  },
+  {
+    "id": "q036",
+    "question": "Can I use the shield spell to avoid damage from an attack that already hit me?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from magic missile."
+      }
+    ]
+  },
+  {
+    "id": "q037",
+    "question": "How does sleep decide which creatures fall unconscious first?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "Starting with the creature that has the lowest current hit points, each creature affected by this spell falls unconscious until the spell ends, the sleeper takes damage, or someone uses an action to shake or slap the sleeper awake."
+      }
+    ]
+  },
+  {
+    "id": "q038",
+    "question": "What happens to a target caught in the middle of a fireball's blast?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "Each creature in a 20-foot-radius sphere centered on that point must make a Dexterity saving throw. A target takes 8d6 fire damage on a failed save, or half as much damage on a successful one."
+      }
+    ]
+  },
+  {
+    "id": "q039",
+    "question": "Can counterspell always stop another caster's spell for certain?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "If the creature is casting a spell of 3rd level or lower, its spell fails and has no effect. If it is casting a spell of 4th level or higher, make an ability check using your spellcasting ability."
+      }
+    ]
+  },
+  {
+    "id": "q040",
+    "question": "What kind of creature can polymorph turn its target into?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "The new form can be any beast whose challenge rating is equal to or less than the target’s (or the target’s level, if it doesn’t have a challenge rating)."
+      }
+    ]
+  },
+  {
+    "id": "q041",
+    "question": "How recently must someone have died for revivify to work on them?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "spells",
+        "quote": "You touch a creature that has died within the last minute. That creature returns to life with 1 hit point."
+      }
+    ]
+  },
+  {
+    "id": "q042",
+    "question": "What happens if I wear armor I'm not trained to use?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "If you wear armor that you lack proficiency with, you have disadvantage on any ability check, saving throw, or attack roll that involves Strength or Dexterity, and you can't cast spells."
+      }
+    ]
+  },
+  {
+    "id": "q043",
+    "question": "Does heavy armor let me add my Dexterity bonus to my Armor Class?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "Heavy armor doesn't let you add your Dexterity modifier to your Armor Class, but it also doesn't penalize you if your Dexterity modifier is negative."
+      }
+    ]
+  },
+  {
+    "id": "q044",
+    "question": "What's special about attacking with a finesse weapon?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "When making an attack with a finesse weapon, you use your choice of your Strength or Dexterity modifier for the attack and damage rolls."
+      }
+    ]
+  },
+  {
+    "id": "q045",
+    "question": "Can I fight effectively with a heavy weapon if I'm a small creature?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "Small creatures have disadvantage on attack rolls with heavy weapons. A heavy weapon's size and bulk make it too large for a Small creature to use effectively."
+      }
+    ]
+  },
+  {
+    "id": "q046",
+    "question": "What happens if I use an object that has no resemblance to a weapon to hit someone?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "An object that bears no resemblance to a weapon deals 1d4 damage (the GM assigns a damage type appropriate to the object)."
+      }
+    ]
+  },
+  {
+    "id": "q047",
+    "question": "How much does it cost to coat a weapon with silver so it can hurt certain monsters?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "You can silver a single weapon or ten pieces of ammunition for 100 gp."
+      }
+    ]
+  },
+  {
+    "id": "q048",
+    "question": "What does a healer's kit let you do without rolling a check?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "As an action, you can expend one use of the kit to stabilize a creature that has 0 hit points, without needing to make a Wisdom (Medicine) check."
+      }
+    ]
+  },
+  {
+    "id": "q049",
+    "question": "How long does a lit torch keep burning and how far does its light reach?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "equipment",
+        "quote": "A torch burns for 1 hour, providing bright light in a 20-foot radius and dim light for an additional 20 feet."
+      }
+    ]
+  },
+  {
+    "id": "q050",
+    "question": "Can a blinded creature still fight effectively?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "A blinded creature can't see and automatically fails any ability check that requires sight."
+      }
+    ]
+  },
+  {
+    "id": "q051",
+    "question": "What happens to a creature's exhaustion level after it finishes a long rest?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "Finishing a long rest reduces a creature's exhaustion level by 1, provided that the creature has also ingested some food and drink."
+      }
+    ]
+  },
+  {
+    "id": "q052",
+    "question": "Is it hard to hit someone who is invisible?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "Attack rolls against the creature have disadvantage, and the creature's attack rolls have advantage."
+      }
+    ]
+  },
+  {
+    "id": "q053",
+    "question": "What happens to a creature's speed once it's grappled?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "A grappled creature's speed becomes 0, and it can't benefit from any bonus to its speed."
+      }
+    ]
+  },
+  {
+    "id": "q054",
+    "question": "Does turning someone to stone stop poison already in their body?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "The creature is immune to poison and disease, although a poison or disease already in its system is suspended, not neutralized."
+      }
+    ]
+  },
+  {
+    "id": "q055",
+    "question": "How does crawling around while prone affect an attacker's chances of hitting you?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "An attack roll against the creature has advantage if the attacker is within 5 feet of the creature. Otherwise, the attack roll has disadvantage."
+      }
+    ]
+  },
+  {
+    "id": "q056",
+    "question": "Can a stunned creature still talk normally?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "A stunned creature is incapacitated (see the condition), can't move, and can speak only falteringly."
+      }
+    ]
+  },
+  {
+    "id": "q057",
+    "question": "Does an unconscious creature drop what it was holding?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "conditions",
+        "quote": "The creature drops whatever it's holding and falls prone."
+      }
+    ]
+  },
+  {
+    "id": "q058",
+    "question": "How much space does a Huge creature like a fire giant take up on the battlefield?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Huge | 15 by 15 ft. | Fire giant, treant"
+      }
+    ]
+  },
+  {
+    "id": "q059",
+    "question": "Is a monster's listed alignment always fixed, or can a GM change it?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Feel free to depart from it and change a monster's alignment to suit the needs of your campaign."
+      }
+    ]
+  },
+  {
+    "id": "q060",
+    "question": "What kind of damage is a skeleton especially weak against?",
+    "style": "lexical",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Damage Vulnerabilities bludgeoning\nDamage Immunities poison\nCondition Immunities exhaustion, poisoned"
+      }
+    ]
+  },
+  {
+    "id": "q061",
+    "question": "What lets a goblin slip away as part of its normal turn?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Nimble Escape. The goblin can take the Disengage or Hide action as a bonus action on each of its turns."
+      }
+    ]
+  },
+  {
+    "id": "q062",
+    "question": "What happens if an already-exhausted zombie takes a big hit that would drop it to 0 hit points?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Undead Fortitude. If damage reduces the zombie to 0 hit points, it must make a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is radiant or from a critical hit."
+      }
+    ]
+  },
+  {
+    "id": "q063",
+    "question": "How fast does a troll heal itself during a fight?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Regeneration. The troll regains 10 hit points at the start of its turn."
+      }
+    ]
+  },
+  {
+    "id": "q064",
+    "question": "What can an owlbear do with its beak and claws in one turn?",
+    "style": "paraphrase",
+    "expected": [
+      {
+        "doc": "monsters",
+        "quote": "Multiattack. The owlbear makes two attacks: one with its beak and one with its claws."
+      }
+    ]
+  }
+]

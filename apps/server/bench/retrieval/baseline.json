@@ -1,0 +1,17 @@
+{
+  "matrixHash": "9b9c82751ea7ef6c5de46b7f037c94858267ca61c947ef0dfc70a0c0d4a6cc86",
+  "corpusHash": "a0efa9e6a5fb380fc117122161f50db12c0366a987a2e2c95ae676d16e2ce7b3",
+  "questionsHash": "17f1d72c9f178cdce95ffc351ca65042005976e1eaa612c6470bfc77939c2f0d",
+  "recall5": {
+    "bow@1024|block|vector": 0.453125,
+    "bow@1024|block|hybrid": 0.53125,
+    "bow@256|block|vector": 0.1875,
+    "bow@256|block|hybrid": 0.390625,
+    "bow@1024|c2000|vector": 0.625,
+    "bow@1024|c2000|hybrid": 0.640625,
+    "bow@256|c2000|vector": 0.328125,
+    "bow@256|c2000|hybrid": 0.5,
+    "-|block|fts": 0.4375,
+    "-|c2000|fts": 0.59375
+  }
+}

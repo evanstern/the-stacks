@@ -109,27 +109,51 @@ export function loadRetrievalConfig(
   return { mode: mode.data, k: k.data, embedPurpose: embedPurpose.data };
 }
 
+/** A ranked list entry `fuseRrf` needs both to fuse (chunkId) and to tie-break (content key). */
+export interface RrfCandidate {
+  chunkId: string;
+  book: string;
+  start: number;
+}
+
 /**
  * Pure Reciprocal Rank Fusion (research R1, contract invariant 9): each
- * list holds chunk ids ranked best-first. A chunk's score sums
- * `1 / (rrfK + rank)` over every list it appears in; ties break by chunk id
- * ascending. Same inputs always produce the same output (SC-005).
+ * list holds candidates ranked best-first. A chunk's score sums
+ * `1 / (rrfK + rank)` over every list it appears in; ties break by content
+ * — book, then anchor start, then chunk id as a last resort for
+ * exact-duplicate anchors (operator ruling 2026-09-29: `library_chunks.id`
+ * is a random UUID regenerated on every ingest, so it cannot be the primary
+ * tie-break — see contracts/retrieval.md). Same inputs always produce the
+ * same output (SC-005).
  */
 export function fuseRrf(
-  lists: { vector: string[]; fts: string[] },
+  lists: { vector: RrfCandidate[]; fts: RrfCandidate[] },
   rrfK: number = RRF_K,
 ): { chunkId: string; score: number }[] {
   const scores = new Map<string, number>();
+  const keys = new Map<string, { book: string; start: number }>();
   for (const list of [lists.vector, lists.fts]) {
-    list.forEach((chunkId, i) => {
+    list.forEach((candidate, i) => {
       const rank = i + 1;
-      scores.set(chunkId, (scores.get(chunkId) ?? 0) + 1 / (rrfK + rank));
+      scores.set(
+        candidate.chunkId,
+        (scores.get(candidate.chunkId) ?? 0) + 1 / (rrfK + rank),
+      );
+      keys.set(candidate.chunkId, {
+        book: candidate.book,
+        start: candidate.start,
+      });
     });
   }
   return [...scores.entries()]
     .map(([chunkId, score]) => ({ chunkId, score }))
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
+      // Safe: every chunkId scored above came from a list entry, which set its key.
+      const ka = keys.get(a.chunkId) as { book: string; start: number };
+      const kb = keys.get(b.chunkId) as { book: string; start: number };
+      if (ka.book !== kb.book) return ka.book < kb.book ? -1 : 1;
+      if (ka.start !== kb.start) return ka.start - kb.start;
       return a.chunkId < b.chunkId ? -1 : a.chunkId > b.chunkId ? 1 : 0;
     });
 }
@@ -195,7 +219,7 @@ async function searchFts(
     JOIN library_documents d ON d.id = c.document_id
     CROSS JOIN q
     WHERE c.tsv @@ q.query
-    ORDER BY "score" DESC, c.id ASC
+    ORDER BY "score" DESC, d.book ASC, c.start_offset ASC, c.id ASC
     LIMIT ${limit}
   `);
   return result.rows as unknown as CandidateRow[];
@@ -231,7 +255,7 @@ async function searchVector(
       JOIN library_chunks c ON c.id = e.chunk_id
       JOIN library_documents d ON d.id = c.document_id
       WHERE e.model = ${model}
-      ORDER BY e.embedding <=> ${vecLiteral}::vector, c.id ASC
+      ORDER BY e.embedding <=> ${vecLiteral}::vector, d.book ASC, c.start_offset ASC, c.id ASC
       LIMIT ${limit}
     `);
     return result.rows as unknown as CandidateRow[];
@@ -329,9 +353,14 @@ function assembleHybrid(
   const vectorSignals = signalsOf(vectorRows);
   const ftsSignals = signalsOf(ftsRows);
 
+  const toCandidate = (r: CandidateRow): RrfCandidate => ({
+    chunkId: r.chunkId,
+    book: r.book,
+    start: r.startOffset,
+  });
   const fused = fuseRrf({
-    vector: vectorRows.map((r) => r.chunkId),
-    fts: ftsRows.map((r) => r.chunkId),
+    vector: vectorRows.map(toCandidate),
+    fts: ftsRows.map(toCandidate),
   });
 
   const passages = fused.slice(0, k).map(({ chunkId, score }, i) => {
