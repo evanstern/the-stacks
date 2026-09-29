@@ -1,0 +1,62 @@
+name: Deploy dev
+
+# vm-104 only. Runs on the self-hosted runner only after CI succeeds on a
+# push to main, or by manual dispatch — never for a PR (research R1;
+# contracts/workflows.md). workflow_run always executes this file from the
+# default branch, so a PR can never change what runs here.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit sha to deploy (default: main HEAD). Implies --allow-stale."
+        required: false
+        type: string
+      force_unhealthy:
+        description: "Force the deploy unhealthy to prove rollback. Never for a real deploy."
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: [self-hosted, vm-104]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit || github.event.workflow_run.head_sha || 'main' }}
+          fetch-depth: 1
+
+      - name: Deploy
+        # Inputs pass through env:, never inlined into the shell (injection
+        # hygiene) — see contracts/deploy-cli.md.
+        env:
+          DEPLOY_COMMIT_INPUT: ${{ github.event.inputs.commit }}
+          FORCE_UNHEALTHY_INPUT: ${{ github.event.inputs.force_unhealthy }}
+        run: |
+          set -e
+          sha="$(git rev-parse HEAD)"
+          args=(deploy "$sha")
+          if [ -n "$DEPLOY_COMMIT_INPUT" ]; then
+            args+=(--allow-stale)
+          fi
+          if [ "$FORCE_UNHEALTHY_INPUT" = "true" ]; then
+            args+=(--force-unhealthy)
+          fi
+          node scripts/deploy-dev.mjs "${args[@]}"

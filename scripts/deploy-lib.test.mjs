@@ -212,16 +212,12 @@ const JOB_GUARD = normalizeGuard(`
    github.event.workflow_run.head_branch == 'main')
 `);
 
-test("deploy-dev.yml has no pull_request / pull_request_target trigger", {
-  todo: "pending T005 (Phase 2)",
-}, () => {
+test("deploy-dev.yml has no pull_request / pull_request_target trigger", () => {
   const text = readWorkflow("deploy-dev.yml");
   assert.doesNotMatch(text, /pull_request/);
 });
 
-test("deploy-dev.yml carries the exact job guard from research R1", {
-  todo: "pending T005 (Phase 2)",
-}, () => {
+test("deploy-dev.yml carries the exact job guard from research R1", () => {
   const text = readWorkflow("deploy-dev.yml");
   assert.ok(
     normalizeGuard(text).includes(JOB_GUARD),

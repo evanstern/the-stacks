@@ -54,7 +54,7 @@ Data persists. (AC #1, AC #2)
 
 **Independent Test**: quickstart.md §1.
 
-- [ ] T004 [P] [US1] Create `deploy/dev/compose.dev.yml` per research R3 and R5:
+- [x] T004 [P] [US1] Create `deploy/dev/compose.dev.yml` per research R3 and R5:
   `app.image: stacks-dev-app:${STACKS_COMMIT}`; `app.build.labels` and the `migrate` build
   labels `org.the-stacks.env: dev`; `app.ports: !override ["127.0.0.1:${APP_PORT}:${APP_PORT}"]`;
   `app.env_file` and `db.env_file` `!override` to `${DEV_ENV_FILE:-/home/stacks/dev/.env}`;
@@ -67,7 +67,7 @@ Data persists. (AC #1, AC #2)
   throwaway env file: `docker compose -p stacks-dev -f docker-compose.yml -f
   deploy/dev/compose.dev.yml --env-file <tmp> config` succeeds, and `docker compose config`
   on the base file alone is unchanged from `origin/main`.
-- [ ] T005 [P] [US1] Create `.github/workflows/deploy-dev.yml` exactly per
+- [x] T005 [P] [US1] Create `.github/workflows/deploy-dev.yml` exactly per
   contracts/workflows.md: `workflow_run` on `[CI]` completed, branches `[main]`;
   `workflow_dispatch` inputs `commit` and `force_unhealthy`; the job guard; `runs-on:
   [self-hosted, vm-104]`; `concurrency: { group: deploy-dev, cancel-in-progress: false }`;
@@ -77,7 +77,7 @@ Data persists. (AC #1, AC #2)
   `node scripts/deploy-dev.mjs deploy "$(git rev-parse HEAD)"` with `--allow-stale` when the
   `commit` input is set and `--force-unhealthy` when that input is true. Pass inputs through
   `env:`, never inline `${{ }}` into the shell (injection hygiene).
-- [ ] T006 [US1] Create `scripts/deploy-dev.mjs` (stdlib, ESM, `spawnSync` style of
+- [x] T006 [US1] Create `scripts/deploy-dev.mjs` (stdlib, ESM, `spawnSync` style of
   `scripts/env.mjs`) with verbs `deploy`, `status`, and `init-secrets` per
   contracts/deploy-cli.md and research R4, R6 steps 1–8 and 10 (success path). `init-secrets`
   creates `/home/stacks/dev` (`0700`) and the file (`0600`) with
