@@ -4,7 +4,7 @@ title: 'Separate test compose stack: DB-only, per worktree, CI parity'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 18:37'
-updated_date: '2026-09-29 19:18'
+updated_date: '2026-09-29 19:29'
 labels:
   - infra
   - test
@@ -52,6 +52,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 2-3 + T005: ci.yml -> compose test stack; env:up/down handle both stacks; image-pin guard; real up/test(302 pass)/down/prune proof). Orchestrator verified: no .claude/ changes on the branch.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 4-5: docs incl. db:migrate override; AC #5 proof 20/20 worker.integration with app stack up; 5 NEEDS-REVIEW + 3 RE-PIN-ONLY wiki notes; freshness OK 34). T017 check:env e2e self-skipped because TASK-0027's stack was up; the orchestrator will run it when no other stack is up, before the PR leaves draft.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
