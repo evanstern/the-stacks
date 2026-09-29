@@ -78,9 +78,9 @@ quickstart.md)
 
 **Goal**: stored, comparable runs. **Independent test**: quickstart step 7.
 
-- [ ] T022 [US5] Add `report(dir)` to `apps/server/src/bench/load/results.ts` and wire it to `cli.ts`. Validate each file, warn and skip on invalid or unknown versions, and print one table per (case id, target kind) sorted by `startedAt`.
-- [ ] T023 [US5] Add a `report` case to `apps/server/test/bench/load.test.ts`: two fabricated files, one local and one dev, for the same case print two groups.
-- [ ] T024 [US5] Run `pnpm bench:load run --tier commit` and `pnpm bench:load run --tier demand` once each on the worktree test stack. Commit both results files under `apps/server/bench/load/results/`. Copy the `ingest-scaling` verdicts and the `reclaimSec` finding into the PR body as the decision-0005 measurement.
+- [x] T022 [US5] Add `report(dir)` to `apps/server/src/bench/load/results.ts` and wire it to `cli.ts`. Validate each file, warn and skip on invalid or unknown versions, and print one table per (case id, target kind) sorted by `startedAt`.
+- [x] T023 [US5] Add a `report` case to `apps/server/test/bench/load.test.ts`: two fabricated files, one local and one dev, for the same case print two groups.
+- [x] T024 [US5] Run `pnpm bench:load run --tier commit` and `pnpm bench:load run --tier demand` once each on the worktree test stack. Commit both results files under `apps/server/bench/load/results/`. Copy the `ingest-scaling` verdicts and the `reclaimSec` finding into the PR body as the decision-0005 measurement.
 
 ## Phase 8: Polish, gates, re-grounding, and the dev run
 
@@ -151,3 +151,14 @@ consistent with the 15s fork-to-embed-held budget being tight for real, unmocked
 fork, module load, DB connect, then extract/parse/store for the target job) under host load —
 not a logic defect. Fix: raised `FORK_TIMEOUT_MS` in `stress.ts` from 15s to 30s for both the
 held and normal fork waits; the assertion is unchanged (still fails hard on a genuine hang).
+
+T024's full `--tier demand` run (decision-0005) shows `ingest-scaling` degrading by
+`throughputFloor` at volume 50 for both worker counts, and genuinely exceeding
+`stepTimeoutMs` (120s) at higher volumes: workers=1 completes volume 100 in 57.2s
+(1.75 jobs/s) but times out at volume 250 (47 jobs unfinished) and 500 (373 unfinished);
+workers=2 completes volume 250 in 76.9s (3.25 jobs/s, roughly double workers=1's rate) but
+times out at volume 500 (185 unfinished). The knee moves from between 100-250 jobs at one
+worker to between 250-500 at two — real local-Postgres throughput, not a bench defect — so
+the case (and the CLI's exit code) correctly reports `fail` for this run. This is the
+decision-0005 measurement, expected to fail the CLI's overall exit code at this volume/tier
+combination; committed as-is per T024, not treated as a defect to fix.

@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 1,
+  "runId": "120e15ce-5f99-4d42-b5d6-d3be4e13c2a8",
+  "startedAt": "2026-09-29T21:45:33.222Z",
+  "finishedAt": "2026-09-29T21:58:52.370Z",
+  "commit": "47c8697f80162f323ef9c768892e5d77bb365d66",
+  "dirty": true,
+  "host": {
+    "node": "v22.23.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": 10,
+    "memGiB": 64
+  },
+  "tier": "demand",
+  "target": {
+    "kind": "local",
+    "postgres": "17.10 (Debian 17.10-1.pgdg12+1)",
+    "maxConnections": 100,
+    "appCommit": "47c8697f80162f323ef9c768892e5d77bb365d66"
+  },
+  "profileHash": "d4d1791bfea6ba8bb13de0fe43ecc1e17492069ae7ab8afd1636d782f5172562",
+  "profile": {
+    "tier": "demand",
+    "ingest": {
+      "volumes": [
+        10,
+        50,
+        100,
+        250,
+        500
+      ],
+      "workers": [
+        1,
+        2
+      ],
+      "docBytes": 32768,
+      "historyRows": 10000,
+      "stepTimeoutMs": 120000,
+      "thresholds": {
+        "throughputFloor": 0.7,
+        "serviceMultiple": 2,
+        "enqueueMultiple": 3
+      }
+    },
+    "concurrency": {
+      "users": [
+        1,
+        10,
+        25,
+        50,
+        100
+      ],
+      "durationMs": 30000,
+      "thinkMs": 250,
+      "wsSend": true,
+      "thresholds": {
+        "latencyMultiple": 3,
+        "errorRate": 0.01
+      }
+    },
+    "exhaustion": {
+      "holdMs": 15000,
+      "recoverTimeoutMs": 60000
+    },
+    "restart": {
+      "followers": 3,
+      "reclaimTimeoutMs": 120000
+    }
+  },
+  "cases": [
+    {
+      "id": "ingest-smoke",
+      "tier": "commit",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier commit not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "concurrency-smoke",
+      "tier": "commit",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier commit not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "concurrency-dev",
+      "tier": "dev",
+      "target": "dev",
+      "status": "skipped",
+      "reason": "tier dev not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "ingest-scaling",
+      "tier": "demand",
+      "target": "local",
+      "status": "fail",
+      "reason": "47 job(s) failed at workers=1 volume=250; step timed out at workers=1 volume=250; 373 job(s) failed at workers=1 volume=500; step timed out at workers=1 volume=500; 185 job(s) failed at workers=2 volume=500; step timed out at workers=2 volume=500",
+      "durationMs": 573257,
+      "steps": [
+        {
+          "workers": 1,
+          "volume": 10,
+          "stepJobs": 10,
+          "tableRows": 10010,
+          "wallMs": 2504,
+          "throughputPerSec": 3.993610223642172,
+          "queueWaitP50Ms": 744,
+          "queueWaitP95Ms": 2152,
+          "serviceP50Ms": 253,
+          "serviceP95Ms": 308,
+          "enqueueP95Ms": 3.5437919999999394,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 1,
+          "volume": 50,
+          "stepJobs": 50,
+          "tableRows": 10060,
+          "wallMs": 24902,
+          "throughputPerSec": 2.007870853746687,
+          "queueWaitP50Ms": 11752,
+          "queueWaitP95Ms": 23178,
+          "serviceP50Ms": 473,
+          "serviceP95Ms": 520,
+          "enqueueP95Ms": 1.4933750000000146,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 1,
+          "volume": 100,
+          "stepJobs": 100,
+          "tableRows": 10160,
+          "wallMs": 57208,
+          "throughputPerSec": 1.7480072717102502,
+          "queueWaitP50Ms": 28207,
+          "queueWaitP95Ms": 53393,
+          "serviceP50Ms": 552,
+          "serviceP95Ms": 577,
+          "enqueueP95Ms": 1.3982919999980368,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 1,
+          "volume": 250,
+          "stepJobs": 250,
+          "tableRows": 10410,
+          "wallMs": 120997,
+          "throughputPerSec": 2.066166929758589,
+          "queueWaitP50Ms": 59619,
+          "queueWaitP95Ms": 113994,
+          "serviceP50Ms": 579,
+          "serviceP95Ms": 626,
+          "enqueueP95Ms": 1.3737499999988358,
+          "failed": 47,
+          "timedOut": true
+        },
+        {
+          "workers": 1,
+          "volume": 500,
+          "stepJobs": 500,
+          "tableRows": 10910,
+          "wallMs": 121824,
+          "throughputPerSec": 4.104281586551091,
+          "queueWaitP50Ms": 74818,
+          "queueWaitP95Ms": 116831,
+          "serviceP50Ms": 711,
+          "serviceP95Ms": 751,
+          "enqueueP95Ms": 1.9130839999997988,
+          "failed": 373,
+          "timedOut": true
+        },
+        {
+          "workers": 2,
+          "volume": 10,
+          "stepJobs": 10,
+          "tableRows": 10010,
+          "wallMs": 1286,
+          "throughputPerSec": 7.776049766718508,
+          "queueWaitP50Ms": 373,
+          "queueWaitP95Ms": 954,
+          "serviceP50Ms": 264,
+          "serviceP95Ms": 316,
+          "enqueueP95Ms": 2.2466669999994338,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 2,
+          "volume": 50,
+          "stepJobs": 50,
+          "tableRows": 10060,
+          "wallMs": 13167,
+          "throughputPerSec": 3.79737221842485,
+          "queueWaitP50Ms": 6656,
+          "queueWaitP95Ms": 11961,
+          "serviceP50Ms": 466,
+          "serviceP95Ms": 513,
+          "enqueueP95Ms": 1.2830829999875277,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 2,
+          "volume": 100,
+          "stepJobs": 100,
+          "tableRows": 10160,
+          "wallMs": 29120,
+          "throughputPerSec": 3.434065934065934,
+          "queueWaitP50Ms": 14338,
+          "queueWaitP95Ms": 26883,
+          "serviceP50Ms": 540,
+          "serviceP95Ms": 572,
+          "enqueueP95Ms": 1.3158750000293367,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 2,
+          "volume": 250,
+          "stepJobs": 250,
+          "tableRows": 10410,
+          "wallMs": 76934,
+          "throughputPerSec": 3.2495385655236957,
+          "queueWaitP50Ms": 36886,
+          "queueWaitP95Ms": 71320,
+          "serviceP50Ms": 587,
+          "serviceP95Ms": 661,
+          "enqueueP95Ms": 1.3463750000228174,
+          "failed": 0,
+          "timedOut": false
+        },
+        {
+          "workers": 2,
+          "volume": 500,
+          "stepJobs": 500,
+          "tableRows": 10910,
+          "wallMs": 121683,
+          "throughputPerSec": 4.109037416894718,
+          "queueWaitP50Ms": 57906,
+          "queueWaitP95Ms": 114179,
+          "serviceP50Ms": 764,
+          "serviceP95Ms": 828,
+          "enqueueP95Ms": 1.3937500000465661,
+          "failed": 185,
+          "timedOut": true
+        }
+      ],
+      "verdicts": [
+        {
+          "degraded": true,
+          "at": 50,
+          "rules": [
+            "throughput"
+          ]
+        },
+        {
+          "degraded": true,
+          "at": 50,
+          "rules": [
+            "throughput"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "concurrency-local",
+      "tier": "demand",
+      "target": "local",
+      "status": "pass",
+      "durationMs": 151895,
+      "steps": [
+        {
+          "users": 1,
+          "requests": 118,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 6.040541999973357,
+          "httpP95Ms": 11.759500000043772,
+          "httpP99Ms": 13.520833999966271,
+          "wsConnectP95Ms": 13.082999999984168,
+          "wsSubscribeP95Ms": 3.6142499999841675,
+          "wsRoundTripP95Ms": 12.83158299990464,
+          "errorKinds": {}
+        },
+        {
+          "users": 10,
+          "requests": 1160,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 6.181457999977283,
+          "httpP95Ms": 11.812542000086978,
+          "httpP99Ms": 13.649458999978378,
+          "wsConnectP95Ms": 22.906084000016563,
+          "wsSubscribeP95Ms": 7.14858399995137,
+          "wsRoundTripP95Ms": 10.614375000004657,
+          "errorKinds": {}
+        },
+        {
+          "users": 25,
+          "requests": 2900,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 7.2236249999841675,
+          "httpP95Ms": 14.924124999903142,
+          "httpP99Ms": 41.25229199999012,
+          "wsConnectP95Ms": 15.954957999987528,
+          "wsSubscribeP95Ms": 15.159125000005588,
+          "wsRoundTripP95Ms": 9.191666999948211,
+          "errorKinds": {}
+        },
+        {
+          "users": 50,
+          "requests": 5800,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 6.478209000080824,
+          "httpP95Ms": 17.115833000047132,
+          "httpP99Ms": 71.73945899994578,
+          "wsConnectP95Ms": 30.480916999978945,
+          "wsSubscribeP95Ms": 43.664749999996275,
+          "wsRoundTripP95Ms": 8.217208000016399,
+          "errorKinds": {}
+        },
+        {
+          "users": 100,
+          "requests": 11404,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 5.138500000000931,
+          "httpP95Ms": 23.40145800006576,
+          "httpP99Ms": 155.00195900001563,
+          "wsConnectP95Ms": 117.02241600002162,
+          "wsSubscribeP95Ms": 77.66191599995364,
+          "wsRoundTripP95Ms": 7.528917000046931,
+          "errorKinds": {}
+        }
+      ],
+      "verdicts": [
+        {
+          "degraded": false,
+          "through": 100
+        }
+      ]
+    },
+    {
+      "id": "db-exhaustion",
+      "tier": "demand",
+      "target": "local",
+      "status": "pass",
+      "durationMs": 12777,
+      "expectations": [
+        {
+          "name": "health-degraded",
+          "pass": true,
+          "observed": 13
+        },
+        {
+          "name": "request-bounded",
+          "pass": true,
+          "observed": 16
+        },
+        {
+          "name": "ws-503-not-401",
+          "pass": true,
+          "observed": 503
+        },
+        {
+          "name": "process-alive",
+          "pass": true,
+          "observed": 1
+        },
+        {
+          "name": "recovered",
+          "pass": true,
+          "observed": 0.01
+        }
+      ],
+      "observed": {
+        "heldConnections": 98,
+        "maxConnections": 100,
+        "recoverySec": 0.01
+      }
+    },
+    {
+      "id": "restart-mid-ingest",
+      "tier": "demand",
+      "target": "local",
+      "status": "pass",
+      "durationMs": 61180,
+      "expectations": [
+        {
+          "name": "followers-succeeded",
+          "pass": true,
+          "observed": 3
+        },
+        {
+          "name": "target-attempts-2",
+          "pass": true,
+          "observed": 2
+        },
+        {
+          "name": "target-succeeded",
+          "pass": true,
+          "observed": "succeeded"
+        },
+        {
+          "name": "one-document-per-book",
+          "pass": true,
+          "observed": 1
+        }
+      ],
+      "observed": {
+        "reclaimSec": 60.358
+      }
+    }
+  ]
+}
