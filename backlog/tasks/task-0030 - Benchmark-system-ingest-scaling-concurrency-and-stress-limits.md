@@ -1,10 +1,10 @@
 ---
 id: TASK-0030
 title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 18:37'
+updated_date: '2026-09-29 19:53'
 labels:
   - bench
 milestone: m-1
@@ -20,6 +20,8 @@ ordinal: 21000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Operator requirement (doc-0001, 2026-09-28): find growing-pain limits before hosting. Produces the recorded measurement decision-0005 requires before any worker split or queue.
+
+Spec: specs/021-load-bench
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
