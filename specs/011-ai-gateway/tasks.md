@@ -47,14 +47,14 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 
 ## Phase 5: US6 + wiring — no-key test run and startup
 
-- [ ] T015 Wire `apps/server/src/config.ts` (optional `ai` field) and `apps/server/src/index.ts` (construct the gateway once with `logSink`); unset AI env → server starts exactly as today
-- [ ] T016 Test (in `apps/server/test/ai.gateway.test.ts`) that no provider name, vendor name, or key variable name appears in `apps/server/src/ai/` (invariant 10)
-- [ ] T017 [P] Add the contracts/gateway.md `.env.example` block verbatim to `.env.example`
-- [ ] T018 Run `pnpm ci:check` with no AI env set; record output in the PR body (SC-004)
+- [x] T015 Wire `apps/server/src/config.ts` (optional `ai` field) and `apps/server/src/index.ts` (construct the gateway once with `logSink`); unset AI env → server starts exactly as today
+- [x] T016 Test (in `apps/server/test/ai.gateway.test.ts`) that no provider name, vendor name, or key variable name appears in `apps/server/src/ai/` (invariant 10)
+- [x] T017 [P] Add the contracts/gateway.md `.env.example` block verbatim to `.env.example`
+- [x] T018 Run `pnpm ci:check` with no AI env set; record output in the PR body (SC-004)
 
 ## Phase 6: Polish & re-ground
 
-- [ ] T019 Wiki: add an `ai-gateway` note; review `configuration` and `server-entrypoint-and-app` (NEEDS-REVIEW per runbook); `gates/cli.mjs freshness` prints `OK`
+- [x] T019 Wiki: add an `ai-gateway` note; review `configuration` and `server-entrypoint-and-app` (NEEDS-REVIEW per runbook); `gates/cli.mjs freshness` prints `OK`
 - [ ] T020 Tick this file and run `spec-bridge:sync` after merge
 
 ## Dependencies & Execution Order
