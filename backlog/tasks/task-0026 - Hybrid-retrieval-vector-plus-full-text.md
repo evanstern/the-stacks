@@ -30,10 +30,12 @@ Spec: specs/015-hybrid-retrieval
 - [ ] #3 Results carry chunk anchors
 - [x] #4 Spec phase: Foundational — contract types, config, fusion
 - [x] #5 Spec phase: User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP
-- [ ] #6 Spec phase: User Story 2 — choose the retrieval mode by configuration (Priority: P1)
+- [x] #6 Spec phase: User Story 2 — choose the retrieval mode by configuration (Priority: P1)
 - [ ] #7 Spec phase: User Story 3 — hybrid fuses both lists (Priority: P1)
 - [ ] #8 Spec phase: Polish and gates
 <!-- AC:END -->
+
+
 
 
 
