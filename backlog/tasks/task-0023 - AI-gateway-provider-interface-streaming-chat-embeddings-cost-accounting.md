@@ -34,8 +34,10 @@ Spec: specs/011-ai-gateway
 - [x] #7 Spec phase: US2 — embeddings through the gateway (P1)
 - [x] #8 Spec phase: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
 - [x] #9 Spec phase: US6 + wiring — no-key test run and startup
-- [ ] #10 Spec phase: Polish & re-ground
+- [x] #10 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
