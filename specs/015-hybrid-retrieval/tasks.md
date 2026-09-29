@@ -17,32 +17,32 @@ test goes through the gateway's `fake` adapter; no network.
 
 **Purpose**: the pure (no-DB) half of contracts/retrieval.md that every story builds on.
 
-- [ ] T001 Create `apps/server/src/library/retrieve.ts` with the exported types from
+- [x] T001 Create `apps/server/src/library/retrieve.ts` with the exported types from
   contracts/retrieval.md exactly (`RetrievalMode`, `RetrievalConfig`, `RetrieveDeps`,
   `RetrieveRequest`, `PassageAnchor`, `SearchSignal`, `RetrievedPassage`, `RetrievalResult`),
   the constants `RRF_K = 60` and `CANDIDATES = 50` (each with a `ponytail:` comment naming
   TASK-0029 as the upgrade trigger; research R1, R7), and a header comment citing the contract.
   Import `Gateway` as a type only from `../ai/gateway.js` and `DbClient` from `./store.js`.
-- [ ] T002 In `retrieve.ts`, implement `loadRetrievalConfig(env = process.env)`: Zod-parse
+- [x] T002 In `retrieve.ts`, implement `loadRetrievalConfig(env = process.env)`: Zod-parse
   `RETRIEVAL_MODE` (enum, default `hybrid`), `RETRIEVAL_K` (coerced integer 1..50, default 8),
   `RETRIEVAL_EMBED_PURPOSE` (non-empty string, default `embedding`). On failure throw an
   `Error` naming the variable and the allowed values. Do not read `AI_PURPOSES` (research R5).
-- [ ] T003 In `retrieve.ts`, implement `fuseRrf({vector, fts}, rrfK = RRF_K)`: score
+- [x] T003 In `retrieve.ts`, implement `fuseRrf({vector, fts}, rrfK = RRF_K)`: score
   `Σ 1/(rrfK + rank)` with 1-based ranks, one entry per distinct chunk id, sorted score desc
   then chunk id ascending (contract invariant 9).
-- [ ] T004 [P] Write `apps/server/test/library/retrieve.test.ts` (no DB): config defaults on an
+- [x] T004 [P] Write `apps/server/test/library/retrieve.test.ts` (no DB): config defaults on an
   empty env; each invalid value (`RETRIEVAL_MODE=bogus`, `RETRIEVAL_K=0`, `51`, `abc`,
   `RETRIEVAL_EMBED_PURPOSE=""`) throws naming its variable; `fuseRrf` matches scores computed by
   hand for a fixed pair of lists (SC-004), dedupes a shared id, keeps single-list ids, orders
   equal scores by id, and returns identical output on a second call (SC-005).
-- [ ] T005 Edit `apps/server/src/index.ts`: call `loadRetrievalConfig(process.env)` once after
+- [x] T005 Edit `apps/server/src/index.ts`: call `loadRetrievalConfig(process.env)` once after
   `loadAiConfig`, so an invalid value fails boot (FR-004). Keep the result in a `const` with a
   `biome-ignore lint/correctness/noUnusedVariables` comment reserving it for TASK-0027, the
   same pattern as `aiGateway`.
-- [ ] T006 [P] Edit `.env.example`: add a "Retrieval (all optional)" block documenting the three
+- [x] T006 [P] Edit `.env.example`: add a "Retrieval (all optional)" block documenting the three
   `RETRIEVAL_*` variables, their values and defaults, and that `RETRIEVAL_EMBED_PURPOSE` must
   name the same `AI_PURPOSES` entry ingestion embeds with.
-- [ ] T007 Run `pnpm ci:check` in the worktree; it passes.
+- [x] T007 Run `pnpm ci:check` in the worktree; it passes.
 
 **Checkpoint**: contract types compile; config and fusion are proven without a database.
 
