@@ -37,11 +37,50 @@
   strip). Unknown elements fall back to prose.
 - **Rationale**: DDB's markup is the one thing likely to change (A9 risk table). Keeping every
   class name in one table makes a format shift a one-file edit, proven by fixtures.
-- **Unknown**: the exact class names in current exports. The synthetic fixtures use the
-  names below; the operator's private-suite run (runbook checkpoint) is what validates them.
-  Initial names, from DDB's published reader markup: content root `.p-article-content`,
-  stat block `.stat-block`/`.Basic-Text-Frame` with `.monster-stat-block` variants,
-  sidebar `.text--rules-sidebar`, `aside`, `blockquote`.
+- **Verified against real exports (2026-09-28)**: R3's names were originally guessed from
+  memory; they were checked read-only against three real saved exports (never committed) —
+  Player's Handbook "23 - Combat.zip", Player's Handbook "19 - Equipment.zip", and Monster
+  Manual's "G" chapter (Goblin/Goblin Boss) from `monster_manual.zip`. Confirmed and
+  corrected selectors, each tagged with which export it came from:
+  - Content root: `.p-article-content` — **confirmed** (Combat, Equipment, MM/G).
+  - Page title (chrome, outside the content root): `h1.page-title` — **confirmed** (Combat);
+    holds the chapter title, used only as the fallback section heading when the content root
+    has no heading of its own.
+  - Section headings: any h2-h6 carrying class `heading-anchor` (sometimes combined with
+    `compendium-hr` and/or `compendium-header`, order not fixed — match on `heading-anchor`
+    alone, not the full class string) — **confirmed, class list corrected** (all three). The
+    content root's own top `<h1>` (e.g. `<h1 id="Combat">Chapter 9: Combat</h1>`) carries no
+    class at all and is a heading by tag, not class.
+  - Tables: plain `<table>` — **simplified**; DDB's table classes
+    (`table-compendium`, `table--equipment`, `table--left-all`, `table--generic-dice`,
+    `quick-menu-exclude`) are cosmetic variants, not needed to detect a table (Equipment). A
+    table's caption, when present, is a heading element inside `<caption>`.
+  - Stat block: `.stat-block-background` (always paired with `.Basic-Text-Frame`) —
+    **corrected**; no plain `.stat-block` or `.monster-stat-block` class exists (MM/G).
+    Internal parts: `.Stat-Block-Styles_Stat-Block-Title` (name),
+    `.Stat-Block-Styles_Stat-Block-Metadata` (size/type/alignment),
+    `.Stat-Block-Styles_Stat-Block-Data` / `-Data-Last` (labelled lines: Armor Class, Hit
+    Points, Speed, Skills, Senses, Languages, Challenge), `.stat-block-ability-scores` with
+    one `.stat-block-ability-scores-stat` per ability (`-heading` = STR/DEX/…, `-data` /
+    `-score` / `-modifier` = the number and its modifier),
+    `.Stat-Block-Styles_Stat-Block-Heading` (a subsection label such as "Actions"), and
+    `.Stat-Block-Styles_Stat-Block-Body` (a named trait/action) — all **new, from MM/G**.
+  - Sidebar: `aside.text--rules-sidebar` — **confirmed** (Combat); generic `aside` and
+    `blockquote` kept as fallbacks, unobserved in the sampled pages.
+  - Inline tooltips: class ending in `-tooltip` (`rule-tooltip`, `condition-tooltip`,
+    `skill-tooltip`, `sense-tooltip`, `action-tooltip`, `spell-tooltip`, `item-tooltip`,
+    `magic-item-tooltip`, `monster-tooltip`, `weapon-properties-tooltip`) — **confirmed,
+    enumerated** (Combat, MM/G); kept as inline text, not stripped.
+  - Chrome to strip: tags `nav`, `header`, `footer`, `script`, `style`; class prefixes
+    `quick-menu*`, `ddb-footer*` — **confirmed** (Combat, MM/G); hashed CSS-module classes
+    matching `/^_[a-zA-Z]+_[a-z0-9]+/` (e.g. `_menuNav_1vzu8_31`) — **confirmed, pattern
+    added** (Combat). Also new: inside the content root itself, a `select.nav-select`
+    ("Jump to..." dropdown) and a hidden `#comp-next-nav` div precede the real content and
+    must be stripped too (Combat, MM/G).
+  - Not seen in the sampled pages, kept as unvalidated per the fixtures' own construction:
+    a table with a true header *column* (`<th>` per row rather than a `<thead>` row) — the
+    `equipment.html` fixture synthesizes one per FR-006/spec edge cases; real-export
+    confirmation is the private suite's job (R6).
 
 ## R4 — Anchors and normalized text
 

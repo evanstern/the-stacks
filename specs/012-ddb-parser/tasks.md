@@ -16,9 +16,9 @@ checkpoint). Do not start without that approval recorded on TASK-0025.
 
 **Purpose**: dependency, ignore rule, and the empty module.
 
-- [ ] T001 Add `parse5` (^8) to `apps/server/package.json` dependencies with `pnpm --filter @the-stacks/server add parse5`; commit `pnpm-lock.yaml` with it.
-- [ ] T002 [P] Append `fixtures/private/` to the root `.gitignore`, under a `# Operator-owned content (constitution VIII)` comment.
-- [ ] T003 [P] Create `apps/server/src/library/ddb/index.ts` exporting a stub `parseDdbExport` that throws `ValidationError("not implemented")`, so tests can import it.
+- [x] T001 Add `parse5` (^8) to `apps/server/package.json` dependencies with `pnpm --filter @the-stacks/server add parse5`; commit `pnpm-lock.yaml` with it.
+- [x] T002 [P] Append `fixtures/private/` to the root `.gitignore`, under a `# Operator-owned content (constitution VIII)` comment.
+- [x] T003 [P] Create `apps/server/src/library/ddb/index.ts` exporting a stub `parseDdbExport` that throws `ValidationError("not implemented")`, so tests can import it.
 
 **Checkpoint**: `pnpm typecheck` and `pnpm lint` pass; `git check-ignore fixtures/private/x` prints the path.
 
@@ -26,12 +26,12 @@ checkpoint). Do not start without that approval recorded on TASK-0025.
 
 **Purpose**: the contract types and the fixture corpus every story tests against.
 
-- [ ] T004 In `apps/server/src/library/ddb/index.ts`, define Zod schemas `ParseInputSchema`, `AnchorSchema`, `BlockSchema`, `ParsedBookSchema` exactly per `data-model.md`, and export their inferred types.
-- [ ] T005 [P] Create `apps/server/src/library/ddb/selectors.ts`: one exported table mapping D&D Beyond selectors to roles — content root, stat block, sidebar, and chrome to strip — using the initial names in research R3. No other file may contain a D&D Beyond class name.
-- [ ] T006 [P] Create `apps/server/test/fixtures/ddb/basic-rules.html`: a realistic saved page (doctype, head with `<style>` and `<script>`, `nav`, header, footer) whose content root holds nested h1–h4 headings, prose, an ordered and an unordered list, one sidebar, one skipped heading level (h2 → h4), and non-ASCII text (em dash, curly quotes, an accented name). Original text only.
-- [ ] T007 [P] Create `apps/server/test/fixtures/ddb/equipment.html`: same chrome; three tables — one with a caption and header row, one with a header column, one with a `colspan` merged cell. SRD 5.1 equipment data or original values.
-- [ ] T008 [P] Create `apps/server/test/fixtures/ddb/bestiary.html`: same chrome; two complete SRD 5.1 stat blocks (e.g. Goblin, Wolf) with name, AC, HP, speed, the six ability scores, traits, and actions; plus one deliberately malformed stat block missing its ability-score row.
-- [ ] T009 [P] Create `apps/server/test/fixtures/ddb/README.md`: provenance of each fixture (original vs SRD 5.1), the CC-BY-4.0 attribution text for SRD 5.1, and the rule that no proprietary text may be committed here (constitution VIII).
+- [x] T004 In `apps/server/src/library/ddb/index.ts`, define Zod schemas `ParseInputSchema`, `AnchorSchema`, `BlockSchema`, `ParsedBookSchema` exactly per `data-model.md`, and export their inferred types.
+- [x] T005 [P] Create `apps/server/src/library/ddb/selectors.ts`: one exported table mapping D&D Beyond selectors to roles — content root, stat block, sidebar, and chrome to strip — using the initial names in research R3. No other file may contain a D&D Beyond class name.
+- [x] T006 [P] Create `apps/server/test/fixtures/ddb/basic-rules.html`: a realistic saved page (doctype, head with `<style>` and `<script>`, `nav`, header, footer) whose content root holds nested h1–h4 headings, prose, an ordered and an unordered list, one sidebar, one skipped heading level (h2 → h4), and non-ASCII text (em dash, curly quotes, an accented name). Original text only.
+- [x] T007 [P] Create `apps/server/test/fixtures/ddb/equipment.html`: same chrome; three tables — one with a caption and header row, one with a header column, one with a `colspan` merged cell. SRD 5.1 equipment data or original values.
+- [x] T008 [P] Create `apps/server/test/fixtures/ddb/bestiary.html`: same chrome; two complete SRD 5.1 stat blocks (e.g. Goblin, Wolf) with name, AC, HP, speed, the six ability scores, traits, and actions; plus one deliberately malformed stat block missing its ability-score row.
+- [x] T009 [P] Create `apps/server/test/fixtures/ddb/README.md`: provenance of each fixture (original vs SRD 5.1), the CC-BY-4.0 attribution text for SRD 5.1, and the rule that no proprietary text may be committed here (constitution VIII).
 
 **Checkpoint**: fixtures open in a browser and look like book pages; types compile.
 
