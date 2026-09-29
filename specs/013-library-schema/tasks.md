@@ -16,7 +16,7 @@ MUST run (0 skipped) against a real pgvector database.
 
 **Purpose**: the tables, indexes, trigger, and migration every story depends on.
 
-- [ ] T001 Create `apps/server/src/schema/library.ts`: `libraryDocuments`, `libraryChunks`,
+- [x] T001 Create `apps/server/src/schema/library.ts`: `libraryDocuments`, `libraryChunks`,
   `libraryEmbeddings` per data-model.md — uuid PKs, FKs `ON DELETE CASCADE`, unique index on
   `lower(trim(book))`, unique `(document_id, ordinal)`, `kind` CHECK, span CHECK, `dim = 1024`
   CHECK, `vector("embedding", { dimensions: 1024 })`, unique `(chunk_id, model)`, btree on
@@ -24,7 +24,7 @@ MUST run (0 skipped) against a real pgvector database.
   `.generatedAlwaysAs(sql\`to_tsvector('english', text)\`)` with a GIN index. Header comment:
   library plane, immutable after ingestion (research R4). `ponytail:` comment on the HNSW index:
   no per-model partial indexes; add when TASK-0029 shows filtered recall dropping.
-- [ ] T002 Bring up this worktree's stack (`pnpm env:up`), then run
+- [x] T002 Bring up this worktree's stack (`pnpm env:up`), then run
   `pnpm --filter @the-stacks/server db:generate`. In the new `apps/server/drizzle/0002_*.sql`,
   hand-add `CREATE EXTENSION IF NOT EXISTS vector;` as the first statement, and append the
   `library_immutable()` plpgsql function plus `BEFORE UPDATE … FOR EACH ROW` triggers on all
@@ -32,7 +32,7 @@ MUST run (0 skipped) against a real pgvector database.
   column or HNSW index; note each hand edit in a SQL comment. Apply with
   `pnpm --filter @the-stacks/server db:migrate` against the worktree stack; it must succeed on
   a fresh volume.
-- [ ] T003 Confirm `pnpm ci:check` passes (typecheck sees the schema; `check:host-scripts`
+- [x] T003 Confirm `pnpm ci:check` passes (typecheck sees the schema; `check:host-scripts`
   still passes; boundary check still 5/5).
 
 **Checkpoint**: migration applies cleanly; tables, indexes, and triggers exist.
