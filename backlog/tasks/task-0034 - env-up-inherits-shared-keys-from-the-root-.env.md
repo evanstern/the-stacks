@@ -1,9 +1,10 @@
 ---
 id: TASK-0034
 title: 'env:up inherits shared keys from the root .env'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 20:19'
+updated_date: '2026-09-29 20:19'
 labels:
   - infra
 milestone: m-1
@@ -16,6 +17,8 @@ ordinal: 25000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Operator request 2026-09-29: keep one .env in the main checkout (secrets such as NINEROUTER_API_KEY, and shared AI_PROVIDERS/AI_PURPOSES) and reuse it in every worktree, instead of copying it by hand. A symlinked or copied .env cannot work: env:up rewrites each worktree's .env with that worktree's derived ports, and a copy goes stale. So when env:up builds a worktree .env it layers the root .env in for every key it does not derive itself. Derived keys (APP_PORT, DB_PORT, STACKS_ENV, TEST_DB_PORT, TEST_DATABASE_URL) stay per worktree.
+
+Spec: specs/022-root-env-inherit
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
