@@ -91,7 +91,7 @@ Data persists. (AC #1, AC #2)
 - [x] T007 [US1] **Operator checkpoint 1** (plan.md): name the `init-secrets` command, stop,
   and run it only after a yes (or hand it to the operator). Record on the card: the path
   printed, and nothing else.
-- [ ] T008 [US1] Pre-merge proof on vm-104, as `stacks`, from a clone of this branch under
+- [x] T008 [US1] Pre-merge proof on vm-104, as `stacks`, from a clone of this branch under
   `/home/stacks/dev/proof` (removed afterwards): **announce to the operator first**
   (checkpoint 3), then `node scripts/deploy-dev.mjs deploy $(git rev-parse HEAD)
   --allow-stale`. Expect exit 0 and `curl -s 127.0.0.1:3000/health` naming that commit.
