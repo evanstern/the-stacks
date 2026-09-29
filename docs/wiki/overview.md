@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
+verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
 ---
 
 # Overview
@@ -44,13 +44,14 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 
 | plane | what it holds | at this commit |
 |---|---|---|
-| library | imported reference content | storage ([[library-schema]]) and ingestion ([[ingestion]], TASK-0024) both land: upload → parse → chunk → store → embed |
+| library | imported reference content | storage ([[library-schema]]), ingestion ([[ingestion]], TASK-0024: upload → parse → chunk → store → embed), and a read path ([[rules-answerer]], TASK-0027: retrieve → answer → cite over SSE) all land |
 | codex | campaign entities | empty — M2 |
 | session | what happened at the table | the event log, live |
 
-The session plane is populated at M0, as [[event-log]]; the library plane now has both its
-storage ([[library-schema]]) and an end-to-end ingestion path ([[ingestion]], TASK-0024) that
-writes to it. Play state is **event-sourced
+The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
+([[library-schema]]), an end-to-end ingestion path ([[ingestion]], TASK-0024) that writes to
+it, and a read path with its first caller ([[rules-answerer]], TASK-0027) that answers
+questions from it over `POST /library/ask`. Play state is **event-sourced
 with server authority**: a client never writes to the log, it asks the server to append
 (see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
 

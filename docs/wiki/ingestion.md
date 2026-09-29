@@ -18,7 +18,7 @@ sources:
   - apps/server/test/library/worker.integration.test.ts
   - apps/server/test/library/collect.test.ts
   - apps/server/test/library/zip.test.ts
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
 ---
 
 # Ingestion

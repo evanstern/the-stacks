@@ -7,6 +7,7 @@ import { pipeline } from "node:stream/promises";
 import Busboy from "busboy";
 import type { Context } from "hono";
 import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
 import { z } from "zod";
 import type { AuthVariables } from "../auth/middleware.js";
 import { createAuthMiddleware } from "../auth/middleware.js";
@@ -18,6 +19,11 @@ import {
   UnauthorizedError,
   ValidationError,
 } from "../errors.js";
+import {
+  type AnswerDeps,
+  answer as answerQuestion,
+  QUESTION_MAX,
+} from "../library/answer.js";
 import {
   enqueueIngest,
   getJob,
@@ -89,7 +95,13 @@ export interface CreateLibraryRoutesOptions {
   uploadMaxBytes: number;
   uploadDir: string;
   onEnqueued: () => void;
+  /** `POST /ask` wiring (specs/018-rules-answerer). Absent: the route yields `error{config}`. */
+  answer?: Omit<AnswerDeps, "db">;
 }
+
+const AskBodySchema = z.object({
+  question: z.string().trim().min(1).max(QUESTION_MAX),
+});
 
 /**
  * Streams the multipart body to disk and returns the queued job. Rejects
@@ -302,6 +314,7 @@ export function createLibraryRoutes({
   uploadMaxBytes,
   uploadDir,
   onEnqueued,
+  answer,
 }: CreateLibraryRoutesOptions) {
   const route = new Hono<{ Variables: AuthVariables }>();
   const authMiddleware = createAuthMiddleware(validateSession);
@@ -358,6 +371,59 @@ export function createLibraryRoutes({
     const job = await getJob(db, id);
     if (!job) throw new NotFoundError();
     return c.json({ job });
+  });
+
+  /**
+   * `POST /ask` (specs/018-rules-answerer, contracts/ask-sse.md): operator-only
+   * (research R4). Auth and body validation run before the stream opens, so
+   * those failures are the standard JSON error contract; everything after is
+   * an SSE event, a thin adapter over `answer()`.
+   */
+  route.post("/ask", async (c) => {
+    requireOperator(c);
+
+    let body: unknown;
+    try {
+      body = await c.req.json();
+    } catch {
+      throw new ValidationError([
+        { path: "(root)", message: "Expected a JSON body." },
+      ]);
+    }
+    const parsedBody = AskBodySchema.safeParse(body);
+    if (!parsedBody.success) {
+      throw new ValidationError([
+        {
+          path: "question",
+          message: `question is required, 1-${QUESTION_MAX} characters after trimming.`,
+        },
+      ]);
+    }
+    const { question } = parsedBody.data;
+
+    if (!answer) {
+      return streamSSE(c, async (stream) => {
+        await stream.writeSSE({
+          event: "error",
+          data: JSON.stringify({
+            kind: "config",
+            message: "The rules answerer is not configured.",
+          }),
+        });
+      });
+    }
+
+    return streamSSE(c, async (stream) => {
+      const controller = new AbortController();
+      stream.onAbort(() => controller.abort());
+      for await (const event of answerQuestion(
+        { db, ...answer },
+        { question, signal: controller.signal },
+      )) {
+        const { type, ...payload } = event;
+        await stream.writeSSE({ event: type, data: JSON.stringify(payload) });
+      }
+    });
   });
 
   return route;
