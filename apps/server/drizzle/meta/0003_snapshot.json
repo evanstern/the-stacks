@@ -78,12 +78,8 @@
           "name": "auth_sessions_user_id_users_id_fk",
           "tableFrom": "auth_sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -165,12 +161,8 @@
           "name": "invitations_created_by_users_id_fk",
           "tableFrom": "invitations",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -178,12 +170,8 @@
           "name": "invitations_redeemed_by_users_id_fk",
           "tableFrom": "invitations",
           "tableTo": "users",
-          "columnsFrom": [
-            "redeemed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["redeemed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -326,10 +314,7 @@
       "compositePrimaryKeys": {
         "events_session_id_seq_pk": {
           "name": "events_session_id_seq_pk",
-          "columns": [
-            "session_id",
-            "seq"
-          ]
+          "columns": ["session_id", "seq"]
         }
       },
       "uniqueConstraints": {},
@@ -606,12 +591,8 @@
           "name": "library_chunks_document_id_library_documents_id_fk",
           "tableFrom": "library_chunks",
           "tableTo": "library_documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -800,12 +781,8 @@
           "name": "library_embeddings_chunk_id_library_chunks_id_fk",
           "tableFrom": "library_embeddings",
           "tableTo": "library_chunks",
-          "columnsFrom": [
-            "chunk_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chunk_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

@@ -94,7 +94,9 @@ describe("POST /api/echo", () => {
     const app = new Hono();
     app.onError(errorHandler);
     app.get("/too-big", () => {
-      throw new PayloadTooLargeError("Upload exceeds the configured limit of 100 bytes.");
+      throw new PayloadTooLargeError(
+        "Upload exceeds the configured limit of 100 bytes.",
+      );
     });
 
     const res = await app.request("/too-big");
