@@ -153,15 +153,17 @@ backup file on vm-104.
   backwards.
 - **CI for an older commit finishes after CI for a newer one.** Same rule: never deploy a
   commit older than `main` HEAD.
-- **The runner is offline when CI succeeds.** The deploy waits in the queue. If it never
-  runs, the drift check fails.
+- **The runner is offline when CI succeeds.** The deploy waits in the queue. The drift
+  check runs on the same runner, so it queues too; a queued job that never starts fails
+  after GitHub's queue timeout, which is the visible signal. See Assumptions.
 - **The very first deploy fails.** There is no previous version to return to. The job
   fails and says so; `dev` is simply not up yet.
 - **A migration succeeds, then the new app is unhealthy.** `dev` returns to the previous
   app version on the migrated schema. Migrations MUST therefore stay backward-compatible
   with the previous app for one release (additive only). See Assumptions.
-- **Drift check during a deploy.** The check MAY report drift while a deploy is in flight.
-  It MUST NOT run concurrently with a deploy; it waits for any in-flight deploy first.
+- **Drift check during a deploy.** A newly merged commit is not drift yet. The check MUST
+  report drift only when `main` HEAD is older than a grace window longer than a normal
+  deploy, so an in-flight deploy never raises a false alarm.
 - **Disk pressure on vm-104.** Old `dev` images MUST be pruned so repeated deploys do not
   fill the disk; images, containers, and volumes owned by other projects on vm-104 MUST
   never be touched.
@@ -292,5 +294,7 @@ backup file on vm-104.
   checkpoint that configures `tailscale serve`.
 - The Cloudflare tunnel, public access, and any `dev` authentication beyond the app's own
   session auth are out of scope (doc-0002, Exposure "Later").
+- Detecting an offline runner faster than GitHub's queue timeout is out of scope. It needs
+  a drift probe that runs off vm-104 and joins the tailnet, which needs its own secret.
 - Off-host backup shipping is out of scope; the runbook covers taking and restoring a
   backup on vm-104.
