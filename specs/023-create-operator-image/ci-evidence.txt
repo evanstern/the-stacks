@@ -1,0 +1,71 @@
+TASK-0036 — local proof (quickstart.md), 2026-09-29
+Commit at proof time: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+Image: stacks-task-0036-app:latest (built by `pnpm env:up`, digest
+sha256:9f40c1ae2032d96e0ebd981ff300bb00842c140461c7a7ccf5e11517da96a36d)
+
+## Step 1 — pnpm env:up
+
+stacks-task-0036 + stacks-task-0036-test: up — http://localhost:3036
+(app :3036, db :15036, test-db :25036), commit
+3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+
+## Step 2 — entry point in the image
+
+$ docker compose -p stacks-task-0036 exec -T app ls dist/cli/create-operator.js
+dist/cli/create-operator.js
+exit=0
+No scripts/ directory under /app/apps/server (grep for it in `ls apps/server` exits 1).
+
+## Step 3 — migrate
+
+$ pnpm --filter @the-stacks/server db:migrate (TEST_DATABASE_URL set from .env)
+Migrations applied.
+
+## Step 4 — create the operator, non-interactively
+
+$ docker compose -p stacks-task-0036 exec -T -e OPERATOR_PASSWORD app node dist/cli/create-operator.js
+Operator account created: operator
+exit=0
+
+Sign-in:
+$ curl -s -X POST http://localhost:3036/auth/sign-in ...
+{"user":{"id":"fe9f3c7f-9d4b-4e85-bde2-c4c6490de3b0","displayName":"operator","role":"operator"}}
+
+Row count (no password_hash selected):
+$ docker compose -p stacks-task-0036 exec -T db psql -U stacks -d stacks -tAc \
+  "select count(*) from users where role='operator';"
+1
+
+## Step 5 — refuse on the second run, exact dev shape (STACKS_COMMIT unset)
+
+$ DEV_ENV_FILE="$PWD/.env" docker compose -p stacks-task-0036 \
+  -f docker-compose.yml -f deploy/dev/compose.dev.yml --env-file .env \
+  exec -T app node dist/cli/create-operator.js; echo "exit=$?"
+An operator account already exists. Refusing to create a second one or
+overwrite the first (research D6, US3 scenario 2) — no changes made.
+exit=1
+No hang, no prompt. `compose exec` resolved `app` correctly with
+STACKS_COMMIT unset (confirms research R5's probe).
+
+## Step 6 — host command still works
+
+$ TEST_DATABASE_URL=... pnpm --filter @the-stacks/server auth:create-operator; echo "exit=$?"
+An operator account already exists. Refusing to create a second one or
+overwrite the first (research D6, US3 scenario 2) — no changes made.
+exit=1
+
+## Step 7 — tear down
+
+pnpm env:down: exit 0
+pnpm env:prune --check: exit 0
+
+## T009 — pnpm ci:check (REQUIRE_DATABASE=1)
+
+Both TEST_DATABASE_URL (test-db) and the app db were migrated first
+(`pnpm --filter @the-stacks/server db:migrate`, run once per database).
+
+$ export TEST_DATABASE_URL="$(sed -n 's/^TEST_DATABASE_URL=//p' .env)"
+$ REQUIRE_DATABASE=1 pnpm ci:check
+lint, typecheck, build, test (42/42 check:scripts, all server suites
+green), check:boundaries, check:hooks, check:scripts, check:host-scripts:
+exit=0

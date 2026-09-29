@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 788261d9152946f53780d3750d5419d901e029e5
+verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
 ---
 
 # CI pipeline
@@ -74,13 +74,15 @@ code is nonzero.
 `check:hooks` runs `node --test '.claude/hooks/*.test.mjs'` — the project's own Claude Code
 hooks get the same CI gate as application code.
 
-`check:host-scripts` imports `apps/server/src/config.ts`, `db.ts`, `auth/password.ts`, and
-`schema/auth.ts` under `node --experimental-strip-types` — the same runtime
-`apps/server/scripts/migrate.ts` and `create-operator.ts` use — so a relative import that
-Node's native TypeScript stripping can't resolve (host scripts can't follow `src/`'s
-`.js`-suffixed imports; see [[configuration]]) fails `ci:check` instead of only `db:migrate`.
-Added after TASK-0023 shipped a `config.ts` import that broke `db:migrate` in CI while
-`ci:check` (which never runs `db:migrate`) stayed green.
+`check:host-scripts` imports `apps/server/src/config.ts` and `db.ts` under `node
+--experimental-strip-types` — the same runtime `apps/server/scripts/migrate.ts` uses — so a
+relative import that Node's native TypeScript stripping can't resolve (host scripts can't
+follow `src/`'s `.js`-suffixed imports; see [[configuration]]) fails `ci:check` instead of
+only `db:migrate`. Added after TASK-0023 shipped a `config.ts` import that broke `db:migrate`
+in CI while `ci:check` (which never runs `db:migrate`) stayed green. It dropped
+`auth/password.ts` and `schema/auth.ts` (TASK-0036) once `create-operator.ts` moved to
+`src/cli/` and started compiling under `tsc` like every other `src/` file — nothing loads
+those two under strip-types anymore.
 
 ## Connections
 

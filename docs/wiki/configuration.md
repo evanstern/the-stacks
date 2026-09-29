@@ -6,9 +6,9 @@ sources:
   - apps/server/src/config.ts
   - .env.example
   - apps/server/scripts/migrate.ts
-  - apps/server/scripts/create-operator.ts
+  - apps/server/src/cli/create-operator.ts
   - package.json
-verified_against: e6a693df702ef8e20649f241b48adcef9884d0df
+verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
 ---
 
 # Configuration
@@ -20,15 +20,15 @@ unset — surfaced at `/health`, see [[health-check]]), and, since TASK-0024
 (specs/017-ingestion-pipeline), `UPLOAD_MAX_BYTES`. `ServerConfig` is `{ databaseUrl: string,
 port: number, commit: string, uploadMaxBytes: number }`.
 
-**`config.ts` has no relative imports, on purpose.** `apps/server/scripts/migrate.ts` and
-`apps/server/scripts/create-operator.ts` run it on the host under
-`node --experimental-strip-types`, which cannot follow `src/`'s `.js`-suffixed imports (see
-below) — so `config.ts` must never import another `src/` module. The AI gateway config (see
+**`config.ts` has no relative imports, on purpose.** `apps/server/scripts/migrate.ts` runs it
+on the host under `node --experimental-strip-types`, which cannot follow `src/`'s
+`.js`-suffixed imports (see below) — so `config.ts` must never import another `src/` module.
+(`create-operator.ts` moved to `src/cli/` in TASK-0036 and compiles under `tsc` like any other
+`src/` file, so it's dropped from this constraint.) The AI gateway config (see
 [[ai-gateway]]) is loaded separately, by `index.ts`'s `loadAiConfig(env)`, precisely to keep
 this file clean; `check:host-scripts` (root `package.json`, run as part of `ci:check`) enforces
-it by actually importing `config.ts` (and the other scripts' direct dependencies) the same way
-the scripts do, catching a reintroduced relative import before it reaches CI's `db:migrate`
-step.
+it by actually importing `config.ts` and `db.ts` the same way `migrate.ts` does, catching a
+reintroduced relative import before it reaches CI's `db:migrate` step.
 
 ## How it works
 
@@ -52,21 +52,22 @@ one `ServerConfig` field a plain `docker compose up` and an `env.mjs`-managed st
 legitimately disagree on.
 
 `loadConfig` itself never reads `TEST_DATABASE_URL` — the running server always connects with
-`DATABASE_URL`, full stop. `TEST_DATABASE_URL` only comes into play in code that runs on the
-**host** rather than in the container: `apps/server/scripts/migrate.ts`,
-`create-operator.ts`, and the environment-gated integration test suites (see [[test-suite]]).
-Both prefer `TEST_DATABASE_URL` over `DATABASE_URL` when present, because `DATABASE_URL`
-names the address the way the **app container** reaches Postgres (`@db:5432`, a compose
-service name) and a host process can't resolve that name.
+`DATABASE_URL`, full stop. `TEST_DATABASE_URL` only matters to code applying `migrate.ts`'s
+`TEST_DATABASE_URL || DATABASE_URL` precedence: `apps/server/scripts/migrate.ts`,
+`src/cli/create-operator.ts` (see [[operator-provisioning]]), and the environment-gated
+integration test suites (see [[test-suite]]). On the **host**, `TEST_DATABASE_URL` names the
+database from `localhost`, winning over `DATABASE_URL`'s container-only address (`@db:5432`).
+Inside the **app container**, `docker-compose.yml` blanks `TEST_DATABASE_URL` to `""`, falling
+through to `DATABASE_URL` — so `create-operator.ts` runs unmodified as `pnpm
+auth:create-operator` on the host or `docker compose exec app node dist/cli/create-operator.js`
+in the container (TASK-0036).
 
 Since spec 020, `TEST_DATABASE_URL` names a **separate, throwaway database** — its own
 per-worktree `docker-compose.test.yml` stack ([[runtime-stacks]]), not a host-reachable view
-of the app's own `DATABASE_URL` database. One consequence worth knowing: because
-`migrate.ts`/`create-operator.ts` prefer it, a bare `pnpm db:migrate` run from the host now
-migrates the **test** database — which is what the test suites need, but not what a
-developer reaching for "migrate my app database" from muscle memory expects. Migrating the
-app database from the host takes an explicit one-command override (`.env.example`,
-research R7):
+of the app's own `DATABASE_URL` database. Consequence: because `migrate.ts` prefers it, a bare
+`pnpm db:migrate` run from the host migrates the **test** database, not "the app database" a
+developer might expect from muscle memory. Migrating the app database from the host needs an
+explicit override (`.env.example`, research R7):
 `TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:<DB_PORT>/<db> pnpm --filter
 @the-stacks/server db:migrate`.
 
@@ -104,9 +105,8 @@ Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unc
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
 [[ai-gateway]]), retrieval's three (see [[retrieval]]), and (TASK-0027) answering's one,
-`ASK_MIN_SIMILARITY` (see [[rules-answerer]]). See [[overview]]'s "environment
-contract" callout for the same
-`DATABASE_URL`-vs-`TEST_DATABASE_URL` trap stated at a higher level.
+`ASK_MIN_SIMILARITY` (see [[rules-answerer]]). See [[overview]]'s "environment contract"
+callout for the same trap at a higher level.
 
 ## Operational notes
 

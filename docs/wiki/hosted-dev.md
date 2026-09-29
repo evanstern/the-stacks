@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
+verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
 ---
 
 # Hosted dev (vm-104)
@@ -95,13 +95,25 @@ pruned to the newest 10; a `--name <label>` backup is never auto-pruned. `deploy
 `stacks-dev-app`/`stacks-dev-migrate` images down to the current plus 2 previous tags
 (`tagsToPrune`) after a successful deploy — best-effort, never fails the deploy.
 
+## Create the first operator
+
+Dev ships with no account (no seeded credential anywhere, per [[operator-provisioning]]).
+After the first deploy, the runbook's "Create the first operator" section (TASK-0036) has the
+operator run `docker compose -p stacks-dev -f docker-compose.yml -f
+deploy/dev/compose.dev.yml --env-file /home/stacks/dev/.env exec app node
+dist/cli/create-operator.js` from the vm-104 checkout, typed password at the prompt. A second
+run refuses (exit 1, no changes) — see [[operator-provisioning]] for why the check runs before
+any prompt.
+
 ## Connections
 
 Layers on [[compose-stack]] and [[container-image]] rather than redefining them. Shares
 `scripts/env-lib.mjs`'s `mergeEnvFile`/`parseEnvKeys` with [[runtime-stacks]]. Its deploy
 success signal is [[health-check]]'s `commit` field. Covered by [[ci-pipeline]]'s
-`check:scripts` via `scripts/deploy-lib.test.mjs`. Full runbook: `docs/ops/dev-vm-104.md`
-(deploy, rollback, backup, restore, inspect, secrets, exposure, destroy, failure triage).
+`check:scripts` via `scripts/deploy-lib.test.mjs`. First-operator provisioning is
+[[operator-provisioning]]'s CLI, run the same way `exec`'s "Inspect" commands are. Full
+runbook: `docs/ops/dev-vm-104.md` (deploy, rollback, backup, restore, inspect, create the
+first operator, secrets, exposure, destroy, failure triage).
 
 ## Operational notes
 
