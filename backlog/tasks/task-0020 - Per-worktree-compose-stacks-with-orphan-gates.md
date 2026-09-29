@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:44'
+updated_date: '2026-09-29 03:46'
 labels:
   - infra
 milestone: m-1
@@ -51,6 +51,10 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 1 (T001-T003) done in 3b7d78f: scripts/env-lib.mjs + 12 tests, check:scripts in ci:check. Orchestrator verified 12/12 pass. ~133k subagent tokens.
 
 Phase 2 (T004-T010) implemented in this worktree, commit 1f0dd03 (+ down() fix, see PR). pnpm ci:check: PASS. T010 manual proof: two worktrees (task-0020 + scratch env-t010-manual, both at commit 1f0dd03) up simultaneously on 3020/15020 and 4150/16150 with no collision; both /health ok with matching commit; down in one left the other healthy; down in both left zero docker resources for either project name. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=cc/claude-sonnet-5[1m]. Phase 3 (status/prune/hook) and Phase 4 (env:main) not started.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 2 (T004-T010) done in 1f0dd03 + c6ba392 (down() destructuring bug found by the T010 manual proof and fixed). T010 evidence: two stacks up at once on 3020/15020 and 4150/16150, both /health ok with commit; teardown left zero labeled resources (orchestrator re-checked: no org.the-stacks.env containers). ~217k subagent tokens. Full evidence note is on main's copy of this card.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
