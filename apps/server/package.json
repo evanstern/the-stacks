@@ -14,17 +14,21 @@
   "dependencies": {
     "@hono/node-server": "^2.1.1",
     "@the-stacks/shared": "workspace:*",
+    "busboy": "^1.6.0",
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.8",
     "parse5": "^8.0.1",
     "pg": "^8.23.0",
     "ws": "^8.18.3",
+    "yauzl": "^3.4.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/node": "^22.20.4",
     "@types/pg": "^8.23.1",
     "@types/ws": "^8.18.1",
+    "@types/yauzl": "^3.4.0",
     "drizzle-kit": "^0.31.11",
     "vitest": "^5.0.1"
   }
