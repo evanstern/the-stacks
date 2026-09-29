@@ -61,15 +61,22 @@ function toIssues(error: ZodError) {
  * database, network, or file-system access (FR-009, contracts/parser.md #6).
  * Never returns partial output: any failure throws `ValidationError` before
  * a `ParsedBook` is built (data-model.md #Errors).
+ *
+ * `options.headings: "all"` (specs/017-ingestion-pipeline research R4) makes
+ * every `h1`-`h6` a section heading, for generic (non-DDB) HTML. Default
+ * `"ddb"` keeps today's DDB-specific behaviour byte-for-byte.
  */
-export function parseDdbExport(input: ParseInput): ParsedBook {
+export function parseDdbExport(
+  input: ParseInput,
+  options?: { headings?: "ddb" | "all" },
+): ParsedBook {
   const parsedInput = ParseInputSchema.safeParse(input);
   if (!parsedInput.success) {
     throw new ValidationError(toIssues(parsedInput.error));
   }
   const { book, pages } = parsedInput.data;
 
-  const { text, blocks } = walkPages(book, pages);
+  const { text, blocks } = walkPages(book, pages, options);
   if (blocks.length === 0) {
     throw new ValidationError([
       {
