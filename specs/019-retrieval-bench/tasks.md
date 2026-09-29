@@ -97,3 +97,17 @@ simulation described in this dispatch's report before commit.
 MVP = Phases 1–3 plus Phase 5: the committed corpus, one command that prints the comparable
 table, and the per-commit gate. Phase 4 adds stored, comparable runs. Phase 6 re-grounds the
 wiki and runs the gates. No new runtime dependency, no migration, no CI workflow change.
+
+**Deviation (operator ruling 2026-09-29, folded into Phase 2/3):** the paid matrix (T026) runs
+real embedding models locally through Ollama over the gateway's `openai-compatible` kind
+(`baseUrl: http://localhost:11434/v1`, no API key; models `bge-m3` at 1024 dims and
+`nomic-embed-text` at 768). Ollama keeps only one model loaded at a time, so `embed.ts` gained
+`warmUpModel(baseUrl, model)`: a POST straight to Ollama's own `/api/embed` (not the gateway)
+with `{ model, input: "warmup", keep_alive: -1 }`, pinning the model before it is timed.
+`runMatrix` (run.ts) was restructured model-outer, chunking-inner — one model's warm-up runs
+once, then every cell for that model (every dim × chunking × mode) runs back to back, so no
+other model's cells land between a model's warm-up and its last timed call. `fts` needs no
+embedding model, so it now runs in its own pass after every model, once per chunking strategy,
+exactly as before. `warmUpModel` is skipped entirely for `builtin: "bow"` (no real model to
+load) and takes an injectable `fetch` for testing (`retrieval.test.ts`). No real model was run
+in Phases 2/3; this dispatch only ran the `bow` fake, re-verified after the restructure.

@@ -101,6 +101,33 @@ export const bowProvider: Provider = {
 };
 
 /**
+ * Pins a real embedding model in Ollama before timing its cells (operator
+ * ruling 2026-09-29): a POST straight to Ollama's own `/api/embed` — not
+ * through the gateway — with `keep_alive: -1` so the model stays loaded for
+ * every cell that follows. `runMatrix` calls this once per (non-`bow`)
+ * model, before that model's cells, never per dim (dims share one loaded
+ * model) and never for `bow` (no real model to load).
+ */
+export async function warmUpModel(
+  baseUrl: string,
+  model: string,
+  deps: { fetch?: typeof fetch } = {},
+): Promise<void> {
+  const fetchImpl = deps.fetch ?? fetch;
+  const url = new URL("/api/embed", new URL(baseUrl).origin);
+  const res = await fetchImpl(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ model, input: "warmup", keep_alive: -1 }),
+  });
+  if (!res.ok) {
+    throw new Error(
+      `Ollama warm-up for model "${model}" failed: ${res.status} ${res.statusText}`,
+    );
+  }
+}
+
+/**
  * Wraps a gateway's `embed` so every returned vector is truncated to `dim`
  * and its model name gets a `@<dim>` suffix — including at 1024, so every
  * dim uses the same naming rule (research R5).

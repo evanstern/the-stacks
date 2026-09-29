@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { runCommand } from "../../src/bench/retrieval/cli.js";
 import { resolveBenchUrl } from "../../src/bench/retrieval/db.js";
-import { bowEmbed, truncateVector } from "../../src/bench/retrieval/embed.js";
+import {
+  bowEmbed,
+  truncateVector,
+  warmUpModel,
+} from "../../src/bench/retrieval/embed.js";
 import {
   loadCorpus,
   loadMatrix,
@@ -171,6 +175,40 @@ describe("truncateVector", () => {
     expect(truncated).toHaveLength(1024);
     expect(truncated.slice(256).every((x) => x === 0)).toBe(true);
     expect(norm(truncated)).toBeCloseTo(1);
+  });
+});
+
+describe("warmUpModel (operator ruling 2026-09-29)", () => {
+  it("POSTs Ollama's native /api/embed with keep_alive: -1, not the gateway", async () => {
+    const fetchSpy = vi.fn(async () => new Response(null, { status: 200 }));
+    await warmUpModel("http://localhost:11434/v1", "bge-m3", {
+      fetch: fetchSpy,
+    });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchSpy.mock.calls[0] as unknown as [URL, RequestInit];
+    expect(url.toString()).toBe("http://localhost:11434/api/embed");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({
+      model: "bge-m3",
+      input: "warmup",
+      keep_alive: -1,
+    });
+  });
+
+  it("throws naming the model on a non-ok response", async () => {
+    const fetchSpy = vi.fn(
+      async () =>
+        new Response(null, {
+          status: 500,
+          statusText: "Internal Server Error",
+        }),
+    );
+    await expect(
+      warmUpModel("http://localhost:11434/v1", "nomic-embed-text", {
+        fetch: fetchSpy,
+      }),
+    ).rejects.toThrow(/nomic-embed-text/);
   });
 });
 

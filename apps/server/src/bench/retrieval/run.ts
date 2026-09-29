@@ -12,7 +12,7 @@ import {
 } from "../../library/store.js";
 import { libraryChunks } from "../../schema/library.js";
 import { resetLibrary } from "./db.js";
-import { bowProvider, withDim } from "./embed.js";
+import { bowProvider, warmUpModel, withDim } from "./embed.js";
 import type { Matrix, ResolvedQuestion } from "./load.js";
 import { scoreQuestion, summarize } from "./score.js";
 
@@ -182,9 +182,15 @@ export async function runMatrix(
 
   const rows: BenchRow[] = [];
 
-  for (const chunking of matrix.chunking) {
+  // Re-chunks and re-stores the corpus under one chunking strategy, and
+  // returns the bench's own current chunk rows to embed/search. Called once
+  // per (model, chunking) — same total call count regardless of loop
+  // nesting — and once more per chunking for the fts-only pass below.
+  async function storeChunking(chunking: Matrix["chunking"][number]): Promise<{
+    chunkCount: number;
+    chunkRows: { id: string; text: string }[];
+  }> {
     await resetLibrary(deps.db);
-
     const chunkedBooks = books.map((b) =>
       chunkBook(b, { maxChars: chunking.maxChars }),
     );
@@ -193,15 +199,32 @@ export async function runMatrix(
       (sum, b) => sum + b.blocks.length,
       0,
     );
-
     const chunkRows = await deps.db
       .select({ id: libraryChunks.id, text: libraryChunks.text })
       .from(libraryChunks);
+    return { chunkCount, chunkRows };
+  }
 
-    for (const model of matrix.models) {
-      const purposeName =
-        "builtin" in model.source ? BUILTIN_BOW_PURPOSE : model.source.purpose;
-      const baseModelName = config.purposes[purposeName]?.model ?? purposeName;
+  // Model-outer, chunking-inner (operator ruling 2026-09-29): every cell for
+  // one model runs back to back, so a real (Ollama-hosted) model is warmed
+  // up once and never reloaded mid-run by another model's cells landing in
+  // between. `bow` needs no warm-up — it is not a real model.
+  for (const model of matrix.models) {
+    const isBow = "builtin" in model.source;
+    const purposeName =
+      "purpose" in model.source ? model.source.purpose : BUILTIN_BOW_PURPOSE;
+    const baseModelName = config.purposes[purposeName]?.model ?? purposeName;
+
+    if (!isBow) {
+      const purpose = config.purposes[purposeName];
+      const provider = purpose ? config.providers[purpose.provider] : undefined;
+      if (provider?.kind === "openai-compatible") {
+        await warmUpModel(provider.baseUrl, purpose.model);
+      }
+    }
+
+    for (const chunking of matrix.chunking) {
+      const { chunkCount, chunkRows } = await storeChunking(chunking);
 
       for (const dim of model.dims) {
         const wrapped = withDim(gateway, dim);
@@ -288,8 +311,14 @@ export async function runMatrix(
         }
       }
     }
+  }
 
-    if (matrix.modes.includes("fts")) {
+  // fts needs no embedding model, so it runs once per chunking strategy —
+  // independent of, and after, every model's cells — never interleaved
+  // with a model's timed run.
+  if (matrix.modes.includes("fts")) {
+    for (const chunking of matrix.chunking) {
+      const { chunkCount } = await storeChunking(chunking);
       const ranks: (number | null)[] = [];
       const latencies: number[] = [];
       const misses: string[] = [];
