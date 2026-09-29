@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 17:42'
+updated_date: '2026-09-29 17:44'
 labels:
   - infra
 milestone: m-1
@@ -76,6 +76,8 @@ T011 2026-09-29 (operator go): throwaway local commit 8967b87 (never pushed) dep
 T014 2026-09-29 (operator go): drift at serving commit 7b24509 -> ok, exit 0; at older 4d168d3 (2h, past 30-min grace) -> 'drift: expected 4d168d3, observed 7b24509', exit 1. Clone restored to 7b24509. AC #4 proven.
 T015 2026-09-29: operator ran checkpoint 2 personally: tailscale serve --bg --https=8443 -> 127.0.0.1:3000 (tailnet only). First TLS handshake waited ~30s for Tailscale cert issuance (SetDNS/ACME); a 15s curl timed out before it finished.
 T016 2026-09-29: from the Mac over tailnet, https://vm-104.tailb3c1b6.ts.net:8443/health -> 200, cert verify 0, commit 7b24509. LAN (vm-104.local.infinity-node.win) ports 3000/5432/8443 closed; tailnet IP :3000 closed (loopback bind). AC #5 proven.
+
+T019 2026-09-29 (operator go): backup --name t019 -> /home/stacks/dev/backups/manual-t019.dump (20,095 B), exit 0. Rollback by script verb to a423fe2 -> exit 0, /health ok on a423fe2. Redeploy 7b24509 -> exit 0, /health ok on 7b24509. Logs /home/stacks/dev/t019-{rollback,redeploy}.log. All vm-104 pre-merge proofs (T007/T008/T011/T014/T015/T016/T019) done.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
