@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:56'
+updated_date: '2026-09-29 16:06'
 labels:
   - infra
 milestone: m-1
@@ -66,6 +66,8 @@ Phase grouping (orchestrator call): local code tasks T004-T006, T009-T010, T012-
 Checkpoint 1 (T007) 2026-09-29: operator go given; orchestrator ran init-secrets from origin/task-0021-hosted-dev-cd@9c14e42 via git archive | ssh. Result: /home/stacks/dev/.env mode 600 owner stacks (13 keys, template values; no AI provider key placed). Bootstrap copy at /home/stacks/dev/bootstrap.
 
 Correction to the checkpoint-1 note: '13 keys' counted comment lines. Active keys: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DATABASE_URL, DB_PORT, APP_PORT, STACKS_ENV; AI_* lines are commented out.
+
+T008 part 1, 2026-09-29: first dev deploy run by the operator (command announced by the orchestrator; the orchestrator's own ssh was blocked by the permission classifier). Proof clone /home/stacks/dev/proof @ 7b2450909e852d19e7c9ebebcae37d589cd1cad5 (git bundle; stacks has no GitHub creds). deploy --allow-stale -> exit 0; migrations applied; 'dev is serving 7b24509...'; /health {status:ok, database.reachable:true, commit:7b2450909e852d19e7c9ebebcae37d589cd1cad5}. Log: /home/stacks/dev/t008-deploy1.log. Remaining in T008: persistence check (create invitation, redeploy, confirm survives).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
