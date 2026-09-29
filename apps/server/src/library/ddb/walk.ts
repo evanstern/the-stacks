@@ -1,5 +1,6 @@
 import type { DefaultTreeAdapterTypes as T5 } from "parse5";
 import { parse } from "parse5";
+import { extractStatBlock, extractTable } from "./extract.js";
 import type { Block } from "./index.js";
 import {
   CHROME_CLASS_PREFIXES,
@@ -8,15 +9,17 @@ import {
   CONTENT_ROOT,
   CONTENT_ROOT_CHROME_SELECTORS,
   HEADING_ANCHOR_CLASS,
+  SIDEBAR_SELECTORS,
+  STAT_BLOCK_CONTAINER,
+  TABLE_TAG,
 } from "./selectors.js";
 
 /**
  * Single-pass parse5 tree walk: locates the content root, strips chrome,
- * and emits heading/prose/list blocks while building the normalized text
- * and each block's `[start, end)` UTF-16 anchor in the same pass
- * (specs/012-ddb-parser/research.md R4). Table and stat-block wholeness
- * (US2) and sidebar marking are Phase 4 — this walk treats their contents
- * as prose/lists nested under the current heading path.
+ * and emits heading/prose/list/table/statBlock/sidebar blocks while building
+ * the normalized text and each block's `[start, end)` UTF-16 anchor in the
+ * same pass (specs/012-ddb-parser/research.md R4). Tables and stat blocks
+ * are extracted whole (US2, extract.ts) and never also emitted as prose.
  */
 
 const HEADING_RANK: Record<string, number> = {
@@ -109,13 +112,29 @@ function appendBlock(
   path: string[],
   text: string,
   book: string,
+  extra?: Partial<Pick<Block, "table" | "statBlock">>,
 ): void {
   if (!text) return;
   if (state.text.length > 0) state.text += "\n\n";
   const start = state.text.length;
   state.text += text;
   const end = state.text.length;
-  state.blocks.push({ kind, path, text, anchor: { book, path, start, end } });
+  state.blocks.push({
+    kind,
+    path,
+    text,
+    anchor: { book, path, start, end },
+    ...extra,
+  });
+}
+
+/** Table cells joined by ` | `, rows by `\n`, caption (if any) first (research R4). */
+function tableText(table: ReturnType<typeof extractTable>): string {
+  const lines: string[] = [];
+  if (table.caption) lines.push(table.caption);
+  if (table.header.length > 0) lines.push(table.header.join(" | "));
+  for (const row of table.rows) lines.push(row.join(" | "));
+  return lines.join("\n");
 }
 
 function walkContent(root: T5.Element, book: string, state: WalkState): void {
@@ -143,6 +162,24 @@ function walkContent(root: T5.Element, book: string, state: WalkState): void {
       }
       stack.push({ level: rank, title });
       appendBlock(state, "heading", currentPath(), title, book);
+      return;
+    }
+    if (tag === TABLE_TAG) {
+      const table = extractTable(node);
+      appendBlock(state, "table", currentPath(), tableText(table), book, {
+        table,
+      });
+      return;
+    }
+    if (matchesSelector(node, STAT_BLOCK_CONTAINER)) {
+      const statBlock = extractStatBlock(node);
+      appendBlock(state, "statBlock", currentPath(), blockText(node), book, {
+        statBlock,
+      });
+      return;
+    }
+    if (SIDEBAR_SELECTORS.some((s) => matchesSelector(node, s))) {
+      appendBlock(state, "sidebar", currentPath(), blockText(node), book);
       return;
     }
     if (tag === "p") {

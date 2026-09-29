@@ -54,9 +54,9 @@ checkpoint). Do not start without that approval recorded on TASK-0025.
 
 **Independent Test**: `equipment.html` and `bestiary.html` produce whole table and stat-block blocks.
 
-- [ ] T014 [US2] Add US2 cases to `ddb.test.ts`: each `<table>` in `equipment.html` → exactly one `table` block with caption, header, and all rows in order, merged cell text kept; each stat block in `bestiary.html` → exactly one `statBlock` block with name and labelled fields as text; the malformed stat block still becomes one block; the sidebar in `basic-rules.html` → one `sidebar` block in its section. Anchors round-trip for all of them.
-- [ ] T015 [US2] Implement `apps/server/src/library/ddb/extract.ts`: `extractTable` (caption, header row or header column, rows, `colspan` flattening) and `extractStatBlock` (name plus label/value pairs; unrecognized parts appended as text within the block). Values stay strings (CR-004).
-- [ ] T016 [US2] Call the extractors from `walk.ts` when the walk meets a `<table>` or a stat-block/sidebar selector, so those subtrees are never also emitted as prose. Normalized text for tables joins cells with ` | ` and rows with `\n` (research R4).
+- [x] T014 [US2] Add US2 cases to `ddb.test.ts`: each `<table>` in `equipment.html` → exactly one `table` block with caption, header, and all rows in order, merged cell text kept; each stat block in `bestiary.html` → exactly one `statBlock` block with name and labelled fields as text; the malformed stat block still becomes one block; the sidebar in `basic-rules.html` → one `sidebar` block in its section. Anchors round-trip for all of them.
+- [x] T015 [US2] Implement `apps/server/src/library/ddb/extract.ts`: `extractTable` (caption, header row or header column, rows, `colspan` flattening) and `extractStatBlock` (name plus label/value pairs; unrecognized parts appended as text within the block). Values stay strings (CR-004).
+- [x] T016 [US2] Call the extractors from `walk.ts` when the walk meets a `<table>` or a stat-block/sidebar selector, so those subtrees are never also emitted as prose. Normalized text for tables joins cells with ` | ` and rows with `\n` (research R4).
 
 **Checkpoint**: all US1 and US2 cases pass.
 
