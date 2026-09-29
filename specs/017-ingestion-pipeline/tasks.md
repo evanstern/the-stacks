@@ -94,7 +94,7 @@ contracts/ingest-modules.md. Parallel with Phase 2: no shared files.
 - [x] T027 [US4] In `worker.ts`, route the parse stage. DDB markup → `parseDdbExport`. Other HTML → `parseDdbExport(..., { headings: "all" })` with `parser: "html"`. Markdown → `parseMarkdown` with `parser: "markdown"`. Add worker integration cases for a plain HTML page and a Markdown file.
 - [x] T028 [P] [US5] In `apps/server/src/routes/library.ts`, add `GET /jobs?limit` (1..100, default 20, newest first) and `GET /jobs/:id` (a malformed or unknown id → `NotFoundError`), both operator-only, serialized through `JobStatusSchema`. Extend `uploads.integration.test.ts`: list order; get by id; 404; 401/403; while a job runs, `stage` is non-null; after it ends, `result` or `error` is set per the contract.
 - [x] T029 [US5] Add a recovery case to `worker.integration.test.ts`. Enqueue a job, claim it with a separate `claimJob` call (simulating a process that died), and age its `heartbeat_at` past the lease with SQL. Start a worker. Assert `succeeded`, `attempts` 2, chunk and embedding counts equal to a clean run. Then assert the stale claim's `finishJob` returns `false` and leaves the row unchanged. Add a case where `attempts` is already 3: the next claim marks it `failed` "abandoned 3 times…" and deletes its upload file.
-- [ ] T030 [US5] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`).
+- [x] T030 [US5] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`).
 
 **Checkpoint**: all seven ACs have passing tests.
 

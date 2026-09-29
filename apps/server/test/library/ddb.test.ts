@@ -316,9 +316,9 @@ describe("parseDdbExport — headings: all (T025, generic HTML)", () => {
   });
 
   it("every existing DDB fixture test passes unchanged (spot check)", () => {
-    expect(
-      parseDdbExport({ book: BOOK, pages: [basicRules] }),
-    ).toEqual(parseDdbExport({ book: BOOK, pages: [basicRules] }, undefined));
+    expect(parseDdbExport({ book: BOOK, pages: [basicRules] })).toEqual(
+      parseDdbExport({ book: BOOK, pages: [basicRules] }, undefined),
+    );
   });
 });
 

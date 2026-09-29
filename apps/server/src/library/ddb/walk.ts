@@ -158,7 +158,9 @@ function walkContent(
     // section heading, for non-DDB HTML that carries no such class.
     if (
       rank !== undefined &&
-      (headings === "all" || tag === "h1" || hasClass(node, HEADING_ANCHOR_CLASS))
+      (headings === "all" ||
+        tag === "h1" ||
+        hasClass(node, HEADING_ANCHOR_CLASS))
     ) {
       const title = blockText(node);
       while (
