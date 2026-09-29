@@ -4,7 +4,7 @@ title: 'Hybrid retrieval: vector plus full-text'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:20'
+updated_date: '2026-09-29 15:25'
 labels:
   - library
 milestone: m-1
@@ -40,6 +40,9 @@ Spec: specs/015-hybrid-retrieval
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28). Contract: specs/015-hybrid-retrieval/contracts/retrieval.md. Phase grouping: P1 alone; P2+P3+P4 (US1-3, 7 tasks) one dispatch; P5 alone.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 1 Foundational; 11 unit tests)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
