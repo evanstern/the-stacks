@@ -23,9 +23,9 @@ Spec: specs/012-ddb-parser
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Committed synthetic fixtures mirror DDB structure with original or SRD 5.1 text
-- [ ] #2 Parser emits sections, tables, and stat blocks with anchors
-- [ ] #3 A local-only real-export suite runs when fixtures/private exists and skips with a visible notice otherwise
+- [x] #1 Committed synthetic fixtures mirror DDB structure with original or SRD 5.1 text
+- [x] #2 Parser emits sections, tables, and stat blocks with anchors
+- [x] #3 A local-only real-export suite runs when fixtures/private exists and skips with a visible notice otherwise
 - [x] #4 fixtures/private is gitignored
 - [x] #5 Spec phase: Setup
 - [x] #6 Spec phase: Foundational — types, selectors, fixtures
@@ -75,6 +75,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Merges: origin/main after #21 (b6986fb, haiku: INDEX paragraph + merge commit) and after #22 (019bbb0 + c2c1ea5 re-pin + 8685c35 evidence, sonnet). Also carries close-task-0023 (TASK-0023 T020 tick + Done sync), per sweep rule that closures ride the next task branch.
 
 spec-bridge sync: Setup: 3/3 · Foundational — types, selectors, fixtures: 6/6 · User Story 1 — anchored sections (Priority: P1) 🎯 MVP: 4/4 · User Story 2 — tables and stat blocks whole (Priority: P2): 3/3 · User Story 3 — private real-export suite (Priority: P3): 2/2 · Polish & cross-cutting: 4/4 — status In Progress → Done
+
+Human-authored ACs verified at close (2026-09-29): #1 fixtures in apps/server/test/fixtures/ddb mirror real DDB structure (research R3), README records original/SRD 5.1 text with CC-BY-4.0 attribution; #2 walk.ts + extract.ts emit heading/prose/list/table/statBlock/sidebar blocks, anchor round-trip proven (ddb.test.ts) and on 17,974 real blocks across PHB/DMG/MM/LMoP; #3 ddb.private.test.ts reads fixtures/private/ddb/<book>/, skips with one warn line when absent (T018 proof). Landed in PR #23 (merge f29b501); main CI green.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -85,6 +87,6 @@ All spec tasks complete (Setup: 3/3 · Foundational — types, selectors, fixtur
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
