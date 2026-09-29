@@ -138,7 +138,7 @@ the job. (AC #3)
   `git rev-parse HEAD`, age from `git log -1 --format=%ct`, observed from `/health`
   (5 s timeout; unreachable → `null`), verdict via `driftVerdict`; print expected, observed,
   and verdict; exit per contracts/deploy-cli.md.
-- [ ] T014 [US3] Pre-merge proof from the T008 clone: `drift` against the serving commit →
+- [x] T014 [US3] Pre-merge proof from the T008 clone: `drift` against the serving commit →
   exit 0 `ok`; checkout an older commit whose committer time is > 30 min old and run
   `drift` → exit 1 naming both commits. Record outputs.
 
@@ -148,11 +148,11 @@ the job. (AC #3)
 
 **Independent Test**: quickstart.md §4.
 
-- [ ] T015 [US4] **Operator checkpoint 2** (plan.md): name the exact command
+- [x] T015 [US4] **Operator checkpoint 2** (plan.md): name the exact command
   `docker exec tailscale tailscale serve --bg --https=8443 http://127.0.0.1:3000`, stop,
   and run it only after a yes. If it reports HTTPS certificates are disabled, stop and ask
   the operator to enable them. Record `tailscale serve status` output on the card.
-- [ ] T016 [US4] Verify from the operator's Mac: `curl -sI
+- [x] T016 [US4] Verify from the operator's Mac: `curl -sI
   https://vm-104.tailb3c1b6.ts.net:8443/health` → 200 with no certificate error;
   `nc -vz -w3 vm-104.local.infinity-node.win 3000` and `... 5432` → refused. Record outputs.
 
