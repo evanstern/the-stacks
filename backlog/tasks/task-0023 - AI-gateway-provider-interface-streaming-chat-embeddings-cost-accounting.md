@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:32'
+updated_date: '2026-09-29 03:38'
 labels:
   - ai
 milestone: m-1
@@ -49,6 +49,10 @@ Spec 011 revised for decision-0007 (a0958e9, 4031722): vendor SDK rejected; prov
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 1 (T001-T005) done in ca2fbf6: types, config (AI_PROVIDERS/AI_PURPOSES/AI_PRICES), usage, fake adapter; 11 tests; ci:check green. Orchestrator grep: only 'openai-compatible' (protocol kind) appears, no vendor or key names. crossValidate op-support guard is unreachable with current kinds (both support chat+embed); kept as a tested forward guard. ~154k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 2 (T006-T007) done in d1e1ec6: gateway.chat(); 6 tests (orchestrator re-ran: 6/6). Invariants 1,2,3,6,7 covered. Judgment calls: config errors emit no usage record; attempts=1 until Phase 4 retry. ~155k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
