@@ -4,7 +4,10 @@
 // tasks.md T002.
 
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   classifyStacks,
   deriveIdentity,
@@ -14,6 +17,17 @@ import {
 } from "./env-lib.mjs";
 
 const ROOT = "/repo/the-stacks";
+const repoRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function findYamlFiles(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...findYamlFiles(full));
+    else if (entry.name.endsWith(".yml")) out.push(full);
+  }
+  return out;
+}
 
 test("task-0020 derives 3020/15020", () => {
   const identity = deriveIdentity({
@@ -212,6 +226,28 @@ test("classifyStacks exempts main and dev from orphan status", () => {
   assert.equal(classified.find((s) => s.env === "dev").orphan, false);
   assert.equal(classified.find((s) => s.env === "task-1").orphan, false);
   assert.equal(classified.find((s) => s.env === "task-2").orphan, true);
+});
+
+test("the pgvector image is pinned in exactly one place: docker-compose.yml (research R12)", () => {
+  const files = [
+    path.join(repoRoot, "docker-compose.yml"),
+    path.join(repoRoot, "docker-compose.test.yml"),
+    ...findYamlFiles(path.join(repoRoot, "deploy")),
+    ...findYamlFiles(path.join(repoRoot, ".github", "workflows")),
+  ];
+  const holders = [];
+  let total = 0;
+  for (const file of files) {
+    const count = (readFileSync(file, "utf8").match(/pgvector\//g) ?? []).length;
+    if (count > 0) holders.push(`${path.relative(repoRoot, file)} (${count})`);
+    total += count;
+  }
+  assert.equal(
+    total,
+    1,
+    `expected exactly one "pgvector/" occurrence, in docker-compose.yml; found in: ${holders.join(", ") || "nowhere"}`,
+  );
+  assert.deepEqual(holders, ["docker-compose.yml (1)"]);
 });
 
 test("parseWorktreeList reads absolute paths out of porcelain output", () => {

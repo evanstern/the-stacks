@@ -30,16 +30,17 @@ when you mean to wipe the database (e.g. starting over from scratch).
 
 ## Checks
 
-Every pull request and push to `main` runs `pnpm ci:check`. Reproduce it locally:
+Every pull request and push to `main` runs `pnpm ci:check`. Reproduce it locally with the
+same throwaway test database CI uses (spec 020):
 
 ```sh
-docker compose up -d db
-set -a; . ./.env; set +a   # POSTGRES_USER/PASSWORD/DB, DB_PORT
-export DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:${DB_PORT:-5432}/$POSTGRES_DB
+TEST_DB_PORT=5432 docker compose -f docker-compose.test.yml up -d --wait
+export DATABASE_URL=postgres://stacks:stacks@localhost:5432/stacks
 export TEST_DATABASE_URL=$DATABASE_URL REQUIRE_DATABASE=1
 pnpm install --frozen-lockfile
 pnpm --filter @the-stacks/server db:migrate
 pnpm ci:check
+docker compose -f docker-compose.test.yml down -v
 ```
 
 Expect exit 0. Confirm the test summary reports 0 skipped tests.

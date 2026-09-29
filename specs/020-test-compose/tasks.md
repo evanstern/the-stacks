@@ -26,13 +26,13 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 - [x] T002 [P] In `scripts/env-lib.test.mjs`, add cases: `task-0033` → `3033/15033/25033` and `stacks-task-0033-test`; `task-7` → `25007`; a hashed name → test port in 26000–33999 and `testDbPort - dbPort === 10000`; `foo-test` throws; `mainIdentity()` has no `testProject`.
 - [x] T003 [P] In `docker-compose.yml`, change `"${APP_PORT}:${APP_PORT}"` to `"${APP_PORT:-3000}:${APP_PORT:-3000}"` with a comment: `extends` interpolates this file, and CI sets no `APP_PORT` (research R1). Change nothing else.
 - [x] T004 [P] Create `docker-compose.test.yml` per contracts/env-cli.md: top-level `name: stacks-test`; one service `db` that `extends` `docker-compose.yml`'s `db`; `env_file: !reset []`; `environment` `POSTGRES_USER/PASSWORD/DB: stacks`; `volumes: !reset []`; `tmpfs: [/var/lib/postgresql/data]`; `ports: !override ["127.0.0.1:${TEST_DB_PORT:-5433}:5432"]`. Name no image. Head it with a comment citing spec 020, the ruling, and why it has no app.
-- [ ] T005 In `scripts/env-lib.test.mjs`, add the image-pin guard (research R12): read `docker-compose.yml`, `docker-compose.test.yml`, every `deploy/**/*.yml`, and every `.github/workflows/*.yml` with `node:fs`; assert `pgvector/` occurs exactly once in total, in `docker-compose.yml`. The assertion message names each file that holds a hit. Depends on T004 and T007 for a green run.
+- [x] T005 In `scripts/env-lib.test.mjs`, add the image-pin guard (research R12): read `docker-compose.yml`, `docker-compose.test.yml`, every `deploy/**/*.yml`, and every `.github/workflows/*.yml` with `node:fs`; assert `pgvector/` occurs exactly once in total, in `docker-compose.yml`. The assertion message names each file that holds a hit. Depends on T004 and T007 for a green run.
 - [x] T006 Verify: `docker compose -f docker-compose.test.yml config` exits 0 with `APP_PORT` unset, and its output shows the base file's image, tmpfs, no volume, and the three `org.the-stacks.*` labels. Paste the relevant lines into the commit body.
 
 ## Phase 2: US2 — CI parity (Priority: P1)
 
-- [ ] T007 [US2] In `.github/workflows/ci.yml`, delete the `services:` block. Add a step after checkout: `TEST_DB_PORT=5432 docker compose -f docker-compose.test.yml up -d --wait`. Keep the job `env` URLs (`stacks:stacks@localhost:5432/stacks`) and `REQUIRE_DATABASE: "1"`. Comment that the image comes from `docker-compose.yml` via the test file (spec 020 R1).
-- [ ] T008 [US2] Update README "Checks" to reproduce CI with the test compose file, per quickstart.md "Reproduce CI".
+- [x] T007 [US2] In `.github/workflows/ci.yml`, delete the `services:` block. Add a step after checkout: `TEST_DB_PORT=5432 docker compose -f docker-compose.test.yml up -d --wait`. Keep the job `env` URLs (`stacks:stacks@localhost:5432/stacks`) and `REQUIRE_DATABASE: "1"`. Comment that the image comes from `docker-compose.yml` via the test file (spec 020 R1).
+- [x] T008 [US2] Update README "Checks" to reproduce CI with the test compose file, per quickstart.md "Reproduce CI".
 
 ## Phase 3: US1 + US3 — env machinery (Priority: P1/P2)
 
