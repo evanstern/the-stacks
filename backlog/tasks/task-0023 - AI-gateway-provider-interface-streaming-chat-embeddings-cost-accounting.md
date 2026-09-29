@@ -37,18 +37,6 @@ Spec: specs/011-ai-gateway
 - [x] #10 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -77,6 +65,8 @@ Phase 4 (T010-T014) done in 162682c: sse.ts, retry.ts (bounded, jittered, Retry-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 5-6 (T015-T019) done in ba9fcbb/8b6e23f/02e09d4: gateway wired into config.ts/index.ts (inert without AI env), invariant-10 no-vendor-names test, .env.example block, ci-evidence.txt. Wiki: new ai-gateway note; configuration, server-entrypoint-and-app, overview amended and re-pinned; compose-stack RE-PIN-ONLY (orchestrator reviewed the overview/compose-stack diffs). Freshness OK 28 notes. ~158k subagent tokens.
+
+spec-bridge sync: Foundational — types, config, usage, fake: 5/5 · US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP: 2/2 · US2 — embeddings through the gateway (P1): 2/2 · US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1): 5/5 · US6 + wiring — no-key test run and startup: 4/4 · Polish & re-ground: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
