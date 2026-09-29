@@ -16,10 +16,15 @@ via `createApp` without binding a port.
 
 ## How it works
 
-`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), `createDb(config.databaseUrl)`,
+`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `loadAiConfig(process.env)`
+(from `ai/config.ts`, called directly here rather than through `loadConfig` — see
+[[configuration]]'s "no relative imports" note), then constructs the AI gateway (see
+[[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
+imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
+`createGateway`. This slice adds no route, so the AI gateway is unused until TASK-0027; with no
+`AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
 `createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db, commit: config.commit })`,
-then
-`createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
+then `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
 the callback logs `Server listening on port ${info.port}`. The load-bearing line is the last
 one: `gateway.attach(server)` — the object `serve()` returns is passed directly into the
@@ -46,10 +51,11 @@ runs.
 
 ## Connections
 
-Wires together [[configuration]] (`loadConfig`), [[error-contract]] (`errorHandler`/
-`notFoundHandler`), [[static-serving]] (mount-order guarantee), [[session-auth]]
-(`createValidateSession` shared by both transports), and the websocket gateway. See
-[[overview]] for the "one process, one port" framing this file implements.
+Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, unused this
+slice), [[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
+guarantee), [[session-auth]] (`createValidateSession` shared by both transports), and the
+websocket gateway. See [[overview]] for the "one process, one port" framing this file
+implements.
 
 ## Operational notes
 

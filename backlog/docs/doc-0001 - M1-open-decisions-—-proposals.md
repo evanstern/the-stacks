@@ -3,7 +3,7 @@ id: doc-0001
 title: M1 open decisions — proposals
 type: specification
 created_date: '2026-09-29 02:12'
-updated_date: '2026-09-29 02:34'
+updated_date: '2026-09-29 03:17'
 tags:
   - m-1
   - decisions
@@ -12,6 +12,7 @@ tags:
 
 Status: **ratified 2026-09-28** — operator accepted all four proposals as written, with one
 added requirement (below). Each section backs one decision stub (decision-0002 … 0005).
+decision-0007 was added the same day during the wave-1 plan checkpoint.
 
 ## Added requirement (operator, 2026-09-28): benchmarks
 
@@ -55,3 +56,25 @@ A `jobs` table polled with `FOR UPDATE SKIP LOCKED` by an in-process worker loop
 existing Node process. Jobs are idempotent per document. A worker-container split (or a real
 queue) happens only on a recorded measurement from the load benchmark (TASK-0030), by
 decision record.
+
+## decision-0007 — AI gateway is provider-agnostic — ACCEPTED
+
+**Context.** Spec 011's first plan put chat behind `@anthropic-ai/sdk` and hard-coded the
+provider set (`anthropic | openai-compatible | fake`) and an `ANTHROPIC_API_KEY` variable.
+The operator judged that too tight a coupling to one vendor.
+
+**Decision (operator, 2026-09-28).**
+- **No vendor SDK.** Chat and embeddings go through adapters written on stdlib `fetch`.
+- **Providers are named config entries** (`AI_PROVIDERS`): each has an adapter `kind`, a
+  `baseUrl`, and `apiKeyEnv` naming the variable that holds its key. No provider name and no
+  key variable is hard-coded.
+- **Purposes select a named provider and a model** (`AI_PURPOSES`). Switching vendor or model
+  is a config edit; adding a provider that speaks an existing protocol is a config entry.
+- **Adapter kinds for this slice:** `openai-compatible` (chat streaming + embeddings) and
+  `fake` (tests). A native `anthropic` kind is added later only if a feature needs it
+  (prompt caching, native citations), behind the same interface.
+- **Supersedes** architecture A7's "Anthropic first; OpenAI-compatible second" ordering. A7's
+  single-gateway, per-feature model selection, and cost accounting stand.
+
+**Consequences.** The gateway owns SSE parsing, error mapping, and retries (~150 lines) that
+an SDK would have supplied. TASK-0023's acceptance criteria are amended to match.

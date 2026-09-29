@@ -24,14 +24,14 @@ none of this ran anywhere — gates were run by hand and their output pasted int
 
 Root `package.json`'s `ci:check` script is the single aggregate:
 `pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks && pnpm check:scripts`. CI runs exactly this one command (`pnpm ci:check`), so
-there is no drift between what CI enforces and what a contributor can reproduce locally —
-see README.md's "Checks" section for the exact local reproduction steps. `check:scripts`
-(`node --test 'scripts/*lib.test.mjs'`, spec 010) is the Docker-free unit-test gate for
-`scripts/env-lib.mjs`'s pure derivation logic — see [[runtime-stacks]]. Its Docker-dependent
-sibling, `check:env`, proves the same tooling against real containers but is deliberately
-**not** in `ci:check` (no Docker-in-Docker in this repo's CI today; [[runtime-stacks]]
-covers it).
+check:hooks && pnpm check:scripts && pnpm check:host-scripts`. CI runs exactly this one
+command (`pnpm ci:check`), so there is no drift between what CI enforces and what a
+contributor can reproduce locally — see README.md's "Checks" section for the exact local
+reproduction steps. `check:scripts` (`node --test 'scripts/*lib.test.mjs'`, spec 010) is the
+Docker-free unit-test gate for `scripts/env-lib.mjs`'s pure derivation logic — see
+[[runtime-stacks]]. Its Docker-dependent sibling, `check:env`, proves the same tooling
+against real containers but is deliberately **not** in `ci:check` (no Docker-in-Docker in
+this repo's CI today; [[runtime-stacks]] covers it).
 
 The workflow provisions a `pgvector/pgvector:pg17` service container (`POSTGRES_USER`,
 `POSTGRES_PASSWORD`, `POSTGRES_DB` all `stacks`) health-checked with `pg_isready`, runs
@@ -58,6 +58,14 @@ code is nonzero.
 
 `check:hooks` runs `node --test '.claude/hooks/*.test.mjs'` — the project's own Claude Code
 hooks get the same CI gate as application code.
+
+`check:host-scripts` imports `apps/server/src/config.ts`, `db.ts`, `auth/password.ts`, and
+`schema/auth.ts` under `node --experimental-strip-types` — the same runtime
+`apps/server/scripts/migrate.ts` and `create-operator.ts` use — so a relative import that
+Node's native TypeScript stripping can't resolve (host scripts can't follow `src/`'s
+`.js`-suffixed imports; see [[configuration]]) fails `ci:check` instead of only `db:migrate`.
+Added after TASK-0023 shipped a `config.ts` import that broke `db:migrate` in CI while
+`ci:check` (which never runs `db:migrate`) stayed green.
 
 ## Connections
 

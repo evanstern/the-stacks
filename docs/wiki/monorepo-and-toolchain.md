@@ -27,13 +27,14 @@ true }` to let esbuild's install script run under pnpm's default script-blocking
 `package.json` scripts delegate to the tools rather than reimplementing anything: `build` and
 `test` run `turbo run build` / `turbo run test`, `lint` runs `biome check .`, `format` runs
 `biome format --write .`, and `typecheck` runs `tsc -b` (build mode, driven by project
-references, not `turbo`). Three more scripts exist only to be composed by `ci:check`
+references, not `turbo`). More scripts exist only to be composed by `ci:check`
 (`pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks && pnpm check:scripts`): `check:boundaries`, `check:hooks`, and `check:scripts`
-(spec 010's Docker-free unit tests for `scripts/*lib.test.mjs`) — see [[ci-pipeline]] for what
-each gate proves and how CI runs this same script. `env:up`/`env:down`/`env:status`/
-`env:prune`/`env:main` (also spec 010) are the per-worktree stack CLI — see [[runtime-stacks]]
-— and are deliberately not part of `ci:check`.
+check:hooks && pnpm check:scripts && pnpm check:host-scripts`): `check:boundaries`,
+`check:hooks`, `check:scripts` (spec 010's Docker-free unit tests for
+`scripts/*lib.test.mjs`), and `check:host-scripts` — see [[ci-pipeline]] for what each gate
+proves and how CI runs this same script. `env:up`/`env:down`/`env:status`/`env:prune`/
+`env:main` (also spec 010) are the per-worktree stack CLI — see [[runtime-stacks]] — and are
+deliberately not part of `ci:check`.
 
 `turbo.json` defines the task graph: `build` depends on `^build` (each workspace's
 dependencies build first) and declares `dist/**` as its cacheable output; `typecheck` depends

@@ -6,6 +6,8 @@ sources:
   - apps/server/src/config.ts
   - .env.example
   - apps/server/scripts/migrate.ts
+  - apps/server/scripts/create-operator.ts
+  - package.json
 verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
 ---
 
@@ -16,6 +18,16 @@ three things: `DATABASE_URL` (required — throws `"DATABASE_URL environment var
 required"` if unset), the port the server binds to, and `GIT_COMMIT` (optional, `"unknown"` if
 unset — surfaced at `/health`, see [[health-check]]). `ServerConfig` is `{ databaseUrl: string,
 port: number, commit: string }`.
+
+**`config.ts` has no relative imports, on purpose.** `apps/server/scripts/migrate.ts` and
+`apps/server/scripts/create-operator.ts` run it on the host under
+`node --experimental-strip-types`, which cannot follow `src/`'s `.js`-suffixed imports (see
+below) — so `config.ts` must never import another `src/` module. The AI gateway config (see
+[[ai-gateway]]) is loaded separately, by `index.ts`'s `loadAiConfig(env)`, precisely to keep
+this file clean; `check:host-scripts` (root `package.json`, run as part of `ci:check`) enforces
+it by actually importing `config.ts` (and the other scripts' direct dependencies) the same way
+the scripts do, catching a reintroduced relative import before it reaches CI's `db:migrate`
+step.
 
 ## How it works
 
@@ -59,14 +71,17 @@ suffixes the compiled server code needs.
 
 Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unconditionally)
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
-and this file both assume. See [[overview]]'s "environment contract" callout for the same
+and this file both assume, and now also documents the AI gateway's three env vars (see
+[[ai-gateway]]). See [[overview]]'s "environment contract" callout for the same
 `DATABASE_URL`-vs-`TEST_DATABASE_URL` trap stated at a higher level.
 
 ## Operational notes
 
 Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional: `APP_PORT`
 (default `3000`, must parse to a positive integer), `GIT_COMMIT` (default `"unknown"`, set via
-the Dockerfile build arg, never from `.env`). `TEST_DATABASE_URL` is consulted only by
-host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running server;
-leaving it unset makes the event-log integration tests skip rather than fail (per
+the Dockerfile build arg, never from `.env`). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
+by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
+[[ai-gateway]]; unset means no model features, not an error). `TEST_DATABASE_URL` is consulted
+only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running
+server; leaving it unset makes the event-log integration tests skip rather than fail (per
 `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.

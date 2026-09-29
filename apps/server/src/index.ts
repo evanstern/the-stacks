@@ -1,4 +1,7 @@
 import { serve } from "@hono/node-server";
+import { loadAiConfig } from "./ai/config.js";
+import { createGateway as createAiGateway } from "./ai/gateway.js";
+import { logSink } from "./ai/usage.js";
 import { createApp } from "./app.js";
 import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
@@ -6,6 +9,15 @@ import { createDatabaseProbe, createDb } from "./db.js";
 import { createGateway } from "./ws/gateway.js";
 
 const config = loadConfig();
+const aiConfig = loadAiConfig(process.env);
+
+// Constructed once; unused until a route calls it (TASK-0027). Unset AI env
+// leaves aiConfig's providers/purposes empty, so this is a no-op today.
+// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027's routes.
+const aiGateway = createAiGateway({
+  config: aiConfig,
+  sink: logSink,
+});
 const db = createDb(config.databaseUrl);
 const app = createApp({
   databaseProbe: createDatabaseProbe(config.databaseUrl),

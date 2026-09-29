@@ -28,10 +28,10 @@ services. **Two containers and a volume** is the whole deployment.
 ## How it works
 
 A request arrives at the single Node process defined in `apps/server/src/index.ts`. That file
-does three things in order: builds the Hono app (`createApp`), calls `serve()` from
-`@hono/node-server`, and attaches the WebSocket gateway to the **same underlying server**
-that `serve()` returns — not a second listener. One port carries the API, the client, and
-the socket.
+builds the Hono app (`createApp`), calls `serve()` from `@hono/node-server`, and attaches the
+WebSocket gateway to the **same underlying server** that `serve()` returns — not a second
+listener. One port carries the API, the client, and the socket. It also constructs the
+[[ai-gateway]] once, unused until a route calls it — no new port, container, or process.
 
 Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
 order: `/health`, `/api/echo`, `/auth`, and then the SPA's static middleware **last**, so it
