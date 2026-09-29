@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 20:44'
+updated_date: '2026-09-29 21:03'
 labels:
   - bench
 milestone: m-1
@@ -51,6 +51,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 1-2: profile/stats/synth/db/cases/results; 25 unit + 1 live-guard integration test; 378 pass under REQUIRE_DATABASE=1). Deviation accepted: extra load-db.integration.test.ts for the live DB-in-use guard.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 3-4: ingest-scaling/smoke, concurrency local/smoke/dev-impl; small proof runs only — 0 failures; the small-scale knee reflects the worker's 2s POLL_MS floor, not a verdict; concurrency 1/5/10 users 0 errors, http p95 12-13ms, ws p95 6-12ms). decision-0005 verdict awaits the full demand.json run (T024).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
