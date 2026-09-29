@@ -1,10 +1,10 @@
 ---
 id: TASK-0027
 title: Rules-answerer agent with source-anchored citations
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 19:45'
+updated_date: '2026-09-29 19:50'
 labels:
   - ai
 milestone: m-1
@@ -28,11 +28,11 @@ Spec: specs/018-rules-answerer
 - [ ] #2 Every claim cites a chunk by book, section, and exact quote span
 - [ ] #3 The agent refuses to answer when retrieval finds nothing relevant, and says so
 - [ ] #4 Tests run against the fake provider
-- [ ] #5 Spec phase: Foundational — citation parser, quote verification, config
-- [ ] #6 Spec phase: User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP
-- [ ] #7 Spec phase: User Story 2 — refuse when nothing is relevant (Priority: P1)
-- [ ] #8 Spec phase: User Story 3 — failures, auth, and cancellation (Priority: P2)
-- [ ] #9 Spec phase: Polish, re-grounding, and gates
+- [x] #5 Spec phase: Foundational — citation parser, quote verification, config
+- [x] #6 Spec phase: User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP
+- [x] #7 Spec phase: User Story 2 — refuse when nothing is relevant (Priority: P1)
+- [x] #8 Spec phase: User Story 3 — failures, auth, and cancellation (Priority: P2)
+- [x] #9 Spec phase: Polish, re-grounding, and gates
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -52,7 +52,15 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 5: 352 pass under REQUIRE_DATABASE=1; new wiki note rules-answerer; freshness OK 35; env down, prune clean)
+
+spec-bridge sync: Foundational — citation parser, quote verification, config: 7/7 · User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — refuse when nothing is relevant (Priority: P1): 3/3 · User Story 3 — failures, auth, and cancellation (Priority: P2): 4/4 · Polish, re-grounding, and gates: 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — citation parser, quote verification, config: 7/7 · User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — refuse when nothing is relevant (Priority: P1): 3/3 · User Story 3 — failures, auth, and cancellation (Priority: P2): 4/4 · Polish, re-grounding, and gates: 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

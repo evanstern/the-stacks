@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
+verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
 ---
 
 # Configuration
@@ -53,11 +53,22 @@ legitimately disagree on.
 
 `loadConfig` itself never reads `TEST_DATABASE_URL` — the running server always connects with
 `DATABASE_URL`, full stop. `TEST_DATABASE_URL` only comes into play in code that runs on the
-**host** rather than in the container: `apps/server/scripts/migrate.ts` and the
-environment-gated integration test suites (see [[test-suite]]). Both prefer
-`TEST_DATABASE_URL` over `DATABASE_URL` when present, because `DATABASE_URL` names the
-address the way the **app container** reaches Postgres (`@db:5432`, a compose service name)
-and a host process can't resolve that name.
+**host** rather than in the container: `apps/server/scripts/migrate.ts`,
+`create-operator.ts`, and the environment-gated integration test suites (see [[test-suite]]).
+Both prefer `TEST_DATABASE_URL` over `DATABASE_URL` when present, because `DATABASE_URL`
+names the address the way the **app container** reaches Postgres (`@db:5432`, a compose
+service name) and a host process can't resolve that name.
+
+Since spec 020, `TEST_DATABASE_URL` names a **separate, throwaway database** — its own
+per-worktree `docker-compose.test.yml` stack ([[runtime-stacks]]), not a host-reachable view
+of the app's own `DATABASE_URL` database. One consequence worth knowing: because
+`migrate.ts`/`create-operator.ts` prefer it, a bare `pnpm db:migrate` run from the host now
+migrates the **test** database — which is what the test suites need, but not what a
+developer reaching for "migrate my app database" from muscle memory expects. Migrating the
+app database from the host takes an explicit one-command override (`.env.example`,
+research R7):
+`TEST_DATABASE_URL=postgres://<user>:<pass>@localhost:<DB_PORT>/<db> pnpm --filter
+@the-stacks/server db:migrate`.
 
 `migrate.ts` does this with `process.env.TEST_DATABASE_URL || config.databaseUrl` —
 **`||`, not `??`, and this is deliberate.** `docker-compose.yml` blanks `TEST_DATABASE_URL`
@@ -96,7 +107,8 @@ by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (s
 `loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
 `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
 Zod-validated by `library/answer.ts`'s `loadAnswerConfig`, also called by `index.ts` (see
-[[rules-answerer]]). `TEST_DATABASE_URL` is consulted
+[[rules-answerer]]). `TEST_DATABASE_URL` (and its port, `TEST_DB_PORT`, default `5433`) is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running
 server; leaving it unset makes the event-log integration tests skip rather than fail (per
 `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.
+`pnpm env:up` derives and writes both.

@@ -18,21 +18,25 @@ function sanitizeEnv(name) {
 // task-<n> (1 <= n <= 999) gets the fixed doc-0002 range; everything else
 // (including task-1000+, which falls out of range) gets a disjoint hashed
 // range so a non-numbered worktree name still works with no registry.
+// testDbPort is dbPort's range shifted by +10000 (spec 020 R3), so one
+// worktree's three ports stay a readable triple (e.g. 3033/15033/25033).
 function derivePorts(env) {
   const taskMatch = env.match(/^task-(\d+)$/);
   if (taskMatch) {
     const n = Number.parseInt(taskMatch[1], 10);
-    if (n >= 1 && n <= 999) return { appPort: 3000 + n, dbPort: 15000 + n };
+    if (n >= 1 && n <= 999)
+      return { appPort: 3000 + n, dbPort: 15000 + n, testDbPort: 25000 + n };
   }
   const hash = createHash("sha256").update(env).digest();
   const k = 1000 + (hash.readUInt32BE(0) % 8000);
-  return { appPort: 3000 + k, dbPort: 15000 + k };
+  return { appPort: 3000 + k, dbPort: 15000 + k, testDbPort: 25000 + k };
 }
 
 /**
  * Derive a worktree's stack identity. Throws when `toplevel` is the root
  * checkout (root is read-only — use `pnpm env:main`) or when the sanitized
- * name is a reserved env (`main`, `dev`).
+ * name is a reserved env (`main`, `dev`, or ends in `-test` — spec 020 R9:
+ * `foo-test`'s app project would collide with `foo`'s test project).
  */
 export function deriveIdentity({ toplevel, rootToplevel }) {
   if (toplevel === rootToplevel) {
@@ -46,11 +50,23 @@ export function deriveIdentity({ toplevel, rootToplevel }) {
       `"${env}" is a reserved env name (main: \`pnpm env:main\`; dev: TASK-0021's hosted environment) — rename the worktree.`,
     );
   }
-  const { appPort, dbPort } = derivePorts(env);
-  return { env, project: `stacks-${env}`, appPort, dbPort };
+  if (env.endsWith("-test")) {
+    throw new Error(
+      `"${env}" ends in "-test", which would collide with its own test project ("stacks-${env}-test" vs. worktree "${env.slice(0, -5)}"'s test project) — rename the worktree.`,
+    );
+  }
+  const { appPort, dbPort, testDbPort } = derivePorts(env);
+  return {
+    env,
+    project: `stacks-${env}`,
+    testProject: `stacks-${env}-test`,
+    appPort,
+    dbPort,
+    testDbPort,
+  };
 }
 
-/** Identity for the local `origin/main` stack (research R8). */
+/** Identity for the local `origin/main` stack (research R6/R8): no test stack. */
 export function mainIdentity() {
   return { env: "main", project: "stacks-main", appPort: 3000, dbPort: 5432 };
 }

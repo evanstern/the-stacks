@@ -6,6 +6,7 @@
 // prunes a stack it didn't create).
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -44,6 +45,29 @@ function env(args, cwd) {
   return spawnSync("node", [envScript, ...args], { cwd, encoding: "utf8" });
 }
 
+/** Labels of the first (only) container in a compose project, as a plain object. */
+function containerLabels(project) {
+  const result = spawnSync(
+    "docker",
+    [
+      "ps",
+      "-a",
+      "--filter",
+      `label=com.docker.compose.project=${project}`,
+      "--format",
+      "{{json .}}",
+    ],
+    { encoding: "utf8" },
+  );
+  const line = result.stdout.trim().split("\n")[0];
+  const out = {};
+  for (const pair of (JSON.parse(line).Labels ?? "").split(",")) {
+    const i = pair.indexOf("=");
+    if (i !== -1) out[pair.slice(0, i)] = pair.slice(i + 1);
+  }
+  return out;
+}
+
 function existingStackCount() {
   const result = spawnSync(
     "docker",
@@ -67,7 +91,7 @@ if (skipReason) {
     encoding: "utf8",
   }).trim();
 
-  test("up -> /health commit matches HEAD -> down -> zero labeled resources", async (t) => {
+  test("up -> both stacks healthy -> down -> zero labeled resources for both", async (t) => {
     const worktree = path.join(
       root,
       ".worktrees",
@@ -96,10 +120,27 @@ if (skipReason) {
     ).then((r) => r.json());
     assert.equal(health.commit, headSha);
 
+    assert.ok(labeledCount(identity.project) > 0, "app stack is running");
+    assert.ok(labeledCount(identity.testProject) > 0, "test stack is running");
+
+    const testLabels = containerLabels(identity.testProject);
+    assert.equal(testLabels["org.the-stacks.env"], identity.env);
+    assert.equal(testLabels["org.the-stacks.worktree"], worktree);
+    assert.equal(testLabels["org.the-stacks.commit"], headSha);
+
+    const envText = readFileSync(path.join(worktree, ".env"), "utf8");
+    assert.match(
+      envText,
+      new RegExp(
+        `TEST_DATABASE_URL=postgres://stacks:stacks@localhost:${identity.testDbPort}/stacks`,
+      ),
+    );
+
     const down = env(["down"], worktree);
     assert.equal(down.status, 0, down.stdout + down.stderr);
 
     assert.equal(labeledCount(identity.project), 0);
+    assert.equal(labeledCount(identity.testProject), 0);
   });
 
   test("prune --check finds an orphan, prune removes it", async (t) => {
@@ -132,11 +173,21 @@ if (skipReason) {
       worktree,
     ]);
     t.after(() => {
-      // Best-effort: `prune` below should already have torn this down.
+      // Best-effort: `prune` below should already have torn these down.
       spawnSync("docker", [
         "compose",
         "-p",
         identity.project,
+        "down",
+        "-v",
+        "--remove-orphans",
+      ]);
+      spawnSync("docker", [
+        "compose",
+        "-p",
+        identity.testProject,
+        "-f",
+        "docker-compose.test.yml",
         "down",
         "-v",
         "--remove-orphans",
@@ -146,6 +197,7 @@ if (skipReason) {
     const check1 = env(["prune", "--check"]);
     assert.equal(check1.status, 1, check1.stdout + check1.stderr);
     assert.match(check1.stdout, new RegExp(identity.project));
+    assert.match(check1.stdout, new RegExp(identity.testProject));
 
     const prune = env(["prune"]);
     assert.equal(prune.status, 0, prune.stdout + prune.stderr);
@@ -154,5 +206,6 @@ if (skipReason) {
     assert.equal(check2.status, 0, check2.stdout + check2.stderr);
 
     assert.equal(labeledCount(identity.project), 0);
+    assert.equal(labeledCount(identity.testProject), 0);
   });
 }
