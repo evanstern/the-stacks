@@ -1,14 +1,17 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import WS from "ws";
 import { CASES, selectCases } from "../../src/bench/load/cases.js";
+import { main } from "../../src/bench/load/cli.js";
 import { resolveLoadUrl } from "../../src/bench/load/db.js";
 import { ProfileSchema } from "../../src/bench/load/profile.js";
 import {
   type CaseOutcome,
   type ConcurrencyStep,
   type IngestStep,
+  report,
   writeResults,
 } from "../../src/bench/load/results.js";
 import {
@@ -18,6 +21,11 @@ import {
 } from "../../src/bench/load/stats.js";
 import { synthDoc } from "../../src/bench/load/synth.js";
 import { parseMarkdown } from "../../src/library/ingest/markdown.js";
+
+// invariant 7 (dev guard, T019): "ws" is mocked so a test can prove zero
+// sockets ever open — the guard must return before any case ever imports a
+// real connection attempt.
+vi.mock("ws", () => ({ default: vi.fn() }));
 
 /**
  * Unit tests for the pure load-bench modules (specs/021-load-bench
@@ -359,6 +367,116 @@ describe("writeResults (invariant 9)", () => {
       expect(contents).not.toContain(forbiddenSessionCookie);
       expect(contents).not.toContain("session=");
       expect(contents.endsWith("\n")).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("dev tier CLI guards (invariant 7)", () => {
+  const savedEnv = { ...process.env };
+  afterEach(() => {
+    process.env = { ...savedEnv };
+  });
+
+  it("without --allow-dev, exits 2 before any network call", async () => {
+    process.env.LOAD_DEV_URL = "https://example.invalid";
+    process.env.LOAD_DEV_USERNAME = "unused";
+    process.env.LOAD_DEV_PASSWORD = "unused";
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      const code = await main(["run", "--tier", "dev", "--no-save"]);
+      expect(code).toBe(2);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(vi.mocked(WS)).not.toHaveBeenCalled();
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("with LOAD_DEV_URL unset, skips concurrency-dev and exits 0", async () => {
+    delete process.env.LOAD_DEV_URL;
+    const code = await main(["run", "--tier", "dev", "--no-save"]);
+    expect(code).toBe(0);
+  });
+});
+
+describe("report (US5, T023)", () => {
+  it("groups local and dev results for the same case id apart", () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "load-bench-report-test-"));
+    const profile = ProfileSchema.parse({
+      tier: "demand",
+      concurrency: {
+        users: [1, 5],
+        durationMs: 1000,
+        thinkMs: 250,
+        wsSend: true,
+        thresholds: { latencyMultiple: 3.0, errorRate: 0.01 },
+      },
+    });
+    try {
+      writeResults({
+        runId: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+        startedAt: "2026-09-01T00:00:00.000Z",
+        finishedAt: "2026-09-01T00:01:00.000Z",
+        tier: "demand",
+        target: { kind: "local", postgres: "16.4", maxConnections: 100, appCommit: "a".repeat(40) },
+        profileHash: "deadbeef",
+        profile,
+        cases: [
+          {
+            id: "concurrency-dev",
+            tier: "demand",
+            target: "local",
+            status: "pass",
+            durationMs: 1,
+            steps: [concurrencyStep({ users: 1 }), concurrencyStep({ users: 5 })],
+            verdicts: [{ degraded: false, through: 5 }],
+          },
+        ],
+        dir,
+      });
+      writeResults({
+        runId: "bbbbbbbb-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+        startedAt: "2026-09-02T00:00:00.000Z",
+        finishedAt: "2026-09-02T00:01:00.000Z",
+        tier: "dev",
+        target: { kind: "dev", postgres: null, maxConnections: null, appCommit: "b".repeat(40) },
+        profileHash: "deadbeef",
+        profile: ProfileSchema.parse({
+          tier: "dev",
+          concurrency: {
+            users: [1, 5],
+            durationMs: 1000,
+            thinkMs: 250,
+            wsSend: false,
+            thresholds: { latencyMultiple: 3.0, errorRate: 0.01 },
+          },
+        }),
+        cases: [
+          {
+            id: "concurrency-dev",
+            tier: "dev",
+            target: "dev",
+            status: "pass",
+            durationMs: 1,
+            steps: [concurrencyStep({ users: 1 }), concurrencyStep({ users: 5 })],
+            verdicts: [{ degraded: false, through: 5 }],
+          },
+        ],
+        dir,
+      });
+
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      let output: string;
+      try {
+        report(dir);
+        output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
+      } finally {
+        logSpy.mockRestore();
+      }
+      expect(output).toContain("concurrency-dev (local)");
+      expect(output).toContain("concurrency-dev (dev)");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

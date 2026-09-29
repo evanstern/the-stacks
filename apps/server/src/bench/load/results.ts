@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -197,4 +197,121 @@ export function writeResults(input: WriteResultsInput): WriteResultsOutput {
   const filePath = path.join(dir, `${date}-${sha7}-${runId8}.json`);
   writeFileSync(filePath, `${JSON.stringify(results, null, 2)}\n`);
   return { path: filePath, results };
+}
+
+function pad(value: string, width: number): string {
+  return value.length >= width ? value : value + " ".repeat(width - value.length);
+}
+
+function verdictSummary(verdicts: Verdict[] | undefined): string {
+  if (!verdicts || verdicts.length === 0) return "-";
+  return verdicts
+    .map((v) =>
+      v.degraded
+        ? `degraded at ${v.at}${v.workers !== undefined ? ` workers=${v.workers}` : ""} (${v.rules.join(",")})`
+        : `ok through ${v.through}`,
+    )
+    .join("; ");
+}
+
+function expectationSummary(expectations: Expectation[] | undefined): string {
+  if (!expectations || expectations.length === 0) return "-";
+  const failed = expectations.filter((e) => !e.pass).map((e) => e.name);
+  return failed.length === 0
+    ? `${expectations.length}/${expectations.length} passed`
+    : `${expectations.length - failed.length}/${expectations.length} passed (failed: ${failed.join(", ")})`;
+}
+
+const REPORT_COLUMNS: [string, number][] = [
+  ["date", 12],
+  ["sha7", 9],
+  ["dirty", 7],
+  ["cpus", 6],
+  ["status", 9],
+];
+
+/**
+ * Reads every results file in `dir`, warns and skips invalid or
+ * unknown-`schemaVersion` files, and prints one table per (case id, target)
+ * group, rows sorted by `startedAt` (contracts/bench-cli.md `report`).
+ * ponytail: the "case's step columns" collapse into one summary column
+ * (the verdict, or a pass/fail count for stress expectations) instead of
+ * per-case-shaped columns — add real per-type columns if a reader needs raw
+ * step numbers here rather than in the run's own printed table.
+ */
+export function report(dir?: string): void {
+  const resultsDir = dir ?? DEFAULT_RESULTS_DIR;
+  let files: string[];
+  try {
+    files = readdirSync(resultsDir).filter((f) => f.endsWith(".json"));
+  } catch {
+    console.log(`no results directory found at ${resultsDir}`);
+    return;
+  }
+
+  interface Row {
+    startedAt: string;
+    date: string;
+    sha7: string;
+    dirty: boolean;
+    cpus: number;
+    status: string;
+    summary: string;
+  }
+  const groups = new Map<string, Row[]>();
+
+  for (const file of files) {
+    const filePath = path.join(resultsDir, file);
+    let raw: unknown;
+    try {
+      raw = JSON.parse(readFileSync(filePath, "utf8"));
+    } catch {
+      console.warn(`report: skipping ${file} (invalid JSON)`);
+      continue;
+    }
+    const parsed = LoadResultsSchema.safeParse(raw);
+    if (!parsed.success) {
+      console.warn(`report: skipping ${file} (invalid or unknown schemaVersion)`);
+      continue;
+    }
+    const results = parsed.data;
+    for (const c of results.cases) {
+      if (c.status === "skipped") continue;
+      const key = `${c.id}|${c.target}`;
+      const rows = groups.get(key) ?? [];
+      rows.push({
+        startedAt: results.startedAt,
+        date: results.startedAt.slice(0, 10),
+        sha7: results.commit.slice(0, 7),
+        dirty: results.dirty,
+        cpus: results.host.cpus,
+        status: c.status,
+        summary: c.expectations
+          ? expectationSummary(c.expectations)
+          : verdictSummary(c.verdicts),
+      });
+      groups.set(key, rows);
+    }
+  }
+
+  for (const key of [...groups.keys()].sort()) {
+    const [id, target] = key.split("|");
+    console.log(`\n== ${id} (${target}) ==`);
+    console.log(
+      `${REPORT_COLUMNS.map(([name, w]) => pad(name, w)).join("")}summary`,
+    );
+    const rows = groups.get(key)!.sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+    for (const row of rows) {
+      console.log(
+        [
+          pad(row.date, REPORT_COLUMNS[0][1]),
+          pad(row.sha7, REPORT_COLUMNS[1][1]),
+          pad(String(row.dirty), REPORT_COLUMNS[2][1]),
+          pad(String(row.cpus), REPORT_COLUMNS[3][1]),
+          pad(row.status, REPORT_COLUMNS[4][1]),
+          row.summary,
+        ].join(""),
+      );
+    }
+  }
 }

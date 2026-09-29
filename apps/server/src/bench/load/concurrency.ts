@@ -344,15 +344,20 @@ function formatConcurrencyVerdict(caseId: string, verdict: Verdict): string {
     : `${prefix} no degradation up to ${verdict.through} users`;
 }
 
-/** Prints the concurrency step table and its VERDICT line (contracts/bench-cli.md). */
+/**
+ * Prints the concurrency step table and, when this case computes a
+ * degradation series (`concurrency-local`/`concurrency-dev`), its VERDICT
+ * line (contracts/bench-cli.md). `concurrency-smoke` has no threshold
+ * series — pass `null` and only the table prints.
+ */
 export function printConcurrency(
   caseId: string,
   steps: ConcurrencyStep[],
-  verdict: Verdict,
+  verdict: Verdict | null,
 ): void {
   console.log(
     CONCURRENCY_COLUMNS.map(([name, width]) => pad(name, width)).join(""),
   );
   for (const step of steps) console.log(formatConcurrencyRow(step));
-  console.log(formatConcurrencyVerdict(caseId, verdict));
+  if (verdict) console.log(formatConcurrencyVerdict(caseId, verdict));
 }

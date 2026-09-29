@@ -59,9 +59,9 @@ quickstart.md)
 
 **Goal**: one command per tier; every other case skips visibly. **Independent test**: quickstart steps 1–3 and 5.
 
-- [ ] T017 [US4] Create `apps/server/src/bench/load/cli.ts` and `index.ts` per contracts/bench-cli.md. Implement `list`, `run` steps 1–7, and exit codes 0/1/2 with `node:util` `parseArgs`. The dev guards in step 4 run before any network call. Credentials are read from env only and never printed.
-- [ ] T018 [US4] Create `apps/server/test/bench/load.integration.test.ts` with the loud-skip harness copied from `apps/server/test/library/worker.integration.test.ts` (under `REQUIRE_DATABASE=1` it throws). Iterate `CASES`: run each `commit` case as `it(id)` against a load database from `resolveLoadUrl`, and register every other case as `it.skip("<id> [tier <tier>] — <reason>")` plus a `console.info` skip line. Drop the load database in `afterAll`. Give the file a 30 s budget.
-- [ ] T019 [US4] Add contract invariant 7 to `apps/server/test/bench/load.test.ts`: a dev run without `--allow-dev` exits 2, and a `fetch` spy plus a `ws` constructor spy see zero calls. Add the unset-URL case: skip line and exit 0.
+- [x] T017 [US4] Create `apps/server/src/bench/load/cli.ts` and `index.ts` per contracts/bench-cli.md. Implement `list`, `run` steps 1–7, and exit codes 0/1/2 with `node:util` `parseArgs`. The dev guards in step 4 run before any network call. Credentials are read from env only and never printed.
+- [x] T018 [US4] Create `apps/server/test/bench/load.integration.test.ts` with the loud-skip harness copied from `apps/server/test/library/worker.integration.test.ts` (under `REQUIRE_DATABASE=1` it throws). Iterate `CASES`: run each `commit` case as `it(id)` against a load database from `resolveLoadUrl`, and register every other case as `it.skip("<id> [tier <tier>] — <reason>")` plus a `console.info` skip line. Drop the load database in `afterAll`. Give the file a 30 s budget.
+- [x] T019 [US4] Add contract invariant 7 to `apps/server/test/bench/load.test.ts`: a dev run without `--allow-dev` exits 2, and a `fetch` spy plus a `ws` constructor spy see zero calls. Add the unset-URL case: skip line and exit 0.
 
 **Checkpoint**: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test -- test/bench` shows 2 passing and 5 named skips.
 

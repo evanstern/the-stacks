@@ -111,6 +111,29 @@ export async function recreateLoadDb(
   }
 }
 
+export interface LoadDbFacts {
+  postgres: string;
+  maxConnections: number;
+}
+
+/** Reads server_version and max_connections from the load database (results provenance, contracts/results-format.md `target`). */
+export async function describeLoadDb(loadUrl: string): Promise<LoadDbFacts> {
+  const client = new Client({ connectionString: loadUrl });
+  await client.connect();
+  try {
+    const [{ rows: versionRows }, { rows: maxConnRows }] = await Promise.all([
+      client.query("SHOW server_version"),
+      client.query("SHOW max_connections"),
+    ]);
+    return {
+      postgres: versionRows[0].server_version as string,
+      maxConnections: Number(maxConnRows[0].max_connections),
+    };
+  } finally {
+    await client.end();
+  }
+}
+
 /** Drops the load database (best effort — callers treat failure as a warning, per contracts/bench-cli.md step 7). */
 export async function dropLoadDb(
   baseUrl: string,
