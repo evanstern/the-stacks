@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:46'
+updated_date: '2026-09-29 03:55'
 labels:
   - infra
 milestone: m-1
@@ -55,6 +55,10 @@ Phase 2 (T004-T010) implemented in this worktree, commit 1f0dd03 (+ down() fix, 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 2 (T004-T010) done in 1f0dd03 + c6ba392 (down() destructuring bug found by the T010 manual proof and fixed). T010 evidence: two stacks up at once on 3020/15020 and 4150/16150, both /health ok with commit; teardown left zero labeled resources (orchestrator re-checked: no org.the-stacks.env containers). ~217k subagent tokens. Full evidence note is on main's copy of this card.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 (T011-T016) done in 136622b: env status/prune[--check], env.test.mjs (pnpm check:env: up->health commit->down->zero resources; prune finds and removes orphan; both pass for real), warn-only Stop hook (always exits 0), CLAUDE.md Runtime stacks section after pdlc:grounding END, runbook gate lines. Orchestrator verified: settings.json diff adds only hooks.Stop; PreToolUse root-guard entries unchanged, asserted by env-orphan-hook.test.mjs (4/4 pass). ~164k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
