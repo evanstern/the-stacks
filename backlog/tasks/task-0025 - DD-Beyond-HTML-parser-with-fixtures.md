@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:37'
+updated_date: '2026-09-29 03:45'
 labels:
   - library
 milestone: m-1
@@ -49,6 +49,10 @@ Phases 1-2 (T001-T009) implemented in .worktrees/task-0025: parse5 ^8 added, fix
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 1-2 (T001-T009) done in 5388ad3; orchestrator verified: transcript shows served=claude-sonnet-5 (the implementer's own line above wrote the pinned form; this line is the transcript value). parse5 ^8.0.1 added. R3 corrected from real exports: stat block is .stat-block-background/.Basic-Text-Frame (guess was wrong); tables are bare <table>; new in-content chrome select.nav-select and #comp-next-nav. biome.json excludes apps/server/test/fixtures/ddb (mirrors real empty aria-hidden anchors). Fixture README: original + SRD 5.1 text only, CC-BY-4.0 attribution. ~199k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 (T010-T013) done in 1ea7bc7: walk.ts + parseDdbExport wired; 10 tests (orchestrator re-ran). Anchor invariant text.slice(start,end)===block.text proven for all 17 basic-rules blocks. Lists flatten to one text run (ponytail note). page-title fallback heading deferred to Phase 4+.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
