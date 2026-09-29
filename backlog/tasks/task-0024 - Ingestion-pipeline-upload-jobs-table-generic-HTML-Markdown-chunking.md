@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 16:43'
+updated_date: '2026-09-29 17:06'
 labels:
   - library
 milestone: m-1
@@ -60,6 +60,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 2-3: busboy streaming upload + chunker; 25 new tests incl. 320 MB streaming RSS<64MB; 213 pass under REQUIRE_DATABASE=1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 4: yauzl zip walk, collectPages, ingest worker; 241 pass under REQUIRE_DATABASE=1). Deviation accepted by orchestrator: apps/server/vitest.config.ts fileParallelism:false — background worker polling the shared jobs table raced jobs.integration drainQueue across files; serializes test files only, no gate softened. Reviewer note: suite wall-time cost.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
