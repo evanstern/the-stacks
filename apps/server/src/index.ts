@@ -9,6 +9,7 @@ import { createApp } from "./app.js";
 import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
+import { loadAnswerConfig } from "./library/answer.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
 import { loadRetrievalConfig } from "./library/retrieve.js";
 import { createGateway } from "./ws/gateway.js";
@@ -17,8 +18,11 @@ const config = loadConfig();
 const aiConfig = loadAiConfig(process.env);
 // Validated at boot so a bad RETRIEVAL_* value fails fast (FR-004); unused
 // until a route reads it (TASK-0027).
-// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027's routes.
 const retrievalConfig = loadRetrievalConfig(process.env);
+// Validated at boot beside RETRIEVAL_*, so a bad ASK_MIN_SIMILARITY fails
+// fast too; unused until the /library/ask route reads it (TASK-0027 Phase 2).
+// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027 Phase 2's route wiring.
+const answerConfig = loadAnswerConfig(process.env);
 
 const aiGateway = createAiGateway({
   config: aiConfig,

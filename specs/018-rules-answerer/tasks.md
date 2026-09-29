@@ -22,26 +22,26 @@ in these tests: the worktree app's ingest worker can claim them (TASK-0033).
 
 **Purpose**: the pure half of contracts/answer.md. Every story builds on it. No DB, no gateway.
 
-- [ ] T001 Create `apps/server/src/library/cite.ts` with `locateQuote(passageText, quote)`
+- [x] T001 Create `apps/server/src/library/cite.ts` with `locateQuote(passageText, quote)`
   per research R1 step 3: exact `indexOf` first; else a normalized match (collapse whitespace
   runs to one space; curly single/double quotes to straight; en/em dash to `-`; trim), using a
   per-character index map so the match maps back to original passage offsets. Return `null`
   when there is no match, or when the normalized quote is under 12 characters or under 3 words
   and is not the whole normalized passage. Matching is case-sensitive. First occurrence wins.
-- [ ] T002 In `cite.ts`, implement `createCiteParser()` returning `{push, end}` per
+- [x] T002 In `cite.ts`, implement `createCiteParser()` returning `{push, end}` per
   contracts/answer.md. Tokens: `text`, `cite {p, quote}`, `malformed`, `refuse`. Recognize
   `<cite p="N">…</cite>` and `<refuse/>` (tolerate `<refuse />`). Hold back any trailing
   fragment that could begin a marker, so a marker split across `push` calls parses the same as
   unsplit. An open `<cite` that exceeds 1000 characters, or is still open at `end()`, yields
   `malformed` and none of its text. A lone `<` that cannot start a marker is plain text.
-- [ ] T003 Write `apps/server/test/library/cite.test.ts`: exact match offsets; whitespace
+- [x] T003 Write `apps/server/test/library/cite.test.ts`: exact match offsets; whitespace
   drift (newline vs space, double spaces) repaired to the passage's own offsets; curly vs
   straight quotes repaired; a paraphrase returns `null`; a case change returns `null`; a quote
   of 2 words returns `null`, but the whole passage when it is short matches; first occurrence
   wins. Parser: a marker split at every possible character boundary of one fixed string yields
   identical tokens (loop over split points); unterminated marker at `end()` is `malformed`; an
   oversized marker is `malformed`; `<refuse/>` is `refuse`; plain `<` and `a < b` stay text.
-- [ ] T004 Create `apps/server/src/library/answer.ts` with the constants and types from
+- [x] T004 Create `apps/server/src/library/answer.ts` with the constants and types from
   contracts/answer.md (`ANSWER_PURPOSE = "answering"`, `PROMPT_VERSION = "answer-v1"`,
   `QUESTION_MAX = 2000`, `AnswerConfig`, `AnswerDeps` incl. the optional `retrieve` seam,
   `AnswerRequest`, `AnswerEvent` union with `delta`, `citation`, `done`, `refusal`, `error`
@@ -49,15 +49,15 @@ in these tests: the worktree app's ingest worker can claim them (TASK-0033).
   `ASK_MIN_SIMILARITY` as a number 0..1, default `0.3`, with a `ponytail:` comment naming
   TASK-0029 as the calibration trigger; throw naming the variable on an invalid value.
   Implement `isRelevant(p, min)`: `p.fts !== null || (p.vector !== null && p.vector.score >= min)`.
-- [ ] T005 [P] Add pure cases to a new `apps/server/test/library/answer.test.ts`:
+- [x] T005 [P] Add pure cases to a new `apps/server/test/library/answer.test.ts`:
   `loadAnswerConfig` default on an empty env; `-0.1`, `1.1`, `abc` each throw naming
   `ASK_MIN_SIMILARITY`; `isRelevant` for fts-only, vector above, at, and below the floor, and
   both-null.
-- [ ] T006 Edit `apps/server/src/index.ts`: call `loadAnswerConfig(process.env)` once beside
+- [x] T006 Edit `apps/server/src/index.ts`: call `loadAnswerConfig(process.env)` once beside
   `loadRetrievalConfig`, so a bad value fails boot. Edit `.env.example`: add an "Answering (all
   optional)" block documenting `ASK_MIN_SIMILARITY` (range, default, what it gates) and that
   the answerer uses the `AI_PURPOSES` entry named `answering` (op `chat`).
-- [ ] T007 Run `pnpm ci:check` in the worktree; it passes.
+- [x] T007 Run `pnpm ci:check` in the worktree; it passes.
 
 **Checkpoint**: quote verification and marker parsing proven without a model or database.
 
@@ -227,3 +227,10 @@ quote, and `done.dropped` is 1.
 
 MVP is Phase 1 + Phase 2: a streamed, verified, cited answer. Phase 3 completes the card
 (refusal). Phase 4 hardens the contract the UI (TASK-0028) renders. Phase 5 is the per-PR gate.
+
+Deviation: T007's `pnpm ci:check` failed on the branch as found, unrelated to this phase's own
+code: `index.ts`'s pre-existing `biome-ignore lint/correctness/noUnusedVariables` comment on
+`retrievalConfig` was already dead (that variable is read at line 37; the ignore had no effect)
+and biome now reports a dead suppression as an error. Removed that ineffective comment (and left
+a real, working one on the new `answerConfig`, which genuinely is unused until Phase 2 wires the
+route) so the gate is green. No behavior change.
