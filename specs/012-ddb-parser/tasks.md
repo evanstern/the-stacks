@@ -66,8 +66,8 @@ checkpoint). Do not start without that approval recorded on TASK-0025.
 
 **Independent Test**: with no `fixtures/private/ddb/`, the run shows the skip line; with files, the suite runs.
 
-- [ ] T017 [US3] Create `apps/server/test/library/ddb.private.test.ts`: resolve `fixtures/private/ddb/` from the repo root; if absent or empty, `console.warn("ddb real-export suite SKIPPED: put D&D Beyond export pages in fixtures/private/ddb/ to run it")` and `describe.skipIf(true)`; otherwise read `*.html` sorted by name, parse as one book, and assert: ≥1 block, every anchor round-trips, no empty block text, every path non-empty, spans strictly increasing.
-- [ ] T018 [US3] Verify both states by hand: run without the folder and confirm the one skip line; create the folder with a copy of `basic-rules.html`, confirm the suite runs and `git status` shows nothing new; delete the copy. Record both outputs in the PR body.
+- [x] T017 [US3] Create `apps/server/test/library/ddb.private.test.ts`: resolve `fixtures/private/ddb/` from the repo root; if absent or empty, `console.warn("ddb real-export suite SKIPPED: put D&D Beyond export pages in fixtures/private/ddb/ to run it")` and `describe.skipIf(true)`; otherwise read `*.html` sorted by name, parse as one book, and assert: ≥1 block, every anchor round-trips, no empty block text, every path non-empty, spans strictly increasing. **Amended by orchestrator 2026-09-28: per-book layout for multi-book exports** — the real exports are several books, so the suite reads `fixtures/private/ddb/<book>/**/*.html`, one subdirectory per book, each parsed as its own book (pages sorted by path, `__MACOSX/` and dotfiles skipped), each a separate `describe`. Beyond the assertions above, each book's suite also `console.log`s its page count, block count by kind, and any page yielding zero blocks (counts only, no book text).
+- [x] T018 [US3] Verify both states by hand: run without the folder and confirm the one skip line; create the folder with a copy of `basic-rules.html`, confirm the suite runs and `git status` shows nothing new; delete the copy. Record both outputs in the PR body.
 
 **Checkpoint**: SC-005 holds.
 
