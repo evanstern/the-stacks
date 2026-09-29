@@ -4,6 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 02:43'
 labels:
   - infra
 milestone: m-1
@@ -17,7 +18,7 @@ ordinal: 11000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement doc-0002 Setup/Naming/Orphan-gates sections. Blocked until decision-0006 is ratified. Parallel sweep lanes need isolated databases; today every stack shares one project name and fixed ports.
+Implement doc-0002 Environments, Setup, Naming, and Orphan-gates sections (decision-0006, ratified 2026-09-28). Parallel sweep lanes need isolated databases; today every stack shares one project name and fixed ports.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -28,7 +29,10 @@ Implement doc-0002 Setup/Naming/Orphan-gates sections. Blocked until decision-00
 - [ ] #4 /health reports the running commit
 - [ ] #5 A test proves up then down leaves no container, network, or volume
 - [ ] #6 Sweep precondition and post-merge cleanup run env prune --check; a Stop hook warns on orphans
+- [ ] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
