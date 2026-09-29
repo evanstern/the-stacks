@@ -116,7 +116,7 @@ the job. (AC #3)
   `<prev>`, print `first deploy failed; dev is not serving`, exit 1. Build and migrate
   failures exit 1 before the swap and print `dev is serving <prev>`. `--force-unhealthy` adds
   the T009 file to the swap only.
-- [ ] T011 [US2] Pre-merge proof: **announce first**, then from the T008 clone run
+- [x] T011 [US2] Pre-merge proof: **announce first**, then from the T008 clone run
   `deploy $(git rev-parse HEAD) --allow-stale --force-unhealthy` after making a trivial
   local commit so the sha differs from the serving one. Expect exit 1, last line
   `dev is serving <T008 sha>`, and `/health` reporting `ok` with that sha. Record outputs.
