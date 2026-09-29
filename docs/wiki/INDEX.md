@@ -79,4 +79,5 @@ on vm-104 ([[hosted-dev]]).
 
 - [[test-suite]] — what is covered, the environment-gated integration suites, and the skip trap.
 - [[ci-pipeline]] — GitHub Actions CI, the `ci:check` aggregate script, and the boundary-rules check.
+- [[benchmarks]] — the retrieval benchmark: the SRD corpus, the question set, the model/dim/chunking/mode matrix, and the deterministic per-commit recall gate.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.

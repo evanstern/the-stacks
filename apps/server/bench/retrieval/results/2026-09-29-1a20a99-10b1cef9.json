@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 1,
+  "runId": "10b1cef9-8255-4575-8bd5-ef16654615b0",
+  "startedAt": "2026-09-29T21:41:55.725Z",
+  "finishedAt": "2026-09-29T21:43:41.869Z",
+  "commit": "1a20a99625d5bbf2418e542ce02a84656e11140a",
+  "dirty": true,
+  "host": {
+    "node": "v22.23.2",
+    "platform": "darwin"
+  },
+  "corpusHash": "a0efa9e6a5fb380fc117122161f50db12c0366a987a2e2c95ae676d16e2ce7b3",
+  "questionsHash": "17f1d72c9f178cdce95ffc351ca65042005976e1eaa612c6470bfc77939c2f0d",
+  "matrixHash": "180f1cd8603e8973e308148a04041c137e4429cc471af9425f1b7bd5fd02239b",
+  "matrix": {
+    "name": "local-bge-m3",
+    "models": [
+      {
+        "name": "bge-m3",
+        "source": {
+          "purpose": "bge-m3"
+        },
+        "dims": [
+          1024
+        ]
+      }
+    ],
+    "chunking": [
+      {
+        "name": "block",
+        "maxChars": 0
+      },
+      {
+        "name": "c1000",
+        "maxChars": 1000
+      },
+      {
+        "name": "c2000",
+        "maxChars": 2000
+      },
+      {
+        "name": "c4000",
+        "maxChars": 4000
+      }
+    ],
+    "modes": [
+      "vector",
+      "fts",
+      "hybrid"
+    ],
+    "k": 10
+  },
+  "models": {
+    "bge-m3": {
+      "embeddingModel": "bge-m3",
+      "provider": "ollama"
+    }
+  },
+  "rows": [
+    {
+      "key": "bge-m3@1024|block|vector",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "block",
+      "maxChars": 0,
+      "mode": "vector",
+      "chunks": 988,
+      "questions": 64,
+      "recall1": 0.578125,
+      "recall5": 0.859375,
+      "recall10": 0.890625,
+      "mrr10": 0.677734375,
+      "latencyMs": {
+        "p50": 41.08350000000064,
+        "p95": 57.50775000000067
+      },
+      "corpusEmbed": {
+        "tokens": 50829,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q006",
+        "q015",
+        "q030",
+        "q035",
+        "q036",
+        "q040",
+        "q060"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|block|hybrid",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "block",
+      "maxChars": 0,
+      "mode": "hybrid",
+      "chunks": 988,
+      "questions": 64,
+      "recall1": 0.40625,
+      "recall5": 0.75,
+      "recall10": 0.828125,
+      "mrr10": 0.5347842261904762,
+      "latencyMs": {
+        "p50": 41.22624999999971,
+        "p95": 47.81725000000006
+      },
+      "corpusEmbed": {
+        "tokens": 50829,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q006",
+        "q023",
+        "q026",
+        "q030",
+        "q032",
+        "q033",
+        "q035",
+        "q036",
+        "q038",
+        "q052",
+        "q060"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c1000|vector",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c1000",
+      "maxChars": 1000,
+      "mode": "vector",
+      "chunks": 307,
+      "questions": 64,
+      "recall1": 0.734375,
+      "recall5": 0.953125,
+      "recall10": 0.984375,
+      "mrr10": 0.8359375000000001,
+      "latencyMs": {
+        "p50": 39.841290999997,
+        "p95": 49.29475000000093
+      },
+      "corpusEmbed": {
+        "tokens": 49467,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q019"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c1000|hybrid",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c1000",
+      "maxChars": 1000,
+      "mode": "hybrid",
+      "chunks": 307,
+      "questions": 64,
+      "recall1": 0.421875,
+      "recall5": 0.84375,
+      "recall10": 0.9375,
+      "mrr10": 0.6111049107142859,
+      "latencyMs": {
+        "p50": 36.326584000002185,
+        "p95": 47.74116700000013
+      },
+      "corpusEmbed": {
+        "tokens": 49467,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q006",
+        "q008",
+        "q019",
+        "q036"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c2000|vector",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c2000",
+      "maxChars": 2000,
+      "mode": "vector",
+      "chunks": 228,
+      "questions": 64,
+      "recall1": 0.703125,
+      "recall5": 0.921875,
+      "recall10": 0.953125,
+      "mrr10": 0.7946800595238097,
+      "latencyMs": {
+        "p50": 36.16158300000825,
+        "p95": 45.6332090000069
+      },
+      "corpusEmbed": {
+        "tokens": 49309,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q019",
+        "q045",
+        "q049"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c2000|hybrid",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c2000",
+      "maxChars": 2000,
+      "mode": "hybrid",
+      "chunks": 228,
+      "questions": 64,
+      "recall1": 0.484375,
+      "recall5": 0.828125,
+      "recall10": 0.9375,
+      "mrr10": 0.6336061507936511,
+      "latencyMs": {
+        "p50": 35.0997500000085,
+        "p95": 40.59054199999082
+      },
+      "corpusEmbed": {
+        "tokens": 49309,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q006",
+        "q008",
+        "q019",
+        "q036"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c4000|vector",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c4000",
+      "maxChars": 4000,
+      "mode": "vector",
+      "chunks": 206,
+      "questions": 64,
+      "recall1": 0.703125,
+      "recall5": 0.921875,
+      "recall10": 0.96875,
+      "mrr10": 0.7948536706349207,
+      "latencyMs": {
+        "p50": 34.45899999998801,
+        "p95": 43.48766699999396
+      },
+      "corpusEmbed": {
+        "tokens": 49265,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q019",
+        "q049"
+      ]
+    },
+    {
+      "key": "bge-m3@1024|c4000|hybrid",
+      "model": "bge-m3",
+      "embeddingModel": "bge-m3",
+      "dim": 1024,
+      "dimMethod": "native",
+      "chunking": "c4000",
+      "maxChars": 4000,
+      "mode": "hybrid",
+      "chunks": 206,
+      "questions": 64,
+      "recall1": 0.546875,
+      "recall5": 0.8125,
+      "recall10": 0.9375,
+      "mrr10": 0.6677269345238096,
+      "latencyMs": {
+        "p50": 35.805042000007234,
+        "p95": 44.205082999993465
+      },
+      "corpusEmbed": {
+        "tokens": 49265,
+        "costUsd": null
+      },
+      "questionEmbed": {
+        "tokens": 2288,
+        "costUsd": null
+      },
+      "misses": [
+        "q006",
+        "q019",
+        "q036",
+        "q038"
+      ]
+    },
+    {
+      "key": "-|block|fts",
+      "model": null,
+      "embeddingModel": null,
+      "dim": null,
+      "dimMethod": null,
+      "chunking": "block",
+      "maxChars": 0,
+      "mode": "fts",
+      "chunks": 988,
+      "questions": 64,
+      "recall1": 0.203125,
+      "recall5": 0.4375,
+      "recall10": 0.578125,
+      "mrr10": 0.31468253968253973,
+      "latencyMs": {
+        "p50": 2.92658400000073,
+        "p95": 4.7135419999976875
+      },
+      "corpusEmbed": null,
+      "questionEmbed": null,
+      "misses": [
+        "q001",
+        "q003",
+        "q006",
+        "q008",
+        "q014",
+        "q020",
+        "q021",
+        "q023",
+        "q026",
+        "q028",
+        "q030",
+        "q032",
+        "q033",
+        "q034",
+        "q035",
+        "q036",
+        "q038",
+        "q039",
+        "q040",
+        "q041",
+        "q044",
+        "q050",
+        "q052",
+        "q056",
+        "q058",
+        "q060",
+        "q061"
+      ]
+    },
+    {
+      "key": "-|c1000|fts",
+      "model": null,
+      "embeddingModel": null,
+      "dim": null,
+      "dimMethod": null,
+      "chunking": "c1000",
+      "maxChars": 1000,
+      "mode": "fts",
+      "chunks": 307,
+      "questions": 64,
+      "recall1": 0.328125,
+      "recall5": 0.5625,
+      "recall10": 0.703125,
+      "mrr10": 0.43916170634920637,
+      "latencyMs": {
+        "p50": 2.580459000004339,
+        "p95": 5.236749999996391
+      },
+      "corpusEmbed": null,
+      "questionEmbed": null,
+      "misses": [
+        "q006",
+        "q008",
+        "q009",
+        "q019",
+        "q021",
+        "q023",
+        "q032",
+        "q033",
+        "q035",
+        "q036",
+        "q038",
+        "q040",
+        "q050",
+        "q052",
+        "q055",
+        "q056",
+        "q058",
+        "q060",
+        "q061"
+      ]
+    },
+    {
+      "key": "-|c2000|fts",
+      "model": null,
+      "embeddingModel": null,
+      "dim": null,
+      "dimMethod": null,
+      "chunking": "c2000",
+      "maxChars": 2000,
+      "mode": "fts",
+      "chunks": 228,
+      "questions": 64,
+      "recall1": 0.34375,
+      "recall5": 0.59375,
+      "recall10": 0.6875,
+      "mrr10": 0.45101686507936506,
+      "latencyMs": {
+        "p50": 2.4782909999921685,
+        "p95": 4.269000000000233
+      },
+      "corpusEmbed": null,
+      "questionEmbed": null,
+      "misses": [
+        "q006",
+        "q008",
+        "q019",
+        "q023",
+        "q032",
+        "q034",
+        "q035",
+        "q036",
+        "q038",
+        "q048",
+        "q050",
+        "q052",
+        "q053",
+        "q054",
+        "q055",
+        "q056",
+        "q058",
+        "q060",
+        "q061",
+        "q062"
+      ]
+    },
+    {
+      "key": "-|c4000|fts",
+      "model": null,
+      "embeddingModel": null,
+      "dim": null,
+      "dimMethod": null,
+      "chunking": "c4000",
+      "maxChars": 4000,
+      "mode": "fts",
+      "chunks": 206,
+      "questions": 64,
+      "recall1": 0.265625,
+      "recall5": 0.578125,
+      "recall10": 0.671875,
+      "mrr10": 0.40755208333333337,
+      "latencyMs": {
+        "p50": 2.4905409999919357,
+        "p95": 4.374875000008615
+      },
+      "corpusEmbed": null,
+      "questionEmbed": null,
+      "misses": [
+        "q006",
+        "q008",
+        "q019",
+        "q032",
+        "q034",
+        "q035",
+        "q036",
+        "q038",
+        "q040",
+        "q041",
+        "q050",
+        "q052",
+        "q053",
+        "q054",
+        "q055",
+        "q056",
+        "q057",
+        "q058",
+        "q060",
+        "q061",
+        "q062"
+      ]
+    }
+  ]
+}

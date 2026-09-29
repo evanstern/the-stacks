@@ -437,14 +437,19 @@ describe.skipIf(!reachable)("retrieve — hybrid mode (US3, integration)", () =>
     const byRank =
       (key: "vector" | "fts") => (p: (typeof result.passages)[number]) =>
         p[key]?.rank ?? 0;
+    const toCandidate = (p: (typeof result.passages)[number]) => ({
+      chunkId: p.chunkId,
+      book: p.anchor.book,
+      start: p.anchor.start,
+    });
     const vectorList = result.passages
       .filter((p) => p.vector)
       .sort((x, y) => byRank("vector")(x) - byRank("vector")(y))
-      .map((p) => p.chunkId);
+      .map(toCandidate);
     const ftsList = result.passages
       .filter((p) => p.fts)
       .sort((x, y) => byRank("fts")(x) - byRank("fts")(y))
-      .map((p) => p.chunkId);
+      .map(toCandidate);
     const expected = fuseRrf({ vector: vectorList, fts: ftsList });
     expect(ids).toEqual(expected.map((e) => e.chunkId));
     expect(result.passages.map((p) => p.score)).toEqual(
@@ -483,3 +488,78 @@ describe.skipIf(!reachable)("retrieve — hybrid mode (US3, integration)", () =>
     expect(result.passages.every((p) => p.vector === null)).toBe(true);
   });
 });
+
+describe.skipIf(!reachable)(
+  "retrieve — deterministic tie-break (operator ruling 2026-09-29)",
+  () => {
+    function vec(label: string): number[] {
+      const v = new Array(1024).fill(0);
+      for (let i = 0; i < label.length; i++) v[i % 1024] += label.charCodeAt(i);
+      return v;
+    }
+
+    it("returns identical ordered results across two fresh ingests of the same book, in fts, vector, and hybrid modes", async () => {
+      const nonce = nonceWord();
+      const book = freshBookName("Determinism");
+      // Two identical paragraphs force a real tie: same ts_rank_cd (identical
+      // text) and the same embedding assigned below (identical cosine score).
+      // Only the content key (book, anchor start) can break it — the chunk
+      // ids differ on every ingest.
+      const dupText = `A paragraph about ${nonce} tied exactly the same way.`;
+      const model = `model-${randomUUID()}`;
+      const tieVec = vec("tie");
+
+      async function ingestOnce() {
+        const parsed = makeBook(book, [dupText, dupText]);
+        const { documentId } = await storeParsedBook(requireDb(), parsed);
+        const chunks = await readChunks(documentId);
+        await attachEmbeddings(
+          requireDb(),
+          chunks.map((c) => ({
+            chunkId: c.id,
+            model,
+            dim: 1024,
+            vector: tieVec,
+          })),
+        );
+      }
+
+      async function resetBook() {
+        await requireDb().execute(
+          sql`DELETE FROM library_documents WHERE book = ${book}`,
+        );
+      }
+
+      async function passagesByMode() {
+        const fake = new FakeProvider().scriptEmbed({ vectors: [tieVec] });
+        const gateway = buildVectorGateway(fake, model);
+        const byMode: Record<string, unknown> = {};
+        for (const mode of ["fts", "vector", "hybrid"] as const) {
+          const deps: RetrieveDeps = {
+            db: requireDb(),
+            gateway,
+            config: { mode, k: 10, embedPurpose: "embedding" },
+          };
+          const result = await retrieve(deps, { question: nonce });
+          byMode[mode] = result.passages.map((p) => ({
+            book: p.anchor.book,
+            start: p.anchor.start,
+            end: p.anchor.end,
+            text: p.text,
+          }));
+        }
+        return byMode;
+      }
+
+      await ingestOnce();
+      const first = await passagesByMode();
+      expect((first.fts as unknown[]).length).toBeGreaterThan(1);
+
+      await resetBook();
+      await ingestOnce();
+      const second = await passagesByMode();
+
+      expect(second).toEqual(first);
+    });
+  },
+);

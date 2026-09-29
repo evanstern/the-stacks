@@ -47,9 +47,18 @@ describe("loadRetrievalConfig", () => {
   });
 });
 
+/** A candidate at a given book/anchor start; book/start default to a shared value so callers
+ * that only care about chunk id and rank (not the tie-break) don't need to repeat them. */
+function cand(chunkId: string, book = "Book", start = 0) {
+  return { chunkId, book, start };
+}
+
 describe("fuseRrf", () => {
   it("matches hand-computed RRF scores (SC-004)", () => {
-    const result = fuseRrf({ vector: ["a", "b"], fts: ["b", "c"] }, 60);
+    const result = fuseRrf(
+      { vector: [cand("a"), cand("b")], fts: [cand("b"), cand("c")] },
+      60,
+    );
     expect(result).toEqual([
       { chunkId: "b", score: 1 / 62 + 1 / 61 },
       { chunkId: "a", score: 1 / 61 },
@@ -58,27 +67,50 @@ describe("fuseRrf", () => {
   });
 
   it("dedupes a chunk found by both lists into one entry", () => {
-    const result = fuseRrf({ vector: ["a"], fts: ["a"] });
+    const result = fuseRrf({ vector: [cand("a")], fts: [cand("a")] });
     expect(result).toHaveLength(1);
     expect(result[0]?.chunkId).toBe("a");
   });
 
   it("keeps a chunk found by only one list", () => {
-    const result = fuseRrf({ vector: ["a"], fts: [] });
+    const result = fuseRrf({ vector: [cand("a")], fts: [] });
     expect(result).toEqual([{ chunkId: "a", score: 1 / 61 }]);
   });
 
-  it("breaks equal scores by chunk id ascending", () => {
-    const result = fuseRrf({ vector: ["z", "a"], fts: [] });
+  it("breaks equal scores by book, then anchor start, then chunk id (operator ruling 2026-09-29)", () => {
+    const result = fuseRrf({ vector: [cand("z"), cand("a")], fts: [] });
     // "z" ranks 1 (higher score) than "a" at rank 2, so this isn't a tie —
     // force one by putting each id alone in its own list at the same rank.
-    const tied = fuseRrf({ vector: ["z"], fts: ["a"] });
-    expect(tied.map((r) => r.chunkId)).toEqual(["a", "z"]);
     expect(result[0]?.chunkId).toBe("z");
+
+    // Equal score, different book: book ascending wins, chunk id ignored.
+    const byBook = fuseRrf({
+      vector: [cand("z", "Zeta", 5)],
+      fts: [cand("a", "Alpha", 100)],
+    });
+    expect(byBook.map((r) => r.chunkId)).toEqual(["a", "z"]);
+
+    // Equal score, same book: anchor start ascending wins, chunk id ignored.
+    const byStart = fuseRrf({
+      vector: [cand("late", "Same", 50)],
+      fts: [cand("early", "Same", 10)],
+    });
+    expect(byStart.map((r) => r.chunkId)).toEqual(["early", "late"]);
+
+    // Equal score, same book and start (exact-duplicate anchor): chunk id is
+    // the last-resort tiebreak.
+    const byId = fuseRrf({
+      vector: [cand("z", "Same", 10)],
+      fts: [cand("a", "Same", 10)],
+    });
+    expect(byId.map((r) => r.chunkId)).toEqual(["a", "z"]);
   });
 
   it("returns identical output on a second call with the same inputs (SC-005)", () => {
-    const lists = { vector: ["c", "a", "b"], fts: ["b", "a"] };
+    const lists = {
+      vector: [cand("c"), cand("a"), cand("b")],
+      fts: [cand("b"), cand("a")],
+    };
     expect(fuseRrf(lists)).toEqual(fuseRrf(lists));
   });
 });

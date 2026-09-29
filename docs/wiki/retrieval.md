@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
+verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
 ---
 
 # Retrieval
@@ -19,8 +19,9 @@ default). It never writes to the database. Since TASK-0027 (specs/018-rules-answ
 gateway, config: deps.retrieval}, {question, signal})` with no per-call `mode`/`k` override, so
 every `/library/ask` request retrieves under the boot-time `RETRIEVAL_*` config; a thrown
 `retrieve()` call is caught and mapped to a terminal `error{kind:"retrieval"}` SSE event, never
-left to propagate. The retrieval benchmark (TASK-0029) remains a declared future consumer.
-Its config has had a caller since TASK-0024: [[ingestion]] reads
+left to propagate. The retrieval benchmark ([[benchmarks]], TASK-0029) is a second caller: it
+calls `retrieve()` directly (no HTTP) once per question per matrix cell, scoring where the
+right passage landed. Its config has had a caller since TASK-0024: [[ingestion]] reads
 `loadRetrievalConfig(...).embedPurpose` to pick which [[ai-gateway]] purpose embeds each
 stored chunk, so the two features share one "which purpose is embedding" answer.
 
@@ -45,23 +46,36 @@ A validation failure throws `ValidationError` in the same shape `store.ts` uses 
 is never treated as `tsquery` syntax — then replaces its `&` joins with `|` before casting back
 to `tsquery`, giving OR semantics: a multi-term natural-language question doesn't need every
 term present in one chunk to match. Ranked by `ts_rank_cd` against `library_chunks.tsv` (the
-generated column from [[library-schema]]), ties broken by chunk id.
+generated column from [[library-schema]]), ties broken by content (book, then anchor start),
+`chunkId` only as a last resort — see **Tie-break** below.
 
 **Vector search** (`searchVector`) embeds the question through the gateway, then queries
 `library_embeddings` filtered to that exact model, ordered by cosine distance
-(`e.embedding <=> vector`). It runs inside a transaction with `SET LOCAL hnsw.iterative_scan =
-strict_order` and `hnsw.ef_search = 100` — the iterative scan means the per-model `WHERE e.model
-= ...` filter doesn't silently starve results once a second model's vectors share the same HNSW
-index (one shared index across all models, per [[library-schema]]). An embed failure (bad
-purpose, provider error) throws immediately and never falls back to keyword search.
+(`e.embedding <=> vector`), ties broken the same content-first way. It runs inside a
+transaction with `SET LOCAL hnsw.iterative_scan = strict_order` and `hnsw.ef_search = 100` —
+the iterative scan means the per-model `WHERE e.model = ...` filter doesn't silently starve
+results once a second model's vectors share the same HNSW index (one shared index across all
+models, per [[library-schema]]). An embed failure (bad purpose, provider error) throws
+immediately and never falls back to keyword search.
 
-**Fusion** (`fuseRrf`, pure function): each of up to two ranked chunk-id lists (`CANDIDATES = 50`
+**Fusion** (`fuseRrf`, pure function): each of up to two ranked candidate lists (`CANDIDATES = 50`
 rows fetched per search before fusion/truncation — deep enough that a single-list hit can still
 surface after fusion) contributes `1 / (RRF_K + rank)` per list it appears in, `RRF_K = 60` (the
 original RRF paper's constant, and the default several vector databases' hybrid examples use).
-Ties break by chunk id ascending, so identical inputs always produce identical output.
+Ties break the same content-first way as the SQL searches (see **Tie-break**), so identical
+inputs always produce identical output.
 `ponytail:` both `RRF_K` and `CANDIDATES` are fixed constants — make configurable when
 TASK-0029's benchmark shows a different value scores better.
+
+**Tie-break (operator ruling 2026-09-29):** `library_chunks.id` is a random UUID regenerated on
+every ingest, so ordering ties by it first made `fts`/`hybrid` recall reorder across re-ingests
+of otherwise-identical content (vector was stable — cosine ties are rare in practice).
+Everywhere `retrieve()` ranks — the `fts` SQL, the `vector` SQL, and `fuseRrf`'s fusion — ties
+now break by `score DESC`, then `book` ascending, then anchor `start` ascending, and `chunkId`
+ascending only as a final tiebreak for two chunks sharing the exact same anchor. `fuseRrf` takes
+`{chunkId, book, start}` candidates (not bare chunk ids) so it has the content key to break ties
+with. A determinism test ingests one book twice (fresh chunk ids each time) and asserts
+identical ordered results in all three modes.
 
 **Modes**: `fts` and `vector` run one search and return it best-first, `score` being that
 search's own signal (`ts_rank_cd` or cosine similarity). `hybrid` runs the keyword query and the
@@ -81,8 +95,9 @@ Reads [[library-schema]]'s `library_chunks`/`library_embeddings` (never writes);
 and validated at boot by [[server-entrypoint-and-app]]'s `index.ts`, alongside
 [[configuration]]'s `loadConfig` and the AI gateway's own config; `embedPurpose` is read by
 [[ingestion]]'s worker at boot, and the `retrieve()` read path itself is now called per-request
-by [[rules-answerer]]'s `answer()` (TASK-0027). `.env.example` documents the three
-`RETRIEVAL_*` vars under "Retrieval" (see [[configuration]]).
+by [[rules-answerer]]'s `answer()` (TASK-0027), and directly (no HTTP) by [[benchmarks]]'s
+matrix runner (TASK-0029). `.env.example` documents the three `RETRIEVAL_*` vars under
+"Retrieval" (see [[configuration]]).
 
 ## Operational notes
 
