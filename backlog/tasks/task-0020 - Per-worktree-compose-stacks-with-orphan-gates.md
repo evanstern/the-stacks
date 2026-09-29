@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:24'
+updated_date: '2026-09-29 03:28'
 labels:
   - infra
 milestone: m-1
@@ -45,6 +45,10 @@ Spec: specs/010-worktree-stacks
 Spec 010 authored via speckit-specify/plan/tasks. speckit-clarify skipped: doc-0002 (ratified) settles naming, ports, verbs, gates. Plan rulings (a)-(e) in specs/010-worktree-stacks/plan.md. No new dependency.
 
 Operator rulings 2026-09-28: (1) AC #4 ratifies the additive /health 'commit' field amending spec 003's contract (contracts/health.md). (2) The no-leftovers test (AC #5) runs locally as pnpm check:env, not in ci:check; pure-logic tests run in CI.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 (T001-T003) done in 3b7d78f: scripts/env-lib.mjs + 12 tests, check:scripts in ci:check. Orchestrator verified 12/12 pass. ~133k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
