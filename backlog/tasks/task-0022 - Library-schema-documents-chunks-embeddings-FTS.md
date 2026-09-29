@@ -1,9 +1,10 @@
 ---
 id: TASK-0022
 title: 'Library schema: documents, chunks, embeddings, FTS'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 05:00'
 labels:
   - library
 milestone: m-1
@@ -17,7 +18,9 @@ ordinal: 13000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Library plane tables per architecture A3/A9 and decision-0002.
+Library plane tables per architecture A3/A9 and decision-0002 (vector dim 1024; model and dim stored per row). Anchors match TASK-0025's parser contract (book, section path, character span).
+
+Spec: specs/013-library-schema
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
