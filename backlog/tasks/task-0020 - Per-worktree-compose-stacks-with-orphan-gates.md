@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 04:35'
+updated_date: '2026-09-29 04:48'
 labels:
   - infra
 milestone: m-1
@@ -65,6 +65,10 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 4-5 (3a8cdcc, b5469e1) and post-#22 merge (77683a0, 15dbde0, d5853b0). Orchestrator verified: config.ts import-free (0 imports) with commit field; ci:check includes check:scripts + check:host-scripts; freshness OK 29; no org.the-stacks.env containers; no stray worktrees. T021 (praxisflux upstream request for env prune --check in the sweep skill) is outbound to another project: left unticked and surfaced to the operator, not filed silently. AC #6 is satisfied in-repo by the Stop hook + CLAUDE.md Runtime stacks section + runbook gate lines.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Merge with main after #23 (77a2547, pins 8204d23, evidence ff21389): conflicts only on verified_against lines + feature.json + CAPSULES; test counts recomputed from merged tree. Also carries close-task-0025 (TASK-0025 Done sync).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
