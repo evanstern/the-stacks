@@ -30,12 +30,6 @@ Spec: specs/014-invite-conflict
 - [x] #5 Spec phase: Gates and grounding
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -47,6 +41,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 3 gates+wiki, ~136k tokens). Follow-up for triage: docs/wiki/test-suite.md pins only 11 of 22 server test files (ai, library, ddb suites from wave 1 are unlisted); pre-existing, out of 0032 scope.
+
+spec-bridge sync: Failing tests first: 4/4 · One shared helper and the fix (US1 + US2): 5/5 · Gates and grounding: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
