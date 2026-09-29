@@ -205,7 +205,7 @@ quote, and `done.dropped` is 1.
   freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
 - [x] T028 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`.
   It must exit 0. Tick this file's completed tasks.
-- [ ] T029 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
+- [x] T029 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
 
 ## Dependencies & Execution Order
 
