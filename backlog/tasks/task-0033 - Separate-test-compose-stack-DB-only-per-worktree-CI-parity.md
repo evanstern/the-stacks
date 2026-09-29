@@ -1,9 +1,10 @@
 ---
 id: TASK-0033
 title: 'Separate test compose stack: DB-only, per worktree, CI parity'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 18:37'
+updated_date: '2026-09-29 18:38'
 labels:
   - infra
   - test
@@ -19,6 +20,8 @@ ordinal: 24000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Found 2026-09-29 on TASK-0024 (#31): the per-worktree stack's app container runs the ingest worker against the same jobs table the tests use, claims test-enqueued jobs, and fails them (it cannot see the host upload path). worker.integration T023 flaked ~10-15% locally; CI (bare pgvector service, no app) cannot hit it. Operator ruling 2026-09-29: isolate tests with a separate test compose file rather than a second database in the prod-like compose. The app stack stays purely 'run the app'; tests get a DB-only, throwaway stack that mirrors CI.
+
+Spec: specs/020-test-compose
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
