@@ -4,7 +4,7 @@ title: 'Library schema: documents, chunks, embeddings, FTS'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:23'
+updated_date: '2026-09-29 05:36'
 labels:
   - library
 milestone: m-1
@@ -50,6 +50,10 @@ Phase 1 (T001-T003) done in e11dc3d: migration 0002_tiny_odin.sql (3 tables, vec
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 2 (T004-T006) done in 000b673: storeParsedBook with span validation before any DB call; 4 unit + 4 integration tests (orchestrator re-ran against stacks-task-0022 with REQUIRE_DATABASE=1: 8/8). ~159k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phases 3-5 (T007-T014) done in 83ebc51/574a890/bca3043: tsv/GIN, attachEmbeddings (multi-model, dim 1024 enforced), immutability tests on all three tables; 17 library tests. Fixed isUniqueViolation to read err.cause.code (drizzle wraps driver errors); the same latent bug in auth/invitations.ts is carded as TASK-0032, out of scope here. Wiki: library-schema added; database-schema, migrations, overview amended. Stack torn down; prune --check exit 0. ~227k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
