@@ -47,6 +47,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1: SRD 5.1 corpus, 8 docs / 200 KB, 64 questions (83% paraphrase), quote uniqueness checked; PDF sha-256 2504d2a0...; ~478k tokens / 320 tool calls — most costly single phase this sweep, dominated by hand-verifying pdftotext output). Deviation accepted: pdftotext -raw instead of -layout (two-column interleaving).
 
 Operator rulings 2026-09-29 (providers): embeddings use LOCAL Ollama (no paid provider): bge-m3 (1024 dims) and nomic-embed-text (768 dims) pulled and verified via http://localhost:11434/v1/embeddings (openai-compatible kind, no key). Keep models loaded: the bench pins each model with keep_alive:-1 via /api/embed before its cells and runs one model at a time, so reloads never land inside a timed cell. Chat (answering, for TASK-0031) uses 9router at http://localhost:20128/v1 (openai-compatible, subscription-backed, key in the worktree .env set by the operator; cc/claude-sonnet-5 default). No metered spend expected; T026's checkpoint becomes 'confirm the local model list' rather than a cost estimate.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 2-3: load/score/embed/db/run/cli; 10-cell bow matrix prints; 21 tests; 373 pass under REQUIRE_DATABASE=1). Ollama keep-alive warm-up not yet implemented (ruling arrived after the dispatch finished) — carried into the phase 4-5 dispatch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
