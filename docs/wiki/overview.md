@@ -10,7 +10,7 @@ sources:
   - docker-compose.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
+verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
 ---
 
 # Overview
@@ -42,11 +42,13 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 
 | plane | what it holds | at this commit |
 |---|---|---|
-| library | imported reference content | empty — M1 |
+| library | imported reference content | schema + store landed (TASK-0022, [[library-schema]]); nothing ingests into it yet |
 | codex | campaign entities | empty — M2 |
 | session | what happened at the table | the event log, live |
 
-Only the session plane is populated at M0, as [[event-log]]. Play state is **event-sourced
+The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
+built ([[library-schema]]) but no ingestion path writes to it yet (TASK-0024). Play state is
+**event-sourced
 with server authority**: a client never writes to the log, it asks the server to append
 (see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
 

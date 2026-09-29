@@ -1,19 +1,22 @@
 ---
 name: database-schema
-description: The tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE.
+description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane tables are [[library-schema]].
 kind: component
 sources:
   - apps/server/src/schema/events.ts
   - apps/server/src/schema/auth.ts
   - apps/server/drizzle/0000_mushy_thor_girl.sql
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
 ---
 
 # Database Schema
 
-Four tables across two Drizzle schema files: `events` (`apps/server/src/schema/events.ts`,
-the session plane) and `users` / `auth_sessions` / `invitations`
-(`apps/server/src/schema/auth.ts`).
+This note covers the session and auth planes. Four tables across two Drizzle schema files:
+`events` (`apps/server/src/schema/events.ts`, the session plane) and `users` / `auth_sessions`
+/ `invitations` (`apps/server/src/schema/auth.ts`). The library plane's three tables
+(`library_documents`/`library_chunks`/`library_embeddings`, TASK-0022) are documented
+separately in [[library-schema]] — same repo, same pattern for its own immutability trigger,
+different concept.
 
 ## How it works
 
@@ -70,7 +73,10 @@ exactly once via a conditional `UPDATE` (see [[invitations]]) — never read-the
 ## Connections
 
 Consumed by [[event-log]] (`events`), [[session-auth]] (`users`, `auth_sessions`), and
-[[invitations]] (`invitations`). Generated and applied per [[migrations]].
+[[invitations]] (`invitations`). Generated and applied per [[migrations]]. `events`'
+append-only trigger is the first instance of a pattern [[library-schema]] repeats for its own
+three tables (a different trigger function, `library_immutable`, refusing `UPDATE` only —
+library rows are deletable, `events` rows are not).
 
 ## Operational notes
 

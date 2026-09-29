@@ -1,12 +1,12 @@
 ---
 name: migrations
-description: drizzle-kit generate writes committed SQL to apps/server/drizzle/; the db:migrate script runs on the HOST via Node's native TypeScript stripping, and prefers TEST_DATABASE_URL over DATABASE_URL for exactly that reason.
+description: drizzle-kit generate writes committed SQL to apps/server/drizzle/; the db:migrate script runs on the HOST via Node's native TypeScript stripping, and prefers TEST_DATABASE_URL over DATABASE_URL for exactly that reason. Generated SQL sometimes needs a hand-added statement drizzle-kit can't emit — an extension, a trigger.
 kind: pipeline
 sources:
   - apps/server/scripts/migrate.ts
   - apps/server/drizzle.config.ts
   - apps/server/package.json
-verified_against: 872b0aba2bfefe65e85bf5010dde46f9e725b736
+verified_against: 83ebc51d97b55808bd9a3843de33b1fb8be35efd
 ---
 
 # Migrations
@@ -61,6 +61,10 @@ URL the identical way, for the identical reason.
 ## Operational notes
 
 Generated migration files are committed and reviewed like any other source change — including
-the hand-added append-only trigger described in [[database-schema]], which `drizzle-kit
-generate` cannot produce and a later `generate` run will not remove (it only appends new
-files, never edits existing ones).
+hand-added SQL `drizzle-kit generate` cannot produce, and which a later `generate` run will
+not remove (it only appends new files, never edits existing ones). Two kinds have shown up so
+far: the append-only trigger described in [[database-schema]], and, in
+`apps/server/drizzle/0002_tiny_odin.sql` ([[library-schema]]), a leading
+`CREATE EXTENSION IF NOT EXISTS vector;` (pgvector isn't enabled by drizzle-kit, so it's
+added by hand as the migration's first statement) plus that table set's own
+`library_immutable` trigger.
