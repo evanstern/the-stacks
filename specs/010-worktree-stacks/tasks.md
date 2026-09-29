@@ -130,8 +130,10 @@ root `git status` unchanged; `pnpm env:down main` → nothing left, `env-main` w
 - [x] T020 Run `/grounding-wiki:wiki-update`. Expected NEEDS-REVIEW: `compose-stack`,
   `health-check`, `configuration`, `container-image`. Add a note for the env tooling. The
   freshness gate (`gates/cli.mjs freshness . docs/wiki`) prints `OK`.
-- [ ] T021 File the praxisflux upstream request (the sweep skill runs `env prune --check`
-  natively) and record its link in the PR body (research R7).
+- [x] T021 ~~File the praxisflux upstream request (the sweep skill runs `env prune --check`
+  natively) and record its link in the PR body (research R7).~~ **Dropped by operator
+  ruling 2026-09-29.** AC #6 stands on the in-repo gates: the Stop hook, the `CLAUDE.md`
+  "Runtime stacks" section, and the runbook gate lines.
 
 ## Dependencies & Execution Order
 
