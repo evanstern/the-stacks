@@ -1,10 +1,10 @@
 ---
 id: TASK-0023
 title: 'AI gateway: provider interface, streaming chat, embeddings, cost accounting'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:59'
+updated_date: '2026-09-29 04:26'
 labels:
   - ai
 milestone: m-1
@@ -66,6 +66,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 5-6 (T015-T019) done in ba9fcbb/8b6e23f/02e09d4: gateway wired into config.ts/index.ts (inert without AI env), invariant-10 no-vendor-names test, .env.example block, ci-evidence.txt. Wiki: new ai-gateway note; configuration, server-entrypoint-and-app, overview amended and re-pinned; compose-stack RE-PIN-ONLY (orchestrator reviewed the overview/compose-stack diffs). Freshness OK 28 notes. ~158k subagent tokens.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — types, config, usage, fake: 5/5 · US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP: 2/2 · US2 — embeddings through the gateway (P1): 2/2 · US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1): 5/5 · US6 + wiring — no-key test run and startup: 4/4 · Polish & re-ground: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
