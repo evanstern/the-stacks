@@ -81,9 +81,9 @@ describe.skipIf(books.length === 0)(
 
         it("every anchor round-trips against the normalized text", () => {
           for (const block of parsed.blocks) {
-            expect(parsed.text.slice(block.anchor.start, block.anchor.end)).toBe(
-              block.text,
-            );
+            expect(
+              parsed.text.slice(block.anchor.start, block.anchor.end),
+            ).toBe(block.text);
           }
         });
 
