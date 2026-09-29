@@ -28,6 +28,12 @@ migrated database has no signable account. Create the first operator with:
 pnpm --filter @the-stacks/server auth:create-operator
 ```
 
+For a running stack with no host toolchain, run the same entry point in the container:
+
+```bash
+docker compose exec app node dist/cli/create-operator.js
+```
+
 Reads the password from `OPERATOR_PASSWORD`, or prompts for it interactively if unset.
 `OPERATOR_USERNAME` overrides the default username (`operator`).
 
