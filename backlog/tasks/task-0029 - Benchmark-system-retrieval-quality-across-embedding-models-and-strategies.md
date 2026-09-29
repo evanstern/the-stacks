@@ -4,7 +4,7 @@ title: 'Benchmark system: retrieval quality across embedding models and strategi
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 19:05'
+updated_date: '2026-09-29 19:54'
 labels:
   - bench
 milestone: m-1
@@ -42,6 +42,9 @@ Spec: specs/019-retrieval-bench
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~179k tokens). No blocking checkpoint: no schema change (sub-1024 dims truncated+renormalized+zero-padded, model '<model>@<dim>'), no dependency, no workflow change; isolated <db>_bench database. Open checkpoint T026: stop before any paid run with provider/model list + --dry-run estimate. Phase grouping: P1 alone; P2+P3; P4+P5; P6.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 1: SRD 5.1 corpus, 8 docs / 200 KB, 64 questions (83% paraphrase), quote uniqueness checked; PDF sha-256 2504d2a0...; ~478k tokens / 320 tool calls — most costly single phase this sweep, dominated by hand-verifying pdftotext output). Deviation accepted: pdftotext -raw instead of -layout (two-column interleaving).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
