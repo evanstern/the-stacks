@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 713dea6c865ee635f63bfad4b8f3f2f750e13129
+verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
 ---
 
 # Retrieval
@@ -19,8 +19,9 @@ default). It never writes to the database. Since TASK-0027 (specs/018-rules-answ
 gateway, config: deps.retrieval}, {question, signal})` with no per-call `mode`/`k` override, so
 every `/library/ask` request retrieves under the boot-time `RETRIEVAL_*` config; a thrown
 `retrieve()` call is caught and mapped to a terminal `error{kind:"retrieval"}` SSE event, never
-left to propagate. The retrieval benchmark (TASK-0029) remains a declared future consumer.
-Its config has had a caller since TASK-0024: [[ingestion]] reads
+left to propagate. The retrieval benchmark ([[benchmarks]], TASK-0029) is a second caller: it
+calls `retrieve()` directly (no HTTP) once per question per matrix cell, scoring where the
+right passage landed. Its config has had a caller since TASK-0024: [[ingestion]] reads
 `loadRetrievalConfig(...).embedPurpose` to pick which [[ai-gateway]] purpose embeds each
 stored chunk, so the two features share one "which purpose is embedding" answer.
 
@@ -94,8 +95,9 @@ Reads [[library-schema]]'s `library_chunks`/`library_embeddings` (never writes);
 and validated at boot by [[server-entrypoint-and-app]]'s `index.ts`, alongside
 [[configuration]]'s `loadConfig` and the AI gateway's own config; `embedPurpose` is read by
 [[ingestion]]'s worker at boot, and the `retrieve()` read path itself is now called per-request
-by [[rules-answerer]]'s `answer()` (TASK-0027). `.env.example` documents the three
-`RETRIEVAL_*` vars under "Retrieval" (see [[configuration]]).
+by [[rules-answerer]]'s `answer()` (TASK-0027), and directly (no HTTP) by [[benchmarks]]'s
+matrix runner (TASK-0029). `.env.example` documents the three `RETRIEVAL_*` vars under
+"Retrieval" (see [[configuration]]).
 
 ## Operational notes
 

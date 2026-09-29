@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
+verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
 ---
 
 # CI pipeline
