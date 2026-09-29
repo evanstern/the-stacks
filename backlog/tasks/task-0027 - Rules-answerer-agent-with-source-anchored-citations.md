@@ -4,7 +4,7 @@ title: Rules-answerer agent with source-anchored citations
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 19:31'
+updated_date: '2026-09-29 19:45'
 labels:
   - ai
 milestone: m-1
@@ -49,6 +49,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 4: error mapping, auth 401/403/400, cancellation proven at the provider; +4 unit, +7 integration)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phase 5: 352 pass under REQUIRE_DATABASE=1; new wiki note rules-answerer; freshness OK 35; env down, prune clean)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
