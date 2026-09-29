@@ -27,8 +27,8 @@ description: "Task list for spec 011 — AI gateway first slice (revised for dec
 
 ## Phase 2: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
 
-- [ ] T006 Create `apps/server/src/ai/gateway.ts` `chat()`: adapter registry by kind, purpose → named provider, pass `signal`, exactly one terminal event, exactly one usage record per call
-- [ ] T007 Tests in `apps/server/test/ai.gateway.test.ts` (fake adapter, two arbitrarily named providers) for invariants 1, 2, 3, 6, 7 and spec US1 #1–#4, US3 #1, US4 #1–#3
+- [x] T006 Create `apps/server/src/ai/gateway.ts` `chat()`: adapter registry by kind, purpose → named provider, pass `signal`, exactly one terminal event, exactly one usage record per call
+- [x] T007 Tests in `apps/server/test/ai.gateway.test.ts` (fake adapter, two arbitrarily named providers) for invariants 1, 2, 3, 6, 7 and spec US1 #1–#4, US3 #1, US4 #1–#3
 
 **Checkpoint**: a caller can stream a chat answer through the fake with usage recorded.
 
