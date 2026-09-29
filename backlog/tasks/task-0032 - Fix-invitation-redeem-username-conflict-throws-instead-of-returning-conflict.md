@@ -4,7 +4,7 @@ title: 'Fix invitation redeem: username conflict throws instead of returning con
 status: In Progress
 assignee: []
 created_date: '2026-09-29 05:35'
-updated_date: '2026-09-29 15:02'
+updated_date: '2026-09-29 15:07'
 labels:
   - bug
   - auth
@@ -25,7 +25,17 @@ Spec: specs/014-invite-conflict
 <!-- AC:BEGIN -->
 - [ ] #1 Redeeming an invitation with an already-taken username returns reason conflict, proven by an integration test against a real database
 - [ ] #2 One shared unique-violation helper serves auth and library; no duplicate copies remain
+- [ ] #3 Spec phase: Failing tests first
+- [ ] #4 Spec phase: One shared helper and the fix (US1 + US2)
+- [ ] #5 Spec phase: Gates and grounding
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+(spec authoring; standing escalation sign-off 2026-09-28; ~147k tokens)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
