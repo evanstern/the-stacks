@@ -83,6 +83,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 7 T021-T023: ci:check green; wiki ci-pipeline/runtime-stacks/health-check/compose-stack NEEDS-REVIEW amended; new note hosted-dev; freshness OK 33). Open: T020 (vm-104 proof cleanup, announced), T024 (post-merge CD + drift run URLs).
 
 spec-bridge sync: Foundational — pure deploy logic and workflow invariants: 3/3 · User Story 1 — main is always running on dev (P1) 🎯 MVP: 5/5 · User Story 2 — a bad deploy never takes dev down (P1): 3/3 · User Story 3 — drift is caught (P2): 3/3 · User Story 4 — only the tailnet reaches dev (P2): 2/2 · User Story 5 — the ops runbook (P3): 3/3 · Polish, re-ground, and the merge condition: 5/5 — status In Progress → Done
+
+T020 2026-09-29: operator removed /home/stacks/dev/proof, bootstrap, and proof logs. Verified: /home/stacks/dev holds only .env and backups/. dev /health ok on main HEAD e729b54 (deploy run 36613746216).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
