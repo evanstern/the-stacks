@@ -27,6 +27,7 @@ modules, or agents yet; those are M1 and beyond.
 - [[error-contract]] — the structured error shape every route returns, and the typed errors behind it.
 - [[static-serving]] — how the SPA is served and why the fallback must not shadow the API.
 - [[health-check]] — what "healthy" means here, and why it parses a body rather than a status code.
+- [[ai-gateway]] — the one seam for model calls: named providers/purposes, `chat()`/`embed()`, no vendor SDK or hard-coded vendor name.
 
 ## Data
 
