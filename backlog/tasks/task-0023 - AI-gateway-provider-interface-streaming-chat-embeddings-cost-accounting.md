@@ -30,12 +30,14 @@ Spec: specs/011-ai-gateway
 - [ ] #3 Tests use a fake provider; no test needs a network key
 - [ ] #4 Providers are named config entries (adapter kind, base URL, key env var); an openai-compatible adapter covers streaming chat and embeddings on stdlib fetch; no vendor SDK and no hard-coded provider name or key variable; purpose-to-provider-and-model is config
 - [x] #5 Spec phase: Foundational — types, config, usage, fake
-- [ ] #6 Spec phase: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
+- [x] #6 Spec phase: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
 - [ ] #7 Spec phase: US2 — embeddings through the gateway (P1)
 - [ ] #8 Spec phase: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
 - [ ] #9 Spec phase: US6 + wiring — no-key test run and startup
 - [ ] #10 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
