@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:55'
+updated_date: '2026-09-29 04:35'
 labels:
   - infra
 milestone: m-1
@@ -59,6 +59,12 @@ Phase 2 (T004-T010) done in 1f0dd03 + c6ba392 (down() destructuring bug found by
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 3 (T011-T016) done in 136622b: env status/prune[--check], env.test.mjs (pnpm check:env: up->health commit->down->zero resources; prune finds and removes orphan; both pass for real), warn-only Stop hook (always exits 0), CLAUDE.md Runtime stacks section after pdlc:grounding END, runbook gate lines. Orchestrator verified: settings.json diff adds only hooks.Stop; PreToolUse root-guard entries unchanged, asserted by env-orphan-hook.test.mjs (4/4 pass). ~164k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phases 4-5 (3a8cdcc, b5469e1) and post-#22 merge (77683a0, 15dbde0, d5853b0). Orchestrator verified: config.ts import-free (0 imports) with commit field; ci:check includes check:scripts + check:host-scripts; freshness OK 29; no org.the-stacks.env containers; no stray worktrees. T021 (praxisflux upstream request for env prune --check in the sweep skill) is outbound to another project: left unticked and surfaced to the operator, not filed silently. AC #6 is satisfied in-repo by the Stop hook + CLAUDE.md Runtime stacks section + runbook gate lines.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
