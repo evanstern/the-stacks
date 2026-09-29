@@ -39,8 +39,6 @@ Spec: specs/010-worktree-stacks
 - [x] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -75,6 +73,8 @@ Merge with main after #23 (77a2547, pins 8204d23, evidence ff21389): conflicts o
 spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 2/3
 
 Merged in PR #24 (5e5f05f); main CI green. Post-merge: env:prune --check exit 0 (no orphans). Remaining: T021 (praxisflux upstream request) awaits operator decision; task stays In Progress until then. Old root M0 stack (compose project the-stacks) left running: teardown needs operator approval.
+
+spec-bridge sync: Foundational — pure derivation library: 3/3 · User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP: 7/7 · User Story 2 — orphans found, gated, and warned (Priority: P2): 6/6 · User Story 3 — local main on demand (Priority: P3): 2/2 · Polish & re-ground: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
