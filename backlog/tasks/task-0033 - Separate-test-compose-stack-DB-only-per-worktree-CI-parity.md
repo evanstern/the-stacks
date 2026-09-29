@@ -32,12 +32,14 @@ Spec: specs/020-test-compose
 - [ ] #4 env:down and env:prune --check cover the test stack; an orphaned test stack is reported like any other
 - [ ] #5 worker.integration.test.ts passes 20 consecutive local runs with the app stack up
 - [ ] #6 The runtime-stacks and test-suite wiki notes and .env.example document the split
-- [ ] #7 Spec phase: Foundational — derivation and the test compose file
+- [x] #7 Spec phase: Foundational — derivation and the test compose file
 - [ ] #8 Spec phase: US2 — CI parity (Priority: P1)
 - [ ] #9 Spec phase: US1 + US3 — env machinery (Priority: P1/P2)
 - [ ] #10 Spec phase: US4 — documentation (Priority: P3)
 - [ ] #11 Spec phase: Verification, re-grounding, cleanup
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
