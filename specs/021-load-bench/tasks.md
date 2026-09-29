@@ -17,8 +17,8 @@ quickstart.md)
 
 **Purpose**: package wiring and data directories.
 
-- [ ] T001 Add `"bench:load": "tsc -b && node --env-file-if-exists=../../.env dist/bench/load/cli.js"` to `apps/server/package.json` scripts. Add root `"bench:load": "pnpm --filter @the-stacks/server bench:load"` to `package.json`.
-- [ ] T002 [P] Create `apps/server/bench/load/results/.gitkeep`. Create `apps/server/bench/load/profiles/commit.json`, `demand.json`, and `dev.json` with the values in data-model.md "Committed profiles". Use `commit.json` ingest volumes `[3, 6]`, workers `[1]`, `docBytes` 8192, `historyRows` 100, and concurrency users `[1, 3]` × 2000 ms. Format them with `pnpm format`.
+- [x] T001 Add `"bench:load": "tsc -b && node --env-file-if-exists=../../.env dist/bench/load/cli.js"` to `apps/server/package.json` scripts. Add root `"bench:load": "pnpm --filter @the-stacks/server bench:load"` to `package.json`.
+- [x] T002 [P] Create `apps/server/bench/load/results/.gitkeep`. Create `apps/server/bench/load/profiles/commit.json`, `demand.json`, and `dev.json` with the values in data-model.md "Committed profiles". Use `commit.json` ingest volumes `[3, 6]`, workers `[1]`, `docBytes` 8192, `historyRows` 100, and concurrency users `[1, 3]` × 2000 ms. Format them with `pnpm format`.
 
 ## Phase 2: Foundational (blocks every story)
 
