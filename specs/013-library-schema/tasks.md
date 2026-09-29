@@ -112,7 +112,7 @@ nearest-neighbour query uses the HNSW index and returns only that model's rows.
   list, then re-pin); add the note to INDEX.md; regenerate CAPSULES.md. Freshness gate prints
   OK.
 - [x] T014 `pnpm env:down`; `pnpm env:prune --check` exits 0.
-- [ ] T015 After merge: tick this file and run `spec-bridge:sync`.
+- [x] T015 After merge: tick this file and run `spec-bridge:sync`.
 
 ## Dependencies & Execution Order
 
