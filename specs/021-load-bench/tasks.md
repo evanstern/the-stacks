@@ -84,15 +84,15 @@ quickstart.md)
 
 ## Phase 8: Polish, gates, re-grounding, and the dev run
 
-- [ ] T025 Merge `origin/main` into the branch (never rebase). If TASK-0029 merged, check for `src/bench/` or `docs/wiki/benchmarks.md` overlap and resolve by keeping both benches' sections.
+- [x] T025 Merge `origin/main` into the branch (never rebase). If TASK-0029 merged, check for `src/bench/` or `docs/wiki/benchmarks.md` overlap and resolve by keeping both benches' sections.
 - [ ] T026 Dev run: **OPERATOR CHECKPOINT; the orchestrator runs it, not an implementer.** Announce the exact command from quickstart step 6, the target URL, the account name, and research R11's step list. Wait for the operator's explicit go on that command. The operator supplies the credentials in the shell. Run it from the Mac. Confirm the output shows `session ended: yes`. Commit the results file. If sign-out fails or `dev` is unhealthy, stop and report; do not run any vm-104 command without a separate per-command go.
-- [ ] T027 Run `REQUIRE_DATABASE=1 pnpm ci:check` on this worktree's stack. Export `TEST_DATABASE_URL` from the worktree `.env` first. It must be green with 0 DB suites skipped (the 5 non-commit cases show as named skips, which is expected). Record the counts and the commit-tier duration (SC-001) for the PR body. If CI's database role blocks `CREATE DATABASE`, stop and report; do not edit `.github/workflows/ci.yml` without that report.
-- [ ] T028 Verify content hygiene. `git diff origin/main --stat -- apps/server/bench/load` lists only profiles, `.gitkeep`, and results. Search the results files for the dev URL host, `session=`, and the dev username; expect no match.
-- [ ] T029 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each pinned note RE-PIN-ONLY or NEEDS-REVIEW against the diff. Expected: `test-suite` (new bench suites and visible skips), `ci-pipeline` (`ci:check` now runs the commit-tier cases inside `pnpm test`), `ingestion` (decision-0005's measurement exists; record the restart reclaim finding), `monorepo-and-toolchain` (root `bench:load` script). For `docs/wiki/benchmarks.md` (kind: pipeline): if TASK-0029 already merged it, add a "Load and stress" section and this feature's sources; otherwise create the note with that section, and TASK-0029 extends it. Cover the case registry and tiers, the load database isolation, direct enqueue and synthetic docs, forked workers, the degradation rules, the stress cases, the dev run's read-only steps, and the results format. Pin it and list it in `INDEX.md` under Testing and verification. State in the PR body which path was taken.
-- [ ] T030 Regenerate `docs/wiki/CAPSULES.md`, because a note was added or extended and descriptions changed.
-- [ ] T031 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
-- [ ] T032 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. It must exit 0. Tick this file's completed tasks.
-- [ ] T033 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
+- [x] T027 Run `REQUIRE_DATABASE=1 pnpm ci:check` on this worktree's stack. Export `TEST_DATABASE_URL` from the worktree `.env` first. It must be green with 0 DB suites skipped (the 5 non-commit cases show as named skips, which is expected). Record the counts and the commit-tier duration (SC-001) for the PR body. If CI's database role blocks `CREATE DATABASE`, stop and report; do not edit `.github/workflows/ci.yml` without that report.
+- [x] T028 Verify content hygiene. `git diff origin/main --stat -- apps/server/bench/load` lists only profiles, `.gitkeep`, and results. Search the results files for the dev URL host, `session=`, and the dev username; expect no match.
+- [x] T029 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each pinned note RE-PIN-ONLY or NEEDS-REVIEW against the diff. Expected: `test-suite` (new bench suites and visible skips), `ci-pipeline` (`ci:check` now runs the commit-tier cases inside `pnpm test`), `ingestion` (decision-0005's measurement exists; record the restart reclaim finding), `monorepo-and-toolchain` (root `bench:load` script). For `docs/wiki/benchmarks.md` (kind: pipeline): if TASK-0029 already merged it, add a "Load and stress" section and this feature's sources; otherwise create the note with that section, and TASK-0029 extends it. Cover the case registry and tiers, the load database isolation, direct enqueue and synthetic docs, forked workers, the degradation rules, the stress cases, the dev run's read-only steps, and the results format. Pin it and list it in `INDEX.md` under Testing and verification. State in the PR body which path was taken.
+- [x] T030 Regenerate `docs/wiki/CAPSULES.md`, because a note was added or extended and descriptions changed.
+- [x] T031 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
+- [x] T032 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. It must exit 0. Tick this file's completed tasks.
+- [x] T033 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
 
 ## Dependencies & Execution Order
 
@@ -162,3 +162,18 @@ worker to between 250-500 at two — real local-Postgres throughput, not a bench
 the case (and the CLI's exit code) correctly reports `fail` for this run. This is the
 decision-0005 measurement, expected to fail the CLI's overall exit code at this volume/tier
 combination; committed as-is per T024, not treated as a defect to fix.
+
+T029: TASK-0029 (PR #35) merged mid-Phase-8, so the "if TASK-0029 already merged it" branch of
+T025/T029 applied: `docs/wiki/benchmarks.md` already carried TASK-0029's full retrieval-bench
+note with a "## Load and stress" `_(placeholder — TASK-0030)_` section, per its own T-series
+work. Filled that section in place rather than creating a new note; also merged the frontmatter
+(`description`, `sources`) to cover both benches. The combined note's body (both benches'
+content) is 14,944 chars, over the 8,000-char note-size budget; `size_budget_exempt` was added
+rather than splitting, since splitting into a second note was explicitly ruled out (the
+orchestrator's mid-task instruction said "do not create a new note") — each bench's own section
+is independently well under budget. The merge also surfaced a pre-existing `pnpm lint` failure
+in TASK-0029's own committed results file
+(`apps/server/bench/retrieval/results/2026-09-29-1a20a99-10b1cef9.json`, unformatted before
+merge) — reformatted (values unchanged) so `REQUIRE_DATABASE=1 pnpm ci:check` is green on this
+branch. Post-merge `pnpm test` counts: 411 passed / 5 skipped of 416 with a reachable database
+(the 5 are this feature's named `demand`/`dev`-tier skips), 289/416 without.
