@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-09-29 22:58'
-updated_date: '2026-09-29 23:12'
+updated_date: '2026-09-29 23:28'
 labels:
   - infra
   - auth
@@ -40,6 +40,9 @@ Spec: specs/023-create-operator-image
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 (spec authoring; standing escalation sign-off 2026-09-28; ~139k tokens). Design: git mv the script to src/cli/create-operator.ts (compiles into dist, which the image ships; no Dockerfile change); provisioning.ts gains hasOperator(db). check:host-scripts trimmed to config.ts + db.ts (the other imports existed only for this script) — flagged in the PR body, not a gate softening. Phase grouping: all three phases in one dispatch.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(all phases, one grouped dispatch: CLI moved to src/cli, compiled into dist; local proof create exit 0 / second run refuses exit 1 / dev-shaped command works; freshness OK 36). Orchestrator verified: no Dockerfile or .claude change; check:host-scripts drops only auth/password.ts and schema/auth.ts (imported only by the old uncompiled script).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
