@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 22:58'
+updated_date: '2026-09-29 23:02'
 labels:
   - bench
 milestone: m-1
@@ -31,7 +31,7 @@ Spec: specs/021-load-bench
 - [ ] #3 Stress cases cover database connection exhaustion and app restart mid-ingest
 - [ ] #4 Each case declares its tier: every commit, on demand, or against dev only; out-of-tier cases skip with a visible reason
 - [ ] #5 Results are stored with config and commit
-- [ ] #6 Spec phase: Setup
+- [x] #6 Spec phase: Setup
 - [ ] #7 Spec phase: Foundational (blocks every story)
 - [ ] #8 Spec phase: User Story 1 — find where ingest degrades (P1, AC #1)
 - [ ] #9 Spec phase: User Story 2 — find where concurrent users degrade (P1, AC #2)
@@ -40,6 +40,8 @@ Spec: specs/021-load-bench
 - [ ] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
 - [ ] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
