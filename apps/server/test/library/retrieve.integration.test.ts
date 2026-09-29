@@ -1,11 +1,16 @@
 import { randomUUID } from "node:crypto";
-import { sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { FakeProvider } from "../../src/ai/adapters/fake.js";
+import type { AiConfig } from "../../src/ai/config.js";
+import { createGateway } from "../../src/ai/gateway.js";
+import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import type { Block, ParsedBook } from "../../src/library/ddb/index.js";
 import type { RetrieveDeps } from "../../src/library/retrieve.js";
 import { retrieve } from "../../src/library/retrieve.js";
-import { storeParsedBook } from "../../src/library/store.js";
+import { attachEmbeddings, storeParsedBook } from "../../src/library/store.js";
+import { libraryChunks } from "../../src/schema/library.js";
 
 /**
  * Integration tests for `retrieve` (specs/015-hybrid-retrieval/tasks.md
@@ -92,6 +97,30 @@ function ftsDeps(k = 8): RetrieveDeps {
   };
 }
 
+async function readChunks(documentId: string) {
+  return requireDb()
+    .select()
+    .from(libraryChunks)
+    .where(eq(libraryChunks.documentId, documentId))
+    .orderBy(asc(libraryChunks.ordinal));
+}
+
+/** A gateway wired to one `fake` provider, with a single `embedding` purpose under `model`. */
+function buildVectorGateway(fake: FakeProvider, model: string) {
+  const config: AiConfig = {
+    providers: {
+      "fake-provider": { kind: "fake", baseUrl: "http://fake/embed" },
+    },
+    purposes: { embedding: { provider: "fake-provider", model, op: "embed" } },
+    prices: {},
+  };
+  return createGateway({
+    config,
+    sink: memorySink(),
+    adapters: { fake: () => fake },
+  });
+}
+
 /** Runs `query` with seq scans disabled and returns the EXPLAIN output as one string. */
 async function explain(query: ReturnType<typeof sql>): Promise<string> {
   return requireDb().transaction(async (tx) => {
@@ -176,5 +205,174 @@ describe.skipIf(!reachable)("retrieve — fts mode (US1, integration)", () => {
       LIMIT 50
     `);
     expect(plan).toContain("library_chunks_tsv_idx");
+  });
+});
+
+describe.skipIf(!reachable)("retrieve — vector mode (US2, integration)", () => {
+  /** A deterministic 1024-dim unit-ish vector, distinct per label (research R9). */
+  function vec(label: string): number[] {
+    const v = new Array(1024).fill(0);
+    for (let i = 0; i < label.length; i++) v[i % 1024] += label.charCodeAt(i);
+    return v;
+  }
+
+  it("T011: filters by the model the gateway reports, never a chunk whose only vector is the decoy's", async () => {
+    const model = `model-${randomUUID()}`;
+    const decoyModel = `decoy-${randomUUID()}`;
+    const questionVec = vec("question");
+
+    const { documentId: targetDoc } = await storeBook("Vector Target", [
+      "A paragraph about the target passage.",
+    ]);
+    const { documentId: decoyDoc } = await storeBook("Vector Decoy", [
+      "A paragraph about the decoy passage.",
+    ]);
+    const [targetChunk] = await readChunks(targetDoc);
+    const [decoyChunk] = await readChunks(decoyDoc);
+
+    await attachEmbeddings(requireDb(), [
+      { chunkId: targetChunk.id, model, dim: 1024, vector: questionVec },
+    ]);
+    // Decoy: identical vector (would be nearest by raw distance) but under a
+    // different model — must never surface (invariant 5, US2 AC3).
+    await attachEmbeddings(requireDb(), [
+      {
+        chunkId: decoyChunk.id,
+        model: decoyModel,
+        dim: 1024,
+        vector: questionVec,
+      },
+    ]);
+
+    const fake = new FakeProvider().scriptEmbed({ vectors: [questionVec] });
+    const gateway = buildVectorGateway(fake, model);
+    const deps: RetrieveDeps = {
+      db: requireDb(),
+      gateway,
+      config: { mode: "vector", k: 8, embedPurpose: "embedding" },
+    };
+
+    const result = await retrieve(deps, { question: "anything" });
+
+    expect(result.mode).toBe("vector");
+    expect(result.embeddingModel).toBe(model);
+    expect(result.passages.map((p) => p.chunkId)).toEqual([targetChunk.id]);
+    expect(result.passages.every((p) => p.chunkId !== decoyChunk.id)).toBe(
+      true,
+    );
+  });
+
+  it("T011: makes exactly one embed call in vector mode, zero in fts mode (SC-003)", async () => {
+    const model = `model-${randomUUID()}`;
+    const questionVec = vec("count");
+    const { documentId } = await storeBook("Vector Embed Count", [
+      "A paragraph for counting embed calls.",
+    ]);
+    const [chunk] = await readChunks(documentId);
+    await attachEmbeddings(requireDb(), [
+      { chunkId: chunk.id, model, dim: 1024, vector: questionVec },
+    ]);
+
+    const fake = new FakeProvider().scriptEmbed({ vectors: [questionVec] });
+    const gateway = buildVectorGateway(fake, model);
+
+    await retrieve(
+      {
+        db: requireDb(),
+        gateway,
+        config: { mode: "vector", k: 8, embedPurpose: "embedding" },
+      },
+      { question: "anything" },
+    );
+    expect(fake.embedCalls).toHaveLength(1);
+
+    await retrieve(
+      {
+        db: requireDb(),
+        gateway,
+        config: { mode: "fts", k: 8, embedPurpose: "embedding" },
+      },
+      { question: "anything" },
+    );
+    expect(fake.embedCalls).toHaveLength(1);
+  });
+
+  it("T011: config mode fts + request mode vector runs vector, and request k overrides config k (US2 AC4, SC-002)", async () => {
+    const model = `model-${randomUUID()}`;
+    const questionVec = vec("override");
+    const { documentId } = await storeBook("Vector Override", [
+      "First paragraph for override test.",
+      "Second paragraph for override test.",
+    ]);
+    const chunks = await readChunks(documentId);
+    await attachEmbeddings(requireDb(), [
+      { chunkId: chunks[0].id, model, dim: 1024, vector: vec("override-a") },
+      { chunkId: chunks[1].id, model, dim: 1024, vector: vec("override-b") },
+    ]);
+
+    const fake = new FakeProvider().scriptEmbed({ vectors: [questionVec] });
+    const gateway = buildVectorGateway(fake, model);
+    const deps: RetrieveDeps = {
+      db: requireDb(),
+      gateway,
+      config: { mode: "fts", k: 8, embedPurpose: "embedding" },
+    };
+
+    const result = await retrieve(deps, {
+      question: "anything",
+      mode: "vector",
+      k: 1,
+    });
+
+    expect(result.mode).toBe("vector");
+    expect(result.passages).toHaveLength(1);
+  });
+
+  it("T011: an unknown embed purpose throws naming RETRIEVAL_EMBED_PURPOSE, with the gateway error as cause (invariant 6)", async () => {
+    const gateway = createGateway({
+      config: { providers: {}, purposes: {}, prices: {} },
+      sink: memorySink(),
+    });
+    const deps: RetrieveDeps = {
+      db: requireDb(),
+      gateway,
+      config: { mode: "vector", k: 8, embedPurpose: "embedding" },
+    };
+
+    // Sequential await of embed-then-search (retrieve.ts) means the vector
+    // query never runs once embed rejects — no separate spy needed.
+    await expect(retrieve(deps, { question: "anything" })).rejects.toThrow(
+      /RETRIEVAL_EMBED_PURPOSE/,
+    );
+    await expect(
+      retrieve(deps, { question: "anything" }),
+    ).rejects.toMatchObject({
+      cause: expect.any(Error),
+    });
+  });
+
+  it("T011: EXPLAIN of the vector query names library_embeddings_embedding_idx", async () => {
+    const vecLiteral = `[${vec("explain-probe").join(",")}]`;
+    const plan = await requireDb().transaction(async (tx) => {
+      await tx.execute(sql`SET LOCAL enable_seqscan = off`);
+      await tx.execute(sql`SET LOCAL enable_bitmapscan = off`);
+      await tx.execute(sql`SET LOCAL enable_sort = off`);
+      await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
+      await tx.execute(sql`SET LOCAL hnsw.ef_search = 100`);
+      const result = await tx.execute(sql`
+        EXPLAIN
+        SELECT c.id
+        FROM library_embeddings e
+        JOIN library_chunks c ON c.id = e.chunk_id
+        JOIN library_documents d ON d.id = c.document_id
+        WHERE e.model = 'probe'
+        ORDER BY e.embedding <=> ${vecLiteral}::vector, c.id ASC
+        LIMIT 50
+      `);
+      return (result.rows as { "QUERY PLAN": string }[])
+        .map((r) => r["QUERY PLAN"])
+        .join("\n");
+    });
+    expect(plan).toContain("library_embeddings_embedding_idx");
   });
 });

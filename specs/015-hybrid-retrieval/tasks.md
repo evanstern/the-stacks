@@ -85,7 +85,7 @@ passage comes back first and its span slices back to its text.
 **Independent Test**: the same question under `fts` and `vector`, set by config and by
 override, returns results from the right search and makes the right number of embed calls.
 
-- [ ] T011 [US2] Add to `retrieve.integration.test.ts`: build the gateway with
+- [x] T011 [US2] Add to `retrieve.integration.test.ts`: build the gateway with
   `createGateway({config, sink: memorySink(), adapters: {fake: () => fake}})` where `config`
   declares a `fake`-kind provider and an `embed` purpose with a per-test model name, and `fake`
   is a `FakeProvider` the test holds. Attach vectors under that model with `attachEmbeddings`,
@@ -98,7 +98,7 @@ override, returns results from the right search and makes the right number of em
   error as `cause`, and runs no search (invariant 6); `EXPLAIN` of the vector query, with
   `enable_seqscan`, `enable_bitmapscan`, and `enable_sort` off, names
   `library_embeddings_embedding_idx`.
-- [ ] T012 [US2] Implement the vector search in `retrieve.ts` per research R3 and R4: call
+- [x] T012 [US2] Implement the vector search in `retrieve.ts` per research R3 and R4: call
   `deps.gateway.embed({purpose: config.embedPurpose, texts: [question], signal})` once; take
   `vectors[0].model`; in one transaction `SET LOCAL hnsw.iterative_scan = strict_order` and
   `SET LOCAL hnsw.ef_search = 100`, then select chunks joined to documents
