@@ -1,10 +1,10 @@
 ---
 id: TASK-0032
 title: 'Fix invitation redeem: username conflict throws instead of returning conflict'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 05:35'
-updated_date: '2026-09-29 15:19'
+updated_date: '2026-09-29 15:53'
 labels:
   - bug
   - auth
@@ -42,6 +42,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 3 gates+wiki, ~136k tokens). Follow-up for triage: docs/wiki/test-suite.md pins only 11 of 22 server test files (ai, library, ddb suites from wave 1 are unlisted); pre-existing, out of 0032 scope.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Failing tests first: 4/4 · One shared helper and the fix (US1 + US2): 5/5 · Gates and grounding: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
