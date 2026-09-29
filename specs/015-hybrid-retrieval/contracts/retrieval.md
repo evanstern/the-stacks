@@ -39,11 +39,17 @@ export function retrieve(
   req: RetrieveRequest,
 ): Promise<RetrievalResult>;
 
+export interface RrfCandidate {
+  chunkId: string;
+  book: string;                                 // for the tie-break; PassageAnchor.book
+  start: number;                                // for the tie-break; PassageAnchor.start
+}
+
 /** Pure Reciprocal Rank Fusion; exported for the benchmark and for unit tests. */
 export function fuseRrf(
-  lists: { vector: string[]; fts: string[] },  // chunk ids, best first
+  lists: { vector: RrfCandidate[]; fts: RrfCandidate[] },  // best first
   rrfK?: number,                                // default RRF_K = 60
-): { chunkId: string; score: number }[];        // best first, ties by chunkId ascending
+): { chunkId: string; score: number }[];        // best first; ties by book, then start, then chunkId
 ```
 
 ## Result type
@@ -116,8 +122,13 @@ All three variables are optional. An unset environment yields the defaults and n
    semantics). Question text is never parsed as query syntax: `& | ! ( ) : * '` are plain text.
 8. `hybrid` returns each chunk at most once, ordered by `fuseRrf`. A chunk found by one
    search only is still eligible.
-9. `fuseRrf` score is `Σ 1 / (rrfK + rank)` over the lists containing the chunk. Ties break by
-   `chunkId` ascending. The same inputs always produce the same output.
+9. `fuseRrf` score is `Σ 1 / (rrfK + rank)` over the lists containing the chunk. Ties (and the
+   `fts`/`vector` SQL orderings that feed it) break by content, never by `chunkId` alone: `book`
+   ascending, then anchor `start` ascending, then `chunkId` ascending as a last resort for two
+   chunks sharing the exact same anchor. The same inputs always produce the same output.
+   `library_chunks.id` is a random UUID regenerated on every ingest, so ordering by it first
+   made `fts`/`hybrid` recall reorder across re-ingests of the same content — fixed by operator
+   ruling 2026-09-29 (option 1: order by content, `chunkId` only as the final tiebreak).
 10. `retrieve` never writes to the database.
 
 ## Obligations on other tasks

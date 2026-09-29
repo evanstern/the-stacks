@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference. The larger, separate ingestion-pipeline suite under test/library/ is [[ingestion]].
+description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference. The larger, separate ingestion-pipeline suite under test/library/ is [[ingestion]]; the retrieval benchmark's own suite under test/bench/ is [[benchmarks]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -20,7 +20,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
 ---
 
 # Test suite
@@ -29,6 +29,9 @@ The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
 added a much larger suite alongside them under `apps/server/test/library/` — see [[ingestion]]
 for that one, and its `ai.*.test.ts` siblings predate this note and aren't covered here either.
+TASK-0029 added a third sibling suite, `apps/server/test/bench/` (a `bow`-embedding
+determinism unit test plus the per-commit recall regression gate, run the same
+loud-skip-or-throw way as the integration files below) — see [[benchmarks]].
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
 session auth (US1–US4), the event log's append/read/visibility, and the WebSocket gateway's

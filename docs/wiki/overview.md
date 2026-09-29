@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
+verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
 ---
 
 # Overview
@@ -90,3 +90,8 @@ hand" gap this note previously described.
 Each worktree can run its own isolated compose stack (`pnpm env:*`, [[runtime-stacks]]):
 labeled containers, derived ports, and a `commit` baked into the image and surfaced at
 `/health` so which build is answering is never a guess.
+
+A retrieval benchmark (`pnpm bench:retrieval`, TASK-0029, [[benchmarks]]) measures
+[[retrieval]]'s recall across embedding models, dimensions, and chunking strategies against a
+licensed corpus, and its `bow`-only cell runs as a per-commit regression gate inside `pnpm
+test`.
