@@ -36,15 +36,11 @@ Spec: specs/013-library-schema
 - [ ] #9 Spec phase: Immutability and polish
 <!-- AC:END -->
 
+## Implementation Notes
 
-
-
-
-
-
-
-
-
+<!-- SECTION:NOTES:BEGIN -->
+spec-bridge sync: Foundational — schema and migration: 0/3 · User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP: 0/3 · User Story 2 — keyword search on every chunk (Priority: P1): 0/1 · User Story 3 — embeddings from several models (Priority: P2): 0/3 · Immutability and polish: 0/5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
