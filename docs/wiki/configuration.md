@@ -6,15 +6,17 @@ sources:
   - apps/server/src/config.ts
   - .env.example
   - apps/server/scripts/migrate.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: ba9fcbb4fa3bdc10f8e66f403cdee90a2093f752
 ---
 
 # Configuration
 
 `apps/server/src/config.ts` exports `loadConfig(env = process.env): ServerConfig`, reading
-exactly two things: `DATABASE_URL` (required — throws `"DATABASE_URL environment variable is
-required"` if unset) and the port the server binds to. `ServerConfig` is `{ databaseUrl: string,
-port: number }`.
+`DATABASE_URL` (required — throws `"DATABASE_URL environment variable is required"` if unset),
+the port the server binds to, and (since [[ai-gateway]]) the optional AI gateway config.
+`ServerConfig` is `{ databaseUrl: string, port: number, ai?: AiConfig }`. `ai` is populated by
+`ai/config.ts`'s `loadAiConfig(env)` on every call — never `undefined` in practice, since an
+AI gateway with no `AI_*` env vars set still yields a valid, empty config (see [[ai-gateway]]).
 
 ## How it works
 
@@ -52,13 +54,15 @@ suffixes the compiled server code needs.
 
 Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unconditionally)
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
-and this file both assume. See [[overview]]'s "environment contract" callout for the same
+and this file both assume, and now also documents the AI gateway's three env vars (see
+[[ai-gateway]]). See [[overview]]'s "environment contract" callout for the same
 `DATABASE_URL`-vs-`TEST_DATABASE_URL` trap stated at a higher level.
 
 ## Operational notes
 
 Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional: `APP_PORT`
-(default `3000`, must parse to a positive integer). `TEST_DATABASE_URL` is consulted only by
-host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running server;
-leaving it unset makes the event-log integration tests skip rather than fail (per
-`.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.
+(default `3000`, must parse to a positive integer), and `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES`
+(see [[ai-gateway]]; unset means no model features, not an error). `TEST_DATABASE_URL` is
+consulted only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the
+running server; leaving it unset makes the event-log integration tests skip rather than fail
+(per `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.

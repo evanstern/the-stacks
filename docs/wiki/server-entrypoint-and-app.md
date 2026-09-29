@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: ba9fcbb4fa3bdc10f8e66f403cdee90a2093f752
 ---
 
 # Server entrypoint and app
@@ -16,7 +16,11 @@ via `createApp` without binding a port.
 
 ## How it works
 
-`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), `createDb(config.databaseUrl)`,
+`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then constructs the AI
+gateway (see [[ai-gateway]]) via `createGateway({ config: config.ai, sink: logSink })` from
+`ai/gateway.ts` — imported under the alias `createAiGateway` to avoid colliding with the
+WebSocket module's own `createGateway`. This slice adds no route, so the AI gateway is unused
+until TASK-0027; with no `AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
 `createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db })`, then
 `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
@@ -44,10 +48,11 @@ runs.
 
 ## Connections
 
-Wires together [[configuration]] (`loadConfig`), [[error-contract]] (`errorHandler`/
-`notFoundHandler`), [[static-serving]] (mount-order guarantee), [[session-auth]]
-(`createValidateSession` shared by both transports), and the websocket gateway. See
-[[overview]] for the "one process, one port" framing this file implements.
+Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, unused this
+slice), [[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
+guarantee), [[session-auth]] (`createValidateSession` shared by both transports), and the
+websocket gateway. See [[overview]] for the "one process, one port" framing this file
+implements.
 
 ## Operational notes
 

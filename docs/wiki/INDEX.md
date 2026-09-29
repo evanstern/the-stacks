@@ -8,8 +8,9 @@ orientation.
 **State of the codebase at this pin:** M0, the walking skeleton, plus the first `library`
 module. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
 Postgres event log, session auth, a WebSocket gateway, and a React SPA — and one `library`
-module (the D&D Beyond export parser, [[ddb-parser]]) has landed. No codex, system modules,
-or agents yet.
+module (the D&D Beyond export parser, [[ddb-parser]]) has landed. The provider-agnostic AI
+gateway ([[ai-gateway]]) has landed. No codex, system modules, or agents yet — the gateway
+has no caller until the rules-answerer.
 
 ## Start here
 
@@ -28,6 +29,7 @@ or agents yet.
 - [[error-contract]] — the structured error shape every route returns, and the typed errors behind it.
 - [[static-serving]] — how the SPA is served and why the fallback must not shadow the API.
 - [[health-check]] — what "healthy" means here, and why it parses a body rather than a status code.
+- [[ai-gateway]] — the one seam for model calls: named providers/purposes, `chat()`/`embed()`, no vendor SDK or hard-coded vendor name.
 
 ## Data
 
