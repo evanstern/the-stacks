@@ -146,3 +146,28 @@ was waiting on before its own worker got to it — a latent hazard since Phase 1
 invisible until a suite started polling a shared queue to a terminal outcome. Confirmed
 flaky under `pnpm ci:check` (full suite) without the config, stable across repeated runs
 with it. No task's own behavior changed; this only serializes test-file execution.
+
+## Found in T034: nested zip temp-file name collision (zip.ts)
+
+Root cause: `walkZip` (`apps/server/src/library/ingest/zip.ts`, extract branch) named each
+extracted entry's temp file from a `counter` local to that `walkZip` call, restarting at 1
+for every nested call, while every nesting level shares the same `opts.tmpDir`. In the real
+LMoP export, an outer zip's combined-book zip can land as the first extracted entry at its
+level (temp file `<tmpDir>/1.zip`, held open for the whole nested walk); that combined zip's
+own first inner chapter-zip extraction independently starts its counter at 1 too, so it wrote
+back to the same `<tmpDir>/1.zip` — truncating the file its own (or an ancestor's) still-open
+read was streaming from. The next central-directory-driven read past that point failed as
+yauzl's "unexpected end of file", inside a nested `walkZip` while a parent walk was open, per
+the observed job failure.
+
+Fix: `walkZip` now names each extracted entry's temp file with `crypto.randomUUID()` instead
+of a per-call counter, so no two extractions across an entire nested walk (any depth, any
+sibling order) can ever collide on the same path — no shared/threaded counter state needed.
+
+Reproduced without the real export: `apps/server/test/library/collect.test.ts` — "T034:
+LMoP real-export shape — combined zip is the first extracted entry, with data-descriptor
+chapters" (fails with the same `ZipError: Zip read failed: unexpected EOF` before the fix,
+passes after). `zip-writer.ts` gained `dataDescriptor` support (general-purpose bit 3) to
+match the real export's shape. De-dup still holds for this shape (`duplicatePages > 0`).
+
+Not ticking T034 here; the orchestrator re-runs it.

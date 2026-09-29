@@ -22,6 +22,8 @@ export interface ZipWriterEntry {
   declaredSize?: number;
   /** Overrides the stored CRC-32 (CRC-mismatch tests). */
   declaredCrc32?: number;
+  /** Writes a data descriptor after the entry data (general-purpose bit 3), as real archivers do. */
+  dataDescriptor?: boolean;
 }
 
 function dosDateTime(): { time: number; date: number } {
@@ -49,7 +51,9 @@ export function writeZip(entries: ZipWriterEntry[]): Buffer {
     const compressed = method === "deflate" ? deflateRawSync(raw) : raw;
     const crc32 = (entry.declaredCrc32 ?? zlib.crc32(raw)) >>> 0;
     const uncompressedSize = entry.declaredSize ?? raw.length;
-    const gpFlag = entry.encrypted ? 0x0001 : 0x0000;
+    const gpFlag =
+      (entry.encrypted ? 0x0001 : 0x0000) |
+      (entry.dataDescriptor ? 0x0008 : 0x0000);
 
     const localHeader = Buffer.alloc(30);
     localHeader.writeUInt32LE(0x04034b50, 0);
@@ -58,15 +62,27 @@ export function writeZip(entries: ZipWriterEntry[]): Buffer {
     localHeader.writeUInt16LE(methodCode, 8);
     localHeader.writeUInt16LE(time, 10);
     localHeader.writeUInt16LE(date, 12);
-    localHeader.writeUInt32LE(crc32, 14);
-    localHeader.writeUInt32LE(compressed.length, 18);
-    localHeader.writeUInt32LE(uncompressedSize, 22);
+    // Bit 3 set: real values are unknown when the local header is written,
+    // so APPNOTE requires zeros here; they land in the data descriptor below.
+    localHeader.writeUInt32LE(entry.dataDescriptor ? 0 : crc32, 14);
+    localHeader.writeUInt32LE(entry.dataDescriptor ? 0 : compressed.length, 18);
+    localHeader.writeUInt32LE(entry.dataDescriptor ? 0 : uncompressedSize, 22);
     localHeader.writeUInt16LE(nameBuf.length, 26);
     localHeader.writeUInt16LE(0, 28);
 
     const localOffset = offset;
     localParts.push(localHeader, nameBuf, compressed);
     offset += localHeader.length + nameBuf.length + compressed.length;
+
+    if (entry.dataDescriptor) {
+      const descriptor = Buffer.alloc(16);
+      descriptor.writeUInt32LE(0x08074b50, 0);
+      descriptor.writeUInt32LE(crc32, 4);
+      descriptor.writeUInt32LE(compressed.length, 8);
+      descriptor.writeUInt32LE(uncompressedSize, 12);
+      localParts.push(descriptor);
+      offset += descriptor.length;
+    }
 
     const centralHeader = Buffer.alloc(46);
     centralHeader.writeUInt32LE(0x02014b50, 0);

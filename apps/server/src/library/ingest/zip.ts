@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
 import { unlink } from "node:fs/promises";
 import path from "node:path";
@@ -155,7 +156,6 @@ export async function walkZip(
     );
   }
 
-  let counter = 0;
   try {
     for await (const entry of zipfile.eachEntry()) {
       const info = toEntryInfo(entry);
@@ -188,8 +188,12 @@ export async function walkZip(
         continue;
       }
 
-      counter += 1;
-      const destPath = path.join(opts.tmpDir, `${counter}.zip`);
+      // A per-call counter would restart at 1 for every nested walkZip
+      // call while all levels share opts.tmpDir — a nested zip's first
+      // extraction could then collide with (and truncate) an ancestor's
+      // still-open temp file of the same name. A UUID is unique across
+      // the whole nested walk regardless of depth or sibling order.
+      const destPath = path.join(opts.tmpDir, `${randomUUID()}.zip`);
       try {
         await extractEntryToFile(zipfile, entry, destPath);
         try {

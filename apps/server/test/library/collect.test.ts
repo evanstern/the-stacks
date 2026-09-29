@@ -130,6 +130,55 @@ describe("collectPages", () => {
     expect(result.duplicatePages).toBe(2);
   });
 
+  it("T034: LMoP real-export shape — combined zip is the first extracted entry, with data-descriptor chapters", async () => {
+    // Reproduces the T034 field failure: the combined zip lands as the
+    // *first* extracted entry at its level, so its own temp file (e.g.
+    // tmpDir/<n>) is still open for reading when its first inner chapter
+    // zip is extracted. A naming scheme that restarts its counter per
+    // nesting level (or per sibling) can pick that same name and truncate
+    // the file out from under the read in progress, surfacing as yauzl's
+    // "unexpected end of file" on the *next* entry.
+    const chapterOne = writeZip([{ name: "page.html", data: "<p>One</p>" }]);
+    const chapterTwo = writeZip([{ name: "page.html", data: "<p>Two</p>" }]);
+    const combined = writeZip([
+      zipDir("lost-mine-of-phandelver"),
+      { name: ".DS_Store", data: "ds store" },
+      {
+        name: "__MACOSX/lost-mine-of-phandelver/._01 - Chapter One.zip",
+        data: "resource fork",
+      },
+      {
+        name: "01 - Chapter One.zip",
+        data: chapterOne,
+        method: "deflate",
+        dataDescriptor: true,
+      },
+      {
+        name: "02 - Chapter Two.zip",
+        data: chapterTwo,
+        method: "deflate",
+        dataDescriptor: true,
+      },
+    ]);
+    const zip = await upload(
+      writeZip([
+        zipDir("lost-mines-of-phandelver-zip"),
+        // combined.zip must be the first extracted (non-directory) entry —
+        // that's what puts its temp file at the counter value its own
+        // first inner extraction will also land on.
+        { name: "combined.zip", data: combined, method: "deflate" },
+        { name: "01 - Chapter One.zip", data: chapterOne, method: "deflate" },
+        { name: "02 - Chapter Two.zip", data: chapterTwo, method: "deflate" },
+      ]),
+    );
+    const result = await collectPages(zip, "zip", "lmop.zip", { tmpDir: dir });
+    expect(result.pages.map((p) => p.text).sort()).toEqual([
+      "<p>One</p>",
+      "<p>Two</p>",
+    ]);
+    expect(result.duplicatePages).toBeGreaterThan(0);
+  });
+
   it("T020: PHB order — numeric collation, not lexical", async () => {
     const zip = await upload(
       writeZip([
