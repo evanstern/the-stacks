@@ -113,13 +113,13 @@ removes it; `prune --check` exits 0.
 **Independent Test**: `pnpm env:main` → `/health` commit equals `git rev-parse origin/main`;
 root `git status` unchanged; `pnpm env:down main` → nothing left, `env-main` worktree gone.
 
-- [ ] T017 [US3] `scripts/env.mjs`: add `main` — `git fetch origin main`; create
+- [x] T017 [US3] `scripts/env.mjs`: add `main` — `git fetch origin main`; create
   `.worktrees/env-main` with `git worktree add --detach … origin/main` or, when present,
   inside it `git checkout --detach origin/main`, `git reset --hard origin/main`,
   `git clean -fdx -e .env`; then `up` with `mainIdentity()`. `down main` downs `stacks-main`
   and runs `git worktree remove --force .worktrees/env-main`. No command runs with cwd = root
   except `fetch` and `worktree add/remove`.
-- [ ] T018 [US3] Manual proof, recorded in board notes: root `git status --porcelain` output
+- [x] T018 [US3] Manual proof, recorded in board notes: root `git status --porcelain` output
   identical before and after `pnpm env:main`; `/health` commit equals `origin/main`; after
   `pnpm env:down main`, `pnpm env:status` shows nothing and `git worktree list` has no
   `env-main`.
@@ -127,7 +127,7 @@ root `git status` unchanged; `pnpm env:down main` → nothing left, `env-main` w
 ## Phase 5: Polish & re-ground
 
 - [ ] T019 Run `pnpm ci:check` and `pnpm check:env`; paste both results into the PR body.
-- [ ] T020 Run `/grounding-wiki:wiki-update`. Expected NEEDS-REVIEW: `compose-stack`,
+- [x] T020 Run `/grounding-wiki:wiki-update`. Expected NEEDS-REVIEW: `compose-stack`,
   `health-check`, `configuration`, `container-image`. Add a note for the env tooling. The
   freshness gate (`gates/cli.mjs freshness . docs/wiki`) prints `OK`.
 - [ ] T021 File the praxisflux upstream request (the sweep skill runs `env prune --check`

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// scripts/env.mjs — the `pnpm env:*` CLI (spec 010). Phases 2–3 implement
-// `up`, `down`, `status`, and `prune`; `main` (Phase 4) lands later. See
-// specs/010-worktree-stacks/contracts/env-cli.md.
+// scripts/env.mjs — the `pnpm env:*` CLI (spec 010): `up`, `down` (`[main]`),
+// `status`, `prune`, and `main` (a local `origin/main` stack in a detached
+// worktree, research R8). See specs/010-worktree-stacks/contracts/env-cli.md.
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import net from "node:net";
@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import {
   classifyStacks,
   deriveIdentity,
+  mainIdentity,
   mergeEnvFile,
   parseEnvKeys,
   parseWorktreeList,
@@ -99,13 +100,7 @@ function composeEnv({ env, toplevel, commit }) {
   };
 }
 
-async function up() {
-  const cwd = process.cwd();
-  if (!dockerReachable())
-    environmentError(
-      "Docker is not reachable — start Docker Desktop and try again.",
-    );
-  const { toplevel, identity } = resolveIdentityOrRefuse(cwd);
+async function runUp(toplevel, identity) {
   const { env, project, appPort, dbPort } = identity;
 
   for (const [label, port] of [
@@ -139,27 +134,81 @@ async function up() {
   );
 }
 
-function down() {
-  const cwd = process.cwd();
+async function up() {
   if (!dockerReachable())
     environmentError(
       "Docker is not reachable — start Docker Desktop and try again.",
     );
-  const {
-    toplevel,
-    identity: { project },
-  } = resolveIdentityOrRefuse(cwd);
+  const { toplevel, identity } = resolveIdentityOrRefuse(process.cwd());
+  await runUp(toplevel, identity);
+}
+
+function down(isMain) {
+  if (!dockerReachable())
+    environmentError(
+      "Docker is not reachable — start Docker Desktop and try again.",
+    );
+  let toplevel, project;
+  if (isMain) {
+    project = "stacks-main";
+  } else {
+    ({
+      toplevel,
+      identity: { project },
+    } = resolveIdentityOrRefuse(process.cwd()));
+  }
 
   const result = spawnSync(
     "docker",
     ["compose", "-p", project, "down", "-v", "--remove-orphans"],
-    { cwd: toplevel, stdio: "inherit" },
+    toplevel ? { cwd: toplevel, stdio: "inherit" } : { stdio: "inherit" },
   );
   if (result.status !== 0) {
     console.error(`${project}: docker compose down failed.`);
     process.exit(1);
   }
   console.log(`${project}: down`);
+
+  if (isMain) {
+    const rootPath = rootToplevel(process.cwd());
+    const envMainPath = path.join(rootPath, ".worktrees", "env-main");
+    if (existsSync(envMainPath)) {
+      try {
+        git(["worktree", "remove", "--force", envMainPath], rootPath);
+      } catch (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+      console.log(`removed worktree ${envMainPath}`);
+    }
+  }
+}
+
+/** `pnpm env:main` (research R8): fresh detached `origin/main` worktree, then `up`. */
+async function mainVerb() {
+  if (!dockerReachable())
+    environmentError(
+      "Docker is not reachable — start Docker Desktop and try again.",
+    );
+  const rootPath = rootToplevel(process.cwd());
+  const envMainPath = path.join(rootPath, ".worktrees", "env-main");
+  try {
+    git(["fetch", "origin", "main"], rootPath);
+    if (existsSync(envMainPath)) {
+      git(["checkout", "--detach", "origin/main"], envMainPath);
+      git(["reset", "--hard", "origin/main"], envMainPath);
+      git(["clean", "-fdx", "-e", ".env"], envMainPath);
+    } else {
+      git(
+        ["worktree", "add", "--detach", envMainPath, "origin/main"],
+        rootPath,
+      );
+    }
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+  await runUp(envMainPath, mainIdentity());
 }
 
 function resolveIdentityOrRefuse(cwd) {
@@ -287,13 +336,16 @@ switch (verb) {
     await up();
     break;
   case "down":
-    down();
+    down(rest.includes("main"));
     break;
   case "status":
     status();
     break;
   case "prune":
     prune(rest.includes("--check"));
+    break;
+  case "main":
+    await mainVerb();
     break;
   default:
     console.error(

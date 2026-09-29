@@ -1,0 +1,87 @@
+T018 manual proof — `pnpm env:main` / `pnpm env:down main` (spec 010, Phase 4)
+Run 2026-09-28/29 from .worktrees/task-0020, root at /Users/evanstern/projects/the-stacks.
+
+## Before
+
+$ git -C /Users/evanstern/projects/the-stacks status --porcelain
+(empty)
+
+$ git -C /Users/evanstern/projects/the-stacks rev-parse HEAD
+a5e7aa4766a1fcbffcf5266871ca0c7e63b751e3
+
+$ git -C /Users/evanstern/projects/the-stacks branch --show-current
+main
+
+Pre-existing root M0 stack `the-stacks-db-1` (compose project `the-stacks`) was already
+running but publishes no host ports (confirmed via `docker ps`), so it did not conflict
+with ports 3000/5432. `lsof -iTCP:3000 -sTCP:LISTEN` and `lsof -iTCP:5432 -sTCP:LISTEN`
+were both empty before the run.
+
+## `pnpm env:main`
+
+$ pnpm env:main
+... (build output omitted) ...
+Container stacks-main-db-1 Healthy
+Container stacks-main-app-1 Healthy
+stacks-main: up — http://localhost:3000 (db :5432), commit a5e7aa4766a1fcbffcf5266871ca0c7e63b751e3
+
+$ git -C /Users/evanstern/projects/the-stacks/.worktrees/env-main rev-parse HEAD
+a5e7aa4766a1fcbffcf5266871ca0c7e63b751e3
+
+$ git rev-parse origin/main
+a5e7aa4766a1fcbffcf5266871ca0c7e63b751e3
+
+The `.worktrees/env-main` worktree's HEAD and the printed `commit` both equal
+`origin/main`'s SHA at the time of the run.
+
+$ curl -s http://localhost:3000/health
+{"status":"ok","process":{"uptimeSeconds":16.69},"database":{"reachable":true}}
+
+Note: the `/health` body has no `commit` key here. That is expected, not a defect: the
+`.worktrees/env-main` checkout is `origin/main`, and the `/health` `commit` field (this
+task's Phase 2, `apps/server/src/routes/health.ts`) has not merged to `main` yet — the app
+running the env-main stack is built from main's own (older) `health.ts`, which the
+`git show origin/main:apps/server/src/routes/health.ts` confirms has no `commit` field.
+The proof that the stack is running `origin/main` is the worktree/`origin/main` SHA match
+above, plus the `org.the-stacks.commit` container label (also sourced from that same SHA
+via `STACKS_COMMIT`).
+
+## After — root untouched
+
+$ git -C /Users/evanstern/projects/the-stacks status --porcelain
+(empty — identical to "before")
+
+$ git -C /Users/evanstern/projects/the-stacks rev-parse HEAD
+a5e7aa4766a1fcbffcf5266871ca0c7e63b751e3   (identical to "before")
+
+## `pnpm env:down main`
+
+$ pnpm env:down main
+Container stacks-main-app-1 Removed
+Container stacks-main-db-1 Removed
+Volume stacks-main_db-data Removed
+Network stacks-main_default Removed
+stacks-main: down
+removed worktree /Users/evanstern/projects/the-stacks/.worktrees/env-main
+
+$ pnpm env:status
+no labeled stacks running.
+
+$ pnpm env:prune --check
+no orphans.
+exit=0
+
+$ git worktree list
+/Users/evanstern/projects/the-stacks                      a5e7aa4 [main]
+/Users/evanstern/projects/the-stacks/.worktrees/task-0020 8cbcff7 [task-0020-worktree-stacks]
+/Users/evanstern/projects/the-stacks/.worktrees/task-0023 ff33487 [task-0023-ai-gateway]
+/Users/evanstern/projects/the-stacks/.worktrees/task-0025 5a0e336 [task-0025-ddb-parser]
+(no env-main entry)
+
+## Conclusion
+
+Root checkout's `git status --porcelain` and `HEAD` were byte-identical before and after
+`pnpm env:main`; the stack it brought up ran `origin/main`'s exact commit (worktree HEAD
+== origin/main SHA, confirmed two ways); `pnpm env:down main` removed the stack and the
+`.worktrees/env-main` worktree, leaving `pnpm env:status` empty and
+`pnpm env:prune --check` exiting 0.
