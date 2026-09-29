@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:41'
+updated_date: '2026-09-29 03:51'
 labels:
   - ai
 milestone: m-1
@@ -57,6 +57,10 @@ Phase 2 (T006-T007) done in d1e1ec6: gateway.chat(); 6 tests (orchestrator re-ra
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 3 (T008-T009) done in a612dfa: gateway.embed(); invariants 4,5 covered; 11/11 gateway tests (orchestrator re-ran).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 4 (T010-T014) done in 162682c: sse.ts, retry.ts (bounded, jittered, Retry-After, abort-aware), openai-compatible adapter on stdlib fetch; 38 new tests, no network. Deviations accepted: optional attempts on UsageSummary/embed result; adapter registered in gateway DEFAULT_ADAPTERS.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
