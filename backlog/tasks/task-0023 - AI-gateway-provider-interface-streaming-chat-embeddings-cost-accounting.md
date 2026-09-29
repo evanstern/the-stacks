@@ -1,10 +1,10 @@
 ---
 id: TASK-0023
 title: 'AI gateway: provider interface, streaming chat, embeddings, cost accounting'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:59'
+updated_date: '2026-09-29 04:26'
 labels:
   - ai
 milestone: m-1
@@ -25,16 +25,16 @@ Spec: specs/011-ai-gateway
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 One provider interface covers streaming chat and embeddings
-- [ ] #2 Token usage and cost are recorded per call
-- [ ] #3 Tests use a fake provider; no test needs a network key
-- [ ] #4 Providers are named config entries (adapter kind, base URL, key env var); an openai-compatible adapter covers streaming chat and embeddings on stdlib fetch; no vendor SDK and no hard-coded provider name or key variable; purpose-to-provider-and-model is config
-- [ ] #5 Spec phase: Foundational — types, config, usage, fake
-- [ ] #6 Spec phase: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
-- [ ] #7 Spec phase: US2 — embeddings through the gateway (P1)
-- [ ] #8 Spec phase: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
-- [ ] #9 Spec phase: US6 + wiring — no-key test run and startup
-- [ ] #10 Spec phase: Polish & re-ground
+- [x] #1 One provider interface covers streaming chat and embeddings
+- [x] #2 Token usage and cost are recorded per call
+- [x] #3 Tests use a fake provider; no test needs a network key
+- [x] #4 Providers are named config entries (adapter kind, base URL, key env var); an openai-compatible adapter covers streaming chat and embeddings on stdlib fetch; no vendor SDK and no hard-coded provider name or key variable; purpose-to-provider-and-model is config
+- [x] #5 Spec phase: Foundational — types, config, usage, fake
+- [x] #6 Spec phase: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
+- [x] #7 Spec phase: US2 — embeddings through the gateway (P1)
+- [x] #8 Spec phase: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
+- [x] #9 Spec phase: US6 + wiring — no-key test run and startup
+- [x] #10 Spec phase: Polish & re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -65,10 +65,20 @@ Phase 4 (T010-T014) done in 162682c: sse.ts, retry.ts (bounded, jittered, Retry-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 5-6 (T015-T019) done in ba9fcbb/8b6e23f/02e09d4: gateway wired into config.ts/index.ts (inert without AI env), invariant-10 no-vendor-names test, .env.example block, ci-evidence.txt. Wiki: new ai-gateway note; configuration, server-entrypoint-and-app, overview amended and re-pinned; compose-stack RE-PIN-ONLY (orchestrator reviewed the overview/compose-stack diffs). Freshness OK 28 notes. ~158k subagent tokens.
+
+spec-bridge sync: Foundational — types, config, usage, fake: 5/5 · US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP: 2/2 · US2 — embeddings through the gateway (P1): 2/2 · US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1): 5/5 · US6 + wiring — no-key test run and startup: 4/4 · Polish & re-ground: 2/2 — status In Progress → Done
+
+Human-authored ACs verified at close (2026-09-29): #1 Gateway chat()+embed() behind one Provider interface (contracts/gateway.md, ai.gateway.test.ts); #2 UsageRecord per call with tokens/costUsd (ai.usage.test.ts, invariants 6-7); #3 all AI tests use fake adapter or fetch double, no keys (ci-evidence.txt no-AI-env run); #4 named AI_PROVIDERS/AI_PURPOSES, stdlib fetch openai-compatible adapter, invariant-10 test forbids vendor/key names. Landed in PR #21 + follow-up PR #22 (host-script import fix, check:host-scripts gate). main CI green at cee6c24.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — types, config, usage, fake: 5/5 · US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP: 2/2 · US2 — embeddings through the gateway (P1): 2/2 · US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1): 5/5 · US6 + wiring — no-key test run and startup: 4/4 · Polish & re-ground: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
