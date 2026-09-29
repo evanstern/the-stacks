@@ -1,6 +1,6 @@
 import { CASES, type RunContext, selectCases } from "./cases.js";
-import { recreateLoadDb, resolveLoadUrl } from "./db.js";
 import { printConcurrency } from "./concurrency.js";
+import { recreateLoadDb, resolveLoadUrl } from "./db.js";
 import { printIngest } from "./ingest.js";
 import { loadProfile, type Profile, type Tier } from "./profile.js";
 import type { CaseOutcome, ConcurrencyStep, IngestStep } from "./results.js";
@@ -15,11 +15,18 @@ import { synthDoc } from "./synth.js";
  * outcomes without going through a subprocess.
  */
 
-export { CASES, selectCases, type RunContext };
-export { loadProfile };
-export { resolveLoadUrl, recreateLoadDb };
-export { synthDoc };
-export { percentile, ingestVerdict, concurrencyVerdict };
+export {
+  CASES,
+  concurrencyVerdict,
+  ingestVerdict,
+  loadProfile,
+  percentile,
+  type RunContext,
+  recreateLoadDb,
+  resolveLoadUrl,
+  selectCases,
+  synthDoc,
+};
 
 export interface RunResult {
   outcomes: CaseOutcome[];
@@ -38,7 +45,11 @@ export function printOutcome(outcome: CaseOutcome): void {
   }
   if (outcome.steps && outcome.steps.length > 0) {
     if (isIngestStep(outcome.steps[0])) {
-      printIngest(outcome.id, outcome.steps as IngestStep[], outcome.verdicts ?? []);
+      printIngest(
+        outcome.id,
+        outcome.steps as IngestStep[],
+        outcome.verdicts ?? [],
+      );
     } else {
       printConcurrency(
         outcome.id,

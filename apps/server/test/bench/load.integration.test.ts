@@ -46,16 +46,12 @@ const commitProfilePath = path.resolve(
 describe.skipIf(!reachable)("load bench — every-commit tier", () => {
   for (const c of CASES) {
     if (c.tier === "commit") {
-      it(
-        c.id,
-        async () => {
-          const profile = loadProfile(commitProfilePath);
-          const ctx: RunContext = { runId: randomUUID() };
-          const outcome = await c.run(ctx, profile);
-          expect(outcome.status, outcome.reason).toBe("pass");
-        },
-        30_000,
-      );
+      it(c.id, async () => {
+        const profile = loadProfile(commitProfilePath);
+        const ctx: RunContext = { runId: randomUUID() };
+        const outcome = await c.run(ctx, profile);
+        expect(outcome.status, outcome.reason).toBe("pass");
+      }, 30_000);
     } else {
       const reason = `tier ${c.tier} not selected`;
       console.info(`SKIP: ${c.id} [tier ${c.tier}] — ${reason}`);

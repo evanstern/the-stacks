@@ -23,17 +23,8 @@
   "profile": {
     "tier": "demand",
     "ingest": {
-      "volumes": [
-        10,
-        50,
-        100,
-        250,
-        500
-      ],
-      "workers": [
-        1,
-        2
-      ],
+      "volumes": [10, 50, 100, 250, 500],
+      "workers": [1, 2],
       "docBytes": 32768,
       "historyRows": 10000,
       "stepTimeoutMs": 120000,
@@ -44,13 +35,7 @@
       }
     },
     "concurrency": {
-      "users": [
-        1,
-        10,
-        25,
-        50,
-        100
-      ],
+      "users": [1, 10, 25, 50, 100],
       "durationMs": 30000,
       "thinkMs": 250,
       "wsSend": true,
@@ -256,16 +241,12 @@
         {
           "degraded": true,
           "at": 50,
-          "rules": [
-            "throughput"
-          ]
+          "rules": ["throughput"]
         },
         {
           "degraded": true,
           "at": 50,
-          "rules": [
-            "throughput"
-          ]
+          "rules": ["throughput"]
         }
       ]
     },

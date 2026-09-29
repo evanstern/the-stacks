@@ -420,7 +420,12 @@ describe("report (US5, T023)", () => {
         startedAt: "2026-09-01T00:00:00.000Z",
         finishedAt: "2026-09-01T00:01:00.000Z",
         tier: "demand",
-        target: { kind: "local", postgres: "16.4", maxConnections: 100, appCommit: "a".repeat(40) },
+        target: {
+          kind: "local",
+          postgres: "16.4",
+          maxConnections: 100,
+          appCommit: "a".repeat(40),
+        },
         profileHash: "deadbeef",
         profile,
         cases: [
@@ -430,7 +435,10 @@ describe("report (US5, T023)", () => {
             target: "local",
             status: "pass",
             durationMs: 1,
-            steps: [concurrencyStep({ users: 1 }), concurrencyStep({ users: 5 })],
+            steps: [
+              concurrencyStep({ users: 1 }),
+              concurrencyStep({ users: 5 }),
+            ],
             verdicts: [{ degraded: false, through: 5 }],
           },
         ],
@@ -441,7 +449,12 @@ describe("report (US5, T023)", () => {
         startedAt: "2026-09-02T00:00:00.000Z",
         finishedAt: "2026-09-02T00:01:00.000Z",
         tier: "dev",
-        target: { kind: "dev", postgres: null, maxConnections: null, appCommit: "b".repeat(40) },
+        target: {
+          kind: "dev",
+          postgres: null,
+          maxConnections: null,
+          appCommit: "b".repeat(40),
+        },
         profileHash: "deadbeef",
         profile: ProfileSchema.parse({
           tier: "dev",
@@ -460,7 +473,10 @@ describe("report (US5, T023)", () => {
             target: "dev",
             status: "pass",
             durationMs: 1,
-            steps: [concurrencyStep({ users: 1 }), concurrencyStep({ users: 5 })],
+            steps: [
+              concurrencyStep({ users: 1 }),
+              concurrencyStep({ users: 5 }),
+            ],
             verdicts: [{ degraded: false, through: 5 }],
           },
         ],

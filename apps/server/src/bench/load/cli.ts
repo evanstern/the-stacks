@@ -1,13 +1,18 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 import { ZodError } from "zod";
-import { CASES, type RunContext, runTier } from "./index.js";
 import { describeLoadDb, dropLoadDb, resolveLoadUrl } from "./db.js";
-import { loadProfile, profileHash, type Profile, type Tier } from "./profile.js";
-import { report, writeResults, type LoadResultsTarget } from "./results.js";
+import { CASES, type RunContext, runTier } from "./index.js";
+import {
+  loadProfile,
+  type Profile,
+  profileHash,
+  type Tier,
+} from "./profile.js";
+import { type LoadResultsTarget, report, writeResults } from "./results.js";
 
 /**
  * The load bench CLI (specs/021-load-bench contracts/bench-cli.md). Argv
@@ -21,7 +26,9 @@ const PROFILES_DIR = path.resolve(
 );
 
 function gitCommit(): string {
-  return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  return execFileSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf8",
+  }).trim();
 }
 
 function printList(): number {
@@ -48,7 +55,9 @@ async function cmdRun(argv: string[], env: NodeJS.ProcessEnv): Promise<number> {
   });
 
   if (!isTier(values.tier)) {
-    console.error(`run requires --tier commit|demand|dev, got "${values.tier ?? ""}"`);
+    console.error(
+      `run requires --tier commit|demand|dev, got "${values.tier ?? ""}"`,
+    );
     return 1;
   }
   const tier = values.tier;
@@ -61,7 +70,9 @@ async function cmdRun(argv: string[], env: NodeJS.ProcessEnv): Promise<number> {
   } catch (err) {
     if (err instanceof ZodError) {
       const issue = err.issues[0];
-      console.error(`invalid profile ${profilePath}: ${issue.path.join(".")}: ${issue.message}`);
+      console.error(
+        `invalid profile ${profilePath}: ${issue.path.join(".")}: ${issue.message}`,
+      );
     } else {
       console.error(
         `invalid profile ${profilePath}: ${err instanceof Error ? err.message : String(err)}`,
@@ -81,7 +92,9 @@ async function cmdRun(argv: string[], env: NodeJS.ProcessEnv): Promise<number> {
 
   if (tier === "dev" && env.LOAD_DEV_URL) {
     if (!values["allow-dev"]) {
-      console.error("dev run refused; re-run with --allow-dev after operator sign-off");
+      console.error(
+        "dev run refused; re-run with --allow-dev after operator sign-off",
+      );
       return 2;
     }
     if (!env.LOAD_DEV_USERNAME) {
@@ -107,7 +120,12 @@ async function cmdRun(argv: string[], env: NodeJS.ProcessEnv): Promise<number> {
       // isn't threaded back through CaseOutcome (`observed` is numbers-only,
       // research R11). Add a second /health read here (only ever reached
       // under an operator-approved --allow-dev run) if a reader needs it.
-      target = { kind: "dev", postgres: null, maxConnections: null, appCommit: null };
+      target = {
+        kind: "dev",
+        postgres: null,
+        maxConnections: null,
+        appCommit: null,
+      };
     } else {
       const { loadUrl } = resolveLoadUrl(env);
       const facts = await describeLoadDb(loadUrl).catch(() => null);
@@ -167,7 +185,9 @@ export async function main(
     case "report":
       return cmdReport(rest);
     default:
-      console.error(`unknown subcommand "${sub ?? ""}"; expected list, run, or report`);
+      console.error(
+        `unknown subcommand "${sub ?? ""}"; expected list, run, or report`,
+      );
       return 1;
   }
 }

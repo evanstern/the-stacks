@@ -3,13 +3,12 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { eq } from "drizzle-orm";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Client } from "pg";
+import WebSocket from "ws";
 import { createDb } from "../../db.js";
 import { enqueueIngest, getJob } from "../../library/ingest/jobs.js";
 import { libraryDocuments } from "../../schema/library.js";
-import WebSocket from "ws";
 import { type StartedApp, startApp } from "./app-proc.js";
 import type { RunContext } from "./cases.js";
 import { recreateLoadDb, resolveLoadUrl, seedUsers } from "./db.js";
@@ -78,7 +77,9 @@ async function pollUntilBurst(
 /** A single WebSocket upgrade attempt; resolves the HTTP status code the server refused with, or null. */
 function probeWsStatus(wsUrl: string, cookie: string): Promise<number | null> {
   return new Promise((resolve) => {
-    const socket = new WebSocket(wsUrl, { headers: { Cookie: `session=${cookie}` } });
+    const socket = new WebSocket(wsUrl, {
+      headers: { Cookie: `session=${cookie}` },
+    });
     const timer = setTimeout(() => {
       socket.terminate();
       resolve(null);
@@ -134,7 +135,9 @@ export async function runDbExhaustion(
       durationMs: Date.now() - start,
     };
   }
-  const { holdMs, recoverTimeoutMs } = profile.exhaustion;
+  // ponytail: profile.exhaustion.holdMs is validated but unused — the probe
+  // budgets below are the fixed 5s/10s from T020's own text, not holdMs.
+  const { recoverTimeoutMs } = profile.exhaustion;
   const { baseUrl, loadUrl } = resolveLoadUrl(process.env);
   await recreateLoadDb(baseUrl, loadUrl);
   const db = createDb(loadUrl);
@@ -145,6 +148,7 @@ export async function runDbExhaustion(
   try {
     const [seeded] = await seedUsers(db, 1);
     app = await startApp({ databaseUrl: loadUrl });
+    const appUrl = app.url; // captured once: closures below can't narrow the mutable `app` as non-null
     await fetch(`${app.url}/auth/me`, {
       headers: { Cookie: `session=${seeded.token}` },
       signal: AbortSignal.timeout(10_000),
@@ -173,7 +177,7 @@ export async function runDbExhaustion(
     }
 
     const healthMs = await pollUntil(5000, async () => {
-      const res = await fetch(`${app!.url}/health`, {
+      const res = await fetch(`${appUrl}/health`, {
         signal: AbortSignal.timeout(3000),
       });
       const body = (await res.json()) as { status?: string };
@@ -181,7 +185,7 @@ export async function runDbExhaustion(
     });
     const BURST = 8; // ponytail: see the Deviation note in tasks.md (R7's single-request probe never observes the outage)
     const authMs = await pollUntilBurst(10_000, BURST, async () => {
-      const res = await fetch(`${app!.url}/auth/me`, {
+      const res = await fetch(`${appUrl}/auth/me`, {
         headers: { Cookie: `session=${seeded.token}` },
         signal: AbortSignal.timeout(3000),
       });
@@ -191,14 +195,20 @@ export async function runDbExhaustion(
     const wsStatuses = await Promise.all(
       Array.from({ length: BURST }, () => probeWsStatus(wsUrl, seeded.token)),
     );
-    const wsStatus = wsStatuses.includes(503) ? 503 : (wsStatuses.find((s) => s !== null) ?? null);
+    const wsStatus = wsStatuses.includes(503)
+      ? 503
+      : (wsStatuses.find((s) => s !== null) ?? null);
     const processAlive = app.alive();
 
     expectations.push(
       { name: "health-degraded", pass: healthMs !== null, observed: healthMs },
       { name: "request-bounded", pass: authMs !== null, observed: authMs },
       { name: "ws-503-not-401", pass: wsStatus === 503, observed: wsStatus },
-      { name: "process-alive", pass: processAlive, observed: processAlive ? 1 : 0 },
+      {
+        name: "process-alive",
+        pass: processAlive,
+        observed: processAlive ? 1 : 0,
+      },
     );
 
     for (const c of held) await c.end().catch(() => {});
@@ -206,8 +216,8 @@ export async function runDbExhaustion(
 
     const recoverySec = await pollUntil(recoverTimeoutMs, async () => {
       const [h, m] = await Promise.all([
-        fetch(`${app!.url}/health`, { signal: AbortSignal.timeout(3000) }),
-        fetch(`${app!.url}/auth/me`, {
+        fetch(`${appUrl}/health`, { signal: AbortSignal.timeout(3000) }),
+        fetch(`${appUrl}/auth/me`, {
           headers: { Cookie: `session=${seeded.token}` },
           signal: AbortSignal.timeout(3000),
         }),
@@ -215,7 +225,11 @@ export async function runDbExhaustion(
       const hb = (await h.json()) as { status?: string };
       return hb.status === "ok" && m.status === 200;
     }).then((ms) => (ms === null ? null : ms / 1000));
-    expectations.push({ name: "recovered", pass: recoverySec !== null, observed: recoverySec });
+    expectations.push({
+      name: "recovered",
+      pass: recoverySec !== null,
+      observed: recoverySec,
+    });
 
     const pass = expectations.every((e) => e.pass);
     return {
@@ -223,7 +237,10 @@ export async function runDbExhaustion(
       status: pass ? "pass" : "fail",
       reason: pass
         ? undefined
-        : `failed: ${expectations.filter((e) => !e.pass).map((e) => e.name).join(", ")}`,
+        : `failed: ${expectations
+            .filter((e) => !e.pass)
+            .map((e) => e.name)
+            .join(", ")}`,
       durationMs: Date.now() - start,
       expectations,
       observed: {
@@ -269,7 +286,9 @@ async function forkWorker(
     // to reach it: a rejected promise carries no handle to clean up later.
     const timer = setTimeout(() => {
       child.kill("SIGKILL");
-      reject(new Error(`worker did not reach "${waitFor}" within ${timeoutMs}ms`));
+      reject(
+        new Error(`worker did not reach "${waitFor}" within ${timeoutMs}ms`),
+      );
     }, timeoutMs);
     child.on("message", (msg: unknown) => {
       if ((msg as { type?: string } | null)?.type === waitFor) {
@@ -322,7 +341,8 @@ export async function runRestartMidIngest(
     return {
       ...base,
       status: "skipped",
-      reason: "refuses to run under vitest (research R6): it forks and kills real worker processes",
+      reason:
+        "refuses to run under vitest (research R6): it forks and kills real worker processes",
       durationMs: Date.now() - start,
     };
   }
@@ -339,9 +359,15 @@ export async function runRestartMidIngest(
   await recreateLoadDb(baseUrl, loadUrl);
   const db = createDb(loadUrl);
   const runId8 = ctx.runId.slice(0, 8);
-  const docDir = mkdtempSync(path.join(os.tmpdir(), "load-bench-restart-docs-"));
-  const heldUploadDir = mkdtempSync(path.join(os.tmpdir(), "load-bench-restart-held-"));
-  const normalUploadDir = mkdtempSync(path.join(os.tmpdir(), "load-bench-restart-normal-"));
+  const docDir = mkdtempSync(
+    path.join(os.tmpdir(), "load-bench-restart-docs-"),
+  );
+  const heldUploadDir = mkdtempSync(
+    path.join(os.tmpdir(), "load-bench-restart-held-"),
+  );
+  const normalUploadDir = mkdtempSync(
+    path.join(os.tmpdir(), "load-bench-restart-normal-"),
+  );
   let heldChild: ChildProcess | undefined;
   let normalChild: ChildProcess | undefined;
   const expectations: Expectation[] = [];
@@ -379,13 +405,27 @@ export async function runRestartMidIngest(
     // cold-start cost varies with host load (15s was observed to flake under
     // load; see the Deviation note in tasks.md).
     const FORK_TIMEOUT_MS = 30_000;
-    heldChild = await forkWorker(loadUrl, heldUploadDir, true, "embed-held", FORK_TIMEOUT_MS);
+    heldChild = await forkWorker(
+      loadUrl,
+      heldUploadDir,
+      true,
+      "embed-held",
+      FORK_TIMEOUT_MS,
+    );
     heldChild.kill("SIGKILL");
     const killedChild = heldChild;
     heldChild = undefined;
-    await new Promise<void>((resolve) => killedChild.once("exit", () => resolve()));
+    await new Promise<void>((resolve) =>
+      killedChild.once("exit", () => resolve()),
+    );
 
-    normalChild = await forkWorker(loadUrl, normalUploadDir, false, "ready", FORK_TIMEOUT_MS);
+    normalChild = await forkWorker(
+      loadUrl,
+      normalUploadDir,
+      false,
+      "ready",
+      FORK_TIMEOUT_MS,
+    );
 
     const ids = [targetStatus.id, ...followerIds];
     const reclaimStart = Date.now();
@@ -397,7 +437,11 @@ export async function runRestartMidIngest(
       if (targetReclaimedAt === null && (statuses[0]?.attempts ?? 0) >= 2) {
         targetReclaimedAt = Date.now();
       }
-      if (statuses.every((s) => s?.status === "succeeded" || s?.status === "failed")) {
+      if (
+        statuses.every(
+          (s) => s?.status === "succeeded" || s?.status === "failed",
+        )
+      ) {
         allTerminal = true;
         break;
       }
@@ -409,8 +453,12 @@ export async function runRestartMidIngest(
       ids.map((id) => getJob(db, id)),
     );
     const reclaimSec =
-      targetReclaimedAt !== null ? (targetReclaimedAt - reclaimStart) / 1000 : null;
-    const followersSucceeded = followerFinals.every((f) => f?.status === "succeeded");
+      targetReclaimedAt !== null
+        ? (targetReclaimedAt - reclaimStart) / 1000
+        : null;
+    const followersSucceeded = followerFinals.every(
+      (f) => f?.status === "succeeded",
+    );
     const targetSucceeded = targetFinal?.status === "succeeded";
     const targetAttempts2 = targetFinal?.attempts === 2;
 
@@ -427,7 +475,8 @@ export async function runRestartMidIngest(
       {
         name: "followers-succeeded",
         pass: followersSucceeded,
-        observed: followerFinals.filter((f) => f?.status === "succeeded").length,
+        observed: followerFinals.filter((f) => f?.status === "succeeded")
+          .length,
       },
       {
         name: "target-attempts-2",
@@ -439,7 +488,11 @@ export async function runRestartMidIngest(
         pass: targetSucceeded,
         observed: targetFinal?.status ?? null,
       },
-      { name: "one-document-per-book", pass: oneDocPerBook, observed: oneDocPerBook ? 1 : 0 },
+      {
+        name: "one-document-per-book",
+        pass: oneDocPerBook,
+        observed: oneDocPerBook ? 1 : 0,
+      },
     );
 
     const pass = allTerminal && expectations.every((e) => e.pass);
@@ -450,7 +503,10 @@ export async function runRestartMidIngest(
         ? undefined
         : !allTerminal
           ? "jobs did not reach a terminal state before reclaimTimeoutMs"
-          : `failed: ${expectations.filter((e) => !e.pass).map((e) => e.name).join(", ")}`,
+          : `failed: ${expectations
+              .filter((e) => !e.pass)
+              .map((e) => e.name)
+              .join(", ")}`,
       durationMs: Date.now() - start,
       expectations,
       observed: reclaimSec !== null ? { reclaimSec } : {},
@@ -474,7 +530,10 @@ export async function runRestartMidIngest(
 }
 
 /** Prints one pass/fail line per expectation (contracts/bench-cli.md). */
-export function printExpectations(caseId: string, expectations: Expectation[]): void {
+export function printExpectations(
+  caseId: string,
+  expectations: Expectation[],
+): void {
   for (const e of expectations) {
     console.log(
       `${e.pass ? "PASS" : "FAIL"} ${caseId} ${e.name}: ${e.observed ?? "-"}`,

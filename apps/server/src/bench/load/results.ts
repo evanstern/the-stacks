@@ -200,7 +200,9 @@ export function writeResults(input: WriteResultsInput): WriteResultsOutput {
 }
 
 function pad(value: string, width: number): string {
-  return value.length >= width ? value : value + " ".repeat(width - value.length);
+  return value.length >= width
+    ? value
+    : value + " ".repeat(width - value.length);
 }
 
 function verdictSummary(verdicts: Verdict[] | undefined): string {
@@ -271,7 +273,9 @@ export function report(dir?: string): void {
     }
     const parsed = LoadResultsSchema.safeParse(raw);
     if (!parsed.success) {
-      console.warn(`report: skipping ${file} (invalid or unknown schemaVersion)`);
+      console.warn(
+        `report: skipping ${file} (invalid or unknown schemaVersion)`,
+      );
       continue;
     }
     const results = parsed.data;
@@ -300,7 +304,9 @@ export function report(dir?: string): void {
     console.log(
       `${REPORT_COLUMNS.map(([name, w]) => pad(name, w)).join("")}summary`,
     );
-    const rows = groups.get(key)!.sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+    const rows = (groups.get(key) ?? []).sort((a, b) =>
+      a.startedAt.localeCompare(b.startedAt),
+    );
     for (const row of rows) {
       console.log(
         [
