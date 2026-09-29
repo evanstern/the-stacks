@@ -1,10 +1,10 @@
 ---
 id: TASK-0021
 title: Hosted dev environment on vm-104 with CD from main
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 02:59'
+updated_date: '2026-09-29 15:02'
 labels:
   - infra
 milestone: m-1
@@ -20,6 +20,8 @@ ordinal: 12000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Implement doc-0002 CD and Exposure sections (decision-0006, ratified 2026-09-28). The dev environment on vm-104 is the always-on main app and runs main HEAD after green CI. Tailnet-only exposure; the Cloudflare tunnel is out of scope. Blocked on the four operator prerequisites in doc-0002 (disk, service user, runner registration, tailscaled repair), which need sudo on vm-104.
+
+Spec: specs/016-hosted-dev-cd
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
