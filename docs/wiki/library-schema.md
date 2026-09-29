@@ -6,7 +6,7 @@ sources:
   - apps/server/src/schema/library.ts
   - apps/server/src/library/store.ts
   - apps/server/drizzle/0002_tiny_odin.sql
-verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Library schema
@@ -78,18 +78,20 @@ content.
 
 Depends on [[ddb-parser]]'s `ParsedBook` shape as `storeParsedBook`'s input, and on
 [[ai-gateway]]'s `embed()` output shape (`{vector, model, dim}`) as `attachEmbeddings`'s
-input — neither module imports the other directly. Migration mechanics (hand-added
-`CREATE EXTENSION IF NOT EXISTS vector;` and the trigger) follow the pattern in
-[[migrations]]. Shares its unique-violation detector with [[invitations]] via
+input — neither module imports the other directly. As of TASK-0024, [[ingestion]]'s worker is
+the actual (and only) caller of both `storeParsedBook` and `attachEmbeddings`. Migration
+mechanics (hand-added `CREATE EXTENSION IF NOT EXISTS vector;` and the trigger) follow the
+pattern in [[migrations]]. Shares its unique-violation detector with [[invitations]] via
 [[database-access]]. [[retrieval]] is this schema's read path — `library_chunks.tsv` and
 `library_embeddings.embedding` are queried, never written, by `retrieve.ts`. See
-[[database-schema]] for the session/auth-plane tables this note doesn't cover.
+[[database-schema]] for the session/auth-plane tables, and its `jobs` table (operational
+state, not under this note's immutability trigger), this note doesn't cover.
 
 ## Operational notes
 
-Ingestion jobs and chunking strategy are out of scope here (TASK-0024) — this schema only
-guarantees the indexes retrieval and later features need exist and are used, which the
-integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
+Chunking strategy (character-budget merge, not tokens) lives in [[ingestion]], not here — this
+schema only guarantees the indexes retrieval and later features need exist and are used, which
+the integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
 must name `library_chunks_tsv_idx` for a keyword query, and `library_embeddings_embedding_idx`
 for a per-model nearest-neighbour query (with `enable_bitmapscan`/`enable_sort` also disabled
 in the test — on a tiny table Postgres otherwise prefers the `model` btree index plus an

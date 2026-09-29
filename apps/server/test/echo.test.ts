@@ -5,7 +5,7 @@ import { createApp } from "../src/app.js";
 import type { DatabaseProbe } from "../src/db.js";
 import { createDb } from "../src/db.js";
 import type { ErrorIssue, ErrorResponseBody } from "../src/errors.js";
-import { errorHandler } from "../src/errors.js";
+import { errorHandler, PayloadTooLargeError } from "../src/errors.js";
 
 function fakeProbe(reachable: boolean): DatabaseProbe {
   return { reachable: async () => reachable };
@@ -87,6 +87,25 @@ describe("POST /api/echo", () => {
     expect(body.error).not.toHaveProperty("issues");
     expect(JSON.stringify(body)).not.toMatch(
       /secret|password|hunter2|pool\.ts/,
+    );
+  });
+
+  it("returns 413 kind:too_large for PayloadTooLargeError (specs/017-ingestion-pipeline)", async () => {
+    const app = new Hono();
+    app.onError(errorHandler);
+    app.get("/too-big", () => {
+      throw new PayloadTooLargeError(
+        "Upload exceeds the configured limit of 100 bytes.",
+      );
+    });
+
+    const res = await app.request("/too-big");
+
+    expect(res.status).toBe(413);
+    const body = (await res.json()) as ErrorResponseBody;
+    expect(body.error.kind).toBe("too_large");
+    expect(body.error.message).toBe(
+      "Upload exceeds the configured limit of 100 bytes.",
     );
   });
 });

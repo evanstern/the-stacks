@@ -137,7 +137,12 @@ function tableText(table: ReturnType<typeof extractTable>): string {
   return lines.join("\n");
 }
 
-function walkContent(root: T5.Element, book: string, state: WalkState): void {
+function walkContent(
+  root: T5.Element,
+  book: string,
+  state: WalkState,
+  headings: "ddb" | "all",
+): void {
   const stack: { level: number; title: string }[] = [];
   const currentPath = () => [book, ...stack.map((s) => s.title)];
 
@@ -148,10 +153,14 @@ function walkContent(root: T5.Element, book: string, state: WalkState): void {
 
     // DDB marks every real section heading with `heading-anchor`; the
     // content root's own top h1 (the chapter title) carries no class at
-    // all and is a heading by tag alone (research R3).
+    // all and is a heading by tag alone (research R3). `headings: "all"`
+    // (specs/017-ingestion-pipeline research R4) treats every h1-h6 as a
+    // section heading, for non-DDB HTML that carries no such class.
     if (
       rank !== undefined &&
-      (tag === "h1" || hasClass(node, HEADING_ANCHOR_CLASS))
+      (headings === "all" ||
+        tag === "h1" ||
+        hasClass(node, HEADING_ANCHOR_CLASS))
     ) {
       const title = blockText(node);
       while (
@@ -212,7 +221,9 @@ function walkContent(root: T5.Element, book: string, state: WalkState): void {
 export function walkPages(
   book: string,
   pages: string[],
+  options?: { headings?: "ddb" | "all" },
 ): { text: string; blocks: Block[] } {
+  const headings = options?.headings ?? "ddb";
   const state: WalkState = { text: "", blocks: [] };
   for (const page of pages) {
     const document = parse(page);
@@ -220,7 +231,7 @@ export function walkPages(
       findFirst(document, (el) => matchesSelector(el, CONTENT_ROOT)) ??
       findFirst(document, (el) => el.tagName === "body");
     if (!root) continue;
-    walkContent(root, book, state);
+    walkContent(root, book, state, headings);
   }
   return state;
 }

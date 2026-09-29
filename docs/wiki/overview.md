@@ -10,7 +10,7 @@ sources:
   - docker-compose.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Overview
@@ -31,7 +31,8 @@ A request arrives at the single Node process defined in `apps/server/src/index.t
 builds the Hono app (`createApp`), calls `serve()` from `@hono/node-server`, and attaches the
 WebSocket gateway to the **same underlying server** that `serve()` returns — not a second
 listener. One port carries the API, the client, and the socket. It also constructs the
-[[ai-gateway]] once, unused until a route calls it — no new port, container, or process.
+[[ai-gateway]] and starts the [[ingestion]] worker in the same process — no new port,
+container, or process.
 
 Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
 order: `/health`, `/api/echo`, `/auth`, and then the SPA's static middleware **last**, so it
@@ -42,13 +43,13 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 
 | plane | what it holds | at this commit |
 |---|---|---|
-| library | imported reference content | schema + store landed (TASK-0022, [[library-schema]]); nothing ingests into it yet |
+| library | imported reference content | storage ([[library-schema]]) and ingestion ([[ingestion]], TASK-0024) both land: upload → parse → chunk → store → embed |
 | codex | campaign entities | empty — M2 |
 | session | what happened at the table | the event log, live |
 
-The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
-built ([[library-schema]]) but no ingestion path writes to it yet (TASK-0024). Play state is
-**event-sourced
+The session plane is populated at M0, as [[event-log]]; the library plane now has both its
+storage ([[library-schema]]) and an end-to-end ingestion path ([[ingestion]], TASK-0024) that
+writes to it. Play state is **event-sourced
 with server authority**: a client never writes to the log, it asks the server to append
 (see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
 

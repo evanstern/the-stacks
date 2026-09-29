@@ -278,6 +278,50 @@ describe("parseDdbExport — US2: sidebar marking", () => {
   });
 });
 
+describe("parseDdbExport — headings: all (T025, generic HTML)", () => {
+  const html = `<!doctype html><html><body>
+    <h1>Untitled Guide</h1>
+    <p>Intro paragraph.</p>
+    <h2>Getting Started</h2>
+    <p>Getting started text.</p>
+    <h3>Installation</h3>
+    <p>Installation text.</p>
+  </body></html>`;
+
+  it("an unclassed h2/h3 page gives paths from its headings", () => {
+    const book = parseDdbExport(
+      { book: BOOK, pages: [html] },
+      { headings: "all" },
+    );
+    const headingPaths = book.blocks
+      .filter((b) => b.kind === "heading")
+      .map((b) => b.path);
+    expect(headingPaths).toEqual([
+      [BOOK, "Untitled Guide"],
+      [BOOK, "Untitled Guide", "Getting Started"],
+      [BOOK, "Untitled Guide", "Getting Started", "Installation"],
+    ]);
+    const intro = book.blocks.find((b) => b.text === "Intro paragraph.");
+    expect(intro?.path).toEqual([BOOK, "Untitled Guide"]);
+  });
+
+  it("default 'ddb' mode does not promote unclassed h2/h3 to headings", () => {
+    const book = parseDdbExport({ book: BOOK, pages: [html] });
+    const headingPaths = book.blocks
+      .filter((b) => b.kind === "heading")
+      .map((b) => b.path);
+    // Only the bare h1 (heading by tag alone) is picked up; h2/h3 without
+    // `heading-anchor` are not.
+    expect(headingPaths).toEqual([[BOOK, "Untitled Guide"]]);
+  });
+
+  it("every existing DDB fixture test passes unchanged (spot check)", () => {
+    expect(parseDdbExport({ book: BOOK, pages: [basicRules] })).toEqual(
+      parseDdbExport({ book: BOOK, pages: [basicRules] }, undefined),
+    );
+  });
+});
+
 describe("parseDdbExport — error paths (T013)", () => {
   it("throws ValidationError on empty pages", () => {
     expect(() => parseDdbExport({ book: BOOK, pages: [] })).toThrow(

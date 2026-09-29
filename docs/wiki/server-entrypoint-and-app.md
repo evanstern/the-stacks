@@ -1,11 +1,11 @@
 ---
 name: server-entrypoint-and-app
-description: How index.ts wires config, db, the Hono app, and the WebSocket gateway onto one server; app.ts's route mount order and why static is mounted last. Load for "where does X get wired up" or route-ordering questions.
+description: How index.ts wires config, db, the ingest worker, the Hono app, and the WebSocket gateway onto one server; app.ts's route mount order and why static is mounted last. Load for "where does X get wired up" or route-ordering questions.
 kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: c732622ca88b9055779079909e330d034bb329d6
 ---
 
 # Server entrypoint and app
@@ -21,31 +21,44 @@ via `createApp` without binding a port.
 [[configuration]]'s "no relative imports" note), then constructs the AI gateway (see
 [[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
 imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
-`createGateway`. This slice adds no route, so the AI gateway is unused until TASK-0027; with no
-`AI_*` env vars set it is inert. Between `aiConfig` and `aiGateway`, it also calls
-`loadRetrievalConfig(process.env)` (from `library/retrieve.ts`, see [[retrieval]]) so a bad
-`RETRIEVAL_*` value fails fast at boot; the result is unused until TASK-0027 wires a route to it.
-Then `createDb(config.databaseUrl)`,
-`createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db, commit: config.commit })`,
-then `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
-It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
-the callback logs `Server listening on port ${info.port}`. The load-bearing line is the last
-one: `gateway.attach(server)` — the object `serve()` returns is passed directly into the
-gateway, so the WebSocket upgrade handler attaches to the **same** underlying Node HTTP
+`createGateway`. It also calls `loadRetrievalConfig(process.env)` (from `library/retrieve.ts`,
+see [[retrieval]]) so a bad `RETRIEVAL_*` value fails fast at boot.
+
+Since TASK-0024 (specs/017-ingestion-pipeline), `index.ts` then: creates
+`uploadDir = path.join(os.tmpdir(), "the-stacks-uploads")` (`mkdirSync(..., {recursive:
+true})` — survives a container `restart`, not a `recreate`, per [[ingestion]]); resolves
+`embedPurpose` from `retrievalConfig.embedPurpose`, only when `aiConfig.purposes[name]?.op ===
+"embed"`, else `null`; and starts `startIngestWorker({ db, gateway: aiGateway, embedPurpose,
+uploadDir })` (see [[ingestion]]), which returns `{ nudge, stop }`. `createDb(config.databaseUrl)`
+runs before this. `createApp({ databaseProbe, db, commit, library: { uploadMaxBytes:
+config.uploadMaxBytes, uploadDir, onEnqueued: ingestWorker.nudge } })` wires the upload route's
+size ceiling, its temp-file directory, and a callback that wakes the worker's poll loop the
+instant a job is enqueued rather than waiting up to `POLL_MS`. Then
+`createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
+It calls `serve({ fetch: app.fetch, port: config.port, serverOptions: { requestTimeout: 60 *
+60 * 1000 } }, ...)` from `@hono/node-server` — the hour-long `requestTimeout` (`ponytail:`
+fixed, not configurable) exists so a large, slow upload isn't cut off mid-stream by Node's
+default; the callback logs `Server listening on port ${info.port}`. The load-bearing line is
+the last one: `gateway.attach(server)` — the object `serve()` returns is passed directly into
+the gateway, so the WebSocket upgrade handler attaches to the **same** underlying Node HTTP
 server, not a second listener on a second port. One process, one port, carries the HTTP API,
-the WebSocket gateway, and (via static middleware) the built client.
+the ingest worker's background loop, the WebSocket gateway, and (via static middleware) the
+built client.
 
 `createValidateSession(db)` is called twice in this file's transitive call graph — once
 inside `createApp` (threaded into the auth routes) and once here for the gateway — both from
 the same `db`, so HTTP and WebSocket share one session-validation seam (see
 [[session-auth]]).
 
-`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit? }` (`staticRoot` is a
-test-only override for the SPA's static root; `commit` defaults to `"unknown"` and is passed
-straight to `createHealthRoute` — see [[health-check]]) and returns a plain `Hono` app with no
+`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit?, library? }`
+(`staticRoot` is a test-only override for the SPA's static root; `commit` defaults to
+`"unknown"` and is passed straight to `createHealthRoute` — see [[health-check]]; `library`
+is `{ uploadMaxBytes?, uploadDir?, onEnqueued? }`, each falling back to a test-safe default —
+1 GiB, `os.tmpdir()`, a no-op — see [[ingestion]]) and returns a plain `Hono` app with no
 port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
 `app.notFound(notFoundHandler)` first, then `app.route("/health", ...)`, `app.route("/api/echo",
-...)`, `app.route("/auth", ...)`, and finally `app.use("*", createStaticMiddleware(staticRoot))`.
+...)`, `app.route("/auth", ...)`, `app.route("/library", createLibraryRoutes(...))` (TASK-0024,
+[[ingestion]]), and finally `app.use("*", createStaticMiddleware(staticRoot))`.
 The static middleware is mounted **last** on purpose: it is a catch-all (`"*"`) SPA fallback,
 and anything mounted after it would never be reached, so every real route must be registered
 before it (see [[static-serving]]). `/ws` never appears in this list — it is not a Hono
@@ -54,11 +67,13 @@ runs.
 
 ## Connections
 
-Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, unused this
-slice), [[retrieval]] (`loadRetrievalConfig`, validated here, unused until TASK-0027),
-[[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
-guarantee), [[session-auth]] (`createValidateSession` shared by both transports), and the
-websocket gateway. See [[overview]] for the "one process, one port" framing this file
+Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, called by
+[[ingestion]]'s worker), [[retrieval]] (`loadRetrievalConfig`, validated here; `embedPurpose`
+used by the worker, the `retrieve()` read path itself unused until TASK-0027),
+[[ingestion]] (worker started, `/library` route mounted), [[error-contract]]
+(`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order guarantee), [[session-auth]]
+(`createValidateSession` shared by all three: HTTP auth routes, `/library`, and the socket),
+and the websocket gateway. See [[overview]] for the "one process, one port" framing this file
 implements.
 
 ## Operational notes

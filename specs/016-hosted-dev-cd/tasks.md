@@ -201,7 +201,7 @@ the job. (AC #3)
   `description:` changed.
 - [x] T023 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs
   freshness . docs/wiki`; it prints `OK`.
-- [ ] T024 Merge condition (runbook "Task-specific merge conditions", TASK-0021). Record the
+- [x] T024 Merge condition (runbook "Task-specific merge conditions", TASK-0021). Record the
   pre-merge proofs (T008, T011) in the PR body. After the operator merges, and after
   **announcing** each run: (a) the merge commit's own `main` push deploys through
   `deploy-dev.yml`, and `https://vm-104.tailb3c1b6.ts.net:8443/health` reports that commit;
