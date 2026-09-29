@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 02:43'
+updated_date: '2026-09-29 03:40'
 labels:
   - infra
 milestone: m-1
@@ -32,7 +32,28 @@ Implement doc-0002 Environments, Setup, Naming, and Orphan-gates sections (decis
 - [ ] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Phase 2 (T004-T010) implemented in .worktrees/task-0020, commit 1f0dd03 (+ down() fix). pnpm ci:check: PASS (lint, typecheck, build, test, check:boundaries, check:hooks, check:scripts all green).
+
+T010 manual proof — two worktrees up at once, no collision:
+$ cd .worktrees/task-0020 && node scripts/env.mjs up
+  -> stacks-task-0020: up — http://localhost:3020 (db :15020), commit 1f0dd033dddc39fc397adc5c737ff68480214e69
+$ cd .worktrees/env-t010-manual (scratch worktree, detached at same commit) && node scripts/env.mjs up
+  -> stacks-env-t010-manual: up — http://localhost:4150 (db :16150), commit 1f0dd033dddc39fc397adc5c737ff68480214e69
+$ curl -s localhost:3020/health -> {"status":"ok",...,"commit":"1f0dd033..."}
+$ curl -s localhost:4150/health -> {"status":"ok",...,"commit":"1f0dd033..."}
+Both healthy simultaneously on distinct derived ports; docker ps confirmed 4 running containers (2 per stack), no port/name collision.
+
+T010 teardown proof: `node scripts/env.mjs down` in env-t010-manual removed its containers/network/volume; task-0020's stack stayed healthy (curl :3020/health still ok) — confirmed via `docker ps -a --filter label=com.docker.compose.project=stacks-env-t010-manual` (containers/networks/volumes all empty). Then `down` in task-0020 too; same empty-filter check confirmed zero stacks-task-0020 resources remained. Scratch worktree removed (`git worktree remove --force .worktrees/env-t010-manual`, no unique commits — detached at the shared commit).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-4-5-20250929
+
+Deviation found+fixed during manual proof: env.mjs down() initially destructured `project` from the wrong return shape (resolveIdentity returns {toplevel, identity}, not {project}), so `docker compose -p undefined down` no-opped harmlessly. Fixed before commit; re-verified full teardown as above.
+
+Phase 2 only (T004-T010) per dispatch scope. Phase 3 (status/prune/orphan hook) and Phase 4 (env:main) not started.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
