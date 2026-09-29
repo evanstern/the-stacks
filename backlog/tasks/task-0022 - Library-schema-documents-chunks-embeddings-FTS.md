@@ -4,7 +4,7 @@ title: 'Library schema: documents, chunks, embeddings, FTS'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:13'
+updated_date: '2026-09-29 05:23'
 labels:
   - library
 milestone: m-1
@@ -46,6 +46,10 @@ Spec 013 authored 2026-09-29 (speckit-specify → plan → tasks; clarify skippe
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 1 (T001-T003) done in e11dc3d: migration 0002_tiny_odin.sql (3 tables, vector extension, immutability triggers, GIN + HNSW cosine). ci:check with REQUIRE_DATABASE=1 green against stacks-task-0022 (3022/15022). Fresh-volume apply proven; implementer's 'docker compose down -v' reset only stacks-task-0022 (orchestrator verified: the-stacks-db-1 and its volume untouched; .env untracked). ~167k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 2 (T004-T006) done in 000b673: storeParsedBook with span validation before any DB call; 4 unit + 4 integration tests (orchestrator re-ran against stacks-task-0022 with REQUIRE_DATABASE=1: 8/8). ~159k subagent tokens.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
