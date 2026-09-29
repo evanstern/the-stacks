@@ -34,8 +34,10 @@ Spec: specs/019-retrieval-bench
 - [x] #8 Spec phase: User Story 1 — run a matrix and print a comparable table (P1, AC #2, #3)
 - [x] #9 Spec phase: User Story 3 — store results and compare over time (P2, AC #4)
 - [x] #10 Spec phase: User Story 2 — per-commit recall regression gate (P1, AC #5)
-- [ ] #11 Spec phase: Polish, re-grounding, and gates
+- [x] #11 Spec phase: Polish, re-grounding, and gates
 <!-- AC:END -->
+
+
 
 
 
