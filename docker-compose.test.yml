@@ -1,0 +1,31 @@
+# docker-compose.test.yml — the per-worktree/CI throwaway test database
+# (spec 020, operator ruling 2026-09-29). Structural fix for TASK-0024's
+# flaky worker.integration.test.ts: the app stack's worker was polling the
+# same `jobs` table host-run tests wrote to. This file has no `app` service
+# on purpose — tests get a database no running app process ever touches.
+#
+# The pgvector image is named in exactly one place, docker-compose.yml's
+# `db` service (spec 020 R1); this file `extends` it instead of repeating
+# the pin, so a version bump there is the only edit needed anywhere.
+name: stacks-test
+
+services:
+  db:
+    extends:
+      file: docker-compose.yml
+      service: db
+    # Fixed, throwaway credentials (research R5) — not read from .env, so
+    # this file needs none. Same credentials CI already used.
+    env_file: !reset []
+    environment:
+      POSTGRES_USER: stacks
+      POSTGRES_PASSWORD: stacks
+      POSTGRES_DB: stacks
+    # Memory-backed storage, no named volume (research R2): a test database
+    # is disposable by definition, and this keeps `down -v` trivially clean.
+    volumes: !reset []
+    tmpfs:
+      - /var/lib/postgresql/data
+    # Own port range, disjoint from the app db's (research R3).
+    ports: !override
+      - "127.0.0.1:${TEST_DB_PORT:-5433}:5432"

@@ -22,12 +22,12 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 
 ## Phase 1: Foundational — derivation and the test compose file
 
-- [ ] T001 [P] In `scripts/env-lib.mjs`, extend `derivePorts` to return `testDbPort`: `25000+n` for `task-<n>` (1 ≤ n ≤ 999), `25000+k` for hashed names (same `k`). Extend `deriveIdentity` to return `testProject: \`${project}-test\`` and `testDbPort`. Refuse a sanitized env ending in `-test` with a message naming the collision (research R9). Leave `mainIdentity()` unchanged.
-- [ ] T002 [P] In `scripts/env-lib.test.mjs`, add cases: `task-0033` → `3033/15033/25033` and `stacks-task-0033-test`; `task-7` → `25007`; a hashed name → test port in 26000–33999 and `testDbPort - dbPort === 10000`; `foo-test` throws; `mainIdentity()` has no `testProject`.
-- [ ] T003 [P] In `docker-compose.yml`, change `"${APP_PORT}:${APP_PORT}"` to `"${APP_PORT:-3000}:${APP_PORT:-3000}"` with a comment: `extends` interpolates this file, and CI sets no `APP_PORT` (research R1). Change nothing else.
-- [ ] T004 [P] Create `docker-compose.test.yml` per contracts/env-cli.md: top-level `name: stacks-test`; one service `db` that `extends` `docker-compose.yml`'s `db`; `env_file: !reset []`; `environment` `POSTGRES_USER/PASSWORD/DB: stacks`; `volumes: !reset []`; `tmpfs: [/var/lib/postgresql/data]`; `ports: !override ["127.0.0.1:${TEST_DB_PORT:-5433}:5432"]`. Name no image. Head it with a comment citing spec 020, the ruling, and why it has no app.
+- [x] T001 [P] In `scripts/env-lib.mjs`, extend `derivePorts` to return `testDbPort`: `25000+n` for `task-<n>` (1 ≤ n ≤ 999), `25000+k` for hashed names (same `k`). Extend `deriveIdentity` to return `testProject: \`${project}-test\`` and `testDbPort`. Refuse a sanitized env ending in `-test` with a message naming the collision (research R9). Leave `mainIdentity()` unchanged.
+- [x] T002 [P] In `scripts/env-lib.test.mjs`, add cases: `task-0033` → `3033/15033/25033` and `stacks-task-0033-test`; `task-7` → `25007`; a hashed name → test port in 26000–33999 and `testDbPort - dbPort === 10000`; `foo-test` throws; `mainIdentity()` has no `testProject`.
+- [x] T003 [P] In `docker-compose.yml`, change `"${APP_PORT}:${APP_PORT}"` to `"${APP_PORT:-3000}:${APP_PORT:-3000}"` with a comment: `extends` interpolates this file, and CI sets no `APP_PORT` (research R1). Change nothing else.
+- [x] T004 [P] Create `docker-compose.test.yml` per contracts/env-cli.md: top-level `name: stacks-test`; one service `db` that `extends` `docker-compose.yml`'s `db`; `env_file: !reset []`; `environment` `POSTGRES_USER/PASSWORD/DB: stacks`; `volumes: !reset []`; `tmpfs: [/var/lib/postgresql/data]`; `ports: !override ["127.0.0.1:${TEST_DB_PORT:-5433}:5432"]`. Name no image. Head it with a comment citing spec 020, the ruling, and why it has no app.
 - [ ] T005 In `scripts/env-lib.test.mjs`, add the image-pin guard (research R12): read `docker-compose.yml`, `docker-compose.test.yml`, every `deploy/**/*.yml`, and every `.github/workflows/*.yml` with `node:fs`; assert `pgvector/` occurs exactly once in total, in `docker-compose.yml`. The assertion message names each file that holds a hit. Depends on T004 and T007 for a green run.
-- [ ] T006 Verify: `docker compose -f docker-compose.test.yml config` exits 0 with `APP_PORT` unset, and its output shows the base file's image, tmpfs, no volume, and the three `org.the-stacks.*` labels. Paste the relevant lines into the commit body.
+- [x] T006 Verify: `docker compose -f docker-compose.test.yml config` exits 0 with `APP_PORT` unset, and its output shows the base file's image, tmpfs, no volume, and the three `org.the-stacks.*` labels. Paste the relevant lines into the commit body.
 
 ## Phase 2: US2 — CI parity (Priority: P1)
 
@@ -68,3 +68,12 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 
 - T001, T003, T004 touch different files.
 - T014 and T015 touch different files.
+
+## Deviation
+
+- T005 (Phase 1 implementer, 2026-09-29): not implemented this phase. Its own dependency
+  line says it "goes green only after T004 and T007" — T007 (Phase 2) still has to remove
+  `.github/workflows/ci.yml`'s `services:` pgvector line first. Writing the guard now, with
+  that line still present, makes `pnpm check:scripts` (and therefore `pnpm ci:check`) fail
+  on a Phase-1-only commit, which the Phase 1 gate requires to stay green. Deferred to land
+  alongside T007 in Phase 2, where it can actually go green.

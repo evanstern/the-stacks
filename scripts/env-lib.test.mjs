@@ -23,18 +23,32 @@ test("task-0020 derives 3020/15020", () => {
   assert.deepEqual(identity, {
     env: "task-0020",
     project: "stacks-task-0020",
+    testProject: "stacks-task-0020-test",
     appPort: 3020,
     dbPort: 15020,
+    testDbPort: 25020,
   });
 });
 
-test("task-7 derives 3007/15007", () => {
+test("task-0033 derives 3033/15033/25033 and testProject stacks-task-0033-test", () => {
+  const identity = deriveIdentity({
+    toplevel: "/repo/the-stacks/.worktrees/task-0033",
+    rootToplevel: ROOT,
+  });
+  assert.equal(identity.appPort, 3033);
+  assert.equal(identity.dbPort, 15033);
+  assert.equal(identity.testDbPort, 25033);
+  assert.equal(identity.testProject, "stacks-task-0033-test");
+});
+
+test("task-7 derives 3007/15007/25007", () => {
   const identity = deriveIdentity({
     toplevel: "/repo/the-stacks/.worktrees/task-7",
     rootToplevel: ROOT,
   });
   assert.equal(identity.appPort, 3007);
   assert.equal(identity.dbPort, 15007);
+  assert.equal(identity.testDbPort, 25007);
 });
 
 test("task-1000 (out of 1-999 range) falls into the hashed range, deterministically", () => {
@@ -54,6 +68,11 @@ test("task-1000 (out of 1-999 range) falls into the hashed range, deterministica
     first.dbPort >= 16000 && first.dbPort <= 23999,
     "dbPort in hashed range",
   );
+  assert.ok(
+    first.testDbPort >= 26000 && first.testDbPort <= 33999,
+    "testDbPort in hashed range",
+  );
+  assert.equal(first.testDbPort - first.dbPort, 10000);
 });
 
 test("a non-task worktree name hashes deterministically into its own range", () => {
@@ -67,6 +86,7 @@ test("a non-task worktree name hashes deterministically into its own range", () 
   assert.deepEqual(first, second);
   assert.equal(first.env, "sweep-m1-wave1");
   assert.equal(first.project, "stacks-sweep-m1-wave1");
+  assert.equal(first.testProject, "stacks-sweep-m1-wave1-test");
   assert.ok(
     first.appPort >= 4000 && first.appPort <= 11999,
     "appPort in hashed range",
@@ -75,6 +95,11 @@ test("a non-task worktree name hashes deterministically into its own range", () 
     first.dbPort >= 16000 && first.dbPort <= 23999,
     "dbPort in hashed range",
   );
+  assert.ok(
+    first.testDbPort >= 26000 && first.testDbPort <= 33999,
+    "testDbPort in hashed range",
+  );
+  assert.equal(first.testDbPort - first.dbPort, 10000);
 });
 
 test("uppercase and odd characters are sanitized into [a-z0-9-]", () => {
@@ -112,13 +137,26 @@ test("reserved env names are refused from a worktree", () => {
   );
 });
 
-test("mainIdentity is fixed at 3000/5432", () => {
-  assert.deepEqual(mainIdentity(), {
+test("a worktree name ending in -test is refused (spec 020 R9)", () => {
+  assert.throws(
+    () =>
+      deriveIdentity({
+        toplevel: "/repo/the-stacks/.worktrees/foo-test",
+        rootToplevel: ROOT,
+      }),
+    /-test/,
+  );
+});
+
+test("mainIdentity is fixed at 3000/5432 and carries no test project", () => {
+  const identity = mainIdentity();
+  assert.deepEqual(identity, {
     env: "main",
     project: "stacks-main",
     appPort: 3000,
     dbPort: 5432,
   });
+  assert.ok(!("testProject" in identity));
 });
 
 test("mergeEnvFile keeps an operator-set key and overwrites a stale derived key", () => {
