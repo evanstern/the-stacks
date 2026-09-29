@@ -33,9 +33,11 @@ Spec: specs/011-ai-gateway
 - [x] #6 Spec phase: US1 + US3 + US4 — streaming chat through the gateway (P1) 🎯 MVP
 - [x] #7 Spec phase: US2 — embeddings through the gateway (P1)
 - [x] #8 Spec phase: US5 + US1 + US2 — gateway-owned HTTP: SSE, retry, OpenAI-compatible adapter (P1)
-- [ ] #9 Spec phase: US6 + wiring — no-key test run and startup
+- [x] #9 Spec phase: US6 + wiring — no-key test run and startup
 - [ ] #10 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 
 
