@@ -4,7 +4,7 @@ title: 'AI gateway: provider interface, streaming chat, embeddings, cost account
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:38'
+updated_date: '2026-09-29 03:41'
 labels:
   - ai
 milestone: m-1
@@ -53,6 +53,10 @@ Phase 1 (T001-T005) done in ca2fbf6: types, config (AI_PROVIDERS/AI_PURPOSES/AI_
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 2 (T006-T007) done in d1e1ec6: gateway.chat(); 6 tests (orchestrator re-ran: 6/6). Invariants 1,2,3,6,7 covered. Judgment calls: config errors emit no usage record; attempts=1 until Phase 4 retry. ~155k subagent tokens.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 (T008-T009) done in a612dfa: gateway.embed(); invariants 4,5 covered; 11/11 gateway tests (orchestrator re-ran).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
