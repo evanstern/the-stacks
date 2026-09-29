@@ -29,11 +29,13 @@ Spec: specs/012-ddb-parser
 - [x] #4 fixtures/private is gitignored
 - [x] #5 Spec phase: Setup
 - [x] #6 Spec phase: Foundational — types, selectors, fixtures
-- [ ] #7 Spec phase: User Story 1 — anchored sections (Priority: P1) 🎯 MVP
+- [x] #7 Spec phase: User Story 1 — anchored sections (Priority: P1) 🎯 MVP
 - [ ] #8 Spec phase: User Story 2 — tables and stat blocks whole (Priority: P2)
 - [ ] #9 Spec phase: User Story 3 — private real-export suite (Priority: P3)
 - [ ] #10 Spec phase: Polish & cross-cutting
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
