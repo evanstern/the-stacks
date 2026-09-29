@@ -68,7 +68,7 @@ watch it fail.
 
 ## Phase 3: Gates and grounding
 
-- [ ] T010 Run `REQUIRE_DATABASE=1 TEST_DATABASE_URL=<url> pnpm ci:check` in the worktree
+- [x] T010 Run `REQUIRE_DATABASE=1 TEST_DATABASE_URL=<url> pnpm ci:check` in the worktree
   (lint, typecheck, build, test, boundaries, hooks, scripts, check:host-scripts). Save the
   summary, including DB suite skip counts (must be 0), to
   `specs/014-invite-conflict/ci-evidence.txt`.

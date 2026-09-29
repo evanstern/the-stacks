@@ -505,19 +505,16 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
 
     // The invitation stayed unspent through both failed attempts: it
     // still redeems with a fresh username.
-    const retryRedeem = await requireApp().request(
-      "/auth/invitations/redeem",
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          token: routeToken,
-          username: `retry-${randomUUID()}`,
-          displayName: "Retry Player",
-          password: "some password entirely",
-        }),
-      },
-    );
+    const retryRedeem = await requireApp().request("/auth/invitations/redeem", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token: routeToken,
+        username: `retry-${randomUUID()}`,
+        displayName: "Retry Player",
+        password: "some password entirely",
+      }),
+    });
     expect(retryRedeem.status).toBe(201);
   });
 

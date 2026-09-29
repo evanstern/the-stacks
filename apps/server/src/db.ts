@@ -96,6 +96,7 @@ export function isUniqueViolation(err: unknown): boolean {
   const code = (err as { code?: unknown })?.code;
   const causeCode = (err as { cause?: { code?: unknown } })?.cause?.code;
   return (
-    code === POSTGRES_UNIQUE_VIOLATION || causeCode === POSTGRES_UNIQUE_VIOLATION
+    code === POSTGRES_UNIQUE_VIOLATION ||
+    causeCode === POSTGRES_UNIQUE_VIOLATION
   );
 }
