@@ -36,16 +36,6 @@ Spec: specs/013-library-schema
 - [x] #9 Spec phase: Immutability and polish
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -64,6 +54,8 @@ Phase 2 (T004-T006) done in 000b673: storeParsedBook with span validation before
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 3-5 (T007-T014) done in 83ebc51/574a890/bca3043: tsv/GIN, attachEmbeddings (multi-model, dim 1024 enforced), immutability tests on all three tables; 17 library tests. Fixed isUniqueViolation to read err.cause.code (drizzle wraps driver errors); the same latent bug in auth/invitations.ts is carded as TASK-0032, out of scope here. Wiki: library-schema added; database-schema, migrations, overview amended. Stack torn down; prune --check exit 0. ~227k subagent tokens.
+
+spec-bridge sync: Foundational — schema and migration: 3/3 · User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — keyword search on every chunk (Priority: P1): 1/1 · User Story 3 — embeddings from several models (Priority: P2): 3/3 · Immutability and polish: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
