@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 17:50'
+updated_date: '2026-09-29 18:38'
 labels:
   - infra
 milestone: m-1
@@ -33,7 +33,7 @@ Spec: specs/016-hosted-dev-cd
 - [ ] #5 dev is reachable over HTTPS on the tailnet and from nowhere else
 - [ ] #6 A runbook documents deploy, rollback, and restore on vm-104
 - [x] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
-- [ ] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
+- [x] #8 Spec phase: Foundational — pure deploy logic and workflow invariants
 - [ ] #9 Spec phase: User Story 1 — main is always running on dev (P1) 🎯 MVP
 - [ ] #10 Spec phase: User Story 2 — a bad deploy never takes dev down (P1)
 - [ ] #11 Spec phase: User Story 3 — drift is caught (P2)
@@ -41,6 +41,8 @@ Spec: specs/016-hosted-dev-cd
 - [ ] #13 Spec phase: User Story 5 — the ops runbook (P3)
 - [ ] #14 Spec phase: Polish, re-ground, and the merge condition
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
