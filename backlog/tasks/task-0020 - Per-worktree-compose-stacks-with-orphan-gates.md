@@ -4,7 +4,7 @@ title: Per-worktree compose stacks with orphan gates
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 04:48'
+updated_date: '2026-09-29 05:00'
 labels:
   - infra
 milestone: m-1
@@ -32,12 +32,14 @@ Spec: specs/010-worktree-stacks
 - [ ] #5 A test proves up then down leaves no container, network, or volume
 - [ ] #6 Sweep precondition and post-merge cleanup run env prune --check; a Stop hook warns on orphans
 - [ ] #7 One command (pnpm env:main) starts a local main stack ad hoc from a fresh origin/main checkout, and env down main stops it
-- [ ] #8 Spec phase: Foundational — pure derivation library
+- [x] #8 Spec phase: Foundational — pure derivation library
 - [ ] #9 Spec phase: User Story 1 — isolated stack per worktree (Priority: P1) 🎯 MVP
 - [ ] #10 Spec phase: User Story 2 — orphans found, gated, and warned (Priority: P2)
 - [ ] #11 Spec phase: User Story 3 — local main on demand (Priority: P3)
 - [ ] #12 Spec phase: Polish & re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
