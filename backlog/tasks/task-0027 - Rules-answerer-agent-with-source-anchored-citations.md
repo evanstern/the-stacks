@@ -30,10 +30,12 @@ Spec: specs/018-rules-answerer
 - [ ] #4 Tests run against the fake provider
 - [x] #5 Spec phase: Foundational — citation parser, quote verification, config
 - [x] #6 Spec phase: User Story 1 — streamed answer with verified citations (Priority: P1) 🎯 MVP
-- [ ] #7 Spec phase: User Story 2 — refuse when nothing is relevant (Priority: P1)
+- [x] #7 Spec phase: User Story 2 — refuse when nothing is relevant (Priority: P1)
 - [ ] #8 Spec phase: User Story 3 — failures, auth, and cancellation (Priority: P2)
 - [ ] #9 Spec phase: Polish, re-grounding, and gates
 <!-- AC:END -->
+
+
 
 
 
