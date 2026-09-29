@@ -1,10 +1,10 @@
 ---
 id: TASK-0029
 title: 'Benchmark system: retrieval quality across embedding models and strategies'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 21:44'
+updated_date: '2026-09-29 22:20'
 labels:
   - bench
 milestone: m-1
@@ -61,6 +61,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 T026 real run 2026-09-29 (orchestrator, local Ollama, $0): bge-m3@1024 over block/c1000/c2000/c4000 x vector/fts/hybrid in 1m47s; models stayed pinned (keep_alive -1). Best: c1000 vector R@5 0.953 / MRR 0.836; hybrid trails vector on this corpus (c1000 R@5 0.844); fts best R@5 0.594. nomic-embed-text (768) blocked: gateway enforces 1024 dims (gateway.ts:213) and Ollama ignores 'dimensions' — spec checkpoint (2), carded as follow-up.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Corpus and question set (AC #1): 5/5 · Foundational — load, score, embed helpers (pure): 4/4 · User Story 1 — run a matrix and print a comparable table (P1, AC #2, #3): 6/6 · User Story 3 — store results and compare over time (P2, AC #4): 4/4 · User Story 2 — per-commit recall regression gate (P1, AC #5): 3/3 · Polish, re-grounding, and gates: 9/9). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
