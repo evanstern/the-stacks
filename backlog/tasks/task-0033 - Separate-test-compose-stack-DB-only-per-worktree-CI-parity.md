@@ -4,7 +4,7 @@ title: 'Separate test compose stack: DB-only, per worktree, CI parity'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 18:37'
-updated_date: '2026-09-29 19:07'
+updated_date: '2026-09-29 19:18'
 labels:
   - infra
   - test
@@ -49,6 +49,9 @@ Operator rulings 2026-09-29 (plan checkpoint): (1) CI drops services: for docker
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 1: env-lib derivation + docker-compose.test.yml extends; 35 env-lib tests). Deviation accepted: T005 image-pin guard moved into the phase 2 dispatch (it goes green only after T007 removes ci.yml's services: block); no gate softened.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 2-3 + T005: ci.yml -> compose test stack; env:up/down handle both stacks; image-pin guard; real up/test(302 pass)/down/prune proof). Orchestrator verified: no .claude/ changes on the branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
