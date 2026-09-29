@@ -4,6 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 02:43'
 labels:
   - infra
 milestone: m-1
@@ -18,7 +19,7 @@ ordinal: 12000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement doc-0002 CD and Exposure sections. The dev environment always runs main HEAD after green CI. Tailnet-only exposure; the Cloudflare tunnel is out of scope. Blocked until decision-0006 is ratified and vm-104 is reachable.
+Implement doc-0002 CD and Exposure sections (decision-0006, ratified 2026-09-28). The dev environment on vm-104 is the always-on main app and runs main HEAD after green CI. Tailnet-only exposure; the Cloudflare tunnel is out of scope. Blocked on the four operator prerequisites in doc-0002 (disk, service user, runner registration, tailscaled repair), which need sudo on vm-104.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -29,7 +30,10 @@ Implement doc-0002 CD and Exposure sections. The dev environment always runs mai
 - [ ] #4 A scheduled drift check fails when dev's commit differs from main HEAD
 - [ ] #5 dev is reachable over HTTPS on the tailnet and from nowhere else
 - [ ] #6 A runbook documents deploy, rollback, and restore on vm-104
+- [ ] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
