@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 22:58'
+updated_date: '2026-09-29 23:02'
 labels:
   - bench
 milestone: m-1
@@ -31,13 +31,13 @@ Spec: specs/021-load-bench
 - [ ] #3 Stress cases cover database connection exhaustion and app restart mid-ingest
 - [ ] #4 Each case declares its tier: every commit, on demand, or against dev only; out-of-tier cases skip with a visible reason
 - [ ] #5 Results are stored with config and commit
-- [ ] #6 Spec phase: Setup
-- [ ] #7 Spec phase: Foundational (blocks every story)
-- [ ] #8 Spec phase: User Story 1 — find where ingest degrades (P1, AC #1)
-- [ ] #9 Spec phase: User Story 2 — find where concurrent users degrade (P1, AC #2)
-- [ ] #10 Spec phase: User Story 4 — tiers, visible skips, and the CLI (P1, AC #4)
-- [ ] #11 Spec phase: User Story 3 — stress cases (P2, AC #3)
-- [ ] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
+- [x] #6 Spec phase: Setup
+- [x] #7 Spec phase: Foundational (blocks every story)
+- [x] #8 Spec phase: User Story 1 — find where ingest degrades (P1, AC #1)
+- [x] #9 Spec phase: User Story 2 — find where concurrent users degrade (P1, AC #2)
+- [x] #10 Spec phase: User Story 4 — tiers, visible skips, and the CLI (P1, AC #4)
+- [x] #11 Spec phase: User Story 3 — stress cases (P2, AC #3)
+- [x] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
 - [ ] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
 
@@ -62,6 +62,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 8 minus T026: merged main twice incl. #35; filled benchmarks.md 'Load and stress' (size_budget_exempt, two benches in one note by orchestrator instruction); 8 wiki notes reviewed; freshness OK 36; env down, prune clean). T026 dev run: operator checkpoint, pending.
 
 T026 deferred by operator 2026-09-29 (option A): dev has no operator account (users table empty) and the runtime image does not ship scripts/create-operator.ts. Carded TASK-0036; the dev load run happens after it merges. The PR does not wait on T026 (spec).
+
+spec-bridge sync: Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 8/9
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

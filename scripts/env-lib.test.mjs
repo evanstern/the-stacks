@@ -10,6 +10,7 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   classifyStacks,
+  DERIVED_KEYS,
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
@@ -203,6 +204,82 @@ test("mergeEnvFile appends a derived key absent from the example (e.g. commented
   const lines = merged.split("\n");
   assert.ok(lines.includes("TEST_DATABASE_URL=postgres://x"));
   assert.ok(lines.includes("APP_PORT=3020"));
+});
+
+test("mergeEnvFile: shared beats existing for an example key", () => {
+  const example = "APP_PORT=3000\nPOSTGRES_PASSWORD=changeme";
+  const merged = mergeEnvFile(
+    example,
+    "POSTGRES_PASSWORD=old-worktree-value",
+    {},
+    "POSTGRES_PASSWORD=root-shared-value",
+  );
+  assert.ok(merged.split("\n").includes("POSTGRES_PASSWORD=root-shared-value"));
+});
+
+test("mergeEnvFile: shared supplies a key absent from example and existing", () => {
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "",
+    {},
+    "HOSTED_API_KEY=root-key",
+  );
+  assert.ok(merged.split("\n").includes("HOSTED_API_KEY=root-key"));
+});
+
+test("mergeEnvFile: shared never supplies a DERIVED_KEYS key, even env:main shape (no TEST_DATABASE_URL in derived)", () => {
+  const sharedText = DERIVED_KEYS.map((key) => `${key}=from-root`).join("\n");
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "",
+    { APP_PORT: "3020" },
+    sharedText,
+  );
+  const parsed = Object.fromEntries(
+    merged.split("\n").map((line) => line.split("=")),
+  );
+  assert.equal(parsed.APP_PORT, "3020");
+  for (const key of DERIVED_KEYS) {
+    if (key === "APP_PORT") continue;
+    assert.ok(
+      !merged.includes(`${key}=from-root`),
+      `${key} must not come from the shared layer`,
+    );
+  }
+});
+
+test('mergeEnvFile: sharedText undefined and "" give output identical to the three-argument call', () => {
+  const example = "APP_PORT=3000\nPOSTGRES_PASSWORD=changeme";
+  const existing = "POSTGRES_PASSWORD=super-secret";
+  const derived = { APP_PORT: "3020" };
+  const base = mergeEnvFile(example, existing, derived);
+  assert.equal(mergeEnvFile(example, existing, derived, undefined), base);
+  assert.equal(mergeEnvFile(example, existing, derived, ""), base);
+});
+
+test('mergeEnvFile: a JSON value with =, {, :, and " round-trips verbatim', () => {
+  const jsonValue =
+    '{"hosted":{"kind":"openai-compatible","baseUrl":"https://x/v1","apiKeyEnv":"K"}}';
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "",
+    {},
+    `AI_PROVIDERS=${jsonValue}`,
+  );
+  assert.ok(merged.split("\n").includes(`AI_PROVIDERS=${jsonValue}`));
+});
+
+test("mergeEnvFile: a key in both shared and existing, absent from example, appears exactly once with shared's value", () => {
+  const merged = mergeEnvFile(
+    "APP_PORT=3000",
+    "HOSTED_API_KEY=worktree-value",
+    {},
+    "HOSTED_API_KEY=root-value",
+  );
+  const lines = merged
+    .split("\n")
+    .filter((l) => l.startsWith("HOSTED_API_KEY="));
+  assert.deepEqual(lines, ["HOSTED_API_KEY=root-value"]);
 });
 
 test("classifyStacks exempts main and dev from orphan status", () => {
