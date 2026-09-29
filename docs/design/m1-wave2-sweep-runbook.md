@@ -276,3 +276,4 @@ mechanical merge-reconcile step, as in wave 1; record it as its own dispatch lin
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-29 | (runbook) | — | — | — | Authored as draft. Adds 0024 as a hard dependency of 0029 (chunking axis). Awaiting lane sign-off. |
 | 2026-09-29 | (runbook) | [#27](https://github.com/evanstern/the-stacks/pull/27) | `b4a178d` | — | Signed off by merge. Amended on the TASK-0032 branch: TASK-0028 → design-rounds sister session. Lane 1 claimed: 014 (0032), 015 (0026), 016 (0021), 017 (0024). |
+| 2026-09-29 | TASK-0032 | [#28](https://github.com/evanstern/the-stacks/pull/28) | `4c67d52` | ~422k: spec ~147k (opus), impl ~275k (sonnet ×2) | Shared `isUniqueViolation` in `db.ts`; redeem returns 409 conflict. Fail→pass proven on its own stack. Follow-up for triage: `test-suite` wiki note pins 11 of 22 server test files. Closures (T016, sync → Done) rode the TASK-0026 branch. |

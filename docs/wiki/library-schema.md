@@ -81,14 +81,15 @@ Depends on [[ddb-parser]]'s `ParsedBook` shape as `storeParsedBook`'s input, and
 input — neither module imports the other directly. Migration mechanics (hand-added
 `CREATE EXTENSION IF NOT EXISTS vector;` and the trigger) follow the pattern in
 [[migrations]]. Shares its unique-violation detector with [[invitations]] via
-[[database-access]]. See [[database-schema]] for the session/auth-plane tables this note
-doesn't cover.
+[[database-access]]. [[retrieval]] is this schema's read path — `library_chunks.tsv` and
+`library_embeddings.embedding` are queried, never written, by `retrieve.ts`. See
+[[database-schema]] for the session/auth-plane tables this note doesn't cover.
 
 ## Operational notes
 
-Retrieval queries, ingestion jobs, and chunking strategy are out of scope here (TASK-0024,
-TASK-0026) — this schema only guarantees the indexes those later features need exist and are
-used, which the integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
+Ingestion jobs and chunking strategy are out of scope here (TASK-0024) — this schema only
+guarantees the indexes retrieval and later features need exist and are used, which the
+integration suite checks directly: `EXPLAIN` with `enable_seqscan = off`
 must name `library_chunks_tsv_idx` for a keyword query, and `library_embeddings_embedding_idx`
 for a per-model nearest-neighbour query (with `enable_bitmapscan`/`enable_sort` also disabled
 in the test — on a tiny table Postgres otherwise prefers the `model` btree index plus an
