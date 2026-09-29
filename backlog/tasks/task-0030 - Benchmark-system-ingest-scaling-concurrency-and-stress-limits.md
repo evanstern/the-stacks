@@ -4,12 +4,14 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 18:37'
 labels:
   - bench
 milestone: m-1
 dependencies:
   - TASK-0024
   - TASK-0021
+  - TASK-0033
 priority: high
 ordinal: 21000
 ---
@@ -28,6 +30,12 @@ Operator requirement (doc-0001, 2026-09-28): find growing-pain limits before hos
 - [ ] #4 Each case declares its tier: every commit, on demand, or against dev only; out-of-tier cases skip with a visible reason
 - [ ] #5 Results are stored with config and commit
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-09-29: now also depends on TASK-0033 (operator ruling): the ingest benchmark polls the jobs queue, so it needs the DB-only test stack to avoid the app worker stealing jobs.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
