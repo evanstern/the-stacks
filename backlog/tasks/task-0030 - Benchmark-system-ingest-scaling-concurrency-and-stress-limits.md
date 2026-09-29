@@ -37,9 +37,11 @@ Spec: specs/021-load-bench
 - [x] #9 Spec phase: User Story 2 — find where concurrent users degrade (P1, AC #2)
 - [x] #10 Spec phase: User Story 4 — tiers, visible skips, and the CLI (P1, AC #4)
 - [x] #11 Spec phase: User Story 3 — stress cases (P2, AC #3)
-- [ ] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
+- [x] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
 - [ ] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
+
+
 
 
 
