@@ -162,12 +162,12 @@ the job. (AC #3)
 
 **Independent Test**: quickstart.md §5.
 
-- [ ] T017 [US5] Add `backup [--name <label>]` and `restore <file> --yes` verbs to
+- [x] T017 [US5] Add `backup [--name <label>]` and `restore <file> --yes` verbs to
   `scripts/deploy-dev.mjs` per contracts/deploy-cli.md (`pg_dump -Fc` / `pg_restore --clean
   --if-exists` through `docker compose exec -T db`, using the db container's own
   `POSTGRES_USER`/`POSTGRES_DB` env; `manual-*` backups are never auto-pruned; `restore`
   stops `app`, restores, starts `app` at its current image, verifies `/health`).
-- [ ] T018 [US5] Write `docs/ops/dev-vm-104.md` in procedural prose (one instruction per
+- [x] T018 [US5] Write `docs/ops/dev-vm-104.md` in procedural prose (one instruction per
   sentence, imperative): What runs where (project, ports, volume, secrets path, backup
   path, URL); Deploy (merge, or `gh workflow run deploy-dev.yml`); Rollback to a named
   commit (`gh workflow run deploy-dev.yml -f commit=<sha>`; expect drift until the next

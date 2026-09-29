@@ -365,6 +365,78 @@ async function status() {
   console.log(`newest backups: ${backups.join(", ") || "none"}`);
 }
 
+function backupVerb({ label }) {
+  if (!dockerReachable()) environmentError("Docker is not reachable.");
+  if (!existsSync(DEV_ENV_FILE)) {
+    environmentError(`secrets file missing: ${DEV_ENV_FILE}`);
+  }
+  try {
+    const file = backup({ label });
+    pruneBackups();
+    console.log(file);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * `restore <file> --yes` (contracts/deploy-cli.md): stops `app`, restores
+ * `db` from the dump with `pg_restore --clean --if-exists`, starts `app`
+ * back at its current image, and verifies `/health`.
+ */
+async function restoreVerb(file, { yes }) {
+  if (!yes) {
+    console.error("refusing without --yes");
+    process.exit(2);
+  }
+  if (!dockerReachable()) environmentError("Docker is not reachable.");
+  if (!existsSync(DEV_ENV_FILE)) {
+    environmentError(`secrets file missing: ${DEV_ENV_FILE}`);
+  }
+  const filePath = path.isAbsolute(file) ? file : path.join(BACKUPS_DIR, file);
+  if (!existsSync(filePath))
+    environmentError(`backup file not found: ${filePath}`);
+
+  const sha = getPrevCommit() ?? "unknown";
+  if (runCompose(["stop", "app"], sha).status !== 0) {
+    console.error("failed to stop app");
+    process.exit(1);
+  }
+  const creds = parseEnvKeys(readFileSync(DEV_ENV_FILE, "utf8"));
+  const restoreResult = spawnSync(
+    "docker",
+    [
+      "compose",
+      ...composeArgs(),
+      "exec",
+      "-T",
+      "db",
+      "pg_restore",
+      "--clean",
+      "--if-exists",
+      "-U",
+      creds.POSTGRES_USER,
+      "-d",
+      creds.POSTGRES_DB,
+    ],
+    { cwd: ROOT, input: readFileSync(filePath) },
+  );
+  if (restoreResult.status !== 0) {
+    console.error(
+      `restore failed: ${(restoreResult.stderr ?? "").toString().trim()}`,
+    );
+    process.exit(1);
+  }
+  if (runCompose(["up", "-d", "--no-build", "app"], sha).status !== 0) {
+    console.error("failed to start app");
+    process.exit(1);
+  }
+  const ok = await verify(sha);
+  console.log(ok ? `dev is serving ${sha}` : "dev is not serving");
+  process.exit(ok ? 0 : 1);
+}
+
 function initSecrets() {
   if (existsSync(DEV_ENV_FILE)) {
     console.error(`already exists: ${DEV_ENV_FILE}`);
@@ -401,11 +473,21 @@ switch (verb) {
   case "drift":
     await drift();
     break;
+  case "backup": {
+    const nameIdx = rest.indexOf("--name");
+    backupVerb({ label: nameIdx !== -1 ? rest[nameIdx + 1] : undefined });
+    break;
+  }
+  case "restore":
+    await restoreVerb(rest[0], { yes: rest.includes("--yes") });
+    break;
   case "init-secrets":
     initSecrets();
     break;
   default:
     console.error(`unknown or not-yet-implemented verb "${verb}"`);
-    console.error("usage: deploy-dev.mjs <deploy|status|drift|init-secrets>");
+    console.error(
+      "usage: deploy-dev.mjs <deploy|status|drift|backup|restore|init-secrets>",
+    );
     process.exit(2);
 }
