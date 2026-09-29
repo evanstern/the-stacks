@@ -15,11 +15,21 @@ merged).
 
 **Purpose**: the committed, licensed data every later phase measures against.
 
-- [ ] T001 Download `https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1.pdf` to a scratch path outside the repo. Record its sha-256. Run `pdftotext -layout` on it into the same scratch dir. Commit neither file.
-- [ ] T002 Create the 8 corpus files in `apps/server/bench/retrieval/corpus/` per research R1: `using-ability-scores.md`, `adventuring.md`, `combat.md`, `spellcasting.md`, `spells.md`, `equipment.md`, `conditions.md`, `monsters.md`. Keep SRD words verbatim. Only rejoin hyphenated line breaks, drop page headers and footers, and add Markdown structure. Use only the SRD PDF as the source. Never copy from `/Volumes/evan/dnd-sourcebooks`, `fixtures/private/`, or any web mirror. Keep the directory at or under 400 KB (`du -sk`).
-- [ ] T003 Create `apps/server/bench/retrieval/corpus/ATTRIBUTION.md`. Include the SRD 5.1 attribution statement verbatim, the CC-BY-4.0 legalcode URL, the source URL, the PDF sha-256 from T001, the extraction command, and the list of changes made in T002.
-- [ ] T004 Create `apps/server/bench/retrieval/questions.json` per data-model.md and research R3. Write about 60 questions, about 8 per document. Mark at least half `paraphrase`, phrased without the passage's distinctive terms. Make each `quote` a 40–400 char exact excerpt of the parsed document text.
-- [ ] T005 Commit Phase 1 as `TASK-0029: T001–T005 SRD 5.1 corpus and question set`. The loader validates quotes in T009; fix any quote it rejects there. Format `questions.json` and the matrices with `pnpm format`, because Biome lints JSON under `apps/server/bench/`.
+- [x] T001 Download `https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1.pdf` to a scratch path outside the repo. Record its sha-256. Run `pdftotext -layout` on it into the same scratch dir. Commit neither file.
+- [x] T002 Create the 8 corpus files in `apps/server/bench/retrieval/corpus/` per research R1: `using-ability-scores.md`, `adventuring.md`, `combat.md`, `spellcasting.md`, `spells.md`, `equipment.md`, `conditions.md`, `monsters.md`. Keep SRD words verbatim. Only rejoin hyphenated line breaks, drop page headers and footers, and add Markdown structure. Use only the SRD PDF as the source. Never copy from `/Volumes/evan/dnd-sourcebooks`, `fixtures/private/`, or any web mirror. Keep the directory at or under 400 KB (`du -sk`).
+- [x] T003 Create `apps/server/bench/retrieval/corpus/ATTRIBUTION.md`. Include the SRD 5.1 attribution statement verbatim, the CC-BY-4.0 legalcode URL, the source URL, the PDF sha-256 from T001, the extraction command, and the list of changes made in T002.
+- [x] T004 Create `apps/server/bench/retrieval/questions.json` per data-model.md and research R3. Write about 60 questions, about 8 per document. Mark at least half `paraphrase`, phrased without the passage's distinctive terms. Make each `quote` a 40–400 char exact excerpt of the parsed document text.
+- [x] T005 Commit Phase 1 as `TASK-0029: T001–T005 SRD 5.1 corpus and question set`. The loader validates quotes in T009; fix any quote it rejects there. Format `questions.json` and the matrices with `pnpm format`, because Biome lints JSON under `apps/server/bench/`.
+
+**Deviation:** T001 named `pdftotext -layout`. On this PDF, both the default reading-order
+mode and `-layout` interleave text from adjacent columns on two-column pages (the spell
+descriptions and monster stat blocks), silently attributing one entry's body text to its
+neighbor's heading. `pdftotext -raw` was used instead — verified line-by-line against `-layout`
+for the corpus's source pages and it is the only mode that preserves correct per-entry order.
+Documented in `corpus/ATTRIBUTION.md`'s Extraction section. A mechanical `indexOf` uniqueness
+check (T009, to be added in Phase 2) will still catch any surviving misattribution once the
+loader exists; every quote in `questions.json` was checked by hand against the parsed-text
+simulation described in this dispatch's report before commit.
 
 **Checkpoint**: licensed corpus, attribution, and questions are committed. No code yet.
 
