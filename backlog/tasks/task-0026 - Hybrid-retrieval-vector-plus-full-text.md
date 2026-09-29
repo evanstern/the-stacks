@@ -1,9 +1,10 @@
 ---
 id: TASK-0026
 title: 'Hybrid retrieval: vector plus full-text'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 15:02'
 labels:
   - library
 milestone: m-1
@@ -18,6 +19,8 @@ ordinal: 17000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Hybrid retrieval per A9. Retrieval mode is configurable so the benchmark (TASK-0029) can compare modes.
+
+Spec: specs/015-hybrid-retrieval
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
