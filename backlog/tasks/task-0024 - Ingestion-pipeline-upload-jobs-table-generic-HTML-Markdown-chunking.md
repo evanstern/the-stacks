@@ -4,7 +4,7 @@ title: 'Ingestion pipeline: upload, jobs table, generic HTML/Markdown, chunking'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 17:26'
+updated_date: '2026-09-29 17:40'
 labels:
   - library
 milestone: m-1
@@ -69,6 +69,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 6 T031-T033: merged origin/main; shared isUniqueViolation; 301 pass under REQUIRE_DATABASE=1). T034/T035 (real exports) run by the orchestrator.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(fix: nested zip temp-name collision, 5121083). T034/T035 run by orchestrator; evidence specs/017-ingestion-pipeline/merge-condition.md. All 7 delivered forms succeed; MM RSS delta ~23 MB; restart reclaim attempts=2 same chunk count.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
