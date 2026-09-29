@@ -44,23 +44,23 @@ watch it fail.
 
 **Goal**: one exported `isUniqueViolation`; both callers use it; the T002 case passes.
 
-- [ ] T005 [US2] In `apps/server/src/db.ts`, add module-private
+- [x] T005 [US2] In `apps/server/src/db.ts`, add module-private
   `const POSTGRES_UNIQUE_VIOLATION = "23505";` and export
   `isUniqueViolation(err: unknown): boolean` with the logic now in
   `apps/server/src/library/store.ts` (check `err.code`, then `err.cause.code`; never throw).
   Keep the comment explaining the `DrizzleQueryError` wrap. Add a `ponytail:` comment: one
   level of `cause` only; walk the chain when a caller wraps errors twice.
-- [ ] T006 [US1] In `apps/server/src/auth/invitations.ts`, delete the private
+- [x] T006 [US1] In `apps/server/src/auth/invitations.ts`, delete the private
   `POSTGRES_UNIQUE_VIOLATION` and `isUniqueViolation`. Import `isUniqueViolation` from
   `../db.js`. Leave `redeemInvitation`'s catch block logic unchanged.
-- [ ] T007 [US2] In `apps/server/src/library/store.ts`, delete the private
+- [x] T007 [US2] In `apps/server/src/library/store.ts`, delete the private
   `POSTGRES_UNIQUE_VIOLATION`, `isUniqueViolation`, and their comment. Add
   `isUniqueViolation` to the existing `../db.js` import. Both call sites
   (`storeParsedBook`, `attachEmbeddings`) stay unchanged.
-- [ ] T008 Verify the single-copy rule: `grep -rn "23505" apps/server/src` prints exactly one
+- [x] T008 Verify the single-copy rule: `grep -rn "23505" apps/server/src` prints exactly one
   line, in `db.ts`; `grep -rn "function isUniqueViolation" apps/server/src` prints exactly one
   line.
-- [ ] T009 Run with the database required:
+- [x] T009 Run with the database required:
   `REQUIRE_DATABASE=1 TEST_DATABASE_URL=<url> pnpm --filter @the-stacks/server exec vitest run test/auth.integration.test.ts test/db.test.ts test/library/store.integration.test.ts`.
   All pass, 0 skipped.
 

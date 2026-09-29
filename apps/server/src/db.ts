@@ -84,3 +84,18 @@ export function createDatabaseProbe(
 export function createDb(databaseUrl: string) {
   return drizzle(createPool(databaseUrl, DEFAULT_PROBE_TIMEOUT_MS));
 }
+
+const POSTGRES_UNIQUE_VIOLATION = "23505";
+
+// drizzle-orm wraps every driver error in a DrizzleQueryError, so the pg
+// driver's own `code` lands on `err.cause`, not `err` itself. Bare `err.code`
+// still matters for raw `pg` calls outside drizzle.
+// ponytail: inspects one level of `cause` only; walk the chain when a
+// caller wraps errors twice.
+export function isUniqueViolation(err: unknown): boolean {
+  const code = (err as { code?: unknown })?.code;
+  const causeCode = (err as { cause?: { code?: unknown } })?.cause?.code;
+  return (
+    code === POSTGRES_UNIQUE_VIOLATION || causeCode === POSTGRES_UNIQUE_VIOLATION
+  );
+}
