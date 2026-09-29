@@ -1,10 +1,10 @@
 ---
 id: TASK-0022
 title: 'Library schema: documents, chunks, embeddings, FTS'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 05:36'
+updated_date: '2026-09-29 09:38'
 labels:
   - library
 milestone: m-1
@@ -55,6 +55,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phases 3-5 (T007-T014) done in 83ebc51/574a890/bca3043: tsv/GIN, attachEmbeddings (multi-model, dim 1024 enforced), immutability tests on all three tables; 17 library tests. Fixed isUniqueViolation to read err.cause.code (drizzle wraps driver errors); the same latent bug in auth/invitations.ts is carded as TASK-0032, out of scope here. Wiki: library-schema added; database-schema, migrations, overview amended. Stack torn down; prune --check exit 0. ~227k subagent tokens.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — schema and migration: 3/3 · User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — keyword search on every chunk (Priority: P1): 1/1 · User Story 3 — embeddings from several models (Priority: P2): 3/3 · Immutability and polish: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
