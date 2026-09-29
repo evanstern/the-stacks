@@ -19,9 +19,7 @@ const aiConfig = loadAiConfig(process.env);
 // Validated at boot so a bad RETRIEVAL_* value fails fast (FR-004); unused
 // until a route reads it (TASK-0027).
 const retrievalConfig = loadRetrievalConfig(process.env);
-// Validated at boot beside RETRIEVAL_*, so a bad ASK_MIN_SIMILARITY fails
-// fast too; unused until the /library/ask route reads it (TASK-0027 Phase 2).
-// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027 Phase 2's route wiring.
+// Validated at boot beside RETRIEVAL_*, so a bad ASK_MIN_SIMILARITY fails fast too.
 const answerConfig = loadAnswerConfig(process.env);
 
 const aiGateway = createAiGateway({
@@ -54,6 +52,11 @@ const app = createApp({
     uploadMaxBytes: config.uploadMaxBytes,
     uploadDir,
     onEnqueued: ingestWorker.nudge,
+    answer: {
+      gateway: aiGateway,
+      retrieval: retrievalConfig,
+      config: answerConfig,
+    },
   },
 });
 

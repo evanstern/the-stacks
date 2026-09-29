@@ -69,12 +69,12 @@ in these tests: the worktree app's ingest worker can claim them (TASK-0033).
 and one invented quote; the stream has exactly one citation whose span slices back to its
 quote, and `done.dropped` is 1.
 
-- [ ] T008 [US1] In `answer.ts`, build the prompt per research R6: a system prompt stating the
+- [x] T008 [US1] In `answer.ts`, build the prompt per research R6: a system prompt stating the
   `<cite p="N">exact words</cite>` syntax, "answer only from the passages", "say where they are
   silent", and "output `<refuse/>` if the passages do not answer the question", naming no game
   system; a user message of `<passage p="N" book="…" section="A › B">text</passage>` blocks,
   numbered from 1 over the relevant passages in retrieval order, then the question.
-- [ ] T009 [US1] In `answer.ts`, implement `answer(deps, req)` as an async generator: validate
+- [x] T009 [US1] In `answer.ts`, implement `answer(deps, req)` as an async generator: validate
   the question (trim, 1..`QUESTION_MAX`, else throw `ValidationError` before any call); call
   `(deps.retrieve ?? retrieve)({db, gateway, config: deps.retrieval}, {question, signal})`;
   filter with `isRelevant`; stream `gateway.chat({purpose: ANSWER_PURPOSE, system, messages,
@@ -85,7 +85,7 @@ quote, and `done.dropped` is 1.
   `p`, failed `locateQuote`, and `malformed` as dropped. On chat `done` with ≥ 1 citation,
   yield `done {citations, dropped, passages, promptVersion}`. Log nothing containing question,
   passage, or answer text.
-- [ ] T010 [US1] In `answer.test.ts`, test `answer()` with a stubbed `retrieve` (scripted
+- [x] T010 [US1] In `answer.test.ts`, test `answer()` with a stubbed `retrieve` (scripted
   `RetrievalResult` of 2–3 passages with fts signals) and a gateway built by `createGateway`
   over a `FakeProvider`: (a) one real quote + one invented quote → one `citation`, `done.dropped`
   1, and no `delta` contains `<cite`, `</cite>`, or `<refuse`; (b) a whitespace-drifted quote
@@ -94,7 +94,7 @@ quote, and `done.dropped` is 1.
   chat request's purpose is `answering` and its user message numbers only relevant passages;
   (g) exactly one terminal event, last. For every emitted citation assert the three
   guarantees in contracts/ask-sse.md.
-- [ ] T011 [US1] Edit `apps/server/src/routes/library.ts`: `CreateLibraryRoutesOptions` gains
+- [x] T011 [US1] Edit `apps/server/src/routes/library.ts`: `CreateLibraryRoutesOptions` gains
   optional `answer?: Omit<AnswerDeps, "db">`. Add `POST /ask`: `requireOperator(c)`; parse the
   JSON body with Zod (`{question: string}`), mapping a parse failure or a bad question to
   `ValidationError` so it returns the 400 JSON before any stream opens; if `answer` deps are
@@ -102,11 +102,11 @@ quote, and `done.dropped` is 1.
   …)`: create an `AbortController`, abort it in `stream.onAbort`, iterate `answer()`, and write
   each event as `{event: type, data: JSON.stringify(payloadWithoutType)}`. Validate the question
   before `streamSSE` so `answer()` never throws after the stream opens.
-- [ ] T012 [US1] Edit `apps/server/src/app.ts`: `CreateAppOptions.library` gains optional
+- [x] T012 [US1] Edit `apps/server/src/app.ts`: `CreateAppOptions.library` gains optional
   `answer` deps, passed through to `createLibraryRoutes`. Edit `index.ts`: pass `{gateway:
   aiGateway, retrieval: retrievalConfig, config: answerConfig}`; remove the `biome-ignore`
   comment reserving `retrievalConfig` for TASK-0027.
-- [ ] T013 [US1] Write `apps/server/test/library/ask.integration.test.ts` with the repo's
+- [x] T013 [US1] Write `apps/server/test/library/ask.integration.test.ts` with the repo's
   loud-skip harness (copy the header from `retrieve.integration.test.ts`; `REQUIRE_DATABASE=1`
   throws on skip). Seed a synthetic book via `storeParsedBook` with original text and a per-test
   nonce word (research R7 there). Build the app with `createApp({…, library: {answer: {gateway,
@@ -116,7 +116,7 @@ quote, and `done.dropped` is 1.
   body on blank lines into `{event, data}`. Case: real + hallucinated quote → content type
   `text/event-stream`, one `citation`, `done.dropped` 1, and the stored document text (read
   from `library_documents`) sliced by `citation.span` equals `citation.quote` (SC-001, SC-002).
-- [ ] T014 [US1] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`); green.
+- [x] T014 [US1] Run `pnpm ci:check` and the DB suites (`REQUIRE_DATABASE=1`); green.
 
 **Checkpoint**: card AC #1, #2, #4 have passing tests.
 
@@ -127,7 +127,7 @@ quote, and `done.dropped` is 1.
 **Independent Test**: a question sharing no word with the library yields one
 `refusal{nothing_relevant}` event and zero chat calls.
 
-- [ ] T015 [US2] In `answer.ts`: when no passage is relevant, yield
+- [x] T015 [US2] In `answer.ts`: when no passage is relevant, yield
   `refusal{reason:"nothing_relevant"}` and return before any `chat` call. When the parser yields
   `refuse`, or chat yields `error` of kind `refusal`, abort the chat call (a per-call
   `AbortController` chained to `req.signal`) and yield `refusal{model_declined}`. When chat ends
@@ -135,11 +135,11 @@ quote, and `done.dropped` is 1.
   per reason (`nothing_relevant`: "The library has nothing relevant to this question.";
   `model_declined`: "The library passages found do not answer this question.";
   `unverified`: "No answer could be verified against the library.").
-- [ ] T016 [US2] In `answer.test.ts`: empty retrieval → one refusal, `fake.chatCalls.length`
+- [x] T016 [US2] In `answer.test.ts`: empty retrieval → one refusal, `fake.chatCalls.length`
   0; passages all failing the floor (vector-only, score 0.1) → same; `<refuse/>` after some
   text → `refusal{model_declined}` last; chat `error{kind:"refusal"}` → `model_declined`; an
   answer with only invented quotes → `refusal{unverified}` and no `done`.
-- [ ] T017 [US2] In `ask.integration.test.ts`: a question of words absent from the seeded book
+- [x] T017 [US2] In `ask.integration.test.ts`: a question of words absent from the seeded book
   → one `refusal{nothing_relevant}` event, zero chat calls (SC-003). Add a `vector`-mode case:
   seed embeddings with `attachEmbeddings` using scripted vectors (as in
   `retrieve.integration.test.ts`) so the question's similarity to every chunk is below 0.3 →
@@ -234,3 +234,17 @@ code: `index.ts`'s pre-existing `biome-ignore lint/correctness/noUnusedVariables
 and biome now reports a dead suppression as an error. Removed that ineffective comment (and left
 a real, working one on the new `answerConfig`, which genuinely is unused until Phase 2 wires the
 route) so the gate is green. No behavior change.
+
+Deviation (Phases 2-3): T009's core loop (parser, dedup, `done`) and T015's three refusal
+reasons (`nothing_relevant`, `model_declined`, `unverified`) are one `switch` over chat events
+inside `answer()` — splitting them would mean either a half-working Phase 2 (no refusal path at
+all, contradicting T010(f)'s own passing-passages assertion needing `isRelevant` filtering
+already in place) or duplicating the event loop. Both phases' code landed together in Phase 2's
+commit; T015-T017 are ticked here in Phase 3 once their own tests (T016, T017) proved the
+already-written behavior. No task's acceptance criteria changed.
+
+Test-run note: two flakes observed under full `REQUIRE_DATABASE=1 pnpm ci:check`, neither
+touching this task's own code, both confirmed by an isolated re-run of just that file: (1)
+`worker.integration.test.ts` — the TASK-0033 caveat (the worktree app container's ingest worker
+claiming a queued test job); (2) `ws.integration.test.ts` T012 — an "Unexpected server response:
+503" under full-suite parallel port pressure, unrelated to the library/ask surface.
