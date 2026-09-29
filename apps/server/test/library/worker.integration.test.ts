@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { FakeProvider } from "../../src/ai/adapters/fake.js";
 import type { AiConfig } from "../../src/ai/config.js";
@@ -10,7 +10,12 @@ import { createGateway } from "../../src/ai/gateway.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import { parseDdbExport } from "../../src/library/ddb/index.js";
 import { chunkBook } from "../../src/library/ingest/chunk.js";
-import { enqueueIngest, getJob } from "../../src/library/ingest/jobs.js";
+import {
+  claimJob,
+  enqueueIngest,
+  finishJob,
+  getJob,
+} from "../../src/library/ingest/jobs.js";
 import { startIngestWorker } from "../../src/library/ingest/worker.js";
 import {
   libraryChunks,
@@ -103,6 +108,13 @@ async function writeUpload(uploadDir: string, bytes: Buffer): Promise<string> {
   await writeFile(p, bytes);
   createdFiles.push(p);
   return p;
+}
+
+/** Backdates a job's heartbeat past the lease, simulating a dead worker (T029). */
+async function ageHeartbeat(id: string, secondsAgo: number) {
+  await requireDb().execute(
+    sql`UPDATE jobs SET heartbeat_at = now() - (interval '1 second' * ${secondsAgo}) WHERE id = ${id}`,
+  );
 }
 
 async function waitForTerminal(jobId: string, timeoutMs = 10_000) {
@@ -506,5 +518,90 @@ describe.skipIf(!reachable)("ingest worker (Phase 4, integration)", () => {
     worker.nudge();
     await waitForTerminal(failed.id);
     await expect(readFile(failPath)).rejects.toThrow();
+  });
+
+  it("T029: a stale claim (dead process) is reclaimed and completed; the stale claim's writes are refused", async () => {
+    const uploadDir = await buildUploadDir();
+    const { gateway } = buildFakeGateway();
+
+    const book = freshBook("Crash Recovery");
+    const html = ddbPage("Recovered", "Recovered page text.");
+    const uploadPath = await writeUpload(uploadDir, Buffer.from(html, "utf8"));
+    const queued = await enqueueIngest(requireDb(), {
+      book,
+      format: "html",
+      filename: "page.html",
+      bytes: Buffer.byteLength(html),
+      uploadPath,
+    });
+
+    // Simulate a worker process that claimed the job and then died: claim
+    // it directly (not via startIngestWorker), age its heartbeat past the
+    // lease, and never heartbeat or finish it again.
+    const staleClaim = await claimJob(requireDb());
+    if (!staleClaim || staleClaim.id !== queued.id) {
+      throw new Error("expected to claim the job just enqueued");
+    }
+    await ageHeartbeat(staleClaim.id, 61);
+
+    const worker = startIngestWorker({
+      db: requireDb(),
+      gateway,
+      embedPurpose: "embedding",
+      uploadDir,
+    });
+    workers.push(worker);
+    worker.nudge();
+    const finished = await waitForTerminal(queued.id);
+
+    expect(finished.status).toBe("succeeded");
+    expect(finished.attempts).toBe(2);
+    const expectedChunks = chunkBook(parseDdbExport({ book, pages: [html] }))
+      .blocks.length;
+    expect(finished.result?.chunkCount).toBe(expectedChunks);
+    expect(finished.result?.embedding).toMatchObject({ status: "embedded" });
+
+    // The stale claim's own writes are fenced out (research R6): it lost
+    // the lease, so its finishJob returns false and changes nothing.
+    const stillOk = await finishJob(requireDb(), staleClaim, {
+      error: "stale worker should not be able to write this",
+    });
+    expect(stillOk).toBe(false);
+    const afterStaleWrite = await getJob(requireDb(), queued.id);
+    expect(afterStaleWrite?.status).toBe("succeeded");
+    expect(afterStaleWrite?.error).toBeNull();
+  });
+
+  it("T029: the fourth claim (attempts > 3) fails the job as abandoned and deletes its upload file", async () => {
+    const uploadDir = await buildUploadDir();
+    const html = ddbPage("Abandoned", "Abandoned page text.");
+    const uploadPath = await writeUpload(uploadDir, Buffer.from(html, "utf8"));
+    const queued = await enqueueIngest(requireDb(), {
+      book: freshBook("Abandoned"),
+      format: "html",
+      filename: "page.html",
+      bytes: Buffer.byteLength(html),
+      uploadPath,
+    });
+
+    // Claim and age the heartbeat three times, simulating three crashed
+    // attempts, never letting the job finish.
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const claimed = await claimJob(requireDb());
+      if (!claimed || claimed.id !== queued.id) {
+        throw new Error(`expected to claim on attempt ${attempt}`);
+      }
+      await ageHeartbeat(claimed.id, 61);
+    }
+
+    // The fourth claim finds attempts now at 4 (> MAX_ATTEMPTS): it marks
+    // the job failed instead of handing it to a caller.
+    const fourth = await claimJob(requireDb());
+    expect(fourth).toBeNull();
+
+    const finalJob = await getJob(requireDb(), queued.id);
+    expect(finalJob?.status).toBe("failed");
+    expect(finalJob?.error).toBe("abandoned 3 times (process died mid-job)");
+    await expect(readFile(uploadPath)).rejects.toThrow();
   });
 });

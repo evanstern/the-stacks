@@ -1,3 +1,4 @@
+import { unlink } from "node:fs/promises";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { ConflictError } from "../../errors.js";
@@ -226,6 +227,9 @@ export async function claimJob(db: DbClient): Promise<ClaimedJob | null> {
         finishedAt: new Date(),
       })
       .where(and(eq(jobs.id, row.id), eq(jobs.claimToken, row.claimToken)));
+    // No worker ever gets this claim to run its own terminal cleanup
+    // (research R8) — delete the upload file here instead.
+    await unlink((row.input as JobInput).uploadPath).catch(() => {});
     return null;
   }
 
