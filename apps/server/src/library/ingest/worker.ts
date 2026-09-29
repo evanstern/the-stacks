@@ -21,6 +21,7 @@ import {
   POLL_MS,
   setStage,
 } from "./jobs.js";
+import { parseMarkdown } from "./markdown.js";
 import { ZipError } from "./zip.js";
 
 /**
@@ -118,12 +119,18 @@ export async function runJob(
     const isDdb = collected.pages.some((p) =>
       p.text.includes(DDB_CONTENT_MARKER),
     );
+    // Route by format/markup (specs/017-ingestion-pipeline research R4):
+    // Markdown -> parseMarkdown; DDB markup -> parseDdbExport as today;
+    // any other HTML -> parseDdbExport with every h1-h6 as a heading.
     const parser: JobResult["parser"] =
       job.input.format === "markdown" ? "markdown" : isDdb ? "ddb" : "html";
-    const parsed = parseDdbExport({
-      book: job.book,
-      pages: collected.pages.map((p) => p.text),
-    });
+    const parsed =
+      parser === "markdown"
+        ? parseMarkdown({ book: job.book, text: collected.pages[0].text })
+        : parseDdbExport(
+            { book: job.book, pages: collected.pages.map((p) => p.text) },
+            parser === "html" ? { headings: "all" } : undefined,
+          );
 
     stage = "store";
     await requireStage(db, job, "store");

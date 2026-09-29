@@ -252,6 +252,76 @@ describe.skipIf(!reachable)("ingest worker (Phase 4, integration)", () => {
     expect(finished.result?.pages).toBe(1);
   });
 
+  it("T027: a plain (non-DDB) HTML page succeeds, parser html, headings promoted", async () => {
+    const uploadDir = await buildUploadDir();
+    const { gateway } = buildFakeGateway();
+    const worker = startIngestWorker({
+      db: requireDb(),
+      gateway,
+      embedPurpose: "embedding",
+      uploadDir,
+    });
+    workers.push(worker);
+
+    const html =
+      "<!doctype html><html><body><h1>Guide</h1><p>Intro.</p>" +
+      "<h2>Section</h2><p>Body.</p></body></html>";
+    const uploadPath = await writeUpload(uploadDir, Buffer.from(html, "utf8"));
+    const book = freshBook("Generic HTML");
+    const queued = await enqueueIngest(requireDb(), {
+      book,
+      format: "html",
+      filename: "page.html",
+      bytes: Buffer.byteLength(html),
+      uploadPath,
+    });
+    worker.nudge();
+    const finished = await waitForTerminal(queued.id);
+
+    expect(finished.status).toBe("succeeded");
+    expect(finished.result?.parser).toBe("html");
+    const documentId = finished.result?.documentId as string;
+    const chunks = await requireDb()
+      .select({ path: libraryChunks.path })
+      .from(libraryChunks)
+      .where(eq(libraryChunks.documentId, documentId));
+    expect(chunks.some((c) => (c.path as string[]).includes("Section"))).toBe(
+      true,
+    );
+  });
+
+  it("T027: a Markdown file succeeds, parser markdown", async () => {
+    const uploadDir = await buildUploadDir();
+    const { gateway } = buildFakeGateway();
+    const worker = startIngestWorker({
+      db: requireDb(),
+      gateway,
+      embedPurpose: "embedding",
+      uploadDir,
+    });
+    workers.push(worker);
+
+    const markdown = "# Guide\n\nIntro.\n\n## Section\n\nBody text.";
+    const uploadPath = await writeUpload(
+      uploadDir,
+      Buffer.from(markdown, "utf8"),
+    );
+    const book = freshBook("Markdown Book");
+    const queued = await enqueueIngest(requireDb(), {
+      book,
+      format: "markdown",
+      filename: "book.md",
+      bytes: Buffer.byteLength(markdown),
+      uploadPath,
+    });
+    worker.nudge();
+    const finished = await waitForTerminal(queued.id);
+
+    expect(finished.status).toBe("succeeded");
+    expect(finished.result?.parser).toBe("markdown");
+    expect(finished.result?.pages).toBe(1);
+  });
+
   it("T023: a re-upload of the same book replaces it, with identical counts and no duplicate embeddings", async () => {
     const uploadDir = await buildUploadDir();
     const { gateway } = buildFakeGateway();
