@@ -1,0 +1,65 @@
+Evidence for TASK-0033 / specs/020-test-compose Phase 5 verification.
+Commit under test: 9e6416b80fc446bd6d9c0a96887997a876640489
+
+=== pnpm ci:check (T016) ===
+Exit code: 0
+Run without a database in the shell env (matches a bare `pnpm ci:check`, before `env:up`):
+
+Checked 122 files in 51ms. No fixes applied.                      (lint)
+@the-stacks/web:build: 156 modules transformed, built in 104ms     (build)
+@the-stacks/server:test:  Test Files  23 passed | 9 skipped (32)
+@the-stacks/server:test:       Tests  195 passed | 107 skipped (302)
+  (the 9 skipped files / 107 skipped tests are the DB-gated integration
+  suites, correctly skipped: no TEST_DATABASE_URL in this shell)
+ Tasks:    4 successful, 4 total                                   (turbo: lint/typecheck/build/test)
+$ node scripts/check-boundaries.mjs — boundary rules: 5/5 fixtures flagged
+$ node --test scripts/*.test.mjs (check:scripts) — includes the image-pin
+  guard (research R12) and the env-lib/env.mjs derivation suites:
+    # tests 36
+    # pass 36
+    # fail 0
+$ check:host-scripts — imports config.ts/db.ts/password.ts/auth.ts clean, exit 0
+
+Overall: pnpm ci:check exited 0.
+
+=== AC #5 proof (T018): worker.integration.test.ts x20, app stack up ===
+
+Setup:
+  pnpm env:up
+    -> stacks-task-0033 + stacks-task-0033-test: up (app :3033, db :15033, test-db :25033)
+  App container: stacks-task-0033-app-1, id d49460c0022292d98748b42d6a4b64728307ae3c8e8b863215eb69a0edfb6d88 — healthy
+  Migrated the TEST database (pnpm --filter @the-stacks/server db:migrate, TEST_DATABASE_URL
+    from worktree .env -> the test stack).
+  Migrated the APP database (same command with TEST_DATABASE_URL overridden to
+    postgres://...@localhost:$DB_PORT/$POSTGRES_DB per research R7 / quickstart.md), so the
+    app's ingest worker has a jobs table to poll while the test suite runs.
+
+Command (run 20x): REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server exec vitest run \
+  test/library/worker.integration.test.ts
+
+run 1: PASS
+run 2: PASS
+run 3: PASS
+run 4: PASS
+run 5: PASS
+run 6: PASS
+run 7: PASS
+run 8: PASS
+run 9: PASS
+run 10: PASS
+run 11: PASS
+run 12: PASS
+run 13: PASS
+run 14: PASS
+run 15: PASS
+run 16: PASS
+run 17: PASS
+run 18: PASS
+run 19: PASS
+run 20: PASS
+
+Result: 20/20 passed. Each run: 1 test file, 12 tests passed.
+
+## T017 (orchestrator, 2026-09-29)
+
+`pnpm check:env` with no other the-stacks stack running: tests 2, pass 2, fail 0, skipped 0.

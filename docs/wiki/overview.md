@@ -8,9 +8,10 @@ sources:
   - .specify/memory/constitution.md
   - apps/server/src/index.ts
   - docker-compose.yml
+  - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
 ---
 
 # Overview
@@ -43,13 +44,14 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 
 | plane | what it holds | at this commit |
 |---|---|---|
-| library | imported reference content | storage ([[library-schema]]) and ingestion ([[ingestion]], TASK-0024) both land: upload → parse → chunk → store → embed |
+| library | imported reference content | storage ([[library-schema]]), ingestion ([[ingestion]], TASK-0024: upload → parse → chunk → store → embed), and a read path ([[rules-answerer]], TASK-0027: retrieve → answer → cite over SSE) all land |
 | codex | campaign entities | empty — M2 |
 | session | what happened at the table | the event log, live |
 
-The session plane is populated at M0, as [[event-log]]; the library plane now has both its
-storage ([[library-schema]]) and an end-to-end ingestion path ([[ingestion]], TASK-0024) that
-writes to it. Play state is **event-sourced
+The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
+([[library-schema]]), an end-to-end ingestion path ([[ingestion]], TASK-0024) that writes to
+it, and a read path with its first caller ([[rules-answerer]], TASK-0027) that answers
+questions from it over `POST /library/ask`. Play state is **event-sourced
 with server authority**: a client never writes to the log, it asks the server to append
 (see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
 
@@ -75,13 +77,15 @@ failure. The demo path is documented in `specs/007-spa-shell-demo/quickstart.md`
 
 The environment contract has one trap worth knowing before anything else:
 `DATABASE_URL` names the address the **container** uses (`@db:5432`, a compose service name)
-while `TEST_DATABASE_URL` names the **host's** (`@localhost:<DB_PORT>`). See [[configuration]].
+while `TEST_DATABASE_URL` names a **separate, throwaway database** on the host
+(`@localhost:<TEST_DB_PORT>`) — its own compose stack (spec 020), not the app's `DATABASE_URL`
+database. See [[configuration]] and [[runtime-stacks]].
 
-CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job provisions a
-Postgres service and runs `pnpm ci:check` (lint, typecheck, build, test, boundary check, hook
-tests, script tests) with `REQUIRE_DATABASE=1`, so the integration suites are proven rather
-than loud-skipped. TASK-0017 closed the "gates run by hand" gap this note previously
-described.
+CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job brings up
+that same throwaway test compose stack and runs `pnpm ci:check` (lint, typecheck, build,
+test, boundary check, hook tests, script tests) with `REQUIRE_DATABASE=1`, so the
+integration suites are proven rather than loud-skipped. TASK-0017 closed the "gates run by
+hand" gap this note previously described.
 
 Each worktree can run its own isolated compose stack (`pnpm env:*`, [[runtime-stacks]]):
 labeled containers, derived ports, and a `commit` baked into the image and surfaced at

@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
 ---
 
 # AI gateway
@@ -76,16 +76,25 @@ ingestion, are skipped — see below) rather than silently no-op-ing at startup.
 embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s `loadRetrievalConfig(process.env
 ).embedPurpose` name, resolved to that name only when `aiConfig.purposes[name]?.op ===
 "embed"` — otherwise it's `null` and the worker's `embed()` call is skipped (`embedding.status
-=== "skipped"`) rather than thrown. This is the gateway's only caller today; a bad or
-unconfigured purpose degrades ingestion (no vectors), it never crashes the server at boot.
+=== "skipped"`) rather than thrown. A bad or unconfigured embed purpose degrades ingestion (no
+vectors), it never crashes the server at boot.
+
+Since TASK-0027 (specs/018-rules-answerer), `index.ts` also passes the same `aiGateway` into
+`createApp`'s `library.answer.gateway`, so [[rules-answerer]]'s `answer()` is the gateway's
+second caller — it calls both `chat()` (purpose fixed at the code constant `"answering"`, not
+an env var) and, transitively via `retrieve()`, `embed()`. An unconfigured `"answering"`
+purpose degrades the same way ingestion's does: `answer()` maps `chat()`'s own `{type:"error"}`
+event (or a thrown `retrieve()`/`embed()` failure) to a terminal SSE `error` event rather than
+crashing the server — see [[rules-answerer]].
 
 ## Connections
 
 Constructed in [[server-entrypoint-and-app]]'s `index.ts`, via `loadAiConfig(process.env)`
 called directly (not through [[configuration]]'s `loadConfig`), alongside the WebSocket
 gateway. `.env.example` documents the three env vars under "AI gateway". [[ingestion]]'s
-worker (library plane, TASK-0024) is its first caller, via `embed()` — see [[overview]] for
-the three data planes.
+worker (library plane, TASK-0024) is its first caller, via `embed()`; [[rules-answerer]]'s
+`answer()` (TASK-0027) is its second, via `chat()` and `embed()` — see [[overview]] for the
+three data planes.
 
 ## Operational notes
 

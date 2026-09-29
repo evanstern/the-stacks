@@ -6,7 +6,7 @@ sources:
   - apps/server/src/routes/health.ts
   - healthcheck.js
   - docker-compose.yml
-verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
+verified_against: 9e6416b80fc446bd6d9c0a96887997a876640489
 ---
 
 # Health check

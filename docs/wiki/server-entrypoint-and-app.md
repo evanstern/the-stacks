@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
 ---
 
 # Server entrypoint and app
@@ -22,7 +22,9 @@ via `createApp` without binding a port.
 [[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
 imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
 `createGateway`. It also calls `loadRetrievalConfig(process.env)` (from `library/retrieve.ts`,
-see [[retrieval]]) so a bad `RETRIEVAL_*` value fails fast at boot.
+see [[retrieval]]) and, since TASK-0027 (specs/018-rules-answerer), `loadAnswerConfig(process.env)`
+(from `library/answer.ts`, see [[rules-answerer]]) — both validated here so a bad `RETRIEVAL_*`
+or `ASK_MIN_SIMILARITY` value fails fast at boot, before `aiGateway` exists.
 
 Since TASK-0024 (specs/017-ingestion-pipeline), `index.ts` then: creates
 `uploadDir = path.join(os.tmpdir(), "the-stacks-uploads")` (`mkdirSync(..., {recursive:
@@ -31,9 +33,12 @@ true})` — survives a container `restart`, not a `recreate`, per [[ingestion]])
 "embed"`, else `null`; and starts `startIngestWorker({ db, gateway: aiGateway, embedPurpose,
 uploadDir })` (see [[ingestion]]), which returns `{ nudge, stop }`. `createDb(config.databaseUrl)`
 runs before this. `createApp({ databaseProbe, db, commit, library: { uploadMaxBytes:
-config.uploadMaxBytes, uploadDir, onEnqueued: ingestWorker.nudge } })` wires the upload route's
-size ceiling, its temp-file directory, and a callback that wakes the worker's poll loop the
-instant a job is enqueued rather than waiting up to `POLL_MS`. Then
+config.uploadMaxBytes, uploadDir, onEnqueued: ingestWorker.nudge, answer: { gateway: aiGateway,
+retrieval: retrievalConfig, config: answerConfig } } })` wires the upload route's size ceiling,
+its temp-file directory, a callback that wakes the worker's poll loop the instant a job is
+enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask`'s three
+dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
+built twice. Then
 `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port, serverOptions: { requestTimeout: 60 *
 60 * 1000 } }, ...)` from `@hono/node-server` — the hour-long `requestTimeout` (`ponytail:`
@@ -53,9 +58,12 @@ the same `db`, so HTTP and WebSocket share one session-validation seam (see
 `app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit?, library? }`
 (`staticRoot` is a test-only override for the SPA's static root; `commit` defaults to
 `"unknown"` and is passed straight to `createHealthRoute` — see [[health-check]]; `library`
-is `{ uploadMaxBytes?, uploadDir?, onEnqueued? }`, each falling back to a test-safe default —
-1 GiB, `os.tmpdir()`, a no-op — see [[ingestion]]) and returns a plain `Hono` app with no
-port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
+is `{ uploadMaxBytes?, uploadDir?, onEnqueued?, answer? }`, each falling back to a test-safe
+default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and, for `answer`
+(`Omit<AnswerDeps, "db">`, TASK-0027), [[rules-answerer]]; an absent `answer` makes
+`POST /library/ask` stream a single SSE `error` event, `{kind:"config"}`, rather than the
+`{error:{kind,...}}` JSON shape [[error-contract]] describes for non-streamed routes) and
+returns a plain `Hono` app with no port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
 `app.notFound(notFoundHandler)` first, then `app.route("/health", ...)`, `app.route("/api/echo",
 ...)`, `app.route("/auth", ...)`, `app.route("/library", createLibraryRoutes(...))` (TASK-0024,
 [[ingestion]]), and finally `app.use("*", createStaticMiddleware(staticRoot))`.
@@ -68,13 +76,15 @@ runs.
 ## Connections
 
 Wires together [[configuration]] (`loadConfig`), [[ai-gateway]] (constructed here, called by
-[[ingestion]]'s worker), [[retrieval]] (`loadRetrievalConfig`, validated here; `embedPurpose`
-used by the worker, the `retrieve()` read path itself unused until TASK-0027),
-[[ingestion]] (worker started, `/library` route mounted), [[error-contract]]
-(`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order guarantee), [[session-auth]]
-(`createValidateSession` shared by all three: HTTP auth routes, `/library`, and the socket),
-and the websocket gateway. See [[overview]] for the "one process, one port" framing this file
-implements.
+[[ingestion]]'s worker and, since TASK-0027, by [[rules-answerer]]'s `answer()`), [[retrieval]]
+(`loadRetrievalConfig`, validated here; `embedPurpose` used by the worker, `retrieve()` itself
+now called by `answer()` — [[rules-answerer]]), [[ingestion]] (worker started, `/library` route
+mounted), [[rules-answerer]] (`loadAnswerConfig`, validated here; `answerConfig` and the shared
+`aiGateway`/`retrievalConfig` threaded into `createApp`'s `library.answer`),
+[[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
+guarantee), [[session-auth]] (`createValidateSession` shared by all three: HTTP auth routes,
+`/library`, and the socket), and the websocket gateway. See [[overview]] for the "one process,
+one port" framing this file implements.
 
 ## Operational notes
 

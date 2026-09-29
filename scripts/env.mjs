@@ -12,7 +12,6 @@ import {
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
-  parseEnvKeys,
   parseWorktreeList,
 } from "./env-lib.mjs";
 
@@ -71,24 +70,22 @@ function currentCommit(toplevel) {
   return dirty ? `${sha}-dirty` : sha;
 }
 
-/** Writes `.env` in `toplevel`, deriving TEST_DATABASE_URL from the (possibly just-merged) credentials (research R5). */
-function writeEnvFile(toplevel, { appPort, dbPort, env }) {
+/** Writes `.env` in `toplevel`. TEST_DATABASE_URL points at the test stack's fixed, throwaway credentials (spec 020 R5) — never the app database's. */
+function writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env }) {
   const examplePath = path.join(toplevel, ".env.example");
   const envPath = path.join(toplevel, ".env");
   const exampleText = readFileSync(examplePath, "utf8");
   const existingText = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
-  const base = {
+  const derived = {
     APP_PORT: String(appPort),
     DB_PORT: String(dbPort),
     STACKS_ENV: env,
   };
-  const creds = parseEnvKeys(mergeEnvFile(exampleText, existingText, base));
-  const testDatabaseUrl = `postgres://${creds.POSTGRES_USER}:${creds.POSTGRES_PASSWORD}@localhost:${dbPort}/${creds.POSTGRES_DB}`;
-  const finalText = mergeEnvFile(exampleText, existingText, {
-    ...base,
-    TEST_DATABASE_URL: testDatabaseUrl,
-  });
-  writeFileSync(envPath, finalText);
+  if (testDbPort !== undefined) {
+    derived.TEST_DB_PORT = String(testDbPort);
+    derived.TEST_DATABASE_URL = `postgres://stacks:stacks@localhost:${testDbPort}/stacks`;
+  }
+  writeFileSync(envPath, mergeEnvFile(exampleText, existingText, derived));
 }
 
 function composeEnv({ env, toplevel, commit }) {
@@ -101,20 +98,48 @@ function composeEnv({ env, toplevel, commit }) {
 }
 
 async function runUp(toplevel, identity) {
-  const { env, project, appPort, dbPort } = identity;
+  const { env, project, testProject, appPort, dbPort, testDbPort } = identity;
 
-  for (const [label, port] of [
+  const ports = [
     ["app", appPort],
     ["database", dbPort],
-  ]) {
+  ];
+  if (testProject) ports.push(["test database", testDbPort]);
+  for (const [label, port] of ports) {
     if (!(await portFree(port))) {
       console.error(`refusing: ${label} port ${port} is already bound.`);
       process.exit(1);
     }
   }
 
-  writeEnvFile(toplevel, { appPort, dbPort, env });
+  writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env });
   const commit = currentCommit(toplevel);
+  const envVars = composeEnv({ env, toplevel, commit });
+
+  if (testProject) {
+    const testResult = spawnSync(
+      "docker",
+      [
+        "compose",
+        "-p",
+        testProject,
+        "-f",
+        "docker-compose.test.yml",
+        "up",
+        "-d",
+        "--wait",
+      ],
+      {
+        cwd: toplevel,
+        stdio: "inherit",
+        env: { ...envVars, TEST_DB_PORT: String(testDbPort) },
+      },
+    );
+    if (testResult.status !== 0) {
+      console.error(`${testProject}: docker compose up failed.`);
+      process.exit(1);
+    }
+  }
 
   const result = spawnSync(
     "docker",
@@ -122,15 +147,19 @@ async function runUp(toplevel, identity) {
     {
       cwd: toplevel,
       stdio: "inherit",
-      env: composeEnv({ env, toplevel, commit }),
+      env: envVars,
     },
   );
   if (result.status !== 0) {
     console.error(`${project}: docker compose up failed.`);
     process.exit(1);
   }
+  const portsText = testProject
+    ? `app :${appPort}, db :${dbPort}, test-db :${testDbPort}`
+    : `app :${appPort}, db :${dbPort}`;
+  const label = testProject ? `${project} + ${testProject}` : project;
   console.log(
-    `${project}: up — http://localhost:${appPort} (db :${dbPort}), commit ${commit}`,
+    `${label}: up — http://localhost:${appPort} (${portsText}), commit ${commit}`,
   );
 }
 
@@ -148,20 +177,46 @@ function down(isMain) {
     environmentError(
       "Docker is not reachable — start Docker Desktop and try again.",
     );
-  let toplevel, project;
+  let toplevel, project, testProject;
   if (isMain) {
     project = "stacks-main";
   } else {
     ({
       toplevel,
-      identity: { project },
+      identity: { project, testProject },
     } = resolveIdentityOrRefuse(process.cwd()));
+  }
+
+  const spawnOpts = toplevel
+    ? { cwd: toplevel, stdio: "inherit" }
+    : { stdio: "inherit" };
+
+  if (testProject) {
+    const testResult = spawnSync(
+      "docker",
+      [
+        "compose",
+        "-p",
+        testProject,
+        "-f",
+        "docker-compose.test.yml",
+        "down",
+        "-v",
+        "--remove-orphans",
+      ],
+      spawnOpts,
+    );
+    if (testResult.status !== 0) {
+      console.error(`${testProject}: docker compose down failed.`);
+      process.exit(1);
+    }
+    console.log(`${testProject}: down`);
   }
 
   const result = spawnSync(
     "docker",
     ["compose", "-p", project, "down", "-v", "--remove-orphans"],
-    toplevel ? { cwd: toplevel, stdio: "inherit" } : { stdio: "inherit" },
+    spawnOpts,
   );
   if (result.status !== 0) {
     console.error(`${project}: docker compose down failed.`);

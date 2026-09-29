@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
 ---
 
 # Retrieval
@@ -14,9 +14,13 @@ verified_against: c732622ca88b9055779079909e330d034bb329d6
 `apps/server/src/library/retrieve.ts` is the library plane's only **read** path
 (contracts/retrieval.md, spec 015): a question in, cited passages out, via keyword search
 (`fts`), vector search (`vector`), or both fused with Reciprocal Rank Fusion (`hybrid`, the
-default). It never writes to the database. `retrieve()` itself is still uncalled — the
-declared consumers are the rules answerer (TASK-0027) and the retrieval benchmark
-(TASK-0029) — but its config has a caller already: TASK-0024's [[ingestion]] reads
+default). It never writes to the database. Since TASK-0027 (specs/018-rules-answerer),
+[[rules-answerer]]'s `answer()` is `retrieve()`'s first caller — it calls `retrieve({db,
+gateway, config: deps.retrieval}, {question, signal})` with no per-call `mode`/`k` override, so
+every `/library/ask` request retrieves under the boot-time `RETRIEVAL_*` config; a thrown
+`retrieve()` call is caught and mapped to a terminal `error{kind:"retrieval"}` SSE event, never
+left to propagate. The retrieval benchmark (TASK-0029) remains a declared future consumer.
+Its config has had a caller since TASK-0024: [[ingestion]] reads
 `loadRetrievalConfig(...).embedPurpose` to pick which [[ai-gateway]] purpose embeds each
 stored chunk, so the two features share one "which purpose is embedding" answer.
 
@@ -76,9 +80,9 @@ Reads [[library-schema]]'s `library_chunks`/`library_embeddings` (never writes);
 [[ai-gateway]]'s `embed()`, matched to [[ingestion]]'s purpose (TASK-0024). Config is loaded
 and validated at boot by [[server-entrypoint-and-app]]'s `index.ts`, alongside
 [[configuration]]'s `loadConfig` and the AI gateway's own config; `embedPurpose` is read by
-[[ingestion]]'s worker at boot, but the `retrieve()` read path itself is unused until TASK-0027
-wires a route to it. `.env.example` documents the three `RETRIEVAL_*` vars under "Retrieval"
-(see [[configuration]]).
+[[ingestion]]'s worker at boot, and the `retrieve()` read path itself is now called per-request
+by [[rules-answerer]]'s `answer()` (TASK-0027). `.env.example` documents the three
+`RETRIEVAL_*` vars under "Retrieval" (see [[configuration]]).
 
 ## Operational notes
 

@@ -79,7 +79,15 @@ tasks for sign-off and session boundaries; they are not barriers beyond those de
   card lists only 0026, but AC #2's chunking-strategy axis needs 0024's chunker — a hard
   dependency this runbook adds).
 - **TASK-0030 (sonnet · `cc/claude-sonnet-5[1m]` — doc-0001 and decision-0005 settle what
-  is measured and why)** — load and stress benchmark. Starts after: 0024 and 0021.
+  is measured and why)** — load and stress benchmark. Starts after: 0024, 0021, **and 0033**.
+- **TASK-0033 (sonnet · `cc/claude-sonnet-5[1m]` — operator ruling 2026-09-29 settles the
+  shape)** — separate DB-only test compose stack per worktree, CI parity. Starts after: 0024
+  and 0021. *(Amendment 2026-09-29: added mid-sweep. On #31 the worktree app container's
+  ingest worker stole test-enqueued jobs from the shared `jobs` table, causing a ~10-15%
+  local flake that CI cannot see. Operator ruled: a separate test compose file, not a second
+  database in the prod-like compose. One image pin shared by both compose files and CI;
+  test stacks stay inside `env:*` and `env:prune`. It gates TASK-0030, whose ingest
+  benchmark polls the same queue.)*
 
 **Lane 3 — handed off, not swept (amendment 2026-09-29, operator ruling on merging #27):**
 - **TASK-0028 runs through `pdlc:design-rounds` in an operator-run sister session.** This
@@ -279,3 +287,5 @@ mechanical merge-reconcile step, as in wave 1; record it as its own dispatch lin
 | 2026-09-29 | TASK-0032 | [#28](https://github.com/evanstern/the-stacks/pull/28) | `4c67d52` | ~422k: spec ~147k (opus), impl ~275k (sonnet ×2) | Shared `isUniqueViolation` in `db.ts`; redeem returns 409 conflict. Fail→pass proven on its own stack. Follow-up for triage: `test-suite` wiki note pins 11 of 22 server test files. Closures (T016, sync → Done) rode the TASK-0026 branch. |
 | 2026-09-29 | TASK-0026 | [#29](https://github.com/evanstern/the-stacks/pull/29) | `94f217a` | ~684k: spec ~173k (opus), impl ~511k (sonnet ×3) | Retrieval contract published first (`contracts/retrieval.md`); RRF k=60; no migration, no dependency. Reconcile merge of #28 conflicted on `library-schema` (both re-pinned) — both sides' prose kept. 213/213 after merge-in. Closures rode the TASK-0021 branch. |
 | 2026-09-29 | TASK-0021 | [#30](https://github.com/evanstern/the-stacks/pull/30) | `f542254` | ~660k: spec ~182k (opus), impl ~500k (sonnet ×3) | CD live: first real deploy [run 36609793779](https://github.com/evanstern/the-stacks/actions/runs/36609793779) → dev /health on f542254; drift check [run 36610005799](https://github.com/evanstern/the-stacks/actions/runs/36610005799) green. Pre-merge vm-104 proofs announced step by step (operator ran T015 `tailscale serve` and the first deploy themselves after classifier blocks). `stacks` has no GitHub creds: proof clone shipped as a git bundle. T020 (proof-clone cleanup on vm-104) still open. Closures rode #31. |
+| 2026-09-29 | TASK-0024 | [#31](https://github.com/evanstern/the-stacks/pull/31) | `ae09495` | ~2.4M: spec ~367k (opus ×2), impl ~2.0M (sonnet ×9 incl. 2 bug hunts) | yauzl + busboy approved at plan checkpoint (operator reversed the stdlib proposals). Real-export merge condition found the LMoP nested-zip temp-name collision (fixed, 5121083). Post-#30 reconcile exposed a local-only flake (worktree app worker steals test jobs) → carded TASK-0033. Also carried the operator's ssh permission rule in `.claude/settings.json` and TASK-0021's T024 closure. |
+| 2026-09-29 | TASK-0027 | [#33](https://github.com/evanstern/the-stacks/pull/33) | `0907406` | ~1.25M: spec ~194k (opus), impl ~1.05M (sonnet ×4) | No operator checkpoint: operator-only auth follows constitution VIII/A9. SSE contract (`contracts/ask-sse.md`) binds TASK-0028. Citation quotes verified against stored text; three refusal reasons; cancellation proven at the provider. New flake noted: ws.integration T012 (503 under parallel port pressure), passed in isolation — for triage. Closures rode #32. |
