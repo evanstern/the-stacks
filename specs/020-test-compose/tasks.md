@@ -36,11 +36,11 @@ guard inside `pnpm ci:check`. `pnpm check:env` covers Docker end to end, locally
 
 ## Phase 3: US1 + US3 — env machinery (Priority: P1/P2)
 
-- [ ] T009 [US1] In `scripts/env.mjs` `runUp`: probe `testDbPort` with the app and db ports. Pass `testDbPort` to `writeEnvFile`. Start the test stack first: `docker compose -p <testProject> -f docker-compose.test.yml up -d --wait` with `composeEnv` plus `TEST_DB_PORT`; exit 1 on failure. Then start the app stack as today. Print one line naming both projects and all three ports. Skip the test stack when the identity has no `testProject` (`env:main`).
-- [ ] T010 [US1] In `writeEnvFile`, derive `TEST_DB_PORT` and `TEST_DATABASE_URL=postgres://stacks:stacks@localhost:<testDbPort>/stacks` (research R5). Stop deriving it from the app credentials.
-- [ ] T011 [US3] In `down` (non-main): run `down -v --remove-orphans` for `stacks-<env>-test` (with `-f docker-compose.test.yml`), then for `stacks-<env>`. Exit 0 when either was absent; exit 1 when either command fails. `down main` is unchanged.
-- [ ] T012 [US3] In `scripts/env.test.mjs`, extend the end-to-end case: after `up`, assert both projects run, the test container carries the three labels, and `.env`'s `TEST_DATABASE_URL` names `testDbPort`; after `down`, assert zero labeled resources for both projects. Add a case: remove the worktree without `down`, then `prune --check` exits 1 naming `stacks-<env>-test`; then `prune` cleans it.
-- [ ] T013 [US3] Fold contracts/env-cli.md's amended rows into `specs/010-worktree-stacks/contracts/env-cli.md`, with a line citing spec 020.
+- [x] T009 [US1] In `scripts/env.mjs` `runUp`: probe `testDbPort` with the app and db ports. Pass `testDbPort` to `writeEnvFile`. Start the test stack first: `docker compose -p <testProject> -f docker-compose.test.yml up -d --wait` with `composeEnv` plus `TEST_DB_PORT`; exit 1 on failure. Then start the app stack as today. Print one line naming both projects and all three ports. Skip the test stack when the identity has no `testProject` (`env:main`).
+- [x] T010 [US1] In `writeEnvFile`, derive `TEST_DB_PORT` and `TEST_DATABASE_URL=postgres://stacks:stacks@localhost:<testDbPort>/stacks` (research R5). Stop deriving it from the app credentials.
+- [x] T011 [US3] In `down` (non-main): run `down -v --remove-orphans` for `stacks-<env>-test` (with `-f docker-compose.test.yml`), then for `stacks-<env>`. Exit 0 when either was absent; exit 1 when either command fails. `down main` is unchanged.
+- [x] T012 [US3] In `scripts/env.test.mjs`, extend the end-to-end case: after `up`, assert both projects run, the test container carries the three labels, and `.env`'s `TEST_DATABASE_URL` names `testDbPort`; after `down`, assert zero labeled resources for both projects. Add a case: remove the worktree without `down`, then `prune --check` exits 1 naming `stacks-<env>-test`; then `prune` cleans it.
+- [x] T013 [US3] Fold contracts/env-cli.md's amended rows into `specs/010-worktree-stacks/contracts/env-cli.md`, with a line citing spec 020.
 
 ## Phase 4: US4 — documentation (Priority: P3)
 

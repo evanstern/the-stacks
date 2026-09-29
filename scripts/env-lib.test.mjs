@@ -4,7 +4,7 @@
 // tasks.md T002.
 
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -238,7 +238,8 @@ test("the pgvector image is pinned in exactly one place: docker-compose.yml (res
   const holders = [];
   let total = 0;
   for (const file of files) {
-    const count = (readFileSync(file, "utf8").match(/pgvector\//g) ?? []).length;
+    const count = (readFileSync(file, "utf8").match(/pgvector\//g) ?? [])
+      .length;
     if (count > 0) holders.push(`${path.relative(repoRoot, file)} (${count})`);
     total += count;
   }
