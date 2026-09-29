@@ -1,0 +1,33 @@
+{
+  "tier": "demand",
+  "ingest": {
+    "volumes": [10, 50, 100, 250, 500],
+    "workers": [1, 2],
+    "docBytes": 32768,
+    "historyRows": 10000,
+    "stepTimeoutMs": 120000,
+    "thresholds": {
+      "throughputFloor": 0.7,
+      "serviceMultiple": 2.0,
+      "enqueueMultiple": 3.0
+    }
+  },
+  "concurrency": {
+    "users": [1, 10, 25, 50, 100],
+    "durationMs": 30000,
+    "thinkMs": 250,
+    "wsSend": true,
+    "thresholds": {
+      "latencyMultiple": 3.0,
+      "errorRate": 0.01
+    }
+  },
+  "exhaustion": {
+    "holdMs": 15000,
+    "recoverTimeoutMs": 60000
+  },
+  "restart": {
+    "followers": 3,
+    "reclaimTimeoutMs": 120000
+  }
+}

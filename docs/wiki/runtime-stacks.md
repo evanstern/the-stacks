@@ -1,6 +1,6 @@
 ---
 name: runtime-stacks
-description: scripts/env.mjs — a labeled, isolated compose stack per git worktree (env up/down/status/prune/main), the pure derivation logic in env-lib.mjs, the orphan-warning Stop hook, and the local origin/main stack. Load for worktree-database, port-collision, or "why is this container still running" questions.
+description: scripts/env.mjs — a labeled, isolated compose stack per git worktree (env up/down/status/prune/main), the pure derivation logic in env-lib.mjs, root-.env inheritance, the orphan-warning Stop hook, and the local origin/main stack. Load for worktree-database, port-collision, shared-secret, or "why is this container still running" questions.
 kind: component
 sources:
   - scripts/env.mjs
@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: faf8c9afd700d1e13ef693f2fd70b39738160752
+verified_against: d0c82c0486627cae5cfe5947eb640f7fe9c6e594
 ---
 
 # Runtime stacks
@@ -34,9 +34,10 @@ own app project would collide with `foo`'s test project — see below). Otherwis
 anything else gets a `sha256`-hashed range (`4000`–`11999`/`16000`–`23999`/`26000`–`33999`)
 so an unnumbered worktree name still works with no registry — the test port is always the
 db port shifted by `+10000`, so one worktree's three ports read as a triple (e.g.
-`3033`/`15033`/`25033`). `env up` writes `.env` via `mergeEnvFile` (derived keys —
-`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`, `TEST_DATABASE_URL` — always win;
-operator-set keys and `.env.example`'s comments survive), probes all three ports on
+`3033`/`15033`/`25033`). `env up` writes `.env` via `mergeEnvFile` — per key, the first
+layer that has it wins: derived (`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`,
+`TEST_DATABASE_URL`), then the root checkout's own `.env` (spec 022, below), then the
+worktree's existing `.env`, then `.env.example`'s default — probes all three ports on
 `127.0.0.1` first and refuses if any is already bound, brings the [[compose-stack|test
 stack]] up first (`docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d
 --wait`, exits 1 on failure), then runs `docker compose -p stacks-<env> up -d --build --wait`
@@ -84,6 +85,25 @@ inside `.worktrees/env-main`, which is registered as its own worktree, so the ro
 status`/`HEAD` never change. `env down main` downs `stacks-main` and
 `git worktree remove --force`s that worktree. Because `env-main` is a registered worktree and
 `main` is an exempt env name, the local-main stack is never flagged an orphan.
+
+**Root `.env` inheritance (spec 022).** `writeEnvFile` reads `<rootToplevel>/.env` (found the
+same way `deriveIdentity` finds the root — `rootToplevel(cwd)`, via the shared
+`--git-common-dir`) and passes its text as `mergeEnvFile`'s shared layer, minus
+`env-lib.mjs`'s exported `DERIVED_KEYS` (dropped always, not only the keys the current verb
+derives — `env:main` derives no `TEST_*` keys, so without this a stale `TEST_DATABASE_URL`
+from root could aim host-run tests at root's database). Root wins over the worktree's own
+existing value for the same key — a rotated secret or an edited `AI_PROVIDERS` propagates to
+every worktree on its next `env:up`, with no per-worktree override built (an operator
+hand-edit of a shared key is silently overwritten on the next `up`; the upgrade path, if ever
+needed, is a git-ignored `.env.local` layer between derived and shared). `env:main`'s
+`.worktrees/env-main` inherits the same way — `writeEnvFile` is one function, shared by `up`
+and `main`, so there is no separate code path to keep in sync. `env:up`/`env:main` print
+`inherited from <root>/.env: KEY, KEY` — key names only, never a value — and print nothing
+when root's `.env` is absent or has no non-derived key. Root's `.env` itself is never written
+by this tooling (`deriveIdentity` already refuses `env.mjs up` from the root checkout).
+**Caveat:** Postgres reads `POSTGRES_PASSWORD` only at volume init, so a worktree whose `db`
+volume predates a root-side password change keeps the old password until `env:down` (which
+drops the volume, `-v`) then `env:up` again.
 
 ## Connections
 

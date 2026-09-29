@@ -1,0 +1,13 @@
+{
+  "tier": "dev",
+  "concurrency": {
+    "users": [1, 5, 10, 25],
+    "durationMs": 20000,
+    "thinkMs": 250,
+    "wsSend": false,
+    "thresholds": {
+      "latencyMultiple": 3.0,
+      "errorRate": 0.01
+    }
+  }
+}

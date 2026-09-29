@@ -1,0 +1,4 @@
+
+## check:env (orchestrator, 2026-09-29)
+
+`pnpm check:env` with no the-stacks stack running: tests 2, pass 2, fail 0, skipped 0; no stacks left, `env:prune --check` clean.

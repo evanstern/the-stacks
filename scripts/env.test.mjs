@@ -6,11 +6,11 @@
 // prunes a stack it didn't create).
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { deriveIdentity } from "./env-lib.mjs";
+import { deriveIdentity, parseEnvKeys } from "./env-lib.mjs";
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 const envScript = path.join(thisDir, "env.mjs");
@@ -128,12 +128,26 @@ if (skipReason) {
     assert.equal(testLabels["org.the-stacks.worktree"], worktree);
     assert.equal(testLabels["org.the-stacks.commit"], headSha);
 
-    const envText = readFileSync(path.join(worktree, ".env"), "utf8");
-    assert.match(
-      envText,
-      new RegExp(
-        `TEST_DATABASE_URL=postgres://stacks:stacks@localhost:${identity.testDbPort}/stacks`,
-      ),
+    // Never assert on raw .env text here: this worktree's self-test inherits
+    // the real root .env, so a failure message must never dump the file.
+    const written = parseEnvKeys(
+      readFileSync(path.join(worktree, ".env"), "utf8"),
+    );
+    assert.ok(
+      written.TEST_DATABASE_URL?.includes(String(identity.testDbPort)),
+      "TEST_DATABASE_URL does not name testDbPort",
+    );
+
+    // `up` names inherited shared keys, never values, and only when the
+    // root .env actually has a non-derived key.
+    const rootEnvPath = path.join(root, ".env");
+    const rootHasSharedKeys = existsSync(rootEnvPath)
+      ? Object.keys(parseEnvKeys(readFileSync(rootEnvPath, "utf8"))).length > 0
+      : false;
+    assert.equal(
+      /inherited from .*\.env: /.test(up.stdout),
+      rootHasSharedKeys,
+      "inherited-keys line presence must match whether root .env has shared keys",
     );
 
     const down = env(["down"], worktree);

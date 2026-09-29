@@ -29,9 +29,21 @@ collide with its own worktree's test project (spec 020 R9).
 
 ## `.env` keys written by `up`
 
-`APP_PORT`, `DB_PORT`, `STACKS_ENV`, and (all worktrees but `env:main`) `TEST_DB_PORT` and
-`TEST_DATABASE_URL=postgres://stacks:stacks@localhost:<TEST_DB_PORT>/stacks` — the test
-stack's fixed, throwaway credentials, never the app database's (spec 020 R5).
+Amended by spec 022 (root `.env` inheritance): per key, the first layer that has it wins.
+
+1. Derived: `APP_PORT`, `DB_PORT`, `STACKS_ENV`, and (all worktrees but `env:main`)
+   `TEST_DB_PORT` and `TEST_DATABASE_URL=postgres://stacks:stacks@localhost:<TEST_DB_PORT>/stacks`
+   — the test stack's fixed, throwaway credentials, never the app database's (spec 020 R5).
+2. Shared: the root checkout's `.env` (`<dirname of git-common-dir>/.env`), minus the five
+   derived keys above, always. Missing file = empty layer. `env:main`'s `.worktrees/env-main`
+   inherits this layer too.
+3. The worktree's existing `.env`.
+4. `.env.example`'s default.
+
+Layout and comments come from `.env.example`. Keys absent from it are appended in order:
+derived, shared, existing. Values are copied verbatim; no per-worktree override of a shared
+key exists (root always wins). `up` and `main` print `inherited from <root>/.env: KEY, …`
+listing shared key names (never values) when the root `.env` has any non-derived key.
 
 ## Labels (every container)
 

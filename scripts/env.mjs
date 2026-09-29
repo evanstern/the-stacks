@@ -9,9 +9,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   classifyStacks,
+  DERIVED_KEYS,
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
+  parseEnvKeys,
   parseWorktreeList,
 } from "./env-lib.mjs";
 
@@ -70,12 +72,22 @@ function currentCommit(toplevel) {
   return dirty ? `${sha}-dirty` : sha;
 }
 
-/** Writes `.env` in `toplevel`. TEST_DATABASE_URL points at the test stack's fixed, throwaway credentials (spec 020 R5) — never the app database's. */
+/**
+ * Writes `.env` in `toplevel`, inheriting the root checkout's `.env` as the
+ * shared layer (spec 022). TEST_DATABASE_URL points at the test stack's
+ * fixed, throwaway credentials (spec 020 R5) — never the app database's.
+ * Returns the inherited (non-derived) shared key names, never values, so
+ * the caller can report them without re-parsing.
+ */
 function writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env }) {
   const examplePath = path.join(toplevel, ".env.example");
   const envPath = path.join(toplevel, ".env");
+  const sharedPath = path.join(rootToplevel(toplevel), ".env");
   const exampleText = readFileSync(examplePath, "utf8");
   const existingText = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
+  const sharedText = existsSync(sharedPath)
+    ? readFileSync(sharedPath, "utf8")
+    : "";
   const derived = {
     APP_PORT: String(appPort),
     DB_PORT: String(dbPort),
@@ -85,7 +97,14 @@ function writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env }) {
     derived.TEST_DB_PORT = String(testDbPort);
     derived.TEST_DATABASE_URL = `postgres://stacks:stacks@localhost:${testDbPort}/stacks`;
   }
-  writeFileSync(envPath, mergeEnvFile(exampleText, existingText, derived));
+  writeFileSync(
+    envPath,
+    mergeEnvFile(exampleText, existingText, derived, sharedText),
+  );
+  const inherited = Object.keys(parseEnvKeys(sharedText)).filter(
+    (key) => !DERIVED_KEYS.includes(key),
+  );
+  return { inherited, sharedPath };
 }
 
 function composeEnv({ env, toplevel, commit }) {
@@ -112,7 +131,15 @@ async function runUp(toplevel, identity) {
     }
   }
 
-  writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env });
+  const { inherited, sharedPath } = writeEnvFile(toplevel, {
+    appPort,
+    dbPort,
+    testDbPort,
+    env,
+  });
+  if (inherited.length > 0) {
+    console.log(`inherited from ${sharedPath}: ${inherited.join(", ")}`);
+  }
   const commit = currentCommit(toplevel);
   const envVars = composeEnv({ env, toplevel, commit });
 

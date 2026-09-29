@@ -15,12 +15,15 @@ sources:
   - apps/server/test/ws.integration.test.ts
   - apps/server/test/ws.protocol.test.ts
   - apps/server/test/ws.subscribe.test.ts
+  - apps/server/test/bench/load.test.ts
+  - apps/server/test/bench/load.integration.test.ts
+  - apps/server/test/bench/load-db.integration.test.ts
   - apps/server/package.json
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 7d770d30026123ce10bd9c0fd693a8328de72803
+verified_against: 788261d9152946f53780d3750d5419d901e029e5
 ---
 
 # Test suite
@@ -29,9 +32,11 @@ The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
 added a much larger suite alongside them under `apps/server/test/library/` — see [[ingestion]]
 for that one, and its `ai.*.test.ts` siblings predate this note and aren't covered here either.
-TASK-0029 added a third sibling suite, `apps/server/test/bench/` (a `bow`-embedding
-determinism unit test plus the per-commit recall regression gate, run the same
-loud-skip-or-throw way as the integration files below) — see [[benchmarks]].
+TASK-0029 and TASK-0030 share a third such subdirectory, `apps/server/test/bench/`: TASK-0029's
+`bow`-embedding determinism unit test plus its per-commit recall regression gate, and
+TASK-0030's unit file plus two environment-gated integration files, all run the same
+loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], including why 5 of
+the load bench's tests are *always* skipped, by name, even with a reachable database.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
 session auth (US1–US4), the event log's append/read/visibility, and the WebSocket gateway's
@@ -88,8 +93,9 @@ scopes `"include": ["src"]`, so `test/` stays out of the `src` build's own outpu
 Exercises [[websocket-gateway]], [[replay-live-boundary]], [[subscriber-registry]],
 [[ws-protocol]], [[session-auth]], [[event-log]], and, for `config.test.ts`, [[configuration]].
 The manual, human-run counterpart that exercises the same seams end to end through the real
-client is [[m0-demo]]. [[ci-pipeline]] runs this suite (and [[ingestion]]'s) on every PR and
-push with `REQUIRE_DATABASE=1`; the manual demo is still run and pasted into each PR by hand.
+client is [[m0-demo]]. [[ci-pipeline]] runs this suite (and [[ingestion]]'s and
+[[benchmarks]]' every-commit-tier suite) on every PR and push with `REQUIRE_DATABASE=1`; the
+manual demo is still run and pasted into each PR by hand.
 
 ## Operational notes
 
