@@ -44,11 +44,11 @@ MUST run (0 skipped) against a real pgvector database.
 **Independent Test**: store a book from the parser's synthetic fixtures; every chunk's stored
 span slices the stored text back to the stored chunk text.
 
-- [ ] T004 [P] [US1] Write `apps/server/test/library/store.test.ts` (no DB): input validation
+- [x] T004 [P] [US1] Write `apps/server/test/library/store.test.ts` (no DB): input validation
   rejects a reversed span, an empty span, a span past `text.length`, and a block whose
   `text.slice(start, end)` differs from its text — each throws `ValidationError` before any
   database call (inject a db double that fails the test if touched).
-- [ ] T005 [US1] Write `apps/server/test/library/store.integration.test.ts` using the repo's
+- [x] T005 [US1] Write `apps/server/test/library/store.integration.test.ts` using the repo's
   loud-skip harness (copy the pattern from `events.integration.test.ts`: `TEST_DATABASE_URL ||
   DATABASE_URL`, `probeReachable`, `REQUIRE_DATABASE=1` throws). US1 cases: parse
   `basic-rules.html` + `bestiary.html` with `parseDdbExport`, store, read back ordered by
@@ -56,7 +56,7 @@ span slices the stored text back to the stored chunk text.
   invariants 1, 3, 4); storing the same book again (different letter case) replaces it —
   old chunk ids gone, `replaced: true` (invariant 2); a validation failure mid-book leaves the
   previous version intact (invariant 1 + 2).
-- [ ] T006 [US1] Implement `apps/server/src/library/store.ts` `storeParsedBook` per
+- [x] T006 [US1] Implement `apps/server/src/library/store.ts` `storeParsedBook` per
   contracts/library-store.md: Zod-validate, span-check every block, one transaction (lock and
   delete existing by `lower(trim(book))`, insert document with sha-256 `content_hash` via
   `node:crypto`, insert chunks in batches sized under Postgres's 65,535-parameter limit).
