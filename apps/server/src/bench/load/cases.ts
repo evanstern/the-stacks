@@ -1,3 +1,8 @@
+import {
+  runConcurrencyDev,
+  runConcurrencyLocal,
+  runConcurrencySmoke,
+} from "./concurrency.js";
 import { runIngestSeries } from "./ingest.js";
 import type { Profile, Tier } from "./profile.js";
 import type { CaseOutcome } from "./results.js";
@@ -57,7 +62,7 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "In-process app on port 0, 3 users, 2 s; zero errors, every WebSocket round trip arrives.",
-    run: notImplemented("concurrency-smoke", "commit", "local"),
+    run: () => runConcurrencySmoke(),
   },
   {
     id: "ingest-scaling",
@@ -78,7 +83,7 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "Users 1-100 against the built app: HTTP and WebSocket latency and errors.",
-    run: notImplemented("concurrency-local", "demand", "local"),
+    run: runConcurrencyLocal,
   },
   {
     id: "db-exhaustion",
@@ -102,7 +107,7 @@ export const CASES: readonly Case[] = [
     target: "dev",
     summary:
       "Read-only concurrency probe against the real deployed dev target.",
-    run: notImplemented("concurrency-dev", "dev", "dev"),
+    run: runConcurrencyDev,
   },
 ];
 
