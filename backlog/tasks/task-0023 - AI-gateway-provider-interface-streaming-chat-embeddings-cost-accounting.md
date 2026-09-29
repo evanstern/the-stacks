@@ -1,9 +1,10 @@
 ---
 id: TASK-0023
 title: 'AI gateway: provider interface, streaming chat, embeddings, cost accounting'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
+updated_date: '2026-09-29 03:08'
 labels:
   - ai
 milestone: m-1
@@ -18,6 +19,8 @@ ordinal: 14000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 First slice of architecture A7. Anthropic for chat; an OpenAI-compatible endpoint for embeddings per decision-0002.
+
+Spec: specs/011-ai-gateway
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
