@@ -13,8 +13,15 @@
     "test": "turbo run test",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
+    "check:scripts": "node --test 'scripts/*lib.test.mjs'",
+    "check:env": "node --test scripts/env.test.mjs",
     "check:host-scripts": "node --experimental-strip-types -e \"await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts'); await import('./apps/server/src/auth/password.ts'); await import('./apps/server/src/schema/auth.ts');\"",
-    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:host-scripts"
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts && pnpm check:host-scripts",
+    "env:up": "node scripts/env.mjs up",
+    "env:down": "node scripts/env.mjs down",
+    "env:status": "node scripts/env.mjs status",
+    "env:prune": "node scripts/env.mjs prune",
+    "env:main": "node scripts/env.mjs main"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

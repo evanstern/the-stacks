@@ -4,7 +4,7 @@ description: The Dockerfile's four-stage build (base, deps, build, runtime), wha
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
 ---
 
 # Container image
@@ -30,7 +30,11 @@ build`.
 `runtime` starts fresh from `base` (not from `build`), sets `NODE_ENV=production`, re-copies
 just the manifests, and runs `pnpm install --frozen-lockfile --prod --filter
 "@the-stacks/server..."` — production dependencies only, scoped to the server and what it
-needs. It then copies three build outputs from the `build` stage by exact path:
+needs. Right after that install, `ARG GIT_COMMIT=unknown` / `ENV GIT_COMMIT=$GIT_COMMIT` bakes
+the build's commit into the image (spec 010; surfaced at `/health` via [[configuration]] and
+[[health-check]]) — declared there, after the install `RUN`, specifically so a changing
+commit never busts that layer's cache. It then copies three build outputs from the `build`
+stage by exact path:
 `packages/shared/dist`, `apps/server/dist`, and — critically — `apps/web/dist` is copied to
 `apps/server/public`, because that is where `src/static.ts` resolves its default static root
 from (module-relative, not cwd; see [[static-serving]]). `healthcheck.js` is copied to the

@@ -8,14 +8,16 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/scripts/create-operator.ts
   - package.json
-verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
+verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
 ---
 
 # Configuration
 
 `apps/server/src/config.ts` exports `loadConfig(env = process.env): ServerConfig`, reading
-`DATABASE_URL` (required — throws `"DATABASE_URL environment variable is required"` if unset)
-and the port the server binds to. `ServerConfig` is `{ databaseUrl: string, port: number }`.
+three things: `DATABASE_URL` (required — throws `"DATABASE_URL environment variable is
+required"` if unset), the port the server binds to, and `GIT_COMMIT` (optional, `"unknown"` if
+unset — surfaced at `/health`, see [[health-check]]). `ServerConfig` is `{ databaseUrl: string,
+port: number, commit: string }`.
 
 **`config.ts` has no relative imports, on purpose.** `apps/server/scripts/migrate.ts` and
 `apps/server/scripts/create-operator.ts` run it on the host under
@@ -35,6 +37,12 @@ The port variable is **`APP_PORT`, not `PORT`** — there is no fallback to the 
 `` `APP_PORT must be a positive integer, got "${portRaw}"` `` if the result isn't a positive
 integer. `??` is correct here because the only value that should trigger the default is
 "unset" (`undefined`) — there's no case where `APP_PORT` is legitimately an empty string.
+
+`commit` is `env.GIT_COMMIT ?? "unknown"` — no validation, since any string (or its absence)
+is a legitimate answer. It is baked into the image at build time (spec 010's `GIT_COMMIT`
+build arg; see [[container-image]] and [[compose-stack]]), not read from `.env`, so it is the
+one `ServerConfig` field a plain `docker compose up` and an `env.mjs`-managed stack can
+legitimately disagree on.
 
 `loadConfig` itself never reads `TEST_DATABASE_URL` — the running server always connects with
 `DATABASE_URL`, full stop. `TEST_DATABASE_URL` only comes into play in code that runs on the
@@ -70,9 +78,10 @@ and this file both assume, and now also documents the AI gateway's three env var
 ## Operational notes
 
 Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional: `APP_PORT`
-(default `3000`, must parse to a positive integer). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES`
-are read by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
-[[ai-gateway]]; unset means no model features, not an error). `TEST_DATABASE_URL` is
-consulted only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the
-running server; leaving it unset makes the event-log integration tests skip rather than fail
-(per `.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.
+(default `3000`, must parse to a positive integer), `GIT_COMMIT` (default `"unknown"`, set via
+the Dockerfile build arg, never from `.env`). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
+by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
+[[ai-gateway]]; unset means no model features, not an error). `TEST_DATABASE_URL` is consulted
+only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running
+server; leaving it unset makes the event-log integration tests skip rather than fail (per
+`.env.example`'s comment), which is a silent gap worth checking for, not a passing suite.

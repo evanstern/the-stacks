@@ -6,7 +6,7 @@ sources:
   - docker-compose.yml
   - .env.example
   - healthcheck.js
-verified_against: ba9fcbb4fa3bdc10f8e66f403cdee90a2093f752
+verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
 ---
 
 # Compose stack
@@ -15,6 +15,14 @@ The whole deployment is two `docker-compose.yml` services — `app` (built from 
 `Dockerfile`) and `db` (`pgvector/pgvector:pg17`) — plus one named volume, `db-data`, for
 Postgres's data directory. `app` publishes `${APP_PORT}:${APP_PORT}` on all interfaces; `db`
 publishes only to loopback.
+
+Every container also carries three labels — `org.the-stacks.env`,
+`org.the-stacks.worktree`, `org.the-stacks.commit` — read from `STACKS_ENV`/`STACKS_WORKTREE`/
+`STACKS_COMMIT` (defaults `default`/empty/`unknown` for a plain `docker compose up`). `app`'s
+`build:` is the long form, adding `args.GIT_COMMIT: ${STACKS_COMMIT:-unknown}` so the image
+bakes in the commit it was built from (see [[container-image]]). Both are spec 010's
+per-worktree stack machinery (`scripts/env.mjs`, not covered by this note); this file only
+supplies the compose-level plumbing they read.
 
 ## How it works
 
@@ -50,7 +58,8 @@ uses `||`, not `??` — see [[configuration]].
 [[container-image]] builds the image `app` runs. [[configuration]] is the env-var contract
 this file's variables feed into. [[health-check]] is what `healthcheck.js` calls and what
 `db`'s `pg_isready` stands in for. [[overview]] frames this as "two containers and a volume is
-the whole deployment."
+the whole deployment." [[runtime-stacks]] is what sets the `org.the-stacks.*`/`STACKS_COMMIT`
+values this file only consumes.
 
 ## Operational notes
 

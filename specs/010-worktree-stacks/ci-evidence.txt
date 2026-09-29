@@ -1,0 +1,112 @@
+# pnpm ci:check (T019, post-merge with origin/main 77a2547)
+# Exit code: 0. Tail below.
+TAP version 13
+# Subtest: task-0020 derives 3020/15020
+ok 1 - task-0020 derives 3020/15020
+  ---
+  duration_ms: 0.916
+  type: 'test'
+  ...
+# Subtest: task-7 derives 3007/15007
+ok 2 - task-7 derives 3007/15007
+  ---
+  duration_ms: 0.172083
+  type: 'test'
+  ...
+# Subtest: task-1000 (out of 1-999 range) falls into the hashed range, deterministically
+ok 3 - task-1000 (out of 1-999 range) falls into the hashed range, deterministically
+  ---
+  duration_ms: 0.342834
+  type: 'test'
+  ...
+# Subtest: a non-task worktree name hashes deterministically into its own range
+ok 4 - a non-task worktree name hashes deterministically into its own range
+  ---
+  duration_ms: 0.094708
+  type: 'test'
+  ...
+# Subtest: uppercase and odd characters are sanitized into [a-z0-9-]
+ok 5 - uppercase and odd characters are sanitized into [a-z0-9-]
+  ---
+  duration_ms: 0.06675
+  type: 'test'
+  ...
+# Subtest: running from the root checkout is refused
+ok 6 - running from the root checkout is refused
+  ---
+  duration_ms: 0.188667
+  type: 'test'
+  ...
+# Subtest: reserved env names are refused from a worktree
+ok 7 - reserved env names are refused from a worktree
+  ---
+  duration_ms: 0.133209
+  type: 'test'
+  ...
+# Subtest: mainIdentity is fixed at 3000/5432
+ok 8 - mainIdentity is fixed at 3000/5432
+  ---
+  duration_ms: 0.058
+  type: 'test'
+  ...
+# Subtest: mergeEnvFile keeps an operator-set key and overwrites a stale derived key
+ok 9 - mergeEnvFile keeps an operator-set key and overwrites a stale derived key
+  ---
+  duration_ms: 0.386958
+  type: 'test'
+  ...
+# Subtest: mergeEnvFile appends a derived key absent from the example (e.g. commented-out)
+ok 10 - mergeEnvFile appends a derived key absent from the example (e.g. commented-out)
+  ---
+  duration_ms: 0.359209
+  type: 'test'
+  ...
+# Subtest: classifyStacks exempts main and dev from orphan status
+ok 11 - classifyStacks exempts main and dev from orphan status
+  ---
+  duration_ms: 0.15925
+  type: 'test'
+  ...
+# Subtest: parseWorktreeList reads absolute paths out of porcelain output
+ok 12 - parseWorktreeList reads absolute paths out of porcelain output
+  ---
+  duration_ms: 0.109875
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.281125
+
+# pnpm check:env (T019, real Docker; must leave zero org.the-stacks.env resources)
+# Exit code: 0 (2/2 tests pass, fail 0). Tail below.
+$ node --test scripts/env.test.mjs
+TAP version 13
+# Preparing worktree (detached HEAD 8204d23)
+# Preparing worktree (detached HEAD 8204d23)
+# Subtest: up -> /health commit matches HEAD -> down -> zero labeled resources
+ok 1 - up -> /health commit matches HEAD -> down -> zero labeled resources
+  ---
+  duration_ms: 15203.306542
+  type: 'test'
+  ...
+# Subtest: prune --check finds an orphan, prune removes it
+ok 2 - prune --check finds an orphan, prune removes it
+  ---
+  duration_ms: 15557.144084
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31003.517334

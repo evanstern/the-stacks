@@ -1,6 +1,12 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      # Bakes the running build's commit into the image (research R4 —
+      # belongs to the image, not the container). Defaults to "unknown" for
+      # a plain `docker compose up` (self-hoster path, no env.mjs).
+      args:
+        GIT_COMMIT: ${STACKS_COMMIT:-unknown}
     env_file: .env
     environment:
       # TEST_DATABASE_URL is a HOST-only variable: it points at the
@@ -12,6 +18,12 @@ services:
       TEST_DATABASE_URL: ""
     ports:
       - "${APP_PORT}:${APP_PORT}"
+    # Per-worktree stack identity (spec 010) — set by scripts/env.mjs;
+    # a plain `docker compose up` falls back to these defaults untouched.
+    labels:
+      org.the-stacks.env: ${STACKS_ENV:-default}
+      org.the-stacks.worktree: ${STACKS_WORKTREE:-}
+      org.the-stacks.commit: ${STACKS_COMMIT:-unknown}
     healthcheck:
       # Parses the /health body — see healthcheck.js and
       # contracts/healthcheck.md. A status-code-only check would report
@@ -37,6 +49,10 @@ services:
       # a self-hoster's database to their whole network. Override DB_PORT if
       # 5432 is already taken on the host. See runbook amendment A3.
       - "127.0.0.1:${DB_PORT:-5432}:5432"
+    labels:
+      org.the-stacks.env: ${STACKS_ENV:-default}
+      org.the-stacks.worktree: ${STACKS_WORKTREE:-}
+      org.the-stacks.commit: ${STACKS_COMMIT:-unknown}
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:

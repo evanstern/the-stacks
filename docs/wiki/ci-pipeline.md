@@ -10,23 +10,28 @@ sources:
   - turbo.json
   - specs/009-ci-pipeline/contracts/boundary-rules.md
   - README.md
-verified_against: 019bbb09735d0b96b296c88edec05213b8fb0c76
+verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
 ---
 
 # CI pipeline
 
 Every pull request and push to `main` runs one job (`.github/workflows/ci.yml`) that
 reproduces, in order, everything a contributor is expected to run by hand before this task:
-lint, typecheck, build, test, boundary check, hook tests. Before this branch, none of this
-ran anywhere — gates were run by hand and their output pasted into the PR.
+lint, typecheck, build, test, boundary check, hook tests, script tests. Before this branch,
+none of this ran anywhere — gates were run by hand and their output pasted into the PR.
 
 ## How it works
 
 Root `package.json`'s `ci:check` script is the single aggregate:
 `pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks && pnpm check:host-scripts`. CI runs exactly this one command (`pnpm ci:check`), so there is no drift
-between what CI enforces and what a contributor can reproduce locally — see README.md's
-"Checks" section for the exact local reproduction steps.
+check:hooks && pnpm check:scripts && pnpm check:host-scripts`. CI runs exactly this one
+command (`pnpm ci:check`), so there is no drift between what CI enforces and what a
+contributor can reproduce locally — see README.md's "Checks" section for the exact local
+reproduction steps. `check:scripts` (`node --test 'scripts/*lib.test.mjs'`, spec 010) is the
+Docker-free unit-test gate for `scripts/env-lib.mjs`'s pure derivation logic — see
+[[runtime-stacks]]. Its Docker-dependent sibling, `check:env`, proves the same tooling
+against real containers but is deliberately **not** in `ci:check` (no Docker-in-Docker in
+this repo's CI today; [[runtime-stacks]] covers it).
 
 The workflow provisions a `pgvector/pgvector:pg17` service container (`POSTGRES_USER`,
 `POSTGRES_PASSWORD`, `POSTGRES_DB` all `stacks`) health-checked with `pg_isready`, runs

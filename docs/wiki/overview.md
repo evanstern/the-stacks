@@ -10,7 +10,7 @@ sources:
   - docker-compose.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
+verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
 ---
 
 # Overview
@@ -76,5 +76,10 @@ while `TEST_DATABASE_URL` names the **host's** (`@localhost:<DB_PORT>`). See [[c
 
 CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job provisions a
 Postgres service and runs `pnpm ci:check` (lint, typecheck, build, test, boundary check, hook
-tests) with `REQUIRE_DATABASE=1`, so the integration suites are proven rather than
-loud-skipped. TASK-0017 closed the "gates run by hand" gap this note previously described.
+tests, script tests) with `REQUIRE_DATABASE=1`, so the integration suites are proven rather
+than loud-skipped. TASK-0017 closed the "gates run by hand" gap this note previously
+described.
+
+Each worktree can run its own isolated compose stack (`pnpm env:*`, [[runtime-stacks]]):
+labeled containers, derived ports, and a `commit` baked into the image and surfaced at
+`/health` so which build is answering is never a guess.

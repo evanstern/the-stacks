@@ -77,6 +77,8 @@ exited **0** on 2026-09-28. No task needs the `opus` escalation tier.
   - TASK-0025: new note for the parser.
 - **Stop hook note:** each Stop-hook gate that ships blocks a session end. TASK-0020's
   orphan warning must warn, not block.
+- **Runtime-stack gates (TASK-0020, CLAUDE.md "Runtime stacks"):** run `pnpm env:prune
+  --check` at sweep start; run `pnpm env:down` before `git worktree remove`.
 
 ## Per-task artifacts required before PR
 

@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: 809a8773b042128168c5625047fd4dfaa6ffe997
+verified_against: 77683a000e27ab44a3edbaa63a364c40e5259bef
 ---
 
 # Server entrypoint and app
@@ -23,8 +23,8 @@ via `createApp` without binding a port.
 imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
 `createGateway`. This slice adds no route, so the AI gateway is unused until TASK-0027; with no
 `AI_*` env vars set it is inert. Then `createDb(config.databaseUrl)`,
-`createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db })`, then
-`createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
+`createApp({ databaseProbe: createDatabaseProbe(config.databaseUrl), db, commit: config.commit })`,
+then `createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
 It calls `serve({ fetch: app.fetch, port: config.port }, ...)` from `@hono/node-server`, and
 the callback logs `Server listening on port ${info.port}`. The load-bearing line is the last
 one: `gateway.attach(server)` — the object `serve()` returns is passed directly into the
@@ -37,9 +37,10 @@ inside `createApp` (threaded into the auth routes) and once here for the gateway
 the same `db`, so HTTP and WebSocket share one session-validation seam (see
 [[session-auth]]).
 
-`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot? }` (`staticRoot` is a
-test-only override for the SPA's static root) and returns a plain `Hono` app with no port
-bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
+`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit? }` (`staticRoot` is a
+test-only override for the SPA's static root; `commit` defaults to `"unknown"` and is passed
+straight to `createHealthRoute` — see [[health-check]]) and returns a plain `Hono` app with no
+port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
 `app.notFound(notFoundHandler)` first, then `app.route("/health", ...)`, `app.route("/api/echo",
 ...)`, `app.route("/auth", ...)`, and finally `app.use("*", createStaticMiddleware(staticRoot))`.
 The static middleware is mounted **last** on purpose: it is a catch-all (`"*"`) SPA fallback,

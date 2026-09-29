@@ -13,6 +13,8 @@ export interface CreateAppOptions {
   db: DbClient;
   /** Override for the SPA's static root — tests point this at a fixture. */
   staticRoot?: string;
+  /** Git commit surfaced at /health (config.ts). Defaults to "unknown" for tests. */
+  commit?: string;
 }
 
 /**
@@ -27,11 +29,16 @@ export interface CreateAppOptions {
  * `createValidateSession(db)` again with the same `db` — the function
  * itself takes only a token, never a Hono context.
  */
-export function createApp({ databaseProbe, db, staticRoot }: CreateAppOptions) {
+export function createApp({
+  databaseProbe,
+  db,
+  staticRoot,
+  commit = "unknown",
+}: CreateAppOptions) {
   const app = new Hono();
   app.onError(errorHandler);
   app.notFound(notFoundHandler);
-  app.route("/health", createHealthRoute(databaseProbe));
+  app.route("/health", createHealthRoute(databaseProbe, commit));
   app.route("/api/echo", createEchoRoute());
   app.route(
     "/auth",
