@@ -1,6 +1,7 @@
 import { unlink } from "node:fs/promises";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { isUniqueViolation } from "../../db.js";
 import { ConflictError } from "../../errors.js";
 import { jobs } from "../../schema/jobs.js";
 import type { DbClient } from "../store.js";
@@ -73,20 +74,6 @@ export interface ClaimedJob {
   claimToken: string;
   book: string;
   input: JobInput;
-}
-
-const POSTGRES_UNIQUE_VIOLATION = "23505";
-
-// ponytail: copied from library/store.ts's isUniqueViolation rather than a
-// shared db.ts helper — TASK-0032 is moving one there; swap at the T031
-// reconcile merge (plan.md "Requirements carried from other tasks").
-function isUniqueViolation(err: unknown): boolean {
-  const code = (err as { code?: unknown })?.code;
-  const causeCode = (err as { cause?: { code?: unknown } })?.cause?.code;
-  return (
-    code === POSTGRES_UNIQUE_VIOLATION ||
-    causeCode === POSTGRES_UNIQUE_VIOLATION
-  );
 }
 
 interface JobRow {

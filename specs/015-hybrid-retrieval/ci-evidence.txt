@@ -1,0 +1,29 @@
+REQUIRE_DATABASE=1 TEST_DATABASE_URL=postgres://stacks:changeme@localhost:15026/stacks pnpm ci:check
+Run: 2026-09-29, worktree task-0026 (stacks-task-0026, app :3026, db :15026)
+
+Result: PASS (exit 0)
+
+Pipeline: lint -> typecheck -> build -> test -> check:boundaries -> check:hooks
+          -> check:scripts -> check:host-scripts
+
+Test summary (turbo run test, @the-stacks/server:test / vitest):
+  Test Files  23 passed | 1 skipped (24)
+  Tests       202 passed (202)
+
+Skipped: test/library/ddb.private.test.ts (0 tests) — "ddb real-export suite
+SKIPPED: put D&D Beyond export pages in fixtures/private/ddb/ to run it".
+This is the documented private-fixture suite, the only allowed skip
+(test-suite wiki note). No other suite skipped; the DB-backed integration
+suites (retrieve.integration, store.integration, events.integration,
+auth.integration, ws.integration) all ran and passed under
+REQUIRE_DATABASE=1/TEST_DATABASE_URL — 0 DB-suite skips.
+
+Retrieval suites specifically:
+  test/library/retrieve.integration.test.ts (12 tests) — passed
+  test/library/retrieve.test.ts (16 tests) — passed
+
+check:boundaries: boundary rules: 5/5 fixtures flagged (pass)
+check:hooks: 9 suites / 20 tests, all pass
+check:scripts: 12 tests, all pass
+check:host-scripts: config.ts/db.ts/auth/password.ts/schema/auth.ts import
+  cleanly under --experimental-strip-types (pass)

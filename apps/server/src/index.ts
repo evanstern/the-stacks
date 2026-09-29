@@ -10,10 +10,15 @@ import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
+import { loadRetrievalConfig } from "./library/retrieve.js";
 import { createGateway } from "./ws/gateway.js";
 
 const config = loadConfig();
 const aiConfig = loadAiConfig(process.env);
+// Validated at boot so a bad RETRIEVAL_* value fails fast (FR-004); unused
+// until a route reads it (TASK-0027).
+// biome-ignore lint/correctness/noUnusedVariables: reserved for TASK-0027's routes.
+const retrievalConfig = loadRetrievalConfig(process.env);
 
 const aiGateway = createAiGateway({
   config: aiConfig,
@@ -26,11 +31,7 @@ const db = createDb(config.databaseUrl);
 const uploadDir = path.join(os.tmpdir(), "the-stacks-uploads");
 mkdirSync(uploadDir, { recursive: true });
 
-// ponytail: TASK-0026's loadRetrievalConfig() isn't on this branch yet
-// (research R10) — read the same variable, with the same default, in this
-// one place. Swap to loadRetrievalConfig().embedPurpose at the T031
-// reconcile merge.
-const embedPurposeName = process.env.RETRIEVAL_EMBED_PURPOSE ?? "embedding";
+const embedPurposeName = retrievalConfig.embedPurpose;
 const embedPurpose =
   aiConfig.purposes[embedPurposeName]?.op === "embed" ? embedPurposeName : null;
 

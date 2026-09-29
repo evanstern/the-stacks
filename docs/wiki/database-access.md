@@ -1,10 +1,10 @@
 ---
 name: database-access
-description: The one pool-building helper (createPool) shared by the Drizzle client (createDb) and the health probe (createDatabaseProbe), the pool's mandatory error handler, and what "reachable" actually tests (a bounded SELECT 1 race, not a real query).
+description: The one pool-building helper (createPool) shared by the Drizzle client (createDb) and the health probe (createDatabaseProbe), the pool's mandatory error handler, what "reachable" actually tests (a bounded SELECT 1 race, not a real query), and the shared isUniqueViolation Postgres-23505 detector both invitations and library-schema call.
 kind: component
 sources:
   - apps/server/src/db.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
 ---
 
 # Database Access
@@ -43,11 +43,18 @@ the timeout-racing logic is testable without a live Postgres connection.
 `DEFAULT_PROBE_TIMEOUT_MS` (3000ms) is chosen to leave headroom under the 5-second overall
 bound `/health` guarantees.
 
+**`isUniqueViolation(err)`** is the one shared Postgres-unique-violation (`23505`) detector,
+checking both bare `err.code` (a raw `pg` error) and `err.cause.code` (drizzle-orm wraps every
+driver error in a `DrizzleQueryError`, so a query run through the Drizzle client carries its
+`pg` code one level down on `.cause`). It never throws. `ponytail`: inspects one level of
+`cause` only — walk the chain when a caller wraps errors twice.
+
 ## Connections
 
 Feeds [[health-check]] (via `createDatabaseProbe`) and [[event-log]] / [[database-schema]]
 (via `createDb`, the Drizzle client every query in this codebase goes through). Its
-`DATABASE_URL` input is documented in [[configuration]].
+`DATABASE_URL` input is documented in [[configuration]]. `isUniqueViolation` is shared by
+[[invitations]]'s redeem conflict and [[library-schema]]'s `attachEmbeddings`.
 
 ## Operational notes
 
