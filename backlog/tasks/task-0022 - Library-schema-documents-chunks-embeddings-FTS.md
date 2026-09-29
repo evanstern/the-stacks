@@ -30,7 +30,10 @@ Spec: specs/013-library-schema
 - [ ] #3 Chunks carry a full-text search column with a GIN index and a vector index
 - [ ] #4 Chunks store source anchors: book, section path, and character span
 - [ ] #5 Spec phase: Foundational — schema and migration
+- [ ] #6 Spec phase: User Story 1 — store a parsed book with verifiable anchors (Priority: P1) 🎯 MVP
 <!-- AC:END -->
+
+
 
 
 
