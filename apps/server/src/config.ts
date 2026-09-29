@@ -12,6 +12,8 @@ export interface ServerConfig {
   port: number;
   /** Git commit the running build came from (GIT_COMMIT build arg); "unknown" if unset. */
   commit: string;
+  /** Ceiling on a single upload's file-part size, in bytes (UPLOAD_MAX_BYTES). */
+  uploadMaxBytes: number;
 }
 
 /**
@@ -32,5 +34,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
 
   const commit = env.GIT_COMMIT ?? "unknown";
 
-  return { databaseUrl, port, commit };
+  const uploadMaxBytesRaw = env.UPLOAD_MAX_BYTES ?? "1073741824";
+  const uploadMaxBytes = Number(uploadMaxBytesRaw);
+  if (!Number.isInteger(uploadMaxBytes) || uploadMaxBytes <= 0) {
+    throw new Error(
+      `UPLOAD_MAX_BYTES must be a positive integer, got "${uploadMaxBytesRaw}"`,
+    );
+  }
+
+  return { databaseUrl, port, commit, uploadMaxBytes };
 }
