@@ -12,7 +12,8 @@ now has a parser ([[ddb-parser]]) and its storage ([[library-schema]]: documents
 embeddings, immutable after ingestion) — but no ingestion job writes to it yet (TASK-0024). A
 read path over that storage now exists too ([[retrieval]]: vector/fts/hybrid search, fused by
 RRF) but has no caller until the rules-answerer (TASK-0027). The provider-agnostic AI gateway
-([[ai-gateway]]) has landed. No codex, system modules, or agents yet.
+([[ai-gateway]]) has landed. No codex, system modules, or agents yet. `main` is now
+continuously deployed to a real hosted `dev` environment on vm-104 ([[hosted-dev]]).
 
 ## Start here
 
@@ -24,6 +25,7 @@ RRF) but has no caller until the rules-answerer (TASK-0027). The provider-agnost
 - [[compose-stack]] — the two-container topology, health checks, and the port/URL split that catches everyone.
 - [[container-image]] — the multi-stage Dockerfile, what ships in the runtime layer, and why.
 - [[runtime-stacks]] — `pnpm env:*`, one labeled compose stack per git worktree, orphan detection, and the local `origin/main` stack.
+- [[hosted-dev]] — the vm-104 `dev` environment: CD from `main`, deploy/rollback/drift/backup verbs, and tailnet-only exposure.
 
 ## Server
 

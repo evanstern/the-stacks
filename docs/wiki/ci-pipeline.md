@@ -10,7 +10,9 @@ sources:
   - turbo.json
   - specs/009-ci-pipeline/contracts/boundary-rules.md
   - README.md
-verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
+  - .github/workflows/deploy-dev.yml
+  - .github/workflows/drift-dev.yml
+verified_against: 1c0ef6edebe8b43bdc76969fd4bbe5bcae69209d
 ---
 
 # CI pipeline
@@ -18,7 +20,9 @@ verified_against: 77a25471a1b0235747925521d89eb1c1f4bb27e1
 Every pull request and push to `main` runs one job (`.github/workflows/ci.yml`) that
 reproduces, in order, everything a contributor is expected to run by hand before this task:
 lint, typecheck, build, test, boundary check, hook tests, script tests. Before this branch,
-none of this ran anywhere — gates were run by hand and their output pasted into the PR.
+none of this ran anywhere — gates were run by hand and their output pasted into the PR. Two
+more workflows, `deploy-dev.yml` and `drift-dev.yml` (TASK-0021, spec 016), run on vm-104's
+self-hosted runner instead of in this job — see [[hosted-dev]].
 
 ## How it works
 
@@ -29,7 +33,9 @@ command (`pnpm ci:check`), so there is no drift between what CI enforces and wha
 contributor can reproduce locally — see README.md's "Checks" section for the exact local
 reproduction steps. `check:scripts` (`node --test 'scripts/*lib.test.mjs'`, spec 010) is the
 Docker-free unit-test gate for `scripts/env-lib.mjs`'s pure derivation logic — see
-[[runtime-stacks]]. Its Docker-dependent sibling, `check:env`, proves the same tooling
+[[runtime-stacks]] — and, since TASK-0021 (spec 016), for `scripts/deploy-lib.mjs`'s pure
+logic behind the hosted `dev` deploy/rollback/drift verbs — see [[hosted-dev]]. Its
+Docker-dependent sibling, `check:env`, proves the same tooling
 against real containers but is deliberately **not** in `ci:check` (no Docker-in-Docker in
 this repo's CI today; [[runtime-stacks]] covers it).
 

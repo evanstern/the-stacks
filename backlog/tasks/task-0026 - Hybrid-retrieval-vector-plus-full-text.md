@@ -1,10 +1,10 @@
 ---
 id: TASK-0026
 title: 'Hybrid retrieval: vector plus full-text'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 15:53'
+updated_date: '2026-09-29 15:56'
 labels:
   - library
 milestone: m-1
@@ -32,7 +32,7 @@ Spec: specs/015-hybrid-retrieval
 - [x] #5 Spec phase: User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP
 - [x] #6 Spec phase: User Story 2 — choose the retrieval mode by configuration (Priority: P1)
 - [x] #7 Spec phase: User Story 3 — hybrid fuses both lists (Priority: P1)
-- [ ] #8 Spec phase: Polish and gates
+- [x] #8 Spec phase: Polish and gates
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -51,7 +51,15 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phase 5 gates+wiki; new note retrieval; 202/202 under REQUIRE_DATABASE=1)
 
 spec-bridge sync: Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 4/5
+
+spec-bridge sync: Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Foundational — contract types, config, fusion: 7/7 · User Story 1 — ask a question, get cited passages back (Priority: P1) 🎯 MVP: 3/3 · User Story 2 — choose the retrieval mode by configuration (Priority: P1): 2/2 · User Story 3 — hybrid fuses both lists (Priority: P1): 2/2 · Polish and gates: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
