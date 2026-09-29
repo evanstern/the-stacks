@@ -32,7 +32,7 @@ Spec: specs/021-load-bench
 - [ ] #4 Each case declares its tier: every commit, on demand, or against dev only; out-of-tier cases skip with a visible reason
 - [ ] #5 Results are stored with config and commit
 - [x] #6 Spec phase: Setup
-- [ ] #7 Spec phase: Foundational (blocks every story)
+- [x] #7 Spec phase: Foundational (blocks every story)
 - [ ] #8 Spec phase: User Story 1 — find where ingest degrades (P1, AC #1)
 - [ ] #9 Spec phase: User Story 2 — find where concurrent users degrade (P1, AC #2)
 - [ ] #10 Spec phase: User Story 4 — tiers, visible skips, and the CLI (P1, AC #4)
@@ -40,6 +40,8 @@ Spec: specs/021-load-bench
 - [ ] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
 - [ ] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
+
+
 
 
 
