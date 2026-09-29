@@ -4,7 +4,7 @@ title: Hosted dev environment on vm-104 with CD from main
 status: To Do
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 02:43'
+updated_date: '2026-09-29 02:56'
 labels:
   - infra
 milestone: m-1
@@ -33,7 +33,15 @@ Implement doc-0002 CD and Exposure sections (decision-0006, ratified 2026-09-28)
 - [ ] #7 The doc-0002 operator prerequisites are verified on vm-104: at least 40 GiB free, a stacks user in the docker group, a runner registered to evanstern/the-stacks, and working tailnet SSH
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+vm-104 prerequisites, 2026-09-28 (done by orchestrator under a temporary NOPASSWD sudoers entry, since removed and verified: sudo prompts again).
+1. Disk: DONE. docker builder prune freed 41.9 GB of unused build cache (0 active). 41 GiB free, 79% used. No images, containers, or volumes of other users touched.
+2. Service user: DONE. stacks (uid 1004) in docker group; docker ps works as stacks; evan's authorized_keys copied.
+3. Runner: DONE. actions-runner v2.337.0 in /home/stacks/actions-runner, registered to evanstern/the-stacks as vm-104, labels self-hosted,Linux,X64,vm-104. systemd unit actions.runner.evanstern-the-stacks.vm-104 active; GitHub reports it online.
+4. Tailscale: NOT DONE, needs operator. Correction to doc-0002: tailscaled is not broken. The host unit is masked on purpose; Tailscale runs in the docker container 'tailscale' (tailscale/tailscale:stable, host network, state in /home/evan/config/tailscale). The socket lives inside that container, which is why the host CLI failed. The container reports 'Logged out', so vm-104 has left the tailnet; that is why tailnet SSH times out. Re-login needs an interactive auth URL or auth key.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
