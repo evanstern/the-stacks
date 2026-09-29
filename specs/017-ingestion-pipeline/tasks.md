@@ -110,7 +110,7 @@ contracts/ingest-modules.md. Parallel with Phase 2: no shared files.
 - [x] T036 Wiki review with honest re-pins (`/grounding-wiki:wiki-update`). Classify each pinned note as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`, and amend prose before bumping any NEEDS-REVIEW pin. Expected: `library-schema`, `ddb-parser` (the `headings` option), `configuration` (`UPLOAD_MAX_BYTES`), `server-entrypoint-and-app` (`/library` mount, worker start, `requestTimeout`, `aiGateway` now used), `database-schema` (`jobs`), `migrations` (`0003`), `overview`, `error-contract` (`too_large`), and `ai-gateway` (first caller). Write a new note, `docs/wiki/ingestion.md` (kind: pipeline), covering upload transport (multipart via `busboy`), zip reader (`yauzl`), filtering, parse routing, chunker, jobs/lease/fencing/recovery, embedding obligation, and temp files, with its sources and pin. Add it to `INDEX.md` under Library. Regenerate `CAPSULES.md`, because descriptions change.
 - [x] T037 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. It must print `OK`. Never run `gates/freshness.mjs`.
 - [x] T038 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. It must exit 0. Tick this file's completed tasks.
-- [ ] T039 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
+- [x] T039 Run `pnpm env:down`, then `pnpm env:prune --check`. The prune check must exit 0.
 
 ## Dependencies & Execution Order
 
