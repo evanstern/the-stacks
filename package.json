@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
-    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks"
+    "check:scripts": "node --test 'scripts/*lib.test.mjs'",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

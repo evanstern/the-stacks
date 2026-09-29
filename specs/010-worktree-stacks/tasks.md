@@ -16,19 +16,19 @@ run in `ci:check`.
 
 **Purpose**: the logic every verb depends on, tested without Docker.
 
-- [ ] T001 Create `scripts/env-lib.mjs` (stdlib only, ESM) exporting pure functions per
+- [x] T001 Create `scripts/env-lib.mjs` (stdlib only, ESM) exporting pure functions per
   research R2/R3/R5/R6 and data-model.md: `deriveIdentity({ toplevel, rootToplevel })` →
   `{ env, project, appPort, dbPort }` (throws on root checkout and on reserved `main`/`dev`
   from a worktree); `mainIdentity()` → env `main`, 3000/5432; `mergeEnvFile(exampleText,
   existingText, derived)` → text, derived keys win, operator keys preserved, comments from
   `.env.example` kept; `classifyStacks(runningStacks, worktreePaths)` → adds `orphan`;
   `parseWorktreeList(porcelain)` → absolute paths.
-- [ ] T002 [P] Create `scripts/env-lib.test.mjs` (Node `--test`) covering: `task-0020` →
+- [x] T002 [P] Create `scripts/env-lib.test.mjs` (Node `--test`) covering: `task-0020` →
   3020/15020; `task-7` → 3007/15007; `task-1000` and `sweep-m1-wave1` → hashed range
   4000–11999 / 16000–23999, deterministic across calls; uppercase and odd characters
   sanitized; root and reserved names refused; `.env` merge keeps operator `POSTGRES_PASSWORD`
   and overwrites a stale `APP_PORT`; orphan classification exempts `main` and `dev`.
-- [ ] T003 In root `package.json`, extend `check:hooks` (or add `check:scripts` and append it
+- [x] T003 In root `package.json`, extend `check:hooks` (or add `check:scripts` and append it
   to `ci:check`) so `scripts/*lib.test.mjs` runs in `ci:check`. `pnpm ci:check` passes.
 
 **Checkpoint**: derivation is proven; nothing touches Docker yet.
