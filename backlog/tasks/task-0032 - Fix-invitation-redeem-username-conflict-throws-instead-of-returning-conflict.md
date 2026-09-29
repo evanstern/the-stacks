@@ -1,9 +1,10 @@
 ---
 id: TASK-0032
 title: 'Fix invitation redeem: username conflict throws instead of returning conflict'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-29 05:35'
+updated_date: '2026-09-29 15:02'
 labels:
   - bug
   - auth
@@ -16,6 +17,8 @@ ordinal: 23000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Found 2026-09-29 during TASK-0022. apps/server/src/auth/invitations.ts isUniqueViolation() checks only err.code, but drizzle-orm wraps driver errors in DrizzleQueryError with the pg error on err.cause. So redeeming an invitation with a taken username throws a 500 instead of returning {ok:false, reason:'conflict'}. TASK-0022 fixed the same helper in apps/server/src/library/store.ts (commit 83ebc51) by also checking err.cause.code. Share one helper instead of two copies.
+
+Spec: specs/014-invite-conflict
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
