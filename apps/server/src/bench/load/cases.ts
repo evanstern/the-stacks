@@ -1,3 +1,4 @@
+import { runIngestSeries } from "./ingest.js";
 import type { Profile, Tier } from "./profile.js";
 import type { CaseOutcome } from "./results.js";
 
@@ -42,7 +43,13 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "2 steps (3, 6 jobs), 1 in-process worker; every job succeeds, one document per book.",
-    run: notImplemented("ingest-smoke", "commit", "local"),
+    run: (ctx, profile) =>
+      runIngestSeries(ctx, profile, {
+        id: "ingest-smoke",
+        tier: "commit",
+        inProcess: true,
+        verifyOneDocPerBook: true,
+      }),
   },
   {
     id: "concurrency-smoke",
@@ -58,7 +65,12 @@ export const CASES: readonly Case[] = [
     target: "local",
     summary:
       "The decision-0005 measurement: ingest throughput by worker count and volume.",
-    run: notImplemented("ingest-scaling", "demand", "local"),
+    run: (ctx, profile) =>
+      runIngestSeries(ctx, profile, {
+        id: "ingest-scaling",
+        tier: "demand",
+        inProcess: false,
+      }),
   },
   {
     id: "concurrency-local",
