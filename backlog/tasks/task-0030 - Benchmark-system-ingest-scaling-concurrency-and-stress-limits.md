@@ -4,7 +4,7 @@ title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 21:03'
+updated_date: '2026-09-29 22:08'
 labels:
   - bench
 milestone: m-1
@@ -54,6 +54,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 3-4: ingest-scaling/smoke, concurrency local/smoke/dev-impl; small proof runs only — 0 failures; the small-scale knee reflects the worker's 2s POLL_MS floor, not a verdict; concurrency 1/5/10 users 0 errors, http p95 12-13ms, ws p95 6-12ms). decision-0005 verdict awaits the full demand.json run (T024).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+(phases 6-7: both stress cases pass live; restart-mid-ingest fix = bench fork timeout 15s->30s after 3 instrumented runs showed correct claim order, no product change; decision-0005 demand run committed). decision-0005 measurement: 1 worker 1.75 jobs/s, knee 100-250 queued; 2 workers 3.25 jobs/s, knee 250-500. Recorded measurement only; any worker split needs its own decision record (operator).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
