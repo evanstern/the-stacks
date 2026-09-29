@@ -4,7 +4,7 @@ title: D&D Beyond HTML parser with fixtures
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 03:51'
+updated_date: '2026-09-29 03:58'
 labels:
   - library
 milestone: m-1
@@ -59,6 +59,10 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 4 (T014-T016) done in 3d091d4: extract.ts (tables, stat blocks) wired into walk.ts; tests-first (8 red then green). Cave Skitterer emits one whole block. Design calls: colspan cell kept once; ability scores appended after data lines.
 
 Correction: implementer reported 52 ddb tests; vitest shows 22 test cases (some loop over every block). Orchestrator-verified count: 22/22.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 5 (T017-T018) done in 5b07fa6/178daf1/5b842ce. T017 amended by orchestrator: per-book layout fixtures/private/ddb/<book>/. MERGE CONDITION MET: real-export suite passes for all four books (orchestrator re-ran: 24/24). phb 39 pages/8055 blocks/31 statBlocks; dmg 22/4837/3; mm 30/2899/428; lmop 7/1183/27. No zero-block pages; no parser fixes needed. Evidence: specs/012-ddb-parser/real-export-evidence.txt (counts only). fixtures/private untracked, verified.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
