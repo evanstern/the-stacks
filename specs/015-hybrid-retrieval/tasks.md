@@ -115,13 +115,13 @@ override, returns results from the right search and makes the right number of em
 **Independent Test**: a chunk found by both searches outranks single-list chunks; single-list
 chunks still appear; the order matches `fuseRrf` computed from the two candidate lists.
 
-- [ ] T013 [US3] Add to `retrieve.integration.test.ts`: arrange chunk A matched by both keyword
+- [x] T013 [US3] Add to `retrieve.integration.test.ts`: arrange chunk A matched by both keyword
   (nonce word) and vector (scripted nearest), chunk B by keyword only, chunk C by vector only.
   In `hybrid`: A ranks first; B and C both appear; each appears once (invariant 8); every
   passage's `vector`/`fts` signals are set or `null` correctly and `score` equals the RRF score
   (US3 AC4); two runs return identical results (SC-005). With no vectors stored for the
   question's model, hybrid returns keyword results and `candidates.vector === 0` (research R6).
-- [ ] T014 [US3] Implement `mode = "hybrid"` in `retrieve.ts`: run both searches (the keyword
+- [x] T014 [US3] Implement `mode = "hybrid"` in `retrieve.ts`: run both searches (the keyword
   query may run concurrently with the embed call), fuse their id lists with `fuseRrf`, truncate
   to `k`, and attach both signals from the candidate lists. Make T013 pass.
 

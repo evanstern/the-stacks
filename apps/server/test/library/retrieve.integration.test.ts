@@ -8,7 +8,7 @@ import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import type { Block, ParsedBook } from "../../src/library/ddb/index.js";
 import type { RetrieveDeps } from "../../src/library/retrieve.js";
-import { retrieve } from "../../src/library/retrieve.js";
+import { fuseRrf, retrieve } from "../../src/library/retrieve.js";
 import { attachEmbeddings, storeParsedBook } from "../../src/library/store.js";
 import { libraryChunks } from "../../src/schema/library.js";
 
@@ -374,5 +374,112 @@ describe.skipIf(!reachable)("retrieve — vector mode (US2, integration)", () =>
         .join("\n");
     });
     expect(plan).toContain("library_embeddings_embedding_idx");
+  });
+});
+
+describe.skipIf(!reachable)("retrieve — hybrid mode (US3, integration)", () => {
+  function vec(label: string): number[] {
+    const v = new Array(1024).fill(0);
+    for (let i = 0; i < label.length; i++) v[i % 1024] += label.charCodeAt(i);
+    return v;
+  }
+
+  it("T013: a both-lists chunk ranks first; single-list chunks still appear once each; order matches fuseRrf (invariant 8, US3 AC4, SC-005)", async () => {
+    const nonce = nonceWord();
+    const model = `model-${randomUUID()}`;
+    const questionVec = vec("hybrid-question");
+
+    const { documentId } = await storeBook("Hybrid Fusion", [
+      `Chunk A mentions ${nonce} and is also the nearest vector match.`,
+      `Chunk B also mentions ${nonce} but has no embedding at all.`,
+      "This passage has a vector embedding only, no matching keyword here.",
+    ]);
+    const [chunkA, chunkB, chunkC] = await readChunks(documentId);
+
+    await attachEmbeddings(requireDb(), [
+      { chunkId: chunkA.id, model, dim: 1024, vector: questionVec },
+      { chunkId: chunkC.id, model, dim: 1024, vector: vec("hybrid-c") },
+    ]);
+
+    const fake = new FakeProvider().scriptEmbed({ vectors: [questionVec] });
+    const gateway = buildVectorGateway(fake, model);
+    const deps: RetrieveDeps = {
+      db: requireDb(),
+      gateway,
+      config: { mode: "hybrid", k: 10, embedPurpose: "embedding" },
+    };
+
+    const result = await retrieve(deps, { question: nonce });
+
+    expect(result.mode).toBe("hybrid");
+    expect(result.candidates.fts).toBe(2);
+    expect(result.candidates.vector).toBe(2);
+
+    const ids = result.passages.map((p) => p.chunkId);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual(
+      expect.arrayContaining([chunkA.id, chunkB.id, chunkC.id]),
+    );
+    expect(ids[0]).toBe(chunkA.id);
+
+    const a = result.passages.find((p) => p.chunkId === chunkA.id);
+    expect(a?.vector).not.toBeNull();
+    expect(a?.fts).not.toBeNull();
+    const b = result.passages.find((p) => p.chunkId === chunkB.id);
+    expect(b?.vector).toBeNull();
+    expect(b?.fts).not.toBeNull();
+    const c = result.passages.find((p) => p.chunkId === chunkC.id);
+    expect(c?.vector).not.toBeNull();
+    expect(c?.fts).toBeNull();
+
+    // Reconstruct each search's own list from the signals the result itself
+    // carries, and confirm the hybrid order/score match fuseRrf of them.
+    const byRank =
+      (key: "vector" | "fts") => (p: (typeof result.passages)[number]) =>
+        p[key]?.rank ?? 0;
+    const vectorList = result.passages
+      .filter((p) => p.vector)
+      .sort((x, y) => byRank("vector")(x) - byRank("vector")(y))
+      .map((p) => p.chunkId);
+    const ftsList = result.passages
+      .filter((p) => p.fts)
+      .sort((x, y) => byRank("fts")(x) - byRank("fts")(y))
+      .map((p) => p.chunkId);
+    const expected = fuseRrf({ vector: vectorList, fts: ftsList });
+    expect(ids).toEqual(expected.map((e) => e.chunkId));
+    expect(result.passages.map((p) => p.score)).toEqual(
+      expected.map((e) => e.score),
+    );
+
+    // Two runs return identical results (SC-005).
+    const fake2 = new FakeProvider().scriptEmbed({ vectors: [questionVec] });
+    const second = await retrieve(
+      { ...deps, gateway: buildVectorGateway(fake2, model) },
+      { question: nonce },
+    );
+    expect(second.passages).toEqual(result.passages);
+  });
+
+  it("T013: with no vectors stored for the question's model, hybrid returns keyword results and candidates.vector === 0 (research R6)", async () => {
+    const nonce = nonceWord();
+    await storeBook("Hybrid No Vectors", [`A passage about ${nonce}.`]);
+
+    const fake = new FakeProvider().scriptEmbed({
+      vectors: [vec("no-vectors")],
+    });
+    const gateway = buildVectorGateway(fake, `unused-model-${randomUUID()}`);
+    const deps: RetrieveDeps = {
+      db: requireDb(),
+      gateway,
+      config: { mode: "hybrid", k: 8, embedPurpose: "embedding" },
+    };
+
+    const result = await retrieve(deps, { question: nonce });
+
+    expect(result.mode).toBe("hybrid");
+    expect(result.candidates.vector).toBe(0);
+    expect(result.candidates.fts).toBeGreaterThan(0);
+    expect(result.passages.length).toBeGreaterThan(0);
+    expect(result.passages.every((p) => p.vector === null)).toBe(true);
   });
 });
