@@ -39,16 +39,6 @@ Spec: specs/020-test-compose
 - [x] #11 Spec phase: Verification, re-grounding, cleanup
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -65,6 +55,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (phases 4-5: docs incl. db:migrate override; AC #5 proof 20/20 worker.integration with app stack up; 5 NEEDS-REVIEW + 3 RE-PIN-ONLY wiki notes; freshness OK 34). T017 check:env e2e self-skipped because TASK-0027's stack was up; the orchestrator will run it when no other stack is up, before the PR leaves draft.
+
+spec-bridge sync: Foundational — derivation and the test compose file: 6/6 · US2 — CI parity (Priority: P1): 2/2 · US1 + US3 — env machinery (Priority: P1/P2): 5/5 · US4 — documentation (Priority: P3): 2/2 · Verification, re-grounding, cleanup: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
