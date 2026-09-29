@@ -456,6 +456,68 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
     expect(expiredRedeem.status).toBe(400);
   });
 
+  it("TASK-0032: redeeming with a taken username is a conflict, not a 500", async () => {
+    const { user: operator } = await createTestUser(
+      "operator password long enough",
+      "operator",
+    );
+    const { username: takenUsername } = await createTestUser(
+      "existing account password",
+    );
+
+    const token = await createTestInvitation(operator.id);
+    const directResult = await redeemInvitation(requireDb(), {
+      token,
+      username: takenUsername,
+      displayName: "Conflicting Player",
+      password: "some password entirely",
+    });
+    expect(directResult).toEqual({ ok: false, reason: "conflict" });
+
+    const tokenUpper = await createTestInvitation(operator.id);
+    const upperResult = await redeemInvitation(requireDb(), {
+      token: tokenUpper,
+      username: takenUsername.toUpperCase(),
+      displayName: "Conflicting Player Upper",
+      password: "some password entirely",
+    });
+    expect(upperResult).toEqual({ ok: false, reason: "conflict" });
+
+    const routeToken = await createTestInvitation(operator.id);
+    const conflictRedeem = await requireApp().request(
+      "/auth/invitations/redeem",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          token: routeToken,
+          username: takenUsername,
+          displayName: "Conflicting Player Route",
+          password: "some password entirely",
+        }),
+      },
+    );
+    expect(conflictRedeem.status).toBe(409);
+    const conflictBody = (await conflictRedeem.json()) as {
+      error: { kind: string };
+    };
+    expect(conflictBody.error.kind).toBe("conflict");
+
+    // The invitation stayed unspent through both failed attempts: it
+    // still redeems with a fresh username.
+    const retryRedeem = await requireApp().request("/auth/invitations/redeem", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token: routeToken,
+        username: `retry-${randomUUID()}`,
+        displayName: "Retry Player",
+        password: "some password entirely",
+      }),
+    });
+    expect(retryRedeem.status).toBe(201);
+  });
+
   it("T035: simultaneous redemptions of one invitation create exactly one account (SC-005)", async () => {
     const db = requireDb();
     const { user: operator } = await createTestUser(

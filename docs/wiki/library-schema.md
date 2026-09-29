@@ -6,7 +6,7 @@ sources:
   - apps/server/src/schema/library.ts
   - apps/server/src/library/store.ts
   - apps/server/drizzle/0002_tiny_odin.sql
-verified_against: 10c40e8c1054c45e40832445d55d2bc5dc7184f7
+verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
 ---
 
 # Library schema
@@ -63,8 +63,9 @@ ingestion or by an agent through the same interface (constitution I):
 - `attachEmbeddings(db, rows)` — validates every row's `dim`/`vector.length === 1024` before
   any database call, then inserts all rows in one transaction. A duplicate `(chunkId, model)`
   anywhere in the batch throws `ConflictError` and writes nothing from that call — Postgres's
-  unique-violation error (`23505`) arrives wrapped in a `DrizzleQueryError`, so the
-  detector checks both `err.code` and `err.cause.code`.
+  unique-violation error (`23505`) arrives wrapped in a `DrizzleQueryError`, detected by the
+  shared `isUniqueViolation` in [[database-access]]'s `db.ts` (also used by [[invitations]]'s
+  redeem path), which checks both `err.code` and `err.cause.code`.
 
 **Immutability is a database trigger, not application logic** (research R4), the same pattern
 as `events`' append-only guard in [[database-schema]]: `library_immutable()` raises on any
@@ -79,7 +80,8 @@ Depends on [[ddb-parser]]'s `ParsedBook` shape as `storeParsedBook`'s input, and
 [[ai-gateway]]'s `embed()` output shape (`{vector, model, dim}`) as `attachEmbeddings`'s
 input — neither module imports the other directly. Migration mechanics (hand-added
 `CREATE EXTENSION IF NOT EXISTS vector;` and the trigger) follow the pattern in
-[[migrations]]. [[retrieval]] is this schema's read path — `library_chunks.tsv` and
+[[migrations]]. Shares its unique-violation detector with [[invitations]] via
+[[database-access]]. [[retrieval]] is this schema's read path — `library_chunks.tsv` and
 `library_embeddings.embedding` are queried, never written, by `retrieve.ts`. See
 [[database-schema]] for the session/auth-plane tables this note doesn't cover.
 

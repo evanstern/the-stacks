@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import type { ZodError } from "zod";
-import type { createDb } from "../db.js";
+import { type createDb, isUniqueViolation } from "../db.js";
 import { ConflictError, type ErrorIssue, ValidationError } from "../errors.js";
 import {
   libraryChunks,
@@ -46,20 +46,6 @@ export interface StoreParsedBookResult {
 // limit per statement so an ~8,000-chunk book (the PHB, research R6/SC-005)
 // inserts in a handful of round trips rather than exceeding it.
 const CHUNK_INSERT_BATCH_SIZE = 2000;
-
-const POSTGRES_UNIQUE_VIOLATION = "23505";
-
-// Similar shape to auth/invitations.ts's isUniqueViolation, but also checks
-// `.cause`: drizzle-orm wraps every driver error in a DrizzleQueryError, so
-// the pg driver's own `code` lands on `err.cause`, not `err` itself.
-function isUniqueViolation(err: unknown): boolean {
-  const code = (err as { code?: unknown })?.code;
-  const causeCode = (err as { cause?: { code?: unknown } })?.cause?.code;
-  return (
-    code === POSTGRES_UNIQUE_VIOLATION ||
-    causeCode === POSTGRES_UNIQUE_VIOLATION
-  );
-}
 
 function zodIssues(error: ZodError): ErrorIssue[] {
   return error.issues.map((issue) => ({

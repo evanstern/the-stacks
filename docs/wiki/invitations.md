@@ -6,7 +6,7 @@ sources:
   - apps/server/src/auth/invitations.ts
   - apps/server/src/auth/tokens.ts
   - apps/server/src/routes/auth.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
 ---
 
 # Invitations
@@ -50,7 +50,9 @@ refusals every time — exactly one account created per run, with the 19 losers'
 account inserts rolled back cleanly (no orphan accounts).
 
 A username collision on the speculative insert surfaces as a Postgres unique-violation
-(`23505`, detected via `isUniqueViolation`), reported to the caller as
+(`23505`) wrapped in a `DrizzleQueryError`, detected by the shared `isUniqueViolation` in
+[[database-access]]'s `db.ts` (it checks both `err.code` and `err.cause.code`, since drizzle
+puts the driver's own code on `.cause`), reported to the caller as
 `{ ok: false, reason: "conflict" }` — distinct from an invalid/expired/already-redeemed token,
 which is reported as `{ ok: false, reason: "invalid" }`.
 
@@ -65,8 +67,8 @@ tokens once existed.
 
 Depends on [[password-hashing]] (`hashPassword` for the new account) and shares
 `generateToken`/`hashToken` with [[session-auth]]'s session tokens. Backed by
-[[database-schema]]'s `invitations`/`users` tables. Errors surface through
-[[error-contract]].
+[[database-schema]]'s `invitations`/`users` tables. Shares its unique-violation detector with
+[[library-schema]] via [[database-access]]. Errors surface through [[error-contract]].
 
 ## Operational notes
 
