@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 08:48'
+updated_date: '2026-09-30 09:10'
 labels:
   - ui
 milestone: m-1
@@ -29,7 +29,7 @@ Spec: specs/024-chat-ui
 - [ ] #2 Answers stream into the chat as they generate
 - [ ] #3 Clicking a citation opens the source passage with the quoted span highlighted
 - [ ] #4 The M1 demo runs in two browsers from the per-worktree stack
-- [ ] #5 Spec phase: Foundation — theme, cookies, load context, store, panel, shell
+- [x] #5 Spec phase: Foundation — theme, cookies, load context, store, panel, shell
 - [ ] #6 Spec phase: US1 — Upload a book and watch it ingest (P1)
 - [ ] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
 - [ ] #8 Spec phase: US3 — Open a citation's source passage (P1)
@@ -114,6 +114,8 @@ Spec 024 plan cycle landed (9bfad00): plan, research, quickstart, tasks (55 task
 Operator plan checkpoint 2026-09-30: all 7 approved as recommended (no new deps; Sheet under no-modals with the rescoped dialog gate; Library at /books; inline SVG icons; StacksLoadContext.jobs(); client-written UI cookies; recording artifacts). Implementation phase 1 dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 done (e7b0de9): Daylight tokens + --input, UI cookies, StacksLoadContext.jobs(), app store, Sheet panel, inline icons, role-aware shell; web tests 23/23, server 413/0/5, ci:check exit 0; no dependency drift (verified); the shadcn CLI again added the "cn" package, reverted. Stack up on :3028. Phase 2 (US1 upload + status) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
