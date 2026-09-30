@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 02:15'
+updated_date: '2026-09-30 02:29'
 labels:
   - ui
 milestone: m-1
@@ -68,6 +68,15 @@ Operator rulings 2026-09-29:
 
 Round 2 landed (44498fa): docs/design/chat-ui/round-2/index.html. Direction A developed as one layout in two palettes: a2-daylight (teal #0f6f63 light / #4fd1c0 dark) and a2-nightshift (violet #a48cf0 dark / #6d3fd1 light); all four combinations pass WCAG AA (6.0:1 or better). Shell: left sidebar Ask | Library | Table, collapsible to icons; Ask = session list (SES, TASK-0039) + conversation with a ready-books strip and "Add a book" link + pinned collapsible source pane; Library page = dropzone, upload card with progress, recent imports with stage stepper (0028), books table with Delete/Re-import (LIB, TASK-0038); Table = M0 play session, operator sidebar vs player sidebar (Table only) side by side for AC #4. Mobile: bottom tabs, Chat|Source segmented control, session sheet. 22 states; Brave screenshots light+dark at 1280+390.
 Asked of the operator: palette pick, plus the six open questions in round-2/index.html (session titles, Add-a-book navigate vs overlay, sidebar collapse persistence, operator sidebar on Table, search-only book state lifecycle).
+
+Round 2 operator rulings 2026-09-29:
+1. Palette: Daylight (teal) in both light and dark. Nightshift rejected.
+2. Session titles AI-generated from the first prompt; rename + delete added as ACs on TASK-0039 (688fa53 on main).
+3. "Add a book" = adding a source to the session knowledge base: a slide-out panel or autocomplete dropdown for quick add and management of sources. Standing rule: NO MODALS (bad on mobile, painful UX); use slide-in/out panels or autocomplete dropdowns. Per-session source selection needs an ask contract change, so it ships in TASK-0039; TASK-0028 ships the panel as a library-wide view plus the upload entry.
+4. Collapsed sidebar remembered per browser.
+5. Sidebar shows what each role can see (operator: Ask, Library, Table; player: Table).
+6. Book without embeddings stays keyword-searchable; "Embed now" is offered whenever a model is available, never forced (TASK-0038 note, c2de7fa on main).
+Round 3 (narrow): the sources control in two mechanisms (slide-out panel vs autocomplete dropdown), the delete confirmation moved off <dialog>, and the search-only book with Embed now, all in Daylight.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
