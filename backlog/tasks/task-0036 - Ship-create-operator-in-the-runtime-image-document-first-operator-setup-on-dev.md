@@ -35,12 +35,6 @@ Spec: specs/023-create-operator-image
 - [x] #7 Spec phase: Verification, local proof, re-grounding, cleanup
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -49,6 +43,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (all phases, one grouped dispatch: CLI moved to src/cli, compiled into dist; local proof create exit 0 / second run refuses exit 1 / dev-shaped command works; freshness OK 36). Orchestrator verified: no Dockerfile or .claude change; check:host-scripts drops only auth/password.ts and schema/auth.ts (imported only by the old uncompiled script).
+
+spec-bridge sync: US1 + US2 — compiled entry point (Priority: P1): 6/6 · US3 — runbook and docs (Priority: P2): 2/2 · Verification, local proof, re-grounding, cleanup: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
