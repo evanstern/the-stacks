@@ -1,5 +1,5 @@
 import os from "node:os";
-import type { WebRequestHandler } from "@the-stacks/shared";
+import type { LibraryJob, WebRequestHandler } from "@the-stacks/shared";
 import { Hono } from "hono";
 import { createIdentityLookup } from "./auth/identity.js";
 import type { DbClient } from "./auth/session.js";
@@ -7,6 +7,7 @@ import { createValidateSession } from "./auth/session.js";
 import type { DatabaseProbe } from "./db.js";
 import { errorHandler, notFoundHandler } from "./errors.js";
 import type { AnswerDeps } from "./library/answer.js";
+import { listJobs } from "./library/ingest/jobs.js";
 import { createAuthRoutes } from "./routes/auth.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
@@ -19,10 +20,11 @@ const DEFAULT_UPLOAD_MAX_BYTES = 1_073_741_824;
 export interface CreateAppOptions {
   databaseProbe: DatabaseProbe;
   db: DbClient;
-  /** Web app mount overrides — tests inject both to point at a fixture and a fake handler (plan D4). */
+  /** Web app mount overrides — tests inject these to point at a fixture, a fake handler, or a fake jobs list (plan D2, D4). */
   web?: {
     clientRoot?: string;
     handler?: () => Promise<WebRequestHandler>;
+    listJobs?: (limit: number) => Promise<LibraryJob[]>;
   };
   /** Git commit surfaced at /health (config.ts). Defaults to "unknown" for tests. */
   commit?: string;
@@ -85,6 +87,7 @@ export function createApp({
       clientRoot: web?.clientRoot,
       handler: web?.handler,
       lookup: identityLookup,
+      listJobs: web?.listJobs ?? ((limit) => listJobs(db, limit)),
     }),
   );
   return app;

@@ -28,27 +28,33 @@ the piloted run, and the Brave recording.
 
 ## Phase 1: Foundation — theme, cookies, load context, store, panel, shell
 
-- [ ] T001 [P] Rewrite the token blocks in `apps/web/app/app.css` per plan D6: Daylight hex values in `:root`, the `prefers-color-scheme: dark` block guarded by `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`. Add `--input`, `--mark`, `--mark-foreground`, `--destructive-surface`, `--ok`, `--ok-surface`, `--proc`, `--proc-surface`, `--queued-surface`. Map every token in `@theme inline`. Set `--font-sans` and `--font-mono`.
-- [ ] T002 In `apps/web/app/app.css`, replace the `dark` custom variant with plan D6's block variant. Add the `narrow` variant, `color-scheme` rules, the global `:focus-visible` outline, and the four panel keyframes with a `prefers-reduced-motion` override.
-- [ ] T003 [P] Create `apps/web/test/contrast.test.mjs` per plan D15 and research R12. Run `pnpm --filter @the-stacks/web test`. Expect it green.
-- [ ] T004 [P] Create `apps/web/app/ui-prefs.ts` (`readUiPrefs`, `uiCookie`) per plan D5. Create `apps/web/test/ui-prefs.test.mjs`.
-- [ ] T005 In `apps/web/app/root.tsx`, return `{ user, ui }` from the loader. In `Layout`, set `data-theme` on `<html>` from `useRouteLoaderData("root")` for `light` and `dark` only.
-- [ ] T006 [P] In `packages/shared/src/web.ts`, add `LibraryJob`, `LibraryJobResult`, and `StacksLoadContext.jobs()` per plan D2, citing `http-ingest.md`.
-- [ ] T007 In `apps/server/src/web.ts`, `static.ts`, and `app.ts`, implement `jobs()` per plan D2: pass `listJobs` into `createWebMiddleware`, return `null` without a query for no user or a non-operator, and `listJobs(100)` for an operator.
-- [ ] T008 [P] In `apps/server/test/static.test.ts`, assert the handler's context `jobs()` resolves `null` with no cookie and never calls the injected `listJobs`.
-- [ ] T009 [P] In `apps/server/test/library/jobs.integration.test.ts`, add one case: a load context for an operator token returns an inserted job; for a player token it returns `null`. Keep the file's skip shape.
-- [ ] T010 [P] Create `apps/web/app/components/icons.tsx` per plan D9, with paths from `docs/design/chat-ui/round-2/a2-daylight.html` lines 185–197.
-- [ ] T011 From `apps/web`, run `pnpm dlx shadcn@4.21.0 add sheet`. Replace the `lucide-react` `XIcon` import with `CloseIcon`. Replace `tw-animate-css` classes with the T002 keyframes. Revert any `package.json` change the CLI made. Confirm `git diff apps/web/package.json pnpm-lock.yaml` is empty.
-- [ ] T012 Create `apps/web/app/components/panel.tsx` per plan D7: controlled `open`/`onOpenChange`, `title`, optional `description` and `id`; right edge on desktop, bottom sheet under `narrow:`; close control labelled "Close"; dim overlay.
-- [ ] T013 [P] Create `apps/web/test/no-dialog.test.mjs` per plan D7: no `dialog.tsx` or `alert-dialog.tsx` in `components/ui`; zero `<dialog`, `showModal`, or `AlertDialog` in `apps/web/app`; the word `Dialog` only in `components/ui/sheet.tsx`.
-- [ ] T014 Create `apps/web/app/store/app-store.ts` and `store/provider.tsx` per plan D8, with state, `subscribe`, `dispose`, and `onUnauthorized`. Leave the ask, upload, and jobs actions as stubs for Phases 2–4.
-- [ ] T015 Create `apps/web/app/shell/shell.tsx` per plan D13: role-aware links, collapse toggle writing `stacks-sidebar`, `data-sidebar` from root data, bottom tab bar under `narrow:`, user name, role, and Sign out.
-- [ ] T016 Create `apps/web/app/shell/operator-only.tsx`, taking the message as a prop.
-- [ ] T017 In `apps/web/app/root.tsx`, render `<AppStoreProvider key={user.id}><Shell><Outlet/></Shell></AppStoreProvider>` for a signed-in user. Keep `<SignIn />` for `null`.
-- [ ] T018 In `apps/web/app/routes.ts`, declare `index`, `ask`, `books`, `play`, `play/:sessionId`, and `settings` per plan D4. Rewrite `routes/home.tsx` as a loader-only redirect: operator → `/ask`, player → `/play`.
-- [ ] T019 [P] Create `apps/web/app/routes/settings.tsx`: a System / Light / Dark radio group writing `stacks-theme`, setting `data-theme` at once, then revalidating (plan D5, D14).
-- [ ] T020 In `apps/web/test/ssr.test.mjs`, give the stub context `jobs()` with a call counter. Move the display-name case to `/ask`. Add the `/` redirect cases and the three cookie cases from plan D15.
-- [ ] T021 Run `pnpm --filter @the-stacks/web build && pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/server test`. Expect exit 0.
+- [x] T001 [P] Rewrite the token blocks in `apps/web/app/app.css` per plan D6: Daylight hex values in `:root`, the `prefers-color-scheme: dark` block guarded by `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`. Add `--input`, `--mark`, `--mark-foreground`, `--destructive-surface`, `--ok`, `--ok-surface`, `--proc`, `--proc-surface`, `--queued-surface`. Map every token in `@theme inline`. Set `--font-sans` and `--font-mono`.
+  - Deviation: dropped the unused `--chart-1..5` tokens (no Daylight design values exist for them and nothing renders a chart).
+- [x] T002 In `apps/web/app/app.css`, replace the `dark` custom variant with plan D6's block variant. Add the `narrow` variant, `color-scheme` rules, the global `:focus-visible` outline, and the four panel keyframes with a `prefers-reduced-motion` override.
+  - Deviation: the keyframes are wired to `[data-slot="sheet-content"][data-state]` directly in `app.css` rather than via Tailwind utility classes in the component, so T011/T012 need no animation classNames at all.
+- [x] T003 [P] Create `apps/web/test/contrast.test.mjs` per plan D15 and research R12. Run `pnpm --filter @the-stacks/web test`. Expect it green.
+- [x] T004 [P] Create `apps/web/app/ui-prefs.ts` (`readUiPrefs`, `uiCookie`) per plan D5. Create `apps/web/test/ui-prefs.test.mjs`.
+- [x] T005 In `apps/web/app/root.tsx`, return `{ user, ui }` from the loader. In `Layout`, set `data-theme` on `<html>` from `useRouteLoaderData("root")` for `light` and `dark` only.
+- [x] T006 [P] In `packages/shared/src/web.ts`, add `LibraryJob`, `LibraryJobResult`, and `StacksLoadContext.jobs()` per plan D2, citing `http-ingest.md`.
+- [x] T007 In `apps/server/src/web.ts`, `static.ts`, and `app.ts`, implement `jobs()` per plan D2: pass `listJobs` into `createWebMiddleware`, return `null` without a query for no user or a non-operator, and `listJobs(100)` for an operator.
+- [x] T008 [P] In `apps/server/test/static.test.ts`, assert the handler's context `jobs()` resolves `null` with no cookie and never calls the injected `listJobs`.
+- [x] T009 [P] In `apps/server/test/library/jobs.integration.test.ts`, add one case: a load context for an operator token returns an inserted job; for a player token it returns `null`. Keep the file's skip shape.
+- [x] T010 [P] Create `apps/web/app/components/icons.tsx` per plan D9, with paths from `docs/design/chat-ui/round-2/a2-daylight.html` lines 185–197.
+- [x] T011 From `apps/web`, run `pnpm dlx shadcn@4.21.0 add sheet`. Replace the `lucide-react` `XIcon` import with `CloseIcon`. Replace `tw-animate-css` classes with the T002 keyframes. Revert any `package.json` change the CLI made. Confirm `git diff apps/web/package.json pnpm-lock.yaml` is empty.
+  - Deviation: the CLI also added an unrelated `cn` package to `package.json`/`pnpm-lock.yaml` (not `lucide-react`/`tw-animate-css`, which were already left out of `sheet.tsx`'s own deps); reverted both files and re-ran `pnpm install` so the lockfile matches. `git diff` for both is empty.
+- [x] T012 Create `apps/web/app/components/panel.tsx` per plan D7: controlled `open`/`onOpenChange`, `title`, optional `description` and `id`; right edge on desktop, bottom sheet under `narrow:`; close control labelled "Close"; dim overlay.
+- [x] T013 [P] Create `apps/web/test/no-dialog.test.mjs` per plan D7: no `dialog.tsx` or `alert-dialog.tsx` in `components/ui`; zero `<dialog`, `showModal`, or `AlertDialog` in `apps/web/app`; the word `Dialog` only in `components/ui/sheet.tsx`.
+- [x] T014 Create `apps/web/app/store/app-store.ts` and `store/provider.tsx` per plan D8, with state, `subscribe`, `dispose`, and `onUnauthorized`. Leave the ask, upload, and jobs actions as stubs for Phases 2–4.
+  - Deviation: added `useAppStoreHandle()` alongside `useAppStore(selector)` — a stable accessor to the store instance itself, needed for Phase 2+ components to call its actions (not itself reactive).
+- [x] T015 Create `apps/web/app/shell/shell.tsx` per plan D13: role-aware links, collapse toggle writing `stacks-sidebar`, `data-sidebar` from root data, bottom tab bar under `narrow:`, user name, role, and Sign out.
+- [x] T016 Create `apps/web/app/shell/operator-only.tsx`, taking the message as a prop.
+- [x] T017 In `apps/web/app/root.tsx`, render `<AppStoreProvider key={user.id}><Shell><Outlet/></Shell></AppStoreProvider>` for a signed-in user. Keep `<SignIn />` for `null`.
+- [x] T018 In `apps/web/app/routes.ts`, declare `index`, `ask`, `books`, `play`, `play/:sessionId`, and `settings` per plan D4. Rewrite `routes/home.tsx` as a loader-only redirect: operator → `/ask`, player → `/play`.
+  - Deviation: `routes.ts` naming `routes/ask.tsx`, `routes/books.tsx`, and `routes/table.tsx` (for `/play`) needs those files to exist to build; added minimal placeholder components (no loader) for each, clearly commented as placeholders for Phases 2/3/5's own "Create" tasks, which replace them fully.
+  - Deviation: `routes/home.tsx`'s default export can't be omitted — React Router treats a route module with no component as a resource route and serves the loader's raw JSON instead of the document, which broke the signed-out "/" case. Added a trivial `() => null` default export, documented as unreachable (root renders `<SignIn/>` for nobody; the loader always redirects a signed-in person).
+- [x] T019 [P] Create `apps/web/app/routes/settings.tsx`: a System / Light / Dark radio group writing `stacks-theme`, setting `data-theme` at once, then revalidating (plan D5, D14).
+- [x] T020 In `apps/web/test/ssr.test.mjs`, give the stub context `jobs()` with a call counter. Move the display-name case to `/ask`. Add the `/` redirect cases and the three cookie cases from plan D15.
+- [x] T021 Run `pnpm --filter @the-stacks/web build && pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/server test`. Expect exit 0. Both exit 0 (web: 23/23 tests; server: 413 passed, 5 skipped against a migrated `TEST_DATABASE_URL`).
 
 **Checkpoint**: signed-in pages render inside the shell in Daylight, with the theme and sidebar from cookies and no flash.
 

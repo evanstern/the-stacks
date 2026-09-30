@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { serveStatic } from "@hono/node-server/serve-static";
-import type { WebRequestHandler } from "@the-stacks/shared";
+import type { LibraryJob, WebRequestHandler } from "@the-stacks/shared";
 import type { MiddlewareHandler } from "hono";
 import type { IdentityLookup } from "./auth/identity.js";
 import { createWebLoadContext } from "./web.js";
@@ -68,6 +68,8 @@ export interface CreateWebMiddlewareOptions {
   /** Override for the SSR handler loader — tests inject a fake. */
   handler?: () => Promise<WebRequestHandler>;
   lookup: IdentityLookup;
+  /** Newest N jobs, as GET /library/jobs serves them (plan D2). */
+  listJobs: (limit: number) => Promise<LibraryJob[]>;
 }
 
 /**
@@ -80,6 +82,7 @@ export function createWebMiddleware({
   clientRoot = DEFAULT_CLIENT_ROOT,
   handler = loadDefaultHandler,
   lookup,
+  listJobs,
 }: CreateWebMiddlewareOptions): MiddlewareHandler {
   const serve = serveStatic({ root: clientRoot });
 
@@ -101,6 +104,6 @@ export function createWebMiddleware({
     // handler, which renders the matching route or its own 404 (plan D4 —
     // an unknown non-reserved path is no longer a 200 shell).
     const handle = await handler();
-    return handle(c.req.raw, createWebLoadContext(c, lookup));
+    return handle(c.req.raw, createWebLoadContext(c, { lookup, listJobs }));
   };
 }

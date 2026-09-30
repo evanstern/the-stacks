@@ -6,9 +6,24 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { handle } from "../build/server/index.js";
 
-/** A stub StacksLoadContext (plan D2) — no server, no cookie, no database. */
-function stubContext(user) {
-  return { identity: async () => user };
+/**
+ * A stub StacksLoadContext (plan D2) — no server, no cookie, no database.
+ * `jobs()` mirrors the real rule (null for no user or a non-operator) and
+ * counts its own calls, so a test can assert it was never touched (T020).
+ */
+function stubContext(user, jobsList = []) {
+  let jobsCallCount = 0;
+  return {
+    identity: async () => user,
+    async jobs() {
+      jobsCallCount += 1;
+      if (user?.role !== "operator") return null;
+      return jobsList;
+    },
+    get jobsCallCount() {
+      return jobsCallCount;
+    },
+  };
 }
 
 test("/ signed out shows the sign-in form", async () => {
@@ -18,14 +33,64 @@ test("/ signed out shows the sign-in form", async () => {
   assert.match(html, /<form/);
 });
 
-test("/ signed in shows the display name", async () => {
+test("/ as operator redirects to /ask", async () => {
   const res = await handle(
     new Request("http://localhost/"),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+  );
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get("location"), "/ask");
+});
+
+test("/ as player redirects to /play", async () => {
+  const res = await handle(
+    new Request("http://localhost/"),
+    stubContext({ id: "u2", displayName: "Rin", role: "player" }),
+  );
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get("location"), "/play");
+});
+
+test("/ask signed in shows the display name", async () => {
+  const res = await handle(
+    new Request("http://localhost/ask"),
     stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
   );
   assert.equal(res.status, 200);
   const html = await res.text();
   assert.match(html, /Ada Lovelace/);
+});
+
+test("cookie stacks-theme=dark sets data-theme on <html>", async () => {
+  const res = await handle(
+    new Request("http://localhost/ask", {
+      headers: { cookie: "stacks-theme=dark" },
+    }),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+  );
+  const html = await res.text();
+  assert.match(html, /<html[^>]*data-theme="dark"/);
+});
+
+test("cookie stacks-sidebar=collapsed sets data-sidebar on the shell", async () => {
+  const res = await handle(
+    new Request("http://localhost/ask", {
+      headers: { cookie: "stacks-sidebar=collapsed" },
+    }),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+  );
+  const html = await res.text();
+  assert.match(html, /data-sidebar="collapsed"/);
+});
+
+test("no UI cookie sets neither data-theme nor data-sidebar", async () => {
+  const res = await handle(
+    new Request("http://localhost/ask"),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+  );
+  const html = await res.text();
+  assert.doesNotMatch(html, /data-theme="/);
+  assert.doesNotMatch(html, /data-sidebar="/);
 });
 
 test("/play/<uuid> shows the hydrate fallback and no event list", async () => {
