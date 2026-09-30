@@ -192,4 +192,4 @@ the transcript.
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-30 | (runbook) | — | — | — | Authored as draft from the TASK-0028 session, in the TASK-0040 claim commit. Awaiting lane sign-off. |
 | 2026-09-30 | (runbook) | — | — | — | Signed off by the operator. Spec 025 dispatched to opus. |
-| 2026-09-30 | TASK-0040 | — | — | — | In flight. Spec 025 (3094e99) + amendment (ba7d16c, checkpoints approved). phases: 1 done (cab046d), 2 done (2565447), 3 done (177778d), 4 dispatched. |
+| 2026-09-30 | TASK-0040 | — | — | — | In flight. Spec 025 (3094e99) + amendment (ba7d16c, checkpoints approved). phases: 1 done (cab046d), 2 done (2565447), 3 done (177778d), 4 done (3f90c7c), 5 dispatched. |
