@@ -77,6 +77,9 @@ Round 2 operator rulings 2026-09-29:
 5. Sidebar shows what each role can see (operator: Ask, Library, Table; player: Table).
 6. Book without embeddings stays keyword-searchable; "Embed now" is offered whenever a model is available, never forced (TASK-0038 note, c2de7fa on main).
 Round 3 (narrow): the sources control in two mechanisms (slide-out panel vs autocomplete dropdown), the delete confirmation moved off <dialog>, and the search-only book with Embed now, all in Daylight.
+
+Round 3 mock build dispatched: sources control as slide-out panel (P) vs autocomplete dropdown (D), inline delete confirm, Embed now, role sidebars; Daylight only; no modals.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
