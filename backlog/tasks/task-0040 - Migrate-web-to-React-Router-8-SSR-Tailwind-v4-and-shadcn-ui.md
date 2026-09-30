@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 03:22'
+updated_date: '2026-09-30 03:51'
 labels:
   - ui
 milestone: m-1
@@ -40,6 +40,11 @@ Spec: specs/025-frontend-stack
 - [ ] #7 The M0 two-browser echo demo still passes from the per-worktree stack and the container image
 - [ ] #8 docs/design/architecture.md A1 Client row is updated to cite doc-0003
 - [ ] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
+- [ ] #10 Spec phase: Setup and dependencies
+- [ ] #11 Spec phase: Server mount and load context (US3, US4)
+- [ ] #12 Spec phase: Route port (US1, US2)
+- [ ] #13 Spec phase: Styling foundation (US5)
+- [ ] #14 Spec phase: Verification, evidence, re-grounding
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -49,6 +54,8 @@ Claimed 2026-09-30 by the TASK-0028 design-rounds session, running the sweep per
 
 Spec 025 authoring dispatched (spec, plan, research, quickstart, tasks; standing spec-authoring ruling 2026-09-29). Stops at the dependency checkpoint after plan.md.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Spec 025 landed (3094e99): spec, plan, research, quickstart, tasks (48 tasks, 5 phases); phase ACs seeded. Plan checkpoint pending operator: dependency table (react-router 8.4.0, @react-router/node, isbot, radix-ui, cva, clsx, tailwind-merge; dev: @react-router/dev, tailwindcss, @tailwindcss/vite; TanStack Router+Query and @vitejs/plugin-react removed), hand-written Hono bridge (no adapter package), /library added to RESERVED_PREFIXES (code omits it today), unknown paths 404 instead of the 200 shell, no hot-reload dev server, constitution Stack row amendment.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
