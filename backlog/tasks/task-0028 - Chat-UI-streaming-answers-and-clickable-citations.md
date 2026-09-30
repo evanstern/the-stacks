@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 02:44'
+updated_date: '2026-09-30 02:55'
 labels:
   - ui
 milestone: m-1
@@ -86,6 +86,8 @@ Round 3 landed (c91a057, fix 1856a0d): docs/design/chat-ui/round-3/index.html. D
 - D Sources dropdown: removable book chips above the prompt plus "+ Add source" (or "@" in the prompt) opens an upward autocomplete; not-ready books listed disabled with a reason; last row "Upload a new book…" expands an inline upload row. Mobile: full-width list above the prompt.
 Both: inline delete confirm row in the books table (no modal), Embed now → "Embedding · 120 of 214 chunks", role sidebars. Ownership: control + status + add-a-book = 0028; per-session checkboxes/chips = SES (TASK-0039); Embed now + Delete = LIB (TASK-0038). Known mock artifact: D state 2 dropdown top clips at the frame edge.
 Asked of the operator: P or D (or hybrid, e.g. D chips for per-session selection + P panel for management).
+
+Round 3 operator selection 2026-09-29: P (sources slide-out panel). Modifications: the Sources button gets an openable cue (leading icon, chevron, button styling, aria-expanded); the slide-out panel becomes a reusable component, the standard replacement for modals and dropdown menus. Decision record: docs/design/chat-ui/decision.md (179d4a5). Rounds closed; next: spec 024 authoring against the decision.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
