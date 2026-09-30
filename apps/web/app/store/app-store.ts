@@ -17,8 +17,8 @@ import { classifyUploadResponse, sendUpload } from "~/library/upload";
  * (`store/provider.tsx`). Never a module-level singleton — SSR would share
  * it across requests and users.
  *
- * This phase (US2) fills in `ask`/`stop`/`retry` (plan D10). Phase 4 adds
- * `openCitation`.
+ * Phase 3 (US2) filled in `ask`/`stop`/`retry` (plan D10). This phase
+ * (US3) adds `openCitation` (plan D8, D11).
  */
 
 export interface UploadState {
@@ -29,6 +29,12 @@ export interface UploadState {
   error: string | null;
 }
 
+/** Which citation is open in the source pane (plan D11): a turn id and its `n`. */
+export interface OpenCitation {
+  turnId: string;
+  n: number;
+}
+
 export interface AppState {
   jobs: LibraryJob[] | null;
   forbidden: boolean;
@@ -36,6 +42,8 @@ export interface AppState {
   turns: Turn[];
   /** FR-027: set on an empty question or a 400 from /library/ask. */
   askError: string | null;
+  /** FR-033: the citation the source pane shows. */
+  openCitation: OpenCitation | null;
 }
 
 export interface AppStoreOptions {
@@ -60,6 +68,8 @@ export interface AppStore {
   stop(): void;
   /** Re-asks a turn's question, replacing it in place (FR-029). */
   retry(turnId: string): void;
+  /** Opens a citation's passage in the source pane (FR-033). */
+  openCitation(turnId: string, n: number): void;
 }
 
 const INITIAL_STATE: AppState = {
@@ -68,6 +78,7 @@ const INITIAL_STATE: AppState = {
   upload: null,
   turns: [],
   askError: null,
+  openCitation: null,
 };
 const POLL_MS = 1500;
 
@@ -267,6 +278,10 @@ export function createAppStore({ onUnauthorized }: AppStoreOptions): AppStore {
     askController?.abort();
   }
 
+  function openCitation(turnId: string, n: number) {
+    setState({ openCitation: { turnId, n } });
+  }
+
   function retry(turnId: string) {
     if (askController) return;
     const turn = state.turns.find((t) => t.id === turnId);
@@ -301,5 +316,6 @@ export function createAppStore({ onUnauthorized }: AppStoreOptions): AppStore {
     ask,
     stop,
     retry,
+    openCitation,
   };
 }

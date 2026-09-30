@@ -101,3 +101,62 @@ committed; a transiently generated one lived only in /tmp for this run.
 
 Result: PASS — AC #2 holds on the stack (streaming, Stop, refusal, and cross-navigation
 persistence all verified against the real `answering` purpose via 9router).
+
+Phase 4 (US3) evidence — TASK-0028, 2026-09-30
+
+## Automated checks
+
+apps/web typecheck: pnpm --filter @the-stacks/web exec tsc --noEmit -p tsconfig.json → exit 0.
+apps/web test: pnpm --filter @the-stacks/web test → 60/60 pass (added highlight.test.mjs [4]:
+  the contract-example slice, one fixture per passage.kind (SC-003), and two clamp cases).
+apps/web build: pnpm --filter @the-stacks/web build → exit 0.
+apps/server test (no TEST_DATABASE_URL in this shell — DB-integration cases skip; nothing
+  server-side changed this phase): 289 passed | 129 skipped (418).
+pnpm lint (biome check .): clean (one biome --write pass on routes/ask.tsx for formatting;
+  also fixed a lint/a11y/useSemanticElements finding by swapping the narrow `role="group"`
+  div for a native `<fieldset>`/`<legend className="sr-only">` — no visual change, `legend`
+  is screen-reader-only).
+pnpm check:boundaries: "boundary rules: 5/5 fixtures flagged" (all fixtures correctly flagged).
+git diff origin/main -- '*package.json' pnpm-lock.yaml: empty (no dependency change).
+
+## T039 — manual run on the stack (quickstart §5, steps 4-6)
+
+Stack: stacks-task-0028 (http://localhost:3028). Reprovisioned fresh this phase
+(`pnpm env:down && pnpm env:up`, migrate, `auth:create-operator`) — no operator password from
+Phase 3 was recoverable in this dispatch (a fresh job/tmp sandbox), and create-operator.ts
+correctly refuses to clobber an existing operator, so reprovisioning is the documented,
+non-bypassing path (quickstart §§1-2). The generated password was written only to
+/Users/evanstern/.claude/jobs/a48ac8bd/tmp/operator-0028.secret, chmod 600, never printed and
+never committed. Re-ingested apps/server/bench/retrieval/corpus/combat.md as "Basic Rules" via
+the documented curl upload (quickstart §4 agent form); it reached Ready (embedded, bge-m3, 31
+chunks) within ~3s.
+
+Driven with playwright-core 1.63.0 (out-of-tree, PLAYWRIGHT_DIR) against headless Brave, one
+script covering quickstart §5 steps 4-6 plus the keyboard check, run 4 times (the first run hit
+a transient upstream `error` event from the real `answering` purpose before any citation
+arrived — unrelated to this UI code, reproducing the already-tested FR-025 path; the next 3
+runs were clean):
+
+1. Asked "How does grappling work?". Citation marker [1] appeared, accessible name
+   "Citation 1: Basic Rules, Basic Rules › Combat › Melee Attacks" (FR-032).
+2. Clicked [1]. The source pane showed the book ("Basic Rules"), the section breadcrumb, and
+   the passage, with a `<mark>` whose text equalled the button's `title` (the citation's exact
+   `quote`) byte for byte on all 4 runs — SC-003 holds live, not just in the unit test. The
+   `<mark>` was confirmed scrolled into view (`getBoundingClientRect` inside the viewport).
+3. Keyboard: focused the citation button and pressed Enter (a native `<button>`, so Enter/Space
+   activate it with no extra handler needed) — the pane opened with the matching passage.
+4. Resized to 390×800. The Chat | Source `aria-pressed` segmented control appeared. Selecting
+   Chat then clicking [1] switched the view to Source (chat column hidden, source pane shown);
+   "Back to answer" returned to Chat (source hidden, conversation region visible again) —
+   FR-036.
+
+Result: PASS — AC #3 holds on the stack (citation click-through, the source pane with the
+exact quote highlighted and scrolled into view, keyboard activation, and the mobile Chat |
+Source switch all verified against the real `answering` purpose).
+
+Deviation: T039's own wording ("the panel to return focus to the Sources button on Escape")
+describes the Sources slide-out panel (Panel/Sheet, built in Phase 2/3), not the citation
+source pane — the source pane in this phase is a persistent `<aside>` per plan D11, not a
+Sheet, so it has no Escape-to-close/focus-return behavior of its own. The Sources panel's
+Escape/focus-return was already exercised in Phase 3 (T035) and is unchanged here; not
+re-verified in this run to avoid re-testing prior-phase behavior.

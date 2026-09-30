@@ -88,10 +88,16 @@ the piloted run, and the Brave recording.
 
 ## Phase 4: US3 — Open a citation's source passage (P1)
 
-- [ ] T036 [P] [US3] Create `apps/web/app/ask/highlight.ts` (`splitPassage`). Create `apps/web/test/highlight.test.mjs` asserting `marked === quote` for the contract example and one citation per `passage.kind` (SC-003).
-- [ ] T037 [US3] In `routes/ask.tsx`, render citation markers as buttons with FR-032's accessible name, and the source pane per plan D11: book, section path joined by " › ", kind label, `whitespace-pre-wrap`, monospace for tables, `<mark>` for the quote, "No citation selected.", collapse with `aria-expanded`.
-- [ ] T038 [US3] In `routes/ask.tsx`, add the `narrow:` Chat | Source control: a citation opens Source; "Back to answer" returns to Chat.
-- [ ] T039 [US3] On the stack, run quickstart §5 steps 4–6. Expect the highlight to equal the quote and the panel to return focus to the Sources button on Escape.
+- [x] T036 [P] [US3] Create `apps/web/app/ask/highlight.ts` (`splitPassage`). Create `apps/web/test/highlight.test.mjs` asserting `marked === quote` for the contract example and one citation per `passage.kind` (SC-003).
+- [x] T037 [US3] In `routes/ask.tsx`, render citation markers as buttons with FR-032's accessible name, and the source pane per plan D11: book, section path joined by " › ", kind label, `whitespace-pre-wrap`, monospace for tables, `<mark>` for the quote, "No citation selected.", collapse with `aria-expanded`.
+- [x] T038 [US3] In `routes/ask.tsx`, add the `narrow:` Chat | Source control: a citation opens Source; "Back to answer" returns to Chat.
+- [x] T039 [US3] On the stack, run quickstart §5 steps 4–6. Expect the highlight to equal the quote and the panel to return focus to the Sources button on Escape.
+  - Deviation: "the panel to return focus to the Sources button on Escape" describes the
+    Sources slide-out panel (Sheet, Phase 2/3), not this phase's citation source pane, which
+    is a persistent `<aside>` (plan D11) with no Escape/focus-trap of its own. That prior
+    behavior was verified in Phase 3 (T035) and is unchanged; this run verified the source
+    pane's own scope instead: click-through, the exact-quote `<mark>` scrolled into view,
+    keyboard (Tab + Enter) activation, and the 390px Chat | Source switch. See ci-evidence.txt.
 
 **Checkpoint**: AC #3 holds on the stack.
 
