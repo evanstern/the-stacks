@@ -106,12 +106,22 @@ repo-wide `pnpm lint` gate required by T037 exits 0; no other content in the fil
 
 ## Phase 5: Hot-reload dev mode (US7)
 
-- [ ] T049 [US7] Run `pnpm --filter @the-stacks/server add -D vite@^8.3.0`. In `apps/server/package.json`, add `"dev": "tsc -b && STACKS_WEB_DEV=1 node --env-file-if-exists=../../.env dist/index.js"`. In root `package.json`, add `"dev": "pnpm --filter @the-stacks/server dev"`.
-- [ ] T050 [P] [US7] In `apps/server/src/static.ts`, export `isReservedPath` (plan D4).
-- [ ] T051 [US7] Create `apps/server/src/web-dev.ts` as plan D7: dynamic `import("vite")`, `createServer` in middleware mode with `appType: "custom"` and `hmr.port` from `WEB_HMR_PORT` (default 24678), and a `handler` that calls `ssrLoadModule("/server.ts")` per request. Resolve `webRoot` from `import.meta.url`.
-- [ ] T052 [US7] In `apps/server/src/index.ts`, when `STACKS_WEB_DEV === "1"`, `await import("./web-dev.js")` and pass its `handler` as `web.handler`. Pass `serve()` a `createServer` wrapper: a non-reserved request runs through Vite's `middlewares` first, then Hono; a reserved request goes straight to Hono. Keep `gateway.attach(server)`. Import neither `vite` nor `web-dev.js` statically.
-- [ ] T053 [US7] Run `pnpm --filter @the-stacks/server build`. Run `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js`. Expect zero hits.
-- [ ] T054 [US7] Run the dev-mode check (quickstart.md §2) after Phase 4. Record each step's result in `specs/025-frontend-stack/ci-evidence.txt`.
+- [x] T049 [US7] Run `pnpm --filter @the-stacks/server add -D vite@^8.3.0`. In `apps/server/package.json`, add `"dev": "tsc -b && STACKS_WEB_DEV=1 node --env-file-if-exists=../../.env dist/index.js"`. In root `package.json`, add `"dev": "pnpm --filter @the-stacks/server dev"`.
+- [x] T050 [P] [US7] In `apps/server/src/static.ts`, export `isReservedPath` (plan D4).
+- [x] T051 [US7] Create `apps/server/src/web-dev.ts` as plan D7: dynamic `import("vite")`, `createServer` in middleware mode with `appType: "custom"` and `hmr.port` from `WEB_HMR_PORT` (default 24678), and a `handler` that calls `ssrLoadModule("/server.ts")` per request. Resolve `webRoot` from `import.meta.url`.
+- [x] T052 [US7] In `apps/server/src/index.ts`, when `STACKS_WEB_DEV === "1"`, `await import("./web-dev.js")` and pass its `handler` as `web.handler`. Pass `serve()` a `createServer` wrapper: a non-reserved request runs through Vite's `middlewares` first, then Hono; a reserved request goes straight to Hono. Keep `gateway.attach(server)`. Import neither `vite` nor `web-dev.js` statically.
+- [x] T053 [US7] Run `pnpm --filter @the-stacks/server build`. Run `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js`. Expect zero hits.
+- [x] T054 [US7] Run the dev-mode check (quickstart.md §2) after Phase 4. Record each step's result in `specs/025-frontend-stack/ci-evidence.txt`.
+
+**Deviation (T050):** `isReservedPath` was already exported from `static.ts` during Phase 2/3
+(T013), ahead of this task — plan D4 called for it there too. No code change needed here.
+
+**Deviation (T054):** ran `pnpm dev` on `APP_PORT=3041` (a free host port) instead of
+stopping and restarting `stacks-task-0040-app-1` on 3040, per dispatch instruction to leave
+the running stack's containers untouched. The `/ws` check was narrowed to an unauthenticated
+upgrade attempt (confirms the gateway, not Vite or the SSR handler, owns the path) rather
+than the full M0 echo exchange from quickstart §4, which Phase 6 (T042/T043) already runs
+against the built image. See `ci-evidence.txt` for the full record.
 
 ## Phase 6: Verification, evidence, re-grounding
 

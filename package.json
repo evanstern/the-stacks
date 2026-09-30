@@ -11,6 +11,7 @@
     "format": "biome format --write .",
     "typecheck": "pnpm --filter @the-stacks/web typegen && tsc -b",
     "test": "turbo run test",
+    "dev": "pnpm --filter @the-stacks/server dev",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",
     "check:scripts": "node --test 'scripts/*lib.test.mjs'",

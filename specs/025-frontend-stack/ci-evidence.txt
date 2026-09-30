@@ -1,0 +1,51 @@
+TASK-0040 — 025-frontend-stack — CI evidence
+
+## Phase 5 — Dev mode (US7), quickstart.md §2, 2026-09-30
+
+Ran against the stacks-task-0040 stack's test database (TEST_DATABASE_URL), with
+`pnpm dev` on APP_PORT=3041 (a free host port, to avoid stopping the running
+stacks-task-0040-app-1 container) and WEB_HMR_PORT=24678 (default). Migrations
+already applied. `docker compose -p stacks-task-0040` left untouched throughout.
+
+1. Route edit hot-reloads (T054, item 1). Verified with a Brave/playwright-core
+   script instead of by hand, per the dispatch note:
+   - Loaded http://localhost:3041/ (signed out): sign-in form present, no
+     "HMRCHECK" marker.
+   - Edited apps/web/app/sign-in.tsx's CardTitle to "Sign in HMRCHECK".
+   - The marker appeared in the DOM within ~1s. `page`'s `load` event fired
+     zero additional times after the initial navigation (loadEventsSinceInitial
+     = 0) — confirms an HMR patch, not a full reload.
+   - Reverted the edit; git status confirms sign-in.tsx is unmodified.
+
+2. Loaders get identity from the load context (T054, item 2):
+   - `curl http://localhost:3041/` (no cookie): 200, sign-in form (identity()
+     resolved null through Vite's per-request `ssrLoadModule`).
+   - Created an operator via `create-operator.js` against TEST_DATABASE_URL,
+     signed in with curl, then `curl -b <cookie> http://localhost:3041/`:
+     200, page body contains the display name "operator" (grep -c "operator" = 2).
+   - Confirms the context key holds across the per-request re-import (research
+     R1) in dev mode, not just in the production SSR bundle (already covered
+     by apps/web/test/ssr.test.mjs).
+
+3. Reserved paths still served by Hono in dev (T054, item 3):
+   - GET /health            -> 200 application/json
+   - GET /auth/me           -> 401 application/json
+   - GET /library/nope      -> 404 application/json
+   None returned text/html; none went through Vite's middlewares.
+
+4. /ws still owned by the gateway, not Vite (T054, item 4 — narrowed by dispatch
+   to a reachability check rather than the full M0 echo, which Phase 6 covers
+   on the built image):
+   - A WebSocket upgrade request to /ws with no session token returned
+     401 Unauthorized "Authentication required." (the gateway's own response),
+     confirming the request reached the gateway, not Vite's fallback or the
+     SSR handler.
+
+5. Static import check (T053/T054, item 5):
+   - `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js` -> zero
+     hits, both from the standalone build and the dev-triggered rebuild.
+   - apps/server/dist/web-dev.js (dev-only, not loaded by production) has the
+     one dynamic `import("vite")`.
+
+Dev server stopped with `kill` (equivalent to Ctrl-C) after the checks; the
+stack's db and app containers were never stopped.
