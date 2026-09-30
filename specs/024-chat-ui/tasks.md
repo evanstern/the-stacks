@@ -103,11 +103,16 @@ the piloted run, and the Brave recording.
 
 ## Phase 5: US4 — Player views, the Table landing, and the two-browser run (P2)
 
-- [ ] T040 [US4] In `routes/ask.tsx` and `routes/books.tsx`, render `OperatorOnly` with FR-037's two messages when the loader says `forbidden` or the store's `forbidden` is set (FR-038).
-- [ ] T041 [US4] Create `apps/web/app/routes/table.tsx` per plan D14: Start a new table (disabled until hydrated) and Join by link or id with "Enter a table link or id.".
-- [ ] T042 [US4] In `apps/web/app/routes/play.tsx`, remove the page's own sign-out button. Change nothing else.
-- [ ] T043 [US4] In `apps/web/test/ssr.test.mjs`, add: `/ask` and `/books` as player show the operator-only text, contain no `href="/ask"` or `href="/books"`, and the `jobs` stub count is 0; `/ask` as operator links to `/ask`, `/books`, `/play`, and `/settings`.
-- [ ] T044 [US4] Run the piloted run in quickstart §6 by hand. Record each step's result in the PR body.
+- [x] T040 [US4] In `routes/ask.tsx` and `routes/books.tsx`, render `OperatorOnly` with FR-037's two messages when the loader says `forbidden` or the store's `forbidden` is set (FR-038).
+  - Deviation: already implemented in Phases 2/3 (T026/T034), each needing the loader's
+    `forbidden` branch to support the "no `jobs()` call for a player" SSR assertions those
+    phases added. Verified this phase (no code change): `ask.tsx` and `books.tsx` both return
+    `<OperatorOnly message="…" />` for `loaderData.forbidden || storeForbidden`, with FR-037's
+    exact two strings.
+- [x] T041 [US4] Create `apps/web/app/routes/table.tsx` per plan D14: Start a new table (disabled until hydrated) and Join by link or id with "Enter a table link or id.".
+- [x] T042 [US4] In `apps/web/app/routes/play.tsx`, remove the page's own sign-out button. Change nothing else.
+- [x] T043 [US4] In `apps/web/test/ssr.test.mjs`, add: `/ask` and `/books` as player show the operator-only text, contain no `href="/ask"` or `href="/books"`, and the `jobs` stub count is 0; `/ask` as operator links to `/ask`, `/books`, `/play`, and `/settings`.
+- [x] T044 [US4] Run the piloted run in quickstart §6 by hand. Record each step's result in the PR body.
 
 **Checkpoint**: AC #4 holds by eye.
 

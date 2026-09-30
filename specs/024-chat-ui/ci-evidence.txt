@@ -160,3 +160,74 @@ source pane — the source pane in this phase is a persistent `<aside>` per plan
 Sheet, so it has no Escape-to-close/focus-return behavior of its own. The Sources panel's
 Escape/focus-return was already exercised in Phase 3 (T035) and is unchanged here; not
 re-verified in this run to avoid re-testing prior-phase behavior.
+
+Phase 5 (US4) evidence — TASK-0028, 2026-09-30
+
+## Automated checks
+
+apps/web typecheck: pnpm --filter @the-stacks/web typecheck → exit 0.
+apps/web build: pnpm --filter @the-stacks/web build → exit 0.
+apps/web test: pnpm --filter @the-stacks/web test → 63/63 pass (added the three ssr.test.mjs
+  cases for T043: player /ask and /books show the operator-only text with zero href="/ask" /
+  href="/books" and jobsCallCount === 0; operator /ask links to /ask, /books, /play, /settings).
+apps/server typecheck: pnpm --filter @the-stacks/server typecheck → exit 0.
+apps/server test, with TEST_DATABASE_URL exported from .env (migrations re-applied first —
+  the test database's volume needed `db:migrate` again in this dispatch's fresh sandbox, same
+  class of issue as T029's deviation): 413 passed | 5 skipped (418) — matches Phase 1's
+  baseline; nothing server-side changed this phase.
+pnpm lint (biome check .): clean, no fixes needed.
+pnpm check:boundaries: "boundary rules: 5/5 fixtures flagged" (all fixtures correctly flagged).
+git diff origin/main -- '*package.json' pnpm-lock.yaml: empty (no dependency change).
+
+## T044 — the piloted two-browser run (quickstart §6)
+
+Stack: stacks-task-0028 (http://localhost:3028). Rebuilt the app image
+(`docker compose -p stacks-task-0028 up -d --build --wait app`) so the container served this
+phase's `table.tsx` and `play.tsx` — the compose file bakes `apps/web/build` into the image
+(no source bind-mount), so a code change needs a rebuild to reach the running stack. The
+rebuild recreated the `db` container (its labels reference `STACKS_COMMIT`, which changed),
+but the named `db-data` volume was untouched: the operator account created in an earlier
+dispatch (`operator-0028.secret`) and its "Basic Rules" import both survived, confirmed by
+signing in before and after the rebuild.
+
+Invited and redeemed a player through the documented flow (quickstart §3: operator
+`POST /auth/invitations`, then `POST /auth/invitations/redeem`) — no player account existed
+yet in this dispatch. The password was written only to
+`/Users/evanstern/.claude/jobs/a48ac8bd/tmp/player-0028.secret`, chmod 600, never printed and
+never committed.
+
+Driven with playwright-core 1.63.0 (out-of-tree, `PLAYWRIGHT_DIR`) against headless Brave, two
+browser contexts in one process (plan D16's approach), scripted end-to-end rather than by
+hand — a throwaway driver, not committed (T050/T051 in Phase 6 own the committed recording
+script and its video evidence; this run is T044's own piloted check). All 15 steps in
+quickstart §6 passed:
+
+1. Operator signs in → redirected to `/ask`; sidebar shows Ask, Library, Table, Settings.
+2. Player signs in → redirected to `/play`; sidebar shows Table only.
+3. Operator opens Table, clicks "Start a new table" → navigates to `/play/<uuid>`.
+4. Player pastes that URL into "Join a table" and submits → joins the same session.
+5. Operator sends "hello from the operator" → appears in both windows.
+6. Player sends "hello from the player" → appears in both windows.
+7. Operator opens Library, uploads `conditions.md` as "Conditions" → reaches
+   Ready/Search-only without a reload.
+8. Operator opens Ask, asks "How does grappling work?", opens a citation.
+9. Player's Table view (still open) shows no book text — checked the player page's full text
+   for "grappling", "Conditions", or "citation"; none present.
+10. Player opens `/ask` directly → "Asking the library is available to the operator only."
+11. Player opens `/books` directly → "The library is available to the operator only."
+12. Operator returns to Table → both prior messages still present (history intact).
+
+SC-008: the player's page issued **0** requests to any `/library/*` path over the whole run
+(sign-in through step 12) — logged every request from page creation, not just steps 10-11.
+`ac4-player-requests-0028.txt`: "player /library requests: 0" (kept out of tree in `/tmp`,
+not evidence to commit; Phase 6's `evidence/ac4-player-requests.txt` is the committed
+artifact from the dedicated recording script).
+
+Result: PASS — AC #4 holds on the stack. The player's sidebar is Table-only; the player's
+`/ask` and `/books` render the operator-only view with zero library requests; the operator
+and player exchange M0 messages at one Table while the operator uploads and asks alongside;
+no book text ever reaches the player.
+
+Blocker for Phase 6: none from this phase. T050/T051 need the `answering` purpose configured
+(already true on this stack, per Phase 3/4 evidence) and will need their own app-image rebuild
+if `table.tsx`/`play.tsx` aren't already baked into the image the recording run drives.

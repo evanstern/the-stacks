@@ -143,6 +143,41 @@ test("/books as operator with no jobs shows FR-015's empty text", async () => {
   );
 });
 
+test("/ask as player shows the operator-only text, no library nav, and never calls jobs()", async () => {
+  const ctx = stubContext({ id: "u2", displayName: "Rin", role: "player" });
+  const res = await handle(new Request("http://localhost/ask"), ctx);
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(html, /Asking the library is available to the operator only\./);
+  assert.doesNotMatch(html, /href="\/ask"/);
+  assert.doesNotMatch(html, /href="\/books"/);
+  assert.equal(ctx.jobsCallCount, 0);
+});
+
+test("/books as player shows the operator-only text, no library nav, and never calls jobs()", async () => {
+  const ctx = stubContext({ id: "u2", displayName: "Rin", role: "player" });
+  const res = await handle(new Request("http://localhost/books"), ctx);
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(html, /The library is available to the operator only\./);
+  assert.doesNotMatch(html, /href="\/ask"/);
+  assert.doesNotMatch(html, /href="\/books"/);
+  assert.equal(ctx.jobsCallCount, 0);
+});
+
+test("/ask as operator links to /ask, /books, /play, and /settings", async () => {
+  const res = await handle(
+    new Request("http://localhost/ask"),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+  );
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(html, /href="\/ask"/);
+  assert.match(html, /href="\/books"/);
+  assert.match(html, /href="\/play"/);
+  assert.match(html, /href="\/settings"/);
+});
+
 test("/play/<uuid> shows the hydrate fallback and no event list", async () => {
   const sessionId = "11111111-1111-1111-1111-111111111111";
   const res = await handle(
