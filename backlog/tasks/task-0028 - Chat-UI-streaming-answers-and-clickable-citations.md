@@ -116,6 +116,8 @@ Operator plan checkpoint 2026-09-30: all 7 approved as recommended (no new deps;
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 1 done (e7b0de9): Daylight tokens + --input, UI cookies, StacksLoadContext.jobs(), app store, Sheet panel, inline icons, role-aware shell; web tests 23/23, server 413/0/5, ci:check exit 0; no dependency drift (verified); the shadcn CLI again added the "cn" package, reverted. Stack up on :3028. Phase 2 (US1 upload + status) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
