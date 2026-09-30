@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 03:59'
+updated_date: '2026-09-30 04:00'
 labels:
   - ui
 milestone: m-1
@@ -64,6 +64,9 @@ Spec 025 amendment dispatched: record the checkpoint approvals, bring hot-reload
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Spec 025 amended (ba7d16c): Phase 5 hot-reload dev (US7, T049-T054), Phase 6 verification now includes T055 constitution PATCH 1.0.0 -> 1.0.1. vite added as an apps/server devDependency (already in the lockfile; follows from approved checkpoint 5). Phase ACs re-seeded.
+
+Implementation phase 1 (Setup and dependencies) dispatched.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
