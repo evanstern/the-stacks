@@ -231,3 +231,83 @@ no book text ever reaches the player.
 Blocker for Phase 6: none from this phase. T050/T051 need the `answering` purpose configured
 (already true on this stack, per Phase 3/4 evidence) and will need their own app-image rebuild
 if `table.tsx`/`play.tsx` aren't already baked into the image the recording run drives.
+
+Phase 6 (Verification, evidence, and re-grounding) evidence — TASK-0028, 2026-09-30
+
+## T045 — REQUIRE_DATABASE=1 pnpm ci:check
+
+TEST_DATABASE_URL exported from .env (not printed). Test DB volume needed `db:migrate`
+first (same class of issue as T029/Phase 5's deviation — the worktree's test-db container
+came up unmigrated); ran `pnpm --filter @the-stacks/server db:migrate` (targets
+TEST_DATABASE_URL on the host), "Migrations applied."
+
+Single run, exit 0. No known pre-existing flake hit, so no rerun was needed:
+- lint, typecheck, build: all green (turbo "Tasks: N successful, N total" for each stage).
+- apps/web test: 63/63 (unchanged from Phase 5).
+- apps/server test: Test Files 39 passed | 1 skipped (40); Tests 413 passed | 5 skipped
+  (418) — identical to Phase 1/Phase 5's baseline. The 5 skips are bench "tier demand"/
+  "tier dev"/"tier commit" gates (SKIP: ingest-scaling, concurrency-local, db-exhaustion,
+  restart-mid-ingest, concurrency-dev, ingest-smoke, concurrency-smoke — tier not selected /
+  LOAD_DEV_URL unset), not database-integration suites; REQUIRE_DATABASE=1 would have thrown
+  ("DB required" notice) had any DB-integration suite tried to skip, and none did — zero
+  skipped DB suites.
+- check:boundaries: "boundary rules: 5/5 fixtures flagged" (all fixtures correctly flagged).
+- check:hooks: 1..N, fail 0 (root-guard, board-sync classifier, orphan-warning suites).
+- check:scripts: 1..42, fail 0 (env.mjs merge/derive, prune classifyStacks, pgvector pin,
+  parseWorktreeList).
+- check:host-scripts: silent exit 0 (config.ts / db.ts import).
+No `not ok` anywhere in the run; every `# fail` line reads 0.
+
+## T046 — CDN / webfont grep
+
+`grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`
+→ zero hits (exit 1).
+Same pattern against `apps/web/build` → zero hits (exit 1).
+
+## T047 — the three D7 dialog checks
+
+1. `ls apps/web/app/components/ui` → button.tsx, card.tsx, input.tsx, label.tsx, sheet.tsx.
+   No dialog.tsx, no alert-dialog.tsx.
+2. `grep -rnE '<dialog|showModal|AlertDialog' apps/web/app` → zero hits (exit 1).
+3. `grep -rlwE 'Dialog' apps/web/app` → exactly `apps/web/app/components/ui/sheet.tsx`.
+
+## T048 — node --test contrast.test.mjs no-dialog.test.mjs
+
+Run from apps/web/: 10/10 pass (6 contrast cases + 3 no-dialog checks + the file-count
+subtest), fail 0.
+
+## T049 — dependency diff
+
+`git diff origin/main -- apps/web/package.json apps/server/package.json
+packages/shared/package.json package.json` → empty. No dependency change across all six
+phases.
+
+## T050/T051 — the AC #4 recording (D16, R13)
+
+`specs/024-chat-ui/evidence/record-ac4.mjs` drives quickstart.md §6 end to end with
+playwright-core 1.63.0 (out-of-tree at PLAYWRIGHT_DIR, loaded via createRequire; never
+added to any package.json) against headless Brave, two `browser.newContext()`s (separate
+cookie jars) each with `recordVideo` at 960x600. Credentials read from
+`OPERATOR_PASSWORD`/`PLAYER_PASSWORD` env vars, never printed or written to a file.
+Deviation logged in tasks.md: the script's first draft joined at `/table`; routes.ts mounts
+the Table landing at `/play` (`/play/:sessionId` is the live session route) — fixed, then
+the committed run below is clean.
+
+Committed run (exit 0):
+  Recorded ac4-operator.webm and ac4-player.webm.
+  player /library requests: 0
+  ac4-operator.webm: 0.58 MB
+  ac4-player.webm: 0.31 MB
+
+Post-recording checks (not blank):
+  ffprobe duration: ac4-operator.webm 29.56s, ac4-player.webm 30.04s.
+  Frames pulled at t=15s from each file and inspected: operator shows the Ask page with
+  "Sources · 2", the typed question "How does grappling work?"; player shows the Table
+  session with both "hello from the operator" and "hello from the player" rendered.
+
+`ac4-player-requests.txt`: "player /library requests: 0" (SC-008 — logged every request
+from page creation through the whole run, not just the direct-nav steps).
+
+Both accounts (operator, player) and the "Basic Rules"/"Conditions" ingested books were
+already live on the stack from earlier phase dispatches; no reprovisioning, no direct write
+to the users/auth tables.

@@ -118,13 +118,17 @@ the piloted run, and the Brave recording.
 
 ## Phase 6: Verification, evidence, and re-grounding
 
-- [ ] T045 Run `REQUIRE_DATABASE=1 pnpm ci:check` with `TEST_DATABASE_URL` exported from `.env`. Expect exit 0. Save the tail to `specs/024-chat-ui/ci-evidence.txt`.
-- [ ] T046 [P] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Run the same on `apps/web/build`. Expect zero hits. Record both in `ci-evidence.txt`.
-- [ ] T047 [P] Run the three dialog checks from plan D7: `ls apps/web/app/components/ui`; `grep -rnE '<dialog|showModal|AlertDialog' apps/web/app`; `grep -rlwE 'Dialog' apps/web/app`. Expect no `dialog.tsx` or `alert-dialog.tsx`, zero hits, and exactly `apps/web/app/components/ui/sheet.tsx`. Record them in `ci-evidence.txt`.
-- [ ] T048 [P] Run `node --test apps/web/test/contrast.test.mjs apps/web/test/no-dialog.test.mjs`. Expect exit 0. Record it in `ci-evidence.txt`.
-- [ ] T049 [P] Run `git diff origin/main -- apps/web/package.json apps/server/package.json packages/shared/package.json package.json`. Expect no dependency change.
-- [ ] T050 Create `specs/024-chat-ui/evidence/record-ac4.mjs` per plan D16 and research R13.
-- [ ] T051 Run the recording per quickstart §6. Expect `ac4-operator.webm` and `ac4-player.webm`, each under 8 MB, and `ac4-player-requests.txt` reporting 0 `/library` requests (SC-008). Commit all four files.
+- [x] T045 Run `REQUIRE_DATABASE=1 pnpm ci:check` with `TEST_DATABASE_URL` exported from `.env`. Expect exit 0. Save the tail to `specs/024-chat-ui/ci-evidence.txt`.
+- [x] T046 [P] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Run the same on `apps/web/build`. Expect zero hits. Record both in `ci-evidence.txt`.
+- [x] T047 [P] Run the three dialog checks from plan D7: `ls apps/web/app/components/ui`; `grep -rnE '<dialog|showModal|AlertDialog' apps/web/app`; `grep -rlwE 'Dialog' apps/web/app`. Expect no `dialog.tsx` or `alert-dialog.tsx`, zero hits, and exactly `apps/web/app/components/ui/sheet.tsx`. Record them in `ci-evidence.txt`.
+- [x] T048 [P] Run `node --test apps/web/test/contrast.test.mjs apps/web/test/no-dialog.test.mjs`. Expect exit 0. Record it in `ci-evidence.txt`.
+- [x] T049 [P] Run `git diff origin/main -- apps/web/package.json apps/server/package.json packages/shared/package.json package.json`. Expect no dependency change.
+- [x] T050 Create `specs/024-chat-ui/evidence/record-ac4.mjs` per plan D16 and research R13.
+- [x] T051 Run the recording per quickstart §6. Expect `ac4-operator.webm` and `ac4-player.webm`, each under 8 MB, and `ac4-player-requests.txt` reporting 0 `/library` requests (SC-008). Commit all four files.
+  - Deviation: joinTable initially navigated to `/table`; routes.ts mounts the Table landing
+    (`routes/table.tsx`) at path `/play` (`/play/:sessionId` is the live session,
+    `routes/play.tsx`). Fixed before the committed run — a script bug caught by a timeout,
+    not a product bug.
 - [ ] T052 Run `/grounding-wiki:wiki-update`. Review `react-router-app`, `client-identity`, `static-serving`, `test-suite`, `m0-demo`, and `overview`. Add a `chat-ui` note (store, SSE parser, turn reducer, panel, theme tokens, UI cookies). Regenerate `CAPSULES.md` if any `description:` changes.
 - [ ] T053 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
 - [ ] T054 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
