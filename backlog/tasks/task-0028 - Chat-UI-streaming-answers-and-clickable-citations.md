@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 01:20'
+updated_date: '2026-09-30 01:40'
 labels:
   - ui
 milestone: m-1
@@ -50,6 +50,12 @@ Round 1 mock build dispatched (three directions: A reference desk, B marginalia,
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Operator amendment 2026-09-29: rounds widened to chat + a Library area in one layout. ACs unchanged; this PR ships chat, upload with XHR progress, and job status/stage (job history if it falls out of AC #1). Book list, delete and re-import go to TASK-0038 (created on main, 0d48943; depends on TASK-0028), which needs GET /library/books and DELETE /library/books/:id. TASK-0031 dependencies unchanged. The in-flight round-1 dispatch was re-briefed: shell/navigation, upload in Library (A, C) vs reachable from chat (B), 0028/LIB ownership badges, first-run empty state, and book-level states (ingesting, failed, ready, search-only).
+
+Round 1 landed (f3c5cb9): docs/design/chat-ui/round-1/index.html. Three directions, 18 shared states each (shell, first run, upload/progress/409, jobs, book list LIB, delete+re-import LIB, player 403 views, empty/validation/streaming/done chat, prose + stat-block citation, refusal, mid-stream error). Screenshots taken in Brave, light+dark, 1280+390.
+- A Reference desk: conversation + pinned source pane; Library as a collapsible panel above chat; upload in Library only. Risk: two panes collapse to a bottom sheet on phones.
+- B Marginalia: one column, Ask | Library tabs; citations unfold inline under the citing paragraph; attach control in chat also opens upload. Risk: long passages push the conversation apart.
+- C Console: always-visible jobs strip + log-style chat; citations open in a <dialog> modal; upload in Library. Risk: reads as a tool, not a reading surface.
+Asked of the operator: pick a direction (or a hybrid) for round 2, and rule on AC #4 (two operator browsers vs operator + a player seeing the 403 views).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
