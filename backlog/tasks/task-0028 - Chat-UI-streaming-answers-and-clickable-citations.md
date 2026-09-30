@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 01:18'
+updated_date: '2026-09-30 01:20'
 labels:
   - ui
 milestone: m-1
@@ -48,6 +48,8 @@ Design-rounds binding constraints (Phase 2, checked every round):
 
 Round 1 mock build dispatched (three directions: A reference desk, B marginalia, C console; 14 shared states) to docs/design/chat-ui/round-1/.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Operator amendment 2026-09-29: rounds widened to chat + a Library area in one layout. ACs unchanged; this PR ships chat, upload with XHR progress, and job status/stage (job history if it falls out of AC #1). Book list, delete and re-import go to TASK-0038 (created on main, 0d48943; depends on TASK-0028), which needs GET /library/books and DELETE /library/books/:id. TASK-0031 dependencies unchanged. The in-flight round-1 dispatch was re-briefed: shell/navigation, upload in Library (A, C) vs reachable from chat (B), 0028/LIB ownership badges, first-run empty state, and book-level states (ingesting, failed, ready, search-only).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
