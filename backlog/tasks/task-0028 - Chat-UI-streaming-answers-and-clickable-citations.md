@@ -132,6 +132,8 @@ Phase 4 done (42ce132): citation buttons with accessible names, openCitation in 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 5 done (5d4522c): Table landing (Start/Join), play without its own sign-out, player views verified server-side (no jobs() call). Two-browser run in Brave, 15/15 steps pass: operator starts a table, player joins by link, M0 echo both ways, operator uploads and asks with a citation alongside, player sees no book text, player /ask and /books show operator-only; player /library request count 0 (SC-008). Web 63/63, server 413/0/5; no dependency drift. Player created via the invite flow; secret in job tmp (600). Phase 6 (verification, recording, re-ground) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
