@@ -16,26 +16,35 @@ pnpm build
 
 Expect `apps/web/build/client/` and `apps/web/build/server/index.js` to exist.
 
-## 2. Dev loop (no hot reload)
+## 2. Dev mode (hot reload)
 
-There is no Vite dev server in this task (research R8). Edit, rebuild, restart.
+`pnpm dev` runs the Hono server with Vite in middleware mode (research R8). It serves on
+`APP_PORT` against the stack's test database. HMR uses `WEB_HMR_PORT` (default 24678).
 
-Start the stack's database, then run the server on the host against it:
+Start the stack's database, stop the app container to free the port, and migrate:
 
 ```sh
 pnpm env:up
 set -a; . ./.env; set +a
 docker compose -p stacks-task-0040 stop app
-DATABASE_URL="$TEST_DATABASE_URL" APP_PORT=$APP_PORT node apps/server/dist/index.js
+DATABASE_URL="$TEST_DATABASE_URL" pnpm --filter @the-stacks/server db:migrate
+DATABASE_URL="$TEST_DATABASE_URL" pnpm dev
 ```
 
-This uses the worktree's test database. Migrate it first with
-`pnpm --filter @the-stacks/server db:migrate`.
+Record this check in `ci-evidence.txt`:
 
-After a web edit, run `pnpm --filter @the-stacks/web build`. Then restart the `node`
-process.
+1. Open `http://localhost:$APP_PORT/` in Brave. Sign in. Edit a visible string in
+   `apps/web/app/routes/home.tsx`. Expect the page to update without a reload.
+2. Run `curl -s -b "session=<token>" "http://localhost:$APP_PORT/" | grep -c '<display
+   name>'`. Expect 1 or more. Record no token.
+3. Run `curl -s -o /dev/null -w '%{http_code} %{content_type}\n'` against `/health`,
+   `/auth/me`, and `/library/nope`. Expect JSON for each, never `text/html`.
+4. Run step 4's items 3–7 against the dev server. Expect the echo over `/ws`.
+5. Run `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js`. Expect zero
+   hits.
 
-To return to the containerized app, run `docker compose -p stacks-task-0040 start app`.
+Stop with Ctrl-C. Run `docker compose -p stacks-task-0040 start app` to return to the
+container.
 
 ## 3. Build and run the image
 
@@ -132,6 +141,8 @@ This proves the image runs outside `env:up`'s build path.
 
    Expect no `vite`, `react-router`, or `tailwindcss` binary. Expect `build` and
    `package.json`, and no `app` source directory.
+   Also run `docker exec stacks-web-check sh -c 'ls /app/node_modules/.pnpm | grep -c "^vite@"'`.
+   Expect `0`.
 
 6. Stop it: `docker stop stacks-web-check`.
 

@@ -2,16 +2,17 @@
 
 **Input**: Design documents from `/specs/025-frontend-stack/`
 
-**Prerequisites**: plan.md, spec.md, research.md, quickstart.md. The operator has cleared
-plan.md's New dependencies table.
+**Prerequisites**: plan.md, spec.md, research.md, quickstart.md. The operator resolved all six
+plan.md checkpoints on 2026-09-30, as recommended. Checkpoints 5 and 6 added Phase 5 and
+T055. New task IDs are appended, so existing IDs stay stable.
 
 **Tests**: `apps/server/test/static.test.ts` is rewritten for the reserved-path invariant.
 `apps/web/test/ssr.test.mjs` renders three routes from the built bundle. The M0 demo runs
-twice, by hand.
+twice, by hand. The dev-mode check runs once, by hand, and is recorded.
 
 **Standing rules for every phase**:
 - Run `cd /Users/evanstern/projects/the-stacks/.worktrees/task-0040 && pwd && git branch --show-current` first. Expect `task-0040-frontend-stack`. On any other branch, STOP.
-- Add only the packages in plan.md's New dependencies table, at those versions. Any other package needs the operator. STOP and report.
+- Add only the packages in plan.md's New dependencies table, at those versions, in the package it names. Any other package needs the operator. STOP and report.
 - Never add a shadcn `Dialog` or `AlertDialog`. Never reference a CDN or a webfont.
 - Never import `apps/server` from `apps/web`. Never call the app's own HTTP API from a loader.
 - Do not change the reserved set beyond adding `/library`. Any other change needs the operator.
@@ -22,7 +23,7 @@ twice, by hand.
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: can run in parallel (different files, no dependencies)
-- **[Story]**: user story from spec.md (US1–US6)
+- **[Story]**: user story from spec.md (US1–US7)
 
 ## Phase 1: Setup and dependencies
 
@@ -73,7 +74,16 @@ twice, by hand.
 - [ ] T036 [US5] Use `Card`, `Label`, `Input`, and `Button` in `app/sign-in.tsx`. Use `Button` for sign-out in `home.tsx` and `play.tsx`, and for send in `play.tsx`. Keep every label, text, and `autoComplete` value.
 - [ ] T037 [US5] Run `pnpm lint` and `pnpm --filter @the-stacks/web build`. Expect exit 0.
 
-## Phase 5: Verification, evidence, re-grounding
+## Phase 5: Hot-reload dev mode (US7)
+
+- [ ] T049 [US7] Run `pnpm --filter @the-stacks/server add -D vite@^8.3.0`. In `apps/server/package.json`, add `"dev": "tsc -b && STACKS_WEB_DEV=1 node --env-file-if-exists=../../.env dist/index.js"`. In root `package.json`, add `"dev": "pnpm --filter @the-stacks/server dev"`.
+- [ ] T050 [P] [US7] In `apps/server/src/static.ts`, export `isReservedPath` (plan D4).
+- [ ] T051 [US7] Create `apps/server/src/web-dev.ts` as plan D7: dynamic `import("vite")`, `createServer` in middleware mode with `appType: "custom"` and `hmr.port` from `WEB_HMR_PORT` (default 24678), and a `handler` that calls `ssrLoadModule("/server.ts")` per request. Resolve `webRoot` from `import.meta.url`.
+- [ ] T052 [US7] In `apps/server/src/index.ts`, when `STACKS_WEB_DEV === "1"`, `await import("./web-dev.js")` and pass its `handler` as `web.handler`. Pass `serve()` a `createServer` wrapper: a non-reserved request runs through Vite's `middlewares` first, then Hono; a reserved request goes straight to Hono. Keep `gateway.attach(server)`. Import neither `vite` nor `web-dev.js` statically.
+- [ ] T053 [US7] Run `pnpm --filter @the-stacks/server build`. Run `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js`. Expect zero hits.
+- [ ] T054 [US7] Run the dev-mode check (quickstart.md §2) after Phase 4. Record each step's result in `specs/025-frontend-stack/ci-evidence.txt`.
+
+## Phase 6: Verification, evidence, re-grounding
 
 - [ ] T038 Run `pnpm env:up`. Then export `TEST_DATABASE_URL` from `.env` without printing it, and run `REQUIRE_DATABASE=1 pnpm ci:check`. Expect exit 0 and zero skipped database suites. Record the tail in `specs/025-frontend-stack/ci-evidence.txt`.
 - [ ] T039 [US5] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Expect zero hits. Record it in `ci-evidence.txt`.
@@ -82,6 +92,7 @@ twice, by hand.
 - [ ] T042 [US2] Run the M0 demo on the per-worktree stack (quickstart.md §4) in Brave. Record each step's result for the PR body.
 - [ ] T043 [US2] Run the M0 demo against the standalone image (quickstart.md §5). Record the image id, the commit, the tooling check, and each step's result for the PR body.
 - [ ] T044 [P] [US6] In `docs/design/architecture.md` A1's table, set the Client row to `React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui` with the note `Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29)`. Change nothing else in A1 unless plan.md checkpoint 6 says so.
+- [ ] T055 [P] [US6] Amend `.specify/memory/constitution.md` as a PATCH (1.0.0 → 1.0.1), per its Governance section. Set the Architecture Constraints Client row to match T044, citing doc-0003 / decision-0008. Set the version line to `**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: <merge date>`. Prepend a Sync Impact Report entry: 1.0.0 → 1.0.1, PATCH, Client row only, ratified by decision-0008, no template changes. Confirm plan.md's Complexity Tracking row reads resolved.
 - [ ] T045 [US6] Re-pin the wiki with `/grounding-wiki:wiki-update`. Re-ground `static-serving`, `spa-shell` (retire or rename it through the loop; it becomes the React Router app note), `container-image`, and `server-entrypoint-and-app`. Review `client-identity`, `client-session-hook`, `m0-demo`, `monorepo-and-toolchain`, `session-auth`, `ci-pipeline`, `test-suite`, and `overview`. Re-pin whatever else the freshness gate flags. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
 - [ ] T046 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
 - [ ] T047 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
@@ -92,4 +103,6 @@ twice, by hand.
 - Phase 1 blocks every other phase.
 - Phase 2 and Phase 3 share only T009's types. T009 blocks T012, T013, T020, and T021.
 - T013 and T014 block T015. T030 blocks T031 and Phase 4.
-- Phase 4 blocks Phase 5. T038–T043 block T045. T045 blocks T046.
+- T013 blocks T050. T049–T051 block T052. T052 blocks T053.
+- Phase 4 and T053 block T054. T054 blocks Phase 6.
+- T038–T043 and T055 block T045. T045 blocks T046.

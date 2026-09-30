@@ -15,7 +15,9 @@ request handler inside the Hono app as the last middleware. This task pre-empts 
 which rebases onto its merge and builds the chat UI on the new foundation.
 
 **Scope**: a port. No new product surface. Sign-in, home, and play behave as they do today.
-The M0 two-browser echo demo passes. Nothing from TASK-0028's chat UI is built here.
+The M0 two-browser echo demo passes. Nothing from TASK-0028's chat UI is built here. Two
+additions, approved 2026-09-30 (plan.md checkpoints 5 and 6): a hot-reload dev mode, and the
+constitution's Client row amendment.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -130,7 +132,7 @@ CDN, webfont, `Dialog`, or `AlertDialog` exists.
 
 **Why this priority**: TASK-0028 builds on it. Constitution IX forbids a CDN or webfont.
 
-**Independent Test**: the no-CDN and no-dialog greps in tasks.md Phase 5.
+**Independent Test**: the no-CDN and no-dialog greps in tasks.md Phase 6.
 
 **Acceptance Scenarios**:
 
@@ -146,7 +148,7 @@ CDN, webfont, `Dialog`, or `AlertDialog` exists.
 A reader opens `docs/design/architecture.md` or the wiki. They find the new client stack,
 citing doc-0003, and notes re-grounded against the new code.
 
-**Maps to**: card AC #8, AC #9.
+**Maps to**: card AC #8, AC #9, and plan.md checkpoint 6.
 
 **Why this priority**: grounding freshness is a merge gate.
 
@@ -159,6 +161,33 @@ citing doc-0003, and notes re-grounded against the new code.
 2. **Given** the wiki, **When** the freshness gate runs, **Then** it prints `OK`, and
    `static-serving`, `spa-shell` (or its successor), `container-image`, and
    `server-entrypoint-and-app` are pinned to this task's code.
+3. **Given** the constitution, **When** its Client row is read, **Then** it matches A1 and
+   cites doc-0003 / decision-0008, at version 1.0.1.
+
+### User Story 7 - A web developer gets hot reload against real server data (Priority: P2)
+
+A web developer runs `pnpm dev` in a worktree. The app serves on the stack's port against the
+stack's database. They edit a route file, and the browser updates without a rebuild or a
+restart. Loaders read the same load context as production. `/ws` and the reserved paths
+behave as in production.
+
+**Maps to**: plan.md checkpoint 5 (approved 2026-09-30).
+
+**Why this priority**: TASK-0028 is UI-heavy. A rebuild-and-restart loop slows every edit.
+
+**Independent Test**: the dev-mode check in quickstart.md §2, recorded in
+`ci-evidence.txt`.
+
+**Acceptance Scenarios**:
+
+1. **Given** `pnpm dev` is running, **When** a route file's text changes, **Then** the open
+   browser shows the new text without a reload or a restart.
+2. **Given** `pnpm dev` and a valid session cookie, **When** `/` is requested with `curl`,
+   **Then** the HTML contains the display name.
+3. **Given** `pnpm dev`, **When** `/health`, `/auth/me`, or `/library/nope` is requested,
+   **Then** Hono answers with JSON, never page HTML.
+4. **Given** `pnpm dev` and two browsers on one session, **When** one sends a message,
+   **Then** it appears once in each, over `/ws`.
 
 ### Edge Cases
 
@@ -175,6 +204,8 @@ citing doc-0003, and notes re-grounded against the new code.
 - **Play route with a non-UUID id.** Unchanged: the server refuses the subscribe, as today.
 - **Web build absent** (server tests, a server-only build). The server still boots. The page
   handler loads on first use. Tests inject a fake handler.
+- **Two worktrees run `pnpm dev` at once.** The second HMR port collides. Set
+  `WEB_HMR_PORT` by hand for the second.
 
 ## Requirements *(mandatory)*
 
@@ -211,6 +242,14 @@ citing doc-0003, and notes re-grounded against the new code.
 - **FR-016**: `docs/design/architecture.md` A1's Client row MUST cite doc-0003.
 - **FR-017**: `REQUIRE_DATABASE=1 pnpm ci:check` MUST exit 0, including `check:boundaries`
   and `check:host-scripts`.
+- **FR-018**: `pnpm dev` MUST run Vite in middleware mode inside the Hono process, loaded by
+  a dev-only dynamic `import("vite")` and plugged in through `createApp`'s `web.handler`
+  option. It MUST run against the per-worktree stack's database.
+- **FR-019**: In dev mode, a route edit MUST hot-reload. Loaders MUST receive the same load
+  context as production. `/ws` and every reserved path MUST still be served by Hono.
+- **FR-020**: Production code and the container image MUST NOT import or contain `vite`.
+- **FR-021**: `.specify/memory/constitution.md` MUST be amended as a PATCH bump. Its Client
+  row MUST cite doc-0003 / decision-0008.
 
 ### Key Entities
 
@@ -235,11 +274,16 @@ citing doc-0003, and notes re-grounded against the new code.
 - **SC-005**: The no-CDN grep and the no-dialog grep both return zero hits.
 - **SC-006**: `REQUIRE_DATABASE=1 pnpm ci:check` exits 0 with zero skipped database suites.
 - **SC-007**: The wiki freshness gate prints `OK`. The spec-bridge check exits 0.
+- **SC-008**: The dev-mode check passes and is recorded in `ci-evidence.txt`: a route edit
+  hot-reloads, the cookie `curl` shows the display name, the reserved paths answer JSON, and
+  the echo works over `/ws`. `apps/server/dist/index.js` has no static `vite` import.
+- **SC-009**: The constitution reads version 1.0.1, and its Client row cites doc-0003.
 
 ## Assumptions
 
 - doc-0003's rulings bind. This spec does not revisit the stack choice.
-- There is no dev script today. This task adds no hot-reload dev server (research R8).
+- There is no dev script today. This task adds one, with hot reload (research R8).
+- The operator approved plan.md's six checkpoints on 2026-09-30, all as recommended.
 - The Daylight palette, the sidebar, the `Sheet` component, and cookie-read UI state are
   TASK-0028's. This task leaves the seams only: the root loader returns identity with role,
   and loaders receive the raw `Request`, so cookies are readable there.

@@ -25,7 +25,8 @@ shadcn/ui (copied source). Full list: [New dependencies](#new-dependencies).
 code.
 
 **Testing**: vitest (server): the reserved-path suite. `node:test` (web): an SSR render suite
-against the built server bundle. Manual: the M0 demo, twice.
+against the built server bundle. Manual: the M0 demo, twice, and the hot-reload dev check
+(D7).
 
 **Target Platform**: the runtime image (`node:22-alpine`) and the per-worktree stack.
 
@@ -35,8 +36,8 @@ against the built server bundle. Manual: the M0 demo, twice.
 `apps/web`, no self-HTTP from loaders, no new service or port.
 
 **Scale/Scope**: `apps/web` rewritten (~500 lines today), `static.ts`/`app.ts` edited, one new
-shared types file, `Dockerfile`, `turbo.json`, `biome.json`, root `package.json`, `.gitignore`,
-architecture.md, wiki notes.
+shared types file, one dev-only server file (`web-dev.ts`), `Dockerfile`, `turbo.json`, `biome.json`, root `package.json`, `.gitignore`,
+architecture.md, the constitution's Client row, wiki notes.
 
 ## Constitution Check
 
@@ -65,7 +66,8 @@ architecture.md, wiki notes.
 **Stack conformance** — the Architecture Constraints table's Client row ("React 19, Vite SPA,
 TanStack Router and Query. Not SSR.") is superseded by doc-0003 (ratified 2026-09-29,
 decision-0008). This plan implements the ratified replacement. It does not introduce the
-deviation. The constitution's table still reads SPA; see operator checkpoint 6.
+deviation. This PR amends the constitution's Client row (PATCH 1.0.1, task T055), so the
+deviation closes here.
 
 ## Design
 
@@ -178,6 +180,7 @@ export function createWebMiddleware({ clientRoot, handler, lookup }): Middleware
   `import.meta.url`. `clientRoot` defaults to `../../web/build/client` the same way.
 - `createApp` swaps `staticRoot?: string` for `web?: { clientRoot?: string; handler?: () =>
   Promise<WebRequestHandler> }`, and mounts the middleware last, as today.
+- Export `isReservedPath`. Dev mode's request wrapper uses it (D7).
 - `/ws` stays in the list. The upgrade never reaches Hono, and the entry documents intent.
 - Asset caching headers are out of scope. `serveStatic` behaves as today.
 
@@ -220,11 +223,35 @@ The context key, the provider, and every loader live in one bundle, so key ident
     Router, shadcn runtime packages) are needed by the SSR bundle.
 - `WORKDIR` and `CMD` do not change.
 
-### D7 — Dev mode
+### D7 — Dev mode: Vite in middleware mode inside Hono
 
-No hot-reload dev server in this task (research R8). The loop is `pnpm build`, then run the
-server (quickstart.md §2). `createApp`'s `web.handler` option is the seam where a Vite
-middleware-mode handler plugs in later.
+Hot reload is in scope (checkpoint 5). Vite runs inside the Hono process, so loaders get the
+same load context as production.
+
+- `apps/server/src/web-dev.ts` (new, dev-only) exports
+  `createWebDev({ webRoot, hmrPort }): Promise<{ handler, middlewares }>`:
+  - `const { createServer } = await import("vite")`;
+  - `createServer({ root: webRoot, appType: "custom", server: { middlewareMode: true, hmr:
+    { port: hmrPort } } })`, which loads `apps/web/vite.config.ts`;
+  - `handler` is `async () => (await vite.ssrLoadModule("/server.ts")).handle`. It re-imports
+    per request, so an edit takes effect on the next request;
+  - `middlewares` is `vite.middlewares`, for `/@vite/*`, module requests, and CSS.
+- `apps/server/src/index.ts`: when `STACKS_WEB_DEV=1`, `await import("./web-dev.js")`. Pass
+  `web: { handler }` to `createApp`. Pass `serve()` a `createServer` option that wraps the
+  Hono listener: a non-reserved request goes through `middlewares` first, then Hono; a
+  reserved request goes straight to Hono. `static.ts` exports `isReservedPath` for this.
+- HMR uses its own WebSocket port (`WEB_HMR_PORT`, default 24678). The `/ws` gateway destroys
+  every other upgrade on the app port, so HMR cannot share it.
+- `/ws` and the reserved paths stay Hono's: the gateway still attaches to the same server,
+  and reserved requests skip Vite.
+- Scripts: `apps/server` gains `"dev": "tsc -b && STACKS_WEB_DEV=1 node
+  --env-file-if-exists=../../.env dist/index.js"`. Root gains
+  `"dev": "pnpm --filter @the-stacks/server dev"`.
+- Production never imports vite. `index.ts` has no static import of `vite` or `web-dev.js`,
+  and the image has no `vite` package. `vite` joins `apps/server` devDependencies only, for
+  the dynamic import and its types.
+- ponytail: one HMR port per host by default. Two worktrees running `pnpm dev` at once set
+  `WEB_HMR_PORT` by hand. Derive it from `APP_PORT` when that collision recurs.
 
 ### D8 — Styling foundation
 
@@ -287,41 +314,41 @@ change. `check:boundaries` runs in `ci:check`.
   `handle` with stub contexts. It asserts three things: `/` signed out shows the form, `/`
   signed in shows the display name, and `/play/<uuid>` shows the fallback.
 - **Manual**: the M0 demo on the stack and on the image (quickstart.md §4, §5).
+- **Dev mode** (recorded manual check, quickstart.md §2): a route edit hot-reloads; `curl`
+  with a cookie shows the display name; `/health`, `/auth/me`, and `/library/nope` answer
+  JSON; the M0 echo works over `/ws`. A grep proves `dist/index.js` has no static vite
+  import.
 
 ### D14 — `check:host-scripts`
 
 No change (research R12). `config.ts` and `db.ts` are untouched. It re-runs inside
 `ci:check`.
 
-## Operator checkpoints
+## Operator checkpoints — resolved 2026-09-30
 
-1. **New dependencies** (runbook): the table below. Stop here. Implementation dispatch
-   waits for a yes.
-2. **Reserved paths**: this plan adds `/library` to `RESERVED_PREFIXES` in code. The card
-   (AC #3) and the runbook already list it, and TASK-0028 relies on it. The code omits it
-   today, so `/library/unknown` returns the SPA shell with a 200. The runbook calls any
-   change to the reserved set a contract change. Confirm this is alignment with the stated
-   contract, not a new one.
-3. **Unknown-path behaviour**: a typo'd non-reserved URL changes from a 200 shell to React
-   Router's 404. Confirm this is acceptable.
-4. **Hono adapter**: a hand-written bridge, no package (research R1). Confirm.
-5. **Dev mode**: no hot-reload dev server in this task (research R8). TASK-0028 may want
-   one. It would be a small follow-up card, or an addition to this task's scope.
-6. **Constitution Stack row**: `.specify/memory/constitution.md` still reads "React 19,
-   Vite SPA, TanStack Router and Query. Not SSR." The card names only architecture.md A1.
-   The constitution's governance says an amendment updates the file in the same change.
-   Decide whether this PR amends it (a PATCH bump citing decision-0008) or a separate card
-   does.
+The operator approved all six as recommended.
+
+1. **New dependencies**: approved as listed. `vite` for `apps/server` was added after the
+   checkpoint; it follows from approved checkpoint 5.
+2. **Reserved paths**: approved. Adding `/library` aligns the code with the stated contract.
+3. **Unknown-path behaviour**: approved. A non-reserved unknown path returns React Router's
+   404.
+4. **Hono adapter**: the hand-written bridge is approved (research R1).
+5. **Dev mode**: hot reload is in scope. Vite runs in middleware mode inside Hono (D7,
+   research R8).
+6. **Constitution Client row**: amended in this PR as a PATCH bump citing doc-0003 /
+   decision-0008 (T055).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| Client row of the constitution's Architecture Constraints table (SPA, TanStack) | doc-0003 / decision-0008, ratified 2026-09-29 | Keeping the SPA contradicts a ratified operator ruling |
+| ~~Client row of the constitution's Architecture Constraints table (SPA, TanStack)~~ Resolved in this PR: T055 amends the row (constitution 1.0.1) | doc-0003 / decision-0008, ratified 2026-09-29 | Keeping the SPA contradicts a ratified operator ruling |
 
 ## New dependencies
 
-All go into `apps/web/package.json`. `apps/server` and `packages/shared` gain none.
+All go into `apps/web/package.json`, except `vite` for `apps/server`. `packages/shared` gains
+none.
 
 | Package | Version | Why | Runtime or dev |
 |---|---|---|---|
@@ -335,6 +362,7 @@ All go into `apps/web/package.json`. `apps/server` and `packages/shared` gain no
 | `@react-router/dev` | 8.4.0 | Vite plugin, `react-router build`, `typegen` | dev |
 | `tailwindcss` | 4.3.3 | Tailwind v4 (ruling 2) | dev |
 | `@tailwindcss/vite` | 4.3.3 | Tailwind's Vite plugin (ruling 2) | dev |
+| `vite` (in `apps/server`) | ^8.3.0, already in the lockfile via `apps/web` | Dev-only `import("vite")` for hot reload (D7). Added after checkpoint; follows from approved checkpoint 5 | dev |
 
 **Removed**: `@tanstack/react-router`, `@tanstack/react-query`, `@vitejs/plugin-react`.
 

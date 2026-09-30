@@ -1,5 +1,8 @@
 # Research — 025 frontend stack migration
 
+Operator checkpoints resolved 2026-09-30: all approved as recommended (plan.md). R8 is
+amended accordingly.
+
 Decisions made against the code at `50d7fee`. doc-0003's rulings are taken as given; this
 file records only how to build them. Package versions were checked with `npm view` on
 2026-09-30. The lockfile already holds `react@19.3.0`, `react-dom@19.3.0`, `vite@8.3.0`; the
@@ -98,7 +101,7 @@ host runs Node `22.23.2`.
   accepts `web: { clientRoot?, handler? }` so tests inject both.
 - **Why `/library` joins the list**: card AC #3 and the runbook name it as reserved; the
   code omits it. Today `/library/unknown` falls through to the SPA shell with a 200. Adding
-  it aligns the code with the stated contract. See plan.md, operator checkpoint 2.
+  it aligns the code with the stated contract. Approved 2026-09-30 (plan.md checkpoint 2).
 - **Why module-relative**: `apps/server/dist/static.js` and `apps/web/build/` sit in the
   same relative position in a worktree and in the image (`/app/apps/…`). The Dockerfile's
   `WORKDIR` does not matter, as today.
@@ -140,21 +143,27 @@ host runs Node `22.23.2`.
 - **Why `noEmit`**: today `tsc -b` and `vite build` both write `apps/web/dist`. Nothing
   consumes web declarations, so emitting them is waste.
 
-## R8 — Dev mode: no hot-reload server in this task
+## R8 — Dev mode: Vite in middleware mode inside the Hono process
 
-- **Decision**: add no `dev` script. The loop is `pnpm build`, then run the server, either
-  on the per-worktree stack (`pnpm env:up`) or on the host against the stack's database
-  (quickstart.md §2).
-- **Why**: `apps/web` has no dev script today, so this is parity. A standalone
-  `react-router dev` cannot serve loaders here: the load context comes from the Hono process,
-  and ruling 5 forbids both importing `apps/server` and self-HTTP calls. Hot reload
-  therefore means running Vite in middleware mode inside the Hono process: a dev-only
-  dynamic `import("vite")`, a Node request bridge, and `ssrLoadModule` of the server build.
-  That is roughly thirty lines with its own failure modes.
-- **Seam left**: `createApp`'s `web.handler` option is exactly where a Vite-backed dev
-  handler plugs in later.
-- **Flag**: TASK-0028 is UI-heavy and may want hot reload. See plan.md, operator
-  checkpoint 5.
+Amended 2026-09-30 (plan.md checkpoint 5). This replaces the earlier "no dev script"
+decision.
+
+- **Decision**: `pnpm dev` runs the Hono server with Vite in middleware mode. The server
+  loads Vite by a dev-only dynamic `import("vite")` and plugs it in through `createApp`'s
+  `web.handler` seam. The handler is `ssrLoadModule("/server.ts")`, re-imported per request.
+  It runs against the per-worktree stack's database. Details: plan.md D7.
+- **Why in-process**: a standalone `react-router dev` cannot serve loaders here. The load
+  context comes from the Hono process, and ruling 5 forbids both importing `apps/server` and
+  self-HTTP calls. In-process Vite gives loaders the same load context as production.
+- **Why a separate HMR port**: the `/ws` gateway destroys every non-`/ws` upgrade on the app
+  port. Vite's HMR socket listens on `WEB_HMR_PORT` (default 24678) instead.
+- **Why reserved paths skip Vite**: Vite's middlewares serve files from `apps/web`. Routing
+  reserved requests straight to Hono keeps the reserved-path contract identical in dev.
+- **Production**: `index.ts` never imports `vite` statically, and the image has no `vite`.
+  `apps/server` gains `vite` as a devDependency for the import and its types. The version
+  already sits in the lockfile.
+- **Alternatives rejected**: `react-router dev` plus a proxy to Hono (loaders lose the load
+  context); a rebuild-and-restart loop only (slow for TASK-0028's UI work).
 
 ## R9 — Tailwind v4 and shadcn/ui
 
@@ -212,17 +221,18 @@ host runs Node `22.23.2`.
 ## R12 — `check:host-scripts`
 
 - **Decision**: no change. It imports `config.ts` and `db.ts` under strip-types for
-  `scripts/migrate.ts`. This task touches neither file. Phase 5 re-runs it inside `ci:check`.
+  `scripts/migrate.ts`. This task touches neither file. Phase 6 re-runs it inside `ci:check`.
 
 ## R13 — Engines
 
 - React Router 8.4.0 declares `node >=22.22.0`. The host runs 22.23.2. `.nvmrc` says `22`,
   and the image uses `node:22-alpine`, both floating to the latest 22.x. No change needed.
-  The Phase 5 image run proves the image's Node version.
+  The Phase 6 image run proves the image's Node version.
 
 ## New dependencies
 
-All go into `apps/web/package.json`. `apps/server` and `packages/shared` gain none.
+All go into `apps/web/package.json`, except `vite` for `apps/server`. `packages/shared` gains
+none.
 
 | Package | Version | Why | Runtime or dev |
 |---|---|---|---|
@@ -236,6 +246,7 @@ All go into `apps/web/package.json`. `apps/server` and `packages/shared` gain no
 | `@react-router/dev` | 8.4.0 | Vite plugin, `react-router build`, `typegen` | dev |
 | `tailwindcss` | 4.3.3 | Tailwind v4 (ruling 2) | dev |
 | `@tailwindcss/vite` | 4.3.3 | Tailwind's Vite plugin (ruling 2) | dev |
+| `vite` (in `apps/server`) | ^8.3.0, already in the lockfile via `apps/web` | Dev-only `import("vite")` for hot reload (R8). Added after checkpoint; follows from approved checkpoint 5 | dev |
 
 **Removed**: `@tanstack/react-router`, `@tanstack/react-query`, `@vitejs/plugin-react`.
 
