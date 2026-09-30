@@ -1,0 +1,52 @@
+Phase 2 (US1) evidence — TASK-0028, 2026-09-30
+
+## Automated checks
+
+apps/web build: pnpm --filter @the-stacks/web build → exit 0.
+apps/web typecheck: pnpm --filter @the-stacks/web typecheck → exit 0.
+apps/web test: pnpm --filter @the-stacks/web test → 38/38 pass (added books.test.mjs [8],
+  upload.test.mjs [8], and 2 ssr.test.mjs cases for /books).
+apps/server test (TEST_DATABASE_URL set from .env, against a migrated test DB):
+  Test Files 39 passed | 1 skipped (40); Tests 413 passed | 5 skipped (418).
+pnpm lint (biome check .): clean, 0 errors after formatting/unsafe-fix pass.
+pnpm check:boundaries: "boundary rules: 5/5 fixtures flagged" (all fixtures correctly flagged).
+git diff origin/main -- '*package.json' pnpm-lock.yaml: empty (no dependency change).
+node --test apps/web/test/contrast.test.mjs apps/web/test/no-dialog.test.mjs (run from
+  apps/web/): 10/10 pass.
+
+## T029 — manual run on the stack (quickstart §4)
+
+Stack: stacks-task-0028 (http://localhost:3028), rebuilt via
+`docker compose -p stacks-task-0028 up -d --build --wait`.
+
+Operational note (not a code change): rebuilding the app container recreated the db
+container; its volume came up unmigrated. `apps/server/scripts/migrate.ts` and
+`src/cli/create-operator.ts` both prefer `TEST_DATABASE_URL` over `DATABASE_URL` when
+run on the host (by design, for the host-run integration-test path), and `.env`'s
+`--env-file-if-exists` load lets that pre-existing `TEST_DATABASE_URL` win unless the
+shell already set it — so a bare `pnpm db:migrate` / `auth:create-operator` silently
+targets the long-lived TEST stack's database (port 25028) instead of this worktree's
+APP database (port 15028). Fix: export both `TEST_DATABASE_URL=""` (falls back to
+`DATABASE_URL`) and `DATABASE_URL=postgres://stacks:changeme@localhost:<DB_PORT>/stacks`
+in the shell before running either script. Ran:
+  TEST_DATABASE_URL="" DATABASE_URL=postgres://stacks:changeme@localhost:15028/stacks \
+    pnpm --filter @the-stacks/server db:migrate
+  TEST_DATABASE_URL="" DATABASE_URL=postgres://stacks:changeme@localhost:15028/stacks \
+    OPERATOR_PASSWORD=*** OPERATOR_USERNAME=operator \
+    pnpm --filter @the-stacks/server auth:create-operator
+
+Driven with playwright-core 1.63.0 (out-of-tree, PLAYWRIGHT_DIR) against Brave:
+1. Signed in as the operator; loader landed on /ask.
+2. Opened /books: empty-library dropzone and FR-015's text rendered.
+3. Chose apps/server/bench/retrieval/corpus/combat.md, title "Basic Rules", clicked Upload.
+4. Upload card appeared at once with file name (combat.md), size (37.1 KB), and a 0% → 100%
+   progress bar driven by XHR upload progress.
+5. On 202 the card cleared and Recent imports showed "Basic Rules" with the stage stepper.
+6. Polled without a reload; the stepper advanced Extract → Parse → Store → Embed and the
+   pill reached "Ready" (embedded, bge-m3) within a few seconds — no manual refresh.
+7. Final row: "Basic Rules" / "Ready" / all four stages done / "1 pages · 31 chunks ·
+   embedded 31 (bge-m3)" / a relative "started" time.
+
+Result: PASS — AC #1 holds on the stack (upload → progress → stages → terminal pill,
+no reload). Screenshots kept out of tree at /tmp/task-0028-evidence/ (not committed; T050/
+T051 in Phase 6 own the committed recording).

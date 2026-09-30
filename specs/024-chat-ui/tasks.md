@@ -60,14 +60,18 @@ the piloted run, and the Brave recording.
 
 ## Phase 2: US1 — Upload a book and watch it ingest (P1)
 
-- [ ] T022 [P] [US1] Create `apps/web/app/library/books.ts` (`bookKey`, `deriveBooks`, `pill`, `stageIndex`, `hasActive`) per plan D12. Create `apps/web/test/books.test.mjs`.
-- [ ] T023 [P] [US1] Create `apps/web/app/library/upload.ts` (`sendUpload`, `classifyUploadResponse`) per plan D12. Create `apps/web/test/upload.test.mjs` for the classifier.
-- [ ] T024 [US1] In the store, implement `seedJobs`, `refreshJobs`, and the chained 1500 ms poll per plan D12 and research R11. Handle `401` with `onUnauthorized` and `403` with `forbidden`.
-- [ ] T025 [US1] In the store, implement `upload` and `cancelUpload`: one at a time, progress into state, refresh jobs on `202` and after a cancel, messages from `classifyUploadResponse`.
-- [ ] T026 [US1] Create `apps/web/app/routes/books.tsx`: loader returns `{ forbidden: true }` for a player without calling `jobs()`, else `{ jobs }`. Render the title, subtitle, dropzone (label-wrapped file input), Book title field with the file-name default, upload card with Cancel, Recent imports with pill and stepper, and FR-015's empty text. Seed the store from loader data.
-- [ ] T027 [US1] Create `apps/web/app/components/sources.tsx`: the Sources button (icon, "Sources · n", rotating chevron, border, hover and pressed states, `aria-expanded`, `aria-controls="sources-panel"`) and the panel body (upload card on top, derived books with pills and "Open in Library", inline Add a book dropzone). Use `Panel` from T012.
-- [ ] T028 [US1] In `apps/web/test/ssr.test.mjs`, add: `/books` as operator with one embedded job shows "Ready" and the book; with no jobs shows FR-015's text.
-- [ ] T029 [US1] On the stack, run quickstart §4. Expect the pill to reach Ready or Search-only without a reload.
+- [x] T022 [P] [US1] Create `apps/web/app/library/books.ts` (`bookKey`, `deriveBooks`, `pill`, `stageIndex`, `hasActive`) per plan D12. Create `apps/web/test/books.test.mjs`.
+  - Deviation: also exports `STAGES` (the stepper's 4-stage tuple) and `jobDetail(job)` (the one-line detail string), reused by `routes/books.tsx`'s per-job rows so the pill/stepper/detail logic has one source, not two.
+- [x] T023 [P] [US1] Create `apps/web/app/library/upload.ts` (`sendUpload`, `classifyUploadResponse`) per plan D12. Create `apps/web/test/upload.test.mjs` for the classifier.
+- [x] T024 [US1] In the store, implement `seedJobs`, `refreshJobs`, and the chained 1500 ms poll per plan D12 and research R11. Handle `401` with `onUnauthorized` and `403` with `forbidden`.
+- [x] T025 [US1] In the store, implement `upload` and `cancelUpload`: one at a time, progress into state, refresh jobs on `202` and after a cancel, messages from `classifyUploadResponse`.
+- [x] T026 [US1] Create `apps/web/app/routes/books.tsx`: loader returns `{ forbidden: true }` for a player without calling `jobs()`, else `{ jobs }`. Render the title, subtitle, dropzone (label-wrapped file input), Book title field with the file-name default, upload card with Cancel, Recent imports with pill and stepper, and FR-015's empty text. Seed the store from loader data.
+  - Deviation: the component reads `store.jobs ?? loaderData.jobs ?? []` rather than the store alone — `useSyncExternalStore`'s server snapshot must equal the pre-hydration client snapshot (`jobs: null`, per store/provider.tsx), so the initial SSR/first-paint list has to come from loader data directly; the store take over once `seedJobs` runs in an effect. Same pattern will apply to `routes/ask.tsx` in Phase 3.
+- [x] T027 [US1] Create `apps/web/app/components/sources.tsx`: the Sources button (icon, "Sources · n", rotating chevron, border, hover and pressed states, `aria-expanded`, `aria-controls="sources-panel"`) and the panel body (upload card on top, derived books with pills and "Open in Library", inline Add a book dropzone). Use `Panel` from T012.
+  - Deviation: built as a self-contained component (owns its own `open` state via `useState`) since mounting it in the Ask header is T034's job (Phase 3); it is not imported anywhere yet, so it isn't exercised by a build/test until then.
+- [x] T028 [US1] In `apps/web/test/ssr.test.mjs`, add: `/books` as operator with one embedded job shows "Ready" and the book; with no jobs shows FR-015's text.
+- [x] T029 [US1] On the stack, run quickstart §4. Expect the pill to reach Ready or Search-only without a reload.
+  - Deviation (operational, not code): rebuilding the app container (`docker compose up -d --build --wait`) recreated the db container with an unmigrated volume. `db:migrate` / `auth:create-operator` prefer `TEST_DATABASE_URL` (from `.env`) over `DATABASE_URL` when run on the host, so a bare invocation silently targeted the long-lived TEST stack's database instead of this worktree's APP database. Ran both with `TEST_DATABASE_URL=""` and an explicit host-reachable `DATABASE_URL` (`localhost:$DB_PORT`) to target the right one. Recorded in `ci-evidence.txt`.
 
 **Checkpoint**: AC #1 holds on the stack.
 

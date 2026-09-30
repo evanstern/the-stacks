@@ -93,6 +93,56 @@ test("no UI cookie sets neither data-theme nor data-sidebar", async () => {
   assert.doesNotMatch(html, /data-sidebar="/);
 });
 
+test("/books as operator with one embedded job shows Ready and the book", async () => {
+  const job = {
+    id: "j1",
+    book: "Basic Rules",
+    status: "succeeded",
+    stage: null,
+    format: "markdown",
+    filename: "basic-rules.md",
+    bytes: 1024,
+    attempts: 1,
+    createdAt: new Date().toISOString(),
+    startedAt: null,
+    finishedAt: null,
+    heartbeatAt: null,
+    result: {
+      documentId: "d1",
+      chunkCount: 10,
+      pages: 5,
+      embedding: { status: "embedded", model: "bge-m3", count: 10 },
+    },
+    error: null,
+  };
+  const res = await handle(
+    new Request("http://localhost/books"),
+    stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }, [
+      job,
+    ]),
+  );
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(html, /Ready/);
+  assert.match(html, /Basic Rules/);
+});
+
+test("/books as operator with no jobs shows FR-015's empty text", async () => {
+  const res = await handle(
+    new Request("http://localhost/books"),
+    stubContext(
+      { id: "u1", displayName: "Ada Lovelace", role: "operator" },
+      [],
+    ),
+  );
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(
+    html,
+    /Your library is empty\. Upload your first book to start asking questions\./,
+  );
+});
+
 test("/play/<uuid> shows the hydrate fallback and no event list", async () => {
   const sessionId = "11111111-1111-1111-1111-111111111111";
   const res = await handle(
