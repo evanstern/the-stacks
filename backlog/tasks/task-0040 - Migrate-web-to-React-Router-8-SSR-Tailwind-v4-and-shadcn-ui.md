@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 03:51'
+updated_date: '2026-09-30 03:54'
 labels:
   - ui
 milestone: m-1
@@ -56,6 +56,8 @@ Spec 025 authoring dispatched (spec, plan, research, quickstart, tasks; standing
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Spec 025 landed (3094e99): spec, plan, research, quickstart, tasks (48 tasks, 5 phases); phase ACs seeded. Plan checkpoint pending operator: dependency table (react-router 8.4.0, @react-router/node, isbot, radix-ui, cva, clsx, tailwind-merge; dev: @react-router/dev, tailwindcss, @tailwindcss/vite; TanStack Router+Query and @vitejs/plugin-react removed), hand-written Hono bridge (no adapter package), /library added to RESERVED_PREFIXES (code omits it today), unknown paths 404 instead of the 200 shell, no hot-reload dev server, constitution Stack row amendment.
+
+Operator plan checkpoint 2026-09-30, approved all as recommended: (1) the dependency table as listed; (2) a hand-written Hono bridge, no adapter package; (3) /library added to RESERVED_PREFIXES; (4) unknown non-reserved paths return a React Router 404; (5) hot-reload dev (Vite middleware mode inside the Hono process) added to TASK-0040 scope; (6) constitution Stack row amended in this PR as a PATCH bump citing decision-0008.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
