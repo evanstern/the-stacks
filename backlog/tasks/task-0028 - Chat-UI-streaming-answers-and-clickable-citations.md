@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 01:15'
+updated_date: '2026-09-30 01:18'
 labels:
   - ui
 milestone: m-1
@@ -37,6 +37,14 @@ Spec: specs/024-chat-ui
 Operator ruling 2026-09-29 (on merging PR #27, the M1 wave-2 runbook): TASK-0028 runs through pdlc:design-rounds in a sister session, not through the wave-2 sweep. The sweep orchestrator announces when 0027 and 0024 have merged and hands off a brief blurb.
 
 Claimed 2026-09-29 for pdlc:design-rounds. Long-running worktree: .worktrees/task-0028, branch task-0028-chat-ui (cut from origin/main 8a79429). Spec number 024 claimed up front per the operator brief, overriding the skill's deferred-claim default; spec-bridge:link and the Spec Kit cycle still wait for the decision record.
+
+Design-rounds binding constraints (Phase 2, checked every round):
+- Constitution VIII: ask + ingestion are operator-only; book text appears only as citations to the operator. Players get 403. No widening without an amendment.
+- V: every rules claim carries book, section, exact quote; operator clicks through to the passage. Refusal discards streamed deltas; error keeps text marked interrupted; done.dropped>0 may show a notice.
+- I: every UI action is a plain fetch to a documented route (POST /library/ask via fetch+stream reader; POST /library/uploads multipart, XHR only for progress; poll GET /library/jobs every 1-2s).
+- IX: self-hostable; no CDN fonts or assets. System font stacks or self-hosted files only.
+- Stack: React 19 + Vite SPA + TanStack Router/Query; web has zero styling today, so no existing visual system constrains the choice. A UI library needs justification.
+- Mock copy: SRD/original text only (fixture "Basic Rules"; question "How does grappling work?"), never real PHB text.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
