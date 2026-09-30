@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 08:02'
+updated_date: '2026-09-30 08:44'
 labels:
   - ui
 milestone: m-1
@@ -29,6 +29,12 @@ Spec: specs/024-chat-ui
 - [ ] #2 Answers stream into the chat as they generate
 - [ ] #3 Clicking a citation opens the source passage with the quoted span highlighted
 - [ ] #4 The M1 demo runs in two browsers from the per-worktree stack
+- [ ] #5 Spec phase: Foundation — theme, cookies, load context, store, panel, shell
+- [ ] #6 Spec phase: US1 — Upload a book and watch it ingest (P1)
+- [ ] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
+- [ ] #8 Spec phase: US3 — Open a citation's source passage (P1)
+- [ ] #9 Spec phase: US4 — Player views, the Table landing, and the two-browser run (P2)
+- [ ] #10 Spec phase: Verification, evidence, and re-grounding
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -102,6 +108,8 @@ Released from hold 2026-09-30: TASK-0040 merged (PR #39, 1446fd0) and synced Don
 
 Spec 024 plan/research/quickstart/tasks authoring dispatched against the TASK-0040 base (standing spec-authoring ruling). Stops at the dependency and design checkpoint.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Spec 024 plan cycle landed (9bfad00): plan, research, quickstart, tasks (55 tasks, 6 phases); spec.md amended: the Library page URL is /books because /library is reserved. Phase ACs seeded. Plan checkpoint pending operator: (1) no new dependencies; (2) shadcn Sheet (Radix Dialog primitive, edge-anchored, overlay dim) accepted under no-modals, with the dialog gate rescoped to no dialog.tsx/alert-dialog.tsx, no <dialog/showModal/AlertDialog, "Dialog" only in sheet.tsx, enforced by a test; (3) Library at /books; (4) inline SVG icons, no lucide-react; (5) new load-context method StacksLoadContext.jobs(), operator-only; (6) UI cookies stacks-sidebar/stacks-theme written client-side, not HttpOnly; (7) the answering purpose is confirmed present in the root .env (checked without printing).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
