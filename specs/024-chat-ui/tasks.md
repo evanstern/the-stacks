@@ -77,12 +77,12 @@ the piloted run, and the Brave recording.
 
 ## Phase 3: US2 — Ask a question and watch the answer stream (P1)
 
-- [ ] T030 [P] [US2] Create `apps/web/app/ask/types.ts`, restating `ask-sse.md`'s events and citing it.
-- [ ] T031 [P] [US2] Create `apps/web/app/ask/sse.ts` per plan D10 and research R9. Create `apps/web/test/sse.test.mjs`.
-- [ ] T032 [P] [US2] Create `apps/web/app/ask/turns.ts` per plan D10. Create `apps/web/test/turns.test.mjs`, including SC-004 (a refusal leaves zero streamed words).
-- [ ] T033 [US2] In the store, implement `ask`, `stop`, and `retry` per plan D10: the fetch, the reader loop, the `400`/`401`/`403` branches, the end-without-terminal case, and one stream at a time.
-- [ ] T034 [US2] Create `apps/web/app/routes/ask.tsx`: loader as in T026. Render the conversation, the prompt bar with its disclaimer, "Enter a question.", the Stop pill, Stopped/Interrupted/Refused states with Retry, the dropped notice, and FR-031's empty state. Mount the Sources button and panel from T027 in the header.
-- [ ] T035 [US2] On the stack, ask `How does grappling work?`. Move to Library mid-stream and back. Expect the stream to continue (FR-028).
+- [x] T030 [P] [US2] Create `apps/web/app/ask/types.ts`, restating `ask-sse.md`'s events and citing it.
+- [x] T031 [P] [US2] Create `apps/web/app/ask/sse.ts` per plan D10 and research R9. Create `apps/web/test/sse.test.mjs`.
+- [x] T032 [P] [US2] Create `apps/web/app/ask/turns.ts` per plan D10. Create `apps/web/test/turns.test.mjs`, including SC-004 (a refusal leaves zero streamed words).
+- [x] T033 [US2] In the store, implement `ask`, `stop`, and `retry` per plan D10: the fetch, the reader loop, the `400`/`401`/`403` branches, the end-without-terminal case, and one stream at a time.
+- [x] T034 [US2] Create `apps/web/app/routes/ask.tsx`: loader as in T026. Render the conversation, the prompt bar with its disclaimer, "Enter a question.", the Stop pill, Stopped/Interrupted/Refused states with Retry, the dropped notice, and FR-031's empty state. Mount the Sources button and panel from T027 in the header.
+- [x] T035 [US2] On the stack, ask `How does grappling work?`. Move to Library mid-stream and back. Expect the stream to continue (FR-028).
 
 **Checkpoint**: AC #2 holds on the stack.
 
