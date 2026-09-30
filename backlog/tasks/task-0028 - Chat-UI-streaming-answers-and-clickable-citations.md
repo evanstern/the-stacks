@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 02:56'
+updated_date: '2026-09-30 03:11'
 labels:
   - ui
 milestone: m-1
@@ -91,6 +91,8 @@ Round 3 operator selection 2026-09-29: P (sources slide-out panel). Modification
 
 Spec 024 authoring dispatched to opus-implementer (spec authoring; operator brief names this tier, per the standing spec-authoring ruling 2026-09-29). Inputs: docs/design/chat-ui/decision.md, the card, contracts 018/017 unchanged, constitution, round-2/3 mocks, wiki notes.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Operator hold 2026-09-29: a frontend refactor that changes the apps/web base comes first and takes precedence. No code for TASK-0028 until the operator says go. The spec 024 dispatch was narrowed in flight to spec.md only, kept free of frontend structure; plan.md, research.md, quickstart.md and tasks.md wait for the refactor to land. spec-bridge:link waits too. Resume: re-read the refactored apps/web and the wiki, then author plan and tasks against the new base.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
