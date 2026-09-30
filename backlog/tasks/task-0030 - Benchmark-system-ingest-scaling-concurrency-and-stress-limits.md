@@ -1,10 +1,10 @@
 ---
 id: TASK-0030
 title: 'Benchmark system: ingest scaling, concurrency, and stress limits'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-29 23:02'
+updated_date: '2026-09-30 01:02'
 labels:
   - bench
 milestone: m-1
@@ -38,7 +38,7 @@ Spec: specs/021-load-bench
 - [x] #10 Spec phase: User Story 4 — tiers, visible skips, and the CLI (P1, AC #4)
 - [x] #11 Spec phase: User Story 3 — stress cases (P2, AC #3)
 - [x] #12 Spec phase: User Story 5 — compare runs over time (P2, AC #5)
-- [ ] #13 Spec phase: Polish, gates, re-grounding, and the dev run
+- [x] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -64,7 +64,15 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 T026 deferred by operator 2026-09-29 (option A): dev has no operator account (users table empty) and the runtime image does not ship scripts/create-operator.ts. Carded TASK-0036; the dev load run happens after it merges. The PR does not wait on T026 (spec).
 
 spec-bridge sync: Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 8/9
+
+spec-bridge sync: Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 9/9). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

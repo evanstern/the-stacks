@@ -3,10 +3,10 @@ id: TASK-0036
 title: >-
   Ship create-operator in the runtime image; document first-operator setup on
   dev
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-09-29 22:58'
-updated_date: '2026-09-29 23:28'
+updated_date: '2026-09-30 01:02'
 labels:
   - infra
   - auth
@@ -30,9 +30,9 @@ Spec: specs/023-create-operator-image
 - [ ] #2 docs/ops/dev-vm-104.md gains a 'Create the first operator' section with the exact command; the password is typed at the prompt, never on the command line
 - [ ] #3 The command is proven on a local stack; the real dev run is an operator step (vm-104 command consent)
 - [ ] #4 TASK-0030 T026 (dev load run) runs after this merges, and its results file is committed
-- [ ] #5 Spec phase: US1 + US2 — compiled entry point (Priority: P1)
-- [ ] #6 Spec phase: US3 — runbook and docs (Priority: P2)
-- [ ] #7 Spec phase: Verification, local proof, re-grounding, cleanup
+- [x] #5 Spec phase: US1 + US2 — compiled entry point (Priority: P1)
+- [x] #6 Spec phase: US3 — runbook and docs (Priority: P2)
+- [x] #7 Spec phase: Verification, local proof, re-grounding, cleanup
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -43,7 +43,15 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 (all phases, one grouped dispatch: CLI moved to src/cli, compiled into dist; local proof create exit 0 / second run refuses exit 1 / dev-shaped command works; freshness OK 36). Orchestrator verified: no Dockerfile or .claude change; check:host-scripts drops only auth/password.ts and schema/auth.ts (imported only by the old uncompiled script).
+
+spec-bridge sync: US1 + US2 — compiled entry point (Priority: P1): 6/6 · US3 — runbook and docs (Priority: P2): 2/2 · Verification, local proof, re-grounding, cleanup: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (US1 + US2 — compiled entry point (Priority: P1): 6/6 · US3 — runbook and docs (Priority: P2): 2/2 · Verification, local proof, re-grounding, cleanup: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

@@ -45,7 +45,7 @@ sources:
   - specs/021-load-bench/tasks.md
   - specs/021-load-bench/research.md
   - specs/021-load-bench/contracts/results-format.md
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 54055b282f47cc91954fc5af2bfaa7b859b0458d
 ---
 
 # Benchmarks
@@ -219,6 +219,11 @@ and signs that session out in a `finally` regardless of outcome, verifying it wi
 `/auth/me` expecting `401`. A failed sign-out itself fails the case rather than silently
 leaving a live session. No results file the dev tier writes ever carries the dev URL, host,
 username, password, or session cookie — enforced by a dedicated unit test (invariant 9).
+
+First real dev run (2026-09-30, `results/2026-09-30-3e58d52-6fbc6eae.json`): 0 errors at
+1/5/10/25 users, http p95 21-28 ms, WebSocket connect p95 58-150 ms, verdict no degradation up
+to 25 users; the session ended and `dev` held no sessions, events, or jobs afterwards. It ran
+as the operator account TASK-0036 made creatable (see [[operator-provisioning]]).
 
 ## Connections
 

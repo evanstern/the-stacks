@@ -1,0 +1,4 @@
+
+## T026 dev run (operator-run, 2026-09-30)
+
+Operator ran `pnpm bench:load run --tier dev --allow-dev` from the Mac against https://vm-104.tailb3c1b6.ts.net:8443 as `operator` (account created via TASK-0036). Result `results/2026-09-30-3e58d52-6fbc6eae.json`: 0 errors at 1/5/10/25 users (76/380/744/1900 requests); http p95 21.3/26.1/28.1/21.8 ms; ws connect p95 58-150 ms; VERDICT no degradation up to 25 users. sessionEnded 1. Orchestrator verified on dev afterwards: auth_sessions 0, events 0, jobs 0 (nothing left behind). First attempts: a 401 from a shell-quoted password, then `read -rs` inside a `!` command had no TTY; a real terminal worked.
