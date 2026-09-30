@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "build/**"]
     },
     "lint": {},
     "typecheck": {
@@ -11,6 +11,10 @@
     },
     "test": {
       "dependsOn": ["^build"],
+      "cache": false
+    },
+    "@the-stacks/web#test": {
+      "dependsOn": ["build"],
       "cache": false
     }
   },

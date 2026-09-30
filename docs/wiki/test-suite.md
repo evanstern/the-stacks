@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is now its own typechecked project reference. The larger, separate ingestion-pipeline suite under test/library/ is [[ingestion]]; the retrieval benchmark's own suite under test/bench/ is [[benchmarks]].
+description: What this note's 12 core server test files / 90 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam. The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Test suite
@@ -39,12 +39,15 @@ loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], in
 the load bench's tests are *always* skipped, by name, even with a reachable database.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
-session auth (US1–US4), the event log's append/read/visibility, and the WebSocket gateway's
-Phase 2–7 behavior (fan-out, server authority, the replay/live boundary, visibility filtering)
-respectively. The rest are unit-level: password hashing, `loadConfig`'s `uploadMaxBytes`
-validation (`config.test.ts`, TASK-0024), the DB reachability probe, the echo route (including
-a generic `PayloadTooLargeError` → 413 case added for TASK-0024, see [[error-contract]]),
-plain event-log helpers, `/health`, static-serving/SPA-fallback ordering, and the
+session auth (US1–US4, plus one case added for TASK-0040: the shared `identityLookup`
+resolves the user for a live token and `null` after sign-out), the event log's
+append/read/visibility, and the WebSocket gateway's Phase 2–7 behavior (fan-out, server
+authority, the replay/live boundary, visibility filtering) respectively. The rest are
+unit-level: password hashing, `loadConfig`'s `uploadMaxBytes` validation (`config.test.ts`,
+TASK-0024), the DB reachability probe, the echo route (including a generic
+`PayloadTooLargeError` → 413 case added for TASK-0024, see [[error-contract]]), plain
+event-log helpers, `/health`, the web middleware's reserved-path/asset/handler-seam behavior
+(`static.test.ts`, rewritten for TASK-0040 — see [[static-serving]]), and the
 protocol/subscribe modules in isolation.
 
 ## How it works
@@ -64,10 +67,12 @@ exists to run.
 
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
-resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **47
-tests pass, 43 skip**, out of 90 (TASK-0024 added `config.test.ts`'s 5 always-run cases and one
+resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **46
+tests pass, 44 skip**, out of 90 (TASK-0024 added `config.test.ts`'s 5 always-run cases and one
 case to `echo.test.ts`'s gated-free `describe`, on top of TASK-0032's `isUniqueViolation`
-cases). A green run in this state proves the unit-level behavior only; every session-auth flow,
+cases; TASK-0040 added one gated case to `auth.integration.test.ts` and rewrote
+`static.test.ts` onto the new web-middleware seam, netting no change to the file's own test
+count). A green run in this state proves the unit-level behavior only; every session-auth flow,
 every event-log write/read, and the entire WebSocket gateway (including
 [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
 pass/fail summary, not the warning text, would not notice. With a reachable database and

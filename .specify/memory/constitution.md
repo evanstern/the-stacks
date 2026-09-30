@@ -1,6 +1,27 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 1.0.0 -> 1.0.1
+Bump rationale: PATCH. Client row of the Architecture Constraints table only,
+  ratified by decision-0008 / doc-0003 (2026-09-29). No principle redefined,
+  no obligation changed — the row now names the client stack the operator
+  ratified (React Router 8 framework mode, SSR by default) in place of the
+  superseded "SPA, not SSR" choice.
+
+Principles amended: none.
+
+Sections amended:
+  - Architecture Constraints (Client row only)
+
+Templates requiring updates: none — no template references the superseded
+  Client row text.
+
+Deferred TODOs: none.
+
+Provenance: doc-0003 (Frontend stack — rulings) and decision-0008, ratified
+  2026-09-29.
+
+==================
 Version change: none (template placeholders) -> 1.0.0
 Bump rationale: MAJOR/initial. First concrete ratification of the constitution.
   The file previously held only unfilled template tokens, so this is an initial
@@ -176,7 +197,7 @@ These bind until amended. They are ratified decisions, not defaults.
 | Language | TypeScript end to end. No Python service in V1. |
 | Topology | One Node process: REST, WebSocket, worker loop, agent runtime. |
 | Server | Node 22, Hono, `ws` |
-| Client | React 19, Vite SPA, TanStack Router and Query. Not SSR. |
+| Client | React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui. Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29). |
 | Tabletop | PixiJS v8 (WebGL), DOM overlays for UI |
 | Datastore | Postgres 17 with pgvector: relational, vectors, job queue, event log |
 | ORM | Drizzle, with versioned migrations |
@@ -244,4 +265,4 @@ alternative and why it was rejected. An unjustified violation blocks the merge.
 `docs/design/milestones.md`. Those documents remain the reasoning; this file is
 the obligation.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-22
+**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-30

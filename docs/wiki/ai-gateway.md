@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # AI gateway

@@ -7,6 +7,7 @@
     "build": "tsc -b",
     "typecheck": "tsc -b",
     "test": "vitest run",
+    "dev": "tsc -b && STACKS_WEB_DEV=1 node --env-file-if-exists=../../.env dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/migrate.ts",
     "auth:create-operator": "tsc -b && node --env-file-if-exists=../../.env dist/cli/create-operator.js",
@@ -32,6 +33,7 @@
     "@types/ws": "^8.18.1",
     "@types/yauzl": "^3.4.0",
     "drizzle-kit": "^0.31.11",
+    "vite": "^8.3.0",
     "vitest": "^5.0.1"
   }
 }

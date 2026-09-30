@@ -1,6 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { identityKey } from "../auth/useAuth";
 import type { RecordedEvent, ServerFrame } from "./types";
 
 export type ConnectionStatus = "connecting" | "open" | "retrying";
@@ -17,8 +15,7 @@ const RETRY_DELAY_MS = 1000;
  * NEVER incremented to guess a "next expected" value — seq gaps caused by
  * visibility filtering are correct, not missed events.
  */
-export function useSession(sessionId: string) {
-  const queryClient = useQueryClient();
+export function useSession(sessionId: string, onSignedOut: () => void) {
   const [events, setEvents] = useState<RecordedEvent[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [caughtUp, setCaughtUp] = useState(false);
@@ -53,7 +50,7 @@ export function useSession(sessionId: string) {
         if (res.status === 401) {
           // Same move as a real /auth/me 401 elsewhere: flip identity, and
           // the root view returns to sign-in (FR-014's "401 -> sign in").
-          queryClient.setQueryData(identityKey, null);
+          onSignedOut();
           return;
         }
         authenticated = res.ok;
@@ -116,7 +113,7 @@ export function useSession(sessionId: string) {
       socketRef.current?.close();
       socketRef.current = null;
     };
-  }, [sessionId, queryClient]);
+  }, [sessionId, onSignedOut]);
 
   const send = useCallback(
     (text: string): boolean => {

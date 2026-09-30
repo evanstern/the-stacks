@@ -1,5 +1,7 @@
 import os from "node:os";
+import type { WebRequestHandler } from "@the-stacks/shared";
 import { Hono } from "hono";
+import { createIdentityLookup } from "./auth/identity.js";
 import type { DbClient } from "./auth/session.js";
 import { createValidateSession } from "./auth/session.js";
 import type { DatabaseProbe } from "./db.js";
@@ -9,7 +11,7 @@ import { createAuthRoutes } from "./routes/auth.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createLibraryRoutes } from "./routes/library.js";
-import { createStaticMiddleware } from "./static.js";
+import { createWebMiddleware } from "./static.js";
 
 /** Ceiling on a single upload's file-part size (config.ts UPLOAD_MAX_BYTES). Test-safe default: 1 GiB. */
 const DEFAULT_UPLOAD_MAX_BYTES = 1_073_741_824;
@@ -17,8 +19,11 @@ const DEFAULT_UPLOAD_MAX_BYTES = 1_073_741_824;
 export interface CreateAppOptions {
   databaseProbe: DatabaseProbe;
   db: DbClient;
-  /** Override for the SPA's static root — tests point this at a fixture. */
-  staticRoot?: string;
+  /** Web app mount overrides — tests inject both to point at a fixture and a fake handler (plan D4). */
+  web?: {
+    clientRoot?: string;
+    handler?: () => Promise<WebRequestHandler>;
+  };
   /** Git commit surfaced at /health (config.ts). Defaults to "unknown" for tests. */
   commit?: string;
   /** `/library` route wiring (specs/017-ingestion-pipeline). Test-safe defaults below. */
@@ -46,17 +51,20 @@ export interface CreateAppOptions {
 export function createApp({
   databaseProbe,
   db,
-  staticRoot,
+  web,
   commit = "unknown",
   library,
 }: CreateAppOptions) {
   const app = new Hono();
   const validateSession = createValidateSession(db);
+  // Built once and shared by /auth/me and the web load context, so the two
+  // callers cannot drift (plan D2).
+  const identityLookup = createIdentityLookup({ db, validateSession });
   app.onError(errorHandler);
   app.notFound(notFoundHandler);
   app.route("/health", createHealthRoute(databaseProbe, commit));
   app.route("/api/echo", createEchoRoute());
-  app.route("/auth", createAuthRoutes({ db, validateSession }));
+  app.route("/auth", createAuthRoutes({ db, validateSession, identityLookup }));
   app.route(
     "/library",
     createLibraryRoutes({
@@ -68,9 +76,17 @@ export function createApp({
       answer: library?.answer,
     }),
   );
-  // Mounted LAST (plan D2): the SPA fallback must never shadow the routes
-  // above, whose unknown sub-paths keep returning the structured JSON 404.
-  app.use("*", createStaticMiddleware(staticRoot));
+  // Mounted LAST (plan D4): the web app's own fallback must never shadow
+  // the routes above, whose unknown sub-paths keep returning the
+  // structured JSON 404.
+  app.use(
+    "*",
+    createWebMiddleware({
+      clientRoot: web?.clientRoot,
+      handler: web?.handler,
+      lookup: identityLookup,
+    }),
+  );
   return app;
 }
 

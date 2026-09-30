@@ -1,12 +1,13 @@
 ---
 name: m0-demo
-description: The M0 milestone check itself — two browsers with separate cookie jars, signed in as different accounts, exchanging a message through the event log, with reload replaying history; the session id is a hand-generated UUID and there is no session registry by design.
+description: The M0 milestone check itself — two browsers with separate cookie jars, signed in as different accounts, exchanging a message through the event log, with reload replaying history; the session id is a hand-generated UUID and there is no session registry by design. Since the React Router migration (TASK-0040), the per-PR procedure also runs against a standalone built container image, and browser automation is pinned to Brave.
 kind: pipeline
 sources:
   - specs/007-spa-shell-demo/quickstart.md
   - specs/007-spa-shell-demo/spec.md
-  - apps/web/src/routes/play.tsx
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+  - specs/025-frontend-stack/quickstart.md
+  - apps/web/app/routes/play.tsx
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # M0 demo
@@ -14,7 +15,12 @@ verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
 The procedure in `specs/007-spa-shell-demo/quickstart.md` is TASK-0016's AC#7 and, per that
 spec's header, *is* the M0 milestone from `docs/design/milestones.md`: "two browsers sign in;
 a message from one appears in the other via the event log." Every note under Realtime and
-Client exists to make this procedure work.
+Client exists to make this procedure work. `specs/025-frontend-stack/quickstart.md` §4–§5
+runs the same procedure against the React Router app (TASK-0040): §4 against a per-worktree
+compose stack (port `$APP_PORT`, not the fixed `3000` the 007 quickstart assumes), and §5
+against a standalone `docker build`+`docker run` of the image, proving the demo works outside
+`env:up`'s own build path too. Both variants are recorded per-PR (runbook amendment: "two demo
+runs", card AC #7).
 
 ## How it works
 
@@ -27,18 +33,21 @@ two-account step is unavoidable, not a shortcut worth skipping.
 **The two browsers must not share a cookie jar.** The session cookie is `HttpOnly`
 ([[session-auth]]); two tabs in one browser profile are one identity and would prove nothing.
 The quickstart calls for two different browsers, or a browser plus a private window, or two
-separate profiles.
+separate profiles — since TASK-0040 the per-PR gates pin browser automation to Brave, run as
+two `--user-data-dir` profiles (or two isolated `playwright-core` persistent contexts) rather
+than Chrome.
 
 **The session id is a hand-generated UUID, opened directly.** There is no session-creation or
 session-listing affordance anywhere in the stack — [[ws-protocol]] states this is deliberate
 ("No play-session creation or listing... a client subscribes to an identifier it already
-knows"), and `router.tsx`'s comment on the `/play/$sessionId` route calls it out explicitly
-(D6): "the session id rides the URL — no registry exists to look it up through, so both
-browsers reach one session by opening the same link." The id must be a **valid UUID**, because
-`session_id` is a `uuid` column in the event log (see [[database-schema]]) — the quickstart has
-the operator run `uuidgen | tr 'A-Z' 'a-z'` and both browsers open
-`http://localhost:3000/play/<that-uuid>`, one signed in as `operator`, the other as the
-invited account.
+knows"), and `routes.ts`'s `play/:sessionId` route, resolved in `play.tsx`'s `clientLoader`
+(`{ sessionId: params.sessionId }`, see [[react-router-app]]), carries the same D6 intent the
+pre-migration `router.tsx` comment stated: the session id rides the URL — no registry exists
+to look it up through, so both browsers reach one session by opening the same link. The id
+must be a **valid UUID**, because `session_id` is a `uuid` column in the event log (see
+[[database-schema]]) — the quickstart has the operator run `uuidgen | tr 'A-Z' 'a-z'` and both
+browsers open `http://localhost:$APP_PORT/play/<that-uuid>`, one signed in as `operator`, the
+other as the invited account.
 
 **The check itself:** type a message in one browser; it appears in the other, and also in the
 sender's own view exactly once — because [[client-session-hook]] renders on the arriving
@@ -52,7 +61,7 @@ been delivered.
 
 Exercises the full realtime path end to end: [[websocket-gateway]] → [[event-log]] →
 [[replay-live-boundary]] / [[subscriber-registry]] → [[client-session-hook]] →
-[[spa-shell]]'s `PlayView`. The automated counterpart is [[test-suite]]'s integration
+[[react-router-app]]'s `play/:sessionId` route. The automated counterpart is [[test-suite]]'s integration
 files, which [[ci-pipeline]] runs against a real database on every PR and push to main;
 this manual procedure remains the check that the demo works in real browsers, which no
 automated suite covers.

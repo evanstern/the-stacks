@@ -1,25 +1,9 @@
-/** Sign-in, sign-out, and `me` — thin fetch wrappers over contracts/http-auth.md. */
+/** Sign-in and sign-out — thin fetch wrappers over contracts/http-auth.md. */
 
-export interface User {
-  id: string;
-  displayName: string;
-  role: string;
-}
+import type { PublicUser } from "@the-stacks/shared";
 
 interface UserResponse {
-  user: User;
-}
-
-/**
- * `GET /auth/me` — the ONLY source of identity truth (spec D3, FR-007).
- * `401` means "signed out", not an error: it's the answer AC1 asks for.
- */
-export async function fetchMe(): Promise<User | null> {
-  const res = await fetch("/auth/me", { credentials: "same-origin" });
-  if (res.status === 401) return null;
-  if (!res.ok) throw new Error(`GET /auth/me failed: ${res.status}`);
-  const body = (await res.json()) as UserResponse;
-  return body.user;
+  user: PublicUser;
 }
 
 /**
@@ -30,7 +14,7 @@ export async function fetchMe(): Promise<User | null> {
 export async function signIn(
   username: string,
   password: string,
-): Promise<User> {
+): Promise<PublicUser> {
   const res = await fetch("/auth/sign-in", {
     method: "POST",
     credentials: "same-origin",

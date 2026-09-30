@@ -1,11 +1,11 @@
 ---
 name: server-entrypoint-and-app
-description: How index.ts wires config, db, the ingest worker, the Hono app, and the WebSocket gateway onto one server; app.ts's route mount order and why static is mounted last. Load for "where does X get wired up" or route-ordering questions.
+description: How index.ts wires config, db, the ingest worker, the Hono app, and the WebSocket gateway onto one server; app.ts's route mount order and why the web middleware is mounted last; and, since TASK-0040, index.ts's STACKS_WEB_DEV-gated Vite middleware-mode wrapper around the same HTTP server. Load for "where does X get wired up" or route-ordering questions.
 kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: 69b6f01a903f1b9189da332b362f2bd3cc601e71
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Server entrypoint and app
@@ -55,23 +55,41 @@ inside `createApp` (threaded into the auth routes) and once here for the gateway
 the same `db`, so HTTP and WebSocket share one session-validation seam (see
 [[session-auth]]).
 
-`app.ts`'s `createApp` takes `{ databaseProbe, db, staticRoot?, commit?, library? }`
-(`staticRoot` is a test-only override for the SPA's static root; `commit` defaults to
+`app.ts`'s `createApp` takes `{ databaseProbe, db, web?, commit?, library? }` (`web` is `{
+clientRoot?, handler? }`, test-only overrides for the web app's static root and SSR handler —
+this replaced the earlier `staticRoot?` when the app moved to React Router SSR, TASK-0040;
+`commit` defaults to
 `"unknown"` and is passed straight to `createHealthRoute` — see [[health-check]]; `library`
 is `{ uploadMaxBytes?, uploadDir?, onEnqueued?, answer? }`, each falling back to a test-safe
 default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and, for `answer`
 (`Omit<AnswerDeps, "db">`, TASK-0027), [[rules-answerer]]; an absent `answer` makes
 `POST /library/ask` stream a single SSE `error` event, `{kind:"config"}`, rather than the
 `{error:{kind,...}}` JSON shape [[error-contract]] describes for non-streamed routes) and
-returns a plain `Hono` app with no port bound. It registers, **in this exact order**: `app.onError(errorHandler)` /
-`app.notFound(notFoundHandler)` first, then `app.route("/health", ...)`, `app.route("/api/echo",
-...)`, `app.route("/auth", ...)`, `app.route("/library", createLibraryRoutes(...))` (TASK-0024,
-[[ingestion]]), and finally `app.use("*", createStaticMiddleware(staticRoot))`.
-The static middleware is mounted **last** on purpose: it is a catch-all (`"*"`) SPA fallback,
-and anything mounted after it would never be reached, so every real route must be registered
-before it (see [[static-serving]]). `/ws` never appears in this list — it is not a Hono
-route at all; the gateway intercepts it at the HTTP upgrade event, before Hono's own routing
-runs.
+returns a plain `Hono` app with no port bound. It builds one `identityLookup`
+(`createIdentityLookup({ db, validateSession })`, plan D2) shared by `/auth/me` and the web
+load context, so the two callers cannot drift. It registers, **in this exact order**:
+`app.onError(errorHandler)` / `app.notFound(notFoundHandler)` first, then `app.route("/health",
+...)`, `app.route("/api/echo", ...)`, `app.route("/auth", ...)`, `app.route("/library",
+createLibraryRoutes(...))` (TASK-0024, [[ingestion]]), and finally `app.use("*",
+createWebMiddleware({ clientRoot: web?.clientRoot, handler: web?.handler, lookup:
+identityLookup }))`. The web middleware is mounted **last** on purpose: it is a catch-all
+(`"*"`) fallback ending in a full SSR render for anything not otherwise matched, and anything
+mounted after it would never be reached, so every real route must be registered before it
+(see [[static-serving]]). `/ws` never appears in this list — it is not a Hono route at all;
+the gateway intercepts it at the HTTP upgrade event, before Hono's own routing runs.
+
+**Dev mode (TASK-0040, plan D7, research R8), gated by `STACKS_WEB_DEV=1`.** `index.ts`
+imports `web-dev.js` — which itself dynamically `import()`s `vite`, so production code never
+pulls Vite in — only behind that env var: `const webDev = process.env.STACKS_WEB_DEV === "1"
+? await (await import("./web-dev.js")).createWebDev() : undefined`. When set, `createApp` is
+given `web: { handler: webDev.handler }` (skipping the built `apps/web/build/server/index.js`
+entirely — Vite serves the SSR module fresh, per request, via `ssrLoadModule`), and `serve()`
+is passed a custom `createServer` wrapper: a plain `node:http` server whose request listener
+checks `isReservedPath` ([[static-serving]]) on the raw URL — a reserved request goes straight
+to Hono's own listener; everything else runs through `webDev.middlewares` first (Vite's own
+middleware stack in middleware mode), which falls through to Hono via `next()` for anything
+Vite doesn't itself serve (static assets, HMR websocket, the SSR call). `gateway.attach(server)`
+is unaffected either way — it always attaches to whichever server `serve()` returns.
 
 ## Connections
 

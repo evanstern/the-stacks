@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
+import { createIdentityLookup } from "../src/auth/identity.js";
 import { redeemInvitation } from "../src/auth/invitations.js";
 import { hashPassword } from "../src/auth/password.js";
 import { createOperator, hasOperator } from "../src/auth/provisioning.js";
@@ -282,6 +283,26 @@ describe.skipIf(!reachable)("session auth (US1-US4, integration)", () => {
 
     expect(direct).toEqual({ userId: user.id, role: "player" });
     expect(meBody.user.id).toBe(direct?.userId);
+  });
+
+  it("spec 025 T010: the identity lookup resolves the public user for a live token, and null after sign-out", async () => {
+    const { user } = await createTestUser("correct horse battery staple");
+    const { token } = await createSession(requireDb(), user.id);
+    const validateSession = createValidateSession(requireDb());
+    const lookup = createIdentityLookup({ db: requireDb(), validateSession });
+
+    expect(await lookup(token)).toEqual({
+      id: user.id,
+      displayName: user.displayName,
+      role: "player",
+    });
+
+    await requireApp().request("/auth/sign-out", {
+      method: "POST",
+      headers: { cookie: `session=${token}` },
+    });
+
+    expect(await lookup(token)).toBeNull();
   });
 
   it("T027/T028: create-operator provisions the first operator (who can sign in), and refuses a second run (US3 scenario 2)", async () => {
