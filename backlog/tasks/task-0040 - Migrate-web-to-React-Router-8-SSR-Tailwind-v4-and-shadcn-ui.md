@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:33'
+updated_date: '2026-09-30 04:45'
 labels:
   - ui
 milestone: m-1
@@ -44,7 +44,7 @@ Spec: specs/025-frontend-stack
 - [x] #11 Spec phase: Server mount and load context (US3, US4)
 - [x] #12 Spec phase: Route port (US1, US2)
 - [x] #13 Spec phase: Styling foundation (US5)
-- [ ] #14 Spec phase: Hot-reload dev mode (US7)
+- [x] #14 Spec phase: Hot-reload dev mode (US7)
 - [ ] #15 Spec phase: Verification, evidence, re-grounding
 <!-- AC:END -->
 
@@ -82,6 +82,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 4 done (3f90c7c): Tailwind v4 + shadcn Button/Input/Label/Card, cn() in ~/lib/utils; no dialog, no CDN (greps zero). The shadcn CLI added an unapproved npm package "cn"; removed from package.json and lockfile (verified). Phase-4 implementer left stash entry "phase4-wip-lintcheck" (48621e0, redundant) that it was blocked from dropping; left for the operator. Phase 5 (hot-reload dev) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 5 done (a9a5d37): in-process Vite dev (STACKS_WEB_DEV=1, HMR on WEB_HMR_PORT); HMR proven in Brave with zero reloads; reserved paths and /ws stay on Hono in dev; no vite import in the prod dist. Phase 6 (verification, evidence, re-grounding, constitution PATCH) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
