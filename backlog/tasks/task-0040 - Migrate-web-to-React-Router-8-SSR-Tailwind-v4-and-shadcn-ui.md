@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:45'
+updated_date: '2026-09-30 04:46'
 labels:
   - ui
 milestone: m-1
@@ -84,6 +84,8 @@ Phase 4 done (3f90c7c): Tailwind v4 + shadcn Button/Input/Label/Card, cn() in ~/
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 5 done (a9a5d37): in-process Vite dev (STACKS_WEB_DEV=1, HMR on WEB_HMR_PORT); HMR proven in Brave with zero reloads; reserved paths and /ws stay on Hono in dev; no vite import in the prod dist. Phase 6 (verification, evidence, re-grounding, constitution PATCH) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
