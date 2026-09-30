@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 02:01'
+updated_date: '2026-09-30 02:15'
 labels:
   - ui
 milestone: m-1
@@ -65,6 +65,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Operator rulings 2026-09-29:
 - Chat sessions: TASK-0039 created on main (2f4c472), milestone m-1, depends on TASK-0028. The session list ships there, not here (badge SES = TASK-0039).
 - AC #4: proven by the operator and a player joining the same Table (M0 /play/:id WebSocket session) in two browsers on the worktree stack, while the operator uses Ask and Library alongside. Ask and Library stay operator-only (constitution VIII); the player sees the Table only. The proof must be visually inspectable: an operator-piloted run or a screen recording committed with the PR evidence.
+
+Round 2 landed (44498fa): docs/design/chat-ui/round-2/index.html. Direction A developed as one layout in two palettes: a2-daylight (teal #0f6f63 light / #4fd1c0 dark) and a2-nightshift (violet #a48cf0 dark / #6d3fd1 light); all four combinations pass WCAG AA (6.0:1 or better). Shell: left sidebar Ask | Library | Table, collapsible to icons; Ask = session list (SES, TASK-0039) + conversation with a ready-books strip and "Add a book" link + pinned collapsible source pane; Library page = dropzone, upload card with progress, recent imports with stage stepper (0028), books table with Delete/Re-import (LIB, TASK-0038); Table = M0 play session, operator sidebar vs player sidebar (Table only) side by side for AC #4. Mobile: bottom tabs, Chat|Source segmented control, session sheet. 22 states; Brave screenshots light+dark at 1280+390.
+Asked of the operator: palette pick, plus the six open questions in round-2/index.html (session titles, Add-a-book navigate vs overlay, sidebar collapse persistence, operator sidebar on Table, search-only book state lifecycle).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
