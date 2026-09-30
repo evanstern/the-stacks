@@ -128,6 +128,8 @@ Phase 3 done (ad677dc): SSE parser, turn reducer, ask/stop/retry in the store, A
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 4 done (42ce132): citation buttons with accessible names, openCitation in the store, a source pane with book, breadcrumb and kind label, the quote in <mark>, scrolled into view; mobile Chat|Source control with Back. In Brave: <mark> text equals the citation quote exactly on 3 clean runs (1 run hit a transient upstream error before any citation); keyboard Enter opens the pane; 390px switch works. AC #3 met. Web 60/60; no dependency drift. Stack re-provisioned via the documented path; the operator secret is at job tmp operator-0028.secret (600, not committed). Phase 5 (US4 player views, Table landing, two-browser run) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
