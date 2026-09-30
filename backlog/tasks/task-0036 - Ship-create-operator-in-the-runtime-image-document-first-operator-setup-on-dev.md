@@ -31,9 +31,11 @@ Spec: specs/023-create-operator-image
 - [ ] #3 The command is proven on a local stack; the real dev run is an operator step (vm-104 command consent)
 - [ ] #4 TASK-0030 T026 (dev load run) runs after this merges, and its results file is committed
 - [x] #5 Spec phase: US1 + US2 — compiled entry point (Priority: P1)
-- [ ] #6 Spec phase: US3 — runbook and docs (Priority: P2)
+- [x] #6 Spec phase: US3 — runbook and docs (Priority: P2)
 - [ ] #7 Spec phase: Verification, local proof, re-grounding, cleanup
 <!-- AC:END -->
+
+
 
 
 
