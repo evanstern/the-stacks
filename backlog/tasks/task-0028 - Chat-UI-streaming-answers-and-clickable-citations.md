@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 01:59'
+updated_date: '2026-09-30 02:01'
 labels:
   - ui
 milestone: m-1
@@ -61,6 +61,10 @@ Round 1 operator feedback 2026-09-29: A (reference desk) chosen as the base. Pal
 
 Round 2 mock build dispatched: one layout (A developed: left sidebar Ask|Library|Table, session list, conversation, source pane; Library page with dropzone, recent imports, books; mobile bottom tabs + Chat|Source toggle) in two palettes (a2-daylight, a2-nightshift), round-1 states carried over plus mobile, Table operator+player, and collapsed sidebar. Session list badged SES (proposed, not carded).
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Operator rulings 2026-09-29:
+- Chat sessions: TASK-0039 created on main (2f4c472), milestone m-1, depends on TASK-0028. The session list ships there, not here (badge SES = TASK-0039).
+- AC #4: proven by the operator and a player joining the same Table (M0 /play/:id WebSocket session) in two browsers on the worktree stack, while the operator uses Ask and Library alongside. Ask and Library stay operator-only (constitution VIII); the player sees the Table only. The proof must be visually inspectable: an operator-piloted run or a screen recording committed with the PR evidence.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
