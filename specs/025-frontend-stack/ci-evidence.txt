@@ -1,0 +1,177 @@
+TASK-0040 — 025-frontend-stack — CI evidence
+
+## Phase 5 — Dev mode (US7), quickstart.md §2, 2026-09-30
+
+Ran against the stacks-task-0040 stack's test database (TEST_DATABASE_URL), with
+`pnpm dev` on APP_PORT=3041 (a free host port, to avoid stopping the running
+stacks-task-0040-app-1 container) and WEB_HMR_PORT=24678 (default). Migrations
+already applied. `docker compose -p stacks-task-0040` left untouched throughout.
+
+1. Route edit hot-reloads (T054, item 1). Verified with a Brave/playwright-core
+   script instead of by hand, per the dispatch note:
+   - Loaded http://localhost:3041/ (signed out): sign-in form present, no
+     "HMRCHECK" marker.
+   - Edited apps/web/app/sign-in.tsx's CardTitle to "Sign in HMRCHECK".
+   - The marker appeared in the DOM within ~1s. `page`'s `load` event fired
+     zero additional times after the initial navigation (loadEventsSinceInitial
+     = 0) — confirms an HMR patch, not a full reload.
+   - Reverted the edit; git status confirms sign-in.tsx is unmodified.
+
+2. Loaders get identity from the load context (T054, item 2):
+   - `curl http://localhost:3041/` (no cookie): 200, sign-in form (identity()
+     resolved null through Vite's per-request `ssrLoadModule`).
+   - Created an operator via `create-operator.js` against TEST_DATABASE_URL,
+     signed in with curl, then `curl -b <cookie> http://localhost:3041/`:
+     200, page body contains the display name "operator" (grep -c "operator" = 2).
+   - Confirms the context key holds across the per-request re-import (research
+     R1) in dev mode, not just in the production SSR bundle (already covered
+     by apps/web/test/ssr.test.mjs).
+
+3. Reserved paths still served by Hono in dev (T054, item 3):
+   - GET /health            -> 200 application/json
+   - GET /auth/me           -> 401 application/json
+   - GET /library/nope      -> 404 application/json
+   None returned text/html; none went through Vite's middlewares.
+
+4. /ws still owned by the gateway, not Vite (T054, item 4 — narrowed by dispatch
+   to a reachability check rather than the full M0 echo, which Phase 6 covers
+   on the built image):
+   - A WebSocket upgrade request to /ws with no session token returned
+     401 Unauthorized "Authentication required." (the gateway's own response),
+     confirming the request reached the gateway, not Vite's fallback or the
+     SSR handler.
+
+5. Static import check (T053/T054, item 5):
+   - `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js` -> zero
+     hits, both from the standalone build and the dev-triggered rebuild.
+   - apps/server/dist/web-dev.js (dev-only, not loaded by production) has the
+     one dynamic `import("vite")`.
+
+Dev server stopped with `kill` (equivalent to Ctrl-C) after the checks; the
+stack's db and app containers were never stopped.
+
+## Phase 6 — Verification, evidence, re-grounding, 2026-09-30
+
+### T038 — REQUIRE_DATABASE=1 pnpm ci:check
+
+`TEST_DATABASE_URL` exported from the worktree `.env` (not printed). Ran once; green on
+the first attempt, no rerun needed. `pnpm env:up` itself refused ("database port 15040
+is already bound") because the stacks-task-0040 stack was already up — see the Phase 6
+deviation note in tasks.md; the app image was rebuilt in place instead.
+
+Tail (per-package summaries):
+```
+apps/server build/typecheck/lint: pass
+@the-stacks/server:test — Test Files  39 passed | 1 skipped (40)
+@the-stacks/server:test —      Tests  411 passed | 5 skipped (416)
+  (skips: 4 load-bench tiers not selected [demand/dev tiers], 1 ddb real-export fixture
+  suite [no private fixtures present] — no database suite skipped)
+@the-stacks/web:test — # tests 3, # pass 3, # fail 0, # skipped 0
+root scripts test (env.mjs, migrate helpers, etc.) — # tests 20, # pass 20, # fail 0, # skipped 0
+root scripts test (2nd suite: mergeEnvFile/classifyStacks/pgvector-pin/worktree-list) —
+  # tests 42, # pass 42, # fail 0, # skipped 0
+Turbo: Tasks 5 successful, 5 total
+```
+Both `test/ws.integration.test.ts` (19 tests) and `test/library/worker.integration.test.ts`
+(12 tests) passed green — no pre-existing flake hit this run.
+Exit code: 0.
+
+### T039 — no CDN / no webfont
+
+`grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`
+→ zero hits (grep exit 1).
+
+### T040 — no modals
+
+`grep -rniE 'dialog' apps/web/app apps/web/components.json` → zero hits (grep exit 1).
+`ls apps/web/app/components/ui` → `button.tsx card.tsx input.tsx label.tsx` (exactly these
+four).
+
+### T041 — quickstart.md §3
+
+Migrated the app database from the host first (`TEST_DATABASE_URL=postgres://…@localhost:$DB_PORT/…
+pnpm --filter @the-stacks/server db:migrate` → "Migrations applied.").
+
+- `curl -s "http://localhost:$APP_PORT/health"` →
+  `{"status":"ok","process":{...},"database":{"reachable":true},"commit":"468b4b6ea3951f020cff2a0b7df078f9d8f0fa34"}`
+- SSR signed-out: `curl -s "http://localhost:$APP_PORT/" | grep -c 'Sign in'` → `1`
+  (the sign-in form is present in the raw HTML before any script runs).
+- Reserved path: `curl -s -o /dev/null -w '%{http_code} %{content_type}\n'
+  "http://localhost:$APP_PORT/library/nope"` → `404 application/json`.
+
+### T042 — M0 demo, per-worktree stack (for the PR body)
+
+Rebuilt the stacks-task-0040 app image in place first (it was serving a stale pre-shadcn
+build — see the Phase 6 deviation note); db volume, migrations and accounts survived the
+rebuild. Ran two isolated Brave profiles via `playwright-core`
+(`chromium.launchPersistentContext`, `executablePath` = Brave), against
+`http://localhost:$APP_PORT/play/<uuid>`.
+
+1. Operator + player accounts created (create-operator.js in-container; invite + redeem
+   over curl). Password not recorded.
+2. Session id: `d7b2c1c7-886e-4f69-b50f-28f15061699c`.
+3. Both windows opened to `/play/<uuid>` signed out: sign-in form shown in both — pass.
+4. Signed in as `operator` (window A) and `player` (window B): both reach the play view
+   ("Signed in as …") — pass.
+5. Sent "hello from operator" from A: appeared exactly once in A and exactly once in B —
+   pass.
+6. Sent "hi from player" (reply) from B: appeared exactly once in A and exactly once in
+   B — pass.
+7. Reloaded window A: both prior messages replayed from history — pass.
+8. Signed out in window A: sign-in form shown — pass.
+
+### T043 — M0 demo, standalone container image (for the PR body)
+
+- Image built: `docker build --build-arg GIT_COMMIT=468b4b6ea3951f020cff2a0b7df078f9d8f0fa34
+  -t stacks-web-check:task-0040 .`
+- Image id: `sha256:9d52ffd4b60538d915fa2bb7f9c6e45e63c4fb4a975cc7e02e602c9cd2641b53`
+- Commit baked in: `468b4b6ea3951f020cff2a0b7df078f9d8f0fa34`
+- Run: `docker run --rm -d --name stacks-web-check --network stacks-task-0040_default
+  --env-file .env -e TEST_DATABASE_URL= -e APP_PORT=3999 -p 3999:3999
+  stacks-web-check:task-0040`
+- `curl -s localhost:3999/health` → `"reachable":true` — pass.
+- Repeated the step-4 demo sequence against `http://localhost:3999`, new session id
+  `868f99f3-ddd9-454b-829a-a0127b32c28f`, reusing the operator/player accounts, fresh
+  Brave profiles: all 8 steps (sign-in-form / signed-in / echo once each way / reply once
+  each way / reload-replay / sign-out) passed identically to T042.
+- Tooling check: `docker exec stacks-web-check sh -c 'ls /app/apps/web/node_modules/.bin
+  2>/dev/null; ls /app/apps/web'` → `.bin` listing empty (no vite/react-router/tailwindcss
+  binaries); `apps/web` contains exactly `build node_modules package.json` — no `app`
+  source directory.
+  `docker exec stacks-web-check sh -c 'ls /app/node_modules/.pnpm | grep -c "^vite@"'` → `0`.
+- Container stopped: `docker stop stacks-web-check`. Brave profile temp dirs removed.
+
+### T045/T046/T047 — wiki re-ground, freshness gate, spec-bridge gate
+
+Ran `/grounding-wiki:wiki-update`'s procedure. `plan` initially reported 4 notes with
+missing sources (client-identity, client-session-hook, m0-demo, spa-shell — all still
+pointing at the deleted `apps/web/src/` tree); fixed their `sources:` frontmatter by hand
+first (required before `plan` can classify them), then re-ran `plan`, which returned 10
+more NEEDS-REVIEW notes sharing changed sources (ai-gateway, benchmarks, ci-pipeline,
+configuration, ddb-parser, invitations, migrations, monorepo-and-toolchain, retrieval,
+runtime-stacks) — every diff was read; 8 were re-pinned with no content change (the diffs
+didn't touch anything the note claims), session-auth and test-suite got real content edits
+(the `/auth/me` route no longer uses `authMiddleware`, and `static.test.ts` now tests the
+web-middleware handler seam — test counts re-measured: 46 pass/44 skip without a database,
+90/90 with one).
+
+Content work: retired `spa-shell.md`, replaced it with `react-router-app.md`; rewrote
+`static-serving.md`, `container-image.md`, and `server-entrypoint-and-app.md` for the
+`createWebMiddleware`/SSR/dev-mode changes; rewrote `client-identity.md` (server-side load
+context replacing the TanStack Query polling hook) and updated `client-session-hook.md`
+(the `onSignedOut` callback) and `m0-demo.md` (the 025 quickstart, Brave, `$APP_PORT`);
+touched `overview.md` and `session-auth.md`'s stale claims. Regenerated `docs/wiki/CAPSULES.md`
+(several `description:` fields changed) and fixed two freshness-gate failures it caught
+(`react-router-app.md`'s dangling `[[spa-shell]]` link; `test-suite.md`'s description over
+the 500-char capsule budget).
+
+`plan` — clean (no output) after all repins. `freshness` —
+`OK: 36 note(s) fresh against their pinned sources.` (one pre-existing, unrelated warning on
+`benchmarks.md`'s already-`size_budget_exempt` length). `spec-bridge check` —
+`spec-bridge ok: 24 linked task(s), none exceed their artifacts`, exit 0.
+
+### T048 — teardown
+
+`pnpm env:down` — both stacks-task-0040 and stacks-task-0040-test brought down and removed
+(containers, network, volume). `pnpm env:prune --check` — `no orphans.`, exit 0. Ran last,
+after all other Phase 6 evidence was recorded.

@@ -1,17 +1,17 @@
 ---
 name: container-image
-description: The Dockerfile's four-stage build (base, deps, build, runtime), what the runtime stage actually copies, and why WORKDIR is set to apps/server before CMD. Load for image-build or "why is this file missing at runtime" questions.
+description: The Dockerfile's four-stage build (base, deps, build, runtime), what the runtime stage actually copies — since TASK-0040, apps/web/build rather than apps/web/dist->apps/server/public, and the web app's own production deps installed alongside the server's — and why WORKDIR is set to apps/server before CMD. Load for image-build or "why is this file missing at runtime" questions.
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: 3a8cdcc4582c79a94fd18dcb5a03f09b6b3728c4
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Container image
 
 The image is built in four named stages — `base`, `deps`, `build`, `runtime` — so the shipped
-image carries only the server's production dependencies and compiled output, never build
-tooling, source, or devDependencies.
+image carries only production dependencies and compiled/built output, never build tooling,
+source, or devDependencies.
 
 ## How it works
 
@@ -25,33 +25,39 @@ workspace, per the inline comment.
 `build` copies the full source (`COPY . .`) onto `deps` and runs
 `pnpm --filter "@the-stacks/server..." run build` (the `...` includes the filtered package's
 dependencies, i.e. `@the-stacks/shared`) followed by `pnpm --filter "@the-stacks/web" run
-build`.
+build` — the latter is `react-router build` ([[react-router-app]]), producing
+`apps/web/build/client` and `apps/web/build/server/index.js`.
 
 `runtime` starts fresh from `base` (not from `build`), sets `NODE_ENV=production`, re-copies
 just the manifests, and runs `pnpm install --frozen-lockfile --prod --filter
-"@the-stacks/server..."` — production dependencies only, scoped to the server and what it
-needs. Right after that install, `ARG GIT_COMMIT=unknown` / `ENV GIT_COMMIT=$GIT_COMMIT` bakes
-the build's commit into the image (spec 010; surfaced at `/health` via [[configuration]] and
-[[health-check]]) — declared there, after the install `RUN`, specifically so a changing
-commit never busts that layer's cache. It then copies three build outputs from the `build`
-stage by exact path:
-`packages/shared/dist`, `apps/server/dist`, and — critically — `apps/web/dist` is copied to
-`apps/server/public`, because that is where `src/static.ts` resolves its default static root
-from (module-relative, not cwd; see [[static-serving]]). `healthcheck.js` is copied to the
-image root as `/app/healthcheck.js`, matching what `docker-compose.yml`'s healthcheck
-command runs.
+"@the-stacks/server..." --filter "@the-stacks/web..."` — production dependencies for **both**
+packages now (TASK-0040 changed this from server-only): the SSR bundle `server.ts` builds
+imports React, React Router, and the shadcn runtime packages from `apps/web/node_modules`
+rather than bundling them, per the Dockerfile's inline comment, so those have to be installed
+in the runtime image too. Right after that install, `ARG GIT_COMMIT=unknown` / `ENV
+GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfaced at
+`/health` via [[configuration]] and [[health-check]]) — declared there, after the install
+`RUN`, specifically so a changing commit never busts that layer's cache. It then copies three
+build outputs from the `build` stage by exact path: `packages/shared/dist`,
+`apps/server/dist`, and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
+**this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
+`src/static.ts` now resolves its default roots as `apps/web/build/client` and
+`apps/web/build/server/index.js`, both module-relative to `apps/server/dist/static.js`, not
+under `apps/server/` at all (see [[static-serving]]). `healthcheck.js` is copied to the image
+root as `/app/healthcheck.js`, matching what `docker-compose.yml`'s healthcheck command runs.
 
 The final two lines matter together: `WORKDIR /app/apps/server` is set **before** `CMD
 ["node", "dist/index.js"]`. This makes the command resolve to `/app/apps/server/dist/index.js`
-and makes the process's cwd `/app/apps/server` — which is irrelevant to static serving
+and makes the process's cwd `/app/apps/server` — which is irrelevant to static/SSR serving
 (that's resolved from `import.meta.url`, not cwd) but means any other relative path the
 server code uses resolves from `apps/server/`, not the repo root.
 
 ## Connections
 
 Consumes the build output of [[monorepo-and-toolchain]] (pnpm workspace, `tsc -b`/Turbo
-build). Produces the layout [[static-serving]] depends on (`apps/server/public`) and the
-`/app/healthcheck.js` path [[health-check]]'s compose healthcheck invokes. Run inside the
+build) and [[react-router-app]] (`react-router build`). Produces the layout
+[[static-serving]] depends on (`apps/web/build/client`, `apps/web/build/server/index.js`) and
+the `/app/healthcheck.js` path [[health-check]]'s compose healthcheck invokes. Run inside the
 `app` service described in [[compose-stack]]. The copied `apps/server/dist` also carries
 `dist/cli/create-operator.js` (TASK-0036) — no Dockerfile change was needed, since any file
 under `src/` that `tsc -b` compiles lands in `dist` and rides the same `COPY`; see
@@ -62,4 +68,7 @@ under `src/` that `tsc -b` compiles lands in `dist` and rides the same `COPY`; s
 No `.dockerignore` is read in this trace — `COPY . .` in the `build` stage copies the whole
 build context as-is. Rebuilding after a dependency change requires rebuilding from `deps`
 onward, not just `runtime`, since `runtime`'s own `pnpm install` uses the same frozen
-lockfile as `deps` and will reinstall identically.
+lockfile as `deps` and will reinstall identically. The runtime image carries no `vite`,
+`react-router` CLI, or `tailwindcss` binary and no `apps/web/app` source directory — only
+`apps/web/build`, `node_modules`, and `package.json` — proven per-PR by TASK-0040's standalone
+image check ([[m0-demo]] §5).

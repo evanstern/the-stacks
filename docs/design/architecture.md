@@ -30,7 +30,7 @@ Concrete choices:
 |---|---|---|
 | Monorepo | pnpm workspaces + Turborepo | |
 | Server | Node 22, **Hono** + `ws` | One process serves REST + WebSocket; Hono is small, typed, and portable |
-| Client | React 19 + Vite SPA, TanStack Router/Query | SPA, not SSR — this is an authenticated app; SSR buys nothing |
+| Client | React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui | Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29) |
 | VTT canvas | **PixiJS v8** (WebGL) | Tokens, grid, fog; DOM overlays for UI |
 | DB | **Postgres 17 + pgvector** | Relational + vectors + job queue (SKIP LOCKED) + event log. One stateful container |
 | ORM | Drizzle | |

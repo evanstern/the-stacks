@@ -12,6 +12,9 @@ build/
 # Turborepo
 .turbo/
 
+# React Router
+.react-router/
+
 # Environment
 .env
 

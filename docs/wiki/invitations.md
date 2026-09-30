@@ -6,7 +6,7 @@ sources:
   - apps/server/src/auth/invitations.ts
   - apps/server/src/auth/tokens.ts
   - apps/server/src/routes/auth.ts
-verified_against: 3e10556dd63b63882ae5af22da7a9d29b0c32d9f
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Invitations

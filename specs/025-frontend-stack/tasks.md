@@ -1,0 +1,158 @@
+# Tasks: Frontend stack migration (React Router 8 SSR, Tailwind v4, shadcn/ui)
+
+**Input**: Design documents from `/specs/025-frontend-stack/`
+
+**Prerequisites**: plan.md, spec.md, research.md, quickstart.md. The operator resolved all six
+plan.md checkpoints on 2026-09-30, as recommended. Checkpoints 5 and 6 added Phase 5 and
+T055. New task IDs are appended, so existing IDs stay stable.
+
+**Tests**: `apps/server/test/static.test.ts` is rewritten for the reserved-path invariant.
+`apps/web/test/ssr.test.mjs` renders three routes from the built bundle. The M0 demo runs
+twice, by hand. The dev-mode check runs once, by hand, and is recorded.
+
+**Standing rules for every phase**:
+- Run `cd /Users/evanstern/projects/the-stacks/.worktrees/task-0040 && pwd && git branch --show-current` first. Expect `task-0040-frontend-stack`. On any other branch, STOP.
+- Add only the packages in plan.md's New dependencies table, at those versions, in the package it names. Any other package needs the operator. STOP and report.
+- Never add a shadcn `Dialog` or `AlertDialog`. Never reference a CDN or a webfont.
+- Never import `apps/server` from `apps/web`. Never call the app's own HTTP API from a loader.
+- Do not change the reserved set beyond adding `/library`. Any other change needs the operator.
+- Never print `.env`. Never put a real password in a file or a commit.
+- Never use the backlog MCP tools. Use the `backlog` CLI inside the worktree for any card change.
+- Commit per phase with a `TASK-0040:` subject and the Co-Authored-By trailer. Run `git pull --no-rebase`, then push. Never rebase, amend, or force-push.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: can run in parallel (different files, no dependencies)
+- **[Story]**: user story from spec.md (US1–US7)
+
+## Phase 1: Setup and dependencies
+
+- [x] T001 In `apps/web/package.json`, remove `@tanstack/react-router`, `@tanstack/react-query`, and `@vitejs/plugin-react`. Add the runtime and dev packages from plan.md's New dependencies table with `pnpm --filter @the-stacks/web add` and `add -D`, pinned with `^` to the listed versions.
+- [x] T002 In `apps/web/package.json`, set scripts: `build` = `react-router build`, `typegen` = `react-router typegen`, `typecheck` = `react-router typegen && tsc -b`, `test` = `node --test test/`.
+- [x] T003 [P] In root `package.json`, set `typecheck` to `pnpm --filter @the-stacks/web typegen && tsc -b` (research R7).
+- [x] T004 [P] In `turbo.json`, add `"build/**"` to `build.outputs`. Add `"@the-stacks/web#test": { "dependsOn": ["build"], "cache": false }` (research R6, R11).
+- [x] T005 [P] In `.gitignore`, add `.react-router/`.
+- [x] T006 [P] In `biome.json`, add `"css": { "parser": { "tailwindDirectives": true } }`. Leave every `overrides` entry unchanged (plan D12).
+- [x] T007 Rewrite `apps/web/tsconfig.json`: `noEmit: true`; `include` of `app`, `server.ts`, `vite.config.ts`, `react-router.config.ts`, `.react-router/types/**/*`; `rootDirs: [".", "./.react-router/types"]`; `paths: { "~/*": ["./app/*"] }`; `types: ["vite/client"]`; keep `lib` with DOM, `jsx: "react-jsx"`, and the `packages/shared` reference. Remove `outDir` and `rootDir`.
+- [x] T008 Run `pnpm install`. Confirm `pnpm-lock.yaml` has no `@tanstack/` entry.
+
+## Phase 2: Server mount and load context (US3, US4)
+
+- [x] T009 [US4] Create `packages/shared/src/web.ts` with `Role`, `PublicUser`, `StacksLoadContext`, and `WebRequestHandler`, as types only (plan D3). Re-export it from `packages/shared/src/index.ts`. Set `"lib": ["ES2022", "DOM"]` in `packages/shared/tsconfig.json`.
+- [x] T010 [US4] Create `apps/server/src/auth/identity.ts`: `createIdentityLookup({ db, validateSession })` returns `(token: string | undefined) => Promise<PublicUser | null>`. Return `null` for no token, no session, or no user row. Do not catch datastore errors (plan D2).
+- [x] T011 [US4] In `apps/server/src/routes/auth.ts`, make `GET /auth/me` use the lookup from T010. Keep the 401 for `null` and the response shape `{ user }`.
+- [x] T012 [US4] Create `apps/server/src/web.ts`: `createWebLoadContext(c, lookup): StacksLoadContext`. `identity()` reads the `session` cookie with `getCookie` and memoizes its result per request.
+- [x] T013 [US3] Rewrite `apps/server/src/static.ts` as `createWebMiddleware({ clientRoot, handler, lookup })` (plan D4). Add `/library` to `RESERVED_PREFIXES`. Keep the dummy-`next` asset lookup and its comment. Replace the `index.html` fallback with the handler call. Default `clientRoot` to `../../web/build/client` and the handler to a cached dynamic `import()` of `../../web/build/server/index.js`, both from `import.meta.url`. Rewrite the header comments for the new behaviour.
+- [x] T014 [US3] In `apps/server/src/app.ts`, replace `staticRoot?` with `web?: { clientRoot?: string; handler?: () => Promise<WebRequestHandler> }`. Build the lookup once from the existing `validateSession`. Mount the web middleware last. Update the mount-order comment.
+- [x] T015 [US3] Rewrite `apps/server/test/static.test.ts` (plan D13): fake handler recording calls; zero calls for `/health`, `/api/x`, `/auth/x`, `/library/x`, `/ws`; JSON 404 for unknown sub-paths under `/api`, `/auth`, `/library`; a fixture asset served with zero calls; `/play/abc` gives one call whose `Request` URL path is `/play/abc`; `identity()` resolves `null` with no cookie.
+- [x] T016 [P] [US4] In `apps/server/test/auth.integration.test.ts`, add one case: the lookup returns the user for a live token and `null` after sign-out. Keep the file's skip shape.
+- [x] T017 Run `pnpm --filter @the-stacks/server build` and `pnpm --filter @the-stacks/server test`. Expect exit 0.
+
+**Deviation (Phase 2):** `pnpm env:up`'s `app` service fails to build until Phase 3 lands
+`apps/web`'s React Router app (its `build` script is already `react-router build`, but the
+app directory doesn't exist yet). The throwaway `docker-compose.test.yml` database (no `app`
+service) still comes up, so T017's build/test and the new T016 case ran against a real
+Postgres with `TEST_DATABASE_URL` and `REQUIRE_DATABASE=1` after applying migrations by hand
+(`pnpm --filter @the-stacks/server db:migrate` with `TEST_DATABASE_URL` exported). That
+test-db stack is left running for later phases; the `app`+`db` stack is not up.
+
+## Phase 3: Route port (US1, US2)
+
+- [x] T018 [US1] Create `apps/web/react-router.config.ts` with `ssr: true` and `appDirectory: "app"`.
+- [x] T019 [US1] Create `apps/web/vite.config.ts` (replace the old one): `plugins: [tailwindcss(), reactRouter()]`, `resolve.tsconfigPaths: true`, `environments.ssr.build.rollupOptions.input: "./server.ts"`.
+- [x] T020 [US4] Create `apps/web/app/context.ts`: `export const stacksContext = createContext<StacksLoadContext>()`.
+- [x] T021 [US4] Create `apps/web/server.ts` exactly as plan D5.
+- [x] T022 [US1] Create `apps/web/app/routes.ts`: `index("routes/home.tsx")` and `route("play/:sessionId", "routes/play.tsx")`.
+- [x] T023 [US1] Create `apps/web/app/root.tsx`: `Layout` (html, head with `Meta` and `Links`, body with `Scripts` and `ScrollRestoration`); `links()` for `app.css?url`; a `loader` returning `{ user }` from `context.get(stacksContext).identity()`; a default component rendering `<SignIn />` for `null` and `<Outlet />` otherwise; an `ErrorBoundary`.
+- [x] T024 [US1] Create `apps/web/app/auth.ts` from `src/auth/api.ts`: keep `signIn` and `signOut`, and their comments. Delete `fetchMe` and the local `User` type. Import `PublicUser` from `@the-stacks/shared`.
+- [x] T025 [US1] Create `apps/web/app/sign-in.tsx` from `src/routes/sign-in.tsx`: `method="post"`; `preventDefault` in `onSubmit`; call `signIn`, then `revalidate()`; show the one failure message; disable submit until mounted (plan D10).
+- [x] T026 [US1] Create `apps/web/app/routes/home.tsx` from `src/routes/home.tsx`: read the user with `useRouteLoaderData("root")`; sign-out calls `signOut`, then `revalidate()`.
+- [x] T027 [US2] Move `apps/web/src/ws/types.ts` to `apps/web/app/ws/types.ts` unchanged. Move `apps/web/src/ws/useSession.ts` to `apps/web/app/ws/useSession.ts`. Replace `useQueryClient` and `setQueryData(identityKey, null)` with an `onSignedOut` callback argument. Change nothing else, and keep every comment.
+- [x] T028 [US2] Create `apps/web/app/routes/play.tsx` from `src/routes/play.tsx`: `clientLoader({ params })` returns `{ sessionId }`; `HydrateFallback` renders `Loading…`; no server `loader`. Pass `revalidate` as `onSignedOut`. Keep the no-optimistic-append comment.
+- [x] T029 [US1] Delete `apps/web/index.html` and the whole `apps/web/src/` tree.
+- [x] T030 [US1] Run `pnpm --filter @the-stacks/web typecheck` and `pnpm --filter @the-stacks/web build`. Expect `apps/web/build/client/` and `apps/web/build/server/index.js`.
+- [x] T031 [US1] [US2] Create `apps/web/test/ssr.test.mjs` with `node:test` (plan D13): `/` signed out contains the form; `/` signed in contains the display name; `/play/<uuid>` contains `Loading…` and no `<ul>`. Run `pnpm --filter @the-stacks/web test`. Expect exit 0.
+- [x] T032 [US1] [US2] In `Dockerfile`'s runtime stage, install with `--filter "@the-stacks/server..." --filter "@the-stacks/web..."`, copy `/app/apps/web/build` to `apps/web/build`, and drop the `apps/server/public` copy (plan D6). Rewrite the stale comments.
+
+**Deviations (Phase 3):** T023's `links()` needs `app/app.css` to exist at build time, so a
+one-line placeholder `app/app.css` was created now; T033 (Phase 4) overwrites it with the
+real Tailwind/shadcn content. T031's `"test": "node --test test/"` (set in Phase 1) fails in
+this environment with `Cannot find module '.../apps/web/test'` — a reproducible Node
+22.23.2 bug passing a bare directory to `--test`, confirmed unrelated to this task's code
+with a throwaway repro outside the repo. Changed the script to `"node --test"` (bare,
+letting the runner auto-discover under `test/`), which finds and runs the same file and
+excludes `node_modules` by default; `pnpm --filter @the-stacks/web test` now exits 0.
+
+## Phase 4: Styling foundation (US5)
+
+- [x] T033 [US5] Create `apps/web/app/app.css`: `@import "tailwindcss";`, `@custom-variant dark (&:is(.dark *));`, shadcn's neutral `:root` and `.dark` variables, their `@theme inline` mapping, and `--font-sans: system-ui, sans-serif;` in `@theme`. Import no font.
+- [x] T034 [P] [US5] Create `apps/web/components.json` as plan D9. Create `apps/web/app/lib/utils.ts` with `cn()`.
+- [x] T035 [US5] From `apps/web`, run `pnpm dlx shadcn@4.21.0 add button input label card`. Decline any extra package. Confirm the files land in `apps/web/app/components/ui/`.
+- [x] T036 [US5] Use `Card`, `Label`, `Input`, and `Button` in `app/sign-in.tsx`. Use `Button` for sign-out in `home.tsx` and `play.tsx`, and for send in `play.tsx`. Keep every label, text, and `autoComplete` value.
+- [x] T037 [US5] Run `pnpm lint` and `pnpm --filter @the-stacks/web build`. Expect exit 0.
+
+**Deviations (Phase 4):** The `shadcn@4.21.0` CLI (no prompt, no `--yes`-visible warning)
+generated `app/components/ui/*.tsx` importing `cn` from a new npm package literally named
+`cn` (`^0.4.0`), added to `apps/web/package.json`, instead of respecting `components.json`'s
+`aliases.utils: "~/lib/utils"`. That package is outside the plan's approved dependency list
+(research.md's New dependencies table), so it was removed from `package.json`, `pnpm install`
+re-run to drop it from the lockfile, and the four generated files' imports rewritten to
+`import { cn } from "~/lib/utils"` (the hand-written `cn()` from T034), matching plan D9's
+intent. No `lucide-react` or `tw-animate-css` prompt appeared. — T037's `pnpm lint` also
+failed on a pre-existing formatting issue in
+`apps/server/bench/load/results/2026-09-30-3e58d52-6fbc6eae.json` (unrelated to this task,
+left over from before Phase 4). Applied Biome's safe auto-fix to that one file so the
+repo-wide `pnpm lint` gate required by T037 exits 0; no other content in the file changed.
+
+## Phase 5: Hot-reload dev mode (US7)
+
+- [x] T049 [US7] Run `pnpm --filter @the-stacks/server add -D vite@^8.3.0`. In `apps/server/package.json`, add `"dev": "tsc -b && STACKS_WEB_DEV=1 node --env-file-if-exists=../../.env dist/index.js"`. In root `package.json`, add `"dev": "pnpm --filter @the-stacks/server dev"`.
+- [x] T050 [P] [US7] In `apps/server/src/static.ts`, export `isReservedPath` (plan D4).
+- [x] T051 [US7] Create `apps/server/src/web-dev.ts` as plan D7: dynamic `import("vite")`, `createServer` in middleware mode with `appType: "custom"` and `hmr.port` from `WEB_HMR_PORT` (default 24678), and a `handler` that calls `ssrLoadModule("/server.ts")` per request. Resolve `webRoot` from `import.meta.url`.
+- [x] T052 [US7] In `apps/server/src/index.ts`, when `STACKS_WEB_DEV === "1"`, `await import("./web-dev.js")` and pass its `handler` as `web.handler`. Pass `serve()` a `createServer` wrapper: a non-reserved request runs through Vite's `middlewares` first, then Hono; a reserved request goes straight to Hono. Keep `gateway.attach(server)`. Import neither `vite` nor `web-dev.js` statically.
+- [x] T053 [US7] Run `pnpm --filter @the-stacks/server build`. Run `grep -nE 'from "vite"|import\("vite"\)' apps/server/dist/index.js`. Expect zero hits.
+- [x] T054 [US7] Run the dev-mode check (quickstart.md §2) after Phase 4. Record each step's result in `specs/025-frontend-stack/ci-evidence.txt`.
+
+**Deviation (T050):** `isReservedPath` was already exported from `static.ts` during Phase 2/3
+(T013), ahead of this task — plan D4 called for it there too. No code change needed here.
+
+**Deviation (T054):** ran `pnpm dev` on `APP_PORT=3041` (a free host port) instead of
+stopping and restarting `stacks-task-0040-app-1` on 3040, per dispatch instruction to leave
+the running stack's containers untouched. The `/ws` check was narrowed to an unauthenticated
+upgrade attempt (confirms the gateway, not Vite or the SSR handler, owns the path) rather
+than the full M0 echo exchange from quickstart §4, which Phase 6 (T042/T043) already runs
+against the built image. See `ci-evidence.txt` for the full record.
+
+## Phase 6: Verification, evidence, re-grounding
+
+- [x] T038 Run `pnpm env:up`. Then export `TEST_DATABASE_URL` from `.env` without printing it, and run `REQUIRE_DATABASE=1 pnpm ci:check`. Expect exit 0 and zero skipped database suites. Record the tail in `specs/025-frontend-stack/ci-evidence.txt`.
+- [x] T039 [US5] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Expect zero hits. Record it in `ci-evidence.txt`.
+- [x] T040 [US5] Run `grep -rniE 'dialog' apps/web/app apps/web/components.json`, then `ls apps/web/app/components/ui`. Expect zero dialog hits and exactly `button.tsx card.tsx input.tsx label.tsx`. Record both in `ci-evidence.txt`.
+- [x] T041 [US1] [US3] Run quickstart.md §3. Record the SSR `curl` and the `/library/nope` result in `ci-evidence.txt`.
+- [x] T042 [US2] Run the M0 demo on the per-worktree stack (quickstart.md §4) in Brave. Record each step's result for the PR body.
+- [x] T043 [US2] Run the M0 demo against the standalone image (quickstart.md §5). Record the image id, the commit, the tooling check, and each step's result for the PR body.
+- [x] T044 [P] [US6] In `docs/design/architecture.md` A1's table, set the Client row to `React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui` with the note `Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29)`. Change nothing else in A1 unless plan.md checkpoint 6 says so.
+- [x] T055 [P] [US6] Amend `.specify/memory/constitution.md` as a PATCH (1.0.0 → 1.0.1), per its Governance section. Set the Architecture Constraints Client row to match T044, citing doc-0003 / decision-0008. Set the version line to `**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: <merge date>`. Prepend a Sync Impact Report entry: 1.0.0 → 1.0.1, PATCH, Client row only, ratified by decision-0008, no template changes. Confirm plan.md's Complexity Tracking row reads resolved.
+- [x] T045 [US6] Re-pin the wiki with `/grounding-wiki:wiki-update`. Re-ground `static-serving`, `spa-shell` (retire or rename it through the loop; it becomes the React Router app note), `container-image`, and `server-entrypoint-and-app`. Review `client-identity`, `client-session-hook`, `m0-demo`, `monorepo-and-toolchain`, `session-auth`, `ci-pipeline`, `test-suite`, and `overview`. Re-pin whatever else the freshness gate flags. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
+- [x] T046 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
+- [x] T047 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
+- [x] T048 Run quickstart.md §7: `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
+
+**Deviations (Phase 6):** T038 found the running `stacks-task-0040` app container built
+from an earlier commit (pre-dating the React Router/shadcn work), because `pnpm env:up`
+refuses to run against a stack that is already up (its port-free check). Rebuilt in place
+with `docker compose -p stacks-task-0040 up -d --build --wait`, replicating `env.mjs`'s
+`STACKS_COMMIT`/`STACKS_ENV`/`STACKS_WORKTREE` env vars — same effect as `env:up`, without
+its port-free precondition; the `db` volume was untouched so migrations/accounts survived.
+`ci:check` then ran against the correct, current code. — T055's `<merge date>` placeholder:
+no merge date exists yet at authoring time, so "Last Amended" was set to today's date
+(2026-09-30), the date of this amendment's authoring commit.
+
+## Dependencies
+
+- Phase 1 blocks every other phase.
+- Phase 2 and Phase 3 share only T009's types. T009 blocks T012, T013, T020, and T021.
+- T013 and T014 block T015. T030 blocks T031 and Phase 4.
+- T013 blocks T050. T049–T051 block T052. T052 blocks T053.
+- Phase 4 and T053 block T054. T054 blocks Phase 6.
+- T038–T043 and T055 block T045. T045 blocks T046.

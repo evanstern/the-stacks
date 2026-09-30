@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Overview
@@ -36,9 +36,10 @@ listener. One port carries the API, the client, and the socket. It also construc
 container, or process.
 
 Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
-order: `/health`, `/api/echo`, `/auth`, and then the SPA's static middleware **last**, so it
-can never shadow the routes above (see [[static-serving]]). `/ws` is not a Hono route at all —
-it is handled at the HTTP upgrade, before Hono routing, by [[websocket-gateway]].
+order: `/health`, `/api/echo`, `/auth`, `/library`, and then the web app's middleware
+**last** — static assets, then a full SSR render — so it can never shadow the routes above
+(see [[static-serving]]). `/ws` is not a Hono route at all — it is handled at the HTTP
+upgrade, before Hono routing, by [[websocket-gateway]].
 
 State is divided into **three planes**, a constitutional rule rather than a convention:
 
@@ -55,14 +56,15 @@ questions from it over `POST /library/ask`. Play state is **event-sourced
 with server authority**: a client never writes to the log, it asks the server to append
 (see [[ws-protocol]]), and the server assigns position, timestamp, and actor identity.
 
-The client is a Vite-built React SPA ([[spa-shell]]) served by the same container. It is not
-SSR — that choice is fixed in the architecture's constraints table, along with Hono, `ws`,
-Drizzle, and Postgres 17.
+The client is a React Router 8 app in framework mode ([[react-router-app]]), server-rendered
+by default and served by the same container — SSR by default, with realtime and canvas
+routes staying client-only, is fixed in the architecture's constraints table (amended
+TASK-0040, doc-0003 / decision-0008), along with Hono, `ws`, Drizzle, and Postgres 17.
 
 ## Connections
 
 Entry points: [[server-entrypoint-and-app]] for the process, [[compose-stack]] for the
-deployment, [[spa-shell]] for the client. The platform beneath them is
+deployment, [[react-router-app]] for the client. The platform beneath them is
 [[monorepo-and-toolchain]] and [[container-image]].
 
 The two seams M0 exists to prove are [[session-auth]] — one `validateSession` shared by HTTP

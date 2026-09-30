@@ -17,25 +17,26 @@ COPY . .
 RUN pnpm --filter "@the-stacks/server..." run build
 RUN pnpm --filter "@the-stacks/web" run build
 
-# Runtime: only the server's production deps and built output — no build
-# tooling, no source, no devDependencies (research D5). The client's build
-# output is static files, not tooling, so it belongs here (FR-004).
+# Runtime: only production deps and built output — no build tooling, no
+# source, no devDependencies (research R6). The web app's production deps
+# (React, React Router, shadcn runtime packages) are installed too: the SSR
+# bundle imports them from apps/web/node_modules rather than bundling them.
 FROM base AS runtime
 ENV NODE_ENV=production
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
-RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..."
+RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..." --filter "@the-stacks/web..."
 # Declared after the install RUN so a changing commit never busts that
 # layer's cache (spec 010 T005). Surfaced at /health via config.ts.
 ARG GIT_COMMIT=unknown
 ENV GIT_COMMIT=$GIT_COMMIT
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/server/dist apps/server/dist
-# apps/server/public is where src/static.ts resolves its default root from
-# (module-relative, not cwd — plan D1), so the SPA build output lands there.
-COPY --from=build /app/apps/web/dist apps/server/public
+# apps/web/build is where src/static.ts resolves its default client root and
+# SSR handler from (module-relative, not cwd — plan D4, D5).
+COPY --from=build /app/apps/web/build apps/web/build
 COPY healthcheck.js ./healthcheck.js
 WORKDIR /app/apps/server
 CMD ["node", "dist/index.js"]
