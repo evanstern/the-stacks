@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 02:55'
+updated_date: '2026-09-30 02:56'
 labels:
   - ui
 milestone: m-1
@@ -88,6 +88,9 @@ Both: inline delete confirm row in the books table (no modal), Embed now → "Em
 Asked of the operator: P or D (or hybrid, e.g. D chips for per-session selection + P panel for management).
 
 Round 3 operator selection 2026-09-29: P (sources slide-out panel). Modifications: the Sources button gets an openable cue (leading icon, chevron, button styling, aria-expanded); the slide-out panel becomes a reusable component, the standard replacement for modals and dropdown menus. Decision record: docs/design/chat-ui/decision.md (179d4a5). Rounds closed; next: spec 024 authoring against the decision.
+
+Spec 024 authoring dispatched to opus-implementer (spec authoring; operator brief names this tier, per the standing spec-authoring ruling 2026-09-29). Inputs: docs/design/chat-ui/decision.md, the card, contracts 018/017 unchanged, constitution, round-2/3 mocks, wiki notes.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
