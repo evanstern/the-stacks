@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 09:54'
+updated_date: '2026-09-30 10:06'
 labels:
   - ui
 milestone: m-1
@@ -33,7 +33,7 @@ Spec: specs/024-chat-ui
 - [x] #6 Spec phase: US1 — Upload a book and watch it ingest (P1)
 - [x] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
 - [x] #8 Spec phase: US3 — Open a citation's source passage (P1)
-- [ ] #9 Spec phase: US4 — Player views, the Table landing, and the two-browser run (P2)
+- [x] #9 Spec phase: US4 — Player views, the Table landing, and the two-browser run (P2)
 - [ ] #10 Spec phase: Verification, evidence, and re-grounding
 <!-- AC:END -->
 
@@ -130,6 +130,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 4 done (42ce132): citation buttons with accessible names, openCitation in the store, a source pane with book, breadcrumb and kind label, the quote in <mark>, scrolled into view; mobile Chat|Source control with Back. In Brave: <mark> text equals the citation quote exactly on 3 clean runs (1 run hit a transient upstream error before any citation); keyboard Enter opens the pane; 390px switch works. AC #3 met. Web 60/60; no dependency drift. Stack re-provisioned via the documented path; the operator secret is at job tmp operator-0028.secret (600, not committed). Phase 5 (US4 player views, Table landing, two-browser run) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 5 done (5d4522c): Table landing (Start/Join), play without its own sign-out, player views verified server-side (no jobs() call). Two-browser run in Brave, 15/15 steps pass: operator starts a table, player joins by link, M0 echo both ways, operator uploads and asks with a citation alongside, player sees no book text, player /ask and /books show operator-only; player /library request count 0 (SC-008). Web 63/63, server 413/0/5; no dependency drift. Player created via the invite flow; secret in job tmp (600). Phase 6 (verification, recording, re-ground) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
