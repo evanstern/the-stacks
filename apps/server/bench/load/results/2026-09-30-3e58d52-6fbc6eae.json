@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "runId": "6fbc6eae-e7c9-451d-89e9-84c38b98b053",
+  "startedAt": "2026-09-30T01:00:33.945Z",
+  "finishedAt": "2026-09-30T01:01:54.831Z",
+  "commit": "3e58d520198f6f8b095b7806c282ac7de478d40b",
+  "dirty": false,
+  "host": {
+    "node": "v22.23.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": 10,
+    "memGiB": 64
+  },
+  "tier": "dev",
+  "target": {
+    "kind": "dev",
+    "postgres": null,
+    "maxConnections": null,
+    "appCommit": null
+  },
+  "profileHash": "696643d88d83e6783657df66734110af844b8fe7215855dde75ac07a904b22a4",
+  "profile": {
+    "tier": "dev",
+    "concurrency": {
+      "users": [
+        1,
+        5,
+        10,
+        25
+      ],
+      "durationMs": 20000,
+      "thinkMs": 250,
+      "wsSend": false,
+      "thresholds": {
+        "latencyMultiple": 3,
+        "errorRate": 0.01
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "ingest-smoke",
+      "tier": "commit",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier commit not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "concurrency-smoke",
+      "tier": "commit",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier commit not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "ingest-scaling",
+      "tier": "demand",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier demand not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "concurrency-local",
+      "tier": "demand",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier demand not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "db-exhaustion",
+      "tier": "demand",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier demand not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "restart-mid-ingest",
+      "tier": "demand",
+      "target": "local",
+      "status": "skipped",
+      "reason": "tier demand not selected",
+      "durationMs": 0
+    },
+    {
+      "id": "concurrency-dev",
+      "tier": "dev",
+      "target": "dev",
+      "status": "pass",
+      "durationMs": 80856,
+      "steps": [
+        {
+          "users": 1,
+          "requests": 76,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 16.311999999999898,
+          "httpP95Ms": 21.333416999999827,
+          "httpP99Ms": 28.445332999999664,
+          "wsConnectP95Ms": 57.98020800000006,
+          "wsSubscribeP95Ms": 8.900250000000028,
+          "wsRoundTripP95Ms": null,
+          "errorKinds": {}
+        },
+        {
+          "users": 5,
+          "requests": 380,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 17.123250000000553,
+          "httpP95Ms": 26.106375000003027,
+          "httpP99Ms": 69.21724999999788,
+          "wsConnectP95Ms": 112.7725840000021,
+          "wsSubscribeP95Ms": 31.318083999998635,
+          "wsRoundTripP95Ms": null,
+          "errorKinds": {}
+        },
+        {
+          "users": 10,
+          "requests": 744,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 17.619416000001365,
+          "httpP95Ms": 28.103832999993756,
+          "httpP99Ms": 94.48020800000086,
+          "wsConnectP95Ms": 125.4757080000054,
+          "wsSubscribeP95Ms": 22.324916999998095,
+          "wsRoundTripP95Ms": null,
+          "errorKinds": {}
+        },
+        {
+          "users": 25,
+          "requests": 1900,
+          "errors": 0,
+          "errorRate": 0,
+          "httpP50Ms": 16.701042000000598,
+          "httpP95Ms": 21.790124999999534,
+          "httpP99Ms": 45.6140000000014,
+          "wsConnectP95Ms": 149.56466699999874,
+          "wsSubscribeP95Ms": 40.63749999999709,
+          "wsRoundTripP95Ms": null,
+          "errorKinds": {}
+        }
+      ],
+      "verdicts": [
+        {
+          "degraded": false,
+          "through": 25
+        }
+      ],
+      "observed": {
+        "sessionEnded": 1,
+        "appCommit": 1
+      }
+    }
+  ]
+}
