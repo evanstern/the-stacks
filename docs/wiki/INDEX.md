@@ -16,9 +16,11 @@ embed, via a `jobs` queue). A read path over that storage now exists too ([[retr
 vector/fts/hybrid search, fused by RRF) now has its first HTTP caller: the rules answerer
 ([[rules-answerer]], TASK-0027, `POST /library/ask`) streams a cited, verified answer over SSE,
 operator-only. The provider-agnostic AI gateway ([[ai-gateway]]) has landed, with two callers
-now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. No codex, system
-modules, or agents yet. `main` is now continuously deployed to a real hosted `dev` environment
-on vm-104 ([[hosted-dev]]).
+now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. Both now have a UI
+([[chat-ui]], TASK-0028): upload-and-watch-it-ingest, ask-and-watch-it-stream with clickable
+citations, and a much smaller Table-only view for a player, role-gated at the loader. No
+codex, system modules, or agents yet. `main` is now continuously deployed to a real hosted
+`dev` environment on vm-104 ([[hosted-dev]]).
 
 ## Start here
 
@@ -67,6 +69,7 @@ on vm-104 ([[hosted-dev]]).
 - [[react-router-app]] — the React Router 8 framework-mode app (SSR by default), its route tree, and how it is served. Replaces the retired spa-shell note (doc-0003 / decision-0008).
 - [[client-identity]] — why the client asks the server who it is instead of storing an answer.
 - [[client-session-hook]] — subscribe, cursor tracking, send, and the reconnect preflight.
+- [[chat-ui]] — the app-level store, the SSE parser and turn reducer behind streamed answers, the Sheet-based Panel, Daylight theme tokens and UI cookies, and the Ask/Library/Table/Settings route tree.
 
 ## Library
 

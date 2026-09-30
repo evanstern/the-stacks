@@ -129,7 +129,13 @@ the piloted run, and the Brave recording.
     (`routes/table.tsx`) at path `/play` (`/play/:sessionId` is the live session,
     `routes/play.tsx`). Fixed before the committed run — a script bug caught by a timeout,
     not a product bug.
-- [ ] T052 Run `/grounding-wiki:wiki-update`. Review `react-router-app`, `client-identity`, `static-serving`, `test-suite`, `m0-demo`, and `overview`. Add a `chat-ui` note (store, SSE parser, turn reducer, panel, theme tokens, UI cookies). Regenerate `CAPSULES.md` if any `description:` changes.
+- [x] T052 Run `/grounding-wiki:wiki-update`. Review `react-router-app`, `client-identity`, `static-serving`, `test-suite`, `m0-demo`, and `overview`. Add a `chat-ui` note (store, SSE parser, turn reducer, panel, theme tokens, UI cookies). Regenerate `CAPSULES.md` if any `description:` changes.
+  - Deviation: the plan gate also flagged `client-session-hook` and `ingestion` (not in the
+    dispatch's named list) as NEEDS-REVIEW — reviewed and re-pinned too, since the gate is
+    authoritative over the source list, not the dispatch prompt's illustrative names.
+    `overview`'s sources were untouched by this task (gate found it already fresh); read it,
+    made no change. `test-suite`'s verified test counts (46/44/90 → 47/44/91) were re-measured
+    by running the note's own 12-file command with and without the DB, not guessed from the diff.
 - [ ] T053 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
 - [ ] T054 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
 - [ ] T055 Run `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0.

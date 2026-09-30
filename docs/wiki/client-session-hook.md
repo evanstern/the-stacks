@@ -6,7 +6,7 @@ sources:
   - apps/web/app/ws/useSession.ts
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
 ---
 
 # Client session hook

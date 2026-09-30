@@ -21,7 +21,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: 54055b282f47cc91954fc5af2bfaa7b859b0458d
+verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
 ---
 
 # Ingestion
@@ -118,7 +118,8 @@ Calls [[ddb-parser]] and its own `parseMarkdown`; writes through [[library-schem
 configured purpose; its `jobs` table sits in [[database-schema]]; throws [[error-contract]]'s
 `ValidationError`/`ConflictError`/`PayloadTooLargeError`/`NotFoundError`; mounted and started
 by [[server-entrypoint-and-app]]; `UPLOAD_MAX_BYTES` is [[configuration]]'s. [[test-suite]]
-covers the rest of `apps/server/test/`.
+covers the rest of `apps/server/test/`. A second, non-HTTP reader of the same jobs queue —
+the web SSR load context's `jobs()` — is [[chat-ui]]'s concern, covered there.
 
 ## Operational notes
 

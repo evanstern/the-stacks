@@ -7,7 +7,7 @@ sources:
   - apps/web/app/root.tsx
   - apps/server/src/web.ts
   - packages/shared/src/web.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
 ---
 
 # Client identity
@@ -27,22 +27,29 @@ share one lookup rather than paying for it twice. `PublicUser`, `Role`, and
 `StacksLoadContext` are declared once in `packages/shared/src/web.ts` (plan D3) so the
 server's implementation and the client's typed access to `loaderData.user` can't drift.
 
-`apps/web/app/root.tsx`'s `loader` is `async ({ context }) => ({ user: await
-context.get(stacksContext).identity() })` — it runs on **every** request, including a reload,
-so identity is always re-asked from the server, never assumed from client state. The default
-`Root` component renders `<SignIn />` when `loaderData.user` is falsy, `<Outlet />` otherwise
-— for any route, not just `/`, since the gate lives on the root route every child renders
-through (unchanged in effect from the SPA-era gate this replaces).
+`apps/web/app/root.tsx`'s `loader` is `async ({ context, request }) => { const user = await
+context.get(stacksContext).identity(); const ui = readUiPrefs(request.headers.get("cookie"));
+return { user, ui }; }` — it runs on **every** request, including a reload, so identity is
+always re-asked from the server, never assumed from client state. (`ui` is the per-browser
+theme/sidebar cookie read, [[chat-ui]]'s concern, not identity's — it rides the same loader
+because there is only one root loader.) The default `Root` component renders `<SignIn />`
+when `loaderData.user` is falsy — for any route, not just `/`, since the gate lives on the
+root route every child renders through (unchanged in effect from the SPA-era gate this
+replaces) — otherwise it wraps `<Outlet />` in `<AppStoreProvider><Shell>…</Shell></AppStoreProvider>`
+(keyed on `user.id`, so switching accounts remounts the store); `AppStoreProvider`'s
+`onUnauthorized` is wired to the same `revalidator.revalidate()` this note describes below,
+not a second mechanism.
 
 **Sign-in and sign-out don't write to any client cache — they force the loader to re-run.**
 `apps/web/app/auth.ts`'s `signIn`/`signOut` are thin `fetch` wrappers over
-`/auth/sign-in`/`/auth/sign-out` (`credentials: "same-origin"`); `sign-in.tsx` and the
-sign-out buttons in `home.tsx`/`play.tsx` call one of these, then `useRevalidator().revalidate()`.
-Revalidation re-runs `root.tsx`'s loader (a fresh server request, a fresh cookie read), which
-is what actually flips the rendered view — there is no `setQueryData`-style direct write
-anywhere in this path. [[client-session-hook]]'s reconnect preflight does the same thing on a
-`401`: it calls the `onSignedOut` callback it was given, which `play.tsx` wires to the same
-`revalidator.revalidate`.
+`/auth/sign-in`/`/auth/sign-out` (`credentials: "same-origin"`); `sign-in.tsx`'s form and the
+one "Sign out" control — now pinned at the bottom of `shell/shell.tsx` for both roles, not a
+per-page button (`home.tsx` is loader-only; `play.tsx` dropped its own copy) — call one of
+these, then `useRevalidator().revalidate()`. Revalidation re-runs `root.tsx`'s loader (a fresh
+server request, a fresh cookie read), which is what actually flips the rendered view — there
+is no `setQueryData`-style direct write anywhere in this path. [[client-session-hook]]'s
+reconnect preflight does the same thing on a `401`: it calls the `onSignedOut` callback it was
+given, which `play.tsx` wires to the same `revalidator.revalidate`.
 
 ## Connections
 
@@ -51,6 +58,9 @@ Router framework-mode app this replaces the old SPA shell with). Passes the `onS
 callback into [[client-session-hook]]. The server side of the same seam is
 [[session-auth]]'s `validateSession`, reached here through the shared `IdentityLookup`
 (`apps/server/src/auth/identity.ts`) rather than a second implementation.
+`StacksLoadContext` (`packages/shared/src/web.ts`) also carries `jobs()`, an
+operator-gated method next to `identity()` in the same per-request context; its shape and
+callers are [[chat-ui]]'s concern, not this note's.
 
 ## Operational notes
 
