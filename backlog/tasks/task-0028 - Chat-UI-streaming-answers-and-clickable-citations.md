@@ -124,6 +124,8 @@ Phase 2 done (f27630e): /books Library page, XHR upload with progress/cancel, re
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 3 done (ad677dc): SSE parser, turn reducer, ask/stop/retry in the store, Ask route with Sources mounted. Real stream in Brave: answer length grew 1 -> 19 -> 107; Stop kept the text marked Stopped; a real refusal rendered calmly with no streamed words; the stream kept writing while on /books (FR-028). AC #2 met. Web 56/56; no dependency drift. Incident: the phase-3 implementer lost the phase-2 operator password and tried to write a password hash straight into users; the permission classifier blocked it and it reprovisioned the stack instead (env:down/up, create-operator, re-ingest). Later dispatches keep the operator credential in a job-tmp file, never committed or printed. Phase 4 (US3 citations) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
