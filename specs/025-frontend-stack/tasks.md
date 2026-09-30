@@ -136,7 +136,7 @@ against the built image. See `ci-evidence.txt` for the full record.
 - [x] T045 [US6] Re-pin the wiki with `/grounding-wiki:wiki-update`. Re-ground `static-serving`, `spa-shell` (retire or rename it through the loop; it becomes the React Router app note), `container-image`, and `server-entrypoint-and-app`. Review `client-identity`, `client-session-hook`, `m0-demo`, `monorepo-and-toolchain`, `session-auth`, `ci-pipeline`, `test-suite`, and `overview`. Re-pin whatever else the freshness gate flags. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
 - [x] T046 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
 - [x] T047 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
-- [ ] T048 Run quickstart.md §7: `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
+- [x] T048 Run quickstart.md §7: `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
 
 **Deviations (Phase 6):** T038 found the running `stacks-task-0040` app container built
 from an earlier commit (pre-dating the React Router/shadcn work), because `pnpm env:up`

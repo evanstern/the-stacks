@@ -169,3 +169,9 @@ the 500-char capsule budget).
 `OK: 36 note(s) fresh against their pinned sources.` (one pre-existing, unrelated warning on
 `benchmarks.md`'s already-`size_budget_exempt` length). `spec-bridge check` —
 `spec-bridge ok: 24 linked task(s), none exceed their artifacts`, exit 0.
+
+### T048 — teardown
+
+`pnpm env:down` — both stacks-task-0040 and stacks-task-0040-test brought down and removed
+(containers, network, volume). `pnpm env:prune --check` — `no orphans.`, exit 0. Ran last,
+after all other Phase 6 evidence was recorded.
