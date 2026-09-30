@@ -38,15 +38,23 @@ twice, by hand. The dev-mode check runs once, by hand, and is recorded.
 
 ## Phase 2: Server mount and load context (US3, US4)
 
-- [ ] T009 [US4] Create `packages/shared/src/web.ts` with `Role`, `PublicUser`, `StacksLoadContext`, and `WebRequestHandler`, as types only (plan D3). Re-export it from `packages/shared/src/index.ts`. Set `"lib": ["ES2022", "DOM"]` in `packages/shared/tsconfig.json`.
-- [ ] T010 [US4] Create `apps/server/src/auth/identity.ts`: `createIdentityLookup({ db, validateSession })` returns `(token: string | undefined) => Promise<PublicUser | null>`. Return `null` for no token, no session, or no user row. Do not catch datastore errors (plan D2).
-- [ ] T011 [US4] In `apps/server/src/routes/auth.ts`, make `GET /auth/me` use the lookup from T010. Keep the 401 for `null` and the response shape `{ user }`.
-- [ ] T012 [US4] Create `apps/server/src/web.ts`: `createWebLoadContext(c, lookup): StacksLoadContext`. `identity()` reads the `session` cookie with `getCookie` and memoizes its result per request.
-- [ ] T013 [US3] Rewrite `apps/server/src/static.ts` as `createWebMiddleware({ clientRoot, handler, lookup })` (plan D4). Add `/library` to `RESERVED_PREFIXES`. Keep the dummy-`next` asset lookup and its comment. Replace the `index.html` fallback with the handler call. Default `clientRoot` to `../../web/build/client` and the handler to a cached dynamic `import()` of `../../web/build/server/index.js`, both from `import.meta.url`. Rewrite the header comments for the new behaviour.
-- [ ] T014 [US3] In `apps/server/src/app.ts`, replace `staticRoot?` with `web?: { clientRoot?: string; handler?: () => Promise<WebRequestHandler> }`. Build the lookup once from the existing `validateSession`. Mount the web middleware last. Update the mount-order comment.
-- [ ] T015 [US3] Rewrite `apps/server/test/static.test.ts` (plan D13): fake handler recording calls; zero calls for `/health`, `/api/x`, `/auth/x`, `/library/x`, `/ws`; JSON 404 for unknown sub-paths under `/api`, `/auth`, `/library`; a fixture asset served with zero calls; `/play/abc` gives one call whose `Request` URL path is `/play/abc`; `identity()` resolves `null` with no cookie.
-- [ ] T016 [P] [US4] In `apps/server/test/auth.integration.test.ts`, add one case: the lookup returns the user for a live token and `null` after sign-out. Keep the file's skip shape.
-- [ ] T017 Run `pnpm --filter @the-stacks/server build` and `pnpm --filter @the-stacks/server test`. Expect exit 0.
+- [x] T009 [US4] Create `packages/shared/src/web.ts` with `Role`, `PublicUser`, `StacksLoadContext`, and `WebRequestHandler`, as types only (plan D3). Re-export it from `packages/shared/src/index.ts`. Set `"lib": ["ES2022", "DOM"]` in `packages/shared/tsconfig.json`.
+- [x] T010 [US4] Create `apps/server/src/auth/identity.ts`: `createIdentityLookup({ db, validateSession })` returns `(token: string | undefined) => Promise<PublicUser | null>`. Return `null` for no token, no session, or no user row. Do not catch datastore errors (plan D2).
+- [x] T011 [US4] In `apps/server/src/routes/auth.ts`, make `GET /auth/me` use the lookup from T010. Keep the 401 for `null` and the response shape `{ user }`.
+- [x] T012 [US4] Create `apps/server/src/web.ts`: `createWebLoadContext(c, lookup): StacksLoadContext`. `identity()` reads the `session` cookie with `getCookie` and memoizes its result per request.
+- [x] T013 [US3] Rewrite `apps/server/src/static.ts` as `createWebMiddleware({ clientRoot, handler, lookup })` (plan D4). Add `/library` to `RESERVED_PREFIXES`. Keep the dummy-`next` asset lookup and its comment. Replace the `index.html` fallback with the handler call. Default `clientRoot` to `../../web/build/client` and the handler to a cached dynamic `import()` of `../../web/build/server/index.js`, both from `import.meta.url`. Rewrite the header comments for the new behaviour.
+- [x] T014 [US3] In `apps/server/src/app.ts`, replace `staticRoot?` with `web?: { clientRoot?: string; handler?: () => Promise<WebRequestHandler> }`. Build the lookup once from the existing `validateSession`. Mount the web middleware last. Update the mount-order comment.
+- [x] T015 [US3] Rewrite `apps/server/test/static.test.ts` (plan D13): fake handler recording calls; zero calls for `/health`, `/api/x`, `/auth/x`, `/library/x`, `/ws`; JSON 404 for unknown sub-paths under `/api`, `/auth`, `/library`; a fixture asset served with zero calls; `/play/abc` gives one call whose `Request` URL path is `/play/abc`; `identity()` resolves `null` with no cookie.
+- [x] T016 [P] [US4] In `apps/server/test/auth.integration.test.ts`, add one case: the lookup returns the user for a live token and `null` after sign-out. Keep the file's skip shape.
+- [x] T017 Run `pnpm --filter @the-stacks/server build` and `pnpm --filter @the-stacks/server test`. Expect exit 0.
+
+**Deviation (Phase 2):** `pnpm env:up`'s `app` service fails to build until Phase 3 lands
+`apps/web`'s React Router app (its `build` script is already `react-router build`, but the
+app directory doesn't exist yet). The throwaway `docker-compose.test.yml` database (no `app`
+service) still comes up, so T017's build/test and the new T016 case ran against a real
+Postgres with `TEST_DATABASE_URL` and `REQUIRE_DATABASE=1` after applying migrations by hand
+(`pnpm --filter @the-stacks/server db:migrate` with `TEST_DATABASE_URL` exported). That
+test-db stack is left running for later phases; the `app`+`db` stack is not up.
 
 ## Phase 3: Route port (US1, US2)
 

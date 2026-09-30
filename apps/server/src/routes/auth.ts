@@ -1,9 +1,10 @@
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { ZodError } from "zod";
 import { z } from "zod";
+import type { IdentityLookup } from "../auth/identity.js";
 import { issueInvitation, redeemInvitation } from "../auth/invitations.js";
 import type { AuthVariables } from "../auth/middleware.js";
 import {
@@ -137,11 +138,14 @@ function setSessionCookie(
 export interface CreateAuthRoutesOptions {
   db: DbClient;
   validateSession: ValidateSession;
+  /** Shared with the web load context (plan D2), so /auth/me and a loader can't drift. */
+  identityLookup: IdentityLookup;
 }
 
 export function createAuthRoutes({
   db,
   validateSession,
+  identityLookup,
 }: CreateAuthRoutesOptions) {
   const route = new Hono<{ Variables: AuthVariables }>();
   const authMiddleware = createAuthMiddleware(validateSession);
@@ -184,22 +188,15 @@ export function createAuthRoutes({
     return c.body(null, 204);
   });
 
-  route.get("/me", authMiddleware, async (c) => {
-    const identity = c.get("identity");
-    if (!identity) {
-      throw new UnauthorizedError();
-    }
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, identity.userId))
-      .limit(1);
-    // The session outlived its user (deleted between sign-in and this
-    // request) — treat exactly like no session at all.
+  route.get("/me", async (c) => {
+    // Same lookup the web load context uses (plan D2) — a signed-out
+    // cookie, an unknown token, and a session whose user row is gone all
+    // resolve to the same `null` here, exactly as they do there.
+    const user = await identityLookup(getCookie(c, SESSION_COOKIE_NAME));
     if (!user) {
       throw new UnauthorizedError();
     }
-    return c.json({ user: publicUser(user) });
+    return c.json({ user });
   });
 
   route.post("/invitations", authMiddleware, async (c) => {
