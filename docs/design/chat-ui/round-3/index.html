@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat UI &mdash; Round 3</title>
+<style>
+:root{
+  --bg:#f4f6f6; --panel:#ffffff; --ink:#1b2023; --muted:#5b6570; --border:#d7dbe0; --accent:#0f6f63; --focus:#1a5fb4;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14181a; --panel:#1c2124; --ink:#e8ecee; --muted:#a9b2b8; --border:#343b3f; --accent:#4fd1c0; --focus:#8ec2ff; }
+}
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.55;}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px;}
+header{max-width:60rem;margin:0 auto;padding:2rem 1.25rem 1rem;}
+main{max-width:60rem;margin:0 auto;padding:0 1.25rem 3rem;}
+.options{list-style:none;padding:0;margin:0 0 2rem;display:grid;gap:1rem;grid-template-columns:1fr 1fr;}
+@media (max-width:640px){.options{grid-template-columns:1fr;}}
+.options li{border:1px solid var(--border);border-radius:.6rem;background:var(--panel);padding:1.25rem;}
+.options a{color:var(--ink);text-decoration:none;font-size:1.1rem;font-weight:700;}
+.options a:hover, .options a:focus-visible{color:var(--accent);}
+.options p{margin:.4rem 0 0;font-size:.95rem;}
+h2{font-size:1.05rem;margin:1.75rem 0 .5rem;}
+ul.rulings,ul.questions{padding-left:1.3rem;}
+ul.rulings li,ul.questions li{margin:0 0 .5rem;}
+code{font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;font-size:.9em;background:var(--panel);padding:.05rem .3rem;border-radius:.25rem;border:1px solid var(--border);}
+.badge{display:inline-block;font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;font-size:.62rem;font-weight:700;letter-spacing:.02em;padding:.05rem .35rem;border-radius:.25rem;background:var(--accent);color:#fff;margin-left:.3rem;vertical-align:.1em;}
+.badge.lib{background:var(--muted);}
+.badge.ses{background:var(--ink);color:var(--panel);opacity:.8;}
+table.compare{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;}
+table.compare th,table.compare td{text-align:left;padding:.5rem .6rem;border:1px solid var(--border);vertical-align:top;}
+table.compare th{background:var(--panel);font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+table.compare td:first-child{font-weight:600;white-space:nowrap;}
+</style>
+</head>
+<body>
+<header>
+  <p><a href="../round-2/index.html">&larr; Round 2</a></p>
+  <h1>Chat UI &mdash; Design Round 3</h1>
+  <p>TASK-0028. A narrow round: the base shell, tokens and palette are settled (round 2&rsquo;s A2 daylight, teal in both light and dark &mdash; Nightshift is rejected). This round decides one thing &mdash; <strong>how the operator picks which books a chat session answers from</strong> &mdash; under three operator rulings: no modals anywhere, &ldquo;add a book&rdquo; from Ask means adding to the session&rsquo;s available knowledge base, and a book without embeddings stays keyword-searchable with an always-available, never-forced &ldquo;Embed now.&rdquo;</p>
+</header>
+<main>
+  <ul class="options">
+    <li>
+      <a href="p-sources-panel.html">P &mdash; Slide-out panel</a>
+      <p>A &ldquo;Sources&rdquo; button in the Ask header opens a panel anchored to the right edge (a bottom sheet on mobile). Full book list, checkboxes, status, add-a-book, all in one place.</p>
+    </li>
+    <li>
+      <a href="d-sources-dropdown.html">D &mdash; Autocomplete dropdown</a>
+      <p>Selected books show as chips above the prompt bar; &ldquo;+ Add source&rdquo; or typing &ldquo;@&rdquo; opens an anchored, filterable dropdown of every book.</p>
+    </li>
+  </ul>
+
+  <h2>Operator rulings this round applies</h2>
+  <ul class="rulings">
+    <li><strong>No modals, ever.</strong> Neither option uses a native popup-window element or a centred backdrop overlay. P slides a panel in from the right edge (a bottom sheet on mobile); D anchors a dropdown to the chip row. The Library delete confirmation (state 7 in both files) is redone as an inline row that expands beneath the book, replacing round 2&rsquo;s popup-window element.</li>
+    <li><strong>&ldquo;Add a book&rdquo; from Ask adds a source to the session&rsquo;s knowledge base.</strong> Both options let you upload without leaving Ask: P runs the upload inline inside the panel (progress card pinned to the top of the list); D expands an inline upload row under the chip row.</li>
+    <li><strong>Books without embeddings stay keyword-searchable, never re-imported.</strong> Equipment is shown &ldquo;Search-only&rdquo; and selectable in both options, with an &ldquo;Embed now&rdquo; affordance available at any time (state 5), never forced.</li>
+  </ul>
+
+  <h2>P vs. D at a glance</h2>
+  <table class="compare">
+    <thead><tr><th>&nbsp;</th><th>P &mdash; Slide-out panel</th><th>D &mdash; Autocomplete dropdown</th></tr></thead>
+    <tbody>
+      <tr><td>Trigger</td><td>&ldquo;Sources &middot; 2 of 4&rdquo; button in the Ask header bar</td><td>Chip row above the prompt bar, or typing &ldquo;@&rdquo;</td></tr>
+      <tr><td>Selection control</td><td>Checkbox per book <span class="badge ses" aria-hidden="true">SES</span></td><td>Removable chip per selected book <span class="badge ses" aria-hidden="true">SES</span></td></tr>
+      <tr><td>Full book list</td><td>Always the whole list, scrollable</td><td>Only on open; filters as you type</td></tr>
+      <tr><td>Desktop footprint</td><td>22rem panel, covers the source pane while open</td><td>21rem popover anchored under the chip row</td></tr>
+      <tr><td>Mobile</td><td>Bottom sheet, ~85% height, drag handle</td><td>Full-width list docked above the prompt bar</td></tr>
+      <tr><td>Add a book</td><td>Compact dropzone at the panel bottom; progress card floats to the list top</td><td>Last dropdown row (&ldquo;Upload a new book&hellip;&rdquo;) expands an inline row under the chips</td></tr>
+      <tr><td>Best at</td><td>Managing many books at once; reviewing every status without typing</td><td>Fast, keyboard-first swap of one or two sources without leaving the prompt</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ownership badges</h2>
+  <p><span class="badge" aria-hidden="true">0028</span> = this task &middot; <span class="badge lib" aria-hidden="true">LIB</span> = TASK-0038 library management &middot; <span class="badge ses" aria-hidden="true">SES</span> = TASK-0039 chat sessions.</p>
+  <ul class="rulings">
+    <li>The sources control as a library-wide view &mdash; which books are ready, adding a book, status pills, &ldquo;Open in Library&rdquo; &mdash; is <span class="badge" aria-hidden="true">0028</span>, built now.</li>
+    <li>Per-session selection &mdash; the checkboxes (P) or chips (D) that change what a session answers from &mdash; is <span class="badge ses" aria-hidden="true">SES</span>, because <code>POST /library/ask</code> has no source filter today; wiring the selection to the request body is TASK-0039&rsquo;s follow-up.</li>
+    <li>&ldquo;Embed now&rdquo; and &ldquo;Delete&rdquo; are <span class="badge lib" aria-hidden="true">LIB</span>, TASK-0038&rsquo;s existing library-management surface, shown here only for context.</li>
+  </ul>
+
+  <h2>Open question for the operator</h2>
+  <ul class="questions">
+    <li>Pick P or D as the sources control to spec and build &mdash; or call out specific pieces of each to combine (e.g. D&rsquo;s chip row with P&rsquo;s scrollable full list).</li>
+  </ul>
+</main>
+</body>
+</html>
