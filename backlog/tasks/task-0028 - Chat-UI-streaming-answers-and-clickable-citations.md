@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 01:58'
+updated_date: '2026-09-30 01:59'
 labels:
   - ui
 milestone: m-1
@@ -58,6 +58,9 @@ Round 1 landed (f3c5cb9): docs/design/chat-ui/round-1/index.html. Three directio
 Asked of the operator: pick a direction (or a hybrid) for round 2, and rule on AC #4 (two operator browsers vs operator + a player seeing the 403 views).
 
 Round 1 operator feedback 2026-09-29: A (reference desk) chosen as the base. Palette too dull; UX not scoped enough. References given (Dribbble; described, not copied into the repo): (1) RAG knowledge dashboard: left nav, library list and chat as a split pane, tabs replace the split on mobile; (2) single-purpose upload page: large dropzone, one file row with a progress bar, clean colours; (3) Untitled UI file management: left sidebar, dropzone above a files table, good mobile version; (4) dark AI chat dashboard: left sidebar, chat session list beside the conversation, strong dark-mode palette. Operator: chat sessions are a needed feature if not already specified; no board card covers them (searched). Proposed as a separate card; creation awaits operator confirmation. AC #4 operator intent: a player and the operator share a WebSocket session together; the operator flagged this as possibly out of scope. Ruling pending.
+
+Round 2 mock build dispatched: one layout (A developed: left sidebar Ask|Library|Table, session list, conversation, source pane; Library page with dropzone, recent imports, books; mobile bottom tabs + Chat|Source toggle) in two palettes (a2-daylight, a2-nightshift), round-1 states carried over plus mobile, Table operator+player, and collapsed sidebar. Session list badged SES (proposed, not carded).
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
