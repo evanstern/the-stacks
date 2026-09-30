@@ -4,6 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: To Do
 assignee: []
 created_date: '2026-09-30 03:10'
+updated_date: '2026-09-30 03:10'
 labels:
   - ui
 milestone: m-1
@@ -11,15 +12,19 @@ dependencies: []
 references:
   - backlog/docs/doc-0003 - Frontend-stack-—-rulings.md
 priority: high
-ordinal: 31000
+ordinal: 18000
 ---
 
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement the doc-0003 rulings (ratified 2026-09-29). They supersede architecture A1's Client row ("SPA, not SSR").
+Implement the doc-0003 rulings (ratified 2026-09-29, decision-0008). They supersede architecture A1's Client row ("SPA, not SSR").
 Port the existing routes (sign-in, home, play) off TASK-0016's TanStack SPA shell.
-Sequencing: TASK-0028 (chat UI) is in flight on TanStack. Its decision record's Stack constraint now points here. Either land this first and rebase TASK-0028 onto it, or land TASK-0028 and port it here. The sweep runbook decides.
+
+**Pre-empts TASK-0028.** Operator ruling 2026-09-29: this migration lands before TASK-0028 while the refactor is cheap.
+- TASK-0028 pauses at its spec (specs/024-chat-ui) and rebases onto this task's merge.
+- TASK-0028's decision record keeps its visual direction. Its Stack constraint now points to doc-0003.
+- The operator relays this to the TASK-0028 session. Do not edit TASK-0028's card from this task.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
