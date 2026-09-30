@@ -3,6 +3,7 @@
 - **Status:** accepted by the operator, 2026-09-29
 - **Task:** TASK-0028 (Chat UI: streaming answers and clickable citations)
 - **Follow-up cards:** TASK-0038 (library management), TASK-0039 (chat sessions)
+- **Stack:** doc-0003 / decision-0008 (React Router 8 SSR, Tailwind v4, shadcn/ui), landed by TASK-0040 before this task's build. Amended 2026-09-29; the visual direction is unchanged.
 - **Rounds:** [round 1](round-1/index.html), [round 2](round-2/index.html), [round 3](round-3/index.html)
 
 ## Chosen
@@ -63,6 +64,7 @@
    - Set `aria-expanded` and `aria-controls` on it.
 3. **The slide-out panel becomes a reusable component.**
    - It is the project's standard for anything that would otherwise be a modal or a dropdown menu. TASK-0028 builds it once and uses it for Sources. TASK-0038 and TASK-0039 reuse it.
+   - Build it on shadcn/ui `Sheet` (doc-0003 ruling 3): `side="right"` on desktop, `side="bottom"` on mobile. Wrap it once as the project's panel component so every caller gets the same behaviour.
    - The component:
      - anchors to an edge (right on desktop, bottom sheet on mobile);
      - has a labelled region, a close control, and closes on Escape;
@@ -75,7 +77,9 @@
 Never use `<dialog>`, `showModal`, or a centred overlay with a backdrop. They work badly on mobile, and designing UX around them is painful. Use instead:
 - the slide-out panel component;
 - inline expansion;
-- an autocomplete dropdown.
+- an autocomplete dropdown (shadcn/ui `Command` or `Combobox`).
+
+The shadcn/ui `Dialog` and `AlertDialog` components are never added (doc-0003 ruling 3; TASK-0040 AC #5).
 
 Confirmations go inline. For example, deleting a book expands a confirm row beneath that book's row.
 
@@ -125,8 +129,14 @@ These routes do not ship in TASK-0028. The contracts on main (`ask-sse`, `http-i
   - `POST /library/ask` is read with a fetch stream reader;
   - `POST /library/uploads` uses XHR, for progress only;
   - `GET /library/jobs` is polled every 1–2 seconds while a job is queued or running.
-- **Constitution IX.** The app stays self-hostable: no CDN, no webfonts, the `system-ui` font stack, and inline SVG icons.
-- **Stack.** React 19, Vite, TanStack Router and Query. No UI library is added without a justification recorded in the plan.
+- **Constitution IX.** The app stays self-hostable: no CDN, no webfonts, the `system-ui` font stack, and locally bundled SVG icons.
+- **Stack.** doc-0003: React Router 8 framework mode with SSR by default; Tailwind v4; shadcn/ui copied into `apps/web`. Express the Daylight palette as Tailwind v4 theme tokens (CSS custom properties) with light and dark values. Loaders reach server data through the load context in `packages/shared`, never the app's own HTTP API and never `apps/server` imports.
+- **Rendering split.**
+  - SSR the Library page and the shell: books and jobs load in the loader, so first paint shows real status.
+  - Render Ask's streaming conversation client-side. The SSE read, the stop control and the source pane run after hydration.
+  - Keep the Table client-only (`clientLoader` + `HydrateFallback`), as TASK-0040 ports it.
+  - Upload progress (XHR) and job polling run client-side after hydration.
+  - Role-aware sidebar: the root loader resolves the session and role on the server, so a player never receives operator nav in the HTML.
 - **Accessibility.**
   - Citations are real `<button>`s.
   - Regions are labelled.
@@ -147,5 +157,7 @@ These routes do not ship in TASK-0028. The contracts on main (`ask-sse`, `http-i
 
 1. **Book identity before TASK-0038.** Jobs carry `book` (the title) and `result.documentId`, so group by title and take the latest job per book. Confirm in the plan that this is enough for the Sources panel.
 2. **Passage kinds.** Render each `passage.kind` (heading, prose, list, table, statBlock, sidebar) from plain `passage.text`. The contract carries no structure beyond the text. Decide in the plan how far a stat block or table is formatted.
-3. **Where the conversation lives.** A single conversation sits in client state for TASK-0028. It must survive moving between Ask and Library (keep it in the query cache or router state).
+3. **Where the conversation lives.** A single conversation sits in client state for TASK-0028. It must survive moving between Ask and Library. With TanStack Query likely gone (doc-0003 ruling 6), keep it in a layout-level store above both routes. Decide in the plan.
+5. **Remembered sidebar collapse under SSR.** `localStorage` is unreadable on the server. Use a cookie the root loader reads, or accept a post-hydration adjustment. Decide in the plan; no layout flash is preferred.
+6. **Posting to the ask stream.** A React Router action cannot stream SSE back to a fetch reader. The client posts to `/library/ask` directly; `/library` is a reserved path that never reaches the React Router handler (TASK-0040 AC #3). The loaders' load context still serves jobs and status reads.
 4. **Upload cancel.** Aborting the XHR cancels the upload. Confirm that no job row is created when the request never completes.
