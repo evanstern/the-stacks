@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 03:21'
+updated_date: '2026-09-30 08:01'
 labels:
   - ui
 milestone: m-1
@@ -97,6 +97,8 @@ Operator hold 2026-09-29: a frontend refactor that changes the apps/web base com
 spec.md landed (d06bf18, opus); plan/research/quickstart/tasks withheld for the TASK-0040 base. Spec additions beyond the decision record, pending operator confirmation: Settings = one theme control (System/Light/Dark, per browser); a Table landing page (Start a new table / Join by link or id); mobile breakpoint <=700px; jobs poll 1.5 s while any job is active. Open questions 1-4 resolved in spec.md (books grouped by lower(trim(book)) from GET /library/jobs; passages as plain text, tables monospace, no stat-block field grid; conversation in app-level memory; upload cancel creates no job). Drafted plan notes (SSE parser, XHR upload, panel a11y via inert, vitest devDep, Brave recording) kept in the dispatch report; re-derive them against the TASK-0040 base.
 
 Operator rulings 2026-09-30: per-browser UI state (sidebar collapse, theme) persists in cookies the root loader reads; Ask posts directly to /library/ask (a React Router action cannot stream SSE). The four spec additions are confirmed: Settings theme control, Table landing (Start/Join), 700px breakpoint, 1.5 s jobs poll. TASK-0040 runbook signed off; the sweep is running.
+
+Released from hold 2026-09-30: TASK-0040 merged (PR #39, 1446fd0) and synced Done; its closure (sync + runbook done) rides this branch. origin/main merged in (bca4b05). Next: author plan, research, quickstart and tasks for spec 024 against the React Router 8 / Tailwind v4 / shadcn base, then the dependency checkpoint.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
