@@ -1,10 +1,10 @@
 ---
 id: TASK-0040
 title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 03:10'
+updated_date: '2026-09-30 03:15'
 labels:
   - ui
 milestone: m-1
@@ -25,6 +25,8 @@ Port the existing routes (sign-in, home, play) off TASK-0016's TanStack SPA shel
 - TASK-0028 pauses at its spec (specs/024-chat-ui) and rebases onto this task's merge.
 - TASK-0028's decision record keeps its visual direction. Its Stack constraint now points to doc-0003.
 - The operator relays this to the TASK-0028 session. Do not edit TASK-0028's card from this task.
+
+Spec: specs/025-frontend-stack
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -39,6 +41,12 @@ Port the existing routes (sign-in, home, play) off TASK-0016's TanStack SPA shel
 - [ ] #8 docs/design/architecture.md A1 Client row is updated to cite doc-0003
 - [ ] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-09-30 by the TASK-0028 design-rounds session, running the sweep per docs/design/frontend-stack-sweep-runbook.md (draft, awaiting lane sign-off). Worktree .worktrees/task-0040, branch task-0040-frontend-stack. Spec 025.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
