@@ -8,7 +8,7 @@ merge → re-ground. Direction is decided; do not re-litigate it. These win:
 The board is the plan of record. This file carries only ordering, doctrine and the log.
 It carries forward the gates and retrospective of `docs/design/m1-wave2-sweep-runbook.md`.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** executing · operator sign-off on lanes: 2026-09-30 (operator, in the TASK-0028 session)
 
 ## Read first (in this order)
 
@@ -191,3 +191,4 @@ the transcript.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-30 | (runbook) | — | — | — | Authored as draft from the TASK-0028 session, in the TASK-0040 claim commit. Awaiting lane sign-off. |
+| 2026-09-30 | (runbook) | — | — | — | Signed off by the operator. Spec 025 dispatched to opus. |
