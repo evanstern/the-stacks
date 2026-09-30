@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 10:06'
+updated_date: '2026-09-30 10:23'
 labels:
   - ui
 milestone: m-1
@@ -28,13 +28,13 @@ Spec: specs/024-chat-ui
 - [x] #1 The operator uploads a book and sees ingestion status
 - [x] #2 Answers stream into the chat as they generate
 - [x] #3 Clicking a citation opens the source passage with the quoted span highlighted
-- [ ] #4 The M1 demo runs in two browsers from the per-worktree stack
+- [x] #4 The M1 demo runs in two browsers from the per-worktree stack
 - [x] #5 Spec phase: Foundation — theme, cookies, load context, store, panel, shell
 - [x] #6 Spec phase: US1 — Upload a book and watch it ingest (P1)
 - [x] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
 - [x] #8 Spec phase: US3 — Open a citation's source passage (P1)
 - [x] #9 Spec phase: US4 — Player views, the Table landing, and the two-browser run (P2)
-- [ ] #10 Spec phase: Verification, evidence, and re-grounding
+- [x] #10 Spec phase: Verification, evidence, and re-grounding
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -134,6 +134,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 5 done (5d4522c): Table landing (Start/Join), play without its own sign-out, player views verified server-side (no jobs() call). Two-browser run in Brave, 15/15 steps pass: operator starts a table, player joins by link, M0 echo both ways, operator uploads and asks with a citation alongside, player sees no book text, player /ask and /books show operator-only; player /library request count 0 (SC-008). Web 63/63, server 413/0/5; no dependency drift. Player created via the invite flow; secret in job tmp (600). Phase 6 (verification, recording, re-ground) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 6 done (a82067c evidence + AC #4 recording; b3d871a wiki: 8 notes NEEDS-REVIEW re-verified, new chat-ui note, CAPSULES regenerated; 0d6b804 teardown). Orchestrator re-verified: freshness OK (37 notes), spec-bridge ok, no dependency drift, components/ui = button/card/input/label/sheet, zero <dialog/showModal/AlertDialog, recordings not blank (frames inspected: operator Ask streaming with Sources; player Table-only sidebar with both echo messages), player /library requests 0, no secret in the repo, env:prune no orphans. AC #4 met. ci:check with DB exit 0 (server 413/0/5, web 63/63). PR opening; spec-bridge sync to Done after merge.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
