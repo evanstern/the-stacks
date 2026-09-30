@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:00'
+updated_date: '2026-09-30 04:02'
 labels:
   - ui
 milestone: m-1
@@ -40,7 +40,7 @@ Spec: specs/025-frontend-stack
 - [ ] #7 The M0 two-browser echo demo still passes from the per-worktree stack and the container image
 - [ ] #8 docs/design/architecture.md A1 Client row is updated to cite doc-0003
 - [ ] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
-- [ ] #10 Spec phase: Setup and dependencies
+- [x] #10 Spec phase: Setup and dependencies
 - [ ] #11 Spec phase: Server mount and load context (US3, US4)
 - [ ] #12 Spec phase: Route port (US1, US2)
 - [ ] #13 Spec phase: Styling foundation (US5)
@@ -66,6 +66,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 025 amended (ba7d16c): Phase 5 hot-reload dev (US7, T049-T054), Phase 6 verification now includes T055 constitution PATCH 1.0.0 -> 1.0.1. vite added as an apps/server devDependency (already in the lockfile; follows from approved checkpoint 5). Phase ACs re-seeded.
 
 Implementation phase 1 (Setup and dependencies) dispatched.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 done (cab046d): deps per the approved table, build config, TanStack removed from the lockfile. Phase 2 (server mount and load context) dispatched.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
