@@ -125,18 +125,28 @@ against the built image. See `ci-evidence.txt` for the full record.
 
 ## Phase 6: Verification, evidence, re-grounding
 
-- [ ] T038 Run `pnpm env:up`. Then export `TEST_DATABASE_URL` from `.env` without printing it, and run `REQUIRE_DATABASE=1 pnpm ci:check`. Expect exit 0 and zero skipped database suites. Record the tail in `specs/025-frontend-stack/ci-evidence.txt`.
-- [ ] T039 [US5] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Expect zero hits. Record it in `ci-evidence.txt`.
-- [ ] T040 [US5] Run `grep -rniE 'dialog' apps/web/app apps/web/components.json`, then `ls apps/web/app/components/ui`. Expect zero dialog hits and exactly `button.tsx card.tsx input.tsx label.tsx`. Record both in `ci-evidence.txt`.
-- [ ] T041 [US1] [US3] Run quickstart.md §3. Record the SSR `curl` and the `/library/nope` result in `ci-evidence.txt`.
-- [ ] T042 [US2] Run the M0 demo on the per-worktree stack (quickstart.md §4) in Brave. Record each step's result for the PR body.
-- [ ] T043 [US2] Run the M0 demo against the standalone image (quickstart.md §5). Record the image id, the commit, the tooling check, and each step's result for the PR body.
-- [ ] T044 [P] [US6] In `docs/design/architecture.md` A1's table, set the Client row to `React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui` with the note `Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29)`. Change nothing else in A1 unless plan.md checkpoint 6 says so.
-- [ ] T055 [P] [US6] Amend `.specify/memory/constitution.md` as a PATCH (1.0.0 → 1.0.1), per its Governance section. Set the Architecture Constraints Client row to match T044, citing doc-0003 / decision-0008. Set the version line to `**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: <merge date>`. Prepend a Sync Impact Report entry: 1.0.0 → 1.0.1, PATCH, Client row only, ratified by decision-0008, no template changes. Confirm plan.md's Complexity Tracking row reads resolved.
+- [x] T038 Run `pnpm env:up`. Then export `TEST_DATABASE_URL` from `.env` without printing it, and run `REQUIRE_DATABASE=1 pnpm ci:check`. Expect exit 0 and zero skipped database suites. Record the tail in `specs/025-frontend-stack/ci-evidence.txt`.
+- [x] T039 [US5] Run `grep -rnE 'fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr' apps/web --exclude-dir=node_modules`. Expect zero hits. Record it in `ci-evidence.txt`.
+- [x] T040 [US5] Run `grep -rniE 'dialog' apps/web/app apps/web/components.json`, then `ls apps/web/app/components/ui`. Expect zero dialog hits and exactly `button.tsx card.tsx input.tsx label.tsx`. Record both in `ci-evidence.txt`.
+- [x] T041 [US1] [US3] Run quickstart.md §3. Record the SSR `curl` and the `/library/nope` result in `ci-evidence.txt`.
+- [x] T042 [US2] Run the M0 demo on the per-worktree stack (quickstart.md §4) in Brave. Record each step's result for the PR body.
+- [x] T043 [US2] Run the M0 demo against the standalone image (quickstart.md §5). Record the image id, the commit, the tooling check, and each step's result for the PR body.
+- [x] T044 [P] [US6] In `docs/design/architecture.md` A1's table, set the Client row to `React 19, React Router 8 framework mode (SSR by default; realtime and canvas routes client-only), Tailwind v4, shadcn/ui` with the note `Supersedes "SPA, not SSR": doc-0003 / decision-0008 (2026-09-29)`. Change nothing else in A1 unless plan.md checkpoint 6 says so.
+- [x] T055 [P] [US6] Amend `.specify/memory/constitution.md` as a PATCH (1.0.0 → 1.0.1), per its Governance section. Set the Architecture Constraints Client row to match T044, citing doc-0003 / decision-0008. Set the version line to `**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: <merge date>`. Prepend a Sync Impact Report entry: 1.0.0 → 1.0.1, PATCH, Client row only, ratified by decision-0008, no template changes. Confirm plan.md's Complexity Tracking row reads resolved.
 - [ ] T045 [US6] Re-pin the wiki with `/grounding-wiki:wiki-update`. Re-ground `static-serving`, `spa-shell` (retire or rename it through the loop; it becomes the React Router app note), `container-image`, and `server-entrypoint-and-app`. Review `client-identity`, `client-session-hook`, `m0-demo`, `monorepo-and-toolchain`, `session-auth`, `ci-pipeline`, `test-suite`, and `overview`. Re-pin whatever else the freshness gate flags. Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
 - [ ] T046 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
 - [ ] T047 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
 - [ ] T048 Run quickstart.md §7: `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0 from both.
+
+**Deviations (Phase 6):** T038 found the running `stacks-task-0040` app container built
+from an earlier commit (pre-dating the React Router/shadcn work), because `pnpm env:up`
+refuses to run against a stack that is already up (its port-free check). Rebuilt in place
+with `docker compose -p stacks-task-0040 up -d --build --wait`, replicating `env.mjs`'s
+`STACKS_COMMIT`/`STACKS_ENV`/`STACKS_WORKTREE` env vars — same effect as `env:up`, without
+its port-free precondition; the `db` volume was untouched so migrations/accounts survived.
+`ci:check` then ran against the correct, current code. — T055's `<merge date>` placeholder:
+no merge date exists yet at authoring time, so "Last Amended" was set to today's date
+(2026-09-30), the date of this amendment's authoring commit.
 
 ## Dependencies
 
