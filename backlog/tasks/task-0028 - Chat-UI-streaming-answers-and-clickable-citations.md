@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 10:23'
+updated_date: '2026-09-30 14:41'
 labels:
   - ui
 milestone: m-1
@@ -136,6 +136,8 @@ Phase 5 done (5d4522c): Table landing (Start/Join), play without its own sign-ou
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 6 done (a82067c evidence + AC #4 recording; b3d871a wiki: 8 notes NEEDS-REVIEW re-verified, new chat-ui note, CAPSULES regenerated; 0d6b804 teardown). Orchestrator re-verified: freshness OK (37 notes), spec-bridge ok, no dependency drift, components/ui = button/card/input/label/sheet, zero <dialog/showModal/AlertDialog, recordings not blank (frames inspected: operator Ask streaming with Sources; player Table-only sidebar with both echo messages), player /library requests 0, no secret in the repo, env:prune no orphans. AC #4 met. ci:check with DB exit 0 (server 413/0/5, web 63/63). PR opening; spec-bridge sync to Done after merge.
+
+Operator hold on PR #40 merge (2026-09-30): the operator wants a local manual-test pass and more design rounds before merging. Local stack up via pnpm env:up at http://localhost:3028 (commit 75932ad); app DB migrated, operator created via auth:create-operator, player via the invite flow, "Basic Rules" (SRD combat.md) ingested and embedded (31 chunks, bge-m3). Logins are in the gitignored .handoff/local-test-logins.txt (600). Next: the operator compiles feedback; design round 4 follows.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
