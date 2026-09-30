@@ -1,8 +1,18 @@
-import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useIdentity, useSignOut } from "../auth/useAuth";
-import type { RecordedEvent } from "../ws/types";
-import { useSession } from "../ws/useSession";
+import { useRevalidator, useRouteLoaderData } from "react-router";
+import { signOut } from "~/auth";
+import type { loader as rootLoader } from "~/root";
+import type { RecordedEvent } from "~/ws/types";
+import { useSession } from "~/ws/useSession";
+import type { Route } from "./+types/play";
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  return { sessionId: params.sessionId };
+}
+
+export function HydrateFallback() {
+  return <p>Loading…</p>;
+}
 
 function eventText(event: RecordedEvent): string {
   const payload = event.payload as { text?: unknown } | null;
@@ -12,18 +22,32 @@ function eventText(event: RecordedEvent): string {
 }
 
 /** US3: replayed + live events through one path (T019); US4's demo view. */
-export function PlayView() {
-  const { sessionId } = useParams({ from: "/play/$sessionId" });
-  const identity = useIdentity();
-  const signOut = useSignOut();
-  const { events, status, caughtUp, send } = useSession(sessionId);
+export default function Play({ loaderData }: Route.ComponentProps) {
+  const { sessionId } = loaderData;
+  const root = useRouteLoaderData<typeof rootLoader>("root");
+  const revalidator = useRevalidator();
+  const { events, status, caughtUp, send } = useSession(
+    sessionId,
+    revalidator.revalidate,
+  );
   const [draft, setDraft] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function handleSignOut() {
+    setPending(true);
+    await signOut();
+    revalidator.revalidate();
+  }
 
   return (
     <div>
       <p>
-        Signed in as <strong>{identity.data?.displayName}</strong> — {status}
-        <button type="button" onClick={() => signOut.mutate()}>
+        Signed in as <strong>{root?.user?.displayName}</strong> — {status}
+        <button
+          type="button"
+          onClick={() => void handleSignOut()}
+          disabled={pending}
+        >
           Sign out
         </button>
       </p>

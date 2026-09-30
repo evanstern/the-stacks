@@ -58,21 +58,30 @@ test-db stack is left running for later phases; the `app`+`db` stack is not up.
 
 ## Phase 3: Route port (US1, US2)
 
-- [ ] T018 [US1] Create `apps/web/react-router.config.ts` with `ssr: true` and `appDirectory: "app"`.
-- [ ] T019 [US1] Create `apps/web/vite.config.ts` (replace the old one): `plugins: [tailwindcss(), reactRouter()]`, `resolve.tsconfigPaths: true`, `environments.ssr.build.rollupOptions.input: "./server.ts"`.
-- [ ] T020 [US4] Create `apps/web/app/context.ts`: `export const stacksContext = createContext<StacksLoadContext>()`.
-- [ ] T021 [US4] Create `apps/web/server.ts` exactly as plan D5.
-- [ ] T022 [US1] Create `apps/web/app/routes.ts`: `index("routes/home.tsx")` and `route("play/:sessionId", "routes/play.tsx")`.
-- [ ] T023 [US1] Create `apps/web/app/root.tsx`: `Layout` (html, head with `Meta` and `Links`, body with `Scripts` and `ScrollRestoration`); `links()` for `app.css?url`; a `loader` returning `{ user }` from `context.get(stacksContext).identity()`; a default component rendering `<SignIn />` for `null` and `<Outlet />` otherwise; an `ErrorBoundary`.
-- [ ] T024 [US1] Create `apps/web/app/auth.ts` from `src/auth/api.ts`: keep `signIn` and `signOut`, and their comments. Delete `fetchMe` and the local `User` type. Import `PublicUser` from `@the-stacks/shared`.
-- [ ] T025 [US1] Create `apps/web/app/sign-in.tsx` from `src/routes/sign-in.tsx`: `method="post"`; `preventDefault` in `onSubmit`; call `signIn`, then `revalidate()`; show the one failure message; disable submit until mounted (plan D10).
-- [ ] T026 [US1] Create `apps/web/app/routes/home.tsx` from `src/routes/home.tsx`: read the user with `useRouteLoaderData("root")`; sign-out calls `signOut`, then `revalidate()`.
-- [ ] T027 [US2] Move `apps/web/src/ws/types.ts` to `apps/web/app/ws/types.ts` unchanged. Move `apps/web/src/ws/useSession.ts` to `apps/web/app/ws/useSession.ts`. Replace `useQueryClient` and `setQueryData(identityKey, null)` with an `onSignedOut` callback argument. Change nothing else, and keep every comment.
-- [ ] T028 [US2] Create `apps/web/app/routes/play.tsx` from `src/routes/play.tsx`: `clientLoader({ params })` returns `{ sessionId }`; `HydrateFallback` renders `Loading…`; no server `loader`. Pass `revalidate` as `onSignedOut`. Keep the no-optimistic-append comment.
-- [ ] T029 [US1] Delete `apps/web/index.html` and the whole `apps/web/src/` tree.
-- [ ] T030 [US1] Run `pnpm --filter @the-stacks/web typecheck` and `pnpm --filter @the-stacks/web build`. Expect `apps/web/build/client/` and `apps/web/build/server/index.js`.
-- [ ] T031 [US1] [US2] Create `apps/web/test/ssr.test.mjs` with `node:test` (plan D13): `/` signed out contains the form; `/` signed in contains the display name; `/play/<uuid>` contains `Loading…` and no `<ul>`. Run `pnpm --filter @the-stacks/web test`. Expect exit 0.
-- [ ] T032 [US1] [US2] In `Dockerfile`'s runtime stage, install with `--filter "@the-stacks/server..." --filter "@the-stacks/web..."`, copy `/app/apps/web/build` to `apps/web/build`, and drop the `apps/server/public` copy (plan D6). Rewrite the stale comments.
+- [x] T018 [US1] Create `apps/web/react-router.config.ts` with `ssr: true` and `appDirectory: "app"`.
+- [x] T019 [US1] Create `apps/web/vite.config.ts` (replace the old one): `plugins: [tailwindcss(), reactRouter()]`, `resolve.tsconfigPaths: true`, `environments.ssr.build.rollupOptions.input: "./server.ts"`.
+- [x] T020 [US4] Create `apps/web/app/context.ts`: `export const stacksContext = createContext<StacksLoadContext>()`.
+- [x] T021 [US4] Create `apps/web/server.ts` exactly as plan D5.
+- [x] T022 [US1] Create `apps/web/app/routes.ts`: `index("routes/home.tsx")` and `route("play/:sessionId", "routes/play.tsx")`.
+- [x] T023 [US1] Create `apps/web/app/root.tsx`: `Layout` (html, head with `Meta` and `Links`, body with `Scripts` and `ScrollRestoration`); `links()` for `app.css?url`; a `loader` returning `{ user }` from `context.get(stacksContext).identity()`; a default component rendering `<SignIn />` for `null` and `<Outlet />` otherwise; an `ErrorBoundary`.
+- [x] T024 [US1] Create `apps/web/app/auth.ts` from `src/auth/api.ts`: keep `signIn` and `signOut`, and their comments. Delete `fetchMe` and the local `User` type. Import `PublicUser` from `@the-stacks/shared`.
+- [x] T025 [US1] Create `apps/web/app/sign-in.tsx` from `src/routes/sign-in.tsx`: `method="post"`; `preventDefault` in `onSubmit`; call `signIn`, then `revalidate()`; show the one failure message; disable submit until mounted (plan D10).
+- [x] T026 [US1] Create `apps/web/app/routes/home.tsx` from `src/routes/home.tsx`: read the user with `useRouteLoaderData("root")`; sign-out calls `signOut`, then `revalidate()`.
+- [x] T027 [US2] Move `apps/web/src/ws/types.ts` to `apps/web/app/ws/types.ts` unchanged. Move `apps/web/src/ws/useSession.ts` to `apps/web/app/ws/useSession.ts`. Replace `useQueryClient` and `setQueryData(identityKey, null)` with an `onSignedOut` callback argument. Change nothing else, and keep every comment.
+- [x] T028 [US2] Create `apps/web/app/routes/play.tsx` from `src/routes/play.tsx`: `clientLoader({ params })` returns `{ sessionId }`; `HydrateFallback` renders `Loading…`; no server `loader`. Pass `revalidate` as `onSignedOut`. Keep the no-optimistic-append comment.
+- [x] T029 [US1] Delete `apps/web/index.html` and the whole `apps/web/src/` tree.
+- [x] T030 [US1] Run `pnpm --filter @the-stacks/web typecheck` and `pnpm --filter @the-stacks/web build`. Expect `apps/web/build/client/` and `apps/web/build/server/index.js`.
+- [x] T031 [US1] [US2] Create `apps/web/test/ssr.test.mjs` with `node:test` (plan D13): `/` signed out contains the form; `/` signed in contains the display name; `/play/<uuid>` contains `Loading…` and no `<ul>`. Run `pnpm --filter @the-stacks/web test`. Expect exit 0.
+- [x] T032 [US1] [US2] In `Dockerfile`'s runtime stage, install with `--filter "@the-stacks/server..." --filter "@the-stacks/web..."`, copy `/app/apps/web/build` to `apps/web/build`, and drop the `apps/server/public` copy (plan D6). Rewrite the stale comments.
+
+**Deviations (Phase 3):** T023's `links()` needs `app/app.css` to exist at build time, so a
+one-line placeholder `app/app.css` was created now; T033 (Phase 4) overwrites it with the
+real Tailwind/shadcn content. T031's `"test": "node --test test/"` (set in Phase 1) fails in
+this environment with `Cannot find module '.../apps/web/test'` — a reproducible Node
+22.23.2 bug passing a bare directory to `--test`, confirmed unrelated to this task's code
+with a throwaway repro outside the repo. Changed the script to `"node --test"` (bare,
+letting the runner auto-discover under `test/`), which finds and runs the same file and
+excludes `node_modules` by default; `pnpm --filter @the-stacks/web test` now exits 0.
 
 ## Phase 4: Styling foundation (US5)
 

@@ -7,7 +7,7 @@
     "build": "react-router build",
     "typegen": "react-router typegen",
     "typecheck": "react-router typegen && tsc -b",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "dependencies": {
     "@react-router/node": "^8.4.0",
