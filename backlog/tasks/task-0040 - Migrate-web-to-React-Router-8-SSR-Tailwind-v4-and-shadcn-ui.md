@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:46'
+updated_date: '2026-09-30 05:04'
 labels:
   - ui
 milestone: m-1
@@ -31,21 +31,21 @@ Spec: specs/025-frontend-stack
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 apps/web runs React Router 8 in framework mode with SSR on by default
-- [ ] #2 The play route renders client-only through clientLoader and HydrateFallback
-- [ ] #3 Hono mounts the React Router request handler as the last middleware and reserved paths (/health /api /auth /ws /library) never reach it
-- [ ] #4 Loaders reach server data through a load-context interface defined in packages/shared; the Biome boundary check stays green
-- [ ] #5 Tailwind v4 and shadcn/ui are installed with no CDN or webfont; no Dialog or AlertDialog component is added
-- [ ] #6 TanStack Router is removed; TanStack Query is removed or its remaining use is justified in the plan
-- [ ] #7 The M0 two-browser echo demo still passes from the per-worktree stack and the container image
-- [ ] #8 docs/design/architecture.md A1 Client row is updated to cite doc-0003
-- [ ] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
+- [x] #1 apps/web runs React Router 8 in framework mode with SSR on by default
+- [x] #2 The play route renders client-only through clientLoader and HydrateFallback
+- [x] #3 Hono mounts the React Router request handler as the last middleware and reserved paths (/health /api /auth /ws /library) never reach it
+- [x] #4 Loaders reach server data through a load-context interface defined in packages/shared; the Biome boundary check stays green
+- [x] #5 Tailwind v4 and shadcn/ui are installed with no CDN or webfont; no Dialog or AlertDialog component is added
+- [x] #6 TanStack Router is removed; TanStack Query is removed or its remaining use is justified in the plan
+- [x] #7 The M0 two-browser echo demo still passes from the per-worktree stack and the container image
+- [x] #8 docs/design/architecture.md A1 Client row is updated to cite doc-0003
+- [x] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
 - [x] #10 Spec phase: Setup and dependencies
 - [x] #11 Spec phase: Server mount and load context (US3, US4)
 - [x] #12 Spec phase: Route port (US1, US2)
 - [x] #13 Spec phase: Styling foundation (US5)
 - [x] #14 Spec phase: Hot-reload dev mode (US7)
-- [ ] #15 Spec phase: Verification, evidence, re-grounding
+- [x] #15 Spec phase: Verification, evidence, re-grounding
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -86,6 +86,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 5 done (a9a5d37): in-process Vite dev (STACKS_WEB_DEV=1, HMR on WEB_HMR_PORT); HMR proven in Brave with zero reloads; reserved paths and /ws stay on Hono in dev; no vite import in the prod dist. Phase 6 (verification, evidence, re-grounding, constitution PATCH) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 6 done (7f44333 evidence + A1 + constitution 1.0.1; e572d7f wiki: 9 notes NEEDS-REVIEW rewritten, 10 RE-PIN-ONLY, spa-shell retired for react-router-app; 86ce7a4 teardown). Orchestrator re-verified: freshness OK (36 notes), spec-bridge ok, no-CDN and no-dialog greps zero, exactly button/card/input/label, env:prune no orphans. ci:check with DB exit 0 (411/416, 0 DB suites skipped); M0 demo 8/8 on stack and standalone image (evidence in specs/025-frontend-stack/ci-evidence.txt).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
