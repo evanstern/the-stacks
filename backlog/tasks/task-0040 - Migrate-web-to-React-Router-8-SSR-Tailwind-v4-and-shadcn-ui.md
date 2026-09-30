@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:27'
+updated_date: '2026-09-30 04:32'
 labels:
   - ui
 milestone: m-1
@@ -43,7 +43,7 @@ Spec: specs/025-frontend-stack
 - [x] #10 Spec phase: Setup and dependencies
 - [x] #11 Spec phase: Server mount and load context (US3, US4)
 - [x] #12 Spec phase: Route port (US1, US2)
-- [ ] #13 Spec phase: Styling foundation (US5)
+- [x] #13 Spec phase: Styling foundation (US5)
 - [ ] #14 Spec phase: Hot-reload dev mode (US7)
 - [ ] #15 Spec phase: Verification, evidence, re-grounding
 <!-- AC:END -->
@@ -78,6 +78,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 3 done (177778d): routes ported to React Router 8 framework mode, play client-only, TanStack removed, Dockerfile runtime stage updated; web SSR tests 3/3, server 411/0/5, boundaries green; env:up app stack healthy on :3040. Phase 4 (styling foundation) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 4 done (3f90c7c): Tailwind v4 + shadcn Button/Input/Label/Card, cn() in ~/lib/utils; no dialog, no CDN (greps zero). The shadcn CLI added an unapproved npm package "cn"; removed from package.json and lockfile (verified). Phase-4 implementer left stash entry "phase4-wip-lintcheck" (48621e0, redundant) that it was blocked from dropping; left for the operator. Phase 5 (hot-reload dev) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
