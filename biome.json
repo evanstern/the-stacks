@@ -17,6 +17,7 @@
   "formatter": { "enabled": true, "indentStyle": "space" },
   "linter": { "enabled": true },
   "javascript": { "formatter": { "quoteStyle": "double" } },
+  "css": { "parser": { "tailwindDirectives": true } },
   "overrides": [
     {
       "includes": ["apps/web/**", "fixtures/boundary-violations/apps/web/**"],

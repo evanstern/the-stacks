@@ -9,7 +9,7 @@
     "build": "turbo run build",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "typecheck": "tsc -b",
+    "typecheck": "pnpm --filter @the-stacks/web typegen && tsc -b",
     "test": "turbo run test",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:hooks": "node --test '.claude/hooks/*.test.mjs'",

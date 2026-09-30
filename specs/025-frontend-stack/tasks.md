@@ -27,14 +27,14 @@ twice, by hand. The dev-mode check runs once, by hand, and is recorded.
 
 ## Phase 1: Setup and dependencies
 
-- [ ] T001 In `apps/web/package.json`, remove `@tanstack/react-router`, `@tanstack/react-query`, and `@vitejs/plugin-react`. Add the runtime and dev packages from plan.md's New dependencies table with `pnpm --filter @the-stacks/web add` and `add -D`, pinned with `^` to the listed versions.
-- [ ] T002 In `apps/web/package.json`, set scripts: `build` = `react-router build`, `typegen` = `react-router typegen`, `typecheck` = `react-router typegen && tsc -b`, `test` = `node --test test/`.
-- [ ] T003 [P] In root `package.json`, set `typecheck` to `pnpm --filter @the-stacks/web typegen && tsc -b` (research R7).
-- [ ] T004 [P] In `turbo.json`, add `"build/**"` to `build.outputs`. Add `"@the-stacks/web#test": { "dependsOn": ["build"], "cache": false }` (research R6, R11).
-- [ ] T005 [P] In `.gitignore`, add `.react-router/`.
-- [ ] T006 [P] In `biome.json`, add `"css": { "parser": { "tailwindDirectives": true } }`. Leave every `overrides` entry unchanged (plan D12).
-- [ ] T007 Rewrite `apps/web/tsconfig.json`: `noEmit: true`; `include` of `app`, `server.ts`, `vite.config.ts`, `react-router.config.ts`, `.react-router/types/**/*`; `rootDirs: [".", "./.react-router/types"]`; `paths: { "~/*": ["./app/*"] }`; `types: ["vite/client"]`; keep `lib` with DOM, `jsx: "react-jsx"`, and the `packages/shared` reference. Remove `outDir` and `rootDir`.
-- [ ] T008 Run `pnpm install`. Confirm `pnpm-lock.yaml` has no `@tanstack/` entry.
+- [x] T001 In `apps/web/package.json`, remove `@tanstack/react-router`, `@tanstack/react-query`, and `@vitejs/plugin-react`. Add the runtime and dev packages from plan.md's New dependencies table with `pnpm --filter @the-stacks/web add` and `add -D`, pinned with `^` to the listed versions.
+- [x] T002 In `apps/web/package.json`, set scripts: `build` = `react-router build`, `typegen` = `react-router typegen`, `typecheck` = `react-router typegen && tsc -b`, `test` = `node --test test/`.
+- [x] T003 [P] In root `package.json`, set `typecheck` to `pnpm --filter @the-stacks/web typegen && tsc -b` (research R7).
+- [x] T004 [P] In `turbo.json`, add `"build/**"` to `build.outputs`. Add `"@the-stacks/web#test": { "dependsOn": ["build"], "cache": false }` (research R6, R11).
+- [x] T005 [P] In `.gitignore`, add `.react-router/`.
+- [x] T006 [P] In `biome.json`, add `"css": { "parser": { "tailwindDirectives": true } }`. Leave every `overrides` entry unchanged (plan D12).
+- [x] T007 Rewrite `apps/web/tsconfig.json`: `noEmit: true`; `include` of `app`, `server.ts`, `vite.config.ts`, `react-router.config.ts`, `.react-router/types/**/*`; `rootDirs: [".", "./.react-router/types"]`; `paths: { "~/*": ["./app/*"] }`; `types: ["vite/client"]`; keep `lib` with DOM, `jsx: "react-jsx"`, and the `packages/shared` reference. Remove `outDir` and `rootDir`.
+- [x] T008 Run `pnpm install`. Confirm `pnpm-lock.yaml` has no `@tanstack/` entry.
 
 ## Phase 2: Server mount and load context (US3, US4)
 
