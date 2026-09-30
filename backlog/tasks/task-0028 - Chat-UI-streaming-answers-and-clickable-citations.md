@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 03:11'
+updated_date: '2026-09-30 03:14'
 labels:
   - ui
 milestone: m-1
@@ -93,6 +93,8 @@ Spec 024 authoring dispatched to opus-implementer (spec authoring; operator brie
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Operator hold 2026-09-29: a frontend refactor that changes the apps/web base comes first and takes precedence. No code for TASK-0028 until the operator says go. The spec 024 dispatch was narrowed in flight to spec.md only, kept free of frontend structure; plan.md, research.md, quickstart.md and tasks.md wait for the refactor to land. spec-bridge:link waits too. Resume: re-read the refactored apps/web and the wiki, then author plan and tasks against the new base.
+
+spec.md landed (d06bf18, opus); plan/research/quickstart/tasks withheld for the TASK-0040 base. Spec additions beyond the decision record, pending operator confirmation: Settings = one theme control (System/Light/Dark, per browser); a Table landing page (Start a new table / Join by link or id); mobile breakpoint <=700px; jobs poll 1.5 s while any job is active. Open questions 1-4 resolved in spec.md (books grouped by lower(trim(book)) from GET /library/jobs; passages as plain text, tables monospace, no stat-block field grid; conversation in app-level memory; upload cancel creates no job). Drafted plan notes (SSE parser, XHR upload, panel a11y via inert, vitest devDep, Brave recording) kept in the dispatch report; re-derive them against the TASK-0040 base.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
