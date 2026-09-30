@@ -112,6 +112,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 024 plan cycle landed (9bfad00): plan, research, quickstart, tasks (55 tasks, 6 phases); spec.md amended: the Library page URL is /books because /library is reserved. Phase ACs seeded. Plan checkpoint pending operator: (1) no new dependencies; (2) shadcn Sheet (Radix Dialog primitive, edge-anchored, overlay dim) accepted under no-modals, with the dialog gate rescoped to no dialog.tsx/alert-dialog.tsx, no <dialog/showModal/AlertDialog, "Dialog" only in sheet.tsx, enforced by a test; (3) Library at /books; (4) inline SVG icons, no lucide-react; (5) new load-context method StacksLoadContext.jobs(), operator-only; (6) UI cookies stacks-sidebar/stacks-theme written client-side, not HttpOnly; (7) the answering purpose is confirmed present in the root .env (checked without printing).
 
 Operator plan checkpoint 2026-09-30: all 7 approved as recommended (no new deps; Sheet under no-modals with the rescoped dialog gate; Library at /books; inline SVG icons; StacksLoadContext.jobs(); client-written UI cookies; recording artifacts). Implementation phase 1 dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
