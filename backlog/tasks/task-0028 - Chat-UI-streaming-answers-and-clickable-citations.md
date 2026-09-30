@@ -45,6 +45,9 @@ Design-rounds binding constraints (Phase 2, checked every round):
 - IX: self-hostable; no CDN fonts or assets. System font stacks or self-hosted files only.
 - Stack: React 19 + Vite SPA + TanStack Router/Query; web has zero styling today, so no existing visual system constrains the choice. A UI library needs justification.
 - Mock copy: SRD/original text only (fixture "Basic Rules"; question "How does grappling work?"), never real PHB text.
+
+Round 1 mock build dispatched (three directions: A reference desk, B marginalia, C console; 14 shared states) to docs/design/chat-ui/round-1/.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
