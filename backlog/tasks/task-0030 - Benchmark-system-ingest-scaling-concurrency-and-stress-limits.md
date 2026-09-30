@@ -41,8 +41,6 @@ Spec: specs/021-load-bench
 - [x] #13 Spec phase: Polish, gates, re-grounding, and the dev run
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -66,6 +64,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 T026 deferred by operator 2026-09-29 (option A): dev has no operator account (users table empty) and the runtime image does not ship scripts/create-operator.ts. Carded TASK-0036; the dev load run happens after it merges. The PR does not wait on T026 (spec).
 
 spec-bridge sync: Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 8/9
+
+spec-bridge sync: Setup: 2/2 · Foundational (blocks every story): 7/7 · User Story 1 — find where ingest degrades (P1, AC #1): 3/3 · User Story 2 — find where concurrent users degrade (P1, AC #2): 4/4 · User Story 4 — tiers, visible skips, and the CLI (P1, AC #4): 3/3 · User Story 3 — stress cases (P2, AC #3): 2/2 · User Story 5 — compare runs over time (P2, AC #5): 3/3 · Polish, gates, re-grounding, and the dev run: 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
