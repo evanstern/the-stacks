@@ -72,6 +72,8 @@ Phase 1 done (cab046d): deps per the approved table, build config, TanStack remo
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 2 done (2565447): hand-written bridge, /library reserved, StacksLoadContext in packages/shared, shared identity lookup; server tests 411/0/5 with DB. Phase 3 (route port) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
