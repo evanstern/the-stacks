@@ -120,6 +120,8 @@ Phase 1 done (e7b0de9): Daylight tokens + --input, UI cookies, StacksLoadContext
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 2 done (f27630e): /books Library page, XHR upload with progress/cancel, recent imports with the stage stepper, 1.5 s poll, Sources panel component (unmounted until phase 3). Real upload of combat.md in Brave reached Ready (31 chunks, bge-m3): AC #1. Web 38/38, server 413/0/5; no dependency drift. Ops note: host db:migrate/create-operator prefer TEST_DATABASE_URL over DATABASE_URL (see ci-evidence.txt). Phase 3 (US2 streaming) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
