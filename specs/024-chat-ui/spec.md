@@ -203,8 +203,8 @@ this spec's quickstart), and compare with the committed screen recording.
   operator-only view.
 - The operator signs out: the conversation and any upload state are discarded, never kept
   for the next person on that browser.
-- `localStorage` throws or is empty (private window, blocked storage): the sidebar starts
-  expanded and the page still works.
+- The UI-state cookie is absent or unreadable (first visit, cleared cookies): the sidebar
+  starts expanded, the theme follows the system, and the page still works.
 - The upload is refused with `413` or `400`: the upload card shows the server's message.
 - The network fails during upload: the card shows "Upload failed. Check your connection and
   try again."
@@ -225,7 +225,8 @@ this spec's quickstart), and compare with the committed screen recording.
   Library, Table, and Settings at the bottom; player → Table. The user's display name, role,
   and Sign out MUST sit at the bottom for both roles.
 - **FR-002**: The sidebar MUST collapse to icons. The collapsed state MUST persist per
-  browser, and the page MUST work when storage is unavailable.
+  browser in a cookie the server reads, so the first render shows it without a flash
+  (operator ruling 2026-09-30). The page MUST work when the cookie is absent.
 - **FR-003**: At a viewport of 700px wide or less, the navigation MUST become a bottom tab bar.
 - **FR-004**: `/` MUST send the operator to Ask and a player to Table.
 - **FR-005**: The Table landing MUST let a person start a new table (a fresh id) or open one by

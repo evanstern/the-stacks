@@ -15,7 +15,7 @@
 
 ### App shell
 
-- A left sidebar that collapses to icons. The collapsed state is remembered per browser (`localStorage`; the page must still work if storage throws).
+- A left sidebar that collapses to icons. The collapsed state is remembered per browser in a cookie (see open question 5).
 - The sidebar shows only what the signed-in role can reach:
   - operator: **Ask**, **Library**, **Table**, plus Settings and the user at the bottom;
   - player: **Table** only.
@@ -158,6 +158,6 @@ These routes do not ship in TASK-0028. The contracts on main (`ask-sse`, `http-i
 1. **Book identity before TASK-0038.** Jobs carry `book` (the title) and `result.documentId`, so group by title and take the latest job per book. Confirm in the plan that this is enough for the Sources panel.
 2. **Passage kinds.** Render each `passage.kind` (heading, prose, list, table, statBlock, sidebar) from plain `passage.text`. The contract carries no structure beyond the text. Decide in the plan how far a stat block or table is formatted.
 3. **Where the conversation lives.** A single conversation sits in client state for TASK-0028. It must survive moving between Ask and Library. With TanStack Query likely gone (doc-0003 ruling 6), keep it in a layout-level store above both routes. Decide in the plan.
-5. **Remembered sidebar collapse under SSR.** `localStorage` is unreadable on the server. Use a cookie the root loader reads, or accept a post-hydration adjustment. Decide in the plan; no layout flash is preferred.
-6. **Posting to the ask stream.** A React Router action cannot stream SSE back to a fetch reader. The client posts to `/library/ask` directly; `/library` is a reserved path that never reaches the React Router handler (TASK-0040 AC #3). The loaders' load context still serves jobs and status reads.
+5. **Remembered UI state under SSR — resolved 2026-09-30.** Per-browser UI state (sidebar collapse, theme) lives in cookies that the root loader reads, so the server renders it without a flash. Never use `localStorage` for it.
+6. **Posting to the ask stream — resolved 2026-09-30.** A React Router action cannot stream SSE back to a fetch reader. The client posts to `/library/ask` directly; `/library` is a reserved path that never reaches the React Router handler (TASK-0040 AC #3). The loaders' load context still serves jobs and status reads.
 4. **Upload cancel.** Aborting the XHR cancels the upload. Confirm that no job row is created when the request never completes.
