@@ -1,6 +1,6 @@
+import * as build from "virtual:react-router/server-build";
 import type { WebRequestHandler } from "@the-stacks/shared";
 import { createRequestHandler, RouterContextProvider } from "react-router";
-import * as build from "virtual:react-router/server-build";
 import { stacksContext } from "~/context";
 
 const requestHandler = createRequestHandler(build, process.env.NODE_ENV);

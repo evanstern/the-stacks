@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router";
 import { signOut } from "~/auth";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import type { loader as rootLoader } from "~/root";
 import type { RecordedEvent } from "~/ws/types";
 import { useSession } from "~/ws/useSession";
@@ -43,13 +45,13 @@ export default function Play({ loaderData }: Route.ComponentProps) {
     <div>
       <p>
         Signed in as <strong>{root?.user?.displayName}</strong> — {status}
-        <button
+        <Button
           type="button"
           onClick={() => void handleSignOut()}
           disabled={pending}
         >
           Sign out
-        </button>
+        </Button>
       </p>
       <p>
         Session: <code>{sessionId}</code>
@@ -73,13 +75,13 @@ export default function Play({ loaderData }: Route.ComponentProps) {
           if (send(text)) setDraft("");
         }}
       >
-        <input
+        <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
         />
-        <button type="submit" disabled={status !== "open"}>
+        <Button type="submit" disabled={status !== "open"}>
           Send
-        </button>
+        </Button>
       </form>
     </div>
   );

@@ -4,7 +4,9 @@ import appCss from "./app.css?url";
 import { stacksContext } from "./context";
 import { SignIn } from "./sign-in";
 
-export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: appCss }];
+export const links: Route.LinksFunction = () => [
+  { rel: "stylesheet", href: appCss },
+];
 
 /**
  * The identity gate (D3/FR-007): runs on every request, so a reload always
@@ -41,7 +43,8 @@ export default function Root({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  const message = error instanceof Error ? error.message : "Something went wrong.";
+  const message =
+    error instanceof Error ? error.message : "Something went wrong.";
   return (
     <main>
       <h1>Error</h1>

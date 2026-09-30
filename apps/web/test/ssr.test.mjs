@@ -12,10 +12,7 @@ function stubContext(user) {
 }
 
 test("/ signed out shows the sign-in form", async () => {
-  const res = await handle(
-    new Request("http://localhost/"),
-    stubContext(null),
-  );
+  const res = await handle(new Request("http://localhost/"), stubContext(null));
   assert.equal(res.status, 200);
   const html = await res.text();
   assert.match(html, /<form/);

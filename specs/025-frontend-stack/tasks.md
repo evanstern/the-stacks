@@ -85,11 +85,24 @@ excludes `node_modules` by default; `pnpm --filter @the-stacks/web test` now exi
 
 ## Phase 4: Styling foundation (US5)
 
-- [ ] T033 [US5] Create `apps/web/app/app.css`: `@import "tailwindcss";`, `@custom-variant dark (&:is(.dark *));`, shadcn's neutral `:root` and `.dark` variables, their `@theme inline` mapping, and `--font-sans: system-ui, sans-serif;` in `@theme`. Import no font.
-- [ ] T034 [P] [US5] Create `apps/web/components.json` as plan D9. Create `apps/web/app/lib/utils.ts` with `cn()`.
-- [ ] T035 [US5] From `apps/web`, run `pnpm dlx shadcn@4.21.0 add button input label card`. Decline any extra package. Confirm the files land in `apps/web/app/components/ui/`.
-- [ ] T036 [US5] Use `Card`, `Label`, `Input`, and `Button` in `app/sign-in.tsx`. Use `Button` for sign-out in `home.tsx` and `play.tsx`, and for send in `play.tsx`. Keep every label, text, and `autoComplete` value.
-- [ ] T037 [US5] Run `pnpm lint` and `pnpm --filter @the-stacks/web build`. Expect exit 0.
+- [x] T033 [US5] Create `apps/web/app/app.css`: `@import "tailwindcss";`, `@custom-variant dark (&:is(.dark *));`, shadcn's neutral `:root` and `.dark` variables, their `@theme inline` mapping, and `--font-sans: system-ui, sans-serif;` in `@theme`. Import no font.
+- [x] T034 [P] [US5] Create `apps/web/components.json` as plan D9. Create `apps/web/app/lib/utils.ts` with `cn()`.
+- [x] T035 [US5] From `apps/web`, run `pnpm dlx shadcn@4.21.0 add button input label card`. Decline any extra package. Confirm the files land in `apps/web/app/components/ui/`.
+- [x] T036 [US5] Use `Card`, `Label`, `Input`, and `Button` in `app/sign-in.tsx`. Use `Button` for sign-out in `home.tsx` and `play.tsx`, and for send in `play.tsx`. Keep every label, text, and `autoComplete` value.
+- [x] T037 [US5] Run `pnpm lint` and `pnpm --filter @the-stacks/web build`. Expect exit 0.
+
+**Deviations (Phase 4):** The `shadcn@4.21.0` CLI (no prompt, no `--yes`-visible warning)
+generated `app/components/ui/*.tsx` importing `cn` from a new npm package literally named
+`cn` (`^0.4.0`), added to `apps/web/package.json`, instead of respecting `components.json`'s
+`aliases.utils: "~/lib/utils"`. That package is outside the plan's approved dependency list
+(research.md's New dependencies table), so it was removed from `package.json`, `pnpm install`
+re-run to drop it from the lockfile, and the four generated files' imports rewritten to
+`import { cn } from "~/lib/utils"` (the hand-written `cn()` from T034), matching plan D9's
+intent. No `lucide-react` or `tw-animate-css` prompt appeared. — T037's `pnpm lint` also
+failed on a pre-existing formatting issue in
+`apps/server/bench/load/results/2026-09-30-3e58d52-6fbc6eae.json` (unrelated to this task,
+left over from before Phase 4). Applied Biome's safe auto-fix to that one file so the
+repo-wide `pnpm lint` gate required by T037 exits 0; no other content in the file changed.
 
 ## Phase 5: Hot-reload dev mode (US7)
 
