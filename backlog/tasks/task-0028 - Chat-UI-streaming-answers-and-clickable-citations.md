@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 08:01'
+updated_date: '2026-09-30 08:02'
 labels:
   - ui
 milestone: m-1
@@ -99,6 +99,9 @@ spec.md landed (d06bf18, opus); plan/research/quickstart/tasks withheld for the 
 Operator rulings 2026-09-30: per-browser UI state (sidebar collapse, theme) persists in cookies the root loader reads; Ask posts directly to /library/ask (a React Router action cannot stream SSE). The four spec additions are confirmed: Settings theme control, Table landing (Start/Join), 700px breakpoint, 1.5 s jobs poll. TASK-0040 runbook signed off; the sweep is running.
 
 Released from hold 2026-09-30: TASK-0040 merged (PR #39, 1446fd0) and synced Done; its closure (sync + runbook done) rides this branch. origin/main merged in (bca4b05). Next: author plan, research, quickstart and tasks for spec 024 against the React Router 8 / Tailwind v4 / shadcn base, then the dependency checkpoint.
+
+Spec 024 plan/research/quickstart/tasks authoring dispatched against the TASK-0040 base (standing spec-authoring ruling). Stops at the dependency and design checkpoint.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
