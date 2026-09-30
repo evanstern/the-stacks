@@ -136,9 +136,9 @@ the piloted run, and the Brave recording.
     `overview`'s sources were untouched by this task (gate found it already fresh); read it,
     made no change. `test-suite`'s verified test counts (46/44/90 → 47/44/91) were re-measured
     by running the note's own 12-file command with and without the DB, not guessed from the diff.
-- [ ] T053 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
-- [ ] T054 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
-- [ ] T055 Run `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0.
+- [x] T053 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.65.3/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
+- [x] T054 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.65.3/gates/cli.mjs check .`. Expect exit 0.
+- [x] T055 Run `pnpm env:down`, then `pnpm env:prune --check`. Expect exit 0.
 
 ## Dependencies and order
 

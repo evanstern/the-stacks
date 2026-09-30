@@ -311,3 +311,15 @@ from page creation through the whole run, not just the direct-nav steps).
 Both accounts (operator, player) and the "Basic Rules"/"Conditions" ingested books were
 already live on the stack from earlier phase dispatches; no reprovisioning, no direct write
 to the users/auth tables.
+
+## T053/T054 — freshness and spec-bridge gates
+
+freshness: "OK: 37 note(s) fresh against their pinned sources." (one pre-existing, exempted
+warning on benchmarks.md's size budget, unrelated to this task). Exit 0.
+spec-bridge check: "spec-bridge ok: 25 linked task(s), none exceed their artifacts." Exit 0.
+
+## T055 — teardown (last)
+
+pnpm env:down: stacks-task-0028-test stack and stacks-task-0028 stack both brought down
+cleanly (containers stopped/removed, volume and networks removed). Exit 0.
+pnpm env:prune --check: "no orphans." Exit 0.
