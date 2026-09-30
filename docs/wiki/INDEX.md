@@ -7,7 +7,8 @@ orientation.
 
 **State of the codebase at this pin:** M0, the walking skeleton, plus the first `library`
 plane work. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
-Postgres event log, session auth, a WebSocket gateway, and a React SPA. The `library` plane
+Postgres event log, session auth, a WebSocket gateway, and a React Router 8 SSR app
+(doc-0003 / decision-0008, superseding the earlier SPA). The `library` plane
 now has a parser ([[ddb-parser]]), its storage ([[library-schema]]: documents, chunks,
 embeddings, immutable after ingestion), and an end-to-end ingestion pipeline
 ([[ingestion]], TASK-0024: streamed upload → zip/HTML/Markdown → parse → chunk → store →
@@ -36,7 +37,7 @@ on vm-104 ([[hosted-dev]]).
 - [[server-entrypoint-and-app]] — one Node process, how the HTTP app and WebSocket gateway share a port.
 - [[configuration]] — the environment contract: which variable is read where, and the two database URLs.
 - [[error-contract]] — the structured error shape every route returns, and the typed errors behind it.
-- [[static-serving]] — how the SPA is served and why the fallback must not shadow the API.
+- [[static-serving]] — how the web app is served (static assets, then SSR fallback) and why it must not shadow the API.
 - [[health-check]] — what "healthy" means here, and why it parses a body rather than a status code.
 - [[ai-gateway]] — the one seam for model calls: named providers/purposes, `chat()`/`embed()`, no vendor SDK or hard-coded vendor name.
 
@@ -63,7 +64,7 @@ on vm-104 ([[hosted-dev]]).
 
 ## Client
 
-- [[spa-shell]] — the Vite SPA, its route tree, and how it is served.
+- [[react-router-app]] — the React Router 8 framework-mode app (SSR by default), its route tree, and how it is served. Replaces the retired spa-shell note (doc-0003 / decision-0008).
 - [[client-identity]] — why the client asks the server who it is instead of storing an answer.
 - [[client-session-hook]] — subscribe, cursor tracking, send, and the reconnect preflight.
 

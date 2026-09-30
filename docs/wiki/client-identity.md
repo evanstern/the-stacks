@@ -1,55 +1,61 @@
 ---
 name: client-identity
-description: Why the SPA has no client-side identity store — the HttpOnly session cookie is unreadable by script, so GET /auth/me on load is the only source of truth, and that call itself is what makes identity persist across reload.
+description: Why identity is resolved server-side, per request, through the load context — no client identity store, no polling hook. createWebLoadContext reads and memoizes the session cookie once per request; root.tsx's loader calls it and gates every route; sign-in/sign-out force a re-run via useRevalidator rather than writing a client cache.
 kind: pattern
 sources:
-  - apps/web/src/auth/api.ts
-  - apps/web/src/auth/useAuth.ts
-  - apps/web/src/routes/root.tsx
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+  - apps/web/app/auth.ts
+  - apps/web/app/root.tsx
+  - apps/server/src/web.ts
+  - packages/shared/src/web.ts
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Client identity
 
-The SPA never stores "who is signed in" anywhere on the client — not `localStorage`, not a
-context default, not a decoded token. `fetchMe()` in `auth/api.ts` calls `GET /auth/me` with
-`credentials: "same-origin"` and that response **is** the identity, every time it's needed.
-This is a consequence of the session cookie being `HttpOnly` ([[session-auth]]): script cannot
-read it, so there is nothing for a client-side store to be seeded from that would be more
-trustworthy than just asking the server.
+Since the React Router migration (doc-0003 / decision-0008), the web app has no client-side
+identity store at all — not `localStorage`, not a TanStack Query cache, not a decoded token.
+Identity is resolved **server-side, per request**, through React Router's load context, and
+`root.tsx`'s loader is the one place that reads it.
 
 ## How it works
 
-`useIdentity()` (`auth/useAuth.ts`) is `useQuery({ queryKey: identityKey, queryFn: fetchMe,
-retry: false })` — a TanStack Query wrapper with no other config. `fetchMe` treats `401`
-specially: it resolves to `null` ("signed out"), not a thrown error, because a `401` here is
-the **answer**, not a failure — the same request that establishes "who is this" also
-establishes "is anyone." Any other non-OK status throws.
+`createWebLoadContext(c, lookup)` (`apps/server/src/web.ts`) builds one `StacksLoadContext`
+per request: its `identity()` method reads the `session` cookie with Hono's `getCookie` and
+runs `lookup` (the same `IdentityLookup` `/auth/me` uses) at most once, memoizing the result
+for the lifetime of that context — a root loader and any later loader on the same request
+share one lookup rather than paying for it twice. `PublicUser`, `Role`, and
+`StacksLoadContext` are declared once in `packages/shared/src/web.ts` (plan D3) so the
+server's implementation and the client's typed access to `loaderData.user` can't drift.
 
-**This call *is* what makes identity persist across reload.** There is no separate
-persistence mechanism to describe: a reload discards all JS state and re-mounts
-[[spa-shell]]'s `RootLayout`, which calls `useIdentity()` again, which asks the server again.
-If the cookie is still valid, `/auth/me` returns the same user and the UI looks like nothing
-happened; if it expired, the same code path now returns `null` and `RootLayout` renders
-`SignInView`. One request path serves both "am I signed in" and "did my session survive a
-reload" — they are the same question asked from the same place.
+`apps/web/app/root.tsx`'s `loader` is `async ({ context }) => ({ user: await
+context.get(stacksContext).identity() })` — it runs on **every** request, including a reload,
+so identity is always re-asked from the server, never assumed from client state. The default
+`Root` component renders `<SignIn />` when `loaderData.user` is falsy, `<Outlet />` otherwise
+— for any route, not just `/`, since the gate lives on the root route every child renders
+through (unchanged in effect from the SPA-era gate this replaces).
 
-`useSignIn()`/`useSignOut()` don't invalidate and refetch `identityKey` — they call
-`queryClient.setQueryData(identityKey, user | null)` directly, since the sign-in/sign-out
-response already carries (or implies) the new identity and a refetch would be redundant.
-[[client-session-hook]] also writes to this same `identityKey` (via the exported constant) on
-a `/auth/me` `401` seen during its own reconnect preflight — the one other place identity can
-change outside a direct sign-in/out action.
+**Sign-in and sign-out don't write to any client cache — they force the loader to re-run.**
+`apps/web/app/auth.ts`'s `signIn`/`signOut` are thin `fetch` wrappers over
+`/auth/sign-in`/`/auth/sign-out` (`credentials: "same-origin"`); `sign-in.tsx` and the
+sign-out buttons in `home.tsx`/`play.tsx` call one of these, then `useRevalidator().revalidate()`.
+Revalidation re-runs `root.tsx`'s loader (a fresh server request, a fresh cookie read), which
+is what actually flips the rendered view — there is no `setQueryData`-style direct write
+anywhere in this path. [[client-session-hook]]'s reconnect preflight does the same thing on a
+`401`: it calls the `onSignedOut` callback it was given, which `play.tsx` wires to the same
+`revalidator.revalidate`.
 
 ## Connections
 
-Read by [[spa-shell]]'s `RootLayout` as the identity gate. Shares `identityKey` with
-[[client-session-hook]]. The server side of the same seam is [[session-auth]]'s
-`validateSession`.
+Read by `apps/web/app/root.tsx`'s `Root` as the identity gate for the whole app (the React
+Router framework-mode app this replaces the old SPA shell with). Passes the `onSignedOut`
+callback into [[client-session-hook]]. The server side of the same seam is
+[[session-auth]]'s `validateSession`, reached here through the shared `IdentityLookup`
+(`apps/server/src/auth/identity.ts`) rather than a second implementation.
 
 ## Operational notes
 
 `signIn()` throws one fixed message ("Invalid username or password.") regardless of which part
 was wrong — mirroring the server's own indistinguishable `401` for a nonexistent user versus a
 wrong password, so there is no client-side branch that could leak the difference even by
-accident.
+accident. `sign-in.tsx`'s submit button stays disabled until the component has mounted (D10),
+so a pre-hydration form submit can't send the password in a GET query string.

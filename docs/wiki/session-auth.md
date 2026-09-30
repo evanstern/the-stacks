@@ -1,12 +1,12 @@
 ---
 name: session-auth
-description: Sign-in/sign-out/me, the session cookie's flags (HttpOnly, SameSite=Lax, Path=/, Secure only over HTTPS), and the validateSession seam shared verbatim by HTTP middleware and the WebSocket upgrade — including the identical 401 and timing defence against username enumeration.
+description: Sign-in/sign-out/me, the session cookie's flags (HttpOnly, SameSite=Lax, Path=/, Secure only over HTTPS), and the validateSession seam shared by HTTP middleware, the WebSocket upgrade, and — since TASK-0040 — the web app's load context, via one shared identityLookup. Includes the identical 401 and timing defence against username enumeration.
 kind: component
 sources:
   - apps/server/src/auth/session.ts
   - apps/server/src/auth/middleware.ts
   - apps/server/src/routes/auth.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
 ---
 
 # Session Auth
@@ -41,8 +41,17 @@ such session" are different failures and must not look the same.
 (`SESSION_COOKIE_NAME`) and sets `identity` on the Hono context to the resolved identity or
 `null`. **It never itself rejects a request** — a `null` identity is left for the route
 handler to interpret, which is what lets the same middleware be used to *optionally* attach
-identity (e.g. `/sign-in` needs no identity; `/me` requires one and throws
-`UnauthorizedError` itself when absent).
+identity (e.g. `/sign-in` needs no identity).
+
+**`GET /me` no longer goes through `authMiddleware` at all (TASK-0040, plan D2).** It reads
+the cookie itself (`getCookie(c, SESSION_COOKIE_NAME)`) and passes it straight to
+`identityLookup` — `createIdentityLookup({ db, validateSession })`, from
+`apps/server/src/auth/identity.ts` — the same closure the web app's load context calls (see
+[[client-identity]]). `identityLookup` wraps `validateSession` with the one extra step `/me`
+always needed anyway (looking up the user row for `displayName`/`role`) and returns `null` for
+no token, no live session, or a session whose user row is gone; `/me` throws
+`UnauthorizedError` on that `null`, same as before. The route and the load context now share
+one implementation instead of the route doing its own `db.select` — they cannot drift.
 
 **The cookie**, set by `setSessionCookie` in `routes/auth.ts` on both sign-in and invitation
 redemption: `httpOnly: true`, `sameSite: "Lax"`, `path: "/"`, `maxAge` = 30 days in seconds,
@@ -64,9 +73,10 @@ so a fast "no such user" response can't be used to enumerate the account list.
 ## Connections
 
 Backed by [[database-schema]]'s `users`/`auth_sessions` tables via [[database-access]].
-Consumed by [[websocket-gateway]] (the same `validateSession` closure, at upgrade time) and by
-[[invitations]] (redemption also calls `createSession`). Errors surface through the shape in
-[[error-contract]].
+Consumed by [[websocket-gateway]] (the same `validateSession` closure, at upgrade time), by
+[[invitations]] (redemption also calls `createSession`), and by [[client-identity]] (the web
+app's load context uses the same `identityLookup` `/me` does). Errors surface through the
+shape in [[error-contract]].
 
 ## Operational notes
 

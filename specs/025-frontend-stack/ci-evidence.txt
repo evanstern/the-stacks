@@ -140,3 +140,32 @@ rebuild. Ran two isolated Brave profiles via `playwright-core`
   source directory.
   `docker exec stacks-web-check sh -c 'ls /app/node_modules/.pnpm | grep -c "^vite@"'` → `0`.
 - Container stopped: `docker stop stacks-web-check`. Brave profile temp dirs removed.
+
+### T045/T046/T047 — wiki re-ground, freshness gate, spec-bridge gate
+
+Ran `/grounding-wiki:wiki-update`'s procedure. `plan` initially reported 4 notes with
+missing sources (client-identity, client-session-hook, m0-demo, spa-shell — all still
+pointing at the deleted `apps/web/src/` tree); fixed their `sources:` frontmatter by hand
+first (required before `plan` can classify them), then re-ran `plan`, which returned 10
+more NEEDS-REVIEW notes sharing changed sources (ai-gateway, benchmarks, ci-pipeline,
+configuration, ddb-parser, invitations, migrations, monorepo-and-toolchain, retrieval,
+runtime-stacks) — every diff was read; 8 were re-pinned with no content change (the diffs
+didn't touch anything the note claims), session-auth and test-suite got real content edits
+(the `/auth/me` route no longer uses `authMiddleware`, and `static.test.ts` now tests the
+web-middleware handler seam — test counts re-measured: 46 pass/44 skip without a database,
+90/90 with one).
+
+Content work: retired `spa-shell.md`, replaced it with `react-router-app.md`; rewrote
+`static-serving.md`, `container-image.md`, and `server-entrypoint-and-app.md` for the
+`createWebMiddleware`/SSR/dev-mode changes; rewrote `client-identity.md` (server-side load
+context replacing the TanStack Query polling hook) and updated `client-session-hook.md`
+(the `onSignedOut` callback) and `m0-demo.md` (the 025 quickstart, Brave, `$APP_PORT`);
+touched `overview.md` and `session-auth.md`'s stale claims. Regenerated `docs/wiki/CAPSULES.md`
+(several `description:` fields changed) and fixed two freshness-gate failures it caught
+(`react-router-app.md`'s dangling `[[spa-shell]]` link; `test-suite.md`'s description over
+the 500-char capsule budget).
+
+`plan` — clean (no output) after all repins. `freshness` —
+`OK: 36 note(s) fresh against their pinned sources.` (one pre-existing, unrelated warning on
+`benchmarks.md`'s already-`size_budget_exempt` length). `spec-bridge check` —
+`spec-bridge ok: 24 linked task(s), none exceed their artifacts`, exit 0.
