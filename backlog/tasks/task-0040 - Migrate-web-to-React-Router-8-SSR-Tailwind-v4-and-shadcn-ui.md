@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 03:15'
+updated_date: '2026-09-30 03:22'
 labels:
   - ui
 milestone: m-1
@@ -46,6 +46,9 @@ Spec: specs/025-frontend-stack
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-09-30 by the TASK-0028 design-rounds session, running the sweep per docs/design/frontend-stack-sweep-runbook.md (draft, awaiting lane sign-off). Worktree .worktrees/task-0040, branch task-0040-frontend-stack. Spec 025.
+
+Spec 025 authoring dispatched (spec, plan, research, quickstart, tasks; standing spec-authoring ruling 2026-09-29). Stops at the dependency checkpoint after plan.md.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
