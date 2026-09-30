@@ -165,7 +165,7 @@ equal the citation's quote exactly.
 
 The operator and an invited player open the same Table in two browsers on the per-worktree
 stack and exchange messages. Alongside, the operator uploads a book and asks a question. The
-player's sidebar shows only Table. If the player opens `/ask` or `/library` directly, the page
+player's sidebar shows only Table. If the player opens `/ask` or `/books` directly, the page
 says the feature is available to the operator only. No library text ever appears on the
 Table.
 
@@ -183,7 +183,7 @@ this spec's quickstart), and compare with the committed screen recording.
    Ask, Library, and Table, with Settings, the user, and Sign out at the bottom.
 3. **Given** a signed-in player, **When** the player opens `/ask`, **Then** the page shows
    "Asking the library is available to the operator only." and sends no library request.
-4. **Given** a signed-in player, **When** the player opens `/library`, **Then** the page shows
+4. **Given** a signed-in player, **When** the player opens `/books` (the Library page), **Then** the page shows
    "The library is available to the operator only." and sends no library request.
 5. **Given** operator and player on the same `/play/<id>`, **When** either sends a message,
    **Then** it appears in both browsers, as in M0.
@@ -319,8 +319,9 @@ this spec's quickstart), and compare with the committed screen recording.
 **Player views (AC #4)**
 
 - **FR-037**: For a player, `/ask` MUST show "Asking the library is available to the operator
-  only." and `/library` MUST show "The library is available to the operator only." Neither
-  page may call a `/library` route.
+  only." and `/books` (the Library page) MUST show "The library is available to the operator
+  only." Neither page may call a `/library` route. The Library page lives at `/books` because
+  `/library` is a reserved API path (amended 2026-09-30, plan D3).
 - **FR-038**: A `403` from any `/library` route MUST render the same operator-only view.
 
 **Theme and accessibility**
