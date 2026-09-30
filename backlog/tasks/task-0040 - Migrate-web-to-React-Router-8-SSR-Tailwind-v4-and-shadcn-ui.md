@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:32'
+updated_date: '2026-09-30 04:33'
 labels:
   - ui
 milestone: m-1
@@ -80,6 +80,8 @@ Phase 3 done (177778d): routes ported to React Router 8 framework mode, play cli
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 4 done (3f90c7c): Tailwind v4 + shadcn Button/Input/Label/Card, cn() in ~/lib/utils; no dialog, no CDN (greps zero). The shadcn CLI added an unapproved npm package "cn"; removed from package.json and lockfile (verified). Phase-4 implementer left stash entry "phase4-wip-lintcheck" (48621e0, redundant) that it was blocked from dropping; left for the operator. Phase 5 (hot-reload dev) dispatched.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
