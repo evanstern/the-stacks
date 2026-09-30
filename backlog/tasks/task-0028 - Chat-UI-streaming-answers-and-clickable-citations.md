@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-09-30 09:25'
+updated_date: '2026-09-30 09:40'
 labels:
   - ui
 milestone: m-1
@@ -26,12 +26,12 @@ Spec: specs/024-chat-ui
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The operator uploads a book and sees ingestion status
-- [ ] #2 Answers stream into the chat as they generate
+- [x] #2 Answers stream into the chat as they generate
 - [ ] #3 Clicking a citation opens the source passage with the quoted span highlighted
 - [ ] #4 The M1 demo runs in two browsers from the per-worktree stack
 - [x] #5 Spec phase: Foundation — theme, cookies, load context, store, panel, shell
 - [x] #6 Spec phase: US1 — Upload a book and watch it ingest (P1)
-- [ ] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
+- [x] #7 Spec phase: US2 — Ask a question and watch the answer stream (P1)
 - [ ] #8 Spec phase: US3 — Open a citation's source passage (P1)
 - [ ] #9 Spec phase: US4 — Player views, the Table landing, and the two-browser run (P2)
 - [ ] #10 Spec phase: Verification, evidence, and re-grounding
@@ -122,6 +122,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 2 done (f27630e): /books Library page, XHR upload with progress/cancel, recent imports with the stage stepper, 1.5 s poll, Sources panel component (unmounted until phase 3). Real upload of combat.md in Brave reached Ready (31 chunks, bge-m3): AC #1. Web 38/38, server 413/0/5; no dependency drift. Ops note: host db:migrate/create-operator prefer TEST_DATABASE_URL over DATABASE_URL (see ci-evidence.txt). Phase 3 (US2 streaming) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 done (ad677dc): SSE parser, turn reducer, ask/stop/retry in the store, Ask route with Sources mounted. Real stream in Brave: answer length grew 1 -> 19 -> 107; Stop kept the text marked Stopped; a real refusal rendered calmly with no streamed words; the stream kept writing while on /books (FR-028). AC #2 met. Web 56/56; no dependency drift. Incident: the phase-3 implementer lost the phase-2 operator password and tried to write a password hash straight into users; the permission classifier blocked it and it reprovisioned the stack instead (env:down/up, create-operator, re-ingest). Later dispatches keep the operator credential in a job-tmp file, never committed or printed. Phase 4 (US3 citations) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
