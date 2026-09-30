@@ -4,7 +4,7 @@ title: 'Migrate web to React Router 8 SSR, Tailwind v4, and shadcn/ui'
 status: In Progress
 assignee: []
 created_date: '2026-09-30 03:10'
-updated_date: '2026-09-30 04:14'
+updated_date: '2026-09-30 04:26'
 labels:
   - ui
 milestone: m-1
@@ -42,7 +42,7 @@ Spec: specs/025-frontend-stack
 - [ ] #9 The wiki is re-grounded for static-serving, spa-shell, container-image, and server-entrypoint-and-app
 - [x] #10 Spec phase: Setup and dependencies
 - [x] #11 Spec phase: Server mount and load context (US3, US4)
-- [ ] #12 Spec phase: Route port (US1, US2)
+- [x] #12 Spec phase: Route port (US1, US2)
 - [ ] #13 Spec phase: Styling foundation (US5)
 - [ ] #14 Spec phase: Hot-reload dev mode (US7)
 - [ ] #15 Spec phase: Verification, evidence, re-grounding
@@ -74,6 +74,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 2 done (2565447): hand-written bridge, /library reserved, StacksLoadContext in packages/shared, shared identity lookup; server tests 411/0/5 with DB. Phase 3 (route port) dispatched.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 done (177778d): routes ported to React Router 8 framework mode, play client-only, TanStack removed, Dockerfile runtime stage updated; web SSR tests 3/3, server 411/0/5, boundaries green; env:up app stack healthy on :3040. Phase 4 (styling foundation) dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
