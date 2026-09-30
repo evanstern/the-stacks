@@ -88,6 +88,8 @@ Phase 5 done (a9a5d37): in-process Vite dev (STACKS_WEB_DEV=1, HMR on WEB_HMR_PO
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Phase 6 done (7f44333 evidence + A1 + constitution 1.0.1; e572d7f wiki: 9 notes NEEDS-REVIEW rewritten, 10 RE-PIN-ONLY, spa-shell retired for react-router-app; 86ce7a4 teardown). Orchestrator re-verified: freshness OK (36 notes), spec-bridge ok, no-CDN and no-dialog greps zero, exactly button/card/input/label, env:prune no orphans. ci:check with DB exit 0 (411/416, 0 DB suites skipped); M0 demo 8/8 on stack and standalone image (evidence in specs/025-frontend-stack/ci-evidence.txt).
+
+spec-bridge sync: Setup and dependencies: 8/8 · Server mount and load context (US3, US4): 9/9 · Route port (US1, US2): 15/15 · Styling foundation (US5): 5/5 · Hot-reload dev mode (US7): 6/6 · Verification, evidence, re-grounding: 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
