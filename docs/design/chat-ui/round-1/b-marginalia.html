@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B — Marginalia · Chat UI Round 1</title>
+<style>
+:root{
+  --bg:#f2ede1; --panel:#fbf8f0; --panel-2:#eae2ce; --ink:#2a2620; --muted:#716b5c;
+  --border:#d9cfb4; --accent:#8a3b3b; --accent-ink:#fbf8f0; --focus:#1a5fb4;
+  --mark-bg:#f6d67a; --mark-ink:#2a2620; --danger:#7a2118; --danger-bg:#f3ded9;
+  --ok:#25563a; --ok-bg:#e2ecdf; --queued-bg:#eee6cf;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#171512; --panel:#201d17; --panel-2:#29241c; --ink:#eee6d6; --muted:#b0a58c;
+    --border:#423a2a; --accent:#e08a8a; --accent-ink:#171512; --focus:#8ec2ff;
+    --mark-bg:#6b5416; --mark-ink:#fff3d6; --danger:#f2a89b; --danger-bg:#391f1a;
+    --ok:#8fd6ac; --ok-bg:#1c3327; --queued-bg:#332c1e;
+  }
+}
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-serif);line-height:1.6;}
+button,input,label,.badge,.status,.tabs,.hint,.region,nav.jump{font-family:var(--font-sans);}
+a{color:var(--accent);}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px;}
+h1,h2,h3{font-family:var(--font-serif);}
+.page-header{max-width:44rem;margin:0 auto;padding:1.5rem 1.25rem 1rem;font-family:var(--font-sans);}
+.crumb a{text-decoration:none;font-size:.9rem;}
+.page-header h1{margin:.25rem 0;font-family:var(--font-serif);}
+.legend{font-size:.8rem;color:var(--muted);}
+nav.jump{max-width:44rem;margin:0 auto;padding:0 1.25rem 1rem;font-size:.85rem;}
+nav.jump ul{list-style:none;display:flex;flex-wrap:wrap;gap:.5rem 1rem;padding:0;margin:0;}
+main{max-width:44rem;margin:0 auto;padding:0 1.25rem 3rem;}
+.state{margin:0 0 2.75rem;padding-top:.5rem;border-top:1px solid var(--border);}
+.state h2{font-size:1.05rem;margin:.75rem 0 .5rem;font-family:var(--font-sans);}
+.region{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .4rem;}
+.frame{background:var(--panel);border:1px solid var(--border);border-radius:.6rem;padding:1.25rem;}
+.badge{display:inline-block;font-family:var(--font-mono);font-size:.62rem;font-weight:700;letter-spacing:.02em;
+  padding:.05rem .35rem;border-radius:.25rem;background:var(--accent);color:var(--accent-ink);margin-left:.3rem;vertical-align:.1em;}
+.badge.lib{background:var(--muted);color:var(--panel);}
+.btn{font-family:var(--font-sans);padding:.45rem .9rem;border-radius:.4rem;border:1px solid var(--border);background:var(--panel-2);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.btn.small{padding:.3rem .6rem;font-size:.85rem;}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.field{margin:0 0 .75rem;}
+.field label{display:block;font-size:.85rem;margin:0 0 .25rem;font-family:var(--font-sans);}
+.field input[type=text]{width:100%;max-width:24rem;padding:.4rem .55rem;border:1px solid var(--border);border-radius:.35rem;background:var(--panel);color:var(--ink);font:inherit;font-family:var(--font-sans);}
+.field input[type=file]{font-family:var(--font-sans);}
+.hint{font-size:.8rem;color:var(--muted);margin:.35rem 0 0;}
+.upload-form{display:flex;flex-wrap:wrap;gap:0 1.5rem;align-items:flex-end;}
+.upload-progress .file-name{margin:0 0 .4rem;font-weight:600;font-family:var(--font-sans);}
+.upload-progress .muted{color:var(--muted);font-weight:400;}
+.progress{height:.75rem;border-radius:1rem;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);}
+.progress-label{font-size:.8rem;color:var(--muted);margin:.35rem 0 0;font-family:var(--font-sans);}
+.notice{border-radius:.5rem;padding:.75rem 1rem;border:1px solid var(--border);font-family:var(--font-sans);}
+.notice.error{background:var(--danger-bg);color:var(--danger);border-color:var(--danger);}
+.notice.calm{background:var(--panel-2);color:var(--ink);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.9rem;font-family:var(--font-sans);}
+caption{text-align:left;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.status{display:inline-block;padding:.1rem .5rem;border-radius:1rem;font-size:.78rem;font-weight:600;}
+.status.running{background:var(--queued-bg);color:var(--ink);}
+.status.succeeded{background:var(--ok-bg);color:var(--ok);}
+.status.failed{background:var(--danger-bg);color:var(--danger);}
+.status.queued{background:var(--panel-2);color:var(--muted);}
+.stage-steps{display:flex;gap:.35rem;list-style:none;padding:0;margin:.35rem 0 0;font-size:.75rem;font-family:var(--font-sans);}
+.stage-steps li{padding:.1rem .5rem;border-radius:1rem;background:var(--panel-2);color:var(--muted);}
+.stage-steps li.done{background:var(--ok-bg);color:var(--ok);}
+.stage-steps li.current{background:var(--accent);color:var(--accent-ink);font-weight:700;}
+.player-note{max-width:32rem;margin:2rem auto;text-align:center;padding:1.5rem;background:var(--panel-2);border-radius:.6rem;font-family:var(--font-sans);}
+.tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:.5rem .25rem;font-weight:600;color:var(--muted);cursor:default;}
+.tab[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent);}
+.column{max-width:34rem;}
+.msg{margin:0 0 .9rem;}
+.msg.user{font-weight:700;font-family:var(--font-sans);}
+.citation{font-family:var(--font-mono);font-size:.8rem;background:var(--panel-2);border:1px solid var(--border);
+  border-radius:.3rem;padding:0 .3rem;cursor:pointer;color:var(--accent);}
+.citation[aria-expanded=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.cursor{display:inline-block;width:.5em;background:var(--ink);animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+.breadcrumb{font-size:.8rem;color:var(--muted);margin:0 0 .5rem;font-family:var(--font-sans);}
+mark{background:var(--mark-bg);color:var(--mark-ink);padding:0 .1rem;}
+.footnote{margin:.5rem 0 1rem;padding:.75rem 1rem;border-left:3px solid var(--accent);background:var(--panel-2);border-radius:0 .4rem .4rem 0;}
+.footnote[hidden]{display:none;}
+.stat-block{font-size:.9rem;font-family:var(--font-sans);}
+.stat-block dl{display:grid;grid-template-columns:auto 1fr;gap:.15rem .6rem;margin:.5rem 0;}
+.stat-block dt{color:var(--muted);}
+.dropped-note{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--border);padding-top:.5rem;margin-top:.75rem;font-family:var(--font-sans);}
+.placeholder{color:var(--muted);font-style:italic;}
+.prompt-row{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;align-items:center;font-family:var(--font-sans);}
+.prompt-row input[type=text]{flex:1 1 14rem;padding:.5rem .6rem;border:1px solid var(--border);border-radius:.4rem;background:var(--panel);color:var(--ink);font:inherit;font-family:var(--font-sans);}
+.attach{border-radius:50%;width:2.2rem;height:2.2rem;padding:0;font-size:1.1rem;line-height:1;font-family:var(--font-sans);}
+.field-error{color:var(--danger);font-size:.85rem;margin:.35rem 0 0;font-family:var(--font-sans);}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+dialog{position:static;margin:1rem 0;inset:auto;border:1px solid var(--border);border-radius:.6rem;padding:1.25rem;max-width:28rem;background:var(--panel);color:var(--ink);font-family:var(--font-sans);}
+dialog::backdrop{background:rgba(0,0,0,.45);}
+.schema-grid{display:grid;grid-template-columns:1fr;gap:.6rem;margin-bottom:1rem;font-family:var(--font-sans);}
+.schema-box{border:1px dashed var(--border);border-radius:.5rem;padding:.75rem;background:var(--panel-2);font-size:.85rem;}
+.schema-notes{margin:0;padding-left:1.2rem;font-size:.9rem;font-family:var(--font-sans);}
+</style>
+</head>
+<body>
+<header class="page-header">
+  <p class="crumb"><a href="index.html">&larr; Round 1</a></p>
+  <h1>B &mdash; Marginalia</h1>
+  <p class="thesis"><strong>Thesis:</strong> one reading column, two tabs ("Ask" | "Library"). A citation unfolds its passage inline, right beneath the paragraph that cites it, like a footnote opening in place; a second click folds it. An attach control beside the question box also opens the upload form, so a book can be added without leaving the conversation.</p>
+  <p class="risk"><strong>Risk:</strong> long passages push the conversation apart.</p>
+  <p class="legend"><span class="badge" aria-hidden="true">0028</span> = this task &middot; <span class="badge lib" aria-hidden="true">LIB</span> = Library management card (follow-up)</p>
+</header>
+<nav class="jump" aria-label="Jump to state">
+  <ul>
+    <li><a href="#state-0">0 Shell</a></li>
+    <li><a href="#state-0b">0b First run</a></li>
+    <li><a href="#state-1">1 Upload idle</a></li>
+    <li><a href="#state-2">2 Uploading</a></li>
+    <li><a href="#state-3">3 Rejected</a></li>
+    <li><a href="#state-4">4 Jobs</a></li>
+    <li><a href="#state-4b">4b Books</a></li>
+    <li><a href="#state-4c">4c Delete/Re-import</a></li>
+    <li><a href="#state-5">5 Player/library</a></li>
+    <li><a href="#state-6">6 Empty chat</a></li>
+    <li><a href="#state-7">7 Validation</a></li>
+    <li><a href="#state-8">8 Streaming</a></li>
+    <li><a href="#state-9">9 Done</a></li>
+    <li><a href="#state-10">10 Citation (prose)</a></li>
+    <li><a href="#state-11">11 Citation (stat block)</a></li>
+    <li><a href="#state-12">12 Refusal</a></li>
+    <li><a href="#state-13">13 Error</a></li>
+    <li><a href="#state-14">14 Player/chat</a></li>
+  </ul>
+</nav>
+<main>
+
+<section class="state" id="state-0" aria-labelledby="h-state-0">
+  <h2 id="h-state-0">State 0 &mdash; Shell: how chat and the Library sit together</h2>
+  <div class="frame">
+    <div class="schema-grid">
+      <div class="schema-box">Tab bar &mdash; "Ask" | "Library" &mdash; the only navigation on the page.</div>
+      <div class="schema-box">Ask tab: one reading column with the question box; an attach control beside it opens the same upload form <span class="badge" aria-hidden="true">0028</span></div>
+      <div class="schema-box">Library tab: upload <span class="badge" aria-hidden="true">0028</span>, jobs <span class="badge" aria-hidden="true">0028</span>, and the book list <span class="badge lib" aria-hidden="true">LIB</span>, stacked in the same column.</div>
+    </div>
+    <ol class="schema-notes">
+      <li>Switch tabs to fully manage the library, or use the attach control beside the question box to upload without leaving the conversation.</li>
+      <li>A citation unfolds its passage directly beneath the paragraph that cites it; a second click folds it back.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="state" id="state-0b" aria-labelledby="h-state-0b">
+  <h2 id="h-state-0b">State 0b &mdash; First run, no books yet</h2>
+  <div class="frame">
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" aria-selected="true" class="tab">Ask</button>
+      <button type="button" role="tab" aria-selected="false" class="tab">Library</button>
+    </div>
+    <div class="column">
+      <p class="placeholder">Asking needs at least one ready book. Upload a book to get started.</p>
+      <div class="prompt-row">
+        <label for="q-0b" class="visually-hidden">Ask a rules question</label>
+        <input id="q-0b" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;" disabled>
+        <button type="button" class="attach" aria-label="Upload a book">+</button>
+        <button type="button" class="btn" disabled>Ask</button>
+      </div>
+      <p class="hint" style="margin-top:1rem;">Your library is empty &mdash; the attach control above opens the same upload form shown on the Library tab:</p>
+      <form class="upload-form">
+        <div class="field">
+          <label for="title-0b">Book title <span class="badge" aria-hidden="true">0028</span></label>
+          <input id="title-0b" type="text" minlength="1" maxlength="200" placeholder="e.g. Basic Rules">
+        </div>
+        <div class="field">
+          <label for="file-0b">File <span class="badge" aria-hidden="true">0028</span></label>
+          <input id="file-0b" type="file" accept=".zip,.html,.md">
+        </div>
+        <button type="submit" class="btn primary">Upload</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-1" aria-labelledby="h-state-1">
+  <h2 id="h-state-1">State 1 &mdash; Upload form idle</h2>
+  <p class="region">Library tab &rarr; Upload <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <form class="upload-form">
+      <div class="field">
+        <label for="title-1">Book title</label>
+        <input id="title-1" type="text" minlength="1" maxlength="200" placeholder="e.g. Basic Rules">
+      </div>
+      <div class="field">
+        <label for="file-1">File</label>
+        <input id="file-1" type="file" accept=".zip,.html,.md">
+        <p class="hint">Accepts a .zip D&amp;D Beyond export, .html, or .md.</p>
+      </div>
+      <button type="submit" class="btn primary">Upload</button>
+    </form>
+  </div>
+</section>
+
+<section class="state" id="state-2" aria-labelledby="h-state-2">
+  <h2 id="h-state-2">State 2 &mdash; Uploading, 62%</h2>
+  <p class="region">Library tab &rarr; Upload <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="upload-progress">
+      <p class="file-name">basic-rules.zip <span class="muted">4.2 MB</span></p>
+      <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
+        <div class="progress-fill" style="width:62%"></div>
+      </div>
+      <p class="progress-label">62%</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-3" aria-labelledby="h-state-3">
+  <h2 id="h-state-3">State 3 &mdash; Upload rejected, 409</h2>
+  <p class="region">Library tab &rarr; Upload <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="notice error" role="alert">
+      <p>A job for this book is already queued or running.</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-4" aria-labelledby="h-state-4">
+  <h2 id="h-state-4">State 4 &mdash; Jobs list</h2>
+  <p class="region">Library tab &rarr; Jobs <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame table-wrap">
+    <table>
+      <caption>4 ingestion jobs</caption>
+      <thead><tr><th scope="col">Book</th><th scope="col">Status</th><th scope="col">Detail</th><th scope="col">Started</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Basic Rules</td>
+          <td><span class="status running">Running</span>
+            <ol class="stage-steps" aria-label="Ingestion stage">
+              <li class="done">Extract</li><li class="done">Parse</li><li class="done">Store</li><li class="current">Embed</li>
+            </ol>
+          </td>
+          <td>&mdash;</td>
+          <td>40s ago</td>
+        </tr>
+        <tr>
+          <td>Bestiary</td>
+          <td><span class="status succeeded">Succeeded</span></td>
+          <td>Parser ddb &middot; 38 pages &middot; 412 chunks &middot; embedded 412 (bge-m3) &middot; replaced previous import</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>Equipment</td>
+          <td><span class="status queued">Queued</span></td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>Homebrew Notes</td>
+          <td><span class="status failed">Failed</span></td>
+          <td>Unsupported archive layout &middot; attempts 2</td>
+          <td>&mdash;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="state" id="state-4b" aria-labelledby="h-state-4b">
+  <h2 id="h-state-4b">State 4b &mdash; Book list</h2>
+  <p class="region">Library tab &rarr; Books <span class="badge lib" aria-hidden="true">LIB</span></p>
+  <div class="frame table-wrap">
+    <table>
+      <caption>4 books</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Pages</th><th scope="col">Chunks</th><th scope="col">Embedding model</th><th scope="col">Ingested</th><th scope="col">Actions</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Basic Rules</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td><span class="status running">Ingesting (embed)</span></td>
+          <td><button class="btn small" type="button" disabled title="Available once ingest finishes">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button" disabled title="Available once ingest finishes">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+        <tr>
+          <td>Homebrew Notes</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td><span class="status failed">Failed &mdash; Unsupported archive layout</span></td>
+          <td><button class="btn small" type="button">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+        <tr>
+          <td>Bestiary</td><td>38</td><td>412</td><td>bge-m3</td><td>2026-09-28</td>
+          <td><button class="btn small" type="button">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+        <tr>
+          <td>Equipment</td><td>12</td><td>96</td><td>&mdash; <em>(search-only)</em></td><td>2026-09-27</td>
+          <td><button class="btn small" type="button">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">Equipment: No AI provider configured &mdash; keyword search only.</p>
+  </div>
+</section>
+
+<section class="state" id="state-4c" aria-labelledby="h-state-4c">
+  <h2 id="h-state-4c">State 4c &mdash; Delete confirm &amp; re-import</h2>
+  <p class="region">Library tab &rarr; Books <span class="badge lib" aria-hidden="true">LIB</span></p>
+  <div class="frame">
+    <dialog open aria-label="Confirm delete">
+      <h3>Delete Bestiary?</h3>
+      <p>This removes all pages, chunks and embeddings for Bestiary. This cannot be undone.</p>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+        <button class="btn" type="button">Cancel</button>
+        <button class="btn primary" type="button">Delete</button>
+      </div>
+    </dialog>
+    <p class="hint" style="margin-top:1rem;">Re-import opens the upload form prefilled with the book title:</p>
+    <form class="upload-form">
+      <div class="field">
+        <label for="title-4c">Book title</label>
+        <input id="title-4c" type="text" minlength="1" maxlength="200" value="Bestiary">
+      </div>
+      <div class="field">
+        <label for="file-4c">File</label>
+        <input id="file-4c" type="file" accept=".zip,.html,.md">
+      </div>
+      <button type="submit" class="btn primary">Upload</button>
+    </form>
+  </div>
+</section>
+
+<section class="state" id="state-5" aria-labelledby="h-state-5">
+  <h2 id="h-state-5">State 5 &mdash; Player view of the library</h2>
+  <div class="frame">
+    <p class="player-note">The library is available to the operator only.</p>
+  </div>
+</section>
+
+<section class="state" id="state-6" aria-labelledby="h-state-6">
+  <h2 id="h-state-6">State 6 &mdash; Empty chat</h2>
+  <div class="frame">
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" aria-selected="true" class="tab">Ask</button>
+      <button type="button" role="tab" aria-selected="false" class="tab">Library</button>
+    </div>
+    <div class="column">
+      <p class="hint">Books: Basic Rules (ingesting) &middot; Bestiary</p>
+      <div class="prompt-row">
+        <label for="q-6" class="visually-hidden">Ask a rules question</label>
+        <input id="q-6" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;">
+        <button type="button" class="attach" aria-label="Upload a book">+</button>
+        <button type="button" class="btn primary">Ask</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-7" aria-labelledby="h-state-7">
+  <h2 id="h-state-7">State 7 &mdash; Validation, empty question</h2>
+  <div class="frame">
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" aria-selected="true" class="tab">Ask</button>
+      <button type="button" role="tab" aria-selected="false" class="tab">Library</button>
+    </div>
+    <div class="column">
+      <div class="prompt-row">
+        <label for="q-7" class="visually-hidden">Ask a rules question</label>
+        <input id="q-7" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;" aria-invalid="true" aria-describedby="q-7-err">
+        <button type="button" class="attach" aria-label="Upload a book">+</button>
+        <button type="button" class="btn primary">Ask</button>
+      </div>
+      <p class="field-error" id="q-7-err" role="alert">Enter a question.</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-8" aria-labelledby="h-state-8">
+  <h2 id="h-state-8">State 8 &mdash; Streaming</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg user">How does grappling work?</p>
+      <p class="msg">A grapple replaces one of your attacks: when you take the Attack action, you can use one of its attacks to make a special melee attack <button type="button" class="citation" aria-label="Citation 1">[1]</button> If it hits, the target is grappled, and effects that key off the condition begin to apply&mdash;<span class="cursor" aria-hidden="true">&nbsp;</span></p>
+      <button type="button" class="btn">Stop</button>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-9" aria-labelledby="h-state-9">
+  <h2 id="h-state-9">State 9 &mdash; Done, with citations (try the fold)</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg user">How does grappling work?</p>
+      <p>Grappling is a way to control a creature in melee. Instead of a normal weapon strike, you can use the Attack action to make a special melee attack, a grapple <button type="button" class="citation" data-fold="fold-9-1" aria-expanded="false" aria-controls="fold-9-1" aria-label="Citation 1">[1]</button>. A successful grapple doesn&rsquo;t harm the target, but it does latch on and restrict movement, matching what&rsquo;s described in the grappling rules <button type="button" class="citation" data-fold="fold-9-1" aria-expanded="false" aria-controls="fold-9-1" aria-label="Citation 1, repeated">[1]</button>.</p>
+      <div class="footnote" id="fold-9-1" hidden>
+        <p class="breadcrumb">Basic Rules &rsaquo; Combat &rsaquo; Grappling</p>
+        <p>Grappling represents a contest of strength and leverage rather than a weapon strike. Instead of one of your attacks, <mark>you can use the Attack action to make a special melee attack, a grapple</mark>, provided you have a hand free. If the attack succeeds, the target is grappled: its speed becomes 0, and it can&rsquo;t benefit from any bonus to speed until the grapple ends. A creature within 5 feet of you can attempt to grapple as normal, but ranged attacks cannot initiate a grapple. Some creatures are too large to be grappled by a creature smaller than them, unless the smaller creature has a trait that says otherwise. The grapple ends automatically if you are ever more than 5 feet from the grappled creature.</p>
+      </div>
+      <p>While grappled, a creature&rsquo;s speed drops to 0, and it can&rsquo;t benefit from any bonus that would increase its speed <button type="button" class="citation" data-fold="fold-9-2" aria-expanded="false" aria-controls="fold-9-2" aria-label="Citation 2">[2]</button>.</p>
+      <div class="footnote" id="fold-9-2" hidden>
+        <p class="breadcrumb">Basic Rules &rsaquo; Appendix: Conditions &rsaquo; Grappled</p>
+        <p>A grappled creature&rsquo;s speed becomes 0, and it loses any bonus to its speed for as long as the condition lasts.</p>
+      </div>
+      <p>A grappled creature can spend its action to escape a grapple; doing so requires a check against the grappler&rsquo;s escape DC, and success ends the condition <button type="button" class="citation" data-fold="fold-9-3" aria-expanded="false" aria-controls="fold-9-3" aria-label="Citation 3">[3]</button>.</p>
+      <div class="footnote" id="fold-9-3" hidden>
+        <p class="breadcrumb">Basic Rules &rsaquo; Combat &rsaquo; Grappling &rsaquo; Escaping a Grapple</p>
+        <p>A grappled creature can use its action to escape a grapple, contesting its ability check against the grappler&rsquo;s. Success frees the creature and ends the condition immediately.</p>
+      </div>
+      <p class="dropped-note">1 citation was dropped because its quote could not be verified.</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-10" aria-labelledby="h-state-10">
+  <h2 id="h-state-10">State 10 &mdash; Citation opened (prose)</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg user">How does grappling work?</p>
+      <p>Grappling is a way to control a creature in melee. Instead of a normal weapon strike, you can use the Attack action to make a special melee attack, a grapple <button type="button" class="citation" data-fold="fold-10-1" aria-expanded="true" aria-controls="fold-10-1" aria-label="Citation 1, open">[1]</button>. A successful grapple doesn&rsquo;t harm the target, but it does latch on and restrict movement, matching what&rsquo;s described in the grappling rules <button type="button" class="citation" data-fold="fold-10-1" aria-expanded="true" aria-controls="fold-10-1" aria-label="Citation 1, open">[1]</button>.</p>
+      <div class="footnote" id="fold-10-1">
+        <p class="breadcrumb">Basic Rules &rsaquo; Combat &rsaquo; Grappling</p>
+        <p>Grappling represents a contest of strength and leverage rather than a weapon strike. Instead of one of your attacks, <mark>you can use the Attack action to make a special melee attack, a grapple</mark>, provided you have a hand free. If the attack succeeds, the target is grappled: its speed becomes 0, and it can&rsquo;t benefit from any bonus to speed until the grapple ends. A creature within 5 feet of you can attempt to grapple as normal, but ranged attacks cannot initiate a grapple. Some creatures are too large to be grappled by a creature smaller than them, unless the smaller creature has a trait that says otherwise. The grapple ends automatically if you are ever more than 5 feet from the grappled creature.</p>
+      </div>
+      <p>While grappled, a creature&rsquo;s speed drops to 0, and it can&rsquo;t benefit from any bonus that would increase its speed <button type="button" class="citation" aria-label="Citation 2">[2]</button>.</p>
+      <p>A grappled creature can spend its action to escape a grapple; doing so requires a check against the grappler&rsquo;s escape DC, and success ends the condition <button type="button" class="citation" aria-label="Citation 3">[3]</button>.</p>
+      <p class="dropped-note">1 citation was dropped because its quote could not be verified.</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-11" aria-labelledby="h-state-11">
+  <h2 id="h-state-11">State 11 &mdash; Citation opened (stat block)</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg">Citation example &mdash; a Bestiary entry <button type="button" class="citation" data-fold="fold-11" aria-expanded="true" aria-controls="fold-11" aria-label="Citation G, open">[G]</button></p>
+      <div class="footnote" id="fold-11">
+        <p class="breadcrumb">Bestiary &rsaquo; Goblin</p>
+        <div class="stat-block">
+          <h4 style="margin:.25rem 0;">Goblin</h4>
+          <p style="margin:0 0 .5rem;color:var(--muted);">Small humanoid, neutral evil</p>
+          <dl>
+            <dt>AC</dt><dd>15 (leather armor, shield)</dd>
+            <dt>HP</dt><dd>7 (2d6)</dd>
+            <dt>Speed</dt><dd>30 ft.</dd>
+            <dt>Skills</dt><dd>Stealth +6</dd>
+            <dt>Senses</dt><dd>darkvision 60 ft., passive Perception 9</dd>
+            <dt>Challenge</dt><dd>1/4</dd>
+          </dl>
+          <p><mark>Nimble Escape</mark>. The goblin can take the Disengage or Hide action as a bonus action on each of its turns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-12" aria-labelledby="h-state-12">
+  <h2 id="h-state-12">State 12 &mdash; Refusal</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg user">What&rsquo;s the rule for grappling while flying and blinded at the same time?</p>
+      <div class="notice calm" role="status">
+        <p>The library has nothing relevant to this question.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-13" aria-labelledby="h-state-13">
+  <h2 id="h-state-13">State 13 &mdash; Error mid-stream</h2>
+  <div class="frame">
+    <div class="column">
+      <p class="msg user">How does grappling work?</p>
+      <p class="msg">A grapple replaces one of your attacks: when you take the Attack action, you can use one of its attacks to make a special melee attack <button type="button" class="citation" aria-label="Citation 1">[1]</button> <span class="badge" aria-hidden="true" style="background:var(--danger);">Interrupted</span></p>
+      <div class="notice error" role="alert">
+        <p>The model provider failed. Try again.</p>
+      </div>
+      <button type="button" class="btn primary">Retry</button>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-14" aria-labelledby="h-state-14">
+  <h2 id="h-state-14">State 14 &mdash; Player view of chat</h2>
+  <div class="frame">
+    <p class="player-note">Asking the library is available to the operator only.</p>
+  </div>
+</section>
+
+</main>
+<script>
+document.querySelectorAll('button[data-fold]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var el = document.getElementById(btn.getAttribute('data-fold'));
+    if(!el) return;
+    var willOpen = el.hasAttribute('hidden');
+    if(willOpen){ el.removeAttribute('hidden'); } else { el.setAttribute('hidden',''); }
+    document.querySelectorAll('button[data-fold="'+btn.getAttribute('data-fold')+'"]').forEach(function(b){
+      b.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+  });
+});
+</script>
+</body>
+</html>

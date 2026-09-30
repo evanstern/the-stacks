@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat UI &mdash; Round 1</title>
+<style>
+:root{
+  --bg:#f5f3ee; --panel:#ffffff; --ink:#201c16; --muted:#665c4d; --border:#ddd5c3; --accent:#3a5f7a; --focus:#1a5fb4;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#151310; --panel:#1e1b16; --ink:#efe9dd; --muted:#a89d8c; --border:#3a332a; --accent:#8fbfe0; --focus:#8ec2ff; }
+}
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.55;}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px;}
+header{max-width:56rem;margin:0 auto;padding:2rem 1.25rem 1rem;}
+p.legend{font-size:.8rem;color:var(--muted);font-family:var(--font-mono);}
+main{max-width:56rem;margin:0 auto;padding:0 1.25rem 3rem;}
+.options{list-style:none;padding:0;margin:0;display:grid;gap:1rem;}
+.options li{border:1px solid var(--border);border-radius:.6rem;background:var(--panel);padding:1.25rem;}
+.options a{color:var(--ink);text-decoration:none;font-size:1.15rem;font-weight:700;}
+.options a:hover, .options a:focus-visible{color:var(--accent);}
+.options p{margin:.4rem 0 0;}
+.options .thesis{color:var(--ink);}
+.options .risk{color:var(--muted);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Chat UI &mdash; Design Round 1</h1>
+  <p>TASK-0028. Three directions for the operator&rsquo;s chat surface, each showing the same states with the same copy so they can be compared directly. Chat and the Library area are designed together in every option.</p>
+  <p class="legend">0028 = this task &middot; LIB = Library management card (follow-up)</p>
+</header>
+<main>
+  <ul class="options">
+    <li>
+      <a href="a-reference-desk.html">A &mdash; Reference Desk</a>
+      <p class="thesis"><strong>Thesis:</strong> everything on one screen &mdash; a collapsible Library panel above the conversation, and a source pane pinned beside it that loads a citation&rsquo;s passage right where you&rsquo;re already looking.</p>
+      <p class="risk"><strong>Risk:</strong> the two panes collapse badly on narrow screens, where the source pane becomes a bottom sheet.</p>
+    </li>
+    <li>
+      <a href="b-marginalia.html">B &mdash; Marginalia</a>
+      <p class="thesis"><strong>Thesis:</strong> one reading column with two tabs ("Ask" | "Library"); a citation unfolds like a footnote right under the paragraph that cites it, and an attach control beside the question box reaches the same upload form without leaving the conversation.</p>
+      <p class="risk"><strong>Risk:</strong> long passages push the conversation apart.</p>
+    </li>
+    <li>
+      <a href="c-console.html">C &mdash; Console</a>
+      <p class="thesis"><strong>Thesis:</strong> a dense operator console &mdash; a jobs strip always visible at the top, a Library panel for upload and the book list, and a log-style chat below with citations that open in a native dialog on top of everything.</p>
+      <p class="risk"><strong>Risk:</strong> it reads as a tool, not a reading surface.</p>
+    </li>
+  </ul>
+</main>
+</body>
+</html>
