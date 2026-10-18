@@ -4,19 +4,19 @@
   "escalationTier": "opus",
   "tiers": {
     "haiku": {
-      "model": "cc/claude-haiku-4-5-20251001",
+      "model": "claude-haiku-5-5",
       "contextWindow": "200K",
       "for": "narrow mechanical slices — single-file edits, corpus hygiene, tests written to a sibling standard",
       "caution": "200K context (the smallest tier): sized for one phase-scoped dispatch, not for wide-context reads across a corpus. Escalate rather than truncate."
     },
     "sonnet": {
-      "model": "cc/claude-sonnet-5[1m]",
+      "model": "claude-sonnet-5-5",
       "contextWindow": "1M",
       "for": "the default implementer — work to an existing pattern or a written spec, where the judgment calls are already made"
     },
     "opus": {
-      "model": "cc/claude-opus-5-5[1m]",
-      "fallback": "cc/claude-fable-5-1[1m]",
+      "model": "claude-opus-5-5",
+      "fallback": "claude-fable-5-1",
       "contextWindow": "1M",
       "escalation": true,
       "for": "escalation only — design work, cross-surface doctrine, anything with a real judgment call the spec does not already settle"
