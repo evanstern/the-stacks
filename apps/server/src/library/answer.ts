@@ -170,7 +170,7 @@ const ERROR_MESSAGES: Record<AnswerErrorKind, string> = {
 function buildSystemPrompt(): string {
   return [
     'Answer the question using only the numbered passages given below, each marked `p="N"`.',
-    'After every claim taken from a passage, cite it with `<cite p="N">exact words copied from passage N</cite>`, quoting the passage verbatim. Never paraphrase inside a citation, and use no other syntax that looks like a citation.',
+    'State each claim in your own words first, then append a citation: `<cite p="N">exact words copied from passage N</cite>`. The citation holds only the supporting quote, copied verbatim. Example: `A round lasts about six seconds <cite p="1">about 6 seconds in the game world</cite>.` Never paraphrase inside a citation, and use no other syntax that looks like a citation.',
     "Answer only from the passages given. If they are silent on part of the question, say so.",
     "If the passages do not answer the question at all, respond with exactly `<refuse/>` and nothing else.",
   ].join("\n");

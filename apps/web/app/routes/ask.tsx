@@ -90,18 +90,19 @@ function TurnView({
                 // biome-ignore lint/suspicious/noArrayIndexKey: parts are append-only within a turn; index is stable.
                 <span key={index}>{part.text}</span>
               ) : (
-                <button
-                  // biome-ignore lint/suspicious/noArrayIndexKey: parts are append-only within a turn; index is stable.
-                  key={index}
-                  type="button"
-                  onClick={() => onOpenCitation(turn.id, part.n)}
-                  aria-label={citationLabel(part.n, turn.citations[part.n])}
-                  aria-pressed={openN === part.n}
-                  title={turn.citations[part.n].quote}
-                  className="citation mx-0.5 rounded border border-border px-1 text-xs text-primary aria-pressed:bg-accent"
-                >
-                  [{part.n}]
-                </button>
+                // biome-ignore lint/suspicious/noArrayIndexKey: parts are append-only within a turn; index is stable.
+                <span key={index}>
+                  <q className="cited-quote">{part.quote}</q>
+                  <button
+                    type="button"
+                    onClick={() => onOpenCitation(turn.id, part.n)}
+                    aria-label={citationLabel(part.n, turn.citations[part.n])}
+                    aria-pressed={openN === part.n}
+                    className="citation mx-0.5 rounded border border-border px-1 text-xs text-primary aria-pressed:bg-accent"
+                  >
+                    [{part.n}]
+                  </button>
+                </span>
               ),
             )}
             {turn.state === "streaming" && (

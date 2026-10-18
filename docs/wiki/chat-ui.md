@@ -59,7 +59,7 @@ message the chunk completes; a trailing partial is never flushed). Each parsed m
 JSON-decoded and folded into the turn by `ask/turns.ts`'s pure `applyEvent` (import-type
 only, erasable TypeScript, research R8, no runtime imports) — restating `ask-sse.md`'s
 events: `delta` appends to (or starts) the trailing text part; `citation` appends a `cite`
-part and records the citation the first time its `n` is seen (a repeat renders as the same
+part (carrying its own `quote`, rendered inline before the `[n]` marker) and records the citation the first time its `n` is seen (a repeat renders as the same
 reference, FR-022); `done` sets `state: "done"` with the summary; `refusal` clears
 parts/citations and sets `state: "refused"` (SC-004: zero streamed words survive a refusal);
 `error` sets `state: "interrupted"`. A stream that ends without any terminal event
