@@ -8,7 +8,7 @@ merge → re-ground. Direction is decided; do not re-litigate it. These win:
 The board is the plan of record. This file carries only ordering, doctrine and the log.
 It carries forward the gates and retrospective of `docs/design/m1-wave2-sweep-runbook.md`.
 
-**Status:** executing · operator sign-off on lanes: 2026-09-30 (operator, in the TASK-0028 session)
+**Status:** done · operator sign-off on lanes: 2026-09-30 (operator, in the TASK-0028 session)
 
 ## Read first (in this order)
 
@@ -192,4 +192,5 @@ the transcript.
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-30 | (runbook) | — | — | — | Authored as draft from the TASK-0028 session, in the TASK-0040 claim commit. Awaiting lane sign-off. |
 | 2026-09-30 | (runbook) | — | — | — | Signed off by the operator. Spec 025 dispatched to opus. |
-| 2026-09-30 | TASK-0040 | — | — | — | In flight. Spec 025 (3094e99) + amendment (ba7d16c, checkpoints approved). phases: 1 done (cab046d), 2 done (2565447), 3 done (177778d), 4 done (3f90c7c), 5 done (a9a5d37), 6 done (7f44333, e572d7f, 86ce7a4). All gates green. PR #39 open, CI green (run 36671760825); awaiting operator merge. |
+| 2026-09-30 | TASK-0040 | [#39](https://github.com/evanstern/the-stacks/pull/39) | `1446fd0` | ~1.5M best-effort: spec ~337k (opus ×2), impl ~1.16M (sonnet ×6) | Spec 025 (3094e99) + amendment (ba7d16c). 6 phases (cab046d, 2565447, 177778d, 3f90c7c, a9a5d37, 7f44333/e572d7f/86ce7a4). |
+| 2026-09-30 | (sweep close) | — | — | — | TASK-0040 synced to Done (spec-bridge). Worktree and branch removed; env:prune no orphans. Closure rides the TASK-0028 branch (root is read-only). TASK-0028 released from hold. |
