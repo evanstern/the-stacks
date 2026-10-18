@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-10-18 18:55'
+updated_date: '2026-10-18 19:02'
 labels:
   - ui
 milestone: m-1
@@ -149,6 +149,8 @@ Operator ruling 2026-10-18: findings 1 ([DONE]) and 2 (favicon) are in scope for
 Dispatch blocked twice (no worktree changes): this desktop-app session calls api.anthropic.com instead of the local router, but inherits the router-only cc/ model IDs. sonnet-implementer and model=sonnet both sent cc/claude-sonnet-5 and got model_not_found. Awaiting the operator: dispatch from a CLI session on the router, or record an escalation checkpoint for an inherited-model run.
 
 Operator ruling 2026-10-18: Claude Code defaults back to built-in models. The 9router settings were removed from ~/.claude/settings.json (base URL, auth token, cc/ model defaults). model-tiers.json now pins bare IDs (haiku claude-haiku-5-5, sonnet claude-sonnet-5-5, opus claude-opus-5-5, fallback claude-fable-5-1); agents regenerated, --check green. Landed on main 4592e14 and merged into this branch (9765315). The round-4 fix dispatch runs from a new session, because settings and the agent registry load at session start. The app answering provider (AI_PROVIDERS) still uses 9router; that is unchanged.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
