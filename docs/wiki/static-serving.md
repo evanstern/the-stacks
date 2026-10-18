@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/static.ts
   - apps/server/src/app.ts
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 323f96c45e738dd79c84e00f970a18dc8180ddf0
 ---
 
 # Static serving
