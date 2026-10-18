@@ -23,7 +23,7 @@ sources:
   - apps/web/app/routes/settings.tsx
   - apps/web/app/library/books.ts
   - apps/web/app/library/upload.ts
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 48aab4de24a6e2bfed105ec6b37ef1ca61e9e70a
 ---
 
 # Chat UI
