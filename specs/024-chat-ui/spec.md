@@ -282,8 +282,7 @@ this spec's quickstart), and compare with the committed screen recording.
 - **FR-021**: Ask MUST post `{ "question" }` to `POST /library/ask` and read the response with
   a fetch stream reader, never `EventSource`.
 - **FR-022**: `delta` text MUST be appended in order. Each `citation` MUST appear as a marker
-  at its arrival point, rendered after its quoted words (the citation's `quote`, shown as visible
-  text, not a tooltip). A repeated `n` MUST render as the same reference.
+  at its arrival point. A repeated `n` MUST render as the same reference.
 - **FR-023**: While streaming, an accent "Stop generating" control MUST abort the request.
   The partial text MUST stay, marked "Stopped", with Retry.
 - **FR-024**: On `refusal`, every received delta and citation for that turn MUST be discarded

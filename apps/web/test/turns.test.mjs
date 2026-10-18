@@ -45,7 +45,7 @@ test("citation placement: appears as a marker at its arrival point", () => {
   turn = applyEvent(turn, { event: "delta", data: { text: " continues." } });
   assert.deepEqual(turn.parts, [
     { type: "text", text: "A grapple" },
-    { type: "cite", n: 1, quote: "a special melee attack, a grapple" },
+    { type: "cite", n: 1 },
     { type: "text", text: " continues." },
   ]);
   assert.equal(turn.citations[1].book, "Basic Rules");
@@ -63,10 +63,6 @@ test("a repeated n renders as the same reference (keeps the first citation)", ()
   });
   assert.equal(turn.parts.filter((p) => p.type === "cite").length, 2);
   assert.equal(turn.citations[1].quote, "first");
-  assert.deepEqual(
-    turn.parts.filter((p) => p.type === "cite").map((p) => p.quote),
-    ["first", "second"],
-  );
 });
 
 test("refusal clears every streamed delta and citation (SC-004)", () => {

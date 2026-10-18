@@ -14,7 +14,7 @@ export type TurnState =
 
 export type TurnPart =
   | { type: "text"; text: string }
-  | { type: "cite"; n: number; quote: string };
+  | { type: "cite"; n: number };
 
 export interface Turn {
   id: string;
@@ -71,10 +71,7 @@ export function applyEvent(turn: Turn, msg: TurnEvent): Turn {
         : { ...turn.citations, [citation.n]: citation };
       return {
         ...turn,
-        parts: [
-          ...turn.parts,
-          { type: "cite", n: citation.n, quote: citation.quote },
-        ],
+        parts: [...turn.parts, { type: "cite", n: citation.n }],
         citations,
       };
     }
