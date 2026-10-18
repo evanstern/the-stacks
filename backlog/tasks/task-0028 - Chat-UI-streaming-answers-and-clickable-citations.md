@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-10-18 19:32'
+updated_date: '2026-10-18 19:37'
 labels:
   - ui
 milestone: m-1
@@ -156,6 +156,9 @@ spec-bridge sync: Foundation — theme, cookies, load context, store, panel, she
 
 Round 5 (operator chose A + B, 2026-10-18): cited quotes now render inline before the marker; the system prompt requires the claim in prose before each cite. Commits 48aab4d, 67d316d.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Round 6 (operator decision 2026-10-18): the inline cited quote duplicated the claim, so it was reverted. Answers show only the [n] marker. The round-5 prompt change (claim in prose before each cite) stays. Commits 7122a14, fa5edc8.
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
