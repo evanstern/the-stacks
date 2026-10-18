@@ -151,6 +151,8 @@ Dispatch blocked twice (no worktree changes): this desktop-app session calls api
 Operator ruling 2026-10-18: Claude Code defaults back to built-in models. The 9router settings were removed from ~/.claude/settings.json (base URL, auth token, cc/ model defaults). model-tiers.json now pins bare IDs (haiku claude-haiku-5-5, sonnet claude-sonnet-5-5, opus claude-opus-5-5, fallback claude-fable-5-1); agents regenerated, --check green. Landed on main 4592e14 and merged into this branch (9765315). The round-4 fix dispatch runs from a new session, because settings and the agent registry load at session start. The app answering provider (AI_PROVIDERS) still uses 9router; that is unchanged.
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Foundation — theme, cookies, load context, store, panel, shell: 21/21 · US1 — Upload a book and watch it ingest (P1): 8/8 · US2 — Ask a question and watch the answer stream (P1): 6/6 · US3 — Open a citation's source passage (P1): 4/4 · US4 — Player views, the Table landing, and the two-browser run (P2): 5/5 · Verification, evidence, and re-grounding: 11/11 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
