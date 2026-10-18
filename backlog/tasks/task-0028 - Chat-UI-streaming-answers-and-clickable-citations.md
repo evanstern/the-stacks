@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-10-18 19:08'
+updated_date: '2026-10-18 19:32'
 labels:
   - ui
 milestone: m-1
@@ -153,6 +153,9 @@ Operator ruling 2026-10-18: Claude Code defaults back to built-in models. The 9r
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: Foundation — theme, cookies, load context, store, panel, shell: 21/21 · US1 — Upload a book and watch it ingest (P1): 8/8 · US2 — Ask a question and watch the answer stream (P1): 6/6 · US3 — Open a citation's source passage (P1): 4/4 · US4 — Player views, the Table landing, and the two-browser run (P2): 5/5 · Verification, evidence, and re-grounding: 11/11 — status In Progress → Done
+
+Round 5 (operator chose A + B, 2026-10-18): cited quotes now render inline before the marker; the system prompt requires the claim in prose before each cite. Commits 48aab4d, 67d316d.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
