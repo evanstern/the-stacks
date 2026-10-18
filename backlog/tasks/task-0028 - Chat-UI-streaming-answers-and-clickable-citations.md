@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: In Progress
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-10-18 18:48'
+updated_date: '2026-10-18 18:51'
 labels:
   - ui
 milestone: m-1
@@ -144,6 +144,9 @@ Design round 4 opened 2026-10-18. The operator began the manual review of the lo
 Round 4 finding 1 (bug, not design): Ask answers frequently end "Interrupted — The model provider failed" after the cited text. Root cause confirmed: the local router (AI_PROVIDERS.claude, host :20128) ends every stream with finish_reason "stop" but never sends data: [DONE]. Probe: 5/5 streams, no [DONE]. apps/server/src/ai/adapters/openai-compatible.ts requires sawDone(), so every complete answer maps to kind "upstream" ("stream ended without a completion signal"). App logs show answering outcome=error after 29 and 45 output tokens, with usage chunks received. Proposed fix: accept a finish_reason of stop or length as the completion signal when [DONE] is absent; keep [DONE] sufficient; add a unit test for both stream endings. Pending operator ruling on scope and dispatch.
 
 Round 4 finding 2 (minor): GET /favicon.ico reaches the React Router handler and logs a "No route matches" stack trace per page load. Proposed fix: ship a favicon or return 404 before the RR handler.
+
+Operator ruling 2026-10-18: findings 1 ([DONE]) and 2 (favicon) are in scope for this PR; dispatch to sonnet, then rebuild the stack for continued review. Brief: .handoff/round4-fix-brief.md (gitignored).
+Dispatch blocked twice (no worktree changes): this desktop-app session calls api.anthropic.com instead of the local router, but inherits the router-only cc/ model IDs. sonnet-implementer and model=sonnet both sent cc/claude-sonnet-5 and got model_not_found. Awaiting the operator: dispatch from a CLI session on the router, or record an escalation checkpoint for an inherited-model run.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
