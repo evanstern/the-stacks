@@ -16,6 +16,7 @@ import { AppStoreProvider } from "./store/provider";
 import { readUiPrefs } from "./ui-prefs";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
   { rel: "stylesheet", href: appCss },
 ];
 

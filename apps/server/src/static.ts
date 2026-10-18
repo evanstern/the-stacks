@@ -100,6 +100,10 @@ export function createWebMiddleware({
     const asset = await serve(c, async () => undefined);
     if (asset) return asset;
 
+    // Browsers request /favicon.ico unprompted; the real icon is the linked
+    // /favicon.svg. Answer 204 so it never reaches React Router's error path.
+    if (c.req.path === "/favicon.ico") return c.body(null, 204);
+
     // No static file matched: hand the request to React Router's own SSR
     // handler, which renders the matching route or its own 404 (plan D4 —
     // an unknown non-reserved path is no longer a 200 shell).

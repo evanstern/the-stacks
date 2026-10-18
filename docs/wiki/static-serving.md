@@ -41,6 +41,7 @@ For everything else, it calls Hono's `serveStatic({ root: clientRoot })` with a 
 throwing or returning a 404 Response. So `serveStatic` never shadows anything; it always
 either returns the matched file's `Response` or falls through cleanly. If `asset` is
 truthy, that Response is returned as-is (a real static file, e.g. hashed JS/CSS). If not,
+and the path is `/favicon.ico`, it answers 204 (the real icon is `apps/web/public/favicon.svg`, linked from the root route); otherwise
 the middleware loads the SSR handler (a cached dynamic `import()` of `DEFAULT_SERVER_ENTRY`,
 or the injected `handler` override) and calls it with `(c.req.raw, createWebLoadContext(c, {
 lookup, listJobs }))` — React Router itself now renders the matching route, or its own 404, for any

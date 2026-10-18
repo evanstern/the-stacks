@@ -36,7 +36,8 @@ Parse the body as SSE (`sse.ts`): split on blank lines, read `data:` lines, stop
 **Rationale**: `/chat/completions` streaming with `include_usage` is the de facto shared
 surface across hosted and local servers. A system prompt is sent as a `system` role message.
 
-**Edge**: a stream that ends without `[DONE]` or without a usage chunk → `upstream` error,
+**Edge**: a stream is complete when `[DONE]` was seen or any chunk carried a non-null
+`finish_reason` (some local routers never send `[DONE]`); a stream with neither → `upstream` error,
 usage recorded with counts seen (zero if none).
 
 ## R4. Usage persistence

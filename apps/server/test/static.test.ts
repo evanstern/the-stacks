@@ -113,3 +113,13 @@ describe("web middleware: reserved paths, assets, and the handler seam (plan D4,
     expect(calls).toBe(0);
   });
 });
+
+describe("favicon", () => {
+  it("answers /favicon.ico with 204 without calling the handler", async () => {
+    const fake = fakeHandler();
+    const res = await buildApp(fake).request("/favicon.ico");
+
+    expect(res.status).toBe(204);
+    expect(fake.calls).toHaveLength(0);
+  });
+});
