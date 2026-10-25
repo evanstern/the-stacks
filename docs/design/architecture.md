@@ -398,12 +398,15 @@ writes state directly.
 - Give a maybe a revisit task tied to a concrete trigger.
 - Reject a design or spec change that adds a "for now" without a card or a
   revisit trigger.
+- Card every known-wanted milestone up front.
+- Refine cards at each milestone's planning. Never drop a card silently;
+  dropping one needs a decision record.
 
-Applied in the 2026-10-25 revision: M2 and M3 are carded (TASK-0042 to
-TASK-0053). The two maybes have revisit cards: TASK-0054 (LangGraph) and
-TASK-0055 (parked tabletop-dm combat rules). Milestones M4 to M9 exist on the
-board (m-4 to m-9) with scope and entry gates; their cards are authored at the
-preceding milestone's close.
+Applied in the 2026-10-25 revision: every milestone from M2 to M9 is carded
+(TASK-0042 to TASK-0053, TASK-0056 to TASK-0091; per-milestone lists in
+milestones.md). The two maybes have revisit cards: TASK-0054 (LangGraph) and
+TASK-0055 (parked tabletop-dm combat rules). M9 is a sketch; its re-plan card
+(TASK-0087) gates every other M9 card and refines them from V1 play evidence.
 
 The pre-existing "skipped:" line in A2 (microservices, when load proves a need)
 is a deferral with a stated trigger, which satisfies this principle.

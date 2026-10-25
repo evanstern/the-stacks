@@ -12,7 +12,8 @@ parallel sweep lanes, a milestone lands every 2–4 weeks.
 
 **Re-baselined 2026-09-28** at M0 close: M0 landed 2026-09-23, three weeks ahead of target.
 **Re-baselined 2026-10-25** for the new ladder: M2 starts 2026-10-27; each later target
-follows from the one before it at the stated duration.
+follows from the one before it at the stated duration. Carding M4–M8 the same day lengthened
+M4 to 4 weeks and M6 to 5 weeks; later targets moved with them.
 
 Each milestone is a demoable state, maps to a backlog milestone (`m-N`) and a set of board
 TASKs (one PR each), and ends with a re-grounding pass. Dates are targets, not promises.
@@ -24,12 +25,15 @@ Each entry below gives a **demo** statement, the **scope**, and the **entry gate
 | M1 The Library | m-1 | 3 wk | 2026-10-20 (open: TASK-0031, TASK-0038, TASK-0039) |
 | M2 First Scene | m-2 | 4 wk | 2026-11-24 |
 | M3 The Table (multiplayer) | m-3 | 3 wk | 2026-12-15 |
-| M4 The Codex | m-4 | 3 wk | 2027-01-05 |
-| M5 Imported Mechanics | m-5 | 2 wk | 2027-01-19 |
-| M6 Maps and the Table View | m-6 | 4 wk | 2027-02-16 |
-| M7 The Dial = V1 | m-7 | 3 wk | 2027-03-09 |
-| M8 Memory and Pacing | m-8 | 3 wk | 2027-03-30 |
-| M9 Solo Campaign | m-9 | sketch | re-planned at V1 |
+| M4 The Codex | m-4 | 4 wk | 2027-01-12 |
+| M5 Imported Mechanics | m-5 | 2 wk | 2027-01-26 |
+| M6 Maps and the Table View | m-6 | 5 wk | 2027-03-02 |
+| M7 The Dial = V1 | m-7 | 3 wk | 2027-03-23 |
+| M8 Memory and Pacing | m-8 | 3 wk | 2027-04-13 |
+| M9 Solo Campaign | m-9 | sketch | re-planned at V1 (TASK-0087) |
+
+**Every known-wanted milestone is carded up front** (decision-0020). Cards may be refined at
+each milestone's planning, but never silently dropped; dropping one needs a decision record.
 
 ## M0 — Skeleton (2 wk, delivered 2026-09-23)
 
@@ -99,24 +103,41 @@ DM approving AI proposals (`ask`). Both pass the playtest auditor.
 
 **Entry gate:** M2 demo passed (TASK-0048 Done).
 
-## M4 — The Codex (3 wk, target 2027-01-05)
+## M4 — The Codex (4 wk, target 2027-01-12)
 
-Campaign content plane. Campaign CRUD; entity types NPC / PC / location / encounter / item
-with content contracts (identity in the engine's record shapes, portrayal, hooks); typed
-links; portrayal-completeness lint; codex browser UI; PC sheets over the engine. The DM
-runtime's `assemble` reads codex neighbours, replacing the M2 scene seed. Campaign-prep
-agents: the NPC-smith, then the encounter builder.
+Campaign content plane. Content contracts (identity in the engine's record shapes,
+portrayal, hooks) and the portrayal-completeness lint; campaign storage with versions and
+typed links; PC sheets over the engine; codex browser UI. The DM runtime's `assemble` reads
+codex neighbours, replacing the M2 scene seed. Campaign-prep agents: the NPC-smith, then the
+encounter builder.
 
 **Demo:** create a campaign, ask for "a corrupt harbormaster with a debt," get a complete,
 linked, editable NPC; the AI DM then runs a scene in which he appears and plays him in voice.
 
-**Gate on the first agent task:** the milestone's first agent task (the NPC-smith) does not
-start until **TASK-0054 (Revisit LangGraph adoption)** is decided. Landing a second agent
-graph is that card's trigger (decision-0019), so the NPC-smith card depends on TASK-0054.
+**Scope:**
 
-**Entry gate:** M3 demo passed (TASK-0053 Done). Cards authored at M3 close (decision-0020).
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0056 | Content contracts for NPC, PC, location, encounter, item; portrayal lint | TASK-0053 |
+| TASK-0057 | Campaign storage, versioning, typed links, CRUD API | TASK-0056 |
+| TASK-0058 | PC sheets over the 5e engine | TASK-0057, TASK-0055 |
+| TASK-0059 | Codex browser UI (no modals) | TASK-0057 |
+| TASK-0060 | DM runtime reads and writes the codex (replaces the scene seed) | TASK-0057 |
+| TASK-0054 | Revisit LangGraph adoption (trigger: decision-0019) | — |
+| TASK-0061 | NPC-smith agent — the milestone's first agent card | TASK-0057, **TASK-0054** |
+| TASK-0062 | Encounter builder agent | TASK-0061, TASK-0058, TASK-0055 |
+| TASK-0063 | Milestone demo | TASK-0058–0062 |
 
-## M5 — Imported Mechanics (2 wk, target 2027-01-19)
+**Gate on the first agent card:** the NPC-smith (TASK-0061) depends on **TASK-0054 (Revisit
+LangGraph adoption)** on the board. Landing a second agent graph is that card's trigger
+(decision-0019), so the framework is decided before the NPC-smith is built.
+
+**Combat-touching cards** (TASK-0058 sheets, TASK-0062 encounters) also depend on TASK-0055,
+the parked tabletop-dm combat-rules decision.
+
+**Entry gate:** M3 demo passed (TASK-0053 Done).
+
+## M5 — Imported Mechanics (2 wk, target 2027-01-26)
 
 *decision-0012.* Extract stat blocks and spells from the operator's D&D Beyond imports into
 the engine's structured records, layered over the SRD 5.2.1 baseline. Extracted records
@@ -125,49 +146,105 @@ cite their source passage and stay in the operator's volume.
 **Demo:** import a book with a monster not in the SRD; the engine runs it in a fight; its stat
 block cites the imported page.
 
-**Entry gate:** M4 demo passed. Cards authored at M4 close.
+**Scope:**
 
-## M6 — Maps and the Table View (4 wk, target 2027-02-16)
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0064 | Layered mechanics records over the SRD baseline | TASK-0063 |
+| TASK-0065 | Stat block extraction from DDB imports | TASK-0064 |
+| TASK-0066 | Spell extraction from DDB imports | TASK-0064 |
+| TASK-0067 | Extraction review panel and milestone demo | TASK-0065, TASK-0066 |
+
+**Entry gate:** M4 demo passed (TASK-0063 Done).
+
+## M6 — Maps and the Table View (5 wk, target 2027-03-02)
 
 *decision-0013.* Map-planner agent → MapPlan JSON → deterministic tile renderer; the in-app
-PixiJS table view (grid, tokens, fog, walls blocking reveal) as session events; the first
-live VTT adapter (Foundry or Owlbear, chosen by decision record at milestone start); UVTT
-export; codex export to an Obsidian vault; portraits through the image-provider seam.
+PixiJS table view (grid, tokens, fog, walls blocking reveal) as session events; the AI DM
+driving tokens and fog; the first live VTT adapter (Foundry or Owlbear, chosen by decision
+record inside TASK-0072); UVTT export; codex export to an Obsidian vault; portraits through
+the image-provider seam.
 
 **Demo:** "a smugglers' cave, 30×40" → playable map in the session; the AI DM moves monster
 tokens and reveals fog; the same session shows in the chosen external VTT; the campaign
 exports to an Obsidian vault; an NPC gets a portrait.
 
-**Entry gate:** M5 demo passed. Cards authored at M5 close.
+**Scope:**
 
-## M7 — The Dial = V1 (3 wk, target 2027-03-09)
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0068 | MapPlan contract and map-planner agent | TASK-0067 |
+| TASK-0069 | Deterministic tile renderer, bundled CC0 asset pack | TASK-0068 |
+| TASK-0070 | PixiJS table: grid, tokens, fog, walls | TASK-0069 |
+| TASK-0071 | AI DM drives tokens and fog | TASK-0070 |
+| TASK-0072 | VTT adapter port and the first live adapter | TASK-0070 |
+| TASK-0073 | Universal VTT export | TASK-0069 |
+| TASK-0074 | Obsidian vault export of the codex | TASK-0067 |
+| TASK-0075 | Portraits through the image-provider seam | TASK-0067 |
+| TASK-0076 | Milestone demo | TASK-0071–0075 |
+
+**Entry gate:** M5 demo passed (TASK-0067 Done).
+
+## M7 — The Dial = V1 (3 wk, target 2027-03-23)
 
 *Re-derived from decision-0009 and decision-0015.* V1 ships **both ends of the autonomy
 dial** on one pipeline: an AI-run table and an AI-assisted human DM. Assisted-DM polish: the
-approval panel at full strength, per-kind policy settings in the UI, rules lookups and NPC
-improvisation as proposals in context, mid-session generation of NPCs, encounters and maps.
-Self-host polish: docs, compose quickstart, backup/restore, versioned migrations.
+per-kind policy settings in the UI, rules lookups and NPC improvisation as proposals in the
+session, mid-session generation of NPCs, encounters and maps. Self-host polish: docs,
+compose quickstart, backup/restore, upgrade migrations.
 
 **Release:** tagged V1, public README, demo video showing the same scene run by the AI and by
 a human DM with AI assistance.
 
-**Entry gate:** M6 demo passed. Cards authored at M6 close.
+**Scope:**
 
-## M8 — Memory and Pacing (3 wk, target 2027-03-30)
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0077 | Per-kind autonomy policy settings | TASK-0076 |
+| TASK-0078 | Assisted-DM panel: in-session rules lookups and NPC improvisation | TASK-0076 |
+| TASK-0079 | Mid-session generation of NPCs, encounters and maps | TASK-0078 |
+| TASK-0080 | Self-host docs and compose quickstart | TASK-0076 |
+| TASK-0081 | Backup, restore and upgrade migrations | TASK-0076 |
+| TASK-0082 | Tag, public README and demo video (milestone close) | TASK-0077–0081 |
 
-Campaign memory as summarization projections of the event log; scene framing; the Director
-grows into session-to-session pacing (decision-0018); continuity across sessions.
+**Entry gate:** M6 demo passed (TASK-0076 Done).
+
+## M8 — Memory and Pacing (3 wk, target 2027-04-13)
+
+Campaign memory as summarization projections of the event log; session-to-session
+continuity; the Director grows into scene framing and campaign pacing (decision-0018).
 
 **Demo:** a second session opens with the AI DM recapping the first accurately, from the log.
 
-**Entry gate:** V1 tagged. Cards authored at M7 close.
+**Scope:**
+
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0083 | Campaign memory projections | TASK-0082 |
+| TASK-0084 | Session-to-session continuity | TASK-0083 |
+| TASK-0085 | Director scene framing and campaign pacing | TASK-0083 |
+| TASK-0086 | Milestone demo | TASK-0084, TASK-0085 |
+
+**Entry gate:** V1 tagged (TASK-0082 Done).
 
 ## M9 — Solo Campaign (sketch; re-planned at V1)
 
 The end goal: a full solo campaign, start to finish, run by the AI DM with AI companions.
 The assisted table remains available as the fallback when the AI is out of its depth.
 
-**Entry gate:** M8 demo passed. Re-planned at V1 by decision record.
+Carded at the granularity a sketch supports. **TASK-0087 re-plans M9 from V1 play evidence**;
+every other M9 card depends on it, and it may refine those cards but drops one only by
+decision record.
+
+| Card | Deliverable | Depends on |
+|---|---|---|
+| TASK-0087 | Re-plan M9 from V1 play evidence | TASK-0082 |
+| TASK-0088 | Campaign start from a premise | TASK-0087, TASK-0086 |
+| TASK-0089 | Assisted fallback when the AI is out of its depth | TASK-0087 |
+| TASK-0090 | Multi-session playtest and auditor | TASK-0087, TASK-0088 |
+| TASK-0091 | End-to-end demo | TASK-0087–0090 |
+
+**Entry gate:** V1 tagged; M8 demo passed before TASK-0088 starts.
 
 ## Why this order after M3
 
