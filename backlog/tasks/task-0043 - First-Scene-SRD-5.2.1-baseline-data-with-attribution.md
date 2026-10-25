@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-25 22:25'
+updated_date: '2026-10-25 22:39'
 labels:
   - first-scene
   - srd
@@ -41,12 +41,21 @@ Spec: specs/027-srd-data
 - [ ] #5 Each record has a compact lookup form of about 100 tokens, and a test enforces the size bound.
 - [ ] #6 A test fails when the attribution file is missing or a record lacks a source reference.
 - [ ] #7 The data contains no content from outside SRD 5.2.1.
+- [ ] #8 Spec phase: Package scaffold, schemas, attribution, estimator (one dispatch)
+- [ ] #9 Spec phase: Provenance index and converted data — US4 then US1 (one dispatch)
+- [ ] #10 Spec phase: Loader and compact forms — US1 and US3 (one dispatch)
+- [ ] #11 Spec phase: About page — US2 (one dispatch)
+- [ ] #12 Spec phase: Close-out (one dispatch)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 1). Worktree .worktrees/task-0043, branch task-0043-srd-data, cut from origin/main 4fee63a. Spec number 027-srd-data claimed with a stub.
+
+Spec authoring (speckit specify/plan/tasks) by opus-implementer: commit 8b63240, ~225k tokens. Clarify skipped (recorded in spec.md).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Plan checkpoints awaiting the operator: C1 data source (Open5e open5e-api srd-2024, CC-BY-4.0, recommended), C2 out-of-scope record kinds, C3 Phase 2 downloads the PDF and dataset to a scratch dir outside the repo.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
