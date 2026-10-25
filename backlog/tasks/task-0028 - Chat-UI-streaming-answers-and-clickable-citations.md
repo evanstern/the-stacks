@@ -4,7 +4,7 @@ title: 'Chat UI: streaming answers and clickable citations'
 status: Done
 assignee: []
 created_date: '2026-09-29 02:36'
-updated_date: '2026-10-18 19:37'
+updated_date: '2026-10-25 16:49'
 labels:
   - ui
 milestone: m-1
@@ -159,16 +159,18 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Round 6 (operator decision 2026-10-18): the inline cited quote duplicated the claim, so it was reverted. Answers show only the [n] marker. The round-5 prompt change (claim in prose before each cite) stays. Commits 7122a14, fa5edc8.
 Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+
+Closed out 2026-10-25 at the operator's request: the UI is not finished, and polish continues in later tasks. Gates on c506845: lint and typecheck clean; server tests 416 passed, 5 skipped; web tests 63/63. Branch pushed and the PR #40 body updated with rounds 4-6.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-All spec tasks complete (Foundation — theme, cookies, load context, store, panel, shell: 21/21 · US1 — Upload a book and watch it ingest (P1): 8/8 · US2 — Ask a question and watch the answer stream (P1): 6/6 · US3 — Open a citation's source passage (P1): 4/4 · US4 — Player views, the Table landing, and the two-browser run (P2): 5/5 · Verification, evidence, and re-grounding: 11/11). Derived Done by spec-bridge sync.
+Shipped the M1 chat UI: book upload with ingestion status, streaming answers through POST /library/ask, and citations that open the source passage with the exact quote highlighted. Two-browser run recorded in Brave. Fix rounds 4-6 accept finish_reason as stream completion, add a self-hosted favicon, and show only the [n] marker for citations. Verified with lint, typecheck, server 416/421 (5 skipped) and web 63/63. The operator closed the task here; the UI is not finished, and polish continues in later tasks. Lands in PR #40.
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
