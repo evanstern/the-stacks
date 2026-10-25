@@ -1,9 +1,10 @@
 ---
 id: TASK-0068
-title: 'Maps: MapPlan contract and map-planner agent'
+title: 'Maps and the Table View: MapPlan contract and map-planner agent'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - maps
   - ai
