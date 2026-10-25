@@ -1,10 +1,10 @@
 ---
 id: TASK-0041
 title: 'Re-center the design: First Scene slice, 5e-only, gate and table modes'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 19:52'
-updated_date: '2026-10-25 20:21'
+updated_date: '2026-10-25 20:30'
 labels:
   - design
   - docs
@@ -49,10 +49,18 @@ Follow-up (operator ruling on judgment call 6): carded M4-M9 up front. M4 TASK-0
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged as PR #41 (a3c82c1). CI check passed (run 40230427203). Wiki freshness gate: 37 notes fresh.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Recorded the 2026-10-25 design re-centre: decision-0009..0021 and doc-0004; revised vision, architecture (A4/A6/A7/A8, new A10-A14) and milestones (M2 First Scene through M9); constitution 2.0.0 (5e only, attributed SRD data, gate validation); milestones m-2..m-9 with cards TASK-0042..0091 carded up front under decision-0020; wiki overview re-pinned. Verified by CI on PR #41 and the wiki freshness gate. Known loose end: board milestone descriptions for m-4..m-8 carry pre-carding target dates; milestones.md is authoritative.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
