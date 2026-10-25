@@ -4,7 +4,7 @@ title: 'Re-center the design: First Scene slice, 5e-only, gate and table modes'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:52'
-updated_date: '2026-10-25 20:06'
+updated_date: '2026-10-25 20:08'
 labels:
   - design
   - docs
@@ -41,6 +41,8 @@ Recorded decision-0009..0021 (D1..D13, one record each; bodies set through the B
 
 Docs revised (bfe38be): vision.md, architecture.md (A4/A6/A7/A8 revised with superseded notes; A10-A14 added), milestones.md (M2-M9, re-baselined from 2026-10-27; M4 first agent task gated on TASK-0054). Constitution 2.0.0 (2800651): VI 5e only, VIII permits SRD data with attribution, IV validates through the gate and engine; plan/spec/tasks templates synced. Wiki not re-pinned (orchestrator owns wiki-update): docs/wiki/overview.md sources architecture.md, milestones.md and constitution.md. Code checks not run: docs-only change, worktree has no node_modules.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
