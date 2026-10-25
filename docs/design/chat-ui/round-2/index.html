@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat UI &mdash; Round 2</title>
+<style>
+:root{
+  --bg:#f5f3ee; --panel:#ffffff; --ink:#201c16; --muted:#665c4d; --border:#ddd5c3; --accent:#3a5f7a; --focus:#1a5fb4;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#151310; --panel:#1e1b16; --ink:#efe9dd; --muted:#a89d8c; --border:#3a332a; --accent:#8fbfe0; --focus:#8ec2ff; }
+}
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.55;}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px;}
+header{max-width:58rem;margin:0 auto;padding:2rem 1.25rem 1rem;}
+main{max-width:58rem;margin:0 auto;padding:0 1.25rem 3rem;}
+.options{list-style:none;padding:0;margin:0 0 2rem;display:grid;gap:1rem;grid-template-columns:1fr 1fr;}
+@media (max-width:640px){.options{grid-template-columns:1fr;}}
+.options li{border:1px solid var(--border);border-radius:.6rem;background:var(--panel);padding:1.25rem;}
+.options a{color:var(--ink);text-decoration:none;font-size:1.1rem;font-weight:700;}
+.options a:hover, .options a:focus-visible{color:var(--accent);}
+.options p{margin:.4rem 0 0;font-size:.95rem;}
+h2{font-size:1.05rem;margin:1.75rem 0 .5rem;}
+ul.changes,ul.questions{padding-left:1.3rem;}
+ul.changes li,ul.questions li{margin:0 0 .5rem;}
+code{font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;font-size:.9em;background:var(--panel);padding:.05rem .3rem;border-radius:.25rem;border:1px solid var(--border);}
+</style>
+</head>
+<body>
+<header>
+  <p><a href="../round-1/index.html">&larr; Round 1</a></p>
+  <h1>Chat UI &mdash; Design Round 2</h1>
+  <p>TASK-0028. Operator picked direction A from round 1. This round develops it into one full layout &mdash; sidebar, a three-pane Ask, a proper Library page, and the shared Table &mdash; shown in two accent/colour palettes so the operator can pick a mood without re-judging the layout.</p>
+</header>
+<main>
+  <ul class="options">
+    <li>
+      <a href="a2-daylight.html">A2 &mdash; Daylight</a>
+      <p>Light-first: white and cool-grey surfaces, one deep-teal accent (<code>#0f6f63</code>), matching dark mode.</p>
+    </li>
+    <li>
+      <a href="a2-nightshift.html">A2 &mdash; Nightshift</a>
+      <p>Dark-first: charcoal surfaces, one saturated violet accent (<code>#a48cf0</code>), matching light mode &mdash; the reference-4 mood the operator liked.</p>
+    </li>
+  </ul>
+
+  <h2>What changed from round 1</h2>
+  <ul class="changes">
+    <li><strong>Colour.</strong> Round 1&rsquo;s sepia/reference-desk palette is gone. Both files now carry a single confident accent on neutral grey/white or charcoal surfaces, chosen from the operator&rsquo;s reference boards (light dashboard, dark AI console).</li>
+    <li><strong>Library is a real page, not a disclosure.</strong> Round 1 put upload and the book list in a collapsible panel above the chat. That panel is gone; Library is now its own sidebar destination with the reference-2/3 treatment (dropzone, uploading-file card, recent imports, books table). The Ask page keeps only a compact strip of ready books plus an &ldquo;Add a book&rdquo; link, so uploading never leaves chat context if you don&rsquo;t want it to.</li>
+    <li><strong>A left sidebar replaces the old top-level nav.</strong> Ask, Library and Table are peers in one sidebar, with Settings and the signed-in user pinned at the bottom &mdash; the reference-1 and reference-4 pattern the operator called out. It collapses to icons (state 18).</li>
+    <li><strong>A session list is now visible.</strong> Reference 4&rsquo;s grouped chat-session list ("Today" / "Yesterday") is added as the Ask page&rsquo;s left column, badged <span style="font-family:monospace;font-weight:700;">SES</span> as a proposed follow-up card (TASK-0039) rather than part of this task&rsquo;s scope.</li>
+    <li><strong>Mobile is designed, not just squeezed.</strong> The sidebar becomes a bottom tab bar; Ask gets a Chat/Source segmented control that jumps to Source automatically on citation click, with a &ldquo;Back to answer&rdquo; control (state 15); Library keeps the same dropzone/upload-card pattern at 390px (state 16).</li>
+    <li><strong>Table is drawn, not just named.</strong> State 17 shows the M0 shared-play answer to the two-browsers acceptance criterion directly: an operator browser (Ask + Library + Table in its sidebar) and a player browser (Table only) side by side, both rendering the same event log &mdash; library content only ever appears on the operator&rsquo;s side.</li>
+    <li><strong>Citation mechanism is unchanged.</strong> Direction A&rsquo;s pinned source pane that loads a clicked citation&rsquo;s passage in place is kept verbatim, now living in the third Ask column instead of a two-pane split.</li>
+  </ul>
+
+  <h2>Open questions for the operator</h2>
+  <ul class="questions">
+    <li>Session titles: auto-derived from the first question (as shown), or does the operator get to rename/pin a session?</li>
+    <li>&ldquo;Add a book&rdquo; from the Ask strip &mdash; does it navigate to the Library page (losing chat scroll position), or open Library as an overlay/panel so the conversation stays mounted?</li>
+    <li>Does the sidebar&rsquo;s collapsed-to-icons state (18) persist per operator, or reset every session?</li>
+    <li>On the Table page, should the operator&rsquo;s Ask/Library sidebar items stay visible while a session is live, or does &ldquo;going to the table&rdquo; hide them to keep the operator&rsquo;s attention on shared play?</li>
+    <li>Equipment&rsquo;s &ldquo;Search-only&rdquo; status (4b) &mdash; is that a permanent book state, or does it flip to a normal ready state once an AI provider is configured, requiring a re-embed?</li>
+    <li>Palette pick: daylight&rsquo;s teal or nightshift&rsquo;s violet as the one shipped default (both still support the opposite mode via the toggle)?</li>
+  </ul>
+</main>
+</body>
+</html>

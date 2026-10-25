@@ -7,7 +7,7 @@ sources:
   - apps/server/src/library/cite.ts
   - apps/server/src/routes/library.ts
   - .env.example
-verified_against: d0c82c0486627cae5cfe5947eb640f7fe9c6e594
+verified_against: 48aab4de24a6e2bfed105ec6b37ef1ca61e9e70a
 ---
 
 # Rules answerer
@@ -44,7 +44,7 @@ purpose surfaces as `chat()`'s own `{type:"error", kind:"config"}` event, mapped
 terminal SSE `error` event, never a boot-time or route-time crash.
 
 **Citation markers and verification** (`cite.ts`, research R1, pure — no I/O): the model is
-instructed (system prompt) to mark citations as `<cite p="N">exact quote</cite>` against the
+instructed (system prompt) to state each claim in prose, then mark citations as `<cite p="N">exact quote</cite>` (the cite holds only the supporting quote) against the
 1-based index of the numbered passage list it was given, and to emit exactly `<refuse/>` (and
 nothing else) if the passages don't answer the question. `createCiteParser()` is an
 incremental parser: `push(text)` splits streamed text into `{type: "text"|"cite"|"malformed"|

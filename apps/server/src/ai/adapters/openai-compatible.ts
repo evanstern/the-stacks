@@ -29,7 +29,7 @@ interface Deps {
 }
 
 interface ChatCompletionChunk {
-  choices?: { delta?: { content?: string }; finish_reason?: string }[];
+  choices?: { delta?: { content?: string }; finish_reason?: string | null }[];
   usage?: { prompt_tokens?: number; completion_tokens?: number };
 }
 
@@ -146,6 +146,7 @@ export class OpenAiCompatibleProvider implements Provider {
     const { events, sawDone } = parseSse(response.body);
     let usage: UsageSummary = { inputTokens: 0, outputTokens: 0, attempts };
     let refusal = false;
+    let sawFinish = false;
 
     try {
       for await (const data of events) {
@@ -159,6 +160,7 @@ export class OpenAiCompatibleProvider implements Provider {
         const choice = chunk.choices?.[0];
         const text = choice?.delta?.content;
         if (text) yield { type: "text", text };
+        if (choice?.finish_reason) sawFinish = true;
         if (choice?.finish_reason === "content_filter") refusal = true;
         if (chunk.usage) {
           usage = {
@@ -189,7 +191,9 @@ export class OpenAiCompatibleProvider implements Provider {
       };
       return;
     }
-    if (!sawDone()) {
+    // Complete = `[DONE]` seen OR any chunk carried a finish_reason. Some local
+    // routers send finish_reason + usage and never `[DONE]`.
+    if (!sawDone() && !sawFinish) {
       yield {
         type: "error",
         kind: "upstream",

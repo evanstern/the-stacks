@@ -5,13 +5,13 @@ kind: component
 sources:
   - apps/server/src/static.ts
   - apps/server/src/app.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 323f96c45e738dd79c84e00f970a18dc8180ddf0
 ---
 
 # Static serving
 
-`apps/server/src/static.ts` exports `createWebMiddleware({ clientRoot?, handler?, lookup })`
-(plan D4), a Hono `MiddlewareHandler` that serves the built web app's static assets and, for
+`apps/server/src/static.ts` exports `createWebMiddleware({ clientRoot?, handler?, lookup,
+listJobs })` (plan D4, `listJobs` added TASK-0028 plan D2), a Hono `MiddlewareHandler` that serves the built web app's static assets and, for
 everything else, hands the request to React Router's own SSR handler — this replaced the
 older `createStaticMiddleware`'s flat `index.html`-shell fallback when the app migrated off
 the Vite SPA (doc-0003 / decision-0008; see [[react-router-app]]).
@@ -41,9 +41,10 @@ For everything else, it calls Hono's `serveStatic({ root: clientRoot })` with a 
 throwing or returning a 404 Response. So `serveStatic` never shadows anything; it always
 either returns the matched file's `Response` or falls through cleanly. If `asset` is
 truthy, that Response is returned as-is (a real static file, e.g. hashed JS/CSS). If not,
+and the path is `/favicon.ico`, it answers 204 (the real icon is `apps/web/public/favicon.svg`, linked from the root route); otherwise
 the middleware loads the SSR handler (a cached dynamic `import()` of `DEFAULT_SERVER_ENTRY`,
-or the injected `handler` override) and calls it with `(c.req.raw, createWebLoadContext(c,
-lookup))` — React Router itself now renders the matching route, or its own 404, for any
+or the injected `handler` override) and calls it with `(c.req.raw, createWebLoadContext(c, {
+lookup, listJobs }))` — React Router itself now renders the matching route, or its own 404, for any
 non-reserved path with no matching static file (plan D4: an unknown path is no longer a
 blanket 200 shell). **This SSR fallback, not `serveStatic`, is the thing that could shadow
 the API**: if this middleware were ever mounted before a real route (instead of after, per

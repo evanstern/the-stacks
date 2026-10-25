@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router";
-import { signOut } from "~/auth";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import type { loader as rootLoader } from "~/root";
@@ -33,25 +32,11 @@ export default function Play({ loaderData }: Route.ComponentProps) {
     revalidator.revalidate,
   );
   const [draft, setDraft] = useState("");
-  const [pending, setPending] = useState(false);
-
-  async function handleSignOut() {
-    setPending(true);
-    await signOut();
-    revalidator.revalidate();
-  }
 
   return (
     <div>
       <p>
         Signed in as <strong>{root?.user?.displayName}</strong> — {status}
-        <Button
-          type="button"
-          onClick={() => void handleSignOut()}
-          disabled={pending}
-        >
-          Sign out
-        </Button>
       </p>
       <p>
         Session: <code>{sessionId}</code>

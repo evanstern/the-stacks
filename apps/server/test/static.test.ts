@@ -37,11 +37,14 @@ function fakeHandler() {
 const unusedDb = createDb("postgres://unused:unused@127.0.0.1:1/unused");
 const clientRoot = makeFixtureRoot();
 
-function buildApp(fake: ReturnType<typeof fakeHandler>) {
+function buildApp(
+  fake: ReturnType<typeof fakeHandler>,
+  listJobs: () => Promise<never[]> = async () => [],
+) {
   return createApp({
     databaseProbe: { reachable: async () => true },
     db: unusedDb,
-    web: { clientRoot, handler: fake.handler },
+    web: { clientRoot, handler: fake.handler, listJobs },
   });
 }
 
@@ -93,5 +96,30 @@ describe("web middleware: reserved paths, assets, and the handler seam (plan D4,
 
     expect(fake.calls).toHaveLength(1);
     await expect(fake.calls[0].context.identity()).resolves.toBeNull();
+  });
+
+  it("T008: the load context's jobs() resolves null with no cookie, and never calls the injected listJobs", async () => {
+    const fake = fakeHandler();
+    let calls = 0;
+    const app = buildApp(fake, async () => {
+      calls += 1;
+      return [];
+    });
+
+    await app.request("/play/abc");
+
+    expect(fake.calls).toHaveLength(1);
+    await expect(fake.calls[0].context.jobs()).resolves.toBeNull();
+    expect(calls).toBe(0);
+  });
+});
+
+describe("favicon", () => {
+  it("answers /favicon.ico with 204 without calling the handler", async () => {
+    const fake = fakeHandler();
+    const res = await buildApp(fake).request("/favicon.ico");
+
+    expect(res.status).toBe(204);
+    expect(fake.calls).toHaveLength(0);
   });
 });

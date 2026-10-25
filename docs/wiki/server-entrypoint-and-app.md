@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
 ---
 
 # Server entrypoint and app
@@ -56,9 +56,11 @@ the same `db`, so HTTP and WebSocket share one session-validation seam (see
 [[session-auth]]).
 
 `app.ts`'s `createApp` takes `{ databaseProbe, db, web?, commit?, library? }` (`web` is `{
-clientRoot?, handler? }`, test-only overrides for the web app's static root and SSR handler —
-this replaced the earlier `staticRoot?` when the app moved to React Router SSR, TASK-0040;
-`commit` defaults to
+clientRoot?, handler?, listJobs? }`, test-only overrides for the web app's static root, SSR
+handler, and jobs reader — this replaced the earlier `staticRoot?` when the app moved to
+React Router SSR, TASK-0040; `listJobs` defaults to `(limit) => listJobs(db, limit)` from
+`library/ingest/jobs.js`, TASK-0028 plan D2, threaded through to the load context's `jobs()`
+— [[client-identity]], [[chat-ui]]; `commit` defaults to
 `"unknown"` and is passed straight to `createHealthRoute` — see [[health-check]]; `library`
 is `{ uploadMaxBytes?, uploadDir?, onEnqueued?, answer? }`, each falling back to a test-safe
 default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and, for `answer`
@@ -72,7 +74,8 @@ load context, so the two callers cannot drift. It registers, **in this exact ord
 ...)`, `app.route("/api/echo", ...)`, `app.route("/auth", ...)`, `app.route("/library",
 createLibraryRoutes(...))` (TASK-0024, [[ingestion]]), and finally `app.use("*",
 createWebMiddleware({ clientRoot: web?.clientRoot, handler: web?.handler, lookup:
-identityLookup }))`. The web middleware is mounted **last** on purpose: it is a catch-all
+identityLookup, listJobs: web?.listJobs ?? ((limit) => listJobs(db, limit)) }))`. The web
+middleware is mounted **last** on purpose: it is a catch-all
 (`"*"`) fallback ending in a full SSR render for anything not otherwise matched, and anything
 mounted after it would never be reached, so every real route must be registered before it
 (see [[static-serving]]). `/ws` never appears in this list — it is not a Hono route at all;

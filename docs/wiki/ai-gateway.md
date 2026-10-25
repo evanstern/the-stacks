@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 323f96c45e738dd79c84e00f970a18dc8180ddf0
 ---
 
 # AI gateway
@@ -59,7 +59,7 @@ and an unpriced provider/model gets `costUsd: null`, never `0`.
 
 `sse.ts`'s `parseSse` turns a fetch response body into an async iterable of `data:` payloads
 (blank-line framing, multi-line joins, `:`-comments ignored, stops at `[DONE]`, and reports via
-`sawDone()` whether the stream actually closed with one). `retry.ts`'s `retryFetch` wraps only
+`sawDone()` whether the stream actually closed with one; the OpenAI-compatible adapter also treats any non-null `finish_reason` as completion, since some local routers never send `[DONE]`). `retry.ts`'s `retryFetch` wraps only
 the initial request (never a stream already producing text) in bounded attempts (default 3)
 with full-jitter exponential backoff, honoring `Retry-After` (seconds or HTTP-date), abort-aware
 sleeping, and an injectable clock/jitter for tests.

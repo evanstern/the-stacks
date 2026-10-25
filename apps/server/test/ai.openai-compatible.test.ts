@@ -181,7 +181,54 @@ describe("OpenAiCompatibleProvider.chat", () => {
     },
   );
 
-  it("reports an upstream error when the stream ends without [DONE], with counts seen (zero)", async () => {
+  it("completes with done when a finish_reason arrives but no [DONE] follows", async () => {
+    const fetchDouble = vi.fn().mockResolvedValue(
+      sseResponse([
+        sseChunk({
+          choices: [{ delta: { content: "hi" }, finish_reason: null }],
+        }),
+        sseChunk({ choices: [{ delta: {}, finish_reason: "stop" }] }),
+        sseChunk({
+          choices: [],
+          usage: { prompt_tokens: 3, completion_tokens: 1 },
+        }),
+      ]),
+    );
+    const provider = new OpenAiCompatibleProvider(
+      CFG,
+      { fetch: fetchDouble as unknown as typeof fetch, env: {} },
+      { sleep: noSleep },
+    );
+
+    const events = await collect(provider.chat("m", REQUEST, {}));
+
+    expect(events).toEqual([
+      { type: "text", text: "hi" },
+      { type: "done", usage: { inputTokens: 3, outputTokens: 1, attempts: 1 } },
+    ]);
+  });
+
+  it("completes with done on [DONE] alone, without a finish_reason", async () => {
+    const fetchDouble = vi
+      .fn()
+      .mockResolvedValue(
+        sseResponse([
+          sseChunk({ choices: [{ delta: { content: "hi" } }] }),
+          "data: [DONE]\n\n",
+        ]),
+      );
+    const provider = new OpenAiCompatibleProvider(
+      CFG,
+      { fetch: fetchDouble as unknown as typeof fetch, env: {} },
+      { sleep: noSleep },
+    );
+
+    const events = await collect(provider.chat("m", REQUEST, {}));
+
+    expect(events.at(-1)).toMatchObject({ type: "done" });
+  });
+
+  it("reports an upstream error when the stream ends with neither [DONE] nor a finish_reason, with counts seen (zero)", async () => {
     const fetchDouble = vi
       .fn()
       .mockResolvedValue(

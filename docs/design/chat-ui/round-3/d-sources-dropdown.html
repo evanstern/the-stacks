@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D — Sources autocomplete dropdown · Chat UI Round 3</title>
+<style>
+:root{
+  --bg:#f4f6f6; --panel:#ffffff; --panel-2:#eef1f1; --sidebar:#eef1f1; --ink:#1b2023; --muted:#5b6570;
+  --border:#d7dbe0; --accent:#0f6f63; --accent-ink:#ffffff; --focus:#1a5fb4;
+  --mark-bg:#cfeee7; --mark-ink:#0b2620; --danger:#8a2a1e; --danger-bg:#fbe7e2;
+  --ok:#1a6b3c; --ok-bg:#e3f3e8; --queued-bg:#eceff0; --proc:#8a5a05; --proc-bg:#fbeecb;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181a; --panel:#1c2124; --panel-2:#242a2d; --sidebar:#1a1f22; --ink:#e8ecee; --muted:#a9b2b8;
+    --border:#343b3f; --accent:#4fd1c0; --accent-ink:#0b2620; --focus:#8ec2ff;
+    --mark-bg:#2c4a44; --mark-ink:#d9f5ef; --danger:#f2a89b; --danger-bg:#3a1f1a;
+    --ok:#8fd6ac; --ok-bg:#1c3327; --queued-bg:#25292b; --proc:#e0b23a; --proc-bg:#3a2f14;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181a; --panel:#1c2124; --panel-2:#242a2d; --sidebar:#1a1f22; --ink:#e8ecee; --muted:#a9b2b8;
+  --border:#343b3f; --accent:#4fd1c0; --accent-ink:#0b2620; --focus:#8ec2ff;
+  --mark-bg:#2c4a44; --mark-ink:#d9f5ef; --danger:#f2a89b; --danger-bg:#3a1f1a;
+  --ok:#8fd6ac; --ok-bg:#1c3327; --queued-bg:#25292b; --proc:#e0b23a; --proc-bg:#3a2f14;
+}
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.55;}
+a{color:var(--accent);}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px;}
+h1,h2,h3{font-family:var(--font-sans);}
+.icon{width:1.1em;height:1.1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
+.icon.filled{fill:currentColor;stroke:none;}
+.visually-hidden{position:absolute;top:0;left:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+.badge{display:inline-block;font-family:var(--font-mono);font-size:.62rem;font-weight:700;letter-spacing:.02em;padding:.05rem .35rem;border-radius:.25rem;background:var(--accent);color:var(--accent-ink);margin-left:.3rem;vertical-align:.1em;}
+.badge.lib{background:var(--muted);color:var(--panel);}
+.badge.ses{background:var(--ink);color:var(--panel);opacity:.8;}
+.page-header{max-width:78rem;margin:0 auto;padding:1.5rem 1.25rem 1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+.page-header .titles{flex:1 1 26rem;}
+.crumb a{text-decoration:none;font-size:.9rem;}
+.page-header h1{margin:.25rem 0;font-size:1.4rem;}
+.legend{font-size:.8rem;color:var(--muted);}
+.theme-toggle{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .75rem;border:1px solid var(--border);border-radius:2rem;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit;font-size:.85rem;}
+nav.jump{max-width:78rem;margin:0 auto;padding:0 1.25rem 1rem;font-size:.85rem;}
+nav.jump ul{list-style:none;display:flex;flex-wrap:wrap;gap:.4rem .9rem;padding:0;margin:0;}
+main{max-width:78rem;margin:0 auto;padding:0 1.25rem 3rem;}
+.state{margin:0 0 2.75rem;padding-top:.5rem;border-top:1px solid var(--border);}
+.state h2{font-size:1.05rem;margin:.75rem 0 .5rem;}
+.region{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .4rem;}
+.frame{background:var(--bg);border:1px solid var(--border);border-radius:.6rem;padding:1rem;overflow-x:auto;}
+.btn{font:inherit;padding:.45rem .9rem;border-radius:.4rem;border:1px solid var(--border);background:var(--panel-2);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.btn.small{padding:.3rem .6rem;font-size:.85rem;}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.hint{font-size:.8rem;color:var(--muted);margin:.35rem 0 0;}
+.progress{height:.7rem;border-radius:1rem;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.9rem;}
+caption{text-align:left;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.icon-btn{border:0;background:none;color:var(--muted);cursor:pointer;padding:.2rem;display:inline-flex;}
+.stop-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);border:0;font:inherit;cursor:pointer;}
+.prompt-form{display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;}
+.prompt-form input[type=text]{flex:1 1 14rem;padding:.5rem .6rem;border:1px solid var(--border);border-radius:.4rem;background:var(--panel);color:var(--ink);font:inherit;}
+
+/* app shell (from round-2 A2 daylight) */
+.app-shell{display:flex;border:1px solid var(--border);border-radius:.6rem;overflow:hidden;background:var(--panel);min-width:54rem;position:relative;}
+.sidebar{width:12.5rem;flex:0 0 12.5rem;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1rem .75rem;gap:.5rem;}
+.brand{font-weight:700;padding:.25rem .35rem;display:flex;align-items:center;gap:.5rem;}
+.primary-nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.15rem;}
+.primary-nav a{display:flex;align-items:center;gap:.6rem;padding:.5rem .55rem;border-radius:.4rem;color:var(--ink);text-decoration:none;font-size:.9rem;}
+.primary-nav a[aria-current="page"]{background:var(--panel);color:var(--accent);font-weight:700;}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:.65rem;font-size:.85rem;width:100%;}
+.sidebar-bottom a{display:flex;align-items:center;gap:.6rem;padding:.4rem .55rem;border-radius:.4rem;color:var(--ink);text-decoration:none;}
+.sidebar-bottom .user{display:flex;align-items:center;justify-content:space-between;gap:.4rem;color:var(--muted);margin-top:.35rem;padding:0 .55rem;}
+.shell-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.ask-layout{display:grid;grid-template-columns:12.5rem 1fr 19rem;flex:1;min-height:22rem;}
+.sessions-col{border-right:1px solid var(--border);padding:.85rem;overflow:auto;}
+.sessions-col h3,.source-col h3{margin:0 0 .6rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.session-group{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.9rem 0 .3rem;}
+.session-item{display:block;width:100%;text-align:left;font:inherit;padding:.4rem .5rem;border:0;border-radius:.4rem;background:none;color:var(--ink);cursor:pointer;font-size:.85rem;}
+.session-item[aria-current="true"]{background:var(--panel-2);font-weight:600;}
+.conversation-col{padding:1rem 1.1rem;display:flex;flex-direction:column;min-width:0;}
+.conversation-col .messages{flex:1;}
+.msg{margin:0 0 .9rem;}
+.msg.user{font-weight:600;}
+.source-col{border-left:1px solid var(--border);background:var(--panel-2);padding:1rem;}
+.placeholder{color:var(--muted);font-style:italic;}
+.mobile-frame{width:390px;max-width:100%;margin:0 auto;border:1px solid var(--border);border-radius:1rem;overflow:hidden;background:var(--panel);position:relative;}
+.mobile-header{display:flex;align-items:center;justify-content:space-between;padding:.7rem .9rem;border-bottom:1px solid var(--border);background:var(--panel-2);}
+.mobile-header h2{margin:0;font-size:1rem;}
+.mobile-body{padding:1rem;display:flex;flex-direction:column;}
+.tab-bar{display:flex;border-top:1px solid var(--border);background:var(--panel-2);}
+.tab-bar a{flex:1;text-align:center;padding:.5rem 0;font-size:.72rem;color:var(--muted);text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:.15rem;}
+.tab-bar a[aria-current="page"]{color:var(--accent);font-weight:700;}
+.table-layout{padding:1rem 1.1rem;}
+.table-note{background:var(--panel-2);border:1px solid var(--border);border-radius:.5rem;padding:.65rem .9rem;font-size:.85rem;color:var(--muted);margin:0 0 1rem;}
+.event-log{list-style:none;margin:0 0 .75rem;padding:0;max-height:11rem;overflow:auto;border:1px solid var(--border);border-radius:.5rem;}
+.event-log li{padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:.88rem;}
+.event-log li:last-child{border-bottom:0;}
+.event-log .who{font-weight:600;}
+.table-split{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.table-split .app-shell{min-width:0;}
+.side-tag{font-size:.75rem;color:var(--muted);text-align:center;margin:0 0 .4rem;text-transform:uppercase;letter-spacing:.04em;}
+@media (max-width:800px){.table-split{grid-template-columns:1fr;}}
+
+/* --- Option D: chip row + anchored autocomplete dropdown --- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem .2rem .65rem;border-radius:999px;background:var(--panel);border:1px solid var(--border);font-size:.8rem;}
+.chip-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.5rem 0;position:relative;}
+.chip.removable button{border:0;background:none;color:var(--muted);cursor:pointer;padding:0;display:inline-flex;}
+.chip.add{cursor:pointer;border-style:dashed;color:var(--muted);background:var(--panel-2);}
+.pill{display:inline-flex;align-items:center;gap:.3rem;padding:.1rem .55rem;border-radius:1rem;font-size:.72rem;font-weight:600;white-space:nowrap;}
+.pill.ready{background:var(--ok-bg);color:var(--ok);}
+.pill.ingesting{background:var(--proc-bg);color:var(--proc);}
+.pill.failed{background:var(--danger-bg);color:var(--danger);}
+.pill.search-only{background:var(--panel-2);color:var(--muted);border:1px solid var(--border);}
+.autocomplete{position:absolute;bottom:100%;left:0;margin-bottom:.35rem;width:21rem;max-width:100%;background:var(--panel);border:1px solid var(--border);border-radius:.5rem;box-shadow:0 -10px 28px rgba(0,0,0,.18);z-index:6;}
+.autocomplete .ac-search{padding:.55rem .65rem;border-bottom:1px solid var(--border);}
+.autocomplete .ac-search input{width:100%;border:1px solid var(--border);border-radius:.35rem;padding:.35rem .5rem;background:var(--bg);color:var(--ink);font:inherit;}
+.ac-note{padding:.5rem .65rem 0;margin:0;font-size:.78rem;color:var(--muted);}
+.ac-list{list-style:none;margin:0;padding:.3rem;max-height:15rem;overflow:auto;}
+.ac-row{display:flex;align-items:center;gap:.55rem;padding:.5rem .55rem;border-radius:.4rem;font-size:.87rem;cursor:pointer;}
+.ac-row:hover{background:var(--panel-2);}
+.ac-row.disabled{opacity:.65;cursor:not-allowed;}
+.ac-row .ac-name{flex:1;min-width:0;}
+.ac-row .ac-name strong{display:block;}
+.ac-row .reason{font-size:.74rem;color:var(--muted);display:block;}
+.ac-row.upload{color:var(--accent);font-weight:600;border-top:1px solid var(--border);border-radius:0;margin-top:.2rem;padding-top:.6rem;}
+.ac-row mark{background:var(--mark-bg);color:var(--mark-ink);padding:0 .05rem;}
+.ac-row .check{color:var(--accent);flex:0 0 auto;}
+.inline-upload-row{margin:.5rem 0 0;padding:.65rem .75rem;border:1px solid var(--border);border-radius:.5rem;background:var(--panel-2);display:flex;align-items:center;gap:.65rem;}
+.inline-upload-row .info{flex:1;min-width:0;}
+.inline-upload-row .file-name{font-weight:600;margin:0;font-size:.85rem;}
+.inline-upload-row .meta{color:var(--muted);font-size:.75rem;margin:.1rem 0 .3rem;}
+.embed-row{display:flex;align-items:center;gap:.6rem;padding:.55rem;border:1px dashed var(--border);border-radius:.5rem;margin:0;background:var(--panel-2);}
+.embed-row .info{flex:1;}
+.embed-row .book-title{font-weight:600;margin:0 0 .15rem;}
+
+/* mobile full-width list, anchored above the prompt bar */
+.mobile-ac-list{border:1px solid var(--border);border-radius:.6rem;background:var(--panel);margin-top:auto;box-shadow:0 -6px 18px rgba(0,0,0,.12);}
+
+/* delete confirm, inline row, no modal */
+.confirm-row td{background:var(--danger-bg);padding:.75rem .9rem;}
+.confirm-row .confirm-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.confirm-row p{margin:0;font-size:.88rem;color:var(--danger);}
+</style>
+</head>
+<body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;" focusable="false">
+  <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-4 4V5z"/></symbol>
+  <symbol id="i-library" viewBox="0 0 24 24"><path d="M12 6c-1.5-1-4-1.5-7-1v14c3-.5 5.5 0 7 1 1.5-1 4-1.5 7-1V5c-3-.5-5.5 0-7 1z"/><path d="M12 6v14"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5 5 0 0 1 16 8.05 4.5 4.5 0 0 1 17.5 18H7z"/><path d="M12 12v6M9 15l3-3 3 3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+</svg>
+<header class="page-header">
+  <div class="titles">
+    <p class="crumb"><a href="index.html">&larr; Round 3</a></p>
+    <h1>D &mdash; Sources, autocomplete dropdown</h1>
+    <p class="legend"><span class="badge" aria-hidden="true">0028</span> = this task &middot; <span class="badge lib" aria-hidden="true">LIB</span> = TASK-0038 library management &middot; <span class="badge ses" aria-hidden="true">SES</span> = TASK-0039 chat sessions</p>
+  </div>
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span id="theme-toggle-label">Light</span>
+  </button>
+</header>
+<nav class="jump" aria-label="Jump to state">
+  <ul>
+    <li><a href="#state-1">1 Closed &middot; 2 of 4</a></li>
+    <li><a href="#state-2">2 Open &middot; all four</a></li>
+    <li><a href="#state-3">3 Typing &ldquo;bes&rdquo;</a></li>
+    <li><a href="#state-4">4 Uploading, 62%</a></li>
+    <li><a href="#state-5">5 Embed now</a></li>
+    <li><a href="#state-6">6 Mobile, open</a></li>
+    <li><a href="#state-7">7 Delete confirm</a></li>
+    <li><a href="#state-8">8 Table sidebars</a></li>
+  </ul>
+</nav>
+<main>
+
+<section class="state" id="state-1" aria-labelledby="h-state-1">
+  <h2 id="h-state-1">State 1 &mdash; Sources control closed, 2 of 4 selected</h2>
+  <p class="region">Ask &mdash; chip row, above the prompt bar <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="app-shell">
+      <nav class="sidebar" aria-label="Primary">
+        <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+        <div class="primary-nav">
+          <ul>
+            <li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-ask"></use></svg><span>Ask</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-library"></use></svg><span>Library</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li>
+          </ul>
+        </div>
+        <div class="sidebar-bottom">
+          <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span></a>
+          <div class="user"><span>Evan &middot; operator</span><button type="button" class="btn small">Sign out</button></div>
+        </div>
+      </nav>
+      <div class="shell-main">
+        <div class="ask-layout">
+          <aside class="sessions-col" aria-label="Chat sessions">
+            <h3>Sessions <span class="badge ses" aria-hidden="true">SES</span></h3>
+            <button type="button" class="btn small">+ New chat</button>
+            <p class="session-group">Today</p>
+            <button type="button" class="session-item" aria-current="true">How does grappling work?</button>
+          </aside>
+          <section class="conversation-col" aria-label="Conversation">
+            <div class="messages">
+              <p class="msg user">How does grappling work?</p>
+              <p class="msg assistant">A grapple replaces one of your attacks: when you take the Attack action, you can use one of its attacks to make a special melee attack <button type="button" style="font:inherit;background:var(--panel-2);border:1px solid var(--border);border-radius:.3rem;padding:0 .3rem;color:var(--accent);cursor:pointer;" aria-label="Citation 1">[1]</button>.</p>
+            </div>
+            <div class="chip-row" role="group" aria-label="Sources for this session">
+              <span class="chip removable"><strong>Bestiary</strong><button type="button" aria-label="Remove Bestiary"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <span class="chip removable"><strong>Equipment</strong><button type="button" aria-label="Remove Equipment"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <button type="button" class="chip add" aria-haspopup="true" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Add source</button>
+              <span class="badge ses" aria-hidden="true" style="margin-left:.25rem;">SES</span>
+            </div>
+            <form class="prompt-form">
+              <label for="q-d1" class="visually-hidden">Ask a rules question</label>
+              <input id="q-d1" type="text" maxlength="2000" placeholder="Ask a rules question, or type @ to add a source&hellip;">
+              <button type="button" class="btn primary">Ask</button>
+            </form>
+          </section>
+          <aside class="source-col" aria-label="Source passage viewer">
+            <h3>Source passage</h3>
+            <p class="placeholder">No citation selected.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-2" aria-labelledby="h-state-2">
+  <h2 id="h-state-2">State 2 &mdash; Dropdown open, all four books and their states</h2>
+  <p class="region">Ask &mdash; anchored autocomplete <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="app-shell" style="min-width:60rem;">
+      <nav class="sidebar" aria-label="Primary">
+        <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+        <div class="primary-nav">
+          <ul>
+            <li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-ask"></use></svg><span>Ask</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-library"></use></svg><span>Library</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li>
+          </ul>
+        </div>
+        <div class="sidebar-bottom">
+          <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span></a>
+          <div class="user"><span>Evan &middot; operator</span><button type="button" class="btn small">Sign out</button></div>
+        </div>
+      </nav>
+      <div class="shell-main">
+        <div class="ask-layout">
+          <aside class="sessions-col" aria-label="Chat sessions">
+            <h3>Sessions <span class="badge ses" aria-hidden="true">SES</span></h3>
+            <button type="button" class="btn small">+ New chat</button>
+          </aside>
+          <section class="conversation-col" aria-label="Conversation">
+            <div class="messages">
+              <p class="msg user">How does grappling work?</p>
+            </div>
+            <div class="chip-row" role="group" aria-label="Sources for this session">
+              <span class="chip removable"><strong>Bestiary</strong><button type="button" aria-label="Remove Bestiary"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <span class="chip removable"><strong>Equipment</strong><button type="button" aria-label="Remove Equipment"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <button type="button" class="chip add" aria-haspopup="true" aria-expanded="true"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Add source</button>
+              <div class="autocomplete" role="listbox" aria-label="All books">
+                <div class="ac-search">
+                  <label for="ac-search-2" class="visually-hidden">Filter books</label>
+                  <input id="ac-search-2" type="text" placeholder="Filter books&hellip;">
+                </div>
+                <p class="ac-note">Status shown for every book <span class="badge" aria-hidden="true">0028</span></p>
+                <ul class="ac-list">
+                  <li class="ac-row" role="option" aria-selected="true">
+                    <svg class="icon check" aria-hidden="true"><use href="#i-check"></use></svg>
+                    <span class="ac-name"><strong>Bestiary</strong></span>
+                    <span class="pill ready">Ready</span>
+                  </li>
+                  <li class="ac-row" role="option" aria-selected="true">
+                    <svg class="icon check" aria-hidden="true"><use href="#i-check"></use></svg>
+                    <span class="ac-name"><strong>Equipment</strong></span>
+                    <span class="pill search-only">Search-only</span>
+                  </li>
+                  <li class="ac-row disabled" role="option" aria-disabled="true">
+                    <svg class="icon" aria-hidden="true" style="visibility:hidden;"><use href="#i-check"></use></svg>
+                    <span class="ac-name"><strong>Basic Rules</strong><span class="reason">Not ready yet &mdash; still ingesting</span></span>
+                    <span class="pill ingesting">Ingesting &middot; embed</span>
+                  </li>
+                  <li class="ac-row disabled" role="option" aria-disabled="true">
+                    <svg class="icon" aria-hidden="true" style="visibility:hidden;"><use href="#i-check"></use></svg>
+                    <span class="ac-name"><strong>Homebrew Notes</strong><span class="reason">Import failed &mdash; unsupported archive layout</span></span>
+                    <span class="pill failed">Failed</span>
+                  </li>
+                  <li class="ac-row upload" role="option">
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+                    <span class="ac-name">Upload a new book&hellip;</span>
+                  </li>
+                </ul>
+              </div>
+              <span class="badge ses" aria-hidden="true" style="margin-left:.25rem;">SES</span>
+            </div>
+            <form class="prompt-form">
+              <label for="q-d2" class="visually-hidden">Ask a rules question</label>
+              <input id="q-d2" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;">
+              <button type="button" class="btn primary">Ask</button>
+            </form>
+          </section>
+          <aside class="source-col" aria-label="Source passage viewer">
+            <h3>Source passage</h3>
+            <p class="placeholder">No citation selected.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-3" aria-labelledby="h-state-3">
+  <h2 id="h-state-3">State 3 &mdash; Typing &ldquo;bes&rdquo; filters the list</h2>
+  <p class="region">Ask &mdash; anchored autocomplete, filtered <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="app-shell" style="min-width:60rem;">
+      <nav class="sidebar" aria-label="Primary">
+        <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+        <div class="primary-nav">
+          <ul>
+            <li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-ask"></use></svg><span>Ask</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-library"></use></svg><span>Library</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li>
+          </ul>
+        </div>
+        <div class="sidebar-bottom">
+          <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span></a>
+          <div class="user"><span>Evan &middot; operator</span><button type="button" class="btn small">Sign out</button></div>
+        </div>
+      </nav>
+      <div class="shell-main">
+        <div class="ask-layout">
+          <aside class="sessions-col" aria-label="Chat sessions">
+            <h3>Sessions <span class="badge ses" aria-hidden="true">SES</span></h3>
+            <button type="button" class="btn small">+ New chat</button>
+          </aside>
+          <section class="conversation-col" aria-label="Conversation">
+            <div class="messages"></div>
+            <div class="chip-row" role="group" aria-label="Sources for this session">
+              <span class="chip removable"><strong>Equipment</strong><button type="button" aria-label="Remove Equipment"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <button type="button" class="chip add" aria-haspopup="true" aria-expanded="true"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Add source</button>
+              <div class="autocomplete" role="listbox" aria-label="Books matching &quot;bes&quot;">
+                <div class="ac-search">
+                  <label for="ac-search-3" class="visually-hidden">Filter books</label>
+                  <input id="ac-search-3" type="text" value="bes">
+                </div>
+                <ul class="ac-list">
+                  <li class="ac-row" role="option" aria-selected="true">
+                    <svg class="icon check" aria-hidden="true"><use href="#i-check"></use></svg>
+                    <span class="ac-name"><strong><mark>Bes</mark>tiary</strong></span>
+                    <span class="pill ready">Ready</span>
+                  </li>
+                  <li class="ac-row upload" role="option">
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+                    <span class="ac-name">Upload a new book&hellip;</span>
+                  </li>
+                </ul>
+              </div>
+              <span class="badge ses" aria-hidden="true" style="margin-left:.25rem;">SES</span>
+            </div>
+            <form class="prompt-form">
+              <label for="q-d3" class="visually-hidden">Ask a rules question</label>
+              <input id="q-d3" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;">
+              <button type="button" class="btn primary">Ask</button>
+            </form>
+          </section>
+          <aside class="source-col" aria-label="Source passage viewer">
+            <h3>Source passage</h3>
+            <p class="placeholder">No citation selected.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="hint">Typing &ldquo;@&rdquo; in the prompt opens the same dropdown anchored to the caret; typing &ldquo;bes&rdquo; narrows the list to matches. &ldquo;Upload a new book&hellip;&rdquo; always stays, whether or not it matches the filter.</p>
+</section>
+
+<section class="state" id="state-4" aria-labelledby="h-state-4">
+  <h2 id="h-state-4">State 4 &mdash; Add a book, uploading at 62%</h2>
+  <p class="region">Ask &mdash; inline upload row under the chip row <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="app-shell">
+      <nav class="sidebar" aria-label="Primary">
+        <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+        <div class="primary-nav">
+          <ul>
+            <li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-ask"></use></svg><span>Ask</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-library"></use></svg><span>Library</span></a></li>
+            <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li>
+          </ul>
+        </div>
+        <div class="sidebar-bottom">
+          <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span></a>
+          <div class="user"><span>Evan &middot; operator</span><button type="button" class="btn small">Sign out</button></div>
+        </div>
+      </nav>
+      <div class="shell-main">
+        <div class="ask-layout">
+          <aside class="sessions-col" aria-label="Chat sessions">
+            <h3>Sessions <span class="badge ses" aria-hidden="true">SES</span></h3>
+            <button type="button" class="btn small">+ New chat</button>
+          </aside>
+          <section class="conversation-col" aria-label="Conversation">
+            <div class="messages"></div>
+            <div class="chip-row" role="group" aria-label="Sources for this session">
+              <span class="chip removable"><strong>Bestiary</strong><button type="button" aria-label="Remove Bestiary"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <span class="chip removable"><strong>Equipment</strong><button type="button" aria-label="Remove Equipment"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+              <button type="button" class="chip add" disabled><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Add source</button>
+              <span class="badge ses" aria-hidden="true" style="margin-left:.25rem;">SES</span>
+            </div>
+            <div class="inline-upload-row">
+              <svg class="icon" aria-hidden="true" style="width:1.5rem;height:1.5rem;color:var(--accent);"><use href="#i-cloud"></use></svg>
+              <div class="info">
+                <p class="file-name">basic-rules.zip</p>
+                <p class="meta">4.2 MB</p>
+                <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
+                  <div class="progress-fill" style="width:62%"></div>
+                </div>
+                <p class="hint">62%</p>
+              </div>
+              <button type="button" class="icon-btn" aria-label="Cancel upload"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+            </div>
+            <form class="prompt-form">
+              <label for="q-d4" class="visually-hidden">Ask a rules question</label>
+              <input id="q-d4" type="text" maxlength="2000" placeholder="Ask a rules question&hellip;" disabled>
+              <button type="button" class="btn primary" disabled>Ask</button>
+            </form>
+          </section>
+          <aside class="source-col" aria-label="Source passage viewer">
+            <h3>Source passage</h3>
+            <p class="placeholder">No citation selected.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="hint">Choosing &ldquo;Upload a new book&hellip;&rdquo; from the dropdown expands this row under the chips &mdash; never a modal.</p>
+</section>
+
+<section class="state" id="state-5" aria-labelledby="h-state-5">
+  <h2 id="h-state-5">State 5 &mdash; Search-only book: Embed now</h2>
+  <p class="region">Ask &mdash; per-book affordance in the dropdown row <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame" style="display:grid;gap:1.25rem;grid-template-columns:1fr 1fr;">
+    <div>
+      <p class="hint" style="margin:0 0 .5rem;">Before &mdash; Equipment&rsquo;s row, Embed now offered</p>
+      <ul class="ac-list" style="border:1px solid var(--border);border-radius:.5rem;max-height:none;background:var(--panel);">
+        <li class="ac-row" role="option" aria-selected="true" style="align-items:flex-start;">
+          <svg class="icon check" aria-hidden="true" style="margin-top:.15rem;"><use href="#i-check"></use></svg>
+          <span class="ac-name"><strong>Equipment</strong></span>
+          <span class="pill search-only">Search-only</span>
+          <button type="button" class="btn small">Embed now <span class="badge lib" aria-hidden="true">LIB</span></button>
+        </li>
+      </ul>
+      <p class="hint">Keyword search works today. Embedding adds semantic recall once a model is available &mdash; never forced.</p>
+    </div>
+    <div>
+      <p class="hint" style="margin:0 0 .5rem;">After clicking Embed now</p>
+      <ul class="ac-list" style="border:1px solid var(--border);border-radius:.5rem;max-height:none;background:var(--panel);">
+        <li class="embed-row">
+          <svg class="icon" aria-hidden="true" style="color:var(--proc);"><use href="#i-library"></use></svg>
+          <div class="info">
+            <p class="book-title">Equipment</p>
+            <span class="pill ingesting">Embedding &middot; 120 of 214 chunks</span>
+            <div class="progress" style="margin-top:.4rem;" role="progressbar" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" aria-label="Embedding progress">
+              <div class="progress-fill" style="width:56%"></div>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <p class="hint">Equipment stays selectable in the chip row the whole time; embedding never blocks or re-imports it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="state" id="state-6" aria-labelledby="h-state-6">
+  <h2 id="h-state-6">State 6 &mdash; Mobile, sources control open (390px frame)</h2>
+  <p class="region">Ask, mobile &mdash; full-width list above the prompt bar <span class="badge" aria-hidden="true">0028</span></p>
+  <div class="frame">
+    <div class="mobile-frame" style="height:32rem;">
+      <div class="mobile-header">
+        <button type="button" class="icon-btn" aria-label="Open sessions"><svg class="icon" aria-hidden="true"><use href="#i-menu"></use></svg></button>
+        <h2>Ask</h2>
+        <span style="width:1.1em;" aria-hidden="true"></span>
+      </div>
+      <div class="mobile-body">
+        <p class="msg user">How does grappling work?</p>
+        <div class="chip-row" style="padding:.4rem 0;" role="group" aria-label="Sources for this session">
+          <span class="chip removable"><strong>Bestiary</strong><button type="button" aria-label="Remove Bestiary"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+          <span class="chip removable"><strong>Equipment</strong><button type="button" aria-label="Remove Equipment"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></span>
+        </div>
+        <div class="mobile-ac-list" role="listbox" aria-label="All books">
+          <div class="panel-head" style="display:flex;align-items:center;justify-content:space-between;padding:.65rem .75rem;border-bottom:1px solid var(--border);">
+            <strong style="font-size:.85rem;">Add a source <span class="badge" aria-hidden="true">0028</span></strong>
+            <button type="button" class="icon-btn" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+          </div>
+          <ul class="ac-list">
+            <li class="ac-row" role="option" aria-selected="true">
+              <svg class="icon check" aria-hidden="true"><use href="#i-check"></use></svg>
+              <span class="ac-name"><strong>Bestiary</strong></span>
+              <span class="pill ready">Ready</span>
+            </li>
+            <li class="ac-row" role="option" aria-selected="true">
+              <svg class="icon check" aria-hidden="true"><use href="#i-check"></use></svg>
+              <span class="ac-name"><strong>Equipment</strong></span>
+              <span class="pill search-only">Search-only</span>
+            </li>
+            <li class="ac-row disabled" role="option" aria-disabled="true">
+              <svg class="icon" aria-hidden="true" style="visibility:hidden;"><use href="#i-check"></use></svg>
+              <span class="ac-name"><strong>Basic Rules</strong><span class="reason">Still ingesting</span></span>
+              <span class="pill ingesting">Ingesting</span>
+            </li>
+            <li class="ac-row disabled" role="option" aria-disabled="true">
+              <svg class="icon" aria-hidden="true" style="visibility:hidden;"><use href="#i-check"></use></svg>
+              <span class="ac-name"><strong>Homebrew Notes</strong><span class="reason">Import failed</span></span>
+              <span class="pill failed">Failed</span>
+            </li>
+            <li class="ac-row upload" role="option">
+              <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+              <span class="ac-name">Upload a new book&hellip;</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="hint">The dropdown becomes a full-width list docked directly above the (now off-screen, keyboard-covered) prompt bar, instead of a small anchored popover.</p>
+</section>
+
+<section class="state" id="state-7" aria-labelledby="h-state-7">
+  <h2 id="h-state-7">State 7 &mdash; Delete confirmation, inline (no modal)</h2>
+  <p class="region">Library page &rarr; Books <span class="badge lib" aria-hidden="true">LIB</span></p>
+  <div class="frame table-wrap">
+    <table>
+      <caption>4 books</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Pages</th><th scope="col">Chunks</th><th scope="col">Embedding model</th><th scope="col">Ingested</th><th scope="col">Actions</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Bestiary</td><td>38</td><td>412</td><td>bge-m3</td><td>2026-09-28</td>
+          <td><button class="btn small" type="button" aria-expanded="true">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+        <tr class="confirm-row">
+          <td colspan="6">
+            <div class="confirm-inner">
+              <p>Delete Bestiary? This removes all pages, chunks and embeddings for the book and cannot be undone.</p>
+              <div style="display:flex;gap:.5rem;flex:0 0 auto;">
+                <button class="btn" type="button">Cancel</button>
+                <button class="btn danger" type="button">Delete</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Equipment</td><td>12</td><td>96</td><td>&mdash;</td><td><span class="pill search-only">Search-only</span></td>
+          <td><button class="btn small" type="button">Delete <span class="badge lib" aria-hidden="true">LIB</span></button>
+              <button class="btn small" type="button">Re-import <span class="badge lib" aria-hidden="true">LIB</span></button></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">The confirmation expands as a row beneath the book instead of a popup window &mdash; identical to option P.</p>
+  </div>
+</section>
+
+<section class="state" id="state-8" aria-labelledby="h-state-8">
+  <h2 id="h-state-8">State 8 &mdash; Table page sidebars: operator vs. player</h2>
+  <p class="table-note">M0 shared play session &mdash; the space where operator and player are together; library content never appears here (constitution VIII). Reproduced from round 2, state 17.</p>
+  <div class="frame">
+    <div class="table-split">
+      <div>
+        <p class="side-tag">Operator&rsquo;s browser</p>
+        <div class="app-shell" style="min-width:0;">
+          <nav class="sidebar" aria-label="Primary">
+            <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+            <div class="primary-nav">
+              <ul>
+                <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-ask"></use></svg><span>Ask</span></a></li>
+                <li><a href="#"><svg class="icon" aria-hidden="true"><use href="#i-library"></use></svg><span>Library</span></a></li>
+                <li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li>
+              </ul>
+            </div>
+            <div class="sidebar-bottom">
+              <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg><span>Settings</span></a>
+              <div class="user"><span>Evan &middot; operator</span></div>
+            </div>
+          </nav>
+          <div class="shell-main">
+            <div class="table-layout">
+              <ol class="event-log" aria-label="Table events">
+                <li><span class="who">GM:</span> The goblins spot you at 30 feet and nock arrows.</li>
+                <li><span class="who">Aria:</span> I duck behind the cart for cover.</li>
+                <li><span class="who">GM:</span> Roll a Dexterity save.</li>
+                <li><span class="who">Aria:</span> 17, with cover.</li>
+              </ol>
+              <form class="prompt-form">
+                <label for="table-in-op" class="visually-hidden">Send a table message</label>
+                <input id="table-in-op" type="text" maxlength="2000" placeholder="Say or do something&hellip;">
+                <button type="button" class="btn primary">Send</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="side-tag">Player&rsquo;s browser</p>
+        <div class="app-shell" style="min-width:0;">
+          <nav class="sidebar" aria-label="Primary">
+            <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-stack"></use></svg><span>the-stacks</span></div>
+            <div class="primary-nav">
+              <ul><li><a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-table"></use></svg><span>Table</span></a></li></ul>
+            </div>
+            <div class="sidebar-bottom">
+              <div class="user"><span>Aria &middot; player</span></div>
+            </div>
+          </nav>
+          <div class="shell-main">
+            <div class="table-layout">
+              <ol class="event-log" aria-label="Table events">
+                <li><span class="who">GM:</span> The goblins spot you at 30 feet and nock arrows.</li>
+                <li><span class="who">Aria:</span> I duck behind the cart for cover.</li>
+                <li><span class="who">GM:</span> Roll a Dexterity save.</li>
+                <li><span class="who">Aria:</span> 17, with cover.</li>
+              </ol>
+              <form class="prompt-form">
+                <label for="table-in-player" class="visually-hidden">Send a table message</label>
+                <input id="table-in-player" type="text" maxlength="2000" placeholder="Say or do something&hellip;">
+                <button type="button" class="btn primary">Send</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('theme-toggle'), label=document.getElementById('theme-toggle-label');
+  var KEY='round3-theme';
+  function isDark(t){ return t==='dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches); }
+  function apply(t){
+    if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); }
+    var dark = isDark(t);
+    label.textContent = dark ? 'Dark' : 'Light';
+    btn.querySelector('svg use').setAttribute('href', dark ? '#i-moon' : '#i-sun');
+  }
+  var saved=null; try{ saved = localStorage.getItem(KEY); }catch(e){}
+  apply(saved);
+  btn.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = current === 'dark' ? 'light' : 'dark';
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+    apply(next);
+  });
+})();
+</script>
+</body>
+</html>

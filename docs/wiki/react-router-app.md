@@ -1,6 +1,6 @@
 ---
 name: react-router-app
-description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) — framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's two routes, root.tsx as the loader-driven identity gate, and play.tsx as the one deliberately client-only route. Retires spa-shell (the pre-migration Vite SPA note).
+description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) — framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (a role-aware "/" redirect plus ask/books/play/play:sessionId/settings, TASK-0028), root.tsx as the loader-driven identity gate now wrapping signed-in routes in the app shell, and play.tsx as the one deliberately client-only route. Retires spa-shell (the pre-migration Vite SPA note).
 kind: component
 sources:
   - apps/web/app/root.tsx
@@ -12,7 +12,7 @@ sources:
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
 ---
 
 # React Router app
@@ -34,20 +34,32 @@ constructs a `RouterContextProvider`, sets `stacksContext` (`app/context.ts`,
 `createContext<StacksLoadContext>()`) on it, and calls the request handler — the context key,
 its provider, and every loader that reads it live in one module graph (plan D5, research R1).
 
-**`routes.ts`** declares exactly two routes: `index("routes/home.tsx")` and
-`route("play/:sessionId", "routes/play.tsx")`.
+**`routes.ts`** declares six routes (TASK-0028 added four to the original two):
+`index("routes/home.tsx")`, `route("ask", "routes/ask.tsx")`,
+`route("books", "routes/books.tsx")`, `route("play", "routes/table.tsx")` (the Table
+landing — join-by-id or start a fresh one), `route("play/:sessionId", "routes/play.tsx")`
+(the live session, unchanged), and `route("settings", "routes/settings.tsx")`. `ask.tsx`,
+`books.tsx`, `table.tsx`, and `settings.tsx` are [[chat-ui]]'s concern — this note covers
+only the tree's shape and which file backs each path.
 
 **`root.tsx`** is the identity gate, now server-side (see [[client-identity]] for the full
 mechanism): its `Layout` renders the HTML shell (`Meta`/`Links` in `head`,
-`Scripts`/`ScrollRestoration` in `body`), and its default component reads `loaderData.user` —
-`<SignIn />` when falsy, `<Outlet />` otherwise, for any route. `links()` points at
-`app/app.css?url` (Tailwind v4 + shadcn's CSS variables, see [[static-serving]]'s sibling
-styling setup). An `ErrorBoundary` renders a plain error message.
+`Scripts`/`ScrollRestoration` in `body`, plus a `data-theme` attribute on `<html>` from the
+loader's UI-cookie read, [[chat-ui]]), and its default component reads `loaderData.user` —
+`<SignIn />` when falsy; otherwise `<Outlet />` wrapped in `<AppStoreProvider><Shell>…`
+(TASK-0028, [[chat-ui]]), for any route. `links()` points at `app/app.css?url` (Tailwind v4 +
+shadcn's CSS variables, see [[static-serving]]'s sibling styling setup). An `ErrorBoundary`
+renders a plain error message.
 
-**`home.tsx`** (`/`, signed-in view) shows the display name from `useRouteLoaderData<typeof
-rootLoader>("root")` and a sign-out button that calls `signOut()` then
-`useRevalidator().revalidate()`; a note that there is no session list — reaching
-`/play/<uuid>` requires already knowing the id (unchanged from the SPA era, [[m0-demo]]'s D6).
+**`home.tsx`** (`/`) is loader-only since TASK-0028: no signed-in view of its own anymore.
+Its `loader` reads identity and redirects a signed-in operator to `/ask`, a signed-in player
+to `/play` (the Table landing); it returns `null` only for the transient signed-out case,
+since the root gate already renders `<SignIn />` and never mounts this route's `Outlet` then.
+A component is still required — React Router otherwise treats `/` as a resource route and
+`build/server` answers a bare loader JSON body instead of the document — so `Home` exports a
+trivial `() => null`, unreachable in practice. The "no session registry" fact this route used
+to state in its own copy ([[m0-demo]]'s D6) is unchanged; there's just no page text for it
+anymore now that `/` never renders for a signed-in person.
 
 **`sign-in.tsx`** exports `SignIn` (imported by `root.tsx`, not a routed component): a
 `Card`/`Label`/`Input`/`Button` form (shadcn, [[static-serving]]'s styling note) that calls
@@ -71,7 +83,9 @@ Served by [[static-serving]]'s `createWebMiddleware`, which imports `server.ts`'
 `handle` as the SSR fallback for any non-reserved, non-static path. The identity gate is
 detailed in [[client-identity]]; the play route's realtime behavior is
 [[client-session-hook]]. The demo procedure that exercises this app end to end is
-[[m0-demo]]. Built by `pnpm --filter @the-stacks/web build` into `build/client` and
+[[m0-demo]]. The four TASK-0028 routes (`ask`, `books`, `play` as the Table landing,
+`settings`), the app shell they render inside, and the client store behind them are
+[[chat-ui]]. Built by `pnpm --filter @the-stacks/web build` into `build/client` and
 `build/server`, consumed by [[container-image]]'s Dockerfile.
 
 ## Operational notes

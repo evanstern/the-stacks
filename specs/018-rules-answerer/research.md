@@ -7,9 +7,9 @@ an HTTP route) and decision-0007 (gateway, named purposes, no vendor SDK) is tak
 
 **Decision.**
 
-1. The model receives the relevant passages numbered `p="1"`…`p="n"`. It is told to follow each
-   claim with a marker `<cite p="N">exact words copied from passage N</cite>`, and nothing else
-   in that syntax.
+1. The model receives the relevant passages numbered `p="1"`…`p="n"`. It is told to state each
+   claim in its own words, then append a marker `<cite p="N">exact words copied from passage N</cite>`
+   that holds only the supporting quote, and nothing else in that syntax.
 2. A streaming parser (`apps/server/src/library/cite.ts`) splits the model's text into plain
    text and markers. It holds back a trailing fragment that could be the start of `<cite` or
    `<refuse`, so a marker split across two streamed pieces is still recognized. Text inside a

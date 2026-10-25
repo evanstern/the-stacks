@@ -1,5 +1,9 @@
+import { randomUUID } from "node:crypto";
+import type { StacksLoadContext, WebRequestHandler } from "@the-stacks/shared";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { createApp } from "../../src/app.js";
+import { createSession } from "../../src/auth/session.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import { ConflictError } from "../../src/errors.js";
 import {
@@ -12,6 +16,7 @@ import {
   listJobs,
   setStage,
 } from "../../src/library/ingest/jobs.js";
+import { users } from "../../src/schema/auth.js";
 import { jobs } from "../../src/schema/jobs.js";
 
 /**
@@ -66,6 +71,31 @@ function enqueue(book: string) {
     bytes: 1234,
     uploadPath: "/tmp/does-not-matter.upload",
   });
+}
+
+/** A signed-in `Cookie` header for a fresh user of the given role (T009). */
+async function signInCookie(role: "operator" | "player"): Promise<string> {
+  const [row] = await requireDb()
+    .insert(users)
+    .values({
+      username: `test-${randomUUID()}`,
+      displayName: "Test User",
+      role,
+      passwordHash: "unused",
+    })
+    .returning({ id: users.id });
+  const session = await createSession(requireDb(), row.id);
+  return `session=${session.token}`;
+}
+
+/** Records the load context handed to the web SSR handler, without rendering anything (static.test.ts's pattern). */
+function capturingHandler() {
+  const contexts: StacksLoadContext[] = [];
+  const handle: WebRequestHandler = async (_request, context) => {
+    contexts.push(context);
+    return new Response("handled", { status: 200 });
+  };
+  return { contexts, handler: async () => handle };
 }
 
 /** Backdates a job's heartbeat past the lease, simulating a dead worker. */
@@ -208,5 +238,32 @@ describe.skipIf(!reachable)("jobs store (Phase 1, integration)", () => {
     expect(listed.some((j) => j.id === status.id)).toBe(true);
     const fetched = await getJob(requireDb(), status.id);
     expect(fetched?.id).toBe(status.id);
+  });
+
+  it("T009: the web load context's jobs() returns the inserted job for an operator, null for a player", async () => {
+    const inserted = await enqueue(freshBook("Load Context"));
+
+    const operator = capturingHandler();
+    const operatorApp = createApp({
+      databaseProbe: { reachable: async () => true },
+      db: requireDb(),
+      web: { handler: operator.handler, clientRoot: process.cwd() },
+    });
+    await operatorApp.request("/play/x", {
+      headers: { cookie: await signInCookie("operator") },
+    });
+    const operatorJobs = await operator.contexts[0]?.jobs();
+    expect(operatorJobs?.some((job) => job.id === inserted.id)).toBe(true);
+
+    const player = capturingHandler();
+    const playerApp = createApp({
+      databaseProbe: { reachable: async () => true },
+      db: requireDb(),
+      web: { handler: player.handler, clientRoot: process.cwd() },
+    });
+    await playerApp.request("/play/x", {
+      headers: { cookie: await signInCookie("player") },
+    });
+    await expect(player.contexts[0]?.jobs()).resolves.toBeNull();
   });
 });
