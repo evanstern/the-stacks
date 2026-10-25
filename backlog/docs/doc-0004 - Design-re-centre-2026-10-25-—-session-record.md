@@ -3,7 +3,7 @@ id: doc-0004
 title: Design re-centre 2026-10-25 — session record
 type: specification
 created_date: '2026-10-25 20:02'
-updated_date: '2026-10-25 20:02'
+updated_date: '2026-10-25 20:19'
 tags:
   - design
   - decisions
@@ -108,6 +108,12 @@ and V1 definition.
   TASK-0052 (narrator chime-in), TASK-0053 (multi-human demo).
 - Revisit cards: TASK-0054 (LangGraph, trigger in decision-0019), TASK-0055 (parked combat
   rules, after TASK-0048).
+- Follow-up ruling (operator, 2026-10-25): every known-wanted milestone is carded up front
+  (decision-0020). M4 The Codex: TASK-0056 to TASK-0063 (NPC-smith TASK-0061 depends on
+  TASK-0054). M5 Imported Mechanics: TASK-0064 to TASK-0067. M6 Maps and the Table View:
+  TASK-0068 to TASK-0076. M7 The Dial = V1: TASK-0077 to TASK-0082. M8 Memory and Pacing:
+  TASK-0083 to TASK-0086. M9 Solo Campaign: TASK-0087 (re-plan from V1 evidence) to
+  TASK-0091.
 
 ## Open follow-ups
 
@@ -116,6 +122,7 @@ and V1 definition.
   TASK-0043's spec.
 - Decide how presence is carried (TASK-0051); the WebSocket frame shapes are a frozen
   contract.
-- Card M4 to M9 at each preceding milestone's close (decision-0020).
+- Refine each milestone's cards at its planning; drop a card only by decision record
+  (decision-0020).
 - Re-pin the grounding wiki after this revision merges: `docs/wiki/overview.md` lists
   architecture.md and milestones.md as sources.
