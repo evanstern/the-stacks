@@ -4,6 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: To Do
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-25 19:59'
 labels:
   - first-scene
   - engine
@@ -22,9 +23,9 @@ ordinal: 32000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: a pure 5e engine package. Its one entry point is (state, command, rng) -> events | refusal. It has no I/O, no database, no network and no LLM.
 
-Why: the engine owns every number; the LLM owns story and never rolls or does arithmetic (decision-0017 layer 2, decision-0021 idea 1). The gate (FS-gate) wraps this function, and every later milestone resolves mechanics through it. 5e only, behind a dnd5e module boundary (decision-0010).
+Why: the engine owns every number; the LLM owns story and never rolls or does arithmetic (decision-0017 layer 2, decision-0021 idea 1). The gate (TASK-0045) wraps this function, and every later milestone resolves mechanics through it. 5e only, behind a dnd5e module boundary (decision-0010).
 
-Scope: dice expression parser, seeded RNG with scripted-dice injection, HP and temporary HP, conditions as data, initiative and turn order, life states and death saves, short and long rests, spell slots, refusal codes. Spell and monster effects beyond these primitives resolve through adjudication (FS-dm-runtime), not code.
+Scope: dice expression parser, seeded RNG with scripted-dice injection, HP and temporary HP, conditions as data, initiative and turn order, life states and death saves, short and long rests, spell slots, refusal codes. Spell and monster effects beyond these primitives resolve through adjudication (TASK-0046), not code.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
