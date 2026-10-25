@@ -1,9 +1,10 @@
 ---
 id: TASK-0070
-title: 'Table View: PixiJS table with grid, tokens, fog and walls'
+title: 'Maps and the Table View: PixiJS table with grid, tokens, fog and walls'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - table-view
   - ui
