@@ -1,9 +1,12 @@
 ---
 id: TASK-0069
-title: 'Maps: deterministic tile renderer with a bundled CC0 asset pack'
+title: >-
+  Maps and the Table View: deterministic tile renderer with a bundled CC0 asset
+  pack
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - maps
 milestone: m-6
