@@ -1,9 +1,10 @@
 ---
 id: TASK-0075
-title: 'Media: portraits through the image-provider seam'
+title: 'Maps and the Table View: portraits through the image-provider seam'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - media
   - ai
