@@ -1,9 +1,10 @@
 ---
 id: TASK-0041
 title: 'Re-center the design: First Scene slice, 5e-only, gate and table modes'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:52'
+updated_date: '2026-10-25 19:52'
 labels:
   - design
   - docs
