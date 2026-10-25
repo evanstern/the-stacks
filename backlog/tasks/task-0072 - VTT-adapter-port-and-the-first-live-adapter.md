@@ -1,9 +1,10 @@
 ---
 id: TASK-0072
-title: 'VTT: adapter port and the first live adapter'
+title: 'Maps and the Table View: VTT adapter port and the first live adapter'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - vtt
   - adapter
