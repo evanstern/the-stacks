@@ -1,9 +1,10 @@
 ---
 id: TASK-0071
-title: 'Table View: AI DM drives tokens and fog'
+title: 'Maps and the Table View: AI DM drives tokens and fog'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - table-view
   - dm
