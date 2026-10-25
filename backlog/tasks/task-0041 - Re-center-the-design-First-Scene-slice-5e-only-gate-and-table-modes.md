@@ -4,7 +4,7 @@ title: 'Re-center the design: First Scene slice, 5e-only, gate and table modes'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:52'
-updated_date: '2026-10-25 19:52'
+updated_date: '2026-10-25 19:53'
 labels:
   - design
   - docs
@@ -25,8 +25,12 @@ Record the 2026-10-25 re-design session as durable artifacts. The session (opera
 - [ ] #2 docs/design/vision.md, architecture.md and milestones.md are revised to the new design and name what they supersede
 - [ ] #3 First Scene milestone tasks exist on the board with acceptance criteria and dependency order
 - [ ] #4 The multiplayer slice tasks exist on the board ordered after First Scene
-- [ ] #5 A LangGraph revisit task exists whose dependency makes it surface with the first campaign-prep agent task
+- [ ] #5 A LangGraph revisit task exists, names its trigger, and milestones.md gates the Codex milestone's first agent task on it
+- [ ] #6 A revisit task for the parked tabletop-dm combat rules (Grit save, fight budgeting) exists and depends on the First Scene playtest task
+- [ ] #7 constitution.md Principle VI is amended to 5e-only with a version bump and sync impact report
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
