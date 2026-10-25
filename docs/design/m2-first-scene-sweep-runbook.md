@@ -10,7 +10,8 @@ decision-0021, `backlog/docs/doc-0004` (the 2026-10-25 re-centre session record)
 board; this file carries only ordering, doctrine, and the log. This runbook is new; it
 carries forward the M1 wave-2 runbook's gates and retrospective (cited per line below).
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-10-25 ("Signed off: lanes as
+written, TASK-0047 swept, standing opus sign-off for spec writing holds.")
 
 ## Read first (in this order)
 
@@ -83,8 +84,8 @@ tasks for sign-off and session boundaries; they are not barriers beyond those de
 
 **Spec authoring (all tasks) → `opus-implementer` · `claude-opus-5-5`, fallback
 `claude-fable-5-1`.** Escalation tier. Carried forward from the M1 wave-2 runbook: operator
-ruling 2026-09-28/29 is standing escalation sign-off for spec writing. **Confirm it holds
-for this sweep at lane sign-off.** Never a session fork. No implementation dispatch uses
+ruling 2026-09-28/29 is standing escalation sign-off for spec writing; the operator
+confirmed it for this sweep at lane sign-off (2026-10-25). Never a session fork. No implementation dispatch uses
 `opus`; any such need is a new checkpoint.
 
 Tiers and model IDs come from `.claude/model-tiers.json`; `tiers.mjs --root . --check`
@@ -272,3 +273,4 @@ merge-reconcile step; record it as its own dispatch line.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-25 | (runbook) | — | — | — | Authored as draft. Proposes 0047 starting after 0044 (fixtures) with a draft-hold on 0045. Awaiting lane sign-off. |
+| 2026-10-25 | (runbook) | [#42](https://github.com/evanstern/the-stacks/pull/42) | — | — | Operator signed off in chat: lanes as written, TASK-0047 swept, standing opus sign-off for spec writing holds. Lane 1 starts. |
