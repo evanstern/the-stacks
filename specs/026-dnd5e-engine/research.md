@@ -82,18 +82,30 @@ Phase 0 output for [plan.md](plan.md). Each entry: decision, rationale, alternat
 - **Rationale**: decision-0012 makes SRD 5.2.1 the mechanics baseline.
 - **Alternatives**: 2014 rules (rejected by decision-0012).
 
-## R8. What stays outside the engine
+## R8. The engine/adjudication split (orchestrator ruling 2026-10-25, from decision-0021 idea 1 and decision-0017)
 
-- **Decision**: resistance, vulnerability, immunity, critical-hit dice doubling, attack
-  resolution against AC, saving-throw DCs, spell and monster effects and condition effects on
-  rolls are adjudicated (TASK-0046) and reach the engine as primitives (a final amount or an
-  expression, a roll mode, a condition record).
-- **Rationale**: the card scopes these out: "Spell and monster effects beyond these
-  primitives resolve through adjudication, not code." Keeping the engine to primitives keeps
-  its contract small enough for three consumers to depend on in parallel.
-- **Alternatives**: modelling attacks and resistances now (rejected: scope the card excludes;
-  no deferral card is needed because nothing known-wanted is dropped — adjudication owns it
-  by design, decision-0017).
+- **Decision**: the engine owns every piece of arithmetic and every comparison; adjudication
+  supplies inputs as data. In the engine: attack resolution against an AC (natural 20 is a
+  critical hit and natural 1 a miss, SRD 5.2.1), ability checks and saving throws against a
+  DC, damage types with resistance, vulnerability and immunity from the target's record or a
+  per-command defense set, and critical-hit dice doubling in the dice layer. In adjudication
+  (TASK-0046): deciding which rule applies, and spell and monster effects beyond these
+  primitives. Those decisions reach the engine only as data: an AC, a DC, a damage type, a
+  defense set, a roll mode or a condition record. No command accepts a hit/miss verdict, a
+  success/failure or a final adjusted damage amount.
+- **Rationale**: decision-0021 idea 1 says the script owns numbers and the LLM owns story.
+  Decision-0017's rationale says every number is auditable and the LLM stays out of layer 2.
+  `adjudicate` is an LLM node, so a "final amount" or a "hit" from it would be an LLM
+  computing a number. With the split above, every comparison and every halving or doubling
+  is in the ledger (`attack.resolved`, `check.resolved`, `hp.changed.components`), where
+  `audit` can check narration against it.
+- **What remains data, not code**: condition effects on rolls (for example Poisoned giving
+  disadvantage) reach the engine as the roll mode adjudication picks; the engine stores
+  conditions but does not hard-code their effects (FR-011).
+- **Alternatives**: the first draft of this spec left attacks, saves, defenses and critical
+  doubling to adjudication, with the engine taking final amounts (rejected by the ruling
+  above); modelling spell and monster effects in code (rejected: the card scopes them to
+  adjudication).
 
 ## R9. Test runner
 

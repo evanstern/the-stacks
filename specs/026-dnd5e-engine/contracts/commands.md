@@ -1,6 +1,6 @@
 # Contract: engine commands
 
-`EngineCommandSchema` is a `z.discriminatedUnion("type", [...])` of the 19 commands below.
+`EngineCommandSchema` is a `z.discriminatedUnion("type", [...])` of the 21 commands below.
 Every command carries `reason: z.string().min(1).max(500)` — the ledger reason copied onto
 every event it produces (decision-0021 idea 2). Commands carry no actor; the gate knows who
 asked.
@@ -16,7 +16,16 @@ const Amount = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("roll"), expression: z.string().min(1).max(200) }),
 ]);
 const SlotLevel = z.number().int().min(1).max(9);
+const DamageType = DamageTypeSchema;   // engine-api.md: the 13 SRD 5.2.1 damage types
+const DefenseSet = DefenseSetSchema;   // engine-api.md: { resistances, vulnerabilities, immunities }
 ```
+
+**Who decides what (orchestrator ruling 2026-10-25, research R8).** Adjudication (an LLM node)
+decides which rule applies and hands the engine *data*: an attack expression, an AC, a DC, a
+damage type, a defense set, a roll mode, a condition record. The engine does every piece of
+arithmetic and every comparison: hit or miss, success or failure, critical doubling,
+resistance, vulnerability and immunity. No command accepts a computed outcome or a final
+adjusted amount.
 
 "Common refusals" below means the two every command can return: `INVALID_COMMAND` (schema
 parse failure) and `INVALID_STATE` (state parse failure). Each table lists only the further
@@ -28,9 +37,36 @@ codes. Codes are defined in [refusals.md](refusals.md); events in [events.md](ev
 |---|---|---|---|
 | `roll` | `expression`, `mode: RollMode`, `reason` | `dice.rolled` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `ADVANTAGE_NOT_APPLICABLE` |
 
-A free-standing roll: attack rolls, checks, saves, any number the DM needs. It changes no
+A free-standing roll for any number with no target to compare against (a random table, a
+recharge roll). Attacks use `attack.roll`; checks and saves use `check.roll`. It changes no
 state. Advantage and disadvantage require exactly one dice term with `count 1`, `sides 20`,
-no keep and a positive sign; the engine rolls it twice and keeps one.
+no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and keeps one.
+
+## Attacks, checks and saves
+
+| Command | Fields | Events | Refusals |
+|---|---|---|---|
+| `attack.roll` | `attackerId: Id \| null`, `targetId`, `expression` (e.g. `"1d20+5"`), `mode: RollMode`, `targetAc: int 1..40 \| null = null`, `reason` | `dice.rolled` (purpose `attack`), `attack.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TARGET_AC_UNKNOWN` |
+| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
+
+- Both commands require a plain d20 term in `expression`, else `D20_TERM_REQUIRED`. The
+  rest of the expression carries the bonus adjudication chose (proficiency, ability
+  modifier, bonus dice such as Bless `+1d4`).
+- **Attack outcome** (SRD 5.2.1): the kept d20 face is the natural roll. Natural 20 →
+  `critical-hit` (hits whatever the AC). Natural 1 → `miss` (misses whatever the total).
+  Otherwise `total >= ac` → `hit`, else `miss`.
+- **AC source**: `targetAc` when given (adjudication supplies it: cover, a shield spell, an
+  object not in the state); else the target record's `ac`. Neither → `TARGET_AC_UNKNOWN`.
+  The event records which source was used.
+- `attackerId`, when not null, must exist (`UNKNOWN_COMBATANT`) and not be dead
+  (`TARGET_DEAD`); the target likewise.
+- **Check and save outcome**: `total >= dc` → `success`, else `failure`. SRD 5.2.1 gives a
+  natural 20 or 1 no automatic result on ability checks or saving throws, so the engine
+  records `natural` but does not use it. `combatantId` null means a roll for something not in
+  the state (an NPC the scene has not added); when not null it must exist and not be dead.
+- `attack.roll` applies no damage. The `resolve` node (no LLM) follows a `hit` or
+  `critical-hit` with `damage.apply`, setting `critical: true` exactly when the
+  `attack.resolved` outcome is `critical-hit`.
 
 ## Combatants
 
@@ -51,6 +87,8 @@ const CombatantInit = z.object({
   zeroHpRule: z.enum(["death-saves", "dies"]),
   initiativeBonus: z.number().int().min(-10).max(30).default(0),
   conModifier: z.number().int().min(-5).max(10).default(0),
+  ac: z.number().int().min(1).max(40).nullable().default(null),
+  defenses: DefenseSet.default({ resistances: [], vulnerabilities: [], immunities: [] }),
   hitDice: z.array(z.object({
     die: z.union([z.literal(6), z.literal(8), z.literal(10), z.literal(12)]),
     total: z.number().int().min(0).max(40),
@@ -72,18 +110,32 @@ rule); otherwise it starts `conscious`. Slots start unexpended; conditions start
 
 | Command | Fields | Events | Refusals |
 |---|---|---|---|
-| `damage.apply` | `targetId`, `amount: Amount`, `damageType?: string`, `critical: boolean = false`, `reason` | `dice.rolled`?, `hp.changed`, then any of `life-state.changed`, `death-saves.changed`, `condition.applied` | `UNKNOWN_COMBATANT`, `TARGET_DEAD`, dice codes |
+| `damage.apply` | `targetId`, `components: [{ amount: Amount, damageType: DamageType }]` (1..10), `critical: boolean = false`, `defenses: DefenseSet \| null = null`, `reason` | `dice.rolled` per rolled component (in component order), `hp.changed`, then any of `life-state.changed`, `death-saves.changed`, `condition.applied` | `UNKNOWN_COMBATANT`, `TARGET_DEAD`, dice codes |
 | `healing.apply` | `targetId`, `amount: Amount`, `reason` | `dice.rolled`?, `hp.changed`, then any of `life-state.changed`, `death-saves.changed`, `condition.removed` | `UNKNOWN_COMBATANT`, `TARGET_DEAD`, dice codes |
 | `temp-hp.grant` | `targetId`, `amount: Amount`, `reason` | `dice.rolled`?, `hp.changed` | `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TEMP_HP_NOT_HIGHER`, dice codes |
 
-"Dice codes" are `INVALID_DICE_EXPRESSION` and `DICE_LIMIT_EXCEEDED`, possible only when
-`amount.kind` is `roll`. A rolled amount is `max(0, total)`. The engine parses the expression
+"Dice codes" are `INVALID_DICE_EXPRESSION` and `DICE_LIMIT_EXCEEDED`, possible only when an
+amount has `kind: "roll"`. A rolled amount is `max(0, total)`. The engine parses the expression
 before it rolls, so a bad expression refuses with zero dice drawn.
 
-`damageType` is recorded in the ledger only; resistance and vulnerability are adjudicated
-before the command is built.
+**Damage arithmetic** (per component, then summed):
 
-**Damage rules** (in order):
+1. **Raw.** A `fixed` component's raw amount is its value. A `roll` component rolls its
+   expression; with `critical: true` the dice layer doubles the count of every dice term
+   (modifiers are not doubled; a keep `n` doubles with its count). Raw is `max(0, total)`.
+   The doubled count must stay within the dice limits, else `DICE_LIMIT_EXCEEDED` before
+   any draw.
+2. **Defense set.** `defenses` when given (adjudication's per-command set: a spell that
+   grants resistance, a magic weapon that bypasses a resistance), else the target record's
+   `defenses`. The given set *replaces* the record for this command; it does not merge. The
+   event records which source was used.
+3. **Applied** (SRD 5.2.1 order): immune to the type → 0. Otherwise start from raw; resistant
+   → `floor(x / 2)`; then vulnerable → `x * 2`. A type in both resistances and
+   vulnerabilities gets both (halve, then double). Immunity wins over both.
+4. The command's damage is the sum of the applied amounts. Raw and applied values per
+   component appear in `hp.changed.components` (events.md).
+
+**Damage rules** (applied to the summed amount, in order):
 
 1. Temporary HP absorb damage first; the rest reduces `hp.current`, floored at 0.
 2. Target `conscious`, HP reaches 0:
@@ -97,8 +149,10 @@ before the command is built.
    - otherwise `death-saves.changed` adds 1 failure (2 if `critical`). A `stable` target
      first gets `life-state.changed` to `unconscious`. Reaching 3 failures →
      `life-state.changed` to `dead`.
-4. An `amount` of 0 still emits `hp.changed` with equal before and after (the ledger shows
-   the zero).
+4. A total applied amount of 0 (an immunity, a zero roll) still emits `hp.changed` with
+   equal before and after (the ledger shows the zero). It adds no death-save failure.
+5. Massive damage and the death-save failure for damage at 0 HP use the summed *applied*
+   amount, after defenses.
 
 **Healing rules:** HP rise to at most `hp.max`; temporary HP are untouched. A target at 0 HP
 that regains at least 1 HP gets `life-state.changed` to `conscious`, `death-saves.changed` to

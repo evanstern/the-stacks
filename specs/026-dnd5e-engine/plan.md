@@ -10,11 +10,14 @@ Build `@the-stacks/dnd5e-engine`, a new workspace package whose one command entr
 `execute(state, command, rng) → { ok: true, events } | { ok: false, refusal }`. It parses dice
 expressions, rolls through an injected RNG (seeded or scripted), and resolves HP and temporary
 HP, conditions as data, initiative and turns, life states and death saves, rests and spell
-slots. Every roll event carries its reason and every state-change event carries before and
+slots, plus attack resolution against AC, checks and saves against DC, damage types with
+resistance, vulnerability and immunity, and critical-hit dice doubling (orchestrator ruling
+2026-10-25, research R8: the engine owns all arithmetic; adjudication supplies data). Every
+roll event carries its reason and every state-change event carries before and
 after values (the roll ledger). `evolve`/`replay` fold events back into state so TASK-0044's
 projections need no rules and no RNG. A Biome boundary rule, proven by fixtures in
 `pnpm check:boundaries`, forbids database, network, model and clock access. Scripted-dice
-tests cover all 19 commands and all 24 refusal codes, enforced by a meta-test.
+tests cover all 21 commands and all 26 refusal codes, enforced by a meta-test.
 
 ## Technical Context
 
@@ -40,13 +43,15 @@ so a browser build stays possible).
 **Constraints**: no I/O, no clock, no global randomness, no mutation of inputs, refusal draws
 no dice (contracts/engine-api.md, Invariants).
 
-**Scale/Scope**: 19 commands, 16 events, 24 refusal codes; up to 50 initiative participants;
+**Scale/Scope**: 21 commands, 18 events, 26 refusal codes; up to 50 initiative participants;
 dice limits per contracts/engine-api.md.
 
 ## Constitution Check
 
-*Pre-research gate: pass. Post-design re-check: pass (no change).* Against constitution
-2.0.0.
+*Pre-research gate: pass. Post-design re-check: pass (no change). Re-checked after the
+2026-10-25 amendment (research R8): pass, and VI is strengthened — attack, check, save,
+critical and defense arithmetic moved from adjudication into the engine, so no model
+computes those numbers.* Against constitution 2.0.0.
 
 - [x] **I. Agent-operable** — the interface is `execute` with `EngineCommandSchema`. The gate
       (TASK-0045) forwards LLM proposals and a human DM's commands through the same function.
@@ -83,9 +88,9 @@ specs/026-dnd5e-engine/
 ├── quickstart.md
 ├── contracts/
 │   ├── engine-api.md    # entry point, result, RNG, state schema, invariants
-│   ├── commands.md      # the 19 commands, their events and refusals, rule details
-│   ├── events.md        # the 16 events (roll ledger), before/after slices
-│   ├── refusals.md      # the 24 codes and their precedence
+│   ├── commands.md      # the 21 commands, their events and refusals, rule details
+│   ├── events.md        # the 18 events (roll ledger), before/after slices
+│   ├── refusals.md      # the 26 codes and their precedence
 │   └── boundary-rule.md # Biome rule, fixtures, package guards
 ├── checklists/requirements.md
 └── tasks.md
@@ -107,14 +112,15 @@ packages/dnd5e-engine/
 │   │   ├── events.ts         # EngineEventSchema
 │   │   └── refusals.ts       # RefusalCodeSchema, RefusalSchema, refuse() helper
 │   ├── rng.ts                # Rng, seededRng (mulberry32), scriptedRng, error classes
-│   ├── dice.ts               # parseDiceExpression, rollParsed (uses Rng), limits
+│   ├── dice.ts               # parseDiceExpression, rollParsed (uses Rng; mode, critical doubling), limits
 │   ├── execute.ts            # parse state + command, dispatch by type, return result
 │   ├── evolve.ts             # evolve, replay, emptyState
 │   ├── selectors.ts          # conditionsOf, activeCombatant
 │   └── commands/
 │       ├── roll.ts
+│       ├── attacks.ts        # attack.roll, check.roll
 │       ├── combatants.ts     # combatant.add, combatant.remove
-│       ├── hit-points.ts     # damage.apply, healing.apply, temp-hp.grant (+ shared zero-HP logic)
+│       ├── hit-points.ts     # damage.apply (components, defenses), healing.apply, temp-hp.grant (+ shared zero-HP logic)
 │       ├── life.ts           # death-save.roll, stabilize
 │       ├── conditions.ts     # condition.apply, condition.remove, exhaustion.adjust
 │       ├── encounter.ts      # initiative.roll, initiative.join, turn.advance, encounter.end

@@ -10,6 +10,11 @@
 lane 1. Grounding: architecture A6, A10, A11; decision-0010, decision-0015, decision-0017,
 decision-0020, decision-0021; constitution 2.0.0 (principles I, IV, VI).
 
+**Amended 2026-10-25** by orchestrator ruling (research R8, from decision-0021 idea 1 and
+decision-0017): the engine owns attack, check, save, critical-doubling and damage-defense
+arithmetic; adjudication supplies data only. User Story 6 and FR-018 to FR-022 were added;
+FR-009 changed.
+
 **Clarify pass**: skipped. Every open point had a default an existing artifact settles: the
 rules baseline is SRD 5.2.1 (decision-0012), the boundary shape is decision-0010 plus
 constitution VI, and the ledger shape is decision-0021 idea 2. The defaults chosen are listed
@@ -54,6 +59,38 @@ roll event's faces, kept faces and total. Repeat with the same seed and assert i
    each, **Then** both results are deeply equal.
 4. **Given** the expression `3d`, **When** the caller rolls it, **Then** the engine returns
    refusal `INVALID_DICE_EXPRESSION` and no events.
+
+---
+
+### User Story 6 - Resolve attacks, checks and saves against AC and DC (Priority: P1)
+
+Adjudication decides that a goblin attacks Ana with `1d20+4` against her AC, or that Ana makes
+a DC 13 Dexterity saving throw with `1d20+2`. It hands the engine only that data. The engine
+rolls, compares and records the outcome: hit, miss or critical hit for an attack; success or
+failure for a check or save. A hit is followed by damage with damage types; the engine applies
+the target's resistances, vulnerabilities and immunities and doubles dice on a critical hit.
+
+**Why this priority**: these are the numbers the narrator most often reports, and the ruling
+in research R8 forbids any LLM node from computing them.
+
+**Independent Test**: roll `attack.roll` with scripted d20 faces 20, 1, 15 against AC 15 and
+assert `critical-hit`, `miss`, `hit`; apply a fire component to a fire-resistant target and
+assert raw and applied amounts.
+
+**Acceptance Scenarios**:
+
+1. **Given** a target with AC 30, **When** an attack's d20 shows 20, **Then** the outcome is
+   `critical-hit`.
+2. **Given** a target with AC 5 and an attack expression `1d20+10`, **When** the d20 shows 1,
+   **Then** the outcome is `miss`.
+3. **Given** a DC 13 save rolled as `1d20+2`, **When** the d20 shows 11, **Then** the outcome
+   is `success` (13 meets the DC).
+4. **Given** a critical hit, **When** damage `2d6+3` slashing applies, **Then** four d6 are
+   rolled and the modifier is added once.
+5. **Given** a target resistant to fire, **When** 9 fire damage applies, **Then** the event
+   records raw 9 and applied 4.
+6. **Given** a target with no AC on record, **When** an attack carries no `targetAc`,
+   **Then** the engine returns refusal `TARGET_AC_UNKNOWN` and no events.
 
 ---
 
@@ -167,6 +204,14 @@ with before and after values.
 - Healing at 0 HP restores consciousness and clears death-save tallies and the Unconscious
   condition that dropping to 0 HP applied.
 - A damage or healing roll whose total is below 0 applies 0.
+- Immunity beats resistance and vulnerability; a type both resisted and vulnerable is halved
+  then doubled. Halving rounds down.
+- A critical hit doubles dice, not modifiers. A doubled count beyond the dice limits is
+  refused before any draw.
+- A natural 20 on an attack hits whatever the AC; a natural 1 misses whatever the total.
+  Natural 20 and 1 give no automatic result on checks and saves (SRD 5.2.1).
+- An attack or check expression without exactly one plain `1d20` term is refused
+  (`D20_TERM_REQUIRED`).
 - Temporary hit points never stack. A grant lower than or equal to the current temporary HP
   is refused (`TEMP_HP_NOT_HIGHER`).
 - Advantage on an expression without exactly one plain `1d20` term is refused
@@ -217,11 +262,30 @@ with before and after values.
 
 - **FR-009** (AC #4): The engine MUST apply damage to temporary HP first and then HP, apply
   healing up to max HP, and grant temporary HP without stacking. An amount MAY be a fixed
-  number or a dice expression the engine rolls.
+  number or a dice expression the engine rolls. Damage MUST arrive as one or more components,
+  each with a damage type; no command accepts a pre-adjusted damage amount.
 - **FR-010** (AC #7): The engine MUST track life state (conscious, unconscious, stable, dead)
   and resolve death saves: 10 or higher succeeds, a natural 1 counts two failures, a natural
   20 restores 1 HP and consciousness, three successes stabilise, three failures kill. A
   combatant whose rule is "dies at 0 HP" MUST die when it reaches 0 HP.
+
+**Attacks, checks, saves and damage defenses** (research R8)
+
+- **FR-018** (AC #2, #9, #11): The engine MUST resolve an attack from an attack expression, a
+  roll mode and a target AC (from the command or the target record). A natural 20 MUST be a
+  critical hit and a natural 1 a miss; otherwise the total meets or beats the AC to hit. The
+  event MUST record the roll, the AC and its source, the outcome and the reason.
+- **FR-019** (AC #2, #11): The engine MUST resolve an ability check or saving throw from an
+  expression, a roll mode and a DC. The event MUST record the roll, the DC and the outcome.
+- **FR-020** (AC #4, #11): The engine MUST apply immunity, resistance (halve, rounding down)
+  and vulnerability (double) per damage component, from the target's record or from a
+  per-command defense set that replaces the record for that command. The event MUST record
+  each component's raw and applied amount and the total before and after HP.
+- **FR-021** (AC #2): The dice layer MUST double the dice of a critical hit's damage roll
+  (dice terms only, not modifiers).
+- **FR-022** (AC #9): An attack or check expression without exactly one plain `1d20` term
+  MUST be refused (`D20_TERM_REQUIRED`), and an attack with no known AC MUST be refused
+  (`TARGET_AC_UNKNOWN`).
 
 **Conditions**
 
@@ -277,15 +341,18 @@ claim.)
 
 - **Engine state**: the combatants and the active encounter, if any. It belongs to the
   session plane: TASK-0044 rebuilds it by folding engine events from the log.
-- **Combatant**: an id, a name, hit points (current, max, temporary), a zero-HP rule, a life
+- **Combatant**: an id, a name, hit points (current, max, temporary), an optional armour
+  class, a defense set (resistances, vulnerabilities, immunities), a zero-HP rule, a life
   state, death-save tallies, conditions, hit-dice pools, spell-slot pools, an initiative
   bonus and a Con modifier.
 - **Condition instance**: one applied condition with its instance id, source, optional
   exhaustion level and optional expiry point.
 - **Encounter**: the round, the turn order (combatant, total, bonus) and the active index.
-- **Command**: a typed request with a reason. Nineteen kinds (see contracts/commands.md).
-- **Event**: a typed, versioned ledger entry with a reason and before/after values.
-- **Refusal**: a closed-list code, a message and optional details.
+- **Command**: a typed request with a reason. Twenty-one kinds (see contracts/commands.md).
+- **Event**: a typed, versioned ledger entry with a reason; state-change events carry
+  before/after values. Eighteen kinds.
+- **Defense set**: the damage types a combatant resists, is vulnerable to and is immune to.
+- **Refusal**: one of 26 closed-list codes, a message and optional details.
 - **RNG**: a die roller the caller supplies, seeded or scripted.
 
 ## Success Criteria *(mandatory)*
@@ -308,10 +375,11 @@ claim.)
 - Rules follow SRD 5.2.1 (decision-0012): exhaustion has six levels and level 6 kills; a
   long rest restores all spent hit dice and needs at least 1 HP; dropping to 0 HP applies the
   Unconscious condition.
-- Effects beyond the scoped primitives (resistance, vulnerability, critical-hit dice doubling,
-  attack resolution, spell effects, condition effects on rolls) are decided by adjudication
-  (TASK-0046) and reach the engine as primitive commands: a final damage amount or
-  expression, a roll mode, a condition record.
+- Adjudication (TASK-0046) decides which rule applies and supplies data only: an attack or
+  check expression, an AC, a DC, damage types, a defense set, a roll mode, a condition
+  record. The engine does all arithmetic and comparisons (research R8). Spell and monster
+  effects beyond the scoped primitives, and condition effects on rolls, stay adjudicated and
+  arrive as that data.
 - Initiative ties break by initiative bonus, then by combatant id. A DM who wants a different
   order uses a later command; no manual reordering command is in scope.
 - Round-based expiry points mean something only inside an encounter. Conditions applied with

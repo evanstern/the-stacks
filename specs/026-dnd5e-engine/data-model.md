@@ -10,6 +10,8 @@ This file explains the entities, their relationships and their state transitions
 EngineState (v: 1)
  ├── combatants: Record<id, Combatant>
  │     ├── hp { current, max, temp }
+ │     ├── ac: int | null                    (null: attacks must carry targetAc)
+ │     ├── defenses { resistances, vulnerabilities, immunities }  (damage types)
  │     ├── zeroHpRule: death-saves | dies
  │     ├── lifeState: conscious | unconscious | stable | dead
  │     ├── deathSaves { successes 0..3, failures 0..3 }
@@ -30,6 +32,16 @@ EngineState (v: 1)
   characters.
 - A condition instance belongs to exactly one combatant. An expiry point names a round, a
   combatant whose turn boundary ends it, and the boundary.
+
+## Damage pipeline (per component, research R8)
+
+```
+ Amount ──roll (dice doubled on critical)──▶ raw = max(0, total)
+        ──defense set (command's, else record's)──▶ immune → 0
+                                                     else resisted → floor(raw/2)
+                                                     then vulnerable → ×2
+        ──▶ applied ──sum over components──▶ temp HP first, then HP
+```
 
 ## Life-state transitions
 
@@ -83,4 +95,4 @@ encounter entries name existing combatants; `turnIndex` within the order.
 | `spell-slots.changed` | the slot at `pool`/`level` → `expended` |
 | `encounter.started` / `encounter.changed` / `encounter.ended` | `encounter` = `after` |
 | `turn.advanced` | `encounter.round`, `encounter.turnIndex` |
-| `dice.rolled`, `rest.completed` | nothing |
+| `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed` | nothing (markers) |

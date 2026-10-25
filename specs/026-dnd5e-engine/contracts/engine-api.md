@@ -33,12 +33,13 @@ export function scriptedRng(faces: readonly number[]): ScriptedRng;
 // Schemas and inferred types.
 export {
   EngineStateSchema, CombatantSchema, ConditionInstanceSchema, EncounterSchema,
+  DamageTypeSchema, DefenseSetSchema,
   EngineCommandSchema, EngineEventSchema, RefusalSchema, RefusalCodeSchema,
   EngineResultSchema, ENGINE_SCHEMA_VERSION,
 };
 export type {
   EngineState, Combatant, ConditionInstance, Encounter, EngineCommand, EngineEvent,
-  Refusal, RefusalCode, EngineResult,
+  Refusal, RefusalCode, EngineResult, DamageType, DefenseSet,
 };
 ```
 
@@ -132,6 +133,18 @@ export const ConditionInstanceSchema = z.object({
   expiresAt: ExpiryPointSchema.nullable(),
 });
 
+export const DamageTypeSchema = z.enum([
+  "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic",
+  "piercing", "poison", "psychic", "radiant", "slashing", "thunder",
+]);
+
+// Each list holds unique types. Immunity wins over resistance and vulnerability.
+export const DefenseSetSchema = z.object({
+  resistances: z.array(DamageTypeSchema),
+  vulnerabilities: z.array(DamageTypeSchema),
+  immunities: z.array(DamageTypeSchema),
+});
+
 export const HitDicePoolSchema = z.object({
   die: z.union([z.literal(6), z.literal(8), z.literal(10), z.literal(12)]),
   total: z.number().int().min(0),
@@ -169,6 +182,8 @@ export const CombatantSchema = z.object({
   spellSlots: SpellSlotsSchema,
   initiativeBonus: z.number().int().min(-10).max(30),
   conModifier: z.number().int().min(-5).max(10),
+  ac: z.number().int().min(1).max(40).nullable(),   // null: AC must come with the attack
+  defenses: DefenseSetSchema,
 });
 
 export const InitiativeEntrySchema = z.object({
@@ -195,7 +210,7 @@ export const EngineStateSchema = z.object({
 State refinements (`superRefine`) that `INVALID_STATE` enforces: `hp.current <= hp.max`;
 `remaining <= total`; `expended <= max`; unique hit-die sizes; record key equals
 `combatant.id`; every encounter entry names an existing combatant; `turnIndex <
-order.length`; `lifeState` is consistent with HP (`conscious` implies `hp.current > 0`;
+order.length`; each defense list holds unique damage types; `lifeState` is consistent with HP (`conscious` implies `hp.current > 0`;
 `unconscious` and `stable` imply `hp.current === 0`).
 
 ## Dice parse result
@@ -220,6 +235,11 @@ dice       := [integer] "d" integer [keep]
 keep       := ("kh" | "kl") integer
 ```
 
+Critical doubling lives in the dice layer: the internal roller takes
+`{ mode, critical }`, and `critical: true` doubles every dice term's `count` (and its keep
+`n`) before rolling. Modifiers are not doubled. The doubled expression must pass the limits
+below; the check runs before any draw.
+
 Limits (`DICE_LIMIT_EXCEEDED`): count 1..100, sides 1..1000, keep `n` 1..count, at most 20
 terms, expression length at most 200 characters, each modifier at most 1000 in absolute
 value. `0d6`, `1d0` and a keep `n` of 0 are `INVALID_DICE_EXPRESSION`.
@@ -231,5 +251,8 @@ value. `0d6`, `1d0` and a keep `n` of 0 are `INVALID_DICE_EXPRESSION`.
   session envelope adds actor, seq, timestamp and visibility; the engine knows none of them.
 - **TASK-0045** calls `execute` once per approved proposal and appends every returned event
   in order, or nothing on a refusal. It returns the refusal's `code` to the proposer.
-- **TASK-0046** `resolve` builds commands; `narrate` and `audit` read the ledger fields
+- **TASK-0046** `adjudicate` supplies data only (expression, AC, DC, damage types, a
+  defense set, a roll mode, a condition record); it never supplies a hit/miss verdict, a
+  success/failure or an adjusted damage amount (orchestrator ruling 2026-10-25, research R8).
+  `resolve` builds commands; `narrate` and `audit` read the ledger fields
   (`reason`, faces, `total`, `before`, `after`) and never call `execute` themselves.

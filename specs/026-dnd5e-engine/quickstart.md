@@ -38,10 +38,17 @@ const add = execute(state, {
 if (add.ok) state = replay(add.events, state);
 
 const hit = execute(state, {
-  type: "damage.apply", targetId: "pc-ana", critical: false, damageType: "slashing",
-  amount: { kind: "roll", expression: "2d6+2" }, reason: "goblin scimitar hit",
+  type: "attack.roll", attackerId: null, targetId: "pc-ana", expression: "1d20+4",
+  targetAc: 14, reason: "goblin scimitar attack",
+}, scriptedRng([15]));
+// hit.ok === true; hit.events: dice.rolled (total 19), attack.resolved (outcome "hit")
+
+const dmg = execute(state, {
+  type: "damage.apply", targetId: "pc-ana", critical: false,
+  components: [{ amount: { kind: "roll", expression: "2d6+2" }, damageType: "slashing" }],
+  reason: "goblin scimitar hit",
 }, scriptedRng([4, 3]));
-// hit.ok === true; hit.events: dice.rolled (total 9), hp.changed 12 → 3
+// dmg.ok === true; dmg.events: dice.rolled (total 9), hp.changed 12 → 3 (raw 9, applied 9)
 ```
 
 ## Full gate

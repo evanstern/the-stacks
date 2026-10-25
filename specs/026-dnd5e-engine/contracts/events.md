@@ -1,6 +1,6 @@
 # Contract: engine events (the roll ledger)
 
-`EngineEventSchema` is a `z.discriminatedUnion("type", [...])` of the 16 events below. Every
+`EngineEventSchema` is a `z.discriminatedUnion("type", [...])` of the 18 events below. Every
 event carries:
 
 - `v: z.literal(1)` — the event schema version (constitution IV). A breaking change to one
@@ -9,8 +9,8 @@ event carries:
 
 Every **state-change** event also carries `combatantId` (where it concerns one combatant) and
 `before` and `after` values of exactly the slice it changed. `evolve` sets that slice to
-`after` and does nothing else, so replay needs no rules and no RNG. The two **marker** events
-(`dice.rolled`, `rest.completed`) change no state.
+`after` and does nothing else, so replay needs no rules and no RNG. The four **marker** events
+(`dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`) change no state.
 
 Events reference an earlier roll in the same result through `rollIndex: number | null`: the
 index, within that `execute` result's `events` array, of the `dice.rolled` event that produced
@@ -36,13 +36,33 @@ z.object({
   type: z.literal("dice.rolled"), v: z.literal(1), reason: Reason,
   expression: z.string(),                 // as given, trimmed
   mode: z.enum(["normal", "advantage", "disadvantage"]),
-  purpose: z.enum(["check", "damage", "healing", "temp-hp", "initiative",
-                   "death-save", "hit-die"]),
+  purpose: z.enum(["roll", "attack", "check", "save", "damage", "healing", "temp-hp",
+                   "initiative", "death-save", "hit-die"]),
+  critical: z.boolean(),                  // true when the dice layer doubled the dice
   combatantId: Id.nullable(),             // whose roll, when the command names one
   terms: z.array(DiceTermResult),
   total: z.number().int(),
   natural: z.number().int().nullable(),   // the kept d20 face when the expression has one
                                           // 1d20 term (advantage included); else null
+});
+
+z.object({
+  type: z.literal("attack.resolved"), v: z.literal(1), reason: Reason,
+  attackerId: Id.nullable(), targetId: Id,
+  rollIndex: z.number().int(),            // its dice.rolled event
+  ac: z.number().int(), acSource: z.enum(["command", "record"]),
+  total: z.number().int(), natural: z.number().int(),
+  outcome: z.enum(["hit", "miss", "critical-hit"]),
+});
+
+z.object({
+  type: z.literal("check.resolved"), v: z.literal(1), reason: Reason,
+  combatantId: Id.nullable(),
+  kind: z.enum(["ability-check", "saving-throw"]),
+  ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]), skill: z.string().nullable(),
+  rollIndex: z.number().int(),
+  dc: z.number().int(), total: z.number().int(), natural: z.number().int(),
+  outcome: z.enum(["success", "failure"]),
 });
 
 z.object({
@@ -53,7 +73,10 @@ z.object({
 ```
 
 Under advantage or disadvantage, the d20 term shows `count: 1`, two `faces` and one `true` in
-`kept`. `purpose: "check"` is the `roll` command's purpose (attacks, checks and saves alike).
+`kept`. `purpose` names the command that rolled: `roll` for the free-standing `roll`
+command, `attack` for `attack.roll`, `check` or `save` for `check.roll`. With `critical: true`
+the dice terms show the doubled `count` (a `2d6` crit shows `count: 4` and four faces), and
+`expression` stays the expression as given.
 
 ## State-change events
 
@@ -61,7 +84,7 @@ Under advantage or disadvantage, the d20 term shows `count: 1`, two `faces` and 
 |---|---|---|---|---|
 | `combatant.added` | `combatants[id]` | `null` | `Combatant` | `combatantId` |
 | `combatant.removed` | `combatants[id]` | `Combatant` | `null` | `combatantId` |
-| `hp.changed` | `hp.current`, `hp.temp` | `{ current, temp }` | `{ current, temp }` | `combatantId`, `cause: "damage" \| "healing" \| "temp-hp" \| "death-save" \| "rest"`, `amount: int` (the applied amount before temp/HP split and caps), `damageType: string \| null`, `critical: boolean`, `rollIndex` |
+| `hp.changed` | `hp.current`, `hp.temp` | `{ current, temp }` | `{ current, temp }` | `combatantId`, `cause: "damage" \| "healing" \| "temp-hp" \| "death-save" \| "rest"`, `amount: int` (the total applied before the temp/HP split and caps), `rawAmount: int \| null` (damage only: the total before defenses), `components` (damage only, else `null`; see below), `defensesSource: "command" \| "record" \| null` (damage only), `critical: boolean`, `rollIndex` (healing and temp HP: the roll, or `null`; damage: `null`, see `components`) |
 | `life-state.changed` | `lifeState` | `LifeState` | `LifeState` | `combatantId` |
 | `death-saves.changed` | `deathSaves` | `{ successes, failures }` | `{ successes, failures }` | `combatantId`, `rollIndex` |
 | `condition.applied` | one instance; `conditionSeq` | `null` | `ConditionInstance` | `combatantId`, `conditionSeq: { before, after }` |
@@ -74,10 +97,24 @@ Under advantage or disadvantage, the d20 term shows `count: 1`, two `faces` and 
 | `turn.advanced` | `encounter.round`, `encounter.turnIndex` | `{ round, turnIndex, combatantId }` | `{ round, turnIndex, combatantId }` | `skipped: Id[]` (dead combatants passed over) |
 | `encounter.ended` | `encounter` | `Encounter` | `null` | — |
 
+Damage components on `hp.changed` (one per command component, in order):
+
+```ts
+z.object({
+  damageType: DamageTypeSchema,
+  raw: z.number().int().min(0),
+  applied: z.number().int().min(0),
+  adjustment: z.enum(["none", "immune", "resisted", "vulnerable", "resisted-and-vulnerable"]),
+  rollIndex: z.number().int().nullable(),   // null for a fixed component
+});
+```
+
 Notes:
 
-- `hp.changed.amount` is the requested amount after the roll and the 0 floor: for damage of
-  12 against 5 temp HP and 4 HP, `amount` is 12, `before` is `{4, 5}` and `after` is `{0, 0}`.
+- `hp.changed.amount` is the amount after the roll, the 0 floor and (for damage) defenses:
+  for 12 applied damage against 5 temp HP and 4 HP, `amount` is 12, `before` is `{4, 5}` and
+  `after` is `{0, 0}`. `rawAmount` is the sum of `components[].raw`; `amount` is the sum of
+  `components[].applied`.
 - `condition.removed` for `exhaustion` at level 0 uses `cause: "command"` or `"rest"`.
 - `turn.advanced.after.combatantId` is the new active combatant. TASK-0045 reads it for
   turn-mode commit authority.
@@ -86,22 +123,24 @@ Notes:
 
 ## Example: damage that drops a PC
 
-Command: `{ type: "damage.apply", targetId: "pc-ana", amount: { kind: "roll", expression:
-"2d6+2" }, critical: false, damageType: "slashing", reason: "goblin scimitar hit" }`.
-Scripted faces: 4, 3. Ana has 7 HP, 0 temp, max 12.
+Command: `{ type: "damage.apply", targetId: "pc-ana", components: [{ amount: { kind: "roll",
+expression: "2d6+2" }, damageType: "slashing" }], critical: false, defenses: null, reason:
+"goblin scimitar hit" }`. Scripted faces: 4, 3. Ana has 7 HP, 0 temp, max 12, no defenses.
 
 ```json
 [
   { "type": "dice.rolled", "v": 1, "reason": "goblin scimitar hit", "expression": "2d6+2",
-    "mode": "normal", "purpose": "damage", "combatantId": "pc-ana",
+    "mode": "normal", "purpose": "damage", "critical": false, "combatantId": "pc-ana",
     "terms": [
       { "kind": "dice", "sign": 1, "count": 2, "sides": 6, "keep": null,
         "faces": [4, 3], "kept": [true, true], "subtotal": 7 },
       { "kind": "modifier", "value": 2 }],
     "total": 9, "natural": null },
   { "type": "hp.changed", "v": 1, "reason": "goblin scimitar hit", "combatantId": "pc-ana",
-    "cause": "damage", "amount": 9, "damageType": "slashing", "critical": false,
-    "rollIndex": 0, "before": { "current": 7, "temp": 0 }, "after": { "current": 0, "temp": 0 } },
+    "cause": "damage", "amount": 9, "rawAmount": 9, "defensesSource": "record",
+    "components": [{ "damageType": "slashing", "raw": 9, "applied": 9,
+                     "adjustment": "none", "rollIndex": 0 }],
+    "critical": false, "rollIndex": null, "before": { "current": 7, "temp": 0 }, "after": { "current": 0, "temp": 0 } },
   { "type": "life-state.changed", "v": 1, "reason": "goblin scimitar hit",
     "combatantId": "pc-ana", "before": "conscious", "after": "unconscious" },
   { "type": "condition.applied", "v": 1, "reason": "goblin scimitar hit",
