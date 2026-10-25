@@ -4,7 +4,7 @@ title: 'Re-center the design: First Scene slice, 5e-only, gate and table modes'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:52'
-updated_date: '2026-10-25 19:53'
+updated_date: '2026-10-25 19:55'
 labels:
   - design
   - docs
@@ -30,12 +30,12 @@ Record the 2026-10-25 re-design session as durable artifacts. The session (opera
 - [ ] #7 constitution.md Principle VI is amended to 5e-only with a version bump and sync impact report
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator checkpoint 2026-10-25: operator chose the opus-implementer (escalation) tier for drafting this revision from a handoff brief.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
