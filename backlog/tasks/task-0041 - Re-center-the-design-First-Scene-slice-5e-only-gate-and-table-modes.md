@@ -45,6 +45,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Follow-up (operator ruling on judgment call 6): carded M4-M9 up front. M4 TASK-0056..0063 (NPC-smith TASK-0061 depends on TASK-0054; TASK-0058/0062 depend on TASK-0055), M5 TASK-0064..0067, M6 TASK-0068..0076, M7 TASK-0077..0082, M8 TASK-0083..0086, M9 TASK-0087..0091 (TASK-0087 re-plan gates the rest). decision-0020 body, doc-0004, architecture A14 and milestones.md updated (522b14a). M4 re-baselined to 4 wk and M6 to 5 wk; board milestone descriptions m-4..m-8 still carry the old targets because the Backlog tooling cannot edit a milestone description.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
