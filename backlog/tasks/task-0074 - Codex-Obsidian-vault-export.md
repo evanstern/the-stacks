@@ -1,9 +1,10 @@
 ---
 id: TASK-0074
-title: 'Codex: Obsidian vault export'
+title: 'Maps and the Table View: Obsidian vault export of the codex'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - codex
   - export
