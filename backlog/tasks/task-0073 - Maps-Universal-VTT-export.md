@@ -1,9 +1,10 @@
 ---
 id: TASK-0073
-title: 'Maps: Universal VTT export'
+title: 'Maps and the Table View: Universal VTT export'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-10-25 20:19'
 labels:
   - maps
   - vtt
