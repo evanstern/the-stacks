@@ -1,10 +1,10 @@
 ---
 id: TASK-0042
 title: 'First Scene: pure 5e engine package'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-25 19:59'
+updated_date: '2026-10-25 22:25'
 labels:
   - first-scene
   - engine
@@ -26,6 +26,8 @@ Outcome: a pure 5e engine package. Its one entry point is (state, command, rng) 
 Why: the engine owns every number; the LLM owns story and never rolls or does arithmetic (decision-0017 layer 2, decision-0021 idea 1). The gate (TASK-0045) wraps this function, and every later milestone resolves mechanics through it. 5e only, behind a dnd5e module boundary (decision-0010).
 
 Scope: dice expression parser, seeded RNG with scripted-dice injection, HP and temporary HP, conditions as data, initiative and turn order, life states and death saves, short and long rests, spell slots, refusal codes. Spell and monster effects beyond these primitives resolve through adjudication (TASK-0046), not code.
+
+Spec: specs/026-dnd5e-engine
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -42,6 +44,12 @@ Scope: dice expression parser, seeded RNG with scripted-dice injection, HP and t
 - [ ] #10 The boundary check fails if the package imports a database, network or LLM module.
 - [ ] #11 Scripted-dice unit tests cover every command and every refusal code.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 1). Worktree .worktrees/task-0042, branch task-0042-dnd5e-engine, cut from origin/main 4fee63a. Spec number 026-dnd5e-engine claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
