@@ -1,6 +1,61 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 1.0.1 -> 2.0.0
+Bump rationale: MAJOR. Principle VI is redefined incompatibly: the
+  system-agnostic core and the fate-core conformance module are removed and
+  replaced by a 5e-only rule (decision-0010). Principle VIII's "ships no rulebook
+  content" is narrowed to proprietary content, so openly licensed SRD 5.2.1 data
+  may ship with its required attribution (decision-0012). Principle IV's
+  validation clause now names the gate and the 5e engine (decision-0015,
+  decision-0017).
+
+Principles amended:
+  IV.   Event-Sourced Play, Server Authority - validation clause reworded:
+        "validate against the active system module" -> "pass every change
+        through the gate and the 5e engine"; pending proposals named as hidden
+        information. Obligation unchanged in kind.
+  VI.   System-Agnostic Core, 5e First -> 5e Only, Behind an Engine Boundary
+        (redefined; conformance suite removed).
+  VIII. Operator-Owned Content (NON-NEGOTIABLE) - "ships no rulebook content"
+        -> "ships no proprietary rulebook content"; SRD data with attribution
+        permitted. Stays NON-NEGOTIABLE.
+  I.    Agent-Operable by Construction - rationale text only: the milestone
+        reference "(M7-M9)" no longer names the automaton after the 2026-10-25
+        ladder; reworded without milestone numbers. No obligation change.
+
+Sections amended:
+  - Architecture Constraints: the deferred item "Runtime-pluggable third-party
+    system modules" removed (no system-module interface exists any more).
+  - Development Workflow and Quality Gates: "system-module conformance
+    (Principle VI)" replaced by "5e engine scripted-dice tests (Principle VI)".
+
+Sections removed: none.
+
+Templates requiring updates:
+  .specify/templates/plan-template.md   - updated: VI check now "5e boundary";
+                                          VIII check names SRD attribution;
+                                          stack line says React Router 8 SSR
+  .specify/templates/spec-template.md   - updated: CR-004 now a 5e-boundary
+                                          requirement; CR-005 wording
+  .specify/templates/tasks-template.md  - updated: conformance task replaced by
+                                          scripted-dice engine tests and SRD
+                                          attribution guard
+  .specify/templates/checklist-template.md - checked: no principle references
+  .specify/templates/constitution-template.md - checked: generic example only
+  README.md / docs                      - checked: no principle references
+
+Migration for work already built: none required. Existing specs carry CR-004
+  "system-agnostic" requirements; they forbade 5e assumptions in code that has
+  none (scaffold, compose, server, event log, gateway, parser, answerer). They
+  remain true and are historical; no spec is rewritten.
+
+Deferred TODOs: none.
+
+Provenance: decision-0010, decision-0012, decision-0015, decision-0017, session
+  record doc-0004 (2026-10-25), carried by TASK-0041.
+
+==================
 Version change: 1.0.0 -> 1.0.1
 Bump rationale: PATCH. Client row of the Architecture Constraints table only,
   ratified by decision-0008 / doc-0003 (2026-09-29). No principle redefined,
@@ -69,7 +124,7 @@ is the end goal, and it is not a later port. An agent MUST reach every capabilit
 through the same validated interface a human uses. No feature may ship a
 human-only path that an agent cannot drive.
 
-Rationale: the automaton (M7-M9) is reachable only if the table is built for an
+Rationale: the automated DM is reachable only if the table is built for an
 agent to sit at from the first commit. Retrofitting agent access later means
 rewriting every subsystem.
 
@@ -109,10 +164,13 @@ A game session IS its event log. Events are typed, ordered by `(session_id, seq)
 and append-only. Nothing updates an event.
 
 - All mutations MUST pass through the server.
-- The server MUST validate against the active system module before it appends.
+- The server MUST pass every proposed change through the gate and the 5e engine
+  before it appends, and MUST append only the events they produce. A refusal
+  appends nothing.
+- LLM output MUST reach the log only as a typed proposal, never as a direct write.
 - Client state and agent context MUST both be projections of the log.
-- Hidden information MUST live in events carrying a `visibility` field, filtered
-  per viewer at projection time.
+- Hidden information (including secret trackers and pending proposals) MUST live
+  in events carrying a `visibility` field, filtered per viewer at projection time.
 - Events MUST carry a schema version. Projections MUST tolerate unknown types.
 
 The AI DM is just another actor: it consumes the same log and emits the same
@@ -133,21 +191,27 @@ improvises, it MUST say so.
 Verification: retrieval quality is gated by fixture-based eval suites in CI. A
 retrieval regression fails the build.
 
-### VI. System-Agnostic Core, 5e First
+### VI. 5e Only, Behind an Engine Boundary
 
-Game mechanics MUST live behind a system-module interface. The core MUST NOT
-assume d20, hit points, or initiative order.
+the-stacks supports D&D 5e and no other game system.
 
-- `dnd5e` is the product: full depth, real implementation.
-- `fate-core` is the conformance check: interface depth only, deliberately alien
-  (fudge dice, aspects, stress tracks, no initiative order).
+- Game mechanics MUST live in one pure 5e engine package with a narrow entry
+  point: `(state, command, rng) -> events | refusal`.
+- The engine MUST NOT perform I/O or call a model. Its RNG MUST be seedable, and
+  tests MUST be able to inject scripted dice.
+- The engine owns every number: dice, hit points, conditions, initiative, death
+  saves, rests and spell slots. A model MUST NOT roll or compute these.
+- Session, library and codex code MUST reach mechanics only through the engine
+  package.
+- The project builds no second system, no system-module interface and no
+  conformance suite.
 
-A system module declares its character sheet schema, dice and resolution
-semantics, turn structure, condition model, and the event types it validates. CI
-MUST run the conformance suite against both modules.
+Rationale: a conformance module is a tax paid for a user the project does not
+have. The boundary that matters, a pure and testable engine, survives without it
+(decision-0010, 2026-10-25).
 
-Rationale: a second d20 system would only mirror 5e's assumptions back at us. Fate
-proves the interface is honestly agnostic.
+Verification: the boundary check forbids I/O and model imports in the engine
+package. Scripted-dice tests cover every engine command.
 
 ### VII. Structured Before Styled
 
@@ -163,10 +227,15 @@ part of the contract.
 
 ### VIII. Operator-Owned Content (NON-NEGOTIABLE)
 
-the-stacks ships no rulebook content. The operator imports their own lawfully
-obtained books.
+the-stacks ships no proprietary rulebook content. The operator imports their own
+lawfully obtained books.
 
 - The project MUST NOT bundle, scrape, or redistribute proprietary content.
+- The project MAY ship openly licensed SRD data (SRD 5.2.1, CC-BY-4.0). Shipped
+  SRD data MUST carry the license's exact attribution statement, and a test MUST
+  guard it (decision-0012).
+- Records extracted from an operator's imports MUST stay in that operator's
+  database volume, like the books they come from.
 - Imported content MUST stay in the operator's own database volume.
 - Generated output MUST NOT reproduce book text beyond quoted citations shown to
   the operator who supplied that book.
@@ -210,8 +279,6 @@ Deferred by decision, with the seam that admits them later:
   jobs measurably starve the event loop, proven by load, not by anticipation.
 - Local embeddings, local diffusion, ComfyUI — enter as an optional sidecar behind
   the model or image seam.
-- Runtime-pluggable third-party system modules — when someone outside the project
-  writes one.
 
 Adding a service, a language, or a datastore requires a Complexity Tracking entry
 in the plan and an amendment if it contradicts the table above.
@@ -232,8 +299,8 @@ in the plan and an amendment if it contradicts the table above.
 - **Grounding stays fresh.** Changes touching files pinned by `docs/wiki/` are not
   done until the wiki is re-pinned.
 - **CI is the gate.** Lint, typecheck, test, build, and the cross-plane boundary
-  check MUST pass. Retrieval evals (Principle V) and system-module conformance
-  (Principle VI) join CI at the milestone that introduces them.
+  check MUST pass. Retrieval evals (Principle V) and the 5e engine's scripted-dice
+  tests (Principle VI) join CI at the milestone that introduces them.
 - **Definition of Done.** All checks green, and every acceptance criterion met or
   explicitly bypassed with a recorded note.
 
@@ -263,6 +330,8 @@ alternative and why it was rejected. An unjustified violation blocks the merge.
 2026-09-21, recorded in backlog `decision-1`, and expand on
 `docs/design/vision.md`, `docs/design/architecture.md`, and
 `docs/design/milestones.md`. Those documents remain the reasoning; this file is
-the obligation.
+the obligation. Version 2.0.0 (2026-10-25) amends IV, VI and VIII per
+decision-0010, decision-0012, decision-0015 and decision-0017 (session record
+doc-0004).
 
-**Version**: 1.0.1 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-30
+**Version**: 2.0.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-10-25

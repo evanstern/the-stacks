@@ -12,7 +12,7 @@ sources:
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
 ---
 
 # React Router app
@@ -47,7 +47,7 @@ mechanism): its `Layout` renders the HTML shell (`Meta`/`Links` in `head`,
 `Scripts`/`ScrollRestoration` in `body`, plus a `data-theme` attribute on `<html>` from the
 loader's UI-cookie read, [[chat-ui]]), and its default component reads `loaderData.user` —
 `<SignIn />` when falsy; otherwise `<Outlet />` wrapped in `<AppStoreProvider><Shell>…`
-(TASK-0028, [[chat-ui]]), for any route. `links()` points at `app/app.css?url` (Tailwind v4 +
+(TASK-0028, [[chat-ui]]), for any route. `links()` points at the SVG icon `/favicon.svg` and at `app/app.css?url` (Tailwind v4 +
 shadcn's CSS variables, see [[static-serving]]'s sibling styling setup). An `ErrorBoundary`
 renders a plain error message.
 

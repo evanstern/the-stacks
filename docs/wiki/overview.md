@@ -1,6 +1,6 @@
 ---
 name: overview
-description: The system's shape at M0 — one Node process serving an HTTP API, a WebSocket gateway, and a React SPA, over a single Postgres holding an append-only event log. Read this before any other note; it names the three data planes, the entry points, and which seams exist versus which are still empty.
+description: The system's shape at M0 (plus the planned 5e-only, proposal-gate, DM-runtime, VTT-adapter direction and the M2-M9 ladder) — one Node process serving an HTTP API, a WebSocket gateway, and a React SPA, over a single Postgres holding an append-only event log. Read this before any other note; it names the three data planes, the entry points, and which seams exist versus which are still empty.
 kind: concept
 sources:
   - docs/design/architecture.md
@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 6ab21fda293591d719b196e235f0923452561987
 ---
 
 # Overview
@@ -46,7 +46,7 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 | plane | what it holds | at this commit |
 |---|---|---|
 | library | imported reference content | storage ([[library-schema]]), ingestion ([[ingestion]], TASK-0024: upload → parse → chunk → store → embed), and a read path ([[rules-answerer]], TASK-0027: retrieve → answer → cite over SSE) all land |
-| codex | campaign entities | empty — M2 |
+| codex | campaign entities | empty — planned for M4 (The Codex); M2 runs from a hand-authored scene seed |
 | session | what happened at the table | the event log, live |
 
 The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
@@ -60,6 +60,33 @@ The client is a React Router 8 app in framework mode ([[react-router-app]]), ser
 by default and served by the same container — SSR by default, with realtime and canvas
 routes staying client-only, is fixed in the architecture's constraints table (amended
 TASK-0040, doc-0003 / decision-0008), along with Hono, `ws`, Drizzle, and Postgres 17.
+
+## Planned direction (design re-centre, 2026-10-25)
+
+Nothing in this section is built; it is the design the next milestones target
+(`docs/design/architecture.md`, decision-0009 to decision-0021). Present-state code is
+described in the sections above and in the linked notes.
+
+- **5e only.** The planned system-agnostic core and the Fate conformance module are dropped.
+  Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
+  point `(state, command, rng) -> events | refusal`; it does no I/O and calls no model, and
+  the engine owns every number (dice, hit points, conditions, initiative, rests, slots).
+- **Proposal gate.** LLM output reaches the event log only as a typed proposal that passes
+  the gate and the engine (Principle IV). Each proposal kind runs `auto`, `ask` or `suggest`;
+  a refusal appends nothing; pending proposals are hidden information.
+- **DM runtime.** Turn jobs run on the same worker loop as ingestion jobs (planned A11);
+  talk, action and table modes are planned in A12.
+- **VTT ports and adapters.** The in-app PixiJS table view and external VTTs (Foundry or
+  Owlbear) sit behind ports (planned A13), at M6.
+- **SRD baseline.** SRD 5.2.1 data (CC-BY-4.0, with exact attribution) may ship with the
+  engine; it is versioned read-only data, not a fourth plane. Proprietary book content still
+  never ships (Principle VIII).
+- **Milestone ladder.** M0 and M1 stand. Next: M2 First Scene (AI-run vertical slice,
+  target 2026-11-24), M3 The Table (multiplayer), M4 The Codex, M5 Imported Mechanics, M6
+  Maps and the Table View, M7 The Dial = V1 (target 2027-03-23), M8 Memory and Pacing, M9
+  Solo Campaign (a sketch, re-planned at V1 by TASK-0087). Every milestone from M2 to M9 is
+  carded up front (decision-0020: TASK-0042 to TASK-0053 and TASK-0056 to TASK-0091), and
+  dropping a card needs a decision record. The 2026-09-21 ladder is superseded.
 
 ## Connections
 

@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 91 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam, including the load context's jobs() (TASK-0028). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
+description: What this note's 12 core server test files / 92 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam, including the load context's jobs() (TASK-0028). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
 ---
 
 # Test suite
@@ -68,17 +68,17 @@ exists to run.
 
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
-resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **47
-tests pass, 44 skip**, out of 91 (TASK-0024 added `config.test.ts`'s 5 always-run cases and one
+resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **48
+tests pass, 44 skip**, out of 92 (TASK-0024 added `config.test.ts`'s 5 always-run cases and one
 case to `echo.test.ts`'s gated-free `describe`, on top of TASK-0032's `isUniqueViolation`
 cases; TASK-0040 added one gated case to `auth.integration.test.ts` and rewrote
 `static.test.ts` onto the new web-middleware seam, netting no change to the file's own test
 count at the time; TASK-0028 added one always-run case to `static.test.ts` for the load
-context's `jobs()`). A green run in this state proves the unit-level behavior only; every
+context's `jobs()`; a later `favicon` case asserts `/favicon.ico` answers 204 without calling the handler). A green run in this state proves the unit-level behavior only; every
 session-auth flow, every event-log write/read, and the entire WebSocket gateway (including
 [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
 pass/fail summary, not the warning text, would not notice. With a reachable database and
-`REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **91 tests pass, 0 skip**.
+`REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **92 tests pass, 0 skip**.
 
 **`apps/server/vitest.config.ts`** (TASK-0024) sets `fileParallelism: false` for the whole
 package — every suite in this note's scope included — because [[ingestion]]'s integration

@@ -7,7 +7,7 @@ sources:
   - apps/web/app/root.tsx
   - apps/server/src/web.ts
   - packages/shared/src/web.ts
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
 ---
 
 # Client identity

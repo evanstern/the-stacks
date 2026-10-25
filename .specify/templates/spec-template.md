@@ -113,10 +113,10 @@
   in-character content from it alone.
 - **CR-003** (V. Citations): Any claim this feature draws from the library MUST
   carry a verifiable source anchor.
-- **CR-004** (VI. System-agnostic): This feature MUST NOT assume 5e mechanics
-  outside a system module.
-- **CR-005** (VIII. Operator-owned content): This feature MUST NOT ship or
-  reproduce rulebook content beyond cited quotes.
+- **CR-004** (VI. 5e engine boundary): This feature MUST reach game mechanics
+  only through the 5e engine package, and no model may roll or compute a number.
+- **CR-005** (VIII. Operator-owned content): This feature MUST NOT ship
+  proprietary rulebook content or reproduce book text beyond cited quotes.
 
 ### Key Entities *(include if feature involves data)*
 
