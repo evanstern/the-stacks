@@ -1,9 +1,10 @@
 ---
 id: TASK-0043
 title: 'First Scene: SRD 5.2.1 baseline data with attribution'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-25 22:25'
 labels:
   - first-scene
   - srd
@@ -27,6 +28,8 @@ Why: decision-0012 sets the SRD as the mechanics baseline. Imports layer over it
 License: SRD 5.2.1 is CC-BY-4.0. Its legal page requires one exact attribution statement and asks for no other attribution to Wizards. Verified against the SRD 5.2.1 PDF on 2026-10-25. The spec names the data source (transcription or an existing CC-BY dataset) and that source's own license.
 
 Runs in parallel with the engine card. It depends on nothing else.
+
+Spec: specs/027-srd-data
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -39,6 +42,12 @@ Runs in parallel with the engine card. It depends on nothing else.
 - [ ] #6 A test fails when the attribution file is missing or a record lacks a source reference.
 - [ ] #7 The data contains no content from outside SRD 5.2.1.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 1). Worktree .worktrees/task-0043, branch task-0043-srd-data, cut from origin/main 4fee63a. Spec number 027-srd-data claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
