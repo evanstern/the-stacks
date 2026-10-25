@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
+verified_against: 6ab21fda293591d719b196e235f0923452561987
 ---
 
 # Overview
@@ -83,8 +83,10 @@ described in the sections above and in the linked notes.
   never ships (Principle VIII).
 - **Milestone ladder.** M0 and M1 stand. Next: M2 First Scene (AI-run vertical slice,
   target 2026-11-24), M3 The Table (multiplayer), M4 The Codex, M5 Imported Mechanics, M6
-  Maps and the Table View, M7 The Dial = V1, M8 Memory and Pacing, M9 Solo Campaign. The
-  2026-09-21 ladder is superseded.
+  Maps and the Table View, M7 The Dial = V1 (target 2027-03-23), M8 Memory and Pacing, M9
+  Solo Campaign (a sketch, re-planned at V1 by TASK-0087). Every milestone from M2 to M9 is
+  carded up front (decision-0020: TASK-0042 to TASK-0053 and TASK-0056 to TASK-0091), and
+  dropping a card needs a decision record. The 2026-09-21 ladder is superseded.
 
 ## Connections
 
