@@ -53,18 +53,20 @@ or the plan does not proceed.
       server-validated, versioned, with visibility set where information is hidden.
 - [ ] **V. Citations** — any library-derived claim carries a source anchor, and
       retrieval changes ship fixture-based evals.
-- [ ] **VI. System-agnostic** — no 5e assumption leaks into core; mechanics sit
-      behind the system-module interface and conformance still passes.
+- [ ] **VI. 5e engine boundary** — mechanics live only in the pure 5e engine
+      package; no model rolls or computes a number; engine changes ship
+      scripted-dice tests.
 - [ ] **VII. Structured first** — generated artifacts are validated data before
       render; assets store prompt, provider, and seed.
-- [ ] **VIII. Operator-owned content** — ships no rulebook content and reproduces
-      no book text beyond cited quotes. NON-NEGOTIABLE.
+- [ ] **VIII. Operator-owned content** — ships no proprietary rulebook content;
+      shipped SRD data carries its attribution; reproduces no book text beyond
+      cited quotes. NON-NEGOTIABLE.
 - [ ] **IX. Self-hostable** — works from `docker compose up`; model and image
       access stay behind their seams; no new container without proven need.
 
 **Stack conformance** — the feature stays within the Architecture Constraints
-table (TypeScript, one Node process, Hono, React SPA, PixiJS, Postgres, Drizzle,
-Zod). Any departure is an amendment, not a plan decision.
+table (TypeScript, one Node process, Hono, React Router 8 SSR, PixiJS, Postgres,
+Drizzle, Zod). Any departure is an amendment, not a plan decision.
 
 ## Project Structure
 

@@ -173,8 +173,10 @@ Include each task that applies; delete the rest.
 - [ ] TXXX Projection tolerates unknown and future event types (Principle IV)
 - [ ] TXXX Retrieval eval fixtures added or extended for new library surfaces
       (Principle V)
-- [ ] TXXX System-module conformance suite passes for dnd5e and fate-core
+- [ ] TXXX Scripted-dice tests cover every new or changed engine command
       (Principle VI)
+- [ ] TXXX Shipped SRD data keeps its attribution file and guard test
+      (Principle VIII)
 - [ ] TXXX Generated assets persist prompt, provider, and seed (Principle VII)
 - [ ] TXXX Agent-facing interface exercised by a test, not only the human UI
       (Principle I)
