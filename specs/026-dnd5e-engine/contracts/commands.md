@@ -47,7 +47,7 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
 | Command | Fields | Events | Refusals |
 |---|---|---|---|
 | `attack.roll` | `attackerId: Id \| null`, `targetId`, `expression` (e.g. `"1d20+5"`), `mode: RollMode`, `targetAc: int 1..40 \| null = null`, `reason` | `dice.rolled` (purpose `attack`), `attack.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TARGET_AC_UNKNOWN` |
-| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
+| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `autoFail: { reason } \| null = null`, `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved`; with `autoFail`, `check.resolved` only | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
 
 - Both commands require a plain d20 term in `expression`, else `D20_TERM_REQUIRED`. The
   rest of the expression carries the bonus adjudication chose (proficiency, ability
@@ -64,6 +64,14 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   natural 20 or 1 no automatic result on ability checks or saving throws, so the engine
   records `natural` but does not use it. `combatantId` null means a roll for something not in
   the state (an NPC the scene has not added); when not null it must exist and not be dead.
+- **Automatic failure** (orchestrator ruling 2026-10-25). `autoFail: { reason:
+  z.string().min(1).max(500) }` is adjudication's decision that a rule makes this check or
+  save fail automatically (for example a Paralyzed creature's Dexterity save). The engine
+  does not derive it from conditions (FR-011). With `autoFail` present, the engine still
+  parses the expression and runs every precondition, then draws no die and emits only
+  `check.resolved` with outcome `failure`, the DC, `autoFail` and null roll fields. No
+  combination with `autoFail` is illegal: `mode` and a valid `expression` are simply unused,
+  so `autoFail` adds no refusal code.
 - `attack.roll` applies no damage. The `resolve` node (no LLM) follows a `hit` or
   `critical-hit` with `damage.apply`, setting `critical: true` exactly when the
   `attack.resolved` outcome is `critical-hit`.

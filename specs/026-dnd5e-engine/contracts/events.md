@@ -60,9 +60,12 @@ z.object({
   combatantId: Id.nullable(),
   kind: z.enum(["ability-check", "saving-throw"]),
   ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]), skill: z.string().nullable(),
-  rollIndex: z.number().int(),
-  dc: z.number().int(), total: z.number().int(), natural: z.number().int(),
-  outcome: z.enum(["success", "failure"]),
+  rollIndex: z.number().int().nullable(),      // null when autoFail
+  dc: z.number().int(),
+  total: z.number().int().nullable(),          // null when autoFail
+  natural: z.number().int().nullable(),        // null when autoFail
+  autoFail: z.object({ reason: Reason }).nullable(),
+  outcome: z.enum(["success", "failure"]),     // always "failure" when autoFail
 });
 
 z.object({

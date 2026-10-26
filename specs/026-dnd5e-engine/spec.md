@@ -12,7 +12,7 @@ decision-0020, decision-0021; constitution 2.0.0 (principles I, IV, VI).
 
 **Amended 2026-10-25** by orchestrator ruling (research R8, from decision-0021 idea 1 and
 decision-0017): the engine owns attack, check, save, critical-doubling and damage-defense
-arithmetic; adjudication supplies data only. User Story 6 and FR-018 to FR-022 were added;
+arithmetic; adjudication supplies data only. User Story 6 and FR-018 to FR-022 were added; FR-023 (automatic failure as data) followed the same day;
 FR-009 changed.
 
 **Clarify pass**: skipped. Every open point had a default an existing artifact settles: the
@@ -85,6 +85,9 @@ assert raw and applied amounts.
    **Then** the outcome is `miss`.
 3. **Given** a DC 13 save rolled as `1d20+2`, **When** the d20 shows 11, **Then** the outcome
    is `success` (13 meets the DC).
+3a. **Given** adjudication rules that a Paralyzed creature fails Dexterity saves, **When** a
+   DC 13 save carries `autoFail`, **Then** no die is drawn and the outcome is `failure` with
+   the automatic-failure reason recorded.
 4. **Given** a critical hit, **When** damage `2d6+3` slashing applies, **Then** four d6 are
    rolled and the modifier is added once.
 5. **Given** a target resistant to fire, **When** 9 fire damage applies, **Then** the event
@@ -286,6 +289,10 @@ with before and after values.
 - **FR-022** (AC #9): An attack or check expression without exactly one plain `1d20` term
   MUST be refused (`D20_TERM_REQUIRED`), and an attack with no known AC MUST be refused
   (`TARGET_AC_UNKNOWN`).
+- **FR-023** (AC #5, #9): `check.roll` MUST accept an optional automatic-failure input with
+  its own reason, supplied by adjudication (orchestrator ruling 2026-10-25). With it, the
+  engine MUST draw no die and MUST record outcome failure, the DC and the automatic-failure
+  reason. The engine MUST NOT derive automatic failure from conditions (FR-011 stands).
 
 **Conditions**
 

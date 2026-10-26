@@ -201,14 +201,17 @@ carrying before/after values.
       required; AC from `targetAc`, else record, else `TARGET_AC_UNKNOWN`; natural 20 →
       `critical-hit`, natural 1 → `miss`, else `total >= ac`; `attack.resolved` with
       `acSource` and `rollIndex`) and `check.roll` (purpose `check` or `save`; `total >= dc`;
-      naturals recorded but not used; `check.resolved`). Register both.
+      naturals recorded but not used; `check.resolved`; `autoFail` → no draw, outcome
+      `failure`, per contracts/commands.md "Automatic failure"). Register both.
 - [ ] T034 [P] [US6] Write `test/commands/attacks.test.ts` (scripted dice): natural 20 against
       AC 30 → `critical-hit`; natural 1 with `+10` against AC 5 → `miss`; total equal to AC →
       `hit`; one below → `miss`; advantage keeps the higher d20 and `natural` is the kept
       face; bonus die `1d20+5+1d4` counts toward the total; `targetAc` overrides the record
       and `acSource` says so; `attackerId` null allowed; save success at exactly the DC;
       failure one below; natural 20 on a save below the DC still fails; ability check with a
-      skill; refusals `D20_TERM_REQUIRED` (`2d20`, `1d20kh1`, `1d6+3`, `1d20+1d20`),
+      skill; `autoFail` on a save: a `countingRng` sees 0 draws, the only event is
+      `check.resolved` with outcome `failure`, the DC, `autoFail.reason` and null
+      `total`/`natural`/`rollIndex`; refusals `D20_TERM_REQUIRED` (`2d20`, `1d20kh1`, `1d6+3`, `1d20+1d20`),
       `TARGET_AC_UNKNOWN`, `UNKNOWN_COMBATANT` (target, attacker, checking combatant),
       `TARGET_DEAD` (target, attacker), `INVALID_DICE_EXPRESSION`, each at 0 draws.
 - [ ] T035 [US6] Add an attack-to-damage flow test to `test/commands/attacks.test.ts`: a
