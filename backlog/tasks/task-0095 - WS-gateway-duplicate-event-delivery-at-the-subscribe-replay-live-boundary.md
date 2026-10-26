@@ -4,7 +4,7 @@ title: 'WS gateway: duplicate event delivery at the subscribe replay/live bounda
 status: In Progress
 assignee: []
 created_date: '2026-10-26 02:38'
-updated_date: '2026-10-26 02:45'
+updated_date: '2026-10-26 02:48'
 labels:
   - server
   - ws
@@ -47,6 +47,9 @@ Why a replay floor, not a running delivered watermark: broadcasts are not guaran
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Fix committed as 1d95cb6: Connection.replayedThroughSeq replay floor; broadcast skips seq <= floor on queue and direct paths. New deterministic test 'replay/append/broadcast race (TASK-0095)' fails with the broadcast skip removed (expected [1,1] to equal [1]) and passes with it. Full server suite 417 passed / 5 skipped; typecheck and biome clean. T012: 20/20 consecutive local passes (implementer), re-verified 20/20 by orchestrator.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Wiki re-grounded in 80a2c36 (replay-live-boundary, subscriber-registry, test-suite, websocket-gateway). Plan gate empty; freshness exits 0. test-suite counts re-run by orchestrator: 48 pass / 45 skip without DB, 93 pass with DB.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
