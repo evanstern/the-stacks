@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 05:13'
+updated_date: '2026-10-26 05:22'
 labels:
   - first-scene
   - dm
@@ -52,7 +52,7 @@ Spec: specs/031-dm-runtime
 - [ ] #14 Doctrine prompts adapted from tabletop-dm carry an MIT attribution notice.
 - [ ] #15 Tests run a full turn against the fake gateway adapter with scripted dice.
 - [x] #16 Spec phase: The jobs queue for DM jobs (US4, US8; AC #1, #9)
-- [ ] #17 Spec phase: Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15)
+- [x] #17 Spec phase: Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15)
 - [ ] #18 Spec phase: Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11)
 - [ ] #19 Spec phase: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
 - [ ] #20 Spec phase: Worker, actors and routes (US4, US5, US7; AC #1, #5, #10, #12)
@@ -78,6 +78,11 @@ Implementation dispatch grouping: one phase per dispatch, P1 to P6.
 Correction: the spec authoring above cost ~348k tokens.
 Phase 1 by sonnet-implementer: a684c31. Migration 0004_glamorous_warlock was generated, not hand-edited. queue.ts and dm/jobs.ts added, and ingestion's job queries now filter by kind (FR-007). The DB suite passes 476 server tests; ci:check green.
 Carried to later phases: Phase 3 and 4 narrow the TurnCheckpoint fields; Phase 5's worker appends the FR-012 failure notice for an abandoned job.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 by sonnet-implementer: eeefbd3. Seed schema and loader added (seed copied byte-identical), with the doctrine module, NOTICE.md and its guard test. Seven dm.* purposes, purpose-keyed fake-provider queues and the DmScript format added. docker build ok. The DB suite passes 508 server tests; ci:check green.
+The orchestrator verified that NOTICE.md contains tabletop-dm's LICENSE at fe2c29b verbatim (MIT, Copyright (c) 2026 Brad Bush).
+Carried to Phase 5: the boot-time missingDmPurposes check still needs wiring.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
