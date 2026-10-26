@@ -101,9 +101,9 @@ function stubNodes(
       () => over.interpret ?? { readings: [reading(false)] },
     ),
     adjudicate: make("adjudicate", () => ({ rulings: [] })),
-    resolve: make("resolve", () => ({})),
-    narrate: make("narrate", () => ({})),
-    audit: make("audit", () => ({})),
+    resolve: make("resolve", () => ({}) as never),
+    narrate: make("narrate", () => ({}) as never),
+    audit: make("audit", () => ({}) as never),
   };
   return { order, nodes, gates };
 }

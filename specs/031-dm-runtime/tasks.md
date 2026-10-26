@@ -134,16 +134,16 @@ director.md.
 **Goal**: the writing node, the facts, the narration and its audit. Contracts: resolve.md,
 audit.md, director.md, nodes.md.
 
-- [ ] T050 Create `nodes/resolve.ts`: the Director group (scene start, trackers, turn mode with SRD combatants and initiative, free mode, scene end), ruling entries, action groups in commit order with step chains branching on engine events, the NPC group, the turn-advance group with the active-actor rule, gate outcome handling (`CONFLICT` retries, `pending`/`suggested` → `awaiting-dm`), reason markers, fence checks, checkpoint saves and replay, `submitNarration`, the failure notice.
-- [ ] T051 Create `apps/server/src/dm/facts.ts` (`NarrationFacts` from appended rows and `priorSteps`; the dice-line and damage-line renderer).
-- [ ] T052 Create `nodes/narrate.ts` (digit-free prose via `callText`; regeneration input with prior text and issues).
-- [ ] T053 Create `apps/server/src/dm/audit-words.ts`, `nodes/audit.ts` (deterministic checks, `dm.audit`, the loop, `AuditRecord`) and `apps/server/src/dm/fallback.ts` (`factualSummary`).
-- [ ] T054 [P] Write `test/dm/facts.test.ts`: renderer snapshots for a check, an attack hit with damage, a critical hit, a miss, an engine refusal, an auto-fail.
-- [ ] T055 [P] Write `test/dm/narrate.test.ts`: narrate's module imports no engine value, no RNG and nothing from `gate/` (TypeScript import graph over `dm/nodes/narrate.ts` and its closure); its prompt contains the facts and no command; the shipped text is prose plus rendered dice lines.
-- [ ] T056 [P] Write `test/dm/audit.test.ts`: each deterministic check fails on its case and passes on a clean case; `factualSummary` passes the checks over generated facts (property test); the loop stops at three; an audit gateway error ships the fallback.
-- [ ] T057 Write `test/dm/resolve.integration.test.ts` (DB, AI seat, scripted dice): a check with success effects; an attack hit with damage and `critical` only on a critical hit; a miss with no damage; an engine refusal → `refused` with the engine's code; actions resolved in commit order; the Director group's rows (scene, party, combatants, `dm` trackers, initiative and turn mode, encounter end); every reason ends with its marker; resolve never reads a model.
-- [ ] T058 Write `test/dm/resolve.human-seat.integration.test.ts` (DB): with a human seat and default policies, mechanics come back `pending`; the action stays committed; approving enqueues a turn job whose interpret sees the applied batch in `priorSteps`.
-- [ ] T059 Write `test/dm/audit.integration.test.ts` (DB): `audit-regenerate.json` → one narration with the second text and a record with one failed attempt; `audit-fallback.json` → the factual summary plus the `dm` journal flag `audit-<jobId>`.
+- [x] T050 Create `nodes/resolve.ts`: the Director group (scene start, trackers, turn mode with SRD combatants and initiative, free mode, scene end), ruling entries, action groups in commit order with step chains branching on engine events, the NPC group, the turn-advance group with the active-actor rule, gate outcome handling (`CONFLICT` retries, `pending`/`suggested` → `awaiting-dm`), reason markers, fence checks, checkpoint saves and replay, `submitNarration`, the failure notice.
+- [x] T051 Create `apps/server/src/dm/facts.ts` (`NarrationFacts` from appended rows and `priorSteps`; the dice-line and damage-line renderer).
+- [x] T052 Create `nodes/narrate.ts` (digit-free prose via `callText`; regeneration input with prior text and issues).
+- [x] T053 Create `apps/server/src/dm/audit-words.ts`, `nodes/audit.ts` (deterministic checks, `dm.audit`, the loop, `AuditRecord`) and `apps/server/src/dm/fallback.ts` (`factualSummary`).
+- [x] T054 [P] Write `test/dm/facts.test.ts`: renderer snapshots for a check, an attack hit with damage, a critical hit, a miss, an engine refusal, an auto-fail.
+- [x] T055 [P] Write `test/dm/narrate.test.ts`: narrate's module imports no engine value, no RNG and nothing from `gate/` (TypeScript import graph over `dm/nodes/narrate.ts` and its closure); its prompt contains the facts and no command; the shipped text is prose plus rendered dice lines.
+- [x] T056 [P] Write `test/dm/audit.test.ts`: each deterministic check fails on its case and passes on a clean case; `factualSummary` passes the checks over generated facts (property test); the loop stops at three; an audit gateway error ships the fallback.
+- [x] T057 Write `test/dm/resolve.integration.test.ts` (DB, AI seat, scripted dice): a check with success effects; an attack hit with damage and `critical` only on a critical hit; a miss with no damage; an engine refusal → `refused` with the engine's code; actions resolved in commit order; the Director group's rows (scene, party, combatants, `dm` trackers, initiative and turn mode, encounter end); every reason ends with its marker; resolve never reads a model.
+- [x] T058 Write `test/dm/resolve.human-seat.integration.test.ts` (DB): with a human seat and default policies, mechanics come back `pending`; the action stays committed; approving enqueues a turn job whose interpret sees the applied batch in `priorSteps`.
+- [x] T059 Write `test/dm/audit.integration.test.ts` (DB): `audit-regenerate.json` → one narration with the second text and a record with one failed attempt; `audit-fallback.json` → the factual summary plus the `dm` journal flag `audit-<jobId>`.
 
 **Checkpoint**: a full pipeline runs when invoked directly.
 
@@ -190,6 +190,15 @@ fake-gateway-script.md.
 - Phase 3: prompt builders exist for `dm.director`, `dm.interpret` and `dm.adjudicate`. The `dm.narrate`/`dm.audit` builders land with their nodes in Phase 4 and the `dm.chronicle`/`dm.companion` builders in Phase 5, because they depend on `NarrationFacts` and the audit contract. `ResolveOutput`, `NarrateOutput` and `AuditOutput` are open records in `pipeline/context.ts` until Phase 4 narrows them.
 - Phase 3: `presentNpcIds` is every NPC id named by any seed beat (assemble cannot know the beat in play before the Director picks `pacing.beatId`); later nodes narrow by `pacing.beatId`. An interpret call is skipped when the beat is empty and no monster acts (scene start).
 - Phase 3: on `scene-start` the Director keeps only `pacing`; every other decision is reset to its default and recorded as an override when the model chose otherwise.
+
+- Phase 4: `Submission` gains a `key` (semantic id) and an `outcome` (the engine outcome read from the appended events). Replay matches on `key`, not on position, so state-based guards (a monster already in the engine, a tracker already advanced) cannot misalign a reclaim.
+- Phase 4: `ResolveOutput` gains `npcTurn` (the monster turn's batches) and `lastSeq`. `NarrateOutput` gains `skipped` and `facts`; `AuditOutput` is `{ record, shipped }`. Narrate and audit make no call and ship nothing when the beat holds no narratable action (all `awaiting-dm`), no NPC turn and no clarification, outside scene start.
+- Phase 4: `TurnJobRef` gains an optional `start` (seed id and seats) because resolve needs the seats at scene start. The Phase 5 worker fills it from the job input.
+- Phase 4: `submitNarration` and `submitFailureNotice` are exported from `nodes/resolve.ts`. The runner calls `submitNarration` as its final step and sets `resolve.chronicle` when it ships. The Phase 5 worker calls `submitFailureNotice` on a `failed` outcome.
+- Phase 4: on a reclaim the narration text is not reused; only `checkpoint.narration.shipped` is. A reclaim after audit but before the narration landed re-runs narrate and audit.
+- Phase 4: damage lines name a damage type only for rows appended this turn (read from the `hp.changed` event). A row replayed from `priorSteps` has no type in the ledger and reads "takes N (before→after HP)".
+- Phase 4: T058 asserts the approved batch appears in `priorSteps`; the "approving enqueues a turn job" half waits for `createDmEnqueuer` in Phase 5 (T071) and is covered there.
+- Phase 4: T059's scripts `audit-regenerate.json` and `audit-fallback.json` were written now (T090 lists them for Phase 6). The audit name check matches the full name, its first word or its last word.
 
 ## Dependencies & Execution Order
 

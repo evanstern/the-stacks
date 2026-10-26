@@ -1,0 +1,92 @@
+{
+  "v": 1,
+  "name": "audit-regenerate",
+  "dice": [15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the shutter give way.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-shutter",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin forces the stuck shutter",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "str",
+                  "skill": "Athletics",
+                  "expression": "1d20+4",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin fails to move the shutter, and it stays stubbornly shut."
+      },
+      "note": "contradicts the recorded success"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The shutter shrieks on its rusted hinge and swings wide, spilling grey light across the ferry house floor. Somewhere below, a boot scrapes stone."
+      },
+      "note": "regenerated, consistent"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

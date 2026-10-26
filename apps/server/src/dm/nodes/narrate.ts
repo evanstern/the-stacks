@@ -1,0 +1,159 @@
+import {
+  buildNarrationFacts,
+  type NarrationFacts,
+  nothingToNarrate,
+  renderDiceLines,
+} from "../facts.js";
+import { callText } from "../pipeline/call.js";
+import type {
+  ModelCallRecord,
+  Node,
+  NodeError,
+  TurnContext,
+} from "../pipeline/context.js";
+import { buildNarratePrompt, PROMPT_VERSION } from "../prompts/narrate.js";
+import { PURPOSE_OF } from "../purposes.js";
+import type { AssembleOutput } from "./assemble.js";
+import type { AuditIssue } from "./audit.js";
+
+/**
+ * The narrate node (contracts/nodes.md "narrate"). It receives resolved
+ * results as facts built by code. It imports no engine value, no RNG and
+ * nothing from `gate/` (AC #6; the import-graph test pins it). The model
+ * writes digit-free prose; code renders the dice lines (FR-034).
+ */
+
+export const MAX_PROSE_CHARS = 1200;
+
+export interface NarrateOutput {
+  /** 1..1,200 characters; no digits (FR-034). Empty when skipped. */
+  prose: string;
+  /** Rendered by code from the facts, never by the model. */
+  diceLines: string[];
+  /** prose + "\n\n" + diceLines.join("\n"); what ships. */
+  text: string;
+  /** The ids of the actions this narration covers. */
+  actionIds: string[];
+  /** 1..3 */
+  attempt: number;
+  /** True when there was nothing to narrate (no model call was made). */
+  skipped: boolean;
+  facts: NarrationFacts;
+}
+
+/** Cuts prose to the cap at a sentence end when one exists. */
+export function clipProse(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= MAX_PROSE_CHARS) return trimmed;
+  const cut = trimmed.slice(0, MAX_PROSE_CHARS);
+  const end = Math.max(
+    cut.lastIndexOf(". "),
+    cut.lastIndexOf("! "),
+    cut.lastIndexOf("? "),
+  );
+  return end > 200 ? cut.slice(0, end + 1) : cut;
+}
+
+export function composeText(
+  prose: string,
+  diceLines: readonly string[],
+): string {
+  return diceLines.length > 0 ? `${prose}\n\n${diceLines.join("\n")}` : prose;
+}
+
+export type AttemptResult =
+  | { ok: true; prose: string; calls: ModelCallRecord[] }
+  | { ok: false; error: NodeError; calls: ModelCallRecord[] };
+
+/** One `dm.narrate` call; regeneration passes the prior text and issues. */
+export async function narrateAttempt(
+  ctx: TurnContext,
+  assembled: AssembleOutput,
+  facts: NarrationFacts,
+  prior: { prose: string; issues: AuditIssue[] } | null,
+): Promise<AttemptResult> {
+  const prompt = buildNarratePrompt({ ctx, assembled, facts, prior });
+  const result = await callText(ctx.deps, {
+    purpose: PURPOSE_OF.narrate,
+    promptVersion: PROMPT_VERSION,
+    system: prompt.system,
+    user: prompt.user,
+    signal: ctx.signal,
+  });
+  if (!result.ok) return result;
+  return { ok: true, prose: clipProse(result.text), calls: result.calls };
+}
+
+export const narrate: Node<"narrate"> = async (ctx) => {
+  const { assemble: assembled, director, resolve } = ctx.results;
+  if (!assembled || !director || !resolve) {
+    return {
+      ok: false,
+      node: "narrate",
+      calls: [],
+      error: { kind: "internal", message: "narrate ran before resolve" },
+    };
+  }
+  const projections = await ctx.deps.loadProjections(ctx.job.sessionId);
+  const clarify = (ctx.results.interpret?.readings ?? []).flatMap((r) =>
+    r.actionId && r.clarify
+      ? [{ actionId: r.actionId, question: r.clarify }]
+      : [],
+  );
+  const facts = buildNarrationFacts({
+    trigger: ctx.job.trigger,
+    seed: ctx.seed,
+    projections,
+    beat: assembled.beat,
+    director,
+    adjudicate: ctx.results.adjudicate ?? null,
+    resolve,
+    presentNpcIds: assembled.presentNpcIds,
+    modeBefore: assembled.projections.tableMode.mode,
+    appendedRows: resolve.appendedRows,
+    clarify,
+  });
+  const actionIds = facts.actions.map((a) => a.actionId);
+
+  if (nothingToNarrate(facts)) {
+    return {
+      ok: true,
+      node: "narrate",
+      calls: [],
+      output: {
+        prose: "",
+        diceLines: [],
+        text: "",
+        actionIds,
+        attempt: 1,
+        skipped: true,
+        facts,
+      },
+    };
+  }
+
+  const result = await narrateAttempt(ctx, assembled, facts, null);
+  if (!result.ok) {
+    return {
+      ok: false,
+      node: "narrate",
+      error: result.error,
+      calls: result.calls,
+    };
+  }
+  const diceLines = renderDiceLines(facts);
+  return {
+    ok: true,
+    node: "narrate",
+    calls: result.calls,
+    output: {
+      prose: result.prose,
+      diceLines,
+      text: composeText(result.prose, diceLines),
+      actionIds,
+      attempt: 1,
+      skipped: false,
+      facts,
+    },
+  };
+};

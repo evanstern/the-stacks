@@ -7,7 +7,10 @@ import type { RetrievalResult } from "../../library/retrieve.js";
 import type { TurnCheckpoint, TurnTrigger } from "../jobs.js";
 import type { AdjudicateOutput } from "../nodes/adjudicate.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
+import type { AuditOutput } from "../nodes/audit.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
+import type { NarrateOutput } from "../nodes/narrate.js";
+import type { ResolveOutput } from "../nodes/resolve.js";
 import type { InterpretOutput } from "../nodes/schemas.js";
 import type { DmPurpose } from "../purposes.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -41,6 +44,8 @@ export interface TurnJobRef {
   /** 1 on the first claim, higher on a reclaim. */
   attempt: number;
   claimToken: string;
+  /** scene-start only: the start request's seed id and seats. */
+  start?: { seedId: string; seats: Record<string, string> } | null;
 }
 
 /** `@the-stacks/srd` lookups the nodes need. Injected so tests can stub them. */
@@ -76,14 +81,6 @@ export interface NodeDeps {
   /** ASK_MIN_SIMILARITY: the relevance floor `adjudicate` applies to retrieved passages. */
   minSimilarity: number;
 }
-
-/**
- * Phase 4 narrows these three to their own shapes (resolve.md, nodes.md,
- * audit.md). They are open records until then so the seam compiles.
- */
-export type ResolveOutput = Record<string, unknown>;
-export type NarrateOutput = Record<string, unknown>;
-export type AuditOutput = Record<string, unknown>;
 
 export interface NodeOutputs {
   assemble: AssembleOutput;

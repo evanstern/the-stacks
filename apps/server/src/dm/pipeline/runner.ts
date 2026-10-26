@@ -1,4 +1,5 @@
 import type { TurnCheckpoint } from "../jobs.js";
+import { submitNarration } from "../nodes/resolve.js";
 import {
   depsFor,
   type ModelCallRecord,
@@ -17,8 +18,8 @@ import {
  * one conditional branch (adjudicate or not), checkpoint reuse for the
  * planning nodes, fence checks between nodes. No dynamic routing, no cycle.
  *
- * Phase 4 extends the final step: narration submission runs through
- * resolve's submitter after audit decides what ships.
+ * The final step ships the narration audit chose: `submitNarration`, which
+ * lives in resolve's module so every gate call stays there (AC #5).
  */
 
 export type Nodes = { [N in NodeName]: Node<N> };
@@ -153,6 +154,26 @@ export async function runTurn(
         if (!held.ok) return fail("resolve", held.error);
         return { status: "held", companions: director.beat.companions };
       }
+    }
+  }
+
+  // Final step: ship what audit decided (stub nodes leave `shipped` unset).
+  const audited = ctx.results.audit;
+  if (audited?.shipped) {
+    const resolved = ctx.results.resolve;
+    const checkpoint: TurnCheckpoint = {
+      ...ctx.checkpoint,
+      submissions: resolved?.submissions ?? ctx.checkpoint.submissions,
+      lastSeq: resolved?.lastSeq ?? ctx.checkpoint.lastSeq,
+    };
+    if (!(await ctx.deps.fence())) return fenced("resolve");
+    const shipped = await submitNarration(ctx, audited, checkpoint);
+    if (!shipped.ok) return fail("resolve", shipped.error);
+    if (shipped.shipped && resolved) {
+      ctx = {
+        ...ctx,
+        results: { ...ctx.results, resolve: { ...resolved, chronicle: true } },
+      };
     }
   }
 

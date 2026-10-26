@@ -7,7 +7,9 @@ import { LEASE_MS, MAX_ATTEMPTS } from "../library/ingest/jobs.js";
 import type { DbClient } from "../library/store.js";
 import { jobs } from "../schema/jobs.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
+import type { AuditRecord } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
+import type { Submission } from "./nodes/resolve.js";
 import type { InterpretOutput } from "./nodes/schemas.js";
 
 /**
@@ -74,9 +76,9 @@ export interface TurnCheckpoint {
   director: DirectorNodeOutput | null;
   interpret: InterpretOutput | null;
   adjudicate: AdjudicateOutput | null;
-  submissions: unknown[];
+  submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
-  narration: { attempts: unknown[]; shipped: boolean } | null;
+  narration: { attempts: AuditRecord["attempts"]; shipped: boolean } | null;
 }
 
 interface ClaimBase {
