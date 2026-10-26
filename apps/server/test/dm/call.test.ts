@@ -30,7 +30,7 @@ const text = (t: string): ChatEvent[] => [
 const Schema = z.object({ n: z.number() });
 const req = (signal = new AbortController().signal) => ({
   purpose: "dm.director" as const,
-  promptVersion: "dm.director-v1",
+  promptVersion: "dm.director-v2",
   system: "sys",
   user: "usr",
   schema: Schema,
@@ -45,7 +45,7 @@ describe("callJson", () => {
     expect(r.calls).toEqual([
       {
         purpose: "dm.director",
-        promptVersion: "dm.director-v1",
+        promptVersion: "dm.director-v2",
         attempt: 1,
         outcome: "ok",
         errorKind: null,
@@ -114,7 +114,7 @@ describe("callJson", () => {
       attempts: Record<string, unknown>[];
     };
     expect(detail.purpose).toBe("dm.director");
-    expect(detail.promptVersion).toBe("dm.director-v1");
+    expect(detail.promptVersion).toBe("dm.director-v2");
     expect(detail.issues).toContain("n:");
     expect(detail.attempts).toHaveLength(2);
     expect(detail.attempts[0]).toMatchObject({

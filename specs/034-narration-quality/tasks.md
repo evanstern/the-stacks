@@ -94,23 +94,23 @@ metadata unchanged.
 
 Contract: `contracts/player-facing-context.md`.
 
-- [ ] T017 [US1] Apply the four seed edits to `apps/server/seeds/greyhollow-ford.json`. Confirm
+- [x] T017 [US1] Apply the four seed edits to `apps/server/seeds/greyhollow-ford.json`. Confirm
   the seed loads (`seed.test.ts`).
-- [ ] T018 [US1] Set the `villains-believe` example in `apps/server/src/dm/doctrine/doctrine.ts`.
+- [x] T018 [US1] Set the `villains-believe` example in `apps/server/src/dm/doctrine/doctrine.ts`.
   Set `dm.director-v2` in `prompts/director.ts`. Update `doctrine.test.ts` and every director
   version assertion.
-- [ ] T019 [US1] Add `transcriptEntries(tail, roster?)` naming and public filtering in
+- [x] T019 [US1] Add `transcriptEntries(tail, roster?)` naming and public filtering in
   `prompts/common.ts`. Pass the roster from narrate, companion and chronicle. Set
   `dm.chronicle-v2`. Director and interpret call it without a roster.
-- [ ] T020 [US1] Add `apps/server/src/dm/seed/views.ts`. Make `buildNarratePrompt`,
+- [x] T020 [US1] Add `apps/server/src/dm/seed/views.ts`. Make `buildNarratePrompt`,
   `buildNarrationFacts` (`presentNpcs`) and `buildCompanionPrompt` take `PlayerSeedView`. Set
   `dm.companion-v2`. Add `apps/server/test/dm/player-facing-prompts.test.ts` (contract tests
   1–7).
-- [ ] T021 [P] [US1] In `seed.test.ts`, add the authoring-rule test (no player-facing field
+- [x] T021 [P] [US1] In `seed.test.ts`, add the authoring-rule test (no player-facing field
   matches `/river[- ]things?/i` or `/\bwards?\b/i`). Add `dmOnlySeedText` unit tests.
-- [ ] T022 [P] [US1] Flip T013 and T014's F76 part to the fixed behaviour. Test chronicle,
+- [x] T022 [P] [US1] Flip T013 and T014's F76 part to the fixed behaviour. Test chronicle,
   companion and narrate lines name "Tamsin Vale" and drop a `dm` entry.
-- [ ] T023 Run the phase gate and the database suites. Commit. Push.
+- [x] T023 Run the phase gate and the database suites. Commit. Push.
 
 **Checkpoint**: AC #1 met offline.
 

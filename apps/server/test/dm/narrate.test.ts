@@ -9,8 +9,10 @@ import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
+import { rosterOf } from "../../src/dm/prompts/common.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), "../../src");
@@ -179,7 +181,8 @@ describe("narrate", () => {
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
 
     const prompt = buildNarratePrompt({
-      ctx,
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
       assembled,
       facts: n.facts,
       prior: null,
@@ -197,7 +200,8 @@ describe("narrate", () => {
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
     const prompt = buildNarratePrompt({
-      ctx,
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
       assembled,
       facts: out.output.facts,
       prior: {

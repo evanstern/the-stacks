@@ -20,19 +20,22 @@ import {
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import { transcriptEntries } from "../../src/dm/prompts/common.js";
+import { buildChroniclePrompt } from "../../src/dm/prompts/chronicle.js";
+import { rosterOf, transcriptEntries } from "../../src/dm/prompts/common.js";
 import { buildCompanionPrompt } from "../../src/dm/prompts/companion.js";
 import {
   buildNarratePrompt,
   factEntries,
 } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { freeEventsThrough, makeCtx, projectDm, testSeed } from "./helpers.js";
 
 /**
  * TASK-0106 Phase 1: each test reproduces a run-5 defect on the UNFIXED code,
- * from the real rows of run 5 (fixtures/run5-narration-quality.json). Each one
- * asserts the defective behavior today. Later phases flip these assertions.
+ * from the real rows of run 5 (fixtures/run5-narration-quality.json). Phase 2 flips
+ * the leak tests (T013) and the F76 line (T014) to the fixed behavior. Later
+ * phases flip the rest.
  */
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -41,6 +44,7 @@ const fixture = JSON.parse(
 ) as { source: string; transcript: StoredEvent[]; ledger: { seq: number }[] };
 
 const SEED = testSeed();
+const VIEW = playerFacingSeed(SEED);
 const PLAYER_USER_ID = "00000000-0000-4000-8000-0000000000a1";
 
 /** The run's DM projections as of `seq` (inclusive). */
@@ -88,7 +92,8 @@ function noEffectFacts(
 ): NarrationFacts {
   return buildNarrationFacts({
     trigger: "commit",
-    seed: SEED,
+    seed: VIEW,
+    beatNpcIds: [],
     projections: projectedThrough(throughSeq),
     beat: [
       {
@@ -167,22 +172,29 @@ describe("F23: the fallback contradicts the ledger (T012)", () => {
   });
 });
 
-describe("leaks: DM-only seed facts reach player-facing prompts (T013)", () => {
-  it("the narrate system prompt holds 'river things' (L1, doctrine example)", () => {
+describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)", () => {
+  const assembled = {
+    transcriptTail: [],
+    presentNpcIds: [],
+  } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"];
+
+  it("the narrate system prompt no longer holds 'river things' (L1, doctrine example)", () => {
     const facts = noEffectFacts(87, "turn", KESTREL);
-    const ctx = makeCtx({});
-    const assembled = {
-      transcriptTail: [],
-      presentNpcIds: [],
-    } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"];
-    const prompt = buildNarratePrompt({ ctx, assembled, facts, prior: null });
-    expect(prompt.system).toContain("river things");
+    const prompt = buildNarratePrompt({
+      seed: VIEW,
+      roster: [],
+      assembled,
+      facts,
+      prior: null,
+    });
+    expect(prompt.system).not.toMatch(/river[- ]things?/i);
   });
 
-  it("the reed-camp narrate prompt holds Snag's want with 'river-things' (L2)", () => {
+  it("the reed-camp narrate prompt carries Snag's shown want, not the river-things (L2)", () => {
     const facts = buildNarrationFacts({
       trigger: "commit",
-      seed: SEED,
+      seed: VIEW,
+      beatNpcIds: ["snag", "pell"],
       projections: projectedThrough(87),
       beat: [],
       director: director({ beatId: "reed-camp" }),
@@ -194,24 +206,29 @@ describe("leaks: DM-only seed facts reach player-facing prompts (T013)", () => {
       clarify: [],
     });
     const snag = facts.presentNpcs.find((n) => n.id === "snag");
-    expect(snag?.want).toContain("river-things");
-    const ctx = makeCtx({});
-    const assembled = {
-      transcriptTail: [],
-      presentNpcIds: [],
-    } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"];
-    const prompt = buildNarratePrompt({ ctx, assembled, facts, prior: null });
-    expect(prompt.user).toContain("river-things");
+    expect(snag?.want).toBe(
+      "To keep the clapper and make the big-feet pay to cross his reeds.",
+    );
+    const prompt = buildNarratePrompt({
+      seed: VIEW,
+      roster: [],
+      assembled,
+      facts,
+      prior: null,
+    });
+    expect(prompt.user).toContain("make the big-feet pay");
+    expect(prompt.user).not.toMatch(/river[- ]things?/i);
   });
 
-  it("Odo's companion prompt holds 'wards' (L3)", () => {
+  it("Odo's companion prompt no longer holds 'wards' (L3)", () => {
     const prompt = buildCompanionPrompt({
-      seed: SEED,
+      seed: VIEW,
       projections: projectedThrough(87),
       characterId: "odo",
       active: false,
     });
-    expect(prompt.user).toContain("wards");
+    expect(prompt.user).not.toMatch(/\bwards?\b/i);
+    expect(prompt.user).toContain("anything that rings or shines");
   });
 });
 
@@ -227,7 +244,8 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     expect(batchIds.length).toBe(1);
     const facts = buildNarrationFacts({
       trigger: "npc-turn",
-      seed: SEED,
+      seed: VIEW,
+      beatNpcIds: [],
       projections: projectedThrough(61),
       beat: [],
       director: director(),
@@ -249,14 +267,36 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     expect(factEntries(facts).join("\n")).not.toContain("jabs");
   });
 
-  it("F76: the transcript line for row 187 holds the seat's user id, not 'Tamsin'", () => {
+  it("F76: the transcript line for row 187 names 'Tamsin Vale' and drops the user id (public, with roster)", () => {
     const p = projectedThrough(188);
     const entry = p.transcript.filter((e) => e.seq === 187);
     expect(entry).toHaveLength(1);
-    const lines = transcriptEntries(entry);
+    // Without a roster the line is unchanged (director and interpret).
+    expect(transcriptEntries(entry)[0]).toContain(PLAYER_USER_ID);
+    const lines = transcriptEntries(entry, rosterOf(p.party));
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toContain(PLAYER_USER_ID);
-    expect(lines[0]).not.toContain("Tamsin");
+    expect(lines[0]).toContain("Tamsin Vale");
+    expect(lines[0]).not.toContain(PLAYER_USER_ID);
+    // A dm-visibility entry drops out under a roster.
+    const dm = [{ ...entry[0], seq: 999, visibility: "dm" }] as typeof entry;
+    expect(transcriptEntries(dm, rosterOf(p.party))).toEqual([]);
+    // Chronicle, companion and narrate all pass the roster.
+    const chronicle = buildChroniclePrompt({
+      transcript: entry,
+      goal: "",
+      trackerNames: [],
+      roster: rosterOf(p.party),
+    });
+    expect(chronicle.user).toContain("Tamsin Vale");
+    expect(chronicle.user).not.toContain(PLAYER_USER_ID);
+    const companion = buildCompanionPrompt({
+      seed: VIEW,
+      projections: p,
+      characterId: "odo",
+      active: false,
+    });
+    expect(companion.user).toContain("Tamsin Vale declared");
+    expect(companion.user).not.toContain(PLAYER_USER_ID);
   });
 });
 
@@ -274,12 +314,17 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       },
       [{ actionId: "pt-18", question: CLARIFY_QUESTION }],
     );
-    const ctx = makeCtx({});
     const assembled = {
       transcriptTail: [],
       presentNpcIds: [],
     } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"];
-    const prompt = buildNarratePrompt({ ctx, assembled, facts, prior: null });
+    const prompt = buildNarratePrompt({
+      seed: VIEW,
+      roster: [],
+      assembled,
+      facts,
+      prior: null,
+    });
     expect(prompt.user).toContain(CLARIFY_QUESTION);
   });
 

@@ -161,7 +161,7 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
           calls: [
             {
               purpose: "dm.director",
-              promptVersion: "dm.director-v1",
+              promptVersion: "dm.director-v2",
               attempt: 1,
               outcome: "ok",
               errorKind: null,
