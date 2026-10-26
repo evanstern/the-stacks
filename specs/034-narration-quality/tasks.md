@@ -202,17 +202,19 @@ Contracts: `contracts/audit-criteria.md` ("The party-name filter"),
 Ceiling: pending operator approval. The estimate's upper bound is $23.40 with narrate
 maxTokens 1500, so a $22 ceiling refuses to start.
 
-- [ ] T053 Orchestrator: confirm `dm.narrate` maxTokens is 1500 in the provider configuration
+- [x] T053 Orchestrator: confirm `dm.narrate` maxTokens is 1500 in the provider configuration
   (research.md R7.1). Record it on the card.
-- [ ] T054 Orchestrator: get the operator's rulings on F4, F32 and F54 (research.md R7.5) and on
+- [x] T054 Orchestrator: get the operator's rulings on F4, F32 and F54 (research.md R7.5) and on
   the E2 residual (R7.2). Record each ruling on the card.
-- [ ] T055 Orchestrator: get the operator's spend ceiling. Record it on the card.
-- [ ] T056 Orchestrator: rebuild the composite worktree from the Phase 4b tip (quickstart A5,
+- [x] T055 Orchestrator: get the operator's spend ceiling. Record it on the card.
+- [x] T056 Orchestrator: rebuild the composite worktree from the Phase 4b tip (quickstart A5,
   B, C12). Record the composite commit and the selector on the card.
-- [ ] T057 Orchestrator: run the verification (quickstart C with C12). Commit the evidence
+- [x] T057 Orchestrator: run the verification (quickstart C with C12). Commit the evidence
   directory. Record the rate, fail counts, spend and pass or fail on the card. On a fail, write
   the classification (quickstart C11), commit it, and stop for an operator ruling. Do not start
   Phase 6.
+
+*Outcome (2026-10-26):* rerun `20261026T192319Z` failed the 0.10 rate bar at 0.18 with zero leaks and zero narration-caused contradictions. Operator ruling: accept with the AC #4 rate bar at 0.20; residue carded as TASK-0111, TASK-0112, TASK-0113 (m-3).
 
 **Checkpoint**: AC #4 met.
 
