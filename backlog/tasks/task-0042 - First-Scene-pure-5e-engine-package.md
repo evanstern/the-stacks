@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 01:56'
+updated_date: '2026-10-26 01:58'
 labels:
   - first-scene
   - engine
@@ -43,7 +43,7 @@ Spec: specs/026-dnd5e-engine
 - [ ] #9 An illegal command returns a refusal with a specific error code and produces no events.
 - [ ] #10 The boundary check fails if the package imports a database, network or LLM module.
 - [ ] #11 Scripted-dice unit tests cover every command and every refusal code.
-- [ ] #12 Spec phase: Setup — package scaffold and boundary rule (AC #10)
+- [x] #12 Spec phase: Setup — package scaffold and boundary rule (AC #10)
 - [ ] #13 Spec phase: Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9)
 - [ ] #14 Spec phase: User Story 2 — combatants, HP and damage defenses, temporary HP, life states, death saves (AC #4, #7)
 - [ ] #15 Spec phase: User Story 6 — attacks, checks and saves (AC #2, #9, #11; research R8)
@@ -63,6 +63,9 @@ Orchestrator rulings 2026-10-25, derived from decision-0021 idea 1 and decision-
 - Adjudication supplies inputs as data: AC, DC, damage type, defenses, roll mode, and autoFail with a reason.
 - The engine does all of the arithmetic: attack versus AC, criticals, resistance, vulnerability and immunity.
 Implementation dispatch grouping (orchestrator's call): P1 | P2 | P3+P4 | P5+P6 | P7.
+
+Phase 1 (Setup) by sonnet-implementer: c839b7a; ci:check green, boundaries 11/11. Deviation: @types/node is a test-only devDependency.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
