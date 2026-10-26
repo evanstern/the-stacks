@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 17:55'
+updated_date: '2026-10-26 20:23'
 labels:
   - first-scene
   - test
@@ -125,6 +125,9 @@ Demo section C, paid scripted playtest (run 5) 2026-10-26: 20261026T171359Z-grey
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: card the narration problems (fallback rate and fallback text; companion hidden-info leaks; ledger contradictions) as a new M2 card, own spec and PR, merged before the live demo. Fix the scripted seat's repeated fallback move on the TASK-0048 branch.'
 
 Scripted-seat fix b3f09ca by sonnet-implementer (operator ruling). moves.fallback is now a list (the legacy single object is read as a one-element list). The driver cycles the list with no immediate repeat. A stall stop ends the run as stalled, with run.json stallReason 'seat-exhausted', after 3 consecutive fallback moves whose turns add no ledger 'change' row (a table-mode row counts only on a mode flip). Greyhollow Ford has 5 fallback moves. Contracts 032 scenario.md and data-model.md updated. Server tests with REQUIRE_DATABASE=1: 783 passed, 5 skipped. CI playtest: ended, pass. Orchestrator reviewed the driver diff.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reconcile merge of origin/main (TASK-0106 #51) by sonnet-implementer: 6eadf52 merge (wiki INDEX and CAPSULES conflicts only), 944f2a1 (checks.test.ts factual-summary test gains the facts v2 fields; assertion unchanged), 4ff5d9e (playtest-harness NEEDS-REVIEW re-pinned with the seat-cycling and stall-stop prose; freshness OK, 47 notes). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 849 passed, 5 skipped. CI playtest: ended, pass. No WS flake. No tick flips.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
