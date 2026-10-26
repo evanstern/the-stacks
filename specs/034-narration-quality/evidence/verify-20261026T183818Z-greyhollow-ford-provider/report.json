@@ -1,0 +1,2383 @@
+{
+  "v": 1,
+  "runId": "20261026T183818Z-greyhollow-ford-provider",
+  "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T19:11:23.819Z",
+  "commit": "fda4abf4a5520b2a7c906d446a790f263b69ed43",
+  "verdict": "incomplete",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 286,
+    "narrations": 38,
+    "segments": 38,
+    "rolls": 33,
+    "findings": {
+      "fail": 7,
+      "warn": 31,
+      "note": 25
+    }
+  },
+  "segments": [
+    {
+      "index": 0,
+      "narrationSeq": 10,
+      "fromSeq": 1,
+      "toSeq": 10,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 1,
+      "narrationSeq": 16,
+      "fromSeq": 11,
+      "toSeq": 16,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 2,
+      "narrationSeq": 25,
+      "fromSeq": 17,
+      "toSeq": 25,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 3,
+      "narrationSeq": 34,
+      "fromSeq": 26,
+      "toSeq": 34,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 4,
+      "narrationSeq": 55,
+      "fromSeq": 35,
+      "toSeq": 55,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 5,
+      "narrationSeq": 61,
+      "fromSeq": 56,
+      "toSeq": 61,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 6,
+      "narrationSeq": 68,
+      "fromSeq": 62,
+      "toSeq": 68,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 7,
+      "narrationSeq": 75,
+      "fromSeq": 69,
+      "toSeq": 75,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 8,
+      "narrationSeq": 85,
+      "fromSeq": 76,
+      "toSeq": 85,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 9,
+      "narrationSeq": 95,
+      "fromSeq": 86,
+      "toSeq": 95,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 10,
+      "narrationSeq": 102,
+      "fromSeq": 96,
+      "toSeq": 102,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 11,
+      "narrationSeq": 107,
+      "fromSeq": 103,
+      "toSeq": 107,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 12,
+      "narrationSeq": 110,
+      "fromSeq": 108,
+      "toSeq": 110,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 13,
+      "narrationSeq": 117,
+      "fromSeq": 111,
+      "toSeq": 117,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 14,
+      "narrationSeq": 127,
+      "fromSeq": 118,
+      "toSeq": 127,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 15,
+      "narrationSeq": 138,
+      "fromSeq": 128,
+      "toSeq": 138,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 16,
+      "narrationSeq": 147,
+      "fromSeq": 139,
+      "toSeq": 147,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 17,
+      "narrationSeq": 152,
+      "fromSeq": 148,
+      "toSeq": 152,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 18,
+      "narrationSeq": 158,
+      "fromSeq": 153,
+      "toSeq": 158,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 19,
+      "narrationSeq": 161,
+      "fromSeq": 159,
+      "toSeq": 161,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 20,
+      "narrationSeq": 165,
+      "fromSeq": 162,
+      "toSeq": 165,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 21,
+      "narrationSeq": 175,
+      "fromSeq": 166,
+      "toSeq": 175,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 22,
+      "narrationSeq": 184,
+      "fromSeq": 176,
+      "toSeq": 184,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 23,
+      "narrationSeq": 195,
+      "fromSeq": 185,
+      "toSeq": 195,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 24,
+      "narrationSeq": 201,
+      "fromSeq": 196,
+      "toSeq": 201,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 25,
+      "narrationSeq": 206,
+      "fromSeq": 202,
+      "toSeq": 206,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 26,
+      "narrationSeq": 209,
+      "fromSeq": 207,
+      "toSeq": 209,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 27,
+      "narrationSeq": 214,
+      "fromSeq": 210,
+      "toSeq": 214,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 28,
+      "narrationSeq": 226,
+      "fromSeq": 215,
+      "toSeq": 226,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 29,
+      "narrationSeq": 235,
+      "fromSeq": 227,
+      "toSeq": 235,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 30,
+      "narrationSeq": 245,
+      "fromSeq": 236,
+      "toSeq": 245,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 31,
+      "narrationSeq": 250,
+      "fromSeq": 246,
+      "toSeq": 250,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 32,
+      "narrationSeq": 253,
+      "fromSeq": 251,
+      "toSeq": 253,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 33,
+      "narrationSeq": 257,
+      "fromSeq": 254,
+      "toSeq": 257,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 34,
+      "narrationSeq": 265,
+      "fromSeq": 258,
+      "toSeq": 265,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 35,
+      "narrationSeq": 271,
+      "fromSeq": 266,
+      "toSeq": 271,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 36,
+      "narrationSeq": 277,
+      "fromSeq": 272,
+      "toSeq": 277,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 37,
+      "narrationSeq": 285,
+      "fromSeq": 278,
+      "toSeq": 285,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        10
+      ],
+      "detail": "The narration closes on a static tableau and the open prompt \"What does the party do?\" rather than something that demands a response."
+    },
+    {
+      "id": "F2",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "companion-opinions",
+      "seqs": [
+        10
+      ],
+      "detail": "Tamsin, Odo and Kestrel are all present but merely observe silently, with no voiced opinion or disagreement."
+    },
+    {
+      "id": "F3",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "one-sense",
+      "seqs": [
+        10
+      ],
+      "detail": "The scene's details are sight and the absence of sound; no vivid non-visual sense detail is given."
+    },
+    {
+      "id": "F4",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        11,
+        16
+      ],
+      "detail": "The journal records the ferry-house as a dark interior, but the narration lights the falling dust in \"amber light\" with no established source."
+    },
+    {
+      "id": "F5",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        16
+      ],
+      "detail": "The beat lands on a good demand but then appends the explicit prompt \"What does Tamsin do about the loft?\", the forbidden \"what do you do\" tag."
+    },
+    {
+      "id": "F6",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "companion-opinions",
+      "seqs": [
+        16
+      ],
+      "detail": "Odo and Kestrel appear only as silent props with no voice or opinion in the scene."
+    },
+    {
+      "id": "F7",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 3,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        34
+      ],
+      "detail": "The beat closes on a static tableau plus the limp prompt \"What does the party do with the lookout in sight?\" instead of a world action that demands a response."
+    },
+    {
+      "id": "F8",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 3,
+      "doctrineId": null,
+      "seqs": [
+        34
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F9",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 6,
+      "doctrineId": null,
+      "seqs": [
+        68
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: ledger-mismatch"
+    },
+    {
+      "id": "F10",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 8,
+      "doctrineId": "fail-forward",
+      "seqs": [
+        85
+      ],
+      "detail": "The miss produces no new problem or consequence — the narration just restates the mechanical result and stalls the scene amid four readied slings."
+    },
+    {
+      "id": "F11",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 8,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        85
+      ],
+      "detail": "The turn ends on the bookkeeping line \"Kestrel moves next\" rather than on anything that demands a response."
+    },
+    {
+      "id": "F12",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 8,
+      "doctrineId": "blame-the-situation",
+      "seqs": [
+        85
+      ],
+      "detail": "\"Tamsin Vale misses\" pins the failed roll on the hero instead of showing what the world did to the attempt."
+    },
+    {
+      "id": "F13",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 8,
+      "doctrineId": null,
+      "seqs": [
+        85
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch, doctrine, player-agency"
+    },
+    {
+      "id": "F14",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 9,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        95
+      ],
+      "detail": "The turn closes with a bare prompt to the player ('What does Tamsin do with the lookout still hidden behind the flames?') instead of a world event that demands a response."
+    },
+    {
+      "id": "F15",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 9,
+      "doctrineId": null,
+      "seqs": [
+        95
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 3; issues: player-agency, invented-mechanics, doctrine"
+    },
+    {
+      "id": "F16",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 11,
+      "doctrineId": "fail-forward",
+      "seqs": [
+        104,
+        107
+      ],
+      "detail": "The roll resolved as a failure in #104, but the prose of #107 narrates only the goblin's successful-looking lunge and never shows the attempt coming apart or the new problem it creates."
+    },
+    {
+      "id": "F17",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 12,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        110
+      ],
+      "detail": "The turn ends on a bare turn-order announcement (\"Goblin lookout moves next\") with no concrete event or pressure that demands a player response."
+    },
+    {
+      "id": "F18",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 12,
+      "doctrineId": null,
+      "seqs": [
+        110
+      ],
+      "detail": "final: fallback; attempts: 3; issues: doctrine, player-agency, invented-mechanics"
+    },
+    {
+      "id": "F19",
+      "source": "auditor",
+      "check": null,
+      "kind": "player-agency",
+      "severity": "fail",
+      "segment": 13,
+      "doctrineId": "numbers-from-state",
+      "seqs": [
+        111,
+        117
+      ],
+      "detail": "The rewritten narration repeats the exact problem flagged in #111 — asserting Tamsin's wounded state ('sways in the mud, blood dark along her sleeve') with no recorded damage or wound fact in the ledger."
+    },
+    {
+      "id": "F20",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 13,
+      "doctrineId": null,
+      "seqs": [
+        117
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: invented-mechanics, player-agency, doctrine"
+    },
+    {
+      "id": "F21",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 14,
+      "doctrineId": null,
+      "seqs": [
+        127
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: ledger-mismatch"
+    },
+    {
+      "id": "F22",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 15,
+      "doctrineId": null,
+      "seqs": [
+        138
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 3; issues: doctrine, player-agency, ledger-mismatch"
+    },
+    {
+      "id": "F23",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 17,
+      "doctrineId": null,
+      "seqs": [
+        152
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch, player-agency, doctrine"
+    },
+    {
+      "id": "F24",
+      "source": "auditor",
+      "check": null,
+      "kind": "player-agency",
+      "severity": "fail",
+      "segment": 18,
+      "doctrineId": "hero-is-theirs",
+      "seqs": [
+        158
+      ],
+      "detail": "The narration decides Tamsin's move with 'she wrenches away before the grip can set', when the failed goblin roll should be rendered as the world's doing (grip slipping on blood-slick leather) without moving the hero."
+    },
+    {
+      "id": "F25",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 19,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        161
+      ],
+      "detail": "The turn narration is a bare turn-order announcement — Snag's unspecified 'move' gives the player nothing concrete to respond to."
+    },
+    {
+      "id": "F26",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 19,
+      "doctrineId": null,
+      "seqs": [
+        161
+      ],
+      "detail": "final: fallback; attempts: 3; issues: invented-mechanics, player-agency, doctrine"
+    },
+    {
+      "id": "F27",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 20,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        165
+      ],
+      "detail": "The turn ends on a bare turn-order announcement that demands no response from the player."
+    },
+    {
+      "id": "F28",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 20,
+      "doctrineId": "world-moves",
+      "seqs": [
+        165
+      ],
+      "detail": "The lookout's action is asserted without any shown consequence, leaving the scene frozen between beats."
+    },
+    {
+      "id": "F29",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 20,
+      "doctrineId": "one-sense",
+      "seqs": [
+        165
+      ],
+      "detail": "The beat offers no vivid non-visual detail at all, only a mechanical statement of whose turn it is."
+    },
+    {
+      "id": "F30",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 20,
+      "doctrineId": null,
+      "seqs": [
+        165
+      ],
+      "detail": "final: fallback; attempts: 3; issues: invented-mechanics, doctrine, player-agency"
+    },
+    {
+      "id": "F31",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 21,
+      "doctrineId": null,
+      "seqs": [
+        175
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F32",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 22,
+      "doctrineId": null,
+      "seqs": [
+        176,
+        184
+      ],
+      "detail": "Row #176 names Snag as the pot-helm goblin, but the narration treats Snag and the pot-helm goblin as two separate creatures acting independently."
+    },
+    {
+      "id": "F33",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 22,
+      "doctrineId": null,
+      "seqs": [
+        184
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 3; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F34",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 23,
+      "doctrineId": null,
+      "seqs": [
+        195
+      ],
+      "detail": "final: fallback; attempts: 3; issues: player-agency, doctrine, invented-mechanics"
+    },
+    {
+      "id": "F35",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 24,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        201,
+        196
+      ],
+      "detail": "The turn closes with the flat prompt \"What does Tamsin do?\" instead of a world beat that demands a response — the same ending flaw already flagged in the audit note at #196."
+    },
+    {
+      "id": "F36",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 24,
+      "doctrineId": null,
+      "seqs": [
+        201
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: invented-mechanics, player-agency, doctrine"
+    },
+    {
+      "id": "F37",
+      "source": "auditor",
+      "check": null,
+      "kind": "player-agency",
+      "severity": "fail",
+      "segment": 25,
+      "doctrineId": "hero-is-theirs",
+      "seqs": [
+        206
+      ],
+      "detail": "The narration decides Tamsin's action for her — \"Tamsin twists her arm free before it can set, boots skidding\" — when the failed grab should only describe what the world did."
+    },
+    {
+      "id": "F38",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 25,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        206
+      ],
+      "detail": "The beat closes on the bare prompt \"What does Tamsin do?\" instead of a pressure that demands a response."
+    },
+    {
+      "id": "F39",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 26,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        209
+      ],
+      "detail": "The turn closes on a bare turn-order note ('Goblin lookout moves next') rather than a concrete event that demands a response, and never says what Snag actually did."
+    },
+    {
+      "id": "F40",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 26,
+      "doctrineId": null,
+      "seqs": [
+        209
+      ],
+      "detail": "final: fallback; attempts: 3; issues: invented-mechanics, player-agency, doctrine"
+    },
+    {
+      "id": "F41",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 27,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        214,
+        210
+      ],
+      "detail": "The closing line 'Legs free, blade still in hand — what does Tamsin do?' ends on a direct prompt rather than a world event that demands response, repeating the exact fault already flagged in row #210."
+    },
+    {
+      "id": "F42",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 28,
+      "doctrineId": null,
+      "seqs": [
+        226
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch, player-agency, doctrine"
+    },
+    {
+      "id": "F43",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 29,
+      "doctrineId": "world-moves",
+      "seqs": [
+        228,
+        229,
+        232,
+        235
+      ],
+      "detail": "With a resolved attack and an ongoing grapple and sling-ready goblin on the ledger, the narration shows no consequence or movement in the scene at all."
+    },
+    {
+      "id": "F44",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 29,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        235
+      ],
+      "detail": "The turn closes with a bare prompt ('What does Tamsin Vale do?') instead of something in the world that demands a response."
+    },
+    {
+      "id": "F45",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 29,
+      "doctrineId": null,
+      "seqs": [
+        235
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch"
+    },
+    {
+      "id": "F46",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 30,
+      "doctrineId": null,
+      "seqs": [
+        245
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: ledger-mismatch"
+    },
+    {
+      "id": "F47",
+      "source": "auditor",
+      "check": null,
+      "kind": "player-agency",
+      "severity": "fail",
+      "segment": 31,
+      "doctrineId": "hero-is-theirs",
+      "seqs": [
+        250
+      ],
+      "detail": "The narration dictates Tamsin's actions — she \"wrenches clear\" with \"blade still steady in her grip\" — instead of only describing what the world did."
+    },
+    {
+      "id": "F48",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 32,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        253
+      ],
+      "detail": "The turn ends on a bare turn-order announcement with nothing that demands a response from the player."
+    },
+    {
+      "id": "F49",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 32,
+      "doctrineId": null,
+      "seqs": [
+        253
+      ],
+      "detail": "final: fallback; attempts: 3; issues: player-agency, doctrine, invented-mechanics"
+    },
+    {
+      "id": "F50",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 33,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        257
+      ],
+      "detail": "The turn closes on a bare turn-order announcement rather than anything that demands a player response."
+    },
+    {
+      "id": "F51",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 33,
+      "doctrineId": "world-moves",
+      "seqs": [
+        257
+      ],
+      "detail": "The goblin lookout's action is asserted abstractly ('makes a move') with no shown consequence in the world."
+    },
+    {
+      "id": "F52",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 33,
+      "doctrineId": "plain-prose",
+      "seqs": [
+        257
+      ],
+      "detail": "The story slot contains turn-tracker bookkeeping instead of prose, leaving the beat with no scene content."
+    },
+    {
+      "id": "F53",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 33,
+      "doctrineId": null,
+      "seqs": [
+        257
+      ],
+      "detail": "final: fallback; attempts: 3; issues: invented-mechanics, player-agency, doctrine"
+    },
+    {
+      "id": "F54",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 34,
+      "doctrineId": null,
+      "seqs": [
+        260,
+        261,
+        262,
+        264,
+        265
+      ],
+      "detail": "Narration #265 declares Odo 'cannot do that here' although rows #260–#264 record his bargain as declared, committed, resolved, and the explicit cause of the encounter ending."
+    },
+    {
+      "id": "F55",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 34,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        265
+      ],
+      "detail": "The closing line is a flat refusal and a settled 'the fighting stops', offering nothing that demands a response from the player."
+    },
+    {
+      "id": "F56",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 34,
+      "doctrineId": null,
+      "seqs": [
+        265
+      ],
+      "detail": "final: fallback; attempts: 3; issues: invented-mechanics, doctrine, ledger-mismatch, player-agency"
+    },
+    {
+      "id": "F57",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 35,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        271
+      ],
+      "detail": "The turn closes with a bare prompt (\"What does Tamsin do with what she's found?\") instead of a world event that demands a response."
+    },
+    {
+      "id": "F58",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 35,
+      "doctrineId": "one-clue",
+      "seqs": [
+        271
+      ],
+      "detail": "Three discoveries land in one beat — the sliced non-goblin clapper strap, the stamped coin in the mud, and Pell's tell-tale behavior — instead of at most one real clue."
+    },
+    {
+      "id": "F59",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 35,
+      "doctrineId": null,
+      "seqs": [
+        271
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F60",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 36,
+      "doctrineId": "fail-forward",
+      "seqs": [
+        276,
+        277
+      ],
+      "detail": "The action resolved in row 276 but the narration shows no world response or new problem, stalling the scene."
+    },
+    {
+      "id": "F61",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 36,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        277
+      ],
+      "detail": "The narration closes on a flat restatement of the declared action and gives the player nothing to respond to."
+    },
+    {
+      "id": "F62",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 36,
+      "doctrineId": null,
+      "seqs": [
+        277
+      ],
+      "detail": "final: fallback; attempts: 3; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F63",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 37,
+      "doctrineId": null,
+      "seqs": [
+        285
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    }
+  ],
+  "fight": {
+    "rounds": 5,
+    "turns": {
+      "players": 12,
+      "npcs": 17
+    },
+    "attackRolls": {
+      "players": 8,
+      "npcs": 6
+    },
+    "hits": {
+      "players": 3,
+      "npcs": 2
+    },
+    "damageDealt": {
+      "players": 15,
+      "npcs": 11
+    },
+    "damageTaken": {
+      "players": 11,
+      "npcs": 15
+    },
+    "reducedToZero": [],
+    "deathSaveRolls": 0,
+    "fledOrBargained": [
+      "Morale condition met — two goblins down, Snag offers the clapper for safe passage; Odo's bargain closes the encounter, no further rounds needed."
+    ],
+    "fledOrBargainedNote": null,
+    "turnModeNarrations": 30
+  },
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "modelNote": null,
+  "usage": {
+    "calls": 57,
+    "inputTokens": 312518,
+    "outputTokens": 34610,
+    "costUsd": 2.4278400000000007
+  }
+}

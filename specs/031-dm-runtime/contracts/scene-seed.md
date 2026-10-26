@@ -94,6 +94,8 @@ export const SceneSeedSchema = z.object({
 
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
 
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
 ## Loader
 
 ```ts
@@ -153,3 +155,18 @@ Original content plus SRD 5.2.1 monsters and spells (constitution VIII). Outline
 - **Trackers (DM only).** `dusk` (4): full dark falls; `alarm` (3): the camp is alerted.
 
 TASK-0048's demo plays this seed. Its scripted CI case scripts the same three beats.
+
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
+### Amended by specs/034-narration-quality
+
+`contracts/player-facing-context.md` amends the shipped seed text. A player-facing field never
+states a DM-only fact.
+
+- `location.hooks.secrets[0]`: "The bell's ring drives off the river-things the goblins fear;
+  they want the clapper for their own camp."
+- `npcs[snag].portrayal.want`: "To keep the clapper and make the big-feet pay to cross his
+  reeds."
+- `npcs[snag].hooks.secrets`: append "He keeps the clapper because its ring keeps the
+  river-things off his camp."
+- `characters[odo].hooks.knows[0]`: "Goblins will bargain for anything that rings or shines."

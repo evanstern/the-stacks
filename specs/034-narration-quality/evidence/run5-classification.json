@@ -1,0 +1,867 @@
+{
+ "v": 1,
+ "source": "specs/034-narration-quality/evidence/run5-20261026T171359Z-greyhollow-ford-provider (jobs.json turn jobs in createdAt order, paired with transcript narration rows in seq order)",
+ "labelling": "player-agency, ledger-mismatch, invented-mechanics and other issues labelled by hand from each issue detail; LLM doctrine issues labelled by keyword (LENGTH, EITHEROR, ENDING, NPCSTATE, DOC-OTHER); deterministic issues labelled by detail text. Label meanings: research.md R1.",
+ "turns": [
+  {
+   "narrationSeq": 10,
+   "actionIds": [],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 104
+  },
+  {
+   "narrationSeq": 16,
+   "actionIds": [
+    "act-search"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "INVENT-CLUE",
+     "PC",
+     "ENDING"
+    ],
+    [
+     "NOEFFECT",
+     "NOEFFECT"
+    ],
+    [
+     "EMPTY"
+    ]
+   ],
+   "shippedWords": 6
+  },
+  {
+   "narrationSeq": 26,
+   "actionIds": [
+    "act-persuade"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 52
+  },
+  {
+   "narrationSeq": 33,
+   "actionIds": [
+    "act-advance"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "PC",
+     "LENGTH",
+     "EITHEROR"
+    ],
+    [
+     "NOEFFECT",
+     "LENGTH",
+     "ENDING"
+    ],
+    [
+     "DECL",
+     "LENGTH",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 6
+  },
+  {
+   "narrationSeq": 53,
+   "actionIds": [
+    "pt-4"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "PC",
+     "LENGTH",
+     "LENGTH"
+    ],
+    [
+     "MISFILED",
+     "ENDING"
+    ],
+    [
+     "NOEFFECT",
+     "EITHEROR",
+     "CLARIFY"
+    ]
+   ],
+   "shippedWords": 17
+  },
+  {
+   "narrationSeq": 58,
+   "actionIds": [],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "NPCSTATE",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 2
+  },
+  {
+   "narrationSeq": 64,
+   "actionIds": [],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ],
+    []
+   ],
+   "shippedWords": 92
+  },
+  {
+   "narrationSeq": 73,
+   "actionIds": [
+    "act-odo-1"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 71
+  },
+  {
+   "narrationSeq": 80,
+   "actionIds": [
+    "act-strike"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "NPC",
+     "ENDING",
+     "CLARIFY"
+    ],
+    [
+     "DEATHWORD",
+     "DET-EITHEROR"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 88,
+   "actionIds": [
+    "act-kestrel-1"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 1,
+   "labels": [
+    [
+     "AUDIT-CALL-FAILED"
+    ]
+   ],
+   "shippedWords": 9
+  },
+  {
+   "narrationSeq": 95,
+   "actionIds": [
+    "pt-6"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DECL",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 101,
+   "actionIds": [
+    "pt-7"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DECL",
+     "ENDING",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "ENDING",
+     "LENGTH"
+    ],
+    [
+     "NOEFFECT",
+     "ENDING",
+     "NPCSTATE"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 108,
+   "actionIds": [
+    "pt-8"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "NPC",
+     "ENDING",
+     "NOEFFECT"
+    ],
+    [
+     "NOEFFECT",
+     "EITHEROR",
+     "NPCSTATE"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 114,
+   "actionIds": [
+    "pt-9"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "DECL",
+     "LENGTH",
+     "NOEFFECT"
+    ],
+    [
+     "NPC",
+     "ENDING",
+     "NOEFFECT"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 120,
+   "actionIds": [
+    "pt-10"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "NPC",
+     "EITHEROR",
+     "DOC-OTHER"
+    ],
+    [
+     "DECL",
+     "ENDING",
+     "LENGTH"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 126,
+   "actionIds": [
+    "pt-11"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 105
+  },
+  {
+   "narrationSeq": 133,
+   "actionIds": [
+    "act-odo-2"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 103
+  },
+  {
+   "narrationSeq": 140,
+   "actionIds": [
+    "pt-12"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "MISFILED",
+     "LENGTH"
+    ],
+    [
+     "PC",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 147,
+   "actionIds": [
+    "pt-13"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DEATHWORD",
+     "DET-EITHEROR"
+    ],
+    [
+     "PC",
+     "LENGTH"
+    ],
+    [
+     "DEATHWORD"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 153,
+   "actionIds": [
+    "pt-14"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "NPCSTATE",
+     "LENGTH"
+    ],
+    []
+   ],
+   "shippedWords": 94
+  },
+  {
+   "narrationSeq": 160,
+   "actionIds": [
+    "pt-15"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "MISFILED",
+     "EITHEROR"
+    ],
+    [
+     "DECL",
+     "EITHEROR"
+    ],
+    [
+     "PC",
+     "ENDING",
+     "LENGTH"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 168,
+   "actionIds": [
+    "act-odo-3"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 3
+  },
+  {
+   "narrationSeq": 174,
+   "actionIds": [
+    "pt-16"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "NPC",
+     "LENGTH",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "EITHEROR"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 184,
+   "actionIds": [
+    "pt-17"
+   ],
+   "seat": "seat-only",
+   "fromPt19": false,
+   "final": "passed-after-regenerate",
+   "attempts": 3,
+   "labels": [
+    [
+     "DECL",
+     "LENGTH"
+    ],
+    [
+     "CONFUSED",
+     "LENGTH",
+     "NPCSTATE"
+    ],
+    []
+   ],
+   "shippedWords": 102
+  },
+  {
+   "narrationSeq": 195,
+   "actionIds": [
+    "pt-18",
+    "act-odo-4"
+   ],
+   "seat": "mixed",
+   "fromPt19": false,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "ENDING",
+     "LENGTH"
+    ],
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "DET-EITHEROR"
+    ]
+   ],
+   "shippedWords": 18
+  },
+  {
+   "narrationSeq": 204,
+   "actionIds": [
+    "act-kestrel-3"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 89
+  },
+  {
+   "narrationSeq": 210,
+   "actionIds": [
+    "act-odo-5"
+   ],
+   "seat": "none",
+   "fromPt19": false,
+   "final": "passed",
+   "attempts": 1,
+   "labels": [
+    []
+   ],
+   "shippedWords": 89
+  },
+  {
+   "narrationSeq": 215,
+   "actionIds": [
+    "pt-19"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 3,
+   "labels": [
+    [
+     "NOEFFECT",
+     "PC"
+    ],
+    [
+     "EMPTY"
+    ],
+    []
+   ],
+   "shippedWords": 89
+  },
+  {
+   "narrationSeq": 225,
+   "actionIds": [
+    "pt-20"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "NOEFFECT",
+     "NOEFFECT",
+     "LENGTH"
+    ],
+    []
+   ],
+   "shippedWords": 97
+  },
+  {
+   "narrationSeq": 234,
+   "actionIds": [
+    "pt-21"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "DECL",
+     "LENGTH",
+     "ENDING"
+    ],
+    []
+   ],
+   "shippedWords": 69
+  },
+  {
+   "narrationSeq": 242,
+   "actionIds": [
+    "pt-22"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "NOEFFECT",
+     "LENGTH"
+    ],
+    []
+   ],
+   "shippedWords": 37
+  },
+  {
+   "narrationSeq": 251,
+   "actionIds": [
+    "pt-23"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "LENGTH",
+     "NPCSTATE"
+    ],
+    [
+     "NPC",
+     "LENGTH"
+    ],
+    []
+   ],
+   "shippedWords": 14
+  },
+  {
+   "narrationSeq": 256,
+   "actionIds": [
+    "pt-24"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ],
+    [
+     "PC",
+     "LENGTH",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "LENGTH",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 6
+  },
+  {
+   "narrationSeq": 262,
+   "actionIds": [
+    "pt-25"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "ENDING"
+    ],
+    [
+     "MISFILED",
+     "ENDING"
+    ],
+    [
+     "DECL",
+     "ENDING",
+     "EITHEROR"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 270,
+   "actionIds": [
+    "pt-26"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "MISFILED",
+     "ENDING"
+    ],
+    [
+     "MISFILED",
+     "LENGTH",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 278,
+   "actionIds": [
+    "pt-27"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "passed-after-regenerate",
+   "attempts": 2,
+   "labels": [
+    [
+     "DET-EITHEROR"
+    ],
+    []
+   ],
+   "shippedWords": 87
+  },
+  {
+   "narrationSeq": 283,
+   "actionIds": [
+    "pt-28"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "DECL",
+     "ENDING",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "ENDING"
+    ],
+    [
+     "NOEFFECT",
+     "CONFUSED",
+     "ENDING"
+    ]
+   ],
+   "shippedWords": 6
+  },
+  {
+   "narrationSeq": 292,
+   "actionIds": [
+    "pt-29"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "NPC",
+     "ENDING"
+    ],
+    [
+     "NPC",
+     "EITHEROR",
+     "LENGTH"
+    ],
+    [
+     "NPC",
+     "EITHEROR",
+     "LENGTH"
+    ]
+   ],
+   "shippedWords": 12
+  },
+  {
+   "narrationSeq": 299,
+   "actionIds": [
+    "pt-30"
+   ],
+   "seat": "seat-only",
+   "fromPt19": true,
+   "final": "fallback",
+   "attempts": 3,
+   "labels": [
+    [
+     "INVENTED",
+     "CONFUSED",
+     "ENDING"
+    ],
+    [
+     "DET-EITHEROR"
+    ],
+    [
+     "NPC",
+     "ENDING",
+     "EITHEROR"
+    ]
+   ],
+   "shippedWords": 12
+  }
+ ]
+}

@@ -155,7 +155,7 @@ export const DOCTRINE: readonly DoctrinePair[] = [
     rule: "Antagonists have reasons and believe them.",
     wrong: "Evil for its own sake.",
     right:
-      "The goblins want the bell because its ring scares off river things.",
+      "The bandits hold the bridge because the lord's toll would starve their village.",
     nodes: ["director", "narrate"],
   },
   {

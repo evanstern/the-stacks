@@ -4,7 +4,7 @@ import type {
 } from "@the-stacks/session-model";
 import { estimateTokens } from "@the-stacks/srd";
 import type { AssembleOutput, BeatItem } from "../nodes/assemble.js";
-import type { SceneSeed } from "../seed/schema.js";
+import type { SceneSeed, SeedCharacterT } from "../seed/schema.js";
 
 /**
  * Shared prompt parts and the token caps (contracts/nodes.md "Token budget",
@@ -87,16 +87,54 @@ export function seedEntries(
   return entries;
 }
 
-function transcriptLine(e: TranscriptEntry): string {
+/** A party member as the transcript names them: id, display name, controlling actor. */
+export interface RosterEntry {
+  characterId: string;
+  name: string;
+  actor: string;
+}
+
+/** The roster from the projections' party. */
+export function rosterOf(party: SessionProjections["party"]): RosterEntry[] {
+  return party.map((m) => ({
+    characterId: m.characterId,
+    name: m.name,
+    actor:
+      m.controller.kind === "player" ? m.controller.userId : m.controller.actor,
+  }));
+}
+
+function speaker(
+  actor: string,
+  characterId: string | null,
+  roster: readonly RosterEntry[] | undefined,
+): string {
+  if (!roster) return actor;
+  if (characterId) {
+    const byChar = roster.find((r) => r.characterId === characterId);
+    if (byChar) return byChar.name;
+  }
+  const companion = actor.startsWith("ai:companion:")
+    ? roster.find((r) => r.characterId === actor.slice("ai:companion:".length))
+    : undefined;
+  if (companion) return companion.name;
+  if (actor === "ai:dm") return "the DM";
+  return "a player";
+}
+
+function transcriptLine(
+  e: TranscriptEntry,
+  roster: readonly RosterEntry[] | undefined,
+): string {
   switch (e.kind) {
     case "talk":
-      return `[${e.seq}] ${e.actor} said: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster)} said: ${e.text}`;
     case "narration":
       return `[${e.seq}] narration: ${e.text}`;
     case "action.declared":
-      return `[${e.seq}] ${e.actor} declared ${e.actionId}: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster)} declared ${e.actionId}: ${e.text}`;
     case "action.commented":
-      return `[${e.seq}] ${e.actor} ${e.stance} on ${e.actionId}: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, null, roster)} ${e.stance} on ${e.actionId}: ${e.text}`;
     case "action.committed":
       return `[${e.seq}] ${e.actionId} committed (${e.authority})`;
     case "action.resolved":
@@ -104,9 +142,19 @@ function transcriptLine(e: TranscriptEntry): string {
   }
 }
 
-/** The last 20 entries, oldest dropped first to fit. */
-export function transcriptEntries(tail: readonly TranscriptEntry[]): string[] {
-  return tail.slice(-CAPS.transcriptEntries).map(transcriptLine);
+/**
+ * The last 20 entries, oldest dropped first to fit. With a roster the output
+ * is player-facing: non-public entries are dropped and speakers are named.
+ * Without one it is byte-identical to the DM-side form.
+ */
+export function transcriptEntries(
+  tail: readonly TranscriptEntry[],
+  roster?: readonly RosterEntry[],
+): string[] {
+  const kept = roster ? tail.filter((e) => e.visibility === "public") : tail;
+  return kept
+    .slice(-CAPS.transcriptEntries)
+    .map((e) => transcriptLine(e, roster));
 }
 
 export function beatEntries(beat: readonly BeatItem[]): string[] {
@@ -119,7 +167,10 @@ export function beatEntries(beat: readonly BeatItem[]): string[] {
 /** Party, encounter and table mode; trackers only when asked (the Director). */
 export function projectionEntries(
   projections: SessionProjections,
-  seed: SceneSeed,
+  seed: {
+    characters: readonly Pick<SeedCharacterT, "characterId" | "identity">[];
+    trackers?: readonly { trackerId: string; advanceWhen: string }[];
+  },
   withTrackers: boolean,
 ): string[] {
   const entries: string[] = [];
@@ -162,7 +213,7 @@ export function projectionEntries(
   }
   if (withTrackers) {
     for (const t of projections.trackers) {
-      const def = seed.trackers.find((s) => s.trackerId === t.trackerId);
+      const def = seed.trackers?.find((s) => s.trackerId === t.trackerId);
       entries.push(
         `Tracker ${t.trackerId} (${t.name}) ${t.filled}/${t.segments}${def ? `; advance when: ${def.advanceWhen}` : ""}`,
       );
