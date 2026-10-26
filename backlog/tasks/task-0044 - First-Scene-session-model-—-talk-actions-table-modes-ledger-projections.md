@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:46'
+updated_date: '2026-10-26 03:00'
 labels:
   - first-scene
   - session
@@ -39,12 +39,23 @@ Spec: specs/028-session-model
 - [ ] #6 Every roll event records its reason, and every state-change event records before and after values.
 - [ ] #7 A test replays the log from seq 0 and rebuilds identical projections.
 - [ ] #8 Projections skip unknown event types without failing.
+- [ ] #9 Spec phase: Setup — package scaffold and boundary rule
+- [ ] #10 Spec phase: Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8)
+- [ ] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
+- [ ] #12 Spec phase: User Story 6 — the fixtures contract
+- [ ] #13 Spec phase: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
+- [ ] #14 Spec phase: Polish — full gate
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 2) after TASK-0042 merged (#43). Worktree .worktrees/task-0044, branch task-0044-session-model, cut from origin/main 9f62664. Spec number 028 claimed with a stub.
+
+Spec authoring by opus-implementer: 252644f, plus amendment 3a56b21; ~257k tokens in total. Clarify was skipped (spec.md records why).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Orchestrator ruling 2026-10-25: mechanics batch append is atomic in this task (decision-0020; TASK-0045 does not own it). The spec's defaults for open questions 1, 2 and 4 stand; question 4 is recorded on the TASK-0045 card.
+Implementation dispatch grouping: P1+P2 | P3 | P4 | P5+P6.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
