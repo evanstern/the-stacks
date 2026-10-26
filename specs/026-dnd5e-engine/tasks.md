@@ -152,25 +152,25 @@ surface.
 **Independent test**: a combatant drops to 0 HP, fails death saves and dies, with every event
 carrying before/after values.
 
-- [ ] T026 [US2] Write `src/commands/combatants.ts`: `combatant.add` (defaults, initial life
+- [x] T026 [US2] Write `src/commands/combatants.ts`: `combatant.add` (defaults, initial life
       state from `current`), `combatant.remove` (`UNKNOWN_COMBATANT`; the
       `COMBATANT_IN_ENCOUNTER` check is wired now and tested in Phase 4).
-- [ ] T027 [US2] Write the shared helpers in `src/commands/hit-points.ts`: `dropToZero`
+- [x] T027 [US2] Write the shared helpers in `src/commands/hit-points.ts`: `dropToZero`
       (dies rule, massive damage, unconscious + `hp-zero` condition) and `leaveZero`
       (conscious, tally reset, `hp-zero` condition removal with cause `healed`).
-- [ ] T028 [US2] Implement `damage.apply`, `healing.apply`, `temp-hp.grant` in
+- [x] T028 [US2] Implement `damage.apply`, `healing.apply`, `temp-hp.grant` in
       `src/commands/hit-points.ts` per contracts/commands.md "Hit points", including damage
       components (1..10) with damage types, critical dice doubling through `rollParsed`, the
       defense set (command's replaces record's; immune → 0, resisted → floor half, then
       vulnerable → double), `hp.changed.components`/`rawAmount`/`defensesSource`,
       `amount.kind: "roll"` (parse every component before any draw), `critical` at 0 HP, the
       stable → unconscious transition, and the rolled-temp-HP "keep the higher" success.
-- [ ] T029 [US2] Write `src/commands/life.ts`: `death-save.roll` (natural 1, natural 20,
+- [x] T029 [US2] Write `src/commands/life.ts`: `death-save.roll` (natural 1, natural 20,
       10+, below 10, third success → stable, third failure → dead) and `stabilize`.
-- [ ] T030 [P] [US2] Write `test/commands/combatants.test.ts`: add with defaults; add at 0 HP
+- [x] T030 [P] [US2] Write `test/commands/combatants.test.ts`: add with defaults; add at 0 HP
       for each rule; `ac` and `defenses` defaults; remove; `DUPLICATE_COMBATANT`;
       `UNKNOWN_COMBATANT`.
-- [ ] T031 [P] [US2] Write `test/commands/hit-points.test.ts` (scripted dice): temp HP absorb
+- [x] T031 [P] [US2] Write `test/commands/hit-points.test.ts` (scripted dice): temp HP absorb
       first (10/5 takes 8 → 7/0); two components (slashing + fire) each logged with raw and
       applied; resistance 9 → 4; vulnerability 5 → 10; immunity → 0 with no death-save
       failure at 0 HP; resisted-and-vulnerable 7 → 6; command defense set replaces the
@@ -183,7 +183,7 @@ carrying before/after values.
       existing with before = after; refusals `TARGET_DEAD` (damage, healing, temp HP),
       `TEMP_HP_NOT_HIGHER`, `UNKNOWN_COMBATANT`, rolled-amount `INVALID_DICE_EXPRESSION` at 0
       draws. Every success asserts `replay(events, state)` equals the expected state.
-- [ ] T032 [P] [US2] Write `test/commands/life.test.ts`: each death-save branch with a scripted
+- [x] T032 [P] [US2] Write `test/commands/life.test.ts`: each death-save branch with a scripted
       face (1, 9, 10, 20) and with advantage; three successes → stable with tally 0/0; three
       failures → dead; `stabilize`; `NOT_DYING` for conscious, stable, dead and dies-rule
       targets.

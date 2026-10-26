@@ -1,3 +1,13 @@
+import {
+  handleCombatantAdd,
+  handleCombatantRemove,
+} from "./commands/combatants.js";
+import {
+  handleDamageApply,
+  handleHealingApply,
+  handleTempHpGrant,
+} from "./commands/hit-points.js";
+import { handleDeathSaveRoll, handleStabilize } from "./commands/life.js";
 import { handleRoll } from "./commands/roll.js";
 import type { Handler } from "./handler.js";
 import type { Rng } from "./rng.js";
@@ -12,6 +22,13 @@ type HandlerMap = {
 // Later phases register their handlers here, one line each.
 const handlers: HandlerMap = {
   roll: handleRoll,
+  "combatant.add": handleCombatantAdd,
+  "combatant.remove": handleCombatantRemove,
+  "damage.apply": handleDamageApply,
+  "healing.apply": handleHealingApply,
+  "temp-hp.grant": handleTempHpGrant,
+  "death-save.roll": handleDeathSaveRoll,
+  stabilize: handleStabilize,
 };
 
 function issuesOf(error: {

@@ -118,6 +118,19 @@ export function hasPlainD20(terms: readonly DiceTerm[]): boolean {
   return t.count === 1 && t.keep === null && t.sign === 1;
 }
 
+/** The terms with every dice count and keep n doubled (a critical hit). Modifiers stay. */
+export function criticalTerms(terms: readonly DiceTerm[]): DiceTerm[] {
+  return terms.map((t) =>
+    t.kind === "dice"
+      ? {
+          ...t,
+          count: t.count * 2,
+          keep: t.keep ? { mode: t.keep.mode, n: t.keep.n * 2 } : null,
+        }
+      : t,
+  );
+}
+
 export type RollOutcome =
   | { ok: true; terms: DiceTermResult[]; total: number; natural: number | null }
   | DiceFailure;
@@ -141,15 +154,7 @@ export function rollParsed(
   rng: Rng,
 ): RollOutcome {
   const effective: DiceTerm[] = opts.critical
-    ? terms.map((t) =>
-        t.kind === "dice"
-          ? {
-              ...t,
-              count: t.count * 2,
-              keep: t.keep ? { mode: t.keep.mode, n: t.keep.n * 2 } : null,
-            }
-          : t,
-      )
+    ? criticalTerms(terms)
     : [...terms];
   if (opts.critical) {
     const failure = checkLimits(effective);

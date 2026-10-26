@@ -4,10 +4,14 @@ import {
   type EngineEvent,
   type EngineResult,
   type EngineState,
+  EngineStateSchema,
   emptyState,
+  execute,
   type RefusalCode,
   type Rng,
   replay,
+  type ScriptedRng,
+  scriptedRng,
 } from "../src/index.js";
 
 export function makeCombatant(overrides: Partial<Combatant> = {}): Combatant {
@@ -83,4 +87,32 @@ export function applyResult(
   result: EngineResult,
 ): EngineState {
   return replay(expectOk(result), state);
+}
+
+/** Run a command against a frozen copy of the state with scripted faces. */
+export function run(
+  state: EngineState,
+  command: unknown,
+  faces: number[] = [],
+): { result: EngineResult; rng: ScriptedRng; counter: CountingRng } {
+  const rng = scriptedRng(faces);
+  const counter = countingRng(rng);
+  const result = execute(deepFreeze(structuredClone(state)), command, counter);
+  return { result, rng, counter };
+}
+
+/** Replay a successful result onto the state and check the result still parses. */
+export function settle(state: EngineState, result: EngineResult): EngineState {
+  const next = replay(expectOk(result), state);
+  expect(EngineStateSchema.safeParse(next).success).toBe(true);
+  return next;
+}
+
+/** Assert a refusal with its code, and that it drew no dice. */
+export function expectRefusedBeforeDraw(
+  out: { result: EngineResult; counter: CountingRng },
+  code: RefusalCode,
+): void {
+  expectRefusal(out.result, code);
+  expect(out.counter.draws()).toBe(0);
 }
