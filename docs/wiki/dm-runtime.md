@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), resolve as the only gate writer with the engine owning every number, digit-free narration with code-rendered dice lines, the bounded audit loop and factual fallback, seven dm.* purposes, scene seed, doctrine MIT NOTICE, companions, chronicle, /dm routes, the dm/ import boundary. Jobs: dm-turn-jobs.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), resolve as the only gate writer with the engine owning every number, digit-free narration with code-rendered dice lines, the bounded audit loop and factual fallback, seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine MIT NOTICE, companions, chronicle, /dm routes, the dm/ import boundary. Jobs: dm-turn-jobs.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -8,6 +8,10 @@ sources:
   - apps/server/src/dm/pipeline/call.ts
   - apps/server/src/dm/nodes/assemble.ts
   - apps/server/src/dm/nodes/director.ts
+  - apps/server/src/dm/nodes/schemas.ts
+  - apps/server/src/dm/prompts/step-grammar.ts
+  - apps/server/src/dm/prompts/interpret.ts
+  - apps/server/src/dm/jobs.ts
   - apps/server/src/dm/nodes/interpret.ts
   - apps/server/src/dm/nodes/adjudicate.ts
   - apps/server/src/dm/nodes/resolve.ts
@@ -25,7 +29,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
 ---
 
 # DM runtime
@@ -58,6 +62,18 @@ Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so 
 does not re-pay model calls. Between nodes the runner checks the lease and aborts on a fence loss.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 records its purpose, prompt version and outcome, never prompt text.
+
+`callJson` makes at most two attempts: the second sends the first attempt's schema issues back.
+A node may pass `normalize`, applied to the parsed JSON before the schema on every attempt. Only
+the director passes one: `normalizeDirector` (`nodes/director.ts`) cuts an over-long `goalNote`
+and each over-long `reason` (beat, table mode, scene, trackers) to the 300-character cap, at the
+last space. It never touches a number, id or discriminant and adds no default (spec 033, row C4
+of `contracts/director-output.md`).
+
+## Failure record and rules-term gates
+
+A failed turn stores a `TurnFailureResult` in `jobs.result`, and model output may carry only
+closed rules-term lists. Both are in [[dm-failure-and-gates]].
 
 ## Resolve: the only writer
 

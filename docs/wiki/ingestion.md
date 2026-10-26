@@ -23,7 +23,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
 ---
 
 # Ingestion
