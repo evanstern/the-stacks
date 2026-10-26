@@ -298,7 +298,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v2");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v3");
     expect(prompt.user).toContain("## Party (player characters)");
     expect(prompt.user).toContain("Tamsin Vale (human player)");
     expect(prompt.user).toContain("Odo (AI companion)");
@@ -319,6 +319,19 @@ describe("narrate", () => {
     );
     expect(prompt.system).toContain(
       "No rules effect means nothing was rolled.",
+    );
+    expect(prompt.system).toContain(
+      "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did.",
+    );
+    expect(prompt.system).toContain(
+      "Never show a wound on a party member unless a fact records damage to them.",
+    );
+    const sys = prompt.system;
+    expect(sys.indexOf("When a foe's attack misses")).toBeGreaterThan(
+      sys.indexOf("No rules effect means nothing was rolled."),
+    );
+    expect(sys.indexOf("When a foe's attack misses")).toBeLessThan(
+      sys.indexOf("When an intent is unclear"),
     );
     expect(prompt.system).toContain(
       "end with one short open question in your own words",

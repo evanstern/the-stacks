@@ -15,7 +15,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v2";
+export const PROMPT_VERSION = "dm.narrate-v3";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -25,6 +25,7 @@ const RULES = [
   "The party members are player characters, AI companions included. Never decide what one says, feels or chooses. You may show a party member carrying out the action they declared, in plain words, and nothing more. Never invent a companion's speech or state; companions speak for themselves.",
   "Every other character is part of the world. Give them words, moves and reactions.",
   "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
+  "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did. The party member stays unchanged and unmoved: no wound, no dodge, no twisting free. Never show a wound on a party member unless a fact records damage to them.",
   "When an intent is unclear, describe the moment, then end with one short open question in your own words that asks what that character does. Never offer options.",
   "Cover every Event line.",
   "Name a character as dead or unconscious only when a fact says so; when a fact says so, say so.",
