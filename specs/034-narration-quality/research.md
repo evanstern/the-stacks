@@ -282,3 +282,83 @@ the selector to it. The orchestrator records the selector used on the card.
 | Seed location secret | Drop the clause the seed makes public | Hide Snag's strap (changes the designed clue path) |
 | Migration | None. Seeds are JSON files; `jobs.result` is jsonb. | — |
 | New dependency | None | — |
+
+---
+
+## R7. Verification run (Phase 5) — causes of the fail
+
+**Evidence**: `evidence/verify-20261026T183818Z-greyhollow-ford-provider/` (composite `fda4abf`,
+outcome `stalled`, `seat-exhausted`, 11 moves, $7.18 of a $22 ceiling). The orchestrator's
+classification: `classification.md` in that directory. **Verdict: FAIL on card AC #4.**
+Fallback rate 12/34 (0.35) excluding seat-fallback turns; `ledger-contradiction` 3;
+`hidden-info-leak` 0; `player-agency` 4.
+
+**Operator approval 2026-10-26**: "amend spec 034 with E2 (player-agency blocks only when it
+names a party character) and E3 (narrate-v3: a foe's failed attack leaves the hero unchanged and
+unmoved)".
+
+### R7.1 E1 — narrate truncated by hidden reasoning (fixed by operator config)
+
+`dm.narrate` had `maxTokens` 500 (code default `PURPOSE_MAX_TOKENS` in
+`apps/server/src/dm/purposes.ts`). 17 of 79 narrate calls stopped at exactly 500 output tokens.
+9 attempts returned empty prose ("The narration is empty", deterministic). Same mechanism as
+033 R10 (interpret).
+
+**Decision**: the operator raised `dm.narrate` `maxTokens` to 1500 in the provider configuration.
+No code change. The code default stays 500. The Phase 5b rerun assumes 1500 (quickstart C12).
+The estimate's upper bound with 1500 is $23.40.
+
+### R7.2 E2 — `dm.audit` still flags world characters as `player-agency` (selected)
+
+Audit v2 names the party in its prompt. The model still filed world characters' feelings as
+`player-agency`. Of 21 blocking `player-agency` issues, 10 name Pell (6) or Snag (4) and 1 names
+the companion Odo.
+
+**Decision**: a deterministic filter. A `player-agency` issue blocks only when its detail names
+a party member; otherwise it is advisory (contracts/audit-criteria.md, "The party-name
+filter"). Companions count as party members, as in narrate v2 and audit v2.
+
+Applied to the run's 21 issues, the filter keeps 13 blocking and makes 8 advisory.
+
+**Residual, pending operator ruling** (not decided here):
+
+- 4 of the 13 name a world character first and a party member only in passing (seq 162, 227,
+  254, 266, e.g. "Pell's physical state ... without Tamsin's declared action"). An alternative
+  rule — block only when the first character named in the detail is a party member — makes
+  these advisory and keeps 9 blocking. It needs world-name matching over `facts.npcNames`. It
+  departs from the approved wording, so it is not adopted.
+- 3 of the 13 are closing-question complaints filed as `player-agency` (seq 196 attempt 2,
+  210 attempt 1, 258 attempt 3: "Final line 'What does Tamsin do?' ..."). Audit v2 statement 3
+  already says an open question is correct. The filter cannot tell these apart.
+
+### R7.3 E3 — the narrator wounds or moves the hero on a foe's failed attack (selected)
+
+Examples: "sways on her knees, blood dark along her side" after a failed lunge with no damage
+fact (seq 111); "wrenches away before the grip can set" on a failed grab. `dm.audit`
+`invented-mechanics` ×14. Playtest auditor F19, F24, F37, F47 (`player-agency`).
+
+**Decision**: narrate v3 rule (contracts/narration-facts.md, "Narrate prompt v3"). On a foe's
+miss, failed grab or a party member's successful save, describe only what the foe did; the
+party member stays unchanged and unmoved. `dm.audit` keeps v2: statement 2 already names an
+unrecorded wound.
+
+### R7.4 E4 — digits in prose (no new fix)
+
+4 deterministic digit fails. The narrate rule exists. They recur inside E1 truncation turns.
+
+### R7.5 Non-narration fails — pending operator ruling
+
+These three `ledger-contradiction` fails count against AC #4. None is decided here. Each needs
+an operator ruling before Phase 5b reports a pass or a fail.
+
+| Finding | Rows | What happened | Orchestrator's classification | Status |
+|---|---|---|---|---|
+| F4 | — | The playtest auditor says "amber light" contradicts a dark interior in the journal. | Playtest-auditor false positive; no ledger fact contradicted. | **Pending operator ruling** |
+| F32 | 176 | The chronicle (journal row 176) merged "a pot-helm goblin named Snag". The narration treats them as two creatures. | Chronicle error, judged against the narration. | **Pending operator ruling** |
+| F54 | 262–264 | Odo's bargain ended the encounter by morale (262–263). The action then resolved `refused` (264). The fallback said "Brother Odo cannot do that here." | Runtime ordering: an action that ended the encounter is refused after it. The fallback matches the ledger. | **Pending operator ruling** |
+
+### R7.6 Not selected
+
+- `dm.audit` model change (Haiku to Sonnet): the contingency applies only to a fail on the rate
+  alone. This run does not fail on the rate alone.
+- Attempt budget and word limit: unchanged (spec rulings).

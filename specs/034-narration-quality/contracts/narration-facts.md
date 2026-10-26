@@ -1,7 +1,7 @@
-# Contract: narration facts v2 and the narrate prompt v2
+# Contract: narration facts v2 and the narrate prompt v2 (v3 amendment)
 
 Amends `specs/031-dm-runtime/contracts/nodes.md` ("narrate"). Evidence: research.md R1.1–R1.3,
-R1.5, R2, R4 (F17, F81).
+R1.5, R2, R4 (F17, F81), R7.3 (E3).
 
 ## Facts additions (`apps/server/src/dm/facts.ts`)
 
@@ -86,3 +86,49 @@ The regenerate block lists only blocking issues (contracts/audit-criteria.md).
 - `narrate.test.ts`: the v2 prompt holds the party section, the world section, the
   no-rules-effect line, the on-hold line, the open-question rule and each event line. The
   roll line for Goblin-3 holds "jabs at Tamsin with its dagger".
+
+## Narrate prompt v3 (E3, amendment 2026-10-26)
+
+Evidence: research.md R7.3. In the verification run the narrator gave Tamsin a wound with no
+damage fact ("sways on her knees, blood dark along her side") after a goblin's lunge failed. It
+also moved her on a failed grab ("wrenches away before the grip can set"). `dm.audit` flagged
+these as `invented-mechanics` 14 times. The playtest auditor failed four turns as
+`player-agency` (F19, F24, F37, F47).
+
+Set `PROMPT_VERSION = "dm.narrate-v3"` in `prompts/narrate.ts`.
+
+RULES change: add this rule directly after the "No rules effect" rule. Keep every other rule
+and its order.
+
+> "When a foe's attack misses, its grab fails, or a party member succeeds on a save against
+> it, describe only what the foe did. The party member stays unchanged and unmoved: no wound,
+> no dodge, no twisting free. Never show a wound on a party member unless a fact records damage
+> to them."
+
+**When the rule applies, in fact terms.** The model reads the rule as prose. Code adds no
+detection. For tests and review, the case is one of these:
+
+- A roll line in a `Monster turn` block whose `target` is a party member and whose outcome is
+  `miss` or `failure`.
+- A save roll by a party member in a `Monster turn` block whose outcome is `success`.
+
+"A party member" means every `facts.party` entry, AI companions included.
+
+**What does not change.**
+
+- `NarrationFacts`, `factEntries` and the facts cap do not change.
+- A foe's hit still lands. A recorded damage change is still narrated.
+- A party member's own declared action is still shown (narrate v2 rule 1).
+- The `dm.audit` prompt does not change. Audit v2 statement 2 already names "a wound" with no
+  fact as `invented-mechanics`. `PROMPT_VERSION` stays `dm.audit-v2`. Bump it only if a later
+  amendment changes its text.
+
+### Tests for narrate v3
+
+- `narrate.test.ts`: `NARRATE_VERSION` is `dm.narrate-v3`. Update the v2 assertion.
+- `narrate.test.ts`: the system prompt holds the v3 rule verbatim, directly after the "No rules
+  effect" rule.
+- `narrate.test.ts`: an inline snapshot (`toMatchInlineSnapshot`) of the full `RULES` text, as
+  `interpret-prompt.test.ts` does for its grammar.
+- `narrate.test.ts`: for facts with a `Monster turn` whose roll targets Tamsin with outcome
+  `miss` and no change line, the user prompt holds that roll line and no damage change.

@@ -10,8 +10,9 @@ contracts/fallback-summary.md, contracts/audit-criteria.md.
 
 **Tests**: required. Every card AC is proven by a named test or a recorded run.
 
-**Dispatch unit**: Phases 1, 2, 3, 4 and 6 (T040–T044) are implementer dispatches (sonnet).
-Phase 5 and T045–T047 are **orchestrator-run**. Never dispatch them. Run phases in order.
+**Dispatch unit**: Phases 1, 2, 3, 4, 4b and 6 (T040–T044) are implementer dispatches
+(sonnet). Phases 5 and 5b and T045–T047 are **orchestrator-run**. Never dispatch them. Run
+phases in order: 1, 2, 3, 4, 5, 4b, 5b, 6.
 
 **Gate for every dispatched phase** (run before the phase's commit):
 `pnpm lint && pnpm typecheck && pnpm --filter @the-stacks/server test && pnpm check:boundaries`.
@@ -39,8 +40,8 @@ metadata unchanged.
 |---|---|
 | #1 no DM-only seed fact in companion or narrate prompts; a test | T013 (repro), T020, T021 |
 | #2 in-fiction fallback stating every ledger change; tests | T012 (repro), T026, T027 |
-| #3 causes classified from evidence; each selected cause fixed with a test | research.md (done), T010–T015 (repro), T018–T021 (A1/L1–L5), T024–T027 (F17, F23), T030–T035 (A1–A4) |
-| #4 paid run: fallback ≤10%, zero leak and contradiction fails | T036–T039 |
+| #3 causes classified from evidence; each selected cause fixed with a test | research.md (done), T010–T015 (repro), T018–T021 (A1/L1–L5), T024–T027 (F17, F23), T030–T035 (A1–A4), T048–T052 (E2, E3) |
+| #4 paid run: fallback ≤10%, zero leak and contradiction fails | T036–T039 (run, failed), T053–T057 |
 | #5 existing dm tests and scripted CI playtest green | every phase gate, T040, T045 |
 
 ## Cause → task map
@@ -58,6 +59,9 @@ metadata unchanged.
 | F17 roll reasons missing | T024 | T026 |
 | F23 fallback | T025 | T026, T027 |
 | F81 companion state | T030 | T034 |
+| E1 narrate truncation | operator config (`dm.narrate` maxTokens 1500) | T057 (rerun) |
+| E2 world characters filed as `player-agency` | T048 | T049 |
+| E3 hero wounded or moved on a foe's failed attack | T050 | T051 |
 
 ---
 
@@ -152,21 +156,69 @@ Contracts: `contracts/narration-facts.md` (prompt part), `contracts/audit-criter
 
 ---
 
-## Phase 5: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
+## Phase 5: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID — RUN, FAILED, SUPERSEDED BY 5b
 
-- [ ] T036 Orchestrator: build the composite worktree (quickstart A) and run the pre-run checks
+Run 2026-10-26 as `20261026T183818Z-greyhollow-ford-provider` (evidence commit `ed46cec`). The
+run failed AC #4: rate 0.35, 3 `ledger-contradiction` fails. Phase 5b supersedes it. The ticks
+below record what ran, not a pass.
+
+- [x] T036 Orchestrator: build the composite worktree (quickstart A) and run the pre-run checks
   (quickstart B). Record the seat-fallback selector on the card.
-- [ ] T037 Orchestrator: get the operator's spend ceiling. Record it on the card.
-- [ ] T038 Orchestrator: run the verification (quickstart C). Commit the evidence directory.
-  Record the rate, fail counts, spend and pass or fail on the card.
-- [ ] T039 Orchestrator: on a fail, or on a fail of another kind, write the classification
+- [x] T037 Orchestrator: get the operator's spend ceiling. Record it on the card. ($22.)
+- [x] T038 Orchestrator: run the verification (quickstart C). Commit the evidence directory.
+  Record the rate, fail counts, spend and pass or fail on the card. (FAIL.)
+- [x] T039 Orchestrator: on a fail, or on a fail of another kind, write the classification
   (quickstart C11), commit it, and stop for an operator ruling. Do not start Phase 6.
+  (`classification.md`; operator approved E2 and E3 on 2026-10-26.)
+
+**Checkpoint**: AC #4 NOT met. Continue at Phase 4b.
+
+---
+
+## Phase 4b: Party-name filter and narrate v3 (US3; AC #3) — DISPATCH (sonnet)
+
+Contracts: `contracts/audit-criteria.md` ("The party-name filter"),
+`contracts/narration-facts.md` ("Narrate prompt v3"). Evidence: research.md R7.2, R7.3.
+
+- [ ] T048 [US3] In `nodes/audit.ts`, add the party-name filter. A `dm.audit` `player-agency`
+  issue blocks only when its detail holds a party-name term from `facts.party`. Keep every other
+  kind's blocking rule. Keep `dm.audit-v2`. Put the term builder and matcher in one exported
+  function so tests call it directly.
+- [ ] T049 [P] [US3] In `audit.test.ts`, add the filter's unit-test table and node tests from
+  `contracts/audit-criteria.md`. Quote the verify-run details verbatim.
+- [ ] T050 [US3] In `prompts/narrate.ts`, add the narrate v3 rule after the "No rules effect"
+  rule. Set `dm.narrate-v3`.
+- [ ] T051 [P] [US3] In `narrate.test.ts`, add the narrate v3 tests from
+  `contracts/narration-facts.md`. Update the `dm.narrate-v2` assertion to `dm.narrate-v3`.
+- [ ] T052 Check every script under `test/dm/scripts/` still matches its call sequence. Run the
+  phase gate and the database suites. Commit. Push the branch.
+
+**Checkpoint**: E2 and E3 met offline. The branch is ready for the Phase 5b rerun.
+
+---
+
+## Phase 5b: Verification rerun (US4; AC #4) — ORCHESTRATOR-RUN, PAID
+
+Ceiling: pending operator approval. The estimate's upper bound is $23.40 with narrate
+maxTokens 1500, so a $22 ceiling refuses to start.
+
+- [ ] T053 Orchestrator: confirm `dm.narrate` maxTokens is 1500 in the provider configuration
+  (research.md R7.1). Record it on the card.
+- [ ] T054 Orchestrator: get the operator's rulings on F4, F32 and F54 (research.md R7.5) and on
+  the E2 residual (R7.2). Record each ruling on the card.
+- [ ] T055 Orchestrator: get the operator's spend ceiling. Record it on the card.
+- [ ] T056 Orchestrator: rebuild the composite worktree from the Phase 4b tip (quickstart A5,
+  B, C12). Record the composite commit and the selector on the card.
+- [ ] T057 Orchestrator: run the verification (quickstart C with C12). Commit the evidence
+  directory. Record the rate, fail counts, spend and pass or fail on the card. On a fail, write
+  the classification (quickstart C11), commit it, and stop for an operator ruling. Do not start
+  Phase 6.
 
 **Checkpoint**: AC #4 met.
 
 ---
 
-## Phase 6: Full gate (US5; AC #5)
+## Phase 6: Full gate (US5; AC #5) — after Phase 5b passes
 
 - [ ] T040 [US5] DISPATCH: run `pnpm ci:check` and the database suites with
   `REQUIRE_DATABASE=1`. Fix any regression without loosening a test.
@@ -193,13 +245,15 @@ Contracts: `contracts/narration-facts.md` (prompt part), `contracts/audit-criter
 
 ## Dependencies & Execution Order
 
-Phase 1 → 2 → 3 → 4 → 5 → 6. No phase overlaps. Phase 3 needs Phase 2's view (`setting`,
-`presentNpcs`). Phase 4 needs Phase 3's facts. Phase 5 needs its own operator-approved ceiling.
+Phase 1 → 2 → 3 → 4 → 5 (failed) → 4b → 5b → 6. No phase overlaps. Phase 3 needs Phase 2's
+view (`setting`, `presentNpcs`). Phase 4 needs Phase 3's facts. Phase 4b needs Phase 4's audit
+node and narrate v2. Phases 5 and 5b each need their own operator-approved ceiling. Phase 6
+needs a Phase 5b pass.
 Within a phase, `[P]` tasks touch separate files.
 
 ## Notes
 
 - `AuditModelOutput` does not change. The audit record gains `words` and per-issue `blocking`.
-- Interpret and adjudicate prompts do not change.
+- Interpret and adjudicate prompts do not change. Audit stays `dm.audit-v2` through Phase 4b.
 - The playtest auditor (TASK-0048) does not change. F77 is recorded as its observation.
 - No migration. No new dependency.

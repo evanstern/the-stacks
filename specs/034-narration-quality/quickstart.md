@@ -65,6 +65,34 @@ needs an operator-approved spend ceiling, recorded on TASK-0106 before the run.
     `evidence/verify-<runId>/classification.md`. Report to the operator before any further
     spend.
 
+12. **Phase 5b rerun notes.** Apply these on top of steps 1–11.
+    - Confirm `dm.narrate` `maxTokens` is 1500 in the provider configuration (research.md
+      R7.1). The code default stays 500. Do not edit `.env` or code for it.
+    - Expect the estimate's upper bound near $23.40. A ceiling below it refuses to start. Ask
+      the operator for a ceiling at or above the estimate. Never pick one yourself.
+    - Rebuild the composite worktree from the Phase 4b tip (step A5). Confirm the composite
+      holds `dm.narrate-v3` and the party-name filter before the run.
+    - `moves.fallback` is a list (TASK-0048 `b3f09ca`). Use the list-form selector below in
+      place of the step 5 command. `$fbs` is every `moves.fallback[].text`. A seat action is an
+      `action.declared` row whose text equals any of them.
+
+    ```sh
+    SCEN=/Users/evanstern/projects/the-stacks/.worktrees/task-0106-run/apps/server/playtests/scenarios/greyhollow-ford.json
+    jq -s --argjson fbs "$(jq '[.moves.fallback[].text]' "$SCEN")" '
+      ([.[] | select(.type=="action.declared" and (.payload.text as $t | any($fbs[]; . == $t))) | .payload.actionId]) as $seat
+      | def seatonly(ids): (ids|length)>0 and all(ids[]; . as $i | $seat|index($i));
+      { narrated_all: ([.[]|select(.type=="narration")]|length),
+        fallback_all: ([.[]|select(.type=="journal.entry.added" and .payload.title=="Audit flag: narration replaced")]|length),
+        narrated: ([.[]|select(.type=="narration" and (seatonly(.payload.actionIds)|not))]|length),
+        fallback: ([.[]|select(.type=="journal.entry.added" and .payload.title=="Audit flag: narration replaced" and (seatonly(.payload.sourceActionIds)|not))]|length) }
+      | .rate = (.fallback/.narrated) | .rate_all = (.fallback_all/.narrated_all)' transcript.jsonl
+    ```
+
+    On the Phase 5 run (`verify-20261026T183818Z-greyhollow-ford-provider`) this prints
+    `narrated 34, fallback 12, rate 0.35`; all turns `38, 13`.
+    - Apply the operator's rulings on F4, F32 and F54 (research.md R7.5) when judging step 7.
+      Record which rulings applied on the card.
+
 ## D. Scripted CI playtest (Phase 6)
 
 1. Merge this branch's latest tip into the composite worktree (A5 again).

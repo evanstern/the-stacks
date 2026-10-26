@@ -101,7 +101,9 @@ apps/server/seeds/greyhollow-ford.json
 | 2 Player-facing context | sonnet dispatch | #1, #3 |
 | 3 Facts and fallback | sonnet dispatch | #2, #3 |
 | 4 Narrate and audit v2 | sonnet dispatch | #3 |
-| 5 Verification run | orchestrator, paid | #4 |
+| 5 Verification run | orchestrator, paid (run 2026-10-26, failed; research.md R7) | #4 |
+| 4b Party-name filter and narrate v3 (E2, E3) | sonnet dispatch | #3 |
+| 5b Verification rerun | orchestrator, paid | #4 |
 | 6 Full gate | sonnet dispatch + orchestrator | #5 |
 
 ## Operator checkpoints
@@ -111,6 +113,9 @@ apps/server/seeds/greyhollow-ford.json
    reports a pass.
 3. **Contingency only**: if Phase 5 fails on the fallback rate alone, a `dm.audit` model change
    (Haiku to Sonnet) is a config change in `.env` and an operator checkpoint. It is not planned.
+4. **Phase 5b**: a spend ceiling (the estimate's upper bound is $23.40 with narrate maxTokens
+   1500, so $22 refuses to start), and rulings on F4, F32, F54 and the E2 residual
+   (research.md R7.2, R7.5).
 
 ## Risks
 
