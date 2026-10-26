@@ -339,6 +339,68 @@ describe("gateway.embed", () => {
   });
 });
 
+describe("FakeProvider purpose queues (spec 031)", () => {
+  const done = {
+    type: "done" as const,
+    usage: { inputTokens: 1, outputTokens: 1 },
+  };
+
+  it("consumes a purpose's queue before the global FIFO", async () => {
+    const provider = new FakeProvider();
+    provider.scriptChat([{ type: "text", text: "global" }, done]);
+    provider.scriptChatFor("answering", [
+      { type: "text", text: "purpose" },
+      done,
+    ]);
+    const { gateway } = buildGateway({ answering: provider });
+
+    const first = await collect(
+      gateway.chat({ purpose: "answering", messages: [] }),
+    );
+    expect(first[0]).toEqual({ type: "text", text: "purpose" });
+    const second = await collect(
+      gateway.chat({ purpose: "answering", messages: [] }),
+    );
+    expect(second[0]).toEqual({ type: "text", text: "global" });
+  });
+
+  it("keeps queues independent per purpose", async () => {
+    const provider = new FakeProvider();
+    provider.scriptChatFor("a", [{ type: "text", text: "for-a" }, done]);
+    provider.scriptChatFor("b", [{ type: "text", text: "for-b" }, done]);
+    const { gateway } = buildGateway({ a: provider, b: provider });
+    const b = await collect(gateway.chat({ purpose: "b", messages: [] }));
+    const a = await collect(gateway.chat({ purpose: "a", messages: [] }));
+    expect(b[0]).toEqual({ type: "text", text: "for-b" });
+    expect(a[0]).toEqual({ type: "text", text: "for-a" });
+  });
+
+  it("strict mode fails an unscripted call with a config error", async () => {
+    const provider = new FakeProvider();
+    provider.strict = true;
+    const { gateway } = buildGateway({ answering: provider });
+    const events = await collect(
+      gateway.chat({ purpose: "answering", messages: [] }),
+    );
+    expect(events[0]).toMatchObject({
+      type: "error",
+      kind: "config",
+      message: "unscripted call for answering",
+    });
+  });
+
+  it("non-strict default is unchanged: an unscripted call is a bare done", async () => {
+    const provider = new FakeProvider();
+    const { gateway } = buildGateway({ answering: provider });
+    const events = await collect(
+      gateway.chat({ purpose: "answering", messages: [] }),
+    );
+    expect(events).toEqual([
+      { type: "done", usage: { inputTokens: 0, outputTokens: 0 } },
+    ]);
+  });
+});
+
 describe("no vendor lock-in (decision-0007, invariant 10)", () => {
   it("names no provider, vendor, or key variable anywhere in apps/server/src/ai/", () => {
     const aiDir = fileURLToPath(new URL("../src/ai/", import.meta.url));

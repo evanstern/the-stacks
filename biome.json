@@ -17,6 +17,7 @@
       "!fixtures",
       "!apps/server/test/fixtures/ddb",
       "!apps/server/test/fixtures/write-boundary",
+      "!apps/server/seeds",
       "!packages/srd/data",
       "!packages/srd/provenance"
     ]
@@ -132,6 +133,35 @@
                   {
                     "group": ["**/codex/**", "**/session/**"],
                     "message": "library must not import codex or session directly \u2014 go through a declared seam module (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/server/src/dm/**",
+        "fixtures/boundary-violations/apps/server/src/dm/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/events/**",
+                      "**/library/ingest/**",
+                      "**/library/store*",
+                      "**/codex/**",
+                      "**/ws/**"
+                    ],
+                    "message": "dm must not import the log writers, ingestion, the library store, codex or ws \u2014 session state is written only through the gate (constitution III)."
                   }
                 ]
               }

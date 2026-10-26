@@ -8,6 +8,7 @@
   "references": [
     { "path": "../../packages/shared" },
     { "path": "../../packages/dnd5e-engine" },
-    { "path": "../../packages/session-model" }
+    { "path": "../../packages/session-model" },
+    { "path": "../../packages/srd" }
   ]
 }

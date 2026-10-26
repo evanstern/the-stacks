@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/src/cli/create-operator.ts
   - package.json
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Configuration
@@ -45,11 +45,8 @@ the same way as `APP_PORT` — throws `` `UPLOAD_MAX_BYTES must be a positive in
 part in [[ingestion]]'s `/library/uploads` route; see that note for how the route enforces it
 both from `Content-Length` and mid-stream.
 
-`commit` is `env.GIT_COMMIT ?? "unknown"` — no validation, since any string (or its absence)
-is a legitimate answer. It is baked into the image at build time (spec 010's `GIT_COMMIT`
-build arg; see [[container-image]] and [[compose-stack]]), not read from `.env`, so it is the
-one `ServerConfig` field a plain `docker compose up` and an `env.mjs`-managed stack can
-legitimately disagree on.
+`commit` is `env.GIT_COMMIT ?? "unknown"` — unvalidated. It is baked into the image at build time
+(`GIT_COMMIT` build arg; see [[container-image]], [[compose-stack]]), not read from `.env`.
 
 `loadConfig` itself never reads `TEST_DATABASE_URL` — the running server always connects with
 `DATABASE_URL`, full stop. `TEST_DATABASE_URL` only matters to code applying `migrate.ts`'s
@@ -80,11 +77,7 @@ handing `createDb` an empty connection string and breaking migrations run inside
 container. Outside the container, on a host with `.env`'s `TEST_DATABASE_URL` uncommented,
 the same `||` picks it up normally.
 
-`migrate.ts` also documents why it imports with `.ts` extensions
-(`../src/config.ts`/`../src/db.ts`) rather than the `.js`-suffixed imports `src/` uses
-internally: it runs directly via Node's native TypeScript stripping (per its `package.json`
-script), not through the `tsc`-built `dist/`, so it can't use the bundler-resolved `.js`
-suffixes the compiled server code needs.
+`migrate.ts` imports with `.ts` extensions because it runs under Node's type stripping (see [[migrations]]).
 
 ## Where secrets and shared keys live (spec 022)
 
@@ -105,7 +98,7 @@ Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unc
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
 [[ai-gateway]]), retrieval's three (see [[retrieval]]), and (TASK-0027) answering's one,
-`ASK_MIN_SIMILARITY` (see [[rules-answerer]]). See [[overview]]'s "environment contract"
+`ASK_MIN_SIMILARITY` (see [[rules-answerer]]), plus a commented seven-purpose `AI_PURPOSES` example for the DM runtime (TASK-0046, [[dm-runtime]]). See [[overview]]'s "environment contract"
 callout for the same trap at a higher level.
 
 ## Operational notes
@@ -118,7 +111,7 @@ by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (s
 [[ai-gateway]]; unset means no model features, not an error). `RETRIEVAL_MODE`/`RETRIEVAL_K`/
 `RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s
 `loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
-`ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
+The DM runtime adds no new env var: it reads seven `dm.*` entries of `AI_PURPOSES` (`dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`, `dm.companion`, all `op: "chat"`, with `maxTokens` per purpose); `index.ts` warns by name at boot about any missing, and a missing one fails only the node that calls it (see [[ai-gateway]]). `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
 Zod-validated by `library/answer.ts`'s `loadAnswerConfig`, also called by `index.ts` (see
 [[rules-answerer]]). `TEST_DATABASE_URL` (and its port, `TEST_DB_PORT`, default `5433`) is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running

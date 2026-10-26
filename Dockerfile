@@ -46,6 +46,10 @@ COPY --from=build /app/packages/srd/dist packages/srd/dist
 COPY --from=build /app/packages/srd/data packages/srd/data
 COPY --from=build /app/packages/srd/ATTRIBUTION.md packages/srd/ATTRIBUTION.md
 COPY --from=build /app/apps/server/dist apps/server/dist
+# Scene seeds load at runtime from apps/server/seeds (module-relative, spec 031).
+COPY --from=build /app/apps/server/seeds apps/server/seeds
+# The doctrine's MIT notice ships beside the compiled doctrine module (spec 031).
+COPY --from=build /app/apps/server/src/dm/doctrine/NOTICE.md apps/server/dist/dm/doctrine/NOTICE.md
 # apps/web/build is where src/static.ts resolves its default client root and
 # SSR handler from (module-relative, not cwd — plan D4, D5).
 COPY --from=build /app/apps/web/build apps/web/build

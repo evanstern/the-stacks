@@ -3,6 +3,15 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { isUniqueViolation } from "../../db.js";
 import { ConflictError } from "../../errors.js";
+import {
+  HEARTBEAT_MS,
+  LEASE_MS,
+  MAX_ATTEMPTS,
+  POLL_MS,
+  finishJob as queueFinishJob,
+  heartbeat as queueHeartbeat,
+  setStage as queueSetStage,
+} from "../../jobs/queue.js";
 import { jobs } from "../../schema/jobs.js";
 import type { DbClient } from "../store.js";
 
@@ -13,10 +22,7 @@ import type { DbClient } from "../store.js";
  * wakes up is fenced out rather than corrupting a reclaimed job.
  */
 
-export const LEASE_MS = 60_000;
-export const HEARTBEAT_MS = 10_000;
-export const POLL_MS = 2_000;
-export const MAX_ATTEMPTS = 3;
+export { HEARTBEAT_MS, LEASE_MS, MAX_ATTEMPTS, POLL_MS };
 
 export type JobFormat = "zip" | "html" | "markdown";
 export type JobState = "queued" | "running" | "succeeded" | "failed";
@@ -78,7 +84,7 @@ export interface ClaimedJob {
 
 interface JobRow {
   id: string;
-  book: string;
+  book: string | null;
   status: string;
   stage: string | null;
   attempts: number;
@@ -95,7 +101,7 @@ function toJobStatus(row: JobRow): JobStatus {
   const input = row.input as JobInput;
   return JobStatusSchema.parse({
     id: row.id,
-    book: row.book,
+    book: row.book ?? "",
     status: row.status,
     stage: row.stage,
     format: input.format,
@@ -153,6 +159,7 @@ export async function listJobs(
   const rows = await db
     .select()
     .from(jobs)
+    .where(eq(jobs.kind, "ingest"))
     .orderBy(desc(jobs.createdAt))
     .limit(limit);
   return rows.map((row) => toJobStatus(row as JobRow));
@@ -162,7 +169,10 @@ export async function getJob(
   db: DbClient,
   id: string,
 ): Promise<JobStatus | null> {
-  const [row] = await db.select().from(jobs).where(eq(jobs.id, id));
+  const [row] = await db
+    .select()
+    .from(jobs)
+    .where(and(eq(jobs.id, id), eq(jobs.kind, "ingest")));
   return row ? toJobStatus(row as JobRow) : null;
 }
 
@@ -186,8 +196,9 @@ export async function claimJob(db: DbClient): Promise<ClaimedJob | null> {
       stage = 'extract'
     WHERE id = (
       SELECT id FROM jobs
-      WHERE status = 'queued'
-         OR (status = 'running' AND heartbeat_at < now() - (interval '1 millisecond' * ${LEASE_MS}))
+      WHERE kind = 'ingest'
+        AND (status = 'queued'
+         OR (status = 'running' AND heartbeat_at < now() - (interval '1 millisecond' * ${LEASE_MS})))
       ORDER BY created_at
       FOR UPDATE SKIP LOCKED
       LIMIT 1
@@ -223,59 +234,30 @@ export async function claimJob(db: DbClient): Promise<ClaimedJob | null> {
   return {
     id: row.id,
     claimToken: row.claimToken,
-    book: row.book,
+    book: row.book ?? "",
     input: row.input as JobInput,
   };
 }
 
-function fenced(job: ClaimedJob) {
-  return and(eq(jobs.id, job.id), eq(jobs.claimToken, job.claimToken));
-}
-
 /** Refreshes the lease clock. Returns false when fenced out (the lease already expired and another worker reclaimed the job). */
-export async function heartbeat(
-  db: DbClient,
-  job: ClaimedJob,
-): Promise<boolean> {
-  const updated = await db
-    .update(jobs)
-    .set({ heartbeatAt: new Date() })
-    .where(fenced(job))
-    .returning({ id: jobs.id });
-  return updated.length > 0;
+export function heartbeat(db: DbClient, job: ClaimedJob): Promise<boolean> {
+  return queueHeartbeat(db, job);
 }
 
 /** Advances the job's stage. Returns false when fenced out. */
-export async function setStage(
+export function setStage(
   db: DbClient,
   job: ClaimedJob,
   stage: JobStage,
 ): Promise<boolean> {
-  const updated = await db
-    .update(jobs)
-    .set({ stage })
-    .where(fenced(job))
-    .returning({ id: jobs.id });
-  return updated.length > 0;
+  return queueSetStage(db, job, stage);
 }
 
 /** Marks the job terminal (`succeeded` or `failed`). Returns false when fenced out. */
-export async function finishJob(
+export function finishJob(
   db: DbClient,
   job: ClaimedJob,
   outcome: { result: JobResult } | { error: string },
 ): Promise<boolean> {
-  const succeeded = "result" in outcome;
-  const updated = await db
-    .update(jobs)
-    .set({
-      status: succeeded ? "succeeded" : "failed",
-      stage: null,
-      result: succeeded ? outcome.result : null,
-      error: succeeded ? null : outcome.error,
-      finishedAt: new Date(),
-    })
-    .where(fenced(job))
-    .returning({ id: jobs.id });
-  return updated.length > 0;
+  return queueFinishJob(db, job, outcome);
 }

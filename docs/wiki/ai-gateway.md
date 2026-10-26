@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # AI gateway
@@ -25,7 +25,7 @@ with `chat()` (an async-iterable stream of text ending in exactly one `done`/`er
 provider name is ever hard-coded in this directory (decision-0007) — a test enforces that by
 grepping the source (see "Operational notes"). As of TASK-0024 (specs/017-ingestion-pipeline),
 [[ingestion]]'s worker is the gateway's first real caller: it calls `embed()` for each stored
-book's chunks. No HTTP route calls it yet (TASK-0027 onward will).
+book's chunks. [[rules-answerer]] and the DM runtime ([[dm-runtime]]) are later callers.
 
 ## How it works
 
@@ -42,7 +42,7 @@ empty, harmless config, not an error.
 `"local"`, anything) — never a vendor name in source. Two adapter kinds exist:
 `openai-compatible` (stdlib `fetch` against `{baseUrl}/chat/completions` — streamed SSE — and
 `{baseUrl}/embeddings`; `Authorization: Bearer` only when `apiKeyEnv` is set) and `fake`
-(scripted chat/embed for tests, with deterministic hash-derived embeddings). `gateway.ts`'s
+(scripted chat/embed for tests, with deterministic hash-derived embeddings; `scriptChatFor(purpose, ...scripts)` queues scripts per purpose, consumed before the global FIFO, and `pendingFor(purpose)` counts them; `strict = true` turns an unscripted chat call into a `config` error instead of an empty `done`). `gateway.ts`'s
 `createGateway({config, sink, fetch?, env?, adapters?})` looks up a purpose, resolves its
 provider (lazily, cached by name) through a kind → `AdapterFactory` registry, and calls
 `provider.chat`/`provider.embed`.
@@ -87,13 +87,22 @@ purpose degrades the same way ingestion's does: `answer()` maps `chat()`'s own `
 event (or a thrown `retrieve()`/`embed()` failure) to a terminal SSE `error` event rather than
 crashing the server — see [[rules-answerer]].
 
+Since TASK-0046 (specs/031-dm-runtime), the DM runtime is the gateway's third caller. It uses
+seven `op: "chat"` purposes whose names are code constants in `dm/purposes.ts` (`DM_PURPOSES`):
+`dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`,
+`dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES`; `.env.example`
+carries a commented seven-purpose example (strong tier for director/narrate/adjudicate, mid for
+interpret/companion, cheap for audit/chronicle). `index.ts` passes the same `aiGateway` into
+`startDmWorker` and logs `missingDmPurposes(aiConfig.purposes)` by name at boot with
+`console.warn`; a missing purpose never blocks boot, it fails only the node that calls it.
+
 ## Connections
 
 Constructed in [[server-entrypoint-and-app]]'s `index.ts`, via `loadAiConfig(process.env)`
 called directly (not through [[configuration]]'s `loadConfig`), alongside the WebSocket
 gateway. `.env.example` documents the three env vars under "AI gateway". [[ingestion]]'s
 worker (library plane, TASK-0024) is its first caller, via `embed()`; [[rules-answerer]]'s
-`answer()` (TASK-0027) is its second, via `chat()` and `embed()` — see [[overview]] for the
+`answer()` (TASK-0027) is its second, via `chat()` and `embed()`; [[dm-runtime]]'s nodes are its third, via `chat()` — see [[overview]] for the
 three data planes.
 
 ## Operational notes

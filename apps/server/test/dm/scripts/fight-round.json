@@ -1,0 +1,474 @@
+{
+  "v": 1,
+  "name": "fight-round",
+  "dice": [15, 12, 7, 20, 3, 2, 1, 5, 14, 4, 12, 3, 12, 1],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "enter turn mode; Snag wins initiative",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [
+            {
+              "trackerId": "alarm",
+              "advance": 1,
+              "reason": "The party's approach rustles the reeds."
+            }
+          ],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "rising",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Run the camp fight; the goblins break when two fall.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "a move needs no roll",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-advance",
+              "intent": "move",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Moving along the posts needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "entering the fight",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin follows the old timber posts into the reeds, and the party spreads out behind her. A smoky fire and a ring of watchful goblins wait on the mud island ahead, and Snag springs up first with his scimitar raised."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "monster turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Snag swings at the nearest foe.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "NPC reading: actionId null",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Snag swings his notched scimitar at Tamsin",
+                  "attackerId": "snag",
+                  "targetId": "tamsin",
+                  "expression": "1d20+4",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "tamsin",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+2"
+                          },
+                          "damageType": "slashing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a miss for the NPC",
+      "respond": {
+        "type": "text",
+        "value": "Snag lunges with his notched scimitar, sing-songing threats, but Tamsin sways aside and the blade only finds air."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "human active actor",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Tamsin takes the fight to the goblin in the pot-helm.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-strike",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Tamsin swings her longsword at the goblin in the pot-helm",
+                  "attackerId": "tamsin",
+                  "targetId": "goblin-2",
+                  "expression": "1d20+5",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "goblin-2",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d8+3"
+                          },
+                          "damageType": "slashing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, no death",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin's longsword bites into the goblin in the pot-helm, who reels back clutching a shoulder and snarling."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": "Peace, friends, but I will not stand idle.",
+          "comment": null,
+          "act": {
+            "text": "Odo swings his mace at the goblin lookout.",
+            "commit": true
+          }
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "companion action",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Odo presses the lookout.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-odo-1",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Odo swings his mace at the goblin lookout",
+                  "attackerId": "odo",
+                  "targetId": "goblin-3",
+                  "expression": "1d20+3",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "goblin-3",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+1"
+                          },
+                          "damageType": "bludgeoning"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, no death",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo brings his mace down on the goblin lookout, who yelps and stumbles back, hunting for solid footing."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Kestrel's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": {
+            "text": "Kestrel looses an arrow at the goblin by the fire.",
+            "commit": true
+          }
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "back to free mode; scene ends",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "free",
+            "reason": "Snag offers the clapper for safe passage."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "end",
+            "outcome": "goal-met",
+            "reason": "Snag trades the clapper for safe passage and the way is clear."
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Close the scene.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-kestrel-1",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Kestrel looses an arrow at the goblin by the fire",
+                  "attackerId": "kestrel",
+                  "targetId": "goblin-4",
+                  "expression": "1d20+5",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "goblin-4",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+3"
+                          },
+                          "damageType": "piercing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, then the scene ends",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls. Snag lowers his blade and calls out, offering the clapper in return for a safe way off the ford."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

@@ -16,7 +16,7 @@ sources:
   - packages/srd/scripts/verify-against-pdf.mjs
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # SRD data package
@@ -87,6 +87,6 @@ and `ATTRIBUTION.md` ([[container-image]]).
 
 A Biome `noRestrictedImports` override on `packages/srd/**` forbids importing
 `@the-stacks/dnd5e-engine`, `@the-stacks/server`, `@the-stacks/web`, and `apps/**` or
-`dnd5e-engine/**` paths. The reverse direction is allowed. `pnpm check:boundaries` proves the rule
+`dnd5e-engine/**` paths. The reverse direction is allowed. `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `pnpm check:boundaries` proves the rule
 fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipeline]],
 [[monorepo-and-toolchain]]).

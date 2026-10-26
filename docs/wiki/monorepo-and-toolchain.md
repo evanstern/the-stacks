@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Monorepo and toolchain
@@ -67,7 +67,7 @@ never touches — plus narrower carve-outs: `apps/server/test/fixtures/ddb` (raw
 export-shaped HTML fixtures, not app code; see [[ddb-parser]]), `apps/server/test/fixtures/write-boundary`
 (the seeded violation tree for the import-graph test, [[proposal-gate]]; also excluded from the
 server test tsconfig) and the generated SRD data
-(`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]). Eight `overrides` entries add
+(`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]) and the DM scene seeds (`apps/server/seeds`; see [[dm-runtime]]). Nine `overrides` entries add
 a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,
 each forbidding imports of the others (constitution III's plane isolation). The sixth,
@@ -75,7 +75,7 @@ scoped to `packages/dnd5e-engine/src/**`, also adds `noRestrictedGlobals` and de
 database, network, model, `node:*`, app-package imports and clock/network globals
 (constitution VI purity; see [[dnd5e-engine]]). The seventh, scoped to `packages/srd/**`, forbids
 importing the engine, server, or web app (the engine may import srd, never the reverse; see
-[[srd-data]]). The eighth, scoped to `packages/session-model/src/**`, applies the same purity denials as the engine (database, network, model, clock globals; see [[session-model]]), and the engine override also forbids importing `@the-stacks/session-model` — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
+[[srd-data]]). The eighth, scoped to `packages/session-model/src/**`, applies the same purity denials as the engine (database, network, model, clock globals; see [[session-model]]), and the engine override also forbids importing `@the-stacks/session-model`. The ninth, scoped to `apps/server/src/dm/**`, forbids importing the log writers, ingestion, the library store, codex and ws ([[dm-runtime]]; `apps/server` now also depends on `@the-stacks/srd` and references it in its tsconfig) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
 
 ## Connections
 

@@ -11,7 +11,9 @@ sources:
   - apps/server/src/library/ingest/chunk.ts
   - apps/server/src/library/ingest/markdown.ts
   - apps/server/src/schema/jobs.ts
+  - apps/server/src/jobs/queue.ts
   - apps/server/drizzle/0003_dazzling_cargill.sql
+  - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/vitest.config.ts
   - apps/server/test/library/uploads.integration.test.ts
   - apps/server/test/library/jobs.integration.test.ts
@@ -21,7 +23,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Ingestion
@@ -53,18 +55,15 @@ stream opens; each entry's declared size debits a shared `ZipBudget` (`EXTRACT_B
 (16 MiB) is rejected. `yauzl` doesn't verify CRC-32 itself, so every read/extract recomputes it
 and throws `ZipError` on a mismatch; zip64 is supported natively.
 
-Extracted nested zips get temp file names from `crypto.randomUUID()`, not a per-`walkZip`-call
-counter — T034's real-export spot check found a nested zip and its own first inner chapter-zip
-each independently restarting a counter at 1, both writing `<tmpDir>/1.zip`, the inner write
-truncating the file the outer read was still streaming from. A UUID can't collide at any depth.
-Reproduced without the real export in `collect.test.ts`.
+Extracted nested zips get temp file names from `crypto.randomUUID()`, not a per-call counter: a
+counter restarted at 1 in a nested walk made inner and outer both write `<tmpDir>/1.zip`,
+truncating the file still being read. Covered in `collect.test.ts`.
 
 **Filtering and dedup** (`collect.ts`). `isIgnoredEntry` drops `__MACOSX/`, `.DS_Store`, `._*`,
 and any `*_files/` asset folder unextracted. A `.zip` entry recurses (up to `MAX_ZIP_DEPTH` =
 3); `.html`/`.htm` is read; anything else counts `skipped`. Pages are sorted by nested path
 (numeric-aware `Intl.Collator`) and deduped by sha-256 content hash — a book shipped as both
-per-chapter zips and one combined zip ingests once. Zero surviving pages is a
-`ValidationError`; a non-zip upload short-circuits to exactly one page.
+per-chapter zips and one combined zip ingests once. Zero surviving pages is a `ValidationError`.
 
 **Parse routing** (`worker.ts`'s `runJob`). Markdown goes to `parseMarkdown` (a line-based
 splitter producing the same `ParsedBook` shape/invariants as HTML; it deliberately flattens
@@ -82,18 +81,24 @@ Output re-uses [[ddb-parser]]'s `ParsedBook` shape, so `storeParsedBook` needs n
 
 **Jobs: schema, claim, lease, fencing, recovery.** `schema/jobs.ts`'s `jobs` table (see
 [[database-schema]]) is deliberately **not** under `library_immutable` — rows update in place
-as `status`/`stage`/`attempts`/`claim_token`/`heartbeat_at` advance. `claimJob` is one SQL
-statement: `UPDATE ... WHERE id = (SELECT ... WHERE status='queued' OR (status='running' AND
-heartbeat_at < now() - LEASE_MS) ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING
-...` — `SKIP LOCKED` lets concurrent claims never block, and folding "queued" and
-"lease-expired running" into one `WHERE` needs no separate recovery path. `LEASE_MS` = 60s,
-`HEARTBEAT_MS` = 10s (a heartbeat returning `false` aborts the job's `AbortController` — fenced
-out). Every write after a claim filters on `claim_token`, so a worker whose lease expired and
-later wakes up can't corrupt a job another worker reclaimed — the write updates zero rows and
-`requireStage` throws `FencedOutError`, treated as "someone else owns this now", not a failure.
-A claim past `MAX_ATTEMPTS` (3) is immediately marked `failed`, upload file deleted right
-there. `startIngestWorker` runs one job at a time, polling every `POLL_MS` (2s) or on
-`nudge()`, and sweeps orphaned upload files/job dirs untouched 10+ minutes as a backstop.
+as `status`/`stage`/`attempts`/`claim_token`/`heartbeat_at` advance. The table is **shared**
+since TASK-0046: ingest rows are `kind = 'ingest'` and the DM runtime adds `turn`, `companion`
+and `chronicle` kinds ([[dm-runtime]]). Ingestion never sees them: `claimJob`, `listJobs` and
+`getJob` all filter `kind = 'ingest'`, and `book` is nullable in the schema (the ingest code
+reads it as `book ?? ""`). The kind-generic fenced writes — `heartbeat`, `setStage`, `finishJob`
+(plus `saveResult`, used by DM only) and the lease constants — live in `jobs/queue.ts`;
+`library/ingest/jobs.ts` re-exports the constants and wraps those writes. `claimJob` is one SQL
+statement: `UPDATE ... WHERE id = (SELECT ... WHERE kind = 'ingest' AND (status='queued' OR
+(status='running' AND heartbeat_at < now() - LEASE_MS)) ORDER BY created_at FOR UPDATE SKIP
+LOCKED LIMIT 1) RETURNING ...` — `SKIP LOCKED` lets concurrent claims never block, and folding
+"queued" and "lease-expired running" into one `WHERE` needs no separate recovery path.
+`LEASE_MS` = 60s, `HEARTBEAT_MS` = 10s (a heartbeat returning `false` aborts the job's
+`AbortController` — fenced out). Every write after a claim filters on `claim_token`, so a worker
+whose lease expired and later wakes up can't corrupt a job another worker reclaimed — the write
+updates zero rows and `requireStage` throws `FencedOutError`, treated as "someone else owns this
+now", not a failure. A claim past `MAX_ATTEMPTS` (3) is immediately marked `failed`, upload file
+deleted right there. `startIngestWorker` runs one job at a time, polling every `POLL_MS` (2s) or
+on `nudge()`, and sweeps orphaned upload files/job dirs untouched 10+ minutes as a backstop.
 
 **Embedding obligation** (`worker.ts`'s `embedChunks`, the `embed` stage). Batches of
 `EMBED_BATCH_SIZE` (256) chunks go through [[ai-gateway]]'s `embed()`, using the purpose named
@@ -101,21 +106,19 @@ by [[retrieval]]'s `RETRIEVAL_EMBED_PURPOSE` when boot wiring confirms it exists
 job still **succeeds**, `embedding: { status: "skipped", reason: "no embedding purpose
 configured" }` — a book stays `fts`-searchable with no AI provider configured.
 
-**Temp files.** Uploads land under `os.tmpdir()/the-stacks-uploads` (survives a `restart`, not
-a `recreate` — a job whose file is then gone just fails with `"upload file missing"`). Each
-running job gets its own `job-<id>/` subdirectory, removed on a terminal state or fence-out.
+**Temp files.** Uploads land under `os.tmpdir()/the-stacks-uploads` (a job whose file is gone
+after a `recreate` fails with `"upload file missing"`); each running job gets its own `job-<id>/`
+directory, removed on a terminal state or fence-out.
 
-**`vitest.config.ts`'s `fileParallelism: false`** (server-wide — see [[test-suite]]).
-`worker.integration.test.ts`'s background worker polls the shared `jobs` table; default
-per-file parallelism let `jobs.integration.test.ts`'s `drainQueue()` helper claim and fail a
-job this suite was waiting on — latent since Phase 1, invisible until a suite polled a shared
-queue to a terminal outcome. Serializing files closes it with no behavior change.
+**`vitest.config.ts`'s `fileParallelism: false`** (server-wide — see [[test-suite]]): the
+worker suite polls the shared `jobs` table, and parallel files let another suite's `drainQueue()`
+claim its job. Serializing files closes the race with no behavior change.
 
 ## Connections
 
 Calls [[ddb-parser]] and its own `parseMarkdown`; writes through [[library-schema]]'s
 `storeParsedBook`/`attachEmbeddings`; embeds through [[ai-gateway]], matched to [[retrieval]]'s
-configured purpose; its `jobs` table sits in [[database-schema]]; throws [[error-contract]]'s
+configured purpose; its `jobs` table sits in [[database-schema]] and is shared with [[dm-turn-jobs]]; throws [[error-contract]]'s
 `ValidationError`/`ConflictError`/`PayloadTooLargeError`/`NotFoundError`; mounted and started
 by [[server-entrypoint-and-app]]; `UPLOAD_MAX_BYTES` is [[configuration]]'s. [[test-suite]]
 covers the rest of `apps/server/test/`. A second, non-HTTP reader of the same jobs queue —
@@ -129,9 +132,7 @@ id is `404 not_found`, not a validation error. `JobResult` carries counts (`page
 `duplicatePages`, `ignoredEntries`, `skippedEntries`, `chunkCount`) and the embedding outcome,
 never book text.
 
-**Measured throughput and recovery** ([[benchmarks]]'s `ingest-scaling`/`restart-mid-ingest`,
-decision-0005). Measured, not decided: 1 worker sustains 1.75 jobs/s, degrading between 100-250
-queued jobs; 2 workers sustain 3.25 jobs/s (~2x), degrading between 250-500. Killing a worker
-mid-`embed` confirmed `claimJob`'s `ORDER BY created_at` empirically — the killed job, being
-oldest, is always what a second worker reclaims and succeeds on attempt 2, followers unaffected,
-no duplicate document.
+**Measured throughput and recovery** ([[benchmarks]], decision-0005): 1 worker sustains 1.75
+jobs/s (degrading at 100-250 queued), 2 workers 3.25 jobs/s (degrading at 250-500). Killing a
+worker mid-`embed` showed the oldest job is what a second worker reclaims, succeeding on attempt 2
+with no duplicate document.

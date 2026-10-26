@@ -10,10 +10,14 @@ import { createApp } from "./app.js";
 import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
+import { createDmEnqueuer } from "./dm/enqueue.js";
+import { missingDmPurposes } from "./dm/purposes.js";
+import { startDmWorker } from "./dm/worker.js";
 import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
-import { loadRetrievalConfig } from "./library/retrieve.js";
+import { loadRetrievalConfig, retrieve } from "./library/retrieve.js";
+import { loadProjections } from "./session/projections.js";
 import { isReservedPath } from "./static.js";
 // `import type` only: web-dev.js itself is loaded dynamically, below, behind
 // STACKS_WEB_DEV, so production never pulls in `vite` (plan D7).
@@ -50,6 +54,33 @@ const ingestWorker = startIngestWorker({
   uploadDir,
 });
 
+// The gate and the DM runtime come before the app: the /dm routes nudge the
+// worker, and the worker submits through the gate (specs/031-dm-runtime).
+const gate = createGate({ db });
+const loadDmProjections = (sessionId: string) =>
+  loadProjections(db, sessionId, { role: "dm" });
+const missingPurposes = missingDmPurposes(aiConfig.purposes);
+if (missingPurposes.length > 0) {
+  console.warn(
+    `DM runtime: unconfigured purposes (turns that call them will fail): ${missingPurposes.join(", ")}`,
+  );
+}
+const dmWorker = startDmWorker({
+  db,
+  gateway: aiGateway,
+  gate,
+  retrieve: (q) =>
+    retrieve({ db, gateway: aiGateway, config: retrievalConfig }, q),
+  loadProjections: loadDmProjections,
+  minSimilarity: answerConfig.minSimilarity,
+});
+const dmEnqueuer = createDmEnqueuer({
+  db,
+  nudge: dmWorker.nudge,
+  loadProjections: loadDmProjections,
+  log: (line) => console.error(JSON.stringify(line)),
+});
+
 // Vite in middleware mode (plan D7, research R8) — a dynamic import behind
 // the flag, so production never pulls in `vite`.
 const webDev: WebDev | undefined =
@@ -61,6 +92,7 @@ const app = createApp({
   databaseProbe: createDatabaseProbe(config.databaseUrl),
   db,
   commit: config.commit,
+  dm: { nudge: dmWorker.nudge },
   web: webDev && { handler: webDev.handler },
   library: {
     uploadMaxBytes: config.uploadMaxBytes,
@@ -77,7 +109,6 @@ const app = createApp({
 // The WebSocket gateway shares this one port and one process with the HTTP
 // app (FR-001, architecture A2) — attached to the same underlying server
 // `serve()` returns, not a second listener.
-const gate = createGate({ db });
 const gateway = createGateway({
   db,
   validateSession: createValidateSession(db),
@@ -85,6 +116,8 @@ const gateway = createGateway({
 });
 // Every row the gate appends reaches the entitled subscribers (ws-delivery.md).
 gate.onAppended(gateway.publish);
+// Every committed action (and AI DM proposal decision) queues a DM turn.
+gate.onAppended(dmEnqueuer.onAppended);
 
 // ponytail: a 1-hour request timeout so a large, slow upload isn't cut off
 // mid-stream by Node's default (research R1); the ingest worker itself has

@@ -76,7 +76,7 @@ which the composer shows inline. A refusal does not close the socket.
 
 ## Surfaces
 
-The ledger and the DM approvals list open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
+Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list for the human DM. The ledger and the DM approvals list open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
 the project uses no modals. The approvals panel mounts only for the DM. Known gap: suggest-policy
 proposals still show an Approve control (TASK-0100).
 

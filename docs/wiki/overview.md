@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Overview
@@ -23,7 +23,7 @@ end, but almost nothing is built on top of them yet.
 
 The shape is deliberately small. **One Node process** serves the HTTP API, the WebSocket
 gateway, and the built client. **One Postgres** holds relational data and the append-only
-event log — and will later hold vectors and the job queue, rather than those arriving as new
+event log — and holds vectors and the shared job queue (ingest and DM jobs), rather than those arriving as new
 services. **Two containers and a volume** is the whole deployment.
 
 ## How it works
@@ -32,11 +32,11 @@ A request arrives at the single Node process defined in `apps/server/src/index.t
 builds the Hono app (`createApp`), calls `serve()` from `@hono/node-server`, and attaches the
 WebSocket gateway to the **same underlying server** that `serve()` returns — not a second
 listener. One port carries the API, the client, and the socket. It also constructs the
-[[ai-gateway]] and starts the [[ingestion]] worker in the same process — no new port,
+[[ai-gateway]] and starts the [[ingestion]] worker and (TASK-0046) the DM worker ([[dm-runtime]]) in the same process — no new port,
 container, or process.
 
 Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
-order: `/health`, `/api/echo`, `/auth`, `/library`, and then the web app's middleware
+order: `/health`, `/api/echo`, `/auth`, `/library`, `/dm` (operator-only DM controls), and then the web app's middleware
 **last** — static assets, then a full SSR render — so it can never shadow the routes above
 (see [[static-serving]]). `/ws` is not a Hono route at all — it is handled at the HTTP
 upgrade, before Hono routing, by [[websocket-gateway]].
@@ -47,7 +47,7 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 |---|---|---|
 | library | imported reference content | storage ([[library-schema]]), ingestion ([[ingestion]], TASK-0024: upload → parse → chunk → store → embed), and a read path ([[rules-answerer]], TASK-0027: retrieve → answer → cite over SSE) all land |
 | codex | campaign entities | empty — planned for M4 (The Codex); M2 runs from a hand-authored scene seed |
-| session | what happened at the table | the event log, live |
+| session | what happened at the table | the event log, live; the AI DM ([[dm-runtime]], TASK-0046) writes to it only through the proposal gate |
 
 The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
 ([[library-schema]]), an end-to-end ingestion path ([[ingestion]], TASK-0024) that writes to

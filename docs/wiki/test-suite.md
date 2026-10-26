@@ -27,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Test suite
@@ -47,6 +47,9 @@ restart losing nothing) and `write-boundary.test.ts` (no database; the AC #1 imp
 [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
+TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that
+use `describe.skipIf(!reachable)` like the others, over a scripted `FakeProvider`; see [[dm-runtime]]).
+It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).
 Their counts are not in the totals below, which predate them.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
@@ -110,7 +113,7 @@ alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project
 root) now builds this reference too, so a type error introduced only in a test fails
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
 closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` still
-scopes `"include": ["src"]` (its `references` now also name the engine and session-model packages), so `test/` stays out of the `src` build's own output).
+scopes `"include": ["src"]` (its `references` now also name the engine, session-model and srd packages), so `test/` stays out of the `src` build's own output).
 
 ## Connections
 

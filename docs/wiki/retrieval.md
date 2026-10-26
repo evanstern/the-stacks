@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Retrieval
@@ -21,7 +21,9 @@ every `/library/ask` request retrieves under the boot-time `RETRIEVAL_*` config;
 `retrieve()` call is caught and mapped to a terminal `error{kind:"retrieval"}` SSE event, never
 left to propagate. The retrieval benchmark ([[benchmarks]], TASK-0029) is a second caller: it
 calls `retrieve()` directly (no HTTP) once per question per matrix cell, scoring where the
-right passage landed. Its config has had a caller since TASK-0024: [[ingestion]] reads
+right passage landed. The DM runtime ([[dm-runtime]], TASK-0046) is a third caller: `index.ts` hands
+`startDmWorker` a `retrieve` closure bound to the boot-time `retrievalConfig`, which the adjudicate node
+uses for rules lookups. Its config has had a caller since TASK-0024: [[ingestion]] reads
 `loadRetrievalConfig(...).embedPurpose` to pick which [[ai-gateway]] purpose embeds each
 stored chunk, so the two features share one "which purpose is embedding" answer.
 

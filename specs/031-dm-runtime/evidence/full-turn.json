@@ -1,0 +1,123 @@
+{
+  "task": "TASK-0046",
+  "script": "exploration-check.json",
+  "jobId": "378d604a-0978-44ef-bd5f-b7658a6a3034",
+  "nodes": [
+    "dm.director",
+    "dm.interpret",
+    "dm.narrate",
+    "dm.audit"
+  ],
+  "rollCount": 1,
+  "ledger": [
+    {
+      "kind": "change",
+      "seq": 12,
+      "actor": "ai:dm",
+      "visibility": "dm",
+      "reason": "The search takes a while and the light fades. [378d604a-0978-44ef-bd5f-b7658a6a3034#1]",
+      "type": "tracker.changed",
+      "subject": "dusk",
+      "before": {
+        "trackerId": "dusk",
+        "name": "Full dark falls on the ford",
+        "segments": 4,
+        "filled": 0,
+        "note": "When full, the river-things rise; the scene's failure condition is near."
+      },
+      "after": {
+        "trackerId": "dusk",
+        "name": "Full dark falls on the ford",
+        "segments": 4,
+        "filled": 1,
+        "note": "When full, the river-things rise; the scene's failure condition is near."
+      },
+      "batchId": null,
+      "index": null,
+      "actionId": null
+    },
+    {
+      "kind": "roll",
+      "seq": 13,
+      "actor": "ai:dm",
+      "visibility": "public",
+      "reason": "Tamsin searches the ferry-house for whoever cut the bell rope [378d604a-0978-44ef-bd5f-b7658a6a3034#2]",
+      "batchId": "id-bdf723c3-13",
+      "index": 0,
+      "actionId": "act-search",
+      "roll": {
+        "type": "dice.rolled",
+        "v": 1,
+        "reason": "Tamsin searches the ferry-house for whoever cut the bell rope [378d604a-0978-44ef-bd5f-b7658a6a3034#2]",
+        "expression": "1d20",
+        "mode": "normal",
+        "purpose": "check",
+        "critical": false,
+        "combatantId": "tamsin",
+        "terms": [
+          {
+            "kind": "dice",
+            "sign": 1,
+            "count": 1,
+            "sides": 20,
+            "keep": null,
+            "faces": [
+              14
+            ],
+            "kept": [
+              true
+            ],
+            "subtotal": 14
+          }
+        ],
+        "total": 14,
+        "natural": 14
+      }
+    },
+    {
+      "kind": "outcome",
+      "seq": 14,
+      "actor": "ai:dm",
+      "visibility": "public",
+      "reason": "Tamsin searches the ferry-house for whoever cut the bell rope [378d604a-0978-44ef-bd5f-b7658a6a3034#2]",
+      "batchId": "id-bdf723c3-13",
+      "index": 1,
+      "actionId": "act-search",
+      "outcome": {
+        "type": "check.resolved",
+        "v": 1,
+        "reason": "Tamsin searches the ferry-house for whoever cut the bell rope [378d604a-0978-44ef-bd5f-b7658a6a3034#2]",
+        "combatantId": "tamsin",
+        "kind": "ability-check",
+        "ability": "int",
+        "skill": "Investigation",
+        "rollIndex": 0,
+        "dc": 13,
+        "total": 14,
+        "natural": 14,
+        "autoFail": null,
+        "outcome": "success"
+      }
+    }
+  ],
+  "narration": "Tamsin crouches beside the cut bell rope and reads the damage: first gnawed through, then sliced clean. The bell hangs whole above her, but its clapper is gone.\n\nTamsin Vale — Tamsin searches the ferry-house for whoever cut the bell rope: 1d20 → 14 = 14 vs DC 13: success",
+  "audit": {
+    "final": "passed",
+    "flagged": false,
+    "attempts": [
+      {
+        "llm": {
+          "issues": [],
+          "verdict": "pass"
+        },
+        "attempt": 1,
+        "proseSha256": "5934671d3409a11ffcf30dff6ac3c4936bd21dce23becc9e0ec6b6906e9539ea",
+        "deterministic": {
+          "pass": true,
+          "issues": []
+        }
+      }
+    ],
+    "shippedProseSha256": "5934671d3409a11ffcf30dff6ac3c4936bd21dce23becc9e0ec6b6906e9539ea"
+  }
+}

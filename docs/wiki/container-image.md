@@ -4,7 +4,7 @@ description: The Dockerfile's four-stage build (base, deps, build, runtime), wha
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Container image
@@ -41,7 +41,7 @@ GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfa
 `RUN`, specifically so a changing commit never busts that layer's cache. It then copies
 build outputs from the `build` stage by exact path: `packages/shared/dist`,
 `packages/dnd5e-engine/dist`, `packages/session-model/dist` (TASK-0044; the server now depends on both, and their `package.json` files are copied in `deps` and `runtime` too), `packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
-`runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
+`runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, `apps/server/seeds` (TASK-0046: scene seeds load at runtime, module-relative, for the DM runtime — [[dm-runtime]]), and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
 **this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
 `src/static.ts` now resolves its default roots as `apps/web/build/client` and
 `apps/web/build/server/index.js`, both module-relative to `apps/server/dist/static.js`, not
@@ -63,7 +63,9 @@ the `/app/healthcheck.js` path [[health-check]]'s compose healthcheck invokes. R
 `app` service described in [[compose-stack]]. The copied `apps/server/dist` also carries
 `dist/cli/create-operator.js` (TASK-0036) — no Dockerfile change was needed, since any file
 under `src/` that `tsc -b` compiles lands in `dist` and rides the same `COPY`; see
-[[operator-provisioning]].
+[[operator-provisioning]]. The one non-compiled file in `src/` that must ship is the DM doctrine's MIT
+`NOTICE.md`: the Dockerfile copies `apps/server/src/dm/doctrine/NOTICE.md` from the `build` stage to
+`apps/server/dist/dm/doctrine/NOTICE.md`, beside the compiled doctrine module (Brad Bush, tabletop-dm).
 
 ## Operational notes
 

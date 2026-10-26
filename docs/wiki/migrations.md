@@ -6,7 +6,8 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/drizzle.config.ts
   - apps/server/package.json
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+  - apps/server/drizzle/0004_glamorous_warlock.sql
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Migrations
@@ -50,6 +51,12 @@ fails on every fresh setup with `Failed query: CREATE SCHEMA IF NOT EXISTS drizz
 `DATABASE_URL` applies and container-run migration is unaffected. Once resolved, the script
 calls `drizzle-orm/node-postgres/migrator`'s `migrate(db, { migrationsFolder: "./drizzle" })`,
 logs success or failure, and always closes the pool (`db.$client.end()`) in a `finally`.
+
+**Migration history.** `0000` (events, append-only trigger), `0001` (auth tables), `0002` (the
+`vector` extension and the library plane), `0003` (the `jobs` table), and `0004_glamorous_warlock.sql`
+(TASK-0046: the DM runtime's job kinds — `book` nullable, `session_id`, new kind/stage CHECKs, four
+partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]). Drizzle names each file with
+a random suffix; the committed SQL is the source of truth.
 
 ## Connections
 

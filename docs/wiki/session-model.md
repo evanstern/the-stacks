@@ -124,5 +124,5 @@ log from seq 0 in `readFrom` batches of 200 and folds it.
 
 Writes are routed through the gate ([[proposal-gate]]); live delivery to subscribers filters
 per viewer in [[subscriber-registry]] and [[websocket-gateway]]; the web table that folds and
-renders them is [[play-route]]. Specs:
+renders them is [[play-route]]. The AI DM ([[dm-runtime]]) reads the DM-role projection (`loadProjections(db, id, { role: "dm" })`) and writes only through the gate. Specs:
 `specs/028-session-model/`, `specs/029-proposal-gate/`.
