@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 10:45'
+updated_date: '2026-10-26 14:03'
 labels:
   - first-scene
   - test
@@ -76,6 +76,14 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: 954eec8. New note playtest-harness. Of the 12 stale notes, 8 were amended and 4 re-pinned only after reading their diffs. Freshness OK, 45 notes. The m2-demo note is written after the demo.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Operator approved the demo model mapping on 2026-10-26. All eight purposes route through the 9router 'claude' provider:
+- dm.director, dm.adjudicate and playtest.audit: cc/claude-opus-5
+- dm.interpret, dm.narrate and dm.companion: cc/claude-sonnet-5
+- dm.audit and dm.chronicle: cc/claude-haiku-4-5-20251001
+AI_PRICES use list rates: opus 5/25, sonnet 2/10, haiku 1/5, ollama/bge-m3 0/0. The operator is adding these to the root .env.
+Operator troubleshooting note: on 9router some models need the [1m] context suffix (for example cc/claude-sonnet-5[1m]). If a purpose fails with a model or context error during the demo, try the [1m] form first, and add a matching AI_PRICES key.
+bge-m3 check: it is installed locally in ollama (bge-m3:latest). vm-104 has no ollama and the dev .env has no AI_PROVIDERS or AI_PURPOSES.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
