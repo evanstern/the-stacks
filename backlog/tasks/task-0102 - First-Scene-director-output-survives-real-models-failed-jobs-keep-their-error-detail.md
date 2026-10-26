@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:27'
+updated_date: '2026-10-26 15:33'
 labels:
   - first-scene
   - dm
@@ -69,6 +69,8 @@ Phase 3 by sonnet-implementer: 900f48c (T013 reproduction, green on unfixed code
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 setup: composite at aa960b3 (branch tip 3bd622e merged in). Verification ceiling $22 (operator approval above).
+
+Phase 4 verification 2026-10-26: run 20261026T152743Z-greyhollow-ford-provider, composite aa960b3. Spend $1.00 over 51 calls of the $22 ceiling. 4 moves committed and no director invalid-output, so quickstart C5 passes literally. But the run failed at turn job 6 (npc-turn, triggerSeq 61, act-kestrel-1): stopped at interpret: invalid-output. Attempt 1 hit maxTokens 1200 inside a code fence. Attempt 2 applied an invented condition 'spotted-lookout' (not in the condition enum). The run did not reach the reed-camp turn, so the C4 fix is proven offline only. Interpret is out of this spec's scope (contracts/director-output.md, 'Out of scope'). Evidence and second fixture: c085844. STOPPED for an operator ruling before any further spend.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
