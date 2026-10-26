@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 17:51'
+updated_date: '2026-10-26 18:12'
 labels:
   - first-scene
   - dm
@@ -47,6 +47,10 @@ Spec: specs/034-narration-quality
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M2 First Scene sweep (operator ruling: new M2 card, own spec and PR, merged before the live demo). Worktree .worktrees/task-0106, branch task-0106-narration-quality, cut from origin/main 81dfb7d. Spec number 034 claimed with a stub.
+
+Spec authoring by opus-implementer: 179a7fd (spec, plan, research, quickstart, tasks; contracts player-facing-context, narration-facts, fallback-summary, audit-criteria; evidence/run5-classification.json). Clarify was skipped. Run 5: 23 of 39 narrated turns fell back. 184 audit issues: 68 auditor error, 27 narrator, 85 craft, 4 unverifiable. Selected causes: A1 party not named, A2 no-effect undefined, A3 clarify relayed verbatim, A4 LLM doctrine/other issues block. Leaks L1, L2, L3, L5. Contradictions F17, F23, F76, F81. F77 is a playtest-auditor false positive.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Orchestrator rulings on the spec's open points: (1) Seat-fallback cut: ratified. Exclude turns that are only a seat fallback move (any text in the scenario's moves.fallback list, now 5 entries after TASK-0048 b3f09ca), and report the all-turns rate beside it. (2) Location-secret clause edit: ratified, because the seed already makes the clause public. (3) Playtest-auditor false positives and new player-agency fails at verification: ratified, commit the evidence and stop for an operator ruling. (4) Director losing Snag's motive: revisit card TASK-0107 (m-3, trigger). (5) Director/interpret user-id transcript naming: revisit card TASK-0108 (m-3, trigger). (6) goalNote leak: accepted as unverifiable now; the Phase 5 audit is the check.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
