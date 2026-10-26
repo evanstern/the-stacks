@@ -4,7 +4,7 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
-updated_date: '2026-10-26 14:16'
+updated_date: '2026-10-26 14:17'
 labels:
   - hosted-dev
   - ai
@@ -42,6 +42,10 @@ Every command that changes vm-104 needs the operator's go on its exact text. Sub
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-10-26, run on the operator's exact go: docker run -d --name stacks-ollama --restart unless-stopped --network stacks-dev_default -v stacks-ollama:/root/.ollama ollama/ollama:latest. The image resolved to digest sha256:dea72d1e22270fe095b68fdf756d2b489d615643c5a2eaebbc5f569181e322d8 (ollama 0.40.11). The container is up. Pinning that digest belongs in the deploy definition (AC #2). Next step: pull bge-m3.
+
+2026-10-26, run on the operator's exact go: docker exec stacks-ollama ollama pull bge-m3. Result: bge-m3:latest (id 790764642607, 1.2 GB).
+Read-only check: from inside stacks-dev-app-1, a POST to http://stacks-ollama:11434/v1/embeddings with model bge-m3 returns a 1024-dimension vector. That proves the reachability half of AC #1; dev's AI_PURPOSES still need the embedding entry. stacks-ollama uses about 1.37 GiB of memory with the model loaded.
+Still open: the deploy definition with a pinned digest, 9router or CLIProxyAPI for chat, dev's .env AI settings, and the docs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
