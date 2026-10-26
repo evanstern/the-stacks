@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:43'
+updated_date: '2026-10-26 15:47'
 labels:
   - first-scene
   - dm
@@ -75,6 +75,9 @@ Phase 4 verification 2026-10-26: run 20261026T152743Z-greyhollow-ford-provider, 
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: amend spec 033 to cover the interpret failure too, fix it in TASK-0102's PR, and rerun verification before Phase 5.' Operator requirement, in the operator's words: 'Conditions, spells, and other "rules" with definitions absolutely need to be deterministically defined and resolvable. It should not be possible for the AI to "invent" a condition without it being rejected by a gating mechanism.'
 
 OPERATOR RULING 2026-10-26, in the operator's words: 'Card both follow-ups (spells resolved by SRD id; modifiers and DCs derived from sheets) in m-3. They do not block the M2 demo.' Carded on main as TASK-0104 (modifiers and DCs from combatant stats) and TASK-0105 (spells by SRD id, depends on TASK-0104). The spec 033 amendment is dispatched to opus-implementer and covers the interpret prompt, interpret truncation, and the skill gate.
+
+Spec amendment by opus-implementer: a845ad2 (US5, FR-018 to FR-028; contracts/interpret-output.md and contracts/rules-terms.md; Phase 3b T025–T034, Phase 4b T035–T038, Phase 5 T039). Orchestrator rulings on its open points: (1) adjudicate also renders the closed lists and bumps to dm.adjudicate-v2, ratified; (2) the engine event schema stays a nullable string, ratified, because the gate sits at the command and narrowing needs an event version bump (constitution IV). Finding: interpret attempt 1 reported 1200 output tokens for 331 visible chars, so hidden reasoning counts against maxTokens (R10).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
