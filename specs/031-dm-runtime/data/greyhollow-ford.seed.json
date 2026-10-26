@@ -28,7 +28,7 @@
     },
     "hooks": {
       "secrets": [
-        "Goblins from the reed-camp took the bell's clapper; the bell's ring drives off the river-things they fear, and they want it for their own camp.",
+        "The bell's ring drives off the river-things the goblins fear; they want the clapper for their own camp.",
         "A safe path through the reeds keeps to the old timber posts; off the posts the mud is waist-deep."
       ]
     }
@@ -106,13 +106,13 @@
       "identity": { "role": "goblin leader", "srdMonsterId": "goblin-warrior", "combatant": "snag" },
       "portrayal": {
         "voice": "Sing-song threats; calls everyone 'big-feet'.",
-        "want": "To keep the clapper, because its ring keeps the river-things off his camp.",
+        "want": "To keep the clapper and make the big-feet pay to cross his reeds.",
         "detail": "Wears the bell's leather clapper-strap as a belt.",
         "appearance": "Narrow, yellow-eyed, a notched scimitar."
       },
       "hooks": {
         "knows": ["The river-things come at full dark."],
-        "secrets": ["He will trade the clapper for safe passage if two goblins fall."],
+        "secrets": ["He will trade the clapper for safe passage if two goblins fall.", "He keeps the clapper because its ring keeps the river-things off his camp."],
         "relationships": []
       }
     }
@@ -182,7 +182,7 @@
         "detail": "Hums the same three-note hymn whenever he is nervous.",
         "appearance": "Broad, bald, a river-stone holy symbol on a leather thong."
       },
-      "hooks": { "knows": ["Goblins value noise-makers as wards."], "secrets": ["He once failed to save a child at a river crossing."], "relationships": [{ "to": "kestrel", "kind": "old-friend-who-argues" }] }
+      "hooks": { "knows": ["Goblins will bargain for anything that rings or shines."], "secrets": ["He once failed to save a child at a river crossing."], "relationships": [{ "to": "kestrel", "kind": "old-friend-who-argues" }] }
     },
     {
       "characterId": "kestrel",
