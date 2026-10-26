@@ -46,7 +46,7 @@ Dry check (no provider): `pnpm playtest estimate` exits 4 and names the purposes
 
 ## C. The paid scripted playtest
 
-1. Run `pnpm playtest run --mode provider --spend-ceiling-usd <ceiling>`.
+1. Run `pnpm playtest run --mode provider --spend-ceiling-usd <ceiling>`. On the host, the CLI rewrites `host.docker.internal` in `AI_PROVIDERS` base URLs to `localhost` and logs each rewrite. Set `PLAYTEST_HOST_NETWORK=0` to disable it.
 2. Copy its run directory to `docs/design/m2-demo/provider-playtest/`.
 3. Note its outcome, verdict and spend for the record.
 4. On outcome `failed` or `timed-out`, stop and report to the operator before the demo.

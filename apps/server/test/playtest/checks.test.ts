@@ -5,7 +5,11 @@ import {
   renderDiceLines,
 } from "../../src/dm/facts.js";
 import { factualSummary } from "../../src/dm/fallback.js";
-import { type CheckId, runChecks } from "../../src/playtest/auditor/checks.js";
+import {
+  type CheckId,
+  runChecks,
+  splitNarration,
+} from "../../src/playtest/auditor/checks.js";
 import { segment } from "../../src/playtest/auditor/segments.js";
 import { loadClean, loadDoctored } from "./helpers.js";
 
@@ -193,5 +197,44 @@ describe("code checks", () => {
     })) {
       expect(r.pass, `${r.id}: ${JSON.stringify(r.findings)}`).toBe(true);
     }
+  });
+});
+
+const REAL_10 = {
+  "provider-playtest":
+    "The amber light finds Greyhollow Ford gone quiet in the wrong way \u2014 no bell, no ferry-keeper's call across the water, only the river shouldering past its banks and not one bird in the reeds. The ferry sits chained at its post. The ferry-house door stands open on nothing.\n\nInside, a rope hangs cut a yard off the floor, and the strongbox lies pried and empty on its side. Small clawed tracks cross the dust \u2014 not toward the water, but downriver, along the causeway, away from the crossing you meant to take.\n\nAbove, the loft boards creak once, then hold still, as if something up there is holding its breath to match yours.",
+  "provider-playtest-failed-2":
+    "The ford announces itself before you see it \u2014 water shouldering over stone, loud enough to swallow footsteps. The ferry sits chained to its post, patient and useless. The ferry-house door hangs open on one hinge, and inside, the bell-rope lies cut on the floorboards, the strongbox pried and empty beside it. No birds. No bell. Amber light slants through the gaps in the wall, catching small clawed tracks pressed into the dust \u2014 not toward the far bank, but south, along the causoway, downriver.\n\nOverhead, something shifts. A single creak, deliberate, like weight settled and then stilled, waiting to see if you noticed.",
+};
+
+describe("dice-lines false positive (multi-paragraph prose)", () => {
+  it.each(Object.entries(REAL_10))(
+    "counts no dice lines in real scene-start narration (%s)",
+    (_run, text) => {
+      const { prose, diceLines } = splitNarration(text);
+      expect(diceLines).toEqual([]);
+      expect(prose).toBe(text);
+      const d = loadClean();
+      const row = d.transcript.find((r) => r.seq === 10);
+      if (!row) throw new Error("seq 10 missing");
+      (row.payload as { text: string }).text = text;
+      const results = run(d).flat();
+      expect(
+        results.filter((r) => r.id === "dice-lines").flatMap((r) => r.findings),
+      ).toEqual([]);
+    },
+  );
+
+  it("still counts a trailing block of rendered dice lines", () => {
+    const text =
+      "One.\n\nTwo.\n\nTamsin Vale \u2014 Strike: 1d20+5 \u2192 12+5 = 17 vs AC 13: Hit\nGoblin takes 6 slashing (7\u21921 HP)";
+    const { prose, diceLines } = splitNarration(text);
+    expect(prose).toBe("One.\n\nTwo.");
+    expect(diceLines).toHaveLength(2);
+  });
+
+  it("treats a trailing prose block without arrows as prose", () => {
+    const { diceLines } = splitNarration("One.\n\nTwo \u2014 a yard off.");
+    expect(diceLines).toEqual([]);
   });
 });

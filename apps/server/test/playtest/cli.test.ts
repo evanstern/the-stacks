@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DM_PURPOSES } from "../../src/dm/purposes.js";
-import { main } from "../../src/playtest/cli.js";
+import { main, rewriteDockerHost } from "../../src/playtest/cli.js";
 import { DOCTORED } from "./helpers.js";
 
 function harness() {
@@ -159,5 +159,43 @@ describe("playtest CLI guards", () => {
     expect(h.out.join("\n")).toContain("verdict: fail");
     expect(existsSync(join(out, "report.json"))).toBe(true);
     expect(existsSync(join(out, "report.md"))).toBe(true);
+  });
+});
+
+describe("host provider URL rewrite", () => {
+  const env = (extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv => ({
+    AI_PROVIDERS: JSON.stringify({
+      local: {
+        kind: "openai-compatible",
+        baseUrl: "http://host.docker.internal:11434/v1",
+      },
+      hosted: {
+        kind: "openai-compatible",
+        baseUrl: "https://api.example.com/v1",
+      },
+    }),
+    ...extra,
+  });
+
+  it("rewrites host.docker.internal to localhost on the host and reports it", () => {
+    const seen: unknown[] = [];
+    const out = rewriteDockerHost(env({ PLAYTEST_HOST_NETWORK: "1" }), (e) =>
+      seen.push(e),
+    );
+    const p = JSON.parse(out.AI_PROVIDERS as string);
+    expect(p.local.baseUrl).toBe("http://localhost:11434/v1");
+    expect(p.hosted.baseUrl).toBe("https://api.example.com/v1");
+    expect(seen).toEqual([
+      {
+        provider: "local",
+        from: "http://host.docker.internal:11434/v1",
+        to: "http://localhost:11434/v1",
+      },
+    ]);
+  });
+
+  it("leaves the URLs alone when PLAYTEST_HOST_NETWORK=0 (container)", () => {
+    const e = env({ PLAYTEST_HOST_NETWORK: "0" });
+    expect(rewriteDockerHost(e)).toBe(e);
   });
 });

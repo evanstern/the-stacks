@@ -161,10 +161,57 @@ function intFlag(raw: string | undefined, flag: string): number | null {
 const money = (n: number) => `$${n.toFixed(4)}`;
 
 interface Ctx {
+  /** Provider runs replace this with the host-rewritten copy. */
   env: NodeJS.ProcessEnv;
   io: Io;
   deps: Deps;
   abs: (p: string) => string;
+}
+
+/**
+ * True when the CLI runs on the host, not in a container. The override
+ * `PLAYTEST_HOST_NETWORK` (`1` = host, `0` = container) wins; otherwise the
+ * absence of `/.dockerenv` means host.
+ */
+export function runsOnHost(env: NodeJS.ProcessEnv): boolean {
+  if (env.PLAYTEST_HOST_NETWORK === "1") return true;
+  if (env.PLAYTEST_HOST_NETWORK === "0") return false;
+  return !existsSync("/.dockerenv");
+}
+
+/**
+ * The shared `.env` names provider base URLs with `host.docker.internal`,
+ * which only containers resolve. On the host, rewrite that name to
+ * `localhost` in `AI_PROVIDERS` and report each rewrite. Returns a new env.
+ */
+export function rewriteDockerHost(
+  env: NodeJS.ProcessEnv,
+  report: (e: {
+    provider: string;
+    from: string;
+    to: string;
+  }) => void = () => {},
+): NodeJS.ProcessEnv {
+  const raw = env.AI_PROVIDERS;
+  if (!raw?.includes("host.docker.internal") || !runsOnHost(env)) {
+    return env;
+  }
+  let parsed: Record<string, { baseUrl?: unknown }>;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return env; // loadAiConfig reports the malformed value
+  }
+  for (const [provider, cfg] of Object.entries(parsed)) {
+    const from = cfg?.baseUrl;
+    if (typeof from !== "string" || !from.includes("host.docker.internal")) {
+      continue;
+    }
+    const to = from.replace("host.docker.internal", "localhost");
+    cfg.baseUrl = to;
+    report({ provider, from, to });
+  }
+  return { ...env, AI_PROVIDERS: JSON.stringify(parsed) };
 }
 
 function log(ctx: Ctx, event: string, fields: Record<string, unknown> = {}) {
@@ -195,6 +242,9 @@ function preflight(
   if (ctx.env.CI) {
     throw new Exit(EXIT.refused, "provider mode is refused under CI");
   }
+  ctx.env = rewriteDockerHost(ctx.env, (e) =>
+    log(ctx, "rewrite-provider-host", e),
+  );
   let aiConfig: AiConfig;
   try {
     aiConfig = loadAiConfig(ctx.env);
@@ -553,7 +603,7 @@ export async function main(
     if (command === "estimate") return cmdEstimate(ctx, parsed.values);
     throw new Exit(
       EXIT.usage,
-      "usage: playtest run|audit|estimate [flags] (see specs/032-playtest-harness/contracts/cli.md)",
+      "usage: playtest run|audit|estimate [flags] (see specs/032-playtest-harness/contracts/cli.md). On the host, provider base URLs using host.docker.internal are rewritten to localhost; set PLAYTEST_HOST_NETWORK=0 to keep them (1 forces the rewrite).",
     );
   } catch (error) {
     if (error instanceof Exit) {

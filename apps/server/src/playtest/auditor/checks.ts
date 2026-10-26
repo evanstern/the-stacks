@@ -54,18 +54,35 @@ export interface CheckContext {
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
 
-/** Splits narration text at its first blank line: prose, then dice lines. */
+/**
+ * A rendered dice or damage line always carries an arrow: roll lines
+ * `… expr → shown = total`, change lines `(before→after HP)`; an auto-fail
+ * roll line carries `auto-fail`. Prose carries neither.
+ */
+const DICE_LINE = /→|: auto-fail/;
+
+/**
+ * Splits narration text into prose and dice lines. The DM runtime appends the
+ * dice lines as the final blank-line-separated block, but prose paragraphs
+ * are separated by blank lines too, so only the last block counts, and only
+ * when every line of it looks like a rendered dice line.
+ */
 export function splitNarration(text: string): {
   prose: string;
   diceLines: string[];
 } {
-  const i = text.search(/\n\s*\n/);
+  const trimmed = text.replace(/\s+$/, "");
+  const i = trimmed.search(/\n\s*\n(?![\s\S]*\n\s*\n)/);
   if (i === -1) return { prose: text, diceLines: [] };
-  const rest = text.slice(i).replace(/^\s+/, "");
-  return {
-    prose: text.slice(0, i),
-    diceLines: rest.split("\n").filter((l) => l.trim() !== ""),
-  };
+  const lines = trimmed
+    .slice(i)
+    .replace(/^\s+/, "")
+    .split("\n")
+    .filter((l) => l.trim() !== "");
+  if (lines.length === 0 || !lines.every((l) => DICE_LINE.test(l))) {
+    return { prose: text, diceLines: [] };
+  }
+  return { prose: trimmed.slice(0, i), diceLines: lines };
 }
 
 function narrationOf(seg: Segment): StoredEvent | null {
