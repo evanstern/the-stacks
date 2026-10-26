@@ -17,10 +17,27 @@ import {
 const examples = engineExamples();
 
 describe("catalog shape", () => {
-  it("has 11 session entries and 18 mechanics entries", () => {
-    expect(SESSION_EVENT_TYPES).toHaveLength(11);
+  it("has 16 session entries and 18 mechanics entries", () => {
+    expect(SESSION_EVENT_TYPES).toHaveLength(16);
     expect(MECHANICS_EVENT_TYPES).toHaveLength(18);
-    expect(catalog).toHaveLength(29);
+    expect(catalog).toHaveLength(34);
+  });
+
+  it("catalogues the five gate types at version 1 with their kinds and visibility", () => {
+    const expected: Record<string, [string, string]> = {
+      "proposal.created": ["proposal", "dm-only"],
+      "proposal.approved": ["proposal", "dm-only"],
+      "proposal.rejected": ["proposal", "dm-only"],
+      "dm.seat.changed": ["state-change", "any"],
+      "gate.policy.changed": ["state-change", "any"],
+    };
+    for (const [type, [kind, visibility]] of Object.entries(expected)) {
+      const entry = catalogEntry(type, 1);
+      expect(entry?.kind).toBe(kind);
+      expect(entry?.visibility).toBe(visibility);
+      expect(entry?.current).toBe(true);
+      expect(SESSION_EVENT_TYPES).toContain(type);
+    }
   });
 
   it("derives mechanics types from the engine schema", () => {
@@ -53,11 +70,11 @@ describe("catalog shape", () => {
     expect(currentVersion("nope")).toBeUndefined();
   });
 
-  it("marks tracker.changed dm-only and everything else any", () => {
+  it("marks tracker.changed and proposal.* dm-only and everything else any", () => {
     for (const entry of catalog) {
-      expect(entry.visibility).toBe(
-        entry.type === "tracker.changed" ? "dm-only" : "any",
-      );
+      const dmOnly =
+        entry.type === "tracker.changed" || entry.type.startsWith("proposal.");
+      expect(entry.visibility).toBe(dmOnly ? "dm-only" : "any");
     }
   });
 

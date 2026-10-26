@@ -59,7 +59,9 @@ type StateChange = Extract<
       | "table-mode.changed"
       | "scene.changed"
       | "party.member.changed"
-      | "tracker.changed";
+      | "tracker.changed"
+      | "dm.seat.changed"
+      | "gate.policy.changed";
   }
 >;
 
@@ -72,6 +74,8 @@ export function sessionChangeRow(event: StateChange): LedgerRow {
     subject = event.payload.characterId;
   } else if (event.type === "tracker.changed") {
     subject = event.payload.trackerId;
+  } else if (event.type === "gate.policy.changed") {
+    subject = event.payload.proposalKind;
   }
   return {
     kind: "change",

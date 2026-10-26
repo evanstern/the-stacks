@@ -13,6 +13,33 @@ describe("package entry points", () => {
     expect("fixtures" in main).toBe(false);
   });
 
+  it("the main entry exports the Phase 1 gate vocabulary", () => {
+    for (const name of [
+      "ProposalKindSchema",
+      "DmProposalKindSchema",
+      "ProposalSchema",
+      "GateRequestSchema",
+      "GATE_REQUEST_KINDS",
+      "GATE_REQUEST_VERSION",
+      "mechanicsProposal",
+      "actorOf",
+      "DmSeatSchema",
+      "PolicySchema",
+      "DEFAULT_POLICIES",
+      "effectivePolicy",
+      "GateRefusalCodeSchema",
+      "ProposalCreatedV1",
+      "ProposalApprovedV1",
+      "ProposalRejectedV1",
+      "DmSeatChangedV1",
+      "GatePolicyChangedV1",
+      "pendingProposals",
+      "findProposal",
+    ]) {
+      expect(name in main, name).toBe(true);
+    }
+  });
+
   it("the fixtures subpath exports the contract, with types", () => {
     const list: readonly SessionFixture[] = fx.fixtures;
     const recipes: readonly MechanicsRecipe[] = fx.recipes;

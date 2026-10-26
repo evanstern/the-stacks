@@ -68,24 +68,24 @@ Every later phase imports it.
 
 ### Tests
 
-- [ ] T001 [P] [US2] Write `packages/session-model/test/gate-schemas.test.ts`: every kind in `ProposalKindSchema` has a `ProposalSchema` option; `GATE_REQUEST_KINDS` has 16 entries; defaults fill (`summary`, `rationale`, `visibility`, `actionId`); `mechanics.command` accepts any JSON; `tracker` rejects a non-`dm` visibility shape; `table-mode`/`scene`/`party`/`tracker` carry no `before`.
-- [ ] T002 [P] [US2] Write `packages/session-model/test/gate-policy.test.ts` (table part): `DEFAULT_POLICIES` keys equal `DmProposalKindSchema.options`; values match contracts/policy-and-authority.md.
-- [ ] T003 [P] [US2] Extend `packages/session-model/test/catalog.test.ts`: the five new types are catalogued at version 1 with the kinds and visibility rules in contracts/proposal-events.md; the session and engine type sets stay disjoint.
-- [ ] T004 [P] [US2] Write `packages/session-model/test/proposals-projection.test.ts`: `proposal.created`/`approved`/`rejected` transitions and ignored transitions (duplicate id, approving a `suggest`, deciding twice); `dm.seat.changed` and `gate.policy.changed` set `gate` and write ledger change rows with the `before` check; a player viewer's `proposals` is `[]`.
-- [ ] T005 [P] [US2] Extend `packages/session-model/test/talk-isolation.test.ts` and `packages/session-model/test/secrecy.test.ts` so `gate` and `proposals` join the compared fields and the player-secrecy scan covers proposal ids.
+- [x] T001 [P] [US2] Write `packages/session-model/test/gate-schemas.test.ts`: every kind in `ProposalKindSchema` has a `ProposalSchema` option; `GATE_REQUEST_KINDS` has 16 entries; defaults fill (`summary`, `rationale`, `visibility`, `actionId`); `mechanics.command` accepts any JSON; `tracker` rejects a non-`dm` visibility shape; `table-mode`/`scene`/`party`/`tracker` carry no `before`.
+- [x] T002 [P] [US2] Write `packages/session-model/test/gate-policy.test.ts` (table part): `DEFAULT_POLICIES` keys equal `DmProposalKindSchema.options`; values match contracts/policy-and-authority.md.
+- [x] T003 [P] [US2] Extend `packages/session-model/test/catalog.test.ts`: the five new types are catalogued at version 1 with the kinds and visibility rules in contracts/proposal-events.md; the session and engine type sets stay disjoint.
+- [x] T004 [P] [US2] Write `packages/session-model/test/proposals-projection.test.ts`: `proposal.created`/`approved`/`rejected` transitions and ignored transitions (duplicate id, approving a `suggest`, deciding twice); `dm.seat.changed` and `gate.policy.changed` set `gate` and write ledger change rows with the `before` check; a player viewer's `proposals` is `[]`.
+- [x] T005 [P] [US2] Extend `packages/session-model/test/talk-isolation.test.ts` and `packages/session-model/test/secrecy.test.ts` so `gate` and `proposals` join the compared fields and the player-secrecy scan covers proposal ids.
 
 ### Implementation
 
-- [ ] T006 [P] [US2] Create `packages/session-model/src/gate/proposals.ts` with `ProposalKindSchema`, `DmProposalKindSchema`, `ProposalSchema`, `GateRequestSchema`, `GATE_REQUEST_KINDS`, `GATE_REQUEST_VERSION`, `mechanicsProposal`, `Proposer` and `actorOf` per contracts/proposals.md.
-- [ ] T007 [P] [US2] Create `packages/session-model/src/gate/seat.ts` (`DmSeatSchema`) and `packages/session-model/src/gate/policy.ts` (`PolicySchema`, `Policy`, `PolicyTable`, `DEFAULT_POLICIES`, `effectivePolicy`) per contracts/policy-and-authority.md.
-- [ ] T008 [P] [US2] Create `packages/session-model/src/gate/refusals.ts` with `GateRefusalCodeSchema`, `GateRefusalSource` and `GateRefusal` per contracts/gate-api.md section 2.
-- [ ] T009 [US2] Create `packages/session-model/src/events/proposals.ts` (`ProposalCreatedV1`, `ProposalApprovedV1`, `ProposalRejectedV1`) and `packages/session-model/src/events/gate-config.ts` (`DmSeatChangedV1`, `GatePolicyChangedV1`) per contracts/proposal-events.md.
-- [ ] T010 [US2] Add the five catalog entries and `EventKind "proposal"` to `packages/session-model/src/catalog.ts`, with the typed payloads in `SessionPayloads`.
-- [ ] T011 [US2] Add `GateView`, `ProposalStatus`, `ProposalView`, and the `gate` and `proposals` fields to `packages/session-model/src/projections/types.ts`; initialize them in `emptyProjections`.
-- [ ] T012 [US2] Create `packages/session-model/src/projections/proposals.ts` (transitions, `pendingProposals`, `findProposal`) and dispatch the five types from `applyKnown` in `packages/session-model/src/projections/apply.ts`; add the two change-row cases to `packages/session-model/src/projections/ledger.ts`.
-- [ ] T013 [US7] Retype the last row of `packages/session-model/src/fixtures/unknown-and-invalid.ts` to `x-test.future-type` and update its description, per contracts/fixtures.md; confirm its counters are unchanged.
-- [ ] T014 [US2] Export the new names from `packages/session-model/src/index.ts` and extend `packages/session-model/test/exports.test.ts`.
-- [ ] T015 [US2] Add `CATALOG_TYPE_REQUIRES_GATE` to `AppendRefusalCode` in `apps/server/src/session/events.ts` (type only; Phase 4 uses it), so the server typechecks against the grown catalog.
+- [x] T006 [P] [US2] Create `packages/session-model/src/gate/proposals.ts` with `ProposalKindSchema`, `DmProposalKindSchema`, `ProposalSchema`, `GateRequestSchema`, `GATE_REQUEST_KINDS`, `GATE_REQUEST_VERSION`, `mechanicsProposal`, `Proposer` and `actorOf` per contracts/proposals.md.
+- [x] T007 [P] [US2] Create `packages/session-model/src/gate/seat.ts` (`DmSeatSchema`) and `packages/session-model/src/gate/policy.ts` (`PolicySchema`, `Policy`, `PolicyTable`, `DEFAULT_POLICIES`, `effectivePolicy`) per contracts/policy-and-authority.md.
+- [x] T008 [P] [US2] Create `packages/session-model/src/gate/refusals.ts` with `GateRefusalCodeSchema`, `GateRefusalSource` and `GateRefusal` per contracts/gate-api.md section 2.
+- [x] T009 [US2] Create `packages/session-model/src/events/proposals.ts` (`ProposalCreatedV1`, `ProposalApprovedV1`, `ProposalRejectedV1`) and `packages/session-model/src/events/gate-config.ts` (`DmSeatChangedV1`, `GatePolicyChangedV1`) per contracts/proposal-events.md.
+- [x] T010 [US2] Add the five catalog entries and `EventKind "proposal"` to `packages/session-model/src/catalog.ts`, with the typed payloads in `SessionPayloads`.
+- [x] T011 [US2] Add `GateView`, `ProposalStatus`, `ProposalView`, and the `gate` and `proposals` fields to `packages/session-model/src/projections/types.ts`; initialize them in `emptyProjections`.
+- [x] T012 [US2] Create `packages/session-model/src/projections/proposals.ts` (transitions, `pendingProposals`, `findProposal`) and dispatch the five types from `applyKnown` in `packages/session-model/src/projections/apply.ts`; add the two change-row cases to `packages/session-model/src/projections/ledger.ts`.
+- [x] T013 [US7] Retype the last row of `packages/session-model/src/fixtures/unknown-and-invalid.ts` to `x-test.future-type` and update its description, per contracts/fixtures.md; confirm its counters are unchanged.
+- [x] T014 [US2] Export the new names from `packages/session-model/src/index.ts` and extend `packages/session-model/test/exports.test.ts`.
+- [x] T015 [US2] Add `CATALOG_TYPE_REQUIRES_GATE` to `AppendRefusalCode` in `apps/server/src/session/events.ts` (type only; Phase 4 uses it), so the server typechecks against the grown catalog.
 
 **Checkpoint**: package builds; every existing package test and the new tests pass; server
 typechecks.
@@ -238,4 +238,12 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
 
 ## Deviations
 
-(none yet)
+- Phase 1, T006: the `tracker` proposal carries `visibility: z.literal("dm").default("dm")`.
+  The contract says "tracker is always dm" and T001 requires the schema to reject a non-dm
+  shape; Zod objects strip unknown keys, so the literal field is the smallest faithful way.
+- Phase 1, T007: `PolicySchema` lives in `gate/policy.ts` (per T007), not `proposals.ts`;
+  `policy.ts` imports proposal kinds as types only, which avoids an import cycle.
+- Phase 1, T012: `applyUnsafe` drops any `proposal.*` row for a player viewer (as it does
+  `tracker.changed`), so a mislabelled public proposal row never reaches a player.
+- Phase 1, T014: `exports.test.ts` also asserts the Phase 1 names; `decode.test.ts` now uses
+  `x-test.future-type` for its unknown-type case (`proposal.created` is catalogued).

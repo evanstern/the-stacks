@@ -16,7 +16,7 @@ const validTalk = {
 export const unknownAndInvalid: SessionFixture = {
   name: "unknown-and-invalid",
   description:
-    "A damaged log: valid talk beside a type no catalog knows, a version the catalog lacks, an empty-text talk, a row whose type column disagrees with its mechanics envelope, a duplicate delivery of an earlier seq, and a future proposal type. The fold must return, count each fault under its own diagnostic, and keep only the valid talk. The only fixture with invalid rows.",
+    "A damaged log: valid talk beside a type no catalog knows, a version the catalog lacks, an empty-text talk, a row whose type column disagrees with its mechanics envelope, a duplicate delivery of an earlier seq, and a future type. The fold must return, count each fault under its own diagnostic, and keep only the valid talk. The only fixture with invalid rows.",
   sessionId,
   viewers: {
     dm: { role: "dm" },
@@ -74,7 +74,7 @@ export const unknownAndInvalid: SessionFixture = {
     { actor: ids.playerUserId, type: "talk", payload: validTalk, seq: 1 },
     {
       actor: ids.dmActor,
-      type: "proposal.created",
+      type: "x-test.future-type",
       payload: { proposalId: "prop-1" },
     },
   ]),

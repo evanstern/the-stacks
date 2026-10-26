@@ -7,6 +7,13 @@ import type { PartyMember } from "../events/party.js";
 import type { Scene } from "../events/scene.js";
 import type { TableMode } from "../events/table-mode.js";
 import type { Tracker } from "../events/tracker.js";
+import type { Policy } from "../gate/policy.js";
+import type {
+  DmProposalKind,
+  Proposal,
+  ProposalKind,
+} from "../gate/proposals.js";
+import type { DmSeat } from "../gate/seat.js";
 import type { Viewer } from "../visibility.js";
 
 export type ActionAuthority = "declarer" | "active-player" | "group" | "dm";
@@ -171,6 +178,34 @@ export type LedgerRow =
       actionId: string | null;
     };
 
+export interface GateView {
+  /** { kind: "ai" } initially. */
+  seat: DmSeat;
+  /** {} initially. */
+  policyOverrides: Partial<Record<DmProposalKind, Policy>>;
+}
+
+export type ProposalStatus = "pending" | "approved" | "rejected";
+
+export interface ProposalView {
+  proposalId: string;
+  createdSeq: number;
+  ts: string;
+  /** The created row's actor. */
+  proposer: string;
+  policy: "ask" | "suggest";
+  kind: ProposalKind;
+  proposal: Proposal;
+  /** A suggestion stays "pending" until rejected. */
+  status: ProposalStatus;
+  decided: {
+    seq: number;
+    actor: string;
+    batchId: string | null;
+    reason: string | null;
+  } | null;
+}
+
 export interface SessionProjections {
   /** Projection shape version. */
   v: 1;
@@ -187,6 +222,9 @@ export interface SessionProjections {
   /** Always [] for a player viewer (AC #5). */
   trackers: Tracker[];
   engine: EngineState;
+  gate: GateView;
+  /** Always [] for a player viewer. */
+  proposals: ProposalView[];
 
   /** Highest seq folded for this viewer; 0 initially. */
   throughSeq: number;
