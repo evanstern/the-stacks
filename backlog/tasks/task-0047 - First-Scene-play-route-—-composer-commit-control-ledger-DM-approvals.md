@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:09'
+updated_date: '2026-10-26 04:37'
 labels:
   - first-scene
   - ui
@@ -43,7 +43,7 @@ Spec: specs/030-play-route
 - [x] #10 Spec phase: Foundational — pure view-model modules
 - [x] #11 Spec phase: User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6)
 - [x] #12 Spec phase: User Stories 4 and 5 (P2) — ledger panel and DM approval panel
-- [ ] #13 Spec phase: User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence
+- [x] #13 Spec phase: User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence
 - [ ] #14 Spec phase: Proposal wiring — GATED on TASK-0045's merge
 <!-- AC:END -->
 
@@ -67,6 +67,10 @@ Phase 3 by sonnet-implementer: f907142. The fixture harness and table components
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 by sonnet-implementer: 4e8f2dd. The ledger and DM approval panels are slide-outs inside the shared Panel. 108 node tests and 20 vitest tests pass; ci:check green. Approve and Reject click wiring is asserted only by button names. Phase 5's Brave pass must exercise the clicks.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 by sonnet-implementer: 9a00abb. The live table renders through TableView, with an AC #7 equivalence test and no-modal and client-only gates. There are 24 Brave screenshots: fixtures and live, light and dark, at 1280 and 390 px. The approval-panel click-through in Brave works (2→1→0). ci:check green.
+Not run: quickstart §3 reload rebuild and stop/start reconnect; the reducer tests cover them. They are to be run in Phase 6's live pass.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
