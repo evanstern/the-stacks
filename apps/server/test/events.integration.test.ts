@@ -2,7 +2,13 @@ import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, probeReachable } from "../src/db.js";
-import { append, readFrom } from "../src/events/log.js";
+import {
+  append,
+  appendBatch,
+  readFrom,
+  readLatestOfType,
+  SeqConflictError,
+} from "../src/events/log.js";
 
 /**
  * Integration tests for the event log (spec 004, US1). These prove ordering
@@ -285,6 +291,70 @@ describe.skipIf(!reachable)(
       const [read] = await readFrom(requireDb(), { sessionId, limit: 10 });
       expect(read.type).toBe("some-future-type-nobody-has-written-yet");
       expect(read.payloadVersion).toBe(999);
+    });
+  },
+);
+
+describe.skipIf(!reachable)(
+  "event log — expectedLastSeq and readLatestOfType (spec 029)",
+  () => {
+    const row = (sessionId: string, i: number) => ({
+      sessionId,
+      actor: "test-actor",
+      type: "narration",
+      payload: { i },
+      payloadVersion: 1,
+    });
+
+    it("T033: a matching expectedLastSeq appends; the empty session expects 0", async () => {
+      const sessionId = randomUUID();
+      const first = await appendBatch(requireDb(), [row(sessionId, 1)], {
+        expectedLastSeq: 0,
+      });
+      expect(first.map((e) => e.seq)).toEqual([1]);
+      const second = await appendBatch(
+        requireDb(),
+        [row(sessionId, 2), row(sessionId, 3)],
+        { expectedLastSeq: 1 },
+      );
+      expect(second.map((e) => e.seq)).toEqual([2, 3]);
+    });
+
+    it("T033: a mismatched expectedLastSeq throws SeqConflictError and lands zero rows", async () => {
+      const sessionId = randomUUID();
+      await appendBatch(requireDb(), [row(sessionId, 1)]);
+      const attempt = appendBatch(
+        requireDb(),
+        [row(sessionId, 2), row(sessionId, 3)],
+        { expectedLastSeq: 0 },
+      );
+      await expect(attempt).rejects.toBeInstanceOf(SeqConflictError);
+      await expect(attempt).rejects.toMatchObject({ expected: 0, actual: 1 });
+      const stored = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(stored.map((e) => e.seq)).toEqual([1]);
+    });
+
+    it("T033: readLatestOfType returns the latest row of that type, or null", async () => {
+      const sessionId = randomUUID();
+      expect(
+        await readLatestOfType(requireDb(), { sessionId, type: "narration" }),
+      ).toBeNull();
+      await appendBatch(requireDb(), [
+        row(sessionId, 1),
+        { ...row(sessionId, 2), type: "talk" },
+        row(sessionId, 3),
+      ]);
+      const latest = await readLatestOfType(requireDb(), {
+        sessionId,
+        type: "narration",
+      });
+      expect(latest?.seq).toBe(3);
+      expect(
+        await readLatestOfType(requireDb(), {
+          sessionId,
+          type: "scene.changed",
+        }),
+      ).toBeNull();
     });
   },
 );

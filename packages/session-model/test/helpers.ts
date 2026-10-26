@@ -252,6 +252,30 @@ export const sessionPayloads: Record<string, unknown> = {
     body: "The party found a vault.",
     sourceActionIds: ["act-1"],
   },
+  "proposal.created": {
+    proposalId: "prop-1",
+    policy: "ask",
+    proposal: {
+      kind: "narration",
+      summary: null,
+      rationale: null,
+      narration: { text: "The door groans.", actionIds: [] },
+      visibility: "public",
+    },
+  },
+  "proposal.approved": { proposalId: "prop-1", batchId: null },
+  "proposal.rejected": { proposalId: "prop-1", reason: null },
+  "dm.seat.changed": {
+    reason: "a human takes the seat",
+    before: { kind: "ai" },
+    after: { kind: "human", userId: PLAYER_A },
+  },
+  "gate.policy.changed": {
+    reason: "journal needs a look",
+    proposalKind: "journal",
+    before: "auto",
+    after: "ask",
+  },
 };
 
 /** A payload that fails the schema of the same type. */
@@ -330,6 +354,28 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
   ],
   "journal.entry.added": [
     { entryId: "j-1", title: "", body: "x", sourceActionIds: [] },
+  ],
+  "proposal.created": [
+    { proposalId: "prop-1", policy: "auto", proposal: { kind: "talk" } },
+    { proposalId: "prop-1", policy: "ask", proposal: { kind: "nope" } },
+  ],
+  "proposal.approved": [{ proposalId: "Bad Id", batchId: null }],
+  "proposal.rejected": [{ proposalId: "prop-1", reason: "" }],
+  "dm.seat.changed": [
+    {
+      reason: "x",
+      before: { kind: "ai" },
+      after: { kind: "human", userId: "not-a-uuid" },
+    },
+  ],
+  "gate.policy.changed": [
+    {
+      reason: "x",
+      proposalKind: "action.declare",
+      before: "auto",
+      after: "ask",
+    },
+    { reason: "x", proposalKind: "journal", before: "auto", after: "never" },
   ],
 };
 

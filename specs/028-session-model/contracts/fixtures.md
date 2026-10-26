@@ -72,3 +72,5 @@ the "every event validates" check for it and asserts the counters instead.
 4. Every fact in the table above holds for the viewers listed.
 5. Fixtures are plain data: importing them runs no engine call, reads no clock and needs no
    server.
+
+> Extended by specs/029-proposal-gate/contracts/fixtures.md: the `dmUserId` identity, the `dm-approvals` and `commit-authority` fixtures, `proposalExamples`, and the retyped last row of `unknown-and-invalid`.

@@ -16,6 +16,7 @@
       "!specs",
       "!fixtures",
       "!apps/server/test/fixtures/ddb",
+      "!apps/server/test/fixtures/write-boundary",
       "!packages/srd/data",
       "!packages/srd/provenance"
     ]

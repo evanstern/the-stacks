@@ -4,6 +4,7 @@
     "noEmit": true
   },
   "include": ["."],
+  "exclude": ["fixtures/write-boundary"],
   "references": [
     { "path": ".." },
     { "path": "../../../packages/shared" },

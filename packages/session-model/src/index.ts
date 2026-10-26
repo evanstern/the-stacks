@@ -22,6 +22,10 @@ export {
   ActionDeclaredV1,
   ActionResolvedV1,
 } from "./events/actions.js";
+export {
+  DmSeatChangedV1,
+  GatePolicyChangedV1,
+} from "./events/gate-config.js";
 export { JournalEntryAddedV1 } from "./events/journal.js";
 export type { MechanicsEnvelope } from "./events/mechanics.js";
 export { MechanicsEnvelopeV1 } from "./events/mechanics.js";
@@ -31,6 +35,11 @@ export {
   PartyMemberChangedV1,
   PartyMemberSchema,
 } from "./events/party.js";
+export {
+  ProposalApprovedV1,
+  ProposalCreatedV1,
+  ProposalRejectedV1,
+} from "./events/proposals.js";
 export type { Scene } from "./events/scene.js";
 export { SceneChangedV1, SceneSchema } from "./events/scene.js";
 export type { TableMode } from "./events/table-mode.js";
@@ -39,6 +48,48 @@ export type { Narration, Talk } from "./events/talk.js";
 export { NarrationV1, TalkV1 } from "./events/talk.js";
 export type { Tracker } from "./events/tracker.js";
 export { TrackerChangedV1, TrackerSchema } from "./events/tracker.js";
+export type { CommitDecision } from "./gate/authority.js";
+export { commitAuthority } from "./gate/authority.js";
+export type { PermissionResult } from "./gate/permissions.js";
+export { checkPermission } from "./gate/permissions.js";
+export type {
+  PlanIds,
+  PlannedRow,
+  PlanResult,
+} from "./gate/plan.js";
+export { mechanicsRows, planProposal } from "./gate/plan.js";
+export type { Policy, PolicyTable, Route } from "./gate/policy.js";
+export {
+  DEFAULT_POLICIES,
+  effectivePolicy,
+  PolicySchema,
+  routeProposal,
+} from "./gate/policy.js";
+export type {
+  DmProposalKind,
+  GateRequest,
+  Proposal,
+  ProposalKind,
+  Proposer,
+} from "./gate/proposals.js";
+export {
+  actorOf,
+  DmProposalKindSchema,
+  GATE_REQUEST_KINDS,
+  GATE_REQUEST_VERSION,
+  GateRequestSchema,
+  mechanicsProposal,
+  ProposalKindSchema,
+  ProposalSchema,
+} from "./gate/proposals.js";
+export type {
+  GateRefusal,
+  GateRefusalCode,
+  GateRefusalSource,
+} from "./gate/refusals.js";
+export { GateRefusalCodeSchema } from "./gate/refusals.js";
+export type { DmSeat } from "./gate/seat.js";
+export { DmSeatSchema } from "./gate/seat.js";
 export {
   ActorIdSchema,
   CombatantIdSchema,
@@ -49,15 +100,19 @@ export {
   VisibilitySchema,
 } from "./ids.js";
 export { applyEvent, emptyProjections, project } from "./projections/apply.js";
+export { findProposal, pendingProposals } from "./projections/proposals.js";
 export type {
   ActionAuthority,
   ActionStatus,
   ActionView,
   Diagnostics,
   EncounterView,
+  GateView,
   JournalEntryView,
   LedgerRow,
   PartyMemberView,
+  ProposalStatus,
+  ProposalView,
   SessionProjections,
   TranscriptEntry,
 } from "./projections/types.js";

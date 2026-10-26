@@ -1,10 +1,10 @@
 ---
 name: replay-live-boundary
-description: The algorithm that delivers a reconnecting client its missed events then live ones with no gap and no duplicate — join the registry first with delivery queued, replay in bounded batches, signal replay-complete, record the replay floor (replayedThroughSeq), then drain the queue; broadcast applies the same floor on the direct path.
+description: The algorithm that delivers a reconnecting client its missed events then live ones with no gap and no duplicate — join the registry first with delivery queued, replay in bounded batches, signal replay-complete, record the replay floor (replayedThroughSeq), then drain the queue; the DM seat is loaded once per session and filters replay per viewer; broadcast applies the same floor on the direct path.
 kind: pipeline
 sources:
   - apps/server/src/ws/subscribe.ts
-verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Replay/live boundary
@@ -35,7 +35,7 @@ Both of the obvious orderings are wrong:
    in the queue, or (harmlessly) both.
 2. **Replays from the cursor in bounded batches.** A loop calls `readFrom(db, { sessionId,
    afterSeq: throughSeq, limit: REPLAY_BATCH_SIZE })`, sending each visible event (per
-   `isVisible`, [[subscriber-registry]]) and advancing `throughSeq` to the batch's last `seq`.
+   `canSee(viewer, ...)`, [[subscriber-registry]]) and advancing `throughSeq` to the batch's last `seq`.
    `REPLAY_BATCH_SIZE` is `200` — bounded so a reconnecting client with a long history can't
    exhaust the server with one unbounded read. The loop stops once a batch comes back shorter
    than the limit; it never has to "catch" the live edge exactly, because anything past it is
@@ -56,7 +56,14 @@ order, so a watermark advanced on every send could drop a lower seq whose broadc
 Every seq at or below the replay's `throughSeq` was in the replay read, so skipping exactly
 those is lossless.
 
-Visibility is decided exactly once, at broadcast/queue time (`isVisible` in
+**The DM seat.** After joining the registry and before the read loop, `subscribe()` takes the
+session's `DmSeat` from the registry cache (`seatOf`). On a miss it awaits `loadDmSeat` (see
+[[event-log]]; the latest `dm.seat.changed` row, else the AI DM), then re-reads the cache: a seat
+a concurrent broadcast set during the await wins over the load, and only otherwise is the loaded
+seat cached. `viewerFor(conn, seat)` gives the replay's `Viewer`. This closes the DM-seat
+subscribe race fixed in TASK-0045.
+
+Visibility is decided exactly once, at broadcast/queue time (`canSee` in
 [[subscriber-registry]]) and again independently by the replay loop's own read — draining the
 queue needs no second filtering pass, since only events the connection was entitled to see
 were ever queued.
@@ -69,11 +76,11 @@ Called from [[websocket-gateway]]'s message handler on a `subscribe` frame. Read
 
 ## Operational notes
 
-`subscribe()` takes an injectable `deps: SubscribeDeps = { readFrom }` seam purely for test
+`subscribe()` takes an injectable `deps: SubscribeDeps` seam (`readFrom`, and an optional `loadDmSeat`) purely for test
 determinism — the race window it closes is a synchronous gap, so no amount of concurrent write
 pressure reliably lands an append inside the broken orderings on demand (the end-to-end
 integration test caught a reintroduced bug only about 1 run in 7 without it). Production
-callers omit `deps` and get the real `readFrom`; it is not test-only scaffolding left behind,
+callers omit `deps` and get the real `readFrom` and `loadDmSeat`; it is not test-only scaffolding left behind,
 it's the only way `ws.subscribe.test.ts` can be deterministic. The same file also holds a
 database-gated test for the append-then-broadcast case above: its injected `readFrom` performs a
 real `append`, then the test calls `registry.broadcast` after `subscribe` returns and asserts

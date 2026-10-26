@@ -1,0 +1,205 @@
+import { describe, expect, it } from "vitest";
+import { fixtures } from "../src/fixtures/index.js";
+import { commitAuthority, project } from "../src/index.js";
+import {
+  aiDm,
+  ana,
+  bram,
+  DM_USER,
+  dmFold,
+  outsider,
+  seatedDm,
+} from "./gate-helpers.js";
+import { PLAYER_A, PLAYER_B } from "./helpers.js";
+
+const BRAM = "ai:companion:bram";
+
+describe("commitAuthority (AC #6)", () => {
+  describe("free mode", () => {
+    const p = dmFold();
+    it("the declarer commits their character's action", () => {
+      expect(commitAuthority(p, ana, "act-ana")).toEqual({
+        ok: true,
+        authority: "declarer",
+      });
+      expect(commitAuthority(p, { actor: BRAM }, "act-bram")).toEqual({
+        ok: true,
+        authority: "declarer",
+      });
+    });
+    it("refuses a non-declarer and a non-controller", () => {
+      expect(commitAuthority(p, bram, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+      expect(commitAuthority(p, outsider, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+    });
+  });
+
+  describe("turn mode", () => {
+    const p = dmFold({
+      turn: { activeActor: BRAM, activeCharacterId: "bram" },
+    });
+    it("only the active actor commits, for the active character", () => {
+      expect(commitAuthority(p, bram, "act-bram")).toEqual({
+        ok: true,
+        authority: "active-player",
+      });
+      expect(commitAuthority(p, ana, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+      expect(commitAuthority(p, bram, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+    });
+    it("a null activeCharacterId accepts any character the actor controls", () => {
+      const q = dmFold({
+        turn: { activeActor: PLAYER_A, activeCharacterId: null },
+      });
+      expect(commitAuthority(q, ana, "act-ana")).toEqual({
+        ok: true,
+        authority: "active-player",
+      });
+    });
+    it("a mismatched activeCharacterId refuses", () => {
+      const q = dmFold({
+        turn: { activeActor: PLAYER_A, activeCharacterId: "bram" },
+      });
+      expect(commitAuthority(q, ana, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+    });
+  });
+
+  describe("party scope", () => {
+    it("one human in the party commits as group", () => {
+      expect(commitAuthority(dmFold(), ana, "act-party")).toEqual({
+        ok: true,
+        authority: "group",
+      });
+    });
+    it("a companion or an outsider does not commit for the party", () => {
+      const p = dmFold();
+      expect(commitAuthority(p, bram, "act-party")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+      expect(commitAuthority(p, outsider, "act-party")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+    });
+    it("two humans need group sign-off", () => {
+      const p = dmFold({ twoHumans: true });
+      expect(commitAuthority(p, ana, "act-party")).toEqual({
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+      });
+      expect(commitAuthority(p, { actor: PLAYER_B }, "act-party")).toEqual({
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+      });
+    });
+    it("party scope applies in turn mode too", () => {
+      const p = dmFold({
+        turn: { activeActor: BRAM, activeCharacterId: null },
+      });
+      expect(commitAuthority(p, ana, "act-party")).toEqual({
+        ok: true,
+        authority: "group",
+      });
+    });
+  });
+
+  describe("the DM", () => {
+    it("the AI DM always commits", () => {
+      expect(commitAuthority(dmFold(), aiDm, "act-ana")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+      expect(commitAuthority(dmFold(), aiDm, "act-party")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+    });
+    it("the seated human DM commits; an unseated user does not", () => {
+      const p = dmFold({ humanDm: true });
+      expect(commitAuthority(p, seatedDm, "act-ana")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+      expect(commitAuthority(p, { actor: DM_USER }, "act-party")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+      expect(commitAuthority(dmFold(), seatedDm, "act-ana")).toEqual({
+        ok: false,
+        code: "COMMIT_NOT_ALLOWED",
+      });
+    });
+  });
+
+  describe("action state", () => {
+    it("refuses an unknown action", () => {
+      expect(commitAuthority(dmFold(), aiDm, "nope")).toEqual({
+        ok: false,
+        code: "UNKNOWN_ACTION",
+      });
+    });
+    it("refuses an action that is already committed", () => {
+      const p = dmFold({
+        extra: [
+          {
+            type: "action.committed",
+            payload: { actionId: "act-ana", authority: "declarer" },
+            opts: { actor: PLAYER_A },
+          },
+        ],
+      });
+      expect(commitAuthority(p, aiDm, "act-ana")).toEqual({
+        ok: false,
+        code: "ACTION_NOT_OPEN",
+      });
+    });
+    it("a discussed action is still open", () => {
+      const p = dmFold({
+        extra: [
+          {
+            type: "action.commented",
+            payload: { actionId: "act-ana", stance: "comment", text: "hm" },
+            opts: { actor: BRAM },
+          },
+        ],
+      });
+      expect(commitAuthority(p, ana, "act-ana").ok).toBe(true);
+    });
+  });
+});
+
+describe("commit authority replays every fixture (SC-006)", () => {
+  for (const f of fixtures) {
+    it(`${f.name}: each action.committed re-derives its recorded authority`, () => {
+      for (const event of f.events) {
+        if (event.type !== "action.committed") continue;
+        const before = project(
+          f.events.filter((e) => e.seq < event.seq),
+          { role: "dm" },
+        );
+        const payload = event.payload as {
+          actionId: string;
+          authority: string;
+        };
+        expect(
+          commitAuthority(before, { actor: event.actor }, payload.actionId),
+          `${f.name} seq ${event.seq}`,
+        ).toEqual({ ok: true, authority: payload.authority });
+      }
+    });
+  }
+});

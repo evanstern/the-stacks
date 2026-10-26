@@ -80,6 +80,46 @@ describe("secret trackers never reach players (AC #5)", () => {
     }
   });
 
+  it("proposal ids and bodies never reach players", () => {
+    const withProposals = makeRows([
+      ...richSpecs(),
+      {
+        type: "proposal.created",
+        payload: {
+          proposalId: "prop-secret-id",
+          policy: "ask",
+          proposal: {
+            kind: "narration",
+            summary: "PROPOSAL SUMMARY",
+            rationale: "PROPOSAL RATIONALE",
+            narration: { text: "PROPOSAL BODY", actionIds: [] },
+            visibility: "public",
+          },
+        },
+        opts: { visibility: "dm" },
+      },
+      {
+        type: "proposal.approved",
+        payload: { proposalId: "prop-secret-id", batchId: null },
+        opts: { visibility: "dm" },
+      },
+    ]);
+    expect(project(withProposals, { role: "dm" }).proposals).toHaveLength(1);
+    for (const viewer of players) {
+      const p = project(withProposals, viewer);
+      expect(p.proposals).toEqual([]);
+      const json = JSON.stringify(p);
+      for (const text of [
+        "prop-secret-id",
+        "PROPOSAL SUMMARY",
+        "PROPOSAL RATIONALE",
+        "PROPOSAL BODY",
+      ]) {
+        expect(json).not.toContain(text);
+      }
+    }
+  });
+
   it("a whisper reaches only its addressee", () => {
     const whisper = row(
       "talk",
@@ -105,6 +145,7 @@ describe("secrecy over every fixture (AC #5)", () => {
             (l) => l.kind === "change" && l.type === "tracker.changed",
           ),
         ).toBe(false);
+        expect(p.proposals).toEqual([]);
         expect(p.ledger.every((l) => l.visibility !== "dm")).toBe(true);
         expect(p.journal.every((j) => j.visibility !== "dm")).toBe(true);
         expect(p.transcript.every((t) => t.visibility !== "dm")).toBe(true);
@@ -112,7 +153,8 @@ describe("secrecy over every fixture (AC #5)", () => {
           (e) =>
             e.visibility === "dm" ||
             (e.visibility !== "public" && e.visibility !== uid(viewer)) ||
-            e.type === "tracker.changed",
+            e.type === "tracker.changed" ||
+            e.type.startsWith("proposal."),
         );
         const json = JSON.stringify(p);
         for (const e of hidden) {
@@ -130,7 +172,8 @@ describe("secrecy over every fixture (AC #5)", () => {
           (e) => e.visibility === "public" || e.visibility === uid(viewer),
         );
         const withoutTrackers = visible.filter(
-          (e) => e.type !== "tracker.changed",
+          (e) =>
+            e.type !== "tracker.changed" && !e.type.startsWith("proposal."),
         );
         expect(project(f.events, viewer).diagnostics).toEqual(
           project(withoutTrackers, viewer).diagnostics,

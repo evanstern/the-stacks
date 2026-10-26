@@ -6,7 +6,7 @@ import {
   project,
   type Viewer,
 } from "../src/index.js";
-import { PLAYER_A, richRows, row } from "./helpers.js";
+import { makeRows, PLAYER_A, richRows, row } from "./helpers.js";
 
 const viewers: Viewer[] = [
   { role: "dm" },
@@ -61,6 +61,48 @@ describe("talk isolation (AC #2)", () => {
       row("talk", { text: "x", channel: "ooc", characterId: null }),
     );
     expect(strip(after)).toEqual(strip(p));
+  });
+});
+
+describe("talk isolation covers gate and proposals (AC #2)", () => {
+  it("talk leaves gate and proposals equal over a stream that has them", () => {
+    const rows = makeRows([
+      {
+        type: "dm.seat.changed",
+        payload: {
+          reason: "seat",
+          before: { kind: "ai" },
+          after: { kind: "human", userId: PLAYER_A },
+        },
+      },
+      {
+        type: "proposal.created",
+        payload: {
+          proposalId: "p1",
+          policy: "ask",
+          proposal: {
+            kind: "narration",
+            summary: null,
+            rationale: null,
+            narration: { text: "Thunder.", actionIds: [] },
+            visibility: "public",
+          },
+        },
+        opts: { visibility: "dm" },
+      },
+    ]);
+    const before = project(rows, { role: "dm" });
+    expect(before.proposals).toHaveLength(1);
+    const after = applyEvent(
+      before,
+      row(
+        "talk",
+        { text: "Hi", channel: "ooc", characterId: null },
+        { seq: 3 },
+      ),
+    );
+    expect(after.gate).toEqual(before.gate);
+    expect(after.proposals).toEqual(before.proposals);
   });
 });
 
