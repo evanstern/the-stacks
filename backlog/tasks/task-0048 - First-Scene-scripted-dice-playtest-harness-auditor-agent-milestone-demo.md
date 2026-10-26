@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 10:37'
+updated_date: '2026-10-26 10:41'
 labels:
   - first-scene
   - test
@@ -42,7 +42,7 @@ Spec: specs/032-playtest-harness
 - [x] #7 Spec phase: The harness run (US1; AC #1)
 - [x] #8 Spec phase: The auditor (US2; AC #2, #3)
 - [x] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
-- [ ] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
+- [x] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
 - [ ] #11 Spec phase: The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5)
 <!-- AC:END -->
 
@@ -69,6 +69,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Rulings implemented in 0ce29e8. hidden-info now flags tracker state (fractions, and tracker or clock beside a name or id) plus seed secrets. fledOrBargained is derived from ending-row reasons, with a note when no ending row exists.
 Phase 4 by sonnet-implementer: d61a42b. Adds provider mode, budget.ts (estimate, preflight, budget gateway) and the CLI (run, audit, estimate) with exit codes 0/1/3/4/64. All refusal paths are tested with a priced fake provider; no real-provider call was made. CI evidence is committed at specs/032-playtest-harness/evidence/ci-playtest (ended, pass). The server suite passes 724 tests; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 by sonnet-implementer: 1cca8b8. docs/design/m2-demo.md now holds the runbook (steps A to F) and a blank record template, and docs/design/m2-demo/ exists for attachments. ci:check green; this is the green-before-demo gate. The dry check shows pnpm playtest estimate exits 4 until the operator configures AI_PURPOSES and AI_PRICES.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
