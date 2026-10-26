@@ -35,7 +35,7 @@ function fixtureSource(f: Fixture, viewer: Viewer): TableSource {
     status: "fixture",
     caughtUp: true,
     notice: null,
-    proposals: proposalsFor(f.name, viewer, new Set()),
+    proposals: proposalsFor(f.events, viewer, new Set()),
     commands,
   };
 }
@@ -64,7 +64,7 @@ function liveSource(f: Fixture, viewer: Viewer): TableSource {
     status: "open",
     caughtUp: state.caughtUp,
     notice: state.notice,
-    proposals: proposalsFor(f.name, viewer, new Set()),
+    proposals: proposalsFor(f.events, viewer, new Set()),
     commands,
   };
 }

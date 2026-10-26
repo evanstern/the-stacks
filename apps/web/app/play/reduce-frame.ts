@@ -31,6 +31,9 @@ export function reduceFrame(state: FrameState, frame: ServerFrame): FrameState {
     case "replay-complete":
       return { ...state, caughtUp: true };
     case "error":
-      return { ...state, notice: frame.message };
+      return {
+        ...state,
+        notice: frame.code ? `${frame.message} (${frame.code})` : frame.message,
+      };
   }
 }

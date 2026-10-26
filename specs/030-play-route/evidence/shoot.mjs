@@ -82,7 +82,7 @@ const surfaces =
         },
         {
           name: "approvals-panel-dm",
-          url: `/play/fixtures/free-mode-action?as=dm`,
+          url: `/play/fixtures/dm-approvals?as=dm`,
           open: "Pending proposals",
         },
       ]
@@ -154,6 +154,20 @@ try {
           const file = join(out, `live-${name}-${tag}.png`);
           await who.page.screenshot({ path: file });
           console.log(file);
+        }
+        // Phase 6: the seated DM's approval panel with a live pending proposal; a player has none.
+        if ((await pl.page.getByRole("button", { name: /Pending proposals/ }).count()) === 0) {
+          log.push(`${tag}: player has no Pending proposals control`);
+        }
+        const trigger = op.page.getByRole("button", { name: /Pending proposals/ }).first();
+        if ((await trigger.count()) > 0) {
+          await trigger.click();
+          await op.page.getByText("Approve or reject each proposal.").waitFor({ timeout: 10000 });
+          await op.page.waitForTimeout(400);
+          const file = join(out, `live-operator-approvals-${tag}.png`);
+          await op.page.screenshot({ path: file });
+          console.log(file);
+          log.push(`${tag}: operator approval panel captured`);
         }
         await op.ctx.close();
         await pl.ctx.close();

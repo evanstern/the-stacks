@@ -1,16 +1,19 @@
 import type { StoredEvent, Viewer } from "@the-stacks/session-model";
 import type { SessionFixture } from "@the-stacks/session-model/fixtures";
 import { useMemo, useState } from "react";
-import { fixtureProposals } from "./fixtures/proposals.ts";
 import {
   commentFrame,
   commitFrame,
   declareFrame,
   type EventFrame,
+  localEventOf,
   talkFrame,
 } from "./frames.ts";
 import { appendLocal } from "./local-log.ts";
-import type { PendingProposalView } from "./proposals.ts";
+import {
+  type PendingProposalView,
+  selectPendingProposals,
+} from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
 
 /** "dm", or the user id of one of the fixture's listed players (falls back to the DM). */
@@ -24,14 +27,16 @@ export function viewerForKey(
   return player ?? fixture.viewers.dm;
 }
 
-/** The proposals a viewer sees in a fixture: the DM's examples minus decided ones. */
+/**
+ * The proposals a viewer sees in a fixture: pending ones derived from its `proposal.*` events
+ * through `selectPendingProposals`, minus those decided locally.
+ */
 export function proposalsFor(
-  fixtureName: string,
+  events: readonly StoredEvent[],
   viewer: Viewer,
   decided: ReadonlySet<string>,
 ): PendingProposalView[] {
-  if (viewer.role !== "dm") return [];
-  return (fixtureProposals[fixtureName] ?? []).filter(
+  return selectPendingProposals(events, viewer).filter(
     (p) => !decided.has(p.proposalId),
   );
 }
@@ -76,16 +81,17 @@ export function useFixtureTable(
   );
   const decided = useMemo(() => new Set(current.decided), [current.decided]);
   const proposals = useMemo(
-    () => proposalsFor(fixture.name, viewer, decided),
-    [fixture.name, viewer, decided],
+    () => proposalsFor(base, viewer, decided),
+    [base, viewer, decided],
   );
 
   const commands = useMemo<TableCommands>(() => {
-    function append(frame: EventFrame | null): boolean {
-      if (!frame) return false;
+    function append(frame: EventFrame | null, authority?: string): boolean {
+      const local = frame ? localEventOf(frame, authority) : null;
+      if (!local) return false;
       setState((prev) => {
         const cur = prev.key === key ? prev : { key, local: [], decided: [] };
-        const all = appendLocal([...base, ...cur.local], frame, actor);
+        const all = appendLocal([...base, ...cur.local], local, actor);
         return { ...cur, local: all.slice(base.length) };
       });
       return true;
@@ -101,7 +107,7 @@ export function useFixtureTable(
       sendTalk: (input) => append(talkFrame(input)),
       declareAction: (input) => append(declareFrame(input)),
       comment: (input) => append(commentFrame(input)),
-      commit: (input) => append(commitFrame(input)),
+      commit: (input) => append(commitFrame(input), input.authority),
       approve: (id) => decide(id),
       reject: (id) => decide(id),
     };

@@ -20,8 +20,7 @@ one signed in as each account, driven by `shoot.mjs --mode live` (Brave launched
 
 All four runs passed: talk, declare, comment and commit visible to both viewers.
 
-Not hand-checked in this run: reload rebuild and the stop/start-app reconnect path. The
-reducer path behind both is covered by `reduce-frame.test.mjs` and `equivalence.test.tsx`.
+Reload rebuild and reconnect were checked in Phase 6 (below).
 
 ## DM approval panel click-through (fixture `free-mode-action?as=dm`, Brave)
 
@@ -32,6 +31,22 @@ reducer path behind both is covered by `reduce-frame.test.mjs` and `equivalence.
 | Reject (second proposal) | Reason input appears |
 | Confirm reject (reason "not now") | List drops to 0; trigger reads "Pending proposals (0)" |
 
-The live Approve and Reject remain unwired until Phase 6 (TASK-0045).
 
 Screenshots: `shots/` (fixtures: 16 PNGs; live: 8 PNGs), light and dark, 1280 and 390 px.
+
+## Phase 6 — proposals live against TASK-0045's gate (Brave, 2026-10-26)
+
+Stack: `pnpm env:up` in `.worktrees/task-0047`; app and test databases migrated by hand
+(TASK-0098). Table seeded by `seed-live.mjs dm-approvals`: the real operator is the seated human
+DM, the real player is Ana. The seed raised one `ask` narration proposal through `gate.submit` as
+`ai:dm`. Two Brave contexts (operator, player), driven by a scratch script.
+
+| Check | Result |
+|---|---|
+| DM-only delivery | Operator panel lists 4 pending (scene, tracker, table-mode, narration); the player has no Pending proposals control and no proposal text on the page |
+| Approve narration | Narration appears in the player's transcript; operator list drops to 3 |
+| Reject table-mode with reason "not now" | List drops to 2 |
+| Approve a `suggest` proposal | Notice: "a suggestion applies nothing; the DM acts on it directly (PROPOSAL_NOT_APPROVABLE)" |
+| Reload rebuild | Both windows rebuilt from replay: narration present, operator list 2, player list absent |
+| Stop/start app (`docker restart`) | After the restart a player message reached the operator once (no duplicate); pending list still 2 |
+| Four `shoot.mjs --mode live` runs (1280/390, light/dark) | Talk, declare, comment, commit visible to both; player has no approvals control; operator approval panel captured |

@@ -1,9 +1,10 @@
+import { dmApprovals } from "@the-stacks/session-model/fixtures";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { ProposalList } from "~/play/components/proposal-list";
-import { fixtureProposals } from "~/play/fixtures/proposals";
+import { selectPendingProposals } from "~/play/proposals";
 
-const list = fixtureProposals["free-mode-action"];
+const list = selectPendingProposals(dmApprovals.events, dmApprovals.viewers.dm);
 const noop = () => {};
 
 test("each proposal shows summary, kind, proposer, action, details and buttons", () => {

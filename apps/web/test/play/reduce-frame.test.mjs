@@ -52,3 +52,13 @@ test("reduceFrame does not mutate the previous state", () => {
   reduceFrame(before, { type: "event", event: ev(2) });
   assert.equal(before.events.length, 1);
 });
+
+test("an error frame with a refusal code shows the code in the notice", () => {
+  const s = reduceFrame(initialFrameState, {
+    type: "error",
+    kind: "forbidden",
+    message: "Only the seated DM may approve",
+    code: "NOT_DM",
+  });
+  assert.equal(s.notice, "Only the seated DM may approve (NOT_DM)");
+});

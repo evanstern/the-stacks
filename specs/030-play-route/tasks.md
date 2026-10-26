@@ -150,16 +150,16 @@ gates are tests; fixture screenshots are taken.
 
 **Gate**: do not dispatch this phase until `gh api repos/evanstern/the-stacks/pulls/<TASK-0045 PR> --jq .merged` prints `true`. Then read TASK-0045's `specs/NNN-*/contracts/` on `origin/main` for its proposal events, projection (if any), approve/reject interface, player-action write path and authority rule. Change only the modules contracts/proposal-seam.md names; a needed change to a component prop or a seam type is a spec amendment, not an implementer decision — STOP and report.
 
-- [ ] T048 [US5] Merge `origin/main` into `task-0047-play-route` (a merge commit; never rebase); resolve conflicts in `apps/web/app/routes.ts`, `apps/web/app/routes/play.tsx` and `pnpm-lock.yaml` by keeping both sides' intent; re-run `pnpm install`.
-- [ ] T049 [P] [US5] Write `apps/web/test/play/proposals.test.mjs`: `selectPendingProposals` maps TASK-0045's proposal events (or projection) to `PendingProposalView` — pending ones listed oldest first, decided ones absent, `[]` for every player viewer — using TASK-0045's fixtures or events built from its schemas.
-- [ ] T050 [US5] Implement `selectPendingProposals` in `apps/web/app/play/proposals.ts` against TASK-0045's types; replace `liveProposals` with it in `apps/web/app/play/use-live-table.ts`.
-- [ ] T051 [US5] Wire live `approve` and `reject` in `apps/web/app/play/use-live-table.ts` (and builders in `apps/web/app/play/frames.ts`) to TASK-0045's documented interface; update `specs/030-play-route/contracts/live-frames.md` with the new rows.
-- [ ] T052 [US7] If TASK-0045 binds a different write path for player actions or commits, change `apps/web/app/play/frames.ts` and `apps/web/app/play/use-live-table.ts` to use it; T007 and T037 stay green.
-- [ ] T053 [US2] If TASK-0045 exports its commit-authority rule from a client-importable package, make `apps/web/app/play/authority.ts` call it; keep T005 green or amend it with a note citing TASK-0045's table.
-- [ ] T054 [US5] If TASK-0045 ships proposal event fixtures, derive fixture-mode proposals through `selectPendingProposals` in `apps/web/app/play/use-fixture-table.ts` and delete `apps/web/app/play/fixtures/proposals.ts`; otherwise keep it and say so in the PR body.
-- [ ] T055 [US7] On the worktree stack, raise an `ask` proposal through TASK-0045's path, confirm it appears only in the operator's Pending proposals panel (two DM windows if possible) and never in the player's, approve one and reject one, and append the outcome to `specs/030-play-route/evidence/live-check.md`.
-- [ ] T056 [US7] Run `node specs/030-play-route/evidence/shoot.mjs --mode live` (Brave; light and dark; 1280 and 390 px; including the approval panel with a live pending proposal); re-run `--mode fixtures` if any fixture-mode surface changed; commit the PNGs.
-- [ ] T057 Run `pnpm ci:check` green in the worktree; refresh `specs/030-play-route/ci-evidence.txt`; walk quickstart.md end to end and tick every task here; `pnpm env:down`.
+- [x] T048 [US5] Merge `origin/main` into `task-0047-play-route` (a merge commit; never rebase); resolve conflicts in `apps/web/app/routes.ts`, `apps/web/app/routes/play.tsx` and `pnpm-lock.yaml` by keeping both sides' intent; re-run `pnpm install`.
+- [x] T049 [P] [US5] Write `apps/web/test/play/proposals.test.mjs`: `selectPendingProposals` maps TASK-0045's proposal events (or projection) to `PendingProposalView` — pending ones listed oldest first, decided ones absent, `[]` for every player viewer — using TASK-0045's fixtures or events built from its schemas.
+- [x] T050 [US5] Implement `selectPendingProposals` in `apps/web/app/play/proposals.ts` against TASK-0045's types; replace `liveProposals` with it in `apps/web/app/play/use-live-table.ts`.
+- [x] T051 [US5] Wire live `approve` and `reject` in `apps/web/app/play/use-live-table.ts` (and builders in `apps/web/app/play/frames.ts`) to TASK-0045's documented interface; update `specs/030-play-route/contracts/live-frames.md` with the new rows.
+- [x] T052 [US7] If TASK-0045 binds a different write path for player actions or commits, change `apps/web/app/play/frames.ts` and `apps/web/app/play/use-live-table.ts` to use it; T007 and T037 stay green.
+- [x] T053 [US2] If TASK-0045 exports its commit-authority rule from a client-importable package, make `apps/web/app/play/authority.ts` call it; keep T005 green or amend it with a note citing TASK-0045's table.
+- [x] T054 [US5] If TASK-0045 ships proposal event fixtures, derive fixture-mode proposals through `selectPendingProposals` in `apps/web/app/play/use-fixture-table.ts` and delete `apps/web/app/play/fixtures/proposals.ts`; otherwise keep it and say so in the PR body.
+- [x] T055 [US7] On the worktree stack, raise an `ask` proposal through TASK-0045's path, confirm it appears only in the operator's Pending proposals panel (two DM windows if possible) and never in the player's, approve one and reject one, and append the outcome to `specs/030-play-route/evidence/live-check.md`.
+- [x] T056 [US7] Run `node specs/030-play-route/evidence/shoot.mjs --mode live` (Brave; light and dark; 1280 and 390 px; including the approval panel with a live pending proposal); re-run `--mode fixtures` if any fixture-mode surface changed; commit the PNGs.
+- [x] T057 Run `pnpm ci:check` green in the worktree; refresh `specs/030-play-route/ci-evidence.txt`; walk quickstart.md end to end and tick every task here; `pnpm env:down`.
 
 **Checkpoint**: `pnpm ci:check` green; fixture and live screenshots (Brave, light and dark) ready to
 attach to the PR (runbook merge condition). The orchestrator runs the wiki re-ground
@@ -229,3 +229,22 @@ AC #5 and AC #7 on the live log once TASK-0045 has merged.
   (a path beside its `node_modules`); it is in no `package.json`.
 - Phase 5: `useSession` now exposes `sendEvent`/`notice` and maps inbound frames through
   `reduceFrame`; live `approve`/`reject` return `false` until Phase 6.
+- Phase 6: T052 changed the live wire. TASK-0045's gate refuses any catalog type sent directly
+  (`CATALOG_TYPE_REQUIRES_GATE`), so `frames.ts` now sends gate requests (`talk`, `action.declare`,
+  `action.comment`, `action.commit`, `proposal.approve`, `proposal.reject`; contracts/live-frames.md).
+  `frames.test.mjs` (T007) payload expectations changed to the request shape; `localEventOf` maps
+  a request frame back to a catalog event so fixture mode still appends locally.
+- Phase 6: `reduceFrame` and `ErrorFrame` carry the optional `code`; the notice reads
+  "message (CODE)".
+- Phase 6: T053 calls `commitAuthority` for player viewers only (over a minimal projection stub of
+  `actions`, `party`, `tableMode`, `gate`); the DM branch stays local because a viewer role does
+  not say who holds the DM seat. T005 stays green. A party action with several human players now
+  shows no commit control (`GROUP_SIGNOFF_REQUIRED`, TASK-0049).
+- Phase 6: T054 deleted `fixtures/proposals.ts`. Fixture proposals come from the `dm-approvals`
+  fixture (3 pending); `free-mode-action` and `turn-mode-combat` now show none. The approvals
+  screenshot uses `dm-approvals`. Tests that counted proposals now use `dm-approvals`.
+- Phase 6: a `suggest` proposal (for example `scene`) stays in the pending list; Approve on it
+  returns `PROPOSAL_NOT_APPROVABLE`, shown in the notice. Reject works. The component props are
+  unchanged.
+- Phase 6: `seed-live.mjs dm-approvals` seats the operator as DM (maps `dmUserId`) and raises one
+  `ask` narration proposal through `gate.submit` as `ai:dm`.

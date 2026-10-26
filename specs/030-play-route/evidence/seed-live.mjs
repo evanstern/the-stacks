@@ -39,7 +39,11 @@ const { createDb } = await import("../../../apps/server/dist/db.js");
 const { appendBatch } = await import("../../../apps/server/dist/events/log.js");
 
 const map = new Map([[fixtureIds.playerUserId, playerUserId]]);
-if (operatorUserId) map.set(fixtureIds.dmActor, operatorUserId);
+if (operatorUserId) {
+  map.set(fixtureIds.dmActor, operatorUserId);
+  // dm-approvals seats this id as the human DM (dm.seat.changed), so the operator becomes the DM.
+  map.set(fixtureIds.dmUserId, operatorUserId);
+}
 const swap = (v) => {
   if (typeof v === "string") return map.get(v) ?? v;
   if (Array.isArray(v)) return v.map(swap);
@@ -63,6 +67,24 @@ try {
       visibility: swap(e.visibility),
     })),
   );
+  if (fixtureName === "dm-approvals") {
+    // Raise one live `ask` proposal through the gate's in-process path (the AI DM's entry
+    // point, as TASK-0046 will call it); the operator is the seated DM, so narration asks.
+    const { createGate } = await import("../../../apps/server/dist/gate/index.js");
+    const gate = createGate({ db });
+    const result = await gate.submit(
+      sessionId,
+      { kind: "ai", actor: "ai:dm" },
+      {
+        kind: "narration",
+        summary: "Narrate the lock giving way",
+        rationale: "Live-check proposal raised through the gate.",
+        narration: { text: "The lock gives with a dry click.", actionIds: [] },
+        visibility: "public",
+      },
+    );
+    console.error(`raised live proposal: ${JSON.stringify(result.ok ? result.outcome : result.refusal)}`);
+  }
   console.log(`http://localhost:${appPort}/play/${sessionId}`);
 } finally {
   await db.$client.end();

@@ -3,13 +3,15 @@ import { useMemo } from "react";
 import { useRevalidator } from "react-router";
 import { useSession } from "../ws/useSession.ts";
 import {
+  approveFrame,
   commentFrame,
   commitFrame,
   declareFrame,
   type EventFrame,
+  rejectFrame,
   talkFrame,
 } from "./frames.ts";
-import { liveProposals } from "./proposals.ts";
+import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
 
 /** The signed-in user as the root loader supplies it. */
@@ -37,7 +39,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
   );
   const viewer = useMemo(() => viewerForUser(user), [user]);
   const proposals = useMemo(
-    () => liveProposals(events, viewer),
+    () => selectPendingProposals(events, viewer),
     [events, viewer],
   );
   const commands = useMemo<TableCommands>(() => {
@@ -48,9 +50,10 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       declareAction: (input) => send(declareFrame(input)),
       comment: (input) => send(commentFrame(input)),
       commit: (input) => send(commitFrame(input)),
-      // No proposal wire exists before TASK-0045 (Phase 6): decisions do not leave.
-      approve: () => false,
-      reject: () => false,
+      // Decisions leave as gate requests; the panel drops a proposal when the decision
+      // event comes back (contracts/proposal-seam.md).
+      approve: (proposalId) => send(approveFrame(proposalId)),
+      reject: (proposalId, reason) => send(rejectFrame(proposalId, reason)),
     };
   }, [sendEvent]);
   return {

@@ -27,7 +27,7 @@ function sourceFor(
     status: "fixture",
     caughtUp: true,
     notice: null,
-    proposals: proposalsFor(f.name, viewer, new Set()),
+    proposals: proposalsFor(f.events, viewer, new Set()),
     commands,
   };
 }
@@ -46,7 +46,7 @@ test("TableView renders every fixture for every viewer with no modal markup (AC 
 });
 
 test("only the DM sees the Pending proposals trigger", () => {
-  const f = fixtures.find((x) => x.name === "free-mode-action");
+  const f = fixtures.find((x) => x.name === "dm-approvals");
   if (!f) throw new Error("fixture missing");
   const player = renderToStaticMarkup(
     <TableView source={sourceFor(f, f.viewers.players[0])} />,
@@ -55,7 +55,7 @@ test("only the DM sees the Pending proposals trigger", () => {
     <TableView source={sourceFor(f, f.viewers.dm)} />,
   );
   expect(player).not.toContain("Pending proposals");
-  expect(dm).toContain("Pending proposals (2)");
+  expect(dm).toContain("Pending proposals (3)");
   expect(dm).toContain("Ledger");
 });
 
