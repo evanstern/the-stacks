@@ -67,6 +67,8 @@ Phase 2 capture 2026-10-26: run 20261026T150925Z-greyhollow-ford-provider, compo
 
 Phase 3 by sonnet-implementer: 900f48c (T013 reproduction, green on unfixed code) and 75ba690 (C4: normalizeDirector caps goalNote and beat/tableMode/scene/trackers reason at 300 chars at a word boundary; optional normalize hook on callJson; only the director passes it; no prompt change, PROMPT_VERSION stays dm.director-v1). Server suite with REQUIRE_DATABASE=1: 677 passed, 5 skipped. Lint, typecheck and boundaries pass. No WS flake. Orchestrator reviewed the diff.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 setup: composite at aa960b3 (branch tip 3bd622e merged in). Verification ceiling $22 (operator approval above).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
