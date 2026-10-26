@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:58'
+updated_date: '2026-10-26 04:09'
 labels:
   - first-scene
   - ui
@@ -42,7 +42,7 @@ Spec: specs/030-play-route
 - [x] #9 Spec phase: Setup — package wiring and test runner
 - [x] #10 Spec phase: Foundational — pure view-model modules
 - [x] #11 Spec phase: User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6)
-- [ ] #12 Spec phase: User Stories 4 and 5 (P2) — ledger panel and DM approval panel
+- [x] #12 Spec phase: User Stories 4 and 5 (P2) — ledger panel and DM approval panel
 - [ ] #13 Spec phase: User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence
 - [ ] #14 Spec phase: Proposal wiring — GATED on TASK-0045's merge
 <!-- AC:END -->
@@ -64,6 +64,9 @@ Phases 1 and 2 by sonnet-implementer: 224bf4a and fbc5907. 105 web node:test tes
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 by sonnet-implementer: f907142. The fixture harness and table components are in place, with 14 vitest markup tests (no dialog, no aria-modal) and 20 node tests; ci:check green. The quickstart §2 Brave check is still open and rides Phase 5's screenshot task.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 by sonnet-implementer: 4e8f2dd. The ledger and DM approval panels are slide-outs inside the shared Panel. 108 node tests and 20 vitest tests pass; ci:check green. Approve and Reject click wiring is asserted only by button names. Phase 5's Brave pass must exercise the clicks.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
