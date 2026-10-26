@@ -76,22 +76,22 @@ it.
 
 ### Tests
 
-- [ ] T008 [P] [US1] Write `packages/session-model/test/catalog.test.ts`: one valid and at least one invalid payload per catalog type (including each refine in session-events.md); session-native and engine type sets are disjoint; every `(type, version)` is unique; exactly one `current` entry per type.
-- [ ] T009 [P] [US5] In `packages/session-model/test/catalog.test.ts`, add the AC #6 meta-test: for every entry of kind `state-change`, a valid example payload with `reason`, `before` or `after` removed fails its schema; for every `marker`, removing `reason` fails; for mechanics entries, the check applies to the wrapped engine event.
-- [ ] T010 [P] [US3] Write `packages/session-model/test/decode.test.ts`: `decodeEvent` returns `known` with the right kind for valid rows, `unknown-type`, `unknown-version`, and `invalid` for a bad payload and for a mechanics row whose `type` differs from `payload.event.type`; it never throws (try a `null` payload, a number payload, a deeply nested junk payload).
-- [ ] T011 [P] [US4] Write `packages/session-model/test/visibility.test.ts` covering every cell of the `canSee` table in session-events.md.
+- [x] T008 [P] [US1] Write `packages/session-model/test/catalog.test.ts`: one valid and at least one invalid payload per catalog type (including each refine in session-events.md); session-native and engine type sets are disjoint; every `(type, version)` is unique; exactly one `current` entry per type.
+- [x] T009 [P] [US5] In `packages/session-model/test/catalog.test.ts`, add the AC #6 meta-test: for every entry of kind `state-change`, a valid example payload with `reason`, `before` or `after` removed fails its schema; for every `marker`, removing `reason` fails; for mechanics entries, the check applies to the wrapped engine event.
+- [x] T010 [P] [US3] Write `packages/session-model/test/decode.test.ts`: `decodeEvent` returns `known` with the right kind for valid rows, `unknown-type`, `unknown-version`, and `invalid` for a bad payload and for a mechanics row whose `type` differs from `payload.event.type`; it never throws (try a `null` payload, a number payload, a deeply nested junk payload).
+- [x] T011 [P] [US4] Write `packages/session-model/test/visibility.test.ts` covering every cell of the `canSee` table in session-events.md.
 
 ### Implementation
 
-- [ ] T012 [P] Implement `packages/session-model/src/ids.ts` (`RefIdSchema`, `ActorIdSchema`, `VisibilitySchema`, `PUBLIC`, `DM_ONLY`) and `packages/session-model/src/stored-event.ts` (`StoredEventSchema`, `StoredEvent`). Reuse the engine's `CombatantIdSchema` regex by value; the engine does not export it, so define `CombatantIdSchema` locally with the identical regex and a comment naming engine-api.md.
-- [ ] T013 [P] [US4] Implement `packages/session-model/src/visibility.ts` (`Viewer`, `canSee`).
-- [ ] T014 [P] [US1] Implement `packages/session-model/src/events/talk.ts` (`TalkV1`, `NarrationV1`) and `packages/session-model/src/events/actions.ts` (the four action schemas with their refines; `refusalCode` uses the engine's `RefusalCodeSchema`).
-- [ ] T015 [P] [US2] Implement `packages/session-model/src/events/table-mode.ts` (`TableModeSchema`, `TableModeChangedV1`).
-- [ ] T016 [P] [US3] Implement `packages/session-model/src/events/scene.ts`, `party.ts` and `journal.ts` per session-events.md.
-- [ ] T017 [P] [US4] Implement `packages/session-model/src/events/tracker.ts` (`TrackerSchema` with `filled <= segments`, `TrackerChangedV1`).
-- [ ] T018 [P] [US5] Implement `packages/session-model/src/events/mechanics.ts` (`MechanicsEnvelopeV1` over the engine's `EngineEventSchema`, `index < count`).
-- [ ] T019 Implement `packages/session-model/src/catalog.ts`: `catalog` (11 session entries plus 18 mechanics entries, each with kind, visibility rule, schema, `current`), `catalogEntry`, `currentVersion`, `SESSION_EVENT_TYPES`, `MECHANICS_EVENT_TYPES` (derived from the engine schema's discriminator options, not hand-listed), `decodeEvent` and the `SessionEvent`/`DecodeResult` types.
-- [ ] T020 Export the Phase 2 surface from `packages/session-model/src/index.ts` per contracts/package-api.md; run the phase gate.
+- [x] T012 [P] Implement `packages/session-model/src/ids.ts` (`RefIdSchema`, `ActorIdSchema`, `VisibilitySchema`, `PUBLIC`, `DM_ONLY`) and `packages/session-model/src/stored-event.ts` (`StoredEventSchema`, `StoredEvent`). Reuse the engine's `CombatantIdSchema` regex by value; the engine does not export it, so define `CombatantIdSchema` locally with the identical regex and a comment naming engine-api.md.
+- [x] T013 [P] [US4] Implement `packages/session-model/src/visibility.ts` (`Viewer`, `canSee`).
+- [x] T014 [P] [US1] Implement `packages/session-model/src/events/talk.ts` (`TalkV1`, `NarrationV1`) and `packages/session-model/src/events/actions.ts` (the four action schemas with their refines; `refusalCode` uses the engine's `RefusalCodeSchema`).
+- [x] T015 [P] [US2] Implement `packages/session-model/src/events/table-mode.ts` (`TableModeSchema`, `TableModeChangedV1`).
+- [x] T016 [P] [US3] Implement `packages/session-model/src/events/scene.ts`, `party.ts` and `journal.ts` per session-events.md.
+- [x] T017 [P] [US4] Implement `packages/session-model/src/events/tracker.ts` (`TrackerSchema` with `filled <= segments`, `TrackerChangedV1`).
+- [x] T018 [P] [US5] Implement `packages/session-model/src/events/mechanics.ts` (`MechanicsEnvelopeV1` over the engine's `EngineEventSchema`, `index < count`).
+- [x] T019 Implement `packages/session-model/src/catalog.ts`: `catalog` (11 session entries plus 18 mechanics entries, each with kind, visibility rule, schema, `current`), `catalogEntry`, `currentVersion`, `SESSION_EVENT_TYPES`, `MECHANICS_EVENT_TYPES` (derived from the engine schema's discriminator options, not hand-listed), `decodeEvent` and the `SessionEvent`/`DecodeResult` types.
+- [x] T020 Export the Phase 2 surface from `packages/session-model/src/index.ts` per contracts/package-api.md; run the phase gate.
 
 **Checkpoint**: the vocabulary is binding; T008–T011 green.
 
