@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:13'
+updated_date: '2026-10-26 02:17'
 labels:
   - first-scene
   - engine
@@ -49,7 +49,7 @@ Spec: specs/026-dnd5e-engine
 - [x] #15 Spec phase: User Story 6 — attacks, checks and saves (AC #2, #9, #11; research R8)
 - [x] #16 Spec phase: User Stories 3 and 4 — conditions, initiative and turns (AC #5, #6)
 - [x] #17 Spec phase: User Story 5 — rests and spell slots (AC #8)
-- [ ] #18 Spec phase: Polish — coverage meta-test, replay scene, docs, full gate (AC #9, #11)
+- [x] #18 Spec phase: Polish — coverage meta-test, replay scene, docs, full gate (AC #9, #11)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -75,6 +75,9 @@ Interpretation recorded under contract damage rule 5: a target at 0 HP takes a d
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phases 5 and 6 by sonnet-implementer: eaa7407, ac0182d. 179 engine tests pass; ci:check green; no deviations.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 7 by sonnet-implementer: 552834d. 197 engine tests pass; the coverage meta-test was proven to fail; ci:check green; every tasks.md box is ticked.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
