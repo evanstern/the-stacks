@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 05:00'
+updated_date: '2026-10-26 05:02'
 labels:
   - first-scene
   - ui
@@ -76,6 +76,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 6 by sonnet-implementer: bd6d72e (merge of origin/main, #48) and c03876a. Live proposals and approve/reject now run through TASK-0045's gate requests. The WS error code shows in the notice. Every tasks.md box is ticked.
 Brave live checks passed: DM-only delivery, approve, reject, a refusal code, reload rebuild, and stop/start reconnect with no duplicate. ci:check green, with the DB suite running.
 Carded follow-up: TASK-0100. A pending suggest proposal still offers an Approve button that fails with PROPOSAL_NOT_APPROVABLE; fixing it needs a seam amendment.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 571373c. New note play-route. chat-ui, client-session-hook, m0-demo and react-router-app were amended. Freshness OK, 42 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
