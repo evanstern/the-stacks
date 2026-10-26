@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # Runtime stacks

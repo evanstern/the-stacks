@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # CI pipeline
@@ -60,10 +60,12 @@ database-less run proves. `pnpm test` is also where the load bench's two `commit
 
 `check:boundaries` (`node scripts/check-boundaries.mjs`) proves the `noRestrictedImports`
 zone rules in `biome.json` actually fire, rather than trusting the config was written
-correctly. `specs/009-ci-pipeline/contracts/boundary-rules.md` defines five zones (`apps/web`,
+correctly. `specs/009-ci-pipeline/contracts/boundary-rules.md` defines five original zones (`apps/web`,
 `packages/shared`, and the server's `library`/`codex`/`session` planes), each forbidden from
 importing the others directly (constitution III). A sixth zone, `packages/dnd5e-engine`
-(purity, constitution VI; [[dnd5e-engine]]), forbids I/O imports and clock/network globals.
+(purity, constitution VI; [[dnd5e-engine]]), forbids I/O imports and clock/network globals. A seventh zone, `packages/srd` ([[srd-data]]),
+forbids importing `@the-stacks/dnd5e-engine`, the server, the web app, or app/engine paths by relative
+import; its fixture is `fixtures/boundary-violations/packages/srd/src/bad.ts`.
 Each zone has deliberately-violating fixture files under `fixtures/boundary-violations/`
 mirroring its path. The script lints only
 `fixtures/boundary-violations/` with `biome lint --only=style/noRestrictedImports

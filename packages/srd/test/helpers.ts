@@ -1,0 +1,58 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { SrdKind } from "../src/schema/index.js";
+
+export const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+export const KINDS: readonly SrdKind[] = [
+  "monster",
+  "spell",
+  "class",
+  "equipment",
+  "condition",
+];
+
+export function readJson(relative: string): unknown {
+  return JSON.parse(readFileSync(join(pkgRoot, relative), "utf8"));
+}
+
+/** Record fields these tests rely on; the full shape is checked by the schemas. */
+export interface Rec {
+  id: string;
+  name: string;
+  source: { document: string; section: string; page: number };
+  [key: string]: unknown;
+}
+
+export function readData(kind: SrdKind): Rec[] {
+  return readJson(`data/${kind}.json`) as Rec[];
+}
+
+export interface IndexEntry {
+  name: string;
+  page: number;
+  embedded?: string;
+}
+
+export interface Index {
+  document: string;
+  pdfSha256: string;
+  pdfUrl: string;
+  kinds: Record<SrdKind, IndexEntry[]>;
+}
+
+export function readIndex(): Index {
+  return readJson("provenance/srd-5.2.1-index.json") as Index;
+}
+
+/** Name comparison form: case, curly apostrophes, diacritics and spacing do not matter. */
+export function normalizeName(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[‘’]/g, "'")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}

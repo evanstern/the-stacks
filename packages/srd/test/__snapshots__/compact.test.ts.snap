@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshots > class fighter 1`] = `
+"Fighter [class/fighter] d10; saves str,con; primary Strength or Dexterity
+L1 Fighting Style, Second Wind, Weapon Mastery
+L2 Action Surge (one use), Tactical Mind
+L3 Fighter Subclass
+L4 Ability Score Improvement
+L5 Extra Attack, Tactical Shift
+Subclass Champion
++L6-20
+SRD 5.2.1 p.47"
+`;
+
+exports[`snapshots > condition prone 1`] = `
+"Prone [condition/prone]
+Restricted Movement: Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can’t right yourself.
+Attacks Affected: You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you.
++1 more
+SRD 5.2.1 p.186"
+`;
+
+exports[`snapshots > equipment longsword 1`] = `
+"Longsword [equipment/longsword]
+martial melee 1d8 Slashing; Versatile (1d10); mastery Sap; 15gp
+SRD 5.2.1 p.91"
+`;
+
+exports[`snapshots > monster goblin-warrior 1`] = `
+"Goblin Warrior [monster/goblin-warrior] Small Fey, CN
+AC 15 HP 10 (3d6) Spd 30 CR 1/4
+Str-1 Dex+2 Con+0 Int+0 Wis-1 Cha-1
+Scimitar +4 5ft 1d6+2 Slashing (+1d4 adv)
+Shortbow +4 80/320ft 1d6+2 Piercing (+1d4 adv)
+Bonus: Nimble Escape
+SRD 5.2.1 p.290"
+`;
+
+exports[`snapshots > spell fire-bolt 1`] = `
+"Fire Bolt [spell/fire-bolt] Evocation cantrip
+Action; 120 feet; V,S; Instantaneous
+You hurl a mote of fire at a creature or an object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 Fire damage. A flammable object hit by this spell starts burning if it isn't being worn or carried.
++1 more
+SRD 5.2.1 p.132"
+`;
