@@ -18,7 +18,7 @@ vector/fts/hybrid search, fused by RRF) now has its first HTTP caller: the rules
 operator-only. The provider-agnostic AI gateway ([[ai-gateway]]) has landed, with two callers
 now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. Both now have a UI
 ([[chat-ui]], TASK-0028): upload-and-watch-it-ingest, ask-and-watch-it-stream with clickable
-citations, and a much smaller Table-only view for a player, role-gated at the loader. No
+citations, and a much smaller Table-only view for a player, role-gated at the loader. The pure 5e rules engine ([[dnd5e-engine]], TASK-0042) now exists as a standalone package, not yet called by the server. No
 codex, system modules, or agents yet. `main` is now continuously deployed to a real hosted
 `dev` environment on vm-104 ([[hosted-dev]]).
 
@@ -33,6 +33,10 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[container-image]] — the multi-stage Dockerfile, what ships in the runtime layer, and why.
 - [[runtime-stacks]] — `pnpm env:*`, one labeled compose stack per git worktree, orphan detection, and the local `origin/main` stack.
 - [[hosted-dev]] — the vm-104 `dev` environment: CD from `main`, deploy/rollback/drift/backup verbs, and tailnet-only exposure.
+
+## Rules engine
+
+- [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, and the R8 arithmetic ruling.
 
 ## Server
 

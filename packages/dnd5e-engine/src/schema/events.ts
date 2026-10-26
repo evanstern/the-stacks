@@ -1,0 +1,247 @@
+import { z } from "zod";
+import {
+  CombatantIdSchema,
+  CombatantSchema,
+  ConditionInstanceSchema,
+  DamageTypeSchema,
+  EncounterSchema,
+  LifeStateSchema,
+} from "./state.js";
+
+const Reason = z.string().min(1).max(500);
+const Id = CombatantIdSchema;
+const V = z.literal(1);
+const Int = z.number().int();
+const HpPair = z.object({ current: Int, temp: Int });
+
+export const DiceTermResultSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("dice"),
+    sign: z.union([z.literal(1), z.literal(-1)]),
+    count: Int,
+    sides: Int,
+    keep: z.object({ mode: z.enum(["highest", "lowest"]), n: Int }).nullable(),
+    faces: z.array(Int),
+    kept: z.array(z.boolean()),
+    subtotal: Int,
+  }),
+  z.object({ kind: z.literal("modifier"), value: Int }),
+]);
+
+export const DamageComponentResultSchema = z.object({
+  damageType: DamageTypeSchema,
+  raw: z.number().int().min(0),
+  applied: z.number().int().min(0),
+  adjustment: z.enum([
+    "none",
+    "immune",
+    "resisted",
+    "vulnerable",
+    "resisted-and-vulnerable",
+  ]),
+  rollIndex: Int.nullable(),
+});
+
+const Ability = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
+const Mode = z.enum(["normal", "advantage", "disadvantage"]);
+const SlotRef = z.object({
+  pool: z.enum(["standard", "pact"]),
+  level: Int,
+  expended: Int,
+});
+const TurnRef = z.object({
+  round: Int,
+  turnIndex: Int,
+  combatantId: Id,
+});
+
+export const EngineEventSchema = z.discriminatedUnion("type", [
+  // Marker events.
+  z.object({
+    type: z.literal("dice.rolled"),
+    v: V,
+    reason: Reason,
+    expression: z.string(),
+    mode: Mode,
+    purpose: z.enum([
+      "roll",
+      "attack",
+      "check",
+      "save",
+      "damage",
+      "healing",
+      "temp-hp",
+      "initiative",
+      "death-save",
+      "hit-die",
+    ]),
+    critical: z.boolean(),
+    combatantId: Id.nullable(),
+    terms: z.array(DiceTermResultSchema),
+    total: Int,
+    natural: Int.nullable(),
+  }),
+  z.object({
+    type: z.literal("attack.resolved"),
+    v: V,
+    reason: Reason,
+    attackerId: Id.nullable(),
+    targetId: Id,
+    rollIndex: Int,
+    ac: Int,
+    acSource: z.enum(["command", "record"]),
+    total: Int,
+    natural: Int,
+    outcome: z.enum(["hit", "miss", "critical-hit"]),
+  }),
+  z.object({
+    type: z.literal("check.resolved"),
+    v: V,
+    reason: Reason,
+    combatantId: Id.nullable(),
+    kind: z.enum(["ability-check", "saving-throw"]),
+    ability: Ability,
+    skill: z.string().nullable(),
+    rollIndex: Int.nullable(),
+    dc: Int,
+    total: Int.nullable(),
+    natural: Int.nullable(),
+    autoFail: z.object({ reason: Reason }).nullable(),
+    outcome: z.enum(["success", "failure"]),
+  }),
+  z.object({
+    type: z.literal("rest.completed"),
+    v: V,
+    reason: Reason,
+    kind: z.enum(["short", "long"]),
+    participants: z.array(Id),
+  }),
+  // State-change events.
+  z.object({
+    type: z.literal("combatant.added"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: z.null(),
+    after: CombatantSchema,
+  }),
+  z.object({
+    type: z.literal("combatant.removed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: CombatantSchema,
+    after: z.null(),
+  }),
+  z.object({
+    type: z.literal("hp.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    cause: z.enum(["damage", "healing", "temp-hp", "death-save", "rest"]),
+    amount: Int,
+    rawAmount: Int.nullable(),
+    components: z.array(DamageComponentResultSchema).nullable(),
+    defensesSource: z.enum(["command", "record"]).nullable(),
+    critical: z.boolean(),
+    rollIndex: Int.nullable(),
+    before: HpPair,
+    after: HpPair,
+  }),
+  z.object({
+    type: z.literal("life-state.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: LifeStateSchema,
+    after: LifeStateSchema,
+  }),
+  z.object({
+    type: z.literal("death-saves.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    rollIndex: Int.nullable(),
+    before: z.object({ successes: Int, failures: Int }),
+    after: z.object({ successes: Int, failures: Int }),
+  }),
+  z.object({
+    type: z.literal("condition.applied"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    conditionSeq: z.object({ before: Int, after: Int }),
+    before: z.null(),
+    after: ConditionInstanceSchema,
+  }),
+  z.object({
+    type: z.literal("condition.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: ConditionInstanceSchema,
+    after: ConditionInstanceSchema,
+  }),
+  z.object({
+    type: z.literal("condition.removed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    cause: z.enum(["command", "expired", "healed", "encounter-ended", "rest"]),
+    before: ConditionInstanceSchema,
+    after: z.null(),
+  }),
+  z.object({
+    type: z.literal("hit-dice.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: z.object({ die: Int, remaining: Int }),
+    after: z.object({ die: Int, remaining: Int }),
+  }),
+  z.object({
+    type: z.literal("spell-slots.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: SlotRef,
+    after: SlotRef,
+  }),
+  z.object({
+    type: z.literal("encounter.started"),
+    v: V,
+    reason: Reason,
+    before: z.null(),
+    after: EncounterSchema,
+  }),
+  z.object({
+    type: z.literal("encounter.changed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: EncounterSchema,
+    after: EncounterSchema,
+  }),
+  z.object({
+    type: z.literal("turn.advanced"),
+    v: V,
+    reason: Reason,
+    skipped: z.array(Id),
+    before: TurnRef,
+    after: TurnRef,
+  }),
+  z.object({
+    type: z.literal("encounter.ended"),
+    v: V,
+    reason: Reason,
+    before: EncounterSchema,
+    after: z.null(),
+  }),
+]);
+
+export type DiceTermResult = z.infer<typeof DiceTermResultSchema>;
+export type EngineEvent = z.infer<typeof EngineEventSchema>;
+export type EventOf<T extends EngineEvent["type"]> = Extract<
+  EngineEvent,
+  { type: T }
+>;

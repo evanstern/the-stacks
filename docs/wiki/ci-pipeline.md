@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
 ---
 
 # CI pipeline
@@ -62,10 +62,12 @@ database-less run proves. `pnpm test` is also where the load bench's two `commit
 zone rules in `biome.json` actually fire, rather than trusting the config was written
 correctly. `specs/009-ci-pipeline/contracts/boundary-rules.md` defines five zones (`apps/web`,
 `packages/shared`, and the server's `library`/`codex`/`session` planes), each forbidden from
-importing the others directly (constitution III). Each zone has one deliberately-violating
-fixture file under `fixtures/boundary-violations/` mirroring its path. The script lints only
+importing the others directly (constitution III). A sixth zone, `packages/dnd5e-engine`
+(purity, constitution VI; [[dnd5e-engine]]), forbids I/O imports and clock/network globals.
+Each zone has deliberately-violating fixture files under `fixtures/boundary-violations/`
+mirroring its path. The script lints only
 `fixtures/boundary-violations/` with `biome lint --only=style/noRestrictedImports
---reporter=json`, run with `cwd` set inside that directory (Biome's root `files.includes`
+--only=style/noRestrictedGlobals --reporter=json`, run with `cwd` set inside that directory (Biome's root `files.includes`
 excludes `fixtures`, and refuses to lint an excluded path from the repo root; the fixture
 tree's own nested `biome.json`, which extends the root config and re-includes `**`, takes
 over as that subtree's root). It fails unless every fixture file is flagged and Biome's exit

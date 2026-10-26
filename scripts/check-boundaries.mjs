@@ -1,7 +1,8 @@
 // Proves the boundary rules in biome.json actually fire (FR-006): lints
 // fixtures/boundary-violations/ — deliberately-violating files, one per
-// contracts/boundary-rules.md row — with Biome's noRestrictedImports rule,
-// and fails unless every fixture is flagged.
+// contracts/boundary-rules.md row — with Biome's noRestrictedImports
+// and noRestrictedGlobals rules (the engine's clock/network globals), and fails
+// unless every fixture is flagged.
 //
 // Biome's own files.includes excludes "fixtures" from the normal lint run
 // (so these fixtures never pollute real lint), which also means Biome
@@ -33,7 +34,13 @@ const expected = listFixtures(fixturesDir).sort();
 
 const result = spawnSync(
   biomeBin,
-  ["lint", "--only=style/noRestrictedImports", "--reporter=json", "."],
+  [
+    "lint",
+    "--only=style/noRestrictedImports",
+    "--only=style/noRestrictedGlobals",
+    "--reporter=json",
+    ".",
+  ],
   { cwd: fixturesDir, encoding: "utf8" },
 );
 

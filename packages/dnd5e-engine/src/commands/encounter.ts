@@ -1,0 +1,283 @@
+import { rollExpression } from "../dice.js";
+import type { Handler } from "../handler.js";
+import type { Rng } from "../rng.js";
+import type { EngineEvent } from "../schema/events.js";
+import { type RefusalResult, refuse } from "../schema/refusals.js";
+import type { Encounter, EngineState, ExpiryPoint } from "../schema/state.js";
+
+type Entry = Encounter["order"][number];
+
+function unknownCombatant(id: string): RefusalResult {
+  return refuse("UNKNOWN_COMBATANT", `no combatant "${id}"`, {
+    combatantId: id,
+  });
+}
+
+function targetDead(id: string): RefusalResult {
+  return refuse("TARGET_DEAD", `combatant "${id}" is dead`, {
+    combatantId: id,
+  });
+}
+
+/** Total descending, then bonus descending, then id ascending. */
+function compareEntries(a: Entry, b: Entry): number {
+  if (a.total !== b.total) return b.total - a.total;
+  if (a.bonus !== b.bonus) return b.bonus - a.bonus;
+  return a.combatantId < b.combatantId
+    ? -1
+    : a.combatantId > b.combatantId
+      ? 1
+      : 0;
+}
+
+function d20Expression(bonus: number): string {
+  if (bonus === 0) return "1d20";
+  return bonus > 0 ? `1d20+${bonus}` : `1d20-${-bonus}`;
+}
+
+function rollInitiative(
+  id: string,
+  bonus: number,
+  mode: "normal" | "advantage" | "disadvantage",
+  reason: string,
+  rng: Rng,
+) {
+  return rollExpression(
+    d20Expression(bonus),
+    { mode, critical: false, purpose: "initiative", combatantId: id, reason },
+    rng,
+  );
+}
+
+export const handleInitiativeRoll: Handler<"initiative.roll"> = (
+  state,
+  command,
+  rng,
+) => {
+  if (state.encounter) {
+    return refuse("ENCOUNTER_ACTIVE", "an encounter is already active");
+  }
+  const ids = command.participants.map((p) => p.combatantId);
+  for (const id of ids) {
+    if (!state.combatants[id]) return unknownCombatant(id);
+  }
+  const seen = new Set<string>();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      return refuse("DUPLICATE_PARTICIPANT", `"${id}" listed twice`, {
+        combatantId: id,
+      });
+    }
+    seen.add(id);
+  }
+  for (const id of ids) {
+    if (state.combatants[id]?.lifeState === "dead") return targetDead(id);
+  }
+  const reason = command.reason;
+  const events: EngineEvent[] = [];
+  const order: Entry[] = [];
+  for (const p of command.participants) {
+    const c = state.combatants[p.combatantId];
+    if (!c) continue;
+    const rolled = rollInitiative(c.id, c.initiativeBonus, p.mode, reason, rng);
+    if (!rolled.ok) return refuse(rolled.code, rolled.message);
+    events.push(rolled.event);
+    order.push({
+      combatantId: c.id,
+      total: rolled.total,
+      bonus: c.initiativeBonus,
+    });
+  }
+  order.sort(compareEntries);
+  events.push({
+    type: "encounter.started",
+    v: 1,
+    reason,
+    before: null,
+    after: { round: 1, turnIndex: 0, order },
+  });
+  return { ok: true, events };
+};
+
+export const handleInitiativeJoin: Handler<"initiative.join"> = (
+  state,
+  command,
+  rng,
+) => {
+  const enc = state.encounter;
+  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  const c = state.combatants[command.combatantId];
+  if (!c) return unknownCombatant(command.combatantId);
+  if (enc.order.some((e) => e.combatantId === c.id)) {
+    return refuse("ALREADY_IN_ENCOUNTER", `"${c.id}" is already in the order`, {
+      combatantId: c.id,
+    });
+  }
+  if (c.lifeState === "dead") return targetDead(c.id);
+  const reason = command.reason;
+  const rolled = rollInitiative(
+    c.id,
+    c.initiativeBonus,
+    command.mode,
+    reason,
+    rng,
+  );
+  if (!rolled.ok) return refuse(rolled.code, rolled.message);
+  const entry: Entry = {
+    combatantId: c.id,
+    total: rolled.total,
+    bonus: c.initiativeBonus,
+  };
+  let at = enc.order.findIndex((e) => compareEntries(entry, e) < 0);
+  if (at === -1) at = enc.order.length;
+  const order = [...enc.order.slice(0, at), entry, ...enc.order.slice(at)];
+  const turnIndex = at <= enc.turnIndex ? enc.turnIndex + 1 : enc.turnIndex;
+  return {
+    ok: true,
+    events: [
+      rolled.event,
+      {
+        type: "encounter.changed",
+        v: 1,
+        reason,
+        combatantId: c.id,
+        before: enc,
+        after: { ...enc, turnIndex, order },
+      },
+    ],
+  };
+};
+
+function expiring(
+  state: EngineState,
+  point: Pick<ExpiryPoint, "round" | "combatantId" | "boundary">,
+  reason: string,
+): EngineEvent[] {
+  const events: EngineEvent[] = [];
+  for (const c of Object.values(state.combatants)) {
+    for (const instance of c.conditions) {
+      const at = instance.expiresAt;
+      if (
+        at &&
+        at.round === point.round &&
+        at.combatantId === point.combatantId &&
+        at.boundary === point.boundary
+      ) {
+        events.push({
+          type: "condition.removed",
+          v: 1,
+          reason,
+          combatantId: c.id,
+          cause: "expired",
+          before: instance,
+          after: null,
+        });
+      }
+    }
+  }
+  return events;
+}
+
+export const handleTurnAdvance: Handler<"turn.advance"> = (
+  state,
+  command,
+  _rng,
+) => {
+  const enc = state.encounter;
+  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  const isDead = (e: Entry) =>
+    state.combatants[e.combatantId]?.lifeState === "dead";
+  if (enc.order.every(isDead)) {
+    return refuse(
+      "NO_ELIGIBLE_COMBATANT",
+      "every combatant in the order is dead",
+    );
+  }
+  const reason = command.reason;
+  const outgoing = enc.order[enc.turnIndex] as Entry;
+  const events: EngineEvent[] = expiring(
+    state,
+    {
+      round: enc.round,
+      combatantId: outgoing.combatantId,
+      boundary: "turn-end",
+    },
+    reason,
+  );
+  const skipped: string[] = [];
+  let index = enc.turnIndex;
+  let round = enc.round;
+  for (;;) {
+    index += 1;
+    if (index >= enc.order.length) {
+      index = 0;
+      round += 1;
+    }
+    const entry = enc.order[index] as Entry;
+    if (!isDead(entry)) break;
+    skipped.push(entry.combatantId);
+    for (const boundary of ["turn-start", "turn-end"] as const) {
+      events.push(
+        ...expiring(
+          state,
+          { round, combatantId: entry.combatantId, boundary },
+          reason,
+        ),
+      );
+    }
+  }
+  const incoming = enc.order[index] as Entry;
+  events.push({
+    type: "turn.advanced",
+    v: 1,
+    reason,
+    skipped,
+    before: {
+      round: enc.round,
+      turnIndex: enc.turnIndex,
+      combatantId: outgoing.combatantId,
+    },
+    after: { round, turnIndex: index, combatantId: incoming.combatantId },
+  });
+  events.push(
+    ...expiring(
+      state,
+      { round, combatantId: incoming.combatantId, boundary: "turn-start" },
+      reason,
+    ),
+  );
+  return { ok: true, events };
+};
+
+export const handleEncounterEnd: Handler<"encounter.end"> = (
+  state,
+  command,
+  _rng,
+) => {
+  const enc = state.encounter;
+  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  const events: EngineEvent[] = [];
+  for (const c of Object.values(state.combatants)) {
+    for (const instance of c.conditions) {
+      if (instance.expiresAt) {
+        events.push({
+          type: "condition.removed",
+          v: 1,
+          reason: command.reason,
+          combatantId: c.id,
+          cause: "encounter-ended",
+          before: instance,
+          after: null,
+        });
+      }
+    }
+  }
+  events.push({
+    type: "encounter.ended",
+    v: 1,
+    reason: command.reason,
+    before: enc,
+    after: null,
+  });
+  return { ok: true, events };
+};
