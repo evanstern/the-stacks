@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 18:12'
+updated_date: '2026-10-26 18:16'
 labels:
   - first-scene
   - dm
@@ -41,25 +41,13 @@ Spec: specs/034-narration-quality
 - [ ] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
-- [ ] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
+- [x] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [ ] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [ ] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
 - [ ] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
 - [ ] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
 - [ ] #11 Spec phase: Full gate (US5; AC #5)
 <!-- AC:END -->
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## Implementation Notes
 
@@ -69,6 +57,9 @@ Claimed 2026-10-26 by the M2 First Scene sweep (operator ruling: new M2 card, ow
 Spec authoring by opus-implementer: 179a7fd (spec, plan, research, quickstart, tasks; contracts player-facing-context, narration-facts, fallback-summary, audit-criteria; evidence/run5-classification.json). Clarify was skipped. Run 5: 23 of 39 narrated turns fell back. 184 audit issues: 68 auditor error, 27 narrator, 85 craft, 4 unverifiable. Selected causes: A1 party not named, A2 no-effect undefined, A3 clarify relayed verbatim, A4 LLM doctrine/other issues block. Leaks L1, L2, L3, L5. Contradictions F17, F23, F76, F81. F77 is a playtest-auditor false positive.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Orchestrator rulings on the spec's open points: (1) Seat-fallback cut: ratified. Exclude turns that are only a seat fallback move (any text in the scenario's moves.fallback list, now 5 entries after TASK-0048 b3f09ca), and report the all-turns rate beside it. (2) Location-secret clause edit: ratified, because the seed already makes the clause public. (3) Playtest-auditor false positives and new player-agency fails at verification: ratified, commit the evidence and stop for an operator ruling. (4) Director losing Snag's motive: revisit card TASK-0107 (m-3, trigger). (5) Director/interpret user-id transcript naming: revisit card TASK-0108 (m-3, trigger). (6) goalNote leak: accepted as unverifiable now; the Phase 5 audit is the check.
+
+Phase 1 by sonnet-implementer: f99591b. Fixture run5-narration-quality.json plus narration-quality-repro.test.ts: 11 tests, green on the unfixed code, reproducing F23, L1-L3, F17, F76, A3 and A4. Server REQUIRE_DATABASE=1: 706 passed, 5 skipped. Lint, typecheck and boundaries pass. Stack stacks-task-0106 is up (:3106), both DBs migrated. Note: a fresh worktree needs pnpm build once before vitest resolves @the-stacks/srd.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
