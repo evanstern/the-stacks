@@ -126,12 +126,12 @@ and `no-dialog`.
 
 **Purpose**: prove the whole feature against the card and leave evidence for review.
 
-- [ ] T040 Run every quickstart.md step. Record outputs (test counts, compact medians and maximums per kind, verification mismatch count) in `specs/027-srd-data/ci-evidence.txt`.
-- [ ] T041 Spot-check five records per kind against the PDF pages they cite. Record kind, id, page and result in `specs/027-srd-data/ci-evidence.txt` (research.md R4 review layer).
-- [ ] T042 Confirm `git grep -n "dnd-sourcebooks\|fixtures/private" -- packages/srd apps/web` returns nothing, and `git ls-files packages/srd | grep -i "\.pdf$"` returns nothing.
-- [ ] T043 Map each card AC #1–#7 to its proving artifact in `specs/027-srd-data/ci-evidence.txt` (test file, data file or page).
-- [ ] T044 List in `specs/027-srd-data/ci-evidence.txt` the wiki-pinned sources this branch changed (plan.md "Wiki re-grounding") for the sweep's post-merge re-ground.
-- [ ] T045 Run `pnpm ci:check`. It MUST be green. Commit `TASK-0043: close-out evidence`.
+- [x] T040 Run every quickstart.md step. Record outputs (test counts, compact medians and maximums per kind, verification mismatch count) in `specs/027-srd-data/ci-evidence.txt`.
+- [x] T041 Spot-check five records per kind against the PDF pages they cite. Record kind, id, page and result in `specs/027-srd-data/ci-evidence.txt` (research.md R4 review layer).
+- [x] T042 Confirm `git grep -n "dnd-sourcebooks\|fixtures/private" -- packages/srd apps/web` returns nothing, and `git ls-files packages/srd | grep -i "\.pdf$"` returns nothing.
+- [x] T043 Map each card AC #1–#7 to its proving artifact in `specs/027-srd-data/ci-evidence.txt` (test file, data file or page).
+- [x] T044 List in `specs/027-srd-data/ci-evidence.txt` the wiki-pinned sources this branch changed (plan.md "Wiki re-grounding") for the sweep's post-merge re-ground.
+- [x] T045 Run `pnpm ci:check`. It MUST be green. Commit `TASK-0043: close-out evidence`.
 
 ---
 
@@ -171,3 +171,4 @@ One PR carries all five phases (one task, one PR).
 - Phase 4 (T035): the About link sits in the sidebar footer beside Settings, as specified. The sidebar is hidden under the `narrow:` breakpoint and the bottom tab bar lists only the main links, so About (like Settings) is not reachable by link on narrow screens. Adding it to the tab bar is a design choice outside this task.
 - Phase 3 (T028): the compact renderer treats each sentence of a spell, condition-effect or gear text as one truncation unit, so a truncated spell shows `+<n> more` counted in sentences. The Higher-level line is the last unit and drops first in long spells.
 - Phase 3 (T026): `createLoader(dataDir)` in `loader.ts` is the internal injectable factory the tests use; the package entry does not export it.
+- Phase 5 (T040): quickstart step 5 manual part (sign in, click About, Brave screenshot) was not run in the close-out dispatch. The `/about` SSR test covers the page. The operator or orchestrator takes the screenshot before merge.
