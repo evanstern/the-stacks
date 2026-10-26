@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 09:57'
+updated_date: '2026-10-26 10:04'
 labels:
   - first-scene
   - test
@@ -38,7 +38,7 @@ Spec: specs/032-playtest-harness
 - [ ] #3 The harness runs in CI against the fake gateway adapter, and on demand against a configured provider.
 - [ ] #4 One human player plus AI companions play a scene with exploration, a social beat and a fight to its end.
 - [ ] #5 The demo record lists every audit failure and how it was resolved.
-- [ ] #6 Spec phase: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3)
+- [x] #6 Spec phase: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3)
 - [ ] #7 Spec phase: The harness run (US1; AC #1)
 - [ ] #8 Spec phase: The auditor (US2; AC #2, #3)
 - [ ] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
@@ -56,6 +56,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Design: the harness lives in apps/server/src/playtest/ with a pnpm playtest CLI (run, audit, estimate) and its own <base>_playtest database. The auditor uses purpose playtest.audit, runs six code checks plus a per-segment model check, and yields a pass, fail or incomplete report. CI mode runs on the fake gateway inside pnpm test. Provider mode is explicit opt-in: it refuses in CI, needs prices, prints an estimate, and requires --spend-ceiling-usd, with a live budget stop.
 Open questions are left for the demo checkpoint: how many paid playtests (default one), and which auditor model (default a different family from dm.narrate). There is no scene-start UI button; the demo uses POST /dm/sessions/<id>/start.
 Implementation dispatch grouping: P1 to P5, one per dispatch. P6 is the demo, driven by the orchestrator with the operator.
+
+Phase 1 by sonnet-implementer: 8cacbe7. Adds the playtest.audit purpose, scenario and report schemas, and fixtures. The server suite passes 663 tests; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
