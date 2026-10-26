@@ -1,0 +1,202 @@
+---
+description: "Task list for the DM runtime (TASK-0046)"
+---
+
+# Tasks: First Scene — DM runtime (turn jobs, pipeline nodes, Director, companions)
+
+**Input**: `specs/031-dm-runtime/` — spec.md, plan.md, research.md, data-model.md,
+quickstart.md, data/greyhollow-ford.seed.json, contracts/ (node-seam, nodes, resolve,
+director, audit, turn-jobs, companions, purposes, scene-seed, fake-gateway-script, doctrine,
+dm-api).
+
+**Tests**: required. Every card AC is proven by a named test below. Write each phase's tests
+with its code. A phase is not done until they pass.
+
+**Dispatch unit**: each phase is one implementer dispatch. Run phases in order; each builds
+on the previous phase's files. Re-ground each dispatch from this spec dir and the branch's
+commits.
+
+**Gate for every phase** (run before the phase's commit):
+`pnpm lint && pnpm typecheck && pnpm --filter @the-stacks/server test && pnpm check:boundaries`.
+The server test run includes the database suites (below). Phase 6 runs `pnpm ci:check`.
+
+**Database suites**: run on the worktree's own stack. Run `pnpm env:up`. Run
+`pnpm --filter @the-stacks/server db:migrate` (TASK-0098: a fresh stack may come up
+unmigrated; re-run it after Phase 1 adds `0004`). Run the suites with `REQUIRE_DATABASE=1`.
+Leave the stack up between phases; the orchestrator runs `pnpm env:down` before removing the
+worktree.
+
+**Known flake**: the WebSocket gateway integration tests flake. On a WebSocket failure
+unrelated to the phase's change, re-run the suite. Do not fix the flake. Record each re-run in
+the phase's commit message.
+
+**Model calls**: tests use the fake gateway only. A real-provider run is an operator
+checkpoint (cost): stop and report with the provider, model list and an estimate. Never set,
+read or commit an API key.
+
+**Commit rule**: one or more commits per phase, message led by `TASK-0046:`, ending with the
+`Co-Authored-By` trailer. Tick each task here (`- [x]`) in the commit that completes it. Use
+the `backlog` CLI inside the worktree for any card change; never the backlog MCP tools.
+
+**Out of scope** (do not touch): `apps/web` (TASK-0047); `packages/session-model` and
+`packages/dnd5e-engine` (contracts are fixed; a needed change is a STOP); the gate's
+behaviour in `apps/server/src/gate/`; the `events` table.
+
+**STOP conditions**: a new npm dependency; a change to a session-model, gate or engine
+contract (a new event type, proposal kind or refusal code); a frame-shape change; any
+deferral not listed in plan.md "Deferrals". Stop and report.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: can run in parallel (different files, no dependency on an unfinished task).
+- **[Story]**: US1 honest turn, US2 audit, US3 Director, US4 beat queue, US5 companions, US6
+  adjudicate, US7 chronicle, US8 reclaim (spec.md).
+
+## AC coverage map
+
+| Card AC | Proving test (phase) |
+|---|---|
+| #1 turn job on the queue; claim, lease, fencing | `test/dm/jobs.integration.test.ts` (P1); `test/dm/reclaim.integration.test.ts` (P6) |
+| #2 node order | `test/dm/runner.test.ts` (P3); `test/dm/full-turn.integration.test.ts` (P6) |
+| #3 plain async nodes | `test/dm/runner.test.ts` seam assertions (P3) |
+| #4 one purpose per call | `test/dm/full-turn.integration.test.ts` purpose assertion (P6) |
+| #5 resolve is the only writer | `test/dm/boundary.test.ts` (P5); `test/write-boundary.test.ts` (P5); `test/dm/resolve.integration.test.ts` (P4) |
+| #6 narrate gets facts only | `test/dm/narrate.test.ts` import and input assertions (P4) |
+| #7 audit regenerates and flags | `test/dm/audit.test.ts`, `test/dm/audit.integration.test.ts` (P4) |
+| #8 Director | `test/dm/resolve.integration.test.ts` Director group (P4); `test/dm/scene.integration.test.ts` (P6) |
+| #9 commits wait for the next beat | `test/dm/jobs.integration.test.ts` (P1); `test/dm/beat.integration.test.ts` (P6) |
+| #10 companions through the gate | `test/dm/companion.integration.test.ts` (P5) |
+| #11 cited ruling | `test/dm/adjudicate.integration.test.ts` (P3) |
+| #12 chronicle off the hot path | `test/dm/chronicle.integration.test.ts` (P5) |
+| #13 Zod-validated seed | `test/dm/seed.test.ts` (P2) |
+| #14 doctrine MIT notice | `test/dm/doctrine.test.ts` (P2) |
+| #15 full turn, fake gateway, scripted dice | `test/dm/full-turn.integration.test.ts` (P6, merge condition) |
+
+All test paths are under `apps/server/`.
+
+## Phase 1: The jobs queue for DM jobs (US4, US8; AC #1, #9)
+
+**Goal**: the queue holds, claims and fences turn, companion and chronicle jobs, one acting
+job per session, without disturbing ingestion. Contract: contracts/turn-jobs.md.
+
+- [ ] T001 Update `apps/server/src/schema/jobs.ts`: kinds, stages, nullable `book` with its CHECK, `session_id` with its CHECK, `jobs_active_book_key` scoped to `ingest`, the three partial unique indexes and `jobs_dm_session_idx`.
+- [ ] T002 Generate migration `0004` with `pnpm --filter @the-stacks/server db:generate`; review the SQL; apply it to the worktree stack.
+- [ ] T003 Create `apps/server/src/jobs/queue.ts` with kind-generic fenced `heartbeat`, `setStage`, `saveResult` and `finishJob` (filter on `id` and `claim_token`).
+- [ ] T004 Update `apps/server/src/library/ingest/jobs.ts`: add `kind = 'ingest'` to `claimJob`, `listJobs` and `getJob`; delegate fenced writes to `jobs/queue.ts`; keep every exported name and signature.
+- [ ] T005 Create `apps/server/src/dm/jobs.ts`: the input schemas, `claimDmJob` (priority, per-session `NOT EXISTS`, unique-violation → null, abandoned after `MAX_ATTEMPTS`), `enqueueTurn`, `enqueueTurnForced`, `enqueueCompanion`, `enqueueChronicle`, `saveCheckpoint`, `loadCheckpoint`, `reconcileTurnJobs`, `listDmJobs`.
+- [ ] T006 [P] Write `test/dm/jobs.integration.test.ts`: one queued turn per session under 20 concurrent commits; a queued turn is not claimable while a turn or companion job runs for its session; priority order; a lease expiry reclaims with a new token and attempts+1; a stale token's writes return false; attempts > 3 fails the job; `enqueueTurnForced` inserts or flips the flag; reconcile enqueues only sessions with an unanswered commit.
+- [ ] T007 [P] Extend `test/library/jobs.integration.test.ts`: the ingest claim never returns a DM job; `listJobs` and `getJob` never return one.
+- [ ] T008 Run the ingestion suites (`library/jobs`, `library/worker`, `library/uploads`) unchanged and green.
+
+**Checkpoint**: the queue is ready; no DM code runs yet.
+
+## Phase 2: Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15)
+
+**Goal**: the data and the test harness every node needs. Contracts: scene-seed.md,
+doctrine.md, purposes.md, fake-gateway-script.md.
+
+- [ ] T010 Add `"@the-stacks/srd": "workspace:*"` to `apps/server/package.json` and the project reference in `apps/server/tsconfig.json`; run `pnpm install`.
+- [ ] T011 Create `apps/server/src/dm/seed/schema.ts` and `load.ts` per scene-seed.md, including every cross-check and the `SeedError` issue list.
+- [ ] T012 Create `apps/server/src/dm/seed/combatants.ts` (`combatantFromSrd`).
+- [ ] T013 Copy `specs/031-dm-runtime/data/greyhollow-ford.seed.json` to `apps/server/seeds/greyhollow-ford.json` unchanged.
+- [ ] T014 [P] Write `test/dm/seed.test.ts`: the shipped seed loads; each cross-check fails with a named issue on a mutated copy; the `combatantFromSrd` snapshots for `goblin-warrior` and `goblin-minion`; the seed header says original plus SRD.
+- [ ] T015 Create `apps/server/src/dm/doctrine/doctrine.ts` (the 24 pairs, `DOCTRINE_NOTICE`, header) and `NOTICE.md` (the sentence plus the full MIT text with `Copyright (c) 2026 Brad Bush`).
+- [ ] T016 [P] Write `test/dm/doctrine.test.ts` per doctrine.md's four guard rules (rule 3 runs over `dm/prompts/` once Phase 3 adds it; write it now so it passes vacuously and binds later).
+- [ ] T017 Create `apps/server/src/dm/purposes.ts`.
+- [ ] T018 Extend `apps/server/src/ai/adapters/fake.ts` with `scriptChatFor` and `strict`; add tests to `test/ai.gateway.test.ts` (purpose queue precedence, strict failure, existing behaviour unchanged).
+- [ ] T019 Create `apps/server/src/dm/script/schema.ts` and `load.ts` (`DmScriptSchema`, `loadDmScript`, `createScriptedDm`, `remaining()`); write `test/dm/script.test.ts`.
+- [ ] T020 [P] Update `.env.example` with a commented `AI_PURPOSES` example naming the seven `dm.*` purposes; update the `Dockerfile` to copy `apps/server/seeds/` and `dm/doctrine/NOTICE.md` into the runtime stage.
+
+**Checkpoint**: seed, doctrine and scripts load and are guarded.
+
+## Phase 3: Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11)
+
+**Goal**: the runner and every node before resolve. Contracts: node-seam.md, nodes.md,
+director.md.
+
+- [ ] T030 Create `apps/server/src/dm/pipeline/context.ts`, `runner.ts`, `call.ts` (`TurnContext`, `NodeResult`, `runTurn`, `callJson`, `callText`) per node-seam.md, including the throwing gate stub for non-resolve nodes.
+- [ ] T031 Create the prompt builders in `apps/server/src/dm/prompts/` (one per purpose, each with a `PROMPT_VERSION`, the notice header where doctrine is used, and the token caps from nodes.md).
+- [ ] T032 Create `apps/server/src/dm/nodes/schemas.ts` (`DirectorOutput`, `InterpretOutput`, `StepSchema`, `Effect`, `AdjudicateModelOutput`).
+- [ ] T033 Create `nodes/assemble.ts` (beat freeze, checkpoint beat, twice-rejected skip, state-derived `npcTurn`, SRD compact selection, `priorSteps`).
+- [ ] T034 Create `nodes/director.ts` and the legality rules from director.md (overrides recorded).
+- [ ] T035 Create `nodes/interpret.ts` (one reading per beat item; mismatch → `invalid-output`).
+- [ ] T036 Create `nodes/adjudicate.ts` (one `retrieve` per adjudicated action, `isRelevant`, numbered passages, `locateQuote` verification, SRD citation checks, `improvised`).
+- [ ] T037 [P] Write `test/dm/runner.test.ts`: node order; adjudicate skipped without a flagged reading; checkpoint reuse skips calls; fence `false` stops before the next node; a thrown node becomes `internal`; `empty-beat` makes no call; each node is a plain async function of one argument.
+- [ ] T038 [P] Write `test/dm/call.test.ts`: fenced JSON parsed; one repair re-ask; second failure → `invalid-output`; gateway error kinds pass through.
+- [ ] T039 [P] Write `test/dm/assemble.test.ts` over session-model fixtures (pure `project`): beat order by commit seq; resolved-but-unnarrated included; frozen beat on attempt 2; `npcTurn` derivation; prompt parts under their caps.
+- [ ] T040 [P] Write `test/dm/director.test.ts`: each illegal decision is overridden as director.md states; `forceResolve` overrides a hold.
+- [ ] T041 Write `test/dm/adjudicate.integration.test.ts` (DB): ingest a fixture book, script `dm.adjudicate`, assert a verified library citation with its anchor; an unverifiable quote is dropped and the ruling is `improvised`; an SRD citation carries its page; retrieval called once per adjudicated action.
+
+**Checkpoint**: a turn can plan; nothing writes yet.
+
+## Phase 4: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
+
+**Goal**: the writing node, the facts, the narration and its audit. Contracts: resolve.md,
+audit.md, director.md, nodes.md.
+
+- [ ] T050 Create `nodes/resolve.ts`: the Director group (scene start, trackers, turn mode with SRD combatants and initiative, free mode, scene end), ruling entries, action groups in commit order with step chains branching on engine events, the NPC group, the turn-advance group with the active-actor rule, gate outcome handling (`CONFLICT` retries, `pending`/`suggested` → `awaiting-dm`), reason markers, fence checks, checkpoint saves and replay, `submitNarration`, the failure notice.
+- [ ] T051 Create `apps/server/src/dm/facts.ts` (`NarrationFacts` from appended rows and `priorSteps`; the dice-line and damage-line renderer).
+- [ ] T052 Create `nodes/narrate.ts` (digit-free prose via `callText`; regeneration input with prior text and issues).
+- [ ] T053 Create `apps/server/src/dm/audit-words.ts`, `nodes/audit.ts` (deterministic checks, `dm.audit`, the loop, `AuditRecord`) and `apps/server/src/dm/fallback.ts` (`factualSummary`).
+- [ ] T054 [P] Write `test/dm/facts.test.ts`: renderer snapshots for a check, an attack hit with damage, a critical hit, a miss, an engine refusal, an auto-fail.
+- [ ] T055 [P] Write `test/dm/narrate.test.ts`: narrate's module imports no engine value, no RNG and nothing from `gate/` (TypeScript import graph over `dm/nodes/narrate.ts` and its closure); its prompt contains the facts and no command; the shipped text is prose plus rendered dice lines.
+- [ ] T056 [P] Write `test/dm/audit.test.ts`: each deterministic check fails on its case and passes on a clean case; `factualSummary` passes the checks over generated facts (property test); the loop stops at three; an audit gateway error ships the fallback.
+- [ ] T057 Write `test/dm/resolve.integration.test.ts` (DB, AI seat, scripted dice): a check with success effects; an attack hit with damage and `critical` only on a critical hit; a miss with no damage; an engine refusal → `refused` with the engine's code; actions resolved in commit order; the Director group's rows (scene, party, combatants, `dm` trackers, initiative and turn mode, encounter end); every reason ends with its marker; resolve never reads a model.
+- [ ] T058 Write `test/dm/resolve.human-seat.integration.test.ts` (DB): with a human seat and default policies, mechanics come back `pending`; the action stays committed; approving enqueues a turn job whose interpret sees the applied batch in `priorSteps`.
+- [ ] T059 Write `test/dm/audit.integration.test.ts` (DB): `audit-regenerate.json` → one narration with the second text and a record with one failed attempt; `audit-fallback.json` → the factual summary plus the `dm` journal flag `audit-<jobId>`.
+
+**Checkpoint**: a full pipeline runs when invoked directly.
+
+## Phase 5: Worker, actors and routes (US4, US5, US7; AC #1, #5, #10, #12)
+
+**Goal**: the runtime runs by itself in the server. Contracts: turn-jobs.md, companions.md,
+dm-api.md.
+
+- [ ] T070 Create `apps/server/src/dm/worker.ts` (`startDmWorker`: poll and `nudge`, claim, heartbeat with abort on fence loss, build `TurnContext`, run turn/companion/chronicle jobs, finish fenced, queue after-turn jobs per turn-jobs.md, reconcile at start, `stop()`).
+- [ ] T071 Create `apps/server/src/dm/enqueue.ts` (`createDmEnqueuer`).
+- [ ] T072 Create `apps/server/src/dm/companion.ts` and `apps/server/src/dm/chronicle.ts` per companions.md.
+- [ ] T073 Create `apps/server/src/routes/dm.ts` and mount it in `app.ts`; wire `startDmWorker` and `gate.onAppended(enqueuer.onAppended)` in `index.ts`; log unconfigured `dm.*` purposes at boot by name.
+- [ ] T074 Add the `apps/server/src/dm/**` Biome override (plan: Constitution Check III) and the violating fixture `fixtures/boundary-violations/apps/server/src/dm/bad.ts`; confirm `pnpm check:boundaries` fails without the rule.
+- [ ] T075 [P] Write `test/dm/boundary.test.ts`: under `dm/`, only `nodes/resolve.ts`, `companion.ts` and `chronicle.ts` reference `gate.submit`; no file under `dm/` imports a log writer (reuse `test/helpers/import-graph.ts`); confirm `test/write-boundary.test.ts` still passes with `dm/` present.
+- [ ] T076 Write `test/dm/companion.integration.test.ts` (DB): an active companion in turn mode talks, declares and commits with authority `active-player` as `ai:companion:<id>`; a non-active companion's commit is refused `COMMIT_NOT_ALLOWED` and recorded; a null act in turn mode is replaced and committed; a `hold` companion job ends by forcing the queued turn.
+- [ ] T077 Write `test/dm/chronicle.integration.test.ts` (DB): a finished turn queues one chronicle job; no turn job waits for it; entries land as `journal` rows with `sourceActionIds`; a second run with nothing new writes nothing.
+- [ ] T078 Write `test/dm/routes.integration.test.ts` (DB): start → 202 and a `scene-start` job; a second start → 409; a bad seed id → 400 with issues; `turn` → 202; `turns` lists records without prose; 401 and 403 for no session and a player.
+
+**Checkpoint**: committing an action in a running server produces a DM turn.
+
+## Phase 6: Merge condition and the full gate (all stories; AC #1, #2, #4, #8, #9, #15)
+
+**Goal**: prove the whole runtime end to end and land green. Contract:
+fake-gateway-script.md.
+
+- [ ] T090 Write the fixture scripts in `apps/server/test/dm/scripts/`: `scene-start.json`, `exploration-check.json`, `social-adjudicated.json`, `fight-round.json`, `audit-regenerate.json`, `audit-fallback.json`, `greyhollow-ford-full.json`.
+- [ ] T091 Write `test/dm/full-turn.integration.test.ts` (DB, the merge condition): start the seed, commit Tamsin's search, run the worker until idle; assert the node order from the job record, every call's purpose against its node (AC #4), the ledger rows, the narration's dice line equal to the renderer's output, audit `passed`, `remaining()` all zero. When `DM_EVIDENCE_OUT` is set, write the ledger (DM view), the narration and the audit record to that path.
+- [ ] T092 Write `test/dm/reclaim.integration.test.ts` (DB): inject a crash after each resolve submission in turn; expire the lease; reclaim; assert the log equals an uninterrupted run (SC-005); a stale worker's next submit is stopped by the fence.
+- [ ] T093 Write `test/dm/beat.integration.test.ts` (DB): hold a turn inside resolve; commit two more actions; release; assert one queued turn and commit-order resolution in the next beat.
+- [ ] T094 Write `test/dm/scene.integration.test.ts` (DB): run `greyhollow-ford-full.json` to the scene's end through exploration, social and fight, with one human seat and both companions; assert `scene.changed` to null at the end, `dm`-only trackers, mode switches, and zero digits in every narration's prose.
+- [ ] T095 Run the merge-condition test with `DM_EVIDENCE_OUT=specs/031-dm-runtime/evidence/full-turn.json`; commit the evidence file.
+- [ ] T096 Run `pnpm ci:check` green in the worktree; save its tail to `specs/031-dm-runtime/ci-evidence.txt`.
+- [ ] T097 Update contract pointer notes: add a one-line "Extended by specs/031-dm-runtime/contracts/turn-jobs.md" note to `specs/017-ingestion-pipeline/contracts/ingest-modules.md` (the jobs queue) and to `specs/011-ai-gateway/contracts/gateway.md` (the fake adapter); do not edit their bodies.
+
+**Checkpoint**: merge-ready. The PR body quotes the evidence file's ledger and audit result.
+
+## Dependencies & Execution Order
+
+- Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6, strictly.
+- Within a phase, `[P]` tasks touch different files and may run together after the
+  non-`[P]` tasks they test exist.
+- After any `origin/main` merge that brings a migration, regenerate `0004` (do not hand-merge
+  `meta/_journal.json`) and re-run every database suite.
+
+## Implementation Strategy
+
+Build bottom-up: the queue first (it is the riskiest shared surface), then data, then the
+read-only nodes, then the one writer, then the process wiring. Each phase lands green on its
+own, so a stopped sweep resumes from the last ticked task.
+
+## Notes
+
+- The orchestrator re-seeds the card's phase ACs from this file before the first
+  implementation dispatch (`spec-bridge:link`).
+- The wiki re-pin (runbook: `ingestion`, `ai-gateway`, `configuration`, `rules-answerer`,
+  `database-schema`, `migrations`, new `dm-runtime`) is a separate dispatch after merge.
