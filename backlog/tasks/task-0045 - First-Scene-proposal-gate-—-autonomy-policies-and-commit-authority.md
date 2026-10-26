@@ -30,7 +30,7 @@ Spec: specs/029-proposal-gate
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 No code path writes LLM output to the log except through a typed proposal; a test enforces this.
-- [x] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
+- [ ] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
 - [ ] #3 Policy auto applies the proposal through the engine immediately.
 - [ ] #4 Policy ask appends a DM-only proposal.created event and applies the proposal only after proposal.approved.
 - [ ] #5 Policy suggest shows the proposal to the DM and applies nothing.
@@ -38,13 +38,15 @@ Spec: specs/029-proposal-gate
 - [ ] #7 A human DM's command passes through the same engine as an already-approved proposal.
 - [ ] #8 The gate refuses an illegal proposal before any write and returns the engine's error code.
 - [ ] #9 A test restarts the server and shows pending proposals intact.
-- [ ] #10 Spec phase: Setup and foundational — proposal contracts in code (US2, US7; AC #2)
+- [x] #10 Spec phase: Setup and foundational — proposal contracts in code (US2, US7; AC #2)
 - [ ] #11 Spec phase: Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8)
 - [ ] #12 Spec phase: Fixtures for the play route and the gate (US7; TASK-0047 contract)
 - [ ] #13 Spec phase: Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8)
 - [ ] #14 Spec phase: WebSocket delivery, send path and restart (US2, US5; AC #4, #9)
 - [ ] #15 Spec phase: Write boundary and full gate (US6; AC #1)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
