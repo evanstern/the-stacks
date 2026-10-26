@@ -45,9 +45,9 @@ Spec: specs/034-narration-quality
 - [x] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [x] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
 - [x] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
-- [x] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
-- [ ] #11 Spec phase: Full gate (US5; AC #5)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
