@@ -74,6 +74,8 @@ Wiki re-ground by sonnet-implementer: 8d07ccd. New note session-model. Five note
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #46 on 2026-10-26. Card ACs #1–#8 are proven by specs/028-session-model/ci-evidence.txt. The adversarial review (review-pr-46) approved it with no findings.
+
+spec-bridge sync: Setup — package scaffold and boundary rule: 7/7 · Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8): 13/13 · User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8): 13/13 · User Story 6 — the fixtures contract: 7/7 · User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7): 11/11 · Polish — full gate: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
