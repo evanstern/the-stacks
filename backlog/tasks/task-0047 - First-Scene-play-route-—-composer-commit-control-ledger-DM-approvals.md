@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:33'
+updated_date: '2026-10-26 03:43'
 labels:
   - first-scene
   - ui
@@ -39,12 +39,26 @@ Spec: specs/030-play-route
 - [ ] #6 The route uses slide-out panels and autocomplete dropdowns only, never modals.
 - [ ] #7 The route renders from fixtures and from the live log through the same components.
 - [ ] #8 The route is client-only, per decision-0008.
+- [ ] #9 Spec phase: Setup — package wiring and test runner
+- [ ] #10 Spec phase: Foundational — pure view-model modules
+- [ ] #11 Spec phase: User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6)
+- [ ] #12 Spec phase: User Stories 4 and 5 (P2) — ledger panel and DM approval panel
+- [ ] #13 Spec phase: User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence
+- [ ] #14 Spec phase: Proposal wiring — GATED on TASK-0045's merge
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 3) after TASK-0044 merged (#46). Worktree .worktrees/task-0047, branch task-0047-play-route, cut from origin/main 8a8bb81. Spec number 030 claimed with a stub.
+
+Spec authoring by opus-implementer: 0795fda, ~229k tokens. Clarify was skipped (spec.md records why).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec defaults taken by the orchestrator, none of them a new decision:
+- The fixture route ships in production builds, operator-only.
+- vitest is an apps/web dev dependency. It is already in the lockfile and is not a runtime dependency.
+- The client-side commit-authority display rule follows decision-0016. TASK-0045 enforces it.
+Implementation dispatch grouping: P1+P2 | P3 | P4 | P5 | P6. P6 is gated on TASK-0045 merging, and the PR stays a draft until then.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
