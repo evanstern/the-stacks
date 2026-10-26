@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:48'
+updated_date: '2026-10-26 02:52'
 labels:
   - first-scene
   - srd
@@ -34,13 +34,13 @@ Spec: specs/027-srd-data
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The repo ships SRD 5.2.1 monsters, spells, classes, equipment and conditions as Zod-validated records.
-- [ ] #2 An attribution file carries the exact SRD 5.2.1 CC-BY-4.0 statement, and the app shows it on an about or legal surface.
-- [ ] #3 The spec records the data source and its license.
-- [ ] #4 A loader returns typed records by id and by name.
-- [ ] #5 Each record has a compact lookup form of about 100 tokens, and a test enforces the size bound.
-- [ ] #6 A test fails when the attribution file is missing or a record lacks a source reference.
-- [ ] #7 The data contains no content from outside SRD 5.2.1.
+- [x] #1 The repo ships SRD 5.2.1 monsters, spells, classes, equipment and conditions as Zod-validated records.
+- [x] #2 An attribution file carries the exact SRD 5.2.1 CC-BY-4.0 statement, and the app shows it on an about or legal surface.
+- [x] #3 The spec records the data source and its license.
+- [x] #4 A loader returns typed records by id and by name.
+- [x] #5 Each record has a compact lookup form of about 100 tokens, and a test enforces the size bound.
+- [x] #6 A test fails when the attribution file is missing or a record lacks a source reference.
+- [x] #7 The data contains no content from outside SRD 5.2.1.
 - [x] #8 Spec phase: Package scaffold, schemas, attribution, estimator (one dispatch)
 - [x] #9 Spec phase: Provenance index and converted data — US4 then US1 (one dispatch)
 - [x] #10 Spec phase: Loader and compact forms — US1 and US3 (one dispatch)
@@ -75,10 +75,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: ebec1b0. New note srd-data. Seven notes were amended: dnd5e-engine (for 2c9f99e), ci-pipeline, monorepo-and-toolchain, test-suite, container-image, react-router-app and chat-ui. ddb-parser and runtime-stacks were re-pinned only. Freshness OK, 39 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged in PR #45 on 2026-10-25. Card ACs #1–#7 are proven by specs/027-srd-data/ci-evidence.txt.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
