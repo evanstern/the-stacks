@@ -1,0 +1,104 @@
+{
+  "v": 1,
+  "name": "social-adjudicated",
+  "dice": [15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "free mode, resolve",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "the-keeper"
+          },
+          "goalNote": "Let the keeper decide whether to trust the party.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "needs a ruling",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-persuade",
+              "intent": "talk",
+              "uncertain": true,
+              "needsAdjudication": true,
+              "rulesQuestion": "How does a character persuade a frightened creature to share what she knows?",
+              "clarify": null,
+              "steps": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a cited ruling; p 1 is the stubbed library passage",
+      "respond": {
+        "type": "json",
+        "value": {
+          "ruling": "A Charisma check settles it, and the keeper's fear sets a moderate difficulty.",
+          "citations": [
+            {
+              "source": "library",
+              "p": 1,
+              "quote": "making a Charisma check"
+            }
+          ],
+          "steps": [
+            {
+              "step": "check",
+              "reason": "Tamsin persuades Wenna to share the safe path",
+              "combatantId": "tamsin",
+              "kind": "ability-check",
+              "ability": "cha",
+              "skill": "Persuasion",
+              "expression": "1d20-1",
+              "mode": "normal",
+              "dc": 12,
+              "autoFail": null,
+              "onSuccess": [],
+              "onFailure": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success",
+      "respond": {
+        "type": "text",
+        "value": "Wenna lowers her boathook and studies Tamsin for a long breath. Then, counting under her breath, she names the safe path: keep to the old timber posts, and never step off them."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

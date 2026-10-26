@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
 import { beforeEach } from "vitest";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
-import { createDmWorker } from "../../src/dm/worker.js";
+import type { Nodes } from "../../src/dm/pipeline/runner.js";
+import { createDmWorker, type DmWorkerDeps } from "../../src/dm/worker.js";
 import { db, requireDb, type World } from "./world.js";
 
 const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), "scripts");
@@ -14,7 +15,10 @@ export const script = (name: string) =>
     calls: unknown[];
   };
 
-export function workerFor(w: World) {
+export function workerFor(
+  w: World,
+  opts: { retrieve?: DmWorkerDeps["retrieve"]; nodes?: Nodes } = {},
+) {
   const base = w.ctx().deps;
   const nudges = { count: 0 };
   const enqueuer = createDmEnqueuer({
@@ -31,9 +35,12 @@ export function workerFor(w: World) {
     db: requireDb(),
     gateway: base.gateway,
     gate: w.gate,
-    retrieve: async () => {
-      throw new Error("no retrieval in this test");
-    },
+    retrieve:
+      opts.retrieve ??
+      (async () => {
+        throw new Error("no retrieval in this test");
+      }),
+    nodes: opts.nodes,
     loadProjections: base.loadProjections,
     minSimilarity: 0.3,
     log: (l) => {
@@ -55,3 +62,19 @@ export function clearDmJobsBeforeEach() {
 }
 
 export const tick = () => new Promise((r) => setTimeout(r, 50));
+
+/**
+ * Drains until a drain finds nothing after a settle pause. A gate listener
+ * enqueues asynchronously, so one empty drain is not proof of idleness.
+ */
+export async function drainAll(worker: {
+  drain: () => Promise<number>;
+}): Promise<number> {
+  let total = 0;
+  for (;;) {
+    const n = await worker.drain();
+    total += n;
+    await tick();
+    if (n === 0) return total;
+  }
+}

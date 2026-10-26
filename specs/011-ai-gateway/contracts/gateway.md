@@ -44,3 +44,5 @@ Invariants (each has a test):
 # Prices per provider/model, USD per million tokens. Unpriced calls record cost as unknown.
 # AI_PRICES={"hosted/your-chat-model":{"inputPerMTok":0,"outputPerMTok":0}}
 ```
+
+> Extended by specs/031-dm-runtime/contracts/turn-jobs.md (the fake adapter gains purpose-keyed queues and a strict mode).

@@ -170,6 +170,13 @@ function findLanded(
         : null;
     case "tracker": {
       const t = p.trackers.find((x) => x.trackerId === proposal.trackerId);
+      if (
+        p.ledger.some(
+          (r) => r.kind === "change" && r.reason.endsWith(` [${stepRef}]`),
+        )
+      ) {
+        return done(null);
+      }
       return proposal.after && t && t.filled === proposal.after.filled
         ? done(null)
         : null;
@@ -649,10 +656,11 @@ async function directorGroup(
       Math.min(before.segments, before.filled + adv.advance),
     );
     if (filled === before.filled) continue;
-    await run.submit(`director:tracker:${adv.trackerId}`, "tracker", () => ({
+    await run.submit(`director:tracker:${adv.trackerId}`, "tracker", (ref) => ({
       kind: "tracker",
       ...note(`Advance ${before.name}`, adv.reason),
-      reason: adv.reason,
+      // The marker lets a reclaim find an advance that landed before its checkpoint save.
+      reason: withMarker(adv.reason, ref),
       trackerId: adv.trackerId,
       visibility: "dm",
       after: { ...before, filled },

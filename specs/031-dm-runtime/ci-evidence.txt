@@ -1,0 +1,26 @@
+pnpm ci:check (REQUIRE_DATABASE=1, worktree stack) exit=0
+ Tasks:    6 successful, 6 total
+@the-stacks/srd:test:  Test Files  8 passed (8)
+@the-stacks/srd:test:       Tests  140 passed (140)
+@the-stacks/dnd5e-engine:test:  Test Files  15 passed (15)
+@the-stacks/dnd5e-engine:test:       Tests  199 passed (199)
+@the-stacks/session-model:test:  Test Files  20 passed (20)
+@the-stacks/session-model:test:       Tests  566 passed (566)
+@the-stacks/server:test:  Test Files  68 passed | 1 skipped (69)
+@the-stacks/server:test:       Tests  650 passed | 5 skipped (655)
+ Tasks:    11 successful, 11 total
+ok 42 - parseWorktreeList reads absolute paths out of porcelain output
+  ---
+  duration_ms: 0.057417
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 62.896791
+$ node --experimental-strip-types -e "await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');"

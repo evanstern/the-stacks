@@ -136,3 +136,5 @@ export function runJob(deps: IngestWorkerDeps, job: ClaimedJob, signal: AbortSig
   `embedding`) — the purpose retrieval embeds questions with.
 - Store `EmbedVector.model` exactly as the gateway returned it in `library_embeddings.model`.
 - Otherwise vector search finds nothing.
+
+> Extended by specs/031-dm-runtime/contracts/turn-jobs.md (the jobs queue serves DM turn, companion and chronicle jobs).

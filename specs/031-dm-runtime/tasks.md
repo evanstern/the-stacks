@@ -169,14 +169,14 @@ dm-api.md.
 **Goal**: prove the whole runtime end to end and land green. Contract:
 fake-gateway-script.md.
 
-- [ ] T090 Write the fixture scripts in `apps/server/test/dm/scripts/`: `scene-start.json`, `exploration-check.json`, `social-adjudicated.json`, `fight-round.json`, `audit-regenerate.json`, `audit-fallback.json`, `greyhollow-ford-full.json`.
-- [ ] T091 Write `test/dm/full-turn.integration.test.ts` (DB, the merge condition): start the seed, commit Tamsin's search, run the worker until idle; assert the node order from the job record, every call's purpose against its node (AC #4), the ledger rows, the narration's dice line equal to the renderer's output, audit `passed`, `remaining()` all zero. When `DM_EVIDENCE_OUT` is set, write the ledger (DM view), the narration and the audit record to that path.
-- [ ] T092 Write `test/dm/reclaim.integration.test.ts` (DB): inject a crash after each resolve submission in turn; expire the lease; reclaim; assert the log equals an uninterrupted run (SC-005); a stale worker's next submit is stopped by the fence.
-- [ ] T093 Write `test/dm/beat.integration.test.ts` (DB): hold a turn inside resolve; commit two more actions; release; assert one queued turn and commit-order resolution in the next beat.
-- [ ] T094 Write `test/dm/scene.integration.test.ts` (DB): run `greyhollow-ford-full.json` to the scene's end through exploration, social and fight, with one human seat and both companions; assert `scene.changed` to null at the end, `dm`-only trackers, mode switches, and zero digits in every narration's prose.
-- [ ] T095 Run the merge-condition test with `DM_EVIDENCE_OUT=specs/031-dm-runtime/evidence/full-turn.json`; commit the evidence file.
-- [ ] T096 Run `pnpm ci:check` green in the worktree; save its tail to `specs/031-dm-runtime/ci-evidence.txt`.
-- [ ] T097 Update contract pointer notes: add a one-line "Extended by specs/031-dm-runtime/contracts/turn-jobs.md" note to `specs/017-ingestion-pipeline/contracts/ingest-modules.md` (the jobs queue) and to `specs/011-ai-gateway/contracts/gateway.md` (the fake adapter); do not edit their bodies.
+- [x] T090 Write the fixture scripts in `apps/server/test/dm/scripts/`: `scene-start.json`, `exploration-check.json`, `social-adjudicated.json`, `fight-round.json`, `audit-regenerate.json`, `audit-fallback.json`, `greyhollow-ford-full.json`.
+- [x] T091 Write `test/dm/full-turn.integration.test.ts` (DB, the merge condition): start the seed, commit Tamsin's search, run the worker until idle; assert the node order from the job record, every call's purpose against its node (AC #4), the ledger rows, the narration's dice line equal to the renderer's output, audit `passed`, `remaining()` all zero. When `DM_EVIDENCE_OUT` is set, write the ledger (DM view), the narration and the audit record to that path.
+- [x] T092 Write `test/dm/reclaim.integration.test.ts` (DB): inject a crash after each resolve submission in turn; expire the lease; reclaim; assert the log equals an uninterrupted run (SC-005); a stale worker's next submit is stopped by the fence.
+- [x] T093 Write `test/dm/beat.integration.test.ts` (DB): hold a turn inside resolve; commit two more actions; release; assert one queued turn and commit-order resolution in the next beat.
+- [x] T094 Write `test/dm/scene.integration.test.ts` (DB): run `greyhollow-ford-full.json` to the scene's end through exploration, social and fight, with one human seat and both companions; assert `scene.changed` to null at the end, `dm`-only trackers, mode switches, and zero digits in every narration's prose.
+- [x] T095 Run the merge-condition test with `DM_EVIDENCE_OUT=specs/031-dm-runtime/evidence/full-turn.json`; commit the evidence file.
+- [x] T096 Run `pnpm ci:check` green in the worktree; save its tail to `specs/031-dm-runtime/ci-evidence.txt`.
+- [x] T097 Update contract pointer notes: add a one-line "Extended by specs/031-dm-runtime/contracts/turn-jobs.md" note to `specs/017-ingestion-pipeline/contracts/ingest-modules.md` (the jobs queue) and to `specs/011-ai-gateway/contracts/gateway.md` (the fake adapter); do not edit their bodies.
 
 **Checkpoint**: merge-ready. The PR body quotes the evidence file's ledger and audit result.
 
@@ -205,6 +205,10 @@ fake-gateway-script.md.
 - Phase 5: a failed turn job stores `error: "stopped at <node>: <kind>"` (no `result`), and the `/dm` list reports `outcome: "failed"` from the job status. A companion or chronicle job that throws is failed with a fixed message and appends no notice; a failed `hold` companion job still forces the queued turn.
 - Phase 5: chronicle's "already chronicled" bound is the highest created seq of a non-rejected `chron-` journal proposal, or the seq of a directly applied `chron-` journal row, so a pending proposal also counts. Entry ids are `chron-<sessionShort>-<lastNarrationSeq>` with `-<i>` for later entries.
 - Phase 5: `T058`'s deferred half (an approval enqueues a turn) is covered in `test/dm/worker.integration.test.ts` with a stubbed proposal lookup over the real jobs table.
+- Phase 6: the fixture scripts are generated as segments (`scene-start`, `exploration-check`, `social-adjudicated`, `fight-round`); `greyhollow-ford-full.json` is their concatenation plus six `dm.chronicle` responses (a test pins the equality). The number of chronicle passes depends on worker idle timing, so the scene test requires every other purpose and all dice to be spent but not the chronicle queue.
+- Phase 6: `workerFor` takes optional `retrieve` and `nodes`; `drainAll` drains until a drain finds nothing after a settle pause (gate listeners enqueue asynchronously).
+- Phase 6 fix (found by T092): a tracker advance carried no marker, so a crash between its landing and its checkpoint save made the reclaim advance the tracker twice. The tracker `reason` now carries the step marker and `findLanded` matches it in the ledger.
+- Phase 6 open finding (not fixed): a crash inside `submitNarration` after the narration row lands but before the checkpoint save makes the reclaim re-run narrate and audit and append a second narration (`findLanded` has no `narration` case, and a reclaim re-spends the two model calls). T092 therefore crashes after each resolve submission, not after the narration submission. The window is one gate append wide; a follow-up card should add a narration landed-check that also skips narrate and audit.
 
 ## Dependencies & Execution Order
 

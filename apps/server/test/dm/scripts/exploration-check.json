@@ -1,0 +1,92 @@
+{
+  "v": 1,
+  "name": "exploration-check",
+  "dice": [14],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "free mode, resolve, one tracker step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [
+            {
+              "trackerId": "dusk",
+              "advance": 1,
+              "reason": "The search takes a while and the light fades."
+            }
+          ],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Reward the careful search.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "one check against the ferry-house clue's DC",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-search",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin searches the ferry-house for whoever cut the bell rope",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "int",
+                  "skill": "Investigation",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin crouches beside the cut bell rope and reads the damage: first gnawed through, then sliced clean. The bell hangs whole above her, but its clapper is gone."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}
