@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:32'
+updated_date: '2026-10-26 04:38'
 labels:
   - first-scene
   - gate
@@ -43,7 +43,7 @@ Spec: specs/029-proposal-gate
 - [x] #12 Spec phase: Fixtures for the play route and the gate (US7; TASK-0047 contract)
 - [x] #13 Spec phase: Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8)
 - [x] #14 Spec phase: WebSocket delivery, send path and restart (US2, US5; AC #4, #9)
-- [ ] #15 Spec phase: Write boundary and full gate (US6; AC #1)
+- [x] #15 Spec phase: Write boundary and full gate (US6; AC #1)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -74,6 +74,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 by sonnet-implementer: 34e3d68. The WS registry and replay use canSee and the DM seat. Gate request kinds route to the gate; any other catalogued send is refused CATALOG_TYPE_REQUIRES_GATE. The restart test (AC #9) passes on the worktree stack. The DB suite passes 463 tests; ci:check green.
 The implementer left a narrow race: a seat change between the seat load and the cache write during subscribe. The orchestrator rules it be closed in Phase 6, because it could deliver DM-only events to a former DM; it is not deferred.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+DM-seat race closed in d3b9452: broadcast always caches a dm.seat.changed seat. A deterministic interleaving test proves the former DM gets no DM-only event, and that it fails without the fix. Phase 6 in efc01cc: the AC #1 import-graph write-boundary test fires on its seeded tree (3 violations) and finds 0 in src. The DB suite passes 466 tests, including the restart and write-boundary tests; ci:check green; every tasks.md box is ticked.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
