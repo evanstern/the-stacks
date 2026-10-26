@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { ChatEvent, ChatRequest } from "../../src/ai/types.js";
-import { callJson, callText, stripFence } from "../../src/dm/pipeline/call.js";
+import {
+  callJson,
+  callText,
+  excerptOf,
+  stripFence,
+} from "../../src/dm/pipeline/call.js";
 
 const usage = { inputTokens: 1, outputTokens: 1 };
 
@@ -91,6 +96,48 @@ describe("callJson", () => {
     ]);
   });
 
+  it("records purpose, version, issues and one excerpt per failed attempt", async () => {
+    const { gateway } = gatewayOf([
+      [
+        { type: "text", text: '{"n":"x"}' },
+        { type: "done", usage: { inputTokens: 1, outputTokens: 42 } },
+      ],
+      text("{}"),
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    const detail = r.error.detail as {
+      purpose: string;
+      promptVersion: string;
+      issues: string;
+      attempts: Record<string, unknown>[];
+    };
+    expect(detail.purpose).toBe("dm.director");
+    expect(detail.promptVersion).toBe("dm.director-v1");
+    expect(detail.issues).toContain("n:");
+    expect(detail.attempts).toHaveLength(2);
+    expect(detail.attempts[0]).toMatchObject({
+      attempt: 1,
+      outputTokens: 42,
+      chars: 9,
+      excerpt: '{"n":"x"}',
+    });
+    expect(detail.attempts[0]?.issues).toContain("n:");
+    expect(detail.attempts[1]).toMatchObject({ attempt: 2, chars: 2 });
+  });
+
+  it("records outputTokens as null when the stream has no usage", async () => {
+    const { gateway } = gatewayOf([[{ type: "text", text: "{}" }], text("{}")]);
+    const r = await callJson({ gateway }, req());
+    if (r.ok) return;
+    const attempts = (
+      r.error.detail as { attempts: { outputTokens: unknown }[] }
+    ).attempts;
+    expect(attempts[0]?.outputTokens).toBeNull();
+    expect(attempts[1]?.outputTokens).toBe(1);
+  });
+
   it("passes a gateway error kind through without a re-ask", async () => {
     const { gateway, requests } = gatewayOf([
       [{ type: "error", kind: "rate_limit", message: "slow down", usage }],
@@ -140,5 +187,21 @@ describe("stripFence", () => {
   it("strips one surrounding fence and leaves bare text alone", () => {
     expect(stripFence('```\n{"a":1}\n```')).toBe('{"a":1}');
     expect(stripFence('  {"a":1}  ')).toBe('{"a":1}');
+  });
+});
+
+describe("excerptOf", () => {
+  it("keeps text up to 8000 characters whole", () => {
+    const t = "a".repeat(8000);
+    expect(excerptOf(t)).toBe(t);
+  });
+
+  it("keeps the head 6000 and tail 2000 around an elided count at 8001", () => {
+    const t = `${"h".repeat(6000)}${"m".repeat(1)}${"t".repeat(2000)}`;
+    expect(t).toHaveLength(8001);
+    const out = excerptOf(t);
+    expect(out).toBe(
+      `${"h".repeat(6000)}\n…[1 characters elided]…\n${"t".repeat(2000)}`,
+    );
   });
 });

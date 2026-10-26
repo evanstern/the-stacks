@@ -82,6 +82,15 @@ tasks for sign-off and session boundaries; they are not barriers beyond those de
   itself is run by the orchestrator with the operator)** — playtest harness, auditor agent,
   milestone demo. Starts after: 0046, 0047 (and every other scoped task merged).
 
+**Lane 5 amendment (2026-10-26, operator ruling during the demo checkpoint):**
+- **TASK-0102 (sonnet · `claude-sonnet-5-5`; spec by `opus-implementer`)** — the director's
+  real-model output fails its schema (2 of 2 paid playtests stalled at turn 3–4) and failed jobs
+  drop their schema issues. Own card, own PR, merged **before** TASK-0048's demo phase resumes.
+  Starts after: — (TASK-0046 merged). Its paid capture run is an operator checkpoint (ceiling).
+- TASK-0048's own harness defects found in the same runs (dice-lines false positive on
+  scene-start narration; host CLI cannot use `host.docker.internal` provider URLs) are fixed on
+  the TASK-0048 branch.
+
 **Spec authoring (all tasks) → `opus-implementer` · `claude-opus-5-5`, fallback
 `claude-fable-5-1`.** Escalation tier. Carried forward from the M1 wave-2 runbook: operator
 ruling 2026-09-28/29 is standing escalation sign-off for spec writing; the operator
@@ -279,4 +288,118 @@ merge-reconcile step; record it as its own dispatch line.
 | 2026-10-25 | TASK-0044 | [#46](https://github.com/evanstern/the-stacks/pull/46) | `8a8bb81` | ~1.1M: spec ~257k (opus ×1 + amendment), impl ~578k (sonnet ×4), wiki ~0.1M (sonnet) | Spec 028. Orchestrator ruling: mechanics batch append is atomic in this task (decision-0020); failure-injection DB tests prove zero rows land. Live DM delivery recorded on TASK-0045. New pure package `packages/session-model` (5 fixtures = the contract for 0045/0047); Dockerfile now builds engine + session-model. Reconcile merge of #45/TASK-0095: `tsconfig.json`, `.specify/feature.json`. Test DB came up unmigrated (TASK-0098). Grouping P1+P2 \| P3 \| P4 \| P5+P6. Adversarial review (review-pr-46, operator-started) approved round 1, no findings. Closures direct on main. |
 | 2026-10-26 | TASK-0045 | [#48](https://github.com/evanstern/the-stacks/pull/48) | `e91ff40` | ~1.6M: spec ~294k (opus), impl ~0.93M (sonnet ×5), wiki ~0.1M (sonnet) | Spec 029. Operator rulings: WS error frame gains optional `code`; DM view only for the logged human DM seat; default policy table as specified; uncatalogued send path carded TASK-0099 (m-3). Orchestrator ruling: the DM-seat subscribe race (secrecy leak) fixed in-task, not deferred. AC #1 import-graph write-boundary test. Session stopped once mid-lane (operator resume); no work lost. Grouping P1 \| P2+P3 \| P4 \| P5 \| P6(+race fix). Closures direct on main. |
 | 2026-10-26 | TASK-0047 | [#47](https://github.com/evanstern/the-stacks/pull/47) | `bd15a9d` | ~1.0M: spec ~229k (opus), impl ~0.75M (sonnet ×5), wiki ~0.1M (sonnet) | Spec 030. Defaults taken: fixture route ships operator-only; vitest web dev dep. Draft-held on TASK-0045 until #48 merged, then Phase 6 merged main in and wired live proposals through the gate. Brave live checks all passed (DM-only delivery, approve/reject, refusal code, reload rebuild, reconnect). Follow-up carded TASK-0100 (suggest proposals still show Approve). Grouping P1+P2 \| P3 \| P4 \| P5 \| P6. Closures direct on main. |
-| 2026-10-26 | TASK-0046 | (PR pending) | — | ~2.2M: spec ~348k (opus), impl ~1.6M (sonnet ×7 incl. reclaim fix), wiki ~0.15M (sonnet) | Spec 031. Spec defaults taken (combat-starting beat re-declares; audit flags in job record + dm journal; rulings as dm journal entries; seed in apps/server/seeds; one companion hold per beat). Migration 0004 extends the jobs table; spec author found an existing bug (ingestion job queries had no kind filter) — fixed. Orchestrator verified NOTICE.md carries tabletop-dm LICENSE@fe2c29b verbatim. Merge condition met: full turn on the worktree stack (fake gateway, scripted dice; 1d20=14 vs DC 13; audit passed), `evidence/full-turn.json`. Reclaim suite found a double tracker advance (fixed in Phase 6) and a duplicate narration on crash (orchestrator ruled fix in-task, 13101f0). Grouping one phase per dispatch. |
+| 2026-10-26 | TASK-0046 | [#49](https://github.com/evanstern/the-stacks/pull/49) | `6ccde45` | ~2.2M: spec ~348k (opus), impl ~1.6M (sonnet ×7 incl. reclaim fix), wiki ~0.15M (sonnet) | Spec 031. Spec defaults taken (combat-starting beat re-declares; audit flags in job record + dm journal; rulings as dm journal entries; seed in apps/server/seeds; one companion hold per beat). Migration 0004 extends the jobs table; spec author found an existing bug (ingestion job queries had no kind filter) — fixed. Orchestrator verified NOTICE.md carries tabletop-dm LICENSE@fe2c29b verbatim. Merge condition met: full turn on the worktree stack (fake gateway, scripted dice; 1d20=14 vs DC 13; audit passed), `evidence/full-turn.json`. Reclaim suite found a double tracker advance (fixed in Phase 6) and a duplicate narration on crash (orchestrator ruled fix in-task, 13101f0). Grouping one phase per dispatch. |
+| 2026-10-26 | TASK-0102 | (this PR) | — | spec ~0.4M (opus ×2: spec + interpret amendment), impl ~0.4M (sonnet ×4: P1, P3, P3b, P5), wiki ~0.1M (sonnet); paid runs $8.89 ($2.82 capture, $1.00 verify, $5.07 rerun) + 1 capture killed by app restart (unrecorded) | Spec 033. Lane 5 amendment card. Capture: director goalNote over its 300-char cap (C4 only) → `normalizeDirector` (text caps, never numbers). Verify 1 passed the director, stopped at interpret (truncated at 1200 tokens with hidden reasoning; invented condition `spotted-lookout`, rejected by the engine-derived enum). Operator rulings: widen 0102 to interpret; rules terms with definitions must be gated (skills now a closed engine enum; interpret/adjudicate v2 render the closed lists); spells by SRD id → TASK-0105, modifiers/DCs from stats → TASK-0104 (m-3, not demo-blocking); dm.interpret maxTokens 1200 → 2500. Rerun: 29 turns, 0 failed jobs; timed out at the TASK-0048 scenario's 15-min maxWallMs (harness defect, fixed on 0048). Composite `.specify/feature.json` pointer conflict resolved in the disposable composite only. |
+
+## Handoff — 2026-10-26 (orchestrator session ended at the operator's request, context > 70%)
+
+Resume from this section plus the board. Read the runbook's doctrine sections above first. You
+are the ORCHESTRATOR: dispatch implementation to `sonnet-implementer` (spec authoring to
+`opus-implementer`), verify `served=` from each transcript, record a `Dispatch:` line per
+dispatch, never implement inline. Nothing is running at handoff time.
+
+### Board state
+
+| Card | Status | Branch / worktree | Last commit | Next step |
+|---|---|---|---|---|
+| TASK-0042–0047 | Done (PRs #43, #45, #46, #48, #47, #49) | removed | — | none |
+| TASK-0102 (new M2 card, spec 033) | In Progress | `task-0102-director-robustness` · `.worktrees/task-0102` | `7e75a67` (Phase 1 code `1ab1136`) | **Phase 2: orchestrator-run paid capture** (see Next action) |
+| TASK-0048 (spec 032) | In Progress | `task-0048-playtest` · `.worktrees/task-0048` | `639a94c` (harness fixes `31f61f7`) | Phases 1–5 done; Phase 6 = the demo, resumes after TASK-0102 merges. Wiki already re-grounded (`954eec8`); an `m2-demo` wiki note is written after the demo. No PR opened yet. |
+| TASK-0101 (hosted dev AI) | To Do, AC #4 ticked | main (board only) | — | Open: AC #2 move `stacks-ollama` into `deploy/dev` compose pinned to digest `sha256:dea72d1e…`; AC #3 record decision (realm 9router on **vm-103** over LAN HTTP, not CLIProxyAPI on vm-104:8317); AC #5 docs. Not M2 scope. |
+| TASK-0092/0093/0094 (SRD kinds), 0097 (narrow-screen nav), 0098 (stacks come up unmigrated), 0099 (retire uncatalogued WS send), 0100 (suggest proposals show Approve) | To Do | — | — | Follow-ups carded this sweep; not M2 lanes. |
+
+Merge order: TASK-0102 PR first, then resume TASK-0048 Phase 6 (TASK-0048 merges `origin/main`
+in after #0102 lands), then TASK-0048's PR.
+
+### Running stacks and hand-applied state
+
+- **`stacks-task-0048`** (worktree `.worktrees/task-0048`): app `:3048`, db `:15048`, test-db
+  `:25048`. App container built at `666167a` (stale vs the branch — irrelevant to the in-process
+  playtest CLI, but **rebuild (`pnpm env:down` + `pnpm env:up`) before the operator plays in
+  Brave**, after TASK-0102 is merged into the branch). Both DBs migrated by hand (TASK-0098).
+- **`stacks-main`** (`.worktrees/env-main`): `:3000`/`:5432` at `6a74d72`, operator's long-running
+  stack; launch config `main-stack` attaches to it. Do not `env:down main` (wipes its DB volume).
+- **TASK-0098 workaround** (every fresh stack): migrate both DBs by hand. App URL =
+  `postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$DB_PORT/$POSTGRES_DB`; test URL =
+  `.env` `TEST_DATABASE_URL`. Read values with `grep '^KEY=' .env | cut -d= -f2-`; **never
+  `source` the `.env`** (its JSON values lose their quotes). Run DB tests and `ci:check` with
+  `TEST_DATABASE_URL=<value> REQUIRE_DATABASE=1`.
+- **Local AI config (root `.env`, operator-owned; worktrees inherit on `env:up`)**: provider
+  `claude` = 9router `host.docker.internal:20128` (key `NINEROUTER_API_KEY`), `ollama` =
+  `host.docker.internal:11434` (`bge-m3`). Purposes: director, adjudicate, playtest.audit →
+  `cc/claude-opus-5`; interpret, narrate, companion → `cc/claude-sonnet-5`; dm.audit, chronicle →
+  `cc/claude-haiku-4-5-20251001`. maxTokens raised on the operator's go: director 1500,
+  adjudicate 1500, interpret 1200, companion 800, chronicle 1000, narrate 500, dm.audit 300,
+  playtest.audit 700 (root `.env` **and** `.worktrees/task-0048/.env`). AI_PRICES: opus 5/25,
+  sonnet 2/10, haiku 1/5, `ollama/bge-m3` 0/0.
+- **Host CLI vs `host.docker.internal`**: fixed on the TASK-0048 branch (`31f61f7`: CLI rewrites to
+  `localhost` when `/.dockerenv` is absent; `PLAYTEST_HOST_NETWORK=0|1` overrides). On a tree
+  without that fix, pass a per-process override (`AI_PROVIDERS` with `localhost` base URLs) and
+  `env -u AI_PURPOSES -u AI_PRICES` so the CLI reads them from `.env`.
+- **vm-104 (hosted dev)** — every change needs the operator's go on the exact command text:
+  `stacks-ollama` container (ollama 0.40.11, network `stacks-dev_default`, volume
+  `stacks-ollama`, `bge-m3` pulled, ~1.4 GiB RAM); `/home/stacks/dev/.env` has an appended AI
+  block (claude → `http://9router.local.infinity-node.win/v1`, the realm 9router on **vm-103**;
+  ollama → `http://stacks-ollama:11434/v1`; same purposes/prices) plus the operator-set
+  `NINEROUTER_API_KEY`; dev redeployed (rerun of run 40339203227) and verified from inside
+  `stacks-dev-app-1`: 9router lists 4 `cc/` models, embeddings are 1024-dim, no
+  unconfigured-purposes warning.
+
+### Spend: approvals and actuals (all at list prices; `cc/` routes are subscription-backed)
+
+| Approval (operator's words on the card) | Used by | Spent |
+|---|---|---|
+| "Approved" — $20 scripted playtest, $6 demo-session audit | runs 1–2 | $0.00 + $0.67 |
+| "Approved: spend ceiling $22 for the paid scripted playtest rerun" | runs 3–4 | $0.00 + $0.44 |
+| "Approved: spend ceiling $22 for the TASK-0102 capture run and $22 for its verification run" | **unspent** | — |
+| $6 demo-session audit | **unspent** | — |
+
+Total spent so far: **$1.11**. A run refuses to start (exit 3) when its upper-bound estimate
+exceeds the ceiling; with the raised caps the upper bound is $20.82.
+
+### Paid playtest runs (TASK-0048 worktree, `docs/design/m2-demo/`)
+
+| Run | Dir | Outcome | Cause / notes |
+|---|---|---|---|
+| 1 | `provider-playtest-failed-1/` | failed, $0, 1 call | host CLI could not resolve `host.docker.internal` (fixed, D4) |
+| 2 | `provider-playtest-failed-2/` | failed at turn 4, $0.67, 32 calls | `stopped at director: invalid-output`; 1st attempt hit maxTokens 600 exactly (truncated JSON). Social beat played: Persuasion 1d20-1 → 19 = 18 vs DC 12 success |
+| 3 | — | refused, $0 | upper bound $20.82 > $20 ceiling |
+| 4 | `provider-playtest/` | failed at turn 3, $0.44, 20 calls | `stopped at director: invalid-output` again, **not** truncation: attempts 962 and 280 output tokens (cap 1500), both schema-invalid; issues were not persisted (now fixed by TASK-0102 Phase 1) |
+
+Auditor findings to resolve in the demo record: D3 dice-lines false positive on scene-start
+narration (fixed `31f61f7`); real continuity slip (run 2 #16 "no print" vs #10/#11 tracks);
+"creak again" false positive (run 2); doctrine warns in run 4 (hero-is-theirs #10, fail-forward
+#13–17, end-on-demand #17, one-sense #17); DM-runtime audit regenerated #16 (run 2) and shipped
+the factual fallback (run 4 #17). Both director failures came on the first turn needing a real
+director decision (tracker change / reed-camp encounter) — spec 033 research R3.
+
+### Standing operator rulings from this session (not elsewhere in the runbook)
+
+- TASK-0047 swept (not design-rounds); standing opus sign-off for spec writing holds.
+- TASK-0043: Open5e srd-2024 source; other SRD kinds carded (0092–0094); downloads allowed.
+- TASK-0045: DM view only for the logged human DM seat; WS error frame gains optional `code`;
+  default policy table as specified; TASK-0099 for the legacy send path.
+- Demo models as in the AI config above; if a 9router model errors on context, try the `[1m]`
+  suffix first (e.g. `cc/claude-sonnet-5[1m]`) and add a matching AI_PRICES key.
+- TASK-0102 is its own M2 card and PR, merged before the demo resumes (Lane 5 amendment above).
+- WebSocket gateway tests are known-flaky (another session owns the fix): if CI or a local run
+  fails only on a WS gateway test this work did not change, re-run it and log the re-run here;
+  do not fix it.
+- Preferred AI topology: local = Mac 9router + ollama `bge-m3`; hosted = realm 9router (vm-103) +
+  `stacks-ollama` on vm-104 (TASK-0101).
+- vm-104 commands: one exact command per go; the operator's go must quote/reference it.
+- Never handle keys/passwords: the operator sets secrets; read keys only server-side, never print.
+
+### Exact next action
+
+Run **TASK-0102 Phase 2 — the paid capture** exactly as `specs/033-director-robustness/tasks.md`
+Phase 2 and `quickstart.md` describe (composite worktree: `origin/task-0048-playtest` detached,
+merge `origin/task-0102-director-robustness` in, never push; `pnpm playtest run --mode provider
+--spend-ceiling-usd 22`; read `jobs.result.failure` by SQL; commit the fixture
+`apps/server/test/dm/fixtures/director-capture-<runId>.json` and the evidence dir on the
+TASK-0102 branch). Ceiling already approved ($22). Record the run and its spend on the card. If
+the run shows no director failure, stop and ask the operator (FR-011). Then: orchestrator writes
+`evidence/classification.md` → dispatch Phase 3 (sonnet) → Phase 4 paid verification ($22,
+approved) → Phase 5 gate → wiki re-ground → PR → merge → resume TASK-0048 Phase 6 per
+`docs/design/m2-demo.md` (rebuild the TASK-0048 stack first; the operator plays Tamsin in Brave;
+audit with the $6 ceiling; fill the record).

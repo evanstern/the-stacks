@@ -6,6 +6,7 @@ import {
   DefenseSetSchema,
   ExpiryPointSchema,
   HitDieSchema,
+  SkillSchema,
 } from "./state.js";
 
 const Reason = z.string().min(1).max(500);
@@ -104,7 +105,7 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     combatantId: Id.nullable(),
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: Ability,
-    skill: z.string().min(1).max(100).nullable().default(null),
+    skill: SkillSchema.nullable().default(null),
     expression: z.string().min(1).max(200),
     mode: RollMode,
     dc: z.number().int().min(1).max(40),

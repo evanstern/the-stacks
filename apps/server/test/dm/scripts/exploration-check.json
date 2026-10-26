@@ -56,7 +56,7 @@
                   "combatantId": "tamsin",
                   "kind": "ability-check",
                   "ability": "int",
-                  "skill": "Investigation",
+                  "skill": "investigation",
                   "expression": "1d20",
                   "mode": "normal",
                   "dc": 13,

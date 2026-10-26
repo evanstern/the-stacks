@@ -1,0 +1,986 @@
+[
+  {
+    "kind": "change",
+    "seq": 1,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Scene start: The Bell at Greyhollow Ford",
+    "type": "scene.changed",
+    "subject": "greyhollow-ford",
+    "before": null,
+    "after": {
+      "sceneId": "greyhollow-ford",
+      "title": "The Bell at Greyhollow Ford",
+      "summary": "Find out who silenced the ferry bell at Greyhollow Ford and get the ferry crossing again before full dark.",
+      "location": "Greyhollow Ford"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 2,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin Vale joins the scene [dc604ca3-684b-4849-a699-4333816275cf#2]",
+    "type": "combatant.added",
+    "subject": "tamsin",
+    "before": null,
+    "after": {
+      "id": "tamsin",
+      "name": "Tamsin Vale",
+      "hp": {
+        "current": 13,
+        "max": 13,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 10,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 2,
+      "ac": 16,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-2",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 3,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin Vale joins the party",
+    "type": "party.member.changed",
+    "subject": "tamsin",
+    "before": null,
+    "after": {
+      "characterId": "tamsin",
+      "name": "Tamsin Vale",
+      "controller": {
+        "kind": "player",
+        "userId": "00000000-0000-4000-8000-0000000000a1"
+      },
+      "combatantId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 4,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Brother Odo joins the scene [dc604ca3-684b-4849-a699-4333816275cf#4]",
+    "type": "combatant.added",
+    "subject": "odo",
+    "before": null,
+    "after": {
+      "id": "odo",
+      "name": "Brother Odo",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 8,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {
+          "1": {
+            "max": 2,
+            "expended": 0
+          }
+        },
+        "pact": null
+      },
+      "initiativeBonus": 0,
+      "conModifier": 1,
+      "ac": 16,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-4",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 5,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Brother Odo joins the party",
+    "type": "party.member.changed",
+    "subject": "odo",
+    "before": null,
+    "after": {
+      "characterId": "odo",
+      "name": "Brother Odo",
+      "controller": {
+        "kind": "ai-companion",
+        "actor": "ai:companion:odo"
+      },
+      "combatantId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 6,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel joins the scene [dc604ca3-684b-4849-a699-4333816275cf#6]",
+    "type": "combatant.added",
+    "subject": "kestrel",
+    "before": null,
+    "after": {
+      "id": "kestrel",
+      "name": "Kestrel",
+      "hp": {
+        "current": 9,
+        "max": 9,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 8,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 3,
+      "conModifier": 1,
+      "ac": 14,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-6",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 7,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel joins the party",
+    "type": "party.member.changed",
+    "subject": "kestrel",
+    "before": null,
+    "after": {
+      "characterId": "kestrel",
+      "name": "Kestrel",
+      "controller": {
+        "kind": "ai-companion",
+        "actor": "ai:companion:kestrel"
+      },
+      "combatantId": "kestrel"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 8,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Start the Full dark falls on the ford tracker",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": null,
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 0,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 9,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Start the The reed-camp is alerted tracker",
+    "type": "tracker.changed",
+    "subject": "alarm",
+    "before": null,
+    "after": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 0,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 15,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "A thorough search of the ferry-house spends real time; the amber light goes gray. [e7c34d7f-d05a-4363-a1e9-bcde6157ca43#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 0,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 1,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 26,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "The fruitless search and the coaxing of Wenna down from the loft burn real daylight. [489af79c-c17b-44e0-94b3-af7a4df2ed30#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 1,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 2,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 27,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Wenna is frightened and wary; persuading her to trust strangers with her grandson's safety and share the safe path is uncertain, with an interesting cost on failure (she clams up or demands proof first). [489af79c-c17b-44e0-94b3-af7a4df2ed30#2]",
+    "batchId": "id-af4acfbb-27",
+    "index": 0,
+    "actionId": "act-persuade",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Wenna is frightened and wary; persuading her to trust strangers with her grandson's safety and share the safe path is uncertain, with an interesting cost on failure (she clams up or demands proof first). [489af79c-c17b-44e0-94b3-af7a4df2ed30#2]",
+      "expression": "1d20-1",
+      "mode": "normal",
+      "purpose": "check",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            19
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 19
+        },
+        {
+          "kind": "modifier",
+          "value": -1
+        }
+      ],
+      "total": 18,
+      "natural": 19
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 28,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Wenna is frightened and wary; persuading her to trust strangers with her grandson's safety and share the safe path is uncertain, with an interesting cost on failure (she clams up or demands proof first). [489af79c-c17b-44e0-94b3-af7a4df2ed30#2]",
+    "batchId": "id-af4acfbb-27",
+    "index": 1,
+    "actionId": "act-persuade",
+    "outcome": {
+      "type": "check.resolved",
+      "v": 1,
+      "reason": "Wenna is frightened and wary; persuading her to trust strangers with her grandson's safety and share the safe path is uncertain, with an interesting cost on failure (she clams up or demands proof first). [489af79c-c17b-44e0-94b3-af7a4df2ed30#2]",
+      "combatantId": "tamsin",
+      "kind": "ability-check",
+      "ability": "cha",
+      "skill": "persuasion",
+      "rollIndex": 0,
+      "dc": 13,
+      "total": 18,
+      "natural": 19,
+      "autoFail": null,
+      "outcome": "success"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 37,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Picking along sunk timbers into the marsh is a slow, careful approach — real time spent. [c2203df0-bc6a-4b1b-817c-bfc7601d8bff#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 2,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 3,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 46,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Hurried movement on the sunken timbers in failing light — splash and reed-rustle carries to the camp. [a8709bfb-e877-4921-b85e-e36480ee5839#1]",
+    "type": "tracker.changed",
+    "subject": "alarm",
+    "before": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 0,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "after": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 1,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 47,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Snag joins the fight [a8709bfb-e877-4921-b85e-e36480ee5839#2]",
+    "type": "combatant.added",
+    "subject": "snag",
+    "before": null,
+    "after": {
+      "id": "snag",
+      "name": "Snag",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 15,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-46",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 48,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin with a pot-helm joins the fight [a8709bfb-e877-4921-b85e-e36480ee5839#3]",
+    "type": "combatant.added",
+    "subject": "goblin-2",
+    "before": null,
+    "after": {
+      "id": "goblin-2",
+      "name": "Goblin with a pot-helm",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 15,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-47",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 49,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin lookout joins the fight [a8709bfb-e877-4921-b85e-e36480ee5839#4]",
+    "type": "combatant.added",
+    "subject": "goblin-3",
+    "before": null,
+    "after": {
+      "id": "goblin-3",
+      "name": "Goblin lookout",
+      "hp": {
+        "current": 7,
+        "max": 7,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 12,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-48",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 50,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin by the fire joins the fight [a8709bfb-e877-4921-b85e-e36480ee5839#5]",
+    "type": "combatant.added",
+    "subject": "goblin-4",
+    "before": null,
+    "after": {
+      "id": "goblin-4",
+      "name": "Goblin by the fire",
+      "hp": {
+        "current": 7,
+        "max": 7,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 12,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-af4acfbb-49",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 51,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            8
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 8
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 10,
+      "natural": 8
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 52,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 1,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "odo",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            17
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 17
+        }
+      ],
+      "total": 17,
+      "natural": 17
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 53,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 2,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "kestrel",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            5
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 5
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 8,
+      "natural": 5
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 54,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 3,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "snag",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            17
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 17
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 19,
+      "natural": 17
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 55,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 4,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-2",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            6
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 8,
+      "natural": 6
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 56,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 5,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            16
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 16
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 18,
+      "natural": 16
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 57,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "batchId": "id-af4acfbb-50",
+    "index": 6,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-4",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            3
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 3
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 5,
+      "natural": 3
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 58,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [a8709bfb-e877-4921-b85e-e36480ee5839#6]",
+    "type": "encounter.started",
+    "subject": null,
+    "before": null,
+    "after": {
+      "round": 1,
+      "turnIndex": 0,
+      "order": [
+        {
+          "combatantId": "snag",
+          "total": 19,
+          "bonus": 2
+        },
+        {
+          "combatantId": "goblin-3",
+          "total": 18,
+          "bonus": 2
+        },
+        {
+          "combatantId": "odo",
+          "total": 17,
+          "bonus": 0
+        },
+        {
+          "combatantId": "tamsin",
+          "total": 10,
+          "bonus": 2
+        },
+        {
+          "combatantId": "kestrel",
+          "total": 8,
+          "bonus": 3
+        },
+        {
+          "combatantId": "goblin-2",
+          "total": 8,
+          "bonus": 2
+        },
+        {
+          "combatantId": "goblin-4",
+          "total": 5,
+          "bonus": 2
+        }
+      ]
+    },
+    "batchId": "id-af4acfbb-50",
+    "index": 7,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 59,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin's push along the timbers closes the last of the distance — the party arrives at the mud island's edge, within the lookout's line of sight.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "free"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  }
+]

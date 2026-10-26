@@ -72,15 +72,15 @@ export async function saveResult(
 export async function finishJob(
   db: DbClient,
   job: FencedJob,
-  outcome: { result: unknown } | { error: string },
+  outcome: { result: unknown } | { error: string; result?: unknown },
 ): Promise<boolean> {
-  const succeeded = "result" in outcome;
+  const succeeded = !("error" in outcome);
   const updated = await db
     .update(jobs)
     .set({
       status: succeeded ? "succeeded" : "failed",
       stage: null,
-      result: succeeded ? outcome.result : null,
+      result: outcome.result ?? null,
       error: succeeded ? null : outcome.error,
       finishedAt: new Date(),
     })

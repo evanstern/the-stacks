@@ -11,18 +11,20 @@ sources:
   - packages/dnd5e-engine/src/rng.ts
   - packages/dnd5e-engine/src/dice.ts
   - packages/dnd5e-engine/src/schema/events.ts
+  - packages/dnd5e-engine/src/schema/state.ts
+  - packages/dnd5e-engine/src/schema/commands.ts
   - packages/dnd5e-engine/src/schema/refusals.ts
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 3a46656a735a97788aaa7e046c195a774435e41a
+verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
 ---
 
 # 5e engine
 
 `@the-stacks/dnd5e-engine` is a pure TypeScript package holding the 5e rules. It has no
 database, network, model, clock or global randomness; its only runtime dependency is `zod`.
-Nothing in `apps/` consumes it yet - it is the rules core the DM runtime will call.
+The DM runtime ([[dm-runtime]]) is its caller; the server derives its closed rules-term lists from the engine's enums (see Skills).
 
 ## Entry point
 
@@ -51,6 +53,15 @@ is mulberry32 over a 32-bit seed with rejection sampling, so every face is equal
 parsing (`parseDiceExpression`) supports `NdS`, keep-highest/lowest (`kh`/`kl`), and modifiers,
 with hard limits (count 100, sides 1000, 20 terms, 200 characters, modifier +/-1000) that
 refuse with `DICE_LIMIT_EXCEEDED`.
+
+## Skills
+
+`SkillSchema` (`src/schema/state.ts`, exported with `type Skill`) is a closed enum of the 18 SRD
+5.2.1 skills as lowercase kebab-case keys (`acrobatics`, `animal-handling`, ... `sleight-of-hand`,
+`stealth`, `survival`). It is the only literal skill list. The `check.roll` command takes
+`skill: SkillSchema.nullable().default(null)`. The event schema keeps `check.resolved.skill` as
+a nullable string, so stored events with older skill spellings still parse. The server derives
+its own gate and prompt lists from this enum ([[dm-runtime]]).
 
 ## Roll ledger
 

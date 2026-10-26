@@ -55,7 +55,7 @@ const check = (actionId: string, reason: string) => ({
       combatantId: "tamsin",
       kind: "ability-check",
       ability: "str",
-      skill: "Athletics",
+      skill: "athletics",
       expression: "1d20+4",
       mode: "normal",
       dc: 12,

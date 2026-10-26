@@ -5,6 +5,7 @@ import {
 } from "@the-stacks/dnd5e-engine";
 import { CombatantIdSchema, RefIdSchema } from "@the-stacks/session-model";
 import { z } from "zod";
+import { SkillSchema } from "../nodes/schemas.js";
 
 /**
  * The scene seed (specs/031-dm-runtime contracts/scene-seed.md): a stand-in for
@@ -68,10 +69,7 @@ export const SeedCharacter = z.object({
     ),
     proficiencyBonus: z.number().int().min(2).max(6),
     saves: z.partialRecord(AbilitySchema, z.number().int().min(-5).max(15)),
-    skills: z.record(
-      z.string().min(1).max(40),
-      z.number().int().min(-5).max(15),
-    ),
+    skills: z.partialRecord(SkillSchema, z.number().int().min(-5).max(15)),
     attacks: z
       .array(
         z.object({
@@ -131,7 +129,7 @@ export const SceneSeedSchema = z.object({
               check: z
                 .object({
                   ability: AbilitySchema,
-                  skill: z.string().min(1).max(40).nullable(),
+                  skill: SkillSchema.nullable(),
                   dc: z.number().int().min(5).max(30),
                 })
                 .nullable(),
