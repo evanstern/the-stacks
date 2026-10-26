@@ -57,6 +57,8 @@ export const ChronicleJobInput = z.object({
 `jobs.result` for a turn job holds `{ checkpoint, outcome, audit, calls }` (below and
 [audit.md](audit.md)).
 
+Amended by specs/033-director-robustness/contracts/failure-record.md.
+
 ## Schema changes (migration `0004`)
 
 | Change | Why |

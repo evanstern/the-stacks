@@ -42,6 +42,8 @@ export const DirectorOutput = z.object({
 Tracker advances are deltas. Code computes `after.filled = clamp(before.filled + advance,
 0, segments)`. Tracker clocks are the Director's narrative state, not engine mechanics.
 
+Amended by specs/033-director-robustness/contracts/director-output.md.
+
 ## Legality (enforced by code, not the model)
 
 | Decision | Legal when | Otherwise |

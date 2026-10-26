@@ -103,6 +103,9 @@ Each beat item has exactly one reading; an NPC turn has one reading with `action
 missing or extra reading is `invalid-output`. `priorSteps` tells interpret which steps already
 applied for an action; it plans only the rest.
 
+Amended by specs/033-director-robustness/contracts/interpret-output.md.
+Amended by specs/033-director-robustness/contracts/rules-terms.md.
+
 ## Steps (mechanics inputs as data)
 
 ```ts
@@ -140,6 +143,9 @@ The schema has **no field for a total, an applied amount, or a verdict** (AC #5,
 `expression` carries the bonus the model chose (ability modifier, proficiency, bonus dice);
 the engine parses and rolls it. A `fixed` amount is allowed only where the SRD names a fixed
 value; the prompt says so, and audit does not police it.
+
+Amended by specs/033-director-robustness/contracts/interpret-output.md.
+Amended by specs/033-director-robustness/contracts/rules-terms.md.
 
 ## adjudicate (`dm.adjudicate`)
 
