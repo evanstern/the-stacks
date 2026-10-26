@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:31'
+updated_date: '2026-10-26 02:44'
 labels:
   - first-scene
   - engine
@@ -32,17 +32,17 @@ Spec: specs/026-dnd5e-engine
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The engine exposes one pure function that takes state, a command and an RNG, and returns events or a refusal.
-- [ ] #2 The dice parser accepts NdM, modifiers, keep-highest and keep-lowest (for example 4d6kh3), advantage, disadvantage and bonus dice.
-- [ ] #3 A seeded RNG makes every roll reproducible, and tests inject scripted dice results.
-- [ ] #4 The engine applies damage and healing to HP and temporary HP, and each resulting event records before and after values.
-- [ ] #5 Conditions are data records, and the engine applies, lists and removes them.
-- [ ] #6 The engine rolls initiative, orders turns and advances the active turn.
-- [ ] #7 The engine tracks life states (conscious, unconscious, stable, dead) and resolves death saves.
-- [ ] #8 The engine resolves short and long rests, and spends and restores spell slots.
-- [ ] #9 An illegal command returns a refusal with a specific error code and produces no events.
-- [ ] #10 The boundary check fails if the package imports a database, network or LLM module.
-- [ ] #11 Scripted-dice unit tests cover every command and every refusal code.
+- [x] #1 The engine exposes one pure function that takes state, a command and an RNG, and returns events or a refusal.
+- [x] #2 The dice parser accepts NdM, modifiers, keep-highest and keep-lowest (for example 4d6kh3), advantage, disadvantage and bonus dice.
+- [x] #3 A seeded RNG makes every roll reproducible, and tests inject scripted dice results.
+- [x] #4 The engine applies damage and healing to HP and temporary HP, and each resulting event records before and after values.
+- [x] #5 Conditions are data records, and the engine applies, lists and removes them.
+- [x] #6 The engine rolls initiative, orders turns and advances the active turn.
+- [x] #7 The engine tracks life states (conscious, unconscious, stable, dead) and resolves death saves.
+- [x] #8 The engine resolves short and long rests, and spends and restores spell slots.
+- [x] #9 An illegal command returns a refusal with a specific error code and produces no events.
+- [x] #10 The boundary check fails if the package imports a database, network or LLM module.
+- [x] #11 Scripted-dice unit tests cover every command and every refusal code.
 - [x] #12 Spec phase: Setup — package scaffold and boundary rule (AC #10)
 - [x] #13 Spec phase: Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9)
 - [x] #14 Spec phase: User Story 2 — combatants, HP and damage defenses, temporary HP, life states, death saves (AC #4, #7)
@@ -85,10 +85,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Adversarial review (Codex) round 1 fix: seededRng.rollDie rejects die sizes above 1000 (2c9f99e).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged in PR #43 (140948b) on 2026-10-25. Card ACs #1–#11 are proven by specs/026-dnd5e-engine/ci-evidence.txt and the 197 engine tests.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
