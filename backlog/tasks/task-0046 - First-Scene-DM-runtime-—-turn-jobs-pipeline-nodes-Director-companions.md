@@ -107,6 +107,8 @@ Wiki re-ground by sonnet-implementer: 23c5921. New notes dm-runtime and dm-turn-
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #49 on 2026-10-26. Card ACs #1–#15 are proven by specs/031-dm-runtime/ci-evidence.txt and evidence/full-turn.json.
+
+spec-bridge sync: The jobs queue for DM jobs (US4, US8; AC #1, #9): 8/8 · Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15): 11/11 · Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11): 12/12 · Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8): 10/10 · Worker, actors and routes (US4, US5, US7; AC #1, #5, #10, #12): 9/9 · Merge condition and the full gate (all stories; AC #1, #2, #4, #8, #9, #15): 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
