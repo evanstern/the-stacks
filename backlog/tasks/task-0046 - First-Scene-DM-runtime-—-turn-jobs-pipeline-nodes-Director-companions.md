@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 05:34'
+updated_date: '2026-10-26 05:50'
 labels:
   - first-scene
   - dm
@@ -54,7 +54,7 @@ Spec: specs/031-dm-runtime
 - [x] #16 Spec phase: The jobs queue for DM jobs (US4, US8; AC #1, #9)
 - [x] #17 Spec phase: Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15)
 - [x] #18 Spec phase: Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11)
-- [ ] #19 Spec phase: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
+- [x] #19 Spec phase: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
 - [ ] #20 Spec phase: Worker, actors and routes (US4, US5, US7; AC #1, #5, #10, #12)
 - [ ] #21 Spec phase: Merge condition and the full gate (all stories; AC #1, #2, #4, #8, #9, #15)
 <!-- AC:END -->
@@ -86,6 +86,10 @@ Carried to Phase 5: the boot-time missingDmPurposes check still needs wiring.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 by sonnet-implementer: dd3d8e5. Adds the node seam plus the assemble, director, interpret and adjudicate nodes. Prompts are built for dm.director, dm.interpret and dm.adjudicate, and the doctrine guard now runs non-vacuously. The server suite passes 572 tests, including the adjudicate DB integration; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 by sonnet-implementer: 9550955. resolve is the only gate.submit caller; it steps from engine events only and takes job markers on replay. narrate writes digit-free prose from code-built facts. audit runs seven deterministic checks plus dm.audit, at most 3 attempts, and on failure ships a fallback with a dm journal flag. The server suite passes 624 tests; ci:check green.
+Carried to Phase 5: the worker fills TurnJobRef.start from the job input, and createDmEnqueuer enqueues on approval (T058/T071).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
