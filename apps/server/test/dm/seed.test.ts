@@ -34,6 +34,15 @@ function issuesFor(mutate: (seed: Row) => void): string[] {
   throw new Error("expected the mutated seed to fail");
 }
 
+describe("scene seed skill gate", () => {
+  it("fails to load a character with an unknown skill key", () => {
+    const issues = issuesFor((s) => {
+      s.characters[0].identity.skills.Perception = 3;
+    });
+    expect(issues.length).toBeGreaterThan(0);
+  });
+});
+
 describe("scene seed (AC #13)", () => {
   it("loads the shipped seed", () => {
     const seed = loadSeed("greyhollow-ford");

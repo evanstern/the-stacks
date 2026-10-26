@@ -92,6 +92,8 @@ export const SceneSeedSchema = z.object({
 });
 ```
 
+Amended by specs/033-director-robustness/contracts/rules-terms.md.
+
 ## Loader
 
 ```ts

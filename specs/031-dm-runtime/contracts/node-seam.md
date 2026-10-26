@@ -140,3 +140,6 @@ export async function callJson<T>(
    `user`. A second failure returns `invalid-output`.
 
 `callText` is the same without steps 3–4 (narrate's prose).
+
+Amended by specs/033-director-robustness/contracts/director-output.md.
+Amended by specs/033-director-robustness/contracts/failure-record.md.

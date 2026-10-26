@@ -1,0 +1,465 @@
+{
+  "v": 1,
+  "runId": "20261026T152743Z-greyhollow-ford-provider",
+  "sessionId": "af4acfbb-e830-4ac8-a381-9544f4592022",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T15:32:40.785Z",
+  "commit": "aa960b358242b1d5aaa680f09a65b75dd4e38c18",
+  "verdict": "incomplete",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 63,
+    "narrations": 5,
+    "segments": 6,
+    "rolls": 8,
+    "findings": {
+      "fail": 2,
+      "warn": 5,
+      "note": 3
+    }
+  },
+  "segments": [
+    {
+      "index": 0,
+      "narrationSeq": 10,
+      "fromSeq": 1,
+      "toSeq": 10,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 1,
+      "narrationSeq": 17,
+      "fromSeq": 11,
+      "toSeq": 17,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 2,
+      "narrationSeq": 30,
+      "fromSeq": 18,
+      "toSeq": 30,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 3,
+      "narrationSeq": 39,
+      "fromSeq": 31,
+      "toSeq": 39,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 4,
+      "narrationSeq": 61,
+      "fromSeq": 40,
+      "toSeq": 61,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 5,
+      "narrationSeq": null,
+      "fromSeq": 62,
+      "toSeq": 63,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        10
+      ],
+      "detail": "The scene closes on a silent, static loft that holds its breath rather than anything that pressures the player to respond."
+    },
+    {
+      "id": "F2",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "one-clue",
+      "seqs": [
+        10
+      ],
+      "detail": "The beat stacks four clues at once — the cut bell rope, the gutted strongbox, the claw-drag trail to the causeway, and the stained ladder rungs — instead of one."
+    },
+    {
+      "id": "F3",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "fail-forward",
+      "seqs": [
+        16,
+        17
+      ],
+      "detail": "The resolved action is narrated as a dead end — \"nothing changes\" — instead of creating a new problem from the failure."
+    },
+    {
+      "id": "F4",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        17
+      ],
+      "detail": "The turn ends on a flat non-event that gives the player nothing to respond to."
+    },
+    {
+      "id": "F5",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "blame-the-situation",
+      "seqs": [
+        17
+      ],
+      "detail": "The failure is framed as the hero's act amounting to nothing rather than as something the world did to the attempt."
+    },
+    {
+      "id": "F6",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        17
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch, doctrine"
+    },
+    {
+      "id": "F7",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 2,
+      "doctrineId": null,
+      "seqs": [
+        30
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    },
+    {
+      "id": "F8",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 4,
+      "doctrineId": null,
+      "seqs": [
+        47,
+        48,
+        49,
+        50,
+        58,
+        61
+      ],
+      "detail": "Four goblin combatants were added and the encounter started, yet the narration shows only a single half-glimpsed shape with no fight breaking out."
+    },
+    {
+      "id": "F9",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 4,
+      "doctrineId": null,
+      "seqs": [
+        59,
+        61
+      ],
+      "detail": "The state change puts the party at the mud island's edge inside the lookout's line of sight, but the narration says the track yields no path and the shape slips back unseen."
+    },
+    {
+      "id": "F10",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 4,
+      "doctrineId": null,
+      "seqs": [
+        61
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 2; issues: player-agency, doctrine"
+    }
+  ],
+  "fight": {
+    "rounds": 1,
+    "turns": {
+      "players": 0,
+      "npcs": 0
+    },
+    "attackRolls": {
+      "players": 0,
+      "npcs": 0
+    },
+    "hits": {
+      "players": 0,
+      "npcs": 0
+    },
+    "damageDealt": {
+      "players": 0,
+      "npcs": 0
+    },
+    "damageTaken": {
+      "players": 0,
+      "npcs": 0
+    },
+    "reducedToZero": [],
+    "deathSaveRolls": 0,
+    "fledOrBargained": null,
+    "fledOrBargainedNote": "No encounter.ended, combatant.removed or scene-ending scene.changed row was logged, so how the fight ended is unknown.",
+    "turnModeNarrations": 1
+  },
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "modelNote": null,
+  "usage": {
+    "calls": 9,
+    "inputTokens": 50582,
+    "outputTokens": 5246,
+    "costUsd": 0.38406
+  }
+}

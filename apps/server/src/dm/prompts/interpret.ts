@@ -11,19 +11,51 @@ import {
   capEntries,
   joinSections,
   projectionEntries,
-  STEP_GRAMMAR,
   section,
   seedEntries,
   srdEntries,
   transcriptEntries,
 } from "./common.js";
+import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v1";
+export const PROMPT_VERSION = "dm.interpret-v2";
 
-const OUTPUT_SHAPE = [
-  "Reply with ONE JSON object and nothing else:",
+/** One complete minimal reading: a check step with empty effect lists. */
+export const EXAMPLE_OUTPUT = {
+  readings: [
+    {
+      actionId: "act-1",
+      intent: "check",
+      uncertain: true,
+      needsAdjudication: false,
+      rulesQuestion: null,
+      clarify: null,
+      steps: [
+        {
+          step: "check",
+          reason: "Ana searches the ford for tracks.",
+          combatantId: "pc-ana",
+          kind: "ability-check",
+          ability: "wis",
+          skill: "survival",
+          expression: "1d20+3",
+          mode: "normal",
+          dc: 12,
+          autoFail: null,
+          onSuccess: [],
+          onFailure: [],
+        },
+      ],
+    },
+  ],
+};
+
+export const OUTPUT_SHAPE = [
+  "Reply with one JSON object, no prose, no code fence.",
   '{"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"steps":[step]}]}',
   "Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied).",
+  "Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.",
+  `Example of one complete reading:\n${JSON.stringify(EXAMPLE_OUTPUT)}`,
 ].join("\n");
 
 export function buildInterpretPrompt(input: {

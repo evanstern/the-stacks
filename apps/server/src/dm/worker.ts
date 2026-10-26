@@ -23,6 +23,7 @@ import {
   reconcileTurnJobs,
   saveCheckpoint,
   type TurnCheckpoint,
+  type TurnFailureResult,
 } from "./jobs.js";
 import { adjudicate } from "./nodes/adjudicate.js";
 import { assemble } from "./nodes/assemble.js";
@@ -163,7 +164,24 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       return;
     }
     if (seed === "bad-seed") {
-      if (await finishJob(db, job, { error: "stopped at assemble: seed" })) {
+      const failed: TurnFailureResult = {
+        checkpoint: latest,
+        outcome: { status: "failed" },
+        audit: null,
+        calls: [],
+        failure: {
+          node: "assemble",
+          kind: "seed",
+          message: "the scene seed did not load",
+          detail: null,
+        },
+      };
+      if (
+        await finishJob(db, job, {
+          error: "stopped at assemble: seed",
+          result: failed,
+        })
+      ) {
         await notice(job.sessionId, "assemble", "seed");
       }
       return;
@@ -235,15 +253,30 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       ) {
         return;
       }
+      // The log carries the detail without attempt excerpts (model text).
+      const { attempts: _excerpts, ...loggable } = outcome.error.detail ?? {};
       log({
         event: "dm.turn.failed",
         jobId: job.id,
         node: outcome.node,
         kind: outcome.error.kind,
-        detail: outcome.error.detail ?? null,
+        detail: outcome.error.detail ? loggable : null,
       });
+      const failed: TurnFailureResult = {
+        checkpoint: latest,
+        outcome: { status: "failed" },
+        audit: null,
+        calls: outcome.calls,
+        failure: {
+          node: outcome.node,
+          kind: outcome.error.kind,
+          message: outcome.error.message,
+          detail: outcome.error.detail ?? null,
+        },
+      };
       const finished = await finishJob(db, job, {
         error: `stopped at ${outcome.node}: ${outcome.error.kind}`,
+        result: failed,
       });
       if (finished)
         await notice(job.sessionId, outcome.node, outcome.error.kind);

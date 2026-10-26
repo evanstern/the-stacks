@@ -1,0 +1,40 @@
+{
+  "v": 1,
+  "runId": "20261026T150925Z-greyhollow-ford-provider",
+  "commit": "15f15fef89cd161fae3d4fe4a06c7567354b71ed",
+  "provider": "claude",
+  "model": "cc/claude-opus-5",
+  "maxTokens": 1500,
+  "promptVersion": "dm.director-v1",
+  "turn": {
+    "trigger": "commit",
+    "triggerSeq": 114,
+    "actionIds": ["pt-5"]
+  },
+  "failure": {
+    "kind": "invalid-output",
+    "node": "director",
+    "detail": {
+      "issues": "goalNote: Too big: expected string to have <=300 characters",
+      "purpose": "dm.director",
+      "attempts": [
+        {
+          "chars": 584,
+          "issues": "goalNote: Too big: expected string to have <=300 characters",
+          "attempt": 1,
+          "excerpt": "{\"beat\":{\"decision\":\"resolve\"},\"tableMode\":{\"to\":\"stay\"},\"trackers\":[],\"scene\":{\"status\":\"continue\"},\"pacing\":{\"tension\":\"high\",\"spotlight\":\"kestrel\",\"beatId\":\"reed-camp\"},\"goalNote\":\"pt-5 is impossible: Tamsin is at 0 HP, Unconscious/Incapacitated, speed 0, sword dropped. Do not narrate a swing — narrate stillness in the mud, breath holding under Odo's hands (stabilized, no death saves). Turn passes to Kestrel; goblin-3 is poised over kneeling Odo. Clapper's ring has faded; the pale thing will drift back. Snag trades only once two goblins fall.\",\"companionPrompts\":[\"kestrel\"]}",
+          "outputTokens": 783
+        },
+        {
+          "chars": 526,
+          "issues": "goalNote: Too big: expected string to have <=300 characters",
+          "attempt": 2,
+          "excerpt": "{\"beat\":{\"decision\":\"resolve\"},\"tableMode\":{\"to\":\"stay\"},\"trackers\":[],\"scene\":{\"status\":\"continue\"},\"pacing\":{\"tension\":\"high\",\"spotlight\":\"kestrel\",\"beatId\":\"reed-camp\"},\"goalNote\":\"pt-5 impossible: Tamsin is at 0 HP, unconscious, speed 0, sword dropped. Don't narrate a swing — show her still in the mud, breathing under Odo's hands (stabilized, no death saves). Turn passes to Kestrel; goblin-3 looms over kneeling Odo. Ring fading; pale thing drifts back. Snag trades at two goblins down.\",\"companionPrompts\":[\"kestrel\"]}",
+          "outputTokens": 245
+        }
+      ],
+      "promptVersion": "dm.director-v1"
+    },
+    "message": "model output failed its schema twice (dm.director)"
+  }
+}

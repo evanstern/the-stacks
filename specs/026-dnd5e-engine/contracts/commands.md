@@ -76,6 +76,8 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   `critical-hit` with `damage.apply`, setting `critical: true` exactly when the
   `attack.resolved` outcome is `critical-hit`.
 
+Amended by specs/033-director-robustness/contracts/rules-terms.md.
+
 ## Combatants
 
 | Command | Fields | Events | Refusals |

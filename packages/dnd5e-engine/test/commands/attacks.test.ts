@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { SkillSchema } from "../../src/index.js";
 import {
   expectOk,
+  expectRefusal,
   expectRefusedBeforeDraw,
   makeCombatant,
   run,
@@ -314,6 +316,34 @@ describe("check.roll", () => {
       skill: "perception",
       outcome: "success",
     });
+  });
+
+  it.each(SkillSchema.options)("rolls a check for the skill %s", (skill) => {
+    const { result } = run(
+      state(),
+      check({ kind: "ability-check", ability: "wis", skill, dc: 10 }),
+      [8],
+    );
+    expect(checkOf(expectOk(result))).toMatchObject({ skill });
+  });
+
+  it.each(["Perception", "sleight of hand", "spotting"])(
+    "refuses the unlisted skill %s",
+    (skill) => {
+      const { result } = run(
+        state(),
+        check({ kind: "ability-check", ability: "wis", skill, dc: 10 }),
+        [8],
+      );
+      expectRefusal(result, "INVALID_COMMAND");
+    },
+  );
+
+  it("resolves a null or omitted skill", () => {
+    const a = run(state(), check({ skill: null }), [8]);
+    expect(checkOf(expectOk(a.result))).toMatchObject({ skill: null });
+    const b = run(state(), check(), [8]);
+    expect(checkOf(expectOk(b.result))).toMatchObject({ skill: null });
   });
 
   it("applies advantage", () => {

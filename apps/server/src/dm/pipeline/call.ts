@@ -15,6 +15,8 @@ export interface CallRequest {
   system: string;
   user: string;
   signal: AbortSignal;
+  /** Applied to the parsed JSON before the schema runs, on every attempt. */
+  normalize?: (json: unknown) => unknown;
 }
 
 export type CallFailure = {
@@ -32,8 +34,42 @@ export type TextResult =
   | CallFailure;
 
 type Collected =
-  | { ok: true; text: string }
+  | { ok: true; text: string; outputTokens: number | null }
   | { ok: false; kind: ErrorKind | "aborted"; message: string };
+
+/** One failed model attempt, kept in an `invalid-output` detail. */
+export interface AttemptExcerpt {
+  attempt: 1 | 2;
+  outputTokens: number | null;
+  chars: number;
+  issues: string;
+  excerpt: string;
+}
+
+const EXCERPT_WHOLE = 8000;
+const EXCERPT_HEAD = 6000;
+const EXCERPT_TAIL = 2000;
+
+/** Bounds raw model text for a failure record (contracts/failure-record.md). */
+export function excerptOf(text: string): string {
+  if (text.length <= EXCERPT_WHOLE) return text;
+  const elided = text.length - EXCERPT_WHOLE;
+  return `${text.slice(0, EXCERPT_HEAD)}\n…[${elided} characters elided]…\n${text.slice(-EXCERPT_TAIL)}`;
+}
+
+function attemptOf(
+  attempt: 1 | 2,
+  collected: { text: string; outputTokens: number | null },
+  issues: string,
+): AttemptExcerpt {
+  return {
+    attempt,
+    outputTokens: collected.outputTokens,
+    chars: collected.text.length,
+    issues,
+    excerpt: excerptOf(collected.text),
+  };
+}
 
 async function collect(
   deps: Pick<NodeDeps, "gateway">,
@@ -41,6 +77,7 @@ async function collect(
   messages: ChatMessage[],
 ): Promise<Collected> {
   let text = "";
+  let outputTokens: number | null = null;
   for await (const event of deps.gateway.chat({
     purpose: req.purpose,
     system: req.system,
@@ -48,6 +85,7 @@ async function collect(
     signal: req.signal,
   })) {
     if (event.type === "text") text += event.text;
+    else if (event.type === "done") outputTokens = event.usage.outputTokens;
     else if (event.type === "error") {
       return { ok: false, kind: event.kind, message: event.message };
     }
@@ -55,7 +93,7 @@ async function collect(
   if (req.signal.aborted) {
     return { ok: false, kind: "aborted", message: "the turn was aborted" };
   }
-  return { ok: true, text };
+  return { ok: true, text, outputTokens };
 }
 
 function failure(
@@ -99,6 +137,7 @@ export function stripFence(text: string): string {
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
+  normalize?: (json: unknown) => unknown,
 ): { ok: true; value: T } | { ok: false; issues: string } {
   let json: unknown;
   try {
@@ -106,7 +145,7 @@ function parseAgainst<T>(
   } catch (error) {
     return { ok: false, issues: `not valid JSON: ${(error as Error).message}` };
   }
-  const parsed = schema.safeParse(json);
+  const parsed = schema.safeParse(normalize ? normalize(json) : json);
   if (parsed.success) return { ok: true, value: parsed.data };
   const issues = parsed.error.issues
     .slice(0, 8)
@@ -124,7 +163,7 @@ export async function callJson<T>(
 
   const first = await collect(deps, req, messages);
   if (!first.ok) return failure(first, req, 1, calls);
-  const parsedFirst = parseAgainst(first.text, req.schema);
+  const parsedFirst = parseAgainst(first.text, req.schema, req.normalize);
   if (parsedFirst.ok) {
     calls.push({
       purpose: req.purpose,
@@ -143,6 +182,7 @@ export async function callJson<T>(
     errorKind: null,
   });
 
+  const attempts: AttemptExcerpt[] = [attemptOf(1, first, parsedFirst.issues)];
   messages.push(
     { role: "assistant", content: first.text },
     {
@@ -152,7 +192,7 @@ export async function callJson<T>(
   );
   const second = await collect(deps, req, messages);
   if (!second.ok) return failure(second, req, 2, calls);
-  const parsedSecond = parseAgainst(second.text, req.schema);
+  const parsedSecond = parseAgainst(second.text, req.schema, req.normalize);
   if (parsedSecond.ok) {
     calls.push({
       purpose: req.purpose,
@@ -170,12 +210,18 @@ export async function callJson<T>(
     outcome: "invalid-json",
     errorKind: null,
   });
+  attempts.push(attemptOf(2, second, parsedSecond.issues));
   return {
     ok: false,
     error: {
       kind: "invalid-output",
       message: `model output failed its schema twice (${req.purpose})`,
-      detail: { purpose: req.purpose, issues: parsedSecond.issues },
+      detail: {
+        purpose: req.purpose,
+        promptVersion: req.promptVersion,
+        issues: parsedSecond.issues,
+        attempts,
+      },
     },
     calls,
   };

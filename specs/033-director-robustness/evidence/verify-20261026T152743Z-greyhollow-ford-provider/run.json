@@ -1,0 +1,70 @@
+{
+  "v": 1,
+  "runId": "20261026T152743Z-greyhollow-ford-provider",
+  "mode": "provider",
+  "commit": "aa960b358242b1d5aaa680f09a65b75dd4e38c18",
+  "sessionId": "af4acfbb-e830-4ac8-a381-9544f4592022",
+  "seedId": "greyhollow-ford",
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "startedAt": "2026-10-26T15:27:43.283Z",
+  "finishedAt": "2026-10-26T15:31:25.482Z",
+  "outcome": "failed",
+  "failedJobId": "afe4ff33-a5ef-4c1e-888a-840172ae3d73",
+  "moves": {
+    "committed": 4,
+    "refusals": []
+  },
+  "dice": {
+    "scriptedFaces": 0,
+    "seed": null,
+    "drawn": 8
+  },
+  "spend": {
+    "calls": 51,
+    "inputTokens": 238192,
+    "outputTokens": 19316,
+    "costUsd": 0.998827,
+    "ceilingUsd": 22
+  }
+}

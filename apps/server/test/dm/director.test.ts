@@ -8,7 +8,7 @@ import {
   legalizeDirector,
   runnableEncounterIds,
 } from "../../src/dm/nodes/director.js";
-import type { DirectorOutput } from "../../src/dm/nodes/schemas.js";
+import { DirectorOutput } from "../../src/dm/nodes/schemas.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import {
   fixtureEvents,
@@ -184,6 +184,17 @@ describe("legalizeDirector (director.md legality table)", () => {
     );
     expect(illegal.tableMode).toEqual({ to: "stay" });
     expect(illegal.overrides.map((o) => o.decision)).toEqual(["free"]);
+  });
+
+  it("reports a readable issue for a zero tracker advance", () => {
+    const parsed = DirectorOutput.safeParse(
+      model({ trackers: [{ trackerId: "dusk", advance: 0, reason: "x" }] }),
+    );
+    expect(parsed.success).toBe(false);
+    if (parsed.success) return;
+    expect(parsed.error.issues.map((i) => i.message)).toContain(
+      "advance must be a non-zero integer from -3 to 3",
+    );
   });
 
   it("drops a tracker advance for a tracker that does not exist", () => {

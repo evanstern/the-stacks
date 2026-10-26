@@ -31,6 +31,31 @@ export const ConditionKeySchema = z.enum([
   "unconscious",
 ]);
 
+/**
+ * The 18 SRD 5.2.1 skills as lowercase kebab-case keys. The only literal
+ * skill list: the server derives its gates and prompts from this enum.
+ */
+export const SkillSchema = z.enum([
+  "acrobatics",
+  "animal-handling",
+  "arcana",
+  "athletics",
+  "deception",
+  "history",
+  "insight",
+  "intimidation",
+  "investigation",
+  "medicine",
+  "nature",
+  "perception",
+  "performance",
+  "persuasion",
+  "religion",
+  "sleight-of-hand",
+  "stealth",
+  "survival",
+]);
+
 export const ExpiryPointSchema = z.object({
   round: z.number().int().min(1),
   combatantId: CombatantIdSchema,
@@ -251,6 +276,7 @@ export const EngineStateSchema = z
 export type CombatantId = z.infer<typeof CombatantIdSchema>;
 export type LifeState = z.infer<typeof LifeStateSchema>;
 export type ConditionKey = z.infer<typeof ConditionKeySchema>;
+export type Skill = z.infer<typeof SkillSchema>;
 export type ExpiryPoint = z.infer<typeof ExpiryPointSchema>;
 export type ConditionInstance = z.infer<typeof ConditionInstanceSchema>;
 export type DamageType = z.infer<typeof DamageTypeSchema>;

@@ -10,7 +10,7 @@ sources:
   - apps/server/src/schema/jobs.ts
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
 ---
 
 # DM turn jobs
@@ -49,7 +49,7 @@ ordered: an expired running job first, then by kind priority, then age. A queued
 companion job is skipped while another `turn`/`companion` job for the same session holds a live
 lease; `jobs_session_running_key` backs that with a unique index. Chronicle jobs are not
 serialized. `jobs/queue.ts` holds the kind-generic fenced writes (`heartbeat`, `setStage`,
-`saveResult`, `finishJob`) and the constants `LEASE_MS` 60 s, `HEARTBEAT_MS` 10 s, `POLL_MS`
+`saveResult`, `finishJob`, which takes `{ result }` or `{ error, result? }`) and the constants `LEASE_MS` 60 s, `HEARTBEAT_MS` 10 s, `POLL_MS`
 2 s, `MAX_ATTEMPTS` 3; every write filters on `claim_token`, and `false` means fenced out. The
 worker aborts its `AbortController` on a lost lease, which cancels an in-flight `chat()`. Gate
 writes cannot be fenced by the table, so resolve heartbeats immediately before each
@@ -72,6 +72,15 @@ checkpoint's `lastSeq` bounds the search. Narration rows carry no marker, so
 `findLandedNarration` detects a narration by position: an `ai:dm` narration row after the job's
 last known seq. When one exists the runner skips narrate and audit, spends no model calls, and
 never duplicates the narration. A claim past `MAX_ATTEMPTS` marks the job `failed` and appends a failure notice.
+
+## Failed turns
+
+A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stopped at <node>:
+<kind>`) and `jobs.result` a `TurnFailureResult` (`TurnFailure` in `dm/jobs.ts`): checkpoint,
+`outcome.status = "failed"`, `audit: null`, the model calls made, and `failure` (`node`, `kind`,
+`message`, `detail`). The worker writes it for a node failure and for the bad-seed path (`kind`
+`seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim. Excerpt bounds
+and the `invalid-output` detail are in [[dm-runtime]].
 
 ## Reconcile
 

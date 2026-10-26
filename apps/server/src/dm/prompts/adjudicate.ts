@@ -7,12 +7,12 @@ import {
   CAPS,
   joinSections,
   projectionEntries,
-  STEP_GRAMMAR,
   section,
   srdEntries,
 } from "./common.js";
+import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.adjudicate-v1";
+export const PROMPT_VERSION = "dm.adjudicate-v2";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
