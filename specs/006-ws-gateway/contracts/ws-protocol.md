@@ -104,3 +104,8 @@ client that may immediately send a good one.
 - **No play-session creation or listing.** No session registry exists (spec 004 left
   `session_id` opaque); a client subscribes to an identifier it already knows.
 - **No client-side write path.** By construction (FR-014).
+
+> Extended by `specs/029-proposal-gate/contracts/ws-delivery.md`: `send` is classified (gate
+> request, other catalogued type refused with `CATALOG_TYPE_REQUIRES_GATE`, else uncatalogued
+> append); `error` frames gain an optional `code`; delivery filters per recipient with
+> `canSee` against the session's DM seat.

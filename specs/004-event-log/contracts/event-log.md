@@ -84,3 +84,7 @@ Named so TASK-0015 does not wait for them:
 - **No payload validation.** Payload contents are opaque until the system module arrives
   in M3 (research D4).
 - **No update or delete.** There is no such operation, by construction (FR-004).
+
+> Extended by `specs/029-proposal-gate/contracts/gate-api.md` section 4: `appendBatch` takes
+> an optional `expectedLastSeq` (a mismatch throws `SeqConflictError`, zero rows land), and
+> `readLatestOfType` returns a session's latest row of one type.

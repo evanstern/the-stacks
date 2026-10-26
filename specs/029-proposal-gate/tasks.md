@@ -187,17 +187,17 @@ condition is met.
 
 ### Tests
 
-- [ ] T047 [US6] Write `apps/server/test/write-boundary.test.ts`: run `checkWriteBoundary` on `apps/server/src` (expect zero violations) and on `apps/server/test/fixtures/write-boundary/src` (expect exactly the three seeded violations, by file and rule).
+- [x] T047 [US6] Write `apps/server/test/write-boundary.test.ts`: run `checkWriteBoundary` on `apps/server/src` (expect zero violations) and on `apps/server/test/fixtures/write-boundary/src` (expect exactly the three seeded violations, by file and rule).
 
 ### Implementation
 
-- [ ] T048 [P] [US6] Create `apps/server/test/helpers/import-graph.ts` exporting `checkWriteBoundary(root)` per contracts/write-boundary.md, using the TypeScript compiler API.
-- [ ] T049 [P] [US6] Create the violation tree `apps/server/test/fixtures/write-boundary/src/ai/leak.ts`, `dm/raw.ts` and `gate/model.ts`; add `"exclude": ["fixtures/write-boundary"]` to `apps/server/test/tsconfig.json` and `"!apps/server/test/fixtures/write-boundary"` to `biome.json` `files.includes`.
-- [ ] T050 [P] Add pointer notes naming this spec's additions to `specs/006-ws-gateway/contracts/ws-protocol.md` (send classification, `error.code`, `canSee` delivery) and `specs/004-event-log/contracts/event-log.md` (`expectedLastSeq`, `readLatestOfType`).
-- [ ] T051 Confirm the board card "Retire the uncatalogued WebSocket send path" exists (`backlog task list --plain`), ordered after TASK-0047. If it is missing, STOP and report to the orchestrator; do not create it.
-- [ ] T052 Run `pnpm ci:check` in the worktree and fix any failure.
-- [ ] T053 Save the `pnpm ci:check` tail and the Phase 4 and 5 database-suite counts to `specs/029-proposal-gate/ci-evidence.txt` and commit it.
-- [ ] T054 Walk quickstart.md and confirm each expected outcome; tick any remaining task here.
+- [x] T048 [P] [US6] Create `apps/server/test/helpers/import-graph.ts` exporting `checkWriteBoundary(root)` per contracts/write-boundary.md, using the TypeScript compiler API.
+- [x] T049 [P] [US6] Create the violation tree `apps/server/test/fixtures/write-boundary/src/ai/leak.ts`, `dm/raw.ts` and `gate/model.ts`; add `"exclude": ["fixtures/write-boundary"]` to `apps/server/test/tsconfig.json` and `"!apps/server/test/fixtures/write-boundary"` to `biome.json` `files.includes`.
+- [x] T050 [P] Add pointer notes naming this spec's additions to `specs/006-ws-gateway/contracts/ws-protocol.md` (send classification, `error.code`, `canSee` delivery) and `specs/004-event-log/contracts/event-log.md` (`expectedLastSeq`, `readLatestOfType`).
+- [x] T051 Confirm the board card "Retire the uncatalogued WebSocket send path" exists (`backlog task list --plain`), ordered after TASK-0047. If it is missing, STOP and report to the orchestrator; do not create it.
+- [x] T052 Run `pnpm ci:check` in the worktree and fix any failure.
+- [x] T053 Save the `pnpm ci:check` tail and the Phase 4 and 5 database-suite counts to `specs/029-proposal-gate/ci-evidence.txt` and commit it.
+- [x] T054 Walk quickstart.md and confirm each expected outcome; tick any remaining task here.
 
 **Checkpoint**: `pnpm ci:check` green. The orchestrator then runs the wiki re-ground (runbook:
 `event-log`, `server-entrypoint-and-app`, `websocket-gateway`, `error-contract`, plus
@@ -278,3 +278,9 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
 - Phase 5, T046: stack came up unmigrated again (TASK-0098); migrated app and test databases by
   hand. Counts: `REQUIRE_DATABASE=1 ... test -- gate ws session events` = 42 files passed,
   1 skipped (preexisting), 463 tests passed, 5 skipped. Restart test (AC #9) passed.
+- Phase 6, T047: the checker reports a non-literal dynamic `import()` only in files a writer
+  module can reach (contracts say "anywhere in src/"). `static.ts` imports the built web bundle
+  from a computed path and no writer reaches it; failing there would block a legitimate import.
+- Phase 6, T049: the seeded violation tree has no stub files; the checker resolves missing
+  targets by name, so the three seeded imports resolve without extra modules.
+- Phase 6, T051: the card is TASK-0099 (exists, To Do).
