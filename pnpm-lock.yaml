@@ -84,6 +84,9 @@ importers:
       '@the-stacks/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@the-stacks/srd':
+        specifier: workspace:*
+        version: link:../../packages/srd
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

@@ -109,14 +109,14 @@ tests over all shipped data; quickstart step 3 prints the expected values.
 **Independent Test**: `pnpm --filter @the-stacks/web test` passes the new `/about` SSR case
 and `no-dialog`.
 
-- [ ] T032 [US2] Add `"@the-stacks/srd": "workspace:*"` to `apps/web/package.json` and `{ "path": "../../packages/srd" }` to `apps/web/tsconfig.json` references.
-- [ ] T033 [US2] Create `apps/web/app/routes/about.tsx`: import `SRD_ATTRIBUTION`, `SRD_CHANGE_NOTICE` and `SRD_DATA_SOURCE` from `@the-stacks/srd/attribution` only; render a heading "About", the statement verbatim in its own block, the change notice, and the data source; use the existing page styling of `routes/settings.tsx`. No modal.
-- [ ] T034 [US2] Add `route("about", "routes/about.tsx")` to `apps/web/app/routes.ts`.
-- [ ] T035 [US2] In `apps/web/app/shell/shell.tsx`, add an "About" `NavLink` to `/about` in the footer block, visible to every role (Settings stays operator-only), with the same collapsed-sidebar label handling as Settings.
-- [ ] T036 [P] [US2] Add a case to `apps/web/test/ssr.test.mjs`: the signed-in SSR HTML of `/about` contains the statement (React's HTML escaping applied) and contains no `<dialog`.
-- [ ] T037 [US2] Confirm the client bundle holds no SRD data: after `pnpm --filter @the-stacks/web build`, `grep -rl "Goblin Warrior" apps/web/build/client` finds nothing.
-- [ ] T038 [US2] Run the app in this worktree (`pnpm env:up`, `pnpm dev`), sign in as operator and as a player, open About from the shell, and take a Brave screenshot of each. Save them under the PR's evidence, not in the repo. Run `pnpm env:down`.
-- [ ] T039 Run `pnpm ci:check`. Green. Commit `TASK-0043: About page shows the SRD 5.2.1 attribution`.
+- [x] T032 [US2] Add `"@the-stacks/srd": "workspace:*"` to `apps/web/package.json` and `{ "path": "../../packages/srd" }` to `apps/web/tsconfig.json` references.
+- [x] T033 [US2] Create `apps/web/app/routes/about.tsx`: import `SRD_ATTRIBUTION`, `SRD_CHANGE_NOTICE` and `SRD_DATA_SOURCE` from `@the-stacks/srd/attribution` only; render a heading "About", the statement verbatim in its own block, the change notice, and the data source; use the existing page styling of `routes/settings.tsx`. No modal.
+- [x] T034 [US2] Add `route("about", "routes/about.tsx")` to `apps/web/app/routes.ts`.
+- [x] T035 [US2] In `apps/web/app/shell/shell.tsx`, add an "About" `NavLink` to `/about` in the footer block, visible to every role (Settings stays operator-only), with the same collapsed-sidebar label handling as Settings.
+- [x] T036 [P] [US2] Add a case to `apps/web/test/ssr.test.mjs`: the signed-in SSR HTML of `/about` contains the statement (React's HTML escaping applied) and contains no `<dialog`.
+- [x] T037 [US2] Confirm the client bundle holds no SRD data: after `pnpm --filter @the-stacks/web build`, `grep -rl "Goblin Warrior" apps/web/build/client` finds nothing.
+- [x] T038 [US2] Run the app in this worktree (`pnpm env:up`, `pnpm dev`), sign in as operator and as a player, open About from the shell, and take a Brave screenshot of each. Save them under the PR's evidence, not in the repo. Run `pnpm env:down`.
+- [x] T039 Run `pnpm ci:check`. Green. Commit `TASK-0043: About page shows the SRD 5.2.1 attribution`.
 
 **Checkpoint**: AC #2 met.
 
@@ -167,3 +167,7 @@ One PR carries all five phases (one task, one PR).
 - Phase 2 (T019): `acNote` is omitted. The dataset's `armor_detail` is wrong for at least one record (Goblin Warrior reads "natural armor") and the PDF prints no note.
 - Phase 2 (T019): the `Text` fields turn the dataset's Markdown into plain text. Table rows become `a | b` lines under a `Table: <name>` line. Four spells (Augury, Confusion, Control Weather, Creation) carry their tables flattened onto one line upstream; the converter restores the rows.
 - Phase 2 (T020): the verification covers more than the task lists. It also checks spell header fields and class lists, every damage expression, attack bonus and save DC in monster text, every number in monster, spell and class text, class feature and column names, and equipment cost, weight, damage and AC.
+- Phase 4 (T033): the About page adds one sentence to the data-source section: the converter also reads the SRD 5.2.1 PDF to repair and check every record. `SRD_DATA_SOURCE` keeps its contract shape; the sentence lives in `about.tsx` only.
+- Phase 4 (T035): the About link sits in the sidebar footer beside Settings, as specified. The sidebar is hidden under the `narrow:` breakpoint and the bottom tab bar lists only the main links, so About (like Settings) is not reachable by link on narrow screens. Adding it to the tab bar is a design choice outside this task.
+- Phase 3 (T028): the compact renderer treats each sentence of a spell, condition-effect or gear text as one truncation unit, so a truncated spell shows `+<n> more` counted in sentences. The Higher-level line is the last unit and drops first in long spells.
+- Phase 3 (T026): `createLoader(dataDir)` in `loader.ts` is the internal injectable factory the tests use; the package entry does not export it.

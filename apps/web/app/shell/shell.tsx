@@ -4,6 +4,7 @@ import { NavLink, useRevalidator, useRouteLoaderData } from "react-router";
 import { signOut } from "~/auth";
 import {
   AskIcon,
+  InfoIcon,
   LibraryIcon,
   MenuIcon,
   SettingsIcon,
@@ -106,6 +107,12 @@ export function Shell({ children }: { children: ReactNode }) {
               </span>
             </NavLink>
           )}
+          <NavLink to="/about" title="About" className={LINK_CLASS}>
+            <InfoIcon />
+            <span className="group-data-[sidebar=collapsed]:sr-only">
+              About
+            </span>
+          </NavLink>
           <div className="flex items-center justify-between gap-2 px-2 py-1.5 text-sidebar-foreground/80 group-data-[sidebar=collapsed]:flex-col">
             <span className="group-data-[sidebar=collapsed]:sr-only">
               {user?.displayName} · {user?.role}
