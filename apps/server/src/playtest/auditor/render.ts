@@ -147,7 +147,7 @@ export function renderReport(report: Report): string {
       `- Damage taken: ${side(f.damageTaken)}`,
       `- Reduced to zero: ${f.reducedToZero.join(", ") || "none"}`,
       `- Death-save rolls: ${f.deathSaveRolls}`,
-      `- Fled or bargained: ${f.fledOrBargained ? f.fledOrBargained.join(", ") || "none" : "unknown"}`,
+      `- Fled or bargained: ${f.fledOrBargained ? f.fledOrBargained.join("; ") || "none" : `unknown (${f.fledOrBargainedNote ?? "no data"})`}`,
       `- Narrations in turn mode: ${f.turnModeNarrations}`,
       "",
     );

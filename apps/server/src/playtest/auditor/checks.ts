@@ -259,13 +259,75 @@ function textOf(row: StoredEvent): string {
   return "";
 }
 
-/** Hidden strings: location and NPC secrets, and secret tracker names. */
+/**
+ * Hidden strings: every seed field marked secret (location and NPC
+ * `hooks.secrets`). A tracker's display name is NOT hidden text: when a
+ * tracker fills, the narration may describe that outcome in similar words.
+ */
 export function hiddenStrings(seed: SceneSeed): string[] {
   return [
     ...seed.location.hooks.secrets,
     ...seed.npcs.flatMap((n) => n.hooks.secrets),
-    ...seed.trackers.map((t) => t.name),
   ].filter((s) => s.trim() !== "");
+}
+
+const NUMBER_WORD =
+  "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve";
+const FRACTION = new RegExp(
+  `\\b(\\d+|${NUMBER_WORD})\\s*(?:of|out of|/)\\s*(\\d+|${NUMBER_WORD})\\b`,
+  "gi",
+);
+const WORD_VALUE: Record<string, number> = Object.fromEntries(
+  NUMBER_WORD.split("|").map((w, i) => [w, i + 1]),
+);
+const numeric = (t: string): number =>
+  /^\d+$/.test(t) ? Number(t) : (WORD_VALUE[t.toLowerCase()] ?? Number.NaN);
+
+const escapeRe = (s: string): string =>
+  s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Sentences in `text` that disclose a secret tracker's state: a segment
+ * count or fraction ("3 of 4", "2/3") tied to a tracker, the tracker's id
+ * beside the words tracker/clock, or the words tracker/clock/segment next to
+ * a tracker's name. A bare tracker name is allowed (the outcome may be told).
+ */
+export function trackerStateDisclosures(
+  text: string,
+  seed: SceneSeed,
+): string[] {
+  const out: string[] = [];
+  for (const sentence of text.split(/(?<=[.!?])\s+|\n+/)) {
+    const lower = sentence.toLowerCase();
+    if (lower.trim() === "") continue;
+    const hasMeter = /\b(tracker|trackers|clock|clocks)\b/.test(lower);
+    const hasSegment = /\bsegments?\b/.test(lower);
+    const named = seed.trackers.some(
+      (t) =>
+        lower.includes(t.name.toLowerCase()) ||
+        (hasMeter &&
+          new RegExp(
+            `(?<![a-z])${escapeRe(t.trackerId.toLowerCase())}(?![a-z])`,
+          ).test(lower)),
+    );
+    const nameOnly = seed.trackers.some((t) =>
+      lower.includes(t.name.toLowerCase()),
+    );
+    const sizes = new Set(seed.trackers.map((t) => t.segments));
+    const fraction = [...lower.matchAll(FRACTION)].some(
+      (m) =>
+        sizes.has(numeric(m[2] as string)) &&
+        numeric(m[1] as string) <= numeric(m[2] as string),
+    );
+    if (
+      (fraction && (named || hasMeter)) ||
+      (hasMeter && named) ||
+      (hasSegment && nameOnly)
+    ) {
+      out.push(sentence.trim());
+    }
+  }
+  return out;
 }
 
 /** Runs the six checks over one segment, in the contract's order. */
@@ -342,6 +404,13 @@ export function runChecks(seg: Segment, ctx: CheckContext): CheckResult[] {
             detail: `A public ${row.type} row repeats hidden text: "${h.slice(0, 80)}".`,
           });
         }
+      }
+      for (const sentence of trackerStateDisclosures(textOf(row), ctx.seed)) {
+        add("hidden-info", {
+          kind: "hidden-info-leak",
+          seqs: [row.seq],
+          detail: `A public ${row.type} row discloses secret tracker state: "${sentence.slice(0, 80)}".`,
+        });
       }
     }
   }

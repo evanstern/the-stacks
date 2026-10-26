@@ -88,6 +88,8 @@ export const FightStatsSchema = z.object({
   reducedToZero: z.array(z.string()),
   deathSaveRolls: Count,
   fledOrBargained: z.array(z.string()).nullable(),
+  /** Why `fledOrBargained` is `null`; `null` when it is derived. */
+  fledOrBargainedNote: z.string().nullable().default(null),
   turnModeNarrations: Count,
 });
 export type FightStats = z.infer<typeof FightStatsSchema>;

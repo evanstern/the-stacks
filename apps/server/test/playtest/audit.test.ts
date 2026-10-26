@@ -60,6 +60,12 @@ describe("runAudit", () => {
     expect(report.counts.segments).toBe(8);
     expect(report.fight?.attackRolls.players).toBe(3);
     expect(report.fight?.turnModeNarrations).toBe(4);
+    // Derived from the fight's ending rows (encounter.ended: "Snag offers the clapper...").
+    expect(report.fight?.fledOrBargained).toEqual([
+      "Snag offers the clapper for safe passage.",
+      "Snag trades the clapper for safe passage and the way is clear.",
+    ]);
+    expect(report.fight?.fledOrBargainedNote).toBeNull();
     expect(gw.provider.pendingFor("playtest.audit")).toBe(0);
     expect(report.usage.calls).toBe(8);
   });

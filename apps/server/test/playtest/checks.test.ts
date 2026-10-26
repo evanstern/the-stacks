@@ -103,6 +103,38 @@ describe("code checks", () => {
     });
   });
 
+  describe("hidden-info and secret trackers", () => {
+    function hiddenFindings(extra: string) {
+      const d = loadClean();
+      const row = d.transcript.find((r) => r.seq === 72);
+      if (!row) throw new Error("seq 72 missing");
+      (row.payload as { text: string }).text += ` ${extra}`;
+      return run(d)
+        .flat()
+        .filter((r) => r.id === "hidden-info")
+        .flatMap((r) => r.findings);
+    }
+
+    it("passes a sentence that tells a tracker's outcome without its state", () => {
+      expect(
+        hiddenFindings(
+          "Full dark falls on the ford, and the reed-camp is alerted.",
+        ),
+      ).toEqual([]);
+    });
+
+    it.each([
+      "Full dark falls on the ford: 3 of 4 segments filled.",
+      "The reed-camp is alerted, two of three.",
+      "The dusk clock is nearly full.",
+      "The tracker for full dark falls on the ford is at 2/4.",
+    ])("flags tracker state: %s", (sentence) => {
+      const found = hiddenFindings(sentence);
+      expect(found).toHaveLength(1);
+      expect(found[0]?.kind).toBe("hidden-info-leak");
+    });
+  });
+
   it("passes the DM runtime's factual summary, with a recorded death", () => {
     const d = loadClean();
     const segs = segment(d.transcript, d.ledger);

@@ -16,6 +16,39 @@ import type { FightStats } from "./schema.js";
 type Side = "players" | "npcs";
 const zero = () => ({ players: 0, npcs: 0 });
 
+const FLED_OR_BARGAINED =
+  /\b(flee|flees|fled|fleeing|retreat\w*|withdraw\w*|surrender\w*|yield\w*|bargain\w*|trade[sd]?|trading|offers?|parley\w*|negotiat\w*|truce|safe passage|stand[s]? down|give[s]? up)\b/i;
+
+/**
+ * NPCs that fled or bargained, derived from the reasons the ledger records on
+ * the rows that end a fight: `encounter.ended`, `combatant.removed`, and the
+ * scene-ending `scene.changed`. `null` (with a note) only when no such row was
+ * logged, so the data cannot say.
+ */
+function fledOrBargained(ledger: readonly LedgerRow[]): {
+  list: string[] | null;
+  note: string | null;
+} {
+  const enders = ledger.filter(
+    (r): r is Extract<LedgerRow, { kind: "change" }> =>
+      r.kind === "change" &&
+      (r.type === "encounter.ended" ||
+        r.type === "combatant.removed" ||
+        (r.type === "scene.changed" && r.after === null)),
+  );
+  if (enders.length === 0) {
+    return {
+      list: null,
+      note: "No encounter.ended, combatant.removed or scene-ending scene.changed row was logged, so how the fight ended is unknown.",
+    };
+  }
+  const reasons = enders
+    .map((r) => r.reason.trim())
+    .filter((reason) => reason !== "" && FLED_OR_BARGAINED.test(reason))
+    .map((reason) => reason.replace(/\s*\[[^\]]*#\d+\]\s*$/, ""));
+  return { list: [...new Set(reasons)], note: null };
+}
+
 export function fightStats(
   transcript: readonly StoredEvent[],
   ledger: readonly LedgerRow[],
@@ -102,6 +135,7 @@ export function fightStats(
     }
   }
 
+  const fled = fledOrBargained(ledger);
   return {
     rounds,
     turns,
@@ -111,7 +145,8 @@ export function fightStats(
     damageTaken,
     reducedToZero,
     deathSaveRolls,
-    fledOrBargained: null,
+    fledOrBargained: fled.list,
+    fledOrBargainedNote: fled.note,
     turnModeNarrations,
   };
 }
