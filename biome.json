@@ -182,7 +182,8 @@
                   "@anthropic-ai/sdk": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
                   "@the-stacks/server": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
                   "@the-stacks/web": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
-                  "@the-stacks/shared": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  "@the-stacks/shared": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@the-stacks/session-model": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
                 },
                 "patterns": [
                   {
@@ -248,6 +249,105 @@
                   "process": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
                   "crypto": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
                   "require": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/session-model/src/**",
+        "fixtures/boundary-violations/packages/session-model/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "pg": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "postgres": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "drizzle-orm": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "drizzle-kit": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "ws": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "hono": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "@hono/node-server": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "undici": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "busboy": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "yauzl": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "parse5": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "openai": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "@anthropic-ai/sdk": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "@the-stacks/server": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "@the-stacks/web": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  },
+                  {
+                    "group": [
+                      "fs",
+                      "fs/**",
+                      "http",
+                      "https",
+                      "http2",
+                      "net",
+                      "tls",
+                      "dgram",
+                      "dns",
+                      "child_process",
+                      "cluster",
+                      "worker_threads",
+                      "crypto",
+                      "os",
+                      "process",
+                      "timers",
+                      "timers/**",
+                      "perf_hooks",
+                      "readline",
+                      "stream"
+                    ],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  },
+                  {
+                    "group": ["drizzle-orm/**"],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  },
+                  {
+                    "group": ["@anthropic-ai/**"],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  },
+                  {
+                    "group": ["@ai-sdk/**"],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  },
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "performance": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "setTimeout": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "setInterval": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "setImmediate": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "fetch": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "WebSocket": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "XMLHttpRequest": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "process": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "crypto": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV).",
+                  "require": "the session model is pure and client-importable: no server, web, database, network, model or clock (constitution III, IV)."
                 }
               }
             }

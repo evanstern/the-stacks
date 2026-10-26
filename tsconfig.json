@@ -4,6 +4,8 @@
     { "path": "packages/shared" },
     { "path": "packages/dnd5e-engine" },
     { "path": "packages/dnd5e-engine/test" },
+    { "path": "packages/session-model" },
+    { "path": "packages/session-model/test" },
     { "path": "apps/server" },
     { "path": "apps/server/test" },
     { "path": "apps/web" }

@@ -57,13 +57,13 @@ in `apps/server/src/events/log.ts` (unchanged; Phase 5 only adds `appendBatch` b
 
 **Purpose**: an empty, buildable `@the-stacks/session-model` with its purity rule proven.
 
-- [ ] T001 Create `packages/session-model/package.json` per contracts/package-api.md (name, `"type": "module"`, `exports` for `.` and `./fixtures`, scripts `build`/`typecheck` = `tsc -b`, `test` = `vitest run`, dependencies `@the-stacks/dnd5e-engine: workspace:*` and `zod: ^4.6.5`, devDependency `vitest: ^5.0.1`).
-- [ ] T002 Create `packages/session-model/tsconfig.json` (extends `../../tsconfig.base.json`, `outDir: dist`, `rootDir: src`, `lib: ["ES2022"]`, `types: []`, reference `../dnd5e-engine`) and `packages/session-model/test/tsconfig.json` (copy the shape of `packages/dnd5e-engine/test/tsconfig.json`).
-- [ ] T003 Create `packages/session-model/src/index.ts` exporting a `SESSION_MODEL_VERSION = 1` constant and `packages/session-model/src/fixtures/index.ts` exporting an empty `fixtures` array, so both entry points build.
-- [ ] T004 Add `packages/session-model` and `packages/session-model/test` to the root `tsconfig.json` references (after the engine's entries); run `pnpm install` so the workspace links; commit the updated `pnpm-lock.yaml`.
-- [ ] T005 Add the session-model override to `biome.json` per contracts/boundary-rule.md, and add `@the-stacks/session-model` to the engine override's denied `paths`.
-- [ ] T006 [P] Create the violating fixtures `fixtures/boundary-violations/packages/session-model/src/bad-server.ts`, `bad-clock.ts`, `bad-database.ts`, and `fixtures/boundary-violations/packages/dnd5e-engine/src/bad-session-model.ts` per contracts/boundary-rule.md.
-- [ ] T007 Run `pnpm check:boundaries` and confirm every fixture is flagged; temporarily remove the new override, confirm the check fails, restore it.
+- [x] T001 Create `packages/session-model/package.json` per contracts/package-api.md (name, `"type": "module"`, `exports` for `.` and `./fixtures`, scripts `build`/`typecheck` = `tsc -b`, `test` = `vitest run`, dependencies `@the-stacks/dnd5e-engine: workspace:*` and `zod: ^4.6.5`, devDependency `vitest: ^5.0.1`).
+- [x] T002 Create `packages/session-model/tsconfig.json` (extends `../../tsconfig.base.json`, `outDir: dist`, `rootDir: src`, `lib: ["ES2022"]`, `types: []`, reference `../dnd5e-engine`) and `packages/session-model/test/tsconfig.json` (copy the shape of `packages/dnd5e-engine/test/tsconfig.json`).
+- [x] T003 Create `packages/session-model/src/index.ts` exporting a `SESSION_MODEL_VERSION = 1` constant and `packages/session-model/src/fixtures/index.ts` exporting an empty `fixtures` array, so both entry points build.
+- [x] T004 Add `packages/session-model` and `packages/session-model/test` to the root `tsconfig.json` references (after the engine's entries); run `pnpm install` so the workspace links; commit the updated `pnpm-lock.yaml`.
+- [x] T005 Add the session-model override to `biome.json` per contracts/boundary-rule.md, and add `@the-stacks/session-model` to the engine override's denied `paths`.
+- [x] T006 [P] Create the violating fixtures `fixtures/boundary-violations/packages/session-model/src/bad-server.ts`, `bad-clock.ts`, `bad-database.ts`, and `fixtures/boundary-violations/packages/dnd5e-engine/src/bad-session-model.ts` per contracts/boundary-rule.md.
+- [x] T007 Run `pnpm check:boundaries` and confirm every fixture is flagged; temporarily remove the new override, confirm the check fails, restore it.
 
 **Checkpoint**: `pnpm build` builds the new package; `pnpm check:boundaries` green.
 
