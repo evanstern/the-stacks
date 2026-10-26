@@ -130,12 +130,12 @@ and stopped. The operator ruling led to this amendment (Phases 3b and 4b). T019 
 unticked: the run did not reach `completed`, and Phase 4b's rerun is the verification of
 record.
 
-- [ ] T018 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
+- [x] T018 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
   the operator's spend ceiling. Record it on the card.
-- [ ] T019 Orchestrator: run the verification (quickstart C). Commit the evidence directory.
+- [x] T019 Orchestrator: run the verification (quickstart C). Commit the evidence directory.
   Record pass or fail, spend and the run id on the card. *(Ran: director part passed; stopped at
   interpret. Superseded by T037.)*
-- [ ] T020 Orchestrator: on a fail, commit the new failure record as a second fixture and stop
+- [x] T020 Orchestrator: on a fail, commit the new failure record as a second fixture and stop
   for an operator ruling. Do not start Phase 5. *(Done for the interpret failure: fixture
   committed; operator ruled to amend.)*
 
@@ -226,7 +226,7 @@ a condition, skill, damage type, ability or number. Never edit `.env`.
 
 - [x] T021 [US4] Run `pnpm ci:check` and the database suites with `REQUIRE_DATABASE=1`. Fix
   any regression without loosening a test.
-- [ ] T022 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
+- [x] T022 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
   Record it on the card.
 - [x] T023 [P] [US4] Add one line under the amended sections of
   `specs/031-dm-runtime/contracts/turn-jobs.md`, `node-seam.md` and `director.md`:
@@ -235,7 +235,7 @@ a condition, skill, damage type, ability or number. Never edit `.env`.
   `specs/031-dm-runtime/contracts/nodes.md` ("interpret", step schema), `scene-seed.md`
   (`skills`, clue `check`) and `specs/026-dnd5e-engine/contracts/commands.md` (`check.roll`):
   "Amended by specs/033-director-robustness/contracts/<file>." Commit.
-- [ ] T024 Orchestrator: tear down the composite worktree (quickstart E).
+- [x] T024 Orchestrator: tear down the composite worktree (quickstart E).
 
 **Checkpoint**: AC #4 met. The task is ready for PR.
 
