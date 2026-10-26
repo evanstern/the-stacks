@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:38'
+updated_date: '2026-10-26 15:43'
 labels:
   - first-scene
   - dm
@@ -73,6 +73,8 @@ Phase 4 setup: composite at aa960b3 (branch tip 3bd622e merged in). Verification
 Phase 4 verification 2026-10-26: run 20261026T152743Z-greyhollow-ford-provider, composite aa960b3. Spend $1.00 over 51 calls of the $22 ceiling. 4 moves committed and no director invalid-output, so quickstart C5 passes literally. But the run failed at turn job 6 (npc-turn, triggerSeq 61, act-kestrel-1): stopped at interpret: invalid-output. Attempt 1 hit maxTokens 1200 inside a code fence. Attempt 2 applied an invented condition 'spotted-lookout' (not in the condition enum). The run did not reach the reed-camp turn, so the C4 fix is proven offline only. Interpret is out of this spec's scope (contracts/director-output.md, 'Out of scope'). Evidence and second fixture: c085844. STOPPED for an operator ruling before any further spend.
 
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: amend spec 033 to cover the interpret failure too, fix it in TASK-0102's PR, and rerun verification before Phase 5.' Operator requirement, in the operator's words: 'Conditions, spells, and other "rules" with definitions absolutely need to be deterministically defined and resolvable. It should not be possible for the AI to "invent" a condition without it being rejected by a gating mechanism.'
+
+OPERATOR RULING 2026-10-26, in the operator's words: 'Card both follow-ups (spells resolved by SRD id; modifiers and DCs derived from sheets) in m-3. They do not block the M2 demo.' Carded on main as TASK-0104 (modifiers and DCs from combatant stats) and TASK-0105 (spells by SRD id, depends on TASK-0104). The spec 033 amendment is dispatched to opus-implementer and covers the interpret prompt, interpret truncation, and the skill gate.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
