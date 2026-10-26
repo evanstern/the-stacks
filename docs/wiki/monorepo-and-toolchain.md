@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # Monorepo and toolchain
@@ -36,7 +36,7 @@ proves and how CI runs this same script. `env:up`/`env:down`/`env:status`/`env:p
 `env:main` (also spec 010) are the per-worktree stack CLI — see [[runtime-stacks]] — and are
 deliberately not part of `ci:check`. `bench:load` (spec 021) delegates to
 `@the-stacks/server`'s own `bench:load` (`tsc -b && node dist/bench/load/cli.js`) — the load
-bench's process-level CLI, run on demand rather than as part of `ci:check`; see [[benchmarks]].
+bench's process-level CLI, run on demand rather than as part of `ci:check`; see [[benchmarks]]. `playtest` (TASK-0048) follows the same shape: it delegates to `@the-stacks/server`'s own `playtest` (`tsc -b && node dist/playtest/cli.js`), on demand and not part of `ci:check`; see [[playtest-harness]].
 
 `turbo.json` defines the task graph: `build` depends on `^build` (each workspace's
 dependencies build first) and declares `dist/**` as its cacheable output; `typecheck` depends

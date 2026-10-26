@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # AI gateway
@@ -96,18 +96,24 @@ interpret/companion, cheap for audit/chronicle). `index.ts` passes the same `aiG
 `startDmWorker` and logs `missingDmPurposes(aiConfig.purposes)` by name at boot with
 `console.warn`; a missing purpose never blocks boot, it fails only the node that calls it.
 
+Since TASK-0048, the playtest auditor adds an eighth chat purpose, `playtest.audit`
+(`PLAYTEST_AUDIT_PURPOSE`, 700 `maxTokens` default), one call per transcript segment; strong
+tier, preferably another model family than `dm.narrate`. Provider-mode playtests need every
+`dm.*` purpose, `playtest.audit` and an `AI_PRICES` entry per used model; `playtest/budget.ts`
+wraps the gateway in a spend-ceiling gateway over a counting `UsageSink` ([[playtest-harness]]).
+
 ## Connections
 
 Constructed in [[server-entrypoint-and-app]]'s `index.ts`, via `loadAiConfig(process.env)`
 called directly (not through [[configuration]]'s `loadConfig`), alongside the WebSocket
 gateway. `.env.example` documents the three env vars under "AI gateway". [[ingestion]]'s
 worker (library plane, TASK-0024) is its first caller, via `embed()`; [[rules-answerer]]'s
-`answer()` (TASK-0027) is its second, via `chat()` and `embed()`; [[dm-runtime]]'s nodes are its third, via `chat()` — see [[overview]] for the
+`answer()` (TASK-0027) is its second, via `chat()` and `embed()`; [[dm-runtime]]'s nodes are its third, via `chat()`; the [[playtest-harness]] auditor is a fourth, via `chat()` — see [[overview]] for the
 three data planes.
 
 ## Operational notes
 
-All AI env vars are optional; unset, the server starts exactly as before this slice existed.
+All AI env vars are optional; unset, the server starts as before.
 `apps/server/test/ai.gateway.test.ts` includes a standing test (invariant 10) that recursively
 greps every `.ts` file under `apps/server/src/ai/` for vendor/provider name tokens (openai,
 anthropic, google, azure, …) and all-caps `*_KEY`/`*_API_KEY` variable names, failing the

@@ -8,7 +8,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/src/cli/create-operator.ts
   - package.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # Configuration
@@ -32,8 +32,7 @@ reintroduced relative import before it reaches CI's `db:migrate` step.
 
 ## How it works
 
-The port variable is **`APP_PORT`, not `PORT`** — there is no fallback to the more common
-`PORT` name anywhere in this function. `loadConfig` reads `env.APP_PORT ?? "3000"` (so an
+The port variable is **`APP_PORT`, not `PORT`**, with no `PORT` fallback. `loadConfig` reads `env.APP_PORT ?? "3000"` (so an
 *unset* `APP_PORT` defaults to 3000), converts with `Number(...)`, and throws
 `` `APP_PORT must be a positive integer, got "${portRaw}"` `` if the result isn't a positive
 integer. `??` is correct here because the only value that should trigger the default is
@@ -77,11 +76,9 @@ handing `createDb` an empty connection string and breaking migrations run inside
 container. Outside the container, on a host with `.env`'s `TEST_DATABASE_URL` uncommented,
 the same `||` picks it up normally.
 
-`migrate.ts` imports with `.ts` extensions because it runs under Node's type stripping (see [[migrations]]).
-
 ## Where secrets and shared keys live (spec 022)
 
-`.env.example` is a per-worktree template, but secrets and config meant to be shared across
+`.env.example` is a per-worktree template; secrets and config shared across
 every worktree — API keys, `AI_PROVIDERS`, `AI_PURPOSES`, `AI_PRICES` — belong in the **root
 checkout's** `.env`, not in a worktree's. `pnpm env:up` (see [[runtime-stacks]]) copies every
 key from the root `.env` into the worktree's own `.env`, except the five derived keys
@@ -104,14 +101,13 @@ callout for the same trap at a higher level.
 ## Operational notes
 
 Required: `DATABASE_URL` (no default; `loadConfig` throws without it). Optional: `APP_PORT`
-(default `3000`, must parse to a positive integer), `GIT_COMMIT` (default `"unknown"`, set via
-the Dockerfile build arg, never from `.env`), `UPLOAD_MAX_BYTES` (default `1073741824`, must
-parse to a positive integer). `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
+(default `3000`), `GIT_COMMIT` (default `"unknown"`, Dockerfile build arg, never `.env`),
+`UPLOAD_MAX_BYTES` (default `1073741824`); both numbers must be positive integers. `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are read
 by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (see
 [[ai-gateway]]; unset means no model features, not an error). `RETRIEVAL_MODE`/`RETRIEVAL_K`/
 `RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s
 `loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
-The DM runtime adds no new env var: it reads seven `dm.*` entries of `AI_PURPOSES` (`dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`, `dm.companion`, all `op: "chat"`, with `maxTokens` per purpose); `index.ts` warns by name at boot about any missing, and a missing one fails only the node that calls it (see [[ai-gateway]]). `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
+The DM runtime adds no new env var: it reads seven `dm.*` entries of `AI_PURPOSES` (all `op: "chat"`, with `maxTokens` per purpose; names in [[ai-gateway]]); `index.ts` warns by name at boot about any missing, and a missing one fails only the node that calls it (see [[ai-gateway]]). The playtest CLI ([[playtest-harness]]) adds `playtest.audit` and uses `AI_PRICES` to cap a provider run; optional `PLAYTEST_DATABASE_URL` (loopback only) overrides its database (default `TEST_DATABASE_URL || DATABASE_URL` + `_playtest`). `loadConfig` reads none of these. `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
 Zod-validated by `library/answer.ts`'s `loadAnswerConfig`, also called by `index.ts` (see
 [[rules-answerer]]). `TEST_DATABASE_URL` (and its port, `TEST_DB_PORT`, default `5433`) is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running

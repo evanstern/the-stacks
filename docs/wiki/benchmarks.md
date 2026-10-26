@@ -45,7 +45,7 @@ sources:
   - specs/021-load-bench/tasks.md
   - specs/021-load-bench/research.md
   - specs/021-load-bench/contracts/results-format.md
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # Benchmarks
@@ -247,6 +247,8 @@ module directly. `du -sk apps/server/bench/retrieval/corpus` must stay ≤400 (c
 the corpus is a benchmark fixture, not a general-purpose library seed, and nothing under a
 `fixtures/private/` path is ever tracked. A paid matrix run is an **operator checkpoint**: it
 is never run without sign-off on the provider/model list and the `--dry-run` estimate.
+
+The `pnpm playtest` CLI ([[playtest-harness]]) copies this pattern (root script delegating to the server's `tsc -b && node dist/...`, its own `_playtest` database, a cost guard before any paid run) but is not a bench: it has no baseline or tier.
 
 `pnpm bench:load list` prints all 7 load-bench cases with their tier and target. A `--tier
 demand` run takes roughly 10-15 minutes and drops its load database afterward (best-effort); a

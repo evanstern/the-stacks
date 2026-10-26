@@ -25,7 +25,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # DM runtime
@@ -112,6 +112,8 @@ companion, under the same permission matrix and commit authority as a human. In 
 active companion always acts (a null act becomes a hold action). A `hold` director decision queues a companion job; when it ends it
 force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new.
+
+The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end to end in process and audits the result against the same facts renderers.
 
 ## Routes and boundary
 

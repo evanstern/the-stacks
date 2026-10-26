@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # CI pipeline
@@ -56,7 +56,7 @@ tests (5 skipped are the load bench's `demand`/`dev`-tier cases, named-skipped o
 inside `test/bench/load.integration.test.ts`, not silently absent), not the 289 a
 database-less run proves. `pnpm test` is also where the load bench's two `commit`-tier cases (`ingest-smoke`,
 `concurrency-smoke`) actually run on every push — they are Vitest tests, not a separate
-`bench:load` invocation; see [[benchmarks]].
+`bench:load` invocation; see [[benchmarks]]. Since TASK-0048 `pnpm test` also runs the playtest suites, including the CI playtest of the shipped scenario (a strict `FakeProvider`, no spend; see [[playtest-harness]]); the test counts above predate them. `pnpm playtest` itself is not in `ci:check`.
 
 `check:boundaries` (`node scripts/check-boundaries.mjs`) proves the `noRestrictedImports`
 zone rules in `biome.json` actually fire, rather than trusting the config was written

@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # Overview
@@ -127,3 +127,5 @@ A retrieval benchmark (`pnpm bench:retrieval`, TASK-0029, [[benchmarks]]) measur
 [[retrieval]]'s recall across embedding models, dimensions, and chunking strategies against a
 licensed corpus, and its `bow`-only cell runs as a per-commit regression gate inside `pnpm
 test`.
+
+A playtest harness (`pnpm playtest`, TASK-0048, [[playtest-harness]]) plays a scripted seat through the DM's scene and audits the transcript; its CI case runs in `pnpm test`.
