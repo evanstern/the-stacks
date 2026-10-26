@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 09:43'
+updated_date: '2026-10-26 09:57'
 labels:
   - first-scene
   - test
@@ -38,12 +38,24 @@ Spec: specs/032-playtest-harness
 - [ ] #3 The harness runs in CI against the fake gateway adapter, and on demand against a configured provider.
 - [ ] #4 One human player plus AI companions play a scene with exploration, a social beat and a fight to its end.
 - [ ] #5 The demo record lists every audit failure and how it was resolved.
+- [ ] #6 Spec phase: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3)
+- [ ] #7 Spec phase: The harness run (US1; AC #1)
+- [ ] #8 Spec phase: The auditor (US2; AC #2, #3)
+- [ ] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
+- [ ] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
+- [ ] #11 Spec phase: The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 5) after TASK-0046 (#49) and TASK-0047 (#47) merged. Worktree .worktrees/task-0048, branch task-0048-playtest, cut from origin/main 718d738. Spec number 032 claimed with a stub.
+
+Spec authoring by opus-implementer: 6f52dc7. Clarify was skipped (spec.md records why).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Design: the harness lives in apps/server/src/playtest/ with a pnpm playtest CLI (run, audit, estimate) and its own <base>_playtest database. The auditor uses purpose playtest.audit, runs six code checks plus a per-segment model check, and yields a pass, fail or incomplete report. CI mode runs on the fake gateway inside pnpm test. Provider mode is explicit opt-in: it refuses in CI, needs prices, prints an estimate, and requires --spend-ceiling-usd, with a live budget stop.
+Open questions are left for the demo checkpoint: how many paid playtests (default one), and which auditor model (default a different family from dm.narrate). There is no scene-start UI button; the demo uses POST /dm/sessions/<id>/start.
+Implementation dispatch grouping: P1 to P5, one per dispatch. P6 is the demo, driven by the orchestrator with the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
