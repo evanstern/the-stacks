@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:05'
+updated_date: '2026-10-26 03:10'
 labels:
   - first-scene
   - session
@@ -41,7 +41,7 @@ Spec: specs/028-session-model
 - [ ] #8 Projections skip unknown event types without failing.
 - [x] #9 Spec phase: Setup — package scaffold and boundary rule
 - [x] #10 Spec phase: Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8)
-- [ ] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
+- [x] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
 - [ ] #12 Spec phase: User Story 6 — the fixtures contract
 - [ ] #13 Spec phase: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
 - [ ] #14 Spec phase: Polish — full gate
@@ -59,6 +59,9 @@ Implementation dispatch grouping: P1+P2 | P3 | P4 | P5+P6.
 
 Phases 1 and 2 by sonnet-implementer: 447de88 and 1cd5d6b. 119 session-model tests pass; boundaries flag 15/15; ci:check green. Deviation accepted: @types/node as a test-only devDependency.
 Note for Phase 5: the server will then import the engine and session-model at runtime, so the Dockerfile must build and copy both packages, as it does for packages/srd.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 by sonnet-implementer: 841ef3d. 169 session-model tests pass; ci:check green. Deviation accepted: the pendingBatches bookkeeping field, which backs the defensive incompleteBatches diagnostic.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
