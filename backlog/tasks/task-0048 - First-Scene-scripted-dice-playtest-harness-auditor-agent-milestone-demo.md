@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:59'
+updated_date: '2026-10-26 16:24'
 labels:
   - first-scene
   - test
@@ -111,6 +111,9 @@ Harness fixes by sonnet-implementer: 31f61f7.
 D3: splitNarration treated everything after the first blank line as dice lines. Now only a final block whose every line carries an arrow or auto-fail counts. Regression tests use the real #10 texts from both runs.
 D4: the CLI rewrites host.docker.internal to localhost when /.dockerenv is absent (override PLAYTEST_HOST_NETWORK=0 or 1) and logs the rewrite.
 Orchestrator gate: ci:check with REQUIRE_DATABASE=1 and the worktree's TEST_DATABASE_URL is green, 730 server tests. The implementer's DB auth failures came from a wrong URL, not the code.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Harness fix 0fd4941 by sonnet-implementer: the Greyhollow Ford scenario's maxWallMs is raised from 900000 to 3600000 (60 min), and maxMoves stays 30. Evidence: TASK-0102's rerun 20261026T155348Z ran 29 turns with 0 failed jobs but timed out at the 15-min cap in fight round 4, at about 35 s per real-model turn. Contract specs/032-playtest-harness/contracts/scenario.md updated. Lint, typecheck and the CI playtest (ended, pass) are green. The server unit suite without a DB fails only adjudicate.integration ('requires a database'), as before.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
