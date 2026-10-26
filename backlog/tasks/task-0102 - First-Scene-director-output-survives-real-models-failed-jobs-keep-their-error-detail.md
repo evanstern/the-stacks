@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 14:50'
+updated_date: '2026-10-26 14:59'
 labels:
   - first-scene
   - dm
@@ -39,12 +39,21 @@ Spec: specs/033-director-robustness
 - [ ] #2 The real failing director output is captured and committed as a fixture, and a test reproduces the failure against it.
 - [ ] #3 The director accepts real-model output for the Greyhollow Ford scene: a provider-mode playtest gets past the turn where runs 2 and 4 failed, with no director invalid-output.
 - [ ] #4 Any schema or prompt change keeps every existing dm test green, and the scripted CI playtest still passes.
+- [ ] #5 Spec phase: Persist diagnostics (US1; AC #1)
+- [ ] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
+- [ ] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
+- [ ] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
+- [ ] #9 Spec phase: Full gate (US4; AC #4)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M2 First Scene sweep (operator ruling: a new M2 card fixed in its own PR before the demo resumes). Worktree .worktrees/task-0102, branch task-0102-director-robustness, cut from origin/main 60e8f89. Spec number 033 claimed with a stub.
+
+Spec authoring by opus-implementer: e84da5a. Clarify was skipped.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Design: the failure record goes in jobs.result.failure (issues, plus attempt excerpts up to 8000 chars). jobs.error stays a fixed string. normalizeDirector is lenient but never touches a number. Phases 2 and 4 are paid, orchestrator-run captures in a composite worktree (origin/task-0048-playtest plus this branch, never pushed). The spec defaults on its open questions stand. Q5 is moot, since 31f61f7 is now pushed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
