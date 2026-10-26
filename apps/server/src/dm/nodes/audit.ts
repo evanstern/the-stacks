@@ -79,6 +79,69 @@ const BLOCKING_LLM_KINDS: ReadonlySet<AuditIssueKind> = new Set([
 export const llmIssueBlocks = (kind: AuditIssueKind): boolean =>
   BLOCKING_LLM_KINDS.has(kind);
 
+/** Leading title words dropped when deriving a given name (compared case-insensitively). */
+const TITLE_WORDS: ReadonlySet<string> = new Set([
+  "brother",
+  "sister",
+  "father",
+  "mother",
+  "sir",
+  "dame",
+  "lord",
+  "lady",
+  "master",
+  "mistress",
+]);
+
+/** Party-name terms: full name, characterId, given name. Deduped, no empties. */
+export function partyNameTerms(party: NarrationFacts["party"]): string[] {
+  const terms = new Set<string>();
+  for (const m of party) {
+    const name = m.name.trim();
+    if (name) terms.add(name);
+    const id = m.characterId.trim();
+    if (id) terms.add(id);
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length > 1) {
+      let i = 0;
+      while (
+        i < words.length &&
+        TITLE_WORDS.has((words[i] ?? "").toLowerCase())
+      )
+        i++;
+      const given = words[i];
+      if (given) terms.add(given);
+    }
+  }
+  return [...terms];
+}
+
+const escapeRe = (t: string): string =>
+  t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** True when `detail` holds a whole-word party-name term (contracts/audit-criteria.md, E2). */
+export function detailNamesPartyMember(
+  detail: string,
+  party: NarrationFacts["party"],
+): boolean {
+  return partyNameTerms(party).some((term) => {
+    const body = term.split(/\s+/).map(escapeRe).join("\\s+");
+    return new RegExp(
+      `(?<![\\p{L}\\p{N}_-])${body}(?![\\p{L}\\p{N}_-])`,
+      "iu",
+    ).test(detail);
+  });
+}
+
+/** Whether one `dm.audit` issue blocks, given the party (the E2 filter). */
+export function llmIssueBlocksFor(
+  issue: AuditIssue,
+  party: NarrationFacts["party"],
+): boolean {
+  if (issue.kind !== "player-agency") return llmIssueBlocks(issue.kind);
+  return detailNamesPartyMember(issue.detail, party);
+}
+
 export interface AuditAttempt {
   attempt: number;
   /** The attempt's prose word count. */
@@ -321,7 +384,7 @@ export const audit: Node<"audit"> = async (ctx) => {
           verdict: res.value.verdict,
           issues: res.value.issues.map((i) => ({
             ...i,
-            blocking: llmIssueBlocks(i.kind),
+            blocking: llmIssueBlocksFor(i, facts.party),
           })),
         };
       } else {
