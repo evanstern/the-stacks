@@ -65,26 +65,26 @@ metadata unchanged.
 
 **Goal**: each selected defect has a test that passes on the unfixed code and pins the defect.
 
-- [ ] T010 Write `apps/server/test/dm/fixtures/run5-narration-quality.json`. Copy, unchanged,
+- [x] T010 Write `apps/server/test/dm/fixtures/run5-narration-quality.json`. Copy, unchanged,
   these rows from `specs/034-narration-quality/evidence/run5-20261026T171359Z-greyhollow-ford-provider/transcript.jsonl`:
   seqs 1–7, 37–64 and 81–88, 187–195, 211–216. Copy the `ledger.json` rows for the same seqs.
   Add `"source"` naming the run id.
-- [ ] T011 Add `apps/server/test/dm/narration-quality-repro.test.ts`. Use the fixture with the
+- [x] T011 Add `apps/server/test/dm/narration-quality-repro.test.ts`. Use the fixture with the
   existing world helpers in `test/dm/helpers.ts` and `world.ts`.
-- [ ] T012 [P] In T011's file, test F23: facts for seq 88 (Kestrel `no-effect`, encounter ended,
+- [x] T012 [P] In T011's file, test F23: facts for seq 88 (Kestrel `no-effect`, encounter ended,
   mode to free) give exactly "Kestrel acts, and nothing changes. The fight is over.". Test seq 53:
   the output holds "One action needs a clearer description.".
-- [ ] T013 [P] In T011's file, test the leaks: the narrate system prompt holds "river things";
+- [x] T013 [P] In T011's file, test the leaks: the narrate system prompt holds "river things";
   the narrate prompt for the `reed-camp` beat holds Snag's `want` with "river-things"; Odo's
   companion prompt holds "wards".
-- [ ] T014 [P] In T011's file, test F17: `factEntries` for the Goblin-3 NPC turn (rows 60–61)
+- [x] T014 [P] In T011's file, test F17: `factEntries` for the Goblin-3 NPC turn (rows 60–61)
   does not hold "jabs". Test F76: `transcriptEntries` for row 187 holds the seat's user id and not
   "Tamsin".
-- [ ] T015 [P] In T011's file, test A3 and A4: the narrate prompt for a clarify with the run-5
+- [x] T015 [P] In T011's file, test A3 and A4: the narrate prompt for a clarify with the run-5
   question "Walk past the standoff to the ferry, or do something about Snag's terms first?" holds
   that question verbatim; prose ending with it fails `deterministicChecks` with the option-menu
   issue; a scripted `dm.audit` reply with only `doctrine` issues three times ships the fallback.
-- [ ] T016 Run the phase gate and the database suites. Commit "reproduce run-5 defects". Push.
+- [x] T016 Run the phase gate and the database suites. Commit "reproduce run-5 defects". Push.
 
 **Checkpoint**: every defect reproduced on the unfixed code. Later phases flip these tests.
 
