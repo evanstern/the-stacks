@@ -235,9 +235,9 @@ maxTokens 1500, so a $22 ceiling refuses to start.
   under "Schema" and "The shipped seed" in `specs/031-dm-runtime/contracts/scene-seed.md`, under
   "One companion's play" and "Chronicle" in `companions.md`, and under the `villains-believe` row
   in `doctrine.md`. Commit.
-- [ ] T045 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
+- [x] T045 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
   Record it on the card.
-- [ ] T046 Orchestrator: tear down the composite worktree (quickstart E).
+- [x] T046 Orchestrator: tear down the composite worktree (quickstart E).
 - [ ] T047 Orchestrator: after merge, re-ground `docs/wiki/dm-runtime.md` and
   `dm-failure-and-gates.md` (`/grounding-wiki:wiki-update`).
 
