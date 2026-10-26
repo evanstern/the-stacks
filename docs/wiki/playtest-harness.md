@@ -19,7 +19,7 @@ sources:
   - apps/server/playtests/scenarios/greyhollow-ford.json
   - apps/server/test/playtest/playtest.integration.test.ts
   - .env.example
-verified_against: 77e6c7553496d8d5eafb85f958656625b9ccd9f2
+verified_against: 944f2a182daf428604594fba1ff7635e3594f5ea
 ---
 
 # Playtest harness
@@ -42,6 +42,13 @@ holds the seat, `moves.free`, `moves.combat`, `moves.fallback`, `limits` (`maxMo
 `maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture
 under `apps/server/playtests/fixtures/`. The manifest outcome is one of `ended`, `stalled`,
 `failed`, `budget-stopped`, `timed-out`.
+
+`moves.fallback` is a list (1 to 20 entries; a legacy single object reads as a one-element list).
+Once the scripted `free` moves run out, the driver cycles the list in order and never sends the
+same text twice in a row. After each fallback move the harness checks the ledger
+(`turnChangedState`: any `change` row after the move, except seat and gate-policy rows, and a
+table-mode row only when the mode itself changed). Three consecutive fallback moves that change
+nothing (`STALL_LIMIT`) end the run as `stalled` with `stallReason: "seat-exhausted"` in the manifest.
 
 **Isolation.** `db.ts`'s `resolvePlaytestUrl` picks `PLAYTEST_DATABASE_URL`, else
 `TEST_DATABASE_URL || DATABASE_URL` suffixed `_playtest`; the host must be loopback and the URL
