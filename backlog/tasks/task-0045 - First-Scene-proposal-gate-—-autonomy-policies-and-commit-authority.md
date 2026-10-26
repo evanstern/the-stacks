@@ -1,10 +1,10 @@
 ---
 id: TASK-0045
 title: 'First Scene: proposal gate — autonomy policies and commit authority'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:58'
+updated_date: '2026-10-26 03:33'
 labels:
   - first-scene
   - gate
@@ -23,6 +23,8 @@ ordinal: 35000
 Outcome: the one gate between intent and state. Every LLM output and every player action is a typed proposal; the gate applies a per-kind policy (auto, ask, suggest) and the commit authority of the current table mode, then calls the engine.
 
 Why: one mechanism serves the AI DM (auto), the AI-assisted human DM (ask, suggest) and player sign-off (decision-0015, decision-0016). Pending proposals are events, so they survive restarts and are filtered per viewer. Refuse before write (decision-0021 idea 1).
+
+Spec: specs/029-proposal-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -42,6 +44,8 @@ Why: one mechanism serves the AI DM (auto), the AI-assisted human DM (ask, sugge
 
 <!-- SECTION:NOTES:BEGIN -->
 Input from the TASK-0044 spec (specs/028-session-model, 2026-10-25): until this task lands, events with visibility 'dm' reach no WebSocket connection. This task adopts the session-model canSee() rule in apps/server/src/ws/registry.ts, so a DM's live connection receives DM-only events such as proposal.created (AC #4).
+
+Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 3) after TASK-0044 merged (#46). Worktree .worktrees/task-0045, branch task-0045-proposal-gate, cut from origin/main 8a8bb81. Spec number 029 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
