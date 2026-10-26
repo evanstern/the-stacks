@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 20:08'
+updated_date: '2026-10-26 20:11'
 labels:
   - first-scene
   - dm
@@ -40,7 +40,7 @@ Spec: specs/034-narration-quality
 - [x] #2 The factual fallback is in-fiction prose with no system commentary, and it states every ledger change in the turn (including encounter start and end and table-mode changes), with tests
 - [x] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
 - [x] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
-- [ ] #5 Existing dm tests and the scripted CI playtest stay green
+- [x] #5 Existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [x] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [x] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
@@ -90,6 +90,9 @@ Phase 5b setup: composite at 3ae5a54 (Phase 4b tip merged in). dm.narrate maxTok
 Phase 5b rerun 2026-10-26: run 20261026T192319Z-greyhollow-ford-provider at composite 3ae5a54. FAIL on AC #4, rate only. Fallback rate 4/22 = 0.18 (bar 0.10; verify 1 was 0.35, run 5 0.50); all turns 6/27. hidden-info-leak 0. Narration-caused ledger-contradiction 0. player-agency 3 (F1 hero moved at scene start; F6 a v3 breach; F7 companion treated as hero). Stalled seat-exhausted after 11 moves, $5.37 over 235 calls of $25. Causes: R1 the deterministic digits check failed all 3 attempts in 3 of the 4 non-seat fallbacks, and its detail does not quote the match; R2 the seat declares actions for an unconscious Tamsin; R3 one invented near-miss. E1 mostly fixed (2 of 51 narrate calls at 1500). Evidence and classification: 30aefb4. STOPPED for an operator ruling before further spend. Total TASK-0106 paid spend: $7.18 + $5.37 = $12.55.
 
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: accept TASK-0106 with the AC #4 rate bar at 20%. Leaks and contradictions are at zero. Card R1 (digits), R2 (seat acts for a downed hero) and the player-agency residue in m-3. Proceed to Phase 6, PR and the demo.' Carded on main: TASK-0111 (R1 digits check), TASK-0112 (R2 seat and downed hero), TASK-0113 (player-agency residue: F1, F6, F7, seq 130). AC #4 is met under the ruling: the rerun rate was 0.18 against the 0.20 bar, with 0 leaks and 0 narration-caused contradictions.
+
+Phase 6 by sonnet-implementer: c5836ae. TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: srd 140, engine 221, session-model 566, server 761 passed and 5 skipped, web 21 plus 125. No WS flake. Amended-by lines in 031 audit.md, nodes.md, scene-seed.md, companions.md and doctrine.md. T045: the composite CI playtest at 3ae5a54 passed (ended, pass). T046: the composite was torn down and env:prune --check is clean.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
