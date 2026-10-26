@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:09'
+updated_date: '2026-10-26 15:22'
 labels:
   - first-scene
   - dm
@@ -40,7 +40,7 @@ Spec: specs/033-director-robustness
 - [ ] #3 The director accepts real-model output for the Greyhollow Ford scene: a provider-mode playtest gets past the turn where runs 2 and 4 failed, with no director invalid-output.
 - [ ] #4 Any schema or prompt change keeps every existing dm test green, and the scripted CI playtest still passes.
 - [x] #5 Spec phase: Persist diagnostics (US1; AC #1)
-- [ ] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
+- [x] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
 - [ ] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
 - [ ] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 - [ ] #9 Spec phase: Full gate (US4; AC #4)
@@ -62,6 +62,8 @@ OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling 
 Phase 2 setup 2026-10-26 (orchestrator): composite worktree .worktrees/task-0102-run = origin/task-0048-playtest 639a94c + merge of origin/task-0102-director-robustness → 15f15fe (detached, never pushed). The merge conflicted only in .specify/feature.json (Spec Kit pointer, no code); resolved in the composite to the 033 side, neither branch touched. Stack stacks-task-0102-run (app :4951, db :16951, test-db :26951), both DBs migrated by hand (TASK-0098). dm.director maxTokens 1500 (claude/cc/claude-opus-5). Estimate: expected $1.90, upper bound $20.82. Capture ceiling $22 (operator approval above).
 
 Phase 2 capture attempt 1 (runId 20261026T150802Z-greyhollow-ford-provider) was killed by SIGTERM when the desktop app restarted. It wrote no run directory, and the stack's DBs came back empty, so its spend is unrecorded (cc/ routes are subscription-backed). The DBs were re-migrated. The capture is rerun under the same $22 approval, detached with nohup.
+
+Phase 2 capture 2026-10-26: run 20261026T150925Z-greyhollow-ford-provider, composite 15f15fe. Outcome failed: 12 turns succeeded and 5 moves committed (past the run 2/4 failure turns), then the turn at triggerSeq 114 (pt-5, reed-camp fight) stopped at director: invalid-output. Both attempts had goalNote over 300 chars (367 and 309; 783 and 245 output tokens). Spend $2.82 over 121 calls of the $22 ceiling. Fixture and evidence: cfd4929. Classification: C4 only, no prompt change (evidence/classification.md).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
