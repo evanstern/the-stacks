@@ -180,17 +180,17 @@ below record what ran, not a pass.
 Contracts: `contracts/audit-criteria.md` ("The party-name filter"),
 `contracts/narration-facts.md` ("Narrate prompt v3"). Evidence: research.md R7.2, R7.3.
 
-- [ ] T048 [US3] In `nodes/audit.ts`, add the party-name filter. A `dm.audit` `player-agency`
+- [x] T048 [US3] In `nodes/audit.ts`, add the party-name filter. A `dm.audit` `player-agency`
   issue blocks only when its detail holds a party-name term from `facts.party`. Keep every other
   kind's blocking rule. Keep `dm.audit-v2`. Put the term builder and matcher in one exported
   function so tests call it directly.
-- [ ] T049 [P] [US3] In `audit.test.ts`, add the filter's unit-test table and node tests from
+- [x] T049 [P] [US3] In `audit.test.ts`, add the filter's unit-test table and node tests from
   `contracts/audit-criteria.md`. Quote the verify-run details verbatim.
-- [ ] T050 [US3] In `prompts/narrate.ts`, add the narrate v3 rule after the "No rules effect"
+- [x] T050 [US3] In `prompts/narrate.ts`, add the narrate v3 rule after the "No rules effect"
   rule. Set `dm.narrate-v3`.
-- [ ] T051 [P] [US3] In `narrate.test.ts`, add the narrate v3 tests from
+- [x] T051 [P] [US3] In `narrate.test.ts`, add the narrate v3 tests from
   `contracts/narration-facts.md`. Update the `dm.narrate-v2` assertion to `dm.narrate-v3`.
-- [ ] T052 Check every script under `test/dm/scripts/` still matches its call sequence. Run the
+- [x] T052 Check every script under `test/dm/scripts/` still matches its call sequence. Run the
   phase gate and the database suites. Commit. Push the branch.
 
 **Checkpoint**: E2 and E3 met offline. The branch is ready for the Phase 5b rerun.
