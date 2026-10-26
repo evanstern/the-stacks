@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 20:23'
+updated_date: '2026-10-26 20:25'
 labels:
   - first-scene
   - test
@@ -129,6 +129,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Reconcile merge of origin/main (TASK-0106 #51) by sonnet-implementer: 6eadf52 merge (wiki INDEX and CAPSULES conflicts only), 944f2a1 (checks.test.ts factual-summary test gains the facts v2 fields; assertion unchanged), 4ff5d9e (playtest-harness NEEDS-REVIEW re-pinned with the seat-cycling and stall-stop prose; freshness OK, 47 notes). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 849 passed, 5 skipped. CI playtest: ended, pass. No WS flake. No tick flips.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Demo section D prep 2026-10-26: stack rebuilt at d2d88cb (code 4ff5d9e). The app DB was migrated via TEST_DATABASE_URL, then the test DB. The app restarted with a clean boot (no errors, no unconfigured-purposes warning). Models as in the AI config, with dm.interpret maxTokens 2500 and dm.narrate 1500. Demo session id: 2811b339-bb03-4593-b3fd-0a969a5d2027. Waiting on the operator to create the operator account (auth:create-operator) and play Tamsin in Brave.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
