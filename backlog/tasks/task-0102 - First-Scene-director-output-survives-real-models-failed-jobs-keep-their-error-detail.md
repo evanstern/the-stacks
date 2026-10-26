@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 16:22'
+updated_date: '2026-10-26 17:07'
 labels:
   - first-scene
   - dm
@@ -93,10 +93,20 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: 6ae6e4a. dm-runtime, dm-turn-jobs and dnd5e-engine were NEEDS-REVIEW, with prose amended. ingestion was re-pin only. New note dm-failure-and-gates, split from dm-runtime over the size budget. CAPSULES and INDEX updated. Freshness: OK, 45 notes fresh. spec-bridge check ok, 32 linked.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged via PR #50 (merge commit 9658265, 2026-10-26).
+
+Done flip held: the spec-bridge gate needs T038 ticked. T038 (conditional on a failure) did not trigger and is annotated so. Its tick rides the TASK-0048 branch per the runbook's post-merge rule, and TASK-0102 flips to Done when TASK-0048 merges.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Turn jobs that fail now keep their diagnosis in jobs.result.failure (node, kind, purpose, prompt version, issues, bounded attempt excerpts), and jobs.error stays a fixed string. The director accepts real-model output: normalizeDirector caps goalNote and reason text at 300 chars and never touches a number (catalog row C4, chosen from the captured run). By operator ruling, the scope widened to interpret and the rules-term gate. Skills are now a closed 18-key enum defined in the engine. Interpret and adjudicate prompts v2 render the closed condition, skill and damage-type lists, and interpret stays strict. Spells (TASK-0105) and modifiers/DCs (TASK-0104) are carded for m-3. Verified by three paid runs ($8.89): the final run had 29 turns and 0 failed jobs. Also: ci:check with REQUIRE_DATABASE=1 green, scripted CI playtest pass, wiki freshness OK, spec-bridge ok.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
