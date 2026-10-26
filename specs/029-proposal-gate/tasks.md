@@ -98,19 +98,19 @@ typechecks.
 
 ### Tests
 
-- [ ] T016 [P] [US4] Write `packages/session-model/test/gate-authority.test.ts`: an allowed and a forbidden case for every row of decision-0016's table (free/declarer, turn/active-player, party/group with one human, party with two humans → `GROUP_SIGNOFF_REQUIRED`, DM always), plus `UNKNOWN_ACTION`, `ACTION_NOT_OPEN`, companion party commit refused, and the `{ actor }` form.
-- [ ] T017 [P] [US4] Add the SC-006 replay check to `gate-authority.test.ts`: every `action.committed` in every fixture re-derives its recorded authority (contracts/policy-and-authority.md).
-- [ ] T018 [P] [US1] Extend `packages/session-model/test/gate-policy.test.ts`: `effectivePolicy` is `auto` for every kind under an AI seat; under a human seat, overrides win over defaults; `routeProposal` routes humans and companions `direct`, `ai:dm` by policy, and refuses `ai:dm` `action.declare`.
-- [ ] T019 [P] [US3] Write `packages/session-model/test/gate-permissions.test.ts`: every cell of the permission matrix in contracts/proposals.md, including IC talk control and operator-only `dm.seat`.
-- [ ] T020 [P] [US1] Write `packages/session-model/test/gate-plan.test.ts`: per kind, the planned rows match contracts/gate-api.md section 1 (types, actors, visibility, filled `before`); every planned payload validates against its catalog schema; `mechanics` returns engine refusals with source `engine` and the engine's code for at least five codes (`TARGET_DEAD`, `UNKNOWN_COMBATANT`, `INVALID_COMMAND`, `D20_TERM_REQUIRED`, `NO_ACTIVE_ENCOUNTER`) and draws no die; the AC #7 equivalence (direct vs approved plan of one `mechanics` proposal with equal scripted dice → deeply equal engine events, `proposalId` differing only on envelopes); `planProposal` reads no clock and mutates no input (deep-freeze).
+- [x] T016 [P] [US4] Write `packages/session-model/test/gate-authority.test.ts`: an allowed and a forbidden case for every row of decision-0016's table (free/declarer, turn/active-player, party/group with one human, party with two humans → `GROUP_SIGNOFF_REQUIRED`, DM always), plus `UNKNOWN_ACTION`, `ACTION_NOT_OPEN`, companion party commit refused, and the `{ actor }` form.
+- [x] T017 [P] [US4] Add the SC-006 replay check to `gate-authority.test.ts`: every `action.committed` in every fixture re-derives its recorded authority (contracts/policy-and-authority.md).
+- [x] T018 [P] [US1] Extend `packages/session-model/test/gate-policy.test.ts`: `effectivePolicy` is `auto` for every kind under an AI seat; under a human seat, overrides win over defaults; `routeProposal` routes humans and companions `direct`, `ai:dm` by policy, and refuses `ai:dm` `action.declare`.
+- [x] T019 [P] [US3] Write `packages/session-model/test/gate-permissions.test.ts`: every cell of the permission matrix in contracts/proposals.md, including IC talk control and operator-only `dm.seat`.
+- [x] T020 [P] [US1] Write `packages/session-model/test/gate-plan.test.ts`: per kind, the planned rows match contracts/gate-api.md section 1 (types, actors, visibility, filled `before`); every planned payload validates against its catalog schema; `mechanics` returns engine refusals with source `engine` and the engine's code for at least five codes (`TARGET_DEAD`, `UNKNOWN_COMBATANT`, `INVALID_COMMAND`, `D20_TERM_REQUIRED`, `NO_ACTIVE_ENCOUNTER`) and draws no die; the AC #7 equivalence (direct vs approved plan of one `mechanics` proposal with equal scripted dice → deeply equal engine events, `proposalId` differing only on envelopes); `planProposal` reads no clock and mutates no input (deep-freeze).
 
 ### Implementation
 
-- [ ] T021 [P] [US3] Create `packages/session-model/src/gate/permissions.ts` implementing the permission matrix and derived roles in contracts/proposals.md.
-- [ ] T022 [P] [US4] Create `packages/session-model/src/gate/authority.ts` with `commitAuthority` per contracts/policy-and-authority.md.
-- [ ] T023 [US1] Add `routeProposal` to `packages/session-model/src/gate/policy.ts`.
-- [ ] T024 [US1] Create `packages/session-model/src/gate/plan.ts` with `planProposal`, `PlannedRow`, `PlanIds`, `PlanResult` and `mechanicsRows` per contracts/gate-api.md section 1; validate each planned payload against `catalogEntry(type, currentVersion(type)).schema`.
-- [ ] T025 [US1] Export the Phase 2 names from `packages/session-model/src/index.ts` and extend `exports.test.ts`.
+- [x] T021 [P] [US3] Create `packages/session-model/src/gate/permissions.ts` implementing the permission matrix and derived roles in contracts/proposals.md.
+- [x] T022 [P] [US4] Create `packages/session-model/src/gate/authority.ts` with `commitAuthority` per contracts/policy-and-authority.md.
+- [x] T023 [US1] Add `routeProposal` to `packages/session-model/src/gate/policy.ts`.
+- [x] T024 [US1] Create `packages/session-model/src/gate/plan.ts` with `planProposal`, `PlannedRow`, `PlanIds`, `PlanResult` and `mechanicsRows` per contracts/gate-api.md section 1; validate each planned payload against `catalogEntry(type, currentVersion(type)).schema`.
+- [x] T025 [US1] Export the Phase 2 names from `packages/session-model/src/index.ts` and extend `exports.test.ts`.
 
 **Checkpoint**: every decision the gate makes is tested without a server.
 
@@ -247,3 +247,9 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
   `tracker.changed`), so a mislabelled public proposal row never reaches a player.
 - Phase 1, T014: `exports.test.ts` also asserts the Phase 1 names; `decode.test.ts` now uses
   `x-test.future-type` for its unknown-type case (`proposal.created` is catalogued).
+- Phase 2, T021/T022: shared role helpers (`isSeatedDm`, `isAiDm`, `controls`, `isPartyMember`)
+  live in `packages/session-model/src/gate/roles.ts`, used by permissions, authority and the
+  planner. `action.commit` passes the permission matrix for every table member; commit
+  authority refuses non-controllers at plan time, as the matrix says ("per commit authority").
+- Phase 2, T024: the planner re-checks IC-talk control and `action.declare` control (the
+  table lists both as planner checks), so an approved proposal cannot bypass them.
