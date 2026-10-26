@@ -4,6 +4,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { SRD_ATTRIBUTION } from "@the-stacks/srd/attribution";
 import { handle } from "../build/server/index.js";
 
 /**
@@ -188,4 +189,21 @@ test("/play/<uuid> shows the hydrate fallback and no event list", async () => {
   const html = await res.text();
   assert.match(html, /Loading…/);
   assert.doesNotMatch(html, /<ul>/);
+});
+
+test("/about signed in shows the SRD 5.2.1 attribution and no <dialog", async () => {
+  const res = await handle(
+    new Request("http://localhost/about"),
+    stubContext({ id: "u2", displayName: "Rin", role: "player" }),
+  );
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  const statement = SRD_ATTRIBUTION.replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#x27;");
+  assert.ok(html.includes(statement), "statement present verbatim");
+  assert.match(html, /href="\/about"/);
+  assert.doesNotMatch(html, /<dialog/);
 });

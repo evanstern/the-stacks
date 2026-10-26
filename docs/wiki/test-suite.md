@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 92 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam, including the load context's jobs() (TASK-0028). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
+description: What this note's 12 core server test files / 93 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam, including the load context's jobs() (TASK-0028). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
+verified_against: 3a46656a735a97788aaa7e046c195a774435e41a
 ---
 
 # Test suite
@@ -49,7 +49,11 @@ TASK-0024), the DB reachability probe, the echo route (including a generic
 event-log helpers, `/health`, the web middleware's reserved-path/asset/handler-seam behavior
 (`static.test.ts`, rewritten for TASK-0040 — see [[static-serving]]; TASK-0028 added one case
 asserting the load context's `jobs()` resolves `null` with no cookie and never calls the
-injected `listJobs`), and the protocol/subscribe modules in isolation.
+injected `listJobs`), and the protocol/subscribe modules in isolation. `ws.subscribe.test.ts` is the one unit-level
+file that also carries a database-gated test (TASK-0095): a `describe.skipIf(!reachable)` block
+with the same loud-skip notice, thrown under `REQUIRE_DATABASE=1`. It asserts that a replay
+which already delivered an event does not send it again when that event's `broadcast` runs
+after `subscribe` returns.
 
 ## How it works
 
@@ -69,7 +73,8 @@ exists to run.
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
 resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **48
-tests pass, 44 skip**, out of 92 (TASK-0024 added `config.test.ts`'s 5 always-run cases and one
+tests pass, 45 skip**, out of 93 (TASK-0095 added one gated case to `ws.subscribe.test.ts`,
+whose file still reports as passing because its other two tests run; TASK-0024 added `config.test.ts`'s 5 always-run cases and one
 case to `echo.test.ts`'s gated-free `describe`, on top of TASK-0032's `isUniqueViolation`
 cases; TASK-0040 added one gated case to `auth.integration.test.ts` and rewrote
 `static.test.ts` onto the new web-middleware seam, netting no change to the file's own test
@@ -78,7 +83,7 @@ context's `jobs()`; a later `favicon` case asserts `/favicon.ico` answers 204 wi
 session-auth flow, every event-log write/read, and the entire WebSocket gateway (including
 [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
 pass/fail summary, not the warning text, would not notice. With a reachable database and
-`REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **92 tests pass, 0 skip**.
+`REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **93 tests pass, 0 skip**.
 
 **`apps/server/vitest.config.ts`** (TASK-0024) sets `fileParallelism: false` for the whole
 package — every suite in this note's scope included — because [[ingestion]]'s integration
@@ -90,7 +95,7 @@ suite's pass/fail outcome.
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`
 and `packages/shared`) is an entry in root `tsconfig.json`'s `references` array,
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
-[[dnd5e-engine]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
+[[dnd5e-engine]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
 closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` itself is unchanged (still

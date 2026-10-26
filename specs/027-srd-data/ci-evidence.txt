@@ -1,0 +1,93 @@
+TASK-0043 close-out evidence (spec 027-srd-data), 2026-10-25
+PDF: SRD_CC_v5.2.1.pdf, SHA-256 8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87 (matches T016 and the index)
+
+== T040 quickstart ==
+1 install and build: pnpm install --frozen-lockfile (up to date); pnpm --filter @the-stacks/srd build -> packages/srd/dist exists.
+2 package tests: 8 test files, 140 tests, all pass.
+  Compact form, estimated tokens (ceiling 120):
+    kind       count  median  max
+    monster      331      91  120
+    spell        339     105  120
+    class         12      86  100
+    equipment    206      48  120
+    condition     15      87  114
+  (The suite does not print these figures; a one-off script over the built package computed them.)
+3 lookups: goblin-warrior ac=15; "FIRE  bolt" level=0; longsword damage={ dice: '1d8', type: 'Slashing' };
+  compact(condition, prone) ends "SRD 5.2.1 p.186"; getByName(monster, beholder)=undefined.
+4 attribution guard: ATTRIBUTION.md moved away -> 3 attribution tests FAIL (1 file failed, 7 passed);
+  restored -> 8 files, 140 tests pass. Working tree clean after restore.
+5 web: pnpm --filter @the-stacks/web build ok; test 64 pass, 0 fail, incl. "/about signed in shows the SRD 5.2.1
+  attribution and no <dialog". Manual part not run (no browser, no env:up in this dispatch): sign in, click
+  About, screenshot in Brave -> operator or orchestrator step before merge.
+6 provenance: index pdfSha256 = 8974902d...3d87 (match); verification.json unresolved mismatches (ok == false) = 0
+  of 903 records. verification mismatch count = 0.
+7 pnpm ci:check: see T045.
+
+== T041 spot-check (research.md R4 review layer) ==
+Method: five records per kind at evenly spread positions in list order (indices floor((2i+1)n/10)); text of the
+cited PDF page via pdftotext -raw; punctuation/space-insensitive match of the record's name and key facts.
+Monster: name, AC, HP average, CR. Spell: name, school, range, duration. Class: name, hit die, primary ability.
+Equipment: name, cost, weight, damage or AC. Condition: name and first effect text.
+Result: monster 5/5, spell 5/5, class 5/5, equipment 5/5, condition 5/5 (25/25).
+kind|id|page|result
+monster|awakened-tree|p.260|PASS
+monster|ettercap|p.284|PASS
+monster|hill-giant|p.298|PASS
+monster|priest-acolyte|p.316|PASS
+monster|violet-fungus|p.286|PASS
+spell|blink|p.113|PASS
+spell|eldritch-blast|p.127|PASS
+spell|holy-aura|p.141|PASS
+spell|prayer-of-healing|p.154|PASS
+spell|telepathic-bond|p.168|PASS
+class|bard|p.31|PASS
+class|druid|p.41|PASS
+class|paladin|p.53|PASS
+class|rogue|p.61|PASS
+class|warlock|p.70|PASS
+equipment|blowgun|p.91|PASS
+equipment|dungeoneers-pack|p.97|PASS (weight 55 lb is in the Equipment Packs table on p.95; name and cost on cited p.97)
+equipment|lance|p.91|PASS
+equipment|pike|p.91|PASS
+equipment|spikes-iron|p.100|PASS
+condition|charmed|p.178|PASS
+condition|frightened|p.182|PASS
+condition|invisible|p.184|PASS
+condition|poisoned|p.186|PASS
+condition|stunned|p.189|PASS
+Note: blowgun damage is a flat 1 Piercing (dice null, average 1); the PDF row reads "Blowgun 1 Piercing ... 1 lb. 10 GP". It matches.
+
+== T042 license guards ==
+git grep -n "dnd-sourcebooks\|fixtures/private" -- packages/srd apps/web -> no output (exit 1)
+git ls-files packages/srd | grep -i "\.pdf$" -> no output (exit 1)
+
+== T043 card AC -> proving artifact ==
+AC #1 Zod-validated records of the five kinds: packages/srd/data/{monster,spell,class,equipment,condition}.json;
+      packages/srd/src/schema/*.ts; packages/srd/test/schema.test.ts, schema-fixtures.test.ts, provenance.test.ts.
+AC #2 attribution file and app surface: packages/srd/ATTRIBUTION.md; packages/srd/src/attribution.ts;
+      apps/web/app/routes/about.tsx (route /about, link in shell.tsx); apps/web/test/ssr.test.mjs (/about case, no <dialog).
+AC #3 data source and license recorded: specs/027-srd-data/spec.md "Data source"; research.md; packages/srd/provenance/source.json.
+AC #4 loader by id and by name: packages/srd/src/loader.ts; packages/srd/test/loader.test.ts.
+AC #5 compact form about 100 tokens, size test: packages/srd/src/compact.ts, tokens.ts; packages/srd/test/compact.test.ts,
+      tokens.test.ts (medians and maxima above).
+AC #6 test fails on missing attribution or missing source reference: packages/srd/test/attribution.test.ts (T040 step 4
+      shows it failing), packages/srd/test/source-ref.test.ts.
+AC #7 nothing from outside SRD 5.2.1: packages/srd/provenance/srd-5.2.1-index.json; verification.json (903 records, 0
+      mismatches); packages/srd/test/provenance.test.ts; T041 spot-checks; T042 guards.
+
+== T044 wiki-pinned sources changed by this branch (for the sweep post-merge re-ground; docs/wiki not edited) ==
+Dockerfile -> container-image, runtime-stacks, react-router-app, static-serving, health-check, monorepo-and-toolchain,
+              compose-stack, configuration, hosted-dev
+apps/web/app/routes.ts -> react-router-app
+apps/web/app/shell/shell.tsx -> chat-ui
+apps/web/app/components/icons.tsx -> chat-ui
+apps/web/test/ssr.test.mjs -> react-router-app
+biome.json -> ci-pipeline, monorepo-and-toolchain, ddb-parser
+tsconfig.json -> monorepo-and-toolchain, test-suite
+pnpm-lock.yaml -> container-image
+New code with no note yet: packages/srd (add a note); apps/web/app/routes/about.tsx.
+Method: git diff --name-only origin/main...HEAD, each path searched in docs/wiki. plan.md named five of these;
+icons.tsx, ssr.test.mjs and pnpm-lock.yaml are additional, and the Dockerfile reaches more notes than plan.md listed.
+
+== T045 pnpm ci:check ==
+Exit 0 (green), run in the task-0043 worktree.

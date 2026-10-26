@@ -23,7 +23,7 @@ sources:
   - apps/web/app/routes/settings.tsx
   - apps/web/app/library/books.ts
   - apps/web/app/library/upload.ts
-verified_against: 7122a14490135ded74072d00e4ec291792ed85ae
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # Chat UI
@@ -96,6 +96,10 @@ loader-only, redirecting a signed-in operator to `/ask` and a signed-in player t
 without calling `jobs()` at all (so a player's SSR never even asks for job data), else
 `{ jobs: await jobs() }`; the forbidden case renders `shell/operator-only.tsx`'s
 `OperatorOnly` with one of FR-037's two fixed messages (FR-038).
+
+TASK-0043 adds an always-visible About link to the shell nav (`shell/shell.tsx`, a `NavLink` to
+`/about` with the new inline `InfoIcon`) for every signed-in role; the `/about` route itself is
+described in [[react-router-app]] and [[srd-data]].
 
 ## Connections
 

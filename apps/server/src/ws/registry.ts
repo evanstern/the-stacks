@@ -23,13 +23,29 @@ export interface Connection {
    * "queue instead of sending"; subscribe.ts sets this the moment a
    * connection joins a session and clears it once the queue is drained.
    *
-   * data-model.md also names `deliveredThroughSeq` on this entity, but
-   * nothing ever reads a connection's highest-delivered position back —
-   * each reconnect supplies its own `afterSeq` cursor — so it is omitted
-   * here rather than carried as unread state (ponytail: add it if a
-   * feature needs to inspect a live connection's watermark).
+   * data-model.md also names `deliveredThroughSeq` on this entity. That
+   * running watermark is still omitted — see `replayedThroughSeq` below
+   * for why it would be wrong — but TASK-0095 added a narrower field.
    */
   pendingQueue: RecordedEventFrame["event"][] | null;
+  /**
+   * The highest seq this connection's most recent subscribe replay covered
+   * (starts at that subscribe's `afterSeq`; 0 before any subscribe).
+   * `broadcast` skips any event at or below it (TASK-0095).
+   *
+   * The race it closes: gateway.ts appends, THEN broadcasts. A subscriber
+   * mid-replay can read the just-committed event via `readFrom`, send it,
+   * and clear `pendingQueue` before that broadcast runs — which would then
+   * send it a second time. The queue-drain skip only covers queued events.
+   *
+   * This is a replay floor, deliberately NOT a running delivered-through
+   * watermark updated on every send: broadcasts from concurrent senders are
+   * not guaranteed to run in seq order, so a running watermark could drop a
+   * lower seq whose broadcast runs late. Every seq at or below the replay's
+   * throughSeq was in the replay read (the event log's advisory lock commits
+   * seqs in order), so skipping exactly those is lossless.
+   */
+  replayedThroughSeq: number;
 }
 
 /**
@@ -108,6 +124,9 @@ export function createRegistry() {
         continue;
       }
       if (!isVisible(conn, frame.event)) continue;
+      // Already delivered by this connection's replay (TASK-0095) — see
+      // `Connection.replayedThroughSeq`. Shared by the queue and send paths.
+      if (frame.event.seq <= conn.replayedThroughSeq) continue;
       if (conn.pendingQueue) {
         conn.pendingQueue.push(frame.event);
         continue;

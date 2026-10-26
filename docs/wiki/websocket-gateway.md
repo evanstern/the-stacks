@@ -4,7 +4,7 @@ description: The WebSocket gateway's upgrade-time authentication — a socket on
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
 ---
 
 # WebSocket gateway
@@ -34,7 +34,9 @@ status line and destroys the socket rather than sending any WebSocket frame:
 
 Only on success does `wss.handleUpgrade` run, building a `Connection` (see
 [[subscriber-registry]]) from the validated identity — `userId` and `role` are captured once,
-at upgrade time, and never re-derived per message.
+at upgrade time, and never re-derived per message. The new `Connection` starts with
+`sessionId: null`, `pendingQueue: null` and `replayedThroughSeq: 0` (the replay floor
+[[replay-live-boundary]] sets on subscribe).
 
 After that, `handleConnection` wires `message`/`close`/`error` listeners. Each inbound frame
 is parsed by [[ws-protocol]]'s `parseInboundFrame`; a frame that fails validation gets an

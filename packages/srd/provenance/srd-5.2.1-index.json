@@ -1,0 +1,3679 @@
+{
+  "document": "SRD 5.2.1",
+  "pdfSha256": "8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87",
+  "pdfUrl": "https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf",
+  "extractedAt": "2026-10-26",
+  "kinds": {
+    "monster": [
+      {
+        "name": "Aboleth",
+        "page": 258
+      },
+      {
+        "name": "Adult Black Dragon",
+        "page": 264
+      },
+      {
+        "name": "Adult Blue Dragon",
+        "page": 266
+      },
+      {
+        "name": "Adult Brass Dragon",
+        "page": 268
+      },
+      {
+        "name": "Adult Bronze Dragon",
+        "page": 270
+      },
+      {
+        "name": "Adult Copper Dragon",
+        "page": 276
+      },
+      {
+        "name": "Adult Gold Dragon",
+        "page": 291
+      },
+      {
+        "name": "Adult Green Dragon",
+        "page": 294
+      },
+      {
+        "name": "Adult Red Dragon",
+        "page": 318
+      },
+      {
+        "name": "Adult Silver Dragon",
+        "page": 324
+      },
+      {
+        "name": "Adult White Dragon",
+        "page": 340
+      },
+      {
+        "name": "Air Elemental",
+        "page": 258
+      },
+      {
+        "name": "Allosaurus",
+        "page": 344
+      },
+      {
+        "name": "Ancient Black Dragon",
+        "page": 265
+      },
+      {
+        "name": "Ancient Blue Dragon",
+        "page": 267
+      },
+      {
+        "name": "Ancient Brass Dragon",
+        "page": 269
+      },
+      {
+        "name": "Ancient Bronze Dragon",
+        "page": 271
+      },
+      {
+        "name": "Ancient Copper Dragon",
+        "page": 277
+      },
+      {
+        "name": "Ancient Gold Dragon",
+        "page": 292
+      },
+      {
+        "name": "Ancient Green Dragon",
+        "page": 294
+      },
+      {
+        "name": "Ancient Red Dragon",
+        "page": 319
+      },
+      {
+        "name": "Ancient Silver Dragon",
+        "page": 325
+      },
+      {
+        "name": "Ancient White Dragon",
+        "page": 341
+      },
+      {
+        "name": "Animated Armor",
+        "page": 259
+      },
+      {
+        "name": "Animated Flying Sword",
+        "page": 259
+      },
+      {
+        "name": "Animated Rug of Smothering",
+        "page": 259
+      },
+      {
+        "name": "Ankheg",
+        "page": 259
+      },
+      {
+        "name": "Ankylosaurus",
+        "page": 344
+      },
+      {
+        "name": "Ape",
+        "page": 344
+      },
+      {
+        "name": "Archelon",
+        "page": 344
+      },
+      {
+        "name": "Archmage",
+        "page": 305
+      },
+      {
+        "name": "Assassin",
+        "page": 260
+      },
+      {
+        "name": "Awakened Shrub",
+        "page": 260
+      },
+      {
+        "name": "Awakened Tree",
+        "page": 260
+      },
+      {
+        "name": "Axe Beak",
+        "page": 260
+      },
+      {
+        "name": "Azer Sentinel",
+        "page": 261
+      },
+      {
+        "name": "Baboon",
+        "page": 345
+      },
+      {
+        "name": "Badger",
+        "page": 345
+      },
+      {
+        "name": "Balor",
+        "page": 261
+      },
+      {
+        "name": "Bandit",
+        "page": 261
+      },
+      {
+        "name": "Bandit Captain",
+        "page": 261
+      },
+      {
+        "name": "Barbed Devil",
+        "page": 262
+      },
+      {
+        "name": "Basilisk",
+        "page": 262
+      },
+      {
+        "name": "Bat",
+        "page": 345
+      },
+      {
+        "name": "Bearded Devil",
+        "page": 262
+      },
+      {
+        "name": "Behir",
+        "page": 263
+      },
+      {
+        "name": "Berserker",
+        "page": 263
+      },
+      {
+        "name": "Black Bear",
+        "page": 345
+      },
+      {
+        "name": "Black Dragon Wyrmling",
+        "page": 263
+      },
+      {
+        "name": "Black Pudding",
+        "page": 265
+      },
+      {
+        "name": "Blink Dog",
+        "page": 266
+      },
+      {
+        "name": "Blood Hawk",
+        "page": 345
+      },
+      {
+        "name": "Blue Dragon Wyrmling",
+        "page": 266
+      },
+      {
+        "name": "Boar",
+        "page": 346
+      },
+      {
+        "name": "Bone Devil",
+        "page": 267
+      },
+      {
+        "name": "Brass Dragon Wyrmling",
+        "page": 268
+      },
+      {
+        "name": "Bronze Dragon Wyrmling",
+        "page": 269
+      },
+      {
+        "name": "Brown Bear",
+        "page": 346
+      },
+      {
+        "name": "Bugbear Stalker",
+        "page": 271
+      },
+      {
+        "name": "Bugbear Warrior",
+        "page": 272
+      },
+      {
+        "name": "Bulette",
+        "page": 272
+      },
+      {
+        "name": "Camel",
+        "page": 346
+      },
+      {
+        "name": "Cat",
+        "page": 346
+      },
+      {
+        "name": "Centaur Trooper",
+        "page": 272
+      },
+      {
+        "name": "Chain Devil",
+        "page": 272
+      },
+      {
+        "name": "Chimera",
+        "page": 273
+      },
+      {
+        "name": "Chuul",
+        "page": 273
+      },
+      {
+        "name": "Clay Golem",
+        "page": 274
+      },
+      {
+        "name": "Cloaker",
+        "page": 274
+      },
+      {
+        "name": "Cloud Giant",
+        "page": 275
+      },
+      {
+        "name": "Cockatrice",
+        "page": 275
+      },
+      {
+        "name": "Commoner",
+        "page": 275
+      },
+      {
+        "name": "Constrictor Snake",
+        "page": 346
+      },
+      {
+        "name": "Copper Dragon Wyrmling",
+        "page": 275
+      },
+      {
+        "name": "Couatl",
+        "page": 277
+      },
+      {
+        "name": "Crab",
+        "page": 347
+      },
+      {
+        "name": "Crocodile",
+        "page": 347
+      },
+      {
+        "name": "Cultist",
+        "page": 278
+      },
+      {
+        "name": "Cultist Fanatic",
+        "page": 278
+      },
+      {
+        "name": "Darkmantle",
+        "page": 278
+      },
+      {
+        "name": "Death Dog",
+        "page": 279
+      },
+      {
+        "name": "Deer",
+        "page": 347
+      },
+      {
+        "name": "Deva",
+        "page": 279
+      },
+      {
+        "name": "Dire Wolf",
+        "page": 347
+      },
+      {
+        "name": "Djinni",
+        "page": 280
+      },
+      {
+        "name": "Doppelganger",
+        "page": 280
+      },
+      {
+        "name": "Draft Horse",
+        "page": 347
+      },
+      {
+        "name": "Dragon Turtle",
+        "page": 281
+      },
+      {
+        "name": "Dretch",
+        "page": 281
+      },
+      {
+        "name": "Drider",
+        "page": 281
+      },
+      {
+        "name": "Druid",
+        "page": 282
+      },
+      {
+        "name": "Dryad",
+        "page": 282
+      },
+      {
+        "name": "Dust Mephit",
+        "page": 307
+      },
+      {
+        "name": "Eagle",
+        "page": 348
+      },
+      {
+        "name": "Earth Elemental",
+        "page": 282
+      },
+      {
+        "name": "Efreeti",
+        "page": 283
+      },
+      {
+        "name": "Elephant",
+        "page": 348
+      },
+      {
+        "name": "Elk",
+        "page": 348
+      },
+      {
+        "name": "Erinyes",
+        "page": 283
+      },
+      {
+        "name": "Ettercap",
+        "page": 284
+      },
+      {
+        "name": "Ettin",
+        "page": 284
+      },
+      {
+        "name": "Fire Elemental",
+        "page": 284
+      },
+      {
+        "name": "Fire Giant",
+        "page": 285
+      },
+      {
+        "name": "Flesh Golem",
+        "page": 285
+      },
+      {
+        "name": "Flying Snake",
+        "page": 348
+      },
+      {
+        "name": "Frog",
+        "page": 348
+      },
+      {
+        "name": "Frost Giant",
+        "page": 285
+      },
+      {
+        "name": "Gargoyle",
+        "page": 286
+      },
+      {
+        "name": "Gelatinous Cube",
+        "page": 286
+      },
+      {
+        "name": "Ghast",
+        "page": 287
+      },
+      {
+        "name": "Ghost",
+        "page": 287
+      },
+      {
+        "name": "Ghoul",
+        "page": 288
+      },
+      {
+        "name": "Giant Ape",
+        "page": 349
+      },
+      {
+        "name": "Giant Badger",
+        "page": 349
+      },
+      {
+        "name": "Giant Bat",
+        "page": 349
+      },
+      {
+        "name": "Giant Boar",
+        "page": 349
+      },
+      {
+        "name": "Giant Centipede",
+        "page": 349
+      },
+      {
+        "name": "Giant Constrictor Snake",
+        "page": 350
+      },
+      {
+        "name": "Giant Crab",
+        "page": 350
+      },
+      {
+        "name": "Giant Crocodile",
+        "page": 350
+      },
+      {
+        "name": "Giant Eagle",
+        "page": 350
+      },
+      {
+        "name": "Giant Elk",
+        "page": 351
+      },
+      {
+        "name": "Giant Fire Beetle",
+        "page": 351
+      },
+      {
+        "name": "Giant Fly",
+        "page": 222,
+        "embedded": "Figurine of Wondrous Power"
+      },
+      {
+        "name": "Giant Frog",
+        "page": 351
+      },
+      {
+        "name": "Giant Goat",
+        "page": 351
+      },
+      {
+        "name": "Giant Hyena",
+        "page": 352
+      },
+      {
+        "name": "Giant Lizard",
+        "page": 352
+      },
+      {
+        "name": "Giant Octopus",
+        "page": 352
+      },
+      {
+        "name": "Giant Owl",
+        "page": 352
+      },
+      {
+        "name": "Giant Rat",
+        "page": 353
+      },
+      {
+        "name": "Giant Scorpion",
+        "page": 353
+      },
+      {
+        "name": "Giant Seahorse",
+        "page": 353
+      },
+      {
+        "name": "Giant Shark",
+        "page": 353
+      },
+      {
+        "name": "Giant Spider",
+        "page": 353
+      },
+      {
+        "name": "Giant Toad",
+        "page": 354
+      },
+      {
+        "name": "Giant Venomous Snake",
+        "page": 354
+      },
+      {
+        "name": "Giant Vulture",
+        "page": 354
+      },
+      {
+        "name": "Giant Wasp",
+        "page": 354
+      },
+      {
+        "name": "Giant Weasel",
+        "page": 355
+      },
+      {
+        "name": "Giant Wolf Spider",
+        "page": 355
+      },
+      {
+        "name": "Gibbering Mouther",
+        "page": 288
+      },
+      {
+        "name": "Glabrezu",
+        "page": 289
+      },
+      {
+        "name": "Gladiator",
+        "page": 289
+      },
+      {
+        "name": "Gnoll Warrior",
+        "page": 289
+      },
+      {
+        "name": "Goat",
+        "page": 355
+      },
+      {
+        "name": "Goblin Boss",
+        "page": 290
+      },
+      {
+        "name": "Goblin Minion",
+        "page": 290
+      },
+      {
+        "name": "Goblin Warrior",
+        "page": 290
+      },
+      {
+        "name": "Gold Dragon Wyrmling",
+        "page": 290
+      },
+      {
+        "name": "Gorgon",
+        "page": 292
+      },
+      {
+        "name": "Gray Ooze",
+        "page": 293
+      },
+      {
+        "name": "Green Dragon Wyrmling",
+        "page": 293
+      },
+      {
+        "name": "Green Hag",
+        "page": 295
+      },
+      {
+        "name": "Grick",
+        "page": 295
+      },
+      {
+        "name": "Griffon",
+        "page": 295
+      },
+      {
+        "name": "Grimlock",
+        "page": 296
+      },
+      {
+        "name": "Guard",
+        "page": 296
+      },
+      {
+        "name": "Guard Captain",
+        "page": 296
+      },
+      {
+        "name": "Guardian Naga",
+        "page": 296
+      },
+      {
+        "name": "Half-Dragon",
+        "page": 297
+      },
+      {
+        "name": "Harpy",
+        "page": 297
+      },
+      {
+        "name": "Hawk",
+        "page": 355
+      },
+      {
+        "name": "Hell Hound",
+        "page": 297
+      },
+      {
+        "name": "Hezrou",
+        "page": 298
+      },
+      {
+        "name": "Hill Giant",
+        "page": 298
+      },
+      {
+        "name": "Hippogriff",
+        "page": 298
+      },
+      {
+        "name": "Hippopotamus",
+        "page": 355
+      },
+      {
+        "name": "Hobgoblin Captain",
+        "page": 299
+      },
+      {
+        "name": "Hobgoblin Warrior",
+        "page": 298
+      },
+      {
+        "name": "Homunculus",
+        "page": 299
+      },
+      {
+        "name": "Horned Devil",
+        "page": 299
+      },
+      {
+        "name": "Hunter Shark",
+        "page": 356
+      },
+      {
+        "name": "Hydra",
+        "page": 300
+      },
+      {
+        "name": "Hyena",
+        "page": 356
+      },
+      {
+        "name": "Ice Devil",
+        "page": 300
+      },
+      {
+        "name": "Ice Mephit",
+        "page": 307
+      },
+      {
+        "name": "Imp",
+        "page": 300
+      },
+      {
+        "name": "Incubus",
+        "page": 301
+      },
+      {
+        "name": "Invisible Stalker",
+        "page": 301
+      },
+      {
+        "name": "Iron Golem",
+        "page": 302
+      },
+      {
+        "name": "Jackal",
+        "page": 356
+      },
+      {
+        "name": "Killer Whale",
+        "page": 356
+      },
+      {
+        "name": "Knight",
+        "page": 302
+      },
+      {
+        "name": "Kobold Warrior",
+        "page": 302
+      },
+      {
+        "name": "Kraken",
+        "page": 303
+      },
+      {
+        "name": "Lamia",
+        "page": 303
+      },
+      {
+        "name": "Lemure",
+        "page": 304
+      },
+      {
+        "name": "Lich",
+        "page": 304
+      },
+      {
+        "name": "Lion",
+        "page": 356
+      },
+      {
+        "name": "Lizard",
+        "page": 357
+      },
+      {
+        "name": "Mage",
+        "page": 305
+      },
+      {
+        "name": "Magma Mephit",
+        "page": 307
+      },
+      {
+        "name": "Magmin",
+        "page": 305
+      },
+      {
+        "name": "Mammoth",
+        "page": 357
+      },
+      {
+        "name": "Manticore",
+        "page": 306
+      },
+      {
+        "name": "Marilith",
+        "page": 306
+      },
+      {
+        "name": "Mastiff",
+        "page": 357
+      },
+      {
+        "name": "Medusa",
+        "page": 306
+      },
+      {
+        "name": "Merfolk Skirmisher",
+        "page": 308
+      },
+      {
+        "name": "Merrow",
+        "page": 308
+      },
+      {
+        "name": "Mimic",
+        "page": 308
+      },
+      {
+        "name": "Minotaur of Baphomet",
+        "page": 309
+      },
+      {
+        "name": "Minotaur Skeleton",
+        "page": 326
+      },
+      {
+        "name": "Mule",
+        "page": 357
+      },
+      {
+        "name": "Mummy",
+        "page": 309
+      },
+      {
+        "name": "Mummy Lord",
+        "page": 309
+      },
+      {
+        "name": "Nalfeshnee",
+        "page": 310
+      },
+      {
+        "name": "Night Hag",
+        "page": 311
+      },
+      {
+        "name": "Nightmare",
+        "page": 311
+      },
+      {
+        "name": "Noble",
+        "page": 312
+      },
+      {
+        "name": "Ochre Jelly",
+        "page": 312
+      },
+      {
+        "name": "Octopus",
+        "page": 357
+      },
+      {
+        "name": "Ogre",
+        "page": 312
+      },
+      {
+        "name": "Ogre Zombie",
+        "page": 344
+      },
+      {
+        "name": "Oni",
+        "page": 312
+      },
+      {
+        "name": "Otyugh",
+        "page": 313
+      },
+      {
+        "name": "Owl",
+        "page": 358
+      },
+      {
+        "name": "Owlbear",
+        "page": 313
+      },
+      {
+        "name": "Panther",
+        "page": 358
+      },
+      {
+        "name": "Pegasus",
+        "page": 313
+      },
+      {
+        "name": "Phase Spider",
+        "page": 313
+      },
+      {
+        "name": "Piranha",
+        "page": 358
+      },
+      {
+        "name": "Pirate",
+        "page": 314
+      },
+      {
+        "name": "Pirate Captain",
+        "page": 314
+      },
+      {
+        "name": "Pit Fiend",
+        "page": 314
+      },
+      {
+        "name": "Planetar",
+        "page": 315
+      },
+      {
+        "name": "Plesiosaurus",
+        "page": 358
+      },
+      {
+        "name": "Polar Bear",
+        "page": 359
+      },
+      {
+        "name": "Pony",
+        "page": 359
+      },
+      {
+        "name": "Priest",
+        "page": 316
+      },
+      {
+        "name": "Priest Acolyte",
+        "page": 316
+      },
+      {
+        "name": "Pseudodragon",
+        "page": 316
+      },
+      {
+        "name": "Pteranodon",
+        "page": 359
+      },
+      {
+        "name": "Purple Worm",
+        "page": 316
+      },
+      {
+        "name": "Quasit",
+        "page": 317
+      },
+      {
+        "name": "Rakshasa",
+        "page": 317
+      },
+      {
+        "name": "Rat",
+        "page": 359
+      },
+      {
+        "name": "Raven",
+        "page": 359
+      },
+      {
+        "name": "Red Dragon Wyrmling",
+        "page": 318
+      },
+      {
+        "name": "Reef Shark",
+        "page": 360
+      },
+      {
+        "name": "Remorhaz",
+        "page": 319
+      },
+      {
+        "name": "Rhinoceros",
+        "page": 360
+      },
+      {
+        "name": "Riding Horse",
+        "page": 360
+      },
+      {
+        "name": "Roc",
+        "page": 320
+      },
+      {
+        "name": "Roper",
+        "page": 320
+      },
+      {
+        "name": "Rust Monster",
+        "page": 320
+      },
+      {
+        "name": "Saber-Toothed Tiger",
+        "page": 360
+      },
+      {
+        "name": "Sahuagin Warrior",
+        "page": 321
+      },
+      {
+        "name": "Salamander",
+        "page": 321
+      },
+      {
+        "name": "Satyr",
+        "page": 321
+      },
+      {
+        "name": "Scorpion",
+        "page": 360
+      },
+      {
+        "name": "Scout",
+        "page": 322
+      },
+      {
+        "name": "Sea Hag",
+        "page": 322
+      },
+      {
+        "name": "Seahorse",
+        "page": 361
+      },
+      {
+        "name": "Shadow",
+        "page": 322
+      },
+      {
+        "name": "Shambling Mound",
+        "page": 323
+      },
+      {
+        "name": "Shield Guardian",
+        "page": 323
+      },
+      {
+        "name": "Shrieker Fungus",
+        "page": 286
+      },
+      {
+        "name": "Silver Dragon Wyrmling",
+        "page": 324
+      },
+      {
+        "name": "Skeleton",
+        "page": 325
+      },
+      {
+        "name": "Solar",
+        "page": 326
+      },
+      {
+        "name": "Specter",
+        "page": 327
+      },
+      {
+        "name": "Sphinx of Lore",
+        "page": 327
+      },
+      {
+        "name": "Sphinx of Valor",
+        "page": 328
+      },
+      {
+        "name": "Sphinx of Wonder",
+        "page": 327
+      },
+      {
+        "name": "Spider",
+        "page": 361
+      },
+      {
+        "name": "Spirit Naga",
+        "page": 329
+      },
+      {
+        "name": "Sprite",
+        "page": 329
+      },
+      {
+        "name": "Spy",
+        "page": 329
+      },
+      {
+        "name": "Steam Mephit",
+        "page": 308
+      },
+      {
+        "name": "Stirge",
+        "page": 329
+      },
+      {
+        "name": "Stone Giant",
+        "page": 330
+      },
+      {
+        "name": "Stone Golem",
+        "page": 330
+      },
+      {
+        "name": "Storm Giant",
+        "page": 330
+      },
+      {
+        "name": "Succubus",
+        "page": 331
+      },
+      {
+        "name": "Swarm of Bats",
+        "page": 361
+      },
+      {
+        "name": "Swarm of Crawling Claws",
+        "page": 278
+      },
+      {
+        "name": "Swarm of Insects",
+        "page": 361
+      },
+      {
+        "name": "Swarm of Piranhas",
+        "page": 362
+      },
+      {
+        "name": "Swarm of Rats",
+        "page": 362
+      },
+      {
+        "name": "Swarm of Ravens",
+        "page": 362
+      },
+      {
+        "name": "Swarm of Venomous Snakes",
+        "page": 362
+      },
+      {
+        "name": "Tarrasque",
+        "page": 331
+      },
+      {
+        "name": "Tiger",
+        "page": 363
+      },
+      {
+        "name": "Tough",
+        "page": 332
+      },
+      {
+        "name": "Tough Boss",
+        "page": 332
+      },
+      {
+        "name": "Treant",
+        "page": 333
+      },
+      {
+        "name": "Triceratops",
+        "page": 363
+      },
+      {
+        "name": "Troll",
+        "page": 333
+      },
+      {
+        "name": "Troll Limb",
+        "page": 333
+      },
+      {
+        "name": "Tyrannosaurus Rex",
+        "page": 363
+      },
+      {
+        "name": "Unicorn",
+        "page": 334
+      },
+      {
+        "name": "Vampire",
+        "page": 335
+      },
+      {
+        "name": "Vampire Familiar",
+        "page": 334
+      },
+      {
+        "name": "Vampire Spawn",
+        "page": 334
+      },
+      {
+        "name": "Venomous Snake",
+        "page": 363
+      },
+      {
+        "name": "Violet Fungus",
+        "page": 286
+      },
+      {
+        "name": "Vrock",
+        "page": 336
+      },
+      {
+        "name": "Vulture",
+        "page": 363
+      },
+      {
+        "name": "Warhorse",
+        "page": 364
+      },
+      {
+        "name": "Warhorse Skeleton",
+        "page": 326
+      },
+      {
+        "name": "Warrior Infantry",
+        "page": 336
+      },
+      {
+        "name": "Warrior Veteran",
+        "page": 337
+      },
+      {
+        "name": "Water Elemental",
+        "page": 337
+      },
+      {
+        "name": "Weasel",
+        "page": 364
+      },
+      {
+        "name": "Werebear",
+        "page": 337
+      },
+      {
+        "name": "Wereboar",
+        "page": 338
+      },
+      {
+        "name": "Wererat",
+        "page": 338
+      },
+      {
+        "name": "Weretiger",
+        "page": 339
+      },
+      {
+        "name": "Werewolf",
+        "page": 339
+      },
+      {
+        "name": "White Dragon Wyrmling",
+        "page": 339
+      },
+      {
+        "name": "Wight",
+        "page": 341
+      },
+      {
+        "name": "Will-o’-Wisp",
+        "page": 341
+      },
+      {
+        "name": "Winter Wolf",
+        "page": 342
+      },
+      {
+        "name": "Wolf",
+        "page": 364
+      },
+      {
+        "name": "Worg",
+        "page": 342
+      },
+      {
+        "name": "Wraith",
+        "page": 342
+      },
+      {
+        "name": "Wyvern",
+        "page": 343
+      },
+      {
+        "name": "Xorn",
+        "page": 343
+      },
+      {
+        "name": "Young Black Dragon",
+        "page": 264
+      },
+      {
+        "name": "Young Blue Dragon",
+        "page": 266
+      },
+      {
+        "name": "Young Brass Dragon",
+        "page": 268
+      },
+      {
+        "name": "Young Bronze Dragon",
+        "page": 270
+      },
+      {
+        "name": "Young Copper Dragon",
+        "page": 276
+      },
+      {
+        "name": "Young Gold Dragon",
+        "page": 291
+      },
+      {
+        "name": "Young Green Dragon",
+        "page": 293
+      },
+      {
+        "name": "Young Red Dragon",
+        "page": 318
+      },
+      {
+        "name": "Young Silver Dragon",
+        "page": 324
+      },
+      {
+        "name": "Young White Dragon",
+        "page": 340
+      },
+      {
+        "name": "Zombie",
+        "page": 343
+      }
+    ],
+    "spell": [
+      {
+        "name": "Acid Arrow",
+        "page": 107
+      },
+      {
+        "name": "Acid Splash",
+        "page": 107
+      },
+      {
+        "name": "Aid",
+        "page": 107
+      },
+      {
+        "name": "Alarm",
+        "page": 107
+      },
+      {
+        "name": "Alter Self",
+        "page": 107
+      },
+      {
+        "name": "Animal Friendship",
+        "page": 107
+      },
+      {
+        "name": "Animal Messenger",
+        "page": 108
+      },
+      {
+        "name": "Animal Shapes",
+        "page": 108
+      },
+      {
+        "name": "Animate Dead",
+        "page": 108
+      },
+      {
+        "name": "Animate Objects",
+        "page": 108
+      },
+      {
+        "name": "Antilife Shell",
+        "page": 109
+      },
+      {
+        "name": "Antimagic Field",
+        "page": 109
+      },
+      {
+        "name": "Antipathy/Sympathy",
+        "page": 109
+      },
+      {
+        "name": "Arcane Eye",
+        "page": 110
+      },
+      {
+        "name": "Arcane Hand",
+        "page": 110
+      },
+      {
+        "name": "Arcane Lock",
+        "page": 110
+      },
+      {
+        "name": "Arcane Sword",
+        "page": 110
+      },
+      {
+        "name": "Arcanist’s Magic Aura",
+        "page": 110
+      },
+      {
+        "name": "Astral Projection",
+        "page": 111
+      },
+      {
+        "name": "Augury",
+        "page": 111
+      },
+      {
+        "name": "Aura of Life",
+        "page": 111
+      },
+      {
+        "name": "Awaken",
+        "page": 111
+      },
+      {
+        "name": "Bane",
+        "page": 112
+      },
+      {
+        "name": "Banishment",
+        "page": 112
+      },
+      {
+        "name": "Barkskin",
+        "page": 112
+      },
+      {
+        "name": "Beacon of Hope",
+        "page": 112
+      },
+      {
+        "name": "Befuddlement",
+        "page": 112
+      },
+      {
+        "name": "Bestow Curse",
+        "page": 112
+      },
+      {
+        "name": "Black Tentacles",
+        "page": 113
+      },
+      {
+        "name": "Blade Barrier",
+        "page": 113
+      },
+      {
+        "name": "Bless",
+        "page": 113
+      },
+      {
+        "name": "Blight",
+        "page": 113
+      },
+      {
+        "name": "Blindness/Deafness",
+        "page": 113
+      },
+      {
+        "name": "Blink",
+        "page": 113
+      },
+      {
+        "name": "Blur",
+        "page": 114
+      },
+      {
+        "name": "Burning Hands",
+        "page": 114
+      },
+      {
+        "name": "Call Lightning",
+        "page": 114
+      },
+      {
+        "name": "Calm Emotions",
+        "page": 114
+      },
+      {
+        "name": "Chain Lightning",
+        "page": 114
+      },
+      {
+        "name": "Charm Monster",
+        "page": 114
+      },
+      {
+        "name": "Charm Person",
+        "page": 115
+      },
+      {
+        "name": "Chill Touch",
+        "page": 115
+      },
+      {
+        "name": "Chromatic Orb",
+        "page": 115
+      },
+      {
+        "name": "Circle of Death",
+        "page": 115
+      },
+      {
+        "name": "Clairvoyance",
+        "page": 115
+      },
+      {
+        "name": "Clone",
+        "page": 115
+      },
+      {
+        "name": "Cloudkill",
+        "page": 116
+      },
+      {
+        "name": "Color Spray",
+        "page": 116
+      },
+      {
+        "name": "Command",
+        "page": 116
+      },
+      {
+        "name": "Commune",
+        "page": 116
+      },
+      {
+        "name": "Commune with Nature",
+        "page": 116
+      },
+      {
+        "name": "Comprehend Languages",
+        "page": 117
+      },
+      {
+        "name": "Compulsion",
+        "page": 117
+      },
+      {
+        "name": "Cone of Cold",
+        "page": 117
+      },
+      {
+        "name": "Confusion",
+        "page": 117
+      },
+      {
+        "name": "Conjure Animals",
+        "page": 117
+      },
+      {
+        "name": "Conjure Celestial",
+        "page": 118
+      },
+      {
+        "name": "Conjure Elemental",
+        "page": 118
+      },
+      {
+        "name": "Conjure Fey",
+        "page": 118
+      },
+      {
+        "name": "Conjure Minor Elementals",
+        "page": 118
+      },
+      {
+        "name": "Conjure Woodland Beings",
+        "page": 118
+      },
+      {
+        "name": "Contact Other Plane",
+        "page": 119
+      },
+      {
+        "name": "Contagion",
+        "page": 119
+      },
+      {
+        "name": "Contingency",
+        "page": 119
+      },
+      {
+        "name": "Continual Flame",
+        "page": 119
+      },
+      {
+        "name": "Control Water",
+        "page": 119
+      },
+      {
+        "name": "Control Weather",
+        "page": 120
+      },
+      {
+        "name": "Counterspell",
+        "page": 120
+      },
+      {
+        "name": "Create Food and Water",
+        "page": 120
+      },
+      {
+        "name": "Create or Destroy Water",
+        "page": 121
+      },
+      {
+        "name": "Create Undead",
+        "page": 121
+      },
+      {
+        "name": "Creation",
+        "page": 121
+      },
+      {
+        "name": "Cure Wounds",
+        "page": 121
+      },
+      {
+        "name": "Dancing Lights",
+        "page": 121
+      },
+      {
+        "name": "Darkness",
+        "page": 122
+      },
+      {
+        "name": "Darkvision",
+        "page": 122
+      },
+      {
+        "name": "Daylight",
+        "page": 122
+      },
+      {
+        "name": "Death Ward",
+        "page": 122
+      },
+      {
+        "name": "Delayed Blast Fireball",
+        "page": 122
+      },
+      {
+        "name": "Demiplane",
+        "page": 122
+      },
+      {
+        "name": "Detect Evil and Good",
+        "page": 123
+      },
+      {
+        "name": "Detect Magic",
+        "page": 123
+      },
+      {
+        "name": "Detect Poison and Disease",
+        "page": 123
+      },
+      {
+        "name": "Detect Thoughts",
+        "page": 123
+      },
+      {
+        "name": "Dimension Door",
+        "page": 123
+      },
+      {
+        "name": "Disguise Self",
+        "page": 124
+      },
+      {
+        "name": "Disintegrate",
+        "page": 124
+      },
+      {
+        "name": "Dispel Evil and Good",
+        "page": 124
+      },
+      {
+        "name": "Dispel Magic",
+        "page": 124
+      },
+      {
+        "name": "Dissonant Whispers",
+        "page": 124
+      },
+      {
+        "name": "Divination",
+        "page": 125
+      },
+      {
+        "name": "Divine Favor",
+        "page": 125
+      },
+      {
+        "name": "Divine Smite",
+        "page": 125
+      },
+      {
+        "name": "Divine Word",
+        "page": 125
+      },
+      {
+        "name": "Dominate Beast",
+        "page": 125
+      },
+      {
+        "name": "Dominate Monster",
+        "page": 125
+      },
+      {
+        "name": "Dominate Person",
+        "page": 126
+      },
+      {
+        "name": "Dragon’s Breath",
+        "page": 126
+      },
+      {
+        "name": "Dream",
+        "page": 126
+      },
+      {
+        "name": "Druidcraft",
+        "page": 126
+      },
+      {
+        "name": "Earthquake",
+        "page": 127
+      },
+      {
+        "name": "Eldritch Blast",
+        "page": 127
+      },
+      {
+        "name": "Elementalism",
+        "page": 127
+      },
+      {
+        "name": "Enhance Ability",
+        "page": 127
+      },
+      {
+        "name": "Enlarge/Reduce",
+        "page": 127
+      },
+      {
+        "name": "Ensnaring Strike",
+        "page": 128
+      },
+      {
+        "name": "Entangle",
+        "page": 128
+      },
+      {
+        "name": "Enthrall",
+        "page": 128
+      },
+      {
+        "name": "Etherealness",
+        "page": 128
+      },
+      {
+        "name": "Expeditious Retreat",
+        "page": 129
+      },
+      {
+        "name": "Eyebite",
+        "page": 129
+      },
+      {
+        "name": "Fabricate",
+        "page": 129
+      },
+      {
+        "name": "Faerie Fire",
+        "page": 129
+      },
+      {
+        "name": "Faithful Hound",
+        "page": 129
+      },
+      {
+        "name": "False Life",
+        "page": 129
+      },
+      {
+        "name": "Fear",
+        "page": 130
+      },
+      {
+        "name": "Feather Fall",
+        "page": 130
+      },
+      {
+        "name": "Find Familiar",
+        "page": 130
+      },
+      {
+        "name": "Find Steed",
+        "page": 130
+      },
+      {
+        "name": "Find the Path",
+        "page": 131
+      },
+      {
+        "name": "Find Traps",
+        "page": 131
+      },
+      {
+        "name": "Finger of Death",
+        "page": 131
+      },
+      {
+        "name": "Fire Bolt",
+        "page": 132
+      },
+      {
+        "name": "Fire Shield",
+        "page": 132
+      },
+      {
+        "name": "Fire Storm",
+        "page": 132
+      },
+      {
+        "name": "Fireball",
+        "page": 131
+      },
+      {
+        "name": "Flame Blade",
+        "page": 132
+      },
+      {
+        "name": "Flame Strike",
+        "page": 132
+      },
+      {
+        "name": "Flaming Sphere",
+        "page": 132
+      },
+      {
+        "name": "Flesh to Stone",
+        "page": 133
+      },
+      {
+        "name": "Floating Disk",
+        "page": 133
+      },
+      {
+        "name": "Fly",
+        "page": 133
+      },
+      {
+        "name": "Fog Cloud",
+        "page": 133
+      },
+      {
+        "name": "Forbiddance",
+        "page": 133
+      },
+      {
+        "name": "Forcecage",
+        "page": 134
+      },
+      {
+        "name": "Foresight",
+        "page": 134
+      },
+      {
+        "name": "Freedom of Movement",
+        "page": 134
+      },
+      {
+        "name": "Freezing Sphere",
+        "page": 134
+      },
+      {
+        "name": "Gaseous Form",
+        "page": 134
+      },
+      {
+        "name": "Gate",
+        "page": 135
+      },
+      {
+        "name": "Geas",
+        "page": 135
+      },
+      {
+        "name": "Gentle Repose",
+        "page": 135
+      },
+      {
+        "name": "Giant Insect",
+        "page": 135
+      },
+      {
+        "name": "Glibness",
+        "page": 136
+      },
+      {
+        "name": "Globe of Invulnerability",
+        "page": 136
+      },
+      {
+        "name": "Glyph of Warding",
+        "page": 136
+      },
+      {
+        "name": "Goodberry",
+        "page": 137
+      },
+      {
+        "name": "Grease",
+        "page": 137
+      },
+      {
+        "name": "Greater Invisibility",
+        "page": 137
+      },
+      {
+        "name": "Greater Restoration",
+        "page": 137
+      },
+      {
+        "name": "Guardian of Faith",
+        "page": 137
+      },
+      {
+        "name": "Guards and Wards",
+        "page": 137
+      },
+      {
+        "name": "Guidance",
+        "page": 138
+      },
+      {
+        "name": "Guiding Bolt",
+        "page": 138
+      },
+      {
+        "name": "Gust of Wind",
+        "page": 138
+      },
+      {
+        "name": "Hallow",
+        "page": 138
+      },
+      {
+        "name": "Hallucinatory Terrain",
+        "page": 139
+      },
+      {
+        "name": "Harm",
+        "page": 139
+      },
+      {
+        "name": "Haste",
+        "page": 139
+      },
+      {
+        "name": "Heal",
+        "page": 139
+      },
+      {
+        "name": "Healing Word",
+        "page": 139
+      },
+      {
+        "name": "Heat Metal",
+        "page": 139
+      },
+      {
+        "name": "Hellish Rebuke",
+        "page": 140
+      },
+      {
+        "name": "Heroes’ Feast",
+        "page": 140
+      },
+      {
+        "name": "Heroism",
+        "page": 140
+      },
+      {
+        "name": "Hex",
+        "page": 140
+      },
+      {
+        "name": "Hideous Laughter",
+        "page": 140
+      },
+      {
+        "name": "Hold Monster",
+        "page": 140
+      },
+      {
+        "name": "Hold Person",
+        "page": 141
+      },
+      {
+        "name": "Holy Aura",
+        "page": 141
+      },
+      {
+        "name": "Hunter’s Mark",
+        "page": 141
+      },
+      {
+        "name": "Hypnotic Pattern",
+        "page": 141
+      },
+      {
+        "name": "Ice Knife",
+        "page": 141
+      },
+      {
+        "name": "Ice Storm",
+        "page": 141
+      },
+      {
+        "name": "Identify",
+        "page": 142
+      },
+      {
+        "name": "Illusory Script",
+        "page": 142
+      },
+      {
+        "name": "Imprisonment",
+        "page": 142
+      },
+      {
+        "name": "Incendiary Cloud",
+        "page": 142
+      },
+      {
+        "name": "Inflict Wounds",
+        "page": 143
+      },
+      {
+        "name": "Insect Plague",
+        "page": 143
+      },
+      {
+        "name": "Instant Summons",
+        "page": 143
+      },
+      {
+        "name": "Invisibility",
+        "page": 143
+      },
+      {
+        "name": "Irresistible Dance",
+        "page": 143
+      },
+      {
+        "name": "Jump",
+        "page": 143
+      },
+      {
+        "name": "Knock",
+        "page": 143
+      },
+      {
+        "name": "Legend Lore",
+        "page": 144
+      },
+      {
+        "name": "Lesser Restoration",
+        "page": 144
+      },
+      {
+        "name": "Levitate",
+        "page": 144
+      },
+      {
+        "name": "Light",
+        "page": 144
+      },
+      {
+        "name": "Lightning Bolt",
+        "page": 144
+      },
+      {
+        "name": "Locate Animals or Plants",
+        "page": 144
+      },
+      {
+        "name": "Locate Creature",
+        "page": 145
+      },
+      {
+        "name": "Locate Object",
+        "page": 145
+      },
+      {
+        "name": "Longstrider",
+        "page": 145
+      },
+      {
+        "name": "Mage Armor",
+        "page": 145
+      },
+      {
+        "name": "Mage Hand",
+        "page": 145
+      },
+      {
+        "name": "Magic Circle",
+        "page": 145
+      },
+      {
+        "name": "Magic Jar",
+        "page": 146
+      },
+      {
+        "name": "Magic Missile",
+        "page": 146
+      },
+      {
+        "name": "Magic Mouth",
+        "page": 146
+      },
+      {
+        "name": "Magic Weapon",
+        "page": 146
+      },
+      {
+        "name": "Magnificent Mansion",
+        "page": 147
+      },
+      {
+        "name": "Major Image",
+        "page": 147
+      },
+      {
+        "name": "Mass Cure Wounds",
+        "page": 147
+      },
+      {
+        "name": "Mass Heal",
+        "page": 147
+      },
+      {
+        "name": "Mass Healing Word",
+        "page": 148
+      },
+      {
+        "name": "Mass Suggestion",
+        "page": 148
+      },
+      {
+        "name": "Maze",
+        "page": 148
+      },
+      {
+        "name": "Meld into Stone",
+        "page": 148
+      },
+      {
+        "name": "Mending",
+        "page": 148
+      },
+      {
+        "name": "Message",
+        "page": 148
+      },
+      {
+        "name": "Meteor Swarm",
+        "page": 149
+      },
+      {
+        "name": "Mind Blank",
+        "page": 149
+      },
+      {
+        "name": "Mind Spike",
+        "page": 149
+      },
+      {
+        "name": "Minor Illusion",
+        "page": 149
+      },
+      {
+        "name": "Mirage Arcane",
+        "page": 149
+      },
+      {
+        "name": "Mirror Image",
+        "page": 150
+      },
+      {
+        "name": "Mislead",
+        "page": 150
+      },
+      {
+        "name": "Misty Step",
+        "page": 150
+      },
+      {
+        "name": "Modify Memory",
+        "page": 150
+      },
+      {
+        "name": "Moonbeam",
+        "page": 150
+      },
+      {
+        "name": "Move Earth",
+        "page": 151
+      },
+      {
+        "name": "Nondetection",
+        "page": 151
+      },
+      {
+        "name": "Pass without Trace",
+        "page": 151
+      },
+      {
+        "name": "Passwall",
+        "page": 151
+      },
+      {
+        "name": "Phantasmal Force",
+        "page": 151
+      },
+      {
+        "name": "Phantasmal Killer",
+        "page": 152
+      },
+      {
+        "name": "Phantom Steed",
+        "page": 152
+      },
+      {
+        "name": "Planar Ally",
+        "page": 152
+      },
+      {
+        "name": "Planar Binding",
+        "page": 152
+      },
+      {
+        "name": "Plane Shift",
+        "page": 153
+      },
+      {
+        "name": "Plant Growth",
+        "page": 153
+      },
+      {
+        "name": "Poison Spray",
+        "page": 153
+      },
+      {
+        "name": "Polymorph",
+        "page": 153
+      },
+      {
+        "name": "Power Word Heal",
+        "page": 154
+      },
+      {
+        "name": "Power Word Kill",
+        "page": 154
+      },
+      {
+        "name": "Power Word Stun",
+        "page": 154
+      },
+      {
+        "name": "Prayer of Healing",
+        "page": 154
+      },
+      {
+        "name": "Prestidigitation",
+        "page": 154
+      },
+      {
+        "name": "Prismatic Spray",
+        "page": 154
+      },
+      {
+        "name": "Prismatic Wall",
+        "page": 155
+      },
+      {
+        "name": "Private Sanctum",
+        "page": 156
+      },
+      {
+        "name": "Produce Flame",
+        "page": 156
+      },
+      {
+        "name": "Programmed Illusion",
+        "page": 156
+      },
+      {
+        "name": "Project Image",
+        "page": 156
+      },
+      {
+        "name": "Protection from Energy",
+        "page": 157
+      },
+      {
+        "name": "Protection from Evil and Good",
+        "page": 157
+      },
+      {
+        "name": "Protection from Poison",
+        "page": 157
+      },
+      {
+        "name": "Purify Food and Drink",
+        "page": 157
+      },
+      {
+        "name": "Raise Dead",
+        "page": 157
+      },
+      {
+        "name": "Ray of Enfeeblement",
+        "page": 157
+      },
+      {
+        "name": "Ray of Frost",
+        "page": 157
+      },
+      {
+        "name": "Ray of Sickness",
+        "page": 158
+      },
+      {
+        "name": "Regenerate",
+        "page": 158
+      },
+      {
+        "name": "Reincarnate",
+        "page": 158
+      },
+      {
+        "name": "Remove Curse",
+        "page": 158
+      },
+      {
+        "name": "Resilient Sphere",
+        "page": 158
+      },
+      {
+        "name": "Resistance",
+        "page": 158
+      },
+      {
+        "name": "Resurrection",
+        "page": 158
+      },
+      {
+        "name": "Reverse Gravity",
+        "page": 159
+      },
+      {
+        "name": "Revivify",
+        "page": 159
+      },
+      {
+        "name": "Rope Trick",
+        "page": 159
+      },
+      {
+        "name": "Sacred Flame",
+        "page": 159
+      },
+      {
+        "name": "Sanctuary",
+        "page": 159
+      },
+      {
+        "name": "Scorching Ray",
+        "page": 159
+      },
+      {
+        "name": "Scrying",
+        "page": 160
+      },
+      {
+        "name": "Searing Smite",
+        "page": 160
+      },
+      {
+        "name": "Secret Chest",
+        "page": 160
+      },
+      {
+        "name": "See Invisibility",
+        "page": 160
+      },
+      {
+        "name": "Seeming",
+        "page": 160
+      },
+      {
+        "name": "Sending",
+        "page": 161
+      },
+      {
+        "name": "Sequester",
+        "page": 161
+      },
+      {
+        "name": "Shapechange",
+        "page": 161
+      },
+      {
+        "name": "Shatter",
+        "page": 161
+      },
+      {
+        "name": "Shield",
+        "page": 161
+      },
+      {
+        "name": "Shield of Faith",
+        "page": 162
+      },
+      {
+        "name": "Shillelagh",
+        "page": 162
+      },
+      {
+        "name": "Shining Smite",
+        "page": 162
+      },
+      {
+        "name": "Shocking Grasp",
+        "page": 162
+      },
+      {
+        "name": "Silence",
+        "page": 162
+      },
+      {
+        "name": "Silent Image",
+        "page": 162
+      },
+      {
+        "name": "Simulacrum",
+        "page": 162
+      },
+      {
+        "name": "Sleep",
+        "page": 163
+      },
+      {
+        "name": "Sleet Storm",
+        "page": 163
+      },
+      {
+        "name": "Slow",
+        "page": 163
+      },
+      {
+        "name": "Sorcerous Burst",
+        "page": 163
+      },
+      {
+        "name": "Spare the Dying",
+        "page": 163
+      },
+      {
+        "name": "Speak with Animals",
+        "page": 164
+      },
+      {
+        "name": "Speak with Dead",
+        "page": 164
+      },
+      {
+        "name": "Speak with Plants",
+        "page": 164
+      },
+      {
+        "name": "Spider Climb",
+        "page": 164
+      },
+      {
+        "name": "Spike Growth",
+        "page": 164
+      },
+      {
+        "name": "Spirit Guardians",
+        "page": 164
+      },
+      {
+        "name": "Spiritual Weapon",
+        "page": 165
+      },
+      {
+        "name": "Starry Wisp",
+        "page": 165
+      },
+      {
+        "name": "Stinking Cloud",
+        "page": 165
+      },
+      {
+        "name": "Stone Shape",
+        "page": 165
+      },
+      {
+        "name": "Stoneskin",
+        "page": 165
+      },
+      {
+        "name": "Storm of Vengeance",
+        "page": 165
+      },
+      {
+        "name": "Suggestion",
+        "page": 166
+      },
+      {
+        "name": "Summon Dragon",
+        "page": 166
+      },
+      {
+        "name": "Sunbeam",
+        "page": 166
+      },
+      {
+        "name": "Sunburst",
+        "page": 167
+      },
+      {
+        "name": "Symbol",
+        "page": 167
+      },
+      {
+        "name": "Telekinesis",
+        "page": 167
+      },
+      {
+        "name": "Telepathic Bond",
+        "page": 168
+      },
+      {
+        "name": "Teleport",
+        "page": 168
+      },
+      {
+        "name": "Teleportation Circle",
+        "page": 168
+      },
+      {
+        "name": "Thaumaturgy",
+        "page": 169
+      },
+      {
+        "name": "Thunderwave",
+        "page": 169
+      },
+      {
+        "name": "Time Stop",
+        "page": 169
+      },
+      {
+        "name": "Tiny Hut",
+        "page": 169
+      },
+      {
+        "name": "Tongues",
+        "page": 169
+      },
+      {
+        "name": "Transport via Plants",
+        "page": 170
+      },
+      {
+        "name": "Tree Stride",
+        "page": 170
+      },
+      {
+        "name": "True Polymorph",
+        "page": 170
+      },
+      {
+        "name": "True Resurrection",
+        "page": 170
+      },
+      {
+        "name": "True Seeing",
+        "page": 171
+      },
+      {
+        "name": "True Strike",
+        "page": 171
+      },
+      {
+        "name": "Tsunami",
+        "page": 171
+      },
+      {
+        "name": "Unseen Servant",
+        "page": 171
+      },
+      {
+        "name": "Vampiric Touch",
+        "page": 171
+      },
+      {
+        "name": "Vicious Mockery",
+        "page": 171
+      },
+      {
+        "name": "Vitriolic Sphere",
+        "page": 172
+      },
+      {
+        "name": "Wall of Fire",
+        "page": 172
+      },
+      {
+        "name": "Wall of Force",
+        "page": 172
+      },
+      {
+        "name": "Wall of Ice",
+        "page": 172
+      },
+      {
+        "name": "Wall of Stone",
+        "page": 173
+      },
+      {
+        "name": "Wall of Thorns",
+        "page": 173
+      },
+      {
+        "name": "Warding Bond",
+        "page": 173
+      },
+      {
+        "name": "Water Breathing",
+        "page": 173
+      },
+      {
+        "name": "Water Walk",
+        "page": 173
+      },
+      {
+        "name": "Web",
+        "page": 174
+      },
+      {
+        "name": "Weird",
+        "page": 174
+      },
+      {
+        "name": "Wind Walk",
+        "page": 174
+      },
+      {
+        "name": "Wind Wall",
+        "page": 174
+      },
+      {
+        "name": "Wish",
+        "page": 175
+      },
+      {
+        "name": "Word of Recall",
+        "page": 175
+      },
+      {
+        "name": "Zone of Truth",
+        "page": 175
+      }
+    ],
+    "class": [
+      {
+        "name": "Barbarian",
+        "page": 28,
+        "subclass": {
+          "name": "Path of the Berserker",
+          "page": 30
+        }
+      },
+      {
+        "name": "Bard",
+        "page": 31,
+        "subclass": {
+          "name": "College of Lore",
+          "page": 35
+        }
+      },
+      {
+        "name": "Cleric",
+        "page": 36,
+        "subclass": {
+          "name": "Life Domain",
+          "page": 40
+        }
+      },
+      {
+        "name": "Druid",
+        "page": 41,
+        "subclass": {
+          "name": "Circle of the Land",
+          "page": 46
+        }
+      },
+      {
+        "name": "Fighter",
+        "page": 47,
+        "subclass": {
+          "name": "Champion",
+          "page": 49
+        }
+      },
+      {
+        "name": "Monk",
+        "page": 49,
+        "subclass": {
+          "name": "Warrior of the Open Hand",
+          "page": 52
+        }
+      },
+      {
+        "name": "Paladin",
+        "page": 53,
+        "subclass": {
+          "name": "Oath of Devotion",
+          "page": 56
+        }
+      },
+      {
+        "name": "Ranger",
+        "page": 57,
+        "subclass": {
+          "name": "Hunter",
+          "page": 61
+        }
+      },
+      {
+        "name": "Rogue",
+        "page": 61,
+        "subclass": {
+          "name": "Thief",
+          "page": 64
+        }
+      },
+      {
+        "name": "Sorcerer",
+        "page": 64,
+        "subclass": {
+          "name": "Draconic Sorcery",
+          "page": 69
+        }
+      },
+      {
+        "name": "Warlock",
+        "page": 70,
+        "subclass": {
+          "name": "Fiend Patron",
+          "page": 76
+        }
+      },
+      {
+        "name": "Wizard",
+        "page": 77,
+        "subclass": {
+          "name": "Evoker",
+          "page": 82
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "name": "Acid",
+        "page": 94
+      },
+      {
+        "name": "Airship",
+        "page": 101
+      },
+      {
+        "name": "Alchemist’s Fire",
+        "page": 94
+      },
+      {
+        "name": "Alchemist’s Supplies",
+        "page": 93
+      },
+      {
+        "name": "Antitoxin",
+        "page": 96
+      },
+      {
+        "name": "Arcane Focus, Crystal",
+        "page": 96
+      },
+      {
+        "name": "Arcane Focus, Orb",
+        "page": 96
+      },
+      {
+        "name": "Arcane Focus, Rod",
+        "page": 96
+      },
+      {
+        "name": "Arcane Focus, Staff",
+        "page": 96
+      },
+      {
+        "name": "Arcane Focus, Wand",
+        "page": 96
+      },
+      {
+        "name": "Arrows",
+        "page": 96
+      },
+      {
+        "name": "Backpack",
+        "page": 96
+      },
+      {
+        "name": "Ball Bearings",
+        "page": 96
+      },
+      {
+        "name": "Barrel",
+        "page": 96
+      },
+      {
+        "name": "Basket",
+        "page": 96
+      },
+      {
+        "name": "Battleaxe",
+        "page": 91
+      },
+      {
+        "name": "Bedroll",
+        "page": 96
+      },
+      {
+        "name": "Bell",
+        "page": 96
+      },
+      {
+        "name": "Blanket",
+        "page": 96
+      },
+      {
+        "name": "Block and Tackle",
+        "page": 96
+      },
+      {
+        "name": "Blowgun",
+        "page": 91
+      },
+      {
+        "name": "Bolts",
+        "page": 96
+      },
+      {
+        "name": "Book",
+        "page": 96
+      },
+      {
+        "name": "Bottle, Glass",
+        "page": 96
+      },
+      {
+        "name": "Breastplate",
+        "page": 92
+      },
+      {
+        "name": "Brewer’s Supplies",
+        "page": 93
+      },
+      {
+        "name": "Bucket",
+        "page": 96
+      },
+      {
+        "name": "Bullets, Firearm",
+        "page": 96
+      },
+      {
+        "name": "Bullets, Sling",
+        "page": 96
+      },
+      {
+        "name": "Burglar’s Pack",
+        "page": 96
+      },
+      {
+        "name": "Calligrapher’s Supplies",
+        "page": 93
+      },
+      {
+        "name": "Caltrops",
+        "page": 96
+      },
+      {
+        "name": "Camel",
+        "page": 100
+      },
+      {
+        "name": "Candle",
+        "page": 96
+      },
+      {
+        "name": "Carpenter’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Carriage",
+        "page": 100
+      },
+      {
+        "name": "Cart",
+        "page": 100
+      },
+      {
+        "name": "Cartographer’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Case, Crossbow Bolt",
+        "page": 96
+      },
+      {
+        "name": "Case, Map or Scroll",
+        "page": 96
+      },
+      {
+        "name": "Chain",
+        "page": 96
+      },
+      {
+        "name": "Chain Mail",
+        "page": 92
+      },
+      {
+        "name": "Chain Shirt",
+        "page": 92
+      },
+      {
+        "name": "Chariot",
+        "page": 100
+      },
+      {
+        "name": "Chest",
+        "page": 97
+      },
+      {
+        "name": "Climber’s Kit",
+        "page": 97
+      },
+      {
+        "name": "Clothes, Fine",
+        "page": 97
+      },
+      {
+        "name": "Clothes, Traveler’s",
+        "page": 97
+      },
+      {
+        "name": "Club",
+        "page": 91
+      },
+      {
+        "name": "Cobbler’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Component Pouch",
+        "page": 97
+      },
+      {
+        "name": "Cook’s Utensils",
+        "page": 93
+      },
+      {
+        "name": "Costume",
+        "page": 97
+      },
+      {
+        "name": "Crowbar",
+        "page": 97
+      },
+      {
+        "name": "Dagger",
+        "page": 91
+      },
+      {
+        "name": "Dart",
+        "page": 91
+      },
+      {
+        "name": "Diplomat’s Pack",
+        "page": 97
+      },
+      {
+        "name": "Disguise Kit",
+        "page": 94
+      },
+      {
+        "name": "Druidic Focus, Sprig of Mistletoe",
+        "page": 97
+      },
+      {
+        "name": "Druidic Focus, Wooden Staff",
+        "page": 97
+      },
+      {
+        "name": "Druidic Focus, Yew Wand",
+        "page": 97
+      },
+      {
+        "name": "Dungeoneer’s Pack",
+        "page": 97
+      },
+      {
+        "name": "Elephant",
+        "page": 100
+      },
+      {
+        "name": "Entertainer’s Pack",
+        "page": 97
+      },
+      {
+        "name": "Explorer’s Pack",
+        "page": 97
+      },
+      {
+        "name": "Feed per day",
+        "page": 100
+      },
+      {
+        "name": "Flail",
+        "page": 91
+      },
+      {
+        "name": "Flask",
+        "page": 97
+      },
+      {
+        "name": "Forgery Kit",
+        "page": 94
+      },
+      {
+        "name": "Galley",
+        "page": 101
+      },
+      {
+        "name": "Gaming Set, Dice",
+        "page": 94
+      },
+      {
+        "name": "Gaming Set, Dragonchess",
+        "page": 94
+      },
+      {
+        "name": "Gaming Set, Playing Cards",
+        "page": 94
+      },
+      {
+        "name": "Gaming Set, Three-Dragon Ante",
+        "page": 94
+      },
+      {
+        "name": "Glaive",
+        "page": 91
+      },
+      {
+        "name": "Glassblower’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Grappling Hook",
+        "page": 97
+      },
+      {
+        "name": "Greataxe",
+        "page": 91
+      },
+      {
+        "name": "Greatclub",
+        "page": 91
+      },
+      {
+        "name": "Greatsword",
+        "page": 91
+      },
+      {
+        "name": "Halberd",
+        "page": 91
+      },
+      {
+        "name": "Half Plate Armor",
+        "page": 92
+      },
+      {
+        "name": "Hand Crossbow",
+        "page": 91
+      },
+      {
+        "name": "Handaxe",
+        "page": 91
+      },
+      {
+        "name": "Healer’s Kit",
+        "page": 97
+      },
+      {
+        "name": "Heavy Crossbow",
+        "page": 91
+      },
+      {
+        "name": "Herbalism Kit",
+        "page": 94
+      },
+      {
+        "name": "Hide Armor",
+        "page": 92
+      },
+      {
+        "name": "Holy Symbol, Amulet",
+        "page": 97
+      },
+      {
+        "name": "Holy Symbol, Emblem",
+        "page": 97
+      },
+      {
+        "name": "Holy Symbol, Reliquary",
+        "page": 97
+      },
+      {
+        "name": "Holy Water",
+        "page": 97
+      },
+      {
+        "name": "Horse, Draft",
+        "page": 100
+      },
+      {
+        "name": "Horse, Riding",
+        "page": 100
+      },
+      {
+        "name": "Hunting Trap",
+        "page": 97
+      },
+      {
+        "name": "Ink",
+        "page": 98
+      },
+      {
+        "name": "Ink Pen",
+        "page": 98
+      },
+      {
+        "name": "Javelin",
+        "page": 91
+      },
+      {
+        "name": "Jeweler’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Jug",
+        "page": 98
+      },
+      {
+        "name": "Keelboat",
+        "page": 101
+      },
+      {
+        "name": "Ladder",
+        "page": 98
+      },
+      {
+        "name": "Lamp",
+        "page": 98
+      },
+      {
+        "name": "Lance",
+        "page": 91
+      },
+      {
+        "name": "Lantern, Bullseye",
+        "page": 98
+      },
+      {
+        "name": "Lantern, Hooded",
+        "page": 98
+      },
+      {
+        "name": "Leather Armor",
+        "page": 92
+      },
+      {
+        "name": "Leatherworker’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Light Crossbow",
+        "page": 91
+      },
+      {
+        "name": "Light Hammer",
+        "page": 91
+      },
+      {
+        "name": "Lock",
+        "page": 98
+      },
+      {
+        "name": "Longbow",
+        "page": 91
+      },
+      {
+        "name": "Longship",
+        "page": 101
+      },
+      {
+        "name": "Longsword",
+        "page": 91
+      },
+      {
+        "name": "Mace",
+        "page": 91
+      },
+      {
+        "name": "Magnifying Glass",
+        "page": 98
+      },
+      {
+        "name": "Manacles",
+        "page": 98
+      },
+      {
+        "name": "Map",
+        "page": 98
+      },
+      {
+        "name": "Mason’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Mastiff",
+        "page": 100
+      },
+      {
+        "name": "Maul",
+        "page": 91
+      },
+      {
+        "name": "Mirror",
+        "page": 98
+      },
+      {
+        "name": "Morningstar",
+        "page": 91
+      },
+      {
+        "name": "Mule",
+        "page": 100
+      },
+      {
+        "name": "Musical Instrument, Bagpipes",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Drum",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Dulcimer",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Flute",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Horn",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Lute",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Lyre",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Pan Flute",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Shawm",
+        "page": 94
+      },
+      {
+        "name": "Musical Instrument, Viol",
+        "page": 94
+      },
+      {
+        "name": "Musket",
+        "page": 91
+      },
+      {
+        "name": "Navigator’s Tools",
+        "page": 94
+      },
+      {
+        "name": "Needles",
+        "page": 96
+      },
+      {
+        "name": "Net",
+        "page": 98
+      },
+      {
+        "name": "Oil",
+        "page": 98
+      },
+      {
+        "name": "Padded Armor",
+        "page": 92
+      },
+      {
+        "name": "Painter’s Supplies",
+        "page": 93
+      },
+      {
+        "name": "Paper",
+        "page": 99
+      },
+      {
+        "name": "Parchment",
+        "page": 99
+      },
+      {
+        "name": "Perfume",
+        "page": 99
+      },
+      {
+        "name": "Pike",
+        "page": 91
+      },
+      {
+        "name": "Pistol",
+        "page": 91
+      },
+      {
+        "name": "Plate Armor",
+        "page": 92
+      },
+      {
+        "name": "Poison, Basic",
+        "page": 99
+      },
+      {
+        "name": "Poisoner’s Kit",
+        "page": 94
+      },
+      {
+        "name": "Pole",
+        "page": 99
+      },
+      {
+        "name": "Pony",
+        "page": 100
+      },
+      {
+        "name": "Pot, Iron",
+        "page": 99
+      },
+      {
+        "name": "Potion of Healing",
+        "page": 99
+      },
+      {
+        "name": "Potter’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Pouch",
+        "page": 99
+      },
+      {
+        "name": "Priest’s Pack",
+        "page": 99
+      },
+      {
+        "name": "Quarterstaff",
+        "page": 91
+      },
+      {
+        "name": "Quiver",
+        "page": 99
+      },
+      {
+        "name": "Ram, Portable",
+        "page": 99
+      },
+      {
+        "name": "Rapier",
+        "page": 91
+      },
+      {
+        "name": "Rations",
+        "page": 99
+      },
+      {
+        "name": "Ring Mail",
+        "page": 92
+      },
+      {
+        "name": "Robe",
+        "page": 99
+      },
+      {
+        "name": "Rope",
+        "page": 99
+      },
+      {
+        "name": "Rowboat",
+        "page": 101
+      },
+      {
+        "name": "Sack",
+        "page": 99
+      },
+      {
+        "name": "Saddle (Exotic)",
+        "page": 100
+      },
+      {
+        "name": "Saddle (Military)",
+        "page": 100
+      },
+      {
+        "name": "Saddle (Riding)",
+        "page": 100
+      },
+      {
+        "name": "Sailing Ship",
+        "page": 101
+      },
+      {
+        "name": "Scale Mail",
+        "page": 92
+      },
+      {
+        "name": "Scholar’s Pack",
+        "page": 99
+      },
+      {
+        "name": "Scimitar",
+        "page": 91
+      },
+      {
+        "name": "Shield",
+        "page": 92
+      },
+      {
+        "name": "Shortbow",
+        "page": 91
+      },
+      {
+        "name": "Shortsword",
+        "page": 91
+      },
+      {
+        "name": "Shovel",
+        "page": 99
+      },
+      {
+        "name": "Sickle",
+        "page": 91
+      },
+      {
+        "name": "Signal Whistle",
+        "page": 99
+      },
+      {
+        "name": "Sled",
+        "page": 100
+      },
+      {
+        "name": "Sling",
+        "page": 91
+      },
+      {
+        "name": "Smith’s Tools",
+        "page": 93
+      },
+      {
+        "name": "Spear",
+        "page": 91
+      },
+      {
+        "name": "Spell Scroll (Cantrip)",
+        "page": 99
+      },
+      {
+        "name": "Spell Scroll (Level 1)",
+        "page": 99
+      },
+      {
+        "name": "Spikes, Iron",
+        "page": 100
+      },
+      {
+        "name": "Splint Armor",
+        "page": 92
+      },
+      {
+        "name": "Spyglass",
+        "page": 100
+      },
+      {
+        "name": "String",
+        "page": 100
+      },
+      {
+        "name": "Studded Leather Armor",
+        "page": 92
+      },
+      {
+        "name": "Tent",
+        "page": 100
+      },
+      {
+        "name": "Thieves’ Tools",
+        "page": 94
+      },
+      {
+        "name": "Tinderbox",
+        "page": 100
+      },
+      {
+        "name": "Tinker’s Tools",
+        "page": 94
+      },
+      {
+        "name": "Torch",
+        "page": 100
+      },
+      {
+        "name": "Trident",
+        "page": 91
+      },
+      {
+        "name": "Vial",
+        "page": 100
+      },
+      {
+        "name": "Wagon",
+        "page": 100
+      },
+      {
+        "name": "War Pick",
+        "page": 91
+      },
+      {
+        "name": "Warhammer",
+        "page": 91
+      },
+      {
+        "name": "Warhorse",
+        "page": 100
+      },
+      {
+        "name": "Warship",
+        "page": 101
+      },
+      {
+        "name": "Waterskin",
+        "page": 100
+      },
+      {
+        "name": "Weaver’s Tools",
+        "page": 94
+      },
+      {
+        "name": "Whip",
+        "page": 91
+      },
+      {
+        "name": "Woodcarver’s Tools",
+        "page": 94
+      }
+    ],
+    "condition": [
+      {
+        "name": "Blinded",
+        "page": 177
+      },
+      {
+        "name": "Charmed",
+        "page": 178
+      },
+      {
+        "name": "Deafened",
+        "page": 181
+      },
+      {
+        "name": "Exhaustion",
+        "page": 181
+      },
+      {
+        "name": "Frightened",
+        "page": 182
+      },
+      {
+        "name": "Grappled",
+        "page": 182
+      },
+      {
+        "name": "Incapacitated",
+        "page": 184
+      },
+      {
+        "name": "Invisible",
+        "page": 184
+      },
+      {
+        "name": "Paralyzed",
+        "page": 186
+      },
+      {
+        "name": "Petrified",
+        "page": 186
+      },
+      {
+        "name": "Poisoned",
+        "page": 186
+      },
+      {
+        "name": "Prone",
+        "page": 186
+      },
+      {
+        "name": "Restrained",
+        "page": 187
+      },
+      {
+        "name": "Stunned",
+        "page": 189
+      },
+      {
+        "name": "Unconscious",
+        "page": 191
+      }
+    ]
+  }
+}

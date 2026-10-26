@@ -6,6 +6,8 @@
     { "path": "packages/dnd5e-engine/test" },
     { "path": "packages/session-model" },
     { "path": "packages/session-model/test" },
+    { "path": "packages/srd" },
+    { "path": "packages/srd/test" },
     { "path": "apps/server" },
     { "path": "apps/server/test" },
     { "path": "apps/web" }

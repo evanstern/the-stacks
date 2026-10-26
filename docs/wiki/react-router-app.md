@@ -1,18 +1,19 @@
 ---
 name: react-router-app
-description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) — framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (a role-aware "/" redirect plus ask/books/play/play:sessionId/settings, TASK-0028), root.tsx as the loader-driven identity gate now wrapping signed-in routes in the app shell, and play.tsx as the one deliberately client-only route. Retires spa-shell (the pre-migration Vite SPA note).
+description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) — framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (a role-aware "/" redirect plus ask/books/play/play:sessionId/settings, TASK-0028, plus about, TASK-0043), root.tsx as the loader-driven identity gate now wrapping signed-in routes in the app shell, and play.tsx as the one deliberately client-only route. Retires spa-shell (the pre-migration Vite SPA note).
 kind: component
 sources:
   - apps/web/app/root.tsx
   - apps/web/app/routes.ts
   - apps/web/app/routes/home.tsx
   - apps/web/app/routes/play.tsx
+  - apps/web/app/routes/about.tsx
   - apps/web/app/sign-in.tsx
   - apps/web/react-router.config.ts
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # React Router app
@@ -34,11 +35,11 @@ constructs a `RouterContextProvider`, sets `stacksContext` (`app/context.ts`,
 `createContext<StacksLoadContext>()`) on it, and calls the request handler — the context key,
 its provider, and every loader that reads it live in one module graph (plan D5, research R1).
 
-**`routes.ts`** declares six routes (TASK-0028 added four to the original two):
+**`routes.ts`** declares seven routes (TASK-0028 added four to the original two; TASK-0043 added `about`):
 `index("routes/home.tsx")`, `route("ask", "routes/ask.tsx")`,
 `route("books", "routes/books.tsx")`, `route("play", "routes/table.tsx")` (the Table
 landing — join-by-id or start a fresh one), `route("play/:sessionId", "routes/play.tsx")`
-(the live session, unchanged), and `route("settings", "routes/settings.tsx")`. `ask.tsx`,
+(the live session, unchanged), `route("about", "routes/about.tsx")` (the SRD 5.2.1 attribution, CC-BY-4.0, a plain route not a modal; imports only `@the-stacks/srd/attribution` so no SRD data reaches the client bundle; see [[srd-data]]), and `route("settings", "routes/settings.tsx")`. `ask.tsx`,
 `books.tsx`, `table.tsx`, and `settings.tsx` are [[chat-ui]]'s concern — this note covers
 only the tree's shape and which file backs each path.
 

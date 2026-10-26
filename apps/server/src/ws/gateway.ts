@@ -142,6 +142,7 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
         role: identity.role,
         sessionId: null,
         pendingQueue: null,
+        replayedThroughSeq: 0,
       };
       handleConnection(conn);
     });

@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-router/node": "^8.4.0",
     "@the-stacks/shared": "workspace:*",
+    "@the-stacks/srd": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "isbot": "^5.2.2",
