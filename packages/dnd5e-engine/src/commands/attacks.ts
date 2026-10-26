@@ -1,0 +1,155 @@
+import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
+import type { Handler } from "../handler.js";
+import { type RefusalResult, refuse } from "../schema/refusals.js";
+import type { EngineState } from "../schema/state.js";
+
+function d20Required(expression: string): RefusalResult {
+  return refuse(
+    "D20_TERM_REQUIRED",
+    "the expression needs exactly one plain positive 1d20 term",
+    { expression },
+  );
+}
+
+/** First failing UNKNOWN_COMBATANT / TARGET_DEAD check over the named ids, unknowns first. */
+function checkNamed(
+  state: EngineState,
+  ids: readonly (string | null)[],
+): RefusalResult | null {
+  const named = ids.filter((id): id is string => id !== null);
+  for (const id of named) {
+    if (!state.combatants[id]) {
+      return refuse("UNKNOWN_COMBATANT", `no combatant "${id}"`, {
+        combatantId: id,
+      });
+    }
+  }
+  for (const id of named) {
+    if (state.combatants[id]?.lifeState === "dead") {
+      return refuse("TARGET_DEAD", `combatant "${id}" is dead`, {
+        combatantId: id,
+      });
+    }
+  }
+  return null;
+}
+
+export const handleAttackRoll: Handler<"attack.roll"> = (
+  state,
+  command,
+  rng,
+) => {
+  const parsed = parseDiceExpression(command.expression);
+  if (!parsed.ok) return refuse(parsed.code, parsed.message);
+  if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  const named = checkNamed(state, [command.targetId, command.attackerId]);
+  if (named) return named;
+  const target = state.combatants[command.targetId];
+  const ac = command.targetAc ?? target?.ac ?? null;
+  if (ac === null) {
+    return refuse(
+      "TARGET_AC_UNKNOWN",
+      `target "${command.targetId}" has no AC and the attack carries none`,
+      { combatantId: command.targetId },
+    );
+  }
+  const rolled = rollExpression(
+    command.expression,
+    {
+      mode: command.mode,
+      critical: false,
+      purpose: "attack",
+      combatantId: command.attackerId,
+      reason: command.reason,
+    },
+    rng,
+  );
+  if (!rolled.ok) return refuse(rolled.code, rolled.message);
+  const natural = rolled.event.natural as number;
+  const outcome =
+    natural === 20
+      ? "critical-hit"
+      : natural === 1
+        ? "miss"
+        : rolled.total >= ac
+          ? "hit"
+          : "miss";
+  return {
+    ok: true,
+    events: [
+      rolled.event,
+      {
+        type: "attack.resolved",
+        v: 1,
+        reason: command.reason,
+        attackerId: command.attackerId,
+        targetId: command.targetId,
+        rollIndex: 0,
+        ac,
+        acSource: command.targetAc !== null ? "command" : "record",
+        total: rolled.total,
+        natural,
+        outcome,
+      },
+    ],
+  };
+};
+
+export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
+  const parsed = parseDiceExpression(command.expression);
+  if (!parsed.ok) return refuse(parsed.code, parsed.message);
+  if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  const named = checkNamed(state, [command.combatantId]);
+  if (named) return named;
+  const base = {
+    type: "check.resolved" as const,
+    v: 1 as const,
+    reason: command.reason,
+    combatantId: command.combatantId,
+    kind: command.kind,
+    ability: command.ability,
+    skill: command.skill,
+    dc: command.dc,
+  };
+  if (command.autoFail) {
+    return {
+      ok: true,
+      events: [
+        {
+          ...base,
+          rollIndex: null,
+          total: null,
+          natural: null,
+          autoFail: command.autoFail,
+          outcome: "failure",
+        },
+      ],
+    };
+  }
+  const rolled = rollExpression(
+    command.expression,
+    {
+      mode: command.mode,
+      critical: false,
+      purpose: command.kind === "saving-throw" ? "save" : "check",
+      combatantId: command.combatantId,
+      reason: command.reason,
+    },
+    rng,
+  );
+  if (!rolled.ok) return refuse(rolled.code, rolled.message);
+  return {
+    ok: true,
+    events: [
+      rolled.event,
+      {
+        ...base,
+        rollIndex: 0,
+        total: rolled.total,
+        natural: rolled.event.natural,
+        autoFail: null,
+        outcome: rolled.total >= command.dc ? "success" : "failure",
+      },
+    ],
+  };
+};

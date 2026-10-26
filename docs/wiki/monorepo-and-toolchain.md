@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
 ---
 
 # Monorepo and toolchain
@@ -47,8 +47,9 @@ depends on database reachability, which Turbo cannot hash), and runs against fre
 changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
-`apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
-`tsc -b` across the four. Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
+`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `apps/server`, `apps/server/test`,
+`apps/web` — it builds nothing itself, only orchestrates `tsc -b` across the six
+([[dnd5e-engine]] is the pure rules package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
 (target ES2022, `module`/`moduleResolution`: ESNext/Bundler, `strict: true`,
 `composite: true`, `declaration: true` — composite and declaration are what make project
 references work at all) and adds its own `outDir`/`rootDir`/`include`. `apps/server` and
@@ -63,11 +64,13 @@ reference (`apps/server/test/tsconfig.json`: `noEmit: true`, `include: ["."]`, r
 `.gitignore` (`vcs.useIgnoreFile: true`) and additionally excluding `.claude`, `.specify`,
 `backlog`, `docs`, `specs`, `fixtures` from its `files.includes` — non-source directories it
 never touches — plus one narrower carve-out, `apps/server/test/fixtures/ddb` (raw
-export-shaped HTML fixtures, not app code; see [[ddb-parser]]). Five `overrides` entries add
+export-shaped HTML fixtures, not app code; see [[ddb-parser]]). Six `overrides` entries add
 a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,
-each forbidding imports of the others (constitution III's plane isolation) — see
-[[ci-pipeline]] for the fixture-backed check that proves these rules fire.
+each forbidding imports of the others (constitution III's plane isolation). The sixth,
+scoped to `packages/dnd5e-engine/src/**`, also adds `noRestrictedGlobals` and denies
+database, network, model, `node:*`, app-package imports and clock/network globals
+(constitution VI purity; see [[dnd5e-engine]]) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
 
 ## Connections
 
