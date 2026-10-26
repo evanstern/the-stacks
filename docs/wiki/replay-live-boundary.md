@@ -1,10 +1,10 @@
 ---
 name: replay-live-boundary
-description: The algorithm that delivers a reconnecting client its missed events then live ones with no gap and no duplicate — join the registry first with delivery queued, replay in bounded batches, signal replay-complete, then drain the queue skipping already-replayed positions.
+description: The algorithm that delivers a reconnecting client its missed events then live ones with no gap and no duplicate — join the registry first with delivery queued, replay in bounded batches, signal replay-complete, record the replay floor (replayedThroughSeq), then drain the queue; broadcast applies the same floor on the direct path.
 kind: pipeline
 sources:
   - apps/server/src/ws/subscribe.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
 ---
 
 # Replay/live boundary
@@ -27,8 +27,8 @@ Both of the obvious orderings are wrong:
 
 `subscribe()` does neither. It:
 
-1. **Joins the registry first, with delivery queued.** `conn.pendingQueue = []` before
-   `registry.subscribe(conn, sessionId)` — from this line on, [[subscriber-registry]]'s
+1. **Joins the registry first, with delivery queued.** `conn.pendingQueue = []` and
+   `conn.replayedThroughSeq = afterSeq` are set before `registry.subscribe(conn, sessionId)` — from this line on, [[subscriber-registry]]'s
    `broadcast` pushes matching events into `pendingQueue` instead of sending them directly
    (checked via `conn.pendingQueue` being non-null). This closes the race window entirely:
    nothing appended from this point forward can be lost — it lands in the replay read below,
@@ -41,10 +41,20 @@ Both of the obvious orderings are wrong:
    than the limit; it never has to "catch" the live edge exactly, because anything past it is
    already safe in the queue from step 1.
 3. **Sends `replay-complete` once**, carrying the final `throughSeq`, before any live delivery.
-4. **Drains the queue**, skipping anything at or before `throughSeq` — the position-based skip
-   that makes the unavoidable overlap between replay and queued events harmless instead of
-   duplicated — then clears `pendingQueue` to `null`, switching the connection to direct
-   delivery for everything after.
+4. **Records the replay floor, then drains the queue.** `conn.replayedThroughSeq = throughSeq`
+   is set *before* `pendingQueue` is cleared. The drain skips anything at or before that floor
+   — the position-based skip that makes the overlap between replay and queued events harmless
+   — then clears `pendingQueue` to `null`, switching the connection to direct delivery.
+
+The drain skip alone is not enough. The gateway appends, *then* broadcasts, so a replay can
+read a just-committed event, send it, and clear the queue before that event's `broadcast`
+runs; the late broadcast would then send it a second time on the direct path. The floor
+outlives the queue: [[subscriber-registry]]'s `broadcast` skips any event with `seq <=
+conn.replayedThroughSeq` on both the queue and direct paths. The floor is deliberately **not**
+a running delivered-through watermark: broadcasts from concurrent senders may run out of seq
+order, so a watermark advanced on every send could drop a lower seq whose broadcast runs late.
+Every seq at or below the replay's `throughSeq` was in the replay read, so skipping exactly
+those is lossless.
 
 Visibility is decided exactly once, at broadcast/queue time (`isVisible` in
 [[subscriber-registry]]) and again independently by the replay loop's own read — draining the
@@ -64,4 +74,7 @@ determinism — the race window it closes is a synchronous gap, so no amount of 
 pressure reliably lands an append inside the broken orderings on demand (the end-to-end
 integration test caught a reintroduced bug only about 1 run in 7 without it). Production
 callers omit `deps` and get the real `readFrom`; it is not test-only scaffolding left behind,
-it's the only way `ws.subscribe.test.ts` can be deterministic.
+it's the only way `ws.subscribe.test.ts` can be deterministic. The same file also holds a
+database-gated test for the append-then-broadcast case above: its injected `readFrom` performs a
+real `append`, then the test calls `registry.broadcast` after `subscribe` returns and asserts
+the event was sent once.

@@ -1,10 +1,10 @@
 ---
 name: subscriber-registry
-description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, isVisible filtering, and why a filtered event is never sent rather than hidden client-side (seq gaps are correct).
+description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, isVisible filtering, and why a filtered event is never sent (seq gaps are correct), and the replayedThroughSeq replay floor that broadcast skips.
 kind: component
 sources:
   - apps/server/src/ws/registry.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
 ---
 
 # Subscriber registry
@@ -13,7 +13,8 @@ verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
 `subscribe`/`unsubscribe`/`broadcast`/`subscriberCount`. A `Connection` (defined here, built
 once by [[websocket-gateway]] at upgrade time) carries `socket`, the authenticated `userId`
 and `role`, the `sessionId` it's currently subscribed to (or `null`), and `pendingQueue` — the
-buffer [[replay-live-boundary]] uses to queue live events during a replay.
+buffer [[replay-live-boundary]] uses to queue live events during a replay — and
+`replayedThroughSeq`, the replay floor described below.
 
 ## How it works
 
@@ -44,9 +45,16 @@ never stop, or roll back, delivery to every other subscriber of an event the log
 committed. A closed socket (`readyState !== OPEN`) or a `send` that throws is pruned from the
 registry on the spot, the same as an explicit `close` event.
 
+**Replay floor.** After the `isVisible` check, `broadcast` skips any event whose `seq` is at or
+below `conn.replayedThroughSeq`. The field starts at `0` (set in [[websocket-gateway]]), is set
+to the subscribe's `afterSeq` on entry to `subscribe()`, and to the replay's `throughSeq` just
+before `pendingQueue` clears. The skip runs before the queue/send split, so it covers both
+paths. It closes a race: the gateway appends, then broadcasts, so a replay may already have
+delivered an event whose broadcast runs only after the queue is gone.
+
 A connection whose `pendingQueue` is non-null (replay in flight) gets the event pushed onto
-that queue instead of sent directly — only events that already passed `isVisible` are ever
-queued, so [[replay-live-boundary]]'s drain step needs no second filtering pass.
+that queue instead of sent directly — only events that passed `isVisible` and the replay floor
+are ever queued, so [[replay-live-boundary]]'s drain step needs no second filtering pass.
 
 ## Connections
 
@@ -55,6 +63,10 @@ the queueing half of the replay/live boundary. Frame shape from [[ws-protocol]].
 
 ## Operational notes
 
-`data-model.md` also names a `deliveredThroughSeq` field on `Connection`, but nothing ever
-reads a connection's highest-delivered position back server-side — each reconnect supplies its
-own `afterSeq` cursor — so it's omitted here rather than carried as unread state.
+`data-model.md` also names a `deliveredThroughSeq` field on `Connection`. It is still omitted:
+`replayedThroughSeq` is a replay floor, not a running delivered-through watermark. Broadcasts
+from concurrent senders may run out of seq order, so a watermark updated on every send could
+drop a lower seq whose broadcast runs late. Each reconnect supplies its own `afterSeq` cursor,
+so nothing reads a live watermark back server-side. The replay floor is lossless because the
+event log's advisory lock commits seqs in order, so every seq at or below `throughSeq` was in
+the replay read.
