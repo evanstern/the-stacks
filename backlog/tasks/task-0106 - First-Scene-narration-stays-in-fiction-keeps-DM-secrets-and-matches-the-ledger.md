@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 19:48'
+updated_date: '2026-10-26 20:08'
 labels:
   - first-scene
   - dm
@@ -39,13 +39,13 @@ Spec: specs/034-narration-quality
 - [x] #1 Companion and narrate prompts receive no DM-only seed fact, proven by a test over the assembled prompts for the Greyhollow Ford seed
 - [x] #2 The factual fallback is in-fiction prose with no system commentary, and it states every ledger change in the turn (including encounter start and end and table-mode changes), with tests
 - [x] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
-- [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
+- [x] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [x] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [x] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
 - [x] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
-- [ ] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
+- [x] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
 - [ ] #11 Spec phase: Full gate (US5; AC #5)
 <!-- AC:END -->
 
@@ -88,6 +88,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5b setup: composite at 3ae5a54 (Phase 4b tip merged in). dm.narrate maxTokens 1500 confirmed (T053). Ceiling $25 (operator approval above). Estimate upper bound $23.40.
 
 Phase 5b rerun 2026-10-26: run 20261026T192319Z-greyhollow-ford-provider at composite 3ae5a54. FAIL on AC #4, rate only. Fallback rate 4/22 = 0.18 (bar 0.10; verify 1 was 0.35, run 5 0.50); all turns 6/27. hidden-info-leak 0. Narration-caused ledger-contradiction 0. player-agency 3 (F1 hero moved at scene start; F6 a v3 breach; F7 companion treated as hero). Stalled seat-exhausted after 11 moves, $5.37 over 235 calls of $25. Causes: R1 the deterministic digits check failed all 3 attempts in 3 of the 4 non-seat fallbacks, and its detail does not quote the match; R2 the seat declares actions for an unconscious Tamsin; R3 one invented near-miss. E1 mostly fixed (2 of 51 narrate calls at 1500). Evidence and classification: 30aefb4. STOPPED for an operator ruling before further spend. Total TASK-0106 paid spend: $7.18 + $5.37 = $12.55.
+
+OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: accept TASK-0106 with the AC #4 rate bar at 20%. Leaks and contradictions are at zero. Card R1 (digits), R2 (seat acts for a downed hero) and the player-agency residue in m-3. Proceed to Phase 6, PR and the demo.' Carded on main: TASK-0111 (R1 digits check), TASK-0112 (R2 seat and downed hero), TASK-0113 (player-agency residue: F1, F6, F7, seq 130). AC #4 is met under the ruling: the rerun rate was 0.18 against the 0.20 bar, with 0 leaks and 0 narration-caused contradictions.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
