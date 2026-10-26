@@ -1,5 +1,11 @@
+import type { StoredEvent } from "@the-stacks/session-model";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { RecordedEvent, ServerFrame } from "./types";
+import {
+  type FrameState,
+  initialFrameState,
+  reduceFrame,
+} from "../play/reduce-frame.ts";
+import type { ServerFrame } from "./types";
 
 export type ConnectionStatus = "connecting" | "open" | "retrying";
 
@@ -16,17 +22,15 @@ const RETRY_DELAY_MS = 1000;
  * visibility filtering are correct, not missed events.
  */
 export function useSession(sessionId: string, onSignedOut: () => void) {
-  const [events, setEvents] = useState<RecordedEvent[]>([]);
+  const [frames, setFrames] = useState<FrameState>(initialFrameState);
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
-  const [caughtUp, setCaughtUp] = useState(false);
   const highestSeqRef = useRef(0);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     let stopped = false;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
-    setEvents([]);
-    setCaughtUp(false);
+    setFrames(initialFrameState);
     highestSeqRef.current = 0;
 
     function scheduleRetry() {
@@ -83,20 +87,15 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
 
       socket.addEventListener("message", (messageEvent: MessageEvent) => {
         const frame = JSON.parse(String(messageEvent.data)) as ServerFrame;
+        // Every inbound frame takes the one reducer path (replayed and live alike).
+        // FR-015: a refused frame is not a reason to disconnect; it only sets `notice`.
         if (frame.type === "event") {
           highestSeqRef.current = Math.max(
             highestSeqRef.current,
             frame.event.seq,
           );
-          setEvents((prev) => [...prev, frame.event]);
-        } else if (frame.type === "replay-complete") {
-          setCaughtUp(true);
-        } else if (frame.type === "error") {
-          // FR-015: a refused frame is not a reason to disconnect. There's
-          // nothing else to do here — the connection is deliberately left
-          // exactly as it was.
-          console.warn("ws: request refused", frame);
         }
+        setFrames((prev) => reduceFrame(prev, frame));
       });
 
       socket.addEventListener("close", () => {
@@ -115,20 +114,27 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     };
   }, [sessionId, onSignedOut]);
 
-  const send = useCallback(
-    (text: string): boolean => {
+  const sendEvent = useCallback(
+    (frame: {
+      eventType: string;
+      payload: unknown;
+      payloadVersion: number;
+      visibility?: string;
+    }): boolean => {
       const socket = socketRef.current;
       if (!socket || socket.readyState !== WebSocket.OPEN) return false;
-      // FR-012: only permitted fields. Never actor/seq/ts — the server
-      // assigns those, and D5/FR-013 means we don't render this locally;
-      // it renders only once its `event` frame comes back.
+      // FR-012: only permitted fields. Never actor/seq/ts; the server assigns
+      // those, and nothing renders locally until the `event` frame comes back.
       socket.send(
         JSON.stringify({
           type: "send",
           sessionId,
-          eventType: "chat",
-          payload: { text },
-          payloadVersion: 1,
+          eventType: frame.eventType,
+          payload: frame.payload,
+          payloadVersion: frame.payloadVersion,
+          ...(frame.visibility === undefined
+            ? {}
+            : { visibility: frame.visibility }),
         }),
       );
       return true;
@@ -136,5 +142,11 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     [sessionId],
   );
 
-  return { events, status, caughtUp, send };
+  return {
+    events: frames.events as readonly StoredEvent[],
+    status,
+    caughtUp: frames.caughtUp,
+    notice: frames.notice,
+    sendEvent,
+  };
 }

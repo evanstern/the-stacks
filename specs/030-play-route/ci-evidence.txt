@@ -1,0 +1,27 @@
+pnpm ci:check — worktree task-0047, exit 0, 2026-10-26T04:36:27Z
+(server DB integration tests skipped: TEST_DATABASE_URL unset in this run)
+@the-stacks/web:test: # tests 118
+@the-stacks/web:test: # pass 118
+@the-stacks/web:test: # fail 0
+@the-stacks/srd:test:  Test Files  8 passed (8)
+@the-stacks/srd:test:       Tests  140 passed (140)
+@the-stacks/dnd5e-engine:test:  Test Files  15 passed (15)
+@the-stacks/dnd5e-engine:test:       Tests  199 passed (199)
+@the-stacks/session-model:test:  Test Files  14 passed (14)
+@the-stacks/session-model:test:       Tests  283 passed (283)
+@the-stacks/web:test:  Test Files  7 passed (7)
+@the-stacks/web:test:       Tests  21 passed (21)
+@the-stacks/server:test:  Test Files  27 passed | 14 skipped (41)
+@the-stacks/server:test:       Tests  292 passed | 144 skipped (436)
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 76.274
+$ node --experimental-strip-types -e "await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');"

@@ -126,20 +126,20 @@ gates are tests; fixture screenshots are taken.
 
 ### Tests first
 
-- [ ] T037 [P] [US7] Write `apps/web/test/play/equivalence.test.tsx` (vitest): for every fixture and viewer, events fed one frame at a time through `reduceFrame` and handed to a live-shaped source produce the same `toTableViewModel` output and the same `TableView` markup (status text excepted) as the fixture source (SC-002).
-- [ ] T038 [P] [US7] Write `apps/web/test/play-surfaces.test.mjs` (node:test, file reads and grep): only `app/components/panel.tsx` imports `components/ui/sheet`; no `fixed inset-0`, `localStorage` or `sessionStorage` under `app/play/`; `routes/play.tsx`, `routes/play-fixtures.tsx` and `routes/play-fixture.tsx` export `clientLoader` and `HydrateFallback` and no `loader`; `routes/play.tsx` and `routes/play-fixture.tsx` render `TableView` and import no module from `app/play/components/` except `fixture-toolbar` (fixture route only).
-- [ ] T039 [P] [US7] Extend `apps/web/test/ssr.test.mjs`: `/play/<uuid>`, `/play/fixtures` and `/play/fixtures/free-mode-action` return the `HydrateFallback` text and contain no "Message type" markup (SC-007).
+- [x] T037 [P] [US7] Write `apps/web/test/play/equivalence.test.tsx` (vitest): for every fixture and viewer, events fed one frame at a time through `reduceFrame` and handed to a live-shaped source produce the same `toTableViewModel` output and the same `TableView` markup (status text excepted) as the fixture source (SC-002).
+- [x] T038 [P] [US7] Write `apps/web/test/play-surfaces.test.mjs` (node:test, file reads and grep): only `app/components/panel.tsx` imports `components/ui/sheet`; no `fixed inset-0`, `localStorage` or `sessionStorage` under `app/play/`; `routes/play.tsx`, `routes/play-fixtures.tsx` and `routes/play-fixture.tsx` export `clientLoader` and `HydrateFallback` and no `loader`; `routes/play.tsx` and `routes/play-fixture.tsx` render `TableView` and import no module from `app/play/components/` except `fixture-toolbar` (fixture route only).
+- [x] T039 [P] [US7] Extend `apps/web/test/ssr.test.mjs`: `/play/<uuid>`, `/play/fixtures` and `/play/fixtures/free-mode-action` return the `HydrateFallback` text and contain no "Message type" markup (SC-007).
 
 ### Implementation
 
-- [ ] T040 [US7] Refactor `apps/web/app/ws/useSession.ts`: route every inbound frame through `reduceFrame` (T016); replace `send(text)` with `sendEvent(frame)` per contracts/live-frames.md; expose `notice`. Keep the `/auth/me` preflight, retry and cleanup unchanged.
-- [ ] T041 [US7] Implement `apps/web/app/play/use-live-table.ts` (viewer from the root user per research R4; commands via `play/frames.ts` and `sendEvent`; proposals from `liveProposals`; approve and reject return `false`).
-- [ ] T042 [US7] Rewrite `apps/web/app/routes/play.tsx`: `clientLoader` + `HydrateFallback` kept; the component renders `<TableView source={useLiveTable(sessionId, user)} />` and nothing else from `app/play/`.
-- [ ] T043 [US7] Write `specs/030-play-route/evidence/seed-live.mjs`: copies one fixture's rows into a fresh session on the worktree stack's database (the log's `append`/`appendBatch` seam via `--experimental-strip-types`, as `check:host-scripts` imports server modules), mapping `fixtureIds.playerUserId` to a given real user id; prints the session URL. Run it only against the worktree stack.
-- [ ] T044 [US7] Write `specs/030-play-route/evidence/shoot.mjs`: out-of-tree `playwright-core` (never in any `package.json`) launching **Brave** by `executablePath`; `--mode fixtures` captures 1280 px and 390 px in light and dark for: free-mode as the player with an open action, turn-mode at Ana's turn, the ledger panel, the approvals panel as the DM; `--mode live` signs in both accounts and captures the same surfaces on a live table after driving talk, declare, comment and commit through the UI. Output to `specs/030-play-route/evidence/shots/`.
-- [ ] T045 [US7] Run quickstart §3 by hand in two Brave windows on the worktree stack (`pnpm env:up`; migrate per TASK-0098) and record the outcome in `specs/030-play-route/evidence/live-check.md`.
-- [ ] T046 Run `node specs/030-play-route/evidence/shoot.mjs --mode fixtures`; commit the PNGs; confirm the text in each meets WCAG AA (`apps/web/test/contrast.test.mjs` passes for any new token).
-- [ ] T047 Run `pnpm ci:check` in the worktree; save its tail to `specs/030-play-route/ci-evidence.txt`; `pnpm env:down`.
+- [x] T040 [US7] Refactor `apps/web/app/ws/useSession.ts`: route every inbound frame through `reduceFrame` (T016); replace `send(text)` with `sendEvent(frame)` per contracts/live-frames.md; expose `notice`. Keep the `/auth/me` preflight, retry and cleanup unchanged.
+- [x] T041 [US7] Implement `apps/web/app/play/use-live-table.ts` (viewer from the root user per research R4; commands via `play/frames.ts` and `sendEvent`; proposals from `liveProposals`; approve and reject return `false`).
+- [x] T042 [US7] Rewrite `apps/web/app/routes/play.tsx`: `clientLoader` + `HydrateFallback` kept; the component renders `<TableView source={useLiveTable(sessionId, user)} />` and nothing else from `app/play/`.
+- [x] T043 [US7] Write `specs/030-play-route/evidence/seed-live.mjs`: copies one fixture's rows into a fresh session on the worktree stack's database (the log's `append`/`appendBatch` seam via `--experimental-strip-types`, as `check:host-scripts` imports server modules), mapping `fixtureIds.playerUserId` to a given real user id; prints the session URL. Run it only against the worktree stack.
+- [x] T044 [US7] Write `specs/030-play-route/evidence/shoot.mjs`: out-of-tree `playwright-core` (never in any `package.json`) launching **Brave** by `executablePath`; `--mode fixtures` captures 1280 px and 390 px in light and dark for: free-mode as the player with an open action, turn-mode at Ana's turn, the ledger panel, the approvals panel as the DM; `--mode live` signs in both accounts and captures the same surfaces on a live table after driving talk, declare, comment and commit through the UI. Output to `specs/030-play-route/evidence/shots/`.
+- [x] T045 [US7] Run quickstart §3 by hand in two Brave windows on the worktree stack (`pnpm env:up`; migrate per TASK-0098) and record the outcome in `specs/030-play-route/evidence/live-check.md`.
+- [x] T046 Run `node specs/030-play-route/evidence/shoot.mjs --mode fixtures`; commit the PNGs; confirm the text in each meets WCAG AA (`apps/web/test/contrast.test.mjs` passes for any new token).
+- [x] T047 Run `pnpm ci:check` in the worktree; save its tail to `specs/030-play-route/ci-evidence.txt`; `pnpm env:down`.
 
 **Checkpoint**: everything except the live proposal path is done. The orchestrator opens the PR as
 **draft** (runbook: held until TASK-0045 merges).
@@ -217,3 +217,15 @@ AC #5 and AC #7 on the live log once TASK-0045 has merged.
   (contracts/ui-surfaces.md). `useFixtureTable` takes a fourth argument `dmActor`, supplied by the
   fixture route's `clientLoader`, so the hook stays out of the fixtures chunk.
 - Phase 3: the toolbar's View-as and Step groups are `<fieldset>`s (biome `useSemanticElements`).
+- Phase 5: `seed-live.mjs` imports the built server (`apps/server/dist`) and the built fixtures,
+  not `--experimental-strip-types` on source, because source imports carry `.js` suffixes that
+  Node's type stripping cannot resolve. It targets the app database (`DATABASE_URL`, host port
+  `DB_PORT`), not `TEST_DATABASE_URL`. It also maps `fixtureIds.dmActor` to an optional operator id.
+- Phase 5: `shoot.mjs --mode live` drives a table seeded by `seed-live.mjs` (`--live-url`), because a
+  fresh table has no party member and the player could not declare an action. The two-window live
+  check in `evidence/live-check.md` was driven by that script in two Brave contexts, not by hand;
+  reload and stop/start reconnect were not exercised there.
+- Phase 5: `playwright-core` is loaded from outside the repo via `PLAYWRIGHT_CORE`
+  (a path beside its `node_modules`); it is in no `package.json`.
+- Phase 5: `useSession` now exposes `sendEvent`/`notice` and maps inbound frames through
+  `reduceFrame`; live `approve`/`reject` return `false` until Phase 6.
