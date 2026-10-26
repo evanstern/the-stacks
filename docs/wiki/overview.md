@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Overview
@@ -69,12 +69,13 @@ described in the sections above and in the linked notes.
 
 - **5e only.** The planned system-agnostic core and the Fate conformance module are dropped.
   The engine now exists as a standalone package, [[dnd5e-engine]], not yet called by the
-  server. The typed session events and their projections exist as [[session-model]] (TASK-0044); live DM delivery is TASK-0045. Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
+  server. The typed session events and their projections exist as [[session-model]] (TASK-0044); the proposal gate and per-viewer live delivery are [[proposal-gate]] (TASK-0045). Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
   point `(state, command, rng) -> events | refusal`; it does no I/O and calls no model, and
   the engine owns every number (dice, hit points, conditions, initiative, rests, slots).
 - **Proposal gate.** LLM output reaches the event log only as a typed proposal that passes
   the gate and the engine (Principle IV). Each proposal kind runs `auto`, `ask` or `suggest`;
-  a refusal appends nothing; pending proposals are hidden information.
+  a refusal appends nothing; pending proposals are hidden information. It is implemented in
+  [[proposal-gate]] (TASK-0045): a human DM seat sees `dm` rows, and the write boundary is test-enforced.
 - **DM runtime.** Turn jobs run on the same worker loop as ingestion jobs (planned A11);
   talk, action and table modes are planned in A12.
 - **VTT ports and adapters.** The in-app PixiJS table view and external VTTs (Foundry or
@@ -97,8 +98,8 @@ deployment, [[react-router-app]] for the client. The platform beneath them is
 [[monorepo-and-toolchain]] and [[container-image]].
 
 The two seams M0 exists to prove are [[session-auth]] — one `validateSession` shared by HTTP
-and the socket — and the realtime path: [[websocket-gateway]] into [[event-log]] and back out
-through [[replay-live-boundary]]. The milestone check that ties them together is [[m0-demo]].
+and the socket — and the realtime path: [[websocket-gateway]] into [[event-log]] (gameplay
+events via the [[proposal-gate]]) and back out through [[replay-live-boundary]]. The milestone check that ties them together is [[m0-demo]].
 
 ## Operational notes
 

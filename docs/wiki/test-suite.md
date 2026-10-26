@@ -15,6 +15,10 @@ sources:
   - apps/server/test/ws.integration.test.ts
   - apps/server/test/ws.protocol.test.ts
   - apps/server/test/ws.subscribe.test.ts
+  - apps/server/test/gate.integration.test.ts
+  - apps/server/test/gate.restart.integration.test.ts
+  - apps/server/test/write-boundary.test.ts
+  - apps/server/test/helpers/import-graph.ts
   - apps/server/test/bench/load.test.ts
   - apps/server/test/bench/load.integration.test.ts
   - apps/server/test/bench/load-db.integration.test.ts
@@ -23,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Test suite
@@ -37,6 +41,13 @@ TASK-0029 and TASK-0030 share a third such subdirectory, `apps/server/test/bench
 TASK-0030's unit file plus two environment-gated integration files, all run the same
 loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], including why 5 of
 the load bench's tests are *always* skipped, by name, even with a reachable database.
+TASK-0045 added gate suites at the same level: `gate.integration.test.ts` and
+`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry and a
+restart losing nothing) and `write-boundary.test.ts` (no database; the AC #1 import-graph check,
+[[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
+`SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
+send-path classification, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
+Their counts are not in the totals below, which predate them.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
 session auth (US1–US4, plus one case added for TASK-0040: the shared `identityLookup`

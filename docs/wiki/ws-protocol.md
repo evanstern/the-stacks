@@ -5,7 +5,7 @@ kind: concept
 sources:
   - apps/server/src/ws/protocol.ts
   - specs/006-ws-gateway/contracts/ws-protocol.md
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # WS protocol
@@ -28,7 +28,11 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
   them, so a client that echoes those fields back parses fine but the fields simply never
   reach the handler. A client that could set any of the three could forge history — the
   server's own values (the connection's authenticated identity, and the log's own position
-  and timestamp) are authoritative regardless of what a client sends.
+  and timestamp) are authoritative regardless of what a client sends. The gateway classifies a
+  `send` by `eventType`: a gate request kind goes to the gate ([[proposal-gate]]; needs
+  `payloadVersion` 1 and an object payload); any other catalogued type is refused with an
+  `error { kind: "forbidden", code: "CATALOG_TYPE_REQUIRES_GATE" }`; an uncatalogued type takes
+  the legacy append path (retirement carded as TASK-0099). The frame shape itself is unchanged.
 
 **Server → client**:
 
@@ -39,8 +43,9 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
 - `replay-complete { throughSeq }` — sent once, after the last replayed event and before live
   delivery. Not required for correctness (ordering already guarantees it); useful to a client
   that wants to distinguish "caught up" from "quiet session."
-- `error { kind: "validation" | "forbidden" | "internal", message }` — a refused request. The
-  connection stays open.
+- `error { kind: "validation" | "forbidden" | "internal", message, code? }` — a refused request.
+  The connection stays open. `code` is optional (spec 029 `ws-delivery.md`): present when the
+  refusal has a stable code, such as a gate refusal code or `CATALOG_TYPE_REQUIRES_GATE`.
 
 ## What the protocol deliberately does NOT provide
 
@@ -60,5 +65,5 @@ copy of this same shape, not a shared import.
 ## Operational notes
 
 `seq` may legitimately have gaps for a recipient filtered out of some events — see
-[[subscriber-registry]]'s `isVisible`. A client must track the *highest* `seq` delivered, not
+[[subscriber-registry]]'s `canSee(viewerFor(...))` filtering. A client must track the *highest* `seq` delivered, not
 assume contiguity.
