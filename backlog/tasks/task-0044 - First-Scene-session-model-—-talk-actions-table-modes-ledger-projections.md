@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:21'
+updated_date: '2026-10-26 03:23'
 labels:
   - first-scene
   - session
@@ -68,6 +68,9 @@ Phase 4 by sonnet-implementer: 7d5984e. Five fixtures with 13 engine recipes, ea
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phases 5 and 6 by sonnet-implementer: f1999b6 and 7d89077. Atomic appendBatch, the server seam, and a Dockerfile that builds both new packages. The DB suite with REQUIRE_DATABASE=1 passes 431 tests, including 14 in session.integration. The mid-batch failure tests prove zero rows land. ci:check green. The test DB needed a manual migrate (TASK-0098).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 8d07ccd. New note session-model. Five notes amended: event-log, monorepo-and-toolchain, test-suite, container-image and ci-pipeline. Five re-pinned only after reading their diffs. Freshness OK, 40 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
