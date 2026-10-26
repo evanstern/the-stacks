@@ -95,17 +95,17 @@ job per session, without disturbing ingestion. Contract: contracts/turn-jobs.md.
 **Goal**: the data and the test harness every node needs. Contracts: scene-seed.md,
 doctrine.md, purposes.md, fake-gateway-script.md.
 
-- [ ] T010 Add `"@the-stacks/srd": "workspace:*"` to `apps/server/package.json` and the project reference in `apps/server/tsconfig.json`; run `pnpm install`.
-- [ ] T011 Create `apps/server/src/dm/seed/schema.ts` and `load.ts` per scene-seed.md, including every cross-check and the `SeedError` issue list.
-- [ ] T012 Create `apps/server/src/dm/seed/combatants.ts` (`combatantFromSrd`).
-- [ ] T013 Copy `specs/031-dm-runtime/data/greyhollow-ford.seed.json` to `apps/server/seeds/greyhollow-ford.json` unchanged.
-- [ ] T014 [P] Write `test/dm/seed.test.ts`: the shipped seed loads; each cross-check fails with a named issue on a mutated copy; the `combatantFromSrd` snapshots for `goblin-warrior` and `goblin-minion`; the seed header says original plus SRD.
-- [ ] T015 Create `apps/server/src/dm/doctrine/doctrine.ts` (the 24 pairs, `DOCTRINE_NOTICE`, header) and `NOTICE.md` (the sentence plus the full MIT text with `Copyright (c) 2026 Brad Bush`).
-- [ ] T016 [P] Write `test/dm/doctrine.test.ts` per doctrine.md's four guard rules (rule 3 runs over `dm/prompts/` once Phase 3 adds it; write it now so it passes vacuously and binds later).
-- [ ] T017 Create `apps/server/src/dm/purposes.ts`.
-- [ ] T018 Extend `apps/server/src/ai/adapters/fake.ts` with `scriptChatFor` and `strict`; add tests to `test/ai.gateway.test.ts` (purpose queue precedence, strict failure, existing behaviour unchanged).
-- [ ] T019 Create `apps/server/src/dm/script/schema.ts` and `load.ts` (`DmScriptSchema`, `loadDmScript`, `createScriptedDm`, `remaining()`); write `test/dm/script.test.ts`.
-- [ ] T020 [P] Update `.env.example` with a commented `AI_PURPOSES` example naming the seven `dm.*` purposes; update the `Dockerfile` to copy `apps/server/seeds/` and `dm/doctrine/NOTICE.md` into the runtime stage.
+- [x] T010 Add `"@the-stacks/srd": "workspace:*"` to `apps/server/package.json` and the project reference in `apps/server/tsconfig.json`; run `pnpm install`.
+- [x] T011 Create `apps/server/src/dm/seed/schema.ts` and `load.ts` per scene-seed.md, including every cross-check and the `SeedError` issue list.
+- [x] T012 Create `apps/server/src/dm/seed/combatants.ts` (`combatantFromSrd`).
+- [x] T013 Copy `specs/031-dm-runtime/data/greyhollow-ford.seed.json` to `apps/server/seeds/greyhollow-ford.json` unchanged.
+- [x] T014 [P] Write `test/dm/seed.test.ts`: the shipped seed loads; each cross-check fails with a named issue on a mutated copy; the `combatantFromSrd` snapshots for `goblin-warrior` and `goblin-minion`; the seed header says original plus SRD.
+- [x] T015 Create `apps/server/src/dm/doctrine/doctrine.ts` (the 24 pairs, `DOCTRINE_NOTICE`, header) and `NOTICE.md` (the sentence plus the full MIT text with `Copyright (c) 2026 Brad Bush`).
+- [x] T016 [P] Write `test/dm/doctrine.test.ts` per doctrine.md's four guard rules (rule 3 runs over `dm/prompts/` once Phase 3 adds it; write it now so it passes vacuously and binds later).
+- [x] T017 Create `apps/server/src/dm/purposes.ts`.
+- [x] T018 Extend `apps/server/src/ai/adapters/fake.ts` with `scriptChatFor` and `strict`; add tests to `test/ai.gateway.test.ts` (purpose queue precedence, strict failure, existing behaviour unchanged).
+- [x] T019 Create `apps/server/src/dm/script/schema.ts` and `load.ts` (`DmScriptSchema`, `loadDmScript`, `createScriptedDm`, `remaining()`); write `test/dm/script.test.ts`.
+- [x] T020 [P] Update `.env.example` with a commented `AI_PURPOSES` example naming the seven `dm.*` purposes; update the `Dockerfile` to copy `apps/server/seeds/` and `dm/doctrine/NOTICE.md` into the runtime stage.
 
 **Checkpoint**: seed, doctrine and scripts load and are guarded.
 
@@ -179,6 +179,12 @@ fake-gateway-script.md.
 - [ ] T097 Update contract pointer notes: add a one-line "Extended by specs/031-dm-runtime/contracts/turn-jobs.md" note to `specs/017-ingestion-pipeline/contracts/ingest-modules.md` (the jobs queue) and to `specs/011-ai-gateway/contracts/gateway.md` (the fake adapter); do not edit their bodies.
 
 **Checkpoint**: merge-ready. The PR body quotes the evidence file's ledger and audit result.
+
+## Deviations
+
+- Phase 2: `SeedCharacter` uses `z.partialRecord(AbilitySchema, ...)` for `abilityMods` and `saves` where scene-seed.md writes `z.record(AbilitySchema, ...)`. Zod 4's `z.record` over an enum demands every key; the shipped seed lists only proficient saves.
+- Phase 2: `apps/server/seeds/` is added to `biome.json` ignores so the formatter cannot rewrite the seed; the copy stays byte-identical to `data/greyhollow-ford.seed.json` (a test asserts it).
+- Phase 2: the engine does not export `CombatantInitSchema`; `dm/seed/schema.ts` takes it from the `combatant.add` variant of `EngineCommandSchema`.
 
 ## Dependencies & Execution Order
 

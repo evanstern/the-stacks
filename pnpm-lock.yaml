@@ -32,6 +32,9 @@ importers:
       '@the-stacks/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@the-stacks/srd':
+        specifier: workspace:*
+        version: link:../../packages/srd
       busboy:
         specifier: ^1.6.0
         version: 1.6.0

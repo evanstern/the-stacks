@@ -55,13 +55,36 @@ export class FakeProvider implements Provider {
   readonly chatCalls: ChatCall[] = [];
   readonly embedCalls: EmbedCall[] = [];
 
+  /**
+   * When true, a chat call with nothing scripted yields a `config` error
+   * instead of the safe default. Default false (existing tests unchanged).
+   */
+  strict = false;
+
   private readonly chatScripts: ChatScript[] = [];
+  private readonly purposeScripts = new Map<string, ChatScript[]>();
   private readonly embedScripts: EmbedScript[] = [];
 
   /** Queue the events `chat()` yields for the next call(s), one script per call. */
   scriptChat(...scripts: ChatScript[]): this {
     this.chatScripts.push(...scripts);
     return this;
+  }
+
+  /**
+   * Queue scripts for one purpose. A call whose `request.purpose` has a
+   * non-empty queue consumes from it before the global FIFO (specs/031).
+   */
+  scriptChatFor(purpose: string, ...scripts: ChatScript[]): this {
+    const queue = this.purposeScripts.get(purpose) ?? [];
+    queue.push(...scripts);
+    this.purposeScripts.set(purpose, queue);
+    return this;
+  }
+
+  /** Scripts still queued for a purpose. */
+  pendingFor(purpose: string): number {
+    return this.purposeScripts.get(purpose)?.length ?? 0;
   }
 
   /** Queue what `embed()` returns (or throws) for the next call(s), one script per call. */
@@ -76,9 +99,29 @@ export class FakeProvider implements Provider {
     opts: { maxTokens?: number },
   ): AsyncIterable<ChatEvent> {
     this.chatCalls.push({ model, request, maxTokens: opts.maxTokens });
-    const script = this.chatScripts.shift() ?? [
-      { type: "done", usage: { inputTokens: 0, outputTokens: 0 } },
-    ];
+    const purposeQueue = request.purpose
+      ? this.purposeScripts.get(request.purpose)
+      : undefined;
+    const script =
+      (purposeQueue && purposeQueue.length > 0
+        ? purposeQueue.shift()
+        : undefined) ??
+      this.chatScripts.shift() ??
+      (this.strict
+        ? [
+            {
+              type: "error" as const,
+              kind: "config" as const,
+              message: `unscripted call for ${request.purpose ?? "unknown purpose"}`,
+              usage: { inputTokens: 0, outputTokens: 0 },
+            },
+          ]
+        : [
+            {
+              type: "done" as const,
+              usage: { inputTokens: 0, outputTokens: 0 },
+            },
+          ]);
     for (const event of script) {
       if (request.signal?.aborted) return;
       yield event;
