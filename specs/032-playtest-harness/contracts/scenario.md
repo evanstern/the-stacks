@@ -98,7 +98,7 @@ data-model.md order. A move without `actionId` gets `pt-<n>`.
 - `moves.combat`: text "I swing my longsword at the goblin in the pot-helm.", `firstActionId`
   `act-strike` (the CI script names it). Later combat moves get `pt-<n>`.
 - `moves.fallback`: "I press on toward the ferry before dark."
-- `limits`: `maxMoves` 30, `maxWallMs` 900000.
+- `limits`: `maxMoves` 30, `maxWallMs` 3600000 (60 minutes; real-model turns take ~35 s).
 - `dice`: `faces: []`, `seed: null` (drawn at run time in provider mode).
 - `ci`: `../../test/dm/scripts/greyhollow-ford-full.json`,
   `../fixtures/greyhollow-ford.audit.json`, `../fixtures/greyhollow-ford.retrieve.json`.

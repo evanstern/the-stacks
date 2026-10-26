@@ -27,7 +27,7 @@
     },
     "fallback": { "text": "I press on toward the ferry before dark." }
   },
-  "limits": { "maxMoves": 30, "maxWallMs": 900000 },
+  "limits": { "maxMoves": 30, "maxWallMs": 3600000 },
   "dice": { "faces": [], "seed": null },
   "ci": {
     "dmScript": "../../test/dm/scripts/greyhollow-ford-full.json",
