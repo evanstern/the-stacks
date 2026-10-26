@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:24'
+updated_date: '2026-10-26 04:32'
 labels:
   - first-scene
   - gate
@@ -42,7 +42,7 @@ Spec: specs/029-proposal-gate
 - [x] #11 Spec phase: Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8)
 - [x] #12 Spec phase: Fixtures for the play route and the gate (US7; TASK-0047 contract)
 - [x] #13 Spec phase: Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8)
-- [ ] #14 Spec phase: WebSocket delivery, send path and restart (US2, US5; AC #4, #9)
+- [x] #14 Spec phase: WebSocket delivery, send path and restart (US2, US5; AC #4, #9)
 - [ ] #15 Spec phase: Write boundary and full gate (US6; AC #1)
 <!-- AC:END -->
 
@@ -70,6 +70,10 @@ Phases 2 and 3 by sonnet-implementer: 2ddac08, f7adc59 (ticks) and 5d333bc. Adds
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 by sonnet-implementer: 13f8ec7. createGate with submit, handle and onAppended; appendBatch gains expectedLastSeq and SeqConflictError, with a bounded retry. The DB suite (REQUIRE_DATABASE=1) passes 457 server tests, including 21 in gate.integration; ci:check green. The test DB needed a manual migrate (TASK-0098).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 by sonnet-implementer: 34e3d68. The WS registry and replay use canSee and the DM seat. Gate request kinds route to the gate; any other catalogued send is refused CATALOG_TYPE_REQUIRES_GATE. The restart test (AC #9) passes on the worktree stack. The DB suite passes 463 tests; ci:check green.
+The implementer left a narrow race: a seat change between the seat load and the cache write during subscribe. The orchestrator rules it be closed in Phase 6, because it could deliver DM-only events to a former DM; it is not deferred.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
