@@ -6,6 +6,9 @@ import { finishJob, saveResult } from "../jobs/queue.js";
 import { LEASE_MS, MAX_ATTEMPTS } from "../library/ingest/jobs.js";
 import type { DbClient } from "../library/store.js";
 import { jobs } from "../schema/jobs.js";
+import type { AdjudicateOutput } from "./nodes/adjudicate.js";
+import type { DirectorNodeOutput } from "./nodes/director.js";
+import type { InterpretOutput } from "./nodes/schemas.js";
 
 /**
  * DM jobs on the shared `jobs` queue (specs/031-dm-runtime contracts/
@@ -61,16 +64,16 @@ export const ChronicleJobInput = z.object({
 export type ChronicleJobInput = z.infer<typeof ChronicleJobInput>;
 
 /**
- * The turn checkpoint stored at `jobs.result.checkpoint`. Later phases
- * narrow the node-output fields (`unknown` here) to their own types; the
- * queue only stores and returns the object.
+ * The turn checkpoint stored at `jobs.result.checkpoint`. Phase 3 narrows the
+ * planning-node outputs; later phases narrow `submissions` and `narration`.
+ * The queue only stores and returns the object.
  */
 export interface TurnCheckpoint {
   beat: string[] | null; // frozen action ids, or null before assemble
   npcTurn: { combatantId: string } | null;
-  director: unknown;
-  interpret: unknown;
-  adjudicate: unknown;
+  director: DirectorNodeOutput | null;
+  interpret: InterpretOutput | null;
+  adjudicate: AdjudicateOutput | null;
   submissions: unknown[];
   lastSeq: number; // highest seq the gate returned to this job
   narration: { attempts: unknown[]; shipped: boolean } | null;

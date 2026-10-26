@@ -114,18 +114,18 @@ doctrine.md, purposes.md, fake-gateway-script.md.
 **Goal**: the runner and every node before resolve. Contracts: node-seam.md, nodes.md,
 director.md.
 
-- [ ] T030 Create `apps/server/src/dm/pipeline/context.ts`, `runner.ts`, `call.ts` (`TurnContext`, `NodeResult`, `runTurn`, `callJson`, `callText`) per node-seam.md, including the throwing gate stub for non-resolve nodes.
-- [ ] T031 Create the prompt builders in `apps/server/src/dm/prompts/` (one per purpose, each with a `PROMPT_VERSION`, the notice header where doctrine is used, and the token caps from nodes.md).
-- [ ] T032 Create `apps/server/src/dm/nodes/schemas.ts` (`DirectorOutput`, `InterpretOutput`, `StepSchema`, `Effect`, `AdjudicateModelOutput`).
-- [ ] T033 Create `nodes/assemble.ts` (beat freeze, checkpoint beat, twice-rejected skip, state-derived `npcTurn`, SRD compact selection, `priorSteps`).
-- [ ] T034 Create `nodes/director.ts` and the legality rules from director.md (overrides recorded).
-- [ ] T035 Create `nodes/interpret.ts` (one reading per beat item; mismatch → `invalid-output`).
-- [ ] T036 Create `nodes/adjudicate.ts` (one `retrieve` per adjudicated action, `isRelevant`, numbered passages, `locateQuote` verification, SRD citation checks, `improvised`).
-- [ ] T037 [P] Write `test/dm/runner.test.ts`: node order; adjudicate skipped without a flagged reading; checkpoint reuse skips calls; fence `false` stops before the next node; a thrown node becomes `internal`; `empty-beat` makes no call; each node is a plain async function of one argument.
-- [ ] T038 [P] Write `test/dm/call.test.ts`: fenced JSON parsed; one repair re-ask; second failure → `invalid-output`; gateway error kinds pass through.
-- [ ] T039 [P] Write `test/dm/assemble.test.ts` over session-model fixtures (pure `project`): beat order by commit seq; resolved-but-unnarrated included; frozen beat on attempt 2; `npcTurn` derivation; prompt parts under their caps.
-- [ ] T040 [P] Write `test/dm/director.test.ts`: each illegal decision is overridden as director.md states; `forceResolve` overrides a hold.
-- [ ] T041 Write `test/dm/adjudicate.integration.test.ts` (DB): ingest a fixture book, script `dm.adjudicate`, assert a verified library citation with its anchor; an unverifiable quote is dropped and the ruling is `improvised`; an SRD citation carries its page; retrieval called once per adjudicated action.
+- [x] T030 Create `apps/server/src/dm/pipeline/context.ts`, `runner.ts`, `call.ts` (`TurnContext`, `NodeResult`, `runTurn`, `callJson`, `callText`) per node-seam.md, including the throwing gate stub for non-resolve nodes.
+- [x] T031 Create the prompt builders in `apps/server/src/dm/prompts/` (one per purpose, each with a `PROMPT_VERSION`, the notice header where doctrine is used, and the token caps from nodes.md).
+- [x] T032 Create `apps/server/src/dm/nodes/schemas.ts` (`DirectorOutput`, `InterpretOutput`, `StepSchema`, `Effect`, `AdjudicateModelOutput`).
+- [x] T033 Create `nodes/assemble.ts` (beat freeze, checkpoint beat, twice-rejected skip, state-derived `npcTurn`, SRD compact selection, `priorSteps`).
+- [x] T034 Create `nodes/director.ts` and the legality rules from director.md (overrides recorded).
+- [x] T035 Create `nodes/interpret.ts` (one reading per beat item; mismatch → `invalid-output`).
+- [x] T036 Create `nodes/adjudicate.ts` (one `retrieve` per adjudicated action, `isRelevant`, numbered passages, `locateQuote` verification, SRD citation checks, `improvised`).
+- [x] T037 [P] Write `test/dm/runner.test.ts`: node order; adjudicate skipped without a flagged reading; checkpoint reuse skips calls; fence `false` stops before the next node; a thrown node becomes `internal`; `empty-beat` makes no call; each node is a plain async function of one argument.
+- [x] T038 [P] Write `test/dm/call.test.ts`: fenced JSON parsed; one repair re-ask; second failure → `invalid-output`; gateway error kinds pass through.
+- [x] T039 [P] Write `test/dm/assemble.test.ts` over session-model fixtures (pure `project`): beat order by commit seq; resolved-but-unnarrated included; frozen beat on attempt 2; `npcTurn` derivation; prompt parts under their caps.
+- [x] T040 [P] Write `test/dm/director.test.ts`: each illegal decision is overridden as director.md states; `forceResolve` overrides a hold.
+- [x] T041 Write `test/dm/adjudicate.integration.test.ts` (DB): ingest a fixture book, script `dm.adjudicate`, assert a verified library citation with its anchor; an unverifiable quote is dropped and the ruling is `improvised`; an SRD citation carries its page; retrieval called once per adjudicated action.
 
 **Checkpoint**: a turn can plan; nothing writes yet.
 
@@ -185,6 +185,11 @@ fake-gateway-script.md.
 - Phase 2: `SeedCharacter` uses `z.partialRecord(AbilitySchema, ...)` for `abilityMods` and `saves` where scene-seed.md writes `z.record(AbilitySchema, ...)`. Zod 4's `z.record` over an enum demands every key; the shipped seed lists only proficient saves.
 - Phase 2: `apps/server/seeds/` is added to `biome.json` ignores so the formatter cannot rewrite the seed; the copy stays byte-identical to `data/greyhollow-ford.seed.json` (a test asserts it).
 - Phase 2: the engine does not export `CombatantInitSchema`; `dm/seed/schema.ts` takes it from the `combatant.add` variant of `EngineCommandSchema`.
+- Phase 3: `NodeDeps` gains `setStage` (the runner's fenced stage write, step 2.2) and `minSimilarity` (the `ASK_MIN_SIMILARITY` floor adjudicate passes to `isRelevant`); `SrdLookup` is `{ getById, getByName, compact }` (assemble matches spell and condition names with `getByName`).
+- Phase 3: the director node's output is `DirectorOutput & { overrides }` (`DirectorNodeOutput`), so the legality overrides ride the checkpoint into the turn record; `Ruling.actionId` is `string | null` (null for a monster-turn reading).
+- Phase 3: prompt builders exist for `dm.director`, `dm.interpret` and `dm.adjudicate`. The `dm.narrate`/`dm.audit` builders land with their nodes in Phase 4 and the `dm.chronicle`/`dm.companion` builders in Phase 5, because they depend on `NarrationFacts` and the audit contract. `ResolveOutput`, `NarrateOutput` and `AuditOutput` are open records in `pipeline/context.ts` until Phase 4 narrows them.
+- Phase 3: `presentNpcIds` is every NPC id named by any seed beat (assemble cannot know the beat in play before the Director picks `pacing.beatId`); later nodes narrow by `pacing.beatId`. An interpret call is skipped when the beat is empty and no monster acts (scene start).
+- Phase 3: on `scene-start` the Director keeps only `pacing`; every other decision is reset to its default and recorded as an override when the model chose otherwise.
 
 ## Dependencies & Execution Order
 
