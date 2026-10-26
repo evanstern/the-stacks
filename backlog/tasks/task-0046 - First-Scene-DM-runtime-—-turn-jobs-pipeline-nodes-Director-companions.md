@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 06:19'
+updated_date: '2026-10-26 06:27'
 labels:
   - first-scene
   - dm
@@ -98,6 +98,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 6 by sonnet-implementer: 40b6ea0. Merge condition met: one full turn on the worktree stack, fake gateway, scripted dice. Four model calls (director, interpret, narrate, audit); 1 roll, 1d20 = 14 against DC 13, a success; audit passed on attempt 1. Evidence: specs/031-dm-runtime/evidence/full-turn.json.
 The full-scene, reclaim and beat suites pass. The suite found and fixed a double tracker advance on reclaim. The server suite passes 650 tests; ci:check green. Every tasks.md box is ticked.
 Open finding: a crash inside submitNarration, after the row lands and before the checkpoint save, appends a second narration on reclaim. The orchestrator rules it be fixed in-task, not carded.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reclaim fix by sonnet-implementer: 13101f0. On reclaim the runner detects a landed ai:dm narration above the turn's lastSeq, then skips narrate and audit. That is sound because only one turn job runs per session. A new crash test asserts one narration and a log equal to the uninterrupted run. Merged origin/main in 050b496 with no migration conflict. The server suite passes 651 tests; ci:check green.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
