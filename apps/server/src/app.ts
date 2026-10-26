@@ -9,9 +9,11 @@ import { errorHandler, notFoundHandler } from "./errors.js";
 import type { AnswerDeps } from "./library/answer.js";
 import { listJobs } from "./library/ingest/jobs.js";
 import { createAuthRoutes } from "./routes/auth.js";
+import { createDmRoutes } from "./routes/dm.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createLibraryRoutes } from "./routes/library.js";
+import { loadProjections as loadSessionProjections } from "./session/projections.js";
 import { createWebMiddleware } from "./static.js";
 
 /** Ceiling on a single upload's file-part size (config.ts UPLOAD_MAX_BYTES). Test-safe default: 1 GiB. */
@@ -36,6 +38,11 @@ export interface CreateAppOptions {
     /** `POST /library/ask` wiring (specs/018-rules-answerer). Absent: `error{config}`. */
     answer?: Omit<AnswerDeps, "db">;
   };
+  /** `/dm` route wiring (specs/031-dm-runtime). Test-safe defaults below. */
+  dm?: {
+    /** Wakes the DM worker after an enqueue. */
+    nudge?: () => void;
+  };
 }
 
 /**
@@ -56,6 +63,7 @@ export function createApp({
   web,
   commit = "unknown",
   library,
+  dm,
 }: CreateAppOptions) {
   const app = new Hono();
   const validateSession = createValidateSession(db);
@@ -76,6 +84,16 @@ export function createApp({
       uploadDir: library?.uploadDir ?? os.tmpdir(),
       onEnqueued: library?.onEnqueued ?? (() => {}),
       answer: library?.answer,
+    }),
+  );
+  app.route(
+    "/dm",
+    createDmRoutes({
+      db,
+      validateSession,
+      nudge: dm?.nudge ?? (() => {}),
+      loadProjections: (sessionId) =>
+        loadSessionProjections(db, sessionId, { role: "dm" }),
     }),
   );
   // Mounted LAST (plan D4): the web app's own fallback must never shadow

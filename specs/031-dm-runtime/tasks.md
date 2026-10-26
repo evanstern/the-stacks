@@ -152,15 +152,15 @@ audit.md, director.md, nodes.md.
 **Goal**: the runtime runs by itself in the server. Contracts: turn-jobs.md, companions.md,
 dm-api.md.
 
-- [ ] T070 Create `apps/server/src/dm/worker.ts` (`startDmWorker`: poll and `nudge`, claim, heartbeat with abort on fence loss, build `TurnContext`, run turn/companion/chronicle jobs, finish fenced, queue after-turn jobs per turn-jobs.md, reconcile at start, `stop()`).
-- [ ] T071 Create `apps/server/src/dm/enqueue.ts` (`createDmEnqueuer`).
-- [ ] T072 Create `apps/server/src/dm/companion.ts` and `apps/server/src/dm/chronicle.ts` per companions.md.
-- [ ] T073 Create `apps/server/src/routes/dm.ts` and mount it in `app.ts`; wire `startDmWorker` and `gate.onAppended(enqueuer.onAppended)` in `index.ts`; log unconfigured `dm.*` purposes at boot by name.
-- [ ] T074 Add the `apps/server/src/dm/**` Biome override (plan: Constitution Check III) and the violating fixture `fixtures/boundary-violations/apps/server/src/dm/bad.ts`; confirm `pnpm check:boundaries` fails without the rule.
-- [ ] T075 [P] Write `test/dm/boundary.test.ts`: under `dm/`, only `nodes/resolve.ts`, `companion.ts` and `chronicle.ts` reference `gate.submit`; no file under `dm/` imports a log writer (reuse `test/helpers/import-graph.ts`); confirm `test/write-boundary.test.ts` still passes with `dm/` present.
-- [ ] T076 Write `test/dm/companion.integration.test.ts` (DB): an active companion in turn mode talks, declares and commits with authority `active-player` as `ai:companion:<id>`; a non-active companion's commit is refused `COMMIT_NOT_ALLOWED` and recorded; a null act in turn mode is replaced and committed; a `hold` companion job ends by forcing the queued turn.
-- [ ] T077 Write `test/dm/chronicle.integration.test.ts` (DB): a finished turn queues one chronicle job; no turn job waits for it; entries land as `journal` rows with `sourceActionIds`; a second run with nothing new writes nothing.
-- [ ] T078 Write `test/dm/routes.integration.test.ts` (DB): start → 202 and a `scene-start` job; a second start → 409; a bad seed id → 400 with issues; `turn` → 202; `turns` lists records without prose; 401 and 403 for no session and a player.
+- [x] T070 Create `apps/server/src/dm/worker.ts` (`startDmWorker`: poll and `nudge`, claim, heartbeat with abort on fence loss, build `TurnContext`, run turn/companion/chronicle jobs, finish fenced, queue after-turn jobs per turn-jobs.md, reconcile at start, `stop()`).
+- [x] T071 Create `apps/server/src/dm/enqueue.ts` (`createDmEnqueuer`).
+- [x] T072 Create `apps/server/src/dm/companion.ts` and `apps/server/src/dm/chronicle.ts` per companions.md.
+- [x] T073 Create `apps/server/src/routes/dm.ts` and mount it in `app.ts`; wire `startDmWorker` and `gate.onAppended(enqueuer.onAppended)` in `index.ts`; log unconfigured `dm.*` purposes at boot by name.
+- [x] T074 Add the `apps/server/src/dm/**` Biome override (plan: Constitution Check III) and the violating fixture `fixtures/boundary-violations/apps/server/src/dm/bad.ts`; confirm `pnpm check:boundaries` fails without the rule.
+- [x] T075 [P] Write `test/dm/boundary.test.ts`: under `dm/`, only `nodes/resolve.ts`, `companion.ts` and `chronicle.ts` reference `gate.submit`; no file under `dm/` imports a log writer (reuse `test/helpers/import-graph.ts`); confirm `test/write-boundary.test.ts` still passes with `dm/` present.
+- [x] T076 Write `test/dm/companion.integration.test.ts` (DB): an active companion in turn mode talks, declares and commits with authority `active-player` as `ai:companion:<id>`; a non-active companion's commit is refused `COMMIT_NOT_ALLOWED` and recorded; a null act in turn mode is replaced and committed; a `hold` companion job ends by forcing the queued turn.
+- [x] T077 Write `test/dm/chronicle.integration.test.ts` (DB): a finished turn queues one chronicle job; no turn job waits for it; entries land as `journal` rows with `sourceActionIds`; a second run with nothing new writes nothing.
+- [x] T078 Write `test/dm/routes.integration.test.ts` (DB): start → 202 and a `scene-start` job; a second start → 409; a bad seed id → 400 with issues; `turn` → 202; `turns` lists records without prose; 401 and 403 for no session and a player.
 
 **Checkpoint**: committing an action in a running server produces a DM turn.
 
@@ -199,6 +199,12 @@ fake-gateway-script.md.
 - Phase 4: damage lines name a damage type only for rows appended this turn (read from the `hp.changed` event). A row replayed from `priorSteps` has no type in the ledger and reads "takes N (before→after HP)".
 - Phase 4: T058 asserts the approved batch appears in `priorSteps`; the "approving enqueues a turn job" half waits for `createDmEnqueuer` in Phase 5 (T071) and is covered there.
 - Phase 4: T059's scripts `audit-regenerate.json` and `audit-fallback.json` were written now (T090 lists them for Phase 6). The audit name check matches the full name, its first word or its last word.
+- Phase 5: `claimDmJob` takes an optional `onAbandoned` callback; the worker passes it to append the FR-012 failure notice for a job abandoned past `MAX_ATTEMPTS`. `LEASE_MS`, `HEARTBEAT_MS`, `POLL_MS` and `MAX_ATTEMPTS` moved to `jobs/queue.ts` (re-exported by `library/ingest/jobs.ts`) and `dm/jobs.ts` takes `DbClient` from `auth/session.ts`, so `dm/` imports nothing the new Biome rule forbids.
+- Phase 5: `createDmWorker` returns `{ processOne, drain, reconcile, nudge, stop }`; `startDmWorker` wraps it with the polling loop. Tests drive `drain()` instead of the loop. `createDmEnqueuer` takes a `loadProjections` dep to learn who proposed a decided proposal (no direct log read).
+- Phase 5: for the active companion in turn mode, an `invalid-output` result (not only a null `act`) is replaced by the hold-position act and committed, so the table cannot stall. In turn mode a non-null `act` with `commit: false` is also forced to commit.
+- Phase 5: a failed turn job stores `error: "stopped at <node>: <kind>"` (no `result`), and the `/dm` list reports `outcome: "failed"` from the job status. A companion or chronicle job that throws is failed with a fixed message and appends no notice; a failed `hold` companion job still forces the queued turn.
+- Phase 5: chronicle's "already chronicled" bound is the highest created seq of a non-rejected `chron-` journal proposal, or the seq of a directly applied `chron-` journal row, so a pending proposal also counts. Entry ids are `chron-<sessionShort>-<lastNarrationSeq>` with `-<i>` for later entries.
+- Phase 5: `T058`'s deferred half (an approval enqueues a turn) is covered in `test/dm/worker.integration.test.ts` with a stubbed proposal lookup over the real jobs table.
 
 ## Dependencies & Execution Order
 

@@ -143,6 +143,35 @@
     },
     {
       "includes": [
+        "apps/server/src/dm/**",
+        "fixtures/boundary-violations/apps/server/src/dm/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/events/**",
+                      "**/library/ingest/**",
+                      "**/library/store*",
+                      "**/codex/**",
+                      "**/ws/**"
+                    ],
+                    "message": "dm must not import the log writers, ingestion, the library store, codex or ws \u2014 session state is written only through the gate (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
         "apps/server/src/codex/**",
         "fixtures/boundary-violations/apps/server/src/codex/**"
       ],

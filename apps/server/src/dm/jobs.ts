@@ -1,10 +1,14 @@
 import { RefIdSchema } from "@the-stacks/session-model";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import type { DbClient } from "../auth/session.js";
 import { isUniqueViolation } from "../db.js";
-import { finishJob, saveResult } from "../jobs/queue.js";
-import { LEASE_MS, MAX_ATTEMPTS } from "../library/ingest/jobs.js";
-import type { DbClient } from "../library/store.js";
+import {
+  finishJob,
+  LEASE_MS,
+  MAX_ATTEMPTS,
+  saveResult,
+} from "../jobs/queue.js";
 import { jobs } from "../schema/jobs.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { AuditRecord } from "./nodes/audit.js";
@@ -113,7 +117,17 @@ interface ClaimRow {
  * a queued claim) returns null. A claim past `MAX_ATTEMPTS` is failed and
  * returns null.
  */
-export async function claimDmJob(db: DbClient): Promise<ClaimedDmJob | null> {
+export async function claimDmJob(
+  db: DbClient,
+  opts: {
+    /** Called after a job past MAX_ATTEMPTS is failed (FR-012: append the failure notice). */
+    onAbandoned?: (job: {
+      id: string;
+      kind: DmJobKind;
+      sessionId: string;
+    }) => Promise<void> | void;
+  } = {},
+): Promise<ClaimedDmJob | null> {
   let rows: unknown[];
   try {
     ({ rows } = await db.execute(sql`
@@ -161,6 +175,11 @@ export async function claimDmJob(db: DbClient): Promise<ClaimedDmJob | null> {
   if (row.attempts > MAX_ATTEMPTS) {
     await finishJob(db, row, {
       error: `abandoned ${MAX_ATTEMPTS} times (process died mid-job)`,
+    });
+    await opts.onAbandoned?.({
+      id: row.id,
+      kind: row.kind,
+      sessionId: row.sessionId,
     });
     return null;
   }

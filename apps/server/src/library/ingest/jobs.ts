@@ -4,6 +4,10 @@ import { z } from "zod";
 import { isUniqueViolation } from "../../db.js";
 import { ConflictError } from "../../errors.js";
 import {
+  HEARTBEAT_MS,
+  LEASE_MS,
+  MAX_ATTEMPTS,
+  POLL_MS,
   finishJob as queueFinishJob,
   heartbeat as queueHeartbeat,
   setStage as queueSetStage,
@@ -18,10 +22,7 @@ import type { DbClient } from "../store.js";
  * wakes up is fenced out rather than corrupting a reclaimed job.
  */
 
-export const LEASE_MS = 60_000;
-export const HEARTBEAT_MS = 10_000;
-export const POLL_MS = 2_000;
-export const MAX_ATTEMPTS = 3;
+export { HEARTBEAT_MS, LEASE_MS, MAX_ATTEMPTS, POLL_MS };
 
 export type JobFormat = "zip" | "html" | "markdown";
 export type JobState = "queued" | "running" | "succeeded" | "failed";

@@ -11,6 +11,12 @@ import { jobs } from "../schema/jobs.js";
  * kinds.
  */
 
+/** Lease and polling constants shared by every worker of the queue. */
+export const LEASE_MS = 60_000;
+export const HEARTBEAT_MS = 10_000;
+export const POLL_MS = 2_000;
+export const MAX_ATTEMPTS = 3;
+
 /** The minimum a fenced write needs: the job id and the claim token. */
 export interface FencedJob {
   id: string;
