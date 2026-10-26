@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:09'
+updated_date: '2026-10-26 02:13'
 labels:
   - first-scene
   - engine
@@ -47,8 +47,8 @@ Spec: specs/026-dnd5e-engine
 - [x] #13 Spec phase: Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9)
 - [x] #14 Spec phase: User Story 2 — combatants, HP and damage defenses, temporary HP, life states, death saves (AC #4, #7)
 - [x] #15 Spec phase: User Story 6 — attacks, checks and saves (AC #2, #9, #11; research R8)
-- [ ] #16 Spec phase: User Stories 3 and 4 — conditions, initiative and turns (AC #5, #6)
-- [ ] #17 Spec phase: User Story 5 — rests and spell slots (AC #8)
+- [x] #16 Spec phase: User Stories 3 and 4 — conditions, initiative and turns (AC #5, #6)
+- [x] #17 Spec phase: User Story 5 — rests and spell slots (AC #8)
 - [ ] #18 Spec phase: Polish — coverage meta-test, replay scene, docs, full gate (AC #9, #11)
 <!-- AC:END -->
 
@@ -72,6 +72,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phases 3 and 4 by sonnet-implementer: 326a071, aef24cd. 123 engine tests pass; ci:check green.
 Interpretation recorded under contract damage rule 5: a target at 0 HP takes a death-save failure whenever the applied damage is above 0, even when temp HP absorbs all of it.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phases 5 and 6 by sonnet-implementer: eaa7407, ac0182d. 179 engine tests pass; ci:check green; no deviations.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
