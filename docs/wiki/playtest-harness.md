@@ -19,7 +19,7 @@ sources:
   - apps/server/playtests/scenarios/greyhollow-ford.json
   - apps/server/test/playtest/playtest.integration.test.ts
   - .env.example
-verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
+verified_against: 77e6c7553496d8d5eafb85f958656625b9ccd9f2
 ---
 
 # Playtest harness
@@ -39,7 +39,7 @@ gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`,
 `dice.ts`'s `scenarioRng`: the scenario's scripted faces, then `seededRng(seed)` (seed 0 if null). A scenario
 (`scenario.ts`, Zod `ScenarioSchema`, shipped `apps/server/playtests/scenarios/greyhollow-ford.json`)
 holds the seat, `moves.free`, `moves.combat`, `moves.fallback`, `limits` (`maxMoves`,
-`maxWallMs`), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture
+`maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture
 under `apps/server/playtests/fixtures/`. The manifest outcome is one of `ended`, `stalled`,
 `failed`, `budget-stopped`, `timed-out`.
 
@@ -55,7 +55,7 @@ another connection exists.
   It never spends.
 - **provider** (`--mode provider` only): `loadAiConfig(process.env)` drives real models. It is
   refused when `CI` is set, needs every `dm.*` purpose plus `playtest.audit`, a price in
-  `AI_PRICES` for each used `<provider>/<model>`, and `--spend-ceiling-usd`.
+  `AI_PRICES` for each used `<provider>/<model>`, and `--spend-ceiling-usd`. On the host, `host.docker.internal` base URLs become `localhost` (`PLAYTEST_HOST_NETWORK`).
 
 ## Cost guard
 
@@ -87,8 +87,8 @@ segment runs six pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
 
 | Check | Fails when |
 |---|---|
-| `prose-digits` | the narration prose (before the first blank line) has a digit |
-| `dice-lines` | the dice lines after it differ from lines rebuilt from the ledger (`collectFacts`, `renderRollLine`, `renderChangeLine`) |
+| `prose-digits` | the narration prose (all but the last blank-line block when every line of it is a dice line) has a digit |
+| `dice-lines` | that last block (lines with `→` or `: auto-fail`) differs from lines rebuilt from the ledger (`collectFacts`, `renderRollLine`, `renderChangeLine`) |
 | `life-states` | a life-state word and the ledger's life-state changes disagree |
 | `roll-reasons` | a ledger roll has an empty reason |
 | `hidden-info` | public text contains a seed `hooks.secrets` string, or discloses secret tracker state (`trackerStateDisclosures`: a segment count or fraction, or the words tracker/clock/segment beside a tracker's name or id) |
