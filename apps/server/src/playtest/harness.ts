@@ -11,14 +11,20 @@ import type { DbClient } from "../auth/session.js";
 import { createDmEnqueuer } from "../dm/enqueue.js";
 import { enqueueTurn, listDmJobs } from "../dm/jobs.js";
 import { createScriptedDm, loadDmScript } from "../dm/script/load.js";
+import { loadSeed } from "../dm/seed/load.js";
 import { createDmWorker } from "../dm/worker.js";
 import { createGate } from "../gate/index.js";
 import { loadProjections } from "../session/projections.js";
-import { renderTranscript } from "./auditor/render.js";
-import type { RunManifest } from "./auditor/schema.js";
+import { runAudit } from "./auditor/audit.js";
+import { renderReport, renderTranscript } from "./auditor/render.js";
+import { ReportSchema, type RunManifest } from "./auditor/schema.js";
 import { type DriverState, nextMove } from "./driver.js";
 import { exportSession, writeRunDir } from "./export.js";
-import type { Scenario } from "./scenario.js";
+import {
+  PLAYTEST_AUDIT_MAX_TOKENS,
+  PLAYTEST_AUDIT_PURPOSE,
+} from "./purpose.js";
+import { loadAuditScript, type Scenario } from "./scenario.js";
 
 /**
  * The playtest run (specs/032-playtest-harness plan.md "CI mode wiring"):
@@ -33,6 +39,8 @@ export interface RunPlaytestOptions {
   /** Run directory to write. */
   out: string;
   signal?: AbortSignal;
+  /** Skip the auditor; the run directory holds no report files. */
+  noAudit?: boolean;
 }
 
 const SETTLE_MS = 50;
@@ -82,6 +90,40 @@ export async function runPlaytest(
   const scripted = createScriptedDm(loadDmScript(readJson(ci.dmScript)));
   const retrieveResult = readJson(ci.retrieve);
   const retrieve = async () => retrieveResult;
+
+  // The scripted auditor queue shares the one strict provider (plan.md "CI mode wiring").
+  scripted.aiConfig.purposes[PLAYTEST_AUDIT_PURPOSE] = {
+    provider: "scripted",
+    model: "scripted-chat",
+    op: "chat",
+    maxTokens: PLAYTEST_AUDIT_MAX_TOKENS,
+  };
+  const auditScript = loadAuditScript(ci.auditScript);
+  for (const r of auditScript.responses) {
+    const { respond, usage } = r;
+    scripted.provider.scriptChatFor(
+      PLAYTEST_AUDIT_PURPOSE,
+      respond.type === "error"
+        ? [
+            {
+              type: "error",
+              kind: respond.kind,
+              message: respond.message,
+              usage,
+            },
+          ]
+        : [
+            {
+              type: "text",
+              text:
+                respond.type === "json"
+                  ? JSON.stringify(respond.value)
+                  : respond.value,
+            },
+            { type: "done", usage },
+          ],
+    );
+  }
 
   const sessionId = randomUUID();
   let idN = 0;
@@ -201,21 +243,46 @@ export async function runPlaytest(
   const finishedAt = new Date();
   const artifacts = await exportSession(db, sessionId);
   const records: UsageRecord[] = sink.records;
+  const models: RunManifest["models"] = {};
+  for (const [purpose, cfg] of Object.entries(scripted.aiConfig.purposes)) {
+    models[purpose] = { provider: cfg.provider, model: cfg.model };
+  }
+  const runId = `${utcStamp(startedAt)}-${scenario.name}-ci`;
+  const commit = gitCommit();
+  let report: ReturnType<typeof ReportSchema.parse> | undefined;
+  if (!opts.noAudit) {
+    let seed = null;
+    try {
+      seed = loadSeed(scenario.seedId);
+    } catch {
+      seed = null;
+    }
+    report = ReportSchema.parse(
+      await runAudit({
+        transcript: artifacts.transcript,
+        ledger: artifacts.ledger,
+        jobs: artifacts.jobs,
+        seed,
+        gateway,
+        models,
+        signal: opts.signal,
+        runId,
+        commit,
+      }),
+    );
+  }
   const totals = {
     calls: records.length,
     inputTokens: records.reduce((s, r) => s + r.inputTokens, 0),
     outputTokens: records.reduce((s, r) => s + r.outputTokens, 0),
     costUsd: null,
   };
-  const models: RunManifest["models"] = {};
-  for (const [purpose, cfg] of Object.entries(scripted.aiConfig.purposes)) {
-    models[purpose] = { provider: cfg.provider, model: cfg.model };
-  }
+  const remaining = scripted.remaining();
   const manifest: RunManifest = {
     v: 1,
-    runId: `${utcStamp(startedAt)}-${scenario.name}-ci`,
+    runId,
     mode: "ci",
-    commit: gitCommit(),
+    commit,
     sessionId,
     seedId: scenario.seedId,
     models,
@@ -224,7 +291,15 @@ export async function runPlaytest(
     outcome,
     ...(failedJobId ? { failedJobId } : {}),
     moves: { committed, refusals },
-    scriptRemaining: scripted.remaining(),
+    scriptRemaining: {
+      calls: {
+        ...remaining.calls,
+        [PLAYTEST_AUDIT_PURPOSE]: scripted.provider.pendingFor(
+          PLAYTEST_AUDIT_PURPOSE,
+        ),
+      },
+      dice: remaining.dice,
+    },
   };
   writeRunDir(path.resolve(out), {
     manifest,
@@ -237,6 +312,7 @@ export async function runPlaytest(
     ledger: artifacts.ledger,
     jobs: artifacts.jobs,
     usage: { records, totals },
+    ...(report ? { report, reportMd: renderReport(report) } : {}),
   });
   return manifest;
 }
