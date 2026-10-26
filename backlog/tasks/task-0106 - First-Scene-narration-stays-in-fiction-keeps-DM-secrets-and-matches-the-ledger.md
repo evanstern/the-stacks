@@ -41,7 +41,10 @@ Spec: specs/034-narration-quality
 - [ ] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
+- [ ] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
