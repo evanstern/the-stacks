@@ -103,3 +103,65 @@ with it. The fake gateway scripts queue by purpose, not by version
 
 None. JSON extraction is a string-aware brace scan in `call.ts`. No vendor SDK
 (decision-0007).
+
+## R10. The interpret evidence (amendment, 2026-10-26)
+
+R7 already names where the runs happen, so the interpret reading takes the next free number.
+
+**Run**: `evidence/verify-20261026T152743Z-greyhollow-ford-provider/` (Phase 4). No turn job
+failed at the director. 4 moves committed. The run stopped at **interpret** on an `npc-turn`
+job (triggerSeq 61, `act-kestrel-1` in the beat plus the goblin turn). Spend $1.00 over 51
+calls, under the $22 ceiling. Fixture:
+`apps/server/test/dm/fixtures/interpret-capture-20261026T152743Z-greyhollow-ford-provider.json`.
+Model `cc/claude-sonnet-5`, `dm.interpret` maxTokens 1200, prompt `dm.interpret-v1`.
+
+| Attempt | outputTokens | chars | Issue | Reading |
+|---|---|---|---|---|
+| 1 | 1200 (= cap) | 331 | `not valid JSON: Unexpected token '`'` | Opened a ```` ```json ```` fence, then was cut mid-step. `stripFence` needs a closing fence, so the open fence is the first bad token. Catalog row I2. |
+| 2 | 718 | 1014 | `readings.0.steps.0.onSuccess.0.condition: Invalid option` | Valid JSON. A Perception check's `onSuccess` applied the condition `spotted-lookout` to Kestrel. The model used a condition to record a narrative outcome. Catalog row I1. |
+
+**Reading on tokens.** Attempt 1 reported 1200 output tokens for 331 visible characters (about
+90 tokens of text). Attempt 2 reported 718 tokens for 1014 characters (about 250 tokens). The
+director capture shows the same gap (783 tokens for 584 characters). The provider counts tokens
+the excerpt does not show, most likely hidden reasoning, against `maxTokens`. Prompt brevity
+alone therefore cannot prevent I2. The `maxTokens` raise is the load-bearing lever. The
+successful `dm.interpret` calls in the same run reported 155, 671, 857, 664 and 718 output
+tokens. The orchestrator proposes the new value from these numbers at the Phase 4b checkpoint
+(T035). This is a reading, not a fix: no finish-reason passthrough and no code cap (ruling 3).
+
+**Decision**: interpret stays strict (`contracts/interpret-output.md` invariants). The fix is
+prompt v2 (I1, I2), the `maxTokens` checkpoint (I2) and the skill gate (I3, by the operator
+requirement). A normalizer that drops or rewrites `spotted-lookout` is rejected: it would let a
+model-invented rules term pass a gate silently, which the operator requirement forbids.
+
+**Alternatives rejected**: mapping an unknown condition to narration (silent rewrite of a
+mechanic); dropping an invalid effect (changes what the engine is asked to do); adding
+`spotted-lookout`-style free conditions (an ungated rules term).
+
+## R11. Rules-term gate audit and the skill key list
+
+The audit table, the skill key list, where the enum lives, and every file whose skill value
+changes are in [contracts/rules-terms.md](contracts/rules-terms.md).
+
+**Decisions**:
+
+- **Keys**: the 18 SRD 5.2.1 skills in lowercase kebab-case (`animal-handling`,
+  `sleight-of-hand`). The shipped seed already uses lowercase single-word keys. Real model output
+  in both paid runs already used lowercase (`medicine`, `perception`, `persuasion`).
+- **Source**: one `z.enum` in the engine (`schema/state.ts`, beside `ConditionKeySchema`),
+  used by `check.roll`. The server derives it from the `check.roll` command shape, as it derives
+  `AbilitySchema`.
+- **Events stay wide**: `check.resolved.skill` stays `z.string().nullable()`. Stored events with
+  title-case skills exist in local stacks and tracked evidence. Narrowing needs an event version
+  bump (constitution IV). New events carry a valid key because the command gate runs first.
+- **Seed**: the seed's character `skills` keys and clue `check.skill` use the same enum. A seed
+  with an unknown skill fails to load.
+- **Prompts render the lists**: conditions, skills and damage types are rendered into
+  `STEP_GRAMMAR` from the enums. `STEP_GRAMMAR` is shared with adjudicate, which emits the same
+  `StepSchema`. Both prompt versions bump. Without the list in the adjudicate prompt, the new
+  skill gate would add an adjudicate failure mode.
+- **Not gated, carded**: spells (TASK-0105) and model-chosen modifiers and DCs (TASK-0104).
+  Operator ruling 2026-10-26: both are m-3 and do not block the M2 demo.
+
+**Dependencies**: none new. **Migration**: none. The skill gate changes Zod schemas only; no
+table or column changes, and no stored row is rewritten.

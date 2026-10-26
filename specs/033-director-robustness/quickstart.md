@@ -54,18 +54,30 @@ needs its own operator-approved spend ceiling, recorded on TASK-0102 before the 
 }
 ```
 
-## C. Verification run (Phase 4)
+## C. Verification run (Phase 4; rerun in Phase 4b)
 
+0. Phase 4b only: complete the T035 checkpoint first. Propose a `dm.interpret` `maxTokens` value
+   from research R10. Record the operator's decision on the card. The operator sets it in
+   `.env`, or approves the orchestrator setting it. Restart the composite stack's server so it
+   reads the new value. Record the value in effect on the card.
 1. Merge this branch's latest tip into the composite worktree (step A4 again).
 2. Ask the operator for a spend ceiling. Record it on the card.
 3. Run the same command as B3.
 4. Read `run.json` and `jobs.json`.
-5. Pass when the run commits at least 4 moves and no turn job failed with
-   `stopped at director: invalid-output`.
+5. Pass when both hold:
+   - the run commits at least 4 moves;
+   - no turn job failed with `stopped at director: invalid-output` or
+     `stopped at interpret: invalid-output`.
+
+   The target outcome is `completed` (the scene ends). Any other failed turn job is a failure of
+   another kind. Commit its record as a fixture (step 8) and stop for an operator ruling, even
+   when the pass rule holds. Keep the spend ceiling handling as is: the harness stops at the
+   operator-approved ceiling.
 6. Copy the run directory to `specs/033-director-robustness/evidence/verify-<runId>/`.
 7. Record the outcome, the spend and the pass or fail on the card.
-8. On a fail, read the new failure record (B5). Commit it as a second fixture. Report to the
-   operator before any further spend.
+8. On a fail, or on a failure of another kind, read the new failure record (B5). Commit it as a
+   fixture under `apps/server/test/dm/fixtures/` (`<node>-capture-<runId>.json`, B fixture
+   shape). Report to the operator before any further spend.
 
 ## D. Scripted CI playtest (Phase 5)
 

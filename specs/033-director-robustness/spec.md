@@ -23,6 +23,16 @@ Run 2's first attempt hit its cap and its JSON was truncated. Run 4's attempts w
 cap and both still failed the schema. The schema issues are unknown: `callJson` builds them in
 `detail.issues`, but the worker stores only the fixed string `stopped at <node>: <kind>`.
 
+**Amendment (2026-10-26)**: the Phase 4 verification run
+(`evidence/verify-20261026T152743Z-greyhollow-ford-provider/`) had no director failure. It
+stopped at **interpret**. Operator ruling on the card (verbatim): "amend spec 033 to cover the
+interpret failure too, fix it in TASK-0102's PR, and rerun verification before Phase 5."
+Operator requirement (verbatim): "Conditions, spells, and other "rules" with definitions
+absolutely need to be deterministically defined and resolvable. It should not be possible for
+the AI to "invent" a condition without it being rejected by a gating mechanism." The amendment
+adds US5, FR-018 to FR-028, SC-005 and SC-006, `contracts/interpret-output.md`,
+`contracts/rules-terms.md`, research R10 and R11, and Phases 3b and 4b in `tasks.md`.
+
 **Clarify**: skipped. The card, the runbook amendment and the dispatch settle every decision
 this spec needs. The remaining choices have defaults recorded under Assumptions and in
 `research.md`; none changes scope.
@@ -113,6 +123,37 @@ leniency rule must never touch an engine-owned number.
    pass.
 2. **Given** the changes, **When** the scripted CI playtest runs, **Then** it passes.
 
+---
+
+### User Story 5 - Interpret output from real models is valid; invented rules terms are rejected (Priority: P1)
+
+With real models through the gateway, the interpret node yields output the pipeline accepts.
+A rules term outside its closed list (a condition, a skill, a damage type) is still rejected by
+the schema. The model is told each closed list, so it does not need to invent one.
+
+**Why this priority**: the Phase 4 verification run stopped at interpret. The M2 demo cannot
+reach the scene's end without it. The operator requires that no model can invent a rules term
+past a gate.
+
+**Independent Test**: the interpret fixture test runs offline. Each captured attempt fails the
+strict parse with its captured issue. A schema test rejects an unknown skill and an unknown
+condition. A prompt snapshot shows every closed list rendered from its enum.
+
+**Acceptance Scenarios**:
+
+1. **Given** the interpret fixture, **When** the reproduction test runs, **Then** attempt 1
+   fails with `not valid JSON` and attempt 2 fails at
+   `readings.0.steps.0.onSuccess.0.condition`.
+2. **Given** a check step whose `skill` is not one of the 18 SRD skill keys, **When** it is
+   parsed by the engine's `check.roll` command or by `StepSchema`, **Then** it is rejected.
+3. **Given** the interpret prompt v2, **When** it is built, **Then** it lists every condition
+   key, skill key and damage type from their enums, and states that a narrative outcome is
+   narration with no effect.
+4. **Given** the fix and the raised `dm.interpret` maxTokens, **When** the orchestrator reruns
+   the verification playtest, **Then** no turn job fails with `stopped at director:
+   invalid-output` or `stopped at interpret: invalid-output`, and the run commits at least 4
+   moves.
+
 ### Edge Cases
 
 - The capture run does not reproduce the failure (model output is not deterministic). The
@@ -127,6 +168,13 @@ leniency rule must never touch an engine-owned number.
   checkpoint stays.
 - A leniency rule would change a number. It is not allowed; the output stays invalid and the
   re-ask runs.
+- Interpret invents a condition again after the prompt v2. The schema rejects it and the re-ask
+  runs. A second failure is committed as a fixture and stops for an operator ruling. It is
+  never mapped or dropped.
+- The verification rerun fails at a node other than director or interpret. Its failure record
+  is committed as a fixture and the orchestrator stops for an operator ruling (FR-028).
+- A stored engine event holds a title-case skill (`"Investigation"`). It still parses: the
+  event schema stays wide (`contracts/rules-terms.md`).
 
 ## Requirements *(mandatory)*
 
@@ -172,6 +220,45 @@ leniency rule must never touch an engine-owned number.
 - **FR-016**: A provider-mode playtest MUST pass the turn where runs 2 and 4 failed with no
   director `invalid-output`. The orchestrator runs it under an operator-approved ceiling.
 
+**Fix, interpret (AC #3, amendment 2026-10-26)**
+
+The card's AC #3 names the director. The operator ruling extends it to interpret. These
+requirements prove that extension; the card text is unchanged.
+
+- **FR-018**: The interpret fix MUST be chosen from the catalog in
+  `contracts/interpret-output.md`. Rows I1 and I2 are selected by the evidence; row I3 by the
+  operator requirement.
+- **FR-019**: `InterpretOutput`, `StepSchema` and `EffectSchema` MUST NOT gain leniency. No
+  normalizer runs for interpret. No condition, skill, damage type, ability or number is mapped,
+  coerced, defaulted or dropped.
+- **FR-020**: A test MUST reproduce both captured interpret attempts from the fixture with no
+  provider, with the captured issue for each attempt.
+- **FR-021**: `skill` MUST be a closed enum of the 18 SRD 5.2.1 skills in lowercase kebab-case,
+  defined once in the engine (`contracts/rules-terms.md`). The engine's `check.roll`, the
+  server's `StepSchema` and the scene seed schema MUST all use it.
+- **FR-022**: The engine change MUST have scripted tests: each key accepted, an unknown or
+  title-case key refused as `INVALID_COMMAND`, null accepted.
+- **FR-023**: The `check.resolved` event schema MUST keep `skill` as a nullable string, so
+  existing logs still parse.
+- **FR-024**: Every existing test, script and fixture that names a skill MUST use a key from the
+  enum (list in `contracts/rules-terms.md`). The shipped seed already conforms.
+- **FR-025**: The interpret prompt MUST render the allowed condition keys, skill keys and damage
+  types from their enums at runtime. It MUST state that a condition effect uses only a listed
+  key, and that a narrative outcome is narration with no effect. It MUST give one complete
+  minimal check-step example that parses under `InterpretOutput`. It MUST say "Reply with one
+  JSON object, no prose, no code fence", ask for one sentence per `reason`, and state each
+  field cap in words.
+- **FR-026**: The interpret prompt version MUST become `dm.interpret-v2`. The shared step
+  grammar change MUST bump the adjudicate prompt to `dm.adjudicate-v2`. A prompt snapshot test
+  MUST cover both lists and the example.
+- **FR-027**: Before the verification rerun, the operator MUST decide the `dm.interpret`
+  maxTokens in the operator-owned `.env`. The orchestrator proposes a value from R10. No
+  implementer edits `.env`. No code cap and no finish-reason passthrough is added.
+- **FR-028**: A provider-mode verification rerun MUST commit at least 4 moves with no turn job
+  failed as `stopped at director: invalid-output` or `stopped at interpret: invalid-output`. The
+  target outcome is `completed`. A failure of any other kind is committed as a fixture and stops
+  for an operator ruling.
+
 **Regression (AC #4)**
 
 - **FR-017**: Every existing dm test, the full gate and the scripted CI playtest MUST pass.
@@ -183,8 +270,13 @@ leniency rule must never touch an engine-owned number.
 - **CR-002** (II. Content contract): No new codex entity. The failure record and the fixture
   each have a TypeScript type and a documented shape (`contracts/`).
 - **CR-003** (V. Citations): Not applicable. This feature draws no claim from the library.
-- **CR-004** (VI. 5e engine boundary): No mechanics change. No leniency rule touches a number;
-  the engine still owns every number (TASK-0042 R8).
+- **CR-004** (VI. 5e engine boundary): No leniency rule touches a number; the engine still
+  owns every number (TASK-0042 R8). The amendment's one engine change narrows `check.roll`
+  `skill` to a closed enum. It is a validation change, not a mechanic: no number, roll or
+  outcome changes. Scripted-dice tests cover it.
+- **CR-006** (operator requirement 2026-10-26): Every rules term a model emits MUST be gated by
+  a closed list or a data lookup, or be named in `contracts/rules-terms.md` with a follow-up
+  card. Spells (TASK-0105) and model-chosen modifiers and DCs (TASK-0104) are the carded gaps.
 - **CR-005** (VIII. Operator-owned content): The fixture holds model output about the shipped
   Greyhollow Ford seed only. The director prompt carries no library passage, so no book text
   can reach the fixture.
@@ -197,6 +289,12 @@ leniency rule must never touch an engine-owned number.
   output tokens, character count, bounded text.
 - **Captured director fixture**: a committed JSON file holding one real failure record plus the
   run's provenance.
+- **Skill key**: one of the 18 SRD 5.2.1 skills, lowercase kebab-case. Defined once as the
+  engine's `SkillSchema` (`contracts/rules-terms.md`).
+- **Rules term**: a value with a rules definition that a model can emit (condition, skill,
+  damage type, ability, citation, spell, modifier, DC). Each has a gate or a follow-up card.
+- **Captured interpret fixture**: the committed failure record of the Phase 4 run's interpret
+  failure, with its provenance.
 - **Normalization step**: the named pre-validation function that applies the allowed leniency
   rules to parsed director JSON before the strict schema runs.
 
@@ -208,9 +306,15 @@ leniency rule must never touch an engine-owned number.
   re-run.
 - **SC-002**: The verification playtest commits at least 4 moves and every turn job after them
   either completes or fails at a node other than the director with a stored failure record.
+  (Phase 4 met this. The amendment's rerun is held to SC-005.)
 - **SC-003**: Zero leniency rules act on a numeric field (checked by a test over the rule
   list).
-- **SC-004**: Paid spend for this task stays within the two operator-approved ceilings.
+- **SC-004**: Paid spend for this task stays within the operator-approved ceilings (one per
+  paid run, including the Phase 4b rerun).
+- **SC-005**: The Phase 4b verification rerun commits at least 4 moves, and no turn job fails as
+  `stopped at director: invalid-output` or `stopped at interpret: invalid-output`.
+- **SC-006**: Zero rules terms outside their closed lists pass the schema: a test per gated term
+  (condition, skill, damage type, ability) shows an unknown value rejected.
 
 ## Assumptions
 
@@ -223,7 +327,9 @@ leniency rule must never touch an engine-owned number.
 - Side jobs (companion, chronicle) keep their current failure handling. The card scopes the
   record to turn jobs.
 - `maxTokens` per purpose is operator configuration (`AI_PURPOSES`), not code. The verification
-  run uses the operator's current setting; this spec raises no default.
+  run uses the operator's current setting; this spec raises no default. The Phase 4b rerun
+  uses the `dm.interpret` value the operator sets at the T035 checkpoint.
+- The amendment needs no migration. The skill gate changes Zod schemas only.
 - The TASK-0048 harness is not on `main`. The orchestrator runs capture and verification in a
   local composite worktree that merges this branch onto the TASK-0048 branch tip. Nothing in
   that worktree is pushed.

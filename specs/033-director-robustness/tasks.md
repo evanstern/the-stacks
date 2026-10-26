@@ -5,16 +5,19 @@ description: "Task list for director robustness (TASK-0102)"
 # Tasks: First Scene — director output survives real models; failed jobs keep their error detail
 
 **Input**: `specs/033-director-robustness/` — spec.md, plan.md, research.md, quickstart.md,
-contracts/failure-record.md, contracts/director-output.md.
+contracts/failure-record.md, contracts/director-output.md; amendment 2026-10-26:
+contracts/interpret-output.md, contracts/rules-terms.md, research R10 and R11.
 
 **Tests**: required. Every card AC is proven by a named test or a recorded run below.
 
-**Dispatch unit**: Phases 1, 3 (fix part) and 5 are implementer dispatches (sonnet). Phases 2,
-3 (classification part) and 4 are **orchestrator-run**. Never dispatch them. Run phases in
-order.
+**Dispatch unit**: Phases 1, 3 (fix part), 3b and 5 are implementer dispatches (sonnet).
+Phases 2, 3 (classification part), 4 and 4b are **orchestrator-run**. Never dispatch them. Run
+phases in order: 1, 2, 3, 4, 3b, 4b, 5.
 
 **Gate for every dispatched phase** (run before the phase's commit):
 `pnpm lint && pnpm typecheck && pnpm --filter @the-stacks/server test && pnpm check:boundaries`.
+Phase 3b also runs `pnpm --filter @the-stacks/dnd5e-engine test` and
+`pnpm --filter @the-stacks/session-model test`, because it changes the engine's command schema.
 Phase 5 runs `pnpm ci:check`.
 
 **Database suites**: run on the worktree's own stack. Run `pnpm env:up`. Run
@@ -33,7 +36,8 @@ WebSocket failure. Record each re-run in the phase's commit message.
 |---|---|
 | #1 failure record with issues, purpose, bounded excerpt; a test | T003, T004, T006 |
 | #2 real output captured and committed; a test reproduces it | T010, T011, T014 |
-| #3 a provider playtest passes the old failure turn with no director invalid-output | T015 (offline), T019 (paid run) |
+| #3 a provider playtest passes the old failure turn with no director invalid-output | T015 (offline), T019 (paid run; director part met) |
+| #3, interpret extension (amendment; FR-018–FR-028) | T025, T027, T030, T033 (offline), T037 (paid rerun) |
 | #4 existing dm tests green; scripted CI playtest passes | T021, T022 |
 
 ---
@@ -117,14 +121,100 @@ WebSocket failure. Record each re-run in the phase's commit message.
 
 ## Phase 4: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 
+**Ran 2026-10-26.** Run `20261026T152743Z-greyhollow-ford-provider`
+(`evidence/verify-20261026T152743Z-greyhollow-ford-provider/`). No director failure; 4 moves
+committed; spend $1.00 under the $22 ceiling. The run stopped at **interpret**
+(`stopped at interpret: invalid-output`). T020 committed the fixture
+`apps/server/test/dm/fixtures/interpret-capture-20261026T152743Z-greyhollow-ford-provider.json`
+and stopped. The operator ruling led to this amendment (Phases 3b and 4b). T019 and T020 stay
+unticked: the run did not reach `completed`, and Phase 4b's rerun is the verification of
+record.
+
 - [ ] T018 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
   the operator's spend ceiling. Record it on the card.
 - [ ] T019 Orchestrator: run the verification (quickstart C). Commit the evidence directory.
-  Record pass or fail, spend and the run id on the card.
+  Record pass or fail, spend and the run id on the card. *(Ran: director part passed; stopped at
+  interpret. Superseded by T037.)*
 - [ ] T020 Orchestrator: on a fail, commit the new failure record as a second fixture and stop
-  for an operator ruling. Do not start Phase 5.
+  for an operator ruling. Do not start Phase 5. *(Done for the interpret failure: fixture
+  committed; operator ruled to amend.)*
 
-**Checkpoint**: AC #3 met.
+**Checkpoint**: the director part of AC #3 met. The interpret part moves to Phases 3b and 4b.
+
+---
+
+## Phase 3b: Interpret fix and the skill gate (US5; AC #3, amendment) — DISPATCH (sonnet)
+
+**Goal**: interpret output from real models parses; no invented rules term passes a gate.
+Contracts: `contracts/interpret-output.md`, `contracts/rules-terms.md`.
+
+**Rules for this phase**: interpret stays strict. Add no normalizer. Never map, coerce or drop
+a condition, skill, damage type, ability or number. Never edit `.env`.
+
+- [ ] T025 [US5] In `apps/server/test/dm/interpret-capture.test.ts`, load the interpret fixture.
+  Parse each attempt's `excerpt` as `parseAgainst` does: `stripFence`, `JSON.parse`, then
+  `InterpretOutput.safeParse`. Assert attempt 1 throws in `JSON.parse` (`not valid JSON`).
+  Assert attempt 2 fails with issue path `readings.0.steps.0.onSuccess.0.condition`. Assert
+  the fixture's `promptVersion` is `dm.interpret-v1`. Run it on the unfixed code. Commit it
+  green.
+- [ ] T026 [US5] In `packages/dnd5e-engine/src/schema/state.ts`, add `SkillSchema` (the 18 keys
+  in `contracts/rules-terms.md`) and `type Skill`. In `schema/commands.ts`, set `check.roll`
+  `skill: SkillSchema.nullable().default(null)`. Export both from `src/index.ts`. Leave
+  `schema/events.ts` unchanged.
+- [ ] T027 [P] [US5] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted
+  tests: each of the 18 keys rolls a `check.resolved` with that key; `"Perception"`,
+  `"sleight of hand"` and `"spotting"` are refused with `INVALID_COMMAND` via `expectRefusal`;
+  `null` and an omitted skill still resolve. Run the engine tests.
+- [ ] T028 [US5] In `apps/server/src/dm/nodes/schemas.ts`, derive `SkillSchema` from the
+  engine's `check.roll` command shape, like `AbilitySchema`. Unwrap the default and the
+  nullable. Throw at load when the inner schema is not an enum. Set `StepSchema` check
+  `skill: SkillSchema.nullable()`. Export `CONDITION_KEYS` and `SKILL_KEYS` option arrays
+  from the uncast enums.
+- [ ] T029 [US5] In `apps/server/src/dm/seed/schema.ts`, use `SkillSchema` from
+  `../nodes/schemas.js` for character `skills` keys (`z.partialRecord`) and clue
+  `check.skill` (nullable). Confirm `apps/server/seeds/greyhollow-ford.json` still loads.
+- [ ] T030 [P] [US5] Update every skill value listed in `contracts/rules-terms.md` ("Files whose
+  skill values change") to its kebab key. Update any assertion that reads one back. Add
+  `apps/server/test/dm/rules-terms.test.ts`: `StepSchema` rejects an unknown skill, a
+  title-case skill and the condition `spotted-lookout`; `EffectSchema` rejects an unknown
+  damage type; `StepSchema` rejects an unknown ability; the server `SKILL_KEYS` equal the
+  engine `SkillSchema.options`. In `apps/server/test/dm/seed.test.ts`, assert a seed with an
+  unknown skill key fails to load.
+- [ ] T031 [US5] In `apps/server/src/dm/prompts/common.ts`, make `STEP_GRAMMAR` render the
+  condition keys, skill keys and damage types from `CONDITION_KEYS`, `SKILL_KEYS` and
+  `DamageTypeSchema.options`. Add the narrative-outcome sentence. Follow
+  `contracts/interpret-output.md` "Prompt shape" items 1 and 2.
+- [ ] T032 [US5] In `apps/server/src/dm/prompts/interpret.ts`, apply "Prompt shape" items 3–5:
+  the no-fence line, one sentence per `reason`, each cap in words, and one complete minimal
+  check-step example held as an object and rendered with `JSON.stringify`. Set
+  `PROMPT_VERSION` to `dm.interpret-v2`. In `prompts/adjudicate.ts`, set `PROMPT_VERSION` to
+  `dm.adjudicate-v2`. Update every test that pins either version.
+- [ ] T033 [US5] Add `apps/server/test/dm/interpret-prompt.test.ts`: the system prompt holds every
+  `CONDITION_KEYS`, `SKILL_KEYS` and damage-type value; it holds the narrative-outcome sentence
+  and the no-fence line; the example object parses under `InterpretOutput`; an inline snapshot
+  of `STEP_GRAMMAR` plus the interpret `OUTPUT_SHAPE`. Assert the adjudicate system prompt
+  also holds the three lists.
+- [ ] T034 Run the phase gate and the database suites. Commit. Push the branch.
+
+**Checkpoint**: the interpret part of AC #3 holds offline. The skill gate is in place.
+
+---
+
+## Phase 4b: Verification rerun (US5; AC #3, amendment) — ORCHESTRATOR-RUN, PAID
+
+- [ ] T035 Orchestrator: operator checkpoint for `dm.interpret` `maxTokens`. Propose a value
+  from research R10. Record the operator's decision on the card. The operator sets it in the
+  operator-owned `.env`, or approves the orchestrator setting it. No implementer edits `.env`.
+- [ ] T036 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
+  the operator's spend ceiling. Record it on the card.
+- [ ] T037 Orchestrator: run the verification (quickstart C, amended pass rule). Commit the
+  evidence directory `evidence/verify-<runId>/`. Record pass or fail, outcome, spend and the run
+  id on the card.
+- [ ] T038 Orchestrator: on a fail, or on a failure of any other kind, commit the failure record
+  as a fixture under `apps/server/test/dm/fixtures/`. Stop for an operator ruling. Do not start
+  Phase 5.
+
+**Checkpoint**: AC #3 met for director and interpret.
 
 ---
 
@@ -137,6 +227,10 @@ WebSocket failure. Record each re-run in the phase's commit message.
 - [ ] T023 [P] [US4] Add one line under the amended sections of
   `specs/031-dm-runtime/contracts/turn-jobs.md`, `node-seam.md` and `director.md`:
   "Amended by specs/033-director-robustness/contracts/<file>." Commit.
+- [ ] T039 [P] [US4] Add one line under the amended sections of
+  `specs/031-dm-runtime/contracts/nodes.md` ("interpret", step schema), `scene-seed.md`
+  (`skills`, clue `check`) and `specs/026-dnd5e-engine/contracts/commands.md` (`check.roll`):
+  "Amended by specs/033-director-robustness/contracts/<file>." Commit.
 - [ ] T024 Orchestrator: tear down the composite worktree (quickstart E).
 
 **Checkpoint**: AC #4 met. The task is ready for PR.
@@ -145,12 +239,17 @@ WebSocket failure. Record each re-run in the phase's commit message.
 
 ## Dependencies & Execution Order
 
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5. No phase overlaps. Phase 2 and Phase 4 each
-need their own operator-approved ceiling. Within a phase, `[P]` tasks touch separate files.
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 3b → Phase 4b → Phase 5. No phase overlaps.
+Phases 2, 4 and 4b each need their own operator-approved ceiling. Phase 4b also needs the T035
+`maxTokens` checkpoint. Within a phase, `[P]` tasks touch separate files. In Phase 3b, T025
+runs first, the engine (T026, T027) before the server (T028–T030), and the prompts (T031–T033)
+last.
 
 ## Notes
 
 - `DirectorOutput` changes only by the `advance` refine message (T007).
-- No migration. No new dependency.
+- `InterpretOutput` gains no leniency. Its only change is the closed `skill` enum (T028).
+- `check.resolved.skill` stays a nullable string (contracts/rules-terms.md).
+- No migration. No new dependency. The amendment adds neither.
 - The operator route never serves the failure record. The operator reads it with SQL
   (quickstart B5).
