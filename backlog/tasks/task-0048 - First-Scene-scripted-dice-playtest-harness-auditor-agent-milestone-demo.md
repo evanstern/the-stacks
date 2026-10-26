@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 10:24'
+updated_date: '2026-10-26 10:37'
 labels:
   - first-scene
   - test
@@ -41,7 +41,7 @@ Spec: specs/032-playtest-harness
 - [x] #6 Spec phase: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3)
 - [x] #7 Spec phase: The harness run (US1; AC #1)
 - [x] #8 Spec phase: The auditor (US2; AC #2, #3)
-- [ ] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
+- [x] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
 - [ ] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
 - [ ] #11 Spec phase: The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5)
 <!-- AC:END -->
@@ -65,6 +65,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 by sonnet-implementer: 187868b. Adds the auditor: six code checks, a per-segment playtest.audit call, a report with stable ids, and fight stats. The CI playtest verdict is pass (8 segments, 0 findings). The doctored fixture verdict is fail, with 6 fail findings and 1 note. The server suite passes 694 tests; ci:check green.
 Orchestrator rulings for Phase 4: the hidden-info check must flag disclosure of tracker STATE, not bare tracker names. The seed's tracker names are everyday words and would raise false positives in the demo. fledOrBargained must be derived from the log (the scene.changed end and bargain narration) rather than stay null, because TASK-0055 reads these stats.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Rulings implemented in 0ce29e8. hidden-info now flags tracker state (fractions, and tracker or clock beside a name or id) plus seed secrets. fledOrBargained is derived from ending-row reasons, with a note when no ending row exists.
+Phase 4 by sonnet-implementer: d61a42b. Adds provider mode, budget.ts (estimate, preflight, budget gateway) and the CLI (run, audit, estimate) with exit codes 0/1/3/4/64. All refusal paths are tested with a priced fake provider; no real-provider call was made. CI evidence is committed at specs/032-playtest-harness/evidence/ci-playtest (ended, pass). The server suite passes 724 tests; ci:check green.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
