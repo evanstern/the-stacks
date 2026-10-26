@@ -152,6 +152,33 @@ describe("deterministicChecks", () => {
     expect(check("The door opens. What waits behind it?").pass).toBe(true);
   });
 
+  it("fails a clarify turn whose prose has no closing question, passes an open one", () => {
+    const f = {
+      ...facts(),
+      clarify: [{ actionId: "a1", question: "What does Ana do?" }],
+    };
+    const bad = check(CLEAN, f);
+    expect(bad.issues).toContainEqual({
+      kind: "doctrine",
+      detail: "The facts ask a question and the prose does not end with one.",
+    });
+    expect(check(`${CLEAN} What does Ana do next?`, f).pass).toBe(true);
+    expect(check(CLEAN).pass).toBe(true);
+  });
+
+  it("quotes the matched words, the closing question and the word count", () => {
+    const death = check("The guard dies where he stands.").issues[0];
+    expect(death?.detail).toBe(
+      'The prose says a character dies ("dies"), and no fact records a death.',
+    );
+    const menu = check("The door opens. Do you fight or flee?").issues[0];
+    expect(menu?.detail).toContain('"Do you fight or flee?"');
+    const long = Array.from({ length: 230 }, () => "word").join(" ");
+    expect(check(long).issues[0]?.detail).toBe(
+      "The prose is 230 words; the limit is 220.",
+    );
+  });
+
   it("fails when the dice lines differ from the renderer", () => {
     const f = facts();
     const r = deterministicChecks(f, { prose: CLEAN, diceLines: ["forged"] });
@@ -252,6 +279,102 @@ describe("audit loop", () => {
     expect(r.attempts[0]?.llm).toMatchObject({ verdict: "fail" });
     expect(out.output.shipped?.prose).toContain("A draft stirs.");
     expect(out.output.shipped?.fallback).toBe(false);
+  });
+
+  it("passes on a doctrine-only fail and records the issue as advisory", async () => {
+    const { out, scripted } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [{ kind: "doctrine", detail: "Ends on atmosphere." }],
+      }),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    const r = out.output.record;
+    expect(r.final).toBe("passed");
+    expect(r.flagged).toBe(false);
+    expect(r.attempts).toHaveLength(1);
+    expect(r.attempts[0]?.words).toBe(CLEAN.split(/\s+/).length);
+    expect(r.attempts[0]?.llm).toMatchObject({
+      issues: [{ kind: "doctrine", blocking: false }],
+    });
+    expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
+  });
+
+  it("regenerates on player-agency and hands over only blocking issues", async () => {
+    const { out } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [
+          { kind: "player-agency", detail: "Ana is made to feel afraid." },
+          { kind: "doctrine", detail: "Too atmospheric." },
+          { kind: "other", detail: "Odd phrasing." },
+        ],
+      }),
+      text("dm.narrate", `${CLEAN} A draft stirs.`),
+      json("dm.audit", PASS),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    expect(out.output.record.final).toBe("passed-after-regenerate");
+    expect(out.output.record.flagged).toBe(true);
+    expect(out.output.record.attempts[0]?.llm).toMatchObject({
+      issues: [
+        { kind: "player-agency", blocking: true },
+        { kind: "doctrine", blocking: false },
+        { kind: "other", blocking: false },
+      ],
+    });
+  });
+
+  it("sends the regeneration prompt only the blocking issues", async () => {
+    const seen: string[] = [];
+    const calls: Call[] = [
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [
+          { kind: "invented-mechanics", detail: "A wound no fact records." },
+          { kind: "doctrine", detail: "Too atmospheric." },
+        ],
+      }),
+      text("dm.narrate", CLEAN),
+      json("dm.audit", PASS),
+    ];
+    const scripted = createScriptedDm(
+      loadDmScript({ v: 1, name: "audit", dice: [], calls }),
+    );
+    const provider = scripted.provider;
+    const orig = provider.chat?.bind(provider);
+    if (!orig) throw new Error("scripted provider has no chat");
+    (provider as { chat: typeof orig }).chat = (model, req, opts) => {
+      seen.push(JSON.stringify(req));
+      return orig(model, req, opts);
+    };
+    const gateway = createGateway({
+      config: scripted.aiConfig,
+      sink: memorySink(),
+      adapters: { fake: () => provider },
+    });
+    const events = freeEventsThrough("action.resolved");
+    const base = makeCtx({
+      deps: { gateway, loadProjections: async () => projectDm(events) },
+    });
+    const assembled = await assemble(base);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const ctx0 = {
+      ...base,
+      results: { assemble: assembled.output, director, resolve: resolved },
+    };
+    const narrated = await narrate(ctx0);
+    if (!narrated.ok) throw new Error("narrate failed");
+    await audit({
+      ...ctx0,
+      results: { ...ctx0.results, narrate: narrated.output },
+    });
+    const regen = seen.find((s) => s.includes("Your previous text"));
+    expect(regen).toContain("Issue (invented-mechanics)");
+    expect(regen).not.toContain("Too atmospheric");
   });
 
   it("skips the model audit when a deterministic check fails", async () => {

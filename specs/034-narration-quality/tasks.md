@@ -137,16 +137,16 @@ Contracts: `contracts/narration-facts.md` (facts part), `contracts/fallback-summ
 
 Contracts: `contracts/narration-facts.md` (prompt part), `contracts/audit-criteria.md`.
 
-- [ ] T030 [US3] In `prompts/narrate.ts`, apply narrate prompt v2. Set `dm.narrate-v2`.
-- [ ] T031 [US3] In `prompts/audit.ts`, apply audit prompt v2. Set `dm.audit-v2`.
-- [ ] T032 [US3] In `nodes/audit.ts` and `audit-words.ts`: blocking and advisory issues, the
+- [x] T030 [US3] In `prompts/narrate.ts`, apply narrate prompt v2. Set `dm.narrate-v2`.
+- [x] T031 [US3] In `prompts/audit.ts`, apply audit prompt v2. Set `dm.audit-v2`.
+- [x] T032 [US3] In `nodes/audit.ts` and `audit-words.ts`: blocking and advisory issues, the
   code-derived result, blocking-only regeneration, the clarify check, quoted details, `words`
   per attempt, the `[advisory]` journal marker.
-- [ ] T033 [US3] In `audit.test.ts` and `audit.integration.test.ts`, add the contract tests.
+- [x] T033 [US3] In `audit.test.ts` and `audit.integration.test.ts`, add the contract tests.
   Flip T015. Check every script under `test/dm/scripts/` still matches its call sequence.
-- [ ] T034 [P] [US3] In `narrate.test.ts`, add the prompt v2 tests. Add an audit prompt test for
+- [x] T034 [P] [US3] In `narrate.test.ts`, add the prompt v2 tests. Add an audit prompt test for
   the party section and the five statements.
-- [ ] T035 Run the phase gate and the database suites. Commit. Push the branch.
+- [x] T035 Run the phase gate and the database suites. Commit. Push the branch.
 
 **Checkpoint**: AC #3 met offline. The branch is ready for the paid run.
 

@@ -109,4 +109,25 @@ describe.skipIf(!reachable)("audit through a full pipeline (database)", () => {
     expect(payloadOf<{ body: string }>(flag).body).toMatch(/Attempt 3/);
     expect(w.scripted.remaining().dice).toBe(0);
   });
+
+  it("ships the narration when dm.audit returns only doctrine issues (advisory)", async () => {
+    const { w, outcome } = await fullTurn("audit-advisory.json");
+    expect(outcome.status).toBe("completed");
+    if (outcome.status !== "completed") return;
+    const record = outcome.results.audit.record;
+    expect(record.attempts).toHaveLength(1);
+    expect(record.final).toBe("passed");
+    expect(record.flagged).toBe(false);
+    expect(record.attempts[0]?.llm).toMatchObject({
+      verdict: "fail",
+      issues: [{ kind: "doctrine", blocking: false }],
+    });
+    const rows = await readRows(w);
+    const narrations = rows.filter((r) => r.type === "narration");
+    expect(payloadOf<{ text: string }>(narrations[0]).text).toContain(
+      "The shutter shrieks",
+    );
+    expect(rows.some((r) => r.type === "journal.entry.added")).toBe(false);
+    expect(w.scripted.remaining().calls["dm.audit"]).toBe(0);
+  });
 });

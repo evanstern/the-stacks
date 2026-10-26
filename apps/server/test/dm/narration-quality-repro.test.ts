@@ -320,7 +320,7 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
   const CLEAN =
     "The tumblers give way, and the vault door swings inward on a breath of cold air. Something moves inside.";
 
-  it("A3: the narrate prompt relays the clarify question verbatim", () => {
+  it("A3 (flipped): the narrate prompt tells the model to ask in its own words, never to offer options", () => {
     const facts = noEffectFacts(
       194,
       "free",
@@ -341,7 +341,13 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       facts,
       prior: null,
     });
-    expect(prompt.user).toContain(CLARIFY_QUESTION);
+    expect(prompt.system).toContain(
+      "end with one short open question in your own words",
+    );
+    expect(prompt.system).toContain("Never offer options.");
+    expect(prompt.user).toContain(
+      "on hold (the intent is unclear; nothing happened yet)",
+    );
   });
 
   it("A3: prose ending with that question fails deterministicChecks as an option menu", () => {
@@ -355,11 +361,11 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
     expect(r.pass).toBe(false);
     expect(r.issues).toContainEqual({
       kind: "doctrine",
-      detail: "The prose has a list line or ends on an either-or question.",
+      detail: `The prose offers an option menu: the closing question "${CLARIFY_QUESTION}". Ask one open question instead.`,
     });
   });
 
-  it("A4: three doctrine-only dm.audit failures ship the fallback", async () => {
+  it("A4 (flipped): a doctrine-only dm.audit failure ships the narration on attempt 1", async () => {
     expect(MAX_NARRATION_ATTEMPTS).toBe(3);
     type Call = { purpose: string; respond: unknown };
     const text = (value: string): Call => ({
@@ -386,14 +392,7 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
         v: 1,
         name: "audit-doctrine-only",
         dice: [],
-        calls: [
-          text(CLEAN),
-          doctrineOnly,
-          text(CLEAN),
-          doctrineOnly,
-          text(CLEAN),
-          doctrineOnly,
-        ],
+        calls: [text(CLEAN), doctrineOnly],
       }),
     );
     const gateway = createGateway({
@@ -422,8 +421,10 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       results: { ...ctx0.results, narrate: narrated.output },
     });
     if (!out.ok) throw new Error("audit failed");
-    expect(out.output.record.attempts).toHaveLength(3);
-    expect(out.output.record.final).toBe("fallback");
-    expect(out.output.shipped?.fallback).toBe(true);
+    expect(out.output.record.attempts).toHaveLength(1);
+    expect(out.output.record.final).toBe("passed");
+    expect(out.output.record.flagged).toBe(false);
+    expect(out.output.shipped?.fallback).toBe(false);
+    expect(out.output.shipped?.prose).toBe(CLEAN);
   });
 });
