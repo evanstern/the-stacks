@@ -82,6 +82,8 @@ Wiki re-ground by sonnet-implementer: 571373c. New note play-route. chat-ui, cli
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #47 on 2026-10-26. Card ACs #1–#8 are proven by specs/030-play-route/ci-evidence.txt and evidence/live-check.md.
+
+spec-bridge sync: Setup — package wiring and test runner: 4/4 · Foundational — pure view-model modules: 13/13 · User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6): 13/13 · User Stories 4 and 5 (P2) — ledger panel and DM approval panel: 6/6 · User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence: 11/11 · Proposal wiring — GATED on TASK-0045's merge: 10/10 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
