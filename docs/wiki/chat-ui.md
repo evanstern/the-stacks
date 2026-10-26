@@ -23,7 +23,7 @@ sources:
   - apps/web/app/routes/settings.tsx
   - apps/web/app/library/books.ts
   - apps/web/app/library/upload.ts
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
 ---
 
 # Chat UI
@@ -72,8 +72,9 @@ a Sheet-shaped surface — see [[react-router-app]] for why `Sheet` (Radix Dialo
 satisfies the no-`<dialog>` rule. One `SheetContent side="right"` with `narrow:` classes that
 turn it into a bottom sheet (`inset-x-0 bottom-0 top-auto h-[85dvh] w-full rounded-t-xl`) —
 a CSS-only breakpoint switch, no `matchMedia`. `components/sources.tsx`'s Sources button and
-its panel body (the upload card, derived books, "Open in Library") are its one caller so far,
-mounted in `routes/ask.tsx`'s header.
+its panel body (the upload card, derived books, "Open in Library") mount it in
+`routes/ask.tsx`'s header; the play route's ledger and DM approvals slide-outs are its other
+callers ([[play-route]]).
 
 **Theme tokens and UI cookies.** `app.css`'s Daylight palette is three token blocks —
 `:root` (light), `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }`,
@@ -90,7 +91,8 @@ collapse toggle.
 **The route tree and role gate.** `routes.ts` adds four routes around the original two
 (`/`, `/play/:sessionId`): `ask`, `books` (the Library page — `/library` is reserved for
 the HTTP API, plan D3 checkpoint), `play` (the Table landing, `routes/table.tsx`: start a
-fresh table or join one by pasting its id/link), and `settings`. `home.tsx` is now
+fresh table or join one by pasting its id/link; an operator also sees a "Preview fixtures"
+link to `/play/fixtures`, see [[play-route]]), and `settings`. `home.tsx` is now
 loader-only, redirecting a signed-in operator to `/ask` and a signed-in player to `/play`.
 `ask.tsx` and `books.tsx` share one loader shape: `{ forbidden: true }` for a non-operator
 without calling `jobs()` at all (so a player's SSR never even asks for job data), else
@@ -116,8 +118,8 @@ citation's exact quote inside its passage text for the `<mark>` highlight (SC-00
 ## Operational notes
 
 No dependency was added (plan checkpoint 1): `Sheet` reuses the already-installed
-`radix-ui`; icons are inline SVG (`components/icons.tsx`), not `lucide-react` (plan
-checkpoint 4). `test/no-dialog.test.mjs` and `test/contrast.test.mjs` enforce D7's and D6's
+`radix-ui`; icons are inline SVG (`components/icons.tsx`, including the play route's `LedgerIcon` and
+`ApprovalsIcon`), not `lucide-react` (plan checkpoint 4). `test/no-dialog.test.mjs` and `test/contrast.test.mjs` enforce D7's and D6's
 gates in CI, not just at review time. AC #4's evidence is a committed recording
 (`specs/024-chat-ui/evidence/record-ac4.mjs`, out-of-tree `playwright-core`, never added to
 any `package.json`) driving both accounts through the two-browser run and logging every
