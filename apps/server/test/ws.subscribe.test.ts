@@ -90,6 +90,8 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       subscribe(c: Connection, sid: string) {
         c.sessionId = sid;
       },
+      seatOf: () => ({ kind: "ai" }),
+      setSeat: () => {},
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));
@@ -121,6 +123,7 @@ describe("replay/live boundary (research D1, deterministic)", () => {
 
     await subscribe(db, registry, conn, sessionId, 0, {
       readFrom: readFromFake,
+      loadDmSeat: async () => ({ kind: "ai" }),
     });
 
     const seqs = conn.sent.map((e) => e.seq);
@@ -144,6 +147,8 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       subscribe(c: Connection, sid: string) {
         c.sessionId = sid;
       },
+      seatOf: () => ({ kind: "ai" }),
+      setSeat: () => {},
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));
@@ -174,6 +179,7 @@ describe("replay/live boundary (research D1, deterministic)", () => {
 
     await subscribe({} as never, registry, conn, sessionId, 0, {
       readFrom: readFromFake,
+      loadDmSeat: async () => ({ kind: "ai" }),
     });
 
     expect(conn.sent.map((e) => e.seq)).toEqual([1, 2]);

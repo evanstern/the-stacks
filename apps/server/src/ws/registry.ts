@@ -1,3 +1,9 @@
+import {
+  canSee,
+  type DmSeat,
+  DmSeatChangedV1,
+  type Viewer,
+} from "@the-stacks/session-model";
 import type { WebSocket } from "ws";
 import type { Role } from "../auth/session.js";
 import type { RecordedEventFrame } from "./protocol.js";
@@ -49,19 +55,19 @@ export interface Connection {
 }
 
 /**
- * Visibility is minimal in M0 (spec.md assumptions): the public marker
- * reaches everyone; any other value reaches only the connection whose
- * `userId` it names — whisper-style per-person visibility (spec 005
- * contract, validate-session.md). Exported so subscribe.ts's replay path
- * makes the exact same decision as the live path below (research D2) —
- * one function, not two implementations that could drift.
+ * The viewer a connection is for a session whose DM seat is `seat`
+ * (specs/029-proposal-gate/contracts/ws-delivery.md). Only the user holding a
+ * human DM seat gets the DM view; the connection's role alone never does.
+ * Exported so subscribe.ts's replay path makes the exact same decision as the
+ * live path below (research D2) - one function, not two that could drift.
  */
-export function isVisible(
-  conn: Connection,
-  event: { visibility: string },
-): boolean {
-  return event.visibility === "public" || event.visibility === conn.userId;
+export function viewerFor(conn: Connection, seat: DmSeat): Viewer {
+  return seat.kind === "human" && seat.userId === conn.userId
+    ? { role: "dm" }
+    : { role: "player", userId: conn.userId };
 }
+
+const AI_SEAT: DmSeat = { kind: "ai" };
 
 /**
  * The whole of fan-out (data-model.md, "SubscriberRegistry"): a map from
@@ -71,6 +77,17 @@ export function isVisible(
  */
 export function createRegistry() {
   const bySession = new Map<string, Set<Connection>>();
+  /** One DM seat per subscribed session; deleted with the session's last subscriber. */
+  const seatBySession = new Map<string, DmSeat>();
+
+  function setSeat(sessionId: string, seat: DmSeat): void {
+    seatBySession.set(sessionId, seat);
+  }
+
+  /** The cached seat, or undefined when the session has no subscriber yet. */
+  function seatOf(sessionId: string): DmSeat | undefined {
+    return seatBySession.get(sessionId);
+  }
 
   function subscribe(conn: Connection, sessionId: string): void {
     if (conn.sessionId !== null) {
@@ -93,6 +110,7 @@ export function createRegistry() {
       set.delete(conn);
       if (set.size === 0) {
         bySession.delete(conn.sessionId);
+        seatBySession.delete(conn.sessionId);
       }
     }
     conn.sessionId = null;
@@ -106,7 +124,7 @@ export function createRegistry() {
    * log has already committed. A closed socket is pruned from the
    * registry as it's found, same as an explicit disconnect.
    *
-   * `isVisible` is the single per-recipient filtering decision (research
+   * `canSee(viewerFor(...))` is the single per-recipient filtering decision (research
    * D2) — applied here for every live event, and by subscribe.ts's replay
    * loop for every replayed one, so a filtered recipient never receives
    * the event through either path. A connection mid-replay (`pendingQueue`
@@ -118,12 +136,13 @@ export function createRegistry() {
     const set = bySession.get(sessionId);
     if (!set) return;
     const message = JSON.stringify(frame);
+    const seat = seatBySession.get(sessionId) ?? AI_SEAT;
     for (const conn of set) {
       if (conn.socket.readyState !== conn.socket.OPEN) {
         set.delete(conn);
         continue;
       }
-      if (!isVisible(conn, frame.event)) continue;
+      if (!canSee(viewerFor(conn, seat), frame.event.visibility)) continue;
       // Already delivered by this connection's replay (TASK-0095) — see
       // `Connection.replayedThroughSeq`. Shared by the queue and send paths.
       if (frame.event.seq <= conn.replayedThroughSeq) continue;
@@ -138,8 +157,17 @@ export function createRegistry() {
         set.delete(conn);
       }
     }
+    // A seat change is public: it was delivered above under the old seat, and
+    // every later event filters under the new one.
+    if (frame.event.type === "dm.seat.changed") {
+      const parsed = DmSeatChangedV1.safeParse(frame.event.payload);
+      if (parsed.success && seatBySession.has(sessionId)) {
+        seatBySession.set(sessionId, parsed.data.after);
+      }
+    }
     if (set.size === 0) {
       bySession.delete(sessionId);
+      seatBySession.delete(sessionId);
     }
   }
 
@@ -147,7 +175,14 @@ export function createRegistry() {
     return bySession.get(sessionId)?.size ?? 0;
   }
 
-  return { subscribe, unsubscribe, broadcast, subscriberCount };
+  return {
+    subscribe,
+    unsubscribe,
+    broadcast,
+    subscriberCount,
+    setSeat,
+    seatOf,
+  };
 }
 
 export type Registry = ReturnType<typeof createRegistry>;

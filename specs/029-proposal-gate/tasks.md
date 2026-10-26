@@ -164,17 +164,17 @@ these.
 
 ### Tests
 
-- [ ] T039 [US2] Update `apps/server/test/ws.integration.test.ts`: replace raw sends of catalogued types (`narration`) with uncatalogued types so the M0 visibility tests keep their meaning; add: a raw catalogued type (`dice.rolled`) → `forbidden` error with code `CATALOG_TYPE_REQUIRES_GATE`, zero rows; a gate request over `send` (`talk`) is appended and broadcast; a refused gate request returns an `error` frame with `code`; with a human DM seated, an `ask` proposal submitted through the gate reaches the DM's connection and not a player's, live and on replay; with an AI seat, a `dm` event reaches no connection; a `dm.seat.changed` broadcast switches later delivery.
-- [ ] T040 [US5] Write `apps/server/test/gate.restart.integration.test.ts`: build server A (app, gate, gateway, fresh pool) on port 0; seat an operator user as DM; submit two `ask` proposals from `ai:dm`; close server A and end its pool; build server B with a fresh pool and fresh gate and gateway; connect as the DM, subscribe from 0, and assert both `proposal.created` events arrive and `loadProjections` (DM) lists both pending; approve one over `send` and assert its effects and `proposal.approved` arrive; assert a player connection on server B received neither proposal.
+- [x] T039 [US2] Update `apps/server/test/ws.integration.test.ts`: replace raw sends of catalogued types (`narration`) with uncatalogued types so the M0 visibility tests keep their meaning; add: a raw catalogued type (`dice.rolled`) → `forbidden` error with code `CATALOG_TYPE_REQUIRES_GATE`, zero rows; a gate request over `send` (`talk`) is appended and broadcast; a refused gate request returns an `error` frame with `code`; with a human DM seated, an `ask` proposal submitted through the gate reaches the DM's connection and not a player's, live and on replay; with an AI seat, a `dm` event reaches no connection; a `dm.seat.changed` broadcast switches later delivery.
+- [x] T040 [US5] Write `apps/server/test/gate.restart.integration.test.ts`: build server A (app, gate, gateway, fresh pool) on port 0; seat an operator user as DM; submit two `ask` proposals from `ai:dm`; close server A and end its pool; build server B with a fresh pool and fresh gate and gateway; connect as the DM, subscribe from 0, and assert both `proposal.created` events arrive and `loadProjections` (DM) lists both pending; approve one over `send` and assert its effects and `proposal.approved` arrive; assert a player connection on server B received neither proposal.
 
 ### Implementation
 
-- [ ] T041 [US2] In `apps/server/src/ws/registry.ts`: add `viewerFor`, the per-session seat cache (`setSeat`, `seatOf`, deleted with the session's last subscriber), filter `broadcast` with `canSee`, update the seat after delivering a `dm.seat.changed`, and remove `isVisible`.
-- [ ] T042 [US2] In `apps/server/src/ws/subscribe.ts`: load the seat with `loadDmSeat` when the registry has none for the session, and filter replay with the same `canSee(viewerFor(…))` rule; leave the replay floor logic unchanged.
-- [ ] T043 [US2] In `apps/server/src/ws/protocol.ts`: add the optional `code` to `ErrorFrame`.
-- [ ] T044 [US2] In `apps/server/src/ws/gateway.ts`: accept `gate` in `CreateGatewayOptions`; classify `send` per contracts/ws-delivery.md (gate request → `gate.handle`; other catalogued type → `forbidden` with code; else `appendUncataloguedEvent` and broadcast); map refusals to error frames; add `publish(sessionId, events)`.
-- [ ] T045 [US2] In `apps/server/src/index.ts`: create the gate, pass it to `createGateway`, and wire `gate.onAppended` to `gateway.publish`.
-- [ ] T046 [US5] Run the database suites: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test -- gate ws session events`. Re-run on a known WebSocket flake (see header). Record the pass counts and the restart test result in the commit message.
+- [x] T041 [US2] In `apps/server/src/ws/registry.ts`: add `viewerFor`, the per-session seat cache (`setSeat`, `seatOf`, deleted with the session's last subscriber), filter `broadcast` with `canSee`, update the seat after delivering a `dm.seat.changed`, and remove `isVisible`.
+- [x] T042 [US2] In `apps/server/src/ws/subscribe.ts`: load the seat with `loadDmSeat` when the registry has none for the session, and filter replay with the same `canSee(viewerFor(…))` rule; leave the replay floor logic unchanged.
+- [x] T043 [US2] In `apps/server/src/ws/protocol.ts`: add the optional `code` to `ErrorFrame`.
+- [x] T044 [US2] In `apps/server/src/ws/gateway.ts`: accept `gate` in `CreateGatewayOptions`; classify `send` per contracts/ws-delivery.md (gate request → `gate.handle`; other catalogued type → `forbidden` with code; else `appendUncataloguedEvent` and broadcast); map refusals to error frames; add `publish(sessionId, events)`.
+- [x] T045 [US2] In `apps/server/src/index.ts`: create the gate, pass it to `createGateway`, and wire `gate.onAppended` to `gateway.publish`.
+- [x] T046 [US5] Run the database suites: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test -- gate ws session events`. Re-run on a known WebSocket flake (see header). Record the pass counts and the restart test result in the commit message.
 
 **Checkpoint**: AC #4 and AC #9 hold on the worktree stack; the runbook's TASK-0045 merge
 condition is met.
@@ -268,3 +268,11 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
 - Phase 4, T037: `proposal.approve` plans as `ai:dm` (the only proposer a pending proposal can
   hold) and stamps the approving DM on the `proposal.approved` row; `appendSessionEvents`
   refusals map to gate refusals with source `append`.
+- Phase 5, T042: `subscribe` joins the registry first, then loads the seat (a seat set by a
+  concurrent broadcast wins over the load). A `dm.seat.changed` broadcast in the instant between
+  the load and the cache write is a known narrow race; the next subscribe replays correctly.
+- Phase 5, T044: `src/bench/load/concurrency.ts` builds a gate for the now-required `gate`
+  option. `SubscribeDeps` gains an optional `loadDmSeat` seam; `ws.subscribe.test.ts` fakes use it.
+- Phase 5, T046: stack came up unmigrated again (TASK-0098); migrated app and test databases by
+  hand. Counts: `REQUIRE_DATABASE=1 ... test -- gate ws session events` = 42 files passed,
+  1 skipped (preexisting), 463 tests passed, 5 skipped. Restart test (AC #9) passed.

@@ -1,9 +1,11 @@
+import { canSee, type DmSeat } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
 import { readFrom } from "../events/log.js";
+import { loadDmSeat } from "../session/events.js";
 import type { RecordedEventFrame, ReplayCompleteFrame } from "./protocol.js";
 import { toEventPayload } from "./protocol.js";
 import type { Connection, Registry } from "./registry.js";
-import { isVisible } from "./registry.js";
+import { viewerFor } from "./registry.js";
 
 /**
  * Bounded per FR-010 — a reconnecting client with a long history must not
@@ -57,6 +59,8 @@ function sendFrame(
  */
 export interface SubscribeDeps {
   readFrom: typeof readFrom;
+  /** Loads the session's DM seat when the registry has none cached. */
+  loadDmSeat?: (db: DbClient, sessionId: string) => Promise<DmSeat>;
 }
 
 export async function subscribe(
@@ -71,6 +75,19 @@ export async function subscribe(
   conn.replayedThroughSeq = afterSeq;
   registry.subscribe(conn, sessionId);
 
+  // The seat decides what this connection may see (ws-delivery.md). Load it
+  // once per session; a seat set by a concurrent broadcast wins over the load.
+  let seat = registry.seatOf(sessionId);
+  if (!seat) {
+    const loaded = await (deps.loadDmSeat ?? loadDmSeat)(db, sessionId);
+    seat = registry.seatOf(sessionId);
+    if (!seat) {
+      registry.setSeat(sessionId, loaded);
+      seat = loaded;
+    }
+  }
+  const viewer = viewerFor(conn, seat);
+
   let throughSeq = afterSeq;
   for (;;) {
     const batch = await deps.readFrom(db, {
@@ -79,7 +96,7 @@ export async function subscribe(
       limit: REPLAY_BATCH_SIZE,
     });
     for (const event of batch) {
-      if (isVisible(conn, event)) {
+      if (canSee(viewer, event.visibility)) {
         sendFrame(conn, { type: "event", event: toEventPayload(event) });
       }
     }
