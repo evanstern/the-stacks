@@ -82,6 +82,15 @@ tasks for sign-off and session boundaries; they are not barriers beyond those de
   itself is run by the orchestrator with the operator)** — playtest harness, auditor agent,
   milestone demo. Starts after: 0046, 0047 (and every other scoped task merged).
 
+**Lane 5 amendment (2026-10-26, operator ruling during the demo checkpoint):**
+- **TASK-0102 (sonnet · `claude-sonnet-5-5`; spec by `opus-implementer`)** — the director's
+  real-model output fails its schema (2 of 2 paid playtests stalled at turn 3–4) and failed jobs
+  drop their schema issues. Own card, own PR, merged **before** TASK-0048's demo phase resumes.
+  Starts after: — (TASK-0046 merged). Its paid capture run is an operator checkpoint (ceiling).
+- TASK-0048's own harness defects found in the same runs (dice-lines false positive on
+  scene-start narration; host CLI cannot use `host.docker.internal` provider URLs) are fixed on
+  the TASK-0048 branch.
+
 **Spec authoring (all tasks) → `opus-implementer` · `claude-opus-5-5`, fallback
 `claude-fable-5-1`.** Escalation tier. Carried forward from the M1 wave-2 runbook: operator
 ruling 2026-09-28/29 is standing escalation sign-off for spec writing; the operator

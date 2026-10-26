@@ -3,9 +3,10 @@ id: TASK-0102
 title: >-
   First Scene: director output survives real models; failed jobs keep their
   error detail
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
+updated_date: '2026-10-26 14:50'
 labels:
   - first-scene
   - dm
@@ -28,6 +29,8 @@ Why: TASK-0048's paid scripted playtests (docs/design/m2-demo/provider-playtest*
 The M2 demo cannot reach the scene's end until this is fixed. Carded by operator ruling 2026-10-26; it fixes code from TASK-0046 (specs/031-dm-runtime) and blocks TASK-0048's demo phase.
 
 Approach: capture the real failing director output first, from a run against the configured provider under an operator-approved spend ceiling. Then fix the prompt, the schema or the parsing, whichever the evidence shows. No vendor SDK (decision-0007). The engine still owns every number.
+
+Spec: specs/033-director-robustness
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -37,6 +40,12 @@ Approach: capture the real failing director output first, from a run against the
 - [ ] #3 The director accepts real-model output for the Greyhollow Ford scene: a provider-mode playtest gets past the turn where runs 2 and 4 failed, with no director invalid-output.
 - [ ] #4 Any schema or prompt change keeps every existing dm test green, and the scripted CI playtest still passes.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M2 First Scene sweep (operator ruling: a new M2 card fixed in its own PR before the demo resumes). Worktree .worktrees/task-0102, branch task-0102-director-robustness, cut from origin/main 60e8f89. Spec number 033 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
