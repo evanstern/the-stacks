@@ -42,7 +42,10 @@ Spec: specs/034-narration-quality
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 - [ ] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
+- [ ] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 
 
