@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:37'
+updated_date: '2026-10-26 05:00'
 labels:
   - first-scene
   - ui
@@ -44,7 +44,7 @@ Spec: specs/030-play-route
 - [x] #11 Spec phase: User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6)
 - [x] #12 Spec phase: User Stories 4 and 5 (P2) — ledger panel and DM approval panel
 - [x] #13 Spec phase: User Story 7 (P1) — the live table, AC #7 proof, gates and fixture evidence
-- [ ] #14 Spec phase: Proposal wiring — GATED on TASK-0045's merge
+- [x] #14 Spec phase: Proposal wiring — GATED on TASK-0045's merge
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -71,6 +71,11 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 by sonnet-implementer: 9a00abb. The live table renders through TableView, with an AC #7 equivalence test and no-modal and client-only gates. There are 24 Brave screenshots: fixtures and live, light and dark, at 1280 and 390 px. The approval-panel click-through in Brave works (2→1→0). ci:check green.
 Not run: quickstart §3 reload rebuild and stop/start reconnect; the reducer tests cover them. They are to be run in Phase 6's live pass.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 6 by sonnet-implementer: bd6d72e (merge of origin/main, #48) and c03876a. Live proposals and approve/reject now run through TASK-0045's gate requests. The WS error code shows in the notice. Every tasks.md box is ticked.
+Brave live checks passed: DM-only delivery, approve, reject, a refusal code, reload rebuild, and stop/start reconnect with no duplicate. ci:check green, with the DB suite running.
+Carded follow-up: TASK-0100. A pending suggest proposal still offers an Approve button that fails with PROPOSAL_NOT_APPROVABLE; fixing it needs a seam amendment.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
