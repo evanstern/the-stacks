@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 19:19'
+updated_date: '2026-10-26 19:23'
 labels:
   - first-scene
   - dm
@@ -81,6 +81,9 @@ Spec amendment by opus-implementer: 5ed2fe4. E2: a player-agency issue blocks on
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 OPERATOR APPROVAL AND RULINGS 2026-10-26, in the operator's words: 'Approved: $25 ceiling for the TASK-0106 rerun. F4 is a false positive. Card F32 and F54. AC #4's contradiction bar counts narration-caused contradictions only.' Carded: TASK-0109 (F32, chronicle conflation) and TASK-0110 (F54, action refused after ending the encounter), both m-3.
 Orchestrator rulings on the amendment's open points: (1) the 'first-named character' rule is NOT adopted; it goes beyond the approved E2 wording, and the 5b result decides whether it is needed. (2) Closing-question complaints filed as player-agency (3 of 13) are recorded only; the 5b result shows their weight.
+
+Phase 4b by sonnet-implementer: 050dbdc (E2 party-name filter in nodes/audit.ts; the contract's 11-case table plus 4 node tests), db1da9f (E3 narrate-v3 rule verbatim after 'No rules effect'), e1d9743 (ticks). Server REQUIRE_DATABASE=1: 761 passed, 5 skipped. Lint, typecheck and boundaries pass. No WS flake.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
