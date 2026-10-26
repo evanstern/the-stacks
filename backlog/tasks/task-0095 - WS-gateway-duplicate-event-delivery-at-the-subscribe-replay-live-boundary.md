@@ -4,7 +4,7 @@ title: 'WS gateway: duplicate event delivery at the subscribe replay/live bounda
 status: In Progress
 assignee: []
 created_date: '2026-10-26 02:38'
-updated_date: '2026-10-26 02:40'
+updated_date: '2026-10-26 02:45'
 labels:
   - server
   - ws
@@ -26,9 +26,9 @@ Likely fix: track a per-connection delivered-through seq for each subscribed ses
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A subscriber never receives two event frames with the same seq for one session, on any path (replay, queue drain, direct broadcast).
-- [ ] #2 A deterministic test in ws.subscribe.test.ts reproduces the commit-then-late-broadcast ordering and fails without the fix.
-- [ ] #3 ws.integration.test.ts T012 passes in 20 consecutive local runs.
+- [x] #1 A subscriber never receives two event frames with the same seq for one session, on any path (replay, queue drain, direct broadcast).
+- [x] #2 A deterministic test in ws.subscribe.test.ts reproduces the commit-then-late-broadcast ordering and fails without the fix.
+- [x] #3 ws.integration.test.ts T012 passes in 20 consecutive local runs.
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,6 +41,13 @@ Why a replay floor, not a running delivered watermark: broadcasts are not guaran
 4. Deterministic test in ws.subscribe.test.ts via SubscribeDeps: commit, replay reads it, queue clears, then late broadcast.
 5. Update registry.ts comment and wiki notes; loop T012 20x.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Fix committed as 1d95cb6: Connection.replayedThroughSeq replay floor; broadcast skips seq <= floor on queue and direct paths. New deterministic test 'replay/append/broadcast race (TASK-0095)' fails with the broadcast skip removed (expected [1,1] to equal [1]) and passes with it. Full server suite 417 passed / 5 skipped; typecheck and biome clean. T012: 20/20 consecutive local passes (implementer), re-verified 20/20 by orchestrator.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
