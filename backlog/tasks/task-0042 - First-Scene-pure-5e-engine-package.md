@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:17'
+updated_date: '2026-10-26 02:19'
 labels:
   - first-scene
   - engine
@@ -78,6 +78,9 @@ Phases 5 and 6 by sonnet-implementer: eaa7407, ac0182d. 179 engine tests pass; c
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 7 by sonnet-implementer: 552834d. 197 engine tests pass; the coverage meta-test was proven to fail; ci:check green; every tasks.md box is ticked.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: a92f5ea. New note dnd5e-engine. ci-pipeline, monorepo-and-toolchain and test-suite were classed NEEDS-REVIEW and amended; ddb-parser was RE-PIN-ONLY. Freshness OK, 38 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
