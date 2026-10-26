@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:27'
+updated_date: '2026-10-26 02:30'
 labels:
   - first-scene
   - srd
@@ -45,7 +45,7 @@ Spec: specs/027-srd-data
 - [x] #9 Spec phase: Provenance index and converted data — US4 then US1 (one dispatch)
 - [x] #10 Spec phase: Loader and compact forms — US1 and US3 (one dispatch)
 - [x] #11 Spec phase: About page — US2 (one dispatch)
-- [ ] #12 Spec phase: Close-out (one dispatch)
+- [x] #12 Spec phase: Close-out (one dispatch)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -68,6 +68,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phases 3 and 4 by sonnet-implementer: d534143 and a88ee53. 140 srd tests and 64 web tests pass. Compact forms stay at or under 120 estimated tokens; the medians are 48–105. The /about route and footer link have Brave screenshots in the scratchpad. No SRD data reaches the client bundle.
 Recorded deviation: like Settings, the About link sits in the sidebar footer, which is hidden on narrow screens.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 by sonnet-implementer: 2276265. Every tasks.md box is ticked. 25/25 PDF spot-checks pass, and the license guards come back clean. The Phase 5 note says quickstart step 5's screenshot was not taken; that step was already done in Phase 4 (T038), whose Brave screenshots are in the scratchpad.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
