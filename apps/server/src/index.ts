@@ -10,6 +10,7 @@ import { createApp } from "./app.js";
 import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
+import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
 import { loadRetrievalConfig } from "./library/retrieve.js";
@@ -76,10 +77,14 @@ const app = createApp({
 // The WebSocket gateway shares this one port and one process with the HTTP
 // app (FR-001, architecture A2) — attached to the same underlying server
 // `serve()` returns, not a second listener.
+const gate = createGate({ db });
 const gateway = createGateway({
   db,
   validateSession: createValidateSession(db),
+  gate,
 });
+// Every row the gate appends reaches the entitled subscribers (ws-delivery.md).
+gate.onAppended(gateway.publish);
 
 // ponytail: a 1-hour request timeout so a large, slow upload isn't cut off
 // mid-stream by Node's default (research R1); the ingest worker itself has

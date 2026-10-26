@@ -1,6 +1,12 @@
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import type { ServerType } from "@hono/node-server";
+import {
+  currentVersion,
+  GATE_REQUEST_KINDS,
+  GATE_REQUEST_VERSION,
+  type StoredEvent,
+} from "@the-stacks/session-model";
 import { WebSocketServer } from "ws";
 import { SESSION_COOKIE_NAME } from "../auth/middleware.js";
 import type {
@@ -8,9 +14,10 @@ import type {
   SessionIdentity,
   ValidateSession,
 } from "../auth/session.js";
-import { append } from "../events/log.js";
+import type { Gate, GateResult } from "../gate/index.js";
+import { appendUncataloguedEvent } from "../session/events.js";
 import type { ErrorFrame, RecordedEventFrame, SendFrame } from "./protocol.js";
-import { parseInboundFrame, toEventPayload } from "./protocol.js";
+import { parseInboundFrame } from "./protocol.js";
 import type { Connection } from "./registry.js";
 import { createRegistry } from "./registry.js";
 import { subscribe as subscribeWithReplay } from "./subscribe.js";
@@ -74,6 +81,30 @@ function refuseUpgrade(
 export interface CreateGatewayOptions {
   db: DbClient;
   validateSession: ValidateSession;
+  /** Receives gate request kinds sent over `send` (spec 029 ws-delivery.md). */
+  gate: Gate;
+}
+
+/** Gate refusal codes the sender is not entitled to (a `forbidden` error frame). */
+const FORBIDDEN_GATE_CODES = new Set([
+  "NOT_AUTHORIZED",
+  "NOT_DM",
+  "COMMIT_NOT_ALLOWED",
+  "GROUP_SIGNOFF_REQUIRED",
+]);
+
+function errorKindFor(
+  refusal: Extract<GateResult, { ok: false }>["refusal"],
+): ErrorFrame["kind"] {
+  if (refusal.source === "gate") {
+    if (FORBIDDEN_GATE_CODES.has(refusal.code)) return "forbidden";
+    if (refusal.code === "CONFLICT") return "internal";
+  }
+  return "validation";
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
@@ -83,7 +114,11 @@ export interface CreateGatewayOptions {
  * upgrade request BEFORE the handshake completes, instead of `ws` accepting
  * the connection itself and only then handing it to application code.
  */
-export function createGateway({ db, validateSession }: CreateGatewayOptions) {
+export function createGateway({
+  db,
+  validateSession,
+  gate,
+}: CreateGatewayOptions) {
   const wss = new WebSocketServer({ noServer: true });
   const registry = createRegistry();
 
@@ -167,9 +202,13 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
     conn: Connection,
     kind: ErrorFrame["kind"],
     message: string,
+    code?: string,
   ): void {
     if (conn.socket.readyState !== conn.socket.OPEN) return;
-    const frame: ErrorFrame = { type: "error", kind, message };
+    const frame: ErrorFrame =
+      code === undefined
+        ? { type: "error", kind, message }
+        : { type: "error", kind, message, code };
     conn.socket.send(JSON.stringify(frame));
   }
 
@@ -201,13 +240,70 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
     await handleSend(conn, parsed.frame);
   }
 
+  /**
+   * Classifies a `send` (specs/029-proposal-gate/contracts/ws-delivery.md): a gate
+   * request kind goes to the gate; any other catalogued type is refused; the
+   * rest take the inert uncatalogued path (TASK-0099 retires it).
+   */
   async function handleSend(conn: Connection, frame: SendFrame): Promise<void> {
+    if (GATE_REQUEST_KINDS.includes(frame.eventType)) {
+      if (frame.payloadVersion !== GATE_REQUEST_VERSION) {
+        sendError(
+          conn,
+          "validation",
+          `Gate requests use payloadVersion ${GATE_REQUEST_VERSION}.`,
+        );
+        return;
+      }
+      if (!isJsonObject(frame.payload)) {
+        sendError(
+          conn,
+          "validation",
+          "A gate request payload must be an object.",
+        );
+        return;
+      }
+      const request = {
+        ...frame.payload,
+        kind: frame.eventType,
+        ...(frame.visibility !== undefined
+          ? { visibility: frame.visibility }
+          : {}),
+      };
+      const result = await gate.handle(
+        frame.sessionId,
+        { kind: "human", userId: conn.userId, role: conn.role },
+        request,
+      );
+      // On success nothing is sent directly: the gate's onAppended publishes
+      // the rows to every entitled subscriber, the sender included.
+      if (!result.ok) {
+        sendError(
+          conn,
+          errorKindFor(result.refusal),
+          result.refusal.message,
+          result.refusal.code,
+        );
+      }
+      return;
+    }
+
+    if (currentVersion(frame.eventType) !== undefined) {
+      sendError(
+        conn,
+        "forbidden",
+        `The event type ${frame.eventType} is written through the gate.`,
+        "CATALOG_TYPE_REQUIRES_GATE",
+      );
+      return;
+    }
+
     // FR-004: append BEFORE broadcast — never the reverse. A broadcast that
     // preceded the append could deliver an event that was never recorded,
     // and if the append then failed, clients would have seen something the
     // log doesn't contain. `append` itself validates seq/ts are absent, so
     // a failure here throws and nothing is ever sent to `registry.broadcast`.
-    const recorded = await append(db, {
+    const recorded = await appendUncataloguedEvent(db, {
       sessionId: frame.sessionId,
       // FR-005: actor is the connection's authenticated identity, never the
       // frame's — `frame` (SendFrame) has no `actor` field for it to come
@@ -218,15 +314,30 @@ export function createGateway({ db, validateSession }: CreateGatewayOptions) {
       payloadVersion: frame.payloadVersion,
       visibility: frame.visibility,
     });
-
-    const eventFrame: RecordedEventFrame = {
-      type: "event",
-      event: toEventPayload(recorded),
-    };
-    registry.broadcast(frame.sessionId, eventFrame);
+    publish(frame.sessionId, [recorded]);
   }
 
-  return { attach, registry };
+  /** Broadcasts stored rows in order; each subscriber receives only what it may see. */
+  function publish(sessionId: string, events: readonly StoredEvent[]): void {
+    for (const event of events) {
+      const eventFrame: RecordedEventFrame = {
+        type: "event",
+        event: {
+          sessionId: event.sessionId,
+          seq: event.seq,
+          actor: event.actor,
+          type: event.type,
+          payload: event.payload,
+          payloadVersion: event.payloadVersion,
+          visibility: event.visibility,
+          ts: event.ts,
+        },
+      };
+      registry.broadcast(sessionId, eventFrame);
+    }
+  }
+
+  return { attach, registry, publish };
 }
 
 export type Gateway = ReturnType<typeof createGateway>;

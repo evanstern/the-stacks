@@ -141,3 +141,5 @@ functions, through the gate (TASK-0045), with actors `ai:dm` and `ai:companion:<
   TASK-0095 (another session) owns the replay/live duplicate fix.
 - No REST route and no new WebSocket frame. A client folds the events it already receives
   with `applyEvent`.
+
+> Extended by specs/029-proposal-gate/contracts/proposals.md, policy-and-authority.md and gate-api.md: the proposal vocabulary, `checkPermission`, `routeProposal`, `commitAuthority`, `planProposal` and `mechanicsRows`, exported from the main entry.

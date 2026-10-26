@@ -1,9 +1,12 @@
 import { execute, scriptedRng } from "@the-stacks/dnd5e-engine";
 import { describe, expect, it } from "vitest";
 import {
+  commitAuthority as commitAuthorityFixture,
+  dmApprovals,
   fixtureIds,
   fixtures,
   freeModeAction,
+  proposalExamples,
   recipes,
   type SessionFixture,
   secretTracker,
@@ -12,9 +15,15 @@ import {
   unknownAndInvalid,
 } from "../src/fixtures/index.js";
 import {
+  commitAuthority,
   type Diagnostics,
   decodeEvent,
   emptyProjections,
+  findProposal,
+  ProposalKindSchema,
+  ProposalSchema,
+  pendingProposals,
+  planProposal,
   project,
   type SessionProjections,
   type StoredEvent,
@@ -40,16 +49,18 @@ function foldUpTo(f: SessionFixture, seqExclusive: number): SessionProjections {
 const cleanDiagnostics: Diagnostics = emptyProjections(dm).diagnostics;
 
 describe("fixture identity (guarantee 2)", () => {
-  it("has the five contract fixtures with unique names and session ids", () => {
+  it("has the seven contract fixtures with unique names and session ids", () => {
     expect(fixtures.map((f) => f.name)).toEqual([
       "talk-only",
       "free-mode-action",
       "turn-mode-combat",
       "secret-tracker",
       "unknown-and-invalid",
+      "dm-approvals",
+      "commit-authority",
     ]);
-    expect(new Set(fixtures.map((f) => f.name)).size).toBe(5);
-    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(5);
+    expect(new Set(fixtures.map((f) => f.name)).size).toBe(7);
+    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(7);
     for (const f of fixtures) {
       expect(f.name).toMatch(/^[a-z]+(-[a-z]+)*$/);
       expect(f.description.length).toBeGreaterThan(40);
@@ -62,6 +73,7 @@ describe("fixture identity (guarantee 2)", () => {
     expect(fixtureIds).toEqual({
       playerUserId: "00000000-0000-4000-8000-000000000001",
       otherPlayerUserId: "00000000-0000-4000-8000-000000000002",
+      dmUserId: "00000000-0000-4000-8000-000000000003",
       dmActor: "ai:dm",
       companionActor: "ai:companion:bram",
     });
@@ -113,6 +125,7 @@ describe("recipes regenerate the recorded batches (guarantee 3)", () => {
     for (const f of fixtures) {
       const batchIds = new Set(
         f.events
+          .filter((e) => !e.type.startsWith("proposal."))
           .map((e) => (e.payload as { batchId?: string } | null)?.batchId)
           .filter((b): b is string => typeof b === "string"),
       );
@@ -135,7 +148,9 @@ describe("recipes regenerate the recorded batches (guarantee 3)", () => {
       ) as SessionFixture;
       expect(f).toBeDefined();
       const rows = f.events.filter(
-        (e) => (e.payload as { batchId?: string }).batchId === recipe.batchId,
+        (e) =>
+          !e.type.startsWith("proposal.") &&
+          (e.payload as { batchId?: string }).batchId === recipe.batchId,
       );
       const rng = scriptedRng(recipe.faces);
 
@@ -364,5 +379,207 @@ describe("fixtures are plain data (guarantee 5)", () => {
       expect(JSON.parse(JSON.stringify(f))).toEqual(f);
     }
     expect(JSON.parse(JSON.stringify(recipes))).toEqual(recipes);
+  });
+});
+
+describe("dm-approvals facts (contracts/fixtures.md)", () => {
+  const f = dmApprovals;
+  const dmFold = project(f.events, dm);
+
+  it("the DM sees P1-P5 in order with their statuses and policies", () => {
+    expect(dmFold.diagnostics).toEqual(cleanDiagnostics);
+    expect(dmFold.proposals.map((p) => p.proposalId)).toEqual([
+      "prop-1",
+      "prop-2",
+      "prop-3",
+      "prop-4",
+      "prop-5",
+    ]);
+    expect(dmFold.proposals.map((p) => p.status)).toEqual([
+      "approved",
+      "rejected",
+      "pending",
+      "pending",
+      "pending",
+    ]);
+    expect(dmFold.proposals.map((p) => p.policy)).toEqual([
+      "ask",
+      "ask",
+      "suggest",
+      "ask",
+      "ask",
+    ]);
+    expect(pendingProposals(dmFold).map((p) => p.proposalId)).toEqual([
+      "prop-3",
+      "prop-4",
+      "prop-5",
+    ]);
+    expect(findProposal(dmFold, "prop-2")?.decided?.reason).toBe(
+      "I will describe the vault myself.",
+    );
+  });
+
+  it("the human DM holds the seat, journal is overridden and the tracker is only proposed", () => {
+    expect(dmFold.gate.seat).toEqual({
+      kind: "human",
+      userId: fixtureIds.dmUserId,
+    });
+    expect(dmFold.gate.policyOverrides).toEqual({ journal: "ask" });
+    expect(dmFold.trackers).toEqual([]);
+  });
+
+  it("the approved roll lands before its approval in consecutive seqs, stamped with P1", () => {
+    const approved = f.events.find(
+      (e) => e.type === "proposal.approved",
+    ) as StoredEvent;
+    const batch = f.events.filter(
+      (e) =>
+        (e.payload as { batchId?: string }).batchId === "b-lockpick" &&
+        !e.type.startsWith("proposal."),
+    );
+    expect(batch).toHaveLength(2);
+    expect(batch[1]?.seq).toBe(approved.seq - 1);
+    expect(batch[0]?.seq).toBe(approved.seq - 2);
+    for (const row of batch) {
+      expect((row.payload as { proposalId: string }).proposalId).toBe("prop-1");
+    }
+    expect(approved.actor).toBe(fixtureIds.dmUserId);
+    expect(dmFold.proposals[0]?.decided?.batchId).toBe("b-lockpick");
+  });
+
+  it("each player sees no proposal, no proposal id and no tracker name; the ledger holds the roll", () => {
+    for (const viewer of f.viewers.players) {
+      const p = project(f.events, viewer);
+      expect(p.proposals).toEqual([]);
+      const text = JSON.stringify(p);
+      for (const id of ["prop-1", "prop-2", "prop-3", "prop-4", "prop-5"]) {
+        expect(text).not.toContain(id);
+      }
+      expect(text).not.toContain("The vault alarm");
+      expect(p.ledger.filter((l) => l.kind === "roll")).toHaveLength(1);
+      expect(p.gate.seat).toEqual(dmFold.gate.seat);
+    }
+  });
+
+  it("re-planning P1 against the fold before its effects reproduces the recorded rows (guarantee 3)", () => {
+    const created = f.events.find(
+      (e) =>
+        e.type === "proposal.created" &&
+        (e.payload as { proposalId: string }).proposalId === "prop-1",
+    ) as StoredEvent;
+    const approved = f.events.find(
+      (e) => e.type === "proposal.approved",
+    ) as StoredEvent;
+    const recipe = recipes.find(
+      (r) => r.fixture === "dm-approvals" && r.batchId === "b-lockpick",
+    );
+    const before = project(
+      f.events.filter((e) => e.seq <= created.seq),
+      dm,
+    );
+    const proposal = ProposalSchema.parse(
+      (created.payload as { proposal: unknown }).proposal,
+    );
+    const planned = planProposal(
+      before,
+      { kind: "ai", actor: "ai:dm" },
+      proposal,
+      scriptedRng(recipe?.faces ?? []),
+      { batchId: "b-lockpick" },
+      "prop-1",
+    );
+    expect(planned.ok).toBe(true);
+    if (!planned.ok) return;
+    const recorded = f.events
+      .filter((e) => e.seq > created.seq && e.seq < approved.seq)
+      .map((e) => ({
+        actor: e.actor,
+        type: e.type,
+        payload: e.payload,
+        visibility: e.visibility,
+      }));
+    expect(planned.rows).toEqual(recorded);
+    expect(approved.payload).toEqual({
+      proposalId: "prop-1",
+      batchId: planned.batchId,
+    });
+  });
+});
+
+describe("commit-authority facts (contracts/fixtures.md)", () => {
+  const f = commitAuthorityFixture;
+  const end = project(f.events, dm);
+  const modeRow = f.events.find(
+    (e) => e.type === "table-mode.changed",
+  ) as StoredEvent;
+  const free = foldUpTo(f, modeRow.seq);
+  const { playerUserId, otherPlayerUserId, companionActor, dmActor } =
+    fixtureIds;
+
+  it("turn mode, Bram active", () => {
+    const rows: [string, string, unknown][] = [
+      [playerUserId, "act-a1", { ok: false, code: "COMMIT_NOT_ALLOWED" }],
+      [companionActor, "act-b1", { ok: true, authority: "active-player" }],
+      [companionActor, "act-a2", { ok: false, code: "COMMIT_NOT_ALLOWED" }],
+      [playerUserId, "act-p1", { ok: true, authority: "group" }],
+      [companionActor, "act-p1", { ok: false, code: "COMMIT_NOT_ALLOWED" }],
+      [dmActor, "act-a2", { ok: true, authority: "dm" }],
+      [otherPlayerUserId, "act-a1", { ok: false, code: "COMMIT_NOT_ALLOWED" }],
+    ];
+    expect(end.tableMode.mode).toBe("turn");
+    for (const [actor, actionId, expected] of rows) {
+      expect(
+        commitAuthority(end, { actor }, actionId),
+        `${actor} ${actionId}`,
+      ).toEqual(expected);
+    }
+  });
+
+  it("free mode, before the mode change", () => {
+    expect(free.tableMode).toEqual({ mode: "free" });
+    expect(commitAuthority(free, { actor: playerUserId }, "act-a1")).toEqual({
+      ok: true,
+      authority: "declarer",
+    });
+    expect(commitAuthority(free, { actor: companionActor }, "act-a1")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+  });
+
+  it("the stream is clean and the AI DM holds the seat", () => {
+    expect(end.diagnostics).toEqual(cleanDiagnostics);
+    expect(end.gate.seat).toEqual({ kind: "ai" });
+    expect(end.actions).toHaveLength(4);
+    expect(
+      end.actions.find((a) => a.actionId === "act-p1")?.comments,
+    ).toHaveLength(1);
+  });
+});
+
+describe("proposalExamples (contracts/fixtures.md)", () => {
+  it("has one valid example per kind, keyed by its kind", () => {
+    expect(Object.keys(proposalExamples).sort()).toEqual(
+      [...ProposalKindSchema.options].sort(),
+    );
+    for (const [key, example] of Object.entries(proposalExamples)) {
+      expect(example.kind).toBe(key);
+      expect(ProposalSchema.parse(example)).toEqual(example);
+      expect(example.summary, key).not.toBeNull();
+      if (key !== "action.declare")
+        expect(example.rationale, key).not.toBeNull();
+    }
+  });
+
+  it("the mechanics example is a DC 15 check.roll the engine accepts", () => {
+    const example = proposalExamples.mechanics;
+    expect(example.kind).toBe("mechanics");
+    if (example.kind !== "mechanics") return;
+    expect(example.command).toMatchObject({ type: "check.roll", dc: 15 });
+    const p = project(
+      freeModeAction.events.filter((e) => e.seq < 11),
+      dm,
+    );
+    expect(execute(p.engine, example.command, scriptedRng([13])).ok).toBe(true);
   });
 });

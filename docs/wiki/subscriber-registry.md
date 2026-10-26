@@ -1,10 +1,10 @@
 ---
 name: subscriber-registry
-description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, isVisible filtering, and why a filtered event is never sent (seq gaps are correct), and the replayedThroughSeq replay floor that broadcast skips.
+description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, per-viewer canSee filtering against a cached DM seat (viewerFor), why a filtered event is never sent (seq gaps are correct), and the replayedThroughSeq replay floor broadcast skips.
 kind: component
 sources:
   - apps/server/src/ws/registry.ts
-verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Subscriber registry
@@ -25,14 +25,23 @@ visited entry leaks forever). `broadcast(sessionId, frame)` only ever looks up t
 `Set` for `sessionId` — a connection subscribed elsewhere is never in scope to receive it, by
 construction, not by a check.
 
-**`isVisible(conn, event)`** is the single per-recipient visibility decision, exported so both
-the live path (`registry.broadcast`, below) and the replay path
-([[replay-live-boundary]]'s read loop) make the *exact same* decision instead of risking two
-implementations drifting apart. M0's visibility model is minimal: `event.visibility ===
-"public"` reaches everyone subscribed; any other value reaches only the connection whose
-`userId` equals it — whisper-style per-person visibility.
+**`viewerFor(conn, seat)`** maps a connection to a `Viewer` for a session whose DM seat is
+`seat`: `{ role: "dm" }` only when the seat is a human seat held by `conn.userId`, otherwise
+`{ role: "player", userId }`. A connection's operator role alone never gets the DM view. The
+per-recipient decision is `canSee(viewerFor(conn, seat), event.visibility)` (`canSee` from
+[[session-model]]), used by both the live path (`registry.broadcast`, below) and the replay path
+([[replay-live-boundary]]'s read loop), so the two cannot drift. Public reaches everyone; `dm`
+reaches only the DM viewer; a user id reaches that user (and the DM).
 
-**A filtered event is never sent — not sent-then-hidden.** `broadcast` calls `isVisible` per
+**DM seat cache.** The registry holds one `DmSeat` per subscribed session (`setSeat`, `seatOf`),
+deleted with the session's last subscriber. `broadcast` filters with the cached seat, falling
+back to the AI seat. A broadcast of a `dm.seat.changed` event first delivers under the old seat,
+then updates the cache from the payload's `after`. That update happens whether or not a seat was
+cached: a subscribe still awaiting its seat load re-reads the cache after the await, so a seat
+set by a concurrent broadcast beats the possibly stale load (the TASK-0045 race fix), and a
+former DM never sees `dm`-only events.
+
+**A filtered event is never sent — not sent-then-hidden.** `broadcast` calls `canSee` per
 connection and simply `continue`s past anyone it fails for; nothing is transmitted to that
 socket for that event. This is why `seq` legitimately has gaps for some recipients: a
 connection that was filtered out of event 7 has no way to distinguish "event 7 didn't happen"
@@ -45,7 +54,7 @@ never stop, or roll back, delivery to every other subscriber of an event the log
 committed. A closed socket (`readyState !== OPEN`) or a `send` that throws is pruned from the
 registry on the spot, the same as an explicit `close` event.
 
-**Replay floor.** After the `isVisible` check, `broadcast` skips any event whose `seq` is at or
+**Replay floor.** After the `canSee` check, `broadcast` skips any event whose `seq` is at or
 below `conn.replayedThroughSeq`. The field starts at `0` (set in [[websocket-gateway]]), is set
 to the subscribe's `afterSeq` on entry to `subscribe()`, and to the replay's `throughSeq` just
 before `pendingQueue` clears. The skip runs before the queue/send split, so it covers both
@@ -53,13 +62,13 @@ paths. It closes a race: the gateway appends, then broadcasts, so a replay may a
 delivered an event whose broadcast runs only after the queue is gone.
 
 A connection whose `pendingQueue` is non-null (replay in flight) gets the event pushed onto
-that queue instead of sent directly — only events that passed `isVisible` and the replay floor
+that queue instead of sent directly — only events that passed `canSee` and the replay floor
 are ever queued, so [[replay-live-boundary]]'s drain step needs no second filtering pass.
 
 ## Connections
 
 Built and driven by [[websocket-gateway]]. Read and written by [[replay-live-boundary]] for
-the queueing half of the replay/live boundary. Frame shape from [[ws-protocol]].
+the queueing half of the replay/live boundary. Frame shape from [[ws-protocol]]. Visibility and the seat come from [[session-model]] and [[proposal-gate]].
 
 ## Operational notes
 

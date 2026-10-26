@@ -5,6 +5,7 @@ import { serve } from "@hono/node-server";
 import { createApp } from "../../app.js";
 import { createValidateSession } from "../../auth/session.js";
 import { createDb } from "../../db.js";
+import { createGate } from "../../gate/index.js";
 import { createGateway as createWsGateway } from "../../ws/gateway.js";
 import { type StartedApp, startApp } from "./app-proc.js";
 import type { RunContext } from "./cases.js";
@@ -44,6 +45,7 @@ export async function runConcurrencySmoke(): Promise<CaseOutcome> {
     const wsGateway = createWsGateway({
       db,
       validateSession: createValidateSession(db),
+      gate: createGate({ db }),
     });
     let resolvePort!: (port: number) => void;
     const portPromise = new Promise<number>((resolve) => {

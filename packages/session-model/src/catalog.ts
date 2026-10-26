@@ -6,12 +6,18 @@ import {
   ActionDeclaredV1,
   ActionResolvedV1,
 } from "./events/actions.js";
+import { DmSeatChangedV1, GatePolicyChangedV1 } from "./events/gate-config.js";
 import { JournalEntryAddedV1 } from "./events/journal.js";
 import {
   type MechanicsEnvelope,
   MechanicsEnvelopeV1,
 } from "./events/mechanics.js";
 import { PartyMemberChangedV1 } from "./events/party.js";
+import {
+  ProposalApprovedV1,
+  ProposalCreatedV1,
+  ProposalRejectedV1,
+} from "./events/proposals.js";
 import { SceneChangedV1 } from "./events/scene.js";
 import { TableModeChangedV1 } from "./events/table-mode.js";
 import { NarrationV1, TalkV1 } from "./events/talk.js";
@@ -23,7 +29,8 @@ export type EventKind =
   | "lifecycle"
   | "state-change"
   | "marker"
-  | "record";
+  | "record"
+  | "proposal";
 
 export interface CatalogEntry {
   type: string;
@@ -71,6 +78,11 @@ const sessionEntries: CatalogEntry[] = [
   session("party.member.changed", "state-change", PartyMemberChangedV1),
   session("tracker.changed", "state-change", TrackerChangedV1, "dm-only"),
   session("journal.entry.added", "record", JournalEntryAddedV1),
+  session("proposal.created", "proposal", ProposalCreatedV1, "dm-only"),
+  session("proposal.approved", "proposal", ProposalApprovedV1, "dm-only"),
+  session("proposal.rejected", "proposal", ProposalRejectedV1, "dm-only"),
+  session("dm.seat.changed", "state-change", DmSeatChangedV1),
+  session("gate.policy.changed", "state-change", GatePolicyChangedV1),
 ];
 
 const mechanicsEntries: CatalogEntry[] = MECHANICS_EVENT_TYPES.map((type) =>
@@ -118,6 +130,11 @@ type SessionPayloads = {
   "party.member.changed": z.infer<typeof PartyMemberChangedV1>;
   "tracker.changed": z.infer<typeof TrackerChangedV1>;
   "journal.entry.added": z.infer<typeof JournalEntryAddedV1>;
+  "proposal.created": z.infer<typeof ProposalCreatedV1>;
+  "proposal.approved": z.infer<typeof ProposalApprovedV1>;
+  "proposal.rejected": z.infer<typeof ProposalRejectedV1>;
+  "dm.seat.changed": z.infer<typeof DmSeatChangedV1>;
+  "gate.policy.changed": z.infer<typeof GatePolicyChangedV1>;
 };
 
 export type SessionNativeEvent = {

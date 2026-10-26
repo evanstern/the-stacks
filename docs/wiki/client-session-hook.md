@@ -20,7 +20,7 @@ package, so a frame-shape change has to be caught, not inferred.
 
 `highestSeqRef` holds the highest `seq` ever delivered, updated on every `event` frame as
 `Math.max(highestSeqRef.current, frame.event.seq)` — **never incremented** to guess a "next
-expected" value. Because [[subscriber-registry]]'s `isVisible` filtering means `seq` can
+expected" value. Because [[subscriber-registry]]'s per-viewer `canSee` filtering means `seq` can
 legitimately skip values for this connection, treating a gap as "missing" and incrementing
 would be wrong; `Math.max` is the only operation that's safe regardless of gaps. This ref is
 sent verbatim as `afterSeq` on every `subscribe` frame, including reconnects.

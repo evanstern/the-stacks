@@ -4,12 +4,18 @@ import {
   type MechanicsEvent,
   type SessionEvent,
 } from "../catalog.js";
+import { DEFAULT_POLICIES } from "../gate/policy.js";
 import type { StoredEvent } from "../stored-event.js";
 import { canSee, type Viewer } from "../visibility.js";
 import { applyLifecycle, transcriptEntry } from "./actions.js";
 import { buildEncounter } from "./encounter.js";
 import { mechanicsRow, sessionChangeRow } from "./ledger.js";
 import { changeMember, joinParty, memberOf } from "./party.js";
+import {
+  approveProposal,
+  createProposal,
+  rejectProposal,
+} from "./proposals.js";
 import type { Diagnostics, SessionProjections } from "./types.js";
 
 export function emptyProjections(viewer: Viewer): SessionProjections {
@@ -26,6 +32,8 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     ledger: [],
     trackers: [],
     engine: emptyState(),
+    gate: { seat: { kind: "ai" }, policyOverrides: {} },
+    proposals: [],
     throughSeq: 0,
     diagnostics: {
       skippedUnknownType: 0,
@@ -210,6 +218,46 @@ function applyKnown(
           },
         ],
       };
+    case "proposal.created":
+    case "proposal.approved":
+    case "proposal.rejected": {
+      if (p.viewer.role !== "dm") return p;
+      const result =
+        event.type === "proposal.created"
+          ? createProposal(p.proposals, event)
+          : event.type === "proposal.approved"
+            ? approveProposal(p.proposals, event)
+            : rejectProposal(p.proposals, event);
+      const next = { ...p, proposals: result.proposals };
+      return result.ignored ? bump(next, "ignoredTransitions") : next;
+    }
+    case "dm.seat.changed": {
+      const checked = checkBefore(p, p.gate.seat, event.payload.before);
+      return {
+        ...checked,
+        gate: { ...p.gate, seat: event.payload.after },
+        ledger: [...p.ledger, sessionChangeRow(event)],
+      };
+    }
+    case "gate.policy.changed": {
+      const kind = event.payload.proposalKind;
+      const checked = checkBefore(
+        p,
+        p.gate.policyOverrides[kind] ?? DEFAULT_POLICIES[kind],
+        event.payload.before,
+      );
+      return {
+        ...checked,
+        gate: {
+          ...p.gate,
+          policyOverrides: {
+            ...p.gate.policyOverrides,
+            [kind]: event.payload.after,
+          },
+        },
+        ledger: [...p.ledger, sessionChangeRow(event)],
+      };
+    }
     default:
       return applyMechanics(p, event as MechanicsEvent);
   }
@@ -221,7 +269,12 @@ function applyUnsafe(
 ): SessionProjections {
   // Visibility first: a hidden event is dropped uncounted and does not move throughSeq.
   if (!canSee(p.viewer, stored.visibility)) return p;
-  if (p.viewer.role === "player" && stored.type === "tracker.changed") return p;
+  if (
+    p.viewer.role === "player" &&
+    (stored.type === "tracker.changed" || stored.type.startsWith("proposal."))
+  ) {
+    return p;
+  }
   if (stored.seq <= p.throughSeq) return bump(p, "outOfOrder");
   const moved: SessionProjections = { ...p, throughSeq: stored.seq };
   const decoded = decodeEvent(stored);

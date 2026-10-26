@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Monorepo and toolchain
@@ -64,7 +64,9 @@ reference (`apps/server/test/tsconfig.json`: `noEmit: true`, `include: ["."]`, r
 `.gitignore` (`vcs.useIgnoreFile: true`) and additionally excluding `.claude`, `.specify`,
 `backlog`, `docs`, `specs`, `fixtures` from its `files.includes` — non-source directories it
 never touches — plus narrower carve-outs: `apps/server/test/fixtures/ddb` (raw
-export-shaped HTML fixtures, not app code; see [[ddb-parser]]) and the generated SRD data
+export-shaped HTML fixtures, not app code; see [[ddb-parser]]), `apps/server/test/fixtures/write-boundary`
+(the seeded violation tree for the import-graph test, [[proposal-gate]]; also excluded from the
+server test tsconfig) and the generated SRD data
 (`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]). Eight `overrides` entries add
 a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,

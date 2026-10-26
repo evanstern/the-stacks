@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Server entrypoint and app
@@ -39,7 +39,10 @@ its temp-file directory, a callback that wakes the worker's poll loop the instan
 enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask`'s three
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice. Then
-`createGateway({ db, validateSession: createValidateSession(db) })` for the WebSocket side.
+`const gate = createGate({ db })` (see [[proposal-gate]]) and
+`createGateway({ db, validateSession: createValidateSession(db), gate })` for the WebSocket
+side, followed by `gate.onAppended(gateway.publish)` so every row the gate appends reaches the
+entitled subscribers.
 It calls `serve({ fetch: app.fetch, port: config.port, serverOptions: { requestTimeout: 60 *
 60 * 1000 } }, ...)` from `@hono/node-server` — the hour-long `requestTimeout` (`ponytail:`
 fixed, not configurable) exists so a large, slow upload isn't cut off mid-stream by Node's
@@ -47,7 +50,7 @@ default; the callback logs `Server listening on port ${info.port}`. The load-bea
 the last one: `gateway.attach(server)` — the object `serve()` returns is passed directly into
 the gateway, so the WebSocket upgrade handler attaches to the **same** underlying Node HTTP
 server, not a second listener on a second port. One process, one port, carries the HTTP API,
-the ingest worker's background loop, the WebSocket gateway, and (via static middleware) the
+the ingest worker's background loop, the WebSocket gateway (and the in-process proposal gate), and (via static middleware) the
 built client.
 
 `createValidateSession(db)` is called twice in this file's transitive call graph — once

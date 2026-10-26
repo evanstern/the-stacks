@@ -1,10 +1,10 @@
 ---
 name: websocket-gateway
-description: The WebSocket gateway's upgrade-time authentication — a socket only ever opens for a valid session, refused upgrades write a bare HTTP status line, and the 401-vs-503 split that keeps a datastore blip from looking like a sign-out.
+description: The WebSocket gateway — upgrade-time authentication (a socket only opens for a valid session; 401 vs 503), the send-path classification (gate request kinds go to the gate, other catalogued types are refused, uncatalogued types take the legacy append), and publish, which fans gate output out per viewer.
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # WebSocket gateway
@@ -41,14 +41,28 @@ at upgrade time, and never re-derived per message. The new `Connection` starts w
 After that, `handleConnection` wires `message`/`close`/`error` listeners. Each inbound frame
 is parsed by [[ws-protocol]]'s `parseInboundFrame`; a frame that fails validation gets an
 `error` frame back but the connection stays open. A `subscribe` frame delegates entirely to
-[[replay-live-boundary]]. A `send` frame is handled inline: `append` (see [[event-log]]) is
-called **before** `registry.broadcast` — append validates that the frame carries no `seq` or
-`ts`, and the connection's own authenticated `userId` is used as `actor`, never anything the
-frame supplied. If `append` throws, nothing ever reaches `broadcast`.
+[[replay-live-boundary]]. A `send` frame goes to `handleSend`, which classifies by `eventType`:
+
+- **A gate request kind** (`GATE_REQUEST_KINDS`): requires `payloadVersion` 1 and an object
+  payload (else a `validation` error). The gateway builds the request from the payload plus
+  `kind` (and `visibility` when sent) and calls `gate.handle` with a human proposer from the
+  connection's identity (`userId`, `role`). On success nothing is sent directly: the gate's
+  `onAppended` listener calls `publish`. A refusal becomes an `error` frame with the refusal
+  `code`; the kind is `forbidden` for `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED` and
+  `GROUP_SIGNOFF_REQUIRED`, `internal` for `CONFLICT`, otherwise `validation`. See [[proposal-gate]].
+- **Any other catalogued type**: refused with `forbidden` and code `CATALOG_TYPE_REQUIRES_GATE`.
+- **Uncatalogued types**: the legacy path. `appendUncataloguedEvent` (see [[event-log]]) appends
+  **before** `publish`; the connection's own `userId` is the `actor`, never anything the frame
+  supplied. If the append throws, nothing is broadcast. TASK-0099 retires this path.
+
+`createGateway` now requires a `gate` option; `index.ts` creates it and wires
+`gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish }`.
+`publish(sessionId, events)` broadcasts stored rows in order through [[subscriber-registry]],
+which filters per viewer. `sendError` takes an optional `code`.
 
 ## Connections
 
-Feeds [[subscriber-registry]] with connections and [[event-log]] with appended events. Frame
+Feeds [[subscriber-registry]] with connections and [[proposal-gate]] with gate requests. Frame
 shapes and the ignored-fields list live in [[ws-protocol]]. Consumed from the client side by
 [[client-session-hook]], which uses an `/auth/me` preflight because the browser can't observe
 a refused upgrade's status code directly.

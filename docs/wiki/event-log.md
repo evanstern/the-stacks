@@ -1,11 +1,11 @@
 ---
 name: event-log
-description: The append-only session event log — append, appendBatch (atomic multi-row append, consecutive seq) and readFrom. How seq is assigned inside a pg_advisory_xact_lock (without it, 21-23 of 50 concurrent appends were lost per run; with it, 50/50 gapless), visibility default, and the bounded cursor read.
+description: The append-only session event log — append, appendBatch (atomic multi-row append, consecutive seq, optional expectedLastSeq guard raising SeqConflictError), readFrom and readLatestOfType. How seq is assigned inside a pg_advisory_xact_lock (without it, 21-23 of 50 concurrent appends were lost per run; with it, 50/50 gapless), visibility default, and the bounded cursor read.
 kind: component
 sources:
   - apps/server/src/events/log.ts
   - apps/server/src/schema/events.ts
-verified_against: 3551d0de8b97eb32651d726ac1707df233834502
+verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 ---
 
 # Event Log
@@ -54,13 +54,22 @@ concurrently — a global lock would have passed the single-session test and bro
 After 200+ concurrent appends, zero advisory locks remained held in `pg_locks` — confirming the
 xact-scoped form actually releases at commit rather than leaking into the pooled connection.
 
-**`appendBatch(db, inputs)`** (TASK-0044) appends several events for one session as an atomic
+**`appendBatch(db, inputs, options?)`** (TASK-0044) appends several events for one session as an atomic
 batch. It opens one transaction and takes the same per-session `pg_advisory_xact_lock` as
 `append` (it lives in `log.ts` because the lock namespace is private to that module). It reads
 `MAX(seq)` once and inserts the rows with consecutive `seq` values in input order; any failure
 rolls the whole batch back and zero rows land. Before opening the transaction it throws when
 `inputs` is empty, when inputs name more than one `sessionId`, or when any input carries
 `seq` or `ts`. The session model's mechanics batches ride this path ([[session-model]]).
+
+`options.expectedLastSeq` (TASK-0045) is an optimistic-concurrency guard. After the lock is
+held and `MAX(seq)` is read, a mismatch throws `SeqConflictError` (`expected`, `actual`) and
+nothing is written; an empty session's last seq is `0`. The gate sends the `throughSeq` it
+decided against and retries on the error ([[proposal-gate]]).
+
+**`readLatestOfType(db, { sessionId, type })`** returns the newest row of one type, or `null`:
+one read in descending primary-key order. The server uses it to find the latest
+`dm.seat.changed` row.
 
 **`readFrom(db, input)`** returns a session's events strictly after a cursor
 (`afterSeq`, default `0` — the origin), ascending by `seq`, bounded by `input.limit`. It
@@ -75,11 +84,11 @@ passing `undefined`, so the schema's default applies instead of an explicit null
 ## Connections
 
 Built on [[database-access]]'s `createDb`. The table shape is [[database-schema]]. Fed by
-[[websocket-gateway]] (writes) and [[session-model]] (typed `appendSessionEvent` / `appendMechanicsBatch` over `append` / `appendBatch`) and read by [[replay-live-boundary]] (the gap-free
-replay-then-live handoff) and [[subscriber-registry]] (visibility-filtered fan-out).
+[[websocket-gateway]] (legacy uncatalogued writes only) and [[session-model]] (typed `appendSessionEvent` / `appendSessionEvents` / `appendMechanicsBatch` over `append` / `appendBatch`; also `loadDmSeat`, which reads `readLatestOfType`) and [[proposal-gate]] and read by [[replay-live-boundary]] (the gap-free
+replay-then-live handoff) and [[subscriber-registry]] (per-viewer filtered fan-out).
 
 ## Operational notes
 
-`append`, `appendBatch` and `readFrom` throw on any underlying database error — neither catches or converts
+`append`, `appendBatch`, `readFrom` and `readLatestOfType` throw on any underlying database error — neither catches or converts
 failures; callers propagate them. There is no retry logic anywhere in this path: the advisory
 lock makes the common case linear, so there is nothing to retry against.

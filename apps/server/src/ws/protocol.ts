@@ -68,6 +68,8 @@ export interface ErrorFrame {
   type: "error";
   kind: ErrorKind;
   message: string;
+  /** The refusal code, when the refusal has one (spec 029 ws-delivery.md). */
+  code?: string;
 }
 
 export type OutboundFrame =

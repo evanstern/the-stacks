@@ -6,6 +6,8 @@ import type { Viewer } from "../visibility.js";
 export const fixtureIds = {
   playerUserId: "00000000-0000-4000-8000-000000000001",
   otherPlayerUserId: "00000000-0000-4000-8000-000000000002",
+  /** A human operator seated as DM (specs/029-proposal-gate/contracts/fixtures.md). */
+  dmUserId: "00000000-0000-4000-8000-000000000003",
   dmActor: "ai:dm",
   companionActor: "ai:companion:bram",
 } as const;
@@ -85,6 +87,7 @@ export function mechanicsBatch(
     batchId: string;
     actor: string;
     actionId?: string | null;
+    proposalId?: string | null;
     visibility?: string;
   },
   events: readonly EngineEvent[],
@@ -98,7 +101,7 @@ export function mechanicsBatch(
       index,
       count: events.length,
       actionId: batch.actionId ?? null,
-      proposalId: null,
+      proposalId: batch.proposalId ?? null,
       event,
     },
   }));

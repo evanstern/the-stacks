@@ -90,6 +90,8 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       subscribe(c: Connection, sid: string) {
         c.sessionId = sid;
       },
+      seatOf: () => ({ kind: "ai" }),
+      setSeat: () => {},
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));
@@ -121,6 +123,7 @@ describe("replay/live boundary (research D1, deterministic)", () => {
 
     await subscribe(db, registry, conn, sessionId, 0, {
       readFrom: readFromFake,
+      loadDmSeat: async () => ({ kind: "ai" }),
     });
 
     const seqs = conn.sent.map((e) => e.seq);
@@ -144,6 +147,8 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       subscribe(c: Connection, sid: string) {
         c.sessionId = sid;
       },
+      seatOf: () => ({ kind: "ai" }),
+      setSeat: () => {},
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));
@@ -174,9 +179,53 @@ describe("replay/live boundary (research D1, deterministic)", () => {
 
     await subscribe({} as never, registry, conn, sessionId, 0, {
       readFrom: readFromFake,
+      loadDmSeat: async () => ({ kind: "ai" }),
     });
 
     expect(conn.sent.map((e) => e.seq)).toEqual([1, 2]);
+  });
+});
+
+describe("DM-seat subscribe race (TASK-0045)", () => {
+  const FORMER_DM = "11111111-1111-4111-8111-111111111111";
+  it("never sends dm-only events to a former DM when the seat changes between load and cache write", async () => {
+    const sessionId = randomUUID();
+    const registry = createRegistry();
+    const conn = fakeConnection();
+    (conn as { userId: string }).userId = FORMER_DM;
+    const stale = { kind: "human", userId: FORMER_DM } as const;
+    const next = { kind: "ai" } as const;
+
+    const seatChanged = {
+      ...row(5, sessionId),
+      type: "dm.seat.changed",
+      payload: { reason: "handover", before: stale, after: next },
+    };
+    const dmOnly = {
+      ...row(6, sessionId),
+      type: "proposal.created",
+      visibility: "dm",
+    };
+
+    await subscribe({} as never, registry, conn, sessionId, 0, {
+      readFrom: async () => [],
+      // The load returns the pre-change seat; the change is broadcast before
+      // the load resolves, i.e. between the DB read and the cache write.
+      loadDmSeat: async () => {
+        registry.broadcast(sessionId, {
+          type: "event",
+          event: toEventPayload(seatChanged),
+        });
+        return stale;
+      },
+    });
+    registry.broadcast(sessionId, {
+      type: "event",
+      event: toEventPayload(dmOnly),
+    });
+
+    expect(registry.seatOf(sessionId)).toEqual(next);
+    expect(conn.sent.map((e) => e.seq)).not.toContain(6);
   });
 });
 

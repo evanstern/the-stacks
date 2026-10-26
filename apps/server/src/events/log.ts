@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import type { createDb } from "../db.js";
 import { events } from "../schema/events.js";
 
@@ -29,6 +29,22 @@ export interface AppendInput {
   payloadVersion: number;
   /** Defaults to the public marker when omitted (FR-013). */
   visibility?: string;
+}
+
+/**
+ * Thrown by `appendBatch` when `expectedLastSeq` no longer matches the session's
+ * last sequence number. Nothing is written (specs/029-proposal-gate gate-api.md section 4).
+ */
+export class SeqConflictError extends Error {
+  readonly expected: number;
+  readonly actual: number;
+
+  constructor(expected: number, actual: number) {
+    super(`sequence conflict: expected last seq ${expected}, found ${actual}`);
+    this.name = "SeqConflictError";
+    this.expected = expected;
+    this.actual = actual;
+  }
 }
 
 export interface ReadFromInput {
@@ -117,6 +133,7 @@ export async function append(
 export async function appendBatch(
   db: DbClient,
   inputs: readonly AppendInput[],
+  options?: { expectedLastSeq?: number },
 ): Promise<RecordedEvent[]> {
   if (inputs.length === 0) {
     throw new Error("appendBatch: inputs must not be empty");
@@ -142,6 +159,12 @@ export async function appendBatch(
       .from(events)
       .where(eq(events.sessionId, sessionId));
     const base = Number(max);
+    if (
+      options?.expectedLastSeq !== undefined &&
+      options.expectedLastSeq !== base
+    ) {
+      throw new SeqConflictError(options.expectedLastSeq, base);
+    }
 
     const recorded: RecordedEvent[] = [];
     for (const [i, input] of inputs.entries()) {
@@ -183,4 +206,23 @@ export async function readFrom(
     .where(and(eq(events.sessionId, input.sessionId), gt(events.seq, afterSeq)))
     .orderBy(asc(events.seq))
     .limit(input.limit);
+}
+
+/**
+ * The latest row of one type in a session, or null (gate-api.md section 4).
+ * One read in descending primary-key order.
+ */
+export async function readLatestOfType(
+  db: DbClient,
+  input: { sessionId: string; type: string },
+): Promise<RecordedEvent | null> {
+  const [row] = await db
+    .select()
+    .from(events)
+    .where(
+      and(eq(events.sessionId, input.sessionId), eq(events.type, input.type)),
+    )
+    .orderBy(desc(events.seq))
+    .limit(1);
+  return row ?? null;
 }

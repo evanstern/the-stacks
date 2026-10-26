@@ -3,8 +3,11 @@ import type { EngineEvent } from "@the-stacks/dnd5e-engine";
 import {
   catalog,
   currentVersion,
+  type DmSeat,
+  DmSeatChangedV1,
   MECHANICS_EVENT_TYPES,
   MechanicsEnvelopeV1,
+  mechanicsRows,
   type StoredEvent,
   VisibilitySchema,
 } from "@the-stacks/session-model";
@@ -14,6 +17,7 @@ import {
   appendBatch,
   type DbClient,
   type RecordedEvent,
+  readLatestOfType,
 } from "../events/log.js";
 
 /** Append refusal codes (specs/028-session-model/contracts/session-events.md). */
@@ -23,7 +27,8 @@ export type AppendRefusalCode =
   | "INVALID_PAYLOAD"
   | "TYPE_MISMATCH"
   | "VISIBILITY_NOT_ALLOWED"
-  | "INVALID_VISIBILITY";
+  | "INVALID_VISIBILITY"
+  | "CATALOG_TYPE_REQUIRES_GATE";
 
 const MAX_ISSUES = 10;
 
@@ -120,6 +125,49 @@ export async function appendSessionEvent(
   return toStoredEvent(await append(db, vetted));
 }
 
+/**
+ * Vets every input against the catalog (any refusal: nothing written), then appends all
+ * rows in one `appendBatch`, forwarding `expectedLastSeq`. Throws `SeqConflictError` on a
+ * stale expectation.
+ */
+export async function appendSessionEvents(
+  db: DbClient,
+  inputs: readonly AppendSessionEventInput[],
+  options?: { expectedLastSeq?: number },
+): Promise<StoredEvent[]> {
+  const vetted = inputs.map(vet);
+  const rows = await appendBatch(db, vetted, options);
+  return rows.map(toStoredEvent);
+}
+
+/**
+ * The inert legacy path (ws-delivery.md). Refuses CATALOG_TYPE_REQUIRES_GATE for any
+ * catalogued type; otherwise calls M0 `append` unchanged.
+ */
+export async function appendUncataloguedEvent(
+  db: DbClient,
+  input: AppendInput,
+): Promise<StoredEvent> {
+  if (currentVersion(input.type) !== undefined) {
+    throw new SessionEventRefused("CATALOG_TYPE_REQUIRES_GATE", [input.type]);
+  }
+  return toStoredEvent(await append(db, input));
+}
+
+/** The session's DM seat: the latest dm.seat.changed row's `after`, else the AI DM. */
+export async function loadDmSeat(
+  db: DbClient,
+  sessionId: string,
+): Promise<DmSeat> {
+  const row = await readLatestOfType(db, {
+    sessionId,
+    type: "dm.seat.changed",
+  });
+  if (!row) return { kind: "ai" };
+  const parsed = DmSeatChangedV1.safeParse(row.payload);
+  return parsed.success ? parsed.data.after : { kind: "ai" };
+}
+
 export interface AppendMechanicsBatchInput {
   sessionId: string;
   actor: string;
@@ -152,28 +200,24 @@ export async function appendMechanicsBatch(
     ]);
   }
   const batchId = randomUUID();
-  const count = input.events.length;
-  const vetted = input.events.map((event, index) => {
+  for (const [index, event] of input.events.entries()) {
     if (!MECHANICS_EVENT_TYPES.includes(event.type)) {
       throw new SessionEventRefused("UNKNOWN_EVENT_TYPE", [
         `events.${index}: ${event.type}`,
       ]);
     }
-    return vet({
-      sessionId: input.sessionId,
-      actor: input.actor,
-      type: event.type,
-      payload: {
-        batchId,
-        index,
-        count,
-        actionId: input.actionId,
-        proposalId: input.proposalId,
-        event,
-      },
-      visibility: input.visibility,
-    });
+  }
+  const planned = mechanicsRows({
+    actor: input.actor,
+    batchId,
+    events: input.events,
+    actionId: input.actionId,
+    proposalId: input.proposalId,
+    visibility: input.visibility ?? "public",
   });
+  const vetted = planned.map((row) =>
+    vet({ sessionId: input.sessionId, ...row }),
+  );
   const rows = await deps.appendBatch(db, vetted);
   return { batchId, events: rows.map(toStoredEvent) };
 }

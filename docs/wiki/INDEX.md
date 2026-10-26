@@ -18,7 +18,7 @@ vector/fts/hybrid search, fused by RRF) now has its first HTTP caller: the rules
 operator-only. The provider-agnostic AI gateway ([[ai-gateway]]) has landed, with two callers
 now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. Both now have a UI
 ([[chat-ui]], TASK-0028): upload-and-watch-it-ingest, ask-and-watch-it-stream with clickable
-citations, and a much smaller Table-only view for a player, role-gated at the loader. The pure 5e rules engine ([[dnd5e-engine]], TASK-0042) now exists as a standalone package, not yet called by the server. The SRD 5.2.1 data package ([[srd-data]], TASK-0043) adds 903 validated records with provenance, an id/name loader, a 120-token compact lookup form and the CC-BY attribution shown on `/about`. The session model ([[session-model]], TASK-0044) adds the typed event catalog, `canSee` visibility, the pure projection fold and fixtures, with an atomic `appendBatch` in the event log; live DM delivery is TASK-0045. No
+citations, and a much smaller Table-only view for a player, role-gated at the loader. The pure 5e rules engine ([[dnd5e-engine]], TASK-0042) now exists as a standalone package, not yet called by the server. The SRD 5.2.1 data package ([[srd-data]], TASK-0043) adds 903 validated records with provenance, an id/name loader, a 120-token compact lookup form and the CC-BY attribution shown on `/about`. The session model ([[session-model]], TASK-0044) adds the typed event catalog, `canSee` visibility, the pure projection fold and fixtures, with an atomic `appendBatch` in the event log. The proposal gate ([[proposal-gate]], TASK-0045) now stands between producers and the log: typed proposals routed by `auto`/`ask`/`suggest` policy and DM seat, commit authority by table mode, refuse-before-write, atomic approval, an `expectedLastSeq` guard in the log, per-viewer WebSocket delivery (`canSee`), and an import-graph write-boundary test; the legacy uncatalogued `send` path remains until TASK-0099. No
 codex, system modules, or agents yet. `main` is now continuously deployed to a real hosted
 `dev` environment on vm-104 ([[hosted-dev]]).
 
@@ -66,7 +66,8 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 
 ## Realtime
 
-- [[websocket-gateway]] — upgrade-time authentication, the 401/503 split, and connection lifetime.
+- [[websocket-gateway]] — upgrade-time authentication, the 401/503 split, connection lifetime, and the `send` classification (gate request, refused catalogued type, legacy append).
+- [[proposal-gate]] — proposal kinds, policy table and DM seat, commit authority, `createGate`, atomic approval, and the write-boundary test.
 - [[ws-protocol]] — the frame shapes, what the server ignores, and what the protocol deliberately omits.
 - [[replay-live-boundary]] — the algorithm that delivers missed events then live ones with no gap or duplicate.
 - [[subscriber-registry]] — who receives what, session isolation, and visibility filtering.

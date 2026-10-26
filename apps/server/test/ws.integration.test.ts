@@ -9,6 +9,7 @@ import { hashPassword } from "../src/auth/password.js";
 import { createSession, createValidateSession } from "../src/auth/session.js";
 import { createDb, probeReachable } from "../src/db.js";
 import { readFrom } from "../src/events/log.js";
+import { createGate, type Gate } from "../src/gate/index.js";
 import { users } from "../src/schema/auth.js";
 import { createGateway } from "../src/ws/gateway.js";
 import type { ErrorFrame, RecordedEventFrame } from "../src/ws/protocol.js";
@@ -55,6 +56,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
   let server: ServerType;
   let port: number;
   let gateway: ReturnType<typeof createGateway>;
+  let gate: Gate;
   const openSockets: WebSocket[] = [];
 
   beforeAll(async () => {
@@ -62,10 +64,13 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       databaseProbe: { reachable: async () => true },
       db: requireDb(),
     });
+    gate = createGate({ db: requireDb() });
     gateway = createGateway({
       db: requireDb(),
       validateSession: createValidateSession(requireDb()),
+      gate,
     });
+    gate.onAppended(gateway.publish);
 
     server = await new Promise<ServerType>((resolve) => {
       const srv = serve({ fetch: app.fetch, port: 0 }, (info) => {
@@ -90,12 +95,12 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
   });
 
   /** Fresh signed-in user per test, via the real auth functions — not HTTP. */
-  async function createTestUser() {
+  async function createTestUser(role: "operator" | "player" = "player") {
     const username = `ws-test-${randomUUID()}`;
     const passwordHash = await hashPassword("correct horse battery staple");
     const [user] = await requireDb()
       .insert(users)
-      .values({ username, displayName: username, role: "player", passwordHash })
+      .values({ username, displayName: username, role, passwordHash })
       .returning();
     const session = await createSession(requireDb(), user.id);
     return { userId: user.id as string, token: session.token };
@@ -331,7 +336,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "narration",
+            eventType: "ambient",
             payload: { text: "the door creaks open" },
             payloadVersion: 1,
           });
@@ -345,7 +350,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         sessionId,
         seq: delivered.seq,
         actor: userId,
-        type: "narration",
+        type: "ambient",
         payload: { text: "the door creaks open" },
         payloadVersion: 1,
       });
@@ -382,7 +387,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
                   send(ws, {
                     type: "send",
                     sessionId,
-                    eventType: "narration",
+                    eventType: "ambient",
                     payload: { senderIdx, i },
                     payloadVersion: 1,
                   }),
@@ -886,6 +891,222 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       // "nothing sent yet" instead of "one event hidden".
       expect(hiddenSeqs[0]).toBeGreaterThan(visibleSeqs[1]);
       expect(hiddenSeqs[0]).toBeLessThan(visibleSeqs[2]);
+    });
+  });
+
+  describe("spec 029 — gate delivery and the send path (T039)", () => {
+    const aiDm = { kind: "ai", actor: "ai:dm" } as const;
+    const narrationProposal = (text: string, visibility = "public") => ({
+      kind: "narration",
+      narration: { text, actionIds: [] },
+      visibility,
+    });
+
+    async function open(token: string, sessionId: string, afterSeq?: number) {
+      const ws = connect(token);
+      await waitForOpen(ws);
+      send(ws, {
+        type: "subscribe",
+        sessionId,
+        ...(afterSeq === undefined ? {} : { afterSeq }),
+      });
+      return ws;
+    }
+
+    async function seatHuman(
+      operatorWs: WebSocket,
+      sessionId: string,
+      dmUserId: string,
+    ) {
+      send(operatorWs, {
+        type: "send",
+        sessionId,
+        eventType: "dm.seat",
+        payload: {
+          reason: "A human takes the seat",
+          after: { kind: "human", userId: dmUserId },
+        },
+        payloadVersion: 1,
+      });
+    }
+
+    it("a raw catalogued type is refused with CATALOG_TYPE_REQUIRES_GATE and writes nothing", async () => {
+      const { token } = await createTestUser();
+      const sessionId = randomUUID();
+      const ws = await open(token, sessionId);
+      await waitForSubscribers(sessionId, 1);
+
+      const errors = collectFramesOfType<ErrorFrame>(ws, "error", 1);
+      send(ws, {
+        type: "send",
+        sessionId,
+        eventType: "dice.rolled",
+        payload: {},
+        payloadVersion: 1,
+      });
+      const [error] = await errors;
+      expect(error).toMatchObject({
+        kind: "forbidden",
+        code: "CATALOG_TYPE_REQUIRES_GATE",
+      });
+      expect(
+        await readFrom(requireDb(), { sessionId, limit: 10 }),
+      ).toHaveLength(0);
+    });
+
+    it("a gate request over send is appended and broadcast", async () => {
+      const { token, userId } = await createTestUser();
+      const sessionId = randomUUID();
+      const ws = await open(token, sessionId);
+      await waitForSubscribers(sessionId, 1);
+
+      const frames = collectFrames(ws, 1);
+      send(ws, {
+        type: "send",
+        sessionId,
+        eventType: "talk",
+        payload: {
+          talk: { text: "hello table", channel: "ooc", characterId: null },
+        },
+        payloadVersion: 1,
+      });
+      const [frame] = await frames;
+      expect(frame.event).toMatchObject({
+        type: "talk",
+        actor: userId,
+        visibility: "public",
+      });
+      const stored = await readFrom(requireDb(), { sessionId, limit: 10 });
+      expect(stored.map((e) => e.type)).toEqual(["talk"]);
+    });
+
+    it("a refused gate request returns an error frame with a code", async () => {
+      const { token } = await createTestUser();
+      const sessionId = randomUUID();
+      const ws = await open(token, sessionId);
+      await waitForSubscribers(sessionId, 1);
+
+      const errors = collectFramesOfType<ErrorFrame>(ws, "error", 2);
+      send(ws, {
+        type: "send",
+        sessionId,
+        eventType: "dm.seat",
+        payload: { reason: "grab it", after: { kind: "ai" } },
+        payloadVersion: 1,
+      });
+      send(ws, {
+        type: "send",
+        sessionId,
+        eventType: "talk",
+        payload: { talk: { text: "hi", channel: "ooc", characterId: null } },
+        payloadVersion: 2,
+      });
+      const got = await errors;
+      expect(got.find((e) => e.kind === "forbidden")?.code).toBe(
+        "NOT_AUTHORIZED",
+      );
+      expect(got.find((e) => e.kind === "validation")?.code).toBeUndefined();
+      expect(
+        await readFrom(requireDb(), { sessionId, limit: 10 }),
+      ).toHaveLength(0);
+    });
+
+    it("with a human DM seated, an ask proposal reaches the DM and not a player, live and on replay", async () => {
+      const dm = await createTestUser("operator");
+      const player = await createTestUser();
+      const sessionId = randomUUID();
+      const dmWs = await open(dm.token, sessionId);
+      const playerWs = await open(player.token, sessionId);
+      await waitForSubscribers(sessionId, 2);
+
+      const seatFrames = await Promise.all([
+        collectFrames(dmWs, 1),
+        collectFrames(playerWs, 1),
+        Promise.resolve().then(() => seatHuman(dmWs, sessionId, dm.userId)),
+      ]);
+      expect(seatFrames[0][0].event.type).toBe("dm.seat.changed");
+      expect(seatFrames[1][0].event.type).toBe("dm.seat.changed");
+
+      const [dmLive] = await Promise.all([
+        collectFrames(dmWs, 1),
+        assertNoMessage(playerWs),
+        (async () => {
+          const result = await gate.submit(
+            sessionId,
+            aiDm,
+            narrationProposal("The vault hums."),
+          );
+          expect(result).toMatchObject({ ok: true, outcome: "pending" });
+        })(),
+      ]);
+      expect(dmLive[0].event).toMatchObject({
+        type: "proposal.created",
+        visibility: "dm",
+      });
+
+      // Replay: a fresh DM connection sees it, a fresh player connection does not.
+      const dmReplay = connect(dm.token);
+      const playerReplay = connect(player.token);
+      await Promise.all([waitForOpen(dmReplay), waitForOpen(playerReplay)]);
+      const dmTypes = collectFrames(dmReplay, 2);
+      const playerTypes = new Promise<string[]>((resolve) => {
+        const seen: string[] = [];
+        playerReplay.on("message", (data: WebSocket.RawData) => {
+          const frame = JSON.parse(data.toString()) as RecordedEventFrame;
+          if (frame.type === "event") seen.push(frame.event.type);
+        });
+        setTimeout(() => resolve(seen), 600);
+      });
+      send(dmReplay, { type: "subscribe", sessionId });
+      send(playerReplay, { type: "subscribe", sessionId });
+      expect((await dmTypes).map((f) => f.event.type)).toEqual([
+        "dm.seat.changed",
+        "proposal.created",
+      ]);
+      expect(await playerTypes).toEqual(["dm.seat.changed"]);
+    });
+
+    it("with an AI seat a dm event reaches no connection, and a dm.seat.changed switches later delivery", async () => {
+      const op = await createTestUser("operator");
+      const player = await createTestUser();
+      const sessionId = randomUUID();
+      const opWs = await open(op.token, sessionId);
+      const playerWs = await open(player.token, sessionId);
+      await waitForSubscribers(sessionId, 2);
+
+      // AI seat: a dm-visibility row is delivered to nobody (the operator role alone grants nothing).
+      await Promise.all([
+        assertNoMessage(opWs),
+        assertNoMessage(playerWs),
+        (async () => {
+          const r = await gate.submit(
+            sessionId,
+            aiDm,
+            narrationProposal("A secret.", "dm"),
+          );
+          expect(r.ok).toBe(true);
+        })(),
+      ]);
+
+      // Seat the operator: the change is public; later dm events now reach the operator only.
+      await Promise.all([
+        collectFrames(opWs, 1),
+        collectFrames(playerWs, 1),
+        Promise.resolve().then(() => seatHuman(opWs, sessionId, op.userId)),
+      ]);
+      const [opLive] = await Promise.all([
+        collectFrames(opWs, 1),
+        assertNoMessage(playerWs),
+        (async () => {
+          const r = await gate.submit(
+            sessionId,
+            aiDm,
+            narrationProposal("Another secret."),
+          );
+          expect(r).toMatchObject({ ok: true, outcome: "pending" });
+        })(),
+      ]);
+      expect(opLive[0].event.type).toBe("proposal.created");
     });
   });
 

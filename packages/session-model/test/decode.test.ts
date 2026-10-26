@@ -36,7 +36,7 @@ describe("decodeEvent", () => {
   });
 
   it("reports unknown-type and unknown-version", () => {
-    expect(decodeEvent(row("proposal.created", {}))).toEqual({
+    expect(decodeEvent(row("x-test.future-type", {}))).toEqual({
       status: "unknown-type",
     });
     expect(
