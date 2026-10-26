@@ -1,0 +1,5314 @@
+[
+  {
+    "id": "afe4bd7b-7702-4093-8859-7c8068834a78",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:39:15.866Z",
+    "finishedAt": "2026-10-26T17:39:17.167Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "294230d6-746a-4723-bdae-3c777463671a",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:38:47.366Z",
+    "finishedAt": "2026-10-26T17:39:15.859Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "invented-mechanics",
+                "detail": "Narration shows the pole striking Tamsin's shoulder. The action was no-effect; no roll occurred and nothing should have landed. This invents a mechanical outcome."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's inner state ('Wenna's breath catches') and reaction to being struck. Should show only what the world does, not the player's feelings or automatic responses."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration does not end on a clear demand for response. It ends on Snag waiting with the pole raised — ambiguous whether this is a fresh threat Tamsin must answer, or a held moment. The prompt asked one short question; narration should set that up cleanly."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "40278362edf64b5ab8bf9e9ef3dfdf1a8e99a1fdefb71e2487280f554f3df3b9",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 2,
+          "proseSha256": "b88c2fcaeaaf8064913c52641371524d38f29a63764b831f0c23a78d8ec76ff3",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's physical position and relationship to Snag ('between Tamsin and the chain') without the player choosing how to press toward the ferry. The action was no-effect; the world's response should leave the approach open."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with 'to see what Tamsin does next' — a generic prompt. Doctrine demands the ending be a concrete pressure: the pole planted, the reeds alive, Wenna silent. Let the player respond to those facts, not an invitation."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The asked question ('Do you push past...or confront him') is an either-or list. Doctrine forbids handing the player a choice; narrate the moment and let them phrase their own action."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "59adfa2d5a6de841e27a57ecd0825c3f2d66ce1aaae94db8d6a50f8e31e10f3a",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "9729ccaa-1de8-4c9f-bf5f-fc5c0d928e09",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:38:42.875Z",
+    "finishedAt": "2026-10-26T17:38:47.217Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f6bd9382-954a-4339-845d-ef1f4598bb91",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:38:42.869Z",
+    "finishedAt": "2026-10-26T17:38:45.811Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2ba70771-6a81-446f-960c-af951907d75f",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:38:00.603Z",
+    "finishedAt": "2026-10-26T17:38:42.868Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's entire action (pole clatters, turns, bolts, strap tears) without reading the player's choice. The ask explicitly offers three paths; narration executes one unilaterally instead of presenting the situation and stopping for Tamsin's decision."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ending repeats the question asked ('What does Tamsin do as Snag breaks for the reeds?') instead of stopping mid-moment. Should end with a sharp sensory fact that *forces* response—here, Snag's flight creates it, but the narration must trust that and cut."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "26fa136f3ae709d6fd053d696404e6ce0743afec7c4a074e7036d068af614859",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's physical moves (pole clatters, eyes go to tree-line, feet find mud, weight shifting) and Wenna's action (counting stops cold). These are world responses to Tamsin's attempt, not Tamsin's choices or the world's reaction to her agency."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The prompt asks a three-part either-or ('push past for chain, confront directly, or something else'), which violates the rule against handing the player a list. The narration should leave the choice unwritten."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration runs ~130 words and narrates multiple simultaneous events (Snag's distraction, Wenna's reaction, Pell's unanswered name, dusk fading, Snag's stance). Should be one clear moment; the prompt itself fragments the focus."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "4e146010f30825221aca12db7882a01a0bfe6d0361976339d221f5cb3848b116",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's physical moves and inner state ('his hand drifts', 'his weight has already begun to shift') instead of presenting the world's response to Tamsin's action and letting the player choose next."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with a list disguised as prose: 'confront him directly over Pell, or something else' is still an either-or that hands the player pre-written options instead of letting them phrase their own choice."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 165); violates turn length ceiling."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "f93bab69644ef960c35a4e44f70ff26de42a3c550a5be153421bd415a887169d",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "22b2a429-2792-4b85-8a32-2696636e4b01",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:37:55.631Z",
+    "finishedAt": "2026-10-26T17:38:00.451Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "b7d79390-d241-4186-be60-193ee87a5424",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:37:55.624Z",
+    "finishedAt": "2026-10-26T17:37:59.020Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "eb66c43d-a960-4bb2-935f-8b5f0fd20f69",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:36:54.629Z",
+    "finishedAt": "2026-10-26T17:37:55.624Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's physical action ('boots find the chain anyway, stepping past') and her movement through space. The action was no-effect; the narration should show the world's response to her attempt, not narrate her success or failure of movement."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration does not end on a clear demand for response. It trails into Snag's interrupted speech and a glance at the tree-line. The player needs a clear beat—a sensory fact or a blocked path—to act on, not a dangling mystery."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 180). It accumulates too much: Snag's posture, the clapper-strap, the path description, Wenna's reaction, and Snag's warning. Trim to one clear moment."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "21855178feb4628213aab56251f7f0476fa712d2f9570a99f6f54a6740cb4f0a",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Wenna's emotional state ('counting stops dead on her tongue') and internal reaction, which violates the rule against narrating the player character's feelings or moves."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends mid-revelation ('Pell walked into—') with a cliffhanger hook rather than stopping where the player must decide. The player has no clear choice point to respond to; they're stranded watching NPCs."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "97d03526a7b03007007bed341b3bf3de12fce5a9f880c6ff4aa689110cdc4048",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "invented-mechanics",
+                "detail": "Action was no-effect, yet narration describes Tamsin speaking, pointing, revealing story details, and creating new plot branches. No-effect means the world does not respond to the attempt; the narration invents a full scene."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides what Tamsin says ('Clapper stays mine,' the fragment about Pell) and what he feels ('jaw clamped'). These are the player character's words and inner state."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'The reed path he named waits open behind him, badly marked and untested' — a static description with no demand. Rule: end on something that demands a response (a creaking rope, a choice point, pressure)."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "a0eac7844361ff29990021e3e3b69fe329a19d1ee6812a441a1854c271b7983c",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bbedbff8224a572e352a9a8f452f22513e5c1fd8ed157a89153b7177f124742d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "21b1843a-24b4-4503-9960-c5e86cba9d6d",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:36:52.118Z",
+    "finishedAt": "2026-10-26T17:36:54.475Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "257189ca-d847-43df-9f3a-6d120f5a95cf",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:36:26.434Z",
+    "finishedAt": "2026-10-26T17:36:52.111Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "1b8258970a06936383f6a02df3935d5a9d157d11ced35383c1bf75859f79e597",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "e56b2da4ff43a18ac1d83cea0b321169b398296cd34e5d0dad0f1309b0d2eb99",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "e56b2da4ff43a18ac1d83cea0b321169b398296cd34e5d0dad0f1309b0d2eb99"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "0e7d83d2-8c3e-49a3-a10d-21867031af66",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:36:21.267Z",
+    "finishedAt": "2026-10-26T17:36:26.295Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "62fcd3ba-b0db-4bc4-9be2-fae8d84c7de2",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:36:21.263Z",
+    "finishedAt": "2026-10-26T17:36:25.108Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "ea07928a-5dc6-4c71-9af3-e96425eae2c7",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:35:49.194Z",
+    "finishedAt": "2026-10-26T17:36:21.263Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "f65d1bee0170c0a90f4b1bc5e29a7ac40bd458e5d77dd40112d5d2470c321e90",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents three options as a list (chain, loft key, causeway), violating the rule against either-or choices. Should describe the world's state and let the player choose their own action."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The narration ends with atmospheric detail ('water keeps darkening') rather than a clear moment that demands response. Should end on something the world does that forces a decision."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "88caf1e53a3bb92dfc3cc439d22df6f50650cc3e8997689a0444c21e01f10ec6",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration answers the question before asking it. The three options (force chain, get Wenna's key, try causeway) are presented as narrated facts rather than left open for the player to choose. The instruction was to ask the player; this tells them what exists instead."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 170). The passage is a long block covering multiple moments: Snag's dialogue, light fading, description of three routes, and Snag's final action. Should trim to one clear beat."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on a barrier (Snag's pole blocking the chain) rather than something that demands a response. The player has no clear hook to respond to—Snag has already moved, dialogue has stopped, and the scene sits in stasis."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "209fe6fcb625704de78ca5108cb10752bee197a1c389041b8374e5b0520d8f30",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "e2b6c0c2-3665-4b9c-af3b-cfcf6e486f36",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:35:40.343Z",
+    "finishedAt": "2026-10-26T17:35:49.050Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "98e71afd-0e4a-44f7-8ae7-52bf8cdbc241",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:35:40.337Z",
+    "finishedAt": "2026-10-26T17:35:47.455Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "9ac43768-ec89-4622-8110-b8d6012f296f",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:35:07.501Z",
+    "finishedAt": "2026-10-26T17:35:40.335Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents Snag's full counter-offer and describes the reed path as 'camp-bound,' effectively deciding the haggle outcome and steering toward one choice. Should stop before revealing terms or path details, leaving room for the player to propose their own move."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with 'The reed path waits, dark between the rushes, camp-bound' — a soft prompt disguised as description. Should end on a sensory trigger (Snag's expectant silence, the voice from the reeds, the chain's weight) that demands response without nudging."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "1ab4a823030b80c920e465a20ceea4681130983c73be8eda84c42097b95ab257",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents an either-or choice embedded in prose ('haggle his terms, or head down the causeway'). Doctrine forbids listing options; the choice must remain unwritten, phrased by the player."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'waiting to see which of them answers first' — a prompt for speech, not a moment that demands response. Should end on something the world did: Snag's action, the voice in the reeds, a physical fact that forces a choice."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "c2a808baa352b30d2d349b15afd2889686fc60710e3623ce132a6e780e2a76e5",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's grip on the chain and her physical action ('cold under Tamsin's grip'). Should describe only what the world presents, leaving her response unwritten."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on a description (pole pointing) rather than a hard stop that demands response. Should cut before or at the moment of choice, not narrate Snag's gesture as resolution."
+              },
+              {
+                "kind": "other",
+                "detail": "The ask lists two specific options ('haggle his terms, or head down the causeway'), violating the rule against either-or choices. Should present the world's state and let the player phrase their own move."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "3bca583694e5607bc33a274aa9b0e0c9b5662ec8ccfb528da5abf40d3ecefb78",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "26617965-5fd8-4e6e-9db8-fd94c27a046f",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:35:05.908Z",
+    "finishedAt": "2026-10-26T17:35:07.357Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "4465ecbe-8672-4685-819c-7b80e9b212f7",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:34:28.525Z",
+    "finishedAt": "2026-10-26T17:35:05.904Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Wenna's emotional response ('breath catches', 'old habit breaking') and her words ('Pell,' she says). Only the world's state should be narrated; the player speaks for Tamsin."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds ~150 words (runs ~180), packing multiple moments: chain rejection, Snag's gesture, Wenna's reaction, Pell's situation, Odo's offer. Should trim to one clear beat and stop on a demand."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on a hanging question ('bell for boy, or nothing at all tonight') rather than a concrete sensory moment or action that forces response. Should close on what the world does next, not what Snag waits for."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "fc290b7992b903e3cc73528ade5b6db7d261f95265992a58e0ee14c691e01571",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's inner state and motivation ('which bell gets strung tonight — his, or the ferry's') and frames her choice as binary when the action was simply to press on toward the ferry. The narration should show the world's obstacle, not interpret her intent."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 165). Should trim to stay under the ceiling while keeping the key moment: the chain blocks her, Snag waits silently, the torch dims."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends without a clear demand for response. 'A moth finds it, and burns' is atmospheric but leaves no active gate for the next turn. Should end on what the world has forced into play."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "5a278c0316b978737d3e102b7857dbd714e2cc3bc28a68be959f9f7678409ecc",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's internal state ('a decision made') and his physical action (fingers closing around strap) without showing what Tamsin observes or what happens to her attempt. The action was no-effect; the narration should show why the push failed, not what an NPC privately resolved."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration runs long (160+ words) and packs three separate moments: the chain holding, Snag's gesture, and the spear sighting. Doctrine demands one clear moment per turn, trimmed under 150 words."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ending ('waits — pole planted deep in the mud, bell still') does not demand a response. It's a pause without pressure. A no-effect should hint at what blocks the way forward, not just stall."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "e3b1ed0428c4486272748aa114f7faba96c711fcabb541dfa49ed2d31d444e33",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bbedbff8224a572e352a9a8f452f22513e5c1fd8ed157a89153b7177f124742d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "a8adcd2a-1337-4cab-8720-01fd28678a18",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:34:25.848Z",
+    "finishedAt": "2026-10-26T17:34:28.382Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2465eb2e-8df4-4d55-8b8e-095f5a5b669b",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "manual",
+    "createdAt": "2026-10-26T17:33:46.329Z",
+    "finishedAt": "2026-10-26T17:34:25.843Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action outcome (chain not giving) but then pivots to Snag and Odo without pausing for Tamsin's response. The no-effect should land on Tamsin, then stop—not continue the scene as if her turn is over."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds 150 words (approximately 170). Two long beats (Tamsin's chain + Snag's monologue) bundled into one turn. Should split: resolve Tamsin first, end on a demand, *then* Snag speaks next turn."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on Snag's internal state and an open prompt ('waits to see what that costs him') rather than a world-fact that demands response. Should end on what Snag or the world *does*, not what Snag waits for."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "a1863baab9172e092ef25bd62c22cadff0bd680c4d53ad8d48366d62f1e6705c",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's emotional state and internal motivation ('as if he'd said too much'), violating the rule against narrating NPC feelings. Should show only Snag's observable actions: the glance, the silence, the pole shift."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds ~150 words significantly (195+ words), combining three distinct moments: the chain, Snag's bell-speech, and the torch guttering. Should trim to one clear beat and end on a demand for response."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "babed0d5ce3b231b1b8b8c4a7e0e0d7b28736bd4b669c96bcbad1d2309363112",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 3,
+          "proseSha256": "f84f3431cfed1d9ef359d02adabe53ac6ae611d82d11c3764700cd54c90fdb97",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "f84f3431cfed1d9ef359d02adabe53ac6ae611d82d11c3764700cd54c90fdb97"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "4277db53-8c85-4977-b934-69a183356166",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:33:38.592Z",
+    "finishedAt": "2026-10-26T17:33:46.333Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d1824736-c0da-4a90-a3fc-3ba6a37b8436",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:33:22.689Z",
+    "finishedAt": "2026-10-26T17:33:38.593Z",
+    "outcome": "held",
+    "audit": null,
+    "calls": [],
+    "error": null
+  },
+  {
+    "id": "bfeed271-b5de-4fb6-b3c5-e980cdc505c1",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:33:14.768Z",
+    "finishedAt": "2026-10-26T17:33:22.553Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cb3bb100-34f9-438f-8dc9-e62b628fd79e",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:33:14.759Z",
+    "finishedAt": "2026-10-26T17:33:20.408Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "aff203ae-82f7-4637-8960-e8054b4bbe86",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:32:37.814Z",
+    "finishedAt": "2026-10-26T17:33:14.759Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action fails and narrates three failed attempts ('for a third time'), but the fact states only 'no-effect.' No-effect means the action produces no mechanical result—not that it fails visibly or repeatedly. The narration invents failure states the player did not experience."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 175). The block narrates Snag's appearance, dialogue, gesture, and position in a single turn. Should be trimmed to one clear moment."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "5a57df1df71d5531b4abe3f897fbc503e2ff726af374f651a0a1f682400504c6",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "8e93d019e9afe9d97c365081df4d2af6f5b729643aadfa072b734c568cfcd782",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "8e93d019e9afe9d97c365081df4d2af6f5b729643aadfa072b734c568cfcd782"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "7d269e16-9f70-4294-91f3-f5146bd583a1",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:32:30.438Z",
+    "finishedAt": "2026-10-26T17:32:37.673Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "62a78327-232d-40d4-9b3f-1adb068aff78",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:32:30.425Z",
+    "finishedAt": "2026-10-26T17:32:34.769Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "37cd214c-68cd-47d8-9118-34908537cf58",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:32:02.084Z",
+    "finishedAt": "2026-10-26T17:32:30.425Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's physical sensation ('cold and locked under Tamsin's hand') and perception of time ('same as it did a breath ago'), interpreting the no-effect result as felt experience rather than leaving that to the player."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (169 words). Violates turn-length rule."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on dialogue ('Big-feet talk to Snag first') rather than a clear demand for response. Lacks the physical or situational hook that forces the next move."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "8547e06f31d963cd1e713df7e030580a9441dc04506ed868a0d695056375ace5",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "dbbd615ea5adab8b4bc96d27968390d54943f8ed3dccaf9036f026bdbd95e038",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "dbbd615ea5adab8b4bc96d27968390d54943f8ed3dccaf9036f026bdbd95e038"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cf19561a-3884-492a-91a8-8df238fa96d3",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:31:53.085Z",
+    "finishedAt": "2026-10-26T17:32:01.923Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "e86d20e2-f72d-46ea-bebb-a751662961d8",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:31:53.080Z",
+    "finishedAt": "2026-10-26T17:31:58.960Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "762dc21c-2474-4dc0-9eb9-e01bf5c51708",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "manual",
+    "createdAt": "2026-10-26T17:31:20.176Z",
+    "finishedAt": "2026-10-26T17:31:53.080Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "invented-mechanics",
+                "detail": "Narration treats no-effect as a world event (pole-dipping, voice, approach). A no-effect action produces no narration; the world state doesn't change. This invents consequences for an action that had none."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's situation without input: 'whoever that voice belongs to is coming to deal before it's gone' pressures the player into reactive mode. The action was toward the ferry; narration should show what blocked it or why it didn't land, not stage a new threat."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (168). Violates length rule. Should trim to one sharp image: the pole unmoved, the light fading, or the voice—not all three cascading."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "991069ee278cd17c8217e0bd3d147207fd862ece46244f32d62a9b02046d88e1",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "9a35ce2f31029ac514c8d5128ca61bd07129a53c044972b0f88652dd9ed20bb9",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "9a35ce2f31029ac514c8d5128ca61bd07129a53c044972b0f88652dd9ed20bb9"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "7f06a544-2fb5-41f3-83d7-c5e84e757c7c",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:31:13.490Z",
+    "finishedAt": "2026-10-26T17:31:20.178Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "fc9a946e-0243-4fcc-bd97-8addaa577d36",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:31:01.417Z",
+    "finishedAt": "2026-10-26T17:31:13.489Z",
+    "outcome": "held",
+    "audit": null,
+    "calls": [],
+    "error": null
+  },
+  {
+    "id": "627b60b2-ccd6-4406-9b3e-8322b8ff2ef3",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:30:50.077Z",
+    "finishedAt": "2026-10-26T17:31:01.273Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "bbbe3316-045f-4317-8233-ae04fb703870",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:30:50.072Z",
+    "finishedAt": "2026-10-26T17:30:59.288Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d74af0c4-7ebe-4979-ac47-0e31db207b4a",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:30:15.463Z",
+    "finishedAt": "2026-10-26T17:30:50.071Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "Action was no-effect, but narration shows Tamsin successfully reaching the ferry and observing its details. A no-effect action should show the world unchanged or the attempt blocked, not progress toward the goal."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration includes Odo and Wenna's dialogue and actions (murmuring, answering) without those being part of Tamsin's action or established facts. This decides what other characters do."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "3d351676cd9763dd8d6b04a8467e3b47163e57f3a1e5ee0e5d99d5fc4e962c9c",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 2,
+          "proseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The narration is empty."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 3,
+          "proseSha256": "f1ad194d102daf52466d077dcb9e0ef144667fe545941769e1b34dcf652ffa5d",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "f1ad194d102daf52466d077dcb9e0ef144667fe545941769e1b34dcf652ffa5d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "08d37b38-56bc-4da3-b0d6-145bdab1ccb7",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:29:39.736Z",
+    "finishedAt": "2026-10-26T17:30:12.320Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "bf1e29a7235401bca160aca9400018da48877c033bf68e0aefd1b11a1fd775ee",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bf1e29a7235401bca160aca9400018da48877c033bf68e0aefd1b11a1fd775ee"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cb65f2a3-6f0c-487d-b878-86620037940d",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:29:35.484Z",
+    "finishedAt": "2026-10-26T17:29:39.737Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "6e949a8e-400c-4045-a4ee-44629e9e39fd",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:29:12.595Z",
+    "finishedAt": "2026-10-26T17:29:35.484Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "8205792a5a2ac289c8827d8e27d5a04cbe39c5c4be5c52543534752b8b299354",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "8205792a5a2ac289c8827d8e27d5a04cbe39c5c4be5c52543534752b8b299354"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "0b9774ca-9921-454e-8a97-fe992a1b69cd",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:29:06.268Z",
+    "finishedAt": "2026-10-26T17:30:15.312Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "5f9d67c6-a464-4f3d-99b9-1b31e3484ba4",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:29:06.264Z",
+    "finishedAt": "2026-10-26T17:29:12.597Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "63f59a9b-1948-4523-b850-d1fd440b372c",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:28:30.510Z",
+    "finishedAt": "2026-10-26T17:29:06.263Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Wenna emerges and descends with Odo. Odo's action was no-effect; the narration should show the world's response to his attempt, not narrate success. Wenna's appearance and descent are outcomes only Wenna's player can choose."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with open question 'What do you do while Odo and Wenna climb down?' — but the prompt asks you to pose one short question to Tamsin's player about *her* choice: press on how. You've sidestepped the directed prompt and reopened play to both players at once."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 175). Condense to one clear moment: Odo's climb, the world's answer to his call, then stop where Tamsin must choose."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "4150b0cf446ac7952fec675893a7ca199efa72706402421dfa9d7b897a86764e",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 2,
+          "proseSha256": "e3269c33a42f35ef8fca48478dea654755969bf4cc7c66f8755c9e0b8b4ecc74",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 3,
+          "proseSha256": "6a50916626b08f5f1411b87c88da809378397cae4918136d7b99e4de3f8c8753",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        }
+      ],
+      "shippedProseSha256": "f72d65e2a6667c9064f509b74a59d1ce9c189eb83f4c39ccde441240d638194a"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "11dd2ac9-bace-48e8-85c5-4f27ee8c273f",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:28:24.052Z",
+    "finishedAt": "2026-10-26T17:28:30.524Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "76034a61-ffd0-4430-b08e-0878d546aa55",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:28:05.855Z",
+    "finishedAt": "2026-10-26T17:28:24.051Z",
+    "outcome": "held",
+    "audit": null,
+    "calls": [],
+    "error": null
+  },
+  {
+    "id": "695f1b7b-c23c-4b29-a026-3e107fa93ea0",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:27:59.303Z",
+    "finishedAt": "2026-10-26T17:28:05.724Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "0272a610-a01c-4604-b82e-0bb6e52b7982",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:27:59.299Z",
+    "finishedAt": "2026-10-26T17:28:03.189Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "433f64b3-14d5-4be9-ae5b-28ec54e0d6f3",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:27:18.966Z",
+    "finishedAt": "2026-10-26T17:27:59.299Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's physical response to Snag's blockade ('when Tamsin moves to simply walk past him'). The failure should describe what stops her attempt, not narrate her trying and being stopped mid-action."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on a demand to Wenna ('Wenna says the words herself'), not on a demand directed at the player controlling Tamsin. The beat should end on pressure or consequence that demands Tamsin's response, not an ultimatum to another character."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "f69f55f7e6e79d5abe63655aac05111766b27a46992cc5401cf33bd6054db11e",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's emotional state ('grinning wide') and physical action ('loops the brass bells over his belt'), but Tamsin is the player character. Only Snag's actions belong to the narration."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (169 words). Rule: keep each turn near one hundred words; never past one hundred fifty."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends without a clear demand for response. 'Pell's spear-tip jerks higher' narrates an NPC's reaction rather than stopping where Tamsin must decide what happens next."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "cb3b10c31c2f785971032ce02f732511c47ebe2aef640a2c72884f4368e552f9",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 3,
+          "proseSha256": "24811d6d2dc7c7135e6a019e3b8025d832128a2e907967abb2ed91905269deec",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "24811d6d2dc7c7135e6a019e3b8025d832128a2e907967abb2ed91905269deec"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "402f4af7-7408-4825-83aa-aac53729b475",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:27:12.218Z",
+    "finishedAt": "2026-10-26T17:27:18.816Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1d16310e-7363-45bb-97b9-81b876f57d79",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:27:12.212Z",
+    "finishedAt": "2026-10-26T17:27:16.625Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "c5be8411-205d-4569-bfe8-5f295bfae4dd",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:26:45.213Z",
+    "finishedAt": "2026-10-26T17:27:12.211Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "4b132cec3db3a2a5eadc0bb6f4c471aa95a4ae2237953e7f71d3186eb206566a",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides the player's location and awareness ('Behind you, Wenna's shutter creaks') when the action was 'press on toward the ferry'—the player's position and what they perceive should remain open."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with an either-or hidden in prose ('Her word, spoken here' vs. Pell ready to walk it over). The doctrine forbids handing the player a list. Let the choice emerge from the world, not from Snag's framing of two paths."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration block runs ~140 words and stacks three moments: Snag's demand, Pell's readiness, and the sunset threat. Should trim to one clear beat and stop where the player must decide."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "8d7be664a5cd5791bfefd476d1f10b2cba70a49860684e4b151740d2dd86e151",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents the choice as Snag's demand (Wenna's word or the bargain fails) rather than leaving the decision unwritten for the player. The player should phrase what they do next; the world should show what blocks them, not dictate the terms."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on a setup question ('Fetch Wenna or collect Pell?') that mirrors the GM's follow-up prompt. This reads as the narration itself asking an either-or, violating the rule to never hand the player a list. Let the choice emerge from what the world demands."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "cf8670b8d7e480a25be43b319a01d6ab4aaa1f80ab16b1efab992dff5e619f70",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1092a1e8-46e5-4bc3-a94b-f392a2a5f4fc",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:26:03.772Z",
+    "finishedAt": "2026-10-26T17:26:42.339Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's internal state and motivation ('Something in his shoulders eases') and his specific sung words and actions ('he sings, looping the bells'). The action succeeds, but what Snag does with success is the player's call."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell's emotional state and physical response ('uncertain') and moves Pell's spear without Pell's player input. Pell is another player character."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Passage exceeds one hundred fifty words (approximately 165). Narrates multiple simultaneous moments: Snag's reaction, his reinterpretation of the oath, Pell's hesitation, and environmental detail. Should split or trim."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Does not end on a clear demand for response. Ends on atmospheric detail (reeds hissing) that leaves the moment suspended rather than presenting a concrete situation requiring decision."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "09583f68839c41e3da0febc2127686fb0da9a922a6b3b99bb6a03d4285fde936",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides what Snag says and does throughout: snatches the bells, sings the oath, breaks off mid-sentence, flicks eyes to Pell. The action resolves to 'success' but Snag is an NPC; the narration should show the world's response to Odo's oath-swearing, not script Snag's choices."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Exceeds one hundred fifty words (roughly 165). The narration also narrates three simultaneous things: Snag's reaction to the bells, his oath-singing, and the river-things waiting in the reeds. Should trim to one clear moment."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on an ambiguous pause ('waiting on whatever he decides next') rather than a clear prompt that demands a player response. What is the immediate situation the player must act on?"
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "54b4c764e01f10b3c9a721ee349fbe5bb7697b7b49ca49e3d816200af43d7dc6",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's response and adds new negotiation terms ('Wenna's word too') that weren't part of the action. The player who plays Snag (or GM if NPC) must speak for him, not the narration."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on 'as he waits for an answer' — a weak close that announces the stop rather than showing what demands response. Should end on the concrete demand itself (Snag's condition) as the world's pressure, not the waiting."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "921379af19a28b85d7bd0bba9e077be88d1f619d925917d6ae24759142b9e363",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "274ab84017890a04152fa0f603171ef760233575140bbdb5896695fbb711bbd0"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "0d337033-370e-4bdb-ba9d-8203e3104ffb",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:25:58.093Z",
+    "finishedAt": "2026-10-26T17:26:45.072Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "7509c904-c4fe-4afc-895f-29483ab809a0",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:25:58.086Z",
+    "finishedAt": "2026-10-26T17:26:03.773Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "8d36145d-2b48-4b49-a0c5-db2aeb8ecbd7",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "manual",
+    "createdAt": "2026-10-26T17:25:31.855Z",
+    "finishedAt": "2026-10-26T17:25:58.084Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration ends with a direct question that names the choice ('answer Snag's terms or stand aside'), violating the rule against handing the player an either-or. Should end on a world-state that forces decision without naming the options."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The prompt asks 'Walk past the standoff to the ferry, or do something about Snag's terms first?' but the narration then asks a different question entirely ('What does Tamsin do about the bargain?'), creating internal inconsistency in what the player is being asked to resolve."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "6ffc1e9c6fcc61ba9d91d635163659491ebde9b8f404e7a0c7072d9de80edb0f",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action: 'Tamsin's boots find the same patch of mud they found before' treats the no-effect as a failed attempt and narrates her physical movement, contradicting the open question you're supposed to ask."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with a list disguised as scene-setting: 'the offer unfinished, waiting on her alone' presents only two paths (walk past or address terms) before asking. Rule: never hand the player a list; let them phrase the choice."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "6dd8d89cd44bb53381daa993ff8990f73af93a6d2f2014fc301b8274a3b61f83",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's feet stop short and frames the choice as already made (hesitation/conflict), rather than presenting the world state and letting the player decide her response."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with atmospheric closure ('dark finishes closing its hand') instead of a clear demand for response—no immediate pressure or unresolved action forcing the next move."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Over 150 words (approximately 170). Should trim to ~100 and end on a concrete moment, not mood."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "2a62bf38fac9e6b32da0680043b9802b71c21341941178df8d8824c33b233be9",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "11cc20e2-3ede-43da-bb5f-fff734243ab7",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:25:28.268Z",
+    "finishedAt": "2026-10-26T17:25:31.857Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "322fce6b-8dfb-406c-8710-49978e232a07",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:25:11.346Z",
+    "finishedAt": "2026-10-26T17:25:28.267Z",
+    "outcome": "held",
+    "audit": null,
+    "calls": [],
+    "error": null
+  },
+  {
+    "id": "9eb2dbc0-f656-46f1-85ff-c3762eee72ec",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:25:07.879Z",
+    "finishedAt": "2026-10-26T17:25:11.217Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "280435ae-3222-4b54-a284-2d6e67237fc7",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:24:43.795Z",
+    "finishedAt": "2026-10-26T17:25:07.875Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "Narration decides Pell's action ('leans in past his spear, caught by the shape of the offer'). Only player characters can be narrated; NPCs are described, not decided."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds ~150 words (approximately 160). Blocks are too long; each turn should stay near 100, never past 150."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "6e0372370a7c2c9a17164c3b493adece11d269cca1573626603004e9846e718f",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "4d69b33df7b4e92d1c85841998714ca360eb1dc8dcaa048dccb605903ea96375",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "4d69b33df7b4e92d1c85841998714ca360eb1dc8dcaa048dccb605903ea96375"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cfa395bc-bf10-4b82-b5d1-2940d52ddf84",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:24:42.045Z",
+    "finishedAt": "2026-10-26T17:24:43.650Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1b78500f-984f-4366-a8c9-46ae1ee17ccc",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:24:16.700Z",
+    "finishedAt": "2026-10-26T17:24:42.042Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "1b6f959fa3ded7fe76d393412644bcb9c257e82a9b4ae6548fbd333f011645e2",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "The prose says a character dies, and no fact records a death."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell's emotional state ('caught between relief and the sting') and Odo's posture and intent ('waiting on Tamsin to answer for the party'). These are not world facts; they are PC internals and actions."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with 'Snag waits on your word, big-feet' — a list-less close, but the prompt asks a specific either-or question ('Over the standoff to force past, or wait') that should not appear in narration. The question belongs outside, separate."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "6dd97f717518080bd2a5419251d48bc130a5853b2feff846449b98dfb2c41d4d",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 3,
+          "proseSha256": "87598072134e7e97a3e26930360c79da6323ecd80dc617ef3b7b58dc6f6cbbac",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "The prose says a character dies, and no fact records a death."
+              }
+            ]
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "867cee8f-7cbb-450c-92a9-2924ee59ba16",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:24:11.879Z",
+    "finishedAt": "2026-10-26T17:24:16.567Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1b5645d9-cf8c-44bd-8f5e-26bdf7458253",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:24:11.875Z",
+    "finishedAt": "2026-10-26T17:24:15.084Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "dea21535-a64e-46cf-8214-41f6b794716c",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:23:37.996Z",
+    "finishedAt": "2026-10-26T17:24:11.874Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "92250c717edcb3ad7c8b83c4500bfccc8954f9e2d2fa76ba7fefa76624da21da",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration ends on 'Snag's eyes slide past him, toward you' — a moment of observation — instead of a choice that demands response. The ask poses the decision clearly, but the prose should end where the player must act, not where they are looked at."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration runs ~140 words and narrates multiple threads (Snag's laugh, the causeway, Pell's spear, Odo's offer, reeds, the standoff) in one beat. Doctrine requires one clear moment per turn, trimmed. This packs too much."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "77e24f1e866c24bda6cd714f8b54721678718ec65b9d88611f763ce92907b756",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action ('Your boot finds the first plank') and her inner reasoning ('this isn't your fight to force'), removing the player's choice about whether to push past or step in beside Odo."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration does not end on a question or demand for response. It closes on atmosphere ('patient as the goblin's price') rather than a clear moment that forces the player to decide next."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "0169a054217f03d97884be5d613f956ec015b8fe4afaa4bcbbe84f1dd9353606",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "07935fb4-ff61-4e35-a9e3-abb29553f86a",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:23:32.036Z",
+    "finishedAt": "2026-10-26T17:23:33.826Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2ed7ed5f-4245-4cac-bbf4-8a6ce575a0be",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:23:05.755Z",
+    "finishedAt": "2026-10-26T17:23:32.035Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "974488d952a0debeeb4296dc178d5e0e32d09b11f86be238624fe80aadcc57a6",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "974488d952a0debeeb4296dc178d5e0e32d09b11f86be238624fe80aadcc57a6"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f6e5c4b6-019f-4648-82b1-0e5fb366ddb8",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:22:58.387Z",
+    "finishedAt": "2026-10-26T17:23:37.850Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f7adc6ae-8435-4047-a880-7b867011860c",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:22:58.379Z",
+    "finishedAt": "2026-10-26T17:23:05.755Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "ad748025-36a5-48ce-b0c0-cd966a900d2b",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:22:29.660Z",
+    "finishedAt": "2026-10-26T17:22:58.378Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "0354a070097d9652b80157cec0ae93896a6dc12181b7ac59764144e0105168ed",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "0354a070097d9652b80157cec0ae93896a6dc12181b7ac59764144e0105168ed"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cfb4991d-7e0d-4c66-9d4a-4979c8a954d2",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:22:27.515Z",
+    "finishedAt": "2026-10-26T17:22:29.518Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "17a695cd-463b-4273-9e75-14b1569840a3",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:21:44.684Z",
+    "finishedAt": "2026-10-26T17:22:27.505Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "9f2daf48c0599d3a8a3e57f241a4ecb1e3fae47fb2b540b9bbf787f1f1838e13",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides the situation for Tamsin: Snag blocking the path, Pell at the post, the thing in the brush. The action was 'press on toward the ferry'—a direction, not settled. Should show only what Tamsin encounters as she moves, not lock the scene into one state."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with 'Someone needs to answer Snag'—a hidden either-or. The rule: never hand the player a list or unwritten choice. Let Tamsin act; don't frame the dilemma as a demand."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Final sentence tells the player what matters ('boy or the bell decides it for you'), which implies inner stakes and urgency the narration hasn't earned. Narrate the world; let the player read the weight."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "4244013116f1b63c145f24ecb6f846ce5745a02632a4ad8eb7500f51e966ff33",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration describes Tamsin walking into silence and approaching Snag, deciding her movement toward the ferry. The action was no-effect; the question asks how she presses on. The narration should pause before she commits to a path, not narrate her already moving."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'waiting to see what she does next' — a passive beat that doesn't demand response. Should end on something the world does that forces a choice: the heavy thing moving, Snag stepping into her path, the ferry horn, etc."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Runs ~130 words; acceptable but dense. The three simultaneous details (Snag's hum, Pell's bravado, the thing in brush) blur focus. One clear moment would be sharper."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "80b673237d7a30d2647601f3329748bd75da3a9bdd7e39a49361eae623ab608a",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "9d31a800-9367-4b8c-a8be-ea64f11fc626",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:21:43.179Z",
+    "finishedAt": "2026-10-26T17:21:44.550Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d4fe1774-855d-4ee6-899e-31a731647768",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:21:08.550Z",
+    "finishedAt": "2026-10-26T17:21:43.176Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "96ee058230a6124efe80a6bfc16f5337cad24cac2cd849563bbf4525b173e850",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's movement ('carries her straight to Pell's post') and physical state ('feet planted') without player input. The action was no-effect; narration should not narrate her arrival or stance."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends with a direct question ('What does Tamsin do') instead of a world-state that demands response. Should end on a concrete pressure: darkening light, Snag's words settling, Pell's silence—something the player must act against."
+              },
+              {
+                "kind": "other",
+                "detail": "Narration introduces stakes (clapper must return before full dark, boy walks regardless) that were not in the facts. These are invented mechanics, not world-state that flowed from the no-effect action."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "18977e0047510c466407325f7cc32d1ab43a2c181d487d149946f376a25d1ef2",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell's physical action ('shifts his grip on the spear') and emotional state ('daring the world to call him rescued'), violating the rule that the player character's words, feelings, and moves belong only to the player."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The narration ends on 'The ferry waits. The light does not.' — a poetic observation without a demand. It should end on something the world is doing that *requires* Tamsin to respond: the clapper rule, the narrowing dark, Pell's stance, Snag's terms — pick one and make it urgent."
+              },
+              {
+                "kind": "other",
+                "detail": "The action was marked no-effect, yet the narration narrates the scene fully forward (clapper terms stated, ferry waiting, dark falling). A no-effect turn should hold the moment open for the player's clarification before the world shifts."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "3782a0fcc28601b96f1d78eba7565f361a955e9c4cfee8bcb78e43782b51ff60",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1076069b-6958-41c8-8867-84c7f1932ea2",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:21:06.584Z",
+    "finishedAt": "2026-10-26T17:21:08.391Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "bf239b3a-8cee-4380-84ba-ef9b5017195e",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:20:36.129Z",
+    "finishedAt": "2026-10-26T17:21:06.579Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "1c6512c505107292342f4b6bd569000c5989d29de3e3ffd125a6df7339bfcd7f",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell moves toward the group and how he moves (stomps, chin up, pretending steadiness). The action was Tamsin's press toward ferry; Pell's response is not Tamsin's to narrate."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on atmosphere ('dark is closer') rather than a clear demand. Should end on what Tamsin must now decide or do—the question asked requires a choice the narration hasn't forced yet."
+              },
+              {
+                "kind": "other",
+                "detail": "Snag's deal (ring for crossing, fire-tending condition) wasn't in the facts. The action returned no-effect; narration invents mechanical terms and a specific bargain not established in prior state."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "56a382a9caf762238fb9c310fc7446cb0aa84f84eefb0b5a350e7de12fee09bb",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action outcome (pressing on toward ferry) by having Snag immediately offer a deal and release Pell). The action was marked no-effect; narration should not advance the situation or resolve it."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends with 'Snag's watching now, waiting on an answer his bargain demands' — this hands the player a list (strike a deal, free Pell, or board ferry). The question itself should be unwritten; let the player phrase their intent."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration decides Pell's words and emotional state ('Pell's voice cracks too loud, insisting he was never afraid'). Only the world's response to Tamsin's action belongs here, not the NPC's inner narration."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "ba8a1e04ac9e48eb5c19319d1b8e012f8f52e9bf5962e12a56312df7658ffa2f",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "783f8e88-2fe1-40af-90ea-015827b74fac",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:20:31.322Z",
+    "finishedAt": "2026-10-26T17:20:36.003Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "769e5604-4b63-4ba3-a6f1-abc8a2510fd7",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:20:31.317Z",
+    "finishedAt": "2026-10-26T17:20:34.477Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "8f0229b3-3ed8-4d5a-8e24-8fc3eb248398",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:19:54.736Z",
+    "finishedAt": "2026-10-26T17:20:31.317Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's physical action ('boot finds mud again') and emotional state ('restless step'), when the action was no-effect and the player must still choose."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'His eyes flick to Tamsin, waiting' — a beat too passive. Should end on a sensory demand (rope movement, threat, deadline) that forces the choice, not a prompt."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Word count ~150. Within tolerance but at ceiling; tightness lost to scene-setting that doesn't advance the parley's edge."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "cec2a263d1a3fc9ca5fd27dc6feff0f7d2e4509974cbefcdd0463fa0ee92386b",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell's action (rope falls away, rubs wrists, lifts chin) without player input. Pell is not Tamsin Vale's character."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'waiting on an answer' — a soft stop. Needs a concrete sensory hook that demands response: the sound in the reeds grows louder, Snag's grip tightens, the clapper swings closer."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Exceeds one hundred fifty words (169 words). Trim the throat-singing opener or compress Snag's terms."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "ac388cf4afbe717c3f88b43bc164f848cbce6a878be11d93c3edbff433e0ef59",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's action outcome (Snag grants terms, Pell is freed, threat emerges) instead of posing the question. The setup should stop before Snag's response, letting the player choose first."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on atmospheric tension ('knuckles whiten') rather than a demand for response. Should end on Snag's choice point or the riverward threat, not after resolution."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narrates Pell's inner state ('jaw set hard against the moment') — a player character emotion, not world fact. Show only what Tamsin perceives."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "d5b1f9836753e033694a7b72a156eaaa75035e0c80bec7969d4f32ffdea71e53",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "b6aa5d2a-356e-46fd-932a-f5121375d835",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:19:52.373Z",
+    "finishedAt": "2026-10-26T17:19:54.607Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "30b2d370-37e1-496c-86a6-ed1bca5ecf40",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "manual",
+    "createdAt": "2026-10-26T17:19:15.396Z",
+    "finishedAt": "2026-10-26T17:19:52.367Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's movement ('before Tamsin can move') and inner state ('can move'), violating the rule that the player chooses the hero's actions. The prompt asks whether she walks calmly or pushes past; the narration pre-decides she is stuck waiting."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends on 'watching Tamsin for what comes next' — a soft prompt ('What do you do?'). Should end on a fact that demands response: Snag's condition, Pell's readiness, or the darkening sky. A clock or obstacle, not a question mark."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "080daf0aa73f19662db6b31b5fa60260372fd0ddede0e7914e0d1b622dedbf42",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration resolves the negotiation (Snag concedes, sets terms) without awaiting the player's response to the posed question. The player must still choose how to proceed toward the ferry; the narration should not finalize goblin positions or dialogue."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on atmospheric detail ('light thinning') rather than a moment that demands the player's next move. Should stop at the choice point: walk calmly or push past?"
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "fabd86f6e381b467768155ada2381550e0a8bb7ad771059e0a2f0eef9c5b6711",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents Snag's terms as a fait accompli ('Clapper go to tower') rather than stopping at the moment Tamsin must choose: walk calmly past or push through before Odo finishes negotiating. The question asks this choice; the narration has already decided it."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ending on 'terms hang unanswered' with Snag waiting is correct, but the narration buries the fork. It should end on the immediate pressure—the darkening sky, the ferry road, Snag's hand on the clapper—making Tamsin's choice vivid and urgent, not narrative background."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "1aff72c6b09ec953dfaf86ff3174310a58c38edad38f979f3c7afbcdd2681db7",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "b64769e9-3e30-4af6-be21-2332c6232049",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:19:09.910Z",
+    "finishedAt": "2026-10-26T17:19:15.398Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "e61c322e-d4bf-4fc0-8fb2-471c883b5912",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:18:55.349Z",
+    "finishedAt": "2026-10-26T17:19:09.909Z",
+    "outcome": "held",
+    "audit": null,
+    "calls": [],
+    "error": null
+  },
+  {
+    "id": "8dc532e9-3f2f-4f4d-9fef-92ea8d1db8a0",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:18:31.289Z",
+    "finishedAt": "2026-10-26T17:18:53.773Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "error": "invalid-output"
+          },
+          "attempt": 1,
+          "proseSha256": "6547690f9c9afd5a1070679bb15969f3189648c91eee615fcd29bf9d88161079",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "e98129d0cc44e9484f51f4a03945c346694aab739a67910dd2ef1402523e060e"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "b0deacd2-bad2-4af1-a3ca-55255efa3fcf",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:18:22.700Z",
+    "finishedAt": "2026-10-26T17:18:55.209Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f169608b-4db5-4672-a45b-ac0232e90ea9",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:18:22.693Z",
+    "finishedAt": "2026-10-26T17:18:31.290Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "5f407c95-93ba-4b94-b534-95bac9ff4162",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:17:57.479Z",
+    "finishedAt": "2026-10-26T17:18:22.690Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 1,
+          "proseSha256": "758065229d1c43020f1ca0ee6ee3c4f70458c4a50c590a0b6e3b38d278a41394",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's words, feelings, and actions without player input. 'Snag's face that crumples,' 'screams,' 'shoves Pell' — these are the player's to choose."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration runs past the stop point. The facts ask one short question; narration must end there, not resolve the scene through to combat stance and atmosphere."
+              },
+              {
+                "kind": "other",
+                "detail": "Narration doesn't ask the question. It narrates as if the identity is known, then adds a meta-note at the end. The question must be posed in prose, stopping the scene."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "836e253d922672288b0d193d28319be91de6ad7b2c8fdc59ab87ab946773c540",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 3,
+          "proseSha256": "0b97ae5adc73d03959c7d95e9c9ce3ace8ed8ec430a4e4a2f86eff267b7f7be5",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "The prose says a character dies, and no fact records a death."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "The prose has a list line or ends on an either-or question."
+              }
+            ]
+          }
+        }
+      ],
+      "shippedProseSha256": "bea62c61b170d4e1b761ce0a9afcd7b1261893a2569445cbce8bf23f3c4723b1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "532aa404-2f17-4823-9a0c-a98c6d9e6236",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:17:39.278Z",
+    "finishedAt": "2026-10-26T17:17:55.900Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "7408caf7a1d7911a8f6a1972afbb211d6bc9f5ec87aaf14ecc636d4eba1e51d2",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "7408caf7a1d7911a8f6a1972afbb211d6bc9f5ec87aaf14ecc636d4eba1e51d2"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "89c2f3af-d381-43f3-beea-614903dca400",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:17:32.045Z",
+    "finishedAt": "2026-10-26T17:17:39.279Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "b38cbcd5-c4a8-4f33-9578-f5c2f8cdbe14",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "npc-turn",
+    "createdAt": "2026-10-26T17:17:10.579Z",
+    "finishedAt": "2026-10-26T17:17:32.044Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell's voice and emotional state ('cracks out, too loud, trying for brave') instead of leaving the PC's response unwritten."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration runs long (~160 words) and packs multiple simultaneous moments: the camp scramble, the lookout attack, AND Pell's reaction. Should isolate one clear beat."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on 'The camp holds its ground' — a summary, not a demand for response. Should end on the dagger's miss or its consequences, leaving the next move open."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "69d52344e7fe35471c9b80fb7345d892f2957032e7bee9d37cd2c6ca902cb9ab",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 2,
+          "proseSha256": "06b9b0ef242e74be70b78312459c5fe948090b2002d9c0097a66f48a44bed11e",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "06b9b0ef242e74be70b78312459c5fe948090b2002d9c0097a66f48a44bed11e"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "73cc7990-1ceb-4ebd-a5b1-49af86c8789b",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:16:37.981Z",
+    "finishedAt": "2026-10-26T17:17:57.336Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "7c03c2e7-7d1f-4855-8d73-55954e94a2e1",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "npc-turn",
+    "createdAt": "2026-10-26T17:16:37.977Z",
+    "finishedAt": "2026-10-26T17:17:10.579Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides what Pell says and does ('Pell's shout cracks high...') without player input. Pell is a player character; only the player chooses their words and actions."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration describes Pell's inner state ('not scared') which violates the rule against narrating the hero's feelings. Show only what the world perceives."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Passage exceeds one hundred fifty words (approximately 165). Trim to core moment: Snag's move and the threat posed, then stop where a choice lives."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "174d3ffb50b2db60937af9950a3d329ef932ce4055176039170bcc002ce6a0c8",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Pell shouts and reveals his fear. A player controls their character's words and actions; the world doesn't put speech in their mouth."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration extends well past 150 words (approximately 180). Violates turn length rule."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "4e8626b0635967aa46ebf612a968c8462caf3aa8fe8c821fdd5eb8ffd98fe027",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Snag's action (hauling Pell back by collar) and places him in a specific tactical position without the player choosing. Snag's turn must present what Snag attempts; the outcome is the GM's call, not the narration's."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Dialogue attributed to Snag ('Big-feet come for noise-metal...') is decided by the narration. Only the player controlling Snag may decide what Snag says."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Turn exceeds one hundred fifty words (191 total). Rule: keep near one hundred, never past one fifty."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration describes atmosphere and Snag's internal waiting state rather than stopping at a clear demand for response. Ends on mood ('the dark finishes closing in') instead of a concrete situation that requires a player's next move."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "b3c8eeeadeb9bab5ee371b63ea727fcea4c30b4c53c052305d7a830f229de145",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "64aab63fad7e556797bb1dc57927ad32abdd0563c0d8279f8afa11e915ffc73e"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f31c7884-066f-4a4a-999c-580cb84a041b",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:15:59.708Z",
+    "finishedAt": "2026-10-26T17:16:37.977Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's emotional state ('Tamsin's breath goes short') and her sensory experience without player input. Only the world's actions belong in narration."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends with a summary of prior information (Wenna's words) rather than a live moment demanding response. Should end on the immediate choice: timbers or channel, made vivid through one sensory detail."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds ~100 words (current: ~120). Multiple images crowd one turn: water-memory, smoke, voice, feet, breath, light, Wenna's reminder. One clear moment wins."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "8e1b053c93ce94d111ca46011183fb116e3fdceb24fc19b2726b08785c782ab1",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration presents two paths as 'Two ways wait' — a list disguised in prose. Doctrine forbids handing the player either-or choices. Should describe one path vividly and stop, letting Tamsin decide what to try."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends with a setup ('Two ways wait') rather than a demand for response. Should end on something the world is doing — the clawed feet moving, the boy's voice cracking, smoke thickening — that forces Tamsin to act."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "415779f1a77b4ced6b86170990e361fdce05811f8cf0a62590017f7d29202736",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Invents boy's voice and clawed feet; escalates threat when action was no-effect. Narrates world acting on player without pausing for response."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends mid-escalation instead of at decision point. Should pause after revealing the two paths, not narrate the threat moving closer."
+              },
+              {
+                "kind": "other",
+                "detail": "Doesn't pose the required short question directly: 'Timbers or reed channel?' Ask must be plain, not embedded in atmosphere."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "5cc4b51b470ffed8c4881de70c341c4e1d79c521c26df6503d713d4b10146c3b",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "dd2236cf729f84f06788a9cf5d07baf7561b517f69f1ffbf25ee819cc5d8d13e"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "48726c52-0fc0-403b-9b24-e42e0cedcb9f",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:15:54.296Z",
+    "finishedAt": "2026-10-26T17:15:59.578Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "ea378de2-cbb9-4eee-9055-69e61aa6bf7d",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:15:54.290Z",
+    "finishedAt": "2026-10-26T17:15:57.450Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "12d75936-815a-4d96-aa5c-891610afb856",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:15:16.488Z",
+    "finishedAt": "2026-10-26T17:15:54.288Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin ignores Wenna's warning ('ignoring Wenna's warning entirely') — the player hasn't chosen to dismiss it, and a companion's advice shouldn't be narrated as already rejected."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 165). The passage should trim or split: either the approach and smoke-smell, or the lookout and bell discovery, not both at once."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ending on 'But it's listening now' is a summary of state, not a demanded response. Right ending: the lookout's head turns, or a sound breaks the silence — something that forces Tamsin to act."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "148853f1ad610cf4eb1afb4231051c1d4b6730dcd418d26d461efee716475959",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "Action marked no-effect but narration describes Tamsin reaching the camp perimeter, encountering a lookout, and being noticed. A no-effect action should leave her in the same state; this advances her position and triggers consequences."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds ~150 words (counts ~170), packing discovery of the camp, the clapper revelation, and the lookout's turn toward her into one beat. Should stop earlier—either at first sensory contact or at the moment the lookout notices her."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ending ('The lookout's head turns toward the reeds, toward her') is static; it doesn't demand response. Should end on an active threshold: sound of alarm, a shout, or the lookout's hand moving to a weapon."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "b19bda9f66cd702d072194d6c0901220ff97e4deed5ae4fe1a5eb0db7b2dad78",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin's inner experience ('smoke finds her first') and physical state ('partway along') rather than describing what the world presents. The action was 'no-effect'—describe the attempt and its result, not the hero's sensory sequence."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds 150 words (approximately 165). Also bundles three narrative moments: the crossing, the camp reveal, and the lookout's reaction. Should be one clear beat."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on an ambiguous gesture ('toward the pole beside him — a signal, or a weapon') rather than a concrete demand for response. Plant a clear fact: the hand *is* moving, the pole *is* there, the choice is Tamsin's."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 3,
+          "proseSha256": "f72ac9ad86b80055fffb43be674a1c159eedaa7585c261d4754b705bc9d5089e",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "bbedbff8224a572e352a9a8f452f22513e5c1fd8ed157a89153b7177f124742d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "71fe3384-9177-40af-9612-702bd638eda1",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:15:12.406Z",
+    "finishedAt": "2026-10-26T17:15:16.357Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f64b6663-b951-4929-98a8-00b21a7877c9",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:15:12.402Z",
+    "finishedAt": "2026-10-26T17:15:14.442Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "a6c645f1-bc1a-43b2-9a3a-b9f23119c146",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:14:52.811Z",
+    "finishedAt": "2026-10-26T17:15:12.400Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "0bb060e69648ece4162dd42115ddb1c1453442fed296defe0348170897d1ae84",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "0bb060e69648ece4162dd42115ddb1c1453442fed296defe0348170897d1ae84"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "8e1fddb3-ab8b-4c4c-8cb1-d1f769be77b8",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:14:47.939Z",
+    "finishedAt": "2026-10-26T17:14:52.670Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "7916a9dc-5ca0-4186-9450-226698bc6a34",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:14:47.937Z",
+    "finishedAt": "2026-10-26T17:14:50.882Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2e974f21-f1da-4dbd-b5fe-82a156856700",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T17:14:13.238Z",
+    "finishedAt": "2026-10-26T17:14:47.935Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "Action was no-effect (search yielded nothing), but narration describes Tamsin finding Wenna Marsh in the loft with full details of her state, weapon, and backstory. A no-effect search should not deliver discoveries."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin climbs to the loft and finds Wenna. The player's action was 'search the ferry-house'—the outcome of where and what she discovers should remain open to player choice, not narrated as accomplished fact."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration ends mid-thought ('not yet') without a clear demand on the player. Should end on a concrete moment that requires response: Wenna's eyes on something, a sound from the reeds, or her hand tightening on the knife."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "81c4a45aced4dbf61e0c88de63e638f33e8462bebf0e93249f93cc2a47ee94d9",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "invented-mechanics",
+                "detail": "Narration invents a creaking sound and a figure with a knife in the loft. The action was no-effect; the search found nothing. No new sensory input or NPC presence should appear without a dice result or explicit fact."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides what Tamsin hears and perceives ('The creak above...came again, closer'). The player's action found nothing; the narration should not introduce new threats or clues that bypass the search result."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "45f36b7dedee3b5e1954056f3261007c14942801e6f83c33f45ac25d00027652",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 3,
+          "proseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The narration is empty."
+              }
+            ]
+          }
+        }
+      ],
+      "shippedProseSha256": "bbedbff8224a572e352a9a8f452f22513e5c1fd8ed157a89153b7177f124742d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v2",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "1065bdad-434b-4435-a1fc-805cb70b71a6",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T17:14:10.053Z",
+    "finishedAt": "2026-10-26T17:14:13.112Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "3bebbfb7-1dba-439a-834d-636338b40e2f",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "scene-start",
+    "createdAt": "2026-10-26T17:13:59.339Z",
+    "finishedAt": "2026-10-26T17:14:10.050Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "cae24fb1645722218a476a88d84847e9078c4e84b4db7d71f65c6ed73f5a258c",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "cae24fb1645722218a476a88d84847e9078c4e84b4db7d71f65c6ed73f5a258c"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  }
+]
