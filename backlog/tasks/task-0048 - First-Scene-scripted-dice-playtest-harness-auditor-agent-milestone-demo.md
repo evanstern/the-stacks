@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 10:41'
+updated_date: '2026-10-26 10:45'
 labels:
   - first-scene
   - test
@@ -72,6 +72,9 @@ Phase 4 by sonnet-implementer: d61a42b. Adds provider mode, budget.ts (estimate,
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 by sonnet-implementer: 1cca8b8. docs/design/m2-demo.md now holds the runbook (steps A to F) and a blank record template, and docs/design/m2-demo/ exists for attachments. ci:check green; this is the green-before-demo gate. The dry check shows pnpm playtest estimate exits 4 until the operator configures AI_PURPOSES and AI_PRICES.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 954eec8. New note playtest-harness. Of the 12 stale notes, 8 were amended and 4 re-pinned only after reading their diffs. Freshness OK, 45 notes. The m2-demo note is written after the demo.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
