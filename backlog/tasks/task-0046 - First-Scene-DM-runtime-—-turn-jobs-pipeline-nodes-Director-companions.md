@@ -1,9 +1,10 @@
 ---
 id: TASK-0046
 title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, companions'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-26 04:47'
 labels:
   - first-scene
   - dm
@@ -29,6 +30,8 @@ Why: decision-0017 layer 3. Ordering is the anti-cheat: dice resolve before narr
 Scene content: the Codex does not exist yet. The runtime loads a hand-authored scene seed (goal, location, NPCs, encounter) validated by Zod and shaped toward the content contracts. M4 replaces the seed with codex entities.
 
 Doctrine: DM-style prompts adapt tabletop-dm's right/wrong pairs (MIT, commit fe2c29b) with attribution (decision-0021 idea 5).
+
+Spec: specs/031-dm-runtime
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -49,6 +52,12 @@ Doctrine: DM-style prompts adapt tabletop-dm's right/wrong pairs (MIT, commit fe
 - [ ] #14 Doctrine prompts adapted from tabletop-dm carry an MIT attribution notice.
 - [ ] #15 Tests run a full turn against the fake gateway adapter with scripted dice.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 4) after TASK-0045 merged (#48); TASK-0043 merged earlier (#45). Worktree .worktrees/task-0046, branch task-0046-dm-runtime, cut from origin/main 722e8a6. Spec number 031 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
