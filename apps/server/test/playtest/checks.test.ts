@@ -185,6 +185,12 @@ describe("code checks", () => {
       presentNpcs: [],
       rulings: [],
       clarify: [],
+      party: [
+        { characterId: "tamsin", name: "Tamsin Vale", controller: "human" },
+      ],
+      npcNames: ["Goblin with a pot-helm"],
+      events: [],
+      setting: { locationName: "Greyhollow Ford", openingFraming: "" },
     } as unknown as NarrationFacts;
     const prose = factualSummary(facts);
     const text = `${prose}\n\n${renderDiceLines(facts).join("\n")}`;
