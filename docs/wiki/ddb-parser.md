@@ -9,7 +9,7 @@ sources:
   - apps/server/src/library/ddb/selectors.ts
   - biome.json
   - .gitignore
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
 ---
 
 # DDB parser
