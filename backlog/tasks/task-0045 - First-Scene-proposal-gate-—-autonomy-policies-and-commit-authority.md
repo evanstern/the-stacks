@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:15'
+updated_date: '2026-10-26 04:24'
 labels:
   - first-scene
   - gate
@@ -41,7 +41,7 @@ Spec: specs/029-proposal-gate
 - [x] #10 Spec phase: Setup and foundational — proposal contracts in code (US2, US7; AC #2)
 - [x] #11 Spec phase: Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8)
 - [x] #12 Spec phase: Fixtures for the play route and the gate (US7; TASK-0047 contract)
-- [ ] #13 Spec phase: Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8)
+- [x] #13 Spec phase: Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8)
 - [ ] #14 Spec phase: WebSocket delivery, send path and restart (US2, US5; AC #4, #9)
 - [ ] #15 Spec phase: Write boundary and full gate (US6; AC #1)
 <!-- AC:END -->
@@ -67,6 +67,9 @@ Phase 1 by sonnet-implementer: dd5cb16. 328 session-model tests pass; ci:check g
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phases 2 and 3 by sonnet-implementer: 2ddac08, f7adc59 (ticks) and 5d333bc. Adds the pure decision core (permissions, commit authority, routing, planner) and the dm-approvals, commit-authority and proposalExamples fixtures. 566 session-model tests pass; ci:check green. Deviations accepted: they are listed in tasks.md and include planner re-checks of IC talk and declare control.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 by sonnet-implementer: 13f8ec7. createGate with submit, handle and onAppended; appendBatch gains expectedLastSeq and SeqConflictError, with a bounded retry. The DB suite (REQUIRE_DATABASE=1) passes 457 server tests, including 21 in gate.integration; ci:check green. The test DB needed a manual migrate (TASK-0098).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
