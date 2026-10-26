@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:30'
+updated_date: '2026-10-26 02:48'
 labels:
   - first-scene
   - srd
@@ -71,6 +71,9 @@ Recorded deviation: like Settings, the About link sits in the sidebar footer, wh
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 by sonnet-implementer: 2276265. Every tasks.md box is ticked. 25/25 PDF spot-checks pass, and the license guards come back clean. The Phase 5 note says quickstart step 5's screenshot was not taken; that step was already done in Phase 4 (T038), whose Brave screenshots are in the scratchpad.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: ebec1b0. New note srd-data. Seven notes were amended: dnd5e-engine (for 2c9f99e), ci-pipeline, monorepo-and-toolchain, test-suite, container-image, react-router-app and chat-ui. ddb-parser and runtime-stacks were re-pinned only. Freshness OK, 39 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
