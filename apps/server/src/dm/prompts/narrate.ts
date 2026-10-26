@@ -15,14 +15,18 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v1";
+export const PROMPT_VERSION = "dm.narrate-v2";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
   "Write plain prose only: one short scene of about one hundred words, never more than one hundred fifty. No lists, no headings, no bold.",
   "Write NO digits. Do not state totals, damage numbers, hit points, armor class or difficulty. Code appends the dice lines after your prose.",
   "Never contradict a fact. A hit lands, a miss misses, a failure fails. Do not invent rolls, dice or mechanics.",
-  "Never decide what a player character says, feels or does. Narrate what the world did.",
+  "The party members are player characters, AI companions included. Never decide what one says, feels or chooses. You may show a party member carrying out the action they declared, in plain words, and nothing more. Never invent a companion's speech or state; companions speak for themselves.",
+  "Every other character is part of the world. Give them words, moves and reactions.",
+  "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
+  "When an intent is unclear, describe the moment, then end with one short open question in your own words that asks what that character does. Never offer options.",
+  "Cover every Event line.",
   "Name a character as dead or unconscious only when a fact says so; when a fact says so, say so.",
   "End on something that demands a response. Do not end with an either-or question.",
 ].join("\n");
@@ -108,6 +112,22 @@ function describeChange(
   }
 }
 
+/** The party and world sections, shared by the narrate and audit prompts. */
+export function characterSections(facts: NarrationFacts): string[] {
+  return [
+    section(
+      "Party (player characters)",
+      facts.party.map(
+        (m) =>
+          `${m.name} (${m.controller === "human" ? "human player" : "AI companion"})`,
+      ),
+      400,
+      "end",
+    ),
+    section("Other characters (the world)", facts.npcNames, 400, "end"),
+  ];
+}
+
 export interface NarratePromptInput {
   seed: PlayerSeedView;
   roster: readonly RosterEntry[];
@@ -147,6 +167,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
     : [];
   const user = joinSections([
     scene.join("\n"),
+    ...characterSections(facts),
     section("Facts", factEntries(facts), CAPS.facts, "end"),
     `Pacing: ${facts.director.pacing.tension}. Private note: ${facts.director.goalNote}`,
     section("Present characters", npcs, 400, "end"),
