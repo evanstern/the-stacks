@@ -102,15 +102,15 @@ no approvals".
 
 ### Tests first
 
-- [ ] T031 [P] [US4] Write `apps/web/test/play/ledger-list.test.tsx`: `LedgerList` for `freeModeAction` shows the roll's reason, expression `1d20+5`, face 13, total 18 and the check outcome; for `turnModeCombat` shows the goblin's `hp.current` before → after; `secretTracker` as a player has no hidden roll, as the DM shows it marked DM-only; a creation shows "none" before.
-- [ ] T032 [P] [US5] Write `apps/web/test/play/proposal-list.test.tsx`: each proposal shows summary, kind, proposer label, action and details; Approve calls `onApprove(id)`; Reject expands an inline reason field and its confirm calls `onReject(id, reason | null)`; empty list shows "No pending proposals". Interaction is tested by calling the exported handlers' wiring through a small pure helper or by asserting rendered button names; no DOM library.
-- [ ] T033 [P] [US5] Add to `apps/web/test/play/use-fixture-table.test.mjs` (node:test, against the pure reducer the hook uses): approve and reject remove the proposal; a player viewer receives `[]`.
+- [x] T031 [P] [US4] Write `apps/web/test/play/ledger-list.test.tsx`: `LedgerList` for `freeModeAction` shows the roll's reason, expression `1d20+5`, face 13, total 18 and the check outcome; for `turnModeCombat` shows the goblin's `hp.current` before → after; `secretTracker` as a player has no hidden roll, as the DM shows it marked DM-only; a creation shows "none" before.
+- [x] T032 [P] [US5] Write `apps/web/test/play/proposal-list.test.tsx`: each proposal shows summary, kind, proposer label, action and details; Approve calls `onApprove(id)`; Reject expands an inline reason field and its confirm calls `onReject(id, reason | null)`; empty list shows "No pending proposals". Interaction is tested by calling the exported handlers' wiring through a small pure helper or by asserting rendered button names; no DOM library.
+- [x] T033 [P] [US5] Add to `apps/web/test/play/use-fixture-table.test.mjs` (node:test, against the pure reducer the hook uses): approve and reject remove the proposal; a player viewer receives `[]`.
 
 ### Implementation
 
-- [ ] T034 [P] [US4] Implement `apps/web/app/play/components/ledger-list.tsx` (roll, outcome and change rows; struck-through dropped faces; DM-only marker; newest last).
-- [ ] T035 [P] [US5] Implement `apps/web/app/play/components/proposal-list.tsx` (inline reject reason and confirm; no confirmation modal).
-- [ ] T036 [US4] Mount both lists in `apps/web/app/play/table-view.tsx` inside the shared `Panel` (`apps/web/app/components/panel.tsx`), titles "Ledger" and "Pending proposals", ids matching the triggers' `aria-controls`; the proposals panel and trigger only for the DM; the count on the trigger; panels stay open across new events.
+- [x] T034 [P] [US4] Implement `apps/web/app/play/components/ledger-list.tsx` (roll, outcome and change rows; struck-through dropped faces; DM-only marker; newest last).
+- [x] T035 [P] [US5] Implement `apps/web/app/play/components/proposal-list.tsx` (inline reject reason and confirm; no confirmation modal).
+- [x] T036 [US4] Mount both lists in `apps/web/app/play/table-view.tsx` inside the shared `Panel` (`apps/web/app/components/panel.tsx`), titles "Ledger" and "Pending proposals", ids matching the triggers' `aria-controls`; the proposals panel and trigger only for the DM; the count on the trigger; panels stay open across new events.
 
 **Checkpoint**: `pnpm --filter @the-stacks/web test` green; quickstart §2 ledger and approvals rows
 pass in Brave, desktop and 390 px (bottom sheets).

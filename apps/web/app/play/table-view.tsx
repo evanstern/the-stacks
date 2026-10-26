@@ -1,7 +1,14 @@
 import { project } from "@the-stacks/session-model";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
-import { TableHeader } from "./components/table-header.tsx";
+import { LedgerList } from "./components/ledger-list.tsx";
+import { ProposalList } from "./components/proposal-list.tsx";
+import {
+  APPROVALS_PANEL_ID,
+  LEDGER_PANEL_ID,
+  TableHeader,
+} from "./components/table-header.tsx";
 import { Transcript } from "./components/transcript.tsx";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
@@ -57,6 +64,30 @@ export function TableView({ source }: { source: TableSource }) {
         }
         notice={source.notice}
       />
+      <Panel
+        open={ledgerOpen}
+        onOpenChange={setLedgerOpen}
+        title="Ledger"
+        description="Every roll with its reason and every change with before and after."
+        id={LEDGER_PANEL_ID}
+      >
+        <LedgerList items={model.ledger} />
+      </Panel>
+      {model.isDm && (
+        <Panel
+          open={approvalsOpen}
+          onOpenChange={setApprovalsOpen}
+          title="Pending proposals"
+          description="Approve or reject each proposal."
+          id={APPROVALS_PANEL_ID}
+        >
+          <ProposalList
+            proposals={model.proposals}
+            onApprove={(id) => source.commands.approve(id)}
+            onReject={(id, reason) => source.commands.reject(id, reason)}
+          />
+        </Panel>
+      )}
     </div>
   );
 }
