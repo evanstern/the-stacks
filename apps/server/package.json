@@ -12,7 +12,8 @@
     "db:migrate": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/migrate.ts",
     "auth:create-operator": "tsc -b && node --env-file-if-exists=../../.env dist/cli/create-operator.js",
     "bench:load": "tsc -b && node --env-file-if-exists=../../.env dist/bench/load/cli.js",
-    "bench:retrieval": "tsc -b && node --env-file-if-exists=../../.env dist/bench/retrieval/cli.js"
+    "bench:retrieval": "tsc -b && node --env-file-if-exists=../../.env dist/bench/retrieval/cli.js",
+    "playtest": "tsc -b && node --env-file-if-exists=../../.env dist/playtest/cli.js"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",

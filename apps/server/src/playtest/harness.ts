@@ -2,10 +2,12 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import type { Rng } from "@the-stacks/dnd5e-engine";
 import type { Proposer } from "@the-stacks/session-model";
 import type { FakeProvider } from "../ai/adapters/fake.js";
-import { createGateway } from "../ai/gateway.js";
-import type { UsageRecord } from "../ai/types.js";
+import type { AiConfig } from "../ai/config.js";
+import { createGateway, type Gateway } from "../ai/gateway.js";
+import type { AdapterFactory, UsageRecord } from "../ai/types.js";
 import { memorySink } from "../ai/usage.js";
 import type { DbClient } from "../auth/session.js";
 import { createDmEnqueuer } from "../dm/enqueue.js";
@@ -14,17 +16,27 @@ import { createScriptedDm, loadDmScript } from "../dm/script/load.js";
 import { loadSeed } from "../dm/seed/load.js";
 import { createDmWorker } from "../dm/worker.js";
 import { createGate } from "../gate/index.js";
+import {
+  retrieve as libraryRetrieve,
+  loadRetrievalConfig,
+} from "../library/retrieve.js";
 import { loadProjections } from "../session/projections.js";
 import { runAudit } from "./auditor/audit.js";
 import { renderReport, renderTranscript } from "./auditor/render.js";
 import { ReportSchema, type RunManifest } from "./auditor/schema.js";
+import { budgetGateway, countingSink, providerPreflight } from "./budget.js";
+import { scenarioRng } from "./dice.js";
 import { type DriverState, nextMove } from "./driver.js";
 import { exportSession, writeRunDir } from "./export.js";
 import {
   PLAYTEST_AUDIT_MAX_TOKENS,
   PLAYTEST_AUDIT_PURPOSE,
 } from "./purpose.js";
-import { loadAuditScript, type Scenario } from "./scenario.js";
+import {
+  type AuditScript,
+  loadAuditScript,
+  type Scenario,
+} from "./scenario.js";
 
 /**
  * The playtest run (specs/032-playtest-harness plan.md "CI mode wiring"):
@@ -32,12 +44,34 @@ import { loadAuditScript, type Scenario } from "./scenario.js";
  * seat through `gate.handle`, every model call answered from fixtures.
  */
 
+/** Provider mode inputs (contracts/cost-guard.md). */
+export interface ProviderRunOptions {
+  aiConfig: AiConfig;
+  env: NodeJS.ProcessEnv;
+  /** The spend ceiling in USD; the run stops `budget-stopped` once it is reached. */
+  ceilingUsd: number;
+  /** Dice seed after the scenario's scripted faces; `null` uses seed 0. */
+  seed: number | null;
+  /** Handle on the library database (read-only use by retrieval). */
+  libraryDb: DbClient;
+  /** Test seams: adapter registry, retrieval and dice. */
+  adapters?: Record<string, AdapterFactory>;
+  retrieve?: (
+    req: Parameters<typeof libraryRetrieve>[1],
+  ) => ReturnType<typeof libraryRetrieve>;
+  rng?: Rng;
+}
+
 export interface RunPlaytestOptions {
   db: DbClient;
   scenario: Scenario;
-  mode: "ci";
+  mode: "ci" | "provider";
+  /** Required when `mode` is `provider`. */
+  provider?: ProviderRunOptions;
   /** Run directory to write. */
   out: string;
+  /** Overrides the generated run id. */
+  runId?: string;
   signal?: AbortSignal;
   /** Skip the auditor; the run directory holds no report files. */
   noAudit?: boolean;
@@ -76,32 +110,14 @@ function utcStamp(d: Date): string {
     .replace(/\.\d+Z$/, "Z");
 }
 
-export async function runPlaytest(
-  opts: RunPlaytestOptions,
-): Promise<RunManifest> {
-  const { db, scenario, out } = opts;
-  if (!scenario.ci) {
-    throw new Error("runPlaytest: this scenario has no `ci` fixtures");
-  }
-  const startedAt = new Date();
-  const ci = scenario.ci;
-  const readJson = (p: string) => JSON.parse(readFileSync(p, "utf8"));
-
-  const scripted = createScriptedDm(loadDmScript(readJson(ci.dmScript)));
-  const retrieveResult = readJson(ci.retrieve);
-  const retrieve = async () => retrieveResult;
-
-  // The scripted auditor queue shares the one strict provider (plan.md "CI mode wiring").
-  scripted.aiConfig.purposes[PLAYTEST_AUDIT_PURPOSE] = {
-    provider: "scripted",
-    model: "scripted-chat",
-    op: "chat",
-    maxTokens: PLAYTEST_AUDIT_MAX_TOKENS,
-  };
-  const auditScript = loadAuditScript(ci.auditScript);
-  for (const r of auditScript.responses) {
+/** Queues the scripted auditor responses on purpose `playtest.audit`. */
+export function queueAuditScript(
+  provider: FakeProvider,
+  script: AuditScript,
+): void {
+  for (const r of script.responses) {
     const { respond, usage } = r;
-    scripted.provider.scriptChatFor(
+    provider.scriptChatFor(
       PLAYTEST_AUDIT_PURPOSE,
       respond.type === "error"
         ? [
@@ -124,19 +140,126 @@ export async function runPlaytest(
           ],
     );
   }
+}
+
+export async function runPlaytest(
+  opts: RunPlaytestOptions,
+): Promise<RunManifest> {
+  const { db, scenario, out } = opts;
+  const provider = opts.mode === "provider" ? opts.provider : undefined;
+  if (opts.mode === "provider") {
+    if (!provider)
+      throw new Error("runPlaytest: provider mode needs `provider`");
+    if (!(provider.ceilingUsd > 0)) {
+      throw new Error(
+        "runPlaytest: provider mode needs a positive spend ceiling",
+      );
+    }
+    const refusals = providerPreflight(provider.env, provider.aiConfig, {
+      dm: true,
+      audit: !opts.noAudit,
+    });
+    if (refusals.length > 0) {
+      throw new Error(
+        `runPlaytest: provider preflight refused: ${refusals.map((r) => r.message).join("; ")}`,
+      );
+    }
+  } else if (!scenario.ci) {
+    throw new Error("runPlaytest: this scenario has no `ci` fixtures");
+  }
+  const startedAt = new Date();
+  const readJson = (p: string) => JSON.parse(readFileSync(p, "utf8"));
+
+  let aiConfig: AiConfig;
+  let gateRng: () => Rng;
+  let gateway: Gateway;
+  let retrieve: (req: never) => Promise<never>;
+  let records: UsageRecord[];
+  let totalsNow: () => {
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    costUsd: number | null;
+  };
+  let scriptedRemaining: (() => RunManifest["scriptRemaining"]) | undefined;
+  let budgetReached: () => boolean = () => false;
+  let diceInfo: () => RunManifest["dice"] = () => undefined;
+
+  if (provider) {
+    aiConfig = provider.aiConfig;
+    const rng = provider.rng ?? scenarioRng(scenario.dice.faces, provider.seed);
+    gateRng = () => rng;
+    const sink = countingSink(memorySink());
+    const raw = createGateway({
+      config: aiConfig,
+      sink,
+      env: provider.env,
+      adapters: provider.adapters,
+    });
+    gateway = budgetGateway(raw, sink, provider.ceilingUsd);
+    const retrievalConfig = loadRetrievalConfig(provider.env);
+    retrieve = (provider.retrieve ??
+      ((req: Parameters<typeof libraryRetrieve>[1]) =>
+        libraryRetrieve(
+          { db: provider.libraryDb, gateway, config: retrievalConfig },
+          req,
+        ))) as never;
+    records = sink.records;
+    totalsNow = () => sink.totals();
+    budgetReached = () => sink.totals().costUsd >= provider.ceilingUsd;
+    diceInfo = () => ({
+      scriptedFaces: scenario.dice.faces.length,
+      seed: provider.seed,
+      drawn: "drawn" in rng ? (rng as { drawn(): number }).drawn() : 0,
+    });
+  } else {
+    const ci = scenario.ci as NonNullable<Scenario["ci"]>;
+    const scripted = createScriptedDm(loadDmScript(readJson(ci.dmScript)));
+    const retrieveResult = readJson(ci.retrieve);
+    retrieve = (async () => retrieveResult) as never;
+    // The scripted auditor queue shares the one strict provider (plan.md "CI mode wiring").
+    scripted.aiConfig.purposes[PLAYTEST_AUDIT_PURPOSE] = {
+      provider: "scripted",
+      model: "scripted-chat",
+      op: "chat",
+      maxTokens: PLAYTEST_AUDIT_MAX_TOKENS,
+    };
+    queueAuditScript(scripted.provider, loadAuditScript(ci.auditScript));
+    aiConfig = scripted.aiConfig;
+    gateRng = scripted.gateRng;
+    const sink = memorySink();
+    gateway = createGateway({
+      config: aiConfig,
+      sink,
+      adapters: { fake: () => scripted.provider as FakeProvider },
+    });
+    records = sink.records;
+    totalsNow = () => ({
+      calls: records.length,
+      inputTokens: records.reduce((n, r) => n + r.inputTokens, 0),
+      outputTokens: records.reduce((n, r) => n + r.outputTokens, 0),
+      costUsd: null,
+    });
+    scriptedRemaining = () => {
+      const remaining = scripted.remaining();
+      return {
+        calls: {
+          ...remaining.calls,
+          [PLAYTEST_AUDIT_PURPOSE]: scripted.provider.pendingFor(
+            PLAYTEST_AUDIT_PURPOSE,
+          ),
+        },
+        dice: remaining.dice,
+      };
+    };
+  }
 
   const sessionId = randomUUID();
   let idN = 0;
   const gate = createGate({
     db,
-    rng: scripted.gateRng,
+    rng: gateRng,
     newId: () => `id-${sessionId.slice(0, 8)}-${++idN}`,
-  });
-  const sink = memorySink();
-  const gateway = createGateway({
-    config: scripted.aiConfig,
-    sink,
-    adapters: { fake: () => scripted.provider as FakeProvider },
   });
   const loadDm = () => loadProjections(db, sessionId, { role: "dm" });
   const enqueuer = createDmEnqueuer({
@@ -147,13 +270,14 @@ export async function runPlaytest(
   gate.onAppended((sid, rows) => {
     void enqueuer.onAppended(sid, rows);
   });
+  const minSimilarity = Number(provider?.env.ASK_MIN_SIMILARITY);
   const worker = createDmWorker({
     db,
     gateway,
     gate,
-    retrieve,
+    retrieve: retrieve as never,
     loadProjections: loadDm,
-    minSimilarity: 0.3,
+    minSimilarity: Number.isFinite(minSimilarity) ? minSimilarity : 0.3,
     log: () => {},
   });
 
@@ -190,9 +314,15 @@ export async function runPlaytest(
 
   for (;;) {
     const failed = await failedJob();
+    const overBudget = budgetReached();
     if (failed) {
-      outcome = "failed";
-      failedJobId = failed.id;
+      // A job that failed because the ceiling cancelled its call is a budget stop.
+      outcome = overBudget ? "budget-stopped" : "failed";
+      if (!overBudget) failedJobId = failed.id;
+      break;
+    }
+    if (overBudget) {
+      outcome = "budget-stopped";
       break;
     }
     const p = await loadDm();
@@ -242,12 +372,12 @@ export async function runPlaytest(
 
   const finishedAt = new Date();
   const artifacts = await exportSession(db, sessionId);
-  const records: UsageRecord[] = sink.records;
   const models: RunManifest["models"] = {};
-  for (const [purpose, cfg] of Object.entries(scripted.aiConfig.purposes)) {
+  for (const [purpose, cfg] of Object.entries(aiConfig.purposes)) {
     models[purpose] = { provider: cfg.provider, model: cfg.model };
   }
-  const runId = `${utcStamp(startedAt)}-${scenario.name}-ci`;
+  const runId =
+    opts.runId ?? `${utcStamp(startedAt)}-${scenario.name}-${opts.mode}`;
   const commit = gitCommit();
   let report: ReturnType<typeof ReportSchema.parse> | undefined;
   if (!opts.noAudit) {
@@ -257,31 +387,31 @@ export async function runPlaytest(
     } catch {
       seed = null;
     }
-    report = ReportSchema.parse(
-      await runAudit({
-        transcript: artifacts.transcript,
-        ledger: artifacts.ledger,
-        jobs: artifacts.jobs,
-        seed,
-        gateway,
-        models,
-        signal: opts.signal,
-        runId,
-        commit,
-      }),
-    );
+    const audited = await runAudit({
+      transcript: artifacts.transcript,
+      ledger: artifacts.ledger,
+      jobs: artifacts.jobs,
+      seed,
+      gateway,
+      models,
+      signal: opts.signal,
+      runId,
+      commit,
+    });
+    if (provider) {
+      audited.usage.costUsd = records
+        .filter((r) => r.purpose === PLAYTEST_AUDIT_PURPOSE)
+        .reduce((n, r) => n + (r.costUsd ?? 0), 0);
+    }
+    report = ReportSchema.parse(audited);
   }
-  const totals = {
-    calls: records.length,
-    inputTokens: records.reduce((s, r) => s + r.inputTokens, 0),
-    outputTokens: records.reduce((s, r) => s + r.outputTokens, 0),
-    costUsd: null,
-  };
-  const remaining = scripted.remaining();
+  const totals = totalsNow();
+  const dice = diceInfo();
+  const remaining = scriptedRemaining?.();
   const manifest: RunManifest = {
     v: 1,
     runId,
-    mode: "ci",
+    mode: opts.mode,
     commit,
     sessionId,
     seedId: scenario.seedId,
@@ -291,15 +421,11 @@ export async function runPlaytest(
     outcome,
     ...(failedJobId ? { failedJobId } : {}),
     moves: { committed, refusals },
-    scriptRemaining: {
-      calls: {
-        ...remaining.calls,
-        [PLAYTEST_AUDIT_PURPOSE]: scripted.provider.pendingFor(
-          PLAYTEST_AUDIT_PURPOSE,
-        ),
-      },
-      dice: remaining.dice,
-    },
+    ...(dice ? { dice } : {}),
+    ...(provider
+      ? { spend: { ...totals, ceilingUsd: provider.ceilingUsd } }
+      : {}),
+    ...(remaining ? { scriptRemaining: remaining } : {}),
   };
   writeRunDir(path.resolve(out), {
     manifest,

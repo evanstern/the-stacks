@@ -137,15 +137,15 @@ with no database; `test/playtest/playtest.integration.test.ts` passes on the sta
 **Independent test**: `test/playtest/budget.test.ts` and `test/playtest/cli.test.ts` pass with
 no database and no network; `pnpm playtest run` produces a passing CI run directory.
 
-- [ ] T031 [US3] Create `apps/server/src/playtest/budget.ts`: `estimate(...)` with the pinned per-purpose table of contracts/cost-guard.md, `countingSink(inner)`, `budgetGateway(gateway, sink, ceilingUsd)`, and `providerPreflight(env, aiConfig, needs)` returning the ordered refusals of contracts/cost-guard.md steps 1 to 3.
-- [ ] T032 [US3] Extend `apps/server/src/playtest/harness.ts` with `mode: "provider"` per plan.md "Provider mode wiring": `loadAiConfig` passed in, `scenarioRng(scenario.dice.faces, seed)`, the counting sink and `budgetGateway`, real `retrieve` over a separate library database handle, outcome `budget-stopped` when the ceiling is reached; record `dice`, `models` (names only) and `spend` in the manifest.
-- [ ] T033 [US3] Create `apps/server/src/playtest/cli.ts`: `run`, `audit`, `estimate` per contracts/cli.md, the exit codes, stderr JSON log lines, and the preflight order of contracts/cost-guard.md (estimate printed before the ceiling check; no run directory created on exit 3 or 4).
-- [ ] T034 [US3] Add the `playtest` script to `apps/server/package.json` (`tsc -b && node --env-file-if-exists=../../.env dist/playtest/cli.js`) and to the root `package.json` (`pnpm --filter @the-stacks/server playtest`).
-- [ ] T035 [P] [US3] Update `.env.example`: add a commented `playtest.audit` entry to the `AI_PURPOSES` example, with the note "strong tier; prefer a different model family than dm.narrate", and a commented `PLAYTEST_DATABASE_URL` override.
-- [ ] T036 [P] [US3] Write `apps/server/test/playtest/budget.test.ts`: the estimate table is pinned; expected ≤ upper bound for every purpose; a priced `fake` provider with a ceiling of one call's cost lets one call through and cancels the next with kind `cancelled` and no provider call; `embed` throws past the ceiling; `providerPreflight` refuses under `CI`, names every missing purpose, names every unpriced model, in that order.
-- [ ] T037 [P] [US3] Write `apps/server/test/playtest/cli.test.ts` (calls the CLI's exported `main(argv, env)`; no database): `run --mode provider` with `CI=1` exits 4; with no `AI_*` exits 4 naming purposes; with a complete priced fake config and no ceiling prints the estimate and exits 3 with no gateway call and no run directory; a ceiling below the upper bound exits 3; `estimate` exits 0; a bad flag exits 64; `audit --dir <doctored> --auditor none` exits 1.
-- [ ] T038 [US3] Run `pnpm playtest run --out specs/032-playtest-harness/evidence/ci-playtest` on the worktree stack. Confirm outcome `ended` and verdict `pass`. Commit the run directory.
-- [ ] T039 [US3] Run `REQUIRE_DATABASE=1 pnpm ci:check`. It must exit 0. Paste its summary into `specs/032-playtest-harness/evidence/ci-check.txt`.
+- [x] T031 [US3] Create `apps/server/src/playtest/budget.ts`: `estimate(...)` with the pinned per-purpose table of contracts/cost-guard.md, `countingSink(inner)`, `budgetGateway(gateway, sink, ceilingUsd)`, and `providerPreflight(env, aiConfig, needs)` returning the ordered refusals of contracts/cost-guard.md steps 1 to 3.
+- [x] T032 [US3] Extend `apps/server/src/playtest/harness.ts` with `mode: "provider"` per plan.md "Provider mode wiring": `loadAiConfig` passed in, `scenarioRng(scenario.dice.faces, seed)`, the counting sink and `budgetGateway`, real `retrieve` over a separate library database handle, outcome `budget-stopped` when the ceiling is reached; record `dice`, `models` (names only) and `spend` in the manifest.
+- [x] T033 [US3] Create `apps/server/src/playtest/cli.ts`: `run`, `audit`, `estimate` per contracts/cli.md, the exit codes, stderr JSON log lines, and the preflight order of contracts/cost-guard.md (estimate printed before the ceiling check; no run directory created on exit 3 or 4).
+- [x] T034 [US3] Add the `playtest` script to `apps/server/package.json` (`tsc -b && node --env-file-if-exists=../../.env dist/playtest/cli.js`) and to the root `package.json` (`pnpm --filter @the-stacks/server playtest`).
+- [x] T035 [P] [US3] Update `.env.example`: add a commented `playtest.audit` entry to the `AI_PURPOSES` example, with the note "strong tier; prefer a different model family than dm.narrate", and a commented `PLAYTEST_DATABASE_URL` override.
+- [x] T036 [P] [US3] Write `apps/server/test/playtest/budget.test.ts`: the estimate table is pinned; expected ≤ upper bound for every purpose; a priced `fake` provider with a ceiling of one call's cost lets one call through and cancels the next with kind `cancelled` and no provider call; `embed` throws past the ceiling; `providerPreflight` refuses under `CI`, names every missing purpose, names every unpriced model, in that order.
+- [x] T037 [P] [US3] Write `apps/server/test/playtest/cli.test.ts` (calls the CLI's exported `main(argv, env)`; no database): `run --mode provider` with `CI=1` exits 4; with no `AI_*` exits 4 naming purposes; with a complete priced fake config and no ceiling prints the estimate and exits 3 with no gateway call and no run directory; a ceiling below the upper bound exits 3; `estimate` exits 0; a bad flag exits 64; `audit --dir <doctored> --auditor none` exits 1.
+- [x] T038 [US3] Run `pnpm playtest run --out specs/032-playtest-harness/evidence/ci-playtest` on the worktree stack. Confirm outcome `ended` and verdict `pass`. Commit the run directory.
+- [x] T039 [US3] Run `REQUIRE_DATABASE=1 pnpm ci:check`. It must exit 0. Paste its summary into `specs/032-playtest-harness/evidence/ci-check.txt`.
 
 ---
 
@@ -213,3 +213,12 @@ own, so a stopped sweep resumes from the last ticked task.
   `INDEX.md`.
 - TASK-0055 reads this card's evidence (`docs/design/m2-demo/`, fight statistics). This card
   changes no combat rule.
+
+## Deviations
+
+- Phase 4: a job that fails because the ceiling cancelled its call ends the run `budget-stopped`, not `failed` (data-model.md lists `failed` first; the cancellation is the ceiling's doing).
+- Phase 4: `providerPreflight` returns every refusal found, step 1 first, instead of stopping at step 1. The CLI exits 4 on any refusal.
+- Phase 4: the retrieval embed purpose joins the estimate and the price check only when it is configured in `AI_PURPOSES`.
+- Phase 4: relative CLI paths resolve against `INIT_CWD` (the directory `pnpm` was invoked from), because `pnpm --filter` runs in `apps/server`. The default `--out` is `.playtests/<runId>` (already gitignored).
+- Phase 4: `FightStatsSchema` gained `fledOrBargainedNote` (default `null`), set when `fledOrBargained` is `null`.
+- Phase 4: `T039` evidence in `evidence/ci-check.txt` is the summary of the run, not the full log.

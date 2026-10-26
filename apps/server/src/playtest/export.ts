@@ -141,6 +141,17 @@ export function writeRunDir(dir: string, a: RunArtifacts): void {
   }
 }
 
+/** Writes `report.json` and `report.md` into `dir`; creates `dir`. */
+export function writeReportFiles(
+  dir: string,
+  report: unknown,
+  reportMd: string,
+): void {
+  mkdirSync(dir, { recursive: true });
+  writeAtomic(join(dir, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+  writeAtomic(join(dir, "report.md"), reportMd);
+}
+
 export interface RunDirContents {
   manifest: RunManifest;
   transcript: StoredEvent[];

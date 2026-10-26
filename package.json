@@ -24,7 +24,8 @@
     "env:prune": "node scripts/env.mjs prune",
     "env:main": "node scripts/env.mjs main",
     "bench:load": "pnpm --filter @the-stacks/server bench:load",
-    "bench:retrieval": "pnpm --filter @the-stacks/server bench:retrieval"
+    "bench:retrieval": "pnpm --filter @the-stacks/server bench:retrieval",
+    "playtest": "pnpm --filter @the-stacks/server playtest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
