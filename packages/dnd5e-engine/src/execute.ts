@@ -4,6 +4,17 @@ import {
   handleCombatantRemove,
 } from "./commands/combatants.js";
 import {
+  handleConditionApply,
+  handleConditionRemove,
+  handleExhaustionAdjust,
+} from "./commands/conditions.js";
+import {
+  handleEncounterEnd,
+  handleInitiativeJoin,
+  handleInitiativeRoll,
+  handleTurnAdvance,
+} from "./commands/encounter.js";
+import {
   handleDamageApply,
   handleHealingApply,
   handleTempHpGrant,
@@ -32,6 +43,13 @@ const handlers: HandlerMap = {
   stabilize: handleStabilize,
   "attack.roll": handleAttackRoll,
   "check.roll": handleCheckRoll,
+  "condition.apply": handleConditionApply,
+  "condition.remove": handleConditionRemove,
+  "exhaustion.adjust": handleExhaustionAdjust,
+  "initiative.roll": handleInitiativeRoll,
+  "initiative.join": handleInitiativeJoin,
+  "turn.advance": handleTurnAdvance,
+  "encounter.end": handleEncounterEnd,
 };
 
 function issuesOf(error: {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   expectOk,
   expectRefusal,
+  expectRefusedBeforeDraw,
   makeCombatant,
   run,
   settle,
@@ -142,6 +143,30 @@ describe("combatant.remove", () => {
       reason: "x",
     });
     expectRefusal(result, "UNKNOWN_COMBATANT");
+  });
+
+  it("refuses to remove a combatant in the active encounter", () => {
+    const base = stateWith(makeCombatant());
+    const started = settle(
+      base,
+      run(
+        base,
+        {
+          type: "initiative.roll",
+          participants: [{ combatantId: "pc-ana", mode: "normal" }],
+          reason: "combat begins",
+        },
+        [10],
+      ).result,
+    );
+    expectRefusedBeforeDraw(
+      run(started, {
+        type: "combatant.remove",
+        combatantId: "pc-ana",
+        reason: "x",
+      }),
+      "COMBATANT_IN_ENCOUNTER",
+    );
   });
 
   it("refuses an unknown target on other commands too", () => {

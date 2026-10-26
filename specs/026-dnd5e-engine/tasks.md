@@ -228,22 +228,22 @@ carrying before/after values.
 **Independent test**: an encounter starts, a condition expiring at the end of a combatant's
 turn falls off when the turn advances, and round 2 begins after the last combatant.
 
-- [ ] T036 [US3] Write `src/commands/conditions.ts`: `condition.apply` (instance id
+- [x] T036 [US3] Write `src/commands/conditions.ts`: `condition.apply` (instance id
       `"<id>#<n>"`, `conditionSeq` before/after), `condition.remove` (all matching
       instances; dead targets allowed), `exhaustion.adjust` (apply/change/remove, level 6 →
       `dead`).
-- [ ] T037 [US4] Write `src/commands/encounter.ts`: `initiative.roll` (one `dice.rolled` per
+- [x] T037 [US4] Write `src/commands/encounter.ts`: `initiative.roll` (one `dice.rolled` per
       participant, purpose `initiative`; ordering total → bonus → id), `initiative.join`
       (insert, keep the active combatant), `turn.advance` (skip dead, wrap rounds, cross
       expiry points including skipped turns, `skipped` list), `encounter.end` (remove
       round-expiry conditions with cause `encounter-ended`).
-- [ ] T038 [P] [US3] Write `test/commands/conditions.test.ts`: apply with source and expiry;
+- [x] T038 [P] [US3] Write `test/commands/conditions.test.ts`: apply with source and expiry;
       `conditionsOf` lists it; remove; second apply → `CONDITION_ALREADY_PRESENT`; remove
       absent → `CONDITION_NOT_PRESENT`; `exhaustion` via `condition.apply` →
       `INVALID_COMMAND`; exhaustion 0→1 applies, 1→3 changes, 3→0 removes, 5→6 kills,
       `EXHAUSTION_OUT_OF_RANGE` below 0 and above 6; `TARGET_DEAD` on apply; remove on a dead
       target succeeds.
-- [ ] T039 [P] [US4] Write `test/commands/encounter.test.ts` (scripted d20s): ordering with
+- [x] T039 [P] [US4] Write `test/commands/encounter.test.ts` (scripted d20s): ordering with
       ties (12/18/12 → bonus then id); advantage on one participant; `activeCombatant`;
       advance through a round wrap; dead combatant skipped and listed in `skipped`; `turn-end`
       and `turn-start` expiries fire at the right boundary, including on a skipped turn;
@@ -251,7 +251,7 @@ turn falls off when the turn advances, and round 2 begins after the last combata
       round-expiry conditions; refusals `ENCOUNTER_ACTIVE`, `NO_ACTIVE_ENCOUNTER` (join,
       advance, end), `ALREADY_IN_ENCOUNTER`, `NO_ELIGIBLE_COMBATANT`, `DUPLICATE_PARTICIPANT`,
       `TARGET_DEAD` (dead participant), `UNKNOWN_COMBATANT`.
-- [ ] T040 [US4] Extend `test/commands/combatants.test.ts` with `COMBATANT_IN_ENCOUNTER`.
+- [x] T040 [US4] Extend `test/commands/combatants.test.ts` with `COMBATANT_IN_ENCOUNTER`.
 
 **Checkpoint**: US1–US4 and US6 pass independently.
 
