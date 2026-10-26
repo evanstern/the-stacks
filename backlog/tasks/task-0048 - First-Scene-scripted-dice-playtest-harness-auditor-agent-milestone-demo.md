@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:31'
+updated_date: '2026-10-26 14:38'
 labels:
   - first-scene
   - test
@@ -92,6 +92,9 @@ Run 1, kept at docs/design/m2-demo/provider-playtest-failed-1: failed at the fir
 Run 2, at docs/design/m2-demo/provider-playtest: outcome failed, verdict incomplete, $0.67 over 32 calls. Three turns completed: exploration, then the social beat with Persuasion 19-1=18 against DC 12, a success. The fourth turn failed with 'stopped at director: invalid-output'. Its first dm.director attempt hit exactly maxTokens 600, so the JSON was truncated, and the retry failed the schema too. The job error drops the schema issues, which is a diagnosability gap.
 Auditor findings: F1, a check reporting a dice line in narration #10 where none was expected (to inspect, possibly a false positive). F2, narration #16 says the search found no print, though #10 and #11 described clawed tracks (a real continuity contradiction). F3, 'creak again' is a false positive, since #10 had the creak. F4, a DM-runtime audit regenerated #16 on its 3rd attempt (ledger-mismatch, player-agency, doctrine, invented-mechanics).
 Next step: the operator decides whether to raise the dm.* maxTokens and rerun.
+
+2026-10-26: on the operator's go, the root .env and worktree .env dm.* maxTokens were raised: director 1500, adjudicate 1500, interpret 1200, companion 800, chronicle 1000; narrate 500 and audit 300 unchanged. Run 2 was moved to docs/design/m2-demo/provider-playtest-failed-2. Run 3 refused with exit 3 and $0 spent: the new upper-bound estimate is $20.82 (expected $1.90), above the approved $20 ceiling. Waiting on the operator to approve a higher ceiling.
+TASK-0101 progress: the operator added NINEROUTER_API_KEY to vm-104 ~/dev/.env. A read-only check with that key from vm-104 lists the realm 9router's models: cc/claude-opus-5, cc/claude-fable-5, cc/claude-sonnet-5, cc/claude-haiku-4-5-20251001.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
