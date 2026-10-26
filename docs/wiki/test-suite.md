@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 7ed16122b2f78b65297508cc3ef69609507d79e9
+verified_against: c2adddc493df0a19c64a3923f158f01b27ab5e91
 ---
 
 # Test suite
@@ -93,8 +93,9 @@ suite's pass/fail outcome.
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`
-and `packages/shared`) is a fourth entry in root `tsconfig.json`'s `references` array,
-alongside `packages/shared`, `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
+and `packages/shared`) is an entry in root `tsconfig.json`'s `references` array,
+alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
+[[dnd5e-engine]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
 closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` itself is unchanged (still
