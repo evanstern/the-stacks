@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 18:35'
+updated_date: '2026-10-26 18:38'
 labels:
   - first-scene
   - dm
@@ -70,6 +70,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 by sonnet-implementer: 752d98a (narrate-v2 and audit-v2: party and world sections, the no-effect definition, open-question rule), 7391633 (audit node: code derives pass or fail; deterministic, ledger-mismatch, invented-mechanics and player-agency issues block; LLM doctrine and other issues are advisory; regenerates carry only blocking issues; new clarify check requires a closing question; issue details quote the matched text; per-attempt word count), 7c62548 (tests, A3 and A4 repros now assert the fixed behavior). Server REQUIRE_DATABASE=1: 742 passed, 5 skipped. Lint, typecheck and boundaries pass.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 setup 2026-10-26: composite .worktrees/task-0106-run = origin/task-0048-playtest a99ddd8 (holds seat fix b3f09ca) + merge of origin/task-0106-narration-quality → fda4abf (clean merge, never pushed). Stack stacks-task-0106-run (:7902), both DBs migrated (app DB via TEST_DATABASE_URL), app restarted. Pre-check B1: server tests 829 passed, 1 failed: TASK-0048's test/playtest/checks.test.ts 'passes the DM runtime's factual summary, with a recorded death' builds NarrationFacts by hand in the pre-034 shape (no events/party/setting), and the new factualSummary throws on facts.events. Orchestrator ruling: a fixture-shape lag in TASK-0048's test, not a runtime defect; the provider run proceeds. The test's facts literal gains the new fields in TASK-0048's reconcile merge after TASK-0106 lands. CI playtest in composite: ended, pass. Estimate upper bound $21.60, ceiling $22 (operator approval above). B2/B3: moves.fallback is now a 5-entry list; the C5 selector matches any of those texts.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
