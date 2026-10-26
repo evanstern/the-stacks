@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 20:40'
+updated_date: '2026-10-26 20:41'
 labels:
   - first-scene
   - test
@@ -138,6 +138,8 @@ Demo blocker 2026-10-26: in session 2811b339-bb03-4593-b3fd-0a969a5d2027 the ser
 
 Operator-viewer fix 53a78fa by sonnet-implementer (operator ruling 'Fix the view'): apps/web/app/play/viewer.ts viewerFor(user, projections). The holder of the human DM seat gets dm. A user controlling a party character gets player. An unseated operator gets dm (unchanged). The viewer re-derives as events arrive. The server already decides by seat (session-model gate roles.ts, permissions.ts, authority.ts; ws/registry.ts:62-68), so no server change; a regression test in gate.integration.test.ts covers a seated operator's declare and commit. Spec 030 R4 has an Amended line. ci:check REQUIRE_DATABASE=1 exit 0: server 850 passed, 5 skipped. Not yet confirmed in a live session.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Demo restart: stack rebuilt at 5620ad9 (code 53a78fa), both DBs migrated, clean boot. New demo session id e8c848ec-11e9-442d-9bfa-8c26a0d84fcd. The abandoned session 2811b339 is noted for the record. The operator recreates the operator account (app DB) and starts the scene.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
