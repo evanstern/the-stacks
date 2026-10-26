@@ -1,0 +1,29 @@
+pnpm ci:check — exit 0 (REQUIRE_DATABASE=1, worktree test DB migrated via db:migrate). No WS gateway re-runs needed.
+Phase 5 database suite (apps/server): 40 files passed, 1 skipped; 431 tests passed, 5 skipped; session.integration.test.ts 14 passed.
+docker build: green; image loads @the-stacks/session-model at runtime.
+--- ci:check summary lines ---
+Checked 328 files in 145ms. No fixes applied.
+@the-stacks/dnd5e-engine:test: [2m Test Files [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+@the-stacks/srd:test: [2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+@the-stacks/session-model:test: [2m Test Files [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+@the-stacks/server:test: [2m Test Files [22m [1m[32m40 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (41)[39m
+boundary rules: 16/16 fixtures flagged
+# tests 20
+# pass 20
+# fail 0
+# tests 42
+# pass 42
+# fail 0
+--- tail ---
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.419459
+$ node --experimental-strip-types -e "await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');"

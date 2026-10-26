@@ -171,9 +171,9 @@ phase is done. The database suite runs with `REQUIRE_DATABASE=1`; a skip is a fa
 
 ## Phase 6: Polish — full gate
 
-- [ ] T052 Run `pnpm ci:check` in the worktree and fix any failure (lint, typecheck, build, tests, boundaries, hooks, scripts, host scripts).
-- [ ] T053 Save the `pnpm ci:check` tail and the Phase 5 database-suite counts to `specs/028-session-model/ci-evidence.txt` (as TASK-0042 did) and commit it.
-- [ ] T054 Walk quickstart.md end to end and confirm each expected outcome; tick any remaining task here.
+- [x] T052 Run `pnpm ci:check` in the worktree and fix any failure (lint, typecheck, build, tests, boundaries, hooks, scripts, host scripts).
+- [x] T053 Save the `pnpm ci:check` tail and the Phase 5 database-suite counts to `specs/028-session-model/ci-evidence.txt` (as TASK-0042 did) and commit it.
+- [x] T054 Walk quickstart.md end to end and confirm each expected outcome; tick any remaining task here.
 
 **Checkpoint**: `pnpm ci:check` green. The orchestrator then runs the wiki re-ground (runbook:
 `event-log`, `ws-protocol`, `replay-live-boundary`, `overview`, plus a new `session-model`
