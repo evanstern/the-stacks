@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:53'
+updated_date: '2026-10-26 03:58'
 labels:
   - first-scene
   - gate
@@ -30,7 +30,7 @@ Spec: specs/029-proposal-gate
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 No code path writes LLM output to the log except through a typed proposal; a test enforces this.
-- [ ] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
+- [x] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
 - [ ] #3 Policy auto applies the proposal through the engine immediately.
 - [ ] #4 Policy ask appends a DM-only proposal.created event and applies the proposal only after proposal.approved.
 - [ ] #5 Policy suggest shows the proposal to the DM and applies nothing.
@@ -62,6 +62,9 @@ Operator rulings 2026-10-26 on the spec's open questions:
 (4) The spec's default policy table stands: with a human seat, ask for talk, action.comment, action.commit, mechanics, narration, table-mode, party and tracker; suggest for scene; auto for action.resolve and journal. With an AI seat, everything is auto.
 (5) A party-scope commit with more than one human is refused with GROUP_SIGNOFF_REQUIRED until TASK-0049.
 Implementation dispatch grouping: P1 | P2+P3 | P4 | P5 | P6.
+
+Phase 1 by sonnet-implementer: dd5cb16. 328 session-model tests pass; ci:check green. Deviations accepted: the tracker visibility literal, PolicySchema placed in gate/policy.ts, and player projections drop proposal.* rows.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
