@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:42'
+updated_date: '2026-10-26 14:45'
 labels:
   - first-scene
   - test
@@ -97,6 +97,15 @@ Next step: the operator decides whether to raise the dm.* maxTokens and rerun.
 TASK-0101 progress: the operator added NINEROUTER_API_KEY to vm-104 ~/dev/.env. A read-only check with that key from vm-104 lists the realm 9router's models: cc/claude-opus-5, cc/claude-fable-5, cc/claude-sonnet-5, cc/claude-haiku-4-5-20251001.
 
 OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the paid scripted playtest rerun. Run it.'
+
+Run 4, $22 ceiling, at docs/design/m2-demo/provider-playtest: outcome failed, verdict fail, $0.44 over 20 calls. Two turns succeeded. The third failed again with 'stopped at director: invalid-output'. This time it was NOT truncation: the director output 962 and then 280 tokens, both under the 1500 cap, and both failed the schema. The schema issues are not recorded anywhere, so the cause is unknown without a code change.
+Findings so far, to resolve in the demo record:
+D1 (blocker): the director's real-model output fails its schema (2 of 2 runs). The scene stalls at the third or fourth turn, and the M2 demo cannot reach the scene's end until this is fixed.
+D2: a failed job's error keeps only the kind and drops the schema issues.
+D3: the playtest dice-lines check reports dice lines in scene-start narration #10, which has none ('expected 0, found 1' in run 2 and 'found 2' in run 4). Likely a false positive in the check.
+D4: the playtest CLI on the host cannot use host.docker.internal provider URLs.
+Doctrine warnings from the auditor are expected quality findings: hero-is-theirs, fail-forward, end-on-demand, one-sense. The DM-runtime audit also shipped its factual fallback once.
+Paid runs are paused until D1 is fixed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
