@@ -1,0 +1,25 @@
+pnpm ci:check exit=0 (2026-10-25)
+@the-stacks/web:test: # tests 63
+@the-stacks/web:test: # pass 63
+@the-stacks/web:test: # fail 0
+@the-stacks/dnd5e-engine:test:  Test Files  15 passed (15)
+@the-stacks/dnd5e-engine:test:       Tests  197 passed (197)
+@the-stacks/server:test:  Test Files  27 passed | 13 skipped (40)
+@the-stacks/server:test:       Tests  292 passed | 129 skipped (421)
+boundary rules: 11/11 fixtures flagged
+--- tail ---
+ok 42 - parseWorktreeList reads absolute paths out of porcelain output
+  ---
+  duration_ms: 0.054916
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 62.978416
+$ node --experimental-strip-types -e "await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');"

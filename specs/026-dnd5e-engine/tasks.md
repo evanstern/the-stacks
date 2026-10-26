@@ -285,22 +285,22 @@ with before/after values.
 
 ## Phase 7: Polish — coverage meta-test, replay scene, docs, full gate (AC #9, #11)
 
-- [ ] T045 Write `test/coverage.test.ts`: for every option of the command `type`
+- [x] T045 Write `test/coverage.test.ts`: for every option of the command `type`
       discriminator, assert some `test/commands/*.test.ts` contains `type: "<type>"`; for every
       `RefusalCodeSchema` option, assert some test file contains an `expectRefusal(` call
       naming that code. The test prints the missing names on failure.
-- [ ] T046 Write `test/replay.test.ts`: a scripted mini-scene (add three combatants, roll
+- [x] T046 Write `test/replay.test.ts`: a scripted mini-scene (add three combatants, roll
       initiative, an attack roll and a save, two damage rolls (one critical, one resisted), a condition with a turn-end expiry, advances through a
       round, a death save, end the encounter, short rest, expend and restore a slot). Assert
       that replaying the concatenated events from `emptyState()` equals the state threaded
       through each step, and that `scriptedRng.remaining()` is 0.
-- [ ] T047 [P] Add a refuse-before-draw sweep to `test/execute.test.ts`: for one refusal case
+- [x] T047 [P] Add a refuse-before-draw sweep to `test/execute.test.ts`: for one refusal case
       per code that a dice-drawing command can return, assert `countingRng` saw 0 draws.
-- [ ] T048 [P] Write `packages/dnd5e-engine/README.md` (one screen): the entry point, the
+- [x] T048 [P] Write `packages/dnd5e-engine/README.md` (one screen): the entry point, the
       invariants, the "no I/O" rule, links to `specs/026-dnd5e-engine/contracts/`.
-- [ ] T049 Run the quickstart (specs/026-dnd5e-engine/quickstart.md) and fix any drift
+- [x] T049 Run the quickstart (specs/026-dnd5e-engine/quickstart.md) and fix any drift
       between it and the code.
-- [ ] T050 Run `pnpm ci:check` from the worktree root; it must pass. Save its tail to
+- [x] T050 Run `pnpm ci:check` from the worktree root; it must pass. Save its tail to
       `specs/026-dnd5e-engine/ci-evidence.txt`.
 
 ### Constitution compliance (folded into the phases above)
