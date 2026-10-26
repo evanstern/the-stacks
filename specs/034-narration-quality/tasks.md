@@ -238,7 +238,7 @@ maxTokens 1500, so a $22 ceiling refuses to start.
 - [x] T045 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
   Record it on the card.
 - [x] T046 Orchestrator: tear down the composite worktree (quickstart E).
-- [ ] T047 Orchestrator: after merge, re-ground `docs/wiki/dm-runtime.md` and
+- [x] T047 Orchestrator: after merge, re-ground `docs/wiki/dm-runtime.md` and
   `dm-failure-and-gates.md` (`/grounding-wiki:wiki-update`).
 
 **Checkpoint**: AC #5 met. The task is ready for PR.
