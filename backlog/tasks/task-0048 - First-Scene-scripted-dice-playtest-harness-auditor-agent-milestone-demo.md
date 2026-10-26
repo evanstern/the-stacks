@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:38'
+updated_date: '2026-10-26 14:42'
 labels:
   - first-scene
   - test
@@ -95,6 +95,8 @@ Next step: the operator decides whether to raise the dm.* maxTokens and rerun.
 
 2026-10-26: on the operator's go, the root .env and worktree .env dm.* maxTokens were raised: director 1500, adjudicate 1500, interpret 1200, companion 800, chronicle 1000; narrate 500 and audit 300 unchanged. Run 2 was moved to docs/design/m2-demo/provider-playtest-failed-2. Run 3 refused with exit 3 and $0 spent: the new upper-bound estimate is $20.82 (expected $1.90), above the approved $20 ceiling. Waiting on the operator to approve a higher ceiling.
 TASK-0101 progress: the operator added NINEROUTER_API_KEY to vm-104 ~/dev/.env. A read-only check with that key from vm-104 lists the realm 9router's models: cc/claude-opus-5, cc/claude-fable-5, cc/claude-sonnet-5, cc/claude-haiku-4-5-20251001.
+
+OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the paid scripted playtest rerun. Run it.'
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
