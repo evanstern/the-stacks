@@ -89,6 +89,7 @@ function noEffectFacts(
   modeBefore: "free" | "turn",
   action: ActionSpec,
   clarify: { actionId: string; question: string }[] = [],
+  rows: StoredEvent[] = [],
 ): NarrationFacts {
   return buildNarrationFacts({
     trigger: "commit",
@@ -117,10 +118,11 @@ function noEffectFacts(
           refusalCode: null,
         },
       ],
+      appendedRows: rows,
     }),
     presentNpcIds: [],
     modeBefore,
-    appendedRows: [],
+    appendedRows: rows,
     clarify,
   });
 }
@@ -153,22 +155,34 @@ describe("run-5 fixture", () => {
   });
 });
 
-describe("F23: the fallback contradicts the ledger (T012)", () => {
-  it("seq 88 says nothing changes and that the fight is over", () => {
-    const facts = noEffectFacts(87, "turn", KESTREL);
+describe("F23: the fallback states the ledger in the fiction (T012, flipped)", () => {
+  it("seq 88 says the fight stops and drops 'nothing changes'", () => {
+    const facts = noEffectFacts(
+      87,
+      "turn",
+      KESTREL,
+      [],
+      fixture.transcript.filter((r) => r.seq >= 85 && r.seq <= 87),
+    );
     expect(facts.modeChange).toEqual({ from: "turn", to: "free" });
     expect(factualSummary(facts)).toBe(
-      "Kestrel acts, and nothing changes. The fight is over.",
+      "Kestrel goes ahead with it. The fighting stops.",
     );
   });
 
-  it("seq 53 holds the system commentary 'One action needs a clearer description.'", () => {
-    const facts = noEffectFacts(52, "free", TAMSIN_PT4, [
-      { actionId: "pt-4", question: "Which way do you press on?" },
-    ]);
-    expect(factualSummary(facts)).toContain(
-      "One action needs a clearer description.",
+  it("seq 53 states the fight, the joiners and the first mover, and asks", () => {
+    const facts = noEffectFacts(
+      52,
+      "free",
+      TAMSIN_PT4,
+      [{ actionId: "pt-4", question: "Which way do you press on?" }],
+      fixture.transcript.filter((r) => r.seq >= 39 && r.seq <= 52),
     );
+    const out = factualSummary(facts);
+    expect(out).toBe(
+      "A fight breaks out. Snag, Goblin with a pot-helm, Goblin lookout and Goblin by the fire join the fight. Snag moves first. What does Tamsin Vale do?",
+    );
+    expect(out).not.toContain("clearer description");
   });
 });
 
@@ -233,7 +247,7 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
 });
 
 describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
-  it("F17: the Goblin-3 NPC turn facts do not hold 'jabs'", () => {
+  it("F17: the Goblin-3 NPC turn facts render the roll reason and target", () => {
     const batchIds = [
       ...new Set(
         (fixture.ledger as { seq: number; batchId?: string | null }[]).flatMap(
@@ -264,7 +278,9 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     });
     expect(facts.npcTurn?.rolls.length).toBeGreaterThan(0);
     expect(facts.npcTurn?.rolls[0]?.reason).toContain("jabs");
-    expect(factEntries(facts).join("\n")).not.toContain("jabs");
+    expect(factEntries(facts).join("\n")).toContain(
+      "jabs at Tamsin with its dagger",
+    );
   });
 
   it("F76: the transcript line for row 187 names 'Tamsin Vale' and drops the user id (public, with roster)", () => {

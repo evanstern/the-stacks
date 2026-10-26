@@ -97,7 +97,7 @@ describe.skipIf(!reachable)("audit through a full pipeline (database)", () => {
     const narrations = rows.filter((r) => r.type === "narration");
     expect(narrations).toHaveLength(1);
     const text = payloadOf<{ text: string }>(narrations[0]).text;
-    expect(text).toContain("Tamsin Vale succeeds.");
+    expect(text).toContain("Tamsin Vale pulls it off.");
     expect(text).toContain("vs DC 12: success");
     const flag = rows.find(
       (r) =>

@@ -120,14 +120,14 @@ Contract: `contracts/player-facing-context.md`.
 
 Contracts: `contracts/narration-facts.md` (facts part), `contracts/fallback-summary.md`.
 
-- [ ] T024 [US2] In `apps/server/src/dm/facts.ts`, add `party`, `npcNames`, `events`,
+- [x] T024 [US2] In `apps/server/src/dm/facts.ts`, add `party`, `npcNames`, `events`,
   `setting` and `FactRoll.target`. Build events from public appended rows only. Render rolls,
   events, "no rules effect" and "on hold" in `factEntries`.
-- [ ] T025 [US2] Rewrite `apps/server/src/dm/fallback.ts` per the contract. Keep the signature.
-- [ ] T026 [US2] Add `apps/server/test/dm/fallback.test.ts` (contract tests 1–4). Move the old
+- [x] T025 [US2] Rewrite `apps/server/src/dm/fallback.ts` per the contract. Keep the signature.
+- [x] T026 [US2] Add `apps/server/test/dm/fallback.test.ts` (contract tests 1–4). Move the old
   `factualSummary` cases out of `audit.test.ts`. Flip T012 and T014's F17 part.
-- [ ] T027 [P] [US2] In `facts.test.ts`, add the facts tests from `contracts/narration-facts.md`.
-- [ ] T028 Run the phase gate and the database suites. Commit. Push.
+- [x] T027 [P] [US2] In `facts.test.ts`, add the facts tests from `contracts/narration-facts.md`.
+- [x] T028 Run the phase gate and the database suites. Commit. Push.
 
 **Checkpoint**: AC #2 met.
 

@@ -8,7 +8,6 @@ import {
   type NarrationFacts,
   renderDiceLines,
 } from "../../src/dm/facts.js";
-import { factualSummary } from "../../src/dm/fallback.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import {
   audit,
@@ -30,6 +29,7 @@ const roll = (outcome: FactOutcome | null = "success") => ({
   against: { kind: "DC" as const, value: 15 },
   outcome,
   autoFail: false,
+  target: null,
 });
 
 function action(over: Partial<FactAction> = {}): FactAction {
@@ -60,6 +60,10 @@ function facts(actions: FactAction[] = [action()]): NarrationFacts {
     presentNpcs: [],
     rulings: [],
     clarify: [],
+    party: [],
+    npcNames: [],
+    events: [],
+    setting: { locationName: "The Vault", openingFraming: "The vault waits." },
   };
 }
 
@@ -152,84 +156,6 @@ describe("deterministicChecks", () => {
     const f = facts();
     const r = deterministicChecks(f, { prose: CLEAN, diceLines: ["forged"] });
     expect(r.issues[0]?.detail).toMatch(/dice lines/);
-  });
-});
-
-describe("factualSummary", () => {
-  it("passes the checks over generated facts (property)", () => {
-    let seed = 12345;
-    const rnd = (n: number) => {
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-      return seed % n;
-    };
-    const pick = <T>(xs: readonly T[]): T => xs[rnd(xs.length)] as T;
-    const names = ["Ana", "Bram", "Goblin 2", "Warden"];
-    const outcomes: FactOutcome[] = [
-      "hit",
-      "miss",
-      "critical-hit",
-      "success",
-      "failure",
-    ];
-    for (let i = 0; i < 300; i++) {
-      const acts: FactAction[] = Array.from({ length: rnd(4) }, (_, k) => {
-        const outs = Array.from({ length: rnd(3) }, () => pick(outcomes));
-        const changes: FactChange[] = [];
-        if (rnd(2)) {
-          changes.push({
-            kind: "hp",
-            target: pick(names),
-            direction: pick(["damage", "heal"] as const),
-            amount: rnd(20) + 1,
-            damageType: pick(["slashing", null]),
-            before: 10,
-            after: 3,
-          });
-        }
-        if (rnd(3) === 0) {
-          changes.push({
-            kind: "life-state",
-            target: pick(names),
-            before: "conscious",
-            after: pick(["dead", "unconscious"]),
-          });
-        }
-        if (rnd(3) === 0) {
-          changes.push({
-            kind: "condition",
-            target: pick(names),
-            op: pick(["applied", "removed"] as const),
-            condition: pick(["poisoned", "unconscious", "prone"]),
-          });
-        }
-        return action({
-          actionId: `a${k}`,
-          characterName: rnd(4) === 0 ? null : pick(names),
-          outcome: pick(["applied", "refused", "no-effect"] as const),
-          rolls: outs.map((o) => roll(o)),
-          outcomes: outs,
-          changes,
-        });
-      });
-      const f = facts(acts);
-      if (rnd(2)) {
-        f.npcTurn = {
-          name: pick(names),
-          rolls: [roll("hit")],
-          outcomes: [pick(outcomes)],
-          changes: [],
-        };
-      }
-      if (rnd(3) === 0) f.modeChange = { from: "free", to: "turn" };
-      f.director.sceneEnded = rnd(4) === 0;
-      f.trigger = rnd(5) === 0 ? "scene-start" : "commit";
-      const prose = factualSummary(f);
-      const r = deterministicChecks(f, {
-        prose,
-        diceLines: renderDiceLines(f),
-      });
-      expect(r.issues, prose).toEqual([]);
-    }
   });
 });
 
