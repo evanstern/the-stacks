@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # Monorepo and toolchain
@@ -47,9 +47,10 @@ depends on database reachability, which Turbo cannot hash), and runs against fre
 changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
-`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `apps/server`, `apps/server/test`,
-`apps/web` — it builds nothing itself, only orchestrates `tsc -b` across the six
-([[dnd5e-engine]] is the pure rules package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
+`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/srd`, `packages/srd/test`,
+`apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
+`tsc -b` across the eight ([[dnd5e-engine]] is the pure rules package and its test project;
+[[srd-data]] is the SRD data package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
 (target ES2022, `module`/`moduleResolution`: ESNext/Bundler, `strict: true`,
 `composite: true`, `declaration: true` — composite and declaration are what make project
 references work at all) and adds its own `outDir`/`rootDir`/`include`. `apps/server` and
@@ -63,14 +64,17 @@ reference (`apps/server/test/tsconfig.json`: `noEmit: true`, `include: ["."]`, r
 `biome.json` is the single formatter and linter (`quoteStyle: "double"` for JS), reading
 `.gitignore` (`vcs.useIgnoreFile: true`) and additionally excluding `.claude`, `.specify`,
 `backlog`, `docs`, `specs`, `fixtures` from its `files.includes` — non-source directories it
-never touches — plus one narrower carve-out, `apps/server/test/fixtures/ddb` (raw
-export-shaped HTML fixtures, not app code; see [[ddb-parser]]). Six `overrides` entries add
+never touches — plus narrower carve-outs: `apps/server/test/fixtures/ddb` (raw
+export-shaped HTML fixtures, not app code; see [[ddb-parser]]) and the generated SRD data
+(`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]). Seven `overrides` entries add
 a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,
 each forbidding imports of the others (constitution III's plane isolation). The sixth,
 scoped to `packages/dnd5e-engine/src/**`, also adds `noRestrictedGlobals` and denies
 database, network, model, `node:*`, app-package imports and clock/network globals
-(constitution VI purity; see [[dnd5e-engine]]) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
+(constitution VI purity; see [[dnd5e-engine]]). The seventh, scoped to `packages/srd/**`, forbids
+importing the engine, server, or web app (the engine may import srd, never the reverse; see
+[[srd-data]]) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
 
 ## Connections
 

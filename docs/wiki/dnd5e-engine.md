@@ -15,7 +15,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # 5e engine
@@ -45,7 +45,8 @@ folds many. Replaying every event from `emptyState()` reproduces live state.
 
 `Rng` is one method, `rollDie(sides)`, returning an integer in `1..sides`. `seededRng(seed)`
 is mulberry32 over a 32-bit seed with rejection sampling, so every face is equally likely
-(play uses it). `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
+(play uses it). It rejects a die size that is not an integer in `1..1000`
+(`MAX_SIDES`, matching the dice parser's sides limit) with `RngContractError`. `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
 `calls()` (tests use it); it throws `ScriptedDiceError` when exhausted or out of range. Dice
 parsing (`parseDiceExpression`) supports `NdS`, keep-highest/lowest (`kh`/`kl`), and modifiers,
 with hard limits (count 100, sides 1000, 20 terms, 200 characters, modifier +/-1000) that
@@ -65,7 +66,7 @@ A handler runs every refusal check before it calls `rollDie`. A refused command 
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
 `NO_SLOT_AVAILABLE`), a message and optional detail. A broken RNG contract (a face outside
-`1..sides`) throws `RngContractError` rather than refusing.
+`1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing.
 
 ## Boundary rule
 

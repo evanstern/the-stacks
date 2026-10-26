@@ -4,7 +4,7 @@ description: The Dockerfile's four-stage build (base, deps, build, runtime), wha
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # Container image
@@ -24,7 +24,8 @@ workspace, per the inline comment.
 
 `build` copies the full source (`COPY . .`) onto `deps` and runs
 `pnpm --filter "@the-stacks/server..." run build` (the `...` includes the filtered package's
-dependencies, i.e. `@the-stacks/shared`) followed by `pnpm --filter "@the-stacks/web" run
+dependencies, i.e. `@the-stacks/shared`), then `pnpm --filter "@the-stacks/srd" run build`
+(TASK-0043: the web About route imports `@the-stacks/srd/attribution`; see [[srd-data]]), followed by `pnpm --filter "@the-stacks/web" run
 build` — the latter is `react-router build` ([[react-router-app]]), producing
 `apps/web/build/client` and `apps/web/build/server/index.js`.
 
@@ -37,9 +38,10 @@ rather than bundling them, per the Dockerfile's inline comment, so those have to
 in the runtime image too. Right after that install, `ARG GIT_COMMIT=unknown` / `ENV
 GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfaced at
 `/health` via [[configuration]] and [[health-check]]) — declared there, after the install
-`RUN`, specifically so a changing commit never busts that layer's cache. It then copies three
+`RUN`, specifically so a changing commit never busts that layer's cache. It then copies
 build outputs from the `build` stage by exact path: `packages/shared/dist`,
-`apps/server/dist`, and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
+`packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
+`runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
 **this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
 `src/static.ts` now resolves its default roots as `apps/web/build/client` and
 `apps/web/build/server/index.js`, both module-relative to `apps/server/dist/static.js`, not

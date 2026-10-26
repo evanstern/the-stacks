@@ -80,7 +80,8 @@ described in the sections above and in the linked notes.
 - **VTT ports and adapters.** The in-app PixiJS table view and external VTTs (Foundry or
   Owlbear) sit behind ports (planned A13), at M6.
 - **SRD baseline.** SRD 5.2.1 data (CC-BY-4.0, with exact attribution) may ship with the
-  engine; it is versioned read-only data, not a fourth plane. Proprietary book content still
+  engine; it is versioned read-only data, not a fourth plane. The data now exists as [[srd-data]]
+  (TASK-0043). Proprietary book content still
   never ships (Principle VIII).
 - **Milestone ladder.** M0 and M1 stand. Next: M2 First Scene (AI-run vertical slice,
   target 2026-11-24), M3 The Table (multiplayer), M4 The Codex, M5 Imported Mechanics, M6

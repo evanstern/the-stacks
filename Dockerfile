@@ -10,11 +10,13 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
+COPY packages/srd/package.json packages/srd/package.json
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
 RUN pnpm --filter "@the-stacks/server..." run build
+RUN pnpm --filter "@the-stacks/srd" run build
 RUN pnpm --filter "@the-stacks/web" run build
 
 # Runtime: only production deps and built output — no build tooling, no
@@ -27,12 +29,16 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
+COPY packages/srd/package.json packages/srd/package.json
 RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..." --filter "@the-stacks/web..."
 # Declared after the install RUN so a changing commit never busts that
 # layer's cache (spec 010 T005). Surfaced at /health via config.ts.
 ARG GIT_COMMIT=unknown
 ENV GIT_COMMIT=$GIT_COMMIT
 COPY --from=build /app/packages/shared/dist packages/shared/dist
+COPY --from=build /app/packages/srd/dist packages/srd/dist
+COPY --from=build /app/packages/srd/data packages/srd/data
+COPY --from=build /app/packages/srd/ATTRIBUTION.md packages/srd/ATTRIBUTION.md
 COPY --from=build /app/apps/server/dist apps/server/dist
 # apps/web/build is where src/static.ts resolves its default client root and
 # SSR handler from (module-relative, not cwd — plan D4, D5).

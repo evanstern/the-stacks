@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 60defcc72b460ce167f791bc12e0d4fde39dd44f
+verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
 ---
 
 # Test suite
@@ -90,7 +90,7 @@ suite's pass/fail outcome.
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`
 and `packages/shared`) is an entry in root `tsconfig.json`'s `references` array,
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
-[[dnd5e-engine]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
+[[dnd5e-engine]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
 closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` itself is unchanged (still

@@ -15,5 +15,8 @@
     "react-router.config.ts",
     ".react-router/types/**/*"
   ],
-  "references": [{ "path": "../../packages/shared" }]
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/srd" }
+  ]
 }

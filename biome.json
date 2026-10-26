@@ -15,7 +15,9 @@
       "!docs",
       "!specs",
       "!fixtures",
-      "!apps/server/test/fixtures/ddb"
+      "!apps/server/test/fixtures/ddb",
+      "!packages/srd/data",
+      "!packages/srd/provenance"
     ]
   },
   "formatter": {
@@ -78,6 +80,34 @@
                   {
                     "group": ["**/apps/**"],
                     "message": "packages/shared must not import app code by relative path (constitution III)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/srd/**",
+        "fixtures/boundary-violations/packages/srd/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@the-stacks/dnd5e-engine": "packages/srd must not import the engine; the engine may import srd, never the reverse (constitution VI).",
+                  "@the-stacks/server": "packages/srd must not import the server (constitution III).",
+                  "@the-stacks/web": "packages/srd must not import the web app (constitution III)."
+                },
+                "patterns": [
+                  {
+                    "group": ["**/apps/**", "**/dnd5e-engine/**"],
+                    "message": "packages/srd must not import app or engine code by relative path."
                   }
                 ]
               }
