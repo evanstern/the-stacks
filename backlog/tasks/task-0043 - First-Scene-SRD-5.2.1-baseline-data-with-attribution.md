@@ -77,6 +77,8 @@ Wiki re-ground by sonnet-implementer: ebec1b0. New note srd-data. Seven notes we
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #45 on 2026-10-25. Card ACs #1–#7 are proven by specs/027-srd-data/ci-evidence.txt.
+
+spec-bridge sync: Package scaffold, schemas, attribution, estimator (one dispatch): 15/15 · Provenance index and converted data — US4 then US1 (one dispatch): 10/10 · Loader and compact forms — US1 and US3 (one dispatch): 6/6 · About page — US2 (one dispatch): 8/8 · Close-out (one dispatch): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
