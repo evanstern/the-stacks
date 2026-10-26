@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:23'
+updated_date: '2026-10-26 03:32'
 labels:
   - first-scene
   - session
@@ -31,14 +31,14 @@ Spec: specs/028-session-model
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Zod-typed, versioned event types exist for talk, action declared, action commented, action committed and action resolved.
-- [ ] #2 Talk events never change any projection except the transcript.
-- [ ] #3 Table-mode events switch a session between free mode and turn mode, and turn mode records the active player.
-- [ ] #4 Projections build scene, party, encounter and journal state from the log alone.
-- [ ] #5 Secret trackers (named clocks) live in DM-only events, and a test proves player projections never include them.
-- [ ] #6 Every roll event records its reason, and every state-change event records before and after values.
-- [ ] #7 A test replays the log from seq 0 and rebuilds identical projections.
-- [ ] #8 Projections skip unknown event types without failing.
+- [x] #1 Zod-typed, versioned event types exist for talk, action declared, action commented, action committed and action resolved.
+- [x] #2 Talk events never change any projection except the transcript.
+- [x] #3 Table-mode events switch a session between free mode and turn mode, and turn mode records the active player.
+- [x] #4 Projections build scene, party, encounter and journal state from the log alone.
+- [x] #5 Secret trackers (named clocks) live in DM-only events, and a test proves player projections never include them.
+- [x] #6 Every roll event records its reason, and every state-change event records before and after values.
+- [x] #7 A test replays the log from seq 0 and rebuilds identical projections.
+- [x] #8 Projections skip unknown event types without failing.
 - [x] #9 Spec phase: Setup — package scaffold and boundary rule
 - [x] #10 Spec phase: Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8)
 - [x] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
@@ -72,10 +72,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: 8d07ccd. New note session-model. Five notes amended: event-log, monorepo-and-toolchain, test-suite, container-image and ci-pipeline. Five re-pinned only after reading their diffs. Freshness OK, 40 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged in PR #46 on 2026-10-26. Card ACs #1–#8 are proven by specs/028-session-model/ci-evidence.txt. The adversarial review (review-pr-46) approved it with no findings.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
