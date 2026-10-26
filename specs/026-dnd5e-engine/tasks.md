@@ -94,49 +94,49 @@ and the `roll` command. Every later phase adds handlers only.
 
 **Independent test**: `roll` works end to end with seeded and scripted RNGs.
 
-- [ ] T011 [P] Write `src/schema/state.ts`: every state schema and refinement in
+- [x] T011 [P] Write `src/schema/state.ts`: every state schema and refinement in
       contracts/engine-api.md, "State" and "State refinements".
-- [ ] T012 [P] Write `src/schema/commands.ts`: all 21 commands of contracts/commands.md as one
+- [x] T012 [P] Write `src/schema/commands.ts`: all 21 commands of contracts/commands.md as one
       `z.discriminatedUnion("type", …)`, including the refinement that rejects `exhaustion`
       on `condition.apply`/`condition.remove`. Do not add uniqueness refinements for
       participant lists: duplicates are the `DUPLICATE_PARTICIPANT` refusal, not a parse
       failure.
-- [ ] T013 [P] Write `src/schema/events.ts`: all 18 events of contracts/events.md.
-- [ ] T014 [P] Write `src/schema/refusals.ts`: the 26 codes in contracts/refusals.md order,
+- [x] T013 [P] Write `src/schema/events.ts`: all 18 events of contracts/events.md.
+- [x] T014 [P] Write `src/schema/refusals.ts`: the 26 codes in contracts/refusals.md order,
       `RefusalSchema`, `EngineResultSchema`, and a `refuse(code, message, details?)` helper.
-- [ ] T015 [P] Write `src/rng.ts`: `Rng`, `seededRng` (mulberry32 plus rejection sampling,
+- [x] T015 [P] Write `src/rng.ts`: `Rng`, `seededRng` (mulberry32 plus rejection sampling,
       research R2), `scriptedRng` with `remaining()`/`calls()`, `ScriptedDiceError`,
       `RngContractError`.
-- [ ] T016 Write `src/dice.ts`: `parseDiceExpression` per the grammar and limits in
+- [x] T016 Write `src/dice.ts`: `parseDiceExpression` per the grammar and limits in
       contracts/engine-api.md, and an internal `rollParsed(terms, { mode, critical }, rng)`
       that returns `DiceTermResult[]`, `total` and `natural`, validating every face. With
       `critical: true` it doubles every dice term's count and keep `n`, checks the limits on
       the doubled terms before any draw, and leaves modifiers alone. Export a
       `hasPlainD20(terms)` helper for `roll`, `attack.roll` and `check.roll`.
-- [ ] T017 Write `src/evolve.ts` (`emptyState`, `evolve` for all 18 events per data-model.md's
+- [x] T017 Write `src/evolve.ts` (`emptyState`, `evolve` for all 18 events per data-model.md's
       event-to-slice map, `replay`) and `src/selectors.ts` (`conditionsOf`, `activeCombatant`).
-- [ ] T018 Write `src/execute.ts`: parse state (`INVALID_STATE`), parse command
+- [x] T018 Write `src/execute.ts`: parse state (`INVALID_STATE`), parse command
       (`INVALID_COMMAND`), dispatch to a handler map, return the result. Unknown handler for a
       parsed type is a thrown bug, not a refusal.
-- [ ] T019 Write `src/commands/roll.ts` (purpose `roll`) and register it.
-- [ ] T020 Fill `src/index.ts` with the public surface in contracts/engine-api.md and nothing
+- [x] T019 Write `src/commands/roll.ts` (purpose `roll`) and register it.
+- [x] T020 Fill `src/index.ts` with the public surface in contracts/engine-api.md and nothing
       else.
-- [ ] T021 Write `test/helpers.ts`: `makeCombatant(overrides)`, `stateWith(...combatants)`,
+- [x] T021 Write `test/helpers.ts`: `makeCombatant(overrides)`, `stateWith(...combatants)`,
       `expectOk(result)`, `expectRefusal(result, code)` (asserts `ok: false`, the code, and no
       `events` key), `countingRng(inner)`, `deepFreeze`, `applyResult(state, result)`.
-- [ ] T022 [P] [US1] Write `test/rng.test.ts`: same seed gives the same 1000 faces; different
+- [x] T022 [P] [US1] Write `test/rng.test.ts`: same seed gives the same 1000 faces; different
       seeds differ; every face of d4/d6/d20/d100 in range over 10 000 draws; scripted RNG
       returns faces in order and throws on exhaustion and on an out-of-range face.
-- [ ] T023 [P] [US1] Write `test/dice.test.ts`: parse `d20`, `1d20+5`, `4d6kh3`, `2d20kl1`,
+- [x] T023 [P] [US1] Write `test/dice.test.ts`: parse `d20`, `1d20+5`, `4d6kh3`, `2d20kl1`,
       `1d20+5+1d4`, `1d20+5-1d4`, `-1d4+2`, whitespace and case; reject `3d`, `d`, `1d0`,
       `0d6`, `4d6kh0`, `1d20++2`; limits at and one past each bound; critical doubling of
       `2d6+3` draws four d6 and adds 3 once; a critical `60d6` exceeds the limit with 0 draws.
-- [ ] T024 [US1] Write `test/commands/roll.test.ts` with scripted dice: `4d6kh3` keeps
+- [x] T024 [US1] Write `test/commands/roll.test.ts` with scripted dice: `4d6kh3` keeps
       6,5,3 of 6,2,5,3 (total 14); advantage keeps the higher of 4,17 with `natural` 17;
       disadvantage keeps the lower; bonus dice terms sum; negative total allowed;
       refusals `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `ADVANTAGE_NOT_APPLICABLE`
       (on `2d20`, `1d20kh1`, `1d6`, `1d20+1d20`), each with `countingRng` at 0 draws.
-- [ ] T025 Write `test/execute.test.ts`: `INVALID_STATE` (HP above max; lifeState
+- [x] T025 Write `test/execute.test.ts`: `INVALID_STATE` (HP above max; lifeState
       inconsistent with HP; encounter naming a missing combatant), `INVALID_COMMAND`
       (unknown type, missing reason, negative amount); precedence (bad state and bad command →
       `INVALID_STATE`); deep-frozen inputs do not throw; determinism with `seededRng(42)`
@@ -334,3 +334,7 @@ with before/after values.
 ## Deviations
 
 - T001/T003: added `@types/node` (`^22.20.4`, already in the lockfile via `apps/server`) to the engine `devDependencies` and `types: ["node"]` to `test/tsconfig.json`. `purity.test.ts` reads files with `node:fs`, and the test tsconfig needs Node types to typecheck. `src` stays Node-free (`types: []`).
+- T011: `spellSlots.standard` uses `z.partialRecord`, because Zod 4's `z.record` with an enum key requires every key and the contract says a missing key means no slots of that level.
+- T012: the `exhaustion` rejection on `condition.apply`/`condition.remove` is `ConditionKeySchema.exclude(["exhaustion"])` instead of a `superRefine`; the parse failure (`INVALID_COMMAND`) is identical.
+- T020: `src/index.ts` also exports the types `DiceTerm`, `ScriptedRng` and `DiceParseResult`/`Rng`, because the listed public signatures reference them. The error classes stay internal (`src/rng.ts`).
+- T014: `EngineResultSchema` lives in `src/schema/refusals.ts` and imports `events.ts`; no cycle.
