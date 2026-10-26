@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:41'
+updated_date: '2026-10-26 04:46'
 labels:
   - first-scene
   - gate
@@ -29,15 +29,15 @@ Spec: specs/029-proposal-gate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 No code path writes LLM output to the log except through a typed proposal; a test enforces this.
-- [ ] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
-- [ ] #3 Policy auto applies the proposal through the engine immediately.
-- [ ] #4 Policy ask appends a DM-only proposal.created event and applies the proposal only after proposal.approved.
-- [ ] #5 Policy suggest shows the proposal to the DM and applies nothing.
-- [ ] #6 The gate enforces commit authority by table mode, as decision-0016 tabulates.
-- [ ] #7 A human DM's command passes through the same engine as an already-approved proposal.
-- [ ] #8 The gate refuses an illegal proposal before any write and returns the engine's error code.
-- [ ] #9 A test restarts the server and shows pending proposals intact.
+- [x] #1 No code path writes LLM output to the log except through a typed proposal; a test enforces this.
+- [x] #2 A per-kind policy table maps each proposal kind to auto, ask or suggest.
+- [x] #3 Policy auto applies the proposal through the engine immediately.
+- [x] #4 Policy ask appends a DM-only proposal.created event and applies the proposal only after proposal.approved.
+- [x] #5 Policy suggest shows the proposal to the DM and applies nothing.
+- [x] #6 The gate enforces commit authority by table mode, as decision-0016 tabulates.
+- [x] #7 A human DM's command passes through the same engine as an already-approved proposal.
+- [x] #8 The gate refuses an illegal proposal before any write and returns the engine's error code.
+- [x] #9 A test restarts the server and shows pending proposals intact.
 - [x] #10 Spec phase: Setup and foundational — proposal contracts in code (US2, US7; AC #2)
 - [x] #11 Spec phase: Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8)
 - [x] #12 Spec phase: Fixtures for the play route and the gate (US7; TASK-0047 contract)
@@ -81,10 +81,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: 24f4b5d. New note proposal-gate. All 16 stale notes reviewed: 11 amended, 5 re-pinned only after reading their diffs. Freshness OK, 41 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged in PR #48 on 2026-10-26. Card ACs #1–#9 are proven by specs/029-proposal-gate/ci-evidence.txt.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
