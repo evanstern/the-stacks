@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 21:00'
+updated_date: '2026-10-26 21:02'
 labels:
   - first-scene
   - test
@@ -146,6 +146,8 @@ Demo section D 2026-10-26: the operator recreated the operator account (app DB),
 Operator demo findings (live, session e8c848ec), each to be carded in the demo record: (1) No out-of-character 'ask the DM' channel. Clarifying questions ('where am I standing?', 'what color is the boat?', 'do I hear birds?') must be declared as Tamsin's actions, which spends a move and may advance the Director's clocks. Talk never triggers a DM turn (TurnTriggerSchema: commit, approval, npc-turn, scene-start, manual, reconcile). (2) No progress indication between Commit and the DM's narration (a turn takes about 30–60 s), so the table looks stalled.
 
 Operator demo finding (3): on a companion's declared action, the Comment, Approve and Object buttons stay disabled until the comment box has text (apps/web/app/play/components/action-card.tsx disabled={empty}). Approve and Object read as one-click reactions, and requiring text made them look broken. (4, orchestrator-observed) Turn at seq 25-26: the in-runtime dm.audit flagged fail-forward narration of a failed Stealth check as invented-mechanics, which contradicts the doctrine's fail-forward principle, so the plain fallback shipped.
+
+Operator demo finding (5), runtime: in free mode a companion may declare without committing (Odo, act-odo-1, seq 35, 20:58:16). Companion jobs run only after a DM turn ('prompt') or when a hold ends (dm/companion.ts, worker.ts:300), and a human's comment or approval (seq 37-38) does not re-run the companion. So the declaration waits forever under 'Waiting for Brother Odo to commit', and the table looked frozen for over 4 minutes. Workaround in the demo: the human commits their own action to start the next turn.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
