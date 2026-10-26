@@ -4,7 +4,7 @@ title: 'First Scene: play route — composer, commit control, ledger, DM approva
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 05:02'
+updated_date: '2026-10-26 05:04'
 labels:
   - first-scene
   - ui
@@ -31,14 +31,14 @@ Spec: specs/030-play-route
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 One composer sends talk or declares an action, and the player chooses which.
-- [ ] #2 A declared action shows its comments and a commit control for whoever holds commit authority.
-- [ ] #3 The route shows the current table mode, and in turn mode it shows the active player.
-- [ ] #4 A ledger panel lists every roll with its reason and every state change with before and after values.
-- [ ] #5 A DM approval panel lists pending proposals, and the DM approves or rejects each one.
-- [ ] #6 The route uses slide-out panels and autocomplete dropdowns only, never modals.
-- [ ] #7 The route renders from fixtures and from the live log through the same components.
-- [ ] #8 The route is client-only, per decision-0008.
+- [x] #1 One composer sends talk or declares an action, and the player chooses which.
+- [x] #2 A declared action shows its comments and a commit control for whoever holds commit authority.
+- [x] #3 The route shows the current table mode, and in turn mode it shows the active player.
+- [x] #4 A ledger panel lists every roll with its reason and every state change with before and after values.
+- [x] #5 A DM approval panel lists pending proposals, and the DM approves or rejects each one.
+- [x] #6 The route uses slide-out panels and autocomplete dropdowns only, never modals.
+- [x] #7 The route renders from fixtures and from the live log through the same components.
+- [x] #8 The route is client-only, per decision-0008.
 - [x] #9 Spec phase: Setup — package wiring and test runner
 - [x] #10 Spec phase: Foundational — pure view-model modules
 - [x] #11 Spec phase: User Stories 1, 2, 3 (P1) — composer, action cards and commit, table mode; fixture harness (US6)
@@ -80,10 +80,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: 571373c. New note play-route. chat-ui, client-session-hook, m0-demo and react-router-app were amended. Freshness OK, 42 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged in PR #47 on 2026-10-26. Card ACs #1–#8 are proven by specs/030-play-route/ci-evidence.txt and evidence/live-check.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
