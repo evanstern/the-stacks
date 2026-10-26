@@ -78,7 +78,7 @@ and whole-data schema tests.
 - [x] T022 [P] [US4] Write `packages/srd/test/provenance.test.ts`: every record's normalized name is in the index for its kind; every page lies in the kind's range (`data-model.md`); per-kind counts equal index counts; the index's `pdfSha256` equals the constant; `verification.json` has zero `ok: false` and covers every record.
 - [x] T023 [P] [US4] Write `packages/srd/test/source-ref.test.ts`: every shipped record has a valid `source` with `document: "SRD 5.2.1"`; a record copy with `source` deleted fails the schema (AC #6).
 - [x] T024 [P] [US1] Write `packages/srd/test/schema.test.ts`: every shipped record validates; ids unique per kind; the `Attack Roll:` → `attack` and `Saving Throw: DC` → `save` rules; every `Spell.classes` id names a shipped class.
-- [ ] T025 Run `pnpm ci:check`. Green. Commit `TASK-0043: SRD 5.2.1 index, converted records, verification report`.
+- [x] T025 Run `pnpm ci:check`. Green. Commit `TASK-0043: SRD 5.2.1 index, converted records, verification report`.
 
 **Checkpoint**: AC #1 and AC #7 have their artifacts; AC #6's source-ref half is guarded.
 
@@ -91,12 +91,12 @@ and whole-data schema tests.
 **Independent Test**: `pnpm --filter @the-stacks/srd test` passes loader, tokens and compact
 tests over all shipped data; quickstart step 3 prints the expected values.
 
-- [ ] T026 [US1] Write `packages/srd/src/loader.ts` per `contracts/loader.md`: `list`, `getById`, `getByName`, `normalizeName`, `SrdDataError`; read `../data/<kind>.json` relative to `import.meta.url` with `node:fs`; validate once per kind; cache arrays and the two maps; throw on duplicate id or normalized name.
-- [ ] T027 [P] [US1] Write `packages/srd/test/loader.test.ts`: one record per kind by id and by name; case, curly apostrophe and extra-space variants resolve; unknown id and name give `undefined`; "Shield" resolves per kind without crossing kinds; a temp data dir with one invalid record throws `SrdDataError` naming the id and path (inject the data directory through an internal, non-exported option).
-- [ ] T028 [US3] Write `toCompact` in `packages/srd/src/compact.ts` per `contracts/compact.md`, including the truncation rule, and export `compact(kind, idOrName)` from the loader.
-- [ ] T029 [P] [US3] Write `packages/srd/test/compact.test.ts`: every shipped record's compact form is at most 120 estimated tokens; log per-kind median and maximum; header and footer shape; deterministic; truncated forms end with `+<n> more`; one snapshot per kind (Goblin Warrior, Fire Bolt, Fighter, Longsword, Prone).
-- [ ] T030 Export the loader and compact API from `packages/srd/src/index.ts`.
-- [ ] T031 Run quickstart steps 1–4. Run `pnpm ci:check`. Green. Commit `TASK-0043: SRD loader and compact lookup forms`.
+- [x] T026 [US1] Write `packages/srd/src/loader.ts` per `contracts/loader.md`: `list`, `getById`, `getByName`, `normalizeName`, `SrdDataError`; read `../data/<kind>.json` relative to `import.meta.url` with `node:fs`; validate once per kind; cache arrays and the two maps; throw on duplicate id or normalized name.
+- [x] T027 [P] [US1] Write `packages/srd/test/loader.test.ts`: one record per kind by id and by name; case, curly apostrophe and extra-space variants resolve; unknown id and name give `undefined`; "Shield" resolves per kind without crossing kinds; a temp data dir with one invalid record throws `SrdDataError` naming the id and path (inject the data directory through an internal, non-exported option).
+- [x] T028 [US3] Write `toCompact` in `packages/srd/src/compact.ts` per `contracts/compact.md`, including the truncation rule, and export `compact(kind, idOrName)` from the loader.
+- [x] T029 [P] [US3] Write `packages/srd/test/compact.test.ts`: every shipped record's compact form is at most 120 estimated tokens; log per-kind median and maximum; header and footer shape; deterministic; truncated forms end with `+<n> more`; one snapshot per kind (Goblin Warrior, Fire Bolt, Fighter, Longsword, Prone).
+- [x] T030 Export the loader and compact API from `packages/srd/src/index.ts`.
+- [x] T031 Run quickstart steps 1–4. Run `pnpm ci:check`. Green. Commit `TASK-0043: SRD loader and compact lookup forms`.
 
 **Checkpoint**: AC #4 and AC #5 met.
 
