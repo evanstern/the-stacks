@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # CI pipeline
@@ -65,7 +65,7 @@ correctly. `specs/009-ci-pipeline/contracts/boundary-rules.md` defines five orig
 importing the others directly (constitution III). A sixth zone, `packages/dnd5e-engine`
 (purity, constitution VI; [[dnd5e-engine]]), forbids I/O imports and clock/network globals. A seventh zone, `packages/srd` ([[srd-data]]),
 forbids importing `@the-stacks/dnd5e-engine`, the server, the web app, or app/engine paths by relative
-import; its fixture is `fixtures/boundary-violations/packages/srd/src/bad.ts`. An eighth zone, `packages/session-model/src/**` ([[session-model]]), forbids server, web, database, network, model imports and clock/network globals; the engine zone also forbids importing the session model, and its fixture sits under `fixtures/boundary-violations/packages/session-model/`.
+import; its fixture is `fixtures/boundary-violations/packages/srd/src/bad.ts`. An eighth zone, `packages/session-model/src/**` ([[session-model]]), forbids server, web, database, network, model imports and clock/network globals; the engine zone also forbids importing the session model, and its fixture sits under `fixtures/boundary-violations/packages/session-model/`. A ninth zone, `apps/server/src/dm/**` ([[dm-runtime]], TASK-0046), forbids importing the event-log writers (`**/events/**`), ingestion, the library store, codex and ws, so session state is written only through the gate; its fixture is `fixtures/boundary-violations/apps/server/src/dm/bad.ts`.
 A separate guard, the server write-boundary test (`apps/server/test/write-boundary.test.ts`, an import-graph check, not a Biome rule; see [[proposal-gate]]), runs in `pnpm test`; its seeded violation tree is excluded from Biome.
 Each zone has deliberately-violating fixture files under `fixtures/boundary-violations/`
 mirroring its path. The script lints only

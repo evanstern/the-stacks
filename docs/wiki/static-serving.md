@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/static.ts
   - apps/server/src/app.ts
-verified_against: 323f96c45e738dd79c84e00f970a18dc8180ddf0
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Static serving
@@ -58,7 +58,7 @@ middleware invoked directly like this.
 ## Connections
 
 Mounted last in [[server-entrypoint-and-app]]'s `app.ts`, after `/health`, `/api/echo`,
-`/auth`, and `/library` ([[ingestion]], TASK-0024) — that ordering, not anything inside this
+`/auth`, `/library` ([[ingestion]], TASK-0024) and `/dm` ([[dm-runtime]], TASK-0046) — that ordering, not anything inside this
 file, is what actually prevents API shadowing. Its default roots are populated by
 [[container-image]]'s Dockerfile. Serves [[react-router-app]]'s build output, and imports its
 `server.ts`-built `handle` as the SSR entry. `createWebLoadContext` (`apps/server/src/web.ts`)

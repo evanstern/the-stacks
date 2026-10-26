@@ -1,6 +1,6 @@
 ---
 name: database-schema
-description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane content tables are [[library-schema]]; the library plane's operational jobs table is here.
+description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane content tables are [[library-schema]]; the shared operational jobs table (ingest plus DM turn/companion/chronicle kinds) is here.
 kind: component
 sources:
   - apps/server/src/schema/events.ts
@@ -8,7 +8,8 @@ sources:
   - apps/server/src/schema/jobs.ts
   - apps/server/drizzle/0000_mushy_thor_girl.sql
   - apps/server/drizzle/0003_dazzling_cargill.sql
-verified_against: c732622ca88b9055779079909e330d034bb329d6
+  - apps/server/drizzle/0004_glamorous_warlock.sql
+verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
 ---
 
 # Database Schema
@@ -73,20 +74,30 @@ system's hottest read into a write, and it is the seed of an accidental sliding 
 is a permanent backdoor), and `redeemedAt`/`redeemedBy`, null meaning unredeemed and set
 exactly once via a conditional `UPDATE` (see [[invitations]]) — never read-then-write.
 
-**`jobs`** (TASK-0024, `apps/server/drizzle/0003_dazzling_cargill.sql`) — one row per upload,
-tracking ingestion's operational state (`queued → running → succeeded|failed`, `stage`,
-`attempts`, a per-claim `claim_token`/`heartbeat_at` lease). Unlike every table above,
-**it is not append-only or immutable** — rows update in place as a job advances, and it carries
-no trigger. `jobs_claim_idx` (`status`, `created_at`) serves the oldest-first claim query;
-`jobs_active_book_key`, a **partial** unique index (`WHERE status IN ('queued', 'running')`)
-on `lower(trim(book))`, allows a finished job's book to be re-uploaded while still refusing a
-second concurrent upload of the same book. Full lease/fencing/recovery mechanics are
-[[ingestion]]'s, not this note's.
+**`jobs`** (TASK-0024; extended by TASK-0046, migration `0004_glamorous_warlock.sql`) — one
+shared queue table with four `kind`s: `ingest` (one row per upload), plus the DM runtime's
+`turn`, `companion` and `chronicle` ([[dm-runtime]]). It tracks operational state
+(`queued → running → succeeded|failed`, `stage`, `attempts`, a per-claim
+`claim_token`/`heartbeat_at` lease). Unlike every table above, **it is not append-only or
+immutable** — rows update in place as a job advances, and it carries no trigger.
+`jobs_claim_idx` (`status`, `created_at`) serves the oldest-first claim query.
+
+Migration 0004 made `book` nullable and added `session_id` (uuid, no FK). Checks:
+`jobs_kind_valid` allows the four kinds; `jobs_book_required_for_ingest` (`kind <> 'ingest' OR
+book IS NOT NULL`); `jobs_session_required_for_dm` (`kind = 'ingest' OR session_id IS NOT NULL`);
+`jobs_stage_valid` now also admits the DM stages (`assemble`, `director`, `interpret`,
+`adjudicate`, `resolve`, `narrate`, `audit`, `companion`, `chronicle`). Partial unique indexes:
+`jobs_active_book_key` (on `lower(trim(book))`) is now scoped `WHERE kind = 'ingest' AND status
+IN ('queued','running')`, so a finished book can be re-uploaded while a second concurrent upload
+is refused; `jobs_turn_queued_key` and `jobs_chronicle_queued_key` allow one queued turn / one
+queued chronicle per `session_id`; `jobs_session_running_key` allows one running `turn` or
+`companion` job per session. `jobs_dm_session_idx` is `(session_id, kind, status)`. Full
+lease/fencing/recovery mechanics are [[ingestion]]'s (ingest claim) and [[dm-turn-jobs]]'s (DM claim).
 
 ## Connections
 
 Consumed by [[event-log]] (`events`), [[session-auth]] (`users`, `auth_sessions`),
-[[invitations]] (`invitations`), and [[ingestion]] (`jobs`). Generated and applied per
+[[invitations]] (`invitations`), [[ingestion]] and [[dm-turn-jobs]] (`jobs`). Generated and applied per
 [[migrations]]. `events`' append-only trigger is the first instance of a pattern
 [[library-schema]] repeats for its own three tables (a different trigger function,
 `library_immutable`, refusing `UPDATE` only — library rows are deletable, `events` rows are
