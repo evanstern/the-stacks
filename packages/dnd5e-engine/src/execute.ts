@@ -1,3 +1,4 @@
+import { handleAttackRoll, handleCheckRoll } from "./commands/attacks.js";
 import {
   handleCombatantAdd,
   handleCombatantRemove,
@@ -29,6 +30,8 @@ const handlers: HandlerMap = {
   "temp-hp.grant": handleTempHpGrant,
   "death-save.roll": handleDeathSaveRoll,
   stabilize: handleStabilize,
+  "attack.roll": handleAttackRoll,
+  "check.roll": handleCheckRoll,
 };
 
 function issuesOf(error: {

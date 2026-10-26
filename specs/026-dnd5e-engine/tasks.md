@@ -197,13 +197,13 @@ carrying before/after values.
 **Independent test**: an attack with scripted d20 faces 20, 1 and 15 against AC 15 gives
 `critical-hit`, `miss` and `hit`; a DC 13 save with `1d20+2` and a face of 11 succeeds.
 
-- [ ] T033 [US6] Write `src/commands/attacks.ts`: `attack.roll` (purpose `attack`; plain d20
+- [x] T033 [US6] Write `src/commands/attacks.ts`: `attack.roll` (purpose `attack`; plain d20
       required; AC from `targetAc`, else record, else `TARGET_AC_UNKNOWN`; natural 20 →
       `critical-hit`, natural 1 → `miss`, else `total >= ac`; `attack.resolved` with
       `acSource` and `rollIndex`) and `check.roll` (purpose `check` or `save`; `total >= dc`;
       naturals recorded but not used; `check.resolved`; `autoFail` → no draw, outcome
       `failure`, per contracts/commands.md "Automatic failure"). Register both.
-- [ ] T034 [P] [US6] Write `test/commands/attacks.test.ts` (scripted dice): natural 20 against
+- [x] T034 [P] [US6] Write `test/commands/attacks.test.ts` (scripted dice): natural 20 against
       AC 30 → `critical-hit`; natural 1 with `+10` against AC 5 → `miss`; total equal to AC →
       `hit`; one below → `miss`; advantage keeps the higher d20 and `natural` is the kept
       face; bonus die `1d20+5+1d4` counts toward the total; `targetAc` overrides the record
@@ -214,7 +214,7 @@ carrying before/after values.
       `total`/`natural`/`rollIndex`; refusals `D20_TERM_REQUIRED` (`2d20`, `1d20kh1`, `1d6+3`, `1d20+1d20`),
       `TARGET_AC_UNKNOWN`, `UNKNOWN_COMBATANT` (target, attacker, checking combatant),
       `TARGET_DEAD` (target, attacker), `INVALID_DICE_EXPRESSION`, each at 0 draws.
-- [ ] T035 [US6] Add an attack-to-damage flow test to `test/commands/attacks.test.ts`: a
+- [x] T035 [US6] Add an attack-to-damage flow test to `test/commands/attacks.test.ts`: a
       `critical-hit` outcome followed by `damage.apply` with `critical: true` against a
       resistant target; assert the doubled dice, the halving, and that `replay` of both
       results gives the expected HP.
