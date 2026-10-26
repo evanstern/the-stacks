@@ -48,7 +48,10 @@ Spec: specs/034-narration-quality
 - [ ] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID — RUN, FAILED, SUPERSEDED BY 5b
 - [ ] #11 Spec phase: Phase 4b: Party-name filter and narrate v3 (US3; AC #3) — DISPATCH (sonnet)
 - [ ] #12 Spec phase: Phase 5b: Verification rerun (US4; AC #4) — ORCHESTRATOR-RUN, PAID
+- [ ] #13 Spec phase: Full gate (US5; AC #5) — after Phase 5b passes
 <!-- AC:END -->
+
+
 
 
 
