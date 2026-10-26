@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fixtures } from "../src/fixtures/index.js";
 import {
   applyEvent,
   emptyProjections,
@@ -55,4 +56,29 @@ describe("replay (AC #7, in memory)", () => {
       row("talk", { text: "x", channel: "ic", characterId: null }).seq,
     ).toBe(1);
   });
+});
+
+describe("replay over every fixture (AC #7, in memory)", () => {
+  for (const f of fixtures) {
+    for (const viewer of [f.viewers.dm, ...f.viewers.players]) {
+      const who =
+        viewer.role === "dm" ? "dm" : `player ${viewer.userId.slice(-1)}`;
+      it(`${f.name} (${who}): repeatable, incremental and JSON-stable`, () => {
+        const a = project(f.events, viewer);
+        expect(project(f.events, viewer)).toEqual(a);
+        expect(f.events.reduce(applyEvent, emptyProjections(viewer))).toEqual(
+          a,
+        );
+        expect(JSON.parse(JSON.stringify(a))).toEqual(a);
+      });
+
+      it(`${f.name} (${who}): applyEvent does not mutate deep-frozen input`, () => {
+        let p = deepFreeze(emptyProjections(viewer));
+        for (const e of f.events) {
+          p = deepFreeze(applyEvent(p, deepFreeze(structuredClone(e))));
+        }
+        expect(p).toEqual(project(f.events, viewer));
+      });
+    }
+  }
 });

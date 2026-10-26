@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fixtures } from "../src/fixtures/index.js";
 import { project, type Viewer } from "../src/index.js";
 import {
   makeRows,
@@ -88,4 +89,53 @@ describe("secret trackers never reach players (AC #5)", () => {
     expect(project([whisper], players[0] as Viewer).transcript).toHaveLength(1);
     expect(project([whisper], players[1] as Viewer).transcript).toHaveLength(0);
   });
+});
+
+const uid = (v: Viewer) => (v.role === "player" ? v.userId : "");
+
+describe("secrecy over every fixture (AC #5)", () => {
+  for (const f of fixtures) {
+    for (const viewer of f.viewers.players) {
+      const who = viewer.role === "player" ? viewer.userId.slice(-1) : "dm";
+      it(`${f.name}: player ${who} sees no tracker and no dm row`, () => {
+        const p = project(f.events, viewer);
+        expect(p.trackers).toEqual([]);
+        expect(
+          p.ledger.some(
+            (l) => l.kind === "change" && l.type === "tracker.changed",
+          ),
+        ).toBe(false);
+        expect(p.ledger.every((l) => l.visibility !== "dm")).toBe(true);
+        expect(p.journal.every((j) => j.visibility !== "dm")).toBe(true);
+        expect(p.transcript.every((t) => t.visibility !== "dm")).toBe(true);
+        const hidden = f.events.filter(
+          (e) =>
+            e.visibility === "dm" ||
+            (e.visibility !== "public" && e.visibility !== uid(viewer)) ||
+            e.type === "tracker.changed",
+        );
+        const json = JSON.stringify(p);
+        for (const e of hidden) {
+          const reason = (e.payload as { reason?: unknown } | null)?.reason;
+          const inner = (e.payload as { event?: { reason?: string } } | null)
+            ?.event?.reason;
+          for (const text of [reason, inner]) {
+            if (typeof text === "string") expect(json).not.toContain(text);
+          }
+        }
+      });
+
+      it(`${f.name}: player ${who} diagnostics ignore hidden events`, () => {
+        const visible = f.events.filter(
+          (e) => e.visibility === "public" || e.visibility === uid(viewer),
+        );
+        const withoutTrackers = visible.filter(
+          (e) => e.type !== "tracker.changed",
+        );
+        expect(project(f.events, viewer).diagnostics).toEqual(
+          project(withoutTrackers, viewer).diagnostics,
+        );
+      });
+    }
+  }
 });

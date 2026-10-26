@@ -133,13 +133,13 @@ and fixed ISO `ts`, and produces engine events by calling the engine's `execute`
 **Purpose**: the five committed streams of contracts/fixtures.md, consumed by TASK-0045 and
 TASK-0047.
 
-- [ ] T034 [US6] Implement `packages/session-model/src/fixtures/build.ts`: plain helpers that number rows from `seq` 1 and stamp `ts` from `2026-10-26T18:00:00.000Z` plus one second per `seq`; export `fixtureIds` (fixtures.md table). No engine call and no clock.
-- [ ] T035 [US6] Write the five fixture modules in `packages/session-model/src/fixtures/` (`talk-only.ts`, `free-mode-action.ts`, `turn-mode-combat.ts`, `secret-tracker.ts`, `unknown-and-invalid.ts`) and `recipes.ts`, exactly as fixtures.md describes. Produce each mechanics batch's engine events once by running its recipe through the engine in a scratch script or test, then commit the resulting events as literal data.
-- [ ] T036 [US6] Export `fixtures`, `recipes`, `fixtureIds` and the `SessionFixture`/`MechanicsRecipe` types from `packages/session-model/src/fixtures/index.ts`.
-- [ ] T037 [US6] Write `packages/session-model/test/fixtures.test.ts`: fixture guarantees 1–5 of fixtures.md, including recipe regeneration (DM fold before the batch → `execute` with `scriptedRng(faces)` → equal events, all faces consumed; the refused recipe returns the recorded code) and every fact in the fixtures table.
-- [ ] T038 [P] [US4] Extend `packages/session-model/test/secrecy.test.ts` to run its player assertions over every fixture and every player viewer in it (AC #5).
-- [ ] T039 [P] [US3] Extend `packages/session-model/test/replay.test.ts`, `test/tolerance.test.ts` and `test/talk-isolation.test.ts` to run over every fixture for the DM and each player viewer (AC #2, #7, #8).
-- [ ] T040 Confirm a module outside the package can import `@the-stacks/session-model/fixtures` with types: add `packages/session-model/test/exports.test.ts` that imports both entry points by package name; run the phase gate.
+- [x] T034 [US6] Implement `packages/session-model/src/fixtures/build.ts`: plain helpers that number rows from `seq` 1 and stamp `ts` from `2026-10-26T18:00:00.000Z` plus one second per `seq`; export `fixtureIds` (fixtures.md table). No engine call and no clock.
+- [x] T035 [US6] Write the five fixture modules in `packages/session-model/src/fixtures/` (`talk-only.ts`, `free-mode-action.ts`, `turn-mode-combat.ts`, `secret-tracker.ts`, `unknown-and-invalid.ts`) and `recipes.ts`, exactly as fixtures.md describes. Produce each mechanics batch's engine events once by running its recipe through the engine in a scratch script or test, then commit the resulting events as literal data.
+- [x] T036 [US6] Export `fixtures`, `recipes`, `fixtureIds` and the `SessionFixture`/`MechanicsRecipe` types from `packages/session-model/src/fixtures/index.ts`.
+- [x] T037 [US6] Write `packages/session-model/test/fixtures.test.ts`: fixture guarantees 1–5 of fixtures.md, including recipe regeneration (DM fold before the batch → `execute` with `scriptedRng(faces)` → equal events, all faces consumed; the refused recipe returns the recorded code) and every fact in the fixtures table.
+- [x] T038 [P] [US4] Extend `packages/session-model/test/secrecy.test.ts` to run its player assertions over every fixture and every player viewer in it (AC #5).
+- [x] T039 [P] [US3] Extend `packages/session-model/test/replay.test.ts`, `test/tolerance.test.ts` and `test/talk-isolation.test.ts` to run over every fixture for the DM and each player viewer (AC #2, #7, #8).
+- [x] T040 Confirm a module outside the package can import `@the-stacks/session-model/fixtures` with types: add `packages/session-model/test/exports.test.ts` that imports both entry points by package name; run the phase gate.
 
 **Checkpoint**: TASK-0047 can render every fixture; TASK-0045 can build tests on them.
 
@@ -215,3 +215,11 @@ server seam.
   `diagnostics.incompleteBatches` check needs per-batch counts, and projections.md names no
   other home for them. It is fold bookkeeping, not a projection, and holds only batch ids for
   rows the viewer can see.
+- Phase 4: `MechanicsRecipe` gained one optional field, `refusal` (the engine refusal code),
+  set only on the refused recipe so a test can tell it from a recipe whose batch has rows.
+  The refused companion attack is `attack.roll` with expression `1d6+2` (no d20 term), refused
+  as `D20_TERM_REQUIRED`. Every fixture lists both players as viewers.
+- Phase 4: `MechanicsRecipe` gained one optional field, `refusal` (the engine refusal code),
+  set only on the refused recipe so a test can tell it from a recipe whose batch has rows.
+  The refused companion attack is `attack.roll` with expression `1d6+2` (no d20 term), refused
+  as `D20_TERM_REQUIRED`. Every fixture lists both players as viewers.

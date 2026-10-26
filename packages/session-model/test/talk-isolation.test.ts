@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fixtures } from "../src/fixtures/index.js";
 import {
   applyEvent,
   emptyProjections,
@@ -61,4 +62,28 @@ describe("talk isolation (AC #2)", () => {
     );
     expect(strip(after)).toEqual(strip(p));
   });
+});
+
+describe("talk isolation over every fixture (AC #2)", () => {
+  for (const f of fixtures) {
+    for (const viewer of [f.viewers.dm, ...f.viewers.players]) {
+      const who =
+        viewer.role === "dm" ? "dm" : `player ${viewer.userId.slice(-1)}`;
+      it(`${f.name} (${who}): talk after every prefix changes only transcript, throughSeq and diagnostics`, () => {
+        const clean = f.events.filter((e) => e.seq > 0);
+        const top = Math.max(...clean.map((e) => e.seq));
+        for (let n = 1; n <= clean.length; n++) {
+          const before = project(clean.slice(0, n), viewer);
+          const talk = row(
+            "talk",
+            { text: "Hi", channel: "ic", characterId: "ana" },
+            { seq: top + 1 },
+          );
+          const after = applyEvent(before, talk);
+          expect(strip(after)).toEqual(strip(before));
+          expect(after.transcript.length).toBe(before.transcript.length + 1);
+        }
+      });
+    }
+  }
 });

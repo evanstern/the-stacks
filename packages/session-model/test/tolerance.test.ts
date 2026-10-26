@@ -1,5 +1,6 @@
 import { emptyState } from "@the-stacks/dnd5e-engine";
 import { describe, expect, it } from "vitest";
+import { fixtures } from "../src/fixtures/index.js";
 import { project, type StoredEvent } from "../src/index.js";
 import {
   anaCombatant,
@@ -119,4 +120,29 @@ describe("tolerance (AC #8)", () => {
       incompleteBatches: [],
     });
   });
+});
+
+describe("tolerance over every fixture (AC #8)", () => {
+  for (const f of fixtures) {
+    for (const viewer of [f.viewers.dm, ...f.viewers.players]) {
+      const who =
+        viewer.role === "dm" ? "dm" : `player ${viewer.userId.slice(-1)}`;
+      it(`${f.name} (${who}): folds without throwing`, () => {
+        expect(() => project(f.events, viewer)).not.toThrow();
+        const p = project(f.events, viewer);
+        if (f.name === "unknown-and-invalid") {
+          expect(p.diagnostics.skippedUnknownType).toBe(2);
+          expect(p.diagnostics.skippedUnknownVersion).toBe(1);
+          expect(p.diagnostics.skippedInvalid).toBe(2);
+          expect(p.diagnostics.outOfOrder).toBe(1);
+        } else {
+          expect(p.diagnostics.skippedUnknownType).toBe(0);
+          expect(p.diagnostics.skippedUnknownVersion).toBe(0);
+          expect(p.diagnostics.skippedInvalid).toBe(0);
+          expect(p.diagnostics.engineRejected).toBe(0);
+          expect(p.diagnostics.incompleteBatches).toEqual([]);
+        }
+      });
+    }
+  }
 });
