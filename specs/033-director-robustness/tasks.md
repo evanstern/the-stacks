@@ -210,7 +210,7 @@ a condition, skill, damage type, ability or number. Never edit `.env`.
 - [x] T037 Orchestrator: run the verification (quickstart C, amended pass rule). Commit the
   evidence directory `evidence/verify-<runId>/`. Record pass or fail, outcome, spend and the run
   id on the card.
-- [ ] T038 Orchestrator: on a fail, or on a failure of any other kind, commit the failure record
+- [x] T038 Orchestrator: on a fail, or on a failure of any other kind, commit the failure record
   as a fixture under `apps/server/test/dm/fixtures/`. Stop for an operator ruling. Do not start
   Phase 5.
   *Not triggered (2026-10-26):* run `20261026T155348Z-greyhollow-ford-provider` passed the
