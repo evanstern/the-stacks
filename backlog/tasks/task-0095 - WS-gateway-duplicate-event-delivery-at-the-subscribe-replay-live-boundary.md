@@ -1,9 +1,10 @@
 ---
 id: TASK-0095
 title: 'WS gateway: duplicate event delivery at the subscribe replay/live boundary'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 02:38'
+updated_date: '2026-10-26 02:40'
 labels:
   - server
   - ws
@@ -29,6 +30,17 @@ Likely fix: track a per-connection delivered-through seq for each subscribed ses
 - [ ] #2 A deterministic test in ws.subscribe.test.ts reproduces the commit-then-late-broadcast ordering and fails without the fix.
 - [ ] #3 ws.integration.test.ts T012 passes in 20 consecutive local runs.
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add Connection.replayedThroughSeq: the highest seq a subscribe's replay read (starts at afterSeq).
+2. subscribe.ts sets it to afterSeq on entry and to the final throughSeq before clearing pendingQueue.
+3. registry.broadcast skips direct sends at or below it; the drain skip uses the same floor.
+Why a replay floor, not a running delivered watermark: broadcasts are not guaranteed to run in seq order across concurrent senders, so a running watermark could drop a lower seq whose broadcast runs late. Every seq at or below the replay's throughSeq was in the replay read (the advisory lock commits seqs in order), so skipping them is exact.
+4. Deterministic test in ws.subscribe.test.ts via SubscribeDeps: commit, replay reads it, queue clears, then late broadcast.
+5. Update registry.ts comment and wiki notes; loop T012 20x.
+<!-- SECTION:PLAN:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
