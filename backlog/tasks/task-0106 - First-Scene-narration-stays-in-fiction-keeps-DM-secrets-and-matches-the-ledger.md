@@ -43,7 +43,10 @@ Spec: specs/034-narration-quality
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 - [ ] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [ ] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
+- [ ] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 
 
