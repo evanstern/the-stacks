@@ -1017,6 +1017,31 @@ export const resolve: Node<"resolve"> = async (ctx) => {
 
 // ------------------------------------------------- narration and notices
 
+/**
+ * A narration this job already landed. The narration row carries no marker
+ * (the event schema has no field for one), so the marker is position: an
+ * `ai:dm` narration row after everything this job appended before it
+ * (resolve's `lastSeq`, the checkpoint's `lastSeq`, the trigger seq). Only
+ * the job that holds the lease appends, so any such row is this job's.
+ */
+export async function findLandedNarration(
+  ctx: TurnContext,
+  resolveLastSeq: number,
+): Promise<{ seq: number; text: string } | null> {
+  const floor = Math.max(
+    resolveLastSeq,
+    ctx.checkpoint.lastSeq,
+    ctx.job.triggerSeq ?? 0,
+  );
+  const p = await ctx.deps.loadProjections(ctx.job.sessionId);
+  for (const e of p.transcript) {
+    if (e.kind === "narration" && e.actor === AI_DM.actor && e.seq > floor) {
+      return { seq: e.seq, text: e.text };
+    }
+  }
+  return null;
+}
+
 /** Result of `submitNarration`. */
 export type ShipResult =
   | { ok: true; shipped: boolean }

@@ -91,6 +91,9 @@ batches in `priorSteps` and plans only what remains.
    looks for its marker: a ledger row whose `reason` ends with ` [<stepRef>]`, or (for
    non-ledger kinds) an `ai:dm` row of the expected type after the checkpoint's `lastSeq`.
    When found, it records the submission as applied and continues.
+5. The narration row carries no marker. On a reclaim the runner looks for an `ai:dm` narration row
+   after the highest of resolve's `lastSeq`, the checkpoint's `lastSeq` and the trigger seq. When it
+   finds one, narrate and audit do not run and `submitNarration` ships nothing.
 
 The gate itself has no idempotency key. This contract adds none.
 

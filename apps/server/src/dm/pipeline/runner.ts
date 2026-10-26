@@ -1,5 +1,6 @@
+import { createHash } from "node:crypto";
 import type { TurnCheckpoint } from "../jobs.js";
-import { submitNarration } from "../nodes/resolve.js";
+import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import {
   depsFor,
   type ModelCallRecord,
@@ -73,6 +74,8 @@ export async function runTurn(
 ): Promise<TurnOutcome> {
   let ctx = ctx0;
   const calls: ModelCallRecord[] = [];
+  /** Set when a reclaim finds the narration already on the log. */
+  let landedNarration: { seq: number; text: string } | null = null;
 
   const fail = (node: NodeName, error: NodeError): TurnOutcome => ({
     status: "failed",
@@ -93,6 +96,31 @@ export async function runTurn(
     }
     if (!(await ctx.deps.fence())) return fenced(name);
     if (!(await ctx.deps.setStage(name))) return fenced(name);
+
+    if (name === "narrate" && ctx.job.attempt > 1 && ctx.results.resolve) {
+      landedNarration = await findLandedNarration(
+        ctx,
+        ctx.results.resolve.lastSeq,
+      );
+    }
+    if (landedNarration && (name === "narrate" || name === "audit")) {
+      // A reclaim after the narration landed: ship nothing, spend no calls.
+      if (name === "audit") {
+        const audit: NodeOutputs["audit"] = {
+          record: {
+            attempts: [],
+            final: "passed",
+            flagged: false,
+            shippedProseSha256: createHash("sha256")
+              .update(landedNarration.text)
+              .digest("hex"),
+          },
+          shipped: null,
+        };
+        ctx = { ...ctx, results: { ...ctx.results, audit } };
+      }
+      continue;
+    }
 
     // Checkpoint reuse: a reclaimed job skips the calls it already paid for.
     if (isCheckpointed(name) && ctx.checkpoint[name] !== null) {
@@ -155,6 +183,16 @@ export async function runTurn(
         return { status: "held", companions: director.beat.companions };
       }
     }
+  }
+
+  if (landedNarration && ctx.results.resolve) {
+    ctx = {
+      ...ctx,
+      results: {
+        ...ctx.results,
+        resolve: { ...ctx.results.resolve, chronicle: true },
+      },
+    };
   }
 
   // Final step: ship what audit decided (stub nodes leave `shipped` unset).

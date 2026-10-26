@@ -129,4 +129,30 @@ describe.skipIf(!reachable)("lease expiry and reclaim (database)", () => {
       expect(Object.values(left.calls).every((n) => n === 0)).toBe(true);
     }
   });
+
+  it("a crash after the narration lands reclaims without a second narration", async () => {
+    const base = await runTurn(null);
+    const baseRows = normalized(await readRows(base.w));
+    const narrationSubmission = base.state.count; // the last submission
+
+    const run = await runTurn(narrationSubmission);
+    const rows = await readRows(run.w);
+    expect(normalized(rows)).toEqual(baseRows);
+    expect(rows.filter((r) => r.type === "narration")).toHaveLength(1);
+
+    // The first claim made every submission; the reclaim submitted nothing.
+    expect(run.state.firstClaim).toBe(narrationSubmission);
+    expect(run.state.count).toBe(base.state.count);
+
+    const turns = await listDmJobs(requireDb(), run.w.sessionId, 5, "turn");
+    expect(turns).toHaveLength(1);
+    expect(turns[0]?.status).toBe("succeeded");
+    expect(turns[0]?.attempts).toBe(2);
+
+    // The reclaim spent no narrate or audit call: nothing is left over, and
+    // nothing ran twice (an unscripted call would have failed the turn).
+    const left = run.w.scripted.remaining();
+    expect(left.dice).toBe(0);
+    expect(Object.values(left.calls).every((n) => n === 0)).toBe(true);
+  });
 });
