@@ -361,3 +361,5 @@ A refusal writes nothing.
                "after":  { "trackerId": "ritual", "name": "The cult completes the ritual",
                            "segments": 6, "filled": 2, "note": null } } }
 ```
+
+> Extended by specs/029-proposal-gate/contracts/proposal-events.md: five catalog types (`proposal.created`, `proposal.approved`, `proposal.rejected`, `dm.seat.changed`, `gate.policy.changed`), the `proposal` event kind, and the mechanics envelope `proposalId` definition.

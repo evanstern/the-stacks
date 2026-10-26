@@ -295,4 +295,91 @@ export const recipes: readonly MechanicsRecipe[] = [
     },
     faces: [11],
   },
+  {
+    fixture: "dm-approvals",
+    batchId: "b-add-ana",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "ana",
+        name: "Ana",
+        hp: {
+          max: 12,
+        },
+        zeroHpRule: "death-saves",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 15,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [
+          {
+            die: 8,
+            total: 2,
+          },
+        ],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "Ana joins the session",
+    },
+    faces: [],
+  },
+  {
+    fixture: "dm-approvals",
+    batchId: "b-add-bram",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "bram",
+        name: "Bram",
+        hp: {
+          max: 10,
+        },
+        zeroHpRule: "death-saves",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 14,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [
+          {
+            die: 8,
+            total: 2,
+          },
+        ],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "Bram joins the session",
+    },
+    faces: [],
+  },
+  {
+    fixture: "dm-approvals",
+    batchId: "b-lockpick",
+    command: {
+      type: "check.roll",
+      combatantId: "ana",
+      kind: "ability-check",
+      ability: "dex",
+      skill: null,
+      expression: "1d20+5",
+      mode: "normal",
+      dc: 15,
+      autoFail: null,
+      reason: "Ana picks the vault lock",
+    },
+    faces: [13],
+  },
 ];

@@ -57,7 +57,7 @@ describe("package entry points", () => {
   it("the fixtures subpath exports the contract, with types", () => {
     const list: readonly SessionFixture[] = fx.fixtures;
     const recipes: readonly MechanicsRecipe[] = fx.recipes;
-    expect(list).toHaveLength(5);
+    expect(list).toHaveLength(7);
     expect(recipes.length).toBeGreaterThan(0);
     expect(fx.fixtureIds.dmActor).toBe("ai:dm");
     expect(fx.talkOnly.name).toBe("talk-only");

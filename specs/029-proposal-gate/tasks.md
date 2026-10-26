@@ -123,16 +123,16 @@ these.
 
 ### Tests
 
-- [ ] T026 [US7] Extend `packages/session-model/test/fixtures.test.ts` with every fact and guarantee in contracts/fixtures.md for `dm-approvals`, `commit-authority` and `proposalExamples`, including the P1 re-plan guarantee and both `commit-authority` tables.
+- [x] T026 [US7] Extend `packages/session-model/test/fixtures.test.ts` with every fact and guarantee in contracts/fixtures.md for `dm-approvals`, `commit-authority` and `proposalExamples`, including the P1 re-plan guarantee and both `commit-authority` tables.
 
 ### Implementation
 
-- [ ] T027 [P] [US7] Add `dmUserId` to `fixtureIds` in `packages/session-model/src/fixtures/build.ts`.
-- [ ] T028 [P] [US7] Create `packages/session-model/src/fixtures/dm-approvals.ts` (session id `00000000-0000-4000-8000-000000000106`) and add its `check.roll` recipe to `packages/session-model/src/fixtures/recipes.ts`; generate the batch through `planProposal`/`execute` with scripted faces, then freeze the rows as plain data.
-- [ ] T029 [P] [US7] Create `packages/session-model/src/fixtures/commit-authority.ts` (session id `00000000-0000-4000-8000-000000000107`).
-- [ ] T030 [P] [US7] Create `packages/session-model/src/fixtures/proposal-examples.ts` (`proposalExamples`, one per kind).
-- [ ] T031 [US7] Register the new fixtures and `proposalExamples` in `packages/session-model/src/fixtures/index.ts`; confirm the secrecy, replay and tolerance tests run over them.
-- [ ] T032 [P] [US7] Add a pointer note "Extended by specs/029-proposal-gate/contracts/…" to `specs/028-session-model/contracts/session-events.md`, `projections.md`, `fixtures.md` and `package-api.md`, naming the additions.
+- [x] T027 [P] [US7] Add `dmUserId` to `fixtureIds` in `packages/session-model/src/fixtures/build.ts`.
+- [x] T028 [P] [US7] Create `packages/session-model/src/fixtures/dm-approvals.ts` (session id `00000000-0000-4000-8000-000000000106`) and add its `check.roll` recipe to `packages/session-model/src/fixtures/recipes.ts`; generate the batch through `planProposal`/`execute` with scripted faces, then freeze the rows as plain data.
+- [x] T029 [P] [US7] Create `packages/session-model/src/fixtures/commit-authority.ts` (session id `00000000-0000-4000-8000-000000000107`).
+- [x] T030 [P] [US7] Create `packages/session-model/src/fixtures/proposal-examples.ts` (`proposalExamples`, one per kind).
+- [x] T031 [US7] Register the new fixtures and `proposalExamples` in `packages/session-model/src/fixtures/index.ts`; confirm the secrecy, replay and tolerance tests run over them.
+- [x] T032 [P] [US7] Add a pointer note "Extended by specs/029-proposal-gate/contracts/…" to `specs/028-session-model/contracts/session-events.md`, `projections.md`, `fixtures.md` and `package-api.md`, naming the additions.
 
 **Checkpoint**: TASK-0047 can import every fixture and example it needs.
 
@@ -253,3 +253,13 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
   authority refuses non-controllers at plan time, as the matrix says ("per commit authority").
 - Phase 2, T024: the planner re-checks IC-talk control and `action.declare` control (the
   table lists both as planner checks), so an approved proposal cannot bypass them.
+- Phase 3, T028: `dm-approvals` also holds the two `combatant.add` batches (`b-add-ana`,
+  `b-add-bram`, actor `dmUserId`) before the party joins. The P1 `check.roll` needs Ana's engine
+  combatant, so the contract's list implies them. Recipes for both batches sit in `recipes.ts`.
+- Phase 3, T028: `mechanicsBatch` in `fixtures/build.ts` takes an optional `proposalId`. The
+  recipe tests in `fixtures.test.ts` skip `proposal.*` rows when they collect a batch, because
+  `proposal.approved` carries the same `batchId`.
+- Phase 3, T029: `commit-authority` party members carry `combatantId: null`; the fixture
+  needs no engine state. Bram's turn names `activeCharacterId: "bram"`.
+- Phase 3, T026: guarantee 3 re-plans P1 against the fold through the `proposal.created` row
+  (the state at approval time, before the effects append), with the recipe's faces.

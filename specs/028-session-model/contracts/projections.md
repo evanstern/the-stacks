@@ -237,3 +237,5 @@ export type LedgerRow =
    projections contains no tracker id, tracker name or tracker note from that fixture, and
    `trackers` is `[]`.
 5. **Purity.** `applyEvent` does not mutate its input (tests deep-freeze it).
+
+> Extended by specs/029-proposal-gate/contracts/proposal-events.md and policy-and-authority.md: the `gate` and `proposals` projection fields, `pendingProposals`, `findProposal`, and `commitAuthority`.
