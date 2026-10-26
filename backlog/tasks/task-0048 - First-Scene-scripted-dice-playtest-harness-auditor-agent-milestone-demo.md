@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 16:24'
+updated_date: '2026-10-26 17:12'
 labels:
   - first-scene
   - test
@@ -115,6 +115,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Harness fix 0fd4941 by sonnet-implementer: the Greyhollow Ford scenario's maxWallMs is raised from 900000 to 3600000 (60 min), and maxMoves stays 30. Evidence: TASK-0102's rerun 20261026T155348Z ran 29 turns with 0 failed jobs but timed out at the 15-min cap in fight round 4, at about 35 s per real-model turn. Contract specs/032-playtest-harness/contracts/scenario.md updated. Lint, typecheck and the CI playtest (ended, pass) are green. The server unit suite without a DB fails only adjudicate.integration ('requires a database'), as before.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reconcile merge of origin/main (TASK-0102 #50) by sonnet-implementer: 77e6c75 merge, ef714d3 wiki re-ground (playtest-harness NEEDS-REVIEW, prose amended; freshness OK, 46 notes), 79c035a spec 033 T038 tick (post-merge). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 774 passed, 5 skipped. CI playtest: ended, pass. No WS flake.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the M2 demo's paid scripted playtest (section C). The $6 demo-session audit ceiling stands.' Models are unchanged except dm.interpret maxTokens 2500 (operator approval on TASK-0102).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
