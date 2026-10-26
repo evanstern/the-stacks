@@ -104,4 +104,5 @@ The WebSocket `send` for an uncatalogued event type still appends through
 ## Connections
 
 Pure core: [[session-model]]. Writes through [[event-log]]. Delivery: [[websocket-gateway]],
-[[subscriber-registry]], [[replay-live-boundary]]. Frame errors: [[ws-protocol]].
+[[subscriber-registry]], [[replay-live-boundary]]. Frame errors: [[ws-protocol]]. The web client that sends these requests and
+shows refusal codes: [[play-route]].

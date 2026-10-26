@@ -7,7 +7,7 @@ sources:
   - specs/007-spa-shell-demo/spec.md
   - specs/025-frontend-stack/quickstart.md
   - apps/web/app/routes/play.tsx
-verified_against: a82067ceb8794332fc5106885fadc185f1c34c7b
+verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
 ---
 
 # M0 demo
@@ -49,7 +49,10 @@ must be a **valid UUID**, because `session_id` is a `uuid` column in the event l
 browsers open `http://localhost:$APP_PORT/play/<that-uuid>`, one signed in as `operator`, the
 other as the invited account.
 
-**The check itself:** type a message in one browser; it appears in the other, and also in the
+**The check itself:** (TASK-0047 replaced `play.tsx`'s echo page - an event list and a bare
+send box that sent `chat` events - with the table in [[play-route]]; the message is now a
+`talk` request typed in the composer and rendered in the transcript. The quickstart's wording
+predates this.) Type a message in one browser; it appears in the other, and also in the
 sender's own view exactly once — because [[client-session-hook]] renders on the arriving
 `event` frame, never optimistically, so the sender sees their own message the same way
 everyone else does. Send one back. Then **reload either browser** — the prior messages replay
@@ -61,7 +64,7 @@ been delivered.
 
 Exercises the full realtime path end to end: [[websocket-gateway]] → [[event-log]] →
 [[replay-live-boundary]] / [[subscriber-registry]] → [[client-session-hook]] →
-[[react-router-app]]'s `play/:sessionId` route. The automated counterpart is [[test-suite]]'s integration
+[[react-router-app]]'s `play/:sessionId` route (rendered by [[play-route]]). The automated counterpart is [[test-suite]]'s integration
 files, which [[ci-pipeline]] runs against a real database on every PR and push to main;
 this manual procedure remains the check that the demo works in real browsers, which no
 automated suite covers.

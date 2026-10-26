@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "rootDirs": [".", "./.react-router/types"],
@@ -16,6 +17,7 @@
     ".react-router/types/**/*"
   ],
   "references": [
+    { "path": "../../packages/session-model" },
     { "path": "../../packages/shared" },
     { "path": "../../packages/srd" }
   ]

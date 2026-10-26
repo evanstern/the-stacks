@@ -191,6 +191,23 @@ test("/play/<uuid> shows the hydrate fallback and no event list", async () => {
   assert.doesNotMatch(html, /<ul>/);
 });
 
+for (const path of [
+  "/play/11111111-1111-1111-1111-111111111111",
+  "/play/fixtures",
+  "/play/fixtures/free-mode-action",
+]) {
+  test(`${path} renders only the hydrate fallback (SC-007)`, async () => {
+    const res = await handle(
+      new Request(`http://localhost${path}`),
+      stubContext({ id: "u1", displayName: "Ada Lovelace", role: "operator" }),
+    );
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.match(html, /Loading…/);
+    assert.doesNotMatch(html, /Message type/);
+  });
+}
+
 test("/about signed in shows the SRD 5.2.1 attribution and no <dialog", async () => {
   const res = await handle(
     new Request("http://localhost/about"),

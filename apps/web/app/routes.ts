@@ -5,6 +5,8 @@ export default [
   route("ask", "routes/ask.tsx"),
   route("books", "routes/books.tsx"),
   route("play", "routes/table.tsx"),
+  route("play/fixtures", "routes/play-fixtures.tsx"),
+  route("play/fixtures/:fixtureName", "routes/play-fixture.tsx"),
   route("play/:sessionId", "routes/play.tsx"),
   route("about", "routes/about.tsx"),
   route("settings", "routes/settings.tsx"),

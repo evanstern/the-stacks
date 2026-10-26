@@ -138,3 +138,21 @@ export function InfoIcon(props: SVGProps<SVGSVGElement>) {
     </Icon>
   );
 }
+
+export function LedgerIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M6 3h12v18H6z" />
+      <path d="M9 8h6M9 12h6M9 16h4" />
+    </Icon>
+  );
+}
+
+export function ApprovalsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 12.5l3 3 5-6" />
+    </Icon>
+  );
+}
