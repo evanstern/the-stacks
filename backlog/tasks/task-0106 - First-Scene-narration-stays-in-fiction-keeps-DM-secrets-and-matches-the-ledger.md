@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 18:22'
+updated_date: '2026-10-26 18:29'
 labels:
   - first-scene
   - dm
@@ -37,13 +37,13 @@ Spec: specs/034-narration-quality
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Companion and narrate prompts receive no DM-only seed fact, proven by a test over the assembled prompts for the Greyhollow Ford seed
-- [ ] #2 The factual fallback is in-fiction prose with no system commentary, and it states every ledger change in the turn (including encounter start and end and table-mode changes), with tests
+- [x] #2 The factual fallback is in-fiction prose with no system commentary, and it states every ledger change in the turn (including encounter start and end and table-mode changes), with tests
 - [ ] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [x] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
-- [ ] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
+- [x] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
 - [ ] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
 - [ ] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
 - [ ] #11 Spec phase: Full gate (US5; AC #5)
@@ -64,6 +64,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 by sonnet-implementer: 05eac3d (seed edits), 58eb3c3 (PlayerSeedView in seed/views.ts; narrate and companion builders take it; named public transcript lines; director-v2, chronicle-v2, companion-v2), 6be4d1f (tests and ticks). AC #1 test player-facing-prompts.test.ts: 9 assembled prompts contain no dmOnlySeedText string, no river-things or wards, no DM-visibility marker, and no seat user id. Reproduction tests L1-L3 and F76 now assert the fixed behavior. Server REQUIRE_DATABASE=1: 714 passed, 5 skipped. Lint, typecheck and boundaries pass. The playtest CLI is not on this branch (TASK-0048's); the composite covers it in Phase 5.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the TASK-0106 verification run (Phase 5).'
+
+Phase 3 by sonnet-implementer: 2552170 (facts v2: party with controller, npcNames, public events, setting, roll target; factEntries renders the roll reason and target), 767bbec (fallback rewrite: deterministic in-fiction sentences per change and event kind, closing 'What does X do?' on clarify, no trackers, no digits), 16ef7a8 (tests: fallback.test.ts with 15 tests including a 400-case property test; F17 and F23 repros now assert the fixed behavior). Run-5 seq 88 fallback: 'Kestrel acts, and nothing changes. The fight is over.' became 'Kestrel goes ahead with it. The fighting stops.' Server REQUIRE_DATABASE=1: 734 passed, 5 skipped.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
