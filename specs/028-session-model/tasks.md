@@ -107,22 +107,22 @@ and fixed ISO `ts`, and produces engine events by calling the engine's `execute`
 
 ### Tests
 
-- [ ] T021 [P] [US1] Write `packages/session-model/test/talk-isolation.test.ts`: for several non-trivial projection states (after a scene, party, encounter, tracker and actions exist), applying a talk event leaves every field except `transcript`, `throughSeq` and `diagnostics` deeply equal (AC #2).
-- [ ] T022 [P] [US1] Write `packages/session-model/test/actions.test.ts`: declared → discussed → committed → resolved; every disallowed transition in the projections.md table counts `ignoredTransitions`, leaves the action unchanged, and still appends a transcript entry; two committed actions keep log order (AC #1).
-- [ ] T023 [P] [US2] Write `packages/session-model/test/table-mode.test.ts`: initial free mode; free → turn with an active actor; turn → turn with a new active actor; turn → free; a mismatched `before` counts `beforeMismatches` and `after` still applies (AC #3).
-- [ ] T024 [P] [US3] Write `packages/session-model/test/projections.test.ts`: scene, party (joined to engine HP, life state, conditions), encounter (order, round, active combatant, linked character), and journal from a hand-built stream; party members whose combatant is absent show `combatant: null` (AC #4).
-- [ ] T025 [P] [US4] Write `packages/session-model/test/secrecy.test.ts`: for a stream with `dm` trackers, a `dm` roll and a `dm` journal entry, the DM sees all of them; each player viewer has `trackers: []` and its `JSON.stringify` contains no tracker id, name or note, no hidden roll reason and no DM journal title; a `tracker.changed` mislabelled `public` is still absent for players; player diagnostics do not change when hidden events are added (AC #5).
-- [ ] T026 [P] [US5] Write `packages/session-model/test/ledger.test.ts`: one `roll` row per `dice.rolled` with its reason and faces; one `outcome` row per resolved marker; one `change` row per engine and session state change with `reason`, `before` and `after`; rows are in `seq` order (AC #6).
-- [ ] T027 [P] [US3] Write `packages/session-model/test/replay.test.ts`: `project(events, v)` called twice is deeply equal, and equals the incremental `reduce(applyEvent)`; `applyEvent` does not mutate a deep-frozen input; a duplicated `seq` counts `outOfOrder` and changes nothing else (AC #7, in memory).
-- [ ] T028 [P] [US3] Write `packages/session-model/test/tolerance.test.ts`: unknown type, unknown version, invalid payload, type mismatch and an engine event naming an unknown combatant each fold without throwing and bump the right counter (`engineRejected` for the last); a hand-built stream missing one row of a batch folds and names the batch in `incompleteBatches` (the defensive check of projections.md; the server path never produces it, Phase 5 proves) (AC #8).
+- [x] T021 [P] [US1] Write `packages/session-model/test/talk-isolation.test.ts`: for several non-trivial projection states (after a scene, party, encounter, tracker and actions exist), applying a talk event leaves every field except `transcript`, `throughSeq` and `diagnostics` deeply equal (AC #2).
+- [x] T022 [P] [US1] Write `packages/session-model/test/actions.test.ts`: declared → discussed → committed → resolved; every disallowed transition in the projections.md table counts `ignoredTransitions`, leaves the action unchanged, and still appends a transcript entry; two committed actions keep log order (AC #1).
+- [x] T023 [P] [US2] Write `packages/session-model/test/table-mode.test.ts`: initial free mode; free → turn with an active actor; turn → turn with a new active actor; turn → free; a mismatched `before` counts `beforeMismatches` and `after` still applies (AC #3).
+- [x] T024 [P] [US3] Write `packages/session-model/test/projections.test.ts`: scene, party (joined to engine HP, life state, conditions), encounter (order, round, active combatant, linked character), and journal from a hand-built stream; party members whose combatant is absent show `combatant: null` (AC #4).
+- [x] T025 [P] [US4] Write `packages/session-model/test/secrecy.test.ts`: for a stream with `dm` trackers, a `dm` roll and a `dm` journal entry, the DM sees all of them; each player viewer has `trackers: []` and its `JSON.stringify` contains no tracker id, name or note, no hidden roll reason and no DM journal title; a `tracker.changed` mislabelled `public` is still absent for players; player diagnostics do not change when hidden events are added (AC #5).
+- [x] T026 [P] [US5] Write `packages/session-model/test/ledger.test.ts`: one `roll` row per `dice.rolled` with its reason and faces; one `outcome` row per resolved marker; one `change` row per engine and session state change with `reason`, `before` and `after`; rows are in `seq` order (AC #6).
+- [x] T027 [P] [US3] Write `packages/session-model/test/replay.test.ts`: `project(events, v)` called twice is deeply equal, and equals the incremental `reduce(applyEvent)`; `applyEvent` does not mutate a deep-frozen input; a duplicated `seq` counts `outOfOrder` and changes nothing else (AC #7, in memory).
+- [x] T028 [P] [US3] Write `packages/session-model/test/tolerance.test.ts`: unknown type, unknown version, invalid payload, type mismatch and an engine event naming an unknown combatant each fold without throwing and bump the right counter (`engineRejected` for the last); a hand-built stream missing one row of a batch folds and names the batch in `incompleteBatches` (the defensive check of projections.md; the server path never produces it, Phase 5 proves) (AC #8).
 
 ### Implementation
 
-- [ ] T029 [US3] Implement `packages/session-model/src/projections/types.ts` (every type in projections.md) and `packages/session-model/src/projections/apply.ts` (`emptyProjections`, `applyEvent`, `project`): visibility drop, player tracker drop, `seq` ordering, decode, per-kind dispatch, diagnostics. `project` may use a private mutable accumulator only if its result deep-equals the `reduce(applyEvent)` result.
-- [ ] T030 [P] [US1] Implement `packages/session-model/src/projections/actions.ts` (the transition table) and the transcript entries for `talk`, `narration` and lifecycle events.
-- [ ] T031 [P] [US3] Implement `packages/session-model/src/projections/party.ts` and `packages/session-model/src/projections/encounter.ts` (views joined from `engine`; engine folding through the engine's `evolve`, catching throws as `engineRejected`; defensive `incompleteBatches` tracking).
-- [ ] T032 [P] [US5] Implement `packages/session-model/src/projections/ledger.ts` (roll, outcome and change rows).
-- [ ] T033 Export the projection surface from `packages/session-model/src/index.ts`; run the phase gate.
+- [x] T029 [US3] Implement `packages/session-model/src/projections/types.ts` (every type in projections.md) and `packages/session-model/src/projections/apply.ts` (`emptyProjections`, `applyEvent`, `project`): visibility drop, player tracker drop, `seq` ordering, decode, per-kind dispatch, diagnostics. `project` may use a private mutable accumulator only if its result deep-equals the `reduce(applyEvent)` result.
+- [x] T030 [P] [US1] Implement `packages/session-model/src/projections/actions.ts` (the transition table) and the transcript entries for `talk`, `narration` and lifecycle events.
+- [x] T031 [P] [US3] Implement `packages/session-model/src/projections/party.ts` and `packages/session-model/src/projections/encounter.ts` (views joined from `engine`; engine folding through the engine's `evolve`, catching throws as `engineRejected`; defensive `incompleteBatches` tracking).
+- [x] T032 [P] [US5] Implement `packages/session-model/src/projections/ledger.ts` (roll, outcome and change rows).
+- [x] T033 Export the projection surface from `packages/session-model/src/index.ts`; run the phase gate.
 
 **Checkpoint**: AC #2–#8 hold in memory; T021–T028 green.
 
@@ -207,3 +207,11 @@ server seam.
 - No migration and no new external dependency (plan.md, research R11). If an implementer
   finds a need for either, STOP and report; it is an operator checkpoint.
 - No "for now": deferrals in plan.md's Open Questions each name their owning card.
+
+## Deviations
+
+- Phase 3: `SessionProjections` gained one bookkeeping field, `pendingBatches`
+  (`Record<batchId, { seen, count }>`), beside `throughSeq` and `diagnostics`. The defensive
+  `diagnostics.incompleteBatches` check needs per-batch counts, and projections.md names no
+  other home for them. It is fold bookkeeping, not a projection, and holds only batch ids for
+  rows the viewer can see.

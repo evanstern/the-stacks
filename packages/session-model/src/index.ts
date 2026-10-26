@@ -48,6 +48,19 @@ export {
   RefIdSchema,
   VisibilitySchema,
 } from "./ids.js";
+export { applyEvent, emptyProjections, project } from "./projections/apply.js";
+export type {
+  ActionAuthority,
+  ActionStatus,
+  ActionView,
+  Diagnostics,
+  EncounterView,
+  JournalEntryView,
+  LedgerRow,
+  PartyMemberView,
+  SessionProjections,
+  TranscriptEntry,
+} from "./projections/types.js";
 export type { StoredEvent } from "./stored-event.js";
 export { StoredEventSchema } from "./stored-event.js";
 export type { Viewer } from "./visibility.js";

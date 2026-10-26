@@ -347,3 +347,161 @@ export function envelope(
     ...overrides,
   };
 }
+
+export interface RowSpec {
+  type: string;
+  payload: unknown;
+  opts?: RowOptions;
+}
+
+/** Wraps one engine result in mechanics envelopes (one batch). */
+export function batchSpecs(
+  events: readonly EngineEvent[],
+  batchId: string,
+  opts: RowOptions & { actionId?: string | null } = {},
+): RowSpec[] {
+  const { actionId = null, ...rowOpts } = opts;
+  return events.map((event, index) => ({
+    type: event.type,
+    payload: envelope(event, {
+      batchId,
+      index,
+      count: events.length,
+      actionId,
+    }),
+    opts: rowOpts,
+  }));
+}
+
+const reason = "test";
+
+export const anaCombatant = ana;
+export const goblinCombatant = goblin;
+
+/**
+ * A stream with a scene, a party, an encounter, a roll, a secret tracker, a dm roll,
+ * a dm journal entry, an action lifecycle and talk. Returns rows from seq 1.
+ */
+export function richSpecs(): RowSpec[] {
+  let state = emptyState();
+  const specs: RowSpec[] = [];
+  const mech = (command: unknown, batchId: string, opts = {}) => {
+    const executed = run(state, command);
+    state = executed.state;
+    specs.push(...batchSpecs(executed.events, batchId, opts));
+  };
+  specs.push({
+    type: "scene.changed",
+    payload: { reason, before: null, after: scene },
+  });
+  mech({ type: "combatant.add", combatant: ana, reason }, "b-add-ana");
+  mech({ type: "combatant.add", combatant: goblin, reason }, "b-add-gob");
+  specs.push({
+    type: "party.member.changed",
+    payload: { reason, characterId: "ana", before: null, after: member },
+  });
+  specs.push({
+    type: "talk",
+    payload: { text: "Ready.", channel: "ooc", characterId: null },
+    opts: { actor: PLAYER_A },
+  });
+  specs.push({
+    type: "action.declared",
+    payload: {
+      actionId: "act-1",
+      characterId: "ana",
+      scope: "character",
+      text: "Ana attacks.",
+    },
+    opts: { actor: PLAYER_A },
+  });
+  specs.push({
+    type: "action.committed",
+    payload: { actionId: "act-1", authority: "declarer" },
+    opts: { actor: PLAYER_A },
+  });
+  mech(
+    {
+      type: "initiative.roll",
+      participants: [{ combatantId: "ana" }, { combatantId: "goblin" }],
+      reason,
+    },
+    "b-init",
+  );
+  mech(
+    {
+      type: "attack.roll",
+      attackerId: "ana",
+      targetId: "goblin",
+      expression: "1d20+4",
+      reason: "Ana swings",
+    },
+    "b-attack",
+    { actionId: "act-1" },
+  );
+  specs.push({
+    type: "action.resolved",
+    payload: {
+      actionId: "act-1",
+      outcome: "applied",
+      batchIds: ["b-attack"],
+      refusalCode: null,
+    },
+  });
+  specs.push({
+    type: "tracker.changed",
+    payload: {
+      reason: "the alarm bell rang",
+      trackerId: "ritual",
+      before: null,
+      after: tracker,
+    },
+    opts: { visibility: "dm" },
+  });
+  mech(
+    { type: "roll", expression: "1d20+1", reason: "secret hidden reason" },
+    "b-secret",
+    { visibility: "dm" },
+  );
+  specs.push({
+    type: "journal.entry.added",
+    payload: {
+      entryId: "j-dm",
+      title: "DM secret title",
+      body: "Only the DM knows.",
+      sourceActionIds: [],
+    },
+    opts: { visibility: "dm" },
+  });
+  specs.push({
+    type: "journal.entry.added",
+    payload: {
+      entryId: "j-pub",
+      title: "Public title",
+      body: "Everyone knows.",
+      sourceActionIds: ["act-1"],
+    },
+  });
+  specs.push({
+    type: "table-mode.changed",
+    payload: {
+      reason,
+      before: { mode: "free" },
+      after: { mode: "turn", activeActor: PLAYER_A, activeCharacterId: "ana" },
+    },
+  });
+  return specs;
+}
+
+export function richRows(): StoredEvent[] {
+  return makeRows(richSpecs());
+}
+
+/** Recursively freezes a value. */
+export function deepFreeze<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const v of Object.values(value)) deepFreeze(v);
+  }
+  return value;
+}
