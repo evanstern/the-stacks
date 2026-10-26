@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-25 22:39'
+updated_date: '2026-10-26 01:55'
 labels:
   - first-scene
   - srd
@@ -56,6 +56,8 @@ Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep
 Spec authoring (speckit specify/plan/tasks) by opus-implementer: commit 8b63240, ~225k tokens. Clarify skipped (recorded in spec.md).
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Plan checkpoints awaiting the operator: C1 data source (Open5e open5e-api srd-2024, CC-BY-4.0, recommended), C2 out-of-scope record kinds, C3 Phase 2 downloads the PDF and dataset to a scratch dir outside the repo.
+
+Operator rulings 2026-10-25 at plan checkpoints: C1 data source = Open5e open5e-api srd-2024 (CC-BY-4.0), pinned to one commit, verified against the SRD 5.2.1 PDF. C2 = the other kinds stay out of this task and were carded: TASK-0092 (magic items), TASK-0093 (species, backgrounds, feats), TASK-0094 (rules glossary entries), milestone m-5. C3 = Phase 2 may download the PDF and clone open5e-api into a scratch dir outside the repo.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
