@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 19:23'
+updated_date: '2026-10-26 19:48'
 labels:
   - first-scene
   - dm
@@ -86,6 +86,8 @@ Phase 4b by sonnet-implementer: 050dbdc (E2 party-name filter in nodes/audit.ts;
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5b setup: composite at 3ae5a54 (Phase 4b tip merged in). dm.narrate maxTokens 1500 confirmed (T053). Ceiling $25 (operator approval above). Estimate upper bound $23.40.
+
+Phase 5b rerun 2026-10-26: run 20261026T192319Z-greyhollow-ford-provider at composite 3ae5a54. FAIL on AC #4, rate only. Fallback rate 4/22 = 0.18 (bar 0.10; verify 1 was 0.35, run 5 0.50); all turns 6/27. hidden-info-leak 0. Narration-caused ledger-contradiction 0. player-agency 3 (F1 hero moved at scene start; F6 a v3 breach; F7 companion treated as hero). Stalled seat-exhausted after 11 moves, $5.37 over 235 calls of $25. Causes: R1 the deterministic digits check failed all 3 attempts in 3 of the 4 non-seat fallbacks, and its detail does not quote the match; R2 the seat declares actions for an unconscious Tamsin; R3 one invented near-miss. E1 mostly fixed (2 of 51 narrate calls at 1500). Evidence and classification: 30aefb4. STOPPED for an operator ruling before further spend. Total TASK-0106 paid spend: $7.18 + $5.37 = $12.55.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
