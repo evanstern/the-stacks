@@ -87,6 +87,8 @@ Adversarial review (Codex) round 1 fix: seededRng.rollDie rejects die sizes abov
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #43 (140948b) on 2026-10-25. Card ACs #1–#11 are proven by specs/026-dnd5e-engine/ci-evidence.txt and the 197 engine tests.
+
+spec-bridge sync: Setup — package scaffold and boundary rule (AC #10): 10/10 · Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9): 15/15 · User Story 2 — combatants, HP and damage defenses, temporary HP, life states, death saves (AC #4, #7): 7/7 · User Story 6 — attacks, checks and saves (AC #2, #9, #11; research R8): 3/3 · User Stories 3 and 4 — conditions, initiative and turns (AC #5, #6): 5/5 · User Story 5 — rests and spell slots (AC #8): 4/4 · Polish — coverage meta-test, replay scene, docs, full gate (AC #9, #11): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
