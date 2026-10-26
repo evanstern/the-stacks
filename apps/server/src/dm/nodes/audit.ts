@@ -66,11 +66,26 @@ export const AuditModelOutput = z
   })
   .refine((o) => o.verdict === "pass" || o.issues.length > 0);
 
+export interface RecordedIssue extends AuditIssue {
+  blocking: boolean;
+}
+
+/** Kinds from `dm.audit` that block (contracts/audit-criteria.md). */
+const BLOCKING_LLM_KINDS: ReadonlySet<AuditIssueKind> = new Set([
+  "ledger-mismatch",
+  "invented-mechanics",
+  "player-agency",
+]);
+export const llmIssueBlocks = (kind: AuditIssueKind): boolean =>
+  BLOCKING_LLM_KINDS.has(kind);
+
 export interface AuditAttempt {
   attempt: number;
-  deterministic: { pass: boolean; issues: AuditIssue[] };
+  /** The attempt's prose word count. */
+  words: number;
+  deterministic: { pass: boolean; issues: RecordedIssue[] };
   llm:
-    | { verdict: "pass" | "fail"; issues: AuditIssue[] }
+    | { verdict: "pass" | "fail"; issues: RecordedIssue[] }
     | { skipped: true }
     | { error: NodeErrorKind };
   /** The attempt's prose is not stored; its hash is. */
@@ -80,7 +95,7 @@ export interface AuditAttempt {
 export interface AuditRecord {
   attempts: AuditAttempt[];
   final: "passed" | "passed-after-regenerate" | "fallback";
-  /** True when any attempt failed. */
+  /** True when any attempt had a blocking issue. */
   flagged: boolean;
   shippedProseSha256: string;
 }
@@ -108,7 +123,7 @@ function lifeStateFacts(facts: NarrationFacts): FactChange[] {
   return all;
 }
 
-/** Pure. Seven checks over one narration. */
+/** Pure. Eight checks over one narration. Every issue here blocks. */
 export function deterministicChecks(
   facts: NarrationFacts,
   narration: { prose: string; diceLines: readonly string[] },
@@ -148,10 +163,11 @@ export function deterministicChecks(
         c.condition === "unconscious" &&
         c.op === "applied",
     );
-  if (DEATH_WORDS.test(prose) && !recordsDeath) {
+  const deathMatch = DEATH_WORDS.exec(prose);
+  if (deathMatch && !recordsDeath) {
     add(
       "ledger-mismatch",
-      "The prose says a character dies, and no fact records a death.",
+      `The prose says a character dies ("${deathMatch[0].slice(0, 60)}"), and no fact records a death.`,
     );
   }
   if (UNCONSCIOUS_WORDS.test(prose) && !recordsDown && !recordsDeath) {
@@ -189,16 +205,25 @@ export function deterministicChecks(
     }
   }
 
-  if (wordCount(prose) > MAX_WORDS) {
+  const words = wordCount(prose);
+  if (words > MAX_WORDS) {
+    add("doctrine", `The prose is ${words} words; the limit is ${MAX_WORDS}.`);
+  }
+  const listLine = LIST_LINE.exec(prose);
+  const eitherOr = EITHER_OR_END.exec(prose.trim());
+  if (listLine || eitherOr) {
+    const quoted = eitherOr
+      ? `the closing question "${eitherOr[0].trim().slice(0, 120)}"`
+      : "a list line";
     add(
       "doctrine",
-      `The prose is over ${MAX_WORDS} words; aim for one hundred.`,
+      `The prose offers an option menu: ${quoted}. Ask one open question instead.`,
     );
   }
-  if (LIST_LINE.test(prose) || EITHER_OR_END.test(prose.trim())) {
+  if (facts.clarify.length > 0 && !prose.trim().endsWith("?")) {
     add(
       "doctrine",
-      "The prose has a list line or ends on an either-or question.",
+      "The facts ask a question and the prose does not end with one.",
     );
   }
 
@@ -244,6 +269,8 @@ export const audit: Node<"audit"> = async (ctx) => {
   const calls: ModelCallRecord[] = [];
   const attempts: AuditAttempt[] = [];
   const allIssues: string[] = [];
+  const line = (i: RecordedIssue): string =>
+    `${i.blocking ? "" : "[advisory] "}${i.kind}: ${i.detail}`;
   let current = { prose: narration.prose, diceLines: narration.diceLines };
   let issuesSoFar: AuditIssue[] = [];
   let attempt = 1;
@@ -271,7 +298,11 @@ export const audit: Node<"audit"> = async (ctx) => {
   };
 
   for (;;) {
-    const det = deterministicChecks(facts, current);
+    const detRaw = deterministicChecks(facts, current);
+    const det = {
+      pass: detRaw.pass,
+      issues: detRaw.issues.map((i) => ({ ...i, blocking: true })),
+    };
     let llm: AuditAttempt["llm"] = { skipped: true };
     let llmFailed = false;
     if (det.pass) {
@@ -286,7 +317,13 @@ export const audit: Node<"audit"> = async (ctx) => {
       });
       calls.push(...res.calls);
       if (res.ok) {
-        llm = { verdict: res.value.verdict, issues: res.value.issues };
+        llm = {
+          verdict: res.value.verdict,
+          issues: res.value.issues.map((i) => ({
+            ...i,
+            blocking: llmIssueBlocks(i.kind),
+          })),
+        };
       } else {
         if (res.error.kind === "aborted" || res.error.kind === "fenced") {
           return { ok: false, node: "audit", error: res.error, calls };
@@ -297,12 +334,15 @@ export const audit: Node<"audit"> = async (ctx) => {
     }
     attempts.push({
       attempt,
+      words: wordCount(current.prose),
       deterministic: det,
       llm,
       proseSha256: sha(current.prose),
     });
 
-    if (det.pass && "verdict" in llm && llm.verdict === "pass") {
+    const llmIssues = "issues" in llm ? llm.issues : [];
+    const blocking = [...det.issues, ...llmIssues].filter((i) => i.blocking);
+    if (det.pass && "verdict" in llm && blocking.length === 0) {
       return {
         ok: true,
         node: "audit",
@@ -325,16 +365,19 @@ export const audit: Node<"audit"> = async (ctx) => {
       };
     }
 
-    const found = [...det.issues, ...("issues" in llm ? llm.issues : [])];
+    const found = [...det.issues, ...llmIssues];
     allIssues.push(
       `Attempt ${attempt}: ${
         llmFailed ? "the audit call failed; " : ""
-      }${found.map((i) => `${i.kind}: ${i.detail}`).join(" | ") || "no detail"}`,
+      }${found.map(line).join(" | ") || "no detail"}`,
     );
     if (llmFailed || attempt >= MAX_NARRATION_ATTEMPTS) {
       return { ok: true, node: "audit", calls, output: fallback() };
     }
-    issuesSoFar = [...issuesSoFar, ...found];
+    issuesSoFar = [
+      ...issuesSoFar,
+      ...blocking.map(({ kind, detail }) => ({ kind, detail })),
+    ];
     attempt++;
     const regen = await narrateAttempt(ctx, assembled, facts, {
       prose: current.prose,
