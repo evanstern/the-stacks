@@ -4,7 +4,7 @@ description: The Dockerfile's four-stage build (base, deps, build, runtime), wha
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # Container image
@@ -40,7 +40,7 @@ GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfa
 `/health` via [[configuration]] and [[health-check]]) — declared there, after the install
 `RUN`, specifically so a changing commit never busts that layer's cache. It then copies
 build outputs from the `build` stage by exact path: `packages/shared/dist`,
-`packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
+`packages/dnd5e-engine/dist`, `packages/session-model/dist` (TASK-0044; the server now depends on both, and their `package.json` files are copied in `deps` and `runtime` too), `packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
 `runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
 **this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
 `src/static.ts` now resolves its default roots as `apps/web/build/client` and

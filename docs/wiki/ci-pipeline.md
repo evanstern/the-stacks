@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # CI pipeline
@@ -65,7 +65,7 @@ correctly. `specs/009-ci-pipeline/contracts/boundary-rules.md` defines five orig
 importing the others directly (constitution III). A sixth zone, `packages/dnd5e-engine`
 (purity, constitution VI; [[dnd5e-engine]]), forbids I/O imports and clock/network globals. A seventh zone, `packages/srd` ([[srd-data]]),
 forbids importing `@the-stacks/dnd5e-engine`, the server, the web app, or app/engine paths by relative
-import; its fixture is `fixtures/boundary-violations/packages/srd/src/bad.ts`.
+import; its fixture is `fixtures/boundary-violations/packages/srd/src/bad.ts`. An eighth zone, `packages/session-model/src/**` ([[session-model]]), forbids server, web, database, network, model imports and clock/network globals; the engine zone also forbids importing the session model, and its fixture sits under `fixtures/boundary-violations/packages/session-model/`.
 Each zone has deliberately-violating fixture files under `fixtures/boundary-violations/`
 mirroring its path. The script lints only
 `fixtures/boundary-violations/` with `biome lint --only=style/noRestrictedImports

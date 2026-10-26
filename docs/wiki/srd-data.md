@@ -16,7 +16,7 @@ sources:
   - packages/srd/scripts/verify-against-pdf.mjs
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # SRD data package

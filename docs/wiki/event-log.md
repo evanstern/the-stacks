@@ -1,11 +1,11 @@
 ---
 name: event-log
-description: The append-only session event log — append and readFrom. How seq is assigned inside a pg_advisory_xact_lock (without it, 21-23 of 50 concurrent appends were lost per run; with it, 50/50 gapless), visibility default, and the bounded cursor read.
+description: The append-only session event log — append, appendBatch (atomic multi-row append, consecutive seq) and readFrom. How seq is assigned inside a pg_advisory_xact_lock (without it, 21-23 of 50 concurrent appends were lost per run; with it, 50/50 gapless), visibility default, and the bounded cursor read.
 kind: component
 sources:
   - apps/server/src/events/log.ts
   - apps/server/src/schema/events.ts
-verified_against: e472b4777ed2db6debbaca8044b6b76e2af11ee3
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # Event Log
@@ -54,6 +54,14 @@ concurrently — a global lock would have passed the single-session test and bro
 After 200+ concurrent appends, zero advisory locks remained held in `pg_locks` — confirming the
 xact-scoped form actually releases at commit rather than leaking into the pooled connection.
 
+**`appendBatch(db, inputs)`** (TASK-0044) appends several events for one session as an atomic
+batch. It opens one transaction and takes the same per-session `pg_advisory_xact_lock` as
+`append` (it lives in `log.ts` because the lock namespace is private to that module). It reads
+`MAX(seq)` once and inserts the rows with consecutive `seq` values in input order; any failure
+rolls the whole batch back and zero rows land. Before opening the transaction it throws when
+`inputs` is empty, when inputs name more than one `sessionId`, or when any input carries
+`seq` or `ts`. The session model's mechanics batches ride this path ([[session-model]]).
+
 **`readFrom(db, input)`** returns a session's events strictly after a cursor
 (`afterSeq`, default `0` — the origin), ascending by `seq`, bounded by `input.limit`. It
 applies no filtering by visibility, type, or payload version — that is a projection's job
@@ -67,11 +75,11 @@ passing `undefined`, so the schema's default applies instead of an explicit null
 ## Connections
 
 Built on [[database-access]]'s `createDb`. The table shape is [[database-schema]]. Fed by
-[[websocket-gateway]] (writes) and read by [[replay-live-boundary]] (the gap-free
+[[websocket-gateway]] (writes) and [[session-model]] (typed `appendSessionEvent` / `appendMechanicsBatch` over `append` / `appendBatch`) and read by [[replay-live-boundary]] (the gap-free
 replay-then-live handoff) and [[subscriber-registry]] (visibility-filtered fan-out).
 
 ## Operational notes
 
-`append` and `readFrom` throw on any underlying database error — neither catches or converts
+`append`, `appendBatch` and `readFrom` throw on any underlying database error — neither catches or converts
 failures; callers propagate them. There is no retry logic anywhere in this path: the advisory
 lock makes the common case linear, so there is nothing to retry against.
