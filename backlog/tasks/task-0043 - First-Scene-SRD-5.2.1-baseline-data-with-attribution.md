@@ -1,7 +1,7 @@
 ---
 id: TASK-0043
 title: 'First Scene: SRD 5.2.1 baseline data with attribution'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 19:59'
 updated_date: '2026-10-26 02:52'
@@ -78,6 +78,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #45 on 2026-10-25. Card ACs #1–#7 are proven by specs/027-srd-data/ci-evidence.txt.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Package scaffold, schemas, attribution, estimator (one dispatch): 15/15 · Provenance index and converted data — US4 then US1 (one dispatch): 10/10 · Loader and compact forms — US1 and US3 (one dispatch): 6/6 · About page — US2 (one dispatch): 8/8 · Close-out (one dispatch): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
