@@ -4,7 +4,7 @@ title: 'WS gateway: duplicate event delivery at the subscribe replay/live bounda
 status: In Progress
 assignee: []
 created_date: '2026-10-26 02:38'
-updated_date: '2026-10-26 02:48'
+updated_date: '2026-10-26 02:50'
 labels:
   - server
   - ws
@@ -50,6 +50,9 @@ Fix committed as 1d95cb6: Connection.replayedThroughSeq replay floor; broadcast 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Wiki re-grounded in 80a2c36 (replay-live-boundary, subscriber-registry, test-suite, websocket-gateway). Plan gate empty; freshness exits 0. test-suite counts re-run by orchestrator: 48 pass / 45 skip without DB, 93 pass with DB.
+
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+That dispatch (re-ground dnd5e-engine.md, stale on main since 2c9f99e) was blocked by a PreToolUse hook and committed nothing. Its pin bump was reverted. The drift predates this task, so it is carded separately. Merged origin/main (PR 43); restored main's test-suite prose lost in the pin-conflict resolution and re-pinned to c2adddc after verifying tsconfig.json references.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
