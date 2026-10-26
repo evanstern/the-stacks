@@ -68,7 +68,8 @@ Nothing in this section is built; it is the design the next milestones target
 described in the sections above and in the linked notes.
 
 - **5e only.** The planned system-agnostic core and the Fate conformance module are dropped.
-  Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
+  The engine now exists as a standalone package, [[dnd5e-engine]], not yet called by the
+  server. Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
   point `(state, command, rng) -> events | refusal`; it does no I/O and calls no model, and
   the engine owns every number (dice, hit points, conditions, initiative, rests, slots).
 - **Proposal gate.** LLM output reaches the event log only as a typed proposal that passes

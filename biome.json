@@ -1,6 +1,10 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "ignoreUnknown": false,
     "includes": [
@@ -16,10 +20,23 @@
       "!packages/srd/provenance"
     ]
   },
-  "formatter": { "enabled": true, "indentStyle": "space" },
-  "linter": { "enabled": true },
-  "javascript": { "formatter": { "quoteStyle": "double" } },
-  "css": { "parser": { "tailwindDirectives": true } },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "overrides": [
     {
       "includes": ["apps/web/**", "fixtures/boundary-violations/apps/web/**"],
@@ -113,7 +130,7 @@
                 "patterns": [
                   {
                     "group": ["**/codex/**", "**/session/**"],
-                    "message": "library must not import codex or session directly — go through a declared seam module (constitution III)."
+                    "message": "library must not import codex or session directly \u2014 go through a declared seam module (constitution III)."
                   }
                 ]
               }
@@ -136,7 +153,7 @@
                 "patterns": [
                   {
                     "group": ["**/library/**", "**/session/**"],
-                    "message": "codex must not import library or session directly — go through a declared seam module (constitution III)."
+                    "message": "codex must not import library or session directly \u2014 go through a declared seam module (constitution III)."
                   }
                 ]
               }
@@ -159,9 +176,109 @@
                 "patterns": [
                   {
                     "group": ["**/library/**", "**/codex/**"],
-                    "message": "session must not import library or codex directly — go through a declared seam module (constitution III)."
+                    "message": "session must not import library or codex directly \u2014 go through a declared seam module (constitution III)."
                   }
                 ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/dnd5e-engine/src/**",
+        "fixtures/boundary-violations/packages/dnd5e-engine/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "pg": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "postgres": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "drizzle-orm": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "drizzle-kit": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "ws": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "hono": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@hono/node-server": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "undici": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "busboy": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "yauzl": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "parse5": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "openai": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@anthropic-ai/sdk": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@the-stacks/server": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@the-stacks/web": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "@the-stacks/shared": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  },
+                  {
+                    "group": [
+                      "fs",
+                      "fs/**",
+                      "http",
+                      "https",
+                      "http2",
+                      "net",
+                      "tls",
+                      "dgram",
+                      "dns",
+                      "child_process",
+                      "cluster",
+                      "worker_threads",
+                      "crypto",
+                      "os",
+                      "process",
+                      "timers",
+                      "timers/**",
+                      "perf_hooks",
+                      "readline",
+                      "stream"
+                    ],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  },
+                  {
+                    "group": ["drizzle-orm/**"],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  },
+                  {
+                    "group": ["@anthropic-ai/**"],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  },
+                  {
+                    "group": ["@ai-sdk/**"],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  },
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "performance": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "setTimeout": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "setInterval": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "setImmediate": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "fetch": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "WebSocket": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "XMLHttpRequest": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "process": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "crypto": "the 5e engine is pure: no database, network, model or clock (constitution VI).",
+                  "require": "the 5e engine is pure: no database, network, model or clock (constitution VI)."
+                }
               }
             }
           }

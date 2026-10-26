@@ -2,6 +2,8 @@
   "files": [],
   "references": [
     { "path": "packages/shared" },
+    { "path": "packages/dnd5e-engine" },
+    { "path": "packages/dnd5e-engine/test" },
     { "path": "packages/srd" },
     { "path": "packages/srd/test" },
     { "path": "apps/server" },
