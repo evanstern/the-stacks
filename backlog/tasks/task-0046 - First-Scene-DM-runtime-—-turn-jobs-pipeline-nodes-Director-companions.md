@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 06:27'
+updated_date: '2026-10-26 06:32'
 labels:
   - first-scene
   - dm
@@ -101,6 +101,9 @@ Open finding: a crash inside submitNarration, after the row lands and before the
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Reclaim fix by sonnet-implementer: 13101f0. On reclaim the runner detects a landed ai:dm narration above the turn's lastSeq, then skips narrate and audit. That is sound because only one turn job runs per session. A new crash test asserts one narration and a log equal to the uninterrupted run. Merged origin/main in 050b496 with no migration conflict. The server suite passes 651 tests; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 23c5921. New notes dm-runtime and dm-turn-jobs. Of the 19 stale notes, 14 were amended and 5 re-pinned only after reading their diffs. Freshness OK, 44 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
