@@ -144,15 +144,15 @@ these.
 
 ### Tests
 
-- [ ] T033 [US1] Extend `apps/server/test/events.integration.test.ts`: `appendBatch` with a matching `expectedLastSeq` appends; a mismatch throws `SeqConflictError` and lands zero rows; the empty session expects 0; `readLatestOfType` returns the latest row or null.
-- [ ] T034 [US2] Write `apps/server/test/gate.integration.test.ts` with an injected `scriptedRng` and `newId`, covering: "auto" (AI seat; one atomic batch; no `proposal.*`); "ask" (human seat; exactly one `dm` `proposal.created`; approval appends effects then `proposal.approved` in consecutive seqs; reject appends `proposal.rejected`); "suggest" (one `proposal.created` with policy `suggest`; approve → `PROPOSAL_NOT_APPROVABLE`); "direct" (seated human DM `mechanics` applies with no `proposal.*`; a player's `mechanics` → `NOT_AUTHORIZED`); "commit" (free, turn, party, DM rows end to end); "refusals" (engine code returned, row count unchanged, for creation and for an approval that became illegal, which stays pending; `NOT_DM`, `UNKNOWN_PROPOSAL`, `PROPOSAL_NOT_PENDING`); "entry parsing" (raw string, missing `kind`, unknown `kind` → `INVALID_PROPOSAL`, zero seam calls); "seat and policy" (operator-only `dm.seat`; `gate.policy` changes the effective policy); "conflict" (an injected seam that throws `SeqConflictError` twice then succeeds → success; three times → `CONFLICT`, zero rows); "race" (two concurrent approvals of one proposal → exactly one applied, the other `PROPOSAL_NOT_PENDING`); "onAppended" (listener receives the stored rows in order; a throwing listener does not change the result).
+- [x] T033 [US1] Extend `apps/server/test/events.integration.test.ts`: `appendBatch` with a matching `expectedLastSeq` appends; a mismatch throws `SeqConflictError` and lands zero rows; the empty session expects 0; `readLatestOfType` returns the latest row or null.
+- [x] T034 [US2] Write `apps/server/test/gate.integration.test.ts` with an injected `scriptedRng` and `newId`, covering: "auto" (AI seat; one atomic batch; no `proposal.*`); "ask" (human seat; exactly one `dm` `proposal.created`; approval appends effects then `proposal.approved` in consecutive seqs; reject appends `proposal.rejected`); "suggest" (one `proposal.created` with policy `suggest`; approve → `PROPOSAL_NOT_APPROVABLE`); "direct" (seated human DM `mechanics` applies with no `proposal.*`; a player's `mechanics` → `NOT_AUTHORIZED`); "commit" (free, turn, party, DM rows end to end); "refusals" (engine code returned, row count unchanged, for creation and for an approval that became illegal, which stays pending; `NOT_DM`, `UNKNOWN_PROPOSAL`, `PROPOSAL_NOT_PENDING`); "entry parsing" (raw string, missing `kind`, unknown `kind` → `INVALID_PROPOSAL`, zero seam calls); "seat and policy" (operator-only `dm.seat`; `gate.policy` changes the effective policy); "conflict" (an injected seam that throws `SeqConflictError` twice then succeeds → success; three times → `CONFLICT`, zero rows); "race" (two concurrent approvals of one proposal → exactly one applied, the other `PROPOSAL_NOT_PENDING`); "onAppended" (listener receives the stored rows in order; a throwing listener does not change the result).
 
 ### Implementation
 
-- [ ] T035 [US1] Add `SeqConflictError`, the `expectedLastSeq` option on `appendBatch`, and `readLatestOfType` to `apps/server/src/events/log.ts` per contracts/gate-api.md section 4; keep `append` and `readFrom` unchanged.
-- [ ] T036 [US1] Add `appendSessionEvents`, `appendUncataloguedEvent` and `loadDmSeat` to `apps/server/src/session/events.ts`; rebuild `appendMechanicsBatch` on the package's `mechanicsRows` and `appendSessionEvents`, keeping its signature and behaviour (`apps/server/test/session.integration.test.ts` must still pass unchanged).
-- [ ] T037 [US2] Create `apps/server/src/gate/gate.ts` and `apps/server/src/gate/index.ts` with `createGate`, `Gate`, `GateDeps` and `GateResult`, implementing the algorithm in contracts/gate-api.md section 3 with no module-level mutable state.
-- [ ] T038 [US2] Run the database suites on the worktree stack: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test -- gate events session`. Record the pass counts in the commit message.
+- [x] T035 [US1] Add `SeqConflictError`, the `expectedLastSeq` option on `appendBatch`, and `readLatestOfType` to `apps/server/src/events/log.ts` per contracts/gate-api.md section 4; keep `append` and `readFrom` unchanged.
+- [x] T036 [US1] Add `appendSessionEvents`, `appendUncataloguedEvent` and `loadDmSeat` to `apps/server/src/session/events.ts`; rebuild `appendMechanicsBatch` on the package's `mechanicsRows` and `appendSessionEvents`, keeping its signature and behaviour (`apps/server/test/session.integration.test.ts` must still pass unchanged).
+- [x] T037 [US2] Create `apps/server/src/gate/gate.ts` and `apps/server/src/gate/index.ts` with `createGate`, `Gate`, `GateDeps` and `GateResult`, implementing the algorithm in contracts/gate-api.md section 3 with no module-level mutable state.
+- [x] T038 [US2] Run the database suites on the worktree stack: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test -- gate events session`. Record the pass counts in the commit message.
 
 **Checkpoint**: the gate works end to end on a real log; nothing is wired to the WebSocket yet.
 
@@ -263,3 +263,8 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
   needs no engine state. Bram's turn names `activeCharacterId: "bram"`.
 - Phase 3, T026: guarantee 3 re-plans P1 against the fold through the `proposal.created` row
   (the state at approval time, before the effects append), with the recipe's faces.
+- Phase 4, T038: a fresh stack came up unmigrated (TASK-0098); migrated by hand with
+  `pnpm --filter @the-stacks/server db:migrate` and the worktree's `.env` exported.
+- Phase 4, T037: `proposal.approve` plans as `ai:dm` (the only proposer a pending proposal can
+  hold) and stamps the approving DM on the `proposal.approved` row; `appendSessionEvents`
+  refusals map to gate refusals with source `append`.
