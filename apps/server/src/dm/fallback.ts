@@ -1,10 +1,25 @@
-import type { FactChange, FactOutcome, NarrationFacts } from "./facts.js";
+import {
+  DEATH_WORDS,
+  DICE_LANGUAGE,
+  NEGATIVE_WORDS,
+  namePairsWith,
+  POSITIVE_WORDS,
+  UNCONSCIOUS_WORDS,
+} from "./audit-words.js";
+import type {
+  FactChange,
+  FactEvent,
+  FactOutcome,
+  FactRoll,
+  NarrationFacts,
+} from "./facts.js";
 
 /**
- * The code-built factual summary (contracts/audit.md "The factual summary"):
- * one plain sentence per action and per NPC turn, no adjectives, no digits in
- * the prose. It passes `deterministicChecks` by construction; a property test
- * asserts it. It is never sent to `dm.audit`.
+ * The code-built factual fallback (specs/034-narration-quality
+ * contracts/fallback-summary.md): deterministic, in-fiction plain prose, one
+ * sentence per public change. It holds no system word and no digit, states no
+ * number, and never names a tracker. It passes `deterministicChecks` by
+ * construction; a property test asserts it. It is never sent to `dm.audit`.
  */
 
 const DIGIT_WORDS = [
@@ -20,33 +35,75 @@ const DIGIT_WORDS = [
   "nine",
 ];
 
-/** Names may carry digits ("Goblin 2"); prose may not. */
+/** System words the prose must not hold (character names are exempt). */
+export const SYSTEM_WORDS =
+  /\b(actions?|description|clarify|clearer|rolls?|rolled|dice|checks?|turns?|rounds?|initiative|scene|acts|nothing changes)\b/i;
+
+/** "Goblin-3" becomes "Goblin three"; every digit becomes its word. */
 export function spellDigits(text: string): string {
   return text
+    .replace(/-(?=[0-9])/g, " ")
     .replace(/[0-9]/g, (d) => ` ${DIGIT_WORDS[Number(d)]} `)
+    .replace(/\s+([,.;:!?])/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function outcomeSentence(
-  name: string,
-  outcomes: readonly FactOutcome[],
-): string {
-  const only = outcomes.length === 1 ? outcomes[0] : undefined;
-  switch (only) {
+function joinNames(names: readonly string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+function outcomeSentence(name: string, outcome: FactOutcome): string {
+  switch (outcome) {
+    case "success":
+      return `${name} pulls it off.`;
+    case "failure":
+      return `${name} comes up short.`;
     case "hit":
-      return `${name} hits.`;
+      return `${name} strikes home.`;
     case "critical-hit":
-      return `${name} lands a critical hit.`;
+      return `${name} strikes home, hard.`;
     case "miss":
       return `${name} misses.`;
-    case "success":
-      return `${name} succeeds.`;
-    case "failure":
-      return `${name} fails.`;
-    default:
-      return `${name} acts.`;
   }
+}
+
+function aliasesOf(name: string): string[] {
+  const parts = name.split(/\s+/);
+  return [...new Set([name, parts[0], parts[parts.length - 1]])].filter(
+    (n): n is string => !!n && n.length >= 3,
+  );
+}
+
+/** True when a roll reason may precede its outcome sentence. */
+function reasonUsable(
+  reason: string,
+  subject: string,
+  outcome: FactOutcome,
+): boolean {
+  if (reason.length === 0 || reason.includes("?")) return false;
+  const spoken = spellDigits(reason);
+  if (/[0-9]/.test(spoken)) return false;
+  if (SYSTEM_WORDS.test(spoken)) return false;
+  if (DICE_LANGUAGE.test(spoken)) return false;
+  if (DEATH_WORDS.test(spoken) || UNCONSCIOUS_WORDS.test(spoken)) return false;
+  const positive =
+    outcome === "hit" || outcome === "critical-hit" || outcome === "success";
+  const opposite = positive ? NEGATIVE_WORDS : POSITIVE_WORDS;
+  const pair = `${spoken} ${outcomeSentence(subject, outcome)}`;
+  return !aliasesOf(subject).some((n) => namePairsWith(pair, n, opposite));
+}
+
+function rollSentences(rolls: readonly FactRoll[], subject: string): string[] {
+  const out: string[] = [];
+  for (const r of rolls) {
+    if (!r.outcome) continue;
+    const spoken = spellDigits(r.reason).replace(/[.!]+$/, "");
+    if (reasonUsable(spoken, subject, r.outcome)) out.push(`${spoken}.`);
+    out.push(outcomeSentence(subject, r.outcome));
+  }
+  return out;
 }
 
 function changeSentence(c: FactChange): string | null {
@@ -72,42 +129,95 @@ function changeSentence(c: FactChange): string | null {
   }
 }
 
+function eventSentences(e: FactEvent): string[] {
+  switch (e.kind) {
+    case "encounter-started": {
+      const names = e.combatants.map(spellDigits);
+      const out = ["A fight breaks out."];
+      if (names.length > 0) {
+        out.push(
+          `${joinNames(names)} ${names.length === 1 ? "joins" : "join"} the fight.`,
+        );
+      }
+      if (e.first) out.push(`${spellDigits(e.first)} moves first.`);
+      return out;
+    }
+    case "encounter-ended":
+      return [];
+    case "turn-advanced":
+      return [`${spellDigits(e.next)} moves next.`];
+    case "combatant-joined":
+      return [`${spellDigits(e.name)} joins them.`];
+    case "combatant-left":
+      return [`${spellDigits(e.name)} is gone.`];
+  }
+}
+
 export function factualSummary(facts: NarrationFacts): string {
-  const sentences: string[] = [];
-  if (facts.trigger === "scene-start") sentences.push("The scene begins.");
+  const out: string[] = [];
+  if (facts.trigger === "scene-start" && facts.setting.openingFraming) {
+    out.push(facts.setting.openingFraming);
+  }
+
+  const holdIds = new Set(facts.clarify.map((c) => c.actionId));
   for (const a of facts.actions) {
     const name = a.characterName ? spellDigits(a.characterName) : "The party";
     if (a.outcome === "refused") {
-      sentences.push(`${name} cannot do that.`);
+      out.push(`${name} cannot do that here.`);
+    } else if (a.outcome === "no-effect" && holdIds.has(a.actionId)) {
+      // On hold: a closing question stands in for this action.
     } else if (a.outcome === "no-effect") {
-      sentences.push(`${name} acts, and nothing changes.`);
+      out.push(`${name} goes ahead with it.`);
     } else {
-      sentences.push(outcomeSentence(name, a.outcomes));
+      const sentences = rollSentences(a.rolls, name);
+      if (sentences.length > 0) out.push(...sentences);
+      else out.push(`${name} goes ahead with it.`);
     }
     for (const c of a.changes) {
       const s = changeSentence(c);
-      if (s) sentences.push(s);
+      if (s) out.push(s);
     }
   }
+
   if (facts.npcTurn) {
     const name = spellDigits(facts.npcTurn.name);
-    sentences.push(outcomeSentence(name, facts.npcTurn.outcomes));
+    const sentences = rollSentences(facts.npcTurn.rolls, name);
+    if (sentences.length > 0) out.push(...sentences);
+    else out.push(`${name} makes a move.`);
     for (const c of facts.npcTurn.changes) {
       const s = changeSentence(c);
-      if (s) sentences.push(s);
+      if (s) out.push(s);
     }
   }
-  if (facts.clarify.length > 0) {
-    sentences.push("One action needs a clearer description.");
+
+  let stopped = false;
+  const hasStart = facts.events.some((e) => e.kind === "encounter-started");
+  for (const e of facts.events) {
+    if (e.kind === "encounter-ended") {
+      if (!stopped) out.push("The fighting stops.");
+      stopped = true;
+    } else out.push(...eventSentences(e));
   }
   if (facts.modeChange) {
-    sentences.push(
-      facts.modeChange.to === "turn"
-        ? "The party enters a fight."
-        : "The fight is over.",
+    if (facts.modeChange.to === "free" && !stopped) {
+      out.push("The fighting stops.");
+    } else if (facts.modeChange.to === "turn" && !hasStart) {
+      out.push("A fight breaks out.");
+    }
+  }
+
+  if (facts.director.sceneEnded) {
+    out.push(
+      `That is the end of it at ${spellDigits(facts.setting.locationName)}.`,
     );
   }
-  if (facts.director.sceneEnded) sentences.push("The scene ends.");
-  if (sentences.length === 0) sentences.push("Nothing happens.");
-  return sentences.join(" ");
+
+  for (const c of facts.clarify) {
+    const a = facts.actions.find((x) => x.actionId === c.actionId);
+    const who = a?.characterName ? spellDigits(a.characterName) : "the party";
+    out.push(`What does ${who} do?`);
+  }
+
+  if (out.length === 0) out.push("The moment holds.");
+  return out.join(" ");
 }

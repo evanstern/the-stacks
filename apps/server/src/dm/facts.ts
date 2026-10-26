@@ -8,7 +8,7 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
-import type { SceneSeed } from "./seed/schema.js";
+import type { PlayerSeedView } from "./seed/views.js";
 
 /**
  * Narration facts (contracts/nodes.md "narrate"): built by code from the
@@ -35,7 +35,16 @@ export interface FactRoll {
   against: { kind: "AC" | "DC"; value: number } | null;
   outcome: FactOutcome | null;
   autoFail: boolean;
+  /** Attack target name, from attack.resolved.targetId. */
+  target: string | null;
 }
+
+export type FactEvent =
+  | { kind: "encounter-started"; combatants: string[]; first: string | null }
+  | { kind: "encounter-ended" }
+  | { kind: "turn-advanced"; next: string }
+  | { kind: "combatant-joined"; name: string }
+  | { kind: "combatant-left"; name: string };
 
 export type FactChange =
   | {
@@ -97,6 +106,16 @@ export interface NarrationFacts {
   }[];
   rulings: { actionId: string; ruling: string; improvised: boolean }[];
   clarify: { actionId: string; question: string }[];
+  party: {
+    characterId: string;
+    name: string;
+    controller: "human" | "ai-companion";
+  }[];
+  /** Seed NPC names plus non-party combatant names, deduped. */
+  npcNames: string[];
+  /** Public ledger changes this turn, in seq order. */
+  events: FactEvent[];
+  setting: { locationName: string; openingFraming: string };
 }
 
 /** Removes the ` [<jobId>#<n>]` marker resolve appends to a reason. */
@@ -151,11 +170,13 @@ export function collectFacts(
       if (link) claimed.add(link.seq);
       let against: FactRoll["against"] = null;
       let outcome: FactOutcome | null = null;
+      let target: string | null = null;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
           against = { kind: "AC", value: o.ac };
           outcome = o.outcome;
+          target = nameOf(o.targetId);
         } else if (o.type === "check.resolved") {
           against = { kind: "DC", value: o.dc };
           outcome = o.outcome;
@@ -172,6 +193,7 @@ export function collectFacts(
         against,
         outcome,
         autoFail: false,
+        target,
       });
     }
   }
@@ -191,6 +213,7 @@ export function collectFacts(
       against: { kind: "DC", value: e.dc },
       outcome: e.outcome,
       autoFail: true,
+      target: null,
     });
   }
 
@@ -300,9 +323,67 @@ function damageTypesBySeq(rows: readonly StoredEvent[]): Map<number, string> {
   return out;
 }
 
+/** Public ledger changes from the rows appended this turn. Never from trackers. */
+function buildEvents(
+  rows: readonly StoredEvent[],
+  nameOf: NameOf,
+): FactEvent[] {
+  const pub = rows
+    .filter((r) => r.visibility === "public")
+    .sort((a, b) => a.seq - b.seq);
+  const evOf = (r: StoredEvent): Record<string, unknown> =>
+    ((r.payload as { event?: Record<string, unknown> } | null)?.event ??
+      {}) as Record<string, unknown>;
+  const nameIn = (o: unknown): string | null => {
+    const n = (o as { name?: unknown } | null | undefined)?.name;
+    return typeof n === "string" ? n : null;
+  };
+  const added: string[] = [];
+  for (const r of pub) {
+    if (r.type !== "combatant.added") continue;
+    const n = nameIn(evOf(r).after);
+    if (n) added.push(n);
+  }
+  const hasStart = pub.some((r) => r.type === "encounter.started");
+  const endSeq = Math.max(
+    -1,
+    ...pub.filter((r) => r.type === "encounter.ended").map((r) => r.seq),
+  );
+  const out: FactEvent[] = [];
+  for (const r of pub) {
+    const ev = evOf(r);
+    if (r.type === "encounter.started") {
+      const order =
+        (ev.after as { order?: { combatantId: string }[] } | null)?.order ?? [];
+      const names = order.map((o) => nameOf(o.combatantId));
+      out.push({
+        kind: "encounter-started",
+        combatants: added.length > 0 ? [...added] : names,
+        first: names[0] ?? null,
+      });
+    } else if (r.type === "encounter.ended") {
+      out.push({ kind: "encounter-ended" });
+    } else if (r.type === "turn.advanced") {
+      if (endSeq > r.seq) continue;
+      const id = (ev.after as { combatantId?: string } | null)?.combatantId;
+      if (id) out.push({ kind: "turn-advanced", next: nameOf(id) });
+    } else if (r.type === "combatant.added") {
+      if (hasStart) continue;
+      const n = nameIn(ev.after);
+      if (n) out.push({ kind: "combatant-joined", name: n });
+    } else if (r.type === "combatant.removed") {
+      const n = nameIn(ev.before);
+      if (n) out.push({ kind: "combatant-left", name: n });
+    }
+  }
+  return out;
+}
+
 export interface BuildFactsInput {
   trigger: TurnTrigger;
-  seed: SceneSeed;
+  seed: PlayerSeedView;
+  /** NPC ids present in the current beat; the caller reads them from the full seed. */
+  beatNpcIds: readonly string[];
   /** Projections read after resolve; the ledger holds prior and new rows. */
   projections: SessionProjections;
   beat: readonly BeatItem[];
@@ -371,9 +452,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     };
   }
 
-  const beatNpcs =
-    seed.beats.find((b) => b.id === input.director.pacing.beatId)?.npcIds ??
-    input.presentNpcIds;
+  const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
     return n
@@ -381,9 +460,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
           {
             id: n.id,
             name: n.name,
-            voice: n.portrayal.voice,
-            want: n.portrayal.want,
-            detail: n.portrayal.detail,
+            voice: n.voice,
+            want: n.want,
+            detail: n.detail,
           },
         ]
       : [];
@@ -410,6 +489,24 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         : [],
     ),
     clarify: input.clarify,
+    party: p.party.map((m) => ({
+      characterId: m.characterId,
+      name: m.name,
+      controller: m.controller.kind === "player" ? "human" : "ai-companion",
+    })),
+    npcNames: [
+      ...new Set([
+        ...seed.npcs.map((n) => n.name),
+        ...Object.values(p.engine.combatants)
+          .filter((c) => !p.party.some((m) => m.combatantId === c.id))
+          .map((c) => c.name),
+      ]),
+    ],
+    events: buildEvents(input.appendedRows, nameOf),
+    setting: {
+      locationName: seed.location.name,
+      openingFraming: seed.openingFraming,
+    },
   };
 }
 

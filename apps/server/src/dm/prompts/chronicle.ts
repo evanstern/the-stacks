@@ -3,11 +3,12 @@ import {
   CAPS,
   capEntries,
   joinSections,
+  type RosterEntry,
   section,
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.chronicle-v1";
+export const PROMPT_VERSION = "dm.chronicle-v2";
 
 const SYSTEM = [
   "You keep the journal of a tabletop role-playing session. You write short factual entries about what happened, from the transcript you are given. You never state a dice total and never invent events.",
@@ -19,6 +20,7 @@ const SYSTEM = [
 export interface ChroniclePromptInput {
   transcript: readonly TranscriptEntry[];
   goal: string;
+  roster: readonly RosterEntry[];
   trackerNames: readonly string[];
 }
 
@@ -36,7 +38,7 @@ export function buildChroniclePrompt(input: ChroniclePromptInput): {
     ),
     section(
       "Transcript to chronicle",
-      transcriptEntries(input.transcript),
+      transcriptEntries(input.transcript, input.roster),
       CAPS.transcript * 2,
       "start",
     ),

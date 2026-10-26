@@ -9,8 +9,17 @@ import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
+import {
+  PROMPT_VERSION as AUDIT_VERSION,
+  buildAuditPrompt,
+} from "../../src/dm/prompts/audit.js";
+import { rosterOf } from "../../src/dm/prompts/common.js";
+import {
+  buildNarratePrompt,
+  PROMPT_VERSION as NARRATE_VERSION,
+} from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), "../../src");
@@ -179,7 +188,8 @@ describe("narrate", () => {
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
 
     const prompt = buildNarratePrompt({
-      ctx,
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
       assembled,
       facts: n.facts,
       prior: null,
@@ -197,7 +207,8 @@ describe("narrate", () => {
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
     const prompt = buildNarratePrompt({
-      ctx,
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
       assembled,
       facts: out.output.facts,
       prior: {
@@ -232,5 +243,125 @@ describe("narrate", () => {
     expect(ctx).toBeTruthy();
     expect(out.ok && out.output.skipped).toBe(true);
     expect(out.calls).toEqual([]);
+  });
+
+  it("builds the v2 prompt: party, world, no-effect, on-hold, open question, events", async () => {
+    const { ctx, assembled } = await setup(["x"]);
+    const out = await narrate(ctx);
+    if (!out.ok) throw new Error("narrate failed");
+    const facts = {
+      ...out.output.facts,
+      party: [
+        {
+          characterId: "c1",
+          name: "Tamsin Vale",
+          controller: "human" as const,
+        },
+        { characterId: "c2", name: "Odo", controller: "ai-companion" as const },
+      ],
+      npcNames: ["Snag", "Goblin-3"],
+      events: [
+        {
+          kind: "encounter-started" as const,
+          combatants: ["Tamsin Vale", "Goblin-3"],
+          first: "Goblin-3",
+        },
+        { kind: "turn-advanced" as const, next: "Tamsin Vale" },
+        { kind: "encounter-ended" as const },
+        { kind: "combatant-joined" as const, name: "Snag" },
+        { kind: "combatant-left" as const, name: "Odo" },
+      ],
+      clarify: [{ actionId: "act-lockpick", question: "Which door?" }],
+      npcTurn: {
+        name: "Goblin-3",
+        outcomes: ["miss" as const],
+        rolls: [
+          {
+            name: "Goblin-3",
+            reason: "jabs at Tamsin with its dagger",
+            expression: "1d20+4",
+            shown: "9",
+            total: 9,
+            against: null,
+            outcome: "miss" as const,
+            autoFail: false,
+            target: "Tamsin Vale",
+          },
+        ],
+        changes: [],
+      },
+    };
+    const prompt = buildNarratePrompt({
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
+      assembled,
+      facts,
+      prior: null,
+    });
+    expect(NARRATE_VERSION).toBe("dm.narrate-v3");
+    expect(prompt.user).toContain("## Party (player characters)");
+    expect(prompt.user).toContain("Tamsin Vale (human player)");
+    expect(prompt.user).toContain("Odo (AI companion)");
+    expect(prompt.user).toContain("## Other characters (the world)");
+    expect(prompt.user).toContain("Goblin-3");
+    expect(prompt.user).toContain(
+      "jabs at Tamsin with its dagger target Tamsin Vale",
+    );
+    expect(prompt.user).toContain(
+      "Event: a fight starts (Tamsin Vale, Goblin-3); Goblin-3 acts first",
+    );
+    expect(prompt.user).toContain("Event: Tamsin Vale acts next");
+    expect(prompt.user).toContain("Event: the fight ends");
+    expect(prompt.user).toContain("Event: Snag joins");
+    expect(prompt.user).toContain("Event: Odo leaves");
+    expect(prompt.user).toContain(
+      "on hold (the intent is unclear; nothing happened yet)",
+    );
+    expect(prompt.system).toContain(
+      "No rules effect means nothing was rolled.",
+    );
+    expect(prompt.system).toContain(
+      "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did.",
+    );
+    expect(prompt.system).toContain(
+      "Never show a wound on a party member unless a fact records damage to them.",
+    );
+    const sys = prompt.system;
+    expect(sys.indexOf("When a foe's attack misses")).toBeGreaterThan(
+      sys.indexOf("No rules effect means nothing was rolled."),
+    );
+    expect(sys.indexOf("When a foe's attack misses")).toBeLessThan(
+      sys.indexOf("When an intent is unclear"),
+    );
+    expect(prompt.system).toContain(
+      "end with one short open question in your own words",
+    );
+    expect(prompt.system).toContain("Never offer options.");
+    expect(prompt.system).toContain("Cover every Event line.");
+    expect(prompt.system).toContain("companions speak for themselves");
+  });
+
+  it("builds the v2 audit prompt: party section and the five statements", async () => {
+    const { ctx } = await setup(["x"]);
+    const out = await narrate(ctx);
+    if (!out.ok) throw new Error("narrate failed");
+    const facts = {
+      ...out.output.facts,
+      party: [
+        { characterId: "c2", name: "Odo", controller: "ai-companion" as const },
+      ],
+      npcNames: ["Snag"],
+    };
+    const p = buildAuditPrompt({ facts, prose: "Prose." });
+    expect(AUDIT_VERSION).toBe("dm.audit-v2");
+    expect(p.user).toContain("## Party (player characters)");
+    expect(p.user).toContain("Odo (AI companion)");
+    expect(p.user).toContain("## Other characters (the world)");
+    expect(p.system).toContain("beyond their declared action");
+    expect(p.system).toContain("never `player-agency`");
+    expect(p.system).toContain("No rules effect means nothing was rolled");
+    expect(p.system).toContain("ending on that open question is correct");
+    expect(p.system).toContain("Code checks length; do not report length.");
+    expect(p.system).toContain("Report craft concerns as `doctrine`");
   });
 });

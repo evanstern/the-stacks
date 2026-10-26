@@ -5,6 +5,7 @@ import { getById } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
 import { combatantFromSrd } from "../../src/dm/seed/combatants.js";
 import { loadSeed, parseSeed, SeedError } from "../../src/dm/seed/load.js";
+import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
 
 const SEED_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -216,5 +217,38 @@ describe("combatantFromSrd", () => {
       vulnerabilities: ["cold"],
       immunities: ["poison"],
     });
+  });
+});
+
+describe("player-facing authoring rule (TASK-0106)", () => {
+  it("no player-facing field mentions river-things or wards", () => {
+    const view = playerFacingSeed(loadSeed("greyhollow-ford"));
+    const text = JSON.stringify(view);
+    expect(text).not.toMatch(/river[- ]things?/i);
+    expect(text).not.toMatch(/\bwards?\b/i);
+  });
+
+  it("dmOnlySeedText holds the DM-only strings and no player-facing one", () => {
+    const seed = loadSeed("greyhollow-ford");
+    const dm = dmOnlySeedText(seed);
+    expect(dm.every((s) => s.length > 0)).toBe(true);
+    expect(dm).toContain(seed.goal.success);
+    expect(dm).toContain(seed.location.hooks.secrets[0]);
+    expect(dm).toContain(
+      "He keeps the clapper because its ring keeps the river-things off his camp.",
+    );
+    expect(dm).not.toContain(seed.goal.statement);
+    expect(dm).not.toContain(seed.opening.framing);
+    for (const n of seed.npcs) expect(dm).not.toContain(n.portrayal.want);
+  });
+
+  it("playerFacingSeed copies player-facing fields only", () => {
+    const seed = loadSeed("greyhollow-ford");
+    const view = playerFacingSeed(seed);
+    expect(view.goalStatement).toBe(seed.goal.statement);
+    expect(view.openingFraming).toBe(seed.opening.framing);
+    expect(view.npcs.map((n) => n.id)).toEqual(seed.npcs.map((n) => n.id));
+    const json = JSON.stringify(view);
+    for (const s of dmOnlySeedText(seed)) expect(json).not.toContain(s);
   });
 });

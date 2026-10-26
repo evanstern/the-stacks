@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), resolve as the only gate writer with the engine owning every number, digit-free narration with code-rendered dice lines, the bounded audit loop and factual fallback, seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine MIT NOTICE, companions, chronicle, /dm routes, the dm/ import boundary. Jobs: dm-turn-jobs.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), resolve as the only gate writer with the engine owning every number, digit-free narration with code-rendered dice lines, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine MIT NOTICE, companions, chronicle, /dm routes, the dm/ import boundary. Jobs: dm-turn-jobs.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -16,9 +16,6 @@ sources:
   - apps/server/src/dm/nodes/adjudicate.ts
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/nodes/narrate.ts
-  - apps/server/src/dm/nodes/audit.ts
-  - apps/server/src/dm/facts.ts
-  - apps/server/src/dm/fallback.ts
   - apps/server/src/dm/purposes.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
@@ -29,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 4af42befcf49b1e666df097dcd49e1d3b35e4057
 ---
 
 # DM runtime
@@ -55,8 +52,8 @@ async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framewor
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling.
 5. **resolve** - code only; the one node that writes. See below.
-6. **narrate** - `dm.narrate`. Writes prose from code-built facts (`facts.ts`).
-7. **audit** - deterministic checks plus one `dm.audit` call; decides what ships.
+6. **narrate** - `dm.narrate`. Writes prose from code-built facts and the player-facing seed view ([[dm-narration-quality]]).
+7. **audit** - deterministic checks plus one `dm.audit` call; decides what ships ([[dm-narration-quality]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so a reclaimed job
 does not re-pay model calls. Between nodes the runner checks the lease and aborts on a fence loss.
@@ -89,16 +86,10 @@ retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
 
 ## Narration and audit
 
-`facts.ts` builds `NarrationFacts` from resolved results; the narrate prompt carries facts, not
-numbers. Prose must be **digit-free**; code renders the dice lines (`renderDiceLines`) and appends
-them, so the prose cannot misstate a roll. `audit.ts` runs `deterministicChecks` (no digits,
-dice language only when a roll happened, life-state words match recorded changes, outcome words
-match, length ceiling, no option menu, dice lines match the renderer), then one `dm.audit` call.
-The loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts, regenerating with the collected
-issues. On exhaustion, or if the audit call itself fails, the code-built `factualSummary`
-(`fallback.ts`, passes the checks by construction) ships and a `journal` proposal with
-visibility `dm` and title `Audit flag: narration replaced` records why. The audit record keeps
-hashes, not prose.
+Prose is **digit-free**; code builds the facts and renders the dice lines, so prose cannot
+misstate a roll. The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
+a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. Facts, audit checks,
+the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Purposes
 

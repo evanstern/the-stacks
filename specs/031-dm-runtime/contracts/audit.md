@@ -24,6 +24,8 @@ loop:
 (decision-0019). Each regeneration passes the previous text and every issue to
 `dm.narrate`.
 
+Amended by specs/034-narration-quality/contracts/audit-criteria.md.
+
 ## Deterministic checks
 
 `deterministicChecks(facts, narration): { pass: boolean; issues: AuditIssue[] }` is pure.
@@ -39,6 +41,8 @@ loop:
 | dice lines | the dice lines differ from the renderer's output for the facts | `ledger-mismatch` (a bug guard) |
 
 Word lists live in `audit-words.ts` and have their own tests.
+
+Amended by specs/034-narration-quality/contracts/audit-criteria.md.
 
 ## The audit call (`dm.audit`)
 
@@ -59,12 +63,16 @@ export const AuditModelOutput = z.object({
 A `fail` with only `doctrine` or `other` issues still fails the attempt; regeneration is
 cheap and the loop is bounded.
 
+Amended by specs/034-narration-quality/contracts/audit-criteria.md.
+
 ## The factual summary (fallback)
 
 `factualSummary(facts): string` is pure. It writes one plain sentence per action and per NPC
 turn from the facts, with no adjectives. It writes no digits in the prose; the dice lines
 follow as usual. It passes `deterministicChecks` by construction (a property test asserts it
 over generated facts). It is not sent to `dm.audit`.
+
+Amended by specs/034-narration-quality/contracts/fallback-summary.md.
 
 ## What ships
 
@@ -98,3 +106,5 @@ demo record reads every `flagged: true` record and its `final` value.
 
 Shipping the narration and its flag is the last write of the turn. The record is saved with
 `finishJob` (fenced).
+
+Amended by specs/034-narration-quality/contracts/audit-criteria.md.

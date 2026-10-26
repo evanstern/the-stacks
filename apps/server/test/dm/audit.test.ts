@@ -8,10 +8,10 @@ import {
   type NarrationFacts,
   renderDiceLines,
 } from "../../src/dm/facts.js";
-import { factualSummary } from "../../src/dm/fallback.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import {
   audit,
+  detailNamesPartyMember,
   deterministicChecks,
   MAX_NARRATION_ATTEMPTS,
 } from "../../src/dm/nodes/audit.js";
@@ -30,6 +30,7 @@ const roll = (outcome: FactOutcome | null = "success") => ({
   against: { kind: "DC" as const, value: 15 },
   outcome,
   autoFail: false,
+  target: null,
 });
 
 function action(over: Partial<FactAction> = {}): FactAction {
@@ -60,6 +61,10 @@ function facts(actions: FactAction[] = [action()]): NarrationFacts {
     presentNpcs: [],
     rulings: [],
     clarify: [],
+    party: [],
+    npcNames: [],
+    events: [],
+    setting: { locationName: "The Vault", openingFraming: "The vault waits." },
   };
 }
 
@@ -148,6 +153,33 @@ describe("deterministicChecks", () => {
     expect(check("The door opens. What waits behind it?").pass).toBe(true);
   });
 
+  it("fails a clarify turn whose prose has no closing question, passes an open one", () => {
+    const f = {
+      ...facts(),
+      clarify: [{ actionId: "a1", question: "What does Ana do?" }],
+    };
+    const bad = check(CLEAN, f);
+    expect(bad.issues).toContainEqual({
+      kind: "doctrine",
+      detail: "The facts ask a question and the prose does not end with one.",
+    });
+    expect(check(`${CLEAN} What does Ana do next?`, f).pass).toBe(true);
+    expect(check(CLEAN).pass).toBe(true);
+  });
+
+  it("quotes the matched words, the closing question and the word count", () => {
+    const death = check("The guard dies where he stands.").issues[0];
+    expect(death?.detail).toBe(
+      'The prose says a character dies ("dies"), and no fact records a death.',
+    );
+    const menu = check("The door opens. Do you fight or flee?").issues[0];
+    expect(menu?.detail).toContain('"Do you fight or flee?"');
+    const long = Array.from({ length: 230 }, () => "word").join(" ");
+    expect(check(long).issues[0]?.detail).toBe(
+      "The prose is 230 words; the limit is 220.",
+    );
+  });
+
   it("fails when the dice lines differ from the renderer", () => {
     const f = facts();
     const r = deterministicChecks(f, { prose: CLEAN, diceLines: ["forged"] });
@@ -155,81 +187,59 @@ describe("deterministicChecks", () => {
   });
 });
 
-describe("factualSummary", () => {
-  it("passes the checks over generated facts (property)", () => {
-    let seed = 12345;
-    const rnd = (n: number) => {
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-      return seed % n;
-    };
-    const pick = <T>(xs: readonly T[]): T => xs[rnd(xs.length)] as T;
-    const names = ["Ana", "Bram", "Goblin 2", "Warden"];
-    const outcomes: FactOutcome[] = [
-      "hit",
-      "miss",
-      "critical-hit",
-      "success",
-      "failure",
-    ];
-    for (let i = 0; i < 300; i++) {
-      const acts: FactAction[] = Array.from({ length: rnd(4) }, (_, k) => {
-        const outs = Array.from({ length: rnd(3) }, () => pick(outcomes));
-        const changes: FactChange[] = [];
-        if (rnd(2)) {
-          changes.push({
-            kind: "hp",
-            target: pick(names),
-            direction: pick(["damage", "heal"] as const),
-            amount: rnd(20) + 1,
-            damageType: pick(["slashing", null]),
-            before: 10,
-            after: 3,
-          });
-        }
-        if (rnd(3) === 0) {
-          changes.push({
-            kind: "life-state",
-            target: pick(names),
-            before: "conscious",
-            after: pick(["dead", "unconscious"]),
-          });
-        }
-        if (rnd(3) === 0) {
-          changes.push({
-            kind: "condition",
-            target: pick(names),
-            op: pick(["applied", "removed"] as const),
-            condition: pick(["poisoned", "unconscious", "prone"]),
-          });
-        }
-        return action({
-          actionId: `a${k}`,
-          characterName: rnd(4) === 0 ? null : pick(names),
-          outcome: pick(["applied", "refused", "no-effect"] as const),
-          rolls: outs.map((o) => roll(o)),
-          outcomes: outs,
-          changes,
-        });
-      });
-      const f = facts(acts);
-      if (rnd(2)) {
-        f.npcTurn = {
-          name: pick(names),
-          rolls: [roll("hit")],
-          outcomes: [pick(outcomes)],
-          changes: [],
-        };
-      }
-      if (rnd(3) === 0) f.modeChange = { from: "free", to: "turn" };
-      f.director.sceneEnded = rnd(4) === 0;
-      f.trigger = rnd(5) === 0 ? "scene-start" : "commit";
-      const prose = factualSummary(f);
-      const r = deterministicChecks(f, {
-        prose,
-        diceLines: renderDiceLines(f),
-      });
-      expect(r.issues, prose).toEqual([]);
-    }
+const SEED_PARTY: NarrationFacts["party"] = [
+  { characterId: "tamsin", name: "Tamsin Vale", controller: "human" },
+  { characterId: "odo", name: "Brother Odo", controller: "ai-companion" },
+  { characterId: "kestrel", name: "Kestrel", controller: "ai-companion" },
+];
+
+describe("detailNamesPartyMember (party-name filter, E2)", () => {
+  const cases: [string, string, boolean][] = [
+    [
+      "world character only (seq 86)",
+      "Narration decides Pell's emotional state and inner determination: it states what he feels.",
+      false,
+    ],
+    [
+      "world character the auditor calls party (seq 196)",
+      "Narration decides Pell's emotional state ('eyes wide') ... Pell is not a party member; the rule is about party members only.",
+      false,
+    ],
+    [
+      "world character, words in mouth (seq 278)",
+      "The narration puts words in Snag's mouth ...",
+      false,
+    ],
+    [
+      "given name of a human player (seq 278)",
+      "Narration decides Tamsin 'straightens, sword easing down but not sheathed' ...",
+      true,
+    ],
+    [
+      "given name of a titled companion (seq 153)",
+      "Narration states 'Odo doesn't flinch from the wound beneath his hands' ...",
+      true,
+    ],
+    ["full titled name", "Narration decides what Brother Odo feels.", true],
+    ["one-word companion name", "Narration decides Kestrel's reply.", true],
+    ["character id, lowercase", "decides tamsin's stance", true],
+    ["curly possessive", "decides what Odo\u2019s hands do", true],
+    [
+      "whitespace in a multi-word term",
+      "decides what Brother   Odo feels",
+      true,
+    ],
+    ["surname alone", "The Vale road is quiet; Pell flinches.", false],
+    ["title word alone", "Pell calls for his brother.", false],
+    ["term inside a longer word", "An odor of smoke; Pell coughs.", false],
+    ["hyphenated suffix", "A Tamsin-like pose; Pell coughs.", false],
+  ];
+  it.each(cases)("%s", (_name, detail, blocks) => {
+    expect(detailNamesPartyMember(detail, SEED_PARTY)).toBe(blocks);
+  });
+
+  it("matches nothing for an empty party", () => {
+    expect(detailNamesPartyMember("Tamsin acts", [])).toBe(false);
   });
 });
 
@@ -328,6 +338,102 @@ describe("audit loop", () => {
     expect(out.output.shipped?.fallback).toBe(false);
   });
 
+  it("passes on a doctrine-only fail and records the issue as advisory", async () => {
+    const { out, scripted } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [{ kind: "doctrine", detail: "Ends on atmosphere." }],
+      }),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    const r = out.output.record;
+    expect(r.final).toBe("passed");
+    expect(r.flagged).toBe(false);
+    expect(r.attempts).toHaveLength(1);
+    expect(r.attempts[0]?.words).toBe(CLEAN.split(/\s+/).length);
+    expect(r.attempts[0]?.llm).toMatchObject({
+      issues: [{ kind: "doctrine", blocking: false }],
+    });
+    expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
+  });
+
+  it("regenerates on player-agency and hands over only blocking issues", async () => {
+    const { out } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [
+          { kind: "player-agency", detail: "Ana is made to feel afraid." },
+          { kind: "doctrine", detail: "Too atmospheric." },
+          { kind: "other", detail: "Odd phrasing." },
+        ],
+      }),
+      text("dm.narrate", `${CLEAN} A draft stirs.`),
+      json("dm.audit", PASS),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    expect(out.output.record.final).toBe("passed-after-regenerate");
+    expect(out.output.record.flagged).toBe(true);
+    expect(out.output.record.attempts[0]?.llm).toMatchObject({
+      issues: [
+        { kind: "player-agency", blocking: true },
+        { kind: "doctrine", blocking: false },
+        { kind: "other", blocking: false },
+      ],
+    });
+  });
+
+  it("sends the regeneration prompt only the blocking issues", async () => {
+    const seen: string[] = [];
+    const calls: Call[] = [
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [
+          { kind: "invented-mechanics", detail: "A wound no fact records." },
+          { kind: "doctrine", detail: "Too atmospheric." },
+        ],
+      }),
+      text("dm.narrate", CLEAN),
+      json("dm.audit", PASS),
+    ];
+    const scripted = createScriptedDm(
+      loadDmScript({ v: 1, name: "audit", dice: [], calls }),
+    );
+    const provider = scripted.provider;
+    const orig = provider.chat?.bind(provider);
+    if (!orig) throw new Error("scripted provider has no chat");
+    (provider as { chat: typeof orig }).chat = (model, req, opts) => {
+      seen.push(JSON.stringify(req));
+      return orig(model, req, opts);
+    };
+    const gateway = createGateway({
+      config: scripted.aiConfig,
+      sink: memorySink(),
+      adapters: { fake: () => provider },
+    });
+    const events = freeEventsThrough("action.resolved");
+    const base = makeCtx({
+      deps: { gateway, loadProjections: async () => projectDm(events) },
+    });
+    const assembled = await assemble(base);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const ctx0 = {
+      ...base,
+      results: { assemble: assembled.output, director, resolve: resolved },
+    };
+    const narrated = await narrate(ctx0);
+    if (!narrated.ok) throw new Error("narrate failed");
+    await audit({
+      ...ctx0,
+      results: { ...ctx0.results, narrate: narrated.output },
+    });
+    const regen = seen.find((s) => s.includes("Your previous text"));
+    expect(regen).toContain("Issue (invented-mechanics)");
+    expect(regen).not.toContain("Too atmospheric");
+  });
+
   it("skips the model audit when a deterministic check fails", async () => {
     const { out } = await loop([
       text("dm.narrate", "Ana opens 3 locks."),
@@ -382,5 +488,100 @@ describe("audit loop", () => {
     expect(out.output.record.attempts[0]?.proseSha256).toMatch(
       /^[0-9a-f]{64}$/,
     );
+  });
+
+  const agency = (detail: string) => ({ kind: "player-agency", detail });
+
+  it("ships on the first attempt when the only issue names a world character, recorded advisory", async () => {
+    const { out, scripted } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [agency("Narration decides Pell's emotional state.")],
+      }),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    const r = out.output.record;
+    expect(r.final).toBe("passed");
+    expect(r.attempts).toHaveLength(1);
+    expect(r.attempts[0]?.llm).toMatchObject({
+      issues: [{ kind: "player-agency", blocking: false }],
+    });
+    expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
+  });
+
+  it("regenerates when the only player-agency issue names a party member", async () => {
+    const { out } = await loop([
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [agency("Narration decides what Ana feels.")],
+      }),
+      text("dm.narrate", `${CLEAN} A draft stirs.`),
+      json("dm.audit", PASS),
+    ]);
+    if (!out.ok) throw new Error("audit failed");
+    expect(out.output.record.final).toBe("passed-after-regenerate");
+    expect(out.output.record.attempts[0]?.llm).toMatchObject({
+      issues: [{ kind: "player-agency", blocking: true }],
+    });
+  });
+
+  it("hands regeneration only the party issue when a world-character issue sits beside it", async () => {
+    const seen: string[] = [];
+    const calls: Call[] = [
+      text("dm.narrate", CLEAN),
+      json("dm.audit", {
+        verdict: "fail",
+        issues: [
+          agency("Narration decides Pell's emotional state."),
+          agency("Narration states 'Bram does not flinch'."),
+        ],
+      }),
+      text("dm.narrate", CLEAN),
+      json("dm.audit", PASS),
+    ];
+    const scripted = createScriptedDm(
+      loadDmScript({ v: 1, name: "audit", dice: [], calls }),
+    );
+    const provider = scripted.provider;
+    const orig = provider.chat?.bind(provider);
+    if (!orig) throw new Error("scripted provider has no chat");
+    (provider as { chat: typeof orig }).chat = (model, req, opts) => {
+      seen.push(JSON.stringify(req));
+      return orig(model, req, opts);
+    };
+    const gateway = createGateway({
+      config: scripted.aiConfig,
+      sink: memorySink(),
+      adapters: { fake: () => provider },
+    });
+    const events = freeEventsThrough("action.resolved");
+    const base = makeCtx({
+      deps: { gateway, loadProjections: async () => projectDm(events) },
+    });
+    const assembled = await assemble(base);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const ctx0 = {
+      ...base,
+      results: { assemble: assembled.output, director, resolve: resolved },
+    };
+    const narrated = await narrate(ctx0);
+    if (!narrated.ok) throw new Error("narrate failed");
+    await audit({
+      ...ctx0,
+      results: { ...ctx0.results, narrate: narrated.output },
+    });
+    const regen = seen.find((s) => s.includes("Your previous text"));
+    expect(regen).toContain("Bram does not flinch");
+    expect(regen).not.toContain("emotional state");
+  });
+
+  it("still blocks a deterministic issue beside an advisory player-agency issue", () => {
+    // Deterministic issues are recorded blocking: true in the loop; the filter
+    // never touches them.
+    const r = check("Ana opens 3 locks.");
+    expect(r.pass).toBe(false);
+    expect(r.issues.length).toBeGreaterThan(0);
   });
 });

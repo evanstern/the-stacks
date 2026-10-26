@@ -287,7 +287,7 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v1");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v2");
     const transcript = /## Recent transcript\n([\s\S]*?)(\n\n##|$)/.exec(
       prompt.user,
     );

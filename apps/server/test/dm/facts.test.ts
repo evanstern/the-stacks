@@ -1,6 +1,10 @@
-import type { LedgerRow } from "@the-stacks/session-model";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { LedgerRow, StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import {
+  buildNarrationFacts,
   collectFacts,
   type NarrationFacts,
   renderChangeLine,
@@ -8,6 +12,11 @@ import {
   renderRollLine,
   stripMarker,
 } from "../../src/dm/facts.js";
+import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
+import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
+import { factEntries } from "../../src/dm/prompts/narrate.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
+import { projectDm, testSeed } from "./helpers.js";
 
 const names: Record<string, string> = { ana: "Ana", goblin: "Goblin" };
 const nameOf = (id: string | null) => (id ? (names[id] ?? id) : "The scene");
@@ -288,5 +297,194 @@ describe("dice-line renderer", () => {
       "condition",
     ]);
     expect(renderChangeLine(c.changes[2] as never)).toBeNull();
+  });
+});
+
+describe("facts v2: party, events, target, setting (run-5 rows)", () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const fixture = JSON.parse(
+    readFileSync(join(here, "fixtures/run5-narration-quality.json"), "utf8"),
+  ) as { transcript: StoredEvent[] };
+  const VIEW = playerFacingSeed(testSeed());
+  const director: DirectorNodeOutput = {
+    beat: { decision: "resolve" },
+    tableMode: { to: "stay" },
+    trackers: [],
+    scene: { status: "continue" },
+    pacing: { tension: "low", spotlight: null, beatId: null },
+    goalNote: "",
+    companionPrompts: [],
+    overrides: [],
+  };
+  const resolveOf = (over: Partial<ResolveOutput> = {}): ResolveOutput => ({
+    submissions: [],
+    actionResults: [],
+    appendedRows: [],
+    nextJob: null,
+    chronicle: false,
+    npcTurn: null,
+    lastSeq: 0,
+    ...over,
+  });
+  const build = (
+    through: number,
+    from: number,
+    modeBefore: "free" | "turn",
+    over: Partial<ResolveOutput> = {},
+  ) => {
+    const rows = fixture.transcript.filter(
+      (r) => r.seq >= from && r.seq <= through,
+    );
+    return buildNarrationFacts({
+      trigger: "commit",
+      seed: VIEW,
+      beatNpcIds: [],
+      projections: projectDm(
+        fixture.transcript.filter((r) => r.seq <= through),
+      ),
+      beat: [],
+      director,
+      adjudicate: null,
+      resolve: resolveOf({ appendedRows: rows, ...over }),
+      presentNpcIds: [],
+      modeBefore,
+      appendedRows: rows,
+      clarify: [],
+    });
+  };
+
+  it("builds events from rows 39 to 58 and never from tracker.changed", () => {
+    const f = build(58, 39, "free");
+    expect(f.events.map((e) => e.kind)).toEqual([
+      "encounter-started",
+      "turn-advanced",
+    ]);
+    const start = f.events[0];
+    expect(start).toMatchObject({ kind: "encounter-started", first: "Snag" });
+    expect(start?.kind === "encounter-started" && start.combatants).toEqual([
+      "Snag",
+      "Goblin with a pot-helm",
+      "Goblin lookout",
+      "Goblin by the fire",
+    ]);
+    expect(f.events[1]).toEqual({
+      kind: "turn-advanced",
+      next: "Goblin lookout",
+    });
+    expect(f.modeChange).toEqual({ from: "free", to: "turn" });
+    expect(JSON.stringify(f.events)).not.toMatch(/alarm|alerted/i);
+  });
+
+  it("skips non-public rows", () => {
+    const rows = fixture.transcript
+      .filter((r) => r.seq === 56)
+      .map((r) => ({ ...r, visibility: "dm" as const }));
+    const f = build(58, 56, "turn");
+    expect(f.events).toHaveLength(1);
+    const g = buildNarrationFacts({
+      trigger: "commit",
+      seed: VIEW,
+      beatNpcIds: [],
+      projections: projectDm(fixture.transcript.filter((r) => r.seq <= 58)),
+      beat: [],
+      director,
+      adjudicate: null,
+      resolve: resolveOf({ appendedRows: rows }),
+      presentNpcIds: [],
+      modeBefore: "turn",
+      appendedRows: rows,
+      clarify: [],
+    });
+    expect(g.events).toEqual([]);
+  });
+
+  it("drops turn-advanced when the encounter ends in the same turn", () => {
+    const f = build(87, 85, "turn");
+    expect(f.events).toEqual([{ kind: "encounter-ended" }]);
+  });
+
+  it("reads target and reason from rows 60 and 61", () => {
+    const rows = fixture.transcript.filter((r) => r.seq >= 60 && r.seq <= 61);
+    const batchId = (rows[0] as { payload: { batchId: string } }).payload
+      .batchId;
+    const f = build(61, 60, "turn", {
+      npcTurn: {
+        combatantId: "goblin-3",
+        batchIds: [batchId],
+        awaitingDm: false,
+      },
+    });
+    const r = f.npcTurn?.rolls[0];
+    expect(r?.target).toBe("Tamsin Vale");
+    expect(r?.reason).toBe(
+      "Goblin-3, frightened and defending the camp, jabs at Tamsin with its dagger.",
+    );
+    const lines = factEntries(f);
+    expect(lines).toContain(
+      "  roll: Goblin-3, frightened and defending the camp, jabs at Tamsin with its dagger. target Tamsin Vale -> miss",
+    );
+  });
+
+  it("marks odo and kestrel as AI companions and carries the setting", () => {
+    const f = build(58, 39, "free");
+    const by = (id: string) => f.party.find((m) => m.characterId === id);
+    expect(by("odo")?.controller).toBe("ai-companion");
+    expect(by("kestrel")?.controller).toBe("ai-companion");
+    expect(by("tamsin")?.controller).toBe("human");
+    expect(f.setting).toEqual({
+      locationName: VIEW.location.name,
+      openingFraming: VIEW.openingFraming,
+    });
+    expect(f.npcNames).toContain("Snag");
+    expect(new Set(f.npcNames).size).toBe(f.npcNames.length);
+    expect(f.npcNames).not.toContain("Odo");
+  });
+
+  it("renders no-effect, on-hold and event lines", () => {
+    const base = build(58, 39, "free");
+    const act = {
+      actionId: "a1",
+      characterName: "Ana",
+      text: "waves",
+      outcome: "no-effect" as const,
+      refusalCode: null,
+      rolls: [],
+      outcomes: [],
+      changes: [],
+    };
+    const none = factEntries({ ...base, actions: [act], clarify: [] });
+    expect(none[0]).toBe(
+      'Action a1 by Ana: "waves" -> no rules effect (nothing rolled, no game state changed; the attempt still happens in the story)',
+    );
+    const hold = factEntries({
+      ...base,
+      actions: [act],
+      clarify: [{ actionId: "a1", question: "Which way?" }],
+    });
+    expect(hold[0]).toBe(
+      'Action a1 by Ana: "waves" -> on hold (the intent is unclear; nothing happened yet)',
+    );
+    expect(hold).toContain("Unclear intent for a1: Which way?");
+    const ev = factEntries({ ...base, actions: [], clarify: [] });
+    expect(ev).toContain(
+      "Event: a fight starts (Snag, Goblin with a pot-helm, Goblin lookout, Goblin by the fire); Snag acts first",
+    );
+    expect(ev).toContain("Event: Goblin lookout acts next");
+    expect(
+      factEntries({
+        ...base,
+        events: [
+          { kind: "encounter-ended" },
+          { kind: "combatant-joined", name: "Pell" },
+          { kind: "combatant-left", name: "Pell" },
+        ],
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        "Event: the fight ends",
+        "Event: Pell joins",
+        "Event: Pell leaves",
+      ]),
+    );
   });
 });

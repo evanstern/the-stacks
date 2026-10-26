@@ -11,6 +11,7 @@ import type { ChronicleJobInput } from "./jobs.js";
 import { callJson } from "./pipeline/call.js";
 import type { ModelCallRecord } from "./pipeline/context.js";
 import { buildChroniclePrompt, PROMPT_VERSION } from "./prompts/chronicle.js";
+import { rosterOf } from "./prompts/common.js";
 import { PURPOSE_OF } from "./purposes.js";
 
 /**
@@ -93,6 +94,7 @@ export async function runChronicleJob(
     transcript: fresh,
     goal: p.scene?.summary ?? "",
     trackerNames: p.trackers.map((t) => t.name),
+    roster: rosterOf(p.party),
   });
   const result = await callJson(deps, {
     purpose: PURPOSE_OF.chronicle,

@@ -51,6 +51,8 @@ Rules:
 - Doctrine for companions ([doctrine.md](doctrine.md)): about one unprompted opinion per
   scene; sometimes disagree; never speak or act for the human's character.
 
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
 ### Ending
 
 - `reason: "hold"` → `enqueueTurnForced(sessionId)` so the held beat resolves next.
@@ -84,3 +86,5 @@ export const ChronicleOutput = z.object({
 
 Doctrine: one journal line at every scene change; name new people and places once; hidden
 facts go to `dm` entries.
+
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.

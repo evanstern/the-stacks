@@ -51,7 +51,7 @@ describe("captured director failure (fixed pipeline)", () => {
   }
   const request = {
     purpose: "dm.director" as const,
-    promptVersion: "dm.director-v1",
+    promptVersion: "dm.director-v2",
     system: "sys",
     user: "usr",
     schema: DirectorOutput,

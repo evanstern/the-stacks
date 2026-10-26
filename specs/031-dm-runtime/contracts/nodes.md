@@ -234,6 +234,8 @@ A dice line reads `<name> — <reason>: <expression> → <natural or faces> = <t
 Damage lines read `<target> takes <n> <type> (<before>→<after> HP)`. The renderer is a
 pure function with snapshot tests.
 
+Amended by specs/034-narration-quality/contracts/narration-facts.md.
+
 ## audit (`dm.audit`)
 
 Contract: [audit.md](audit.md).

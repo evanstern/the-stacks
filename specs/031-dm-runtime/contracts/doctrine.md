@@ -86,6 +86,8 @@ token cap in [nodes.md](nodes.md).
 | `content-pg13` | Default content level: adventure violence, brief gore, no sexual content, no detailed cruelty. | Lingering on gore or cruelty. | Keep injury brief and move on. | narrate, audit, companion |
 | `brief-rulings` | Rule in one line, then return to the scene. | A rules lecture inside the story. | One-line ruling in the journal; the story continues. | narrate, interpret |
 
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
 The table is the content of `DOCTRINE`; the implementer may tighten wording but keeps every
 `id`, rule and node mapping. A changed pair is a reviewed diff to this table and the code
 together.
