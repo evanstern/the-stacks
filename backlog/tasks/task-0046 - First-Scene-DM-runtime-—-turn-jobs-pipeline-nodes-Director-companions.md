@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 06:06'
+updated_date: '2026-10-26 06:19'
 labels:
   - first-scene
   - dm
@@ -56,7 +56,7 @@ Spec: specs/031-dm-runtime
 - [x] #18 Spec phase: Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11)
 - [x] #19 Spec phase: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
 - [x] #20 Spec phase: Worker, actors and routes (US4, US5, US7; AC #1, #5, #10, #12)
-- [ ] #21 Spec phase: Merge condition and the full gate (all stories; AC #1, #2, #4, #8, #9, #15)
+- [x] #21 Spec phase: Merge condition and the full gate (all stories; AC #1, #2, #4, #8, #9, #15)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -93,6 +93,11 @@ Carried to Phase 5: the worker fills TurnJobRef.start from the job input, and cr
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 by sonnet-implementer: 2ba24e0. Adds the worker, the enqueuer (on commit, and on approval or rejection of an ai:dm proposal), companion and chronicle jobs, /dm routes, and a dm/ Biome boundary (17/17 fixtures). All four carried items are closed: TurnJobRef.start, the approval enqueue, the FR-012 abandoned-job notice, and the boot check for missing purposes. The server suite passes 645 tests; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 6 by sonnet-implementer: 40b6ea0. Merge condition met: one full turn on the worktree stack, fake gateway, scripted dice. Four model calls (director, interpret, narrate, audit); 1 roll, 1d20 = 14 against DC 13, a success; audit passed on attempt 1. Evidence: specs/031-dm-runtime/evidence/full-turn.json.
+The full-scene, reclaim and beat suites pass. The suite found and fixed a double tracker advance on reclaim. The server suite passes 650 tests; ci:check green. Every tasks.md box is ticked.
+Open finding: a crash inside submitNarration, after the row lands and before the checkpoint save, appends a second narration on reclaim. The orchestrator rules it be fixed in-task, not carded.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
