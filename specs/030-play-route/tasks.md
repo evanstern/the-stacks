@@ -23,10 +23,10 @@ All paths are relative to the repository root.
 
 **Purpose**: `apps/web` can import the session model and run TSX markup tests.
 
-- [ ] T001 Add `"@the-stacks/session-model": "workspace:*"` to `dependencies` and `"vitest": "^5.0.1"` to `devDependencies` in `apps/web/package.json`; set `"test": "node --test && vitest run"`; run `pnpm install` and confirm `pnpm-lock.yaml` adds no new package outside the workspace (vitest is already resolved).
-- [ ] T002 Add `{ "path": "../../packages/session-model" }` to `references` in `apps/web/tsconfig.json`; confirm `pnpm --filter @the-stacks/web typecheck` passes.
-- [ ] T003 Create `apps/web/vitest.config.ts`: include only `test/**/*.test.tsx`, resolve `~` to `app/`, automatic JSX runtime, `environment: "node"`. Confirm `node --test` in `apps/web` does not collect `.test.tsx` files.
-- [ ] T004 [P] Create the type-only seam modules `apps/web/app/play/source.ts` (contracts/table-source.md) and `apps/web/app/play/proposals.ts` (contracts/proposal-seam.md: `PendingProposalView`, `ProposalCommands`, `SelectPendingProposals`, and `liveProposals` returning `[]`). Erasable TypeScript only.
+- [x] T001 Add `"@the-stacks/session-model": "workspace:*"` to `dependencies` and `"vitest": "^5.0.1"` to `devDependencies` in `apps/web/package.json`; set `"test": "node --test && vitest run"`; run `pnpm install` and confirm `pnpm-lock.yaml` adds no new package outside the workspace (vitest is already resolved).
+- [x] T002 Add `{ "path": "../../packages/session-model" }` to `references` in `apps/web/tsconfig.json`; confirm `pnpm --filter @the-stacks/web typecheck` passes.
+- [x] T003 Create `apps/web/vitest.config.ts`: include only `test/**/*.test.tsx`, resolve `~` to `app/`, automatic JSX runtime, `environment: "node"`. Confirm `node --test` in `apps/web` does not collect `.test.tsx` files.
+- [x] T004 [P] Create the type-only seam modules `apps/web/app/play/source.ts` (contracts/table-source.md) and `apps/web/app/play/proposals.ts` (contracts/proposal-seam.md: `PendingProposalView`, `ProposalCommands`, `SelectPendingProposals`, and `liveProposals` returning `[]`). Erasable TypeScript only.
 
 **Checkpoint**: `pnpm --filter @the-stacks/web typecheck` and `test` pass; a placeholder `apps/web/test/play/smoke.test.tsx` rendering `<p>ok</p>` passes under vitest (delete it in Phase 3).
 
