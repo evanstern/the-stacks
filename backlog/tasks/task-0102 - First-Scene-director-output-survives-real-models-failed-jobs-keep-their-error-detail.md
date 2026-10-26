@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 16:20'
+updated_date: '2026-10-26 16:22'
 labels:
   - first-scene
   - dm
@@ -89,6 +89,9 @@ Phase 4b setup: composite at 5fd107f (branch tip with 4552254). Scripted CI play
 Phase 4b verification rerun 2026-10-26: run 20261026T155348Z-greyhollow-ford-provider, composite 5fd107f. PASS under the amended rule (quickstart C): no failed turn job (29 turn, 10 companion and 7 chronicle jobs succeeded), 6 moves committed, $5.07 over 265 calls of the $22 ceiling. Outcome timed-out: the scenario's maxWallMs of 900000 (15 min) cut the run in fight round 4, with about 35 s per AI turn. That limit is a TASK-0048 harness defect, fixed on the TASK-0048 branch before the demo's paid playtest. Evidence: b40d9f0. Total paid spend for TASK-0102: $2.82 + $1.00 + $5.07 = $8.89, plus attempt 1 (unrecorded).
 
 Phase 5 by sonnet-implementer: f73c7f5 (Amended-by lines in 031 turn-jobs, node-seam, director, nodes and scene-seed, and in 026 commands) and 0de627c (ticks). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 695 passed and 5 skipped, srd 140, engine 221, session-model 566, web 21. No WS flake. T022: the composite CI playtest passed (ended, verdict pass). T024: the composite was torn down and env:prune --check is clean.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 6ae6e4a. dm-runtime, dm-turn-jobs and dnd5e-engine were NEEDS-REVIEW, with prose amended. ingestion was re-pin only. New note dm-failure-and-gates, split from dm-runtime over the size budget. CAPSULES and INDEX updated. Freshness: OK, 45 notes fresh. spec-bridge check ok, 32 linked.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
