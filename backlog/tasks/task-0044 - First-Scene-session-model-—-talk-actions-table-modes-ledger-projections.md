@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:14'
+updated_date: '2026-10-26 03:21'
 labels:
   - first-scene
   - session
@@ -43,8 +43,8 @@ Spec: specs/028-session-model
 - [x] #10 Spec phase: Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8)
 - [x] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
 - [x] #12 Spec phase: User Story 6 — the fixtures contract
-- [ ] #13 Spec phase: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
-- [ ] #14 Spec phase: Polish — full gate
+- [x] #13 Spec phase: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
+- [x] #14 Spec phase: Polish — full gate
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -65,6 +65,9 @@ Phase 3 by sonnet-implementer: 841ef3d. 169 session-model tests pass; ci:check g
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 by sonnet-implementer: 7d5984e. Five fixtures with 13 engine recipes, each re-run through execute in a test. 283 session-model tests pass; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phases 5 and 6 by sonnet-implementer: f1999b6 and 7d89077. Atomic appendBatch, the server seam, and a Dockerfile that builds both new packages. The DB suite with REQUIRE_DATABASE=1 passes 431 tests, including 14 in session.integration. The mid-batch failure tests prove zero rows land. ci:check green. The test DB needed a manual migrate (TASK-0098).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
