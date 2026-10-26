@@ -1,0 +1,4116 @@
+[
+  {
+    "id": "acid",
+    "name": "Acid",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 94
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "text": "When you take the Attack action, you can replace one of your attacks with throwing a vial of Acid. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d6 Acid damage."
+  },
+  {
+    "id": "airship",
+    "name": "Airship",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "airborne",
+    "cost": {
+      "amount": 40000,
+      "unit": "gp"
+    },
+    "speed": "8 mph",
+    "stats": {
+      "Crew": "10",
+      "Passengers": "20",
+      "Cargo (Tons)": "1",
+      "AC": "13",
+      "HP": "300",
+      "Damage Threshold": "—"
+    }
+  },
+  {
+    "id": "alchemists-fire",
+    "name": "Alchemist’s Fire",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 94
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "text": "When you take the Attack action, you can replace one of your attacks with throwing a flask of Alchemist’s Fire. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 1d4 Fire damage and start burning (see “Rules Glossary”)."
+  },
+  {
+    "id": "alchemists-supplies",
+    "name": "Alchemist’s Supplies",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "int",
+    "utilize": "Identify a substance (DC 15), or start a fire (DC 15)",
+    "craft": [
+      "Acid",
+      "Alchemist’s Fire",
+      "Component Pouch",
+      "Oil",
+      "Paper",
+      "Perfume"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 8,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "antitoxin",
+    "name": "Antitoxin",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "text": "As a Bonus Action, you can drink a vial of Antitoxin to gain Advantage on saving throws to avoid or end the Poisoned condition for 1 hour."
+  },
+  {
+    "id": "arcane-focus-crystal",
+    "name": "Arcane Focus, Crystal",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus."
+  },
+  {
+    "id": "arcane-focus-orb",
+    "name": "Arcane Focus, Orb",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 3,
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    },
+    "text": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus."
+  },
+  {
+    "id": "arcane-focus-rod",
+    "name": "Arcane Focus, Rod",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus."
+  },
+  {
+    "id": "arcane-focus-staff",
+    "name": "Arcane Focus, Staff",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus. Staff: Also a Quarterstaff."
+  },
+  {
+    "id": "arcane-focus-wand",
+    "name": "Arcane Focus, Wand",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus."
+  },
+  {
+    "id": "arrows",
+    "name": "Arrows",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "Amount: 20. Storage: Quiver."
+  },
+  {
+    "id": "backpack",
+    "name": "Backpack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "A Backpack holds up to 30 pounds within 1 cubic foot. It can also serve as a saddlebag."
+  },
+  {
+    "id": "ball-bearings",
+    "name": "Ball Bearings",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can spill Ball Bearings from their pouch. They spread to cover a level, 10-footsquare area within 10 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 10 Dexterity saving throw or have the Prone condition. It takes 10 minutes to recover the Ball Bearings."
+  },
+  {
+    "id": "barrel",
+    "name": "Barrel",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 70,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "A Barrel holds up to 40 gallons of liquid or up to 4 cubic feet of dry goods."
+  },
+  {
+    "id": "basket",
+    "name": "Basket",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 4,
+      "unit": "sp"
+    },
+    "text": "A Basket holds up to 40 pounds within 2 cubic feet."
+  },
+  {
+    "id": "battleaxe",
+    "name": "Battleaxe",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Versatile"
+    ],
+    "mastery": "Topple",
+    "weight": 4,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "versatile": "1d10"
+  },
+  {
+    "id": "bedroll",
+    "name": "Bedroll",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 7,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Bedroll sleeps one Small or Medium creature. While in a Bedroll, you automatically succeed on saving throws against extreme cold (see “Gameplay Toolbox”)."
+  },
+  {
+    "id": "bell",
+    "name": "Bell",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "When rung as a Utilize action, a Bell produces a sound that can be heard up to 60 feet away."
+  },
+  {
+    "id": "blanket",
+    "name": "Blanket",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 3,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "text": "While wrapped in a blanket, you have Advantage on saving throws against extreme cold (see “Gameplay Toolbox”)."
+  },
+  {
+    "id": "block-and-tackle",
+    "name": "Block and Tackle",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Block and Tackle allows you to hoist up to four times the weight you can normally lift."
+  },
+  {
+    "id": "blowgun",
+    "name": "Blowgun",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": null,
+      "average": 1,
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Loading"
+    ],
+    "mastery": "Vex",
+    "weight": 1,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 25,
+      "long": 100
+    },
+    "ammunition": "Needle"
+  },
+  {
+    "id": "bolts",
+    "name": "Bolts",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1.5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "Amount: 20. Storage: Case."
+  },
+  {
+    "id": "book",
+    "name": "Book",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "text": "A Book contains fiction or nonfiction. If you consult an accurate nonfiction Book about its topic, you gain a +5 bonus to Intelligence (Arcana, History, Nature, or Religion) checks you make about that topic."
+  },
+  {
+    "id": "bottle-glass",
+    "name": "Bottle, Glass",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "A Glass Bottle holds up to 11/2 pints."
+  },
+  {
+    "id": "breastplate",
+    "name": "Breastplate",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "medium",
+    "ac": {
+      "base": 14,
+      "addDex": true,
+      "dexMax": 2
+    },
+    "stealthDisadvantage": false,
+    "don": "5 Minutes",
+    "doff": "1 Minute",
+    "weight": 20,
+    "cost": {
+      "amount": 400,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "brewers-supplies",
+    "name": "Brewer’s Supplies",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "int",
+    "utilize": "Detect poisoned drink (DC 15), or identify alcohol (DC 10)",
+    "craft": [
+      "Antitoxin"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 9,
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "bucket",
+    "name": "Bucket",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "cp"
+    },
+    "text": "A Bucket holds up to half a cubic foot of contents."
+  },
+  {
+    "id": "bullets-firearm",
+    "name": "Bullets, Firearm",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 3,
+      "unit": "gp"
+    },
+    "text": "Amount: 10. Storage: Pouch."
+  },
+  {
+    "id": "bullets-sling",
+    "name": "Bullets, Sling",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1.5,
+    "cost": {
+      "amount": 4,
+      "unit": "cp"
+    },
+    "text": "Amount: 20. Storage: Pouch."
+  },
+  {
+    "id": "burglars-pack",
+    "name": "Burglar’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 42,
+    "cost": {
+      "amount": 16,
+      "unit": "gp"
+    },
+    "text": "A Burglar’s Pack contains the following items: Backpack, Ball Bearings, Bell, 10 Candles, Crowbar, Hooded Lantern, 7 flasks of Oil, 5 days of Rations, Rope, Tinderbox, and Waterskin."
+  },
+  {
+    "id": "calligraphers-supplies",
+    "name": "Calligrapher’s Supplies",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "dex",
+    "utilize": "Write text with impressive flourishes that guard against forgery (DC 15)",
+    "craft": [
+      "Ink",
+      "Spell Scroll"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "caltrops",
+    "name": "Caltrops",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can spread Caltrops from their bag to cover a 5-foot-square area within 5 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 15 Dexterity saving throw or take 1 Piercing damage and have its Speed reduced to 0 until the start of its next turn. It takes 10 minutes to recover the Caltrops."
+  },
+  {
+    "id": "camel",
+    "name": "Camel",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "carryingCapacity": "450 lb."
+  },
+  {
+    "id": "candle",
+    "name": "Candle",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "cp"
+    },
+    "text": "For 1 hour, a lit Candle sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet."
+  },
+  {
+    "id": "carpenters-tools",
+    "name": "Carpenter’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "str",
+    "utilize": "Seal or pry open a door or container (DC 20)",
+    "craft": [
+      "Club",
+      "Greatclub",
+      "Quarterstaff",
+      "Barrel",
+      "Chest",
+      "Ladder",
+      "Pole",
+      "Portable Ram",
+      "Torch"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 6,
+    "cost": {
+      "amount": 8,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "carriage",
+    "name": "Carriage",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "drawn",
+    "cost": {
+      "amount": 100,
+      "unit": "gp"
+    },
+    "weight": 600
+  },
+  {
+    "id": "cart",
+    "name": "Cart",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "drawn",
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    },
+    "weight": 200
+  },
+  {
+    "id": "cartographers-tools",
+    "name": "Cartographer’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "wis",
+    "utilize": "Draft a map of a small area (DC 15)",
+    "craft": [
+      "Map"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 6,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "case-crossbow-bolt",
+    "name": "Case, Crossbow Bolt",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Crossbow Bolt Case holds up to 20 Bolts."
+  },
+  {
+    "id": "case-map-or-scroll",
+    "name": "Case, Map or Scroll",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Map or Scroll Case holds up to 10 sheets of paper or 5 sheets of parchment."
+  },
+  {
+    "id": "chain",
+    "name": "Chain",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 10,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can wrap a Chain around an unwilling creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Strength (Athletics) check. If the creature’s legs are bound, the creature has the Restrained condition until it escapes. Escaping the Chain requires the creature to make a successful DC 18 Dexterity (Acrobatics) check as an action. Bursting the Chain requires a successful DC 20 Strength (Athletics) check as an action."
+  },
+  {
+    "id": "chain-mail",
+    "name": "Chain Mail",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "heavy",
+    "ac": {
+      "base": 16,
+      "addDex": false
+    },
+    "stealthDisadvantage": true,
+    "don": "10 Minutes",
+    "doff": "5 Minutes",
+    "weight": 55,
+    "cost": {
+      "amount": 75,
+      "unit": "gp"
+    },
+    "strength": 13
+  },
+  {
+    "id": "chain-shirt",
+    "name": "Chain Shirt",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "medium",
+    "ac": {
+      "base": 13,
+      "addDex": true,
+      "dexMax": 2
+    },
+    "stealthDisadvantage": false,
+    "don": "5 Minutes",
+    "doff": "1 Minute",
+    "weight": 20,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "chariot",
+    "name": "Chariot",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "drawn",
+    "cost": {
+      "amount": 250,
+      "unit": "gp"
+    },
+    "weight": 100
+  },
+  {
+    "id": "chest",
+    "name": "Chest",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 25,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Chest holds up to 12 cubic feet of contents."
+  },
+  {
+    "id": "climbers-kit",
+    "name": "Climber’s Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 12,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "text": "A Climber’s Kit includes boot tips, gloves, pitons, and a harness. As a Utilize action, you can use the Climber’s Kit to anchor yourself; when you do, you can’t fall more than 25 feet from the anchor point, and you can’t move more than 25 feet from there without undoing the anchor as a Bonus Action."
+  },
+  {
+    "id": "clothes-fine",
+    "name": "Clothes, Fine",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 6,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    },
+    "text": "Fine Clothes are made of expensive fabrics and adorned with expertly crafted details. Some events and locations admit only people wearing these clothes."
+  },
+  {
+    "id": "clothes-travelers",
+    "name": "Clothes, Traveler’s",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "Traveler’s Clothes are resilient garments designed for travel in various environments."
+  },
+  {
+    "id": "club",
+    "name": "Club",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d4",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Light"
+    ],
+    "mastery": "Slow",
+    "weight": 2,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    }
+  },
+  {
+    "id": "cobblers-tools",
+    "name": "Cobbler’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "dex",
+    "utilize": "Modify footwear to give Advantage on the wearer’s next Dexterity (Acrobatics) check (DC 10)",
+    "craft": [
+      "Climber’s Kit"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "component-pouch",
+    "name": "Component Pouch",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "text": "A Component Pouch is watertight and filled with compartments that hold all the free Material components of your spells."
+  },
+  {
+    "id": "cooks-utensils",
+    "name": "Cook’s Utensils",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "wis",
+    "utilize": "Improve food’s flavor (DC 10), or detect spoiled or poisoned food (DC 15)",
+    "craft": [
+      "Rations"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 8,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "costume",
+    "name": "Costume",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "While wearing a Costume, you have Advantage on any ability check you make to impersonate the person or type of person it represents."
+  },
+  {
+    "id": "crowbar",
+    "name": "Crowbar",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "Using a Crowbar gives you Advantage on Strength checks where the Crowbar’s leverage can be applied."
+  },
+  {
+    "id": "dagger",
+    "name": "Dagger",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d4",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Finesse",
+      "Light",
+      "Thrown"
+    ],
+    "mastery": "Nick",
+    "weight": 1,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    }
+  },
+  {
+    "id": "dart",
+    "name": "Dart",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d4",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Finesse",
+      "Thrown"
+    ],
+    "mastery": "Vex",
+    "weight": 0.25,
+    "cost": {
+      "amount": 5,
+      "unit": "cp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    }
+  },
+  {
+    "id": "diplomats-pack",
+    "name": "Diplomat’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 39,
+    "cost": {
+      "amount": 39,
+      "unit": "gp"
+    },
+    "text": "A Diplomat’s Pack contains the following items: Chest, Fine Clothes, Ink, 5 Ink Pens, Lamp, 2 Map or Scroll Cases, 4 flasks of Oil, 5 sheets of Paper, 5 sheets of Parchment, Perfume, and Tinderbox."
+  },
+  {
+    "id": "disguise-kit",
+    "name": "Disguise Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Apply makeup (DC 10)",
+    "craft": [
+      "Costume"
+    ],
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 3,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "druidic-focus-sprig-of-mistletoe",
+    "name": "Druidic Focus, Sprig of Mistletoe",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus."
+  },
+  {
+    "id": "druidic-focus-wooden-staff",
+    "name": "Druidic Focus, Wooden Staff",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus. Wooden Staff: Also a Quarterstaff."
+  },
+  {
+    "id": "druidic-focus-yew-wand",
+    "name": "Druidic Focus, Yew Wand",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus."
+  },
+  {
+    "id": "dungeoneers-pack",
+    "name": "Dungeoneer’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 55,
+    "cost": {
+      "amount": 12,
+      "unit": "gp"
+    },
+    "text": "A Dungeoneer’s Pack contains the following items: Backpack, Caltrops, Crowbar, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin."
+  },
+  {
+    "id": "elephant",
+    "name": "Elephant",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 200,
+      "unit": "gp"
+    },
+    "carryingCapacity": "1,320 lb."
+  },
+  {
+    "id": "entertainers-pack",
+    "name": "Entertainer’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 58.5,
+    "cost": {
+      "amount": 40,
+      "unit": "gp"
+    },
+    "text": "An Entertainer’s Pack contains the following items: Backpack, Bedroll, Bell, Bullseye Lantern, 3 Costumes, Mirror, 8 flasks of Oil, 9 days of Rations, Tinderbox, and Waterskin."
+  },
+  {
+    "id": "explorers-pack",
+    "name": "Explorer’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 55,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "An Explorer’s Pack contains the following items: Backpack, Bedroll, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin."
+  },
+  {
+    "id": "feed-per-day",
+    "name": "Feed per day",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "tack",
+    "cost": {
+      "amount": 5,
+      "unit": "cp"
+    },
+    "weight": 10
+  },
+  {
+    "id": "flail",
+    "name": "Flail",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Bludgeoning"
+    },
+    "properties": [],
+    "mastery": "Sap",
+    "weight": 2,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "flask",
+    "name": "Flask",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 2,
+      "unit": "cp"
+    },
+    "text": "A Flask holds up to 1 pint."
+  },
+  {
+    "id": "forgery-kit",
+    "name": "Forgery Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "dex",
+    "utilize": "Mimic 10 or fewer words of someone else’s handwriting (DC 15), or duplicate a wax seal (DC 20)",
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 5,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "galley",
+    "name": "Galley",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 30000,
+      "unit": "gp"
+    },
+    "speed": "4 mph",
+    "stats": {
+      "Crew": "80",
+      "Passengers": "—",
+      "Cargo (Tons)": "150",
+      "AC": "15",
+      "HP": "500",
+      "Damage Threshold": "20"
+    }
+  },
+  {
+    "id": "gaming-set-dice",
+    "name": "Gaming Set, Dice",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "wis",
+    "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+    "category": "tool",
+    "toolCategory": "gaming-set",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    }
+  },
+  {
+    "id": "gaming-set-dragonchess",
+    "name": "Gaming Set, Dragonchess",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "wis",
+    "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+    "category": "tool",
+    "toolCategory": "gaming-set",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "gaming-set-playing-cards",
+    "name": "Gaming Set, Playing Cards",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "wis",
+    "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+    "category": "tool",
+    "toolCategory": "gaming-set",
+    "weight": null,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    }
+  },
+  {
+    "id": "gaming-set-three-dragon-ante",
+    "name": "Gaming Set, Three-Dragon Ante",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "wis",
+    "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+    "category": "tool",
+    "toolCategory": "gaming-set",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "glaive",
+    "name": "Glaive",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d10",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Heavy",
+      "Reach",
+      "Two-Handed"
+    ],
+    "mastery": "Graze",
+    "weight": 6,
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "glassblowers-tools",
+    "name": "Glassblower’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "int",
+    "utilize": "Discern what a glass object held in the past 24 hours (DC 15)",
+    "craft": [
+      "Glass Bottle",
+      "Magnifying Glass",
+      "Spyglass",
+      "Vial"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "grappling-hook",
+    "name": "Grappling Hook",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can throw the Grappling Hook at a railing, a ledge, or another catch within 50 feet of yourself, and the hook catches on if you succeed on a DC 13 Dexterity (Acrobatics) check. If you tied a Rope to the hook, you can then climb it."
+  },
+  {
+    "id": "greataxe",
+    "name": "Greataxe",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d12",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Heavy",
+      "Two-Handed"
+    ],
+    "mastery": "Cleave",
+    "weight": 7,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "greatclub",
+    "name": "Greatclub",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Two-Handed"
+    ],
+    "mastery": "Push",
+    "weight": 10,
+    "cost": {
+      "amount": 2,
+      "unit": "sp"
+    }
+  },
+  {
+    "id": "greatsword",
+    "name": "Greatsword",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "2d6",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Heavy",
+      "Two-Handed"
+    ],
+    "mastery": "Graze",
+    "weight": 6,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "halberd",
+    "name": "Halberd",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d10",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Heavy",
+      "Reach",
+      "Two-Handed"
+    ],
+    "mastery": "Cleave",
+    "weight": 6,
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "half-plate-armor",
+    "name": "Half Plate Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "medium",
+    "ac": {
+      "base": 15,
+      "addDex": true,
+      "dexMax": 2
+    },
+    "stealthDisadvantage": true,
+    "don": "5 Minutes",
+    "doff": "1 Minute",
+    "weight": 40,
+    "cost": {
+      "amount": 750,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "hand-crossbow",
+    "name": "Hand Crossbow",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d6",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Light",
+      "Loading"
+    ],
+    "mastery": "Vex",
+    "weight": 3,
+    "cost": {
+      "amount": 75,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 30,
+      "long": 120
+    },
+    "ammunition": "Bolt"
+  },
+  {
+    "id": "handaxe",
+    "name": "Handaxe",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Light",
+      "Thrown"
+    ],
+    "mastery": "Vex",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    }
+  },
+  {
+    "id": "healers-kit",
+    "name": "Healer’s Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 3,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Healer’s Kit has ten uses. As a Utilize action, you can expend one of its uses to stabilize an Unconscious creature that has 0 Hit Points without needing to make a Wisdom (Medicine) check."
+  },
+  {
+    "id": "heavy-crossbow",
+    "name": "Heavy Crossbow",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d10",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Heavy",
+      "Loading",
+      "Two-Handed"
+    ],
+    "mastery": "Push",
+    "weight": 18,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 100,
+      "long": 400
+    },
+    "ammunition": "Bolt"
+  },
+  {
+    "id": "herbalism-kit",
+    "name": "Herbalism Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "int",
+    "utilize": "Identify a plant (DC 10)",
+    "craft": [
+      "Antitoxin",
+      "Candle",
+      "Healer’s Kit",
+      "Potion of Healing"
+    ],
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 3,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "hide-armor",
+    "name": "Hide Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "medium",
+    "ac": {
+      "base": 12,
+      "addDex": true,
+      "dexMax": 2
+    },
+    "stealthDisadvantage": false,
+    "don": "5 Minutes",
+    "doff": "1 Minute",
+    "weight": 12,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "holy-symbol-amulet",
+    "name": "Holy Symbol, Amulet",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus. The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield. Amulet: worn or held."
+  },
+  {
+    "id": "holy-symbol-emblem",
+    "name": "Holy Symbol, Emblem",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus. The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield. Emblem: borne on fabric or a Shield."
+  },
+  {
+    "id": "holy-symbol-reliquary",
+    "name": "Holy Symbol, Reliquary",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus. The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield. Reliquary: held."
+  },
+  {
+    "id": "holy-water",
+    "name": "Holy Water",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "text": "When you take the Attack action, you can replace one of your attacks with throwing a flask of Holy Water. Target one creature you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d8 Radiant damage if it is a Fiend or an Undead."
+  },
+  {
+    "id": "horse-draft",
+    "name": "Horse, Draft",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "carryingCapacity": "540 lb."
+  },
+  {
+    "id": "horse-riding",
+    "name": "Horse, Riding",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 75,
+      "unit": "gp"
+    },
+    "carryingCapacity": "480 lb."
+  },
+  {
+    "id": "hunting-trap",
+    "name": "Hunting Trap",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 97
+    },
+    "category": "adventuring-gear",
+    "weight": 25,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can set a Hunting Trap, which is a sawtooth steel ring that snaps shut when a creature steps on a pressure plate in the center. The trap is affixed by a heavy chain to an immobile object, such as a tree or a spike driven into the ground. A creature that steps on the plate must succeed on a DC 13 Dexterity saving throw or take 1d4 Piercing damage and have its Speed reduced to 0 until the start of its next turn. Thereafter, until the creature breaks free of the trap, its movement is limited by the length of the chain (typically 3 feet). A creature can use its action to make a DC 13 Strength (Athletics) check, freeing itself or another creature within its reach on a success. Each failed check deals 1 Piercing damage to the trapped creature."
+  },
+  {
+    "id": "ink",
+    "name": "Ink",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "Ink comes in a 1-ounce bottle, which provides enough ink to write about 500 pages."
+  },
+  {
+    "id": "ink-pen",
+    "name": "Ink Pen",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 2,
+      "unit": "cp"
+    },
+    "text": "Using Ink, an Ink Pen is used to write or draw."
+  },
+  {
+    "id": "javelin",
+    "name": "Javelin",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Thrown"
+    ],
+    "mastery": "Slow",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "range": {
+      "normal": 30,
+      "long": 120
+    }
+  },
+  {
+    "id": "jewelers-tools",
+    "name": "Jeweler’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "int",
+    "utilize": "Discern a gem’s value (DC 15)",
+    "craft": [
+      "Arcane Focus",
+      "Holy Symbol"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 2,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "jug",
+    "name": "Jug",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 2,
+      "unit": "cp"
+    },
+    "text": "A Jug holds up to 1 gallon."
+  },
+  {
+    "id": "keelboat",
+    "name": "Keelboat",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 3000,
+      "unit": "gp"
+    },
+    "speed": "1 mph",
+    "stats": {
+      "Crew": "1",
+      "Passengers": "6",
+      "Cargo (Tons)": "1/2",
+      "AC": "15",
+      "HP": "100",
+      "Damage Threshold": "10"
+    }
+  },
+  {
+    "id": "ladder",
+    "name": "Ladder",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 25,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    },
+    "text": "A Ladder is 10 feet tall. You must climb to move up or down it."
+  },
+  {
+    "id": "lamp",
+    "name": "Lamp",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "text": "A Lamp burns Oil as fuel to cast Bright Light in a 15- foot radius and Dim Light for an additional 30 feet."
+  },
+  {
+    "id": "lance",
+    "name": "Lance",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d10",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Heavy",
+      "Reach",
+      "Two-Handed (unless mounted)"
+    ],
+    "mastery": "Topple",
+    "weight": 6,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "lantern-bullseye",
+    "name": "Lantern, Bullseye",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "A Bullseye Lantern burns Oil as fuel to cast Bright Light in a 60-foot Cone and Dim Light for an additional 60 feet."
+  },
+  {
+    "id": "lantern-hooded",
+    "name": "Lantern, Hooded",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A Hooded Lantern burns Oil as fuel to cast Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. As a Bonus Action, you can lower the hood, reducing the light to Dim Light in a 5-foot radius, or raise it again."
+  },
+  {
+    "id": "leather-armor",
+    "name": "Leather Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "light",
+    "ac": {
+      "base": 11,
+      "addDex": true
+    },
+    "stealthDisadvantage": false,
+    "don": "1 Minute",
+    "doff": "1 Minute",
+    "weight": 10,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "leatherworkers-tools",
+    "name": "Leatherworker’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "dex",
+    "utilize": "Add a design to a leather item (DC 10)",
+    "craft": [
+      "Sling",
+      "Whip",
+      "Hide Armor",
+      "Leather Armor",
+      "Studded Leather Armor",
+      "Backpack",
+      "Crossbow Bolt Case",
+      "Map or Scroll Case",
+      "Parchment",
+      "Pouch",
+      "Quiver",
+      "Waterskin"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "light-crossbow",
+    "name": "Light Crossbow",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Loading",
+      "Two-Handed"
+    ],
+    "mastery": "Slow",
+    "weight": 5,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 80,
+      "long": 320
+    },
+    "ammunition": "Bolt"
+  },
+  {
+    "id": "light-hammer",
+    "name": "Light Hammer",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d4",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Light",
+      "Thrown"
+    ],
+    "mastery": "Nick",
+    "weight": 2,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    }
+  },
+  {
+    "id": "lock",
+    "name": "Lock",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "text": "A Lock comes with a key. Without the key, a creature can use Thieves’ Tools to pick this Lock with a successful DC 15 Dexterity (Sleight of Hand) check."
+  },
+  {
+    "id": "longbow",
+    "name": "Longbow",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Heavy",
+      "Two-Handed"
+    ],
+    "mastery": "Slow",
+    "weight": 2,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 150,
+      "long": 600
+    },
+    "ammunition": "Arrow"
+  },
+  {
+    "id": "longship",
+    "name": "Longship",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 10000,
+      "unit": "gp"
+    },
+    "speed": "3 mph",
+    "stats": {
+      "Crew": "40",
+      "Passengers": "150",
+      "Cargo (Tons)": "10",
+      "AC": "15",
+      "HP": "300",
+      "Damage Threshold": "15"
+    }
+  },
+  {
+    "id": "longsword",
+    "name": "Longsword",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Versatile"
+    ],
+    "mastery": "Sap",
+    "weight": 3,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    },
+    "versatile": "1d10"
+  },
+  {
+    "id": "mace",
+    "name": "Mace",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Bludgeoning"
+    },
+    "properties": [],
+    "mastery": "Sap",
+    "weight": 4,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "magnifying-glass",
+    "name": "Magnifying Glass",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 100,
+      "unit": "gp"
+    },
+    "text": "A Magnifying Glass grants Advantage on any ability check made to appraise or inspect a highly detailed item. Lighting a fire with a Magnifying Glass requires light as bright as sunlight to focus, tinder to ignite, and about 5 minutes for the fire to ignite."
+  },
+  {
+    "id": "manacles",
+    "name": "Manacles",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 6,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can use Manacles to bind an unwilling Small or Medium creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Dexterity (Sleight of Hand) check. While bound, a creature has Disadvantage on attack rolls, and the creature is Restrained if the Manacles are attached to a chain or hook that is fixed in place. Escaping the Manacles requires a successful DC 20 Dexterity (Sleight of Hand) check as an action. Bursting them requires a successful DC 25 Strength (Athletics) check as an action. Each set of Manacles comes with a key. Without the key, a creature can use Thieves’ Tools to pick the Manacles’ lock with a successful DC 15 Dexterity (Sleight of Hand) check."
+  },
+  {
+    "id": "map",
+    "name": "Map",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "If you consult an accurate Map, you gain a +5 bonus to Wisdom (Survival) checks you make to find your way in the place represented on it."
+  },
+  {
+    "id": "masons-tools",
+    "name": "Mason’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "str",
+    "utilize": "Chisel a symbol or hole in stone (DC 10)",
+    "craft": [
+      "Block and Tackle"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 8,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "mastiff",
+    "name": "Mastiff",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "carryingCapacity": "195 lb."
+  },
+  {
+    "id": "maul",
+    "name": "Maul",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "2d6",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Heavy",
+      "Two-Handed"
+    ],
+    "mastery": "Topple",
+    "weight": 10,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "mirror",
+    "name": "Mirror",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 0.5,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "A handheld steel Mirror is useful for personal cosmetics but also for peeking around corners and reflecting light as a signal."
+  },
+  {
+    "id": "morningstar",
+    "name": "Morningstar",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [],
+    "mastery": "Sap",
+    "weight": 4,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "mule",
+    "name": "Mule",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 8,
+      "unit": "gp"
+    },
+    "carryingCapacity": "420 lb."
+  },
+  {
+    "id": "musical-instrument-bagpipes",
+    "name": "Musical Instrument, Bagpipes",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 6,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-drum",
+    "name": "Musical Instrument, Drum",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 3,
+    "cost": {
+      "amount": 6,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-dulcimer",
+    "name": "Musical Instrument, Dulcimer",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 10,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-flute",
+    "name": "Musical Instrument, Flute",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 1,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-horn",
+    "name": "Musical Instrument, Horn",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 2,
+    "cost": {
+      "amount": 3,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-lute",
+    "name": "Musical Instrument, Lute",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 2,
+    "cost": {
+      "amount": 35,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-lyre",
+    "name": "Musical Instrument, Lyre",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 2,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-pan-flute",
+    "name": "Musical Instrument, Pan Flute",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 2,
+    "cost": {
+      "amount": 12,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-shawm",
+    "name": "Musical Instrument, Shawm",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 1,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musical-instrument-viol",
+    "name": "Musical Instrument, Viol",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "cha",
+    "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+    "category": "tool",
+    "toolCategory": "musical-instrument",
+    "weight": 1,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "musket",
+    "name": "Musket",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d12",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Loading",
+      "Two-Handed"
+    ],
+    "mastery": "Slow",
+    "weight": 10,
+    "cost": {
+      "amount": 500,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 40,
+      "long": 120
+    },
+    "ammunition": "Bullet"
+  },
+  {
+    "id": "navigators-tools",
+    "name": "Navigator’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "wis",
+    "utilize": "Plot a course (DC 10), or determine position by stargazing (DC 15)",
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 2,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "needles",
+    "name": "Needles",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 96
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "Amount: 50. Storage: Pouch."
+  },
+  {
+    "id": "net",
+    "name": "Net",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 3,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "When you take the Attack action, you can replace one of your attacks with throwing a Net. Target a creature you can see within 15 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or have the Restrained condition until it escapes. The target succeeds automatically if it is Huge or larger. To escape, the target or a creature within 5 feet of it must take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success. Destroying the Net (AC 10; 5 HP; Immunity to Bludgeoning, Poison, and Psychic damage) also frees the target, ending the effect."
+  },
+  {
+    "id": "oil",
+    "name": "Oil",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 98
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    },
+    "text": "You can douse a creature, object, or space with Oil or use it as fuel, as detailed below. Dousing a Creature or an Object. When you take the Attack action, you can replace one of your attacks with throwing an Oil flask. Target one creature or object within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or be covered in oil. If the target takes Fire damage before the oil dries (after 1 minute), the target takes an extra 5 Fire damage from burning oil. Dousing a Space. You can take the Utilize action to pour an Oil flask on level ground to cover a 5-foot-square area within 5 feet of yourself. If lit, the oil burns until the end of the turn 2 rounds from when the oil was lit (or 12 seconds) and deals 5 Fire damage to any creature that enters the area or ends its turn there. A creature can take this damage only once per turn. Fuel. Oil serves as fuel for Lamps and Lanterns. Once lit, a flask of Oil burns for 6 hours in a Lamp or Lantern. That duration doesn’t need to be consecutive; you can extinguish the burning Oil (as a Utilize action) and rekindle it again until it has burned for a total of 6 hours."
+  },
+  {
+    "id": "padded-armor",
+    "name": "Padded Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "light",
+    "ac": {
+      "base": 11,
+      "addDex": true
+    },
+    "stealthDisadvantage": true,
+    "don": "1 Minute",
+    "doff": "1 Minute",
+    "weight": 8,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "painters-supplies",
+    "name": "Painter’s Supplies",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "wis",
+    "utilize": "Paint a recognizable image of something you’ve seen (DC 10)",
+    "craft": [
+      "Druidic Focus",
+      "Holy Symbol"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "paper",
+    "name": "Paper",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 2,
+      "unit": "sp"
+    },
+    "text": "One sheet of Paper can hold about 250 handwritten words."
+  },
+  {
+    "id": "parchment",
+    "name": "Parchment",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    },
+    "text": "One sheet of Parchment can hold about 250 handwritten words."
+  },
+  {
+    "id": "perfume",
+    "name": "Perfume",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "text": "Perfume comes in a 4-ounce vial. For 1 hour after applying Perfume to yourself, you have Advantage on Charisma (Persuasion) checks made to influence an Indifferent Humanoid within 5 feet of yourself."
+  },
+  {
+    "id": "pike",
+    "name": "Pike",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d10",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Heavy",
+      "Reach",
+      "Two-Handed"
+    ],
+    "mastery": "Push",
+    "weight": 18,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "pistol",
+    "name": "Pistol",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d10",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Loading"
+    ],
+    "mastery": "Vex",
+    "weight": 3,
+    "cost": {
+      "amount": 250,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 30,
+      "long": 90
+    },
+    "ammunition": "Bullet"
+  },
+  {
+    "id": "plate-armor",
+    "name": "Plate Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "heavy",
+    "ac": {
+      "base": 18,
+      "addDex": false
+    },
+    "stealthDisadvantage": true,
+    "don": "10 Minutes",
+    "doff": "5 Minutes",
+    "weight": 65,
+    "cost": {
+      "amount": 1500,
+      "unit": "gp"
+    },
+    "strength": 15
+  },
+  {
+    "id": "poison-basic",
+    "name": "Poison, Basic",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 100,
+      "unit": "gp"
+    },
+    "text": "As a Bonus Action, you can use a vial of Basic Poison to coat one weapon or up to three pieces of ammunition. A creature that takes Piercing or Slashing damage from the poisoned weapon or ammunition takes an extra 1d4 Poison damage. Once applied, the poison retains potency for 1 minute or until its damage is dealt, whichever comes first."
+  },
+  {
+    "id": "poisoners-kit",
+    "name": "Poisoner’s Kit",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "int",
+    "utilize": "Detect a poisoned object (DC 10)",
+    "craft": [
+      "Basic Poison"
+    ],
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 2,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "pole",
+    "name": "Pole",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 7,
+    "cost": {
+      "amount": 5,
+      "unit": "cp"
+    },
+    "text": "A Pole is 10 feet long. You can use it to touch something up to 10 feet away. If you must make a Strength (Athletics) check as part of a High or Long Jump, you can use the Pole to vault, giving yourself Advantage on the check."
+  },
+  {
+    "id": "pony",
+    "name": "Pony",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    },
+    "carryingCapacity": "225 lb."
+  },
+  {
+    "id": "pot-iron",
+    "name": "Pot, Iron",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 10,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "An Iron Pot holds up to 1 gallon."
+  },
+  {
+    "id": "potion-of-healing",
+    "name": "Potion of Healing",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 0.5,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "text": "This potion is a magic item. As a Bonus Action, you can drink it or administer it to another creature within 5 feet of yourself. The creature that drinks the magical red fluid in this vial regains 2d4 + 2 Hit Points."
+  },
+  {
+    "id": "potters-tools",
+    "name": "Potter’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "int",
+    "utilize": "Discern what a ceramic object held in the past 24 hours (DC 15)",
+    "craft": [
+      "Jug",
+      "Lamp"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 3,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "pouch",
+    "name": "Pouch",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "text": "A Pouch holds up to 6 pounds within one-fifth of a cubic foot."
+  },
+  {
+    "id": "priests-pack",
+    "name": "Priest’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 29,
+    "cost": {
+      "amount": 33,
+      "unit": "gp"
+    },
+    "text": "A Priest’s Pack contains the following items: Backpack, Blanket, Holy Water, Lamp, 7 days of Rations, Robe, and Tinderbox."
+  },
+  {
+    "id": "quarterstaff",
+    "name": "Quarterstaff",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Versatile"
+    ],
+    "mastery": "Topple",
+    "weight": 4,
+    "cost": {
+      "amount": 2,
+      "unit": "sp"
+    },
+    "versatile": "1d8"
+  },
+  {
+    "id": "quiver",
+    "name": "Quiver",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Quiver holds up to 20 Arrows."
+  },
+  {
+    "id": "ram-portable",
+    "name": "Ram, Portable",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 35,
+    "cost": {
+      "amount": 4,
+      "unit": "gp"
+    },
+    "text": "You can use a Portable Ram to break down doors. When doing so, you gain a +4 bonus to the Strength check. One other character can help you use the ram, giving you Advantage on this check."
+  },
+  {
+    "id": "rapier",
+    "name": "Rapier",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Finesse"
+    ],
+    "mastery": "Vex",
+    "weight": 2,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "rations",
+    "name": "Rations",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "text": "Rations consist of travel-ready food, including jerky, dried fruit, hardtack, and nuts. See “Malnutrition” in “Rules Glossary” for the risks of not eating."
+  },
+  {
+    "id": "ring-mail",
+    "name": "Ring Mail",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "heavy",
+    "ac": {
+      "base": 14,
+      "addDex": false
+    },
+    "stealthDisadvantage": true,
+    "don": "10 Minutes",
+    "doff": "5 Minutes",
+    "weight": 40,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "robe",
+    "name": "Robe",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 4,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Robe has vocational or ceremonial significance. Some events and locations admit only people wearing a Robe bearing certain colors or symbols."
+  },
+  {
+    "id": "rope",
+    "name": "Rope",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "As a Utilize action, you can tie a knot with Rope if you succeed on a DC 10 Dexterity (Sleight of Hand) check. The Rope can be burst with a successful DC 20 Strength (Athletics) check. You can bind an unwilling creature with the Rope only if the creature has the Grappled, Incapacitated, or Restrained condition. If the creature’s legs are bound, the creature has the Restrained condition until it escapes. Escaping the Rope requires the creature to make a successful DC 15 Dexterity (Acrobatics) check as an action."
+  },
+  {
+    "id": "rowboat",
+    "name": "Rowboat",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "speed": "1½ mph",
+    "stats": {
+      "Crew": "1",
+      "Passengers": "3",
+      "Cargo (Tons)": "—",
+      "AC": "11",
+      "HP": "50",
+      "Damage Threshold": "—"
+    }
+  },
+  {
+    "id": "sack",
+    "name": "Sack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 0.5,
+    "cost": {
+      "amount": 1,
+      "unit": "cp"
+    },
+    "text": "A Sack holds up to 30 pounds within 1 cubic foot."
+  },
+  {
+    "id": "saddle-exotic",
+    "name": "Saddle (Exotic)",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "tack",
+    "cost": {
+      "amount": 60,
+      "unit": "gp"
+    },
+    "weight": 40
+  },
+  {
+    "id": "saddle-military",
+    "name": "Saddle (Military)",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "tack",
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    },
+    "weight": 30
+  },
+  {
+    "id": "saddle-riding",
+    "name": "Saddle (Riding)",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "tack",
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    },
+    "weight": 25
+  },
+  {
+    "id": "sailing-ship",
+    "name": "Sailing Ship",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 10000,
+      "unit": "gp"
+    },
+    "speed": "2 mph",
+    "stats": {
+      "Crew": "20",
+      "Passengers": "20",
+      "Cargo (Tons)": "100",
+      "AC": "15",
+      "HP": "300",
+      "Damage Threshold": "15"
+    }
+  },
+  {
+    "id": "scale-mail",
+    "name": "Scale Mail",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "medium",
+    "ac": {
+      "base": 14,
+      "addDex": true,
+      "dexMax": 2
+    },
+    "stealthDisadvantage": true,
+    "don": "5 Minutes",
+    "doff": "1 Minute",
+    "weight": 45,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "scholars-pack",
+    "name": "Scholar’s Pack",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 22,
+    "cost": {
+      "amount": 40,
+      "unit": "gp"
+    },
+    "text": "A Scholar’s Pack contains the following items: Backpack, Book, Ink, Ink Pen, Lamp, 10 flasks of Oil, 10 sheets of Parchment, and Tinderbox."
+  },
+  {
+    "id": "scimitar",
+    "name": "Scimitar",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Finesse",
+      "Light"
+    ],
+    "mastery": "Nick",
+    "weight": 3,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "shield",
+    "name": "Shield",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "shield",
+    "ac": {
+      "bonus": 2
+    },
+    "stealthDisadvantage": false,
+    "don": "Utilize Action",
+    "doff": "Utilize Action",
+    "weight": 6,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "shortbow",
+    "name": "Shortbow",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d6",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Ammunition",
+      "Two-Handed"
+    ],
+    "mastery": "Vex",
+    "weight": 2,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 80,
+      "long": 320
+    },
+    "ammunition": "Arrow"
+  },
+  {
+    "id": "shortsword",
+    "name": "Shortsword",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Finesse",
+      "Light"
+    ],
+    "mastery": "Vex",
+    "weight": 2,
+    "cost": {
+      "amount": 10,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "shovel",
+    "name": "Shovel",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "Working for 1 hour, you can use a Shovel to dig a hole that is 5 feet on each side in soil or similar material."
+  },
+  {
+    "id": "sickle",
+    "name": "Sickle",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d4",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Light"
+    ],
+    "mastery": "Nick",
+    "weight": 2,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "signal-whistle",
+    "name": "Signal Whistle",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 5,
+      "unit": "cp"
+    },
+    "text": "When blown as a Utilize action, a Signal Whistle produces a sound that can be heard up to 600 feet away."
+  },
+  {
+    "id": "sled",
+    "name": "Sled",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "drawn",
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    },
+    "weight": 300
+  },
+  {
+    "id": "sling",
+    "name": "Sling",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "ranged",
+    "damage": {
+      "dice": "1d4",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Ammunition"
+    ],
+    "mastery": "Slow",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    },
+    "range": {
+      "normal": 30,
+      "long": 120
+    },
+    "ammunition": "Bullet"
+  },
+  {
+    "id": "smiths-tools",
+    "name": "Smith’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 93
+    },
+    "ability": "str",
+    "utilize": "Pry open a door or container (DC 20)",
+    "craft": [
+      "Any Melee weapon (except Club, Greatclub, Quarterstaff, and Whip)",
+      "Medium armor (except Hide)",
+      "Heavy armor",
+      "Ball Bearings",
+      "Bucket",
+      "Caltrops",
+      "Chain",
+      "Crowbar",
+      "Firearm Bullets",
+      "Grappling Hook",
+      "Iron Pot",
+      "Iron Spikes",
+      "Sling Bullets"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 8,
+    "cost": {
+      "amount": 20,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "spear",
+    "name": "Spear",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "simple",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d6",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Thrown",
+      "Versatile"
+    ],
+    "mastery": "Sap",
+    "weight": 3,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    },
+    "versatile": "1d8"
+  },
+  {
+    "id": "spell-scroll-cantrip",
+    "name": "Spell Scroll (Cantrip)",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 30,
+      "unit": "gp"
+    },
+    "text": "A Spell Scroll (Cantrip) or Spell Scroll (Level 1) is a magic item that bears the words of a cantrip or level 1 spell, respectively, determined by the scroll’s creator. If the spell is on your class’s spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed."
+  },
+  {
+    "id": "spell-scroll-level-1",
+    "name": "Spell Scroll (Level 1)",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 99
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    },
+    "text": "A Spell Scroll (Cantrip) or Spell Scroll (Level 1) is a magic item that bears the words of a cantrip or level 1 spell, respectively, determined by the scroll’s creator. If the spell is on your class’s spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed."
+  },
+  {
+    "id": "spikes-iron",
+    "name": "Spikes, Iron",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "Iron Spikes come in bundles of ten. As a Utilize action, you can use a blunt object, such as a Light Hammer, to hammer a spike into wood, earth, or a similar material. You can do so to jam a door shut or to then tie a Rope or Chain to the Spike."
+  },
+  {
+    "id": "splint-armor",
+    "name": "Splint Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "heavy",
+    "ac": {
+      "base": 17,
+      "addDex": false
+    },
+    "stealthDisadvantage": true,
+    "don": "10 Minutes",
+    "doff": "5 Minutes",
+    "weight": 60,
+    "cost": {
+      "amount": 200,
+      "unit": "gp"
+    },
+    "strength": 15
+  },
+  {
+    "id": "spyglass",
+    "name": "Spyglass",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1000,
+      "unit": "gp"
+    },
+    "text": "Objects viewed through a Spyglass are magnified to twice their size."
+  },
+  {
+    "id": "string",
+    "name": "String",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "sp"
+    },
+    "text": "String is 10 feet long. You can tie a knot in it as a Utilize action."
+  },
+  {
+    "id": "studded-leather-armor",
+    "name": "Studded Leather Armor",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Armor",
+      "page": 92
+    },
+    "category": "armor",
+    "armorCategory": "light",
+    "ac": {
+      "base": 12,
+      "addDex": true
+    },
+    "stealthDisadvantage": false,
+    "don": "1 Minute",
+    "doff": "1 Minute",
+    "weight": 13,
+    "cost": {
+      "amount": 45,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "tent",
+    "name": "Tent",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 20,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    },
+    "text": "A Tent sleeps up to two Small or Medium creatures."
+  },
+  {
+    "id": "thieves-tools",
+    "name": "Thieves’ Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "dex",
+    "utilize": "Pick a lock (DC 15), or disarm a trap (DC 15)",
+    "category": "tool",
+    "toolCategory": "other",
+    "weight": 1,
+    "cost": {
+      "amount": 25,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "tinderbox",
+    "name": "Tinderbox",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 5,
+      "unit": "sp"
+    },
+    "text": "A Tinderbox is a small container holding flint, fire steel, and tinder (usually dry cloth soaked in light oil) used to kindle a fire. Using it to light a Candle, Lamp, Lantern, or Torch—or anything else with exposed fuel—takes a Bonus Action. Lighting any other fire takes 1 minute."
+  },
+  {
+    "id": "tinkers-tools",
+    "name": "Tinker’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "dex",
+    "utilize": "Assemble a Tiny item composed of scrap, which falls apart in 1 minute (DC 20)",
+    "craft": [
+      "Musket",
+      "Pistol",
+      "Bell",
+      "Bullseye Lantern",
+      "Flask",
+      "Hooded Lantern",
+      "Hunting Trap",
+      "Lock",
+      "Manacles",
+      "Mirror",
+      "Shovel",
+      "Signal Whistle",
+      "Tinderbox"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 10,
+    "cost": {
+      "amount": 50,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "torch",
+    "name": "Torch",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 1,
+    "cost": {
+      "amount": 1,
+      "unit": "cp"
+    },
+    "text": "A Torch burns for 1 hour, casting Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. When you take the Attack action, you can attack with the Torch, using it as a Simple Melee weapon. On a hit, the target takes 1 Fire damage."
+  },
+  {
+    "id": "trident",
+    "name": "Trident",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Thrown",
+      "Versatile"
+    ],
+    "mastery": "Topple",
+    "weight": 4,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "range": {
+      "normal": 20,
+      "long": 60
+    },
+    "versatile": "1d10"
+  },
+  {
+    "id": "vial",
+    "name": "Vial",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": null,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    },
+    "text": "A Vial holds up to 4 ounces."
+  },
+  {
+    "id": "wagon",
+    "name": "Wagon",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "drawn",
+    "cost": {
+      "amount": 35,
+      "unit": "gp"
+    },
+    "weight": 400
+  },
+  {
+    "id": "war-pick",
+    "name": "War Pick",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Piercing"
+    },
+    "properties": [
+      "Versatile"
+    ],
+    "mastery": "Sap",
+    "weight": 2,
+    "cost": {
+      "amount": 5,
+      "unit": "gp"
+    },
+    "versatile": "1d10"
+  },
+  {
+    "id": "warhammer",
+    "name": "Warhammer",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d8",
+      "type": "Bludgeoning"
+    },
+    "properties": [
+      "Versatile"
+    ],
+    "mastery": "Push",
+    "weight": 5,
+    "cost": {
+      "amount": 15,
+      "unit": "gp"
+    },
+    "versatile": "1d10"
+  },
+  {
+    "id": "warhorse",
+    "name": "Warhorse",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 100
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "mount",
+    "cost": {
+      "amount": 400,
+      "unit": "gp"
+    },
+    "carryingCapacity": "540 lb."
+  },
+  {
+    "id": "warship",
+    "name": "Warship",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Mounts and Vehicles",
+      "page": 101
+    },
+    "category": "mount-or-vehicle",
+    "vehicleType": "waterborne",
+    "cost": {
+      "amount": 25000,
+      "unit": "gp"
+    },
+    "speed": "2½ mph",
+    "stats": {
+      "Crew": "60",
+      "Passengers": "60",
+      "Cargo (Tons)": "200",
+      "AC": "15",
+      "HP": "500",
+      "Damage Threshold": "20"
+    }
+  },
+  {
+    "id": "waterskin",
+    "name": "Waterskin",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Adventuring Gear",
+      "page": 100
+    },
+    "category": "adventuring-gear",
+    "weight": 5,
+    "cost": {
+      "amount": 2,
+      "unit": "sp"
+    },
+    "text": "A Waterskin holds up to 4 pints. If you don’t drink sufficient water, you risk dehydration (see “Rules Glossary”)."
+  },
+  {
+    "id": "weavers-tools",
+    "name": "Weaver’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "dex",
+    "utilize": "Mend a tear in clothing (DC 10), or sew a Tiny design (DC 10)",
+    "craft": [
+      "Padded Armor",
+      "Basket",
+      "Bedroll",
+      "Blanket",
+      "Fine Clothes",
+      "Net",
+      "Robe",
+      "Rope",
+      "Sack",
+      "String",
+      "Tent",
+      "Traveler’s Clothes"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "whip",
+    "name": "Whip",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Weapons",
+      "page": 91
+    },
+    "category": "weapon",
+    "weaponCategory": "martial",
+    "rangeType": "melee",
+    "damage": {
+      "dice": "1d4",
+      "type": "Slashing"
+    },
+    "properties": [
+      "Finesse",
+      "Reach"
+    ],
+    "mastery": "Slow",
+    "weight": 3,
+    "cost": {
+      "amount": 2,
+      "unit": "gp"
+    }
+  },
+  {
+    "id": "woodcarvers-tools",
+    "name": "Woodcarver’s Tools",
+    "source": {
+      "document": "SRD 5.2.1",
+      "section": "Tools",
+      "page": 94
+    },
+    "ability": "dex",
+    "utilize": "Carve a pattern in wood (DC 10)",
+    "craft": [
+      "Club",
+      "Greatclub",
+      "Quarterstaff",
+      "Ranged weapons (except Pistol, Musket, and Sling)",
+      "Arcane Focus",
+      "Arrows",
+      "Bolts",
+      "Druidic Focus",
+      "Ink Pen",
+      "Needles"
+    ],
+    "category": "tool",
+    "toolCategory": "artisan",
+    "weight": 5,
+    "cost": {
+      "amount": 1,
+      "unit": "gp"
+    }
+  }
+]

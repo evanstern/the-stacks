@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/027-srd-data/spec.md`
 
-**Operator checkpoints**: C1 (data source) is **PENDING OPERATOR APPROVAL**. C2 and C3 are
+**Operator checkpoints**: C1 (data source) is **Approved by the operator 2026-10-25 (card notes)**. C2 and C3 are
 below. Phase 2 of tasks.md cannot start until C1 and C3 are resolved and recorded on the card.
 
 ## Summary
@@ -20,7 +20,7 @@ to one commit and re-verified against the PDF (`research.md` R2–R4).
 
 ## Operator checkpoints
 
-### C1 — Data source — **PENDING OPERATOR APPROVAL**
+### C1 — Data source — **Approved by the operator 2026-10-25 (card notes)**
 
 **Recommendation: Candidate C, Open5e `open5e-api` `data/v2/wizards-of-the-coast/srd-2024/`,
 pinned to one commit, converted into our own record shape, and verified against the official

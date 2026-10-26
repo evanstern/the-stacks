@@ -1,0 +1,6326 @@
+{
+ "pdfSha256": "8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87",
+ "records": [
+  {
+   "kind": "monster",
+   "id": "aboleth",
+   "page": 258,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-black-dragon",
+   "page": 264,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-blue-dragon",
+   "page": 266,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-brass-dragon",
+   "page": 268,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-bronze-dragon",
+   "page": 270,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-copper-dragon",
+   "page": 276,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-gold-dragon",
+   "page": 291,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-green-dragon",
+   "page": 294,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-red-dragon",
+   "page": 318,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-silver-dragon",
+   "page": 324,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "adult-white-dragon",
+   "page": 340,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "air-elemental",
+   "page": 258,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "allosaurus",
+   "page": 344,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-black-dragon",
+   "page": 265,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-blue-dragon",
+   "page": 267,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-brass-dragon",
+   "page": 269,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-bronze-dragon",
+   "page": 271,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-copper-dragon",
+   "page": 277,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-gold-dragon",
+   "page": 292,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-green-dragon",
+   "page": 294,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-red-dragon",
+   "page": 319,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-silver-dragon",
+   "page": 325,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ancient-white-dragon",
+   "page": 341,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "animated-armor",
+   "page": 259,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "animated-flying-sword",
+   "page": 259,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "animated-rug-of-smothering",
+   "page": 259,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ankheg",
+   "page": 259,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ankylosaurus",
+   "page": 344,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ape",
+   "page": 344,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "archelon",
+   "page": 344,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "archmage",
+   "page": 305,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "assassin",
+   "page": 260,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "awakened-shrub",
+   "page": 260,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "awakened-tree",
+   "page": 260,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "axe-beak",
+   "page": 260,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "azer-sentinel",
+   "page": 261,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "baboon",
+   "page": 345,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "badger",
+   "page": 345,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "balor",
+   "page": 261,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bandit",
+   "page": 261,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bandit-captain",
+   "page": 261,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "barbed-devil",
+   "page": 262,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "basilisk",
+   "page": 262,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bat",
+   "page": 345,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bearded-devil",
+   "page": 262,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "behir",
+   "page": 263,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "berserker",
+   "page": 263,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "black-bear",
+   "page": 345,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "black-dragon-wyrmling",
+   "page": 263,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "black-pudding",
+   "page": 265,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "blink-dog",
+   "page": 266,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "blood-hawk",
+   "page": 345,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "blue-dragon-wyrmling",
+   "page": 266,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "boar",
+   "page": 346,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bone-devil",
+   "page": 267,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "brass-dragon-wyrmling",
+   "page": 268,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bronze-dragon-wyrmling",
+   "page": 269,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "brown-bear",
+   "page": 346,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bugbear-stalker",
+   "page": 271,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bugbear-warrior",
+   "page": 272,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "bulette",
+   "page": 272,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "camel",
+   "page": 346,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cat",
+   "page": 346,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "centaur-trooper",
+   "page": 272,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "chain-devil",
+   "page": 272,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "chimera",
+   "page": 273,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "chuul",
+   "page": 273,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "clay-golem",
+   "page": 274,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cloaker",
+   "page": 274,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cloud-giant",
+   "page": 275,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cockatrice",
+   "page": 275,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "commoner",
+   "page": 275,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "constrictor-snake",
+   "page": 346,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "copper-dragon-wyrmling",
+   "page": 275,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "couatl",
+   "page": 277,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "crab",
+   "page": 347,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "crocodile",
+   "page": 347,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cultist",
+   "page": 278,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "cultist-fanatic",
+   "page": 278,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "darkmantle",
+   "page": 278,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "death-dog",
+   "page": 279,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "deer",
+   "page": 347,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "deva",
+   "page": 279,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "dire-wolf",
+   "page": 347,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "djinni",
+   "page": 280,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "doppelganger",
+   "page": 280,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "draft-horse",
+   "page": 347,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "dragon-turtle",
+   "page": 281,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "dretch",
+   "page": 281,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "drider",
+   "page": 281,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "druid",
+   "page": 282,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "dryad",
+   "page": 282,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "dust-mephit",
+   "page": 307,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "eagle",
+   "page": 348,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "earth-elemental",
+   "page": 282,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "efreeti",
+   "page": 283,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "elephant",
+   "page": 348,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "elk",
+   "page": 348,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "erinyes",
+   "page": 283,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ettercap",
+   "page": 284,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ettin",
+   "page": 284,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "fire-elemental",
+   "page": 284,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "fire-giant",
+   "page": 285,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "flesh-golem",
+   "page": 285,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "flying-snake",
+   "page": 348,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "frog",
+   "page": 348,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "frost-giant",
+   "page": 285,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gargoyle",
+   "page": 286,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gelatinous-cube",
+   "page": 286,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ghast",
+   "page": 287,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ghost",
+   "page": 287,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ghoul",
+   "page": 288,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-ape",
+   "page": 349,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-badger",
+   "page": 349,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-bat",
+   "page": 349,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-boar",
+   "page": 349,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-centipede",
+   "page": 349,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-constrictor-snake",
+   "page": 350,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-crab",
+   "page": 350,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-crocodile",
+   "page": 350,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-eagle",
+   "page": 350,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-elk",
+   "page": 351,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-fire-beetle",
+   "page": 351,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-fly",
+   "page": 222,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-frog",
+   "page": 351,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-goat",
+   "page": 351,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-hyena",
+   "page": 352,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-lizard",
+   "page": 352,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-octopus",
+   "page": 352,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-owl",
+   "page": 352,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-rat",
+   "page": 353,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-scorpion",
+   "page": 353,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-seahorse",
+   "page": 353,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-shark",
+   "page": 353,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-spider",
+   "page": 353,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-toad",
+   "page": 354,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-venomous-snake",
+   "page": 354,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-vulture",
+   "page": 354,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-wasp",
+   "page": 354,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-weasel",
+   "page": 355,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "giant-wolf-spider",
+   "page": 355,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gibbering-mouther",
+   "page": 288,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "glabrezu",
+   "page": 289,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gladiator",
+   "page": 289,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gnoll-warrior",
+   "page": 289,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "goat",
+   "page": 355,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "goblin-boss",
+   "page": 290,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "goblin-minion",
+   "page": 290,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "goblin-warrior",
+   "page": 290,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gold-dragon-wyrmling",
+   "page": 290,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gorgon",
+   "page": 292,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "gray-ooze",
+   "page": 293,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "green-dragon-wyrmling",
+   "page": 293,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "green-hag",
+   "page": 295,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "grick",
+   "page": 295,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "griffon",
+   "page": 295,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "grimlock",
+   "page": 296,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "guard",
+   "page": 296,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "guard-captain",
+   "page": 296,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "guardian-naga",
+   "page": 296,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "half-dragon",
+   "page": 297,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "harpy",
+   "page": 297,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hawk",
+   "page": 355,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hell-hound",
+   "page": 297,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hezrou",
+   "page": 298,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hill-giant",
+   "page": 298,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hippogriff",
+   "page": 298,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hippopotamus",
+   "page": 355,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hobgoblin-captain",
+   "page": 299,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hobgoblin-warrior",
+   "page": 298,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "homunculus",
+   "page": 299,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "horned-devil",
+   "page": 299,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hunter-shark",
+   "page": 356,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hydra",
+   "page": 300,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "hyena",
+   "page": 356,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ice-devil",
+   "page": 300,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ice-mephit",
+   "page": 307,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "imp",
+   "page": 300,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "incubus",
+   "page": 301,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "invisible-stalker",
+   "page": 301,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "iron-golem",
+   "page": 302,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "jackal",
+   "page": 356,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "killer-whale",
+   "page": 356,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "knight",
+   "page": 302,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "kobold-warrior",
+   "page": 302,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "kraken",
+   "page": 303,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "lamia",
+   "page": 303,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "lemure",
+   "page": 304,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "lich",
+   "page": 304,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "lion",
+   "page": 356,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "lizard",
+   "page": 357,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mage",
+   "page": 305,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "magma-mephit",
+   "page": 307,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "magmin",
+   "page": 305,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mammoth",
+   "page": 357,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "manticore",
+   "page": 306,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "marilith",
+   "page": 306,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mastiff",
+   "page": 357,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "medusa",
+   "page": 306,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "merfolk-skirmisher",
+   "page": 308,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "merrow",
+   "page": 308,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mimic",
+   "page": 308,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "minotaur-of-baphomet",
+   "page": 309,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "minotaur-skeleton",
+   "page": 326,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mule",
+   "page": 357,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mummy",
+   "page": 309,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "mummy-lord",
+   "page": 309,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "nalfeshnee",
+   "page": 310,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "night-hag",
+   "page": 311,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "nightmare",
+   "page": 311,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "noble",
+   "page": 312,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ochre-jelly",
+   "page": 312,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "octopus",
+   "page": 357,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ogre",
+   "page": 312,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "ogre-zombie",
+   "page": 344,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "oni",
+   "page": 312,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "otyugh",
+   "page": 313,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "owl",
+   "page": 358,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "owlbear",
+   "page": 313,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "panther",
+   "page": 358,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pegasus",
+   "page": 313,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "phase-spider",
+   "page": 313,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "piranha",
+   "page": 358,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pirate",
+   "page": 314,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pirate-captain",
+   "page": 314,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pit-fiend",
+   "page": 314,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "planetar",
+   "page": 315,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "plesiosaurus",
+   "page": 358,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "polar-bear",
+   "page": 359,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pony",
+   "page": 359,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "priest",
+   "page": 316,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "priest-acolyte",
+   "page": 316,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pseudodragon",
+   "page": 316,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "pteranodon",
+   "page": 359,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "purple-worm",
+   "page": 316,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "quasit",
+   "page": 317,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "rakshasa",
+   "page": 317,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "rat",
+   "page": 359,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "raven",
+   "page": 359,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "red-dragon-wyrmling",
+   "page": 318,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "reef-shark",
+   "page": 360,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "remorhaz",
+   "page": 319,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "rhinoceros",
+   "page": 360,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "riding-horse",
+   "page": 360,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "roc",
+   "page": 320,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "roper",
+   "page": 320,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "rust-monster",
+   "page": 320,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "saber-toothed-tiger",
+   "page": 360,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sahuagin-warrior",
+   "page": 321,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "salamander",
+   "page": 321,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "satyr",
+   "page": 321,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "scorpion",
+   "page": 360,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "scout",
+   "page": 322,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sea-hag",
+   "page": 322,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "seahorse",
+   "page": 361,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "shadow",
+   "page": 322,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "shambling-mound",
+   "page": 323,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "shield-guardian",
+   "page": 323,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "shrieker-fungus",
+   "page": 286,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "silver-dragon-wyrmling",
+   "page": 324,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "skeleton",
+   "page": 325,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "solar",
+   "page": 326,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "specter",
+   "page": 327,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sphinx-of-lore",
+   "page": 327,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sphinx-of-valor",
+   "page": 328,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sphinx-of-wonder",
+   "page": 327,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "spider",
+   "page": 361,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "spirit-naga",
+   "page": 329,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "sprite",
+   "page": 329,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "spy",
+   "page": 329,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "steam-mephit",
+   "page": 308,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "stirge",
+   "page": 329,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "stone-giant",
+   "page": 330,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "stone-golem",
+   "page": 330,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "storm-giant",
+   "page": 330,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "succubus",
+   "page": 331,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-bats",
+   "page": 361,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-crawling-claws",
+   "page": 278,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-insects",
+   "page": 361,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-piranhas",
+   "page": 362,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-rats",
+   "page": 362,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-ravens",
+   "page": 362,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "swarm-of-venomous-snakes",
+   "page": 362,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "tarrasque",
+   "page": 331,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "tiger",
+   "page": 363,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "tough",
+   "page": 332,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "tough-boss",
+   "page": 332,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "treant",
+   "page": 333,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "triceratops",
+   "page": 363,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "troll",
+   "page": 333,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "troll-limb",
+   "page": 333,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "tyrannosaurus-rex",
+   "page": 363,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "unicorn",
+   "page": 334,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "vampire",
+   "page": 335,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "vampire-familiar",
+   "page": 334,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "vampire-spawn",
+   "page": 334,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "venomous-snake",
+   "page": 363,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "violet-fungus",
+   "page": 286,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "vrock",
+   "page": 336,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "vulture",
+   "page": 363,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "warhorse",
+   "page": 364,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "warhorse-skeleton",
+   "page": 326,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "warrior-infantry",
+   "page": 336,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "warrior-veteran",
+   "page": 337,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "water-elemental",
+   "page": 337,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "weasel",
+   "page": 364,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "werebear",
+   "page": 337,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wereboar",
+   "page": 338,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wererat",
+   "page": 338,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "weretiger",
+   "page": 339,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "werewolf",
+   "page": 339,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "white-dragon-wyrmling",
+   "page": 339,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wight",
+   "page": 341,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "will-o-wisp",
+   "page": 341,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "winter-wolf",
+   "page": 342,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wolf",
+   "page": 364,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "worg",
+   "page": 342,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wraith",
+   "page": 342,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "wyvern",
+   "page": 343,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "xorn",
+   "page": 343,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-black-dragon",
+   "page": 264,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-blue-dragon",
+   "page": 266,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-brass-dragon",
+   "page": 268,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-bronze-dragon",
+   "page": 270,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-copper-dragon",
+   "page": 276,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-gold-dragon",
+   "page": 291,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-green-dragon",
+   "page": 293,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-red-dragon",
+   "page": 318,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-silver-dragon",
+   "page": 324,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "young-white-dragon",
+   "page": 340,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "monster",
+   "id": "zombie",
+   "page": 343,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "acid-arrow",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "acid-splash",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "aid",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "alarm",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "alter-self",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "animal-friendship",
+   "page": 107,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "animal-messenger",
+   "page": 108,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "animal-shapes",
+   "page": 108,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "animate-dead",
+   "page": 108,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "animate-objects",
+   "page": 108,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "antilife-shell",
+   "page": 109,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "antimagic-field",
+   "page": 109,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "antipathy-sympathy",
+   "page": 109,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "arcane-eye",
+   "page": 110,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "arcane-hand",
+   "page": 110,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "arcane-lock",
+   "page": 110,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "arcane-sword",
+   "page": 110,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "arcanists-magic-aura",
+   "page": 110,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "astral-projection",
+   "page": 111,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "augury",
+   "page": 111,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "aura-of-life",
+   "page": 111,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "awaken",
+   "page": 111,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "bane",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "banishment",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "barkskin",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "beacon-of-hope",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "befuddlement",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "bestow-curse",
+   "page": 112,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "black-tentacles",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "blade-barrier",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "bless",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "blight",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "blindness-deafness",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "blink",
+   "page": 113,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "blur",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "burning-hands",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "call-lightning",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "calm-emotions",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "chain-lightning",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "charm-monster",
+   "page": 114,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "charm-person",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "chill-touch",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "chromatic-orb",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "circle-of-death",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "clairvoyance",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "clone",
+   "page": 115,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "cloudkill",
+   "page": 116,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "color-spray",
+   "page": 116,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "command",
+   "page": 116,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "commune",
+   "page": 116,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "commune-with-nature",
+   "page": 116,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "comprehend-languages",
+   "page": 117,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "compulsion",
+   "page": 117,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "cone-of-cold",
+   "page": 117,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "confusion",
+   "page": 117,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-animals",
+   "page": 117,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-celestial",
+   "page": 118,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-elemental",
+   "page": 118,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-fey",
+   "page": 118,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-minor-elementals",
+   "page": 118,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "conjure-woodland-beings",
+   "page": 118,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "contact-other-plane",
+   "page": 119,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "contagion",
+   "page": 119,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "contingency",
+   "page": 119,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "continual-flame",
+   "page": 119,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "control-water",
+   "page": 119,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "control-weather",
+   "page": 120,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "counterspell",
+   "page": 120,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "create-food-and-water",
+   "page": 120,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "create-or-destroy-water",
+   "page": 121,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "create-undead",
+   "page": 121,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "creation",
+   "page": 121,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "cure-wounds",
+   "page": 121,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dancing-lights",
+   "page": 121,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "darkness",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "darkvision",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "daylight",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "death-ward",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "delayed-blast-fireball",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "demiplane",
+   "page": 122,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "detect-evil-and-good",
+   "page": 123,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "detect-magic",
+   "page": 123,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "detect-poison-and-disease",
+   "page": 123,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "detect-thoughts",
+   "page": 123,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dimension-door",
+   "page": 123,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "disguise-self",
+   "page": 124,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "disintegrate",
+   "page": 124,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dispel-evil-and-good",
+   "page": 124,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dispel-magic",
+   "page": 124,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dissonant-whispers",
+   "page": 124,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "divination",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "divine-favor",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "divine-smite",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "divine-word",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dominate-beast",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dominate-monster",
+   "page": 125,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dominate-person",
+   "page": 126,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dragons-breath",
+   "page": 126,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "dream",
+   "page": 126,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "druidcraft",
+   "page": 126,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "earthquake",
+   "page": 127,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "eldritch-blast",
+   "page": 127,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "elementalism",
+   "page": 127,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "enhance-ability",
+   "page": 127,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "enlarge-reduce",
+   "page": 127,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ensnaring-strike",
+   "page": 128,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "entangle",
+   "page": 128,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "enthrall",
+   "page": 128,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "etherealness",
+   "page": 128,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "expeditious-retreat",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "eyebite",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fabricate",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "faerie-fire",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "faithful-hound",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "false-life",
+   "page": 129,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fear",
+   "page": 130,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "feather-fall",
+   "page": 130,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "find-familiar",
+   "page": 130,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "find-steed",
+   "page": 130,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "find-the-path",
+   "page": 131,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "find-traps",
+   "page": 131,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "finger-of-death",
+   "page": 131,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fire-bolt",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fire-shield",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fire-storm",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fireball",
+   "page": 131,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "flame-blade",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "flame-strike",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "flaming-sphere",
+   "page": 132,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "flesh-to-stone",
+   "page": 133,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "floating-disk",
+   "page": 133,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fly",
+   "page": 133,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "fog-cloud",
+   "page": 133,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "forbiddance",
+   "page": 133,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "forcecage",
+   "page": 134,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "foresight",
+   "page": 134,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "freedom-of-movement",
+   "page": 134,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "freezing-sphere",
+   "page": 134,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "gaseous-form",
+   "page": 134,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "gate",
+   "page": 135,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "geas",
+   "page": 135,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "gentle-repose",
+   "page": 135,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "giant-insect",
+   "page": 135,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "glibness",
+   "page": 136,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "globe-of-invulnerability",
+   "page": 136,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "glyph-of-warding",
+   "page": 136,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "goodberry",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "grease",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "greater-invisibility",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "greater-restoration",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "guardian-of-faith",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "guards-and-wards",
+   "page": 137,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "guidance",
+   "page": 138,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "guiding-bolt",
+   "page": 138,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "gust-of-wind",
+   "page": 138,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hallow",
+   "page": 138,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hallucinatory-terrain",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "harm",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "haste",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "heal",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "healing-word",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "heat-metal",
+   "page": 139,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hellish-rebuke",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "heroes-feast",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "heroism",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hex",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hideous-laughter",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hold-monster",
+   "page": 140,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hold-person",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "holy-aura",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hunters-mark",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "hypnotic-pattern",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ice-knife",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ice-storm",
+   "page": 141,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "identify",
+   "page": 142,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "illusory-script",
+   "page": 142,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "imprisonment",
+   "page": 142,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "incendiary-cloud",
+   "page": 142,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "inflict-wounds",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "insect-plague",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "instant-summons",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "invisibility",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "irresistible-dance",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "jump",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "knock",
+   "page": 143,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "legend-lore",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "lesser-restoration",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "levitate",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "light",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "lightning-bolt",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "locate-animals-or-plants",
+   "page": 144,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "locate-creature",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "locate-object",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "longstrider",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mage-armor",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mage-hand",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magic-circle",
+   "page": 145,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magic-jar",
+   "page": 146,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magic-missile",
+   "page": 146,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magic-mouth",
+   "page": 146,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magic-weapon",
+   "page": 146,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "magnificent-mansion",
+   "page": 147,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "major-image",
+   "page": 147,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mass-cure-wounds",
+   "page": 147,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mass-heal",
+   "page": 147,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mass-healing-word",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mass-suggestion",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "maze",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "meld-into-stone",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mending",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "message",
+   "page": 148,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "meteor-swarm",
+   "page": 149,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mind-blank",
+   "page": 149,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mind-spike",
+   "page": 149,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "minor-illusion",
+   "page": 149,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mirage-arcane",
+   "page": 149,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mirror-image",
+   "page": 150,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "mislead",
+   "page": 150,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "misty-step",
+   "page": 150,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "modify-memory",
+   "page": 150,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "moonbeam",
+   "page": 150,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "move-earth",
+   "page": 151,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "nondetection",
+   "page": 151,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "pass-without-trace",
+   "page": 151,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "passwall",
+   "page": 151,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "phantasmal-force",
+   "page": 151,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "phantasmal-killer",
+   "page": 152,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "phantom-steed",
+   "page": 152,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "planar-ally",
+   "page": 152,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "planar-binding",
+   "page": 152,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "plane-shift",
+   "page": 153,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "plant-growth",
+   "page": 153,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "poison-spray",
+   "page": 153,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "polymorph",
+   "page": 153,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "power-word-heal",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "power-word-kill",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "power-word-stun",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "prayer-of-healing",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "prestidigitation",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "prismatic-spray",
+   "page": 154,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "prismatic-wall",
+   "page": 155,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "private-sanctum",
+   "page": 156,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "produce-flame",
+   "page": 156,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "programmed-illusion",
+   "page": 156,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "project-image",
+   "page": 156,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "protection-from-energy",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "protection-from-evil-and-good",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "protection-from-poison",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "purify-food-and-drink",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "raise-dead",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ray-of-enfeeblement",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ray-of-frost",
+   "page": 157,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "ray-of-sickness",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "regenerate",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "reincarnate",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "remove-curse",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "resilient-sphere",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "resistance",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "resurrection",
+   "page": 158,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "reverse-gravity",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "revivify",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "rope-trick",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sacred-flame",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sanctuary",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "scorching-ray",
+   "page": 159,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "scrying",
+   "page": 160,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "searing-smite",
+   "page": 160,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "secret-chest",
+   "page": 160,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "see-invisibility",
+   "page": 160,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "seeming",
+   "page": 160,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sending",
+   "page": 161,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sequester",
+   "page": 161,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shapechange",
+   "page": 161,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shatter",
+   "page": 161,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shield",
+   "page": 161,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shield-of-faith",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shillelagh",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shining-smite",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "shocking-grasp",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "silence",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "silent-image",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "simulacrum",
+   "page": 162,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sleep",
+   "page": 163,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sleet-storm",
+   "page": 163,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "slow",
+   "page": 163,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sorcerous-burst",
+   "page": 163,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "spare-the-dying",
+   "page": 163,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "speak-with-animals",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "speak-with-dead",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "speak-with-plants",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "spider-climb",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "spike-growth",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "spirit-guardians",
+   "page": 164,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "spiritual-weapon",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "starry-wisp",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "stinking-cloud",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "stone-shape",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "stoneskin",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "storm-of-vengeance",
+   "page": 165,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "suggestion",
+   "page": 166,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "summon-dragon",
+   "page": 166,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sunbeam",
+   "page": 166,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "sunburst",
+   "page": 167,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "symbol",
+   "page": 167,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "telekinesis",
+   "page": 167,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "telepathic-bond",
+   "page": 168,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "teleport",
+   "page": 168,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "teleportation-circle",
+   "page": 168,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "thaumaturgy",
+   "page": 169,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "thunderwave",
+   "page": 169,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "time-stop",
+   "page": 169,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "tiny-hut",
+   "page": 169,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "tongues",
+   "page": 169,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "transport-via-plants",
+   "page": 170,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "tree-stride",
+   "page": 170,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "true-polymorph",
+   "page": 170,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "true-resurrection",
+   "page": 170,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "true-seeing",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "true-strike",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "tsunami",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "unseen-servant",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "vampiric-touch",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "vicious-mockery",
+   "page": 171,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "vitriolic-sphere",
+   "page": 172,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wall-of-fire",
+   "page": 172,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wall-of-force",
+   "page": 172,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wall-of-ice",
+   "page": 172,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wall-of-stone",
+   "page": 173,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wall-of-thorns",
+   "page": 173,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "warding-bond",
+   "page": 173,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "water-breathing",
+   "page": 173,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "water-walk",
+   "page": 173,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "web",
+   "page": 174,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "weird",
+   "page": 174,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wind-walk",
+   "page": 174,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wind-wall",
+   "page": 174,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "wish",
+   "page": 175,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "word-of-recall",
+   "page": 175,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "spell",
+   "id": "zone-of-truth",
+   "page": 175,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "barbarian",
+   "page": 28,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "bard",
+   "page": 31,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "cleric",
+   "page": 36,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "druid",
+   "page": 41,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "fighter",
+   "page": 47,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "monk",
+   "page": 49,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "paladin",
+   "page": 53,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "ranger",
+   "page": 57,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "rogue",
+   "page": 61,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "sorcerer",
+   "page": 64,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "warlock",
+   "page": 70,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "class",
+   "id": "wizard",
+   "page": 77,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "acid",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "airship",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "alchemists-fire",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "alchemists-supplies",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "antitoxin",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arcane-focus-crystal",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arcane-focus-orb",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arcane-focus-rod",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arcane-focus-staff",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arcane-focus-wand",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "arrows",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "backpack",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ball-bearings",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "barrel",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "basket",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "battleaxe",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bedroll",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bell",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "blanket",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "block-and-tackle",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "blowgun",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bolts",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "book",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bottle-glass",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "breastplate",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "brewers-supplies",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bucket",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bullets-firearm",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "bullets-sling",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "burglars-pack",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "calligraphers-supplies",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "caltrops",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "camel",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "candle",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "carpenters-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "carriage",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "cart",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "cartographers-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "case-crossbow-bolt",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "case-map-or-scroll",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "chain",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "chain-mail",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "chain-shirt",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "chariot",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "chest",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "climbers-kit",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "clothes-fine",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "clothes-travelers",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "club",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "cobblers-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "component-pouch",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "cooks-utensils",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "costume",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "crowbar",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "dagger",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "dart",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "diplomats-pack",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "disguise-kit",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "druidic-focus-sprig-of-mistletoe",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "druidic-focus-wooden-staff",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "druidic-focus-yew-wand",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "dungeoneers-pack",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "elephant",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "entertainers-pack",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "explorers-pack",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "feed-per-day",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "flail",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "flask",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "forgery-kit",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "galley",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "gaming-set-dice",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "gaming-set-dragonchess",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "gaming-set-playing-cards",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "gaming-set-three-dragon-ante",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "glaive",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "glassblowers-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "grappling-hook",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "greataxe",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "greatclub",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "greatsword",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "halberd",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "half-plate-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "hand-crossbow",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "handaxe",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "healers-kit",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "heavy-crossbow",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "herbalism-kit",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "hide-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "holy-symbol-amulet",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "holy-symbol-emblem",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "holy-symbol-reliquary",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "holy-water",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "horse-draft",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "horse-riding",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "hunting-trap",
+   "page": 97,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ink",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ink-pen",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "javelin",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "jewelers-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "jug",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "keelboat",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ladder",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "lamp",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "lance",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "lantern-bullseye",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "lantern-hooded",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "leather-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "leatherworkers-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "light-crossbow",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "light-hammer",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "lock",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "longbow",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "longship",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "longsword",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "mace",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "magnifying-glass",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "manacles",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "map",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "masons-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "mastiff",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "maul",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "mirror",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "morningstar",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "mule",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-bagpipes",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-drum",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-dulcimer",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-flute",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-horn",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-lute",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-lyre",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-pan-flute",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-shawm",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musical-instrument-viol",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "musket",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "navigators-tools",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "needles",
+   "page": 96,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "net",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "oil",
+   "page": 98,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "padded-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "painters-supplies",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "paper",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "parchment",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "perfume",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pike",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pistol",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "plate-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "poison-basic",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "poisoners-kit",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pole",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pony",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pot-iron",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "potion-of-healing",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "potters-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "pouch",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "priests-pack",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "quarterstaff",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "quiver",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ram-portable",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "rapier",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "rations",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "ring-mail",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "robe",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "rope",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "rowboat",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "sack",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "saddle-exotic",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "saddle-military",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "saddle-riding",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "sailing-ship",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "scale-mail",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "scholars-pack",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "scimitar",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "shield",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "shortbow",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "shortsword",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "shovel",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "sickle",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "signal-whistle",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "sled",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "sling",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "smiths-tools",
+   "page": 93,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "spear",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "spell-scroll-cantrip",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "spell-scroll-level-1",
+   "page": 99,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "spikes-iron",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "splint-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "spyglass",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "string",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "studded-leather-armor",
+   "page": 92,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "tent",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "thieves-tools",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "tinderbox",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "tinkers-tools",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "torch",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "trident",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "vial",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "wagon",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "war-pick",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "warhammer",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "warhorse",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "warship",
+   "page": 101,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "waterskin",
+   "page": 100,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "weavers-tools",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "whip",
+   "page": 91,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "equipment",
+   "id": "woodcarvers-tools",
+   "page": 94,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "blinded",
+   "page": 177,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "charmed",
+   "page": 178,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "deafened",
+   "page": 181,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "exhaustion",
+   "page": 181,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "frightened",
+   "page": 182,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "grappled",
+   "page": 182,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "incapacitated",
+   "page": 184,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "invisible",
+   "page": 184,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "paralyzed",
+   "page": 186,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "petrified",
+   "page": 186,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "poisoned",
+   "page": 186,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "prone",
+   "page": 186,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "restrained",
+   "page": 187,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "stunned",
+   "page": 189,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "condition",
+   "id": "unconscious",
+   "page": 191,
+   "ok": true,
+   "missing": []
+  }
+ ]
+}

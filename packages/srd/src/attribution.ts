@@ -12,4 +12,9 @@ export const SRD_DATA_SOURCE: {
   url: string;
   commit: string;
   license: string;
-} | null = null;
+} | null = {
+  name: "Open5e",
+  url: "https://github.com/open5e/open5e-api",
+  commit: "e69ac13b49dae6a9d84abf38fc674fe1db5b392b",
+  license: "CC-BY-4.0",
+};
