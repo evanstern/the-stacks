@@ -1,9 +1,10 @@
 ---
 id: TASK-0048
 title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone demo'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-26 09:43'
 labels:
   - first-scene
   - test
@@ -26,6 +27,8 @@ Outcome: proof that the First Scene plays well and plays honestly. A harness run
 Why: decision-0021 idea 6. Play quality is judged from evidence, not impressions. The parked combat rules (TASK-0055) are decided from this card's evidence.
 
 Demo: one human player plus AI companions play a scene with exploration, a social beat and a fight, to its end.
+
+Spec: specs/032-playtest-harness
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -36,6 +39,12 @@ Demo: one human player plus AI companions play a scene with exploration, a socia
 - [ ] #4 One human player plus AI companions play a scene with exploration, a social beat and a fight to its end.
 - [ ] #5 The demo record lists every audit failure and how it was resolved.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 5) after TASK-0046 (#49) and TASK-0047 (#47) merged. Worktree .worktrees/task-0048, branch task-0048-playtest, cut from origin/main 718d738. Spec number 032 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
