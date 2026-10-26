@@ -4,7 +4,7 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
-updated_date: '2026-10-26 14:20'
+updated_date: '2026-10-26 14:51'
 labels:
   - hosted-dev
   - ai
@@ -34,7 +34,7 @@ Every command that changes vm-104 needs the operator's go on its exact text. Sub
 - [ ] #1 Hosted dev's app container reaches an ollama service with bge-m3 pulled, and an embed call returns a 1024-dimension vector.
 - [ ] #2 The ollama service lives in the repo's dev deploy definition, so it survives a redeploy and the drift check.
 - [ ] #3 Either 9router runs on vm-104 and serves the dm.* and answering models, or the card records the operator's decision to use CLIProxyAPI on port 8317 instead.
-- [ ] #4 dev's AI_PROVIDERS, AI_PURPOSES and AI_PRICES name every purpose, and the server's boot log shows no unconfigured-purposes warning.
+- [x] #4 dev's AI_PROVIDERS, AI_PURPOSES and AI_PRICES name every purpose, and the server's boot log shows no unconfigured-purposes warning.
 - [ ] #5 The hosted-dev wiki note and the ops runbook describe the AI setup.
 <!-- AC:END -->
 
@@ -58,6 +58,12 @@ Plan:
 (3) On the operator's exact go, append AI_PROVIDERS (claude at the LAN URL; ollama at http://stacks-ollama:11434/v1), AI_PURPOSES and AI_PRICES.
 (4) On the operator's go, recreate the dev app and confirm the boot log shows no unconfigured purposes.
 Caveat: the LAN path is plain HTTP, so the key crosses the LAN unencrypted. Decide whether that is acceptable or whether to add a vm-104 tailnet path. The 'Option: CLIProxyAPI on :8317' alternative is now moot unless the operator prefers it.
+
+2026-10-26, run on the operator's go:
+(1) The non-secret AI block was appended to /home/stacks/dev/.env. It sets AI_PROVIDERS (claude at http://9router.local.infinity-node.win/v1 with apiKeyEnv NINEROUTER_API_KEY; ollama at http://stacks-ollama:11434/v1), plus AI_PURPOSES (10 purposes, the same mapping as local, maxTokens raised) and AI_PRICES. The file keeps mode 600.
+(2) Ran gh run rerun 40339203227 (Deploy dev), which succeeded and recreated stacks-dev-app-1 at 181fda16.
+Verified from inside stacks-dev-app-1: 9router lists 4 models with the key, and the ollama embedding returns 1024 dims. The boot log shows only 'Server listening on port 3000', with no unconfigured-purposes warning. AC #4 is met.
+Still open: AC #2 (move stacks-ollama into the repo's deploy definition, pinned by digest) and AC #3 (record the decision: realm 9router on vm-103 over LAN HTTP, not CLIProxyAPI; the HTTP-on-LAN caveat stands). AC #5 is the docs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
