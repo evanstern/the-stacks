@@ -274,3 +274,5 @@ merge-reconcile step; record it as its own dispatch line.
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-25 | (runbook) | — | — | — | Authored as draft. Proposes 0047 starting after 0044 (fixtures) with a draft-hold on 0045. Awaiting lane sign-off. |
 | 2026-10-25 | (runbook) | [#42](https://github.com/evanstern/the-stacks/pull/42) | — | — | Operator signed off in chat: lanes as written, TASK-0047 swept, standing opus sign-off for spec writing holds. Lane 1 starts. |
+| 2026-10-25 | TASK-0042 | — | — | spec ~241k (opus) | In flight. Spec 026 claimed. Orchestrator rulings from decision-0021 idea 1 (R8): the engine owns attack, save, resistance and crit arithmetic; adjudication supplies data inputs incl. `autoFail`. Grouping P1 \| P2 \| P3+P4 \| P5+P6 \| P7. phases: 1 dispatched. |
+| 2026-10-25 | TASK-0043 | — | — | spec ~225k (opus) | In flight. Spec 027 claimed. Operator rulings: C1 Open5e srd-2024 (CC-BY-4.0); C2 other kinds carded as TASK-0092/0093/0094 (m-5); C3 downloads allowed in Phase 2. phases: 1 dispatched. |
