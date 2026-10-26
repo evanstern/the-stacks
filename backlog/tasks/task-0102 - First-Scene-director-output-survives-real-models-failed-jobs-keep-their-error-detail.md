@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:47'
+updated_date: '2026-10-26 15:49'
 labels:
   - first-scene
   - dm
@@ -42,7 +42,7 @@ Spec: specs/033-director-robustness
 - [x] #5 Spec phase: Persist diagnostics (US1; AC #1)
 - [x] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
 - [x] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
-- [ ] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
+- [x] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 - [ ] #9 Spec phase: Full gate (US4; AC #4)
 <!-- AC:END -->
 
@@ -78,6 +78,8 @@ OPERATOR RULING 2026-10-26, in the operator's words: 'Card both follow-ups (spel
 
 Spec amendment by opus-implementer: a845ad2 (US5, FR-018 to FR-028; contracts/interpret-output.md and contracts/rules-terms.md; Phase 3b T025–T034, Phase 4b T035–T038, Phase 5 T039). Orchestrator rulings on its open points: (1) adjudicate also renders the closed lists and bumps to dm.adjudicate-v2, ratified; (2) the engine event schema stays a nullable string, ratified, because the gate sits at the command and narrowing needs an event version bump (constitution IV). Finding: interpret attempt 1 reported 1200 output tokens for 331 visible chars, so hidden reasoning counts against maxTokens (R10).
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+OPERATOR APPROVAL 2026-10-26 (T035), in the operator's words: 'Approved: raise dm.interpret maxTokens from 1200 to 2500 in the root .env and the composite and TASK-0048 worktree .env files, for the TASK-0102 verification rerun and the demo. The $22 rerun ceiling stands.' Applied: dm.interpret maxTokens 2500 in the root .env, .worktrees/task-0102-run/.env and .worktrees/task-0048/.env. Each file had exactly one match and no other value changed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
