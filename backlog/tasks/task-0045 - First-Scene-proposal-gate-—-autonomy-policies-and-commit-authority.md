@@ -1,7 +1,7 @@
 ---
 id: TASK-0045
 title: 'First Scene: proposal gate — autonomy policies and commit authority'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 19:59'
 updated_date: '2026-10-26 04:46'
@@ -84,6 +84,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #48 on 2026-10-26. Card ACs #1–#9 are proven by specs/029-proposal-gate/ci-evidence.txt.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup and foundational — proposal contracts in code (US2, US7; AC #2): 15/15 · Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8): 10/10 · Fixtures for the play route and the gate (US7; TASK-0047 contract): 7/7 · Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8): 6/6 · WebSocket delivery, send path and restart (US2, US5; AC #4, #9): 8/8 · Write boundary and full gate (US6; AC #1): 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
