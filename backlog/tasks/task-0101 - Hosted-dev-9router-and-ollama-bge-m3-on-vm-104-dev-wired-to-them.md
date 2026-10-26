@@ -4,7 +4,7 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
-updated_date: '2026-10-26 14:17'
+updated_date: '2026-10-26 14:20'
 labels:
   - hosted-dev
   - ai
@@ -46,6 +46,18 @@ Every command that changes vm-104 needs the operator's go on its exact text. Sub
 2026-10-26, run on the operator's exact go: docker exec stacks-ollama ollama pull bge-m3. Result: bge-m3:latest (id 790764642607, 1.2 GB).
 Read-only check: from inside stacks-dev-app-1, a POST to http://stacks-ollama:11434/v1/embeddings with model bge-m3 returns a 1024-dimension vector. That proves the reachability half of AC #1; dev's AI_PURPOSES still need the embedding entry. stacks-ollama uses about 1.37 GiB of memory with the model loaded.
 Still open: the deploy definition with a pinned digest, 9router or CLIProxyAPI for chat, dev's .env AI settings, and the docs.
+
+Finding 2026-10-26, from the operator's memory plus infinitynode.media and Open Brain: the realm's 9router is NOT on vm-104. It runs on the infinitynode misc VM (192.168.1.103, VM 103), from infinitynode.media TASK-54 (specs/019-9router-gateway) and TASK-55 (specs/020-tailnet-9router; tailnet sidecar). Image ghcr.io/decolua/9router:0.5.59, REQUIRE_API_KEY=true. Wiki: infinitynode.media docs/wiki/9router-gateway.md.
+Read-only checks from vm-104:
+- http://9router.local.infinity-node.win/v1/models (LAN, via Traefik) returns 401 'API key required' both from the host and from inside stacks-dev-app-1. It is reachable, and a key is needed.
+- https://9router.<tailnet>.ts.net does not resolve from vm-104 or the dev container. The 9router wiki says the ts.net name resolves only inside the sidecar's namespace.
+- 192.168.1.103:20128 gets no response; the port is not published.
+Plan:
+(1) The operator mints a 9router API key in the realm dashboard and adds NINEROUTER_API_KEY to /home/stacks/dev/.env themselves.
+(2) The orchestrator lists the realm's models with that key, read-only, without printing the key.
+(3) On the operator's exact go, append AI_PROVIDERS (claude at the LAN URL; ollama at http://stacks-ollama:11434/v1), AI_PURPOSES and AI_PRICES.
+(4) On the operator's go, recreate the dev app and confirm the boot log shows no unconfigured purposes.
+Caveat: the LAN path is plain HTTP, so the key crosses the LAN unencrypted. Decide whether that is acceptable or whether to add a vm-104 tailnet path. The 'Option: CLIProxyAPI on :8317' alternative is now moot unless the operator prefers it.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
