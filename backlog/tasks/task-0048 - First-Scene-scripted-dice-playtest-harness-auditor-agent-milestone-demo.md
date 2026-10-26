@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 20:49'
+updated_date: '2026-10-26 20:54'
 labels:
   - first-scene
   - test
@@ -142,6 +142,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Demo restart: stack rebuilt at 5620ad9 (code 53a78fa), both DBs migrated, clean boot. New demo session id e8c848ec-11e9-442d-9bfa-8c26a0d84fcd. The abandoned session 2811b339 is noted for the record. The operator recreates the operator account (app DB) and starts the scene.
 
 Demo section D 2026-10-26: the operator recreated the operator account (app DB), started session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd (202), and confirmed Action is enabled. The operator-viewer fix 53a78fa is verified live in Brave. The operator is playing Tamsin.
+
+Operator demo findings (live, session e8c848ec), each to be carded in the demo record: (1) No out-of-character 'ask the DM' channel. Clarifying questions ('where am I standing?', 'what color is the boat?', 'do I hear birds?') must be declared as Tamsin's actions, which spends a move and may advance the Director's clocks. Talk never triggers a DM turn (TurnTriggerSchema: commit, approval, npc-turn, scene-start, manual, reconcile). (2) No progress indication between Commit and the DM's narration (a turn takes about 30–60 s), so the table looks stalled.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
