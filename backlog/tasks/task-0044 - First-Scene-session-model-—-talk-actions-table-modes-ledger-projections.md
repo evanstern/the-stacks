@@ -4,7 +4,7 @@ title: 'First Scene: session model — talk, actions, table modes, ledger, proje
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 03:10'
+updated_date: '2026-10-26 03:14'
 labels:
   - first-scene
   - session
@@ -42,7 +42,7 @@ Spec: specs/028-session-model
 - [x] #9 Spec phase: Setup — package scaffold and boundary rule
 - [x] #10 Spec phase: Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8)
 - [x] #11 Spec phase: User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8)
-- [ ] #12 Spec phase: User Story 6 — the fixtures contract
+- [x] #12 Spec phase: User Story 6 — the fixtures contract
 - [ ] #13 Spec phase: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
 - [ ] #14 Spec phase: Polish — full gate
 <!-- AC:END -->
@@ -62,6 +62,9 @@ Note for Phase 5: the server will then import the engine and session-model at ru
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 by sonnet-implementer: 841ef3d. 169 session-model tests pass; ci:check green. Deviation accepted: the pendingBatches bookkeeping field, which backs the defensive incompleteBatches diagnostic.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 by sonnet-implementer: 7d5984e. Five fixtures with 13 engine recipes, each re-run through execute in a test. 283 session-model tests pass; ci:check green.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
