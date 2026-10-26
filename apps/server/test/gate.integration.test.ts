@@ -355,6 +355,48 @@ describe.skipIf(!reachable)("gate — direct DM command", () => {
   });
 });
 
+describe.skipIf(!reachable)("gate — operator seated as a character", () => {
+  it("accepts declare and commit by seat (control), not account role (TASK-0048)", async () => {
+    const c = setup();
+    await seatDm(c); // a different user holds the human DM seat
+    await c.must(
+      c.gate.submit(
+        c.sessionId,
+        operatorDm,
+        mechanicsProposal(addAna as never),
+      ),
+    );
+    // An operator who is NOT the DM controls Ana.
+    const seatedOperator: Proposer = {
+      kind: "human",
+      userId: PLAYER_ID,
+      role: "operator",
+    };
+    await c.must(c.gate.submit(c.sessionId, operatorDm, anaMember));
+    await c.must(
+      c.gate.submit(c.sessionId, seatedOperator, declare("pick-lock")),
+    );
+    const ok = await c.must(
+      c.gate.submit(c.sessionId, seatedOperator, {
+        kind: "action.commit",
+        actionId: "pick-lock",
+      }),
+    );
+    expect(ok.events[0].type).toBe("action.committed");
+    expect((ok.events[0].payload as { authority: string }).authority).toBe(
+      "declarer",
+    );
+    // The operator role alone confers no control: an operator who controls nothing is refused.
+    const stranger: Proposer = {
+      kind: "human",
+      userId: OTHER_ID,
+      role: "operator",
+    };
+    const refused = await c.gate.submit(c.sessionId, stranger, declare("x"));
+    expect(refusalOf(refused).code).toBeDefined();
+  });
+});
+
 describe.skipIf(!reachable)("gate — commit authority", () => {
   it("free mode: the declarer commits (declarer); a non-controller is refused", async () => {
     const c = setup();

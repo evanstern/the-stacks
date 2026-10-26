@@ -62,6 +62,8 @@ cases. Fixture: the `as` parameter selects one of `fixture.viewers`; the DM's ac
 
 **Rationale.** specs/028-session-model Assumptions: the M2 DM viewer is the operator role.
 
+Amended (TASK-0048, operator ruling 2026-10-26): an operator is the DM viewer only when holding the human DM seat; an operator seated as a party character views as that player; an unseated operator keeps the DM view (`play/viewer.ts`).
+
 ## R5. Live writes before TASK-0045
 
 **Decision.** `useSession` gains `sendEvent({ eventType, payload, payloadVersion, visibility? })`

@@ -1,4 +1,4 @@
-import type { Viewer } from "@the-stacks/session-model";
+import { project, type Viewer } from "@the-stacks/session-model";
 import { useMemo } from "react";
 import { useRevalidator } from "react-router";
 import { useSession } from "../ws/useSession.ts";
@@ -13,19 +13,9 @@ import {
 } from "./frames.ts";
 import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
+import { type LiveUser, viewerFor } from "./viewer.ts";
 
-/** The signed-in user as the root loader supplies it. */
-export interface LiveUser {
-  id: string;
-  role: string;
-}
-
-/** Operator is the DM viewer; a player views as themselves (research R4). */
-export function viewerForUser(user: LiveUser): Viewer {
-  return user.role === "operator"
-    ? { role: "dm" }
-    : { role: "player", userId: user.id };
-}
+export type { LiveUser };
 
 /**
  * A TableSource over one live session. Commands build frames with `play/frames.ts` and send
@@ -37,7 +27,21 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     sessionId,
     revalidator.revalidate,
   );
-  const viewer = useMemo(() => viewerForUser(user), [user]);
+  // Seat and party arrive as events after load, so the viewer is re-derived from them. The
+  // seed fold uses the account-role fallback; seat and party rows are public state.
+  const viewer = useMemo<Viewer>(
+    () =>
+      viewerFor(
+        user,
+        project(
+          events,
+          user.role === "operator"
+            ? { role: "dm" }
+            : { role: "player", userId: user.id },
+        ),
+      ),
+    [events, user],
+  );
   const proposals = useMemo(
     () => selectPendingProposals(events, viewer),
     [events, viewer],
