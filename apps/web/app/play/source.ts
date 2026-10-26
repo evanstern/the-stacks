@@ -1,5 +1,5 @@
 import type { StoredEvent, Viewer } from "@the-stacks/session-model";
-import type { PendingProposalView, ProposalCommands } from "./proposals";
+import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
 
 export type SourceStatus = "connecting" | "open" | "retrying" | "fixture";
 

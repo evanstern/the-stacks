@@ -40,22 +40,22 @@ modules directly (sibling standard: `apps/web/test/turns.test.mjs`).
 
 ### Tests first
 
-- [ ] T005 [P] Write `apps/web/test/play/authority.test.mjs`: one case per decision-0016 row (research R6) — free-mode declarer; free-mode other player (holder = declarer); turn-mode active player on own action; turn-mode non-active player; turn-mode active player on another actor's action; DM in each mode; party-scope with the player controlling a member (`group`); committed and resolved actions (no control).
-- [ ] T006 [P] Write `apps/web/test/play/ledger-format.test.mjs`: `changedFields` on scalars, nested objects to depth 3, arrays as whole JSON, `null` before ("none") and `null` after; `toLedgerItems` on `freeModeAction` (one roll with reason "Ana picks the vault lock", face 13, total 18; one check outcome; the `combatant.added` changes) and `turnModeCombat` (goblin `hp.current` before and after).
-- [ ] T007 [P] Write `apps/web/test/play/frames.test.mjs`: each builder returns the contracts/live-frames.md frame; text is trimmed; an empty text or a bad id returns `null`; action ids match `act-` + UUID and parse with `RefIdSchema`; no frame carries `actor`, `seq` or `ts`.
-- [ ] T008 [P] Write `apps/web/test/play/local-log.test.mjs`: `appendLocal` assigns last seq + 1, last ts + 1 s, the given actor, `public`; never mutates its input.
-- [ ] T009 [P] Write `apps/web/test/play/reduce-frame.test.mjs`: `reduceFrame` appends `event` frames in arrival order, tracks the highest seq with `Math.max` across gaps, flips `caughtUp` on `replay-complete`, sets `notice` on `error`.
-- [ ] T010 [P] Write `apps/web/test/play/view-model.test.mjs`: for every fixture and every listed viewer, `toTableViewModel(project(events, viewer), …)` returns without throwing (SC-001); `talkOnly` as the first player has no whisper item, as the other player has one; `turnModeCombat` mode after each `table-mode.changed` (free → turn with Ana, `isViewersTurn` for the first player → turn with Bram → free); `secretTracker` as each player serializes to JSON containing no tracker id, hidden roll reason or DM journal title (SC-004); `unknownAndInvalid` `hiddenCount` is 5; a player viewer's `proposals` is `[]` even when the input holds some; `composer.actionAvailable` is false for the DM; a 1,000-event synthetic talk log projects and maps in under 50 ms.
+- [x] T005 [P] Write `apps/web/test/play/authority.test.mjs`: one case per decision-0016 row (research R6) — free-mode declarer; free-mode other player (holder = declarer); turn-mode active player on own action; turn-mode non-active player; turn-mode active player on another actor's action; DM in each mode; party-scope with the player controlling a member (`group`); committed and resolved actions (no control).
+- [x] T006 [P] Write `apps/web/test/play/ledger-format.test.mjs`: `changedFields` on scalars, nested objects to depth 3, arrays as whole JSON, `null` before ("none") and `null` after; `toLedgerItems` on `freeModeAction` (one roll with reason "Ana picks the vault lock", face 13, total 18; one check outcome; the `combatant.added` changes) and `turnModeCombat` (goblin `hp.current` before and after).
+- [x] T007 [P] Write `apps/web/test/play/frames.test.mjs`: each builder returns the contracts/live-frames.md frame; text is trimmed; an empty text or a bad id returns `null`; action ids match `act-` + UUID and parse with `RefIdSchema`; no frame carries `actor`, `seq` or `ts`.
+- [x] T008 [P] Write `apps/web/test/play/local-log.test.mjs`: `appendLocal` assigns last seq + 1, last ts + 1 s, the given actor, `public`; never mutates its input.
+- [x] T009 [P] Write `apps/web/test/play/reduce-frame.test.mjs`: `reduceFrame` appends `event` frames in arrival order, tracks the highest seq with `Math.max` across gaps, flips `caughtUp` on `replay-complete`, sets `notice` on `error`.
+- [x] T010 [P] Write `apps/web/test/play/view-model.test.mjs`: for every fixture and every listed viewer, `toTableViewModel(project(events, viewer), …)` returns without throwing (SC-001); `talkOnly` as the first player has no whisper item, as the other player has one; `turnModeCombat` mode after each `table-mode.changed` (free → turn with Ana, `isViewersTurn` for the first player → turn with Bram → free); `secretTracker` as each player serializes to JSON containing no tracker id, hidden roll reason or DM journal title (SC-004); `unknownAndInvalid` `hiddenCount` is 5; a player viewer's `proposals` is `[]` even when the input holds some; `composer.actionAvailable` is false for the DM; a 1,000-event synthetic talk log projects and maps in under 50 ms.
 
 ### Implementation
 
-- [ ] T011 [P] Implement `apps/web/app/play/labels.ts` (`actorLabel`, `characterLabel`: party lookup; `ai:dm` → "DM"; the viewer's own actor → "You"; unknown → the raw id).
-- [ ] T012 [P] Implement `apps/web/app/play/authority.ts` (`commitAuthorityFor`, `CommitAuthority`) per research R6.
-- [ ] T013 [P] Implement `apps/web/app/play/ledger-format.ts` (`changedFields`, `toLedgerItems`, `LedgerItem`) per research R7 and data-model.md.
-- [ ] T014 [P] Implement `apps/web/app/play/frames.ts` (`talkFrame`, `declareFrame`, `commentFrame`, `commitFrame`), parsing each payload with `TalkV1`, `ActionDeclaredV1`, `ActionCommentedV1`, `ActionCommittedV1` and versions from `currentVersion`.
-- [ ] T015 [P] Implement `apps/web/app/play/local-log.ts` (`appendLocal`) per research R13.
-- [ ] T016 [P] Implement `apps/web/app/play/reduce-frame.ts` (`reduceFrame(state, frame)` over `{ events, highestSeq, caughtUp, notice }`).
-- [ ] T017 Implement `apps/web/app/play/view-model.ts` (`toTableViewModel` and its types per data-model.md), using T011–T013.
+- [x] T011 [P] Implement `apps/web/app/play/labels.ts` (`actorLabel`, `characterLabel`: party lookup; `ai:dm` → "DM"; the viewer's own actor → "You"; unknown → the raw id).
+- [x] T012 [P] Implement `apps/web/app/play/authority.ts` (`commitAuthorityFor`, `CommitAuthority`) per research R6.
+- [x] T013 [P] Implement `apps/web/app/play/ledger-format.ts` (`changedFields`, `toLedgerItems`, `LedgerItem`) per research R7 and data-model.md.
+- [x] T014 [P] Implement `apps/web/app/play/frames.ts` (`talkFrame`, `declareFrame`, `commentFrame`, `commitFrame`), parsing each payload with `TalkV1`, `ActionDeclaredV1`, `ActionCommentedV1`, `ActionCommittedV1` and versions from `currentVersion`.
+- [x] T015 [P] Implement `apps/web/app/play/local-log.ts` (`appendLocal`) per research R13.
+- [x] T016 [P] Implement `apps/web/app/play/reduce-frame.ts` (`reduceFrame(state, frame)` over `{ events, highestSeq, caughtUp, notice }`).
+- [x] T017 Implement `apps/web/app/play/view-model.ts` (`toTableViewModel` and its types per data-model.md), using T011–T013.
 
 **Checkpoint**: `pnpm --filter @the-stacks/web test` green; every T005–T010 case passes.
 
@@ -199,3 +199,15 @@ AC #5 and AC #7 on the live log once TASK-0045 has merged.
   task's Phase 6.
 - Fresh worktree stacks come up unmigrated (TASK-0098): run the server's `db:migrate` after
   `pnpm env:up`.
+
+## Deviations
+
+- Phase 2: pure modules import each other with explicit `.ts` extensions (for example
+  `./labels.ts`), because `node --test` cannot resolve extensionless relative imports. Added
+  `"allowImportingTsExtensions": true` to `apps/web/tsconfig.json` (`noEmit` is already set).
+  Type-only imports in other modules keep the sibling style.
+- Phase 2: `commitAuthorityFor` returns `holder` as an actor id (or `null`); `toTableViewModel`
+  maps it to `holderLabel` for `CommitAuthority` in the view model. `toTableViewModel` takes
+  `(projections, { actor, proposals })`.
+- Phase 2: `frames.ts` types its schemas with a local `safeParse` interface, because `zod` is not
+  a direct dependency of `apps/web`.
