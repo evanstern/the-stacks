@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 17:50'
+updated_date: '2026-10-26 17:51'
 labels:
   - first-scene
   - dm
@@ -30,6 +30,8 @@ Why: TASK-0048's paid scripted playtest run 5 (20261026T171359Z-greyhollow-ford-
 The M2 demo criterion 'the narration never contradicts the ledger' would fail. Carded by operator ruling 2026-10-26: own spec and PR, merged before the live demo (TASK-0048 Phase 6). It fixes code from TASK-0046 (specs/031-dm-runtime).
 
 Approach: diagnose from run 5's evidence first (the dm.audit issue mix per rejected attempt, and which prompt carries which DM-only fact), then fix prompts, context filtering and the fallback, whichever the evidence shows. The engine still owns every number. Verify with an operator-approved paid provider run. The scripted seat's repeated fallback move is fixed on the TASK-0048 branch, not here.
+
+Spec: specs/034-narration-quality
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
