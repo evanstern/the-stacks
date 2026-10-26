@@ -92,3 +92,32 @@ describe("scenario validation", () => {
     expect(() => loadAuditScript("/no/such/file.json")).toThrow(ScenarioError);
   });
 });
+
+describe("moves.fallback", () => {
+  it("accepts the list form", () => {
+    const file = variant((s) => {
+      (s.moves as { fallback: unknown }).fallback = [
+        { text: "a" },
+        { text: "b" },
+      ];
+    });
+    expect(loadScenario(file).moves.fallback).toEqual([
+      { text: "a" },
+      { text: "b" },
+    ]);
+  });
+
+  it("reads the legacy single object as a one-element list", () => {
+    const file = variant((s) => {
+      (s.moves as { fallback: unknown }).fallback = { text: "only" };
+    });
+    expect(loadScenario(file).moves.fallback).toEqual([{ text: "only" }]);
+  });
+
+  it("rejects an empty list", () => {
+    const file = variant((s) => {
+      (s.moves as { fallback: unknown }).fallback = [];
+    });
+    expect(issuesOf(file).join(" ")).toContain("moves.fallback");
+  });
+});

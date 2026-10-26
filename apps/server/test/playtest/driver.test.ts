@@ -1,6 +1,11 @@
 import type { SessionProjections } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
-import { type DriverState, nextMove } from "../../src/playtest/driver.js";
+import {
+  type DriverState,
+  initialDriverState,
+  nextMove,
+  turnChangedState,
+} from "../../src/playtest/driver.js";
 import { loadScenario } from "../../src/playtest/scenario.js";
 
 const scenario = loadScenario(
@@ -13,6 +18,9 @@ const fresh = (over: Partial<DriverState> = {}): DriverState => ({
   moves: 0,
   combatMoves: 0,
   started: true,
+  fallbackIndex: 0,
+  lastFallbackText: null,
+  stallStreak: 0,
   ...over,
 });
 
@@ -68,5 +76,70 @@ describe("nextMove", () => {
     expect(
       nextMove(proj(), scenario, fresh({ moves: scenario.limits.maxMoves })),
     ).toBe("done");
+  });
+});
+
+describe("fallback cycling and the stall stop", () => {
+  const list = scenario.moves.fallback;
+
+  it("cycles the fallback list without an immediate repeat", () => {
+    const state = fresh({ freeIndex: 3, moves: 3 });
+    const texts: string[] = [];
+    for (let i = 0; i < list.length * 2; i++) {
+      const m = nextMove(proj(), scenario, state);
+      if (m === "wait" || m === "done") throw new Error("unexpected");
+      expect(m.fallback).toBe(true);
+      texts.push(m.text);
+      state.fallbackIndex = (m.fallbackIndex ?? 0) + 1;
+      state.lastFallbackText = m.text;
+      state.moves += 1;
+    }
+    expect(texts.slice(0, list.length)).toEqual(list.map((f) => f.text));
+    for (let i = 1; i < texts.length; i++)
+      expect(texts[i]).not.toBe(texts[i - 1]);
+  });
+
+  it("skips a fallback that equals the last one sent", () => {
+    const m = nextMove(
+      proj(),
+      scenario,
+      fresh({ freeIndex: 3, fallbackIndex: 0, lastFallbackText: list[0].text }),
+    );
+    expect(m).toMatchObject({ text: list[1].text });
+  });
+
+  it("stops after three no-change fallback moves, not before", () => {
+    const base = { freeIndex: 3, moves: 6 };
+    expect(
+      nextMove(proj(), scenario, fresh({ ...base, stallStreak: 2 })),
+    ).not.toBe("done");
+    expect(nextMove(proj(), scenario, fresh({ ...base, stallStreak: 3 }))).toBe(
+      "done",
+    );
+    expect(initialDriverState().stallStreak).toBe(0);
+  });
+
+  const change = (seq: number, type: string, before: unknown, after: unknown) =>
+    ({ kind: "change", seq, type, before, after }) as never;
+
+  it("counts a ledger change as a state change, a fallback move that changed nothing as none", () => {
+    const roll = { kind: "roll", seq: 5 } as never;
+    expect(turnChangedState([roll], 4)).toBe(false);
+    expect(turnChangedState([change(5, "hp.changed", 3, 1)], 4)).toBe(true);
+    expect(turnChangedState([change(3, "hp.changed", 3, 1)], 4)).toBe(false);
+    expect(turnChangedState([change(5, "scene.changed", null, {})], 4)).toBe(
+      true,
+    );
+  });
+
+  it("counts a table-mode row only when the mode changed", () => {
+    const free = { mode: "free" };
+    const t = (c: string) => ({ mode: "turn", activeCharacterId: c });
+    expect(
+      turnChangedState([change(5, "table-mode.changed", t("a"), t("b"))], 4),
+    ).toBe(false);
+    expect(
+      turnChangedState([change(5, "table-mode.changed", free, t("a"))], 4),
+    ).toBe(true);
   });
 });

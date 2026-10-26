@@ -179,6 +179,8 @@ export const RunManifestSchema = z.object({
     "timed-out",
   ]),
   failedJobId: z.string().optional(),
+  /** Set when the scripted seat ended the run: `seat-exhausted`. */
+  stallReason: z.string().optional(),
   moves: z.object({
     committed: z.number().int().min(0),
     refusals: z.array(

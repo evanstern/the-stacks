@@ -17,7 +17,7 @@ const scenario = {
   moves: {
     free: [{ text: "a" }, { text: "b" }, { text: "c" }],
     combat: { text: "c" },
-    fallback: { text: "f" },
+    fallback: [{ text: "f" }],
   },
   limits: { maxMoves: 30, maxWallMs: 900000 },
 };

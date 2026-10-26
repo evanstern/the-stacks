@@ -26,7 +26,14 @@ import { renderReport, renderTranscript } from "./auditor/render.js";
 import { ReportSchema, type RunManifest } from "./auditor/schema.js";
 import { budgetGateway, countingSink, providerPreflight } from "./budget.js";
 import { scenarioRng } from "./dice.js";
-import { type DriverState, nextMove } from "./driver.js";
+import {
+  type DriverState,
+  initialDriverState,
+  nextMove,
+  STALL_LIMIT,
+  STALL_REASON_SEAT_EXHAUSTED,
+  turnChangedState,
+} from "./driver.js";
 import { exportSession, writeRunDir } from "./export.js";
 import {
   PLAYTEST_AUDIT_MAX_TOKENS,
@@ -287,12 +294,8 @@ export async function runPlaytest(
     role: "player",
   };
   const refusals: { moveIndex: number; code: string }[] = [];
-  const state: DriverState = {
-    freeIndex: 0,
-    moves: 0,
-    combatMoves: 0,
-    started: false,
-  };
+  const state: DriverState = initialDriverState();
+  let stallReason: string | undefined;
   let committed = 0;
   let outcome: RunManifest["outcome"] | null = null;
   let failedJobId: string | undefined;
@@ -338,12 +341,19 @@ export async function runPlaytest(
     const move = nextMove(p, scenario, state);
     if (move === "done" || move === "wait") {
       outcome = "stalled";
+      if (move === "done" && state.stallStreak >= STALL_LIMIT)
+        stallReason = STALL_REASON_SEAT_EXHAUSTED;
       break;
     }
+    const ledgerMark = p.ledger.reduce((n, r) => Math.max(n, r.seq), 0);
     const moveIndex = state.moves;
     state.moves += 1;
     if (p.tableMode.mode === "turn") state.combatMoves += 1;
-    else state.freeIndex += 1;
+    else if (!move.fallback) state.freeIndex += 1;
+    if (move.fallback) {
+      state.fallbackIndex = (move.fallbackIndex ?? 0) + 1;
+      state.lastFallbackText = move.text;
+    }
     const declared = await gate.handle(sessionId, human, {
       kind: "action.declare",
       action: {
@@ -368,6 +378,14 @@ export async function runPlaytest(
     committed += 1;
     await settle();
     await drainIdle(worker);
+    if (move.fallback) {
+      const after = await loadDm();
+      state.stallStreak = turnChangedState(after.ledger, ledgerMark)
+        ? 0
+        : state.stallStreak + 1;
+    } else {
+      state.stallStreak = 0;
+    }
   }
 
   const finishedAt = new Date();
@@ -419,6 +437,7 @@ export async function runPlaytest(
     startedAt: startedAt.toISOString(),
     finishedAt: finishedAt.toISOString(),
     outcome,
+    ...(stallReason ? { stallReason } : {}),
     ...(failedJobId ? { failedJobId } : {}),
     moves: { committed, refusals },
     ...(dice ? { dice } : {}),

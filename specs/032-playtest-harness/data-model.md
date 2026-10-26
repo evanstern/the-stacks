@@ -14,7 +14,7 @@ Full schema: [contracts/scenario.md](contracts/scenario.md).
 | `seat` | `{ characterId, userId }`: the human seat (the seed's one `seat: "human"` character) |
 | `moves.free[]` | ordered `{ text, actionId? }` while the table is free |
 | `moves.combat` | `{ text, firstActionId? }` committed on each turn the human is active |
-| `moves.fallback` | `{ text }` committed in free mode once `free[]` is spent |
+| `moves.fallback` | `{ text }[]` cycled in free mode once `free[]` is spent |
 | `limits` | `{ maxMoves, maxWallMs }` |
 | `dice` | `{ faces: number[], seed: number \| null }` (provider mode) |
 | `ci` | `{ dmScript, auditScript, retrieve }`: file paths relative to the scenario file |
@@ -32,6 +32,7 @@ Full schema: [contracts/scenario.md](contracts/scenario.md).
 | `startedAt`, `finishedAt` | ISO times |
 | `outcome` | `ended` \| `stalled` \| `failed` \| `budget-stopped` \| `timed-out` |
 | `failedJobId` | set when `outcome = failed` |
+| `stallReason` | optional; `seat-exhausted` when 3 fallback moves in a row changed no state |
 | `moves` | `{ committed, refusals: { moveIndex, code }[] }` |
 | `spend` | `{ calls, inputTokens, outputTokens, costUsd, ceilingUsd }` |
 | `scriptRemaining` | CI mode: `remaining()` of the scripted DM |

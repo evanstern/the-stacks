@@ -44,7 +44,14 @@ export const ScenarioSchema = z.object({
       text: z.string().min(1).max(500),
       firstActionId: ActionId.optional(),
     }),
-    fallback: Move.omit({ actionId: true }),
+    // A list cycled in order; the legacy single object reads as a one-element list.
+    fallback: z.preprocess(
+      (v) => (Array.isArray(v) || v === undefined ? v : [v]),
+      z
+        .array(Move.omit({ actionId: true }))
+        .min(1)
+        .max(20),
+    ),
   }),
   limits: z.object({
     maxMoves: z.number().int().min(1).max(200),

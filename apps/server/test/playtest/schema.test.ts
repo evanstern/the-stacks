@@ -4,6 +4,7 @@ import {
   FINDING_KINDS,
   FindingSchema,
   ReportSchema,
+  RunManifestSchema,
   SEVERITY_OF,
 } from "../../src/playtest/auditor/schema.js";
 
@@ -87,5 +88,28 @@ describe("ReportSchema", () => {
     };
     const parsed = ReportSchema.parse(report);
     expect(JSON.parse(JSON.stringify(parsed))).toEqual(report);
+  });
+});
+
+describe("RunManifest stallReason", () => {
+  const base = {
+    v: 1,
+    runId: "r",
+    mode: "provider",
+    commit: "c",
+    sessionId: "00000000-0000-4000-8000-000000000001",
+    seedId: null,
+    models: {},
+    startedAt: "t",
+    finishedAt: "t",
+    outcome: "stalled",
+    moves: { committed: 0, refusals: [] },
+  };
+  it("carries stallReason when present and stays valid without it", () => {
+    expect(
+      RunManifestSchema.parse({ ...base, stallReason: "seat-exhausted" })
+        .stallReason,
+    ).toBe("seat-exhausted");
+    expect(RunManifestSchema.parse(base).stallReason).toBeUndefined();
   });
 });

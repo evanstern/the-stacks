@@ -25,7 +25,19 @@
       "text": "I swing my longsword at the goblin in the pot-helm.",
       "firstActionId": "act-strike"
     },
-    "fallback": { "text": "I press on toward the ferry before dark." }
+    "fallback": [
+      {
+        "text": "I look the stranger in the eye and ask what they want from us."
+      },
+      {
+        "text": "I crouch and study the mud, the posts and the chain for anything out of place."
+      },
+      {
+        "text": "I offer a fair trade and promise no harm if they let us pass."
+      },
+      { "text": "I keep to the old posts and edge toward the reed camp." },
+      { "text": "I ready my sword, lower my voice and step forward slowly." }
+    ]
   },
   "limits": { "maxMoves": 30, "maxWallMs": 3600000 },
   "dice": { "faces": [], "seed": null },

@@ -26,7 +26,7 @@ export const ScenarioSchema = z.object({
       text: z.string().min(1).max(500),
       firstActionId: z.string().regex(/^[a-z0-9-]{1,64}$/).optional(),   // id of the first combat move only
     }),
-    fallback: Move.omit({ actionId: true }),
+    fallback: z.array(Move.omit({ actionId: true })).min(1), // the legacy single object reads as one entry
   }),
   limits: z.object({
     maxMoves: z.number().int().min(1).max(200),
@@ -83,7 +83,9 @@ is pure.
    - the active combatant is `seat.characterId` → `moves.combat`;
    - otherwise → `"wait"`.
 5. `p.tableMode.mode === "free"`: `moves.free[freeIndex]` when one remains, else
-   `moves.fallback`.
+   `moves.fallback`, cycled in list order and never the same text twice in a row (a one-entry list repeats).
+6. After 3 consecutive fallback moves whose turns appended no ledger `change` row (a table-mode row counts only when
+   the mode changed; seat and gate-policy rows never count) → `"done"`; the harness records `stalled` with `stallReason: "seat-exhausted"` in `run.json`.
 
 The harness loop: start the scene, drain until idle, then repeat { `nextMove`; on a move,
 declare and commit it through `gate.handle`, drain until idle; on `"wait"` with an idle queue,
@@ -97,7 +99,7 @@ data-model.md order. A move without `actionId` gets `pt-<n>`.
   `act-advance`, texts verbatim from `scene.integration.test.ts`.
 - `moves.combat`: text "I swing my longsword at the goblin in the pot-helm.", `firstActionId`
   `act-strike` (the CI script names it). Later combat moves get `pt-<n>`.
-- `moves.fallback`: "I press on toward the ferry before dark."
+- `moves.fallback`: five short first-person moves (ask, examine, offer, edge toward the reeds, ready the sword).
 - `limits`: `maxMoves` 30, `maxWallMs` 3600000 (60 minutes; real-model turns take ~35 s).
 - `dice`: `faces: []`, `seed: null` (drawn at run time in provider mode).
 - `ci`: `../../test/dm/scripts/greyhollow-ford-full.json`,
