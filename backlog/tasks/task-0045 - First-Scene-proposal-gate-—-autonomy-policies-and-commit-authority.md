@@ -4,7 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 04:38'
+updated_date: '2026-10-26 04:41'
 labels:
   - first-scene
   - gate
@@ -77,6 +77,9 @@ The implementer left a narrow race: a seat change between the seat load and the 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 DM-seat race closed in d3b9452: broadcast always caches a dm.seat.changed seat. A deterministic interleaving test proves the former DM gets no DM-only event, and that it fails without the fix. Phase 6 in efc01cc: the AC #1 import-graph write-boundary test fires on its seeded tree (3 violations) and finds 0 in src. The DB suite passes 466 tests, including the restart and write-boundary tests; ci:check green; every tasks.md box is ticked.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: 24f4b5d. New note proposal-gate. All 16 stale notes reviewed: 11 amended, 5 re-pinned only after reading their diffs. Freshness OK, 41 notes.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
