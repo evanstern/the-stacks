@@ -40,6 +40,20 @@ describe("package entry points", () => {
     }
   });
 
+  it("the main entry exports the Phase 2 decision core", () => {
+    for (const name of [
+      "checkPermission",
+      "commitAuthority",
+      "routeProposal",
+      "planProposal",
+      "mechanicsRows",
+    ]) {
+      expect(typeof (main as Record<string, unknown>)[name], name).toBe(
+        "function",
+      );
+    }
+  });
+
   it("the fixtures subpath exports the contract, with types", () => {
     const list: readonly SessionFixture[] = fx.fixtures;
     const recipes: readonly MechanicsRecipe[] = fx.recipes;

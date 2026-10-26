@@ -48,11 +48,22 @@ export type { Narration, Talk } from "./events/talk.js";
 export { NarrationV1, TalkV1 } from "./events/talk.js";
 export type { Tracker } from "./events/tracker.js";
 export { TrackerChangedV1, TrackerSchema } from "./events/tracker.js";
-export type { Policy, PolicyTable } from "./gate/policy.js";
+export type { CommitDecision } from "./gate/authority.js";
+export { commitAuthority } from "./gate/authority.js";
+export type { PermissionResult } from "./gate/permissions.js";
+export { checkPermission } from "./gate/permissions.js";
+export type {
+  PlanIds,
+  PlannedRow,
+  PlanResult,
+} from "./gate/plan.js";
+export { mechanicsRows, planProposal } from "./gate/plan.js";
+export type { Policy, PolicyTable, Route } from "./gate/policy.js";
 export {
   DEFAULT_POLICIES,
   effectivePolicy,
   PolicySchema,
+  routeProposal,
 } from "./gate/policy.js";
 export type {
   DmProposalKind,
