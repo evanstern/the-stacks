@@ -18,7 +18,7 @@ vector/fts/hybrid search, fused by RRF) now has its first HTTP caller: the rules
 operator-only. The provider-agnostic AI gateway ([[ai-gateway]]) has landed, with two callers
 now — ingestion's `embed()` and the rules answerer's `chat()`/`embed()`. Both now have a UI
 ([[chat-ui]], TASK-0028): upload-and-watch-it-ingest, ask-and-watch-it-stream with clickable
-citations, and a much smaller Table-only view for a player, role-gated at the loader. The pure 5e rules engine ([[dnd5e-engine]], TASK-0042) now exists as a standalone package, not yet called by the server. The SRD 5.2.1 data package ([[srd-data]], TASK-0043) adds 903 validated records with provenance, an id/name loader, a 120-token compact lookup form and the CC-BY attribution shown on `/about`. No
+citations, and a much smaller Table-only view for a player, role-gated at the loader. The pure 5e rules engine ([[dnd5e-engine]], TASK-0042) now exists as a standalone package, not yet called by the server. The SRD 5.2.1 data package ([[srd-data]], TASK-0043) adds 903 validated records with provenance, an id/name loader, a 120-token compact lookup form and the CC-BY attribution shown on `/about`. The session model ([[session-model]], TASK-0044) adds the typed event catalog, `canSee` visibility, the pure projection fold and fixtures, with an atomic `appendBatch` in the event log; live DM delivery is TASK-0045. No
 codex, system modules, or agents yet. `main` is now continuously deployed to a real hosted
 `dev` environment on vm-104 ([[hosted-dev]]).
 
@@ -39,6 +39,8 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, and the R8 arithmetic ruling.
 - [[srd-data]] — the SRD 5.2.1 data package: five Zod record kinds, Open5e conversion pinned to a commit and checked against the PDF, provenance, id/name loader, 120-token compact form, attribution and `/about`, and the no-engine-import boundary.
 
+- [[session-model]] — the session event catalog (talk/lifecycle/state-change/marker/record), mechanics envelope, `canSee`, the projection fold, fixtures, and the server append seam.
+
 ## Server
 
 - [[server-entrypoint-and-app]] — one Node process, how the HTTP app and WebSocket gateway share a port.
@@ -51,7 +53,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 ## Data
 
 - [[database-access]] — the Drizzle client, the pool, and the reachability probe.
-- [[event-log]] — the append-only session log: sequence assignment, the advisory lock, visibility.
+- [[event-log]] — the append-only session log: sequence assignment, the advisory lock, atomic `appendBatch`, visibility.
 - [[database-schema]] — the tables, their constraints, and the append-only trigger.
 - [[migrations]] — how schema changes are generated and applied, and the host-vs-container trap.
 

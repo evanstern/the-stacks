@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # Monorepo and toolchain
@@ -47,26 +47,25 @@ depends on database reachability, which Turbo cannot hash), and runs against fre
 changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
-`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/srd`, `packages/srd/test`,
+`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/session-model`, `packages/session-model/test`, `packages/srd`, `packages/srd/test`,
 `apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
 `tsc -b` across the eight ([[dnd5e-engine]] is the pure rules package and its test project;
-[[srd-data]] is the SRD data package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
+[[srd-data]] is the SRD data package and its test project; [[session-model]] is the pure session event package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
 (target ES2022, `module`/`moduleResolution`: ESNext/Bundler, `strict: true`,
 `composite: true`, `declaration: true` — composite and declaration are what make project
-references work at all) and adds its own `outDir`/`rootDir`/`include`. `apps/server` and
-`apps/web` each declare `references: [{ "path": "../../packages/shared" }]`, matching the
+references work at all) and adds its own `outDir`/`rootDir`/`include`. `apps/web` declares `references: [{ "path": "../../packages/shared" }]`; `apps/server` also references `packages/dnd5e-engine` and `packages/session-model`, matching the
 Dockerfile's build-order comment that `@the-stacks/server` depends on `@the-stacks/shared`
 resolving through the workspace. `apps/web`'s tsconfig additionally widens `lib` to include
 `DOM`/`DOM.Iterable` and sets `jsx: "react-jsx"`. `apps/server/test` is its own project
 reference (`apps/server/test/tsconfig.json`: `noEmit: true`, `include: ["."]`, references
-`apps/server` and `packages/shared`) — see [[test-suite]] for why this exists.
+`apps/server`, `packages/shared`, `packages/dnd5e-engine` and `packages/session-model`) — see [[test-suite]] for why this exists.
 
 `biome.json` is the single formatter and linter (`quoteStyle: "double"` for JS), reading
 `.gitignore` (`vcs.useIgnoreFile: true`) and additionally excluding `.claude`, `.specify`,
 `backlog`, `docs`, `specs`, `fixtures` from its `files.includes` — non-source directories it
 never touches — plus narrower carve-outs: `apps/server/test/fixtures/ddb` (raw
 export-shaped HTML fixtures, not app code; see [[ddb-parser]]) and the generated SRD data
-(`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]). Seven `overrides` entries add
+(`packages/srd/data`, `packages/srd/provenance`; see [[srd-data]]). Eight `overrides` entries add
 a `noRestrictedImports` rule scoped to
 `apps/web/**`, `packages/shared/**`, and the server's `library`/`codex`/`session` planes,
 each forbidding imports of the others (constitution III's plane isolation). The sixth,
@@ -74,7 +73,7 @@ scoped to `packages/dnd5e-engine/src/**`, also adds `noRestrictedGlobals` and de
 database, network, model, `node:*`, app-package imports and clock/network globals
 (constitution VI purity; see [[dnd5e-engine]]). The seventh, scoped to `packages/srd/**`, forbids
 importing the engine, server, or web app (the engine may import srd, never the reverse; see
-[[srd-data]]) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
+[[srd-data]]). The eighth, scoped to `packages/session-model/src/**`, applies the same purity denials as the engine (database, network, model, clock globals; see [[session-model]]), and the engine override also forbids importing `@the-stacks/session-model` — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
 
 ## Connections
 

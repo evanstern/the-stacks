@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 6ab21fda293591d719b196e235f0923452561987
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # Overview
@@ -69,7 +69,7 @@ described in the sections above and in the linked notes.
 
 - **5e only.** The planned system-agnostic core and the Fate conformance module are dropped.
   The engine now exists as a standalone package, [[dnd5e-engine]], not yet called by the
-  server. Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
+  server. The typed session events and their projections exist as [[session-model]] (TASK-0044); live DM delivery is TASK-0045. Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
   point `(state, command, rng) -> events | refusal`; it does no I/O and calls no model, and
   the engine owns every number (dice, hit points, conditions, initiative, rests, slots).
 - **Proposal gate.** LLM output reaches the event log only as a typed proposal that passes

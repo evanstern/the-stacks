@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",
+    "@the-stacks/dnd5e-engine": "workspace:*",
+    "@the-stacks/session-model": "workspace:*",
     "@the-stacks/shared": "workspace:*",
     "busboy": "^1.6.0",
     "drizzle-orm": "^0.45.3",

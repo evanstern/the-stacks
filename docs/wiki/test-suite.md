@@ -23,7 +23,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 3a46656a735a97788aaa7e046c195a774435e41a
+verified_against: 3551d0de8b97eb32651d726ac1707df233834502
 ---
 
 # Test suite
@@ -92,14 +92,14 @@ closes. This only serializes file execution order, changing nothing about any in
 suite's pass/fail outcome.
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
-(`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` both `apps/server`
-and `packages/shared`) is an entry in root `tsconfig.json`'s `references` array,
+(`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` `apps/server`,
+`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`) is an entry in root `tsconfig.json`'s `references` array,
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
-[[dnd5e-engine]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
+[[dnd5e-engine]]), `packages/session-model` (and its `test` project, see [[session-model]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
-closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` itself is unchanged (still
-scopes `"include": ["src"]`, so `test/` stays out of the `src` build's own output).
+closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` still
+scopes `"include": ["src"]` (its `references` now also name the engine and session-model packages), so `test/` stays out of the `src` build's own output).
 
 ## Connections
 

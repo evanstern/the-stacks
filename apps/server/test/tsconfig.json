@@ -4,5 +4,10 @@
     "noEmit": true
   },
   "include": ["."],
-  "references": [{ "path": ".." }, { "path": "../../../packages/shared" }]
+  "references": [
+    { "path": ".." },
+    { "path": "../../../packages/shared" },
+    { "path": "../../../packages/dnd5e-engine" },
+    { "path": "../../../packages/session-model" }
+  ]
 }

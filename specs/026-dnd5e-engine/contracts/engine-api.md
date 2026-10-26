@@ -246,9 +246,11 @@ value. `0d6`, `1d0` and a keep `n` of 0 are `INVALID_DICE_EXPRESSION`.
 
 ## Consumer notes
 
-- **TASK-0044** stores each engine event as the payload of a session event and rebuilds
-  `EngineState` with `replay`. The engine event's `v` is the payload's schema version. The
-  session envelope adds actor, seq, timestamp and visibility; the engine knows none of them.
+- **TASK-0044** stores each engine event inside the mechanics envelope (version 1) of
+  `specs/028-session-model/contracts/session-events.md` and rebuilds `EngineState` with
+  `replay`. The engine event's `v` travels inside the envelope; the payload version is the
+  envelope's own. The session row adds actor, seq, timestamp and visibility; the engine knows
+  none of them. One `execute` result is appended atomically through `appendMechanicsBatch`.
 - **TASK-0045** calls `execute` once per approved proposal and appends every returned event
   in order, or nothing on a refusal. It returns the refusal's `code` to the proposer.
 - **TASK-0046** `adjudicate` supplies data only (expression, AC, DC, damage types, a
