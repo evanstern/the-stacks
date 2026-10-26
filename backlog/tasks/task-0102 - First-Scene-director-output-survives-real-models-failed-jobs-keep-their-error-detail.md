@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 15:49'
+updated_date: '2026-10-26 15:53'
 labels:
   - first-scene
   - dm
@@ -46,8 +46,6 @@ Spec: specs/033-director-robustness
 - [ ] #9 Spec phase: Full gate (US4; AC #4)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -82,6 +80,9 @@ Spec amendment by opus-implementer: a845ad2 (US5, FR-018 to FR-028; contracts/in
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 OPERATOR APPROVAL 2026-10-26 (T035), in the operator's words: 'Approved: raise dm.interpret maxTokens from 1200 to 2500 in the root .env and the composite and TASK-0048 worktree .env files, for the TASK-0102 verification rerun and the demo. The $22 rerun ceiling stands.' Applied: dm.interpret maxTokens 2500 in the root .env, .worktrees/task-0102-run/.env and .worktrees/task-0048/.env. Each file had exactly one match and no other value changed.
+
+Phase 3b by sonnet-implementer: 12591c3 (T025 reproduction, green on unfixed code) and 4552254 (T026–T034). The skill enum is defined once in the engine (check.roll command), and the server derives SkillSchema, CONDITION_KEYS and SKILL_KEYS from it. STEP_GRAMMAR now renders the closed condition, skill and damage-type lists and lives in prompts/step-grammar.ts, which keeps the narrate no-engine-import boundary test intact. dm.interpret-v2 and dm.adjudicate-v2. Interpret stays strict, with no normalizer. Tests: server REQUIRE_DATABASE=1 695 passed, 5 skipped; engine 221; session-model 566. Lint, typecheck and boundaries pass. No WS flake. Orchestrator reviewed the diff. The CI playtest is not on this branch; it runs in the composite (T022).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
