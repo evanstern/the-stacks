@@ -4,7 +4,7 @@ title: 'First Scene: SRD 5.2.1 baseline data with attribution'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 02:20'
+updated_date: '2026-10-26 02:27'
 labels:
   - first-scene
   - srd
@@ -43,8 +43,8 @@ Spec: specs/027-srd-data
 - [ ] #7 The data contains no content from outside SRD 5.2.1.
 - [x] #8 Spec phase: Package scaffold, schemas, attribution, estimator (one dispatch)
 - [x] #9 Spec phase: Provenance index and converted data — US4 then US1 (one dispatch)
-- [ ] #10 Spec phase: Loader and compact forms — US1 and US3 (one dispatch)
-- [ ] #11 Spec phase: About page — US2 (one dispatch)
+- [x] #10 Spec phase: Loader and compact forms — US1 and US3 (one dispatch)
+- [x] #11 Spec phase: About page — US2 (one dispatch)
 - [ ] #12 Spec phase: Close-out (one dispatch)
 <!-- AC:END -->
 
@@ -64,6 +64,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 by sonnet-implementer: 204a9d7. Open5e pinned at e69ac13 (staging). 903 records: 331 monsters, 339 spells, 12 classes, 206 equipment, 15 conditions. Each count equals the PDF index count. PDF verification shows 0 mismatches; 86 srd tests pass.
 The converter also reads the SRD 5.2.1 PDF itself, for spell headers, stat-block headers and equipment. This is because the dataset's casting times and equipment text are wrong. Each dataset defect it repairs is recorded under provenance/source.json repairs. The orchestrator accepts this: the PDF is the CC-BY source of record.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phases 3 and 4 by sonnet-implementer: d534143 and a88ee53. 140 srd tests and 64 web tests pass. Compact forms stay at or under 120 estimated tokens; the medians are 48–105. The /about route and footer link have Brave screenshots in the scratchpad. No SRD data reaches the client bundle.
+Recorded deviation: like Settings, the About link sits in the sidebar footer, which is hidden on narrow screens.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
