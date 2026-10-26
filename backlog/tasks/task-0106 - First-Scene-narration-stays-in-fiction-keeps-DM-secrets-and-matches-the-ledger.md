@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 18:29'
+updated_date: '2026-10-26 18:35'
 labels:
   - first-scene
   - dm
@@ -38,13 +38,13 @@ Spec: specs/034-narration-quality
 <!-- AC:BEGIN -->
 - [x] #1 Companion and narrate prompts receive no DM-only seed fact, proven by a test over the assembled prompts for the Greyhollow Ford seed
 - [x] #2 The factual fallback is in-fiction prose with no system commentary, and it states every ledger change in the turn (including encounter start and end and table-mode changes), with tests
-- [ ] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
+- [x] #3 The causes of run 5's dm.audit rejections are classified from evidence, and each selected cause has a fix with a test
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [x] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [x] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
-- [ ] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
+- [x] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
 - [ ] #10 Spec phase: Verification run (US4; AC #4) — ORCHESTRATOR-RUN, PAID
 - [ ] #11 Spec phase: Full gate (US5; AC #5)
 <!-- AC:END -->
@@ -66,6 +66,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the TASK-0106 verification run (Phase 5).'
 
 Phase 3 by sonnet-implementer: 2552170 (facts v2: party with controller, npcNames, public events, setting, roll target; factEntries renders the roll reason and target), 767bbec (fallback rewrite: deterministic in-fiction sentences per change and event kind, closing 'What does X do?' on clarify, no trackers, no digits), 16ef7a8 (tests: fallback.test.ts with 15 tests including a 400-case property test; F17 and F23 repros now assert the fixed behavior). Run-5 seq 88 fallback: 'Kestrel acts, and nothing changes. The fight is over.' became 'Kestrel goes ahead with it. The fighting stops.' Server REQUIRE_DATABASE=1: 734 passed, 5 skipped.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 by sonnet-implementer: 752d98a (narrate-v2 and audit-v2: party and world sections, the no-effect definition, open-question rule), 7391633 (audit node: code derives pass or fail; deterministic, ledger-mismatch, invented-mechanics and player-agency issues block; LLM doctrine and other issues are advisory; regenerates carry only blocking issues; new clarify check requires a closing question; issue details quote the matched text; per-attempt word count), 7c62548 (tests, A3 and A4 repros now assert the fixed behavior). Server REQUIRE_DATABASE=1: 742 passed, 5 skipped. Lint, typecheck and boundaries pass.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
