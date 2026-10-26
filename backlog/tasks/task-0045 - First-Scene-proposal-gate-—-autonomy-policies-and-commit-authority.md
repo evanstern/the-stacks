@@ -4,6 +4,7 @@ title: 'First Scene: proposal gate — autonomy policies and commit authority'
 status: To Do
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-26 02:58'
 labels:
   - first-scene
   - gate
@@ -36,6 +37,12 @@ Why: one mechanism serves the AI DM (auto), the AI-assisted human DM (ask, sugge
 - [ ] #8 The gate refuses an illegal proposal before any write and returns the engine's error code.
 - [ ] #9 A test restarts the server and shows pending proposals intact.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Input from the TASK-0044 spec (specs/028-session-model, 2026-10-25): until this task lands, events with visibility 'dm' reach no WebSocket connection. This task adopts the session-model canSee() rule in apps/server/src/ws/registry.ts, so a DM's live connection receives DM-only events such as proposal.created (AC #4).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
