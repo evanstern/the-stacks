@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 10:04'
+updated_date: '2026-10-26 10:12'
 labels:
   - first-scene
   - test
@@ -39,7 +39,7 @@ Spec: specs/032-playtest-harness
 - [ ] #4 One human player plus AI companions play a scene with exploration, a social beat and a fight to its end.
 - [ ] #5 The demo record lists every audit failure and how it was resolved.
 - [x] #6 Spec phase: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3)
-- [ ] #7 Spec phase: The harness run (US1; AC #1)
+- [x] #7 Spec phase: The harness run (US1; AC #1)
 - [ ] #8 Spec phase: The auditor (US2; AC #2, #3)
 - [ ] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
 - [ ] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
@@ -58,6 +58,9 @@ Open questions are left for the demo checkpoint: how many paid playtests (defaul
 Implementation dispatch grouping: P1 to P5, one per dispatch. P6 is the demo, driven by the orchestrator with the operator.
 
 Phase 1 by sonnet-implementer: 8cacbe7. Adds the playtest.audit purpose, scenario and report schemas, and fixtures. The server suite passes 663 tests; ci:check green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 by sonnet-implementer: d9adaf3. The harness drives the real DM worker and gate in-process. The CI scenario plays to ended, saving run.json, transcript, ledger, jobs and usage. 3 integration cases pass (ended, stalled, failed). The server suite passes 675 tests; ci:check green.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
