@@ -4,6 +4,7 @@ title: Runtime stacks come up with an unmigrated app database
 status: To Do
 assignee: []
 created_date: '2026-10-26 02:58'
+updated_date: '2026-10-26 17:15'
 labels:
   - env
   - runtime
@@ -27,6 +28,12 @@ Why: reproduced 2026-10-26 with pnpm env:main. The main stack came up healthy (/
 - [ ] #3 A test or scripted check fails when a stack comes up with an unmigrated app database.
 - [ ] #4 The env-cli contract documents where migration happens.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Finding 2026-10-26 (M2 sweep orchestrator, TASK-0048 stack): (1) The documented hand workaround is wrong. apps/server/scripts/migrate.ts prefers TEST_DATABASE_URL over DATABASE_URL, and node --env-file loads the worktree .env, which sets TEST_DATABASE_URL. So 'DATABASE_URL=<app url> pnpm --filter @the-stacks/server db:migrate' silently migrates the TEST database. To migrate the app DB, pass the app URL as TEST_DATABASE_URL. (2) On an unmigrated stack, the ingest worker's loop logs 'relation "jobs" does not exist' in a tight loop with no backoff: about 2,000 errors in a few seconds. A missing schema should stop the worker or back it off. Both belong in this card's fix.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
