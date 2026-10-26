@@ -79,14 +79,14 @@ All test paths are under `apps/server/`.
 **Goal**: the queue holds, claims and fences turn, companion and chronicle jobs, one acting
 job per session, without disturbing ingestion. Contract: contracts/turn-jobs.md.
 
-- [ ] T001 Update `apps/server/src/schema/jobs.ts`: kinds, stages, nullable `book` with its CHECK, `session_id` with its CHECK, `jobs_active_book_key` scoped to `ingest`, the three partial unique indexes and `jobs_dm_session_idx`.
-- [ ] T002 Generate migration `0004` with `pnpm --filter @the-stacks/server db:generate`; review the SQL; apply it to the worktree stack.
-- [ ] T003 Create `apps/server/src/jobs/queue.ts` with kind-generic fenced `heartbeat`, `setStage`, `saveResult` and `finishJob` (filter on `id` and `claim_token`).
-- [ ] T004 Update `apps/server/src/library/ingest/jobs.ts`: add `kind = 'ingest'` to `claimJob`, `listJobs` and `getJob`; delegate fenced writes to `jobs/queue.ts`; keep every exported name and signature.
-- [ ] T005 Create `apps/server/src/dm/jobs.ts`: the input schemas, `claimDmJob` (priority, per-session `NOT EXISTS`, unique-violation → null, abandoned after `MAX_ATTEMPTS`), `enqueueTurn`, `enqueueTurnForced`, `enqueueCompanion`, `enqueueChronicle`, `saveCheckpoint`, `loadCheckpoint`, `reconcileTurnJobs`, `listDmJobs`.
-- [ ] T006 [P] Write `test/dm/jobs.integration.test.ts`: one queued turn per session under 20 concurrent commits; a queued turn is not claimable while a turn or companion job runs for its session; priority order; a lease expiry reclaims with a new token and attempts+1; a stale token's writes return false; attempts > 3 fails the job; `enqueueTurnForced` inserts or flips the flag; reconcile enqueues only sessions with an unanswered commit.
-- [ ] T007 [P] Extend `test/library/jobs.integration.test.ts`: the ingest claim never returns a DM job; `listJobs` and `getJob` never return one.
-- [ ] T008 Run the ingestion suites (`library/jobs`, `library/worker`, `library/uploads`) unchanged and green.
+- [x] T001 Update `apps/server/src/schema/jobs.ts`: kinds, stages, nullable `book` with its CHECK, `session_id` with its CHECK, `jobs_active_book_key` scoped to `ingest`, the three partial unique indexes and `jobs_dm_session_idx`.
+- [x] T002 Generate migration `0004` with `pnpm --filter @the-stacks/server db:generate`; review the SQL; apply it to the worktree stack.
+- [x] T003 Create `apps/server/src/jobs/queue.ts` with kind-generic fenced `heartbeat`, `setStage`, `saveResult` and `finishJob` (filter on `id` and `claim_token`).
+- [x] T004 Update `apps/server/src/library/ingest/jobs.ts`: add `kind = 'ingest'` to `claimJob`, `listJobs` and `getJob`; delegate fenced writes to `jobs/queue.ts`; keep every exported name and signature.
+- [x] T005 Create `apps/server/src/dm/jobs.ts`: the input schemas, `claimDmJob` (priority, per-session `NOT EXISTS`, unique-violation → null, abandoned after `MAX_ATTEMPTS`), `enqueueTurn`, `enqueueTurnForced`, `enqueueCompanion`, `enqueueChronicle`, `saveCheckpoint`, `loadCheckpoint`, `reconcileTurnJobs`, `listDmJobs`.
+- [x] T006 [P] Write `test/dm/jobs.integration.test.ts`: one queued turn per session under 20 concurrent commits; a queued turn is not claimable while a turn or companion job runs for its session; priority order; a lease expiry reclaims with a new token and attempts+1; a stale token's writes return false; attempts > 3 fails the job; `enqueueTurnForced` inserts or flips the flag; reconcile enqueues only sessions with an unanswered commit.
+- [x] T007 [P] Extend `test/library/jobs.integration.test.ts`: the ingest claim never returns a DM job; `listJobs` and `getJob` never return one.
+- [x] T008 Run the ingestion suites (`library/jobs`, `library/worker`, `library/uploads`) unchanged and green.
 
 **Checkpoint**: the queue is ready; no DM code runs yet.
 

@@ -1,0 +1,284 @@
+import { randomUUID } from "node:crypto";
+import { and, eq, sql } from "drizzle-orm";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { createDb, probeReachable } from "../../src/db.js";
+import {
+  claimDmJob,
+  enqueueChronicle,
+  enqueueCompanion,
+  enqueueTurn,
+  enqueueTurnForced,
+  listDmJobs,
+  loadCheckpoint,
+  reconcileTurnJobs,
+  saveCheckpoint,
+  type TurnCheckpoint,
+} from "../../src/dm/jobs.js";
+import {
+  finishJob,
+  heartbeat,
+  saveResult,
+  setStage,
+} from "../../src/jobs/queue.js";
+import { events } from "../../src/schema/events.js";
+import { jobs } from "../../src/schema/jobs.js";
+
+/**
+ * DM jobs on the jobs queue (specs/031-dm-runtime T006; card AC #1, #9)
+ * against a REAL Postgres: partial unique indexes, SKIP LOCKED, lease expiry
+ * and fencing cannot be reproduced by a fake.
+ */
+
+const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+const db = databaseUrl ? createDb(databaseUrl) : undefined;
+const reachable = db ? await probeReachable(db.$client, 2000) : false;
+
+if (!reachable) {
+  const notice =
+    `\n⚠️  SKIPPING apps/server/test/dm/jobs.integration.test.ts — no reachable ` +
+    `database (tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). ` +
+    `A skip here proves NOTHING about DM job claim/lease/fencing. Start one with: pnpm env:up.\n`;
+  console.warn(notice);
+  if (process.env.REQUIRE_DATABASE === "1") throw new Error(notice);
+}
+
+afterAll(async () => {
+  await db?.$client.end();
+});
+
+function requireDb() {
+  if (!db) throw new Error("DM jobs integration tests require a database");
+  return db;
+}
+
+async function ageHeartbeat(id: string, secondsAgo: number) {
+  await requireDb().execute(
+    sql`UPDATE jobs SET heartbeat_at = now() - (interval '1 second' * ${secondsAgo}) WHERE id = ${id}`,
+  );
+}
+
+async function statusOf(id: string) {
+  const [row] = await requireDb().select().from(jobs).where(eq(jobs.id, id));
+  return row;
+}
+
+/** Claims by repeatedly calling until this session's job comes up (other sessions' leftovers are cleared in beforeEach). */
+async function claim() {
+  return claimDmJob(requireDb());
+}
+
+describe.skipIf(!reachable)("DM jobs queue (Phase 1, integration)", () => {
+  beforeEach(async () => {
+    await requireDb().execute(
+      sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle')`,
+    );
+  });
+
+  it("one queued turn per session under 20 concurrent commits", async () => {
+    const sessionId = randomUUID();
+    const results = await Promise.all(
+      Array.from({ length: 20 }, (_, i) =>
+        enqueueTurn(requireDb(), sessionId, "commit", i + 1),
+      ),
+    );
+    expect(results.filter((r) => r.inserted)).toHaveLength(1);
+    expect(new Set(results.map((r) => r.jobId)).size).toBe(1);
+    const queued = await requireDb()
+      .select()
+      .from(jobs)
+      .where(and(eq(jobs.sessionId, sessionId), eq(jobs.kind, "turn")));
+    expect(queued).toHaveLength(1);
+  });
+
+  it("a queued turn is not claimable while a turn or companion job runs for its session", async () => {
+    const sessionId = randomUUID();
+    await enqueueTurn(requireDb(), sessionId, "commit", 1);
+    const running = await claim();
+    expect(running?.kind).toBe("turn");
+
+    // A commit during the running beat queues the next beat.
+    const next = await enqueueTurn(requireDb(), sessionId, "commit", 2);
+    expect(next.inserted).toBe(true);
+    expect(await claim()).toBeNull();
+
+    // A companion job for the same session is blocked too.
+    await enqueueCompanion(requireDb(), {
+      sessionId,
+      companions: ["mira"],
+      reason: "turn",
+      beatJobId: null,
+    });
+    expect(await claim()).toBeNull();
+
+    // Another session is unaffected.
+    const other = randomUUID();
+    await enqueueTurn(requireDb(), other, "commit", 1);
+    const otherClaim = await claim();
+    expect(otherClaim?.sessionId).toBe(other);
+
+    // Ending the running turn releases the queued beat (turn before companion).
+    if (!running) throw new Error("expected a claim");
+    expect(await finishJob(requireDb(), running, { result: {} })).toBe(true);
+    const afterEnd = await claim();
+    expect(afterEnd?.id).toBe(next.jobId);
+  });
+
+  it("claims in priority order: turn, companion, chronicle", async () => {
+    const [s1, s2, s3] = [randomUUID(), randomUUID(), randomUUID()];
+    await enqueueChronicle(requireDb(), s1, 5);
+    await enqueueCompanion(requireDb(), {
+      sessionId: s2,
+      companions: ["mira"],
+      reason: "prompt",
+      beatJobId: null,
+    });
+    await enqueueTurn(requireDb(), s3, "commit", 1);
+    const order = [await claim(), await claim(), await claim()];
+    expect(order.map((c) => c?.kind)).toEqual([
+      "turn",
+      "companion",
+      "chronicle",
+    ]);
+    expect(await claim()).toBeNull();
+  });
+
+  it("a chronicle job is claimable while the session's turn runs", async () => {
+    const sessionId = randomUUID();
+    await enqueueTurn(requireDb(), sessionId, "commit", 1);
+    await claim();
+    await enqueueChronicle(requireDb(), sessionId, 3);
+    const chronicle = await claim();
+    expect(chronicle?.kind).toBe("chronicle");
+  });
+
+  it("a lease expiry reclaims with a new token and attempts + 1, keeping the checkpoint", async () => {
+    const sessionId = randomUUID();
+    await enqueueTurn(requireDb(), sessionId, "commit", 1);
+    const first = await claim();
+    if (!first) throw new Error("expected a claim");
+    const checkpoint: TurnCheckpoint = {
+      beat: ["a1"],
+      npcTurn: null,
+      director: null,
+      interpret: null,
+      adjudicate: null,
+      submissions: [],
+      lastSeq: 7,
+      narration: null,
+    };
+    expect(await saveCheckpoint(requireDb(), first, checkpoint)).toBe(true);
+
+    // Fresh lease: nothing to reclaim.
+    expect(await claim()).toBeNull();
+
+    await ageHeartbeat(first.id, 61);
+    const second = await claim();
+    expect(second?.id).toBe(first.id);
+    expect(second?.claimToken).not.toBe(first.claimToken);
+    expect(second?.attempts).toBe(2);
+    expect(second && loadCheckpoint(second)).toEqual(checkpoint);
+  });
+
+  it("a stale token's writes return false and change nothing", async () => {
+    const sessionId = randomUUID();
+    await enqueueTurn(requireDb(), sessionId, "commit", 1);
+    const stale = await claim();
+    if (!stale) throw new Error("expected a claim");
+    await ageHeartbeat(stale.id, 61);
+    const fresh = await claim();
+    if (!fresh) throw new Error("expected a reclaim");
+
+    expect(await heartbeat(requireDb(), stale)).toBe(false);
+    expect(await setStage(requireDb(), stale, "resolve")).toBe(false);
+    expect(await saveResult(requireDb(), stale, { x: 1 })).toBe(false);
+    expect(
+      await saveCheckpoint(requireDb(), stale, {
+        beat: null,
+        npcTurn: null,
+        director: null,
+        interpret: null,
+        adjudicate: null,
+        submissions: [],
+        lastSeq: 0,
+        narration: null,
+      }),
+    ).toBe(false);
+    expect(await finishJob(requireDb(), stale, { error: "stale" })).toBe(false);
+
+    const row = await statusOf(stale.id);
+    expect(row.status).toBe("running");
+    expect(row.stage).toBe("assemble");
+    expect(row.result).toBeNull();
+    expect(await setStage(requireDb(), fresh, "resolve")).toBe(true);
+  });
+
+  it("attempts beyond the maximum fail the job and return nothing", async () => {
+    const sessionId = randomUUID();
+    const queued = await enqueueTurn(requireDb(), sessionId, "commit", 1);
+    for (let i = 0; i < 3; i += 1) {
+      const c = await claim();
+      expect(c?.id).toBe(queued.jobId);
+      await ageHeartbeat(queued.jobId, 61);
+    }
+    expect(await claim()).toBeNull(); // 4th claim: attempts 4 > 3
+    const row = await statusOf(queued.jobId);
+    expect(row.status).toBe("failed");
+    expect(row.error).toMatch(/abandoned 3 times/);
+  });
+
+  it("enqueueTurnForced inserts a forced job or flips the queued job's flag", async () => {
+    const sessionId = randomUUID();
+    const inserted = await enqueueTurnForced(requireDb(), sessionId);
+    expect(inserted.inserted).toBe(true);
+    let row = await statusOf(inserted.jobId);
+    expect((row.input as { forceResolve: boolean }).forceResolve).toBe(true);
+
+    const other = randomUUID();
+    const plain = await enqueueTurn(requireDb(), other, "commit", 1);
+    const forced = await enqueueTurnForced(requireDb(), other);
+    expect(forced.jobId).toBe(plain.jobId);
+    expect(forced.inserted).toBe(false);
+    row = await statusOf(plain.jobId);
+    expect((row.input as { forceResolve: boolean }).forceResolve).toBe(true);
+    const all = await listDmJobs(requireDb(), other);
+    expect(all).toHaveLength(1);
+  });
+
+  it("reconcile enqueues only sessions with an unanswered commit and no active turn job", async () => {
+    const unanswered = randomUUID();
+    const answered = randomUUID();
+    const covered = randomUUID();
+    const row = (
+      sessionId: string,
+      seq: number,
+      type: string,
+      actionId: string,
+    ) => ({
+      sessionId,
+      seq,
+      actor: "ai:dm",
+      type,
+      payload: { actionId },
+      payloadVersion: 1,
+    });
+    await requireDb()
+      .insert(events)
+      .values([
+        row(unanswered, 1, "action.committed", "a1"),
+        row(answered, 1, "action.committed", "a1"),
+        row(answered, 2, "action.resolved", "a1"),
+        row(covered, 1, "action.committed", "a1"),
+      ]);
+    await enqueueTurn(requireDb(), covered, "commit", 1);
+
+    const enqueued = await reconcileTurnJobs(requireDb());
+    expect(enqueued).toContain(unanswered);
+    expect(enqueued).not.toContain(answered);
+    expect(enqueued).not.toContain(covered);
+    const [job] = await listDmJobs(requireDb(), unanswered);
+    expect((job.input as { trigger: string }).trigger).toBe("reconcile");
+
+    // Idempotent: a second pass finds the queued job and adds nothing.
+    expect(await reconcileTurnJobs(requireDb())).not.toContain(unanswered);
+  });
+});

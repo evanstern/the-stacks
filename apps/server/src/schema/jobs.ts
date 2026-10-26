@@ -16,8 +16,7 @@ import {
  * the library plane, one row per upload. Unlike `library_*` (schema/
  * library.ts), this table is NOT under the `library_immutable` trigger —
  * rows are updated in place as a job's stage, attempts, and claim token
- * advance. Only one table for now (decision-0005); `kind`'s CHECK is the
- * seam a later job kind extends.
+ * advance. DM jobs (specs/031-dm-runtime) share the table (decision-0005).
  */
 
 export const jobs = pgTable(
@@ -25,7 +24,10 @@ export const jobs = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     kind: text("kind").notNull().default("ingest"),
-    book: text("book").notNull(),
+    // Null for DM jobs (turn / companion / chronicle); required for `ingest`.
+    book: text("book"),
+    // The play session a DM job belongs to; null for `ingest`.
+    sessionId: uuid("session_id"),
     status: text("status").notNull().default("queued"),
     // Non-null only while `running`; null when queued or terminal.
     stage: text("stage"),
@@ -57,15 +59,43 @@ export const jobs = pgTable(
     // upload of a book already in flight is a 409, not a race.
     uniqueIndex("jobs_active_book_key")
       .on(sql`lower(trim(${table.book}))`)
-      .where(sql`${table.status} IN ('queued', 'running')`),
-    check("jobs_kind_valid", sql`${table.kind} IN ('ingest')`),
+      .where(
+        sql`${table.kind} = 'ingest' AND ${table.status} IN ('queued', 'running')`,
+      ),
+    // One queued beat per session (specs/031-dm-runtime FR-003).
+    uniqueIndex("jobs_turn_queued_key")
+      .on(table.sessionId)
+      .where(sql`${table.kind} = 'turn' AND ${table.status} = 'queued'`),
+    // One queued chronicle pass per session (FR-080).
+    uniqueIndex("jobs_chronicle_queued_key")
+      .on(table.sessionId)
+      .where(sql`${table.kind} = 'chronicle' AND ${table.status} = 'queued'`),
+    // One acting (turn or companion) job running per session (FR-003).
+    uniqueIndex("jobs_session_running_key")
+      .on(table.sessionId)
+      .where(
+        sql`${table.kind} IN ('turn', 'companion') AND ${table.status} = 'running'`,
+      ),
+    index("jobs_dm_session_idx").on(table.sessionId, table.kind, table.status),
+    check(
+      "jobs_kind_valid",
+      sql`${table.kind} IN ('ingest', 'turn', 'companion', 'chronicle')`,
+    ),
+    check(
+      "jobs_book_required_for_ingest",
+      sql`${table.kind} <> 'ingest' OR ${table.book} IS NOT NULL`,
+    ),
+    check(
+      "jobs_session_required_for_dm",
+      sql`${table.kind} = 'ingest' OR ${table.sessionId} IS NOT NULL`,
+    ),
     check(
       "jobs_status_valid",
       sql`${table.status} IN ('queued', 'running', 'succeeded', 'failed')`,
     ),
     check(
       "jobs_stage_valid",
-      sql`${table.stage} IN ('extract', 'parse', 'store', 'embed')`,
+      sql`${table.stage} IN ('extract', 'parse', 'store', 'embed', 'assemble', 'director', 'interpret', 'adjudicate', 'resolve', 'narrate', 'audit', 'companion', 'chronicle')`,
     ),
   ],
 );

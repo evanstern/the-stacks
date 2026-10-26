@@ -266,4 +266,31 @@ describe.skipIf(!reachable)("jobs store (Phase 1, integration)", () => {
     });
     await expect(player.contexts[0]?.jobs()).resolves.toBeNull();
   });
+
+  it("FR-007: the ingest claim, listJobs and getJob never see a DM job", async () => {
+    const sessionId = randomUUID();
+    const [dm] = await requireDb()
+      .insert(jobs)
+      .values({
+        kind: "turn",
+        sessionId,
+        input: { v: 1, sessionId, trigger: "commit", triggerSeq: 1 },
+      })
+      .returning({ id: jobs.id });
+    if (!dm) throw new Error("expected an insert");
+    try {
+      expect(await claimJob(requireDb())).toBeNull();
+      const [still] = await requireDb()
+        .select()
+        .from(jobs)
+        .where(eq(jobs.id, dm.id));
+      expect(still?.status).toBe("queued");
+      expect((await listJobs(requireDb(), 500)).map((j) => j.id)).not.toContain(
+        dm.id,
+      );
+      expect(await getJob(requireDb(), dm.id)).toBeNull();
+    } finally {
+      await requireDb().delete(jobs).where(eq(jobs.id, dm.id));
+    }
+  });
 });
