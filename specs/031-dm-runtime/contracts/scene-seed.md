@@ -94,6 +94,8 @@ export const SceneSeedSchema = z.object({
 
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
 
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
 ## Loader
 
 ```ts
@@ -153,6 +155,8 @@ Original content plus SRD 5.2.1 monsters and spells (constitution VIII). Outline
 - **Trackers (DM only).** `dusk` (4): full dark falls; `alarm` (3): the camp is alerted.
 
 TASK-0048's demo plays this seed. Its scripted CI case scripts the same three beats.
+
+Amended by specs/034-narration-quality/contracts/player-facing-context.md.
 
 ### Amended by specs/034-narration-quality
 

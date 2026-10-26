@@ -222,16 +222,16 @@ maxTokens 1500, so a $22 ceiling refuses to start.
 
 ## Phase 6: Full gate (US5; AC #5) — after Phase 5b passes
 
-- [ ] T040 [US5] DISPATCH: run `pnpm ci:check` and the database suites with
+- [x] T040 [US5] DISPATCH: run `pnpm ci:check` and the database suites with
   `REQUIRE_DATABASE=1`. Fix any regression without loosening a test.
-- [ ] T041 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/audit-criteria.md."
+- [x] T041 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/audit-criteria.md."
   under "The loop", "Deterministic checks", "The audit call (`dm.audit`)" and "The audit record"
   in `specs/031-dm-runtime/contracts/audit.md`.
-- [ ] T042 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/fallback-summary.md."
+- [x] T042 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/fallback-summary.md."
   under "The factual summary (fallback)" in `specs/031-dm-runtime/contracts/audit.md`.
-- [ ] T043 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/narration-facts.md."
+- [x] T043 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/narration-facts.md."
   under "narrate (`dm.narrate`)" in `specs/031-dm-runtime/contracts/nodes.md`.
-- [ ] T044 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/player-facing-context.md."
+- [x] T044 [P] [US5] DISPATCH: add "Amended by specs/034-narration-quality/contracts/player-facing-context.md."
   under "Schema" and "The shipped seed" in `specs/031-dm-runtime/contracts/scene-seed.md`, under
   "One companion's play" and "Chronicle" in `companions.md`, and under the `villains-believe` row
   in `doctrine.md`. Commit.
