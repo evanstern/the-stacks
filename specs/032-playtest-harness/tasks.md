@@ -156,10 +156,10 @@ no database and no network; `pnpm playtest run` produces a passing CI run direct
 **Independent test**: `docs/design/m2-demo.md` holds every runbook step and the full record
 template of contracts/demo-runbook.md; every command it names exists.
 
-- [ ] T040 [US4] Create `docs/design/m2-demo.md`: a status line ("Template — filled at the M2 demo, TASK-0048 Phase 6"), the runbook sections A to F verbatim in substance from contracts/demo-runbook.md, then the record template.
-- [ ] T041 [US5] Create `docs/design/m2-demo/.gitkeep` so the attachments directory exists.
-- [ ] T042 [US4] Dry-check the runbook on the worktree stack without a provider: run `pnpm playtest estimate` (expect exit 4 naming the missing purposes) and confirm `pnpm env:status`, the `/auth/me` shape and the `/dm` start route path match the runbook text. Fix the runbook text, not the code, on a mismatch; a code mismatch is a STOP.
-- [ ] T043 Run `REQUIRE_DATABASE=1 pnpm ci:check`. It must exit 0 before Phase 6.
+- [x] T040 [US4] Create `docs/design/m2-demo.md`: a status line ("Template — filled at the M2 demo, TASK-0048 Phase 6"), the runbook sections A to F verbatim in substance from contracts/demo-runbook.md, then the record template.
+- [x] T041 [US5] Create `docs/design/m2-demo/.gitkeep` so the attachments directory exists.
+- [x] T042 [US4] Dry-check the runbook on the worktree stack without a provider: run `pnpm playtest estimate` (expect exit 4 naming the missing purposes) and confirm `pnpm env:status`, the `/auth/me` shape and the `/dm` start route path match the runbook text. Fix the runbook text, not the code, on a mismatch; a code mismatch is a STOP.
+- [x] T043 Run `REQUIRE_DATABASE=1 pnpm ci:check`. It must exit 0 before Phase 6.
 
 ---
 
@@ -222,3 +222,5 @@ own, so a stopped sweep resumes from the last ticked task.
 - Phase 4: relative CLI paths resolve against `INIT_CWD` (the directory `pnpm` was invoked from), because `pnpm --filter` runs in `apps/server`. The default `--out` is `.playtests/<runId>` (already gitignored).
 - Phase 4: `FightStatsSchema` gained `fledOrBargainedNote` (default `null`), set when `fledOrBargained` is `null`.
 - Phase 4: `T039` evidence in `evidence/ci-check.txt` is the summary of the run, not the full log.
+- Phase 5: `pnpm env:status` prints no `APP_PORT`; `pnpm env:up` prints the ports and `.env` holds `TEST_DATABASE_URL`. The runbook (section A) says how to derive the ports and the app database URL.
+- Phase 5: the T042 dry check ran `pnpm playtest estimate` (exit 4, naming 8 purposes plus `ollama/bge-m3` unpriced); `pnpm playtest --help` is not a command (exit 64). The `/dm` routes (`POST /sessions/:id/start`, `POST /sessions/:id/turn`, `GET /sessions/:id/turns`) match the runbook; `start` returns 202.
