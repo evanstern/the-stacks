@@ -44,7 +44,10 @@ Spec: specs/034-narration-quality
 - [ ] #6 Spec phase: Reproduce the run-5 defects (AC #3) — DISPATCH (sonnet)
 - [ ] #7 Spec phase: Player-facing context (US1; AC #1, #3) — DISPATCH (sonnet)
 - [ ] #8 Spec phase: Facts and fallback (US2; AC #2, #3) — DISPATCH (sonnet)
+- [ ] #9 Spec phase: Narrate and audit v2 (US3; AC #3) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 
 
