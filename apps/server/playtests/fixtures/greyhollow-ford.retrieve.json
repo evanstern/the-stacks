@@ -1,0 +1,23 @@
+{
+  "mode": "fts",
+  "embeddingModel": null,
+  "candidates": { "vector": null, "fts": 1 },
+  "passages": [
+    {
+      "chunkId": "chunk-persuade",
+      "documentId": "doc-rules",
+      "kind": "prose",
+      "text": "A character can try to persuade another creature by making a Charisma check, and the difficulty depends on how willing the creature already is.",
+      "anchor": {
+        "book": "Fixture Rules",
+        "path": ["Social"],
+        "start": 0,
+        "end": 143
+      },
+      "rank": 1,
+      "score": 1,
+      "vector": null,
+      "fts": { "rank": 1, "score": 1 }
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "v": 1,
+  "name": "greyhollow-ford-audit",
+  "responses": [
+    {
+      "note": "segment 0: opening framing",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 1: exploration check",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 2: social ruling",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 3: entering the fight",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 4: monster turn miss",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 5: human strike",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 6: Odo hit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 7: Kestrel hit and scene end",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    }
+  ]
+}

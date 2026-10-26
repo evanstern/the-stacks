@@ -75,15 +75,15 @@ All test paths are under `apps/server/`.
 **Independent test**: `test/playtest/scenario.test.ts` and `test/playtest/schema.test.ts` pass
 with no database.
 
-- [ ] T001 Create `apps/server/src/playtest/purpose.ts`: `PLAYTEST_AUDIT_PURPOSE = "playtest.audit"` and `PLAYTEST_AUDIT_MAX_TOKENS = 700`.
-- [ ] T002 Create `apps/server/src/playtest/scenario.ts`: `ScenarioSchema`, `AuditScriptSchema`, `loadScenario(path)`, `loadAuditScript(path)` and `ScenarioError`, per contracts/scenario.md (paths resolved relative to the scenario file; the seat checked against the seed's one human character via `loadSeed`).
-- [ ] T003 Create `apps/server/src/playtest/auditor/schema.ts`: `AuditorOutput` (contracts/auditor.md), `FINDING_KINDS`, `SEVERITY_OF`, `FindingSchema`, `FightStatsSchema`, `ReportSchema` (contracts/audit-report-schema.md), and the run manifest schema `RunManifestSchema` (data-model.md).
-- [ ] T004 [P] Create `apps/server/playtests/scenarios/greyhollow-ford.json` per contracts/scenario.md "The shipped scenario" (move texts verbatim from `test/dm/scene.integration.test.ts`).
-- [ ] T005 [P] Create `apps/server/playtests/fixtures/greyhollow-ford.retrieve.json`: the scene test's `retrieve` result (the `PASSAGE` text and its `Fixture Rules` anchor), as JSON.
-- [ ] T006 [P] Create `apps/server/playtests/fixtures/greyhollow-ford.audit.json`: an `AuditScriptSchema` document with eight `json` responses `{ "verdict": "pass", "findings": [] }`, one per narration of `greyhollow-ford-full.json`, each with a `note` naming its segment.
-- [ ] T007 [P] Add `.playtests/` to `.gitignore`.
-- [ ] T008 [P] Write `apps/server/test/playtest/scenario.test.ts`: the shipped scenario loads and resolves its `ci` paths; each `ci` path exists; the DM script it names loads with `loadDmScript` unchanged; the auditor script loads; a wrong seat character, an unknown seed and a bad move id each fail with a named issue.
-- [ ] T009 [P] Write `apps/server/test/playtest/schema.test.ts`: `AuditorOutput` rejects `fail` with no findings and more than 12 findings; `SEVERITY_OF` covers every kind; `ReportSchema` round-trips a minimal report; a finding id must match `F<n>`.
+- [x] T001 Create `apps/server/src/playtest/purpose.ts`: `PLAYTEST_AUDIT_PURPOSE = "playtest.audit"` and `PLAYTEST_AUDIT_MAX_TOKENS = 700`.
+- [x] T002 Create `apps/server/src/playtest/scenario.ts`: `ScenarioSchema`, `AuditScriptSchema`, `loadScenario(path)`, `loadAuditScript(path)` and `ScenarioError`, per contracts/scenario.md (paths resolved relative to the scenario file; the seat checked against the seed's one human character via `loadSeed`).
+- [x] T003 Create `apps/server/src/playtest/auditor/schema.ts`: `AuditorOutput` (contracts/auditor.md), `FINDING_KINDS`, `SEVERITY_OF`, `FindingSchema`, `FightStatsSchema`, `ReportSchema` (contracts/audit-report-schema.md), and the run manifest schema `RunManifestSchema` (data-model.md).
+- [x] T004 [P] Create `apps/server/playtests/scenarios/greyhollow-ford.json` per contracts/scenario.md "The shipped scenario" (move texts verbatim from `test/dm/scene.integration.test.ts`).
+- [x] T005 [P] Create `apps/server/playtests/fixtures/greyhollow-ford.retrieve.json`: the scene test's `retrieve` result (the `PASSAGE` text and its `Fixture Rules` anchor), as JSON.
+- [x] T006 [P] Create `apps/server/playtests/fixtures/greyhollow-ford.audit.json`: an `AuditScriptSchema` document with eight `json` responses `{ "verdict": "pass", "findings": [] }`, one per narration of `greyhollow-ford-full.json`, each with a `note` naming its segment.
+- [x] T007 [P] Add `.playtests/` to `.gitignore`.
+- [x] T008 [P] Write `apps/server/test/playtest/scenario.test.ts`: the shipped scenario loads and resolves its `ci` paths; each `ci` path exists; the DM script it names loads with `loadDmScript` unchanged; the auditor script loads; a wrong seat character, an unknown seed and a bad move id each fail with a named issue.
+- [x] T009 [P] Write `apps/server/test/playtest/schema.test.ts`: `AuditorOutput` rejects `fail` with no findings and more than 12 findings; `SEVERITY_OF` covers every kind; `ReportSchema` round-trips a minimal report; a finding id must match `F<n>`.
 
 ---
 

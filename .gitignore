@@ -20,3 +20,6 @@ build/
 
 # Operator-owned content (constitution VIII)
 fixtures/private/
+
+# Playtest harness run directories (specs/032-playtest-harness)
+.playtests/
