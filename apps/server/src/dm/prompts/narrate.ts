@@ -2,7 +2,7 @@
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
 import { renderDoctrine } from "../doctrine/doctrine.js";
-import type { NarrationFacts } from "../facts.js";
+import type { FactEvent, FactRoll, NarrationFacts } from "../facts.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { AuditIssue } from "../nodes/audit.js";
 import type { PlayerSeedView } from "../seed/views.js";
@@ -28,23 +28,54 @@ const RULES = [
 ].join("\n");
 
 /** The facts as capped entries, most important first. */
+function rollEntry(r: FactRoll): string {
+  const target = r.target ? ` target ${r.target}` : "";
+  return `  roll: ${r.reason}${target} -> ${r.outcome ?? "no result"}`;
+}
+
+function eventEntry(e: FactEvent): string {
+  switch (e.kind) {
+    case "encounter-started":
+      return `Event: a fight starts (${e.combatants.join(", ")})${e.first ? `; ${e.first} acts first` : ""}`;
+    case "encounter-ended":
+      return "Event: the fight ends";
+    case "turn-advanced":
+      return `Event: ${e.next} acts next`;
+    case "combatant-joined":
+      return `Event: ${e.name} joins`;
+    case "combatant-left":
+      return `Event: ${e.name} leaves`;
+  }
+}
+
 export function factEntries(facts: NarrationFacts): string[] {
   const out: string[] = [];
   for (const a of facts.actions) {
-    out.push(
-      `Action ${a.actionId} by ${a.characterName ?? "the party"}: "${a.text}" -> ${a.outcome}${a.refusalCode ? ` (refused: ${a.refusalCode})` : ""}`,
-    );
-    if (a.outcomes.length > 0) out.push(`  results: ${a.outcomes.join(", ")}`);
+    const head = `Action ${a.actionId} by ${a.characterName ?? "the party"}: "${a.text}" -> `;
+    const onHold = facts.clarify.some((c) => c.actionId === a.actionId);
+    if (a.outcome === "refused") {
+      out.push(
+        `${head}refused${a.refusalCode ? ` (refused: ${a.refusalCode})` : ""}`,
+      );
+    } else if (onHold) {
+      out.push(`${head}on hold (the intent is unclear; nothing happened yet)`);
+    } else if (a.outcome === "no-effect") {
+      out.push(
+        `${head}no rules effect (nothing rolled, no game state changed; the attempt still happens in the story)`,
+      );
+    } else {
+      out.push(`${head}applied`);
+    }
+    for (const r of a.rolls) out.push(rollEntry(r));
     for (const c of a.changes) out.push(`  change: ${describeChange(c)}`);
   }
   if (facts.npcTurn) {
     out.push(`Monster turn: ${facts.npcTurn.name}`);
-    if (facts.npcTurn.outcomes.length > 0) {
-      out.push(`  results: ${facts.npcTurn.outcomes.join(", ")}`);
-    }
+    for (const r of facts.npcTurn.rolls) out.push(rollEntry(r));
     for (const c of facts.npcTurn.changes)
       out.push(`  change: ${describeChange(c)}`);
   }
+  for (const e of facts.events) out.push(eventEntry(e));
   if (facts.modeChange) {
     out.push(
       `Table mode changed from ${facts.modeChange.from} to ${facts.modeChange.to}`,
@@ -56,9 +87,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     );
   }
   for (const c of facts.clarify) {
-    out.push(
-      `Ask the player of ${c.actionId} one short question: ${c.question}`,
-    );
+    out.push(`Unclear intent for ${c.actionId}: ${c.question}`);
   }
   if (facts.director.sceneEnded) out.push("The scene ends with this beat.");
   return out;
