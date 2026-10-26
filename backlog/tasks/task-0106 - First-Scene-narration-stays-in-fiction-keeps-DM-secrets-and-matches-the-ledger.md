@@ -3,9 +3,10 @@ id: TASK-0106
 title: >-
   First Scene: narration stays in fiction, keeps DM secrets and matches the
   ledger
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
+updated_date: '2026-10-26 17:50'
 labels:
   - first-scene
   - dm
@@ -39,6 +40,12 @@ Approach: diagnose from run 5's evidence first (the dm.audit issue mix per rejec
 - [ ] #4 A paid provider playtest under an operator-approved ceiling shows the factual fallback in at most 10% of narrated turns, with zero hidden-info-leak and zero ledger-contradiction fails in its audit
 - [ ] #5 Existing dm tests and the scripted CI playtest stay green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M2 First Scene sweep (operator ruling: new M2 card, own spec and PR, merged before the live demo). Worktree .worktrees/task-0106, branch task-0106-narration-quality, cut from origin/main 81dfb7d. Spec number 034 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
