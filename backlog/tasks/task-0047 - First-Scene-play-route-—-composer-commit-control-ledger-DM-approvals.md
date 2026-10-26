@@ -1,9 +1,10 @@
 ---
 id: TASK-0047
 title: 'First Scene: play route — composer, commit control, ledger, DM approvals'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-26 03:33'
 labels:
   - first-scene
   - ui
@@ -24,6 +25,8 @@ Outcome: the play route a player and a DM use at the table. One composer sends t
 Why: decision-0016 (talk versus action, table modes) and decision-0015 (DM approval surface for ask) need a human surface. This is the in-app table view's first slice (decision-0013); maps arrive in M6.
 
 No modals: slide-out panels or autocomplete dropdowns only. Work can start against fixtures before TASK-0045 merges.
+
+Spec: specs/030-play-route
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -37,6 +40,12 @@ No modals: slide-out panels or autocomplete dropdowns only. Work can start again
 - [ ] #7 The route renders from fixtures and from the live log through the same components.
 - [ ] #8 The route is client-only, per decision-0008.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 3) after TASK-0044 merged (#46). Worktree .worktrees/task-0047, branch task-0047-play-route, cut from origin/main 8a8bb81. Spec number 030 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
