@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 16:17'
+updated_date: '2026-10-26 16:20'
 labels:
   - first-scene
   - dm
@@ -35,15 +35,15 @@ Spec: specs/033-director-robustness
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A failed node-output validation stores its schema issues, the purpose and a bounded excerpt of the raw output in the turn job's error detail, and a test proves it.
-- [ ] #2 The real failing director output is captured and committed as a fixture, and a test reproduces the failure against it.
+- [x] #1 A failed node-output validation stores its schema issues, the purpose and a bounded excerpt of the raw output in the turn job's error detail, and a test proves it.
+- [x] #2 The real failing director output is captured and committed as a fixture, and a test reproduces the failure against it.
 - [x] #3 The director accepts real-model output for the Greyhollow Ford scene: a provider-mode playtest gets past the turn where runs 2 and 4 failed, with no director invalid-output.
-- [ ] #4 Any schema or prompt change keeps every existing dm test green, and the scripted CI playtest still passes.
+- [x] #4 Any schema or prompt change keeps every existing dm test green, and the scripted CI playtest still passes.
 - [x] #5 Spec phase: Persist diagnostics (US1; AC #1)
 - [x] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
 - [x] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
 - [x] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
-- [ ] #9 Spec phase: Full gate (US4; AC #4)
+- [x] #9 Spec phase: Full gate (US4; AC #4)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -87,6 +87,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4b setup: composite at 5fd107f (branch tip with 4552254). Scripted CI playtest in the composite (T022 precheck): outcome ended, verdict pass, run 20261026T155331Z-greyhollow-ford-ci. Rerun ceiling $22 (operator: 'The $22 rerun ceiling stands'). Estimate upper bound $21.60.
 
 Phase 4b verification rerun 2026-10-26: run 20261026T155348Z-greyhollow-ford-provider, composite 5fd107f. PASS under the amended rule (quickstart C): no failed turn job (29 turn, 10 companion and 7 chronicle jobs succeeded), 6 moves committed, $5.07 over 265 calls of the $22 ceiling. Outcome timed-out: the scenario's maxWallMs of 900000 (15 min) cut the run in fight round 4, with about 35 s per AI turn. That limit is a TASK-0048 harness defect, fixed on the TASK-0048 branch before the demo's paid playtest. Evidence: b40d9f0. Total paid spend for TASK-0102: $2.82 + $1.00 + $5.07 = $8.89, plus attempt 1 (unrecorded).
+
+Phase 5 by sonnet-implementer: f73c7f5 (Amended-by lines in 031 turn-jobs, node-seam, director, nodes and scene-seed, and in 026 commands) and 0de627c (ticks). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 695 passed and 5 skipped, srd 140, engine 221, session-model 566, web 21. No WS flake. T022: the composite CI playtest passed (ended, verdict pass). T024: the composite was torn down and env:prune --check is clean.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
