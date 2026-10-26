@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 20:41'
+updated_date: '2026-10-26 20:49'
 labels:
   - first-scene
   - test
@@ -140,6 +140,8 @@ Operator-viewer fix 53a78fa by sonnet-implementer (operator ruling 'Fix the view
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Demo restart: stack rebuilt at 5620ad9 (code 53a78fa), both DBs migrated, clean boot. New demo session id e8c848ec-11e9-442d-9bfa-8c26a0d84fcd. The abandoned session 2811b339 is noted for the record. The operator recreates the operator account (app DB) and starts the scene.
+
+Demo section D 2026-10-26: the operator recreated the operator account (app DB), started session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd (202), and confirmed Action is enabled. The operator-viewer fix 53a78fa is verified live in Brave. The operator is playing Tamsin.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
