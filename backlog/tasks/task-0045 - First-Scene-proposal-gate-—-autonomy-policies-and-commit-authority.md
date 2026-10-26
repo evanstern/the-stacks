@@ -83,6 +83,8 @@ Wiki re-ground by sonnet-implementer: 24f4b5d. New note proposal-gate. All 16 st
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #48 on 2026-10-26. Card ACs #1–#9 are proven by specs/029-proposal-gate/ci-evidence.txt.
+
+spec-bridge sync: Setup and foundational — proposal contracts in code (US2, US7; AC #2): 15/15 · Pure decision core — permissions, routing, commit authority, planner (US1, US3, US4; AC #2, #6, #7, #8): 10/10 · Fixtures for the play route and the gate (US7; TASK-0047 contract): 7/7 · Server gate and seam (US1, US2, US3, US4; AC #3, #4, #5, #6, #7, #8): 6/6 · WebSocket delivery, send path and restart (US2, US5; AC #4, #9): 8/8 · Write boundary and full gate (US6; AC #1): 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
