@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 20:11'
+updated_date: '2026-10-26 20:13'
 labels:
   - first-scene
   - dm
@@ -92,6 +92,9 @@ Phase 5b rerun 2026-10-26: run 20261026T192319Z-greyhollow-ford-provider at comp
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: accept TASK-0106 with the AC #4 rate bar at 20%. Leaks and contradictions are at zero. Card R1 (digits), R2 (seat acts for a downed hero) and the player-agency residue in m-3. Proceed to Phase 6, PR and the demo.' Carded on main: TASK-0111 (R1 digits check), TASK-0112 (R2 seat and downed hero), TASK-0113 (player-agency residue: F1, F6, F7, seq 130). AC #4 is met under the ruling: the rerun rate was 0.18 against the 0.20 bar, with 0 leaks and 0 narration-caused contradictions.
 
 Phase 6 by sonnet-implementer: c5836ae. TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: srd 140, engine 221, session-model 566, server 761 passed and 5 skipped, web 21 plus 125. No WS flake. Amended-by lines in 031 audit.md, nodes.md, scene-seed.md, companions.md and doctrine.md. T045: the composite CI playtest at 3ae5a54 passed (ended, pass). T046: the composite was torn down and env:prune --check is clean.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Wiki re-ground by sonnet-implementer: ac81163. dm-runtime was NEEDS-REVIEW, split. New note dm-narration-quality covers PlayerSeedView, named transcripts, facts v2, audit pass/fail and the party-name filter, the in-fiction fallback and the prompt versions. CAPSULES and INDEX updated. Freshness: OK, 46 notes fresh. T047 is done before the PR rather than after the merge (runbook doctrine).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
