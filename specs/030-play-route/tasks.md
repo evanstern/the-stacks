@@ -70,22 +70,22 @@ comments and commits; the mode badge shows the active player.
 
 ### Tests first
 
-- [ ] T018 [P] [US1] Write `apps/web/test/play/composer.test.tsx` (vitest): the "Message type" radio group with Talk and Action; Talk shows the "Channel" group; Action shows the character choice and the "Scope" group; Action is disabled with a hint when `actionAvailable` is false; the send button reads "Send" or "Declare".
-- [ ] T019 [P] [US2] Write `apps/web/test/play/action-card.test.tsx`: an open card shows comments with stance and the comment form; `CommitControl` renders "Commit" when `canCommit` and "Waiting for <holder> to commit" otherwise; a committed card shows no form and no control; a resolved refused card shows the refusal code.
-- [ ] T020 [P] [US3] Write `apps/web/test/play/mode-badge.test.tsx`: "Free mode"; "Turn mode · Ana's turn"; "Turn mode · Your turn".
-- [ ] T021 [P] [US6] Write `apps/web/test/play/table-view.test.tsx`: `TableView` with a fixture-built source renders for every fixture and viewer; the markup contains no `<dialog` and no `aria-modal` (AC #6); a player's markup for `freeModeAction` has no "Pending proposals" trigger; the DM's has one.
+- [x] T018 [P] [US1] Write `apps/web/test/play/composer.test.tsx` (vitest): the "Message type" radio group with Talk and Action; Talk shows the "Channel" group; Action shows the character choice and the "Scope" group; Action is disabled with a hint when `actionAvailable` is false; the send button reads "Send" or "Declare".
+- [x] T019 [P] [US2] Write `apps/web/test/play/action-card.test.tsx`: an open card shows comments with stance and the comment form; `CommitControl` renders "Commit" when `canCommit` and "Waiting for <holder> to commit" otherwise; a committed card shows no form and no control; a resolved refused card shows the refusal code.
+- [x] T020 [P] [US3] Write `apps/web/test/play/mode-badge.test.tsx`: "Free mode"; "Turn mode · Ana's turn"; "Turn mode · Your turn".
+- [x] T021 [P] [US6] Write `apps/web/test/play/table-view.test.tsx`: `TableView` with a fixture-built source renders for every fixture and viewer; the markup contains no `<dialog` and no `aria-modal` (AC #6); a player's markup for `freeModeAction` has no "Pending proposals" trigger; the DM's has one.
 
 ### Implementation
 
-- [ ] T022 [P] [US3] Implement `apps/web/app/play/components/mode-badge.tsx`.
-- [ ] T023 [P] [US2] Implement `apps/web/app/play/components/commit-control.tsx` and `apps/web/app/play/components/action-card.tsx` (inline comment form with stances Comment, Approve, Object).
-- [ ] T024 [P] [US1] Implement `apps/web/app/play/components/composer.tsx` (radio groups per contracts/ui-surfaces.md; keeps the draft on type switch; clears it only when the command returns `true`; shows `notice` inline).
-- [ ] T025 [US1] Implement `apps/web/app/play/components/transcript.tsx` (talk with IC/OOC/whisper markers, narration, action cards) and `apps/web/app/play/components/table-header.tsx` (scene, `ModeBadge`, status, panel triggers styled like the Sources button with `aria-expanded`/`aria-controls`; the approvals trigger only for the DM; icons added to `apps/web/app/components/icons.tsx`).
-- [ ] T026 [US1] Implement `apps/web/app/play/table-view.tsx` (`TableView({ source })`: memoised `project` + `toTableViewModel`; wires composer, cards and header to `source.commands`; "N entries not shown" notice; panel triggers toggle state only — panels arrive in Phase 4).
-- [ ] T027 [US6] Implement `apps/web/app/play/use-fixture-table.ts` (contracts/table-source.md; `local` and decided proposals reset when `viewerKey` or `through` changes) and `apps/web/app/play/fixtures/proposals.ts` (at least two original example proposals each for `free-mode-action` and `turn-mode-combat`).
-- [ ] T028 [US6] Implement `apps/web/app/play/components/fixture-toolbar.tsx` (fixture name, "View as" segmented control over `fixture.viewers`, ◂ seq n/N ▸ stepper, "Fixture — changes are local").
-- [ ] T029 [US6] Add `route("play/fixtures", "routes/play-fixtures.tsx")` and `route("play/fixtures/:fixtureName", "routes/play-fixture.tsx")` to `apps/web/app/routes.ts`; implement both routes client-only (`clientLoader` + `HydrateFallback`, no `loader`), the fixture module imported dynamically in `clientLoader` (research R12), `OperatorOnly` for non-operators, "No such fixture" with a link back; viewer and step read from the `as` and `through` query parameters.
-- [ ] T030 [US6] Add an operator-only "Preview fixtures" link to `apps/web/app/routes/table.tsx`; delete `apps/web/test/play/smoke.test.tsx`.
+- [x] T022 [P] [US3] Implement `apps/web/app/play/components/mode-badge.tsx`.
+- [x] T023 [P] [US2] Implement `apps/web/app/play/components/commit-control.tsx` and `apps/web/app/play/components/action-card.tsx` (inline comment form with stances Comment, Approve, Object).
+- [x] T024 [P] [US1] Implement `apps/web/app/play/components/composer.tsx` (radio groups per contracts/ui-surfaces.md; keeps the draft on type switch; clears it only when the command returns `true`; shows `notice` inline).
+- [x] T025 [US1] Implement `apps/web/app/play/components/transcript.tsx` (talk with IC/OOC/whisper markers, narration, action cards) and `apps/web/app/play/components/table-header.tsx` (scene, `ModeBadge`, status, panel triggers styled like the Sources button with `aria-expanded`/`aria-controls`; the approvals trigger only for the DM; icons added to `apps/web/app/components/icons.tsx`).
+- [x] T026 [US1] Implement `apps/web/app/play/table-view.tsx` (`TableView({ source })`: memoised `project` + `toTableViewModel`; wires composer, cards and header to `source.commands`; "N entries not shown" notice; panel triggers toggle state only — panels arrive in Phase 4).
+- [x] T027 [US6] Implement `apps/web/app/play/use-fixture-table.ts` (contracts/table-source.md; `local` and decided proposals reset when `viewerKey` or `through` changes) and `apps/web/app/play/fixtures/proposals.ts` (at least two original example proposals each for `free-mode-action` and `turn-mode-combat`).
+- [x] T028 [US6] Implement `apps/web/app/play/components/fixture-toolbar.tsx` (fixture name, "View as" segmented control over `fixture.viewers`, ◂ seq n/N ▸ stepper, "Fixture — changes are local").
+- [x] T029 [US6] Add `route("play/fixtures", "routes/play-fixtures.tsx")` and `route("play/fixtures/:fixtureName", "routes/play-fixture.tsx")` to `apps/web/app/routes.ts`; implement both routes client-only (`clientLoader` + `HydrateFallback`, no `loader`), the fixture module imported dynamically in `clientLoader` (research R12), `OperatorOnly` for non-operators, "No such fixture" with a link back; viewer and step read from the `as` and `through` query parameters.
+- [x] T030 [US6] Add an operator-only "Preview fixtures" link to `apps/web/app/routes/table.tsx`; delete `apps/web/test/play/smoke.test.tsx`.
 
 **Checkpoint**: `pnpm --filter @the-stacks/web test` green; quickstart §2 composer, card, mode and
 step rows pass in Brave against `pnpm dev`.
@@ -211,3 +211,9 @@ AC #5 and AC #7 on the live log once TASK-0045 has merged.
   `(projections, { actor, proposals })`.
 - Phase 2: `frames.ts` types its schemas with a local `safeParse` interface, because `zod` is not
   a direct dependency of `apps/web`.
+- Phase 3: `Composer` takes an optional `initialType` prop (default `"talk"`), a test seam so
+  markup tests can render the Action state; no component props from the contract changed.
+- Phase 3: the DM commit button reads "Commit as DM"; other authorities read "Commit"
+  (contracts/ui-surfaces.md). `useFixtureTable` takes a fourth argument `dmActor`, supplied by the
+  fixture route's `clientLoader`, so the hook stays out of the fixtures chunk.
+- Phase 3: the toolbar's View-as and Step groups are `<fieldset>`s (biome `useSemanticElements`).
