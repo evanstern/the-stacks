@@ -161,7 +161,10 @@ export function createRegistry() {
     // every later event filters under the new one.
     if (frame.event.type === "dm.seat.changed") {
       const parsed = DmSeatChangedV1.safeParse(frame.event.payload);
-      if (parsed.success && seatBySession.has(sessionId)) {
+      // Cached or not: a subscribe still awaiting its seat load re-reads the
+      // cache after the await, so a seat set here beats the (possibly stale)
+      // load and a former DM never sees dm-only events (TASK-0045 race fix).
+      if (parsed.success) {
         seatBySession.set(sessionId, parsed.data.after);
       }
     }

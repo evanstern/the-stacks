@@ -269,8 +269,10 @@ meets the runbook's merge condition. Phase 6 proves AC #1 and closes the gate.
   hold) and stamps the approving DM on the `proposal.approved` row; `appendSessionEvents`
   refusals map to gate refusals with source `append`.
 - Phase 5, T042: `subscribe` joins the registry first, then loads the seat (a seat set by a
-  concurrent broadcast wins over the load). A `dm.seat.changed` broadcast in the instant between
-  the load and the cache write is a known narrow race; the next subscribe replays correctly.
+  concurrent broadcast wins over the load). Race closed (post-Phase 5 fix): `broadcast` now
+  caches the `after` seat of every `dm.seat.changed` it delivers, whether or not the session had
+  a cached seat. `subscribe` re-reads the cache after the load, so a change broadcast between
+  the load and the cache write wins. Test: `ws.subscribe.test.ts` "DM-seat subscribe race".
 - Phase 5, T044: `src/bench/load/concurrency.ts` builds a gate for the now-required `gate`
   option. `SubscribeDeps` gains an optional `loadDmSeat` seam; `ws.subscribe.test.ts` fakes use it.
 - Phase 5, T046: stack came up unmigrated again (TASK-0098); migrated app and test databases by

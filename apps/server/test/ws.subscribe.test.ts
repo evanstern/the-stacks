@@ -186,6 +186,49 @@ describe("replay/live boundary (research D1, deterministic)", () => {
   });
 });
 
+describe("DM-seat subscribe race (TASK-0045)", () => {
+  const FORMER_DM = "11111111-1111-4111-8111-111111111111";
+  it("never sends dm-only events to a former DM when the seat changes between load and cache write", async () => {
+    const sessionId = randomUUID();
+    const registry = createRegistry();
+    const conn = fakeConnection();
+    (conn as { userId: string }).userId = FORMER_DM;
+    const stale = { kind: "human", userId: FORMER_DM } as const;
+    const next = { kind: "ai" } as const;
+
+    const seatChanged = {
+      ...row(5, sessionId),
+      type: "dm.seat.changed",
+      payload: { reason: "handover", before: stale, after: next },
+    };
+    const dmOnly = {
+      ...row(6, sessionId),
+      type: "proposal.created",
+      visibility: "dm",
+    };
+
+    await subscribe({} as never, registry, conn, sessionId, 0, {
+      readFrom: async () => [],
+      // The load returns the pre-change seat; the change is broadcast before
+      // the load resolves, i.e. between the DB read and the cache write.
+      loadDmSeat: async () => {
+        registry.broadcast(sessionId, {
+          type: "event",
+          event: toEventPayload(seatChanged),
+        });
+        return stale;
+      },
+    });
+    registry.broadcast(sessionId, {
+      type: "event",
+      event: toEventPayload(dmOnly),
+    });
+
+    expect(registry.seatOf(sessionId)).toEqual(next);
+    expect(conn.sent.map((e) => e.seq)).not.toContain(6);
+  });
+});
+
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
 const db = databaseUrl ? createDb(databaseUrl) : undefined;
 const reachable = db ? await probeReachable(db.$client, 2000) : false;
