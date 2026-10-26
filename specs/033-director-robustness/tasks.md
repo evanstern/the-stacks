@@ -224,14 +224,14 @@ a condition, skill, damage type, ability or number. Never edit `.env`.
 
 ## Phase 5: Full gate (US4; AC #4)
 
-- [ ] T021 [US4] Run `pnpm ci:check` and the database suites with `REQUIRE_DATABASE=1`. Fix
+- [x] T021 [US4] Run `pnpm ci:check` and the database suites with `REQUIRE_DATABASE=1`. Fix
   any regression without loosening a test.
 - [ ] T022 Orchestrator: run the scripted CI playtest in the composite worktree (quickstart D).
   Record it on the card.
-- [ ] T023 [P] [US4] Add one line under the amended sections of
+- [x] T023 [P] [US4] Add one line under the amended sections of
   `specs/031-dm-runtime/contracts/turn-jobs.md`, `node-seam.md` and `director.md`:
   "Amended by specs/033-director-robustness/contracts/<file>." Commit.
-- [ ] T039 [P] [US4] Add one line under the amended sections of
+- [x] T039 [P] [US4] Add one line under the amended sections of
   `specs/031-dm-runtime/contracts/nodes.md` ("interpret", step schema), `scene-seed.md`
   (`skills`, clue `check`) and `specs/026-dnd5e-engine/contracts/commands.md` (`check.roll`):
   "Amended by specs/033-director-robustness/contracts/<file>." Commit.
