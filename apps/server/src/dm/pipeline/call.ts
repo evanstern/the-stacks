@@ -32,8 +32,42 @@ export type TextResult =
   | CallFailure;
 
 type Collected =
-  | { ok: true; text: string }
+  | { ok: true; text: string; outputTokens: number | null }
   | { ok: false; kind: ErrorKind | "aborted"; message: string };
+
+/** One failed model attempt, kept in an `invalid-output` detail. */
+export interface AttemptExcerpt {
+  attempt: 1 | 2;
+  outputTokens: number | null;
+  chars: number;
+  issues: string;
+  excerpt: string;
+}
+
+const EXCERPT_WHOLE = 8000;
+const EXCERPT_HEAD = 6000;
+const EXCERPT_TAIL = 2000;
+
+/** Bounds raw model text for a failure record (contracts/failure-record.md). */
+export function excerptOf(text: string): string {
+  if (text.length <= EXCERPT_WHOLE) return text;
+  const elided = text.length - EXCERPT_WHOLE;
+  return `${text.slice(0, EXCERPT_HEAD)}\n…[${elided} characters elided]…\n${text.slice(-EXCERPT_TAIL)}`;
+}
+
+function attemptOf(
+  attempt: 1 | 2,
+  collected: { text: string; outputTokens: number | null },
+  issues: string,
+): AttemptExcerpt {
+  return {
+    attempt,
+    outputTokens: collected.outputTokens,
+    chars: collected.text.length,
+    issues,
+    excerpt: excerptOf(collected.text),
+  };
+}
 
 async function collect(
   deps: Pick<NodeDeps, "gateway">,
@@ -41,6 +75,7 @@ async function collect(
   messages: ChatMessage[],
 ): Promise<Collected> {
   let text = "";
+  let outputTokens: number | null = null;
   for await (const event of deps.gateway.chat({
     purpose: req.purpose,
     system: req.system,
@@ -48,6 +83,7 @@ async function collect(
     signal: req.signal,
   })) {
     if (event.type === "text") text += event.text;
+    else if (event.type === "done") outputTokens = event.usage.outputTokens;
     else if (event.type === "error") {
       return { ok: false, kind: event.kind, message: event.message };
     }
@@ -55,7 +91,7 @@ async function collect(
   if (req.signal.aborted) {
     return { ok: false, kind: "aborted", message: "the turn was aborted" };
   }
-  return { ok: true, text };
+  return { ok: true, text, outputTokens };
 }
 
 function failure(
@@ -143,6 +179,7 @@ export async function callJson<T>(
     errorKind: null,
   });
 
+  const attempts: AttemptExcerpt[] = [attemptOf(1, first, parsedFirst.issues)];
   messages.push(
     { role: "assistant", content: first.text },
     {
@@ -170,12 +207,18 @@ export async function callJson<T>(
     outcome: "invalid-json",
     errorKind: null,
   });
+  attempts.push(attemptOf(2, second, parsedSecond.issues));
   return {
     ok: false,
     error: {
       kind: "invalid-output",
       message: `model output failed its schema twice (${req.purpose})`,
-      detail: { purpose: req.purpose, issues: parsedSecond.issues },
+      detail: {
+        purpose: req.purpose,
+        promptVersion: req.promptVersion,
+        issues: parsedSecond.issues,
+        attempts,
+      },
     },
     calls,
   };

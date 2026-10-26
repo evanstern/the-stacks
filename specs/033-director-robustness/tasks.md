@@ -42,28 +42,28 @@ WebSocket failure. Record each re-run in the phase's commit message.
 
 **Goal**: a failed turn job keeps its schema issues, purpose and attempt excerpts.
 
-- [ ] T001 [US1] In `apps/server/src/dm/pipeline/call.ts`, export `excerptOf(text)` per
+- [x] T001 [US1] In `apps/server/src/dm/pipeline/call.ts`, export `excerptOf(text)` per
   contracts/failure-record.md. Make `collect()` return `outputTokens` from the `done` event.
-- [ ] T002 [US1] In `callJson`, record one `AttemptExcerpt` per failed attempt. Build the
+- [x] T002 [US1] In `callJson`, record one `AttemptExcerpt` per failed attempt. Build the
   `invalid-output` detail as `{ purpose, promptVersion, issues, attempts }`. Keep the re-ask
   text unchanged.
-- [ ] T003 [P] [US1] In `apps/server/test/dm/call.test.ts`, test: the detail after two
+- [x] T003 [P] [US1] In `apps/server/test/dm/call.test.ts`, test: the detail after two
   failures; `excerptOf` at 8000 and 8001 characters (head 6000, tail 2000, elided count);
   `outputTokens` null when absent.
-- [ ] T004 [US1] In `apps/server/src/jobs/queue.ts`, let `finishJob` take `{ error, result? }`.
+- [x] T004 [US1] In `apps/server/src/jobs/queue.ts`, let `finishJob` take `{ error, result? }`.
   Write `result` on failure when present; write null otherwise.
-- [ ] T005 [US1] In `apps/server/src/dm/worker.ts`, on a non-fenced, non-aborted turn failure,
+- [x] T005 [US1] In `apps/server/src/dm/worker.ts`, on a non-fenced, non-aborted turn failure,
   write `TurnFailureResult` (contracts/failure-record.md) with `latest`, `outcome.calls` and the
   failure. Do the same for the bad-seed path. Log `dm.turn.failed` with `detail` minus
   `attempts`. Add the `TurnFailureResult` type in `apps/server/src/dm/jobs.ts`.
-- [ ] T006 [US1] In `apps/server/test/dm/worker.integration.test.ts`, script two invalid
+- [x] T006 [US1] In `apps/server/test/dm/worker.integration.test.ts`, script two invalid
   director outputs. Assert `jobs.error` is `stopped at director: invalid-output`, and
   `jobs.result.failure` holds node, kind, purpose, issues and two excerpts. Assert the route's
   item for that job has non-empty `calls` and no `failure` field.
-- [ ] T007 [P] [US1] In `apps/server/src/dm/nodes/schemas.ts`, give the `advance` refine the
+- [x] T007 [P] [US1] In `apps/server/src/dm/nodes/schemas.ts`, give the `advance` refine the
   message `advance must be a non-zero integer from -3 to 3`. Test it in
   `apps/server/test/dm/director.test.ts`.
-- [ ] T008 [US1] Run the phase gate and the database suites. Commit. Push the branch.
+- [x] T008 [US1] Run the phase gate and the database suites. Commit. Push the branch.
 
 **Checkpoint**: AC #1 met. The branch is ready for the capture.
 

@@ -15,6 +15,11 @@ import type { AuditRecord } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
 import type { InterpretOutput } from "./nodes/schemas.js";
+import type {
+  ModelCallRecord,
+  NodeErrorKind,
+  NodeName,
+} from "./pipeline/context.js";
 
 /**
  * DM jobs on the shared `jobs` queue (specs/031-dm-runtime contracts/
@@ -74,6 +79,22 @@ export type ChronicleJobInput = z.infer<typeof ChronicleJobInput>;
  * planning-node outputs; later phases narrow `submissions` and `narration`.
  * The queue only stores and returns the object.
  */
+export interface TurnFailure {
+  node: NodeName;
+  kind: NodeErrorKind | "seed";
+  message: string;
+  detail: Record<string, unknown> | null;
+}
+
+/** `jobs.result` of a failed turn job (specs/033 contracts/failure-record.md). */
+export interface TurnFailureResult {
+  checkpoint: TurnCheckpoint;
+  outcome: { status: "failed" };
+  audit: null;
+  calls: ModelCallRecord[];
+  failure: TurnFailure;
+}
+
 export interface TurnCheckpoint {
   beat: string[] | null; // frozen action ids, or null before assemble
   npcTurn: { combatantId: string } | null;

@@ -194,7 +194,9 @@ export const DirectorOutput = z.object({
           .int()
           .min(-3)
           .max(3)
-          .refine((n) => n !== 0),
+          .refine((n) => n !== 0, {
+            message: "advance must be a non-zero integer from -3 to 3",
+          }),
         reason: z.string().min(1).max(300),
       }),
     )

@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { createApp } from "../../src/app.js";
+import { createSession } from "../../src/auth/session.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
 import { MAX_ATTEMPTS } from "../../src/jobs/queue.js";
+import { users } from "../../src/schema/auth.js";
 import { jobs } from "../../src/schema/jobs.js";
 import {
   clearDmJobsBeforeEach,
@@ -137,6 +140,80 @@ describe.skipIf(!reachable)("DM worker (database)", () => {
         ),
     );
     expect(notice).toBeDefined();
+  });
+});
+
+describe.skipIf(!reachable)("DM worker failure record (database)", () => {
+  it("keeps the schema issues, purpose and excerpts of an invalid director output", async () => {
+    const bad = { beat: { decision: "resolve" }, tableMode: "stay" };
+    const w = await createWorld({
+      calls: [
+        { purpose: "dm.director", respond: { type: "json", value: bad } },
+        { purpose: "dm.director", respond: { type: "json", value: bad } },
+      ],
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await commitAction(w, "Tamsin knocks.", "act-knock");
+    await tick();
+    await worker.drain();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn")).find(
+      (j) => j.status === "failed",
+    );
+    expect(turn?.error).toBe("stopped at director: invalid-output");
+    const result = turn?.result as {
+      failure: {
+        node: string;
+        kind: string;
+        detail: {
+          purpose: string;
+          promptVersion: string;
+          issues: string;
+          attempts: { attempt: number; chars: number; excerpt: string }[];
+        };
+      };
+    };
+    expect(result.failure).toMatchObject({
+      node: "director",
+      kind: "invalid-output",
+      detail: { purpose: "dm.director" },
+    });
+    expect(result.failure.detail.issues).not.toBe("");
+    expect(result.failure.detail.attempts.map((a) => a.attempt)).toEqual([
+      1, 2,
+    ]);
+    expect(result.failure.detail.attempts[0]?.excerpt).toContain("resolve");
+
+    // The operator route shows calls for the failed turn, never the record.
+    const [user] = await requireDb()
+      .insert(users)
+      .values({
+        username: `test-${randomUUID()}`,
+        displayName: "Test Operator",
+        role: "operator",
+        passwordHash: "unused",
+      })
+      .returning({ id: users.id });
+    const session = await createSession(
+      requireDb(),
+      (user as { id: string }).id,
+    );
+    const app = createApp({
+      databaseProbe: { reachable: async () => true },
+      db: requireDb(),
+      dm: { nudge: () => {} },
+    });
+    const res = await app.request(`/dm/sessions/${w.sessionId}/turns?limit=5`, {
+      headers: { cookie: `session=${session.token}` },
+    });
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).not.toContain("excerpt");
+    const item = (
+      JSON.parse(body) as { turns: Record<string, unknown>[] }
+    ).turns.find((t) => t.id === turn?.id);
+    expect(item?.calls).not.toEqual([]);
+    expect(item).not.toHaveProperty("failure");
   });
 });
 
