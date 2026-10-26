@@ -34,10 +34,13 @@ function sendFrame(
  *    the live edge exactly, because anything it doesn't reach is already
  *    safe in the queue from step 1.
  * 3. Send `replay-complete` once, before live delivery.
- * 4. Drain the queue, skipping anything at or before the last replayed
- *    position — the position-based skip that makes the unavoidable
- *    overlap harmless instead of duplicated — then switch to direct
- *    delivery by clearing the queue.
+ * 4. Record the replay floor (`conn.replayedThroughSeq`), then drain the
+ *    queue, skipping anything at or before it — the position-based skip
+ *    that makes the unavoidable overlap harmless instead of duplicated —
+ *    then switch to direct delivery by clearing the queue. The floor is set
+ *    BEFORE the queue is cleared and outlives it: `broadcast` applies the
+ *    same skip on the direct path, closing the case where an event read by
+ *    the replay is broadcast only after the queue is gone (TASK-0095).
  */
 /**
  * Seam for testing the replay/live boundary deterministically.
@@ -65,6 +68,7 @@ export async function subscribe(
   deps: SubscribeDeps = { readFrom },
 ): Promise<void> {
   conn.pendingQueue = [];
+  conn.replayedThroughSeq = afterSeq;
   registry.subscribe(conn, sessionId);
 
   let throughSeq = afterSeq;
@@ -91,10 +95,11 @@ export async function subscribe(
   // research D2) — only events this connection is entitled to see were
   // ever queued, so draining needs only the position-based skip, no
   // second filtering pass.
+  conn.replayedThroughSeq = throughSeq;
   const queued = conn.pendingQueue;
   conn.pendingQueue = null;
   for (const event of queued ?? []) {
-    if (event.seq <= throughSeq) continue;
+    if (event.seq <= conn.replayedThroughSeq) continue;
     sendFrame(conn, { type: "event", event });
   }
 }

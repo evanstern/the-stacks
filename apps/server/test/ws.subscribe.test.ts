@@ -1,8 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+import { createDb, probeReachable } from "../src/db.js";
+import { append, readFrom } from "../src/events/log.js";
 import type { RecordedEventFrame } from "../src/ws/protocol.js";
 import { toEventPayload } from "../src/ws/protocol.js";
 import type { Connection, Registry } from "../src/ws/registry.js";
+import { createRegistry } from "../src/ws/registry.js";
 import { subscribe } from "../src/ws/subscribe.js";
 
 /**
@@ -66,6 +69,7 @@ function fakeConnection(): Connection & {
     role: "player",
     sessionId: null,
     pendingQueue: null,
+    replayedThroughSeq: 0,
     sent,
     frames,
   } as unknown as Connection & { sent: WireEvent[]; frames: string[] };
@@ -173,5 +177,63 @@ describe("replay/live boundary (research D1, deterministic)", () => {
     });
 
     expect(conn.sent.map((e) => e.seq)).toEqual([1, 2]);
+  });
+});
+
+const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+const db = databaseUrl ? createDb(databaseUrl) : undefined;
+const reachable = db ? await probeReachable(db.$client, 2000) : false;
+
+if (!reachable) {
+  const notice =
+    `\n⚠️  SKIPPING the TASK-0095 test in apps/server/test/ws.subscribe.test.ts — no reachable ` +
+    `database (tried TEST_DATABASE_URL then DATABASE_URL; got ${databaseUrl ?? "<unset>"}). A skip ` +
+    `proves NOTHING about duplicate delivery after replay.\n`;
+  console.warn(notice);
+  if (process.env.REQUIRE_DATABASE === "1") throw new Error(notice);
+}
+
+afterAll(async () => {
+  await db?.$client.end();
+});
+
+describe.skipIf(!reachable)("replay/append/broadcast race (TASK-0095)", () => {
+  it("does not re-send an event the replay already delivered when its broadcast runs after replay completes", async () => {
+    if (!db) throw new Error("requires a reachable database");
+    const sessionId = randomUUID();
+    const conn = fakeConnection();
+    const registry = createRegistry();
+
+    // The injected read performs a REAL append (committing the event) and
+    // returns it in the replay batch — without broadcasting. This is the
+    // gateway's append-then-broadcast gap: the replay sees the event before
+    // the sender's broadcast has run.
+    let committed: Awaited<ReturnType<typeof append>> | undefined;
+    const readFromWithAppend: typeof readFrom = async (d, opts) => {
+      if (!committed) {
+        committed = await append(db, {
+          sessionId,
+          actor: "test-actor",
+          type: "chat",
+          payload: { i: 1 },
+          payloadVersion: 1,
+        });
+      }
+      return readFrom(d, opts);
+    };
+
+    await subscribe(db, registry, conn, sessionId, 0, {
+      readFrom: readFromWithAppend,
+    });
+    expect(conn.pendingQueue).toBeNull();
+    if (!committed) throw new Error("append did not run");
+
+    // The sender's broadcast finally runs, after the queue is cleared.
+    registry.broadcast(sessionId, {
+      type: "event",
+      event: toEventPayload(committed),
+    });
+
+    expect(conn.sent.map((e) => e.seq)).toEqual([committed.seq]);
   });
 });

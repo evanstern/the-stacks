@@ -15,7 +15,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 3a46656a735a97788aaa7e046c195a774435e41a
 ---
 
 # 5e engine
