@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:27'
+updated_date: '2026-10-26 14:31'
 labels:
   - first-scene
   - test
@@ -86,6 +86,12 @@ Operator troubleshooting note: on 9router some models need the [1m] context suff
 bge-m3 check: it is installed locally in ollama (bge-m3:latest). vm-104 has no ollama and the dev .env has no AI_PROVIDERS or AI_PURPOSES.
 
 OPERATOR APPROVAL 2026-10-26 (demo checkpoint B), in the operator's words: 'Approved'. This answers the orchestrator's proposal: a spend ceiling of $20 for the paid scripted playtest run and $6 for the demo-session audit. Models are as in the estimate: opus-5 for director, adjudicate and playtest.audit; sonnet-5 for interpret, narrate and companion; haiku-4-5 for dm.audit and chronicle; bge-m3 local. At list prices the estimate is $1.54 expected and $17.58 upper bound.
+
+Demo step C, paid scripted playtest, 2026-10-26.
+Run 1, kept at docs/design/m2-demo/provider-playtest-failed-1: failed at the first dm.director call with $0 spent. Cause: the playtest CLI runs on the host, but the root .env provider baseUrls use host.docker.internal, which resolves only inside containers. Rerun with a per-process AI_PROVIDERS override (localhost:20128 and localhost:11434). The runbook and CLI need a fix (finding).
+Run 2, at docs/design/m2-demo/provider-playtest: outcome failed, verdict incomplete, $0.67 over 32 calls. Three turns completed: exploration, then the social beat with Persuasion 19-1=18 against DC 12, a success. The fourth turn failed with 'stopped at director: invalid-output'. Its first dm.director attempt hit exactly maxTokens 600, so the JSON was truncated, and the retry failed the schema too. The job error drops the schema issues, which is a diagnosability gap.
+Auditor findings: F1, a check reporting a dice line in narration #10 where none was expected (to inspect, possibly a false positive). F2, narration #16 says the search found no print, though #10 and #11 described clawed tracks (a real continuity contradiction). F3, 'creak again' is a false positive, since #10 had the creak. F4, a DM-runtime audit regenerated #16 on its 3rd attempt (ledger-mismatch, player-agency, doctrine, invented-mechanics).
+Next step: the operator decides whether to raise the dm.* maxTokens and rerun.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
