@@ -4,7 +4,7 @@ title: 'First Scene: DM runtime — turn jobs, pipeline nodes, Director, compani
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 05:07'
+updated_date: '2026-10-26 05:13'
 labels:
   - first-scene
   - dm
@@ -51,7 +51,7 @@ Spec: specs/031-dm-runtime
 - [ ] #13 The runtime loads a Zod-validated scene seed file.
 - [ ] #14 Doctrine prompts adapted from tabletop-dm carry an MIT attribution notice.
 - [ ] #15 Tests run a full turn against the fake gateway adapter with scripted dice.
-- [ ] #16 Spec phase: The jobs queue for DM jobs (US4, US8; AC #1, #9)
+- [x] #16 Spec phase: The jobs queue for DM jobs (US4, US8; AC #1, #9)
 - [ ] #17 Spec phase: Seed, doctrine, purposes and scripts (US1, US3; AC #4, #13, #14, #15)
 - [ ] #18 Spec phase: Node seam and the planning nodes (US1, US3, US6; AC #2, #3, #11)
 - [ ] #19 Spec phase: Resolve, narrate and audit (US1, US2, US3, US8; AC #5, #6, #7, #8)
@@ -74,6 +74,11 @@ The spec defaults stand; the orchestrator took them as within the spec's authori
 - there is one companion hold per beat.
 Migration 0004 extends the jobs table (new kinds, session_id, partial unique indexes). It also fixes an existing bug: ingestion's claimJob, listJobs and getJob had no kind filter (FR-007).
 Implementation dispatch grouping: one phase per dispatch, P1 to P6.
+
+Correction: the spec authoring above cost ~348k tokens.
+Phase 1 by sonnet-implementer: a684c31. Migration 0004_glamorous_warlock was generated, not hand-edited. queue.ts and dm/jobs.ts added, and ingestion's job queries now filter by kind (FR-007). The DB suite passes 476 server tests; ci:check green.
+Carried to later phases: Phase 3 and 4 narrow the TurnCheckpoint fields; Phase 5's worker appends the FR-012 failure notice for an abandoned job.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
