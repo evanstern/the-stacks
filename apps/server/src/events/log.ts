@@ -105,6 +105,68 @@ export async function append(
 }
 
 /**
+ * Appends every input as one atomic batch (research R10): one transaction,
+ * the same per-session `pg_advisory_xact_lock` as `append`, consecutive
+ * `seq` values in input order. Any failure rolls the whole batch back; zero
+ * rows land. Throws before opening the transaction when `inputs` is empty,
+ * names more than one `sessionId`, or any input carries `seq` or `ts`.
+ *
+ * Lives beside `append` because the lock namespace is private to this
+ * module; a second copy of it could drift.
+ */
+export async function appendBatch(
+  db: DbClient,
+  inputs: readonly AppendInput[],
+): Promise<RecordedEvent[]> {
+  if (inputs.length === 0) {
+    throw new Error("appendBatch: inputs must not be empty");
+  }
+  const sessionId = inputs[0].sessionId;
+  for (const input of inputs) {
+    if ("seq" in input || "ts" in input) {
+      throw new Error(
+        "appendBatch: seq and ts are assigned by the log and must not be supplied by the caller",
+      );
+    }
+    if (input.sessionId !== sessionId) {
+      throw new Error("appendBatch: every input must name the same sessionId");
+    }
+  }
+
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(${EVENT_LOG_LOCK_NAMESPACE}, hashtext(${sessionId}))`,
+    );
+    const [{ max }] = await tx
+      .select({ max: sql<number>`COALESCE(MAX(${events.seq}), 0)` })
+      .from(events)
+      .where(eq(events.sessionId, sessionId));
+    const base = Number(max);
+
+    const recorded: RecordedEvent[] = [];
+    for (const [i, input] of inputs.entries()) {
+      const values: Record<string, unknown> = {
+        sessionId,
+        actor: input.actor,
+        type: input.type,
+        payload: input.payload,
+        payloadVersion: input.payloadVersion,
+        seq: base + i + 1,
+      };
+      if (input.visibility !== undefined) {
+        values.visibility = input.visibility;
+      }
+      const [row] = await tx
+        .insert(events)
+        .values(values as never)
+        .returning();
+      recorded.push(row);
+    }
+    return recorded;
+  });
+}
+
+/**
  * Returns a session's events strictly after a cursor, in ascending order
  * (contracts/event-log.md, "Read from a cursor"). Applies no filtering by
  * visibility, type, or payload version (FR-012) — that's the projection's

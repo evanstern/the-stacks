@@ -23,6 +23,12 @@ importers:
       '@hono/node-server':
         specifier: ^2.1.1
         version: 2.1.1(hono@4.13.8)
+      '@the-stacks/dnd5e-engine':
+        specifier: workspace:*
+        version: link:../../packages/dnd5e-engine
+      '@the-stacks/session-model':
+        specifier: workspace:*
+        version: link:../../packages/session-model
       '@the-stacks/shared':
         specifier: workspace:*
         version: link:../../packages/shared
