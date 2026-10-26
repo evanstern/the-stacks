@@ -18,4 +18,6 @@ export type ServerFrame =
       type: "error";
       kind: "validation" | "forbidden" | "internal";
       message: string;
+      /** The gate's refusal code (specs/029-proposal-gate/contracts/ws-delivery.md). */
+      code?: string;
     };

@@ -1,19 +1,21 @@
 ---
 name: react-router-app
-description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) — framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (a role-aware "/" redirect plus ask/books/play/play:sessionId/settings, TASK-0028, plus about, TASK-0043), root.tsx as the loader-driven identity gate now wrapping signed-in routes in the app shell, and play.tsx as the one deliberately client-only route. Retires spa-shell (the pre-migration Vite SPA note).
+description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) - framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (role-aware "/" redirect, ask/books/play/settings/about, play/:sessionId, operator-only play/fixtures), root.tsx as the loader-driven identity gate wrapping the app shell, and the client-only play routes. Retires spa-shell.
 kind: component
 sources:
   - apps/web/app/root.tsx
   - apps/web/app/routes.ts
   - apps/web/app/routes/home.tsx
   - apps/web/app/routes/play.tsx
+  - apps/web/app/routes/play-fixtures.tsx
+  - apps/web/app/routes/play-fixture.tsx
   - apps/web/app/routes/about.tsx
   - apps/web/app/sign-in.tsx
   - apps/web/react-router.config.ts
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: ad02bc4e9756e74f24dd0b6b8e19f4faaf5546af
+verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
 ---
 
 # React Router app
@@ -35,11 +37,13 @@ constructs a `RouterContextProvider`, sets `stacksContext` (`app/context.ts`,
 `createContext<StacksLoadContext>()`) on it, and calls the request handler — the context key,
 its provider, and every loader that reads it live in one module graph (plan D5, research R1).
 
-**`routes.ts`** declares seven routes (TASK-0028 added four to the original two; TASK-0043 added `about`):
+**`routes.ts`** declares nine routes (TASK-0028 added four to the original two; TASK-0043 added `about`; TASK-0047 added the two fixture routes):
 `index("routes/home.tsx")`, `route("ask", "routes/ask.tsx")`,
 `route("books", "routes/books.tsx")`, `route("play", "routes/table.tsx")` (the Table
-landing — join-by-id or start a fresh one), `route("play/:sessionId", "routes/play.tsx")`
-(the live session, unchanged), `route("about", "routes/about.tsx")` (the SRD 5.2.1 attribution, CC-BY-4.0, a plain route not a modal; imports only `@the-stacks/srd/attribution` so no SRD data reaches the client bundle; see [[srd-data]]), and `route("settings", "routes/settings.tsx")`. `ask.tsx`,
+landing — join-by-id or start a fresh one), `route("play/fixtures", "routes/play-fixtures.tsx")` and
+`route("play/fixtures/:fixtureName", "routes/play-fixture.tsx")` (operator-only fixture previews),
+`route("play/:sessionId", "routes/play.tsx")`
+(the live session, rendered by `TableView`), `route("about", "routes/about.tsx")` (the SRD 5.2.1 attribution, CC-BY-4.0, a plain route not a modal; imports only `@the-stacks/srd/attribution` so no SRD data reaches the client bundle; see [[srd-data]]), and `route("settings", "routes/settings.tsx")`. The play and fixture routes are [[play-route]]'s concern; `ask.tsx`,
 `books.tsx`, `table.tsx`, and `settings.tsx` are [[chat-ui]]'s concern — this note covers
 only the tree's shape and which file backs each path.
 
@@ -69,21 +73,22 @@ message on error (see [[client-identity]]). The submit button stays disabled unt
 component has mounted (D10), so a pre-hydration submit can't leak the password into a GET
 query string.
 
-**`play.tsx` is the one deliberately client-only route** (doc-0003 ruling 1: realtime and
+**`play.tsx` is a deliberately client-only route** (doc-0003 ruling 1: realtime and
 canvas routes stay client-only). It has a `clientLoader` (returns `{ sessionId:
 params.sessionId }`) and a `HydrateFallback` (`Loading…`) but no server `loader` — so React
 Router never attempts to SSR this route's data; the WebSocket connection [[client-session-hook]]
 opens only exists in the browser. It reads the signed-in user via
-`useRouteLoaderData<typeof rootLoader>("root")`, drives [[client-session-hook]]'s `useSession`
-passing `revalidator.revalidate` as `onSignedOut`, and renders the event list plus a send
-form — no optimistic append (unchanged from the SPA era).
+`useRouteLoaderData<typeof rootLoader>("root")` (rendering `HydrateFallback` until there is
+one) and renders `play/table-view.tsx`'s `TableView` over `useLiveTable(sessionId, user)`,
+which drives [[client-session-hook]]'s `useSession`; no optimistic append. The TASK-0047
+fixture routes follow the same client-only pattern and render `OperatorOnly` for non-operators.
 
 ## Connections
 
 Served by [[static-serving]]'s `createWebMiddleware`, which imports `server.ts`'s built
 `handle` as the SSR fallback for any non-reserved, non-static path. The identity gate is
-detailed in [[client-identity]]; the play route's realtime behavior is
-[[client-session-hook]]. The demo procedure that exercises this app end to end is
+detailed in [[client-identity]]; the play route's table is
+[[play-route]] and its realtime behavior is [[client-session-hook]]. The demo procedure that exercises this app end to end is
 [[m0-demo]]. The four TASK-0028 routes (`ask`, `books`, `play` as the Table landing,
 `settings`), the app shell they render inside, and the client store behind them are
 [[chat-ui]]. Built by `pnpm --filter @the-stacks/web build` into `build/client` and

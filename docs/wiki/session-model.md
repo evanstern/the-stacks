@@ -123,5 +123,6 @@ log from seq 0 in `readFrom` batches of 200 and folds it.
 ## Connections
 
 Writes are routed through the gate ([[proposal-gate]]); live delivery to subscribers filters
-per viewer in [[subscriber-registry]] and [[websocket-gateway]]. Specs:
+per viewer in [[subscriber-registry]] and [[websocket-gateway]]; the web table that folds and
+renders them is [[play-route]]. Specs:
 `specs/028-session-model/`, `specs/029-proposal-gate/`.

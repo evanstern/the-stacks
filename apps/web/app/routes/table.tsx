@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate, useRouteLoaderData } from "react-router";
+import type { loader as rootLoader } from "~/root";
 
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
@@ -10,6 +11,7 @@ const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
  */
 export default function Table() {
   const navigate = useNavigate();
+  const root = useRouteLoaderData<typeof rootLoader>("root");
   const [mounted, setMounted] = useState(false);
   const [joinValue, setJoinValue] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -65,6 +67,15 @@ export default function Table() {
           </p>
         )}
       </form>
+
+      {root?.user?.role === "operator" && (
+        <Link
+          to="/play/fixtures"
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Preview fixtures
+        </Link>
+      )}
     </div>
   );
 }

@@ -1,0 +1,17 @@
+pnpm ci:check — worktree task-0047, exit 0, 2026-10-26 (Phase 6, after merging origin/main e91ff40)
+(server DB integration tests ran against the worktree test-db, migrated)
+No WS gateway test re-run was needed.
+@the-stacks/web:test: # tests 125
+@the-stacks/web:test: # pass 125
+@the-stacks/web:test: # fail 0
+@the-stacks/srd:test:       Tests  140 passed (140)
+@the-stacks/dnd5e-engine:test:       Tests  199 passed (199)
+@the-stacks/session-model:test:       Tests  566 passed (566)
+@the-stacks/web:test:       Tests  21 passed (21)
+@the-stacks/server:test:       Tests  466 passed | 5 skipped (471)
+# tests 20
+# pass 20
+# fail 0
+# tests 42
+# pass 42
+# fail 0
