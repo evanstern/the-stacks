@@ -38,21 +38,21 @@ phase writes its tests with its code.
 **Purpose**: everything that does not need the real data. Ends with `pnpm ci:check` green on
 an empty data set.
 
-- [ ] T001 Create `packages/srd/package.json`: name `@the-stacks/srd`, private, `type: module`, `main`/`types` at `dist/index.js`/`dist/index.d.ts`, `exports` for `"."` and `"./attribution"` (`dist/attribution.js` + types), `files` listing `dist`, `data`, `ATTRIBUTION.md`; scripts `build: tsc -b`, `typecheck: tsc -b`, `test: vitest run`; dependency `zod: ^4.6.5`; devDependency `vitest: ^5.0.1`.
-- [ ] T002 Create `packages/srd/tsconfig.json` (extends `../../tsconfig.base.json`, `rootDir: src`, `outDir: dist`, `include: ["src"]`) and `packages/srd/test/tsconfig.json` (`noEmit: true`, `include: ["."]`, references `..`), following `apps/server/test/tsconfig.json`.
-- [ ] T003 Add `{ "path": "packages/srd" }` and `{ "path": "packages/srd/test" }` to root `tsconfig.json` references.
-- [ ] T004 In `biome.json`, add `!packages/srd/data` and `!packages/srd/provenance` to `files.includes`, and add the `packages/srd/**` override from plan.md "Boundary rule".
-- [ ] T005 [P] Create `fixtures/boundary-violations/packages/srd/src/bad.ts` importing `@the-stacks/dnd5e-engine`; confirm `pnpm check:boundaries` reports it flagged.
-- [ ] T006 [P] Write the schemas exactly as `contracts/records.md` in `packages/srd/src/schema/common.ts`, `monster.ts`, `spell.ts`, `class.ts`, `equipment.ts`, `condition.ts`, and re-export them from `packages/srd/src/schema/index.ts` with `RecordSchemas`, `SrdKind` and `SrdRecord`.
-- [ ] T007 [P] Write `packages/srd/src/attribution.ts` per `contracts/attribution.md`: `SRD_ATTRIBUTION` (exact text, U+201C/U+201D quotes), `SRD_CHANGE_NOTICE`, and `SRD_DATA_SOURCE` set to `null` until Phase 2 fills it. The module imports nothing.
-- [ ] T008 [P] Write `packages/srd/ATTRIBUTION.md` per `contracts/attribution.md` (statement, change notice; data-source line added in Phase 2). No other mention of Wizards.
-- [ ] T009 [P] Write `estimateTokens` in `packages/srd/src/tokens.ts` per `contracts/compact.md`.
-- [ ] T010 [P] Write `packages/srd/test/tokens.test.ts`: the golden table in `contracts/compact.md`, whitespace-only input is 0, repeated calls return equal values.
-- [ ] T011 [P] Write `packages/srd/test/attribution.test.ts` per `contracts/attribution.md`: file missing fails; statement absent or altered fails; the constant differs from the test's golden string fails; "Wizards" outside the statement fails.
-- [ ] T012 [P] Write `packages/srd/test/schema-fixtures.test.ts`: one minimal valid record per kind with neutral placeholder values (name "Fixture Monster", text "fixture"; no game prose of any origin), plus one invalid case per rule (unknown field rejected by `.strict()`, bad id, page 0, missing `source`). Real-data validation arrives in Phase 2 (T024).
-- [ ] T013 Create `packages/srd/src/index.ts` exporting schemas, `estimateTokens`, and attribution constants (loader exports land in Phase 3).
-- [ ] T014 Update `Dockerfile`: copy `packages/srd/package.json` beside `packages/shared/package.json` in both install stages; in the runtime stage copy `packages/srd/dist`, `packages/srd/data` and `packages/srd/ATTRIBUTION.md`. Confirm `docker build .` succeeds.
-- [ ] T015 Run `pnpm install && pnpm ci:check`. Green. Commit `TASK-0043: srd package scaffold, schemas, attribution, estimator`.
+- [x] T001 Create `packages/srd/package.json`: name `@the-stacks/srd`, private, `type: module`, `main`/`types` at `dist/index.js`/`dist/index.d.ts`, `exports` for `"."` and `"./attribution"` (`dist/attribution.js` + types), `files` listing `dist`, `data`, `ATTRIBUTION.md`; scripts `build: tsc -b`, `typecheck: tsc -b`, `test: vitest run`; dependency `zod: ^4.6.5`; devDependency `vitest: ^5.0.1`.
+- [x] T002 Create `packages/srd/tsconfig.json` (extends `../../tsconfig.base.json`, `rootDir: src`, `outDir: dist`, `include: ["src"]`) and `packages/srd/test/tsconfig.json` (`noEmit: true`, `include: ["."]`, references `..`), following `apps/server/test/tsconfig.json`.
+- [x] T003 Add `{ "path": "packages/srd" }` and `{ "path": "packages/srd/test" }` to root `tsconfig.json` references.
+- [x] T004 In `biome.json`, add `!packages/srd/data` and `!packages/srd/provenance` to `files.includes`, and add the `packages/srd/**` override from plan.md "Boundary rule".
+- [x] T005 [P] Create `fixtures/boundary-violations/packages/srd/src/bad.ts` importing `@the-stacks/dnd5e-engine`; confirm `pnpm check:boundaries` reports it flagged.
+- [x] T006 [P] Write the schemas exactly as `contracts/records.md` in `packages/srd/src/schema/common.ts`, `monster.ts`, `spell.ts`, `class.ts`, `equipment.ts`, `condition.ts`, and re-export them from `packages/srd/src/schema/index.ts` with `RecordSchemas`, `SrdKind` and `SrdRecord`.
+- [x] T007 [P] Write `packages/srd/src/attribution.ts` per `contracts/attribution.md`: `SRD_ATTRIBUTION` (exact text, U+201C/U+201D quotes), `SRD_CHANGE_NOTICE`, and `SRD_DATA_SOURCE` set to `null` until Phase 2 fills it. The module imports nothing.
+- [x] T008 [P] Write `packages/srd/ATTRIBUTION.md` per `contracts/attribution.md` (statement, change notice; data-source line added in Phase 2). No other mention of Wizards.
+- [x] T009 [P] Write `estimateTokens` in `packages/srd/src/tokens.ts` per `contracts/compact.md`.
+- [x] T010 [P] Write `packages/srd/test/tokens.test.ts`: the golden table in `contracts/compact.md`, whitespace-only input is 0, repeated calls return equal values.
+- [x] T011 [P] Write `packages/srd/test/attribution.test.ts` per `contracts/attribution.md`: file missing fails; statement absent or altered fails; the constant differs from the test's golden string fails; "Wizards" outside the statement fails.
+- [x] T012 [P] Write `packages/srd/test/schema-fixtures.test.ts`: one minimal valid record per kind with neutral placeholder values (name "Fixture Monster", text "fixture"; no game prose of any origin), plus one invalid case per rule (unknown field rejected by `.strict()`, bad id, page 0, missing `source`). Real-data validation arrives in Phase 2 (T024).
+- [x] T013 Create `packages/srd/src/index.ts` exporting schemas, `estimateTokens`, and attribution constants (loader exports land in Phase 3).
+- [x] T014 Update `Dockerfile`: copy `packages/srd/package.json` beside `packages/shared/package.json` in both install stages; in the runtime stage copy `packages/srd/dist`, `packages/srd/data` and `packages/srd/ATTRIBUTION.md`. Confirm `docker build .` succeeds.
+- [x] T015 Run `pnpm install && pnpm ci:check`. Green. Commit `TASK-0043: srd package scaffold, schemas, attribution, estimator`.
 
 **Checkpoint**: the package builds, attribution is guarded, the boundary rule fires.
 
@@ -151,3 +151,9 @@ Within a phase, tasks marked [P] touch different files and can run in either ord
 MVP is Phases 1–3: the engine and DM runtime get data, lookups and compact forms. Phase 4
 completes the license duty and is required before merge (AC #2). Phase 5 is the merge gate.
 One PR carries all five phases (one task, one PR).
+
+## Deviations
+
+- Phase 1 (T001): added `@types/node` ^22.20.4 to `packages/srd` devDependencies. The tests import `node:fs`, `node:path` and `node:url`. The version already exists in `apps/server`, so no new third-party package enters the repository. The plan's New dependencies table omits it.
+- Phase 1 (T014): added `RUN pnpm --filter "@the-stacks/srd" run build` to the Dockerfile build stage. The existing server filter does not build `packages/srd`, so `COPY --from=build .../srd/dist` failed without it.
+- Phase 1 (T014): committed `packages/srd/data/.gitkeep` so the Dockerfile `COPY` of `packages/srd/data` succeeds before Phase 2 fills the directory.
