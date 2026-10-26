@@ -70,7 +70,7 @@
               "combatantId": "tamsin",
               "kind": "ability-check",
               "ability": "cha",
-              "skill": "Persuasion",
+              "skill": "persuasion",
               "expression": "1d20-1",
               "mode": "normal",
               "dc": 12,

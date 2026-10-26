@@ -25,7 +25,7 @@ const checkStep = {
   combatantId: "ana",
   kind: "ability-check",
   ability: "dex",
-  skill: "Sleight of Hand",
+  skill: "sleight-of-hand",
   expression: "1d20+5",
   mode: "normal",
   dc: 15,

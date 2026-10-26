@@ -87,7 +87,7 @@ async function setup(opts: { citations: unknown[]; readings: number }) {
             combatantId: "ana",
             kind: "ability-check",
             ability: "str",
-            skill: "Athletics",
+            skill: "athletics",
             expression: "1d20+3",
             mode: "normal",
             dc: 12,

@@ -151,50 +151,50 @@ Contracts: `contracts/interpret-output.md`, `contracts/rules-terms.md`.
 **Rules for this phase**: interpret stays strict. Add no normalizer. Never map, coerce or drop
 a condition, skill, damage type, ability or number. Never edit `.env`.
 
-- [ ] T025 [US5] In `apps/server/test/dm/interpret-capture.test.ts`, load the interpret fixture.
+- [x] T025 [US5] In `apps/server/test/dm/interpret-capture.test.ts`, load the interpret fixture.
   Parse each attempt's `excerpt` as `parseAgainst` does: `stripFence`, `JSON.parse`, then
   `InterpretOutput.safeParse`. Assert attempt 1 throws in `JSON.parse` (`not valid JSON`).
   Assert attempt 2 fails with issue path `readings.0.steps.0.onSuccess.0.condition`. Assert
   the fixture's `promptVersion` is `dm.interpret-v1`. Run it on the unfixed code. Commit it
   green.
-- [ ] T026 [US5] In `packages/dnd5e-engine/src/schema/state.ts`, add `SkillSchema` (the 18 keys
+- [x] T026 [US5] In `packages/dnd5e-engine/src/schema/state.ts`, add `SkillSchema` (the 18 keys
   in `contracts/rules-terms.md`) and `type Skill`. In `schema/commands.ts`, set `check.roll`
   `skill: SkillSchema.nullable().default(null)`. Export both from `src/index.ts`. Leave
   `schema/events.ts` unchanged.
-- [ ] T027 [P] [US5] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted
+- [x] T027 [P] [US5] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted
   tests: each of the 18 keys rolls a `check.resolved` with that key; `"Perception"`,
   `"sleight of hand"` and `"spotting"` are refused with `INVALID_COMMAND` via `expectRefusal`;
   `null` and an omitted skill still resolve. Run the engine tests.
-- [ ] T028 [US5] In `apps/server/src/dm/nodes/schemas.ts`, derive `SkillSchema` from the
+- [x] T028 [US5] In `apps/server/src/dm/nodes/schemas.ts`, derive `SkillSchema` from the
   engine's `check.roll` command shape, like `AbilitySchema`. Unwrap the default and the
   nullable. Throw at load when the inner schema is not an enum. Set `StepSchema` check
   `skill: SkillSchema.nullable()`. Export `CONDITION_KEYS` and `SKILL_KEYS` option arrays
   from the uncast enums.
-- [ ] T029 [US5] In `apps/server/src/dm/seed/schema.ts`, use `SkillSchema` from
+- [x] T029 [US5] In `apps/server/src/dm/seed/schema.ts`, use `SkillSchema` from
   `../nodes/schemas.js` for character `skills` keys (`z.partialRecord`) and clue
   `check.skill` (nullable). Confirm `apps/server/seeds/greyhollow-ford.json` still loads.
-- [ ] T030 [P] [US5] Update every skill value listed in `contracts/rules-terms.md` ("Files whose
+- [x] T030 [P] [US5] Update every skill value listed in `contracts/rules-terms.md` ("Files whose
   skill values change") to its kebab key. Update any assertion that reads one back. Add
   `apps/server/test/dm/rules-terms.test.ts`: `StepSchema` rejects an unknown skill, a
   title-case skill and the condition `spotted-lookout`; `EffectSchema` rejects an unknown
   damage type; `StepSchema` rejects an unknown ability; the server `SKILL_KEYS` equal the
   engine `SkillSchema.options`. In `apps/server/test/dm/seed.test.ts`, assert a seed with an
   unknown skill key fails to load.
-- [ ] T031 [US5] In `apps/server/src/dm/prompts/common.ts`, make `STEP_GRAMMAR` render the
+- [x] T031 [US5] In `apps/server/src/dm/prompts/common.ts`, make `STEP_GRAMMAR` render the
   condition keys, skill keys and damage types from `CONDITION_KEYS`, `SKILL_KEYS` and
   `DamageTypeSchema.options`. Add the narrative-outcome sentence. Follow
   `contracts/interpret-output.md` "Prompt shape" items 1 and 2.
-- [ ] T032 [US5] In `apps/server/src/dm/prompts/interpret.ts`, apply "Prompt shape" items 3–5:
+- [x] T032 [US5] In `apps/server/src/dm/prompts/interpret.ts`, apply "Prompt shape" items 3–5:
   the no-fence line, one sentence per `reason`, each cap in words, and one complete minimal
   check-step example held as an object and rendered with `JSON.stringify`. Set
   `PROMPT_VERSION` to `dm.interpret-v2`. In `prompts/adjudicate.ts`, set `PROMPT_VERSION` to
   `dm.adjudicate-v2`. Update every test that pins either version.
-- [ ] T033 [US5] Add `apps/server/test/dm/interpret-prompt.test.ts`: the system prompt holds every
+- [x] T033 [US5] Add `apps/server/test/dm/interpret-prompt.test.ts`: the system prompt holds every
   `CONDITION_KEYS`, `SKILL_KEYS` and damage-type value; it holds the narrative-outcome sentence
   and the no-fence line; the example object parses under `InterpretOutput`; an inline snapshot
   of `STEP_GRAMMAR` plus the interpret `OUTPUT_SHAPE`. Assert the adjudicate system prompt
   also holds the three lists.
-- [ ] T034 Run the phase gate and the database suites. Commit. Push the branch.
+- [x] T034 Run the phase gate and the database suites. Commit. Push the branch.
 
 **Checkpoint**: the interpret part of AC #3 holds offline. The skill gate is in place.
 

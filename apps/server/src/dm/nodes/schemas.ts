@@ -2,6 +2,7 @@ import {
   DamageTypeSchema,
   DefenseSetSchema,
   EngineCommandSchema,
+  type Skill,
 } from "@the-stacks/dnd5e-engine";
 import {
   CombatantIdSchema,
@@ -38,16 +39,44 @@ const conditionApply = EngineCommandSchema.options.find(
 if (!conditionApply || !("condition" in conditionApply.shape)) {
   throw new Error("engine condition.apply command not found");
 }
-export const ConditionKeySchema = conditionApply.shape
-  .condition as unknown as z.ZodType<
-  Exclude<
-    Extract<
-      z.infer<typeof EngineCommandSchema>,
-      { type: "condition.apply" }
-    >["condition"],
-    "exhaustion"
-  >
+const conditionEnum = conditionApply.shape.condition as unknown as z.ZodEnum<
+  Record<string, string>
 >;
+type ConditionKey = Exclude<
+  Extract<
+    z.infer<typeof EngineCommandSchema>,
+    { type: "condition.apply" }
+  >["condition"],
+  "exhaustion"
+>;
+export const CONDITION_KEYS = conditionEnum.options as readonly ConditionKey[];
+export const ConditionKeySchema =
+  conditionEnum as unknown as z.ZodType<ConditionKey>;
+
+/**
+ * The engine's `Skill` key list, taken from its own `check.roll` command
+ * (default and nullable unwrapped). Throws at load when it is not an enum.
+ */
+if (!("skill" in checkRoll.shape)) {
+  throw new Error("engine check.roll skill not found");
+}
+function unwrapSkill(schema: z.ZodType): z.ZodEnum<Record<string, string>> {
+  let inner: z.ZodType = schema;
+  for (;;) {
+    if (inner instanceof z.ZodDefault) {
+      inner = inner.unwrap() as z.ZodType;
+    } else if (inner instanceof z.ZodNullable) {
+      inner = inner.unwrap() as z.ZodType;
+    } else break;
+  }
+  if (!(inner instanceof z.ZodEnum)) {
+    throw new Error("engine check.roll skill is not an enum");
+  }
+  return inner as z.ZodEnum<Record<string, string>>;
+}
+const skillEnum = unwrapSkill(checkRoll.shape.skill as z.ZodType);
+export const SkillSchema = skillEnum as unknown as z.ZodType<Skill>;
+export const SKILL_KEYS = skillEnum.options as readonly Skill[];
 
 export const RollModeSchema = z.enum(["normal", "advantage", "disadvantage"]);
 
@@ -96,7 +125,7 @@ export const StepSchema = z.discriminatedUnion("step", [
     combatantId: CombatantIdSchema.nullable(),
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: AbilitySchema,
-    skill: z.string().max(40).nullable(),
+    skill: SkillSchema.nullable(),
     expression: z.string().min(1).max(200),
     mode: RollModeSchema,
     dc: z.number().int().min(1).max(40),

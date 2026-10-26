@@ -223,7 +223,7 @@ export const checkStep = (over: Record<string, unknown> = {}) => ({
   combatantId: "tamsin",
   kind: "ability-check",
   ability: "str",
-  skill: "Athletics",
+  skill: "athletics",
   expression: "1d20+4",
   mode: "normal",
   dc: 12,

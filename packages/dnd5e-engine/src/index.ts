@@ -25,6 +25,7 @@ export type {
   DefenseSet,
   Encounter,
   EngineState,
+  Skill,
 } from "./schema/state.js";
 export {
   CombatantSchema,
@@ -34,5 +35,6 @@ export {
   ENGINE_SCHEMA_VERSION,
   EncounterSchema,
   EngineStateSchema,
+  SkillSchema,
 } from "./schema/state.js";
 export { activeCombatant, conditionsOf } from "./selectors.js";
