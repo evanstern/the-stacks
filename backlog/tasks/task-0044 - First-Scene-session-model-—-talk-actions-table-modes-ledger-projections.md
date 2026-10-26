@@ -1,9 +1,10 @@
 ---
 id: TASK-0044
 title: 'First Scene: session model — talk, actions, table modes, ledger, projections'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
+updated_date: '2026-10-26 02:46'
 labels:
   - first-scene
   - session
@@ -24,6 +25,8 @@ Outcome: the session plane's play vocabulary. Typed, versioned event types and t
 Why: the session event log is the only source of truth; scene, party, encounter and journal are projections (decision-0017 layer 1). Talk never changes state; only a committed action reaches the DM pipeline (decision-0016). The ledger makes every number auditable (decision-0021 ideas 2 and 3).
 
 The event log itself (M0) does not change. This card adds event types and projection code over it. Engine events from TASK-0042 are the mechanical payloads.
+
+Spec: specs/028-session-model
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -37,6 +40,12 @@ The event log itself (M0) does not change. This card adds event types and projec
 - [ ] #7 A test replays the log from seq 0 and rebuilds identical projections.
 - [ ] #8 Projections skip unknown event types without failing.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-25 by the M2 First Scene sweep (docs/design/m2-first-scene-sweep-runbook.md, lane 2) after TASK-0042 merged (#43). Worktree .worktrees/task-0044, branch task-0044-session-model, cut from origin/main 9f62664. Spec number 028 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
