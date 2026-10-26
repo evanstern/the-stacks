@@ -27,6 +27,7 @@ export class RngContractError extends Error {
 }
 
 const TWO_POW_32 = 4294967296;
+const MAX_SIDES = 1000;
 
 /** mulberry32 over a 32-bit integer seed, with rejection sampling (research R2). */
 export function seededRng(seed: number): Rng {
@@ -45,7 +46,7 @@ export function seededRng(seed: number): Rng {
   };
   return {
     rollDie(sides: number): number {
-      if (!Number.isInteger(sides) || sides < 1) {
+      if (!Number.isInteger(sides) || sides < 1 || sides > MAX_SIDES) {
         throw new RngContractError(`invalid die size ${sides}`);
       }
       // Reject the biased tail so every face is equally likely.

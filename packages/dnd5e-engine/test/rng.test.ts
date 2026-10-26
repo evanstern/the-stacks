@@ -33,6 +33,18 @@ describe("seededRng", () => {
     }
   });
 
+  it("rejects die sizes above 1000", () => {
+    const rng = seededRng(5);
+    expect(() => rng.rollDie(1001)).toThrow(RngContractError);
+    expect(() => rng.rollDie(2 ** 33)).toThrow(RngContractError);
+  });
+
+  it("accepts the largest die size", () => {
+    const f = seededRng(5).rollDie(1000);
+    expect(f).toBeGreaterThanOrEqual(1);
+    expect(f).toBeLessThanOrEqual(1000);
+  });
+
   it("rejects a bad seed", () => {
     expect(() => seededRng(-1)).toThrow(RngContractError);
     expect(() => seededRng(1.5)).toThrow(RngContractError);
