@@ -1,0 +1,40 @@
+{
+  "v": 1,
+  "runId": "20261026T152743Z-greyhollow-ford-provider",
+  "commit": "aa960b358242b1d5aaa680f09a65b75dd4e38c18",
+  "provider": "claude",
+  "model": "cc/claude-sonnet-5",
+  "maxTokens": 1200,
+  "promptVersion": "dm.interpret-v1",
+  "turn": {
+    "trigger": "npc-turn",
+    "triggerSeq": 61,
+    "actionIds": ["act-kestrel-1"]
+  },
+  "failure": {
+    "kind": "invalid-output",
+    "node": "interpret",
+    "detail": {
+      "issues": "readings.0.steps.0.onSuccess.0.condition: Invalid option: expected one of \"blinded\"|\"charmed\"|\"deafened\"|\"frightened\"|\"grappled\"|\"incapacitated\"|\"invisible\"|\"paralyzed\"|\"petrified\"|\"poisoned\"|\"prone\"|\"restrained\"|\"stunned\"|\"unconscious\"",
+      "purpose": "dm.interpret",
+      "attempts": [
+        {
+          "chars": 331,
+          "issues": "not valid JSON: Unexpected token '`', \"```json\n{\"\"... is not valid JSON",
+          "attempt": 1,
+          "excerpt": "```json\n{\"readings\":[\n{\"actionId\":\"act-kestrel-1\",\"intent\":\"check\",\"uncertain\":true,\"needsAdjudication\":false,\"rulesQuestion\":null,\"clarify\":null,\"steps\":[\n  {\"step\":\"check\",\"reason\":\"Kestrel scans the high ground for the goblin lookout before being spotted; the shape is deliberately staying hidden.\",\"combatantId\":\"kestrel\",\"kind",
+          "outputTokens": 1200
+        },
+        {
+          "chars": 1014,
+          "issues": "readings.0.steps.0.onSuccess.0.condition: Invalid option: expected one of \"blinded\"|\"charmed\"|\"deafened\"|\"frightened\"|\"grappled\"|\"incapacitated\"|\"invisible\"|\"paralyzed\"|\"petrified\"|\"poisoned\"|\"prone\"|\"restrained\"|\"stunned\"|\"unconscious\"",
+          "attempt": 2,
+          "excerpt": "{\"readings\":[\n{\"actionId\":\"act-kestrel-1\",\"intent\":\"check\",\"uncertain\":true,\"needsAdjudication\":false,\"rulesQuestion\":null,\"clarify\":null,\"steps\":[\n{\"step\":\"check\",\"reason\":\"Kestrel tries to spot a goblin lookout holding still in cover on the high ground; the goblin is actively hiding, so the outcome is uncertain and missing it risks an ambush.\",\"combatantId\":\"kestrel\",\"kind\":\"ability-check\",\"ability\":\"wis\",\"skill\":\"perception\",\"expression\":\"1d20+3\",\"mode\":\"normal\",\"dc\":13,\"autoFail\":null,\"onSuccess\":[{\"effect\":\"condition\",\"op\":\"apply\",\"targetId\":\"kestrel\",\"condition\":\"spotted-lookout\",\"source\":\"act-kestrel-1\"}],\"onFailure\":[]}\n]},\n{\"actionId\":null,\"intent\":\"other\",\"uncertain\":false,\"needsAdjudication\":false,\"rulesQuestion\":null,\"clarify\":null,\"steps\":[\n{\"step\":\"none\",\"reason\":\"Snag opens his turn with a sing-song warning from behind the fire's half cover, clapper held up and a hand on Pell's cord, ordering arrows readied but not loosed — a certain narrative beat with no roll, no attack yet.\"}\n]}\n]}",
+          "outputTokens": 718
+        }
+      ],
+      "promptVersion": "dm.interpret-v1"
+    },
+    "message": "model output failed its schema twice (dm.interpret)"
+  }
+}
