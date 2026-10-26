@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 18:38'
+updated_date: '2026-10-26 19:13'
 labels:
   - first-scene
   - dm
@@ -72,6 +72,8 @@ Phase 4 by sonnet-implementer: 752d98a (narrate-v2 and audit-v2: party and world
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 setup 2026-10-26: composite .worktrees/task-0106-run = origin/task-0048-playtest a99ddd8 (holds seat fix b3f09ca) + merge of origin/task-0106-narration-quality → fda4abf (clean merge, never pushed). Stack stacks-task-0106-run (:7902), both DBs migrated (app DB via TEST_DATABASE_URL), app restarted. Pre-check B1: server tests 829 passed, 1 failed: TASK-0048's test/playtest/checks.test.ts 'passes the DM runtime's factual summary, with a recorded death' builds NarrationFacts by hand in the pre-034 shape (no events/party/setting), and the new factualSummary throws on facts.events. Orchestrator ruling: a fixture-shape lag in TASK-0048's test, not a runtime defect; the provider run proceeds. The test's facts literal gains the new fields in TASK-0048's reconcile merge after TASK-0106 lands. CI playtest in composite: ended, pass. Estimate upper bound $21.60, ceiling $22 (operator approval above). B2/B3: moves.fallback is now a 5-entry list; the C5 selector matches any of those texts.
+
+Phase 5 verification 2026-10-26: run 20261026T183818Z-greyhollow-ford-provider at composite fda4abf. FAIL on AC #4. Outcome stalled (seat-exhausted) after 11 moves, no failed job, $7.18 over 321 calls of $22. Fallback rate excluding seat-fallback turns 12/34 = 0.35 (bar 0.10; run 5 was 0.50); all turns 13/38. hidden-info-leak 0 (run 5: 6). ledger-contradiction 3 (bar 0). player-agency 4. Classification (evidence/verify-…/classification.md): E1 dm.narrate maxTokens 500 with hidden reasoning, 17 of 79 calls at the cap and 9 empty attempts (config). E2 dm.audit still flags world NPCs (Pell, Snag) as player-agency, 10 of 21 blocks (code filter, needs a catalog row). E3 the narrator invents hero wounds and moves the hero on a foe's failed attack (narrate-v3 rule, needs a catalog row). F4 is a playtest-auditor false positive, F32 a chronicle conflation (journal), F54 a runtime ordering quirk (an action that ended the encounter then resolved refused). Evidence: ed46cec. STOPPED for an operator ruling before further spend.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
