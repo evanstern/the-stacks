@@ -1,7 +1,7 @@
 ---
 id: TASK-0044
 title: 'First Scene: session model — talk, actions, table modes, ledger, projections'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 19:59'
 updated_date: '2026-10-26 03:32'
@@ -75,6 +75,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #46 on 2026-10-26. Card ACs #1–#8 are proven by specs/028-session-model/ci-evidence.txt. The adversarial review (review-pr-46) approved it with no findings.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Setup — package scaffold and boundary rule: 7/7 · Foundational — event schemas, catalog, decoding, visibility (US1, US2, US4, US5; AC #1, #6, #8): 13/13 · User Stories 1–5 — the fold and every projection (AC #2, #3, #4, #5, #6, #7, #8): 13/13 · User Story 6 — the fixtures contract: 7/7 · User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7): 11/11 · Polish — full gate: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
