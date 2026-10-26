@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 19:14'
+updated_date: '2026-10-26 19:19'
 labels:
   - first-scene
   - dm
@@ -76,6 +76,11 @@ Phase 5 setup 2026-10-26: composite .worktrees/task-0106-run = origin/task-0048-
 Phase 5 verification 2026-10-26: run 20261026T183818Z-greyhollow-ford-provider at composite fda4abf. FAIL on AC #4. Outcome stalled (seat-exhausted) after 11 moves, no failed job, $7.18 over 321 calls of $22. Fallback rate excluding seat-fallback turns 12/34 = 0.35 (bar 0.10; run 5 was 0.50); all turns 13/38. hidden-info-leak 0 (run 5: 6). ledger-contradiction 3 (bar 0). player-agency 4. Classification (evidence/verify-…/classification.md): E1 dm.narrate maxTokens 500 with hidden reasoning, 17 of 79 calls at the cap and 9 empty attempts (config). E2 dm.audit still flags world NPCs (Pell, Snag) as player-agency, 10 of 21 blocks (code filter, needs a catalog row). E3 the narrator invents hero wounds and moves the hero on a foe's failed attack (narrate-v3 rule, needs a catalog row). F4 is a playtest-auditor false positive, F32 a chronicle conflation (journal), F54 a runtime ordering quirk (an action that ended the encounter then resolved refused). Evidence: ed46cec. STOPPED for an operator ruling before further spend.
 
 OPERATOR APPROVAL 2026-10-26, in the operator's words (the message arrived cut at 300 chars): 'Approved: raise dm.narrate maxTokens from 500 to 1500 in the root .env and the composite and TASK-0048 worktree .env files; amend spec 034 with E2 (player-agency blocks only when it names a party character) and E3 (narrate-v3: a foe's failed attack leaves the hero unchanged and unmoved); rerun verif'. Applied: dm.narrate maxTokens 1500 in the root .env, .worktrees/task-0106-run/.env and .worktrees/task-0048/.env (exactly one match each). The estimate's upper bound is now $23.40, above the $22 ceiling, so the rerun ceiling and the F4/F32/F54 and AC #4 bar rulings were not received and are re-asked before the rerun.
+
+Spec amendment by opus-implementer: 5ed2fe4. E2: a player-agency issue blocks only when its detail names a party term (full name, characterId or given name; companions count; fixed title list; whole-word, case-insensitive). On the Phase 5 evidence this keeps 13 of 21 blocking. E3: narrate-v3 rule (a foe's failed attack, grab or save leaves the party member unchanged and unmoved; no wound without a damage fact). Audit stays v2. Phases 4b (T048–T052, sonnet) and 5b (T053–T057, orchestrator, paid) added; Phase 5 is marked run, failed, superseded.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+OPERATOR APPROVAL AND RULINGS 2026-10-26, in the operator's words: 'Approved: $25 ceiling for the TASK-0106 rerun. F4 is a false positive. Card F32 and F54. AC #4's contradiction bar counts narration-caused contradictions only.' Carded: TASK-0109 (F32, chronicle conflation) and TASK-0110 (F54, action refused after ending the encounter), both m-3.
+Orchestrator rulings on the amendment's open points: (1) the 'first-named character' rule is NOT adopted; it goes beyond the approved E2 wording, and the 5b result decides whether it is needed. (2) Closing-question complaints filed as player-agency (3 of 13) are recorded only; the 5b result shows their weight.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
