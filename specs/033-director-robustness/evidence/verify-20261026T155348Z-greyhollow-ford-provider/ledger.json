@@ -1,0 +1,3208 @@
+[
+  {
+    "kind": "change",
+    "seq": 1,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Scene start: The Bell at Greyhollow Ford",
+    "type": "scene.changed",
+    "subject": "greyhollow-ford",
+    "before": null,
+    "after": {
+      "sceneId": "greyhollow-ford",
+      "title": "The Bell at Greyhollow Ford",
+      "summary": "Find out who silenced the ferry bell at Greyhollow Ford and get the ferry crossing again before full dark.",
+      "location": "Greyhollow Ford"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 2,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin Vale joins the scene [2c49b9f7-368e-4237-b65b-556b59dff61a#2]",
+    "type": "combatant.added",
+    "subject": "tamsin",
+    "before": null,
+    "after": {
+      "id": "tamsin",
+      "name": "Tamsin Vale",
+      "hp": {
+        "current": 13,
+        "max": 13,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 10,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 2,
+      "ac": 16,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-2",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 3,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin Vale joins the party",
+    "type": "party.member.changed",
+    "subject": "tamsin",
+    "before": null,
+    "after": {
+      "characterId": "tamsin",
+      "name": "Tamsin Vale",
+      "controller": {
+        "kind": "player",
+        "userId": "00000000-0000-4000-8000-0000000000a1"
+      },
+      "combatantId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 4,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Brother Odo joins the scene [2c49b9f7-368e-4237-b65b-556b59dff61a#4]",
+    "type": "combatant.added",
+    "subject": "odo",
+    "before": null,
+    "after": {
+      "id": "odo",
+      "name": "Brother Odo",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 8,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {
+          "1": {
+            "max": 2,
+            "expended": 0
+          }
+        },
+        "pact": null
+      },
+      "initiativeBonus": 0,
+      "conModifier": 1,
+      "ac": 16,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-4",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 5,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Brother Odo joins the party",
+    "type": "party.member.changed",
+    "subject": "odo",
+    "before": null,
+    "after": {
+      "characterId": "odo",
+      "name": "Brother Odo",
+      "controller": {
+        "kind": "ai-companion",
+        "actor": "ai:companion:odo"
+      },
+      "combatantId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 6,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel joins the scene [2c49b9f7-368e-4237-b65b-556b59dff61a#6]",
+    "type": "combatant.added",
+    "subject": "kestrel",
+    "before": null,
+    "after": {
+      "id": "kestrel",
+      "name": "Kestrel",
+      "hp": {
+        "current": 9,
+        "max": 9,
+        "temp": 0
+      },
+      "zeroHpRule": "death-saves",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [
+        {
+          "die": 8,
+          "total": 1,
+          "remaining": 1
+        }
+      ],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 3,
+      "conModifier": 1,
+      "ac": 14,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-6",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 7,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel joins the party",
+    "type": "party.member.changed",
+    "subject": "kestrel",
+    "before": null,
+    "after": {
+      "characterId": "kestrel",
+      "name": "Kestrel",
+      "controller": {
+        "kind": "ai-companion",
+        "actor": "ai:companion:kestrel"
+      },
+      "combatantId": "kestrel"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 8,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Start the Full dark falls on the ford tracker",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": null,
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 0,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 9,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Start the The reed-camp is alerted tracker",
+    "type": "tracker.changed",
+    "subject": "alarm",
+    "before": null,
+    "after": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 0,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 15,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "A thorough search of the ferry-house spends real time against the failing light. [42ad0e23-4c72-4bef-921f-b486ac461c1e#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 0,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 1,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 32,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "Picking along sunk timbers into the marsh is slow going; the light keeps bleeding out. [d887a81c-e71b-47a8-9d54-3c3596455698#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 1,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 2,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 33,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin picks her way along the rotted causeway timbers toward the goblin camp, where a misstep could send her under or make noise. [d887a81c-e71b-47a8-9d54-3c3596455698#2]",
+    "batchId": "id-ab05e88a-33",
+    "index": 0,
+    "actionId": "act-advance",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin picks her way along the rotted causeway timbers toward the goblin camp, where a misstep could send her under or make noise. [d887a81c-e71b-47a8-9d54-3c3596455698#2]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "check",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            19
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 19
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 22,
+      "natural": 19
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 34,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin picks her way along the rotted causeway timbers toward the goblin camp, where a misstep could send her under or make noise. [d887a81c-e71b-47a8-9d54-3c3596455698#2]",
+    "batchId": "id-ab05e88a-33",
+    "index": 1,
+    "actionId": "act-advance",
+    "outcome": {
+      "type": "check.resolved",
+      "v": 1,
+      "reason": "Tamsin picks her way along the rotted causeway timbers toward the goblin camp, where a misstep could send her under or make noise. [d887a81c-e71b-47a8-9d54-3c3596455698#2]",
+      "combatantId": "tamsin",
+      "kind": "ability-check",
+      "ability": "wis",
+      "skill": "survival",
+      "rollIndex": 0,
+      "dc": 12,
+      "total": 22,
+      "natural": 19,
+      "autoFail": null,
+      "outcome": "success"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 40,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "The slow timber-by-timber crawl down the causeway burned the last of the amber light. [911f38f1-c866-48e0-8fe5-ca6e274f525c#1]",
+    "type": "tracker.changed",
+    "subject": "dusk",
+    "before": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 2,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "after": {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "filled": 3,
+      "note": "When full, the river-things rise; the scene's failure condition is near."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 41,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Snag joins the fight [911f38f1-c866-48e0-8fe5-ca6e274f525c#2]",
+    "type": "combatant.added",
+    "subject": "snag",
+    "before": null,
+    "after": {
+      "id": "snag",
+      "name": "Snag",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 15,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-40",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 42,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin with a pot-helm joins the fight [911f38f1-c866-48e0-8fe5-ca6e274f525c#3]",
+    "type": "combatant.added",
+    "subject": "goblin-2",
+    "before": null,
+    "after": {
+      "id": "goblin-2",
+      "name": "Goblin with a pot-helm",
+      "hp": {
+        "current": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 15,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-41",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 43,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin lookout joins the fight [911f38f1-c866-48e0-8fe5-ca6e274f525c#4]",
+    "type": "combatant.added",
+    "subject": "goblin-3",
+    "before": null,
+    "after": {
+      "id": "goblin-3",
+      "name": "Goblin lookout",
+      "hp": {
+        "current": 7,
+        "max": 7,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 12,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-42",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 44,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin by the fire joins the fight [911f38f1-c866-48e0-8fe5-ca6e274f525c#5]",
+    "type": "combatant.added",
+    "subject": "goblin-4",
+    "before": null,
+    "after": {
+      "id": "goblin-4",
+      "name": "Goblin by the fire",
+      "hp": {
+        "current": 7,
+        "max": 7,
+        "temp": 0
+      },
+      "zeroHpRule": "dies",
+      "lifeState": "conscious",
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "conditions": [],
+      "conditionSeq": 0,
+      "hitDice": [],
+      "spellSlots": {
+        "standard": {},
+        "pact": null
+      },
+      "initiativeBonus": 2,
+      "conModifier": 0,
+      "ac": 12,
+      "defenses": {
+        "resistances": [],
+        "vulnerabilities": [],
+        "immunities": []
+      }
+    },
+    "batchId": "id-ab05e88a-43",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 45,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            8
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 8
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 10,
+      "natural": 8
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 46,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 1,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "odo",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            17
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 17
+        }
+      ],
+      "total": 17,
+      "natural": 17
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 47,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 2,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "kestrel",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            5
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 5
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 8,
+      "natural": 5
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 48,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 3,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "snag",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            17
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 17
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 19,
+      "natural": 17
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 49,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 4,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-2",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            6
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 8,
+      "natural": 6
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 50,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 5,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            16
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 16
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 18,
+      "natural": 16
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 51,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "batchId": "id-ab05e88a-44",
+    "index": 6,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+      "expression": "1d20+2",
+      "mode": "normal",
+      "purpose": "initiative",
+      "critical": false,
+      "combatantId": "goblin-4",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            3
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 3
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 5,
+      "natural": 3
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 52,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Roll initiative: The reed-camp [911f38f1-c866-48e0-8fe5-ca6e274f525c#6]",
+    "type": "encounter.started",
+    "subject": null,
+    "before": null,
+    "after": {
+      "round": 1,
+      "turnIndex": 0,
+      "order": [
+        {
+          "combatantId": "snag",
+          "total": 19,
+          "bonus": 2
+        },
+        {
+          "combatantId": "goblin-3",
+          "total": 18,
+          "bonus": 2
+        },
+        {
+          "combatantId": "odo",
+          "total": 17,
+          "bonus": 0
+        },
+        {
+          "combatantId": "tamsin",
+          "total": 10,
+          "bonus": 2
+        },
+        {
+          "combatantId": "kestrel",
+          "total": 8,
+          "bonus": 3
+        },
+        {
+          "combatantId": "goblin-2",
+          "total": 8,
+          "bonus": 2
+        },
+        {
+          "combatantId": "goblin-4",
+          "total": 5,
+          "bonus": 2
+        }
+      ]
+    },
+    "batchId": "id-ab05e88a-44",
+    "index": 7,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 53,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel looses on the lookout at the camp's edge — the reed-camp trigger has happened; initiative stands.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "free"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 57,
+    "actor": "ai:dm",
+    "visibility": "dm",
+    "reason": "The fight breaks out in the reeds — shouts, splashing, a loosed arrow. The camp is fully alerted. [7b641663-c7c5-4718-bbec-5ad9bef5ec27#1]",
+    "type": "tracker.changed",
+    "subject": "alarm",
+    "before": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 0,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "after": {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "filled": 3,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp."
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 58,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [7b641663-c7c5-4718-bbec-5ad9bef5ec27#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "batchId": "id-ab05e88a-51",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 59,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 62,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 shouts the alarm and flings its dagger at Kestrel before ducking for the fire's cover. [c3c7037b-d153-4aef-a904-3e9f559fc67d#1]",
+    "batchId": "id-ab05e88a-55",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-3 shouts the alarm and flings its dagger at Kestrel before ducking for the fire's cover. [c3c7037b-d153-4aef-a904-3e9f559fc67d#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            6
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 10,
+      "natural": 6
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 63,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 shouts the alarm and flings its dagger at Kestrel before ducking for the fire's cover. [c3c7037b-d153-4aef-a904-3e9f559fc67d#1]",
+    "batchId": "id-ab05e88a-55",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Goblin-3 shouts the alarm and flings its dagger at Kestrel before ducking for the fire's cover. [c3c7037b-d153-4aef-a904-3e9f559fc67d#1]",
+      "attackerId": "goblin-3",
+      "targetId": "kestrel",
+      "rollIndex": 0,
+      "ac": 14,
+      "acSource": "command",
+      "total": 10,
+      "natural": 6,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 64,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [c3c7037b-d153-4aef-a904-3e9f559fc67d#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "batchId": "id-ab05e88a-56",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 65,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 72,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo steps forward under drawn bows to offer trinkets for peace and the bell's return. [29b4be5e-aac4-4dc8-a167-3e438289579a#1]",
+    "batchId": "id-ab05e88a-64",
+    "index": 0,
+    "actionId": "act-odo-2",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Odo steps forward under drawn bows to offer trinkets for peace and the bell's return. [29b4be5e-aac4-4dc8-a167-3e438289579a#1]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "check",
+      "critical": false,
+      "combatantId": "odo",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            19
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 19
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 22,
+      "natural": 19
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 73,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo steps forward under drawn bows to offer trinkets for peace and the bell's return. [29b4be5e-aac4-4dc8-a167-3e438289579a#1]",
+    "batchId": "id-ab05e88a-64",
+    "index": 1,
+    "actionId": "act-odo-2",
+    "outcome": {
+      "type": "check.resolved",
+      "v": 1,
+      "reason": "Odo steps forward under drawn bows to offer trinkets for peace and the bell's return. [29b4be5e-aac4-4dc8-a167-3e438289579a#1]",
+      "combatantId": "odo",
+      "kind": "ability-check",
+      "ability": "cha",
+      "skill": "persuasion",
+      "rollIndex": 0,
+      "dc": 18,
+      "total": 22,
+      "natural": 19,
+      "autoFail": null,
+      "outcome": "success"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 75,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [29b4be5e-aac4-4dc8-a167-3e438289579a#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "batchId": "id-ab05e88a-66",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 76,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 82,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at Snag, breaking the parley. [ad627b21-cf96-4820-919c-e1107d53e27f#1]",
+    "batchId": "id-ab05e88a-73",
+    "index": 0,
+    "actionId": "act-strike",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at Snag, breaking the parley. [ad627b21-cf96-4820-919c-e1107d53e27f#1]",
+      "expression": "1d20+5",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            19
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 19
+        },
+        {
+          "kind": "modifier",
+          "value": 5
+        }
+      ],
+      "total": 24,
+      "natural": 19
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 83,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at Snag, breaking the parley. [ad627b21-cf96-4820-919c-e1107d53e27f#1]",
+    "batchId": "id-ab05e88a-73",
+    "index": 1,
+    "actionId": "act-strike",
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at Snag, breaking the parley. [ad627b21-cf96-4820-919c-e1107d53e27f#1]",
+      "attackerId": "tamsin",
+      "targetId": "snag",
+      "rollIndex": 0,
+      "ac": 15,
+      "acSource": "command",
+      "total": 24,
+      "natural": 19,
+      "outcome": "hit"
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 84,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at Snag, breaking the parley.: damage [ad627b21-cf96-4820-919c-e1107d53e27f#2]",
+    "batchId": "id-ab05e88a-74",
+    "index": 0,
+    "actionId": "act-strike",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at Snag, breaking the parley.: damage [ad627b21-cf96-4820-919c-e1107d53e27f#2]",
+      "expression": "1d8+3",
+      "mode": "normal",
+      "purpose": "damage",
+      "critical": false,
+      "combatantId": "snag",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 8,
+          "keep": null,
+          "faces": [
+            6
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 9,
+      "natural": null
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 85,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at Snag, breaking the parley.: damage [ad627b21-cf96-4820-919c-e1107d53e27f#2]",
+    "type": "hp.changed",
+    "subject": "snag",
+    "before": {
+      "current": 10,
+      "temp": 0
+    },
+    "after": {
+      "current": 1,
+      "temp": 0
+    },
+    "batchId": "id-ab05e88a-74",
+    "index": 1,
+    "actionId": "act-strike"
+  },
+  {
+    "kind": "change",
+    "seq": 87,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [ad627b21-cf96-4820-919c-e1107d53e27f#4]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "batchId": "id-ab05e88a-76",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 88,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 95,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel looses an arrow at Snag to finish him off. [d5408970-df1b-43a1-8c61-28b9b3811a28#1]",
+    "batchId": "id-ab05e88a-84",
+    "index": 0,
+    "actionId": "act-kestrel-2",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Kestrel looses an arrow at Snag to finish him off. [d5408970-df1b-43a1-8c61-28b9b3811a28#1]",
+      "expression": "1d20+5",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "kestrel",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            4
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 4
+        },
+        {
+          "kind": "modifier",
+          "value": 5
+        }
+      ],
+      "total": 9,
+      "natural": 4
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 96,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel looses an arrow at Snag to finish him off. [d5408970-df1b-43a1-8c61-28b9b3811a28#1]",
+    "batchId": "id-ab05e88a-84",
+    "index": 1,
+    "actionId": "act-kestrel-2",
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Kestrel looses an arrow at Snag to finish him off. [d5408970-df1b-43a1-8c61-28b9b3811a28#1]",
+      "attackerId": "kestrel",
+      "targetId": "snag",
+      "rollIndex": 0,
+      "ac": 15,
+      "acSource": "command",
+      "total": 9,
+      "natural": 4,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 98,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [d5408970-df1b-43a1-8c61-28b9b3811a28#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "batchId": "id-ab05e88a-86",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 99,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 101,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [b048180a-9d6f-441e-be44-10722fb0879c#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "batchId": "id-ab05e88a-89",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 102,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 105,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [1604c1c6-27ed-486d-85e8-1997d75df6cd#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 1,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "batchId": "id-ab05e88a-93",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 106,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 109,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [6e3e1960-d124-434e-a919-233cb22bb574#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "batchId": "id-ab05e88a-97",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 110,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 113,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back. [3e2842df-7c27-4bd9-a972-0d8810170f0c#1]",
+    "batchId": "id-ab05e88a-101",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back. [3e2842df-7c27-4bd9-a972-0d8810170f0c#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            20
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 20
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 24,
+      "natural": 20
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 114,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back. [3e2842df-7c27-4bd9-a972-0d8810170f0c#1]",
+    "batchId": "id-ab05e88a-101",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back. [3e2842df-7c27-4bd9-a972-0d8810170f0c#1]",
+      "attackerId": "goblin-3",
+      "targetId": "kestrel",
+      "rollIndex": 0,
+      "ac": 16,
+      "acSource": "command",
+      "total": 24,
+      "natural": 20,
+      "outcome": "critical-hit"
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 115,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back.: damage [3e2842df-7c27-4bd9-a972-0d8810170f0c#2]",
+    "batchId": "id-ab05e88a-102",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back.: damage [3e2842df-7c27-4bd9-a972-0d8810170f0c#2]",
+      "expression": "1d4+2",
+      "mode": "normal",
+      "purpose": "damage",
+      "critical": true,
+      "combatantId": "kestrel",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 2,
+          "sides": 4,
+          "keep": null,
+          "faces": [
+            3,
+            3
+          ],
+          "kept": [
+            true,
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 8,
+      "natural": null
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 116,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3 flings a dagger at Kestrel from behind the fire's half cover before ducking back.: damage [3e2842df-7c27-4bd9-a972-0d8810170f0c#2]",
+    "type": "hp.changed",
+    "subject": "kestrel",
+    "before": {
+      "current": 9,
+      "temp": 0
+    },
+    "after": {
+      "current": 1,
+      "temp": 0
+    },
+    "batchId": "id-ab05e88a-102",
+    "index": 1,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 117,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [3e2842df-7c27-4bd9-a972-0d8810170f0c#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "batchId": "id-ab05e88a-103",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 118,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 123,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [e3527249-6123-4285-981b-5c0262f9aee8#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "batchId": "id-ab05e88a-109",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 124,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 130,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at the goblin in the pot-helm (goblin-3). [1ff0d216-6f70-4327-b894-b035f8632196#1]",
+    "batchId": "id-ab05e88a-116",
+    "index": 0,
+    "actionId": "pt-5",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at the goblin in the pot-helm (goblin-3). [1ff0d216-6f70-4327-b894-b035f8632196#1]",
+      "expression": "1d20+5",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            6
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 6
+        },
+        {
+          "kind": "modifier",
+          "value": 5
+        }
+      ],
+      "total": 11,
+      "natural": 6
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 131,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at the goblin in the pot-helm (goblin-3). [1ff0d216-6f70-4327-b894-b035f8632196#1]",
+    "batchId": "id-ab05e88a-116",
+    "index": 1,
+    "actionId": "pt-5",
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at the goblin in the pot-helm (goblin-3). [1ff0d216-6f70-4327-b894-b035f8632196#1]",
+      "attackerId": "tamsin",
+      "targetId": "goblin-3",
+      "rollIndex": 0,
+      "ac": 12,
+      "acSource": "command",
+      "total": 11,
+      "natural": 6,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 133,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [1ff0d216-6f70-4327-b894-b035f8632196#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "batchId": "id-ab05e88a-118",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 134,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 142,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [cb26261b-9bc7-41bc-81fa-b47956d92c5b#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "batchId": "id-ab05e88a-127",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 143,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 146,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar. [abf47c8c-ae87-4439-8779-0a97ac08a565#1]",
+    "batchId": "id-ab05e88a-131",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar. [abf47c8c-ae87-4439-8779-0a97ac08a565#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-2",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            15
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 15
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 19,
+      "natural": 15
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 147,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar. [abf47c8c-ae87-4439-8779-0a97ac08a565#1]",
+    "batchId": "id-ab05e88a-131",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar. [abf47c8c-ae87-4439-8779-0a97ac08a565#1]",
+      "attackerId": "goblin-2",
+      "targetId": "tamsin",
+      "rollIndex": 0,
+      "ac": 16,
+      "acSource": "command",
+      "total": 19,
+      "natural": 15,
+      "outcome": "hit"
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 148,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar.: damage [abf47c8c-ae87-4439-8779-0a97ac08a565#2]",
+    "batchId": "id-ab05e88a-132",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar.: damage [abf47c8c-ae87-4439-8779-0a97ac08a565#2]",
+      "expression": "1d6+2",
+      "mode": "normal",
+      "purpose": "damage",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 6,
+          "keep": null,
+          "faces": [
+            5
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 5
+        },
+        {
+          "kind": "modifier",
+          "value": 2
+        }
+      ],
+      "total": 7,
+      "natural": null
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 149,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-2 slogs through the mud and shouts at Snag before slashing at Tamsin with its scimitar.: damage [abf47c8c-ae87-4439-8779-0a97ac08a565#2]",
+    "type": "hp.changed",
+    "subject": "tamsin",
+    "before": {
+      "current": 13,
+      "temp": 0
+    },
+    "after": {
+      "current": 6,
+      "temp": 0
+    },
+    "batchId": "id-ab05e88a-132",
+    "index": 1,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 150,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [abf47c8c-ae87-4439-8779-0a97ac08a565#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "after": {
+      "round": 2,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "batchId": "id-ab05e88a-133",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 151,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 154,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [1f36211f-4a18-4920-b84e-c1d72bd49cff#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 2,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "batchId": "id-ab05e88a-137",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 155,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 158,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [252a93b1-dc22-48e9-868e-942ce8577fe5#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "batchId": "id-ab05e88a-141",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 159,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 161,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [6e144ffe-db5e-4fa5-a6a8-5844ff7b1d63#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "batchId": "id-ab05e88a-144",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 162,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 169,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo offers Snag a face-saving deal: keep the ward, give up the clapper itself, Pell goes free first. [0df5bff7-249b-4996-b876-8341e3d4b5e9#1]",
+    "batchId": "id-ab05e88a-152",
+    "index": 0,
+    "actionId": "act-odo-4",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Odo offers Snag a face-saving deal: keep the ward, give up the clapper itself, Pell goes free first. [0df5bff7-249b-4996-b876-8341e3d4b5e9#1]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "check",
+      "critical": false,
+      "combatantId": "odo",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            11
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 11
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 14,
+      "natural": 11
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 170,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo offers Snag a face-saving deal: keep the ward, give up the clapper itself, Pell goes free first. [0df5bff7-249b-4996-b876-8341e3d4b5e9#1]",
+    "batchId": "id-ab05e88a-152",
+    "index": 1,
+    "actionId": "act-odo-4",
+    "outcome": {
+      "type": "check.resolved",
+      "v": 1,
+      "reason": "Odo offers Snag a face-saving deal: keep the ward, give up the clapper itself, Pell goes free first. [0df5bff7-249b-4996-b876-8341e3d4b5e9#1]",
+      "combatantId": "odo",
+      "kind": "ability-check",
+      "ability": "cha",
+      "skill": "persuasion",
+      "rollIndex": 0,
+      "dc": 12,
+      "total": 14,
+      "natural": 11,
+      "autoFail": null,
+      "outcome": "success"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 172,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [0df5bff7-249b-4996-b876-8341e3d4b5e9#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "batchId": "id-ab05e88a-154",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 173,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 178,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others. [2cd27621-b54e-4464-bfd6-ef48ad395fc9#1]",
+    "batchId": "id-ab05e88a-160",
+    "index": 0,
+    "actionId": "pt-6",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others. [2cd27621-b54e-4464-bfd6-ef48ad395fc9#1]",
+      "expression": "1d20+5",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "tamsin",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            14
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 14
+        },
+        {
+          "kind": "modifier",
+          "value": 5
+        }
+      ],
+      "total": 19,
+      "natural": 14
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 179,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others. [2cd27621-b54e-4464-bfd6-ef48ad395fc9#1]",
+    "batchId": "id-ab05e88a-160",
+    "index": 1,
+    "actionId": "pt-6",
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others. [2cd27621-b54e-4464-bfd6-ef48ad395fc9#1]",
+      "attackerId": "tamsin",
+      "targetId": "goblin-3",
+      "rollIndex": 0,
+      "ac": 12,
+      "acSource": "command",
+      "total": 19,
+      "natural": 14,
+      "outcome": "hit"
+    }
+  },
+  {
+    "kind": "roll",
+    "seq": 180,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others.: damage [2cd27621-b54e-4464-bfd6-ef48ad395fc9#2]",
+    "batchId": "id-ab05e88a-161",
+    "index": 0,
+    "actionId": "pt-6",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others.: damage [2cd27621-b54e-4464-bfd6-ef48ad395fc9#2]",
+      "expression": "1d8+3",
+      "mode": "normal",
+      "purpose": "damage",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 8,
+          "keep": null,
+          "faces": [
+            2
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 2
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 5,
+      "natural": null
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 181,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Tamsin swings her longsword at goblin-3 while Snag's truce with Odo is still unknown to the others.: damage [2cd27621-b54e-4464-bfd6-ef48ad395fc9#2]",
+    "type": "hp.changed",
+    "subject": "goblin-3",
+    "before": {
+      "current": 7,
+      "temp": 0
+    },
+    "after": {
+      "current": 2,
+      "temp": 0
+    },
+    "batchId": "id-ab05e88a-161",
+    "index": 1,
+    "actionId": "pt-6"
+  },
+  {
+    "kind": "change",
+    "seq": 183,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [2cd27621-b54e-4464-bfd6-ef48ad395fc9#4]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "batchId": "id-ab05e88a-163",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 184,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 191,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel looses an arrow at the wounded lookout goblin from behind cover. [079006be-b3a7-4547-b756-6cd00d5adf54#1]",
+    "batchId": "id-ab05e88a-171",
+    "index": 0,
+    "actionId": "act-kestrel-4",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Kestrel looses an arrow at the wounded lookout goblin from behind cover. [079006be-b3a7-4547-b756-6cd00d5adf54#1]",
+      "expression": "1d20+5",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "kestrel",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            5
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 5
+        },
+        {
+          "kind": "modifier",
+          "value": 5
+        }
+      ],
+      "total": 10,
+      "natural": 5
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 192,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Kestrel looses an arrow at the wounded lookout goblin from behind cover. [079006be-b3a7-4547-b756-6cd00d5adf54#1]",
+    "batchId": "id-ab05e88a-171",
+    "index": 1,
+    "actionId": "act-kestrel-4",
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Kestrel looses an arrow at the wounded lookout goblin from behind cover. [079006be-b3a7-4547-b756-6cd00d5adf54#1]",
+      "attackerId": "kestrel",
+      "targetId": "goblin-3",
+      "rollIndex": 0,
+      "ac": 12,
+      "acSource": "command",
+      "total": 10,
+      "natural": 5,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 194,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [079006be-b3a7-4547-b756-6cd00d5adf54#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 4,
+      "combatantId": "kestrel"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "batchId": "id-ab05e88a-173",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 195,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:kestrel",
+      "activeCharacterId": "kestrel"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 198,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Deaf to Snag's truce, the pot-helm goblin presses its attack on Tamsin again, scimitar swinging through the mud. [592d8611-4612-4189-92c7-f2f49e1a2290#1]",
+    "batchId": "id-ab05e88a-177",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Deaf to Snag's truce, the pot-helm goblin presses its attack on Tamsin again, scimitar swinging through the mud. [592d8611-4612-4189-92c7-f2f49e1a2290#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-2",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            3
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 3
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 7,
+      "natural": 3
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 199,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Deaf to Snag's truce, the pot-helm goblin presses its attack on Tamsin again, scimitar swinging through the mud. [592d8611-4612-4189-92c7-f2f49e1a2290#1]",
+    "batchId": "id-ab05e88a-177",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Deaf to Snag's truce, the pot-helm goblin presses its attack on Tamsin again, scimitar swinging through the mud. [592d8611-4612-4189-92c7-f2f49e1a2290#1]",
+      "attackerId": "goblin-2",
+      "targetId": "tamsin",
+      "rollIndex": 0,
+      "ac": 16,
+      "acSource": "command",
+      "total": 7,
+      "natural": 3,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 200,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [592d8611-4612-4189-92c7-f2f49e1a2290#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 5,
+      "combatantId": "goblin-2"
+    },
+    "after": {
+      "round": 3,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "batchId": "id-ab05e88a-178",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 201,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 204,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-4, deaf to Snag's truce, panics and lunges with its dagger at Tamsin, the nearest big-foot blocking its path to the reeds. [72b126f8-ade0-4f54-b41e-26b3ba2aecaf#1]",
+    "batchId": "id-ab05e88a-182",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-4, deaf to Snag's truce, panics and lunges with its dagger at Tamsin, the nearest big-foot blocking its path to the reeds. [72b126f8-ade0-4f54-b41e-26b3ba2aecaf#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-4",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            9
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 9
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 13,
+      "natural": 9
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 205,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-4, deaf to Snag's truce, panics and lunges with its dagger at Tamsin, the nearest big-foot blocking its path to the reeds. [72b126f8-ade0-4f54-b41e-26b3ba2aecaf#1]",
+    "batchId": "id-ab05e88a-182",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Goblin-4, deaf to Snag's truce, panics and lunges with its dagger at Tamsin, the nearest big-foot blocking its path to the reeds. [72b126f8-ade0-4f54-b41e-26b3ba2aecaf#1]",
+      "attackerId": "goblin-4",
+      "targetId": "tamsin",
+      "rollIndex": 0,
+      "ac": 16,
+      "acSource": "command",
+      "total": 13,
+      "natural": 9,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 206,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [72b126f8-ade0-4f54-b41e-26b3ba2aecaf#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 3,
+      "turnIndex": 6,
+      "combatantId": "goblin-4"
+    },
+    "after": {
+      "round": 4,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "batchId": "id-ab05e88a-183",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 207,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 209,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [d1fd17c2-b73a-4a56-91b8-0becfc8d76f3#1]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 4,
+      "turnIndex": 0,
+      "combatantId": "snag"
+    },
+    "after": {
+      "round": 4,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "batchId": "id-ab05e88a-186",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 210,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 213,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3, at 2 HP and terrified, lashes out once at Tamsin before using Nimble Escape to flee into the reeds. [18830bee-8d02-46b3-b86b-d7ab862be5fc#1]",
+    "batchId": "id-ab05e88a-190",
+    "index": 0,
+    "actionId": null,
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Goblin-3, at 2 HP and terrified, lashes out once at Tamsin before using Nimble Escape to flee into the reeds. [18830bee-8d02-46b3-b86b-d7ab862be5fc#1]",
+      "expression": "1d20+4",
+      "mode": "normal",
+      "purpose": "attack",
+      "critical": false,
+      "combatantId": "goblin-3",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            7
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 7
+        },
+        {
+          "kind": "modifier",
+          "value": 4
+        }
+      ],
+      "total": 11,
+      "natural": 7
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 214,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Goblin-3, at 2 HP and terrified, lashes out once at Tamsin before using Nimble Escape to flee into the reeds. [18830bee-8d02-46b3-b86b-d7ab862be5fc#1]",
+    "batchId": "id-ab05e88a-190",
+    "index": 1,
+    "actionId": null,
+    "outcome": {
+      "type": "attack.resolved",
+      "v": 1,
+      "reason": "Goblin-3, at 2 HP and terrified, lashes out once at Tamsin before using Nimble Escape to flee into the reeds. [18830bee-8d02-46b3-b86b-d7ab862be5fc#1]",
+      "attackerId": "goblin-3",
+      "targetId": "tamsin",
+      "rollIndex": 0,
+      "ac": 16,
+      "acSource": "command",
+      "total": 11,
+      "natural": 7,
+      "outcome": "miss"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 215,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [18830bee-8d02-46b3-b86b-d7ab862be5fc#2]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 4,
+      "turnIndex": 1,
+      "combatantId": "goblin-3"
+    },
+    "after": {
+      "round": 4,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "batchId": "id-ab05e88a-191",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 216,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:dm",
+      "activeCharacterId": null
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  },
+  {
+    "kind": "roll",
+    "seq": 223,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo shouts that the fire-goblin can walk off with its ward intact if it lowers the blade, pointing to Snag's bared strap as proof the deal holds. [1e5f1a69-d8a9-48a8-9799-a88ad7beccdc#1]",
+    "batchId": "id-ab05e88a-199",
+    "index": 0,
+    "actionId": "act-odo-5",
+    "roll": {
+      "type": "dice.rolled",
+      "v": 1,
+      "reason": "Odo shouts that the fire-goblin can walk off with its ward intact if it lowers the blade, pointing to Snag's bared strap as proof the deal holds. [1e5f1a69-d8a9-48a8-9799-a88ad7beccdc#1]",
+      "expression": "1d20+3",
+      "mode": "normal",
+      "purpose": "check",
+      "critical": false,
+      "combatantId": "odo",
+      "terms": [
+        {
+          "kind": "dice",
+          "sign": 1,
+          "count": 1,
+          "sides": 20,
+          "keep": null,
+          "faces": [
+            8
+          ],
+          "kept": [
+            true
+          ],
+          "subtotal": 8
+        },
+        {
+          "kind": "modifier",
+          "value": 3
+        }
+      ],
+      "total": 11,
+      "natural": 8
+    }
+  },
+  {
+    "kind": "outcome",
+    "seq": 224,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Odo shouts that the fire-goblin can walk off with its ward intact if it lowers the blade, pointing to Snag's bared strap as proof the deal holds. [1e5f1a69-d8a9-48a8-9799-a88ad7beccdc#1]",
+    "batchId": "id-ab05e88a-199",
+    "index": 1,
+    "actionId": "act-odo-5",
+    "outcome": {
+      "type": "check.resolved",
+      "v": 1,
+      "reason": "Odo shouts that the fire-goblin can walk off with its ward intact if it lowers the blade, pointing to Snag's bared strap as proof the deal holds. [1e5f1a69-d8a9-48a8-9799-a88ad7beccdc#1]",
+      "combatantId": "odo",
+      "kind": "ability-check",
+      "ability": "cha",
+      "skill": "persuasion",
+      "rollIndex": 0,
+      "dc": 13,
+      "total": 11,
+      "natural": 8,
+      "autoFail": null,
+      "outcome": "failure"
+    }
+  },
+  {
+    "kind": "change",
+    "seq": 226,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "Advance the turn [1e5f1a69-d8a9-48a8-9799-a88ad7beccdc#3]",
+    "type": "turn.advanced",
+    "subject": null,
+    "before": {
+      "round": 4,
+      "turnIndex": 2,
+      "combatantId": "odo"
+    },
+    "after": {
+      "round": 4,
+      "turnIndex": 3,
+      "combatantId": "tamsin"
+    },
+    "batchId": "id-ab05e88a-201",
+    "index": 0,
+    "actionId": null
+  },
+  {
+    "kind": "change",
+    "seq": 227,
+    "actor": "ai:dm",
+    "visibility": "public",
+    "reason": "The turn advanced.",
+    "type": "table-mode.changed",
+    "subject": null,
+    "before": {
+      "mode": "turn",
+      "activeActor": "ai:companion:odo",
+      "activeCharacterId": "odo"
+    },
+    "after": {
+      "mode": "turn",
+      "activeActor": "00000000-0000-4000-8000-0000000000a1",
+      "activeCharacterId": "tamsin"
+    },
+    "batchId": null,
+    "index": null,
+    "actionId": null
+  }
+]

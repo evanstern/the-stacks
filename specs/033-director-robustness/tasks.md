@@ -77,10 +77,10 @@ WebSocket failure. Record each re-run in the phase's commit message.
 
 **Goal**: the real failing director output is committed as a fixture.
 
-- [ ] T009 Orchestrator: build the composite worktree (quickstart A). Get the operator's spend
+- [x] T009 Orchestrator: build the composite worktree (quickstart A). Get the operator's spend
   ceiling. Record it on the card.
-- [ ] T010 Orchestrator: run the capture (quickstart B). Commit the evidence directory.
-- [ ] T011 Orchestrator: when the failure is a director `invalid-output`, commit the fixture
+- [x] T010 Orchestrator: run the capture (quickstart B). Commit the evidence directory.
+- [x] T011 Orchestrator: when the failure is a director `invalid-output`, commit the fixture
   `apps/server/test/dm/fixtures/director-capture-<runId>.json`. Otherwise stop and ask the
   operator (FR-011).
 
@@ -92,7 +92,7 @@ WebSocket failure. Record each re-run in the phase's commit message.
 
 **Goal**: the fix the evidence selects, proven against the fixture.
 
-- [ ] T012 Orchestrator: write `specs/033-director-robustness/evidence/classification.md`.
+- [x] T012 Orchestrator: write `specs/033-director-robustness/evidence/classification.md`.
   List each attempt's issues, the selected catalog rows (contracts/director-output.md), and why
   each other row is not selected. Commit it before the dispatch.
 - [x] T013 [US2] In `apps/server/test/dm/director-capture.test.ts`, write the reproduction part:
@@ -202,17 +202,21 @@ a condition, skill, damage type, ability or number. Never edit `.env`.
 
 ## Phase 4b: Verification rerun (US5; AC #3, amendment) — ORCHESTRATOR-RUN, PAID
 
-- [ ] T035 Orchestrator: operator checkpoint for `dm.interpret` `maxTokens`. Propose a value
+- [x] T035 Orchestrator: operator checkpoint for `dm.interpret` `maxTokens`. Propose a value
   from research R10. Record the operator's decision on the card. The operator sets it in the
   operator-owned `.env`, or approves the orchestrator setting it. No implementer edits `.env`.
-- [ ] T036 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
+- [x] T036 Orchestrator: merge the branch tip into the composite worktree (quickstart C1). Get
   the operator's spend ceiling. Record it on the card.
-- [ ] T037 Orchestrator: run the verification (quickstart C, amended pass rule). Commit the
+- [x] T037 Orchestrator: run the verification (quickstart C, amended pass rule). Commit the
   evidence directory `evidence/verify-<runId>/`. Record pass or fail, outcome, spend and the run
   id on the card.
 - [ ] T038 Orchestrator: on a fail, or on a failure of any other kind, commit the failure record
   as a fixture under `apps/server/test/dm/fixtures/`. Stop for an operator ruling. Do not start
   Phase 5.
+  *Not triggered (2026-10-26):* run `20261026T155348Z-greyhollow-ford-provider` passed the
+  amended rule (no failed job; 6 moves committed; 29 turn jobs succeeded; $5.07). It ended
+  `timed-out` at the scenario's 15-minute `maxWallMs` in fight round 4. That limit is a TASK-0048
+  harness defect, fixed on that branch.
 
 **Checkpoint**: AC #3 met for director and interpret.
 
