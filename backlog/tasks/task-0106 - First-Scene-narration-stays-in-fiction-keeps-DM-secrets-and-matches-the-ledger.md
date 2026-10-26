@@ -3,10 +3,10 @@ id: TASK-0106
 title: >-
   First Scene: narration stays in fiction, keeps DM secrets and matches the
   ledger
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 17:50'
-updated_date: '2026-10-26 20:13'
+updated_date: '2026-10-26 20:19'
 labels:
   - first-scene
   - dm
@@ -50,24 +50,6 @@ Spec: specs/034-narration-quality
 - [x] #12 Spec phase: Phase 5b: Verification rerun (US4; AC #4) — ORCHESTRATOR-RUN, PAID
 - [x] #13 Spec phase: Full gate (US5; AC #5) — after Phase 5b passes
 <!-- AC:END -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## Implementation Notes
 
@@ -116,10 +98,18 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Wiki re-ground by sonnet-implementer: ac81163. dm-runtime was NEEDS-REVIEW, split. New note dm-narration-quality covers PlayerSeedView, named transcripts, facts v2, audit pass/fail and the party-name filter, the in-fiction fallback and the prompt versions. CAPSULES and INDEX updated. Freshness: OK, 46 notes fresh. T047 is done before the PR rather than after the merge (runbook doctrine).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Merged via PR #51 (2026-10-26).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Narration from real models now stays in fiction, keeps DM secrets and matches the ledger. Player-facing prompts take a typed PlayerSeedView, and three seed leak paths are closed. Facts v2 give the narrator the party, NPC names, public events and roll reasons. The fallback is deterministic in-fiction prose covering every change. The audit derives pass/fail in code, LLM style notes are advisory, and a party-name filter applies to player-agency. Prompts: narrate-v3, audit-v2, director-v2, chronicle-v2, companion-v2. Verified by paid runs ($12.55): the final rerun had 0 leaks, 0 narration-caused contradictions and an 18% fallback rate, accepted by the operator at a 20% bar. Residue carded TASK-0107 to TASK-0113 (m-3). ci:check with REQUIRE_DATABASE=1 green; wiki fresh.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
