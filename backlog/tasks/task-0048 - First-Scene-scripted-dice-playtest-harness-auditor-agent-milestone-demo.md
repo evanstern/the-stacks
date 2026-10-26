@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 17:12'
+updated_date: '2026-10-26 17:48'
 labels:
   - first-scene
   - test
@@ -119,6 +119,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Reconcile merge of origin/main (TASK-0102 #50) by sonnet-implementer: 77e6c75 merge, ef714d3 wiki re-ground (playtest-harness NEEDS-REVIEW, prose amended; freshness OK, 46 notes), 79c035a spec 033 T038 tick (post-merge). TEST_DATABASE_URL=… REQUIRE_DATABASE=1 pnpm ci:check exit 0: server 774 passed, 5 skipped. CI playtest: ended, pass. No WS flake.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approved: spend ceiling $22 for the M2 demo's paid scripted playtest (section C). The $6 demo-session audit ceiling stands.' Models are unchanged except dm.interpret maxTokens 2500 (operator approval on TASK-0102).
+
+Demo section C, paid scripted playtest (run 5) 2026-10-26: 20261026T171359Z-greyhollow-ford-provider at 1db60e3. Outcome stalled at the 30-move cap, verdict incomplete, $7.52 over 391 calls of the $22 ceiling. No failed job (DM pipeline healthy after TASK-0102). Findings: 13 fail, 64 warn, 32 note. (a) The scripted seat ran out of script: from pt-19 (17:30) it repeated the fallback move 'I press on toward the ferry before dark.' 12 times after the scene diverged (Snag's standoff at the ferry chain). (b) The in-runtime dm.audit rejected narration until the factual fallback shipped in 23 of about 39 narrated turns (9 more passed after regenerating), from segment 1 on. The fallback text 'X acts, and nothing changes. One action needs a clearer description.' is out of fiction and contradicts state changes it does not cover (F23: encounter ended). (c) 6 hidden-info-leak fails, mostly companion Odo stating the DM-only motive (the bell wards off the river-things). (d) 5 ledger contradictions, including a wrong actor name (F76). Evidence: docs/design/m2-demo/provider-playtest-stalled-5/ (untracked until the demo record commit). Run 4's dir was renamed provider-playtest-failed-4. Stopped before the demo for an operator ruling (m2-demo.md C4).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
