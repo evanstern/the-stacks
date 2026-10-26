@@ -1,10 +1,10 @@
 ---
 id: TASK-0095
 title: 'WS gateway: duplicate event delivery at the subscribe replay/live boundary'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 02:38'
-updated_date: '2026-10-26 02:50'
+updated_date: '2026-10-26 02:57'
 labels:
   - server
   - ws
@@ -55,8 +55,14 @@ Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 That dispatch (re-ground dnd5e-engine.md, stale on main since 2c9f99e) was blocked by a PreToolUse hook and committed nothing. Its pin bump was reverted. The drift predates this task, so it is carded separately. Merged origin/main (PR 43); restored main's test-suite prose lost in the pin-conflict resolution and re-pinned to c2adddc after verifying tsconfig.json references.
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Fixed duplicate WS event delivery at the subscribe replay/live boundary. Connection.replayedThroughSeq records the highest seq a subscribe replay covered; registry.broadcast skips seq <= it on queue and direct paths, and the drain uses the same floor. A replay floor, not a running watermark, because concurrent broadcasts can run out of seq order. Deterministic SubscribeDeps test fails without the fix. T012 20/20 locally. Wiki re-grounded. Merged in PR 44 (8c44b32), CI green.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
