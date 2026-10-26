@@ -31,7 +31,7 @@ Expected: green. The suite covers:
 | `test/tolerance.test.ts` | the `unknown-and-invalid` fixture folds with the expected counters (AC #8) |
 | `test/fixtures.test.ts` | fixture guarantees 1–5, including recipe regeneration through the engine |
 
-## 2. Database suite (AC #7 on a real log)
+## 2. Database suite (AC #7 on a real log; atomic batches)
 
 ```sh
 pnpm env:up
@@ -42,8 +42,10 @@ Expected: `apps/server/test/session.integration.test.ts` runs (it must not skip:
 `REQUIRE_DATABASE=1` a missing database throws). It appends each fixture's events to a fresh
 session through `appendSessionEvent` and `appendMechanicsBatch`, folds each returned row
 incrementally, then calls `loadProjections` twice, and asserts all three results are deeply
-equal for the DM and each player viewer. It also asserts a non-`dm` tracker append is refused
-with `VISIBILITY_NOT_ALLOWED` and writes no row.
+equal for the DM and each player viewer, with no incomplete batch. It also asserts a
+non-`dm` tracker append is refused with `VISIBILITY_NOT_ALLOWED` and writes no row, and that a
+failure injected mid-batch (through `appendBatch` and through `appendMechanicsBatch`) leaves
+zero rows of that batch in the log (AC #6, AC #7).
 
 ## 3. Boundary rule
 

@@ -298,6 +298,10 @@ export const MechanicsEnvelopeV1 = z.object({
   accepts it.
 - An engine event's `rollIndex` resolves to the envelope in the same batch whose `index`
   equals it.
+- **Atomic batches.** All envelopes of one batch are appended in one transaction under the
+  log's sequencing lock (`appendMechanicsBatch` → `appendBatch`): they land with consecutive
+  `seq` values and one visibility, or not at all (spec FR-021). Consumers still resolve
+  `rollIndex` through `batchId` and `index`, never through `seq` arithmetic.
 - Every ledger guarantee comes from `EngineEventSchema`: rolls carry `reason`, state changes
   carry `reason`, `before` and `after` (engine events.md).
 

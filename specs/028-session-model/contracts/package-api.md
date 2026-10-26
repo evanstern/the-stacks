@@ -62,6 +62,20 @@ Fixture subpath (`@the-stacks/session-model/fixtures`): see [fixtures.md](fixtur
 Engine event subtypes (`DiceRolledEvent` and so on) are `Extract<EngineEvent, { type: … }>`;
 the engine package's exports do not change.
 
+## Event log addition (`apps/server/src/events/log.ts`)
+
+`append` and `readFrom` are unchanged. One function is added (research R10):
+
+```ts
+/**
+ * Appends every input as one atomic batch: one transaction, the same per-session
+ * pg_advisory_xact_lock as append, consecutive seq values in input order. Any failure rolls
+ * the whole batch back; zero rows land. Throws before opening the transaction when inputs is
+ * empty, when inputs name more than one sessionId, or when any input carries seq or ts.
+ */
+export async function appendBatch(db: DbClient, inputs: readonly AppendInput[]): Promise<RecordedEvent[]>;
+```
+
 ## Server seam (`apps/server/src/session/`)
 
 The session plane's directory. It may import `@the-stacks/session-model`,
@@ -95,9 +109,18 @@ export interface AppendMechanicsBatchInput {
   visibility?: string;                            // applies to every row of the batch
 }
 
-/** Assigns batchId (randomUUID), wraps each event, appends in order. Not atomic (research R10). */
+export interface AppendMechanicsBatchDeps {
+  appendBatch: typeof appendBatch;               // test seam for failure injection; production omits deps
+}
+
+/**
+ * Assigns batchId (randomUUID), wraps each event with index and count, validates every
+ * envelope against the catalog (refusal: SessionEventRefused, nothing written), then appends
+ * all rows atomically through appendBatch. All rows of the batch land with consecutive seq,
+ * or none do (spec FR-021).
+ */
 export function appendMechanicsBatch(
-  db: DbClient, input: AppendMechanicsBatchInput,
+  db: DbClient, input: AppendMechanicsBatchInput, deps?: AppendMechanicsBatchDeps,
 ): Promise<{ batchId: string; events: StoredEvent[] }>;
 
 /** RecordedEvent (Drizzle row, Date ts) → StoredEvent (ISO ts). */

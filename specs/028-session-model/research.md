@@ -47,9 +47,9 @@ whose `type` differs from `event.type`.
 
 **Rationale.**
 - `rollIndex` in engine events points into one `execute` result's `events` array
-  (events.md). The M0 log appends one row per call under a per-session lock, so another
-  writer's row can land between two rows of one result. A sequence-number offset cannot
-  recover the index; `batchId` plus `index` can.
+  (events.md). The atomic batch append (R10) gives a batch consecutive sequence numbers, but
+  the index must not depend on that: a reader holding one row (a ledger row, a filtered
+  stream, a future writer) resolves `rollIndex` from `batchId` plus `index` alone.
 - The ledger and the transcript need to say which action a roll served; `actionId` carries
   it. `proposalId` is an opaque reference reserved for TASK-0045 (no proposal event is
   defined here).
@@ -197,8 +197,9 @@ time (couples every consumer to the engine's RNG at load).
   then call M0 `append` with the catalog's current version. A refusal throws
   `SessionEventRefused` with a code and writes nothing.
 - `appendMechanicsBatch(db, input)`: assign a `batchId` (`randomUUID`), wrap each engine event
-  in an envelope with its index and the batch count, and append them in order through
-  `appendSessionEvent`. Not atomic (the log appends one row per call); see R10.
+  in an envelope with its index and the batch count, validate every envelope against the
+  catalog first (refuse before write), then append all rows in one transaction through the
+  log's new `appendBatch` (R10).
 - `loadProjections(db, sessionId, viewer)`: read the log from sequence 0 with `readFrom` in
   batches of 200 (the same bound as the WebSocket replay) and fold with `project`.
 - `toStoredEvent(recorded)`: convert a log row (Drizzle `Date` timestamp) to the package's
@@ -207,16 +208,50 @@ time (couples every consumer to the engine's RNG at load).
 No route, WebSocket frame or job changes. The gate (TASK-0045) and the DM runtime (TASK-0046)
 are the callers.
 
-## R10. Batch atomicity is TASK-0045's
+## R10. Batch atomicity: an atomic `appendBatch` beside `append`
 
-**Decision.** This card does not add an all-or-nothing batch append. The fold tolerates a
-partial batch: each engine event carries `after` values, and `diagnostics.incompleteBatches`
-lists batch ids seen fewer times than their declared count.
+*Amended 2026-10-26 by orchestrator ruling on plan Open Question 3.* The first draft left
+atomicity to TASK-0045 and tolerated half-written batches. The ruling: TASK-0045's AC #8 is
+refuse-before-write, not batch atomicity, so tolerating a half-written batch was an uncarded
+"for now" (decision-0020). This card owns atomicity.
 
-**Rationale.** The card says the M0 log does not change, and TASK-0045's description already
-owns "appends every returned event in order, or nothing" (engine-api.md consumer note). A
-transactional multi-row append belongs beside that gate logic. Recorded as Open Question 3 in
-plan.md.
+**Decision.** `apps/server/src/events/log.ts` gains `appendBatch(db, inputs)`:
+
+- One `db.transaction`. Its first statement takes the same
+  `pg_advisory_xact_lock(EVENT_LOG_LOCK_NAMESPACE, hashtext(sessionId))` as `append`.
+- Every input must name the same `sessionId`, and `seq`/`ts` keys are refused, with the same
+  runtime guard as `append`. Both checks run before the transaction opens.
+- Inside the lock, it reads `MAX(seq)` once and inserts the rows in input order with
+  `seq = max + 1 … max + n` (one multi-row insert, or one insert per row inside the same
+  transaction; either is atomic).
+- Any error rolls the whole transaction back: zero rows land. It returns the recorded rows in
+  order.
+
+`append` and `readFrom` keep their code and behaviour; the table, its trigger and its
+constraints are unchanged. `appendBatch` lives in `log.ts` because the lock namespace is a
+private constant there, and a second copy of it could drift (the wiki's `event-log` note
+records why the lock exists).
+
+`appendMechanicsBatch` validates every envelope before it calls `appendBatch`, so a schema
+failure writes nothing, and a database failure mid-insert rolls back.
+
+**Defensive check kept.** `diagnostics.incompleteBatches` stays in the fold, because the fold
+must be total over any stream (AC #8) and rows can reach the log without the seam (M0
+`append` is still exported). The database suite proves the server's write path never produces
+an incomplete batch.
+
+**Failure-injection test.** The suite calls `appendBatch` with rows whose third row violates
+the table's `events_payload_version_positive` check (`payloadVersion: 0`). The insert fails
+inside the transaction after earlier rows were inserted; the test asserts `readFrom` returns
+no row of that batch and that the session's next append still receives the next gapless
+`seq`. A second test makes `appendMechanicsBatch` fail the same way through an injected
+`deps.appendBatch` that forwards a corrupted row, and asserts the same.
+
+**Alternatives rejected.**
+- Exporting the lock namespace and building the transaction in `apps/server/src/session/`:
+  two modules would own the sequencing rule.
+- A Postgres function or a new column: a migration, for no gain over one transaction.
+- Leaving atomicity to TASK-0045: rejected by the ruling above.
 
 ## R11. Dependencies and migration
 
@@ -224,6 +259,7 @@ plan.md.
   `@the-stacks/dnd5e-engine` (workspace). `apps/server` adds workspace dependencies on
   `@the-stacks/session-model` and `@the-stacks/dnd5e-engine`. Dev: `vitest ^5.0.1`, already
   in the lockfile.
-- **Migration: none.** No column, table, index or trigger changes. Payloads stay JSONB;
+- **Migration: none.** No column, table, index or trigger changes; `appendBatch` uses the
+  existing table, lock and constraints. Payloads stay JSONB;
   versions use the existing `payload_version` column; the `dm` marker fits the existing
   `visibility` text column.

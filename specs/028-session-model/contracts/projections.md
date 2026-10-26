@@ -45,7 +45,7 @@ export interface Diagnostics {
   ignoredTransitions: number;                    // lifecycle event that breaks the status rules
   beforeMismatches: number;                      // state-change whose `before` differs from projected state
   engineRejected: number;                        // engine evolve threw (e.g. unknown combatant)
-  incompleteBatches: string[];                   // batch ids seen fewer times than their count, in first-seen order
+  incompleteBatches: string[];                   // defensive: batch ids seen fewer times than their count (see Engine state)
 }
 ```
 
@@ -183,7 +183,13 @@ the viewer's engine state is omitted.
 `engine` starts at the engine's `emptyState()`. Each visible, decoded mechanics event folds
 with the engine's `evolve(engine, payload.event)`. When `evolve` throws, `engine` keeps its
 value and `engineRejected` increments. The projection never recomputes a rule (FR-012).
-`incompleteBatches` tracks, per `batchId`, how many envelopes were seen against `count`.
+`incompleteBatches` tracks, per `batchId`, how many envelopes were seen against `count`. It
+is a defensive check only: the server writes every batch atomically (`appendMechanicsBatch`,
+spec FR-021), so a stream written through the seam never yields a non-empty list. The fold
+keeps the check because it must be total over any stream (rows written by M0 `append`
+directly, or a hand-built stream). The database suite proves the list is empty for every
+fixture appended through the seam. Because `appendMechanicsBatch` applies one visibility to
+the whole batch, a viewer sees all of a batch or none of it.
 
 ### Journal
 

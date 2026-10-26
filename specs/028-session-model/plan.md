@@ -4,17 +4,24 @@
 
 **Input**: Feature specification from `specs/028-session-model/spec.md` (board card TASK-0044).
 
+**Amended 2026-10-26** (orchestrator ruling on Open Question 3): mechanics batches are
+appended atomically by this card through a new `appendBatch` in `log.ts` (research R10).
+Phase 5 changed.
+
 ## Summary
 
-Add the session plane's play vocabulary over the unchanged M0 event log. A new pure workspace
+Add the session plane's play vocabulary over the M0 event log, whose storage and existing
+functions stay unchanged. A new pure workspace
 package, `@the-stacks/session-model`, holds Zod schemas for 11 session event types plus a
 mechanics envelope that wraps each of the engine's 18 event types; a versioned catalog; the
 visibility rule (`public`, `dm`, or one user id); a total, per-viewer fold into scene, table
 mode, party, encounter, journal, transcript, actions, ledger and DM-only trackers; and five
 committed fixture streams exported from a subpath. The web client (TASK-0047) imports it
 directly. A thin server seam in `apps/server/src/session/` validates appends against the
-catalog, appends engine results as numbered batches, and rebuilds projections from sequence
-0 through `readFrom`. A database-backed test proves identical rebuilds (AC #7). No migration,
+catalog, appends each engine result as one atomic numbered batch (a new `appendBatch` in
+`log.ts`: one transaction under the existing sequencing lock), and rebuilds projections from
+sequence 0 through `readFrom`. Database-backed tests prove identical rebuilds (AC #7) and that
+an injected mid-batch failure leaves zero rows (AC #6, AC #7). No migration,
 no new external dependency, no WebSocket change.
 
 ## Technical Context
@@ -26,7 +33,8 @@ workspace). **No new external runtime dependency.** `apps/server` gains workspac
 dependencies on `@the-stacks/session-model` and `@the-stacks/dnd5e-engine`. Dev: `vitest
 ^5.0.1` (in the lockfile).
 
-**Storage**: the M0 `events` table, unchanged. **Migration: none** (research R11).
+**Storage**: the M0 `events` table, unchanged. `log.ts` gains `appendBatch`; `append` and
+`readFrom` are untouched. **Migration: none** (research R11).
 
 **Testing**: Vitest unit tests in `packages/session-model/test/`; one Postgres integration
 suite in `apps/server/test/session.integration.test.ts`, run with `REQUIRE_DATABASE=1` on the
@@ -65,7 +73,8 @@ server functions.
       `library/` and `codex/` by `biome.json`. The new package gets its own boundary rule
       (no server, web, database, network, model or clock), proven by four violating
       fixtures (contracts/boundary-rule.md).
-- [x] **IV. Event sourcing** — the log stays append-only and unchanged; every new type is
+- [x] **IV. Event sourcing** — the log stays append-only (the new `appendBatch` only
+      inserts, under the same lock, and an engine result lands whole or not at all); every new type is
       Zod-typed and versioned through `payload_version`; the server validates before it
       appends and a refusal writes nothing; secret trackers live in `dm`-visibility events
       and are filtered per viewer at projection time; projections skip unknown types and
@@ -139,7 +148,8 @@ apps/server/src/session/                 # NEW: session-plane seam
 ├── events.ts                            # appendSessionEvent, appendMechanicsBatch, toStoredEvent, SessionEventRefused
 └── projections.ts                       # loadProjections
 
-apps/server/test/session.integration.test.ts   # NEW: DB-backed AC #7 + refusal-writes-nothing
+apps/server/src/events/log.ts            # + appendBatch (atomic, same lock); append/readFrom unchanged
+apps/server/test/session.integration.test.ts   # NEW: DB-backed AC #7, refusal writes nothing, mid-batch failure writes nothing
 
 biome.json                               # + session-model override; engine override denies @the-stacks/session-model
 fixtures/boundary-violations/packages/session-model/src/{bad-server,bad-clock,bad-database}.ts
@@ -164,9 +174,11 @@ route.
    (AC #2–#8 in memory).
 4. **Fixtures** — the five fixture streams and recipes; the fixtures test, and the secrecy,
    replay and tolerance tests extended to run over every fixture.
-5. **Server seam and database suite** — `apps/server/src/session/`, the integration suite on
-   the worktree stack with `REQUIRE_DATABASE=1` (AC #7 on a real log, AC #5 refusal), and
-   the engine-api.md consumer note.
+5. **Atomic batch append, server seam and database suite** — `appendBatch` in `log.ts`,
+   `apps/server/src/session/`, and the integration suite on the worktree stack with
+   `REQUIRE_DATABASE=1`: AC #7 on a real log, AC #5 refusal, the mid-batch failure-injection
+   tests (zero rows land; AC #6, AC #7), no incomplete batch through the seam, and the
+   engine-api.md consumer note.
 6. **Gate** — `pnpm ci:check` green; evidence recorded.
 
 ## Open Questions (operator; defaults applied, nothing blocks dispatch)
@@ -175,12 +187,13 @@ route.
    `type` column, no prefix.
 2. **Envelope version** (spec Open Question 2). Default: wrapper version 1 with the engine's
    `v` inside; engine-api.md's consumer note is updated in Phase 5.
-3. **Atomic batch append** (research R10). Default: TASK-0045 owns it, as its card already
-   states; this card's fold tolerates a partial batch. If the operator wants it here, it is
-   one transaction around the existing lock in a new seam function, without changing
-   `append`.
-4. **DM live delivery** (research R3). Default: TASK-0045 adopts `canSee` in the WebSocket
-   registry when it adds DM-only proposals; until then `dm` events reach no WebSocket
+3. **Atomic batch append** (research R10). **Resolved 2026-10-26 by orchestrator ruling:**
+   this card owns it. `appendMechanicsBatch` appends one engine result in one transaction
+   under the log's sequencing lock, or nothing. The fold keeps only a defensive
+   incomplete-batch check that the database suite proves unreachable through the seam.
+4. **DM live delivery** (research R3). Default (stands; the orchestrator records it on the
+   TASK-0045 card): TASK-0045 adopts `canSee` in the WebSocket registry when it adds DM-only
+   proposals; until then `dm` events reach no WebSocket
    connection, which fails safe. No M2 surface reads `dm` events live before TASK-0045.
 
 No "for now" in this plan: every deferral above names its owning card (decision-0020).

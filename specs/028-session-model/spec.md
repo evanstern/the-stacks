@@ -12,6 +12,10 @@ A12; decision-0014, decision-0016, decision-0017, decision-0020, decision-0021; 
 2.0.0 (principles I, III, IV, VI); the TASK-0042 engine contracts in
 `specs/026-dnd5e-engine/contracts/`.
 
+**Amended 2026-10-26** by orchestrator ruling on plan Open Question 3: mechanics batches are
+appended atomically by this card (all rows of one engine result, or none). FR-021 and FR-022
+were added; the partial-batch edge case and assumption were replaced.
+
 **Clarify pass**: skipped. Every open point has a default an existing artifact settles. The
 vocabulary comes from decision-0016 and A12; the ledger shape comes from decision-0021 idea 2
 and the engine's events contract; visibility comes from constitution IV and the M0 log's
@@ -34,8 +38,9 @@ state:
 - **A fixtures contract**: committed example event streams that the play route (TASK-0047)
   renders and the proposal gate's tests (TASK-0045) build on.
 
-The log itself does not change: no column, no migration, no change to `append` or
-`readFrom`.
+The log's storage and existing functions do not change: no column, no migration, no change
+to `append` or `readFrom`. The log gains one sibling function that appends several rows in
+one transaction under the same sequencing lock (FR-021).
 
 The "users" of this feature are four kinds of caller. The proposal gate (TASK-0045) appends
 the events. The DM runtime (TASK-0046) reads projections as turn context. The play route
@@ -173,6 +178,9 @@ reason, and one row per state change carrying before and after values.
    ledger row carries the event's reason and its before and after values. (AC #6)
 3. **Given** a mechanics event that drops the engine's reason or before/after fields, **When**
    it is validated, **Then** it is rejected before it reaches the log. (AC #6)
+4. **Given** an engine result of several events, **When** a failure occurs after some of its
+   rows were written inside the append, **Then** none of its rows remain in the log, and a
+   rebuild from sequence 0 equals the rebuild before the attempt. (AC #6, AC #7)
 
 ---
 
@@ -208,9 +216,13 @@ and each fixture's documented projection facts hold.
   counted; a late comment is kept in the transcript and does not change the status.
 - Two actions are committed while one resolves: both stay `committed` and resolve in log
   order (decision-0016 concurrency); the projection lists them in sequence order.
-- A mechanics batch is only partly in the log (a crash between appends): each event folds on
-  its own, because engine events carry `after` values; the batch shows fewer events than its
-  declared count, and the diagnostics count it as incomplete.
+- A failure (a crash, a constraint violation, a lost connection) occurs while a mechanics
+  batch is being appended: no row of that batch lands, and the log is as it was before the
+  attempt (FR-021). A half-written batch therefore never exists through the server's write
+  path. The fold keeps one defensive check: if a stream ever holds fewer rows of a batch than
+  its declared count (a hand-written row, a future writer bypassing the seam), the fold still
+  completes and the diagnostics name the batch. A test proves the server's write path never
+  produces that state.
 - A DM-only engine event (a hidden roll) is folded for a player: the player's ledger and
   engine state never see it; the DM's do.
 - A whispered talk event addressed to one user is folded for another player: it is absent
@@ -294,6 +306,18 @@ and each fixture's documented projection facts hold.
   total) and one row per state change (reason, before, after), in log order, filtered per
   viewer. (AC #6)
 
+**Atomic mechanics batches (AC #6, AC #7)**
+
+- **FR-021**: The system MUST append every mechanics event of one engine result in a single
+  transaction, under the log's existing per-session sequencing lock, or append none of them.
+  The batch's rows MUST receive consecutive sequence numbers. (AC #6: the ledger never shows
+  a roll without the state change it caused; AC #7: a rebuild never meets a half-written
+  batch.)
+- **FR-022**: A database-backed test MUST inject a failure part-way through a batch and prove
+  that zero rows of that batch reach the log, and a second test MUST prove that appending
+  every fixture through the server's write path leaves no incomplete batch in any projection.
+  (AC #6, AC #7)
+
 **Fixtures (enables TASK-0045 and TASK-0047)**
 
 - **FR-019**: The system MUST ship committed example event streams covering talk only, a
@@ -348,6 +372,8 @@ and each fixture's documented projection facts hold.
   and reports the exact number of skipped events.
 - **SC-005**: The play route author can render every fixture without starting a server or a
   database.
+- **SC-006**: In 100% of injected mid-batch failures, zero rows of the failed batch remain in
+  the log.
 
 ## Assumptions
 
@@ -364,9 +390,10 @@ and each fixture's documented projection facts hold.
 - **Write paths.** This card provides validated append helpers. Routing every client and LLM
   write through them, and enforcing commit authority, is TASK-0045 (its AC #1 and AC #6).
   The WebSocket `send` path is unchanged here.
-- **Batch atomicity.** The M0 log appends one event per call. Appending an engine result as
-  one all-or-nothing batch is TASK-0045's job ("appends every returned event in order, or
-  nothing"). This card's fold tolerates a partial batch (Edge Cases).
+- **Batch atomicity.** This card owns it (orchestrator ruling 2026-10-26). The gate
+  (TASK-0045) calls the atomic batch append once per engine result. Grouping a mechanics
+  batch with the `action.resolved` event that follows it is the gate's sequencing, not a
+  requirement here.
 - **Narration.** `narration` is defined here so the transcript and fixtures have the DM's
   story output. TASK-0046 may add a version when its audit node needs more fields.
 - **Out of scope, owned elsewhere:** proposal events and policies (TASK-0045); turn jobs and

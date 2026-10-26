@@ -8,6 +8,10 @@ description: "Task list for the session model (TASK-0044)"
 quickstart.md, contracts/ (session-events, projections, fixtures, package-api,
 boundary-rule).
 
+**Amended 2026-10-26** (orchestrator ruling on plan Open Question 3): Phase 5 gained the
+atomic `appendBatch` and the mid-batch failure-injection tests; Phase 5 and 6 task ids were
+renumbered (T041–T054).
+
 **Tests**: required. AC #5, AC #7 and AC #8 each demand a test, and the fixtures are a
 contract for TASK-0045 and TASK-0047. Write each phase's tests with its code; a phase is not
 done until they pass.
@@ -25,8 +29,8 @@ Use the `backlog` CLI inside the worktree for any card change; never the backlog
 
 **Out of scope** (owned elsewhere; do not touch): `apps/server/src/ws/*` (TASK-0045 adopts
 `canSee`; TASK-0095 fixes the replay/live duplicate), proposal events (TASK-0045), `apps/web`
-(TASK-0047), `apps/server/src/events/log.ts` and the `events` schema (unchanged; no
-migration).
+(TASK-0047), the `events` table schema and its migration (unchanged), and `append`/`readFrom`
+in `apps/server/src/events/log.ts` (unchanged; Phase 5 only adds `appendBatch` beside them).
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -43,8 +47,8 @@ migration).
 | #3 table modes and active player | `test/table-mode.test.ts` (P3) |
 | #4 projections from the log alone | `test/projections.test.ts` (P3), `test/fixtures.test.ts` (P4) |
 | #5 secret trackers never in player projections | `test/secrecy.test.ts` (P3, every fixture in P4); refusal in `apps/server/test/session.integration.test.ts` (P5) |
-| #6 rolls carry reasons; state changes carry before/after | `test/catalog.test.ts` meta-test (P2), `test/ledger.test.ts` (P3) |
-| #7 replay from seq 0 rebuilds identical projections | `test/replay.test.ts` (P3, P4); `apps/server/test/session.integration.test.ts` (P5, real database) |
+| #6 rolls carry reasons; state changes carry before/after | `test/catalog.test.ts` meta-test (P2), `test/ledger.test.ts` (P3); atomic batches in `apps/server/test/session.integration.test.ts` (P5: a roll never lands without its state change) |
+| #7 replay from seq 0 rebuilds identical projections | `test/replay.test.ts` (P3, P4); `apps/server/test/session.integration.test.ts` (P5, real database; mid-batch failure leaves zero rows) |
 | #8 unknown event types skipped without failing | `test/decode.test.ts` (P2), `test/tolerance.test.ts` (P3, P4) |
 
 ---
@@ -110,13 +114,13 @@ and fixed ISO `ts`, and produces engine events by calling the engine's `execute`
 - [ ] T025 [P] [US4] Write `packages/session-model/test/secrecy.test.ts`: for a stream with `dm` trackers, a `dm` roll and a `dm` journal entry, the DM sees all of them; each player viewer has `trackers: []` and its `JSON.stringify` contains no tracker id, name or note, no hidden roll reason and no DM journal title; a `tracker.changed` mislabelled `public` is still absent for players; player diagnostics do not change when hidden events are added (AC #5).
 - [ ] T026 [P] [US5] Write `packages/session-model/test/ledger.test.ts`: one `roll` row per `dice.rolled` with its reason and faces; one `outcome` row per resolved marker; one `change` row per engine and session state change with `reason`, `before` and `after`; rows are in `seq` order (AC #6).
 - [ ] T027 [P] [US3] Write `packages/session-model/test/replay.test.ts`: `project(events, v)` called twice is deeply equal, and equals the incremental `reduce(applyEvent)`; `applyEvent` does not mutate a deep-frozen input; a duplicated `seq` counts `outOfOrder` and changes nothing else (AC #7, in memory).
-- [ ] T028 [P] [US3] Write `packages/session-model/test/tolerance.test.ts`: unknown type, unknown version, invalid payload, type mismatch and an engine event naming an unknown combatant each fold without throwing and bump the right counter (`engineRejected` for the last); a partial batch appears in `incompleteBatches` (AC #8).
+- [ ] T028 [P] [US3] Write `packages/session-model/test/tolerance.test.ts`: unknown type, unknown version, invalid payload, type mismatch and an engine event naming an unknown combatant each fold without throwing and bump the right counter (`engineRejected` for the last); a hand-built stream missing one row of a batch folds and names the batch in `incompleteBatches` (the defensive check of projections.md; the server path never produces it, Phase 5 proves) (AC #8).
 
 ### Implementation
 
 - [ ] T029 [US3] Implement `packages/session-model/src/projections/types.ts` (every type in projections.md) and `packages/session-model/src/projections/apply.ts` (`emptyProjections`, `applyEvent`, `project`): visibility drop, player tracker drop, `seq` ordering, decode, per-kind dispatch, diagnostics. `project` may use a private mutable accumulator only if its result deep-equals the `reduce(applyEvent)` result.
 - [ ] T030 [P] [US1] Implement `packages/session-model/src/projections/actions.ts` (the transition table) and the transcript entries for `talk`, `narration` and lifecycle events.
-- [ ] T031 [P] [US3] Implement `packages/session-model/src/projections/party.ts` and `packages/session-model/src/projections/encounter.ts` (views joined from `engine`; engine folding through the engine's `evolve`, catching throws as `engineRejected`; `incompleteBatches` tracking).
+- [ ] T031 [P] [US3] Implement `packages/session-model/src/projections/party.ts` and `packages/session-model/src/projections/encounter.ts` (views joined from `engine`; engine folding through the engine's `evolve`, catching throws as `engineRejected`; defensive `incompleteBatches` tracking).
 - [ ] T032 [P] [US5] Implement `packages/session-model/src/projections/ledger.ts` (roll, outcome and change rows).
 - [ ] T033 Export the projection surface from `packages/session-model/src/index.ts`; run the phase gate.
 
@@ -141,31 +145,35 @@ TASK-0047.
 
 ---
 
-## Phase 5: User Story 3 — server seam and the database replay test (AC #5, #7)
+## Phase 5: User Stories 3 and 5 — atomic batch append, server seam, database suite (AC #5, #6, #7)
 
-**Purpose**: the session-plane seam of contracts/package-api.md and the real-log proof.
+**Purpose**: the atomic `appendBatch`, the session-plane seam of contracts/package-api.md,
+and the real-log proofs (identical rebuild; zero rows after a mid-batch failure).
 
 **Stack**: run `pnpm env:up` in the worktree before the tests and `pnpm env:down` when the
 phase is done. The database suite runs with `REQUIRE_DATABASE=1`; a skip is a failure.
 
 - [ ] T041 Add `@the-stacks/session-model` and `@the-stacks/dnd5e-engine` (`workspace:*`) to `apps/server/package.json` dependencies and both packages to `apps/server/tsconfig.json` references; run `pnpm install`; commit the lockfile.
-- [ ] T042 [US3] Implement `apps/server/src/session/events.ts`: `SessionEventRefused`, `appendSessionEvent` (decode against the current catalog version, visibility rule, then M0 `append`; refusal writes nothing), `appendMechanicsBatch` (`randomUUID` batch id, envelopes with `index` and `count`, sequential appends through `appendSessionEvent`), `toStoredEvent` (Drizzle `Date` → ISO string).
-- [ ] T043 [US3] Implement `apps/server/src/session/projections.ts`: `loadProjections(db, sessionId, viewer)` reading from `seq` 0 with `readFrom` in batches of 200 until a short batch, folding with `project`.
-- [ ] T044 [US3] Write `apps/server/test/session.integration.test.ts` using the loud-skip harness of `apps/server/test/events.integration.test.ts` (throws under `REQUIRE_DATABASE=1` when no database). For each fixture except `unknown-and-invalid`, in a fresh session id: append every event through the seam (mechanics rows grouped back into their batches through `appendMechanicsBatch`), fold each returned row incrementally, call `loadProjections` twice, and assert the three results are deeply equal for the DM and every player viewer (AC #7).
-- [ ] T045 [US4] In the same suite, assert `appendSessionEvent` refuses a `tracker.changed` with visibility `public` (`VISIBILITY_NOT_ALLOWED`), an invalid payload (`INVALID_PAYLOAD`) and an unknown type (`UNKNOWN_EVENT_TYPE`), and that `readFrom` shows no new row after each refusal (AC #5, FR-004).
-- [ ] T046 [US3] In the same suite, append the `unknown-and-invalid` rows directly through M0 `append` (bypassing the seam, as a future writer or an old row would), then assert `loadProjections` returns with the fixture's expected counters, except `outOfOrder`, which the database cannot produce (AC #8 on a real log).
-- [ ] T047 Update the TASK-0044 consumer note in `specs/026-dnd5e-engine/contracts/engine-api.md`: the payload is the mechanics envelope (version 1) of `specs/028-session-model/contracts/session-events.md`, and the engine `v` travels inside it.
-- [ ] T048 Run `pnpm env:up`, then `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test`, then `pnpm env:down`; record the pass counts in the phase commit message.
+- [ ] T042 [US5] Add `appendBatch(db, inputs)` to `apps/server/src/events/log.ts` per contracts/package-api.md and research R10: guards before the transaction (non-empty, one `sessionId`, no `seq`/`ts` key); one `db.transaction` whose first statement is the same `pg_advisory_xact_lock(EVENT_LOG_LOCK_NAMESPACE, hashtext(sessionId))`; `MAX(seq)` read once inside the lock; rows inserted in input order with consecutive `seq`; return the recorded rows in order. Do not change `append` or `readFrom`.
+- [ ] T043 [US3] Implement `apps/server/src/session/events.ts`: `SessionEventRefused`, `appendSessionEvent` (decode against the current catalog version, visibility rule, then M0 `append`; refusal writes nothing), `appendMechanicsBatch(db, input, deps = { appendBatch })` (`randomUUID` batch id, envelopes with `index` and `count`, every envelope validated before any write, then one `deps.appendBatch` call), `toStoredEvent` (Drizzle `Date` → ISO string).
+- [ ] T044 [US3] Implement `apps/server/src/session/projections.ts`: `loadProjections(db, sessionId, viewer)` reading from `seq` 0 with `readFrom` in batches of 200 until a short batch, folding with `project`.
+- [ ] T045 [US3] Write `apps/server/test/session.integration.test.ts` using the loud-skip harness of `apps/server/test/events.integration.test.ts` (throws under `REQUIRE_DATABASE=1` when no database). For each fixture except `unknown-and-invalid`, in a fresh session id: append every event through the seam (mechanics rows grouped back into their batches through `appendMechanicsBatch`), fold each returned row incrementally, call `loadProjections` twice, and assert the three results are deeply equal for the DM and every player viewer (AC #7). Also assert each batch's rows have consecutive `seq` and that `diagnostics.incompleteBatches` is `[]` for every viewer (FR-022: the defensive check is unreachable through the seam).
+- [ ] T046 [US4] In the same suite, assert `appendSessionEvent` refuses a `tracker.changed` with visibility `public` (`VISIBILITY_NOT_ALLOWED`), an invalid payload (`INVALID_PAYLOAD`) and an unknown type (`UNKNOWN_EVENT_TYPE`), and that `readFrom` shows no new row after each refusal (AC #5, FR-004).
+- [ ] T047 [US5] In the same suite, inject a database failure mid-batch through `appendBatch` directly: five valid rows whose third has `payloadVersion: 0` (violates `events_payload_version_positive` after rows one and two were inserted). Assert the call rejects, `readFrom` returns no row of the batch, and the session's next `append` receives the next gapless `seq`. Also assert the pre-transaction guards throw for an empty list, mixed session ids, and an input carrying `seq` (AC #6, AC #7, FR-021, FR-022).
+- [ ] T048 [US5] In the same suite, inject the failure through `appendMechanicsBatch` with a `deps.appendBatch` that forwards the real `appendBatch` after setting the third row's `payloadVersion` to 0; assert zero rows of the batch land and `loadProjections` equals its value before the attempt. Then pass an engine event list whose third event fails `EngineEventSchema`; assert `SessionEventRefused` (`INVALID_PAYLOAD`) and zero rows (AC #6, AC #7, FR-022).
+- [ ] T049 [US3] In the same suite, append the `unknown-and-invalid` rows directly through M0 `append` (bypassing the seam, as a future writer or an old row would), then assert `loadProjections` returns with the fixture's expected counters, except `outOfOrder`, which the database cannot produce (AC #8 on a real log).
+- [ ] T050 Update the TASK-0044 consumer note in `specs/026-dnd5e-engine/contracts/engine-api.md`: the payload is the mechanics envelope (version 1) of `specs/028-session-model/contracts/session-events.md`, the engine `v` travels inside it, and one `execute` result is appended atomically through `appendMechanicsBatch`.
+- [ ] T051 Run `pnpm env:up`, then `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server test`, then `pnpm env:down`; record the pass counts in the phase commit message.
 
-**Checkpoint**: AC #7 proven on Postgres; refusals write nothing.
+**Checkpoint**: AC #7 proven on Postgres; refusals and mid-batch failures write nothing.
 
 ---
 
 ## Phase 6: Polish — full gate
 
-- [ ] T049 Run `pnpm ci:check` in the worktree and fix any failure (lint, typecheck, build, tests, boundaries, hooks, scripts, host scripts).
-- [ ] T050 Save the `pnpm ci:check` tail and the Phase 5 database-suite counts to `specs/028-session-model/ci-evidence.txt` (as TASK-0042 did) and commit it.
-- [ ] T051 Walk quickstart.md end to end and confirm each expected outcome; tick any remaining task here.
+- [ ] T052 Run `pnpm ci:check` in the worktree and fix any failure (lint, typecheck, build, tests, boundaries, hooks, scripts, host scripts).
+- [ ] T053 Save the `pnpm ci:check` tail and the Phase 5 database-suite counts to `specs/028-session-model/ci-evidence.txt` (as TASK-0042 did) and commit it.
+- [ ] T054 Walk quickstart.md end to end and confirm each expected outcome; tick any remaining task here.
 
 **Checkpoint**: `pnpm ci:check` green. The orchestrator then runs the wiki re-ground (runbook:
 `event-log`, `ws-protocol`, `replay-live-boundary`, `overview`, plus a new `session-model`
@@ -176,7 +184,8 @@ note) and the spec-bridge sync before the PR.
 ## Dependencies & Execution Order
 
 - Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6, one dispatch each.
-- Phase 5 needs Phase 4 (the database suite replays the fixtures).
+- Phase 5 needs Phase 4 (the database suite replays the fixtures). Within Phase 5, T042
+  precedes T043 (the seam calls `appendBatch`).
 - Within a phase, `[P]` tasks touch different files and can be written in any order; test
   tasks precede their implementation tasks.
 
