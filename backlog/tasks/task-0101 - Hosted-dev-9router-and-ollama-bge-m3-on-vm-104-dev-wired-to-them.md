@@ -4,6 +4,7 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
+updated_date: '2026-10-26 14:16'
 labels:
   - hosted-dev
   - ai
@@ -36,6 +37,12 @@ Every command that changes vm-104 needs the operator's go on its exact text. Sub
 - [ ] #4 dev's AI_PROVIDERS, AI_PURPOSES and AI_PRICES name every purpose, and the server's boot log shows no unconfigured-purposes warning.
 - [ ] #5 The hosted-dev wiki note and the ops runbook describe the AI setup.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-10-26, run on the operator's exact go: docker run -d --name stacks-ollama --restart unless-stopped --network stacks-dev_default -v stacks-ollama:/root/.ollama ollama/ollama:latest. The image resolved to digest sha256:dea72d1e22270fe095b68fdf756d2b489d615643c5a2eaebbc5f569181e322d8 (ollama 0.40.11). The container is up. Pinning that digest belongs in the deploy definition (AC #2). Next step: pull bge-m3.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
