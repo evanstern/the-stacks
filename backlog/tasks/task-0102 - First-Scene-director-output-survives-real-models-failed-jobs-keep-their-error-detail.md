@@ -42,9 +42,11 @@ Spec: specs/033-director-robustness
 - [x] #5 Spec phase: Persist diagnostics (US1; AC #1)
 - [x] #6 Spec phase: Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID
 - [x] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
-- [x] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
+- [ ] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 - [ ] #9 Spec phase: Full gate (US4; AC #4)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
