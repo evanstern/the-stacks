@@ -4,7 +4,7 @@ title: 'First Scene: pure 5e engine package'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 01:58'
+updated_date: '2026-10-26 02:03'
 labels:
   - first-scene
   - engine
@@ -44,7 +44,7 @@ Spec: specs/026-dnd5e-engine
 - [ ] #10 The boundary check fails if the package imports a database, network or LLM module.
 - [ ] #11 Scripted-dice unit tests cover every command and every refusal code.
 - [x] #12 Spec phase: Setup — package scaffold and boundary rule (AC #10)
-- [ ] #13 Spec phase: Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9)
+- [x] #13 Spec phase: Foundational — schemas, RNG, dice and the entry point (US1, AC #1–#3, #9)
 - [ ] #14 Spec phase: User Story 2 — combatants, HP and damage defenses, temporary HP, life states, death saves (AC #4, #7)
 - [ ] #15 Spec phase: User Story 6 — attacks, checks and saves (AC #2, #9, #11; research R8)
 - [ ] #16 Spec phase: User Stories 3 and 4 — conditions, initiative and turns (AC #5, #6)
@@ -65,6 +65,9 @@ Orchestrator rulings 2026-10-25, derived from decision-0021 idea 1 and decision-
 Implementation dispatch grouping (orchestrator's call): P1 | P2 | P3+P4 | P5+P6 | P7.
 
 Phase 1 (Setup) by sonnet-implementer: c839b7a; ci:check green, boundaries 11/11. Deviation: @types/node is a test-only devDependency.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 by sonnet-implementer: 665b89f. 41 engine tests pass; ci:check green. Deviations accepted: partialRecord for spell slots, and exhaustion excluded through the schema.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
