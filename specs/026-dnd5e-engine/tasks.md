@@ -262,20 +262,20 @@ turn falls off when the turn advances, and round 2 begins after the last combata
 **Independent test**: expend slots, take a long rest, and see HP, hit dice and slots restored
 with before/after values.
 
-- [ ] T041 [US5] Write `src/commands/rests.ts`: `rest.short` (per-die `dice.rolled` purpose
+- [x] T041 [US5] Write `src/commands/rests.ts`: `rest.short` (per-die `dice.rolled` purpose
       `hit-die`, `max(0, face + con)`, one `hp.changed` cause `rest`, `leaveZero` when HP
       leaves 0, pact slot restore, `rest.completed`) and `rest.long` (HP to max and temp to 0,
       tally reset, all hit dice, all slots, exhaustion −1 with cause `rest`,
       `rest.completed`), emitting only events whose values change.
-- [ ] T042 [US5] Write `src/commands/spell-slots.ts`: `spell-slot.expend` and
+- [x] T042 [US5] Write `src/commands/spell-slots.ts`: `spell-slot.expend` and
       `spell-slot.restore` for `standard` and `pact` pools.
-- [ ] T043 [P] [US5] Write `test/commands/rests.test.ts` (scripted dice): fighter Con +2
+- [x] T043 [P] [US5] Write `test/commands/rests.test.ts` (scripted dice): fighter Con +2
       spends 2d10 (faces 4, 7) → +15 capped at max; Con −3 with a face of 1 heals 0; multiple
       pools; empty `spend` restores pact slots only; stable creature at 0 HP heals out of 0;
       long rest restores everything and lowers exhaustion 2→1 and 1→0; refusals
       `ENCOUNTER_ACTIVE` (both rests), `INSUFFICIENT_HIT_DICE` (too many; absent size),
       `LONG_REST_REQUIRES_HP`, `TARGET_DEAD`, `DUPLICATE_PARTICIPANT`.
-- [ ] T044 [P] [US5] Write `test/commands/spell-slots.test.ts`: expend standard and pact;
+- [x] T044 [P] [US5] Write `test/commands/spell-slots.test.ts`: expend standard and pact;
       restore one and several; refusals `SLOT_LEVEL_UNAVAILABLE` (no such level; pact level
       mismatch; no pact pool), `NO_SLOT_AVAILABLE`, `SLOT_NOT_EXPENDED`, `TARGET_DEAD`.
 

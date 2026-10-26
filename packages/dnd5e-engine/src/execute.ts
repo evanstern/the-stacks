@@ -20,7 +20,12 @@ import {
   handleTempHpGrant,
 } from "./commands/hit-points.js";
 import { handleDeathSaveRoll, handleStabilize } from "./commands/life.js";
+import { handleRestLong, handleRestShort } from "./commands/rests.js";
 import { handleRoll } from "./commands/roll.js";
+import {
+  handleSpellSlotExpend,
+  handleSpellSlotRestore,
+} from "./commands/spell-slots.js";
 import type { Handler } from "./handler.js";
 import type { Rng } from "./rng.js";
 import { type EngineCommand, EngineCommandSchema } from "./schema/commands.js";
@@ -50,6 +55,10 @@ const handlers: HandlerMap = {
   "initiative.join": handleInitiativeJoin,
   "turn.advance": handleTurnAdvance,
   "encounter.end": handleEncounterEnd,
+  "rest.short": handleRestShort,
+  "rest.long": handleRestLong,
+  "spell-slot.expend": handleSpellSlotExpend,
+  "spell-slot.restore": handleSpellSlotRestore,
 };
 
 function issuesOf(error: {
