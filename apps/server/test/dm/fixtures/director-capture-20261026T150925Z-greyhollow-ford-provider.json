@@ -9,9 +9,7 @@
   "turn": {
     "trigger": "commit",
     "triggerSeq": 114,
-    "actionIds": [
-      "pt-5"
-    ]
+    "actionIds": ["pt-5"]
   },
   "failure": {
     "kind": "invalid-output",

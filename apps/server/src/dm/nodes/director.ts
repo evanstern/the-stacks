@@ -60,6 +60,46 @@ export function runnableEncounterIds(
     .map((e) => e.id);
 }
 
+const TEXT_CAP = 300;
+
+/** Cuts text to the cap at the last space before it; a spaceless run is cut hard. */
+function capText(text: string): string {
+  if (text.length <= TEXT_CAP) return text;
+  const head = text.slice(0, TEXT_CAP);
+  const space = head.lastIndexOf(" ");
+  return (space > 0 ? head.slice(0, space) : head).trim();
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/** Caps `reason` on a plain object, returning a copy when it changes. */
+function capReason(v: unknown): unknown {
+  if (!isPlainObject(v) || typeof v.reason !== "string") return v;
+  const reason = capText(v.reason);
+  return reason === v.reason ? v : { ...v, reason };
+}
+
+/**
+ * Director normalizer (contracts/director-output.md, row C4): cuts an
+ * over-long `goalNote` and each over-long `reason` to the schema's 300-character
+ * cap. Touches no number, id or discriminant and adds no default.
+ */
+export function normalizeDirector(json: unknown): unknown {
+  if (!isPlainObject(json)) return json;
+  const out: Record<string, unknown> = { ...json };
+  if (typeof out.goalNote === "string") out.goalNote = capText(out.goalNote);
+  out.beat = capReason(out.beat);
+  out.tableMode = capReason(out.tableMode);
+  out.scene = capReason(out.scene);
+  if (Array.isArray(out.trackers)) out.trackers = out.trackers.map(capReason);
+  for (const key of Object.keys(out)) {
+    if (out[key] === undefined) delete out[key];
+  }
+  return out;
+}
+
 /** Applies director.md's legality table. Pure. */
 export function legalizeDirector(
   model: DirectorOutput,
@@ -211,6 +251,7 @@ export const director: Node<"director"> = async (ctx) => {
     system: prompt.system,
     user: prompt.user,
     schema: DirectorOutput,
+    normalize: normalizeDirector,
     signal: ctx.signal,
   });
   if (!result.ok) {

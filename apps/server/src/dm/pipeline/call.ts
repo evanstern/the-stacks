@@ -15,6 +15,8 @@ export interface CallRequest {
   system: string;
   user: string;
   signal: AbortSignal;
+  /** Applied to the parsed JSON before the schema runs, on every attempt. */
+  normalize?: (json: unknown) => unknown;
 }
 
 export type CallFailure = {
@@ -135,6 +137,7 @@ export function stripFence(text: string): string {
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
+  normalize?: (json: unknown) => unknown,
 ): { ok: true; value: T } | { ok: false; issues: string } {
   let json: unknown;
   try {
@@ -142,7 +145,7 @@ function parseAgainst<T>(
   } catch (error) {
     return { ok: false, issues: `not valid JSON: ${(error as Error).message}` };
   }
-  const parsed = schema.safeParse(json);
+  const parsed = schema.safeParse(normalize ? normalize(json) : json);
   if (parsed.success) return { ok: true, value: parsed.data };
   const issues = parsed.error.issues
     .slice(0, 8)
@@ -160,7 +163,7 @@ export async function callJson<T>(
 
   const first = await collect(deps, req, messages);
   if (!first.ok) return failure(first, req, 1, calls);
-  const parsedFirst = parseAgainst(first.text, req.schema);
+  const parsedFirst = parseAgainst(first.text, req.schema, req.normalize);
   if (parsedFirst.ok) {
     calls.push({
       purpose: req.purpose,
@@ -189,7 +192,7 @@ export async function callJson<T>(
   );
   const second = await collect(deps, req, messages);
   if (!second.ok) return failure(second, req, 2, calls);
-  const parsedSecond = parseAgainst(second.text, req.schema);
+  const parsedSecond = parseAgainst(second.text, req.schema, req.normalize);
   if (parsedSecond.ok) {
     calls.push({
       purpose: req.purpose,

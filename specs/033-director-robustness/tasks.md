@@ -91,10 +91,10 @@ WebSocket failure. Record each re-run in the phase's commit message.
 - [ ] T012 Orchestrator: write `specs/033-director-robustness/evidence/classification.md`.
   List each attempt's issues, the selected catalog rows (contracts/director-output.md), and why
   each other row is not selected. Commit it before the dispatch.
-- [ ] T013 [US2] In `apps/server/test/dm/director-capture.test.ts`, write the reproduction part:
+- [x] T013 [US2] In `apps/server/test/dm/director-capture.test.ts`, write the reproduction part:
   each captured attempt fails the strict v1 parse with the fixture's issue paths. Run it on the
   unfixed code. Commit it green (it reproduces the failure).
-- [ ] T014 [US3] Build only the selected rows, in catalog order, each with its row's tests:
+- [x] T014 [US3] Build only the selected rows, in catalog order, each with its row's tests:
   - C1: `extractJson` in `call.ts`, used by `parseAgainst`.
   - C3, C4, C5: `normalizeDirector` in `nodes/director.ts`; the `normalize` hook on
     `callJson`; the director passes it.
@@ -103,13 +103,13 @@ WebSocket failure. Record each re-run in the phase's commit message.
     and `call.test.ts`.
   - C9: the adapter fix in `ai/adapters/openai-compatible.ts` with an SSE case in
     `apps/server/test/ai.openai-compatible.test.ts`.
-- [ ] T015 [US3] In `director-capture.test.ts`, add the fixed-pipeline part: the captured
+- [x] T015 [US3] In `director-capture.test.ts`, add the fixed-pipeline part: the captured
   attempts through `callJson` with the director's `normalize` return `ok`, and
   `legalizeDirector` accepts the value. For a prompt-only classification, replace it with a
   prompt snapshot test, as `classification.md` states.
-- [ ] T016 [P] [US4] When `normalizeDirector` exists, add a table test: for every rule, an
+- [x] T016 [P] [US4] When `normalizeDirector` exists, add a table test: for every rule, an
   input with each numeric field set to an out-of-range value leaves that value unchanged.
-- [ ] T017 Run the phase gate and the database suites. Commit. Push the branch.
+- [x] T017 Run the phase gate and the database suites. Commit. Push the branch.
 
 **Checkpoint**: AC #2 met. AC #3 holds offline.
 
