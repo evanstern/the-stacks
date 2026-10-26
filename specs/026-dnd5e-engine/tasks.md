@@ -52,34 +52,34 @@ Every code has a named test owner. The Phase 6 meta-test enforces the map.
 
 **Purpose**: the package exists, builds, tests run, and the boundary gate fails on a violation.
 
-- [ ] T001 Create `packages/dnd5e-engine/package.json`: name `@the-stacks/dnd5e-engine`,
+- [x] T001 Create `packages/dnd5e-engine/package.json`: name `@the-stacks/dnd5e-engine`,
       `private`, `type: module`, `main: ./dist/index.js`, `types: ./dist/index.d.ts`,
       scripts `build`/`typecheck` = `tsc -b`, `test` = `vitest run`; `dependencies`
       `{ "zod": "^4.6.5" }`; `devDependencies` `{ "vitest": "^5.0.1" }`.
-- [ ] T002 Create `packages/dnd5e-engine/tsconfig.json` extending `../../tsconfig.base.json`
+- [x] T002 Create `packages/dnd5e-engine/tsconfig.json` extending `../../tsconfig.base.json`
       with `rootDir: src`, `outDir: dist`, `lib: ["ES2022"]`, `types: []`, `include: ["src"]`.
-- [ ] T003 Create `packages/dnd5e-engine/test/tsconfig.json` (`noEmit: true`,
+- [x] T003 Create `packages/dnd5e-engine/test/tsconfig.json` (`noEmit: true`,
       `include: ["."]`, `references: [{ "path": ".." }]`) and
       `packages/dnd5e-engine/vitest.config.ts` (include `test/**/*.test.ts`).
-- [ ] T004 Add `packages/dnd5e-engine` and `packages/dnd5e-engine/test` to the root
+- [x] T004 Add `packages/dnd5e-engine` and `packages/dnd5e-engine/test` to the root
       `tsconfig.json` references. Run `pnpm install` and commit the lockfile change.
-- [ ] T005 Create `packages/dnd5e-engine/src/index.ts` exporting `ENGINE_SCHEMA_VERSION = 1`
+- [x] T005 Create `packages/dnd5e-engine/src/index.ts` exporting `ENGINE_SCHEMA_VERSION = 1`
       only, so the package builds.
-- [ ] T006 Add the `biome.json` override for `packages/dnd5e-engine/src/**` and
+- [x] T006 Add the `biome.json` override for `packages/dnd5e-engine/src/**` and
       `fixtures/boundary-violations/packages/dnd5e-engine/**` exactly as
       contracts/boundary-rule.md section 1 lists (`noRestrictedImports` paths and patterns,
       `noRestrictedGlobals` `deniedGlobals`).
-- [ ] T007 [P] Create the six fixtures in
+- [x] T007 [P] Create the six fixtures in
       `fixtures/boundary-violations/packages/dnd5e-engine/src/` (`bad-database.ts`,
       `bad-orm.ts`, `bad-network.ts`, `bad-fetch.ts`, `bad-llm.ts`, `bad-clock.ts`) per
       contracts/boundary-rule.md section 2.
-- [ ] T008 Update `scripts/check-boundaries.mjs` to pass
+- [x] T008 Update `scripts/check-boundaries.mjs` to pass
       `--only=style/noRestrictedImports --only=style/noRestrictedGlobals`, and update its
       header comment. Run `pnpm check:boundaries`; expect every fixture flagged.
-- [ ] T009 Prove the gate fails: remove the engine override locally, run
+- [x] T009 Prove the gate fails: remove the engine override locally, run
       `pnpm check:boundaries`, confirm exit 1 naming the six engine fixtures, restore the
       override. Record the observed output in the phase commit message body.
-- [ ] T010 [P] Write `packages/dnd5e-engine/test/purity.test.ts` per contracts/boundary-rule.md
+- [x] T010 [P] Write `packages/dnd5e-engine/test/purity.test.ts` per contracts/boundary-rule.md
       section 3: import-specifier allowlist (`zod` or relative), no `Math.random`, `Date`,
       `globalThis` or `new Function` in `src/**/*.ts`, and `dependencies` equals `{ zod }`.
 
@@ -330,3 +330,7 @@ with before/after values.
   (TASK-0046) by design, not to a later engine card.
 - A contract change discovered during implementation is made in `contracts/` in the same
   commit as the code, and called out in the phase report.
+
+## Deviations
+
+- T001/T003: added `@types/node` (`^22.20.4`, already in the lockfile via `apps/server`) to the engine `devDependencies` and `types: ["node"]` to `test/tsconfig.json`. `purity.test.ts` reads files with `node:fs`, and the test tsconfig needs Node types to typecheck. `src` stays Node-free (`types: []`).
