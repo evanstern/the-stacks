@@ -5,11 +5,12 @@ import { renderDoctrine } from "../doctrine/doctrine.js";
 import type { NarrationFacts } from "../facts.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { AuditIssue } from "../nodes/audit.js";
-import type { TurnContext } from "../pipeline/context.js";
+import type { PlayerSeedView } from "../seed/views.js";
 import {
   CAPS,
   capEntries,
   joinSections,
+  type RosterEntry,
   section,
   transcriptEntries,
 } from "./common.js";
@@ -79,7 +80,8 @@ function describeChange(
 }
 
 export interface NarratePromptInput {
-  ctx: TurnContext;
+  seed: PlayerSeedView;
+  roster: readonly RosterEntry[];
   assembled: AssembleOutput;
   facts: NarrationFacts;
   prior: { prose: string; issues: AuditIssue[] } | null;
@@ -89,7 +91,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
   system: string;
   user: string;
 } {
-  const { ctx, facts } = input;
+  const { seed, facts } = input;
   const doctrine = capEntries(
     renderDoctrine("narrate").split("\n\n"),
     CAPS.doctrine,
@@ -103,8 +105,8 @@ export function buildNarratePrompt(input: NarratePromptInput): {
   const scene =
     facts.trigger === "scene-start"
       ? [
-          `Open the scene. Framing: ${ctx.seed.opening.framing}`,
-          `Location: ${ctx.seed.location.name}. Mood: ${ctx.seed.location.portrayal.mood}`,
+          `Open the scene. Framing: ${seed.openingFraming}`,
+          `Location: ${seed.location.name}. Mood: ${seed.location.mood}`,
         ]
       : [];
   const prior = input.prior
@@ -121,7 +123,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
     section("Present characters", npcs, 400, "end"),
     section(
       "Recent transcript",
-      transcriptEntries(input.assembled.transcriptTail),
+      transcriptEntries(input.assembled.transcriptTail, input.roster),
       CAPS.transcript,
       "start",
     ),

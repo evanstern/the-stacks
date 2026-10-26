@@ -13,6 +13,7 @@ import type { ModelCallRecord } from "./pipeline/context.js";
 import { buildCompanionPrompt, PROMPT_VERSION } from "./prompts/companion.js";
 import { PURPOSE_OF } from "./purposes.js";
 import type { SceneSeed } from "./seed/schema.js";
+import { playerFacingSeed } from "./seed/views.js";
 
 /**
  * AI companions (contracts/companions.md): party members whose controller is
@@ -132,7 +133,7 @@ export async function runCompanionJob(
     const active = isActive(projections, companionId);
     const turnMode = projections.tableMode.mode === "turn";
     const prompt = buildCompanionPrompt({
-      seed,
+      seed: playerFacingSeed(seed),
       projections,
       characterId: companionId,
       active,

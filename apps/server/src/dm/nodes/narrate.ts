@@ -11,8 +11,10 @@ import type {
   NodeError,
   TurnContext,
 } from "../pipeline/context.js";
+import { rosterOf } from "../prompts/common.js";
 import { buildNarratePrompt, PROMPT_VERSION } from "../prompts/narrate.js";
 import { PURPOSE_OF } from "../purposes.js";
+import { playerFacingSeed } from "../seed/views.js";
 import type { AssembleOutput } from "./assemble.js";
 import type { AuditIssue } from "./audit.js";
 
@@ -72,7 +74,13 @@ export async function narrateAttempt(
   facts: NarrationFacts,
   prior: { prose: string; issues: AuditIssue[] } | null,
 ): Promise<AttemptResult> {
-  const prompt = buildNarratePrompt({ ctx, assembled, facts, prior });
+  const prompt = buildNarratePrompt({
+    seed: playerFacingSeed(ctx.seed),
+    roster: rosterOf(ctx.deps ? assembled.projections.party : []),
+    assembled,
+    facts,
+    prior,
+  });
   const result = await callText(ctx.deps, {
     purpose: PURPOSE_OF.narrate,
     promptVersion: PROMPT_VERSION,
@@ -102,7 +110,10 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   );
   const facts = buildNarrationFacts({
     trigger: ctx.job.trigger,
-    seed: ctx.seed,
+    seed: playerFacingSeed(ctx.seed),
+    beatNpcIds:
+      ctx.seed.beats.find((b) => b.id === director.pacing.beatId)?.npcIds ??
+      assembled.presentNpcIds,
     projections,
     beat: assembled.beat,
     director,

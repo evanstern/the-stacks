@@ -8,7 +8,7 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
-import type { SceneSeed } from "./seed/schema.js";
+import type { PlayerSeedView } from "./seed/views.js";
 
 /**
  * Narration facts (contracts/nodes.md "narrate"): built by code from the
@@ -302,7 +302,9 @@ function damageTypesBySeq(rows: readonly StoredEvent[]): Map<number, string> {
 
 export interface BuildFactsInput {
   trigger: TurnTrigger;
-  seed: SceneSeed;
+  seed: PlayerSeedView;
+  /** NPC ids present in the current beat; the caller reads them from the full seed. */
+  beatNpcIds: readonly string[];
   /** Projections read after resolve; the ledger holds prior and new rows. */
   projections: SessionProjections;
   beat: readonly BeatItem[];
@@ -371,9 +373,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     };
   }
 
-  const beatNpcs =
-    seed.beats.find((b) => b.id === input.director.pacing.beatId)?.npcIds ??
-    input.presentNpcIds;
+  const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
     return n
@@ -381,9 +381,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
           {
             id: n.id,
             name: n.name,
-            voice: n.portrayal.voice,
-            want: n.portrayal.want,
-            detail: n.portrayal.detail,
+            voice: n.voice,
+            want: n.want,
+            detail: n.detail,
           },
         ]
       : [];

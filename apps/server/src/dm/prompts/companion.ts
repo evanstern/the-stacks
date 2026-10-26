@@ -3,17 +3,18 @@
  */
 import type { SessionProjections } from "@the-stacks/session-model";
 import { renderDoctrine } from "../doctrine/doctrine.js";
-import type { SceneSeed } from "../seed/schema.js";
+import type { PlayerSeedView } from "../seed/views.js";
 import {
   CAPS,
   capEntries,
   joinSections,
   projectionEntries,
+  rosterOf,
   section,
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v1";
+export const PROMPT_VERSION = "dm.companion-v2";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -31,7 +32,7 @@ const SYSTEM = [
 ].join("\n\n");
 
 export interface CompanionPromptInput {
-  seed: SceneSeed;
+  seed: PlayerSeedView;
   projections: SessionProjections;
   characterId: string;
   active: boolean;
@@ -56,8 +57,8 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
         `Voice: ${sheet.portrayal.voice}`,
         `Want: ${sheet.portrayal.want}`,
         `Detail: ${sheet.portrayal.detail}`,
-        `Knows: ${sheet.hooks.knows.join(" ")}`,
-        `Relationships: ${sheet.hooks.relationships.map((r) => `${r.to} (${r.kind})`).join(", ")}`,
+        `Knows: ${sheet.knows.join(" ")}`,
+        `Relationships: ${sheet.relationships.map((r) => `${r.to} (${r.kind})`).join(", ")}`,
       ]
     : [`You are ${characterId}.`];
 
@@ -84,7 +85,10 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
     ),
     section(
       "Recent transcript",
-      transcriptEntries(projections.transcript.slice(-CAPS.transcriptEntries)),
+      transcriptEntries(
+        projections.transcript.slice(-CAPS.transcriptEntries),
+        rosterOf(projections.party),
+      ),
       CAPS.transcript,
       "start",
     ),
