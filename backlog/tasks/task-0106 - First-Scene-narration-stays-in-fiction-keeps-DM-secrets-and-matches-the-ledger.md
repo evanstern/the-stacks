@@ -84,6 +84,8 @@ Orchestrator rulings on the amendment's open points: (1) the 'first-named charac
 
 Phase 4b by sonnet-implementer: 050dbdc (E2 party-name filter in nodes/audit.ts; the contract's 11-case table plus 4 node tests), db1da9f (E3 narrate-v3 rule verbatim after 'No rules effect'), e1d9743 (ticks). Server REQUIRE_DATABASE=1: 761 passed, 5 skipped. Lint, typecheck and boundaries pass. No WS flake.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5b setup: composite at 3ae5a54 (Phase 4b tip merged in). dm.narrate maxTokens 1500 confirmed (T053). Ceiling $25 (operator approval above). Estimate upper bound $23.40.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
