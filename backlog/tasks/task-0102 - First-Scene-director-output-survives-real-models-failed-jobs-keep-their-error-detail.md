@@ -83,6 +83,8 @@ OPERATOR APPROVAL 2026-10-26 (T035), in the operator's words: 'Approved: raise d
 
 Phase 3b by sonnet-implementer: 12591c3 (T025 reproduction, green on unfixed code) and 4552254 (T026–T034). The skill enum is defined once in the engine (check.roll command), and the server derives SkillSchema, CONDITION_KEYS and SKILL_KEYS from it. STEP_GRAMMAR now renders the closed condition, skill and damage-type lists and lives in prompts/step-grammar.ts, which keeps the narrate no-engine-import boundary test intact. dm.interpret-v2 and dm.adjudicate-v2. Interpret stays strict, with no normalizer. Tests: server REQUIRE_DATABASE=1 695 passed, 5 skipped; engine 221; session-model 566. Lint, typecheck and boundaries pass. No WS flake. Orchestrator reviewed the diff. The CI playtest is not on this branch; it runs in the composite (T022).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4b setup: composite at 5fd107f (branch tip with 4552254). Scripted CI playtest in the composite (T022 precheck): outcome ended, verdict pass, run 20261026T155331Z-greyhollow-ford-ci. Rerun ceiling $22 (operator: 'The $22 rerun ceiling stands'). Estimate upper bound $21.60.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
