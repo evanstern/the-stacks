@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:45'
+updated_date: '2026-10-26 14:59'
 labels:
   - first-scene
   - test
@@ -106,6 +106,12 @@ D3: the playtest dice-lines check reports dice lines in scene-start narration #1
 D4: the playtest CLI on the host cannot use host.docker.internal provider URLs.
 Doctrine warnings from the auditor are expected quality findings: hero-is-theirs, fail-forward, end-on-demand, one-sense. The DM-runtime audit also shipped its factual fallback once.
 Paid runs are paused until D1 is fixed.
+
+Harness fixes by sonnet-implementer: 31f61f7.
+D3: splitNarration treated everything after the first blank line as dice lines. Now only a final block whose every line carries an arrow or auto-fail counts. Regression tests use the real #10 texts from both runs.
+D4: the CLI rewrites host.docker.internal to localhost when /.dockerenv is absent (override PLAYTEST_HOST_NETWORK=0 or 1) and logs the rewrite.
+Orchestrator gate: ci:check with REQUIRE_DATABASE=1 and the worktree's TEST_DATABASE_URL is green, 730 server tests. The implementer's DB auth failures came from a wrong URL, not the code.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
