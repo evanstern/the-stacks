@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 14:03'
+updated_date: '2026-10-26 14:27'
 labels:
   - first-scene
   - test
@@ -84,6 +84,8 @@ Operator approved the demo model mapping on 2026-10-26. All eight purposes route
 AI_PRICES use list rates: opus 5/25, sonnet 2/10, haiku 1/5, ollama/bge-m3 0/0. The operator is adding these to the root .env.
 Operator troubleshooting note: on 9router some models need the [1m] context suffix (for example cc/claude-sonnet-5[1m]). If a purpose fails with a model or context error during the demo, try the [1m] form first, and add a matching AI_PRICES key.
 bge-m3 check: it is installed locally in ollama (bge-m3:latest). vm-104 has no ollama and the dev .env has no AI_PROVIDERS or AI_PURPOSES.
+
+OPERATOR APPROVAL 2026-10-26 (demo checkpoint B), in the operator's words: 'Approved'. This answers the orchestrator's proposal: a spend ceiling of $20 for the paid scripted playtest run and $6 for the demo-session audit. Models are as in the estimate: opus-5 for director, adjudicate and playtest.audit; sonnet-5 for interpret, narrate and companion; haiku-4-5 for dm.audit and chronicle; bge-m3 local. At list prices the estimate is $1.54 expected and $17.58 upper bound.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
