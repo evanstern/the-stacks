@@ -83,6 +83,9 @@ Phase 4 (b9edfb0): settleTurn rolls death saves for unconscious PCs, with natura
 ORCHESTRATOR RULINGS: Q1 the reclaim done-condition fix (a landed advance counts as done) stays in this task, because settling's correctness depends on it; Phase 5 adds a regression test for it. Q3 a turn whose only event is a death save is narrated (D5); reported to the operator.
 
 Phase 5 done (4fa930d): seatDowned and seat-downed stall reason in the playtest driver and harness; downed-seat fixture and harness case; scenario.md amended. Regression test for a landed advance (a6cad1c). pnpm ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5 (reclaim regression a6cad1c, work 4fa930d): driver waits or stops for a downed seat; stall reason seat-downed; downed-seat harness case; 032 scenario.md amended. The shipped greyhollow-ford CI case still passes. ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
