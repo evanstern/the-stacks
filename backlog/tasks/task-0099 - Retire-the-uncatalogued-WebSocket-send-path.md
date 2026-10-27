@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 09:30'
+updated_date: '2026-10-27 09:34'
 labels:
   - ws
   - session
@@ -31,6 +31,8 @@ Spec: specs/043-retire-uncatalogued-send
 - [ ] #1 The WebSocket send path refuses every uncatalogued event type.
 - [ ] #2 appendUncataloguedEvent and its write-boundary allow-list entry are removed.
 - [ ] #3 The load benchmark and any remaining M0 sender use a catalogued type or are retired, and their tests pass.
+- [ ] #4 Spec phase: Retire the path and migrate its senders (US1, US2, US3; FR-001–FR-007, FR-009)
+- [ ] #5 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -47,6 +49,9 @@ OQ4 prose amendment note in specs/006-ws-gateway/contracts/ws-protocol.md beneat
 Design in spec.md: bench and M0 WS tests move to an out-of-character talk request (characterId null). Blocked until the operator rules; TASK-0049 waits behind it (same hotspots).
 
 OPERATOR RULING 2026-10-27 (in chat): "I accept the defaults on the TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006." Spec authoring resumes with plan.md and tasks.md.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring resumed after the operator ruling: plan, research, tasks, contracts/frozen-amendments.md; commit eacfd07.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
