@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-27 01:25'
+updated_date: '2026-10-27 02:26'
 labels:
   - first-scene
   - test
@@ -154,6 +154,8 @@ Demo paused 2026-10-26 at the operator's request (a break of a few hours). Sessi
 Operator demo finding (6), UI: dice lines in narration (e.g. 'Tamsin Vale — …: 1d20+2 → 4 = 6 vs DC 12: failure') render as ordinary prose. They should be visually distinct, monospaced like a code block, so rolls read apart from the story text.
 
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: keep playing with the workaround (commit Tamsin's action). Card the companion stall in m-3.' Finding 5 recurred during the resumed demo. Carded on main: TASK-0114.
+
+Demo complete and recorded (draft) at 7ff5e52: scene ended (seq 330), 47 DM turns, 0 failed, 10 fallbacks; audit $2.87 (11/24/23). Record resolutions await the operator's sign-off. Orchestrator handoff written to docs/design/m2-first-scene-sweep-runbook.md ('Handoff — 2026-10-27 UTC') on this branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
