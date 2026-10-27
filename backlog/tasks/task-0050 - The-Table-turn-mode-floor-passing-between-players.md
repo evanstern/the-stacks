@@ -24,6 +24,8 @@ ordinal: 40000
 Outcome: in turn mode, the floor passes between human players in initiative order. Only the active player commits for their turn. Everyone else talks and suggests.
 
 Why: decision-0016, turn-mode row. M2 has one human, so the floor only passes between that human and AI actors. Several humans need visible turn ownership and a clean handoff.
+
+Spec: specs/049-turn-floor
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
