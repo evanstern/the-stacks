@@ -1,9 +1,10 @@
 ---
 id: TASK-0099
 title: Retire the uncatalogued WebSocket send path
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
+updated_date: '2026-10-27 05:20'
 labels:
   - ws
   - session
@@ -29,6 +30,12 @@ Why: TASK-0045 (specs/029-proposal-gate, contracts/write-boundary.md) keeps an i
 - [ ] #2 appendUncataloguedEvent and its write-boundary allow-list entry are removed.
 - [ ] #3 The load benchmark and any remaining M0 sender use a catalogued type or are retired, and their tests pass.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0099, branch task-0099-retire-uncatalogued-send, cut from origin/main adb4527. Spec number 043 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
