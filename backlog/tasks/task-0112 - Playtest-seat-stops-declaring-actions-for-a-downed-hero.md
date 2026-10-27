@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:41'
+updated_date: '2026-10-27 10:48'
 labels:
   - playtest
   - harness
@@ -27,8 +27,8 @@ Spec: specs/046-downed-hero-gate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
-- [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
+- [x] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
+- [x] #2 A decision records whether an unconscious character's declared action is refused before narration
 - [x] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
 - [x] #4 Death-save turns for unconscious PCs still run (U6)
 - [x] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
@@ -37,7 +37,7 @@ Spec: specs/046-downed-hero-gate
 - [x] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
 - [x] #9 Spec phase: Plan gate against S0 (card AC #6)
 - [x] #10 Spec phase: Death-save turns by settling (card AC #4)
-- [ ] #11 Spec phase: Driver and harness (card AC #1)
+- [x] #11 Spec phase: Driver and harness (card AC #1)
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
@@ -81,6 +81,8 @@ Phase 4 done (b9edfb0): settleTurn in nodes/settle.ts (death-save.roll then turn
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (b9edfb0): settleTurn rolls death saves for unconscious PCs, with natural-20 and one-lap stop rules; facts gain a death-saves change kind (additive); 8 resolve cases; no fixture changed. ci:check passed with REQUIRE_DATABASE=1, server 1016 tests.
 ORCHESTRATOR RULINGS: Q1 the reclaim done-condition fix (a landed advance counts as done) stays in this task, because settling's correctness depends on it; Phase 5 adds a regression test for it. Q3 a turn whose only event is a death save is narrated (D5); reported to the operator.
+
+Phase 5 done (4fa930d): seatDowned and seat-downed stall reason in the playtest driver and harness; downed-seat fixture and harness case; scenario.md amended. Regression test for a landed advance (a6cad1c). pnpm ci:check green with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
