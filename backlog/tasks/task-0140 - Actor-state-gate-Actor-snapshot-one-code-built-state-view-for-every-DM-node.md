@@ -1,9 +1,10 @@
 ---
 id: TASK-0140
 title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM node'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
+updated_date: '2026-10-27 03:58'
 labels:
   - dm
   - rules-gate
@@ -30,6 +31,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #5 A snapshot that cannot fit fails the node loudly, with a test.
 - [ ] #6 Existing dm tests and the scripted CI playtest stay green.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0140, branch task-0140-actor-snapshot, cut from origin/main 53250a9. Spec number 040 claimed with a stub. Track C3 (runbook amendment 1). decision-0025 card U1.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
