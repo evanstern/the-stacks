@@ -4,6 +4,7 @@ import {
   catalogEntry,
   currentVersion,
   mechanicsProposal,
+  type PlanContext,
   type PlanResult,
   type Proposal,
   ProposalSchema,
@@ -28,6 +29,7 @@ import {
   deepFreeze,
   member,
   PLAYER_A,
+  PLAYER_B,
   run,
   scene,
   tracker,
@@ -42,6 +44,7 @@ function plan(
   proposal: Proposal,
   faces: number[] = [],
   proposalId: string | null = null,
+  context?: PlanContext,
 ): PlanResult {
   return planProposal(
     p,
@@ -50,6 +53,7 @@ function plan(
     scriptedRng(faces),
     ids,
     proposalId,
+    context,
   );
 }
 
@@ -282,6 +286,34 @@ describe("planProposal rows per kind (gate-api.md section 1)", () => {
     };
     const rows = okRows(plan(q, aiDm, parse(resolution)));
     expect(rows[0]).toMatchObject({ type: "action.resolved", actor: "ai:dm" });
+  });
+
+  it("records the declared scope on the action.declared row (card AC #1)", () => {
+    const q = dmFold({ humanDm: true });
+    const declare = (scope: "character" | "party", actionId: string) =>
+      okRows(
+        plan(
+          q,
+          ana,
+          parse({
+            kind: "action.declare",
+            action: {
+              actionId,
+              characterId: scope === "party" ? null : "ana",
+              scope,
+              text: "x",
+            },
+          }),
+        ),
+      )[0];
+    expect(declare("party", "n-party")).toMatchObject({
+      type: "action.declared",
+      payload: { scope: "party" },
+    });
+    expect(declare("character", "n-char")).toMatchObject({
+      type: "action.declared",
+      payload: { scope: "character" },
+    });
   });
 
   it("every planned payload validates against its catalog schema", () => {
@@ -720,5 +752,162 @@ describe("planProposal purity", () => {
     }
     expect(JSON.stringify(p)).toBe(before);
     expect(OPERATOR).toBeDefined();
+  });
+});
+
+describe("group sign-off planning (specs/044-group-signoff/contracts/signoff.md)", () => {
+  const cade: Proposer = { kind: "human", userId: PLAYER_B, role: "player" };
+  const present = [PLAYER_A, PLAYER_B];
+  const comment = (stance: string) =>
+    parse({
+      kind: "action.comment",
+      comment: { actionId: "act-party", stance, text: "ok" },
+    });
+  const commit = parse({ kind: "action.commit", actionId: "act-party" });
+  const marker = () => ({
+    actor: "system",
+    type: "presence.recorded",
+    visibility: "public",
+    payload: { present, purpose: "signoff", actionId: "act-party" },
+  });
+
+  it("a two-human explicit group commit plans the marker then the commit", () => {
+    const p = dmFold({
+      twoHumans: true,
+      extra: [
+        {
+          type: "action.commented",
+          payload: { actionId: "act-party", stance: "approve", text: "ok" },
+          opts: { actor: PLAYER_B },
+        },
+      ],
+    });
+    const rows = okRows(plan(p, ana, commit, [], null, { present }));
+    expect(rows.map((r) => r.type)).toEqual([
+      "presence.recorded",
+      "action.committed",
+    ]);
+    expect(rows[0]).toEqual(marker());
+    expect(rows[1]).toMatchObject({
+      actor: PLAYER_A,
+      payload: { actionId: "act-party", authority: "group" },
+    });
+  });
+
+  it("the marker holds the acting human even when the present set omits them", () => {
+    const p = dmFold({
+      twoHumans: true,
+      extra: [
+        {
+          type: "action.commented",
+          payload: { actionId: "act-party", stance: "approve", text: "ok" },
+          opts: { actor: PLAYER_B },
+        },
+      ],
+    });
+    const rows = okRows(
+      plan(p, ana, commit, [], null, { present: [PLAYER_B] }),
+    );
+    expect(rows[0]?.payload).toMatchObject({ present: [PLAYER_A, PLAYER_B] });
+  });
+
+  it("the completing approval plans comment, marker and commit as the proposer", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(
+      plan(p, cade, comment("approve"), [], null, { present }),
+    );
+    expect(rows.map((r) => r.type)).toEqual([
+      "action.commented",
+      "presence.recorded",
+      "action.committed",
+    ]);
+    expect(rows[0]?.actor).toBe(PLAYER_B);
+    expect(rows[1]).toEqual(marker());
+    expect(rows[2]).toMatchObject({
+      actor: PLAYER_B,
+      payload: { actionId: "act-party", authority: "group" },
+    });
+  });
+
+  it("an approve that leaves the quorum unmet plans one row", () => {
+    // A third present human who has not signed off keeps the quorum open.
+    const third = {
+      type: "party.member.changed",
+      payload: {
+        reason: "j",
+        characterId: "dara",
+        before: null,
+        after: {
+          characterId: "dara",
+          name: "Dara",
+          controller: {
+            kind: "player",
+            userId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          },
+          combatantId: null,
+        },
+      },
+    };
+    const p3 = dmFold({ twoHumans: true, extra: [third] });
+    const rows = okRows(
+      plan(p3, cade, comment("approve"), [], null, {
+        present: [...present, "cccccccc-cccc-4ccc-8ccc-cccccccccccc"],
+      }),
+    );
+    expect(rows.map((r) => r.type)).toEqual(["action.commented"]);
+  });
+
+  it("an object never commits", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(
+      plan(p, cade, comment("object"), [], null, { present }),
+    );
+    expect(rows.map((r) => r.type)).toEqual(["action.commented"]);
+  });
+
+  it("without a present set a comment never commits", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(plan(p, cade, comment("approve")));
+    expect(rows.map((r) => r.type)).toEqual(["action.commented"]);
+  });
+
+  it("a single-human party plans exactly today's rows (FR-014)", () => {
+    const p = dmFold();
+    const committed = okRows(
+      plan(p, ana, commit, [], null, { present: [PLAYER_A] }),
+    );
+    expect(committed.map((r) => r.type)).toEqual(["action.committed"]);
+    const approved = okRows(
+      plan(p, ana, comment("approve"), [], null, { present: [PLAYER_A] }),
+    );
+    expect(approved.map((r) => r.type)).toEqual(["action.commented"]);
+  });
+
+  it("a DM commit plans one row and no marker", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(plan(p, aiDm, commit, [], null, { present }));
+    expect(rows.map((r) => r.type)).toEqual(["action.committed"]);
+    expect(rows[0]?.payload).toMatchObject({ authority: "dm" });
+  });
+
+  it("an objection refuses the commit with waiting and objecting details", () => {
+    const p = dmFold({
+      twoHumans: true,
+      extra: [
+        {
+          type: "action.commented",
+          payload: { actionId: "act-party", stance: "object", text: "no" },
+          opts: { actor: PLAYER_B },
+        },
+      ],
+    });
+    const result = plan(p, ana, commit, [], null, { present });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.refusal).toMatchObject({
+      source: "gate",
+      code: "GROUP_SIGNOFF_REQUIRED",
+      details: { waiting: [], objecting: [PLAYER_B] },
+    });
   });
 });

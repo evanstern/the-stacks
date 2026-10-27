@@ -75,13 +75,20 @@ decision-0016's table, made executable:
 ```ts
 export type CommitDecision =
   | { ok: true; authority: "declarer" | "active-player" | "group" | "dm" }
-  | { ok: false; code: "UNKNOWN_ACTION" | "ACTION_NOT_OPEN" | "COMMIT_NOT_ALLOWED"
-                     | "GROUP_SIGNOFF_REQUIRED" };
+  | { ok: false; code: "UNKNOWN_ACTION" | "ACTION_NOT_OPEN" | "COMMIT_NOT_ALLOWED" }
+  | { ok: false; code: "GROUP_SIGNOFF_REQUIRED"; waiting: string[]; objecting: string[] };
 
 export function commitAuthority(
   p: SessionProjections, committer: Proposer | { actor: string }, actionId: string,
+  present?: readonly string[],
 ): CommitDecision;
 ```
+
+> **Amendment (TASK-0049).** The operator ruled on 2026-10-27 ("I accept the defaults on the
+> TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and
+> spec 006"). `commitAuthority` takes an optional present set. `GROUP_SIGNOFF_REQUIRED`
+> carries `waiting` and `objecting`. Step 4 below defines the quorum. The rule lives in
+> `specs/044-group-signoff/contracts/signoff.md`.
 
 Checks, first failure wins:
 
@@ -92,10 +99,17 @@ Checks, first failure wins:
    is a player.
    - The committer is not a human in *humans* → `COMMIT_NOT_ALLOWED` (companions approve or
      object by comment; they do not commit for the party).
-   - *humans* has more than one member → `GROUP_SIGNOFF_REQUIRED`. TASK-0049 defines the
-     quorum. This is decision-0016's M2 reduction ("group sign-off reduces to that player plus
-     the DM"), not a deferral: M2 seats one human (decision-0014).
-   - Otherwise → `group`. Objections recorded as `object` comments are advisory in M2.
+   - *humans* has exactly one member → `group`.
+   - *humans* has more than one member and `present` is omitted → `GROUP_SIGNOFF_REQUIRED`
+     with `waiting` = every other human and `objecting` = `[]`.
+   - *humans* has more than one member and `present` is given → compute
+     `signoffState(p, actionId, present, committer)` (specs/044-group-signoff/contracts/signoff.md).
+     Its quorum is the present humans plus the committer. A human's stance is the latest
+     `approve` or `object` comment they made on the action. The declarer defaults to
+     `approve`. Everyone else defaults to `waiting`. The committer counts as approving.
+     When every quorum member approves → `group`. Otherwise → `GROUP_SIGNOFF_REQUIRED` with
+     the quorum's `waiting` and `objecting` ids. An `object` comment blocks until its author
+     approves, or the DM commits or withdraws the action.
 5. **Character scope.** The committer must control `action.characterId`, else
    `COMMIT_NOT_ALLOWED`.
    - Turn mode: the committer's actor equals `tableMode.activeActor`, and

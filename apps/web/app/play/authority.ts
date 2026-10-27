@@ -15,13 +15,15 @@ export type CommitAuthority =
 /**
  * Who may commit an action, from the viewer's seat (decision-0016, research R6). The gate
  * enforces; this only decides what the route shows. `holder` is an actor id, or null when
- * nobody holds the control.
+ * nobody holds the control. `present` is the live present set (user ids); with it a player
+ * sees the commit control once the sign-off quorum is met, and null keeps today's behaviour.
  */
 export function commitAuthorityFor(
   action: ActionView,
   tableMode: TableMode,
   viewer: Viewer,
   party: readonly PartyMemberView[],
+  present: readonly string[] | null = null,
 ): CommitAuthority {
   if (action.status !== "declared" && action.status !== "discussed") {
     return { canCommit: false, holder: null };
@@ -40,6 +42,7 @@ export function commitAuthorityFor(
     } as unknown as SessionProjections,
     { actor: viewer.userId },
     action.actionId,
+    present ?? undefined,
   );
   if (decision.ok) return { canCommit: true, authority: decision.authority };
   if (decision.code === "GROUP_SIGNOFF_REQUIRED") {
