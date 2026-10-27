@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-26 21:11'
+updated_date: '2026-10-27 01:23'
 labels:
   - first-scene
   - test
@@ -150,6 +150,8 @@ Operator demo finding (3): on a companion's declared action, the Comment, Approv
 Operator demo finding (5), runtime: in free mode a companion may declare without committing (Odo, act-odo-1, seq 35, 20:58:16). Companion jobs run only after a DM turn ('prompt') or when a hold ends (dm/companion.ts, worker.ts:300), and a human's comment or approval (seq 37-38) does not re-run the companion. So the declaration waits forever under 'Waiting for Brother Odo to commit', and the table looked frozen for over 4 minutes. Workaround in the demo: the human commits their own action to start the next turn.
 
 Demo paused 2026-10-26 at the operator's request (a break of a few hours). Session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd stays live on stacks-task-0048 (app :3048), last seq 77; jobs: companion:succeeded:7, turn:succeeded:11, chronicle:succeeded:9. 8 human actions committed so far, 2 narration fallbacks (seq 25 and 65), no failed turn. Findings 1-5 are logged above. Resume: the operator reopens http://localhost:3048/play/e8c848ec-11e9-442d-9bfa-8c26a0d84fcd in Brave and keeps playing Tamsin; the orchestrator re-arms the session watch. Do not env:down this stack before the demo ends (that would wipe the session).
+
+Operator demo finding (6), UI: dice lines in narration (e.g. 'Tamsin Vale — …: 1d20+2 → 4 = 6 vs DC 12: failure') render as ordinary prose. They should be visually distinct, monospaced like a code block, so rolls read apart from the story text.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
