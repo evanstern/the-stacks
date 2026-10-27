@@ -96,18 +96,18 @@ calls. Every stored submission names its seqs.
 
 **Independent test**: `routes.integration.test.ts` passes, with the `/turns` assertions untouched.
 
-- [ ] T018 [P] [US4] Add `dmOnlySeedPaths(seed): string[]` (JSON Pointers) to `apps/server/src/dm/seed/views.ts`. Re-express `dmOnlySeedText` over it.
-- [ ] T019 [P] [US4] In `apps/server/test/dm/seed.test.ts`, assert `dmOnlySeedPaths` resolves to exactly the strings `dmOnlySeedText` returns for the shipped seed, and that no path points at a player-facing field.
-- [ ] T020 [US3] Add `heartbeatAt` to `DmJobRow` and add `listDmJobsPage(db, sessionId, { limit, before })` ordered `(created_at desc, id desc)` in `apps/server/src/dm/jobs.ts`. Leave `listDmJobs` unchanged.
-- [ ] T021 [US5] In `apps/server/test/dm/routes.integration.test.ts`, assert `401` with no cookie and `403` with a player session for each of `events`, `jobs`, `seed`, `calls`, and that the refusal comes before query validation.
-- [ ] T022 [US2] Add `GET /sessions/:sessionId/events` to `apps/server/src/routes/dm.ts` (query schema, `readFrom` + `toStoredEvent`, `nextAfter`, `hasMore`, `headSeq`). Test: public and DM rows both return; paging with `limit=2` returns every row once; a poll at the head returns empty with `headSeq`; bad `after`/`limit` is `400`.
-- [ ] T023 [US3] Add `GET /sessions/:sessionId/jobs` (via `listDmJobsPage`; `DebugJob` per contract; no claim token; `nextBefore`; a foreign `before` id is `400`). Test: a completed, a held and a failed turn return their stored `input` and `result` unchanged; a running turn returns its saved checkpoint; `before` paging has no gap or repeat; no `claimToken` key anywhere.
-- [ ] T024 [US4] Add `GET /sessions/:sessionId/seed` (`404` with no scene; `409` when the seed fails to load; `{ seedId, seed, dmOnlyPaths }`). Test the three outcomes.
-- [ ] T025 [US1] Add `GET /sessions/:sessionId/calls` (via `listModelCalls` and `modelCallTotals`). Test: rows after a cursor, totals over the whole session. Then scan every debug response body in the suite for the fake gateway's scripted output text; only the jobs route may contain it, and only inside `result.failure.detail.attempts[].excerpt`.
-- [ ] T026 [US5] In `apps/server/test/dm/routes.integration.test.ts`, keep every existing `/turns` assertion unchanged, and add one asserting a `/turns` item's `calls` entries still carry exactly `purpose`, `promptVersion` and `outcome`.
-- [ ] T027 Update contracts: add a "Debug routes" section to `specs/031-dm-runtime/contracts/dm-api.md` that points to `specs/037-debug-api/contracts/debug-api.md` (leave the `/turns` text as is); add the usage fields and `recordCall` to `specs/031-dm-runtime/contracts/node-seam.md`; add `Submission.seqs` to `specs/031-dm-runtime/contracts/resolve.md`; add `onUsage` and its invariant to `specs/011-ai-gateway/contracts/gateway.md`.
-- [ ] T028 Reconcile `specs/037-debug-api/contracts/debug-api.md` with the code as built. Any shape change needs a note in the phase commit, because TASK-0117 specs against it.
-- [ ] T029 Run the database suites and the phase gate.
+- [x] T018 [P] [US4] Add `dmOnlySeedPaths(seed): string[]` (JSON Pointers) to `apps/server/src/dm/seed/views.ts`. Re-express `dmOnlySeedText` over it.
+- [x] T019 [P] [US4] In `apps/server/test/dm/seed.test.ts`, assert `dmOnlySeedPaths` resolves to exactly the strings `dmOnlySeedText` returns for the shipped seed, and that no path points at a player-facing field.
+- [x] T020 [US3] Add `heartbeatAt` to `DmJobRow` and add `listDmJobsPage(db, sessionId, { limit, before })` ordered `(created_at desc, id desc)` in `apps/server/src/dm/jobs.ts`. Leave `listDmJobs` unchanged.
+- [x] T021 [US5] In `apps/server/test/dm/routes.integration.test.ts`, assert `401` with no cookie and `403` with a player session for each of `events`, `jobs`, `seed`, `calls`, and that the refusal comes before query validation.
+- [x] T022 [US2] Add `GET /sessions/:sessionId/events` to `apps/server/src/routes/dm.ts` (query schema, `readFrom` + `toStoredEvent`, `nextAfter`, `hasMore`, `headSeq`). Test: public and DM rows both return; paging with `limit=2` returns every row once; a poll at the head returns empty with `headSeq`; bad `after`/`limit` is `400`.
+- [x] T023 [US3] Add `GET /sessions/:sessionId/jobs` (via `listDmJobsPage`; `DebugJob` per contract; no claim token; `nextBefore`; a foreign `before` id is `400`). Test: a completed, a held and a failed turn return their stored `input` and `result` unchanged; a running turn returns its saved checkpoint; `before` paging has no gap or repeat; no `claimToken` key anywhere.
+- [x] T024 [US4] Add `GET /sessions/:sessionId/seed` (`404` with no scene; `409` when the seed fails to load; `{ seedId, seed, dmOnlyPaths }`). Test the three outcomes.
+- [x] T025 [US1] Add `GET /sessions/:sessionId/calls` (via `listModelCalls` and `modelCallTotals`). Test: rows after a cursor, totals over the whole session. Then scan every debug response body in the suite for the fake gateway's scripted output text; only the jobs route may contain it, and only inside `result.failure.detail.attempts[].excerpt`.
+- [x] T026 [US5] In `apps/server/test/dm/routes.integration.test.ts`, keep every existing `/turns` assertion unchanged, and add one asserting a `/turns` item's `calls` entries still carry exactly `purpose`, `promptVersion` and `outcome`.
+- [x] T027 Update contracts: add a "Debug routes" section to `specs/031-dm-runtime/contracts/dm-api.md` that points to `specs/037-debug-api/contracts/debug-api.md` (leave the `/turns` text as is); add the usage fields and `recordCall` to `specs/031-dm-runtime/contracts/node-seam.md`; add `Submission.seqs` to `specs/031-dm-runtime/contracts/resolve.md`; add `onUsage` and its invariant to `specs/011-ai-gateway/contracts/gateway.md`.
+- [x] T028 Reconcile `specs/037-debug-api/contracts/debug-api.md` with the code as built. Any shape change needs a note in the phase commit, because TASK-0117 specs against it.
+- [x] T029 Run the database suites and the phase gate.
 
 **Checkpoint**: commit `TASK-0116: Phase 3 — operator debug routes and contracts`.
 

@@ -21,7 +21,8 @@ with an operator session (Constitution I).
   route answers `404` (below).
 - **Spoilers.** Nothing is masked (D2). DM-visibility rows and DM-only seed fields return.
 - **Old rows.** Jobs stored before TASK-0116 lack the call usage fields and the submission
-  `seqs`. They return as stored. A client treats an absent field as "not recorded".
+  `seqs`. They return as stored. A client treats an absent field as "not recorded". The routes ship in
+every environment behind the operator gate, with no flag (spec open question 1).
 
 ## GET /dm/sessions/:sessionId/events?after=0&limit=500
 
@@ -139,6 +140,15 @@ result: `checkpoint.submissions[].seqs`, `checkpoint.narration.seqs`,
 `plays[].submissions[].seqs`, or a chronicle's `seqs`. Gate rows other jobs wrote never appear
 in these lists.
 
+Three edges, as built:
+
+- `checkpoint.narration.seqs` covers the narration submission only. A checkpoint stored before
+  TASK-0116 has no `seqs` there: the narration's rows are unknown, not absent.
+- A submission recovered by `findLanded` after a reclaim carries `seqs: []`. The gate rows
+  exist in the log, but the replay cannot name them. A client reading `[]` on a non-refused
+  submission treats the link as unknown.
+- A job that was fenced out or reclaimed can have written rows that no `seqs` list names.
+
 ## GET /dm/sessions/:sessionId/seed
 
 The scene seed the session plays, as `loadSeed` returns it.
@@ -217,6 +227,11 @@ interface UsageTotals {
 A row is stored when the call ends, so a running turn's calls appear before the job finishes.
 Rows include calls of abandoned attempts (`outcome: "aborted"`, or a lower `jobAttempt` than the
 job's current one). This makes the ledger, not `jobs.result.calls`, the authority for cost.
+
+An aborted row, or a call whose gateway emitted no usage record, can have null `provider`,
+`model`, `inputTokens`, `outputTokens`, `costUsd` and `durationMs`. `byModel` counts those rows
+under `"unknown"`. `at` is the row's `created_at`. `id` is a JSON number (a `bigint` column read
+in number mode).
 
 ## Unchanged
 

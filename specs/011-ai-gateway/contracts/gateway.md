@@ -12,6 +12,7 @@ interface Provider {               // one instance per named AI_PROVIDERS entry
 }
 type AdapterFactory = (cfg: ProviderConfig, deps: { fetch: typeof fetch; env: NodeJS.ProcessEnv }) => Provider;
 interface UsageSink { record(r: UsageRecord): void }
+// ChatRequest also carries (TASK-0116): onUsage?: (r: UsageRecord) => void
 ```
 
 Invariants (each has a test):
@@ -25,7 +26,8 @@ Invariants (each has a test):
 7. Usage records contain no prompt or completion text.
 8. Startup rejects: purpose → undeclared provider; purpose op unsupported by provider kind; used provider's `apiKeyEnv` unset.
 9. 429/5xx before output → retried up to the bound, honoring `Retry-After`; other 4xx never retried; no retry after the first `text` event; abort during backoff stops retrying.
-10. No provider name, vendor name, or key variable name appears in `apps/server/src/ai/` (checked by a test that greps the source).
+10. `ChatRequest.onUsage`, when set, is called once per call that emits a usage record, with the record the sink receives, on `done`, `error` and cancel. It is not called for an unknown purpose. A throwing callback never changes the events the stream yields.
+11. No provider name, vendor name, or key variable name appears in `apps/server/src/ai/` (checked by a test that greps the source).
 
 ## `.env.example` block (verbatim target for T017)
 

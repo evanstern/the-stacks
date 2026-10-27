@@ -40,6 +40,7 @@ export interface NodeDeps {
   saveCheckpoint: (c: TurnCheckpoint) => Promise<boolean>; // fenced write; false when fenced out
   newId: () => string;
   log: (line: Record<string, unknown>) => void;            // structured server log; never prompt text
+  recordCall?: (call: RecordedCall) => Promise<void>;      // TASK-0116: awaited once per model attempt, after it ends
 }
 
 export interface NodeOutputs {
@@ -70,7 +71,20 @@ export interface ModelCallRecord {
   attempt: number;               // 1, or 2 for the one JSON repair re-ask
   outcome: "ok" | "invalid-json" | "error";
   errorKind: ErrorKind | null;   // ai/types.ts
+  // TASK-0116. From the gateway's usage record for the attempt; null when none arrived.
+  provider: string | null;
+  model: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  costUsd: number | null;        // null also when the model has no configured price
+  durationMs: number | null;
 }
+
+// What `recordCall` receives: one model attempt, including an aborted one.
+export type RecordedCall = Omit<ModelCallRecord, "outcome"> & {
+  outcome: ModelCallRecord["outcome"] | "aborted";
+  httpAttempts: number | null;   // provider-level retries (UsageRecord.attempts)
+};
 
 export type NodeErrorKind =
   | "gateway"          // chat() ended with an error event
@@ -143,3 +157,8 @@ export async function callJson<T>(
 
 Amended by specs/033-director-robustness/contracts/director-output.md.
 Amended by specs/033-director-robustness/contracts/failure-record.md.
+
+`callJson` awaits `deps.recordCall?.(…)` after every attempt, including an aborted one. An
+aborted attempt reaches `recordCall` with `outcome: "aborted"` and never reaches `calls`. The
+worker binds `recordCall` to the claimed job and writes one `dm_model_calls` row per call
+(specs/037-debug-api/data-model.md). A failed insert is logged and never fails the job.
