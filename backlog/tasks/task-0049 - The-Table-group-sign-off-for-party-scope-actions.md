@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:29'
+updated_date: '2026-10-27 10:30'
 labels:
   - multiplayer
   - gate
@@ -86,10 +86,13 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (3345568): sign-off rows and own-row Approve/Object on the action card, with no modal. The proposal-seam.md amendment was made as ruled. 16 Brave shots were taken by the agent under the operator's overnight grant; 28 live checks pass. UX points for the operator at PR: committed cards drop their sign-off rows (T025); a Commit button shows when the viewer's approval would complete the quorum (Q3 C explicit path).
 
 Phase 5 done (2aa2a02): wiki re-ground. Five notes re-pinned to 351fc19 (proposal-gate, session-model, play-route, presence amended; dm-failure-and-gates re-pin-only). AC 1 evidence: scope is on the action.declared payload; new test 'records the declared scope on the action.declared row' in packages/session-model/test/gate-plan.test.ts; party-membership gate tested by 'party declare by an outsider' (NOT_AUTHORIZED) and the declare.party permission matrix row. Freshness OK, spec-bridge 0, ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5 (merge 351fc19, wiki 2aa2a02): proposal-gate, session-model, play-route and presence amended; AC #1 proved by a new gate-plan test of the declared scope. Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
