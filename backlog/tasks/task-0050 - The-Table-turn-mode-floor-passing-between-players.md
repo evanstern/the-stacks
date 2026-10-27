@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 13:51'
+updated_date: '2026-10-27 14:54'
 labels:
   - multiplayer
   - gate
@@ -58,6 +58,8 @@ Q4 AI DM passes a human turn only when absent (30 s past 5 s grace). Alt B also 
 Q5 stalled sign-off: after 120 s no stance change, quorum unmet, no objection, ai:dm commits as dm; an objection blocks. Alt B commit over objection; C nudge only.
 Q6 write plan.md after PR #73 merges (both touch resolve.ts turn-advance group and settle.ts). Alt B plan now + reconcile task.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Operator ruling 2026-10-27 (verbatim): "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
