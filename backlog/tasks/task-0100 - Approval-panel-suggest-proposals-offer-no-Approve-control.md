@@ -33,9 +33,11 @@ Spec: specs/047-suggest-no-approve
 - [ ] #2 A suggest proposal offers a dismiss control and no Approve control.
 - [ ] #3 A test proves no Approve control renders for a suggest proposal.
 - [x] #4 Spec phase: Policy on the view and the suggest row (US1, card AC #1, #2, #3)
-- [ ] #5 Spec phase: Live check in Brave (US1 acceptance scenarios 3 and 4)
+- [x] #5 Spec phase: Live check in Brave (US1 acceptance scenarios 3 and 4)
 - [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
