@@ -1,5 +1,52 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`rule compact snapshots (shipped records) > playing-the-game.combat 1`] = `
+"Combat [rule/playing-the-game.combat]
+Adventurers encounter many dangerous monsters and nefarious villains. In those moments, combat often breaks out.
+See: The Order of Combat, Movement and Position, Making an Attack, Cover, Ranged Attacks, Melee Attacks, Mounted Combat, Underwater Combat
+SRD 5.2.1 p.13"
+`;
+
+exports[`rule compact snapshots (shipped records) > playing-the-game.d20-tests.ability-checks.difficulty-class 1`] = `
+"Difficulty Class [rule/playing-the-game.d20-tests.ability-checks.difficulty-class]
+Typical Difficulty Classes: Very easy | 5
+Easy | 10
+Medium | 15
+Hard | 20
+Very hard | 25
+Nearly impossible | 30
+The Difficulty Class of an ability check represents the task’s difficulty. The more difficult the task, the higher its DC.
++2 more
+SRD 5.2.1 p.6"
+`;
+
+exports[`rule compact snapshots (shipped records) > playing-the-game.the-six-abilities.ability-modifiers 1`] = `
+"Ability Modifiers [rule/playing-the-game.the-six-abilities.ability-modifiers]
+Ability Modifiers: 1 | −5
+2–3 | −4
+4–5 | −3
+6–7 | −2
+8–9 | −1
+10–11 | +0
+12–13 | +1
+14–15 | +2
+16–17 | +3
+18–19 | +4
+20–21 | +5
+22–23 | +6
+24–25 | +7
++6 more
+SRD 5.2.1 p.5"
+`;
+
+exports[`rule compact snapshots (shipped records) > rules-glossary.help-action 1`] = `
+"Help [Action] [rule/rules-glossary.help-action]
+When you take the Help action, you do one of the following.
+Assist an Ability Check. Choose one of your skill or tool proficiencies and one ally who is near enough for you to assist verbally or physically when they make an ability check. That ally has Advantage on the next ability check they make with the chosen skill or tool.
++5 more
+SRD 5.2.1 p.182"
+`;
+
 exports[`snapshots > class fighter 1`] = `
 "Fighter [class/fighter] d10; saves str,con; primary Strength or Dexterity
 L1 Fighting Style, Second Wind, Weapon Mastery

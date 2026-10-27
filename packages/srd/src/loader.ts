@@ -150,7 +150,10 @@ export function createLoader(dataDir: string = defaultDataDir): Loader {
   }
   function compact(kind: SrdKind, idOrName: string): string | undefined {
     const record = getById(kind, idOrName) ?? getByName(kind, idOrName);
-    return record ? toCompact(kind, record as never) : undefined;
+    if (!record) return undefined;
+    return toCompact(kind, record as never, {
+      ruleTitle: (id) => getById("rule", id)?.title,
+    });
   }
   return { list, getById, getByName, compact };
 }

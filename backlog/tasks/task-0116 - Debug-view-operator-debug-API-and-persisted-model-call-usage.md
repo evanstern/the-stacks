@@ -66,6 +66,7 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 4 wiki + full gate, T030-T037, commit 37c4341; 8 notes NEEDS-REVIEW amended and re-pinned; new note debug-view; final ci:check exit 0 after one TASK-0154 re-run.)
+OPERATOR RULING 2026-10-27 (in chat, spec open question 1): 'Ship everywhere' — the four debug routes ship on every host behind the operator gate, no feature flag.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

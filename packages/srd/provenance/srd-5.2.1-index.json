@@ -3674,6 +3674,1111 @@
         "name": "Unconscious",
         "page": 191
       }
+    ],
+    "rule": [
+      {
+        "id": "playing-the-game",
+        "path": [
+          "Playing the Game"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.rhythm-of-play",
+        "path": [
+          "Playing the Game",
+          "Rhythm of Play"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.rhythm-of-play.exceptions-supersede-general-rules",
+        "path": [
+          "Playing the Game",
+          "Rhythm of Play",
+          "Exceptions Supersede General Rules"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.the-six-abilities",
+        "path": [
+          "Playing the Game",
+          "The Six Abilities"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.the-six-abilities.ability-scores",
+        "path": [
+          "Playing the Game",
+          "The Six Abilities",
+          "Ability Scores"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.the-six-abilities.ability-modifiers",
+        "path": [
+          "Playing the Game",
+          "The Six Abilities",
+          "Ability Modifiers"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.the-six-abilities.ability-modifiers.round-down",
+        "path": [
+          "Playing the Game",
+          "The Six Abilities",
+          "Ability Modifiers",
+          "Round Down"
+        ],
+        "page": 5
+      },
+      {
+        "id": "playing-the-game.d20-tests",
+        "path": [
+          "Playing the Game",
+          "D20 Tests"
+        ],
+        "page": 6
+      },
+      {
+        "id": "playing-the-game.d20-tests.ability-checks",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Ability Checks"
+        ],
+        "page": 6
+      },
+      {
+        "id": "playing-the-game.d20-tests.ability-checks.ability-modifier",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Ability Checks",
+          "Ability Modifier"
+        ],
+        "page": 6
+      },
+      {
+        "id": "playing-the-game.d20-tests.ability-checks.proficiency-bonus",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Ability Checks",
+          "Proficiency Bonus"
+        ],
+        "page": 6
+      },
+      {
+        "id": "playing-the-game.d20-tests.ability-checks.difficulty-class",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Ability Checks",
+          "Difficulty Class"
+        ],
+        "page": 6
+      },
+      {
+        "id": "playing-the-game.d20-tests.saving-throws",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Saving Throws"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.saving-throws.ability-modifier",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Saving Throws",
+          "Ability Modifier"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.saving-throws.proficiency-bonus",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Saving Throws",
+          "Proficiency Bonus"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.saving-throws.difficulty-class",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Saving Throws",
+          "Difficulty Class"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.attack-rolls",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Attack Rolls"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.attack-rolls.ability-modifier",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Attack Rolls",
+          "Ability Modifier"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.attack-rolls.proficiency-bonus",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Attack Rolls",
+          "Proficiency Bonus"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.attack-rolls.armor-class",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Attack Rolls",
+          "Armor Class"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.attack-rolls.rolling-20-or-1",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Attack Rolls",
+          "Rolling 20 or 1"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.advantage-disadvantage",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Advantage/Disadvantage"
+        ],
+        "page": 7
+      },
+      {
+        "id": "playing-the-game.d20-tests.advantage-disadvantage.heroic-inspiration",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Advantage/Disadvantage",
+          "Heroic Inspiration"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.d20-tests.advantage-disadvantage.roll-two-d20s",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Advantage/Disadvantage",
+          "Roll Two D20s"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.d20-tests.advantage-disadvantage.they-dont-stack",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Advantage/Disadvantage",
+          "They Don’t Stack"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.d20-tests.advantage-disadvantage.interactions-with-rerolls",
+        "path": [
+          "Playing the Game",
+          "D20 Tests",
+          "Advantage/Disadvantage",
+          "Interactions with Rerolls"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.proficiency",
+        "path": [
+          "Playing the Game",
+          "Proficiency"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.proficiency.the-bonus-doesnt-stack",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "The Bonus Doesn’t Stack"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.proficiency.skill-proficiencies",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "Skill Proficiencies"
+        ],
+        "page": 8
+      },
+      {
+        "id": "playing-the-game.proficiency.skill-proficiencies.skill-list",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "Skill Proficiencies",
+          "Skill List"
+        ],
+        "page": 9
+      },
+      {
+        "id": "playing-the-game.proficiency.skill-proficiencies.determining-skills",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "Skill Proficiencies",
+          "Determining Skills"
+        ],
+        "page": 9
+      },
+      {
+        "id": "playing-the-game.proficiency.saving-throw-proficiencies",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "Saving Throw Proficiencies"
+        ],
+        "page": 9
+      },
+      {
+        "id": "playing-the-game.proficiency.equipment-proficiencies",
+        "path": [
+          "Playing the Game",
+          "Proficiency",
+          "Equipment Proficiencies"
+        ],
+        "page": 9
+      },
+      {
+        "id": "playing-the-game.actions",
+        "path": [
+          "Playing the Game",
+          "Actions"
+        ],
+        "page": 9
+      },
+      {
+        "id": "playing-the-game.actions.one-thing-at-a-time",
+        "path": [
+          "Playing the Game",
+          "Actions",
+          "One Thing at a Time"
+        ],
+        "page": 10
+      },
+      {
+        "id": "playing-the-game.actions.bonus-actions",
+        "path": [
+          "Playing the Game",
+          "Actions",
+          "Bonus Actions"
+        ],
+        "page": 10
+      },
+      {
+        "id": "playing-the-game.actions.reactions",
+        "path": [
+          "Playing the Game",
+          "Actions",
+          "Reactions"
+        ],
+        "page": 10
+      },
+      {
+        "id": "playing-the-game.social-interaction",
+        "path": [
+          "Playing the Game",
+          "Social Interaction"
+        ],
+        "page": 10
+      },
+      {
+        "id": "playing-the-game.social-interaction.roleplaying",
+        "path": [
+          "Playing the Game",
+          "Social Interaction",
+          "Roleplaying"
+        ],
+        "page": 10
+      },
+      {
+        "id": "playing-the-game.social-interaction.ability-checks",
+        "path": [
+          "Playing the Game",
+          "Social Interaction",
+          "Ability Checks"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration",
+        "path": [
+          "Playing the Game",
+          "Exploration"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.adventuring-equipment",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Adventuring Equipment"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.vision-and-light",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Vision and Light"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.vision-and-light.obscured-areas",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Vision and Light",
+          "Obscured Areas"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.vision-and-light.light",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Vision and Light",
+          "Light"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.vision-and-light.special-senses",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Vision and Light",
+          "Special Senses"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.hiding",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Hiding"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects"
+        ],
+        "page": 11
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.what-is-an-object",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "What Is an Object?"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.time-limited-object-interactions",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "Time-Limited Object Interactions"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.finding-hidden-objects",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "Finding Hidden Objects"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.carrying-objects",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "Carrying Objects"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.breaking-objects",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "Breaking Objects"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.interacting-with-objects.breaking-objects.marching-order",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Interacting with Objects",
+          "Breaking Objects",
+          "Marching Order"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.hazards",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Hazards"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.travel",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Travel"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.travel.travel-pace",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Travel",
+          "Travel Pace"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.exploration.travel.vehicles",
+        "path": [
+          "Playing the Game",
+          "Exploration",
+          "Travel",
+          "Vehicles"
+        ],
+        "page": 12
+      },
+      {
+        "id": "playing-the-game.combat",
+        "path": [
+          "Playing the Game",
+          "Combat"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat.combat-step-by-step",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat",
+          "Combat Step by Step"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat.initiative",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat",
+          "Initiative"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat.your-turn",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat",
+          "Your Turn"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat.your-turn.playing-on-a-grid",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat",
+          "Your Turn",
+          "Playing on a Grid"
+        ],
+        "page": 13
+      },
+      {
+        "id": "playing-the-game.combat.the-order-of-combat.ending-combat",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "The Order of Combat",
+          "Ending Combat"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position.difficult-terrain",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position",
+          "Difficult Terrain"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position.breaking-up-your-move",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position",
+          "Breaking Up Your Move"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position.dropping-prone",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position",
+          "Dropping Prone"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position.creature-size",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position",
+          "Creature Size"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.movement-and-position.moving-around-other-creatures",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Movement and Position",
+          "Moving around Other Creatures"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.making-an-attack",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Making an Attack"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.making-an-attack.unseen-attackers-and-targets",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Making an Attack",
+          "Unseen Attackers and Targets"
+        ],
+        "page": 14
+      },
+      {
+        "id": "playing-the-game.combat.cover",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Cover"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.ranged-attacks",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Ranged Attacks"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.ranged-attacks.range",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Ranged Attacks",
+          "Range"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Ranged Attacks",
+          "Ranged Attacks in Close Combat"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.melee-attacks",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Melee Attacks"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.melee-attacks.reach",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Melee Attacks",
+          "Reach"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.melee-attacks.opportunity-attacks",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Melee Attacks",
+          "Opportunity Attacks"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.mounted-combat",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Mounted Combat"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.mounted-combat.mounting-and-dismounting",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Mounted Combat",
+          "Mounting and Dismounting"
+        ],
+        "page": 15
+      },
+      {
+        "id": "playing-the-game.combat.mounted-combat.controlling-a-mount",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Mounted Combat",
+          "Controlling a Mount"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.combat.mounted-combat.falling-off",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Mounted Combat",
+          "Falling Off"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.combat.underwater-combat",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Underwater Combat"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.combat.underwater-combat.impeded-weapons",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Underwater Combat",
+          "Impeded Weapons"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.combat.underwater-combat.fire-resistance",
+        "path": [
+          "Playing the Game",
+          "Combat",
+          "Underwater Combat",
+          "Fire Resistance"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.hit-points",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Hit Points"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.hit-points.resting",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Hit Points",
+          "Resting"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.damage-rolls",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Damage Rolls"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.critical-hits",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Critical Hits"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.saving-throws-and-damage",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Saving Throws and Damage"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.saving-throws-and-damage.damage-against-multiple-targets",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Saving Throws and Damage",
+          "Damage against Multiple Targets"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.saving-throws-and-damage.half-damage",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Saving Throws and Damage",
+          "Half Damage"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.damage-types",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Damage Types"
+        ],
+        "page": 16
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Resistance and Vulnerability"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability.no-stacking",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Resistance and Vulnerability",
+          "No Stacking"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability.order-of-application",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Resistance and Vulnerability",
+          "Order of Application"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.immunity",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Immunity"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.healing",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Healing"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.healing.knocking-out-a-creature",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Healing",
+          "Knocking Out a Creature"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.instant-death",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points",
+          "Instant Death"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.character-demise",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points",
+          "Character Demise"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.falling-unconscious",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points",
+          "Falling Unconscious"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.death-saving-throws",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points",
+          "Death Saving Throws"
+        ],
+        "page": 17
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.stabilizing-a-character",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Dropping to 0 Hit Points",
+          "Stabilizing a Character"
+        ],
+        "page": 18
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.temporary-hit-points",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Temporary Hit Points"
+        ],
+        "page": 18
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.temporary-hit-points.lose-temporary-hit-points-first",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Temporary Hit Points",
+          "Lose Temporary Hit Points First"
+        ],
+        "page": 18
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.temporary-hit-points.duration",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Temporary Hit Points",
+          "Duration"
+        ],
+        "page": 18
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.temporary-hit-points.they-dont-stack",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Temporary Hit Points",
+          "They Don’t Stack"
+        ],
+        "page": 18
+      },
+      {
+        "id": "playing-the-game.damage-and-healing.temporary-hit-points.theyre-not-hit-points-or-healing",
+        "path": [
+          "Playing the Game",
+          "Damage and Healing",
+          "Temporary Hit Points",
+          "They’re Not Hit Points or Healing"
+        ],
+        "page": 18
+      },
+      {
+        "id": "rules-glossary.help-action",
+        "path": [
+          "Rules Glossary",
+          "Help [Action]"
+        ],
+        "page": 182
+      },
+      {
+        "id": "rules-glossary.influence-action",
+        "path": [
+          "Rules Glossary",
+          "Influence [Action]"
+        ],
+        "page": 184
+      },
+      {
+        "id": "rules-glossary.search-action",
+        "path": [
+          "Rules Glossary",
+          "Search [Action]"
+        ],
+        "page": 187
+      },
+      {
+        "id": "rules-glossary.study-action",
+        "path": [
+          "Rules Glossary",
+          "Study [Action]"
+        ],
+        "page": 189
+      }
     ]
   }
 }
