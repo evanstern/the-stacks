@@ -26,6 +26,8 @@ Outcome: an operator opens play/:sessionId/debug beside the table and sees, live
 Why: the M2 demo showed a companion hold as a frozen table and narration fallbacks only by SQL. Design: docs/design/debug-view.md (card B, decisions D1, D2, D5 to D8). Spoilers are accepted: the page shows everything (D2).
 
 Scope: web only, over the debug API card. Layout: a pinned 'why waiting?' strip over three linked columns (job timeline, event log, state). Tabs stay in reserve (D5).
+
+Spec: specs/041-debug-page
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
