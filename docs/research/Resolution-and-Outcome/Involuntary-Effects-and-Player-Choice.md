@@ -1,0 +1,102 @@
+---
+title: Involuntary Effects and Player Choice
+aliases: []
+tags: [resolution, agency, conditions]
+type: note
+created: 2026-10-26
+updated: 2026-10-26
+related: [[Resolution-and-Outcome]]
+---
+
+# Involuntary Effects and Player Choice
+
+_What a roll or an effect may impose on a player character, and what stays the player's choice, as the sources state it. Neutral and descriptive. The table lists the text of each SRD 5.2.1 rule; the Imposes, Removes or constrains, and Leaves columns paraphrase what the SRD text says and does not say._
+
+## SRD 5.2.1 (CC-BY-4.0): conditions and other rules
+
+All 15 conditions are in the Rules Glossary (SRD p.177-191). A condition does not stack with itself (Exhaustion excepted), and each condition's text states how it ends (SRD p.179, Condition). A creature lacking the relevant ability score automatically fails a save, and the player may choose to fail a save without rolling (SRD p.7, p.187, Saving Throw).
+
+| Rule | Imposes | Choice removed or constrained | Choice left to the player | SRD page |
+| --- | --- | --- | --- | --- |
+| Blinded | Cannot see; auto-fails sight-based checks; attacks against it have Advantage, its attacks have Disadvantage | Sight-dependent options; capability, not decisions | All decisions about actions and movement | p.177 |
+| Charmed | Cannot attack the charmer or target it with damaging abilities or magical effects; the charmer has Advantage on social ability checks to interact with it | Targeting the charmer with harm | Everything else; the text imposes no obedience, no changed attitude and no behavior script | p.178 |
+| Deafened | Cannot hear; auto-fails hearing-based checks | Hearing-dependent options | All decisions | p.181 |
+| Exhaustion | Cumulative levels; each level reduces D20 Tests by 2 and Speed by 5 feet; death at level 6; a Long Rest removes one level | Capability (rolls and Speed) | All decisions | p.181 |
+| Frightened | Disadvantage on ability checks and attack rolls while the source of fear is in line of sight; the creature "can't willingly move closer to the source of fear" (SRD 5.2.1, CC-BY-4.0) | Moving toward the source | Everything else; no instruction to flee | p.182 |
+| Grappled | Speed 0; Disadvantage on attacks against anyone other than the grappler; the grappler may drag or carry the creature when it moves | Movement under own Speed; attack targeting | Actions, speech, escape attempts | p.182 |
+| Incapacitated | Cannot take any action, Bonus Action or Reaction; cannot speak; Concentration broken; Initiative rolled with Disadvantage | All actions, Bonus Actions, Reactions and speech | Whatever the character can still do | p.184 |
+| Invisible | Initiative Advantage; unaffected by effects that need sight of the target; attacks against it have Disadvantage and its own have Advantage | None stated | All decisions | p.184 |
+| Paralyzed | Incapacitated; Speed 0; auto-fails Strength and Dexterity saves; attacks have Advantage against it; hits from within 5 feet are Critical Hits | Actions, movement, speech | Whatever the character can still do | p.186 |
+| Petrified | Turned to stone: Incapacitated; Speed 0; attackers have Advantage; auto-fails Strength and Dexterity saves; Resistance to all damage; Immunity to Poisoned | Actions, movement, speech | Whatever the character can still do | p.186 |
+| Poisoned | Disadvantage on attack rolls and ability checks | None stated; no action or movement restriction | All decisions | p.186 |
+| Prone | Only movement options are crawling or spending half Speed to stand; Disadvantage on own attacks; attacks against it have Advantage from within 5 feet and Disadvantage from farther away | Movement options | Actions, speech, whether to stand | p.186 |
+| Restrained | Speed 0; attacks against it have Advantage and its own have Disadvantage; Disadvantage on Dexterity saves | Movement | Actions, speech | p.187 |
+| Stunned | Incapacitated; auto-fails Strength and Dexterity saves; attacks against it have Advantage | Actions, Bonus Actions, Reactions, speech | Whatever the character can still do | p.189 |
+| Unconscious | Incapacitated and Prone; drops what it holds; Speed 0; auto-fails Strength and Dexterity saves; attacks have Advantage; hits within 5 feet are Critical Hits; the creature "is unaware of your surroundings" (SRD 5.2.1, CC-BY-4.0) | Actions, movement, speech, awareness | Nothing the character can act on | p.191 |
+| Surprise | Disadvantage on the Initiative roll; the SRD frames it only as a roll penalty and imposes no skipped action | None stated | All decisions | p.13, p.189 |
+| Forced movement: mount moved against its will | The rider makes a DC 10 Dexterity save or falls off and lands Prone | Staying mounted (by save) | Save; choice of action afterward | p.16 |
+| Forced movement: Opportunity Attacks | A creature moved without using its own movement, action, Bonus Action or Reaction (explosion, fall) does not provoke Opportunity Attacks | Movement is not the creature's own | Not applicable (rule lists a penalty exemption) | p.15 |
+| Shove | Strength or Dexterity save (target chooses) or the target is pushed 5 feet or knocked Prone | Position | Which save to roll | p.190 |
+| Knocking Out a Creature | A melee attacker may drop a target to 1 Hit Point and Unconscious instead of killing; ends after a short rest, healing, or a DC 10 Medicine check | The target's consciousness, at the attacker's option | The attacker's option to use it | p.17 |
+| Dropping to 0 Hit Points | A character falls Unconscious and rolls death saves; a monster dies outright unless the GM chooses to treat it like a character | Everything via Unconscious | Nothing the character can act on | p.17-18 |
+| Charm Person (spell) | The charmed creature is Friendly to the caster and "knows it was Charmed" when the spell ends (SRD 5.2.1, CC-BY-4.0); Advantage on the save if the caster's side is fighting it | Attitude toward the caster | Actions; the spell states no obedience | p.115 |
+| Command (spell) | A one-word command (Approach, Drop, Flee, Grovel, Halt) must be followed on the target's next turn unless it succeeds on a Wisdom save | The target's next-turn action, if the save fails | The save; choices after that turn | p.116 |
+| Suggestion (spell) | A suggestion of up to 25 words that must sound achievable and not obviously harm the target or its allies; the target pursues it "to the best of its ability" while Charmed (SRD 5.2.1, CC-BY-4.0); the spell ends if the target is damaged by the caster or allies | Behavior while the spell lasts | The save; behavior outside the suggestion | p.166 |
+| Dominate Person (spell) | The Charmed target "does its best to obey" telepathic orders and, once an order is finished, acts "as it likes, focusing on protecting itself" (SRD 5.2.1, CC-BY-4.0); repeats the save whenever it takes damage | Behavior; the SRD's strongest explicit control of a creature's behavior in the sections read | The save; self-protective action after an order | p.126 |
+| Demonic Possession | On a failed DC 15 Charisma save the character is possessed; whenever the possessed creature rolls a 1 on a D20 Test, the entity takes control and decides the creature's behavior thereafter, until the creature regains control with a DC 15 Charisma save at the end of each later turn | All behavior after a natural 1 on a D20 Test | Behavior before the trigger; the repeated save | p.193 |
+| Narrative Curses | A creature under a curse "should know why they're being punished" and be able to learn how to end it (SRD 5.2.1, CC-BY-4.0); the GM designs the effects | Set by the GM | Set by the GM | p.193 |
+| Fear (Fear and Mental Stress) | Wisdom save with sample DCs 10, 15, 20; baseline Frightened, repeating the save at the end of each turn; optional GM additions: forced Dash away from the source, Advantage for attackers, limit to one of move, action or Bonus Action per turn | Movement toward the source; optional additions constrain further | Everything else under the baseline; the section tells the GM to discuss any of these with players at the start of the campaign | p.196 |
+| Mental Stress Effects | Psychic damage with a save (sample DCs 10/15/20 for 1d6/3d6/9d6); prolonged effects: short-term (Frightened, Incapacitated or Stunned for 1d10 minutes, possibly with alarming behavior or hallucinations), long-term (Disadvantage on some ability checks for 1d10 x 10 hours, tied to unwillingness or inability to use particular abilities), indefinite (until Greater Restoration); Calm Emotions suppresses them | Capability; for the short-term versions, actions | Decisions not covered by the listed effect | p.196 |
+| Cackle Fever | A failed Con save causes Incapacitated uncontrollable laughter and 5 (1d10) Psychic damage, repeated each turn, ending automatically after 1 minute | Actions and speech while Incapacitated | Whatever the character can still do | p.194 |
+
+SRD 5.2.1 also states that a cowardly bandit buckles at threats, a stubborn merchant refuses if badgered and a vain dragon laps up flattery, as examples of how the GM decides an NPC's reaction. The player decides how the character thinks, acts and talks, using an active or a descriptive approach. (SRD p.10-11, Roleplaying)
+
+## Books
+
+- DMG 2014 (Ch 8 > Using Ability Scores > Saving Throws): saves are almost never by choice and are the split-second answer to someone else's action. The Wisdom save is for charm, frighten or otherwise assaulting willpower; the Charisma save covers possession and planar displacement.
+- DMG 2014 (Ch 8 > Combat > Using and Tracking Conditions): the DM may apply conditions on the fly. Players have an incentive to forget hampering conditions, so the DM can note conditions on combat cards or hand out index cards describing the effects of being charmed or frightened.
+- DMG 2014 (Ch 8 > Madness > Madness Effects): short-term madness (1d10 minutes) is a random table; some results only impair the character, while others dictate action, such as forced flight, attacking the nearest creature, or obeying others. Long-term madness (1d10 x 10 hours) and indefinite madness (a new flaw until cured) follow. These are the book's clearest rules where a PC's actions are dictated.
+- DMG 2014 (Ch 8 > Madness > Going Mad): madness arises from specific causes (certain spells, diseases, poisons, planar effects, artifacts). Resisting usually needs a Wisdom or Charisma save, or a Sanity save if the optional Sanity score is used.
+- DMG 2014 (Ch 9 > Adventuring Options > Fear and Horror): fear, when characters face a threat they cannot hope to beat: the DM calls a Wisdom save with a DC set by circumstances; failure gives Frightened for 1 minute with a repeat save each turn. Horror: a Charisma save, with failure producing short-term or long-term madness chosen or rolled.
+- DMG 2014 (Ch 9 > New Ability Scores > Honor and Sanity): Honor saving throws check whether a character might inadvertently do something dishonorable (examples: resisting goading, recognizing a trick). Sanity checks and saves apply to alien lore and Far Realm exposure. A failed save can trigger madness and reduce Sanity by 1 on long-term or indefinite madness. These optional rules route character-conduct questions through a dice roll.
+- DMG 2014 (Ch 9 > Combat Options > Injuries): the variant lets a lingering injury become a flaw the player portrays, with a chance to earn inspiration when it matters, rather than a mechanical effect imposed by the DM.
+- DMG 2014 (Ch 9 > Combat Options > Morale): a failed morale save makes a monster or NPC group flee or surrender; it applies to monsters and NPCs, not to PCs.
+- DMG 2014 (Ch 8 > Social Interaction > Resolving Interactions): attitude lives on the NPC; the structure is described as mostly invisible to players. No step lets a social roll dictate what a PC does or feels.
+- TCoE (DM's Tools > Environmental Hazards > Emotional Echoes): once a day in an affected area, a creature expressing the prevailing emotion is targeted by a suggestion spell (DC 16) to linger and act on that emotion (dance, sob, confess love, scream). The pull is on the creature through a save, not on the player.
+- TCoE (DM's Tools > Environmental Hazards > Haunted, Psychic Resonance): roll tables are triggered by frightened or charmed conditions, solitude and ominous hours. Effects are world events and small mechanical riders (Disadvantage on Perception for an hour; a rest that gives no benefit on a failed Wisdom save), not scripted character actions.
+- VRGtR (Horror Adventures > Running Horror Games > Horror Gameplay > Ask Permission): the DM is told not to impose rule changes on a character that might make the player not want to keep playing it (example: Dark Gifts or lineages; ask first and consider alternatives if the answer is no). Content in which one player's character influences or controls another's, violence between characters, romance and yelling require permission from every person at the table; a single thumbs-down or no response blocks it, and players may change their minds at any time.
+- VRGtR (Horror Adventures > Fear and Stress > Fear): during a frightful encounter the DM can call a DC 15 Wisdom save, or Frightened until the end of the character's next turn. Triggers listed: a character's own Seeds of Fear, an enemy immune to their attacks, an enemy able to drop them to 0 HP in one blow, an alien creature, or an object that undermines reality.
+- VRGtR (Horror Adventures > Fear and Stress > Stress): an optional Stress Score applies as a numeric penalty to attack rolls, ability checks and saves. It rises by 1 at the DM's discretion for tense moments, going without a long rest for 24 hours, witnessing a loved one's death and similar events. It drops by 1 after a day of calm, and Calm Emotions suppresses it.
+- VRGtR (Horror Adventures > Preparing for Horror > Session Zero / Horror Content Survey): a content survey, boundaries and expectations are set before play, which gives a standing answer to what may be imposed.
+- VRGtR (Horror Adventures > Running Horror Games > Horror Gameplay > Content Tools): an X-Card or similar tool lets any participant, the DM included, stop content that crosses a boundary. The narrator can walk the scene back or fade out, and nobody is required to explain or debate.
+- XGtE (Ch 2 > Spellcasting > Invalid Spell Targets): if a spell targets something it cannot affect, the slot is still spent and a spell that would normally allow a save looks as if the target succeeded, giving no hint that the target was invalid.
+- XGtE (Ch 2 > Sleep > Going without a Long Rest): optional. Each 24-hour period without a long rest forces a DC 10 Constitution save (DC +5 for each further day) or one level of exhaustion.
+
+## Web
+
+- Declaring Your Players' Social Actions (https://theangrygm.com/declaring-social-actions/): the player keeps full control of what the character says and does, including tone, posture and body language. The GM decides how NPCs respond, using the check results, and does not decide the PC's words or choices.
+- Dealing with Problematic Actions (https://theangrygm.com/problematic-actions/): players choose intentions and approaches, but the character's abilities determine the outcome. For persuasion the GM weighs argument content, evidence, leverage and emotional appeals, and does not let a player's eloquence change the odds. The GM states facts the character perceives, not what the character deduces, believes or feels (for example, that an NPC is lying).
+- Understanding 5e's Core Interaction (https://slyflourish.com/understanding_dnds_core_interaction.html): players have authority over their characters' intentions; GMs should not change a character away from the player's intent; GM authority covers the world's response (environment, difficulty, consequences).
+- The Declare-Determine-Describe Cycle (https://theangrygm.com/declare-determine-describe/): player agency is the freedom to state what the character attempts and how, with the GM controlling outcomes and the mechanics. GM warnings about foreseeable risks (opportunity attacks) come before the declaration resolves, so the player is not surprised by a predictable cost.
+- How to Talk to Players: The Art of Narration (https://theangrygm.com/how-to-talk-to-players-the-art-of-narration/): the GM describes setting, obstacles, outcomes, NPC responses and passage of time; players decide what their characters do, how they react, whether they rest and what they pursue. The article does not have the GM script PC thoughts or actions.
+- Running Roleplay and Intrigue Adventures (https://slyflourish.com/running_intrigue_adventures.html): the GM is advised not to let players make mistakes their characters would know to avoid, and to offer suggestions to players who struggle to engage NPCs. The article does not set out how far such intervention should go.
+- Resolving Social Actions (https://theangrygm.com/resolving-social-actions/): its dice guidance concerns NPC responses; it does not address whether a roll may force a PC's own decisions. The GM portrays the NPC's reaction as a plausible person and does not script results around the PCs' actions.
+- Empowering Player-Driven Storytelling (https://slyflourish.com/empowering_player_storytelling.html): ask the player what the character experienced after a notable roll, let experienced players define details of locations they enter, and build on player ideas rather than shutting them down.
+- No article in the web set describes a procedure for a roll that takes control of a PC's actions (charm, fear). The sources address agency through the player-declares and GM-adjudicates split.
+
+## Where sources disagree
+
+- Edition divergence: Charmed. SRD p.178 has two clauses (cannot attack or harm the charmer; the charmer has Advantage on social checks). The charm spells state their own attitude and obedience (Charm Person: Friendly; Suggestion and Dominate Person: pursue or obey). The DMG 2014 text read contains no definition of the Charmed condition itself, only advice to track it with index cards.
+- Edition divergence: Frightened. SRD p.182 states Disadvantage while the source is in line of sight and bars willingly moving closer. DMG 2014 Ch 9 gives Frightened for 1 minute with a repeat save each turn, with no further definition in the pages read. SRD p.196 repeats the save each turn and is the closer parallel.
+- Edition divergence: Surprise. SRD p.13 and p.189 give Disadvantage on the Initiative roll. DMG 2014 Ch 8 does not define surprise; it refers to the Player's Handbook and uses surprise only as a morale trigger (Ch 9). The 2014 PHB rule was not compared.
+- Edition divergence: Madness versus Mental Stress. DMG 2014 Ch 8 Madness uses d100 tables of short-term, long-term and indefinite effects, some of which dictate action (flee, attack the nearest creature, obey anyone). SRD p.196 replaces the tables with Frightened, Incapacitated or Stunned for 1d10 minutes, Disadvantage on some checks for 1d10 x 10 hours and an indefinite version, with no behavior tables and a note to discuss such rules with players at the start of the campaign. Sanity and Honor scores (DMG Ch 9) do not appear in SRD 5.2.1.
+- Edition divergence: voluntary save failure. SRD p.7 and p.187 explicitly permit choosing to fail a save without rolling. DMG 2014 says only that saves are almost never by choice.
+- Edition divergence: roll-triggered loss of control. SRD p.193 (Demonic Possession) hands control to the entity on a natural 1 on a D20 Test. No DMG 2014 section read has a roll-triggered handover of a PC.
+- Book versus web: the books and SRD contain rules that dictate a PC's behavior through a save (Command, Suggestion, Dominate Person, madness tables); the web set contains no procedure for this and describes agency only as a split between declared intent and GM-adjudicated outcome.
+- Web versus web: Angry GM says the GM does not decide the PC's words or choices (https://theangrygm.com/declaring-social-actions/); Sly Flourish advises not letting players make mistakes their characters would know to avoid and does not say how far intervention goes (https://slyflourish.com/running_intrigue_adventures.html).
+- Within the books: VRGtR Ask Permission treats imposed changes to a character as needing player consent; DMG 2014 Madness Effects lists results that dictate action as rolled outcomes.
+
+## Grounding
+
+- [[_grounding]] — method, sources and gaps
+- [[Resolution-and-Outcome]]
