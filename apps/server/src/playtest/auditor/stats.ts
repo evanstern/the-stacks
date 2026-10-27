@@ -9,7 +9,8 @@ import type { FightStats } from "./schema.js";
  * Fight statistics for TASK-0055 (contracts/auditor.md "Fight statistics").
  * Code only, from the ledger and the transcript. `null` when turn mode never
  * began. Sides: the party's combatants are `players` (companions included);
- * every other combatant is `npcs`. Damage dealt by a side is the damage the
+ * every other combatant is `npcs`. `reducedToZero` lists every combatant dropped
+ * to 0 HP, party and NPC alike (TASK-0134). Damage dealt by a side is the damage the
  * other side took.
  */
 
@@ -120,7 +121,7 @@ export function fightStats(
         damageTaken[side] += lost;
         damageDealt[other(side)] += lost;
       }
-      if (a.current === 0 && b.current > 0 && side === "players") {
+      if (a.current === 0 && b.current > 0) {
         reducedToZero.push(nameOf(r.subject));
       }
     }
