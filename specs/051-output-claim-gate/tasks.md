@@ -281,7 +281,7 @@ then `pnpm ci:check` and `pnpm playtest run` (CI mode).
 - [x] T034 [P] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md` consumers. State that
       `checkClaims` (spec 051) reads `aliases`, `kind`, `lifeState`, `presence` and the diff.
       Add the amendment line.
-- [ ] T035 Run `pnpm ci:check`, the DB suites and `pnpm playtest run` in CI mode. Compare the
+- [x] T035 Run `pnpm ci:check`, the DB suites and `pnpm playtest run` in CI mode. Compare the
       playtest's fallback-turn count with an `origin/main` run of the same command. A rise is a
       STOP: report the turns and the claim issues that caused it.
 
