@@ -184,22 +184,22 @@ S0-absent actor, under `UNKNOWN_COMBATANT` with reason `absent`.
 **Independent test**: `pnpm --filter server test -- test/dm/snapshot test/dm/plan-gate` (unit,
 no DB).
 
-- [ ] T026 [P] [US4] In the snapshot build and diff tests under `apps/server/test/dm/`, add failing
+- [x] T026 [P] [US4] In the snapshot build and diff tests under `apps/server/test/dm/`, add failing
       cases (spec User Story 4, scenarios 1 to 5): an absent monster, a party member keyed by
       character id, a joined NPC keyed by NPC id, the S0-to-S1 `presence` diff entry, the
       `fiction` cap compressing an absent actor, and an entry for an unknown id ignored.
-- [ ] T027 [US4] Replace the three `presence: "present"` literals in
+- [x] T027 [US4] Replace the three `presence: "present"` literals in
       `apps/server/src/dm/snapshot/build.ts` with `presenceOf(projections, id)` per plan D4.
-- [ ] T028 [US4] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md`: rule 7 says
+- [x] T028 [US4] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md`: rule 7 says
       presence comes from the `scenePresence` projection (default `present`); the extension
       table marks TASK-0141 built and records the plan gate's `absent` reason.
-- [ ] T029 [P] [US7] In `apps/server/test/dm/plan-gate.test.ts`, add failing cases (spec User Story
+- [x] T029 [P] [US7] In `apps/server/test/dm/plan-gate.test.ts`, add failing cases (spec User Story
       7, scenarios 1, 3, 4): an absent id as `targetId`, `attackerId`, a check `combatantId`,
       and an `onHit` effect target, each failing with `reason: "absent"` and the right
       `field`; a presence effect with reason `arrived` on an absent actor passing; a `yielded`
       target passing; a presence effect on a seed NPC with no combatant passing; an unknown id
       still `not-in-snapshot`.
-- [ ] T030 [US7] Extend `apps/server/src/dm/gates/plan-gate.ts` per plan D4: `PlanFailureReason`
+- [x] T030 [US7] Extend `apps/server/src/dm/gates/plan-gate.ts` per plan D4: `PlanFailureReason`
       gains `"absent"`; `absentIds`; the presence-effect target rule; the verdict code stays
       `UNKNOWN_COMBATANT`. The presence effect type comes from `nodes/schemas.ts` in Phase 4,
       so write the presence branch against a local type guard on `effect === "presence"` and

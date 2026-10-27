@@ -155,6 +155,121 @@ describe("checkPlan", () => {
   });
 });
 
+describe("checkPlan: absent actors", () => {
+  const away = (id: string, presence: "absent" | "yielded" = "absent") => {
+    const f = greyhollowFight();
+    f.projections.scenePresence[id] = {
+      presence,
+      reason: presence === "absent" ? "fled" : "conceded",
+      seq: 125,
+    };
+    return buildSnapshot(f.projections, f.seed);
+  };
+  const run = (
+    snap: typeof snapshot,
+    readings: InterpretReading[],
+  ): ReturnType<typeof checkPlan> =>
+    checkPlan({ snapshot: snap, readings, rulings: [], joining: [] });
+  const presenceOn = (targetId: string, reason: string) => ({
+    effect: "presence",
+    targetId,
+    reason,
+  });
+
+  it("refuses an absent targetId", () => {
+    const v = run(away("goblin-2"), [read("a1", [attackStep("goblin-2")])]);
+    expect(v[0]).toEqual({
+      actionId: "a1",
+      ok: false,
+      code: "UNKNOWN_COMBATANT",
+      failure: {
+        stepIndex: 0,
+        field: "targetId",
+        id: "goblin-2",
+        reason: "absent",
+      },
+    });
+  });
+
+  it("refuses an absent attackerId", () => {
+    const v = run(away("tamsin"), [read("a1", [attackStep("goblin-2")])]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { field: "attackerId", id: "tamsin", reason: "absent" },
+    });
+  });
+
+  it("refuses an absent check combatantId", () => {
+    const v = run(away("tamsin"), [read("a1", [checkStep()])]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { field: "combatantId", id: "tamsin", reason: "absent" },
+    });
+  });
+
+  it("refuses an absent onHit effect target", () => {
+    const v = run(away("goblin-3"), [
+      read("a1", [attackStep("goblin-2", { onHit: [damageOn("goblin-3")] })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { field: "onHit[0].targetId", id: "goblin-3", reason: "absent" },
+    });
+  });
+
+  it("lets an arrived presence effect name an absent actor", () => {
+    const v = run(away("goblin-3"), [
+      read("a1", [
+        {
+          step: "effect",
+          reason: "Goblin returns",
+          effects: [presenceOn("goblin-3", "arrived")],
+        },
+      ]),
+    ]);
+    expect(v[0]).toEqual({ actionId: "a1", ok: true });
+  });
+
+  it("refuses a non-arrived presence effect on an absent actor", () => {
+    const v = run(away("goblin-3"), [
+      read("a1", [checkStep({ onSuccess: [presenceOn("goblin-3", "fled")] })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: {
+        field: "onSuccess[0].targetId",
+        id: "goblin-3",
+        reason: "absent",
+      },
+    });
+  });
+
+  it("passes a yielded target", () => {
+    const v = run(away("goblin-2", "yielded"), [
+      read("a1", [attackStep("goblin-2")]),
+    ]);
+    expect(v[0]).toEqual({ actionId: "a1", ok: true });
+  });
+
+  it("passes a presence effect on a seed NPC with no combatant", () => {
+    const v = run(snapshot, [
+      read("a1", [checkStep({ onSuccess: [presenceOn("pell", "fled")] })]),
+    ]);
+    expect(v[0]).toEqual({ actionId: "a1", ok: true });
+  });
+
+  it("still reports an unknown id as not-in-snapshot", () => {
+    const v = run(away("goblin-2"), [read("a1", [attackStep("ghoul-9")])]);
+    expect(v[0]).toMatchObject({
+      failure: { id: "ghoul-9", reason: "not-in-snapshot" },
+    });
+    const p = run(snapshot, [
+      read("a1", [checkStep({ onSuccess: [presenceOn("ghoul-9", "fled")] })]),
+    ]);
+    expect(p[0]).toMatchObject({ failure: { reason: "not-in-snapshot" } });
+  });
+});
+
 describe("joiningCombatants", () => {
   it("lists the encounter's monsters missing from the engine", () => {
     const enc = encounterToStart(
