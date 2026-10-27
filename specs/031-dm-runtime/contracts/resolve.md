@@ -58,6 +58,18 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    of the turn left the order (`initiative.leave` already handed the turn on), resolve skips its
    own `turn.advance`. Settling and the `table-mode` row still run.
 
+   Amended 2026-10-27 (TASK-0050, operator rulings FT-1, FT-3, Q6): the two skips are one "turn
+   moved" guard. Resolve records the turn at assemble (`{ round, activeCombatantId }`) and
+   compares it with a fresh projection:
+   - the active combatant left the order (spec 048): skip `turn.advance`; settle; set the mode;
+   - the turn moved otherwise (a `floor` batch): skip the advance, the settling and the mode
+     row, because the floor batch wrote them. A reclaim whose checkpoint holds the `advance`
+     submission is not "moved": it runs the group again as before;
+   - the seated human DM holds the floor (`floorHeld`): skip the whole group.
+
+   `activeActorFor`, `canAct` and `nextSettleStep` come from `@the-stacks/session-model`; the
+   gate's `floor` planner and resolve share them. Submission keys are unchanged.
+
    **Settling** (code only; `settleTurn` in `nodes/settle.ts`). Amended 2026-10-27 (TASK-0112,
    operator ruling). Settling runs in the turn advance group and at the encounter start. It
    repeats while the active combatant cannot act (not `conscious`, or holding an incapacitating
