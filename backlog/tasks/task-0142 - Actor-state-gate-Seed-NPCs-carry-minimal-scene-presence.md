@@ -39,8 +39,6 @@ Spec: specs/050-seed-npc-presence
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -63,6 +61,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 1, T001-T007: aa900c6. seed.test 31 pass; ci:check without a DB: only the 5 expected adjudicate.integration failures. The two seed copies are byte-identical.)
+
+spec-bridge sync: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half): 7/7 · `scene-presence` proposal visibility (card AC #2 support, OQ-4): 0/6 · Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4): 0/5 · Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half): 0/11 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
