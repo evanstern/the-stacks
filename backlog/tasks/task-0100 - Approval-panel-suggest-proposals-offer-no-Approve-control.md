@@ -37,12 +37,6 @@ Spec: specs/047-suggest-no-approve
 - [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -67,6 +61,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Reconciled with origin/main after #71 (merge a66aa36, re-pin 394d468); 4 wiki conflicts, both sides kept. Freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Policy on the view and the suggest row (US1, card AC #1, #2, #3): 10/10 · Live check in Brave (US1 acceptance scenarios 3 and 4): 3/3 · Wiki re-ground: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
