@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:46'
+updated_date: '2026-10-27 03:52'
 labels:
   - multiplayer
   - realtime
@@ -59,6 +59,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring after C2: decision-0024, spec/plan/tasks, commits d50a41a 8aa013c 6838967; ~183k tokens; served verified from transcript.)
 
 ORCHESTRATOR RULINGS 2026-10-26 on spec open questions: Q1 one presence.recorded marker per DM turn stands (the operator's ruling: whenever presence feeds a decision; the Director reads it every turn). Q2 the Phase 3 implementer extends the failure-record node type with 'presence' if needed. Q3 no Director prompt change here (TASK-0050 owns it). Q4 the playtest harness static reader is accepted. NOTE: decision-0024 exists only on this branch; TASK-0135 reserves decision-0025.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 1, T001-T007, commit d3cd2d5; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
