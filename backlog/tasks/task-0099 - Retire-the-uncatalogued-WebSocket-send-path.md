@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 05:20'
+updated_date: '2026-10-27 05:25'
 labels:
   - ws
   - session
@@ -37,6 +37,14 @@ Spec: specs/043-retire-uncatalogued-send
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0099, branch task-0099-retire-uncatalogued-send, cut from origin/main adb4527. Spec number 043 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (orchestrator session 2) stopped after spec.md (4d0a585): retiring the path changes client-visible send handling and frozen 029 contract text. OPERATOR RULINGS NEEDED before plan.md:
+OQ1 refusal for an uncatalogued send (frame shape unchanged): A (default) error{kind:validation, code:UNKNOWN_EVENT_TYPE}; B reuse forbidden/CATALOG_TYPE_REQUIRES_GATE; C validation with no code.
+OQ2 amend frozen 029 ws-delivery.md send table row 3 to the OQ1 refusal, plus an 'Amended by spec 043' line.
+OQ3 amend frozen 029 write-boundary.md: drop appendUncataloguedEvent from rule 3 and its table row; rule 4 writers become (session/**, gate/**); amendment line.
+OQ4 prose amendment note in specs/006-ws-gateway/contracts/ws-protocol.md beneath 'Extended by spec 029'; send example stays 'chat' by default.
+Design in spec.md: bench and M0 WS tests move to an out-of-character talk request (characterId null). Blocked until the operator rules; TASK-0049 waits behind it (same hotspots).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
