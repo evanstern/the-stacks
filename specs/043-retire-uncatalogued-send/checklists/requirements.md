@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — FR-001 awaits operator ruling OQ1
+- [x] No [NEEDS CLARIFICATION] markers remain (OQ1 ruled 2026-10-27)
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Blocked before `/speckit-plan`: OQ1–OQ4 in spec.md touch frozen contracts (ws-protocol client-visible handling; specs/029-proposal-gate/contracts/; specs/006 contract prose). Record the operator rulings on TASK-0099, then resolve FR-001's marker and continue to plan.md.
+- OQ1–OQ4 ruled by the operator 2026-10-27 on the defaults; recorded in spec.md "Operator rulings".

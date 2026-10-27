@@ -4,8 +4,8 @@
 
 **Created**: 2026-10-27
 
-**Status**: Draft — blocked on operator rulings (see Open Questions). `plan.md` and
-`tasks.md` are not written until the rulings are recorded on TASK-0099.
+**Status**: Ready for planning. The operator ruled on every open question on 2026-10-27
+(see Operator rulings).
 
 **Input**: Board card TASK-0099. "The WebSocket send path accepts only catalogued
 session-model requests, which go through the proposal gate. The inert legacy append for
@@ -163,9 +163,8 @@ M0 test suite fails, but neither is user-facing behaviour.
 
 - **FR-001**: The gateway MUST refuse every `send` whose `eventType` is neither a gate
   request kind nor a catalogued type, with an `error` frame to the sender only, writing
-  nothing and broadcasting nothing. The connection MUST stay open. The frame's `kind` and
-  `code` are [NEEDS CLARIFICATION: operator ruling OQ1 — default `kind: "validation"`,
-  `code: "UNKNOWN_EVENT_TYPE"`].
+  nothing and broadcasting nothing. The connection MUST stay open. The frame MUST be
+  `error { kind: "validation", code: "UNKNOWN_EVENT_TYPE" }` (ruling OQ1 = A).
 - **FR-002**: Handling of gate request kinds and of other catalogued types MUST be
   unchanged from `specs/029-proposal-gate/contracts/ws-delivery.md`.
 - **FR-003**: `appendUncataloguedEvent` MUST be removed from
@@ -188,6 +187,8 @@ M0 test suite fails, but neither is user-facing behaviour.
 - **FR-008**: The wiki notes `websocket-gateway`, `ws-protocol`, `proposal-gate` (and
   `session-model`, `event-log` where they name the legacy path) MUST describe the
   two-row classifier and drop every "TASK-0099 retires this" pointer, re-pinned honestly.
+- **FR-009**: The frozen contracts MUST be amended exactly as rulings OQ2, OQ3 and OQ4
+  state, and nowhere else.
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -229,10 +230,22 @@ content.
 | Card AC | Covered by |
 |---|---|
 | #1 The WebSocket send path refuses every uncatalogued event type. | FR-001, FR-002, FR-006 (refusal test); User Story 1; SC-001 |
-| #2 `appendUncataloguedEvent` and its write-boundary allow-list entry are removed. | FR-003, FR-004; User Story 2; SC-002 |
+| #2 `appendUncataloguedEvent` and its write-boundary allow-list entry are removed. | FR-003, FR-004, FR-009; User Story 2; SC-002 |
 | #3 The load bench and any remaining M0 sender use a catalogued type or are retired, and their tests pass. | FR-005, FR-006; User Story 3; SC-003, SC-004 |
 
-## Open Questions — operator rulings required before `plan.md`
+## Operator rulings (2026-10-27)
+
+The operator's words, recorded on TASK-0099: "I accept the defaults on the TASK-0099 and
+TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006."
+
+| Question | Ruling |
+|---|---|
+| OQ1 | Option A: `error { kind: "validation", code: "UNKNOWN_EVENT_TYPE" }`. |
+| OQ2 | Amend 029 `ws-delivery.md` send-table row 3, plus an "Amended by spec 043 (TASK-0099)" line. |
+| OQ3 | Amend 029 `write-boundary.md` rules 3 and 4 as listed, plus an amendment line. |
+| OQ4 | Add the amendment note to 006 `ws-protocol.md`. The `send` example stays `"chat"`. |
+
+## Open Questions (resolved — kept as the record of what was asked)
 
 The brief and the runbook make each item below an operator checkpoint: a client-visible
 change to `send` handling is a ws-protocol change, and `specs/029-proposal-gate/contracts/`
@@ -287,5 +300,5 @@ cannot settle.
   bench's seeded users need no seat or character.
 - A human `talk` row enqueues no DM job (`apps/server/src/dm/enqueue.ts` triggers on
   commits, AI-proposal decisions and human comments only), so the bench adds no DM work.
-- The bench's error-kind list stays as it is; an `error` frame maps to an existing kind,
-  fixed in `plan.md`.
+- The bench's error-kind keys are fixed (`specs/021-load-bench/data-model.md`); an
+  `error` frame maps to `ws_refused` (plan.md, research R3).
