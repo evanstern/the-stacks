@@ -4,7 +4,7 @@ title: Add the SRD 5.2.1 Playing the Game rules text to packages/srd
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-10-27 03:37'
+updated_date: '2026-10-27 03:45'
 labels:
   - srd
   - rules
@@ -41,6 +41,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 039, commit 82d8188; served verified from transcript; ~156k tokens.) Deviation: plan.md and tasks.md written to the Spec Kit templates by hand, not via the speckit-plan/speckit-tasks skills; reported to the operator.
 
 ORCHESTRATOR RULINGS 2026-10-26 on spec open questions: OQ-1 the rest of the Rules Glossary is out of scope; carded as a revisit with a trigger. OQ-2 TASK-0104 offers rule citations in the adjudicate prompt (DC table first). OQ-3 the SRD PDF is needed by Phase 2 only; operator asked.
+
+OPERATOR RULING 2026-10-26 (OQ-3, in chat): 'Download it'. Phase 2 downloads the SRD 5.2.1 PDF from the pinned URL to a path outside the repo and checks the pinned sha256.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
