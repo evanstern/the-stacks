@@ -14,7 +14,7 @@ sources:
   - apps/server/src/config.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # AI gateway
@@ -23,16 +23,14 @@ verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 with `chat()` (an async-iterable stream of text ending in exactly one `done`/`error`) and
 `embed()` (batch of 1024-length vectors). No vendor SDK is installed and no vendor or
 provider name is ever hard-coded in this directory (decision-0007) — a test enforces that by
-grepping the source (see "Operational notes"). As of TASK-0024 (specs/017-ingestion-pipeline),
-[[ingestion]]'s worker is the gateway's first real caller: it calls `embed()` for each stored
-book's chunks. [[rules-answerer]] and the DM runtime ([[dm-runtime]]) are later callers.
+grepping the source (see "Operational notes"). [[ingestion]]'s worker was the first caller (`embed()` per stored book); [[rules-answerer]] and the DM runtime ([[dm-runtime]]) followed.
 
 ## How it works
 
 **Config is data, not code.** `apps/server/src/ai/config.ts`'s `loadAiConfig(env)` reads three
 JSON env vars — `AI_PROVIDERS` (name → `{kind, baseUrl, apiKeyEnv?}`), `AI_PURPOSES` (name →
 `{provider, model, op, maxTokens?, batchSize?}`), `AI_PRICES` (`"<provider>/<model>"` →
-`{inputPerMTok, outputPerMTok}`) — Zod-parses them, and cross-validates: every purpose names a
+`{inputPerMTok, outputPerMTok}`) — Zod-parses and cross-validates them: every purpose names a
 declared provider whose kind supports the purpose's op, and every provider actually used by a
 purpose has its `apiKeyEnv` set. An unused provider's key is never checked. All three env vars
 are optional; unset, `loadAiConfig` returns `{providers: {}, purposes: {}, prices: {}}` — an
@@ -53,13 +51,12 @@ cancelled`); an unknown purpose fails before any provider call, with no usage re
 splits the input into `purpose.batchSize`-sized chunks (default 128), preserves order, rejects
 the whole call if any returned vector isn't length 1024, and short-circuits `[]` input with no
 provider call and no usage record. Every call — success, error, or cancellation — emits exactly
-one `UsageRecord` to the injected `UsageSink` (`usage.ts`'s `logSink` logs a JSON line;
-`memorySink()` collects records for tests); a record never carries prompt or completion text,
-and an unpriced provider/model gets `costUsd: null`, never `0`.
+one `UsageRecord` to the injected `UsageSink` (`logSink` logs a JSON line; `memorySink()` collects them); a record never carries prompt or completion text,
+and an unpriced provider/model gets `costUsd: null`, never `0`. `ChatRequest.onUsage` (TASK-0116) receives that record after `sink.record`; a throw is swallowed ([[dm-turn-jobs]]).
 
 `sse.ts`'s `parseSse` turns a fetch response body into an async iterable of `data:` payloads
 (blank-line framing, multi-line joins, `:`-comments ignored, stops at `[DONE]`, and reports via
-`sawDone()` whether the stream actually closed with one; the OpenAI-compatible adapter also treats any non-null `finish_reason` as completion, since some local routers never send `[DONE]`). `retry.ts`'s `retryFetch` wraps only
+`sawDone()` whether one closed it; the OpenAI-compatible adapter also treats any non-null `finish_reason` as completion, since some local routers never send `[DONE]`). `retry.ts`'s `retryFetch` wraps only
 the initial request (never a stream already producing text) in bounded attempts (default 3)
 with full-jitter exponential backoff, honoring `Retry-After` (seconds or HTTP-date), abort-aware
 sleeping, and an injectable clock/jitter for tests.

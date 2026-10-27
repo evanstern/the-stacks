@@ -1,5 +1,5 @@
 import { RefIdSchema } from "@the-stacks/session-model";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { DbClient } from "../auth/session.js";
 import { isUniqueViolation } from "../db.js";
@@ -106,7 +106,12 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
-  narration: { attempts: AuditRecord["attempts"]; shipped: boolean } | null;
+  narration: {
+    attempts: AuditRecord["attempts"];
+    shipped: boolean;
+    /** The shipped narration's event seqs, ascending; absent on rows stored before TASK-0116. */
+    seqs: number[];
+  } | null;
 }
 
 interface ClaimBase {
@@ -404,7 +409,25 @@ export interface DmJobRow {
   error: string | null;
   createdAt: Date;
   startedAt: Date | null;
+  heartbeatAt: Date | null;
   finishedAt: Date | null;
+}
+
+function toDmJobRow(r: typeof jobs.$inferSelect): DmJobRow {
+  return {
+    id: r.id,
+    kind: r.kind as DmJobKind,
+    status: r.status,
+    stage: r.stage,
+    attempts: r.attempts,
+    input: r.input,
+    result: r.result,
+    error: r.error,
+    createdAt: r.createdAt,
+    startedAt: r.startedAt,
+    heartbeatAt: r.heartbeatAt,
+    finishedAt: r.finishedAt,
+  };
 }
 
 export async function listDmJobs(
@@ -423,17 +446,51 @@ export async function listDmJobs(
     )
     .orderBy(desc(jobs.createdAt))
     .limit(limit);
-  return rows.map((r) => ({
-    id: r.id,
-    kind: r.kind as DmJobKind,
-    status: r.status,
-    stage: r.stage,
-    attempts: r.attempts,
-    input: r.input,
-    result: r.result,
-    error: r.error,
-    createdAt: r.createdAt,
-    startedAt: r.startedAt,
-    finishedAt: r.finishedAt,
-  }));
+  return rows.map(toDmJobRow);
+}
+
+export interface DmJobPage {
+  rows: DmJobRow[];
+  /** True when jobs older than the last row exist. */
+  hasMore: boolean;
+}
+
+/**
+ * One page of the session's DM jobs, newest first, ordered
+ * `(created_at desc, id desc)`. `before` is the id of a job of this session:
+ * the page holds jobs strictly older than it. Returns null when `before` is
+ * not a DM job of this session. Leaves `listDmJobs` unchanged.
+ */
+export async function listDmJobsPage(
+  db: DbClient,
+  sessionId: string,
+  opts: { limit: number; before?: string },
+): Promise<DmJobPage | null> {
+  const dmKinds = inArray(jobs.kind, [...DM_JOB_KINDS]);
+  const scope = and(eq(jobs.sessionId, sessionId), dmKinds);
+  let where = scope;
+  if (opts.before !== undefined) {
+    const [anchor] = await db
+      .select({ id: jobs.id })
+      .from(jobs)
+      .where(and(scope, eq(jobs.id, opts.before)))
+      .limit(1);
+    if (!anchor) return null;
+    where = and(
+      scope,
+      // Compared in SQL: a JS Date would truncate created_at to milliseconds.
+      sql`(${jobs.createdAt}, ${jobs.id}) < (select created_at, id from jobs where id = ${anchor.id})`,
+    );
+  }
+  const rows = await db
+    .select()
+    .from(jobs)
+    .where(where)
+    .orderBy(desc(jobs.createdAt), desc(jobs.id))
+    .limit(opts.limit + 1);
+  const hasMore = rows.length > opts.limit;
+  return {
+    rows: (hasMore ? rows.slice(0, opts.limit) : rows).map(toDmJobRow),
+    hasMore,
+  };
 }

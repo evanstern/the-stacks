@@ -1,5 +1,5 @@
 import type { ZodType } from "zod";
-import type { ChatMessage, ErrorKind } from "../../ai/types.js";
+import type { ChatMessage, ErrorKind, UsageRecord } from "../../ai/types.js";
 import type { DmPurpose } from "../purposes.js";
 import type { ModelCallRecord, NodeDeps, NodeError } from "./context.js";
 
@@ -34,8 +34,54 @@ export type TextResult =
   | CallFailure;
 
 type Collected =
-  | { ok: true; text: string; outputTokens: number | null }
-  | { ok: false; kind: ErrorKind | "aborted"; message: string };
+  | {
+      ok: true;
+      text: string;
+      outputTokens: number | null;
+      usage: UsageRecord | null;
+    }
+  | {
+      ok: false;
+      kind: ErrorKind | "aborted";
+      message: string;
+      usage: UsageRecord | null;
+    };
+
+type CallDeps = Pick<NodeDeps, "gateway" | "recordCall">;
+
+/**
+ * Ends one model attempt: builds its record from the gateway's usage record
+ * (nulls when none arrived), pushes it to `calls` (an aborted attempt is not
+ * pushed, as before) and hands it to the optional ledger seam.
+ */
+async function settle(
+  deps: CallDeps,
+  req: CallRequest,
+  attempt: number,
+  outcome: ModelCallRecord["outcome"] | "aborted",
+  errorKind: ErrorKind | null,
+  usage: UsageRecord | null,
+  calls: ModelCallRecord[],
+): Promise<void> {
+  const base = {
+    purpose: req.purpose,
+    promptVersion: req.promptVersion,
+    attempt,
+    errorKind,
+    provider: usage?.provider ?? null,
+    model: usage?.model ?? null,
+    inputTokens: usage?.inputTokens ?? null,
+    outputTokens: usage?.outputTokens ?? null,
+    costUsd: usage?.costUsd ?? null,
+    durationMs: usage?.durationMs ?? null,
+  };
+  if (outcome !== "aborted") calls.push({ ...base, outcome });
+  await deps.recordCall?.({
+    ...base,
+    outcome,
+    httpAttempts: usage?.attempts ?? null,
+  });
+}
 
 /** One failed model attempt, kept in an `invalid-output` detail. */
 export interface AttemptExcerpt {
@@ -72,50 +118,70 @@ function attemptOf(
 }
 
 async function collect(
-  deps: Pick<NodeDeps, "gateway">,
+  deps: CallDeps,
   req: CallRequest,
   messages: ChatMessage[],
 ): Promise<Collected> {
   let text = "";
   let outputTokens: number | null = null;
+  let usage: UsageRecord | null = null;
+  let failed: { kind: ErrorKind; message: string } | null = null;
   for await (const event of deps.gateway.chat({
     purpose: req.purpose,
     system: req.system,
     messages,
     signal: req.signal,
+    onUsage: (r) => {
+      usage = r;
+    },
   })) {
     if (event.type === "text") text += event.text;
     else if (event.type === "done") outputTokens = event.usage.outputTokens;
     else if (event.type === "error") {
-      return { ok: false, kind: event.kind, message: event.message };
+      failed = { kind: event.kind, message: event.message };
+      // Leave the loop so the gateway's `finally` runs (and fires onUsage)
+      // before the usage record is read below.
+      break;
     }
   }
-  if (req.signal.aborted) {
-    return { ok: false, kind: "aborted", message: "the turn was aborted" };
+  if (failed) {
+    return { ok: false, kind: failed.kind, message: failed.message, usage };
   }
-  return { ok: true, text, outputTokens };
+  if (req.signal.aborted) {
+    return {
+      ok: false,
+      kind: "aborted",
+      message: "the turn was aborted",
+      usage,
+    };
+  }
+  return { ok: true, text, outputTokens, usage };
 }
 
-function failure(
+async function failure(
+  deps: CallDeps,
   collected: Extract<Collected, { ok: false }>,
   req: CallRequest,
   attempt: number,
   calls: ModelCallRecord[],
-): CallFailure {
+): Promise<CallFailure> {
   if (collected.kind === "aborted") {
+    await settle(deps, req, attempt, "aborted", null, collected.usage, calls);
     return {
       ok: false,
       error: { kind: "aborted", message: collected.message },
       calls,
     };
   }
-  calls.push({
-    purpose: req.purpose,
-    promptVersion: req.promptVersion,
+  await settle(
+    deps,
+    req,
     attempt,
-    outcome: "error",
-    errorKind: collected.kind,
-  });
+    "error",
+    collected.kind,
+    collected.usage,
+    calls,
+  );
   return {
     ok: false,
     error: {
@@ -155,32 +221,20 @@ function parseAgainst<T>(
 }
 
 export async function callJson<T>(
-  deps: Pick<NodeDeps, "gateway">,
+  deps: CallDeps,
   req: CallRequest & { schema: ZodType<T> },
 ): Promise<JsonResult<T>> {
   const calls: ModelCallRecord[] = [];
   const messages: ChatMessage[] = [{ role: "user", content: req.user }];
 
   const first = await collect(deps, req, messages);
-  if (!first.ok) return failure(first, req, 1, calls);
+  if (!first.ok) return failure(deps, first, req, 1, calls);
   const parsedFirst = parseAgainst(first.text, req.schema, req.normalize);
   if (parsedFirst.ok) {
-    calls.push({
-      purpose: req.purpose,
-      promptVersion: req.promptVersion,
-      attempt: 1,
-      outcome: "ok",
-      errorKind: null,
-    });
+    await settle(deps, req, 1, "ok", null, first.usage, calls);
     return { ok: true, value: parsedFirst.value, calls };
   }
-  calls.push({
-    purpose: req.purpose,
-    promptVersion: req.promptVersion,
-    attempt: 1,
-    outcome: "invalid-json",
-    errorKind: null,
-  });
+  await settle(deps, req, 1, "invalid-json", null, first.usage, calls);
 
   const attempts: AttemptExcerpt[] = [attemptOf(1, first, parsedFirst.issues)];
   messages.push(
@@ -191,25 +245,13 @@ export async function callJson<T>(
     },
   );
   const second = await collect(deps, req, messages);
-  if (!second.ok) return failure(second, req, 2, calls);
+  if (!second.ok) return failure(deps, second, req, 2, calls);
   const parsedSecond = parseAgainst(second.text, req.schema, req.normalize);
   if (parsedSecond.ok) {
-    calls.push({
-      purpose: req.purpose,
-      promptVersion: req.promptVersion,
-      attempt: 2,
-      outcome: "ok",
-      errorKind: null,
-    });
+    await settle(deps, req, 2, "ok", null, second.usage, calls);
     return { ok: true, value: parsedSecond.value, calls };
   }
-  calls.push({
-    purpose: req.purpose,
-    promptVersion: req.promptVersion,
-    attempt: 2,
-    outcome: "invalid-json",
-    errorKind: null,
-  });
+  await settle(deps, req, 2, "invalid-json", null, second.usage, calls);
   attempts.push(attemptOf(2, second, parsedSecond.issues));
   return {
     ok: false,
@@ -229,20 +271,14 @@ export async function callJson<T>(
 
 /** Prose without parsing: narrate's call. */
 export async function callText(
-  deps: Pick<NodeDeps, "gateway">,
+  deps: CallDeps,
   req: CallRequest,
 ): Promise<TextResult> {
   const calls: ModelCallRecord[] = [];
   const result = await collect(deps, req, [
     { role: "user", content: req.user },
   ]);
-  if (!result.ok) return failure(result, req, 1, calls);
-  calls.push({
-    purpose: req.purpose,
-    promptVersion: req.promptVersion,
-    attempt: 1,
-    outcome: "ok",
-    errorKind: null,
-  });
+  if (!result.ok) return failure(deps, result, req, 1, calls);
+  await settle(deps, req, 1, "ok", null, result.usage, calls);
   return { ok: true, text: result.text, calls };
 }

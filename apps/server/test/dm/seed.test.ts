@@ -5,7 +5,11 @@ import { getById } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
 import { combatantFromSrd } from "../../src/dm/seed/combatants.js";
 import { loadSeed, parseSeed, SeedError } from "../../src/dm/seed/load.js";
-import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
+import {
+  dmOnlySeedPaths,
+  dmOnlySeedText,
+  playerFacingSeed,
+} from "../../src/dm/seed/views.js";
 
 const SEED_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -250,5 +254,38 @@ describe("player-facing authoring rule (TASK-0106)", () => {
     expect(view.npcs.map((n) => n.id)).toEqual(seed.npcs.map((n) => n.id));
     const json = JSON.stringify(view);
     for (const s of dmOnlySeedText(seed)) expect(json).not.toContain(s);
+  });
+
+  it("dmOnlySeedPaths resolves to exactly the dmOnlySeedText strings", () => {
+    const seed = loadSeed("greyhollow-ford");
+    const at = (pointer: string): unknown =>
+      pointer
+        .split("/")
+        .slice(1)
+        .reduce<unknown>(
+          (node, key) => (node as Record<string, unknown>)[key],
+          seed,
+        );
+    const paths = dmOnlySeedPaths(seed);
+    expect(paths.map(at)).toEqual(dmOnlySeedText(seed));
+    expect(new Set(paths).size).toBe(paths.length);
+    expect(paths).toContain("/goal/success");
+    expect(paths).toContain("/beats/0/summary");
+    // No path points into a player-facing field.
+    const playerFacing = [
+      /^\/goal\/statement/,
+      /^\/opening/,
+      /^\/title/,
+      /^\/location\/(name|identity|portrayal)/,
+      /\/portrayal(\/|$)/,
+      /\/identity(\/|$)/,
+    ];
+    for (const p of paths) {
+      for (const re of playerFacing) expect(p).not.toMatch(re);
+    }
+    // Player-facing strings never appear under any DM-only path.
+    const pf = playerFacingSeed(seed);
+    expect(paths.map(at)).not.toContain(pf.goalStatement);
+    expect(paths.map(at)).not.toContain(pf.openingFraming);
   });
 });
