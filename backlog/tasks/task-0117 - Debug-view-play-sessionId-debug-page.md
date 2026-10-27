@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 10:04'
+updated_date: '2026-10-27 10:11'
 labels:
   - debug-view
   - web
@@ -98,6 +98,9 @@ Phase 7 done (6308e82): merged origin/main (796789a); re-pinned 6 notes; pnpm ci
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 7 (merge 796789a, wiki 6308e82): play-route, react-router-app and debug-view amended; three notes re-pinned only. Freshness OK; ci:check passed with REQUIRE_DATABASE=1 (evidence in specs/041-debug-page/ci-evidence.txt).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Reconcile with main after #68 (merge 8b43a7f, re-pin 4950a0c): INDEX keeps both clauses; CAPSULES regenerated; dm-failure-and-gates re-pinned (RE-PIN-ONLY). Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
