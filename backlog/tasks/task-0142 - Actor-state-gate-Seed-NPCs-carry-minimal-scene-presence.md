@@ -4,7 +4,7 @@ title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 18:51'
+updated_date: '2026-10-27 18:57'
 labels:
   - dm
   - rules-gate
@@ -48,6 +48,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 - OQ-5 (a): a seed cross-check that identity.combatant equals id and names an encounter monster.
 - OQ-6 (a): optional identity.aliases (at most 6); proposed Greyhollow values "the keeper", "the boy", "the goblin leader".
 Also for the operator: the encounter-start rows are triggered by a Director tableMode move. Confirm this fits decision-0025 §2.5 and 048 AC #5.
+
+Operator ruling 2026-10-27 (verbatim): "TASK-0142: I accept the recommended defaults OQ-1 to OQ-6 (a), including the frozen 029 and 031 amendments and the Greyhollow aliases "the keeper", "the boy", "the goblin leader". The Director-triggered encounter-start seed rows are fine under decision-0025 §2.5 and 048 AC #5."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
