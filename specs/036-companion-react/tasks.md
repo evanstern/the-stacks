@@ -48,14 +48,14 @@ change `specs/029-proposal-gate/contracts/`, `specs/030-play-route/contracts/pro
 **Goal**: a human comment on a companion's open action queues one coalesced `react` job, which
 the worker claims only after its start time.
 
-- [ ] T010 [US1] In `apps/server/src/dm/jobs.ts`, add `"react"` to `CompanionJobInput.reason`.
+- [x] T010 [US1] In `apps/server/src/dm/jobs.ts`, add `"react"` to `CompanionJobInput.reason`.
   Add optional `firstReactionAt` and `notBefore` (ISO datetime strings). Keep `v: 1`; existing
   rows parse unchanged.
-- [ ] T011 [US3] In `apps/server/src/schema/jobs.ts`, add partial unique index
+- [x] T011 [US3] In `apps/server/src/schema/jobs.ts`, add partial unique index
   `jobs_companion_react_queued_key` on `session_id` where `kind = 'companion'`,
   `status = 'queued'` and `input->>'reason' = 'react'`. Run `drizzle-kit generate`. Commit the
   generated SQL, snapshot and journal entry.
-- [ ] T012 [US3] In `apps/server/src/dm/jobs.ts`, add
+- [x] T012 [US3] In `apps/server/src/dm/jobs.ts`, add
   `enqueueCompanionReact(db, sessionId, companionId, { quietMs, maxWaitMs })` per plan.md
   "Coalescing design": insert on conflict do nothing; else merge the companion id and move
   `notBefore` to `least(now() + quietMs, firstReactionAt + maxWaitMs)` in one SQL update; loop
@@ -65,7 +65,7 @@ the worker claims only after its start time.
   (b) a row with a future `notBefore` is not claimed and is claimed after it passes; (c) the
   maximum wait caps a moving `notBefore`; (d) ten concurrent enqueues (`Promise.all`) leave
   exactly one queued row; (e) a running `react` job plus a new reaction gives one new queued row.
-- [ ] T013 [US1] In `apps/server/src/dm/enqueue.ts`, add the react rule (FR-001–FR-004): for each
+- [x] T013 [US1] In `apps/server/src/dm/enqueue.ts`, add the react rule (FR-001–FR-004): for each
   `action.commented` row whose actor is human (not prefixed `ai:`), load projections once, find
   the action; when it is open and its actor is `ai:companion:<id>`, call
   `enqueueCompanionReact`. Add `reactQuietMs` (default 3000) and `reactMaxWaitMs` (default 10000)
@@ -74,7 +74,7 @@ the worker claims only after its start time.
   queues one `react` job naming the companion; (b) comments by `ai:dm` and by a companion queue
   none; (c) a human comment on a human's action queues none; (d) five human comments queue one
   job.
-- [ ] T014 Run the phase gate and the DB suites. Commit.
+- [x] T014 Run the phase gate and the DB suites. Commit.
 
 **Checkpoint**: AC #1 met. The worker runs a `react` job with today's companion behavior.
 

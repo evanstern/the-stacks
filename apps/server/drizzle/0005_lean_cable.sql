@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "jobs_companion_react_queued_key" ON "jobs" USING btree ("session_id") WHERE "jobs"."kind" = 'companion' AND "jobs"."status" = 'queued' AND "jobs"."input"->>'reason' = 'react';
