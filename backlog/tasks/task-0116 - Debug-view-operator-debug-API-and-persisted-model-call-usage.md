@@ -25,6 +25,8 @@ Outcome: the server exposes everything the DM/debug view needs, operator-only, a
 Why: during the M2 demo (TASK-0048) the DM's inner workings were invisible from the table. Turn jobs, companion holds and narration fallbacks had to be diagnosed by SQL. Per-call model, tokens, cost and duration are logged but never stored. Design: docs/design/debug-view.md (card A, decisions D1, D3, D4).
 
 Scope: server only. The web page is the dependent card.
+
+Spec: specs/037-debug-api
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
