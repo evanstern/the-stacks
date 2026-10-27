@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 14:50'
-updated_date: '2026-10-26 17:07'
+updated_date: '2026-10-27 02:56'
 labels:
   - first-scene
   - dm
@@ -44,7 +44,10 @@ Spec: specs/033-director-robustness
 - [x] #7 Spec phase: Classify and fix (US2, US3; AC #2, #3)
 - [x] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 - [x] #9 Spec phase: Full gate (US4; AC #4)
+- [ ] #10 Spec phase: Phase 3b: Interpret fix and the skill gate (US5; AC #3, amendment) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
