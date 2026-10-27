@@ -1,10 +1,10 @@
 ---
 id: TASK-0117
 title: 'Debug view: play/:sessionId/debug page'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 01:47'
+updated_date: '2026-10-27 04:25'
 labels:
   - debug-view
   - web
@@ -41,6 +41,12 @@ Scope: web only, over the debug API card. Layout: a pinned 'why waiting?' strip 
 - [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0117, branch task-0117-debug-page, cut from origin/main 1de90d3. Spec number 041 claimed with a stub. Track B4. Depends on TASK-0116 (PR #62): draft-held until it merges.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
