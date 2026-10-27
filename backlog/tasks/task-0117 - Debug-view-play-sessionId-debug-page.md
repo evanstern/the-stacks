@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 09:24'
+updated_date: '2026-10-27 09:28'
 labels:
   - debug-view
   - web
@@ -38,15 +38,15 @@ Spec: specs/041-debug-page
 - [x] #4 The job timeline shows one card per DM job; an expanded turn card shows each pipeline node's output, submissions with linked seqs, audit attempts split blocking and advisory, the fallback flag, the failure record, and per-call usage.
 - [x] #5 The event log shows every event with seq, time, actor name, type, visibility and payload, filtered by type, actor and visibility.
 - [x] #6 Selecting a job highlights the events it wrote; selecting an event highlights the job that wrote it.
-- [ ] #7 Clicking an event pins the state column to that seq; a back-to-live control unpins it.
-- [ ] #8 Seed, ledger, journal and cost-total panels open as slide-out Panels; the page uses no modals.
+- [x] #7 Clicking an event pins the state column to that seq; a back-to-live control unpins it.
+- [x] #8 Seed, ledger, journal and cost-total panels open as slide-out Panels; the page uses no modals.
 - [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
 - [x] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
 - [x] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
 - [x] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
 - [x] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
-- [ ] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
+- [x] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
 - [ ] #16 Spec phase: Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet)
 - [ ] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
@@ -82,6 +82,8 @@ Phase 4 done (1379857): job-card, job-timeline, type-filter (ARIA combobox), eve
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (1379857): job timeline, event log, cross-links; AC #4-#6 ticked. Phase 6's live check covers the untested interactions: follow-bottom, scroll-into-view, combobox keys.
+
+Phase 5 done (a8684c3): state-column (live/pinned, pin badge, back to live, panel triggers), seed/ledger/journal/cost panels over shared Panel, DebugBoard folds via createFolder.through(pinnedSeq), one panel open at a time (Radix Sheet closes on Escape). Tests: state-column, panels, surfaces.test.mjs (no storage, no fixed inset-0, only debug reads + POST turn, only panel.tsx imports ui/sheet). web test/typecheck/lint green; ci:check fails only adjudicate.integration (TASK-0138, pre-existing).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
