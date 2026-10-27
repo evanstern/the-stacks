@@ -23,6 +23,8 @@ Outcome: the DM approval panel shows a suggest-policy proposal as a suggestion t
 Why: TASK-0047 Phase 6 (PR #47) wires the panel to TASK-0045's gate. A pending suggest proposal stays in the panel with Approve and Reject buttons. Approve fails with PROPOSAL_NOT_APPROVABLE, because decision-0015 says suggest applies nothing. The play-route seam (specs/030-play-route/contracts/proposal-seam.md) is frozen and PendingProposalView carries no policy, so the fix needs a spec amendment. The M2 demo seats an AI DM, where every policy is auto, so the demo never shows this. Carded 2026-10-26 by the M2 sweep orchestrator.
 
 No modals: slide-out panels or autocomplete dropdowns only.
+
+Spec: specs/047-suggest-no-approve
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
