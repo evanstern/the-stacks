@@ -38,9 +38,11 @@ Spec: specs/048-scene-presence
 - [x] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
 - [x] #9 Spec phase: Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half)
 - [x] #10 Spec phase: Snapshot from the log, plan gate absent reason (card AC #2, #5)
-- [ ] #11 Spec phase: Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half)
+- [x] #11 Spec phase: Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half)
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
+
+
 
 
 
