@@ -4,6 +4,7 @@ title: 'Debug view: operator debug API and persisted model-call usage'
 status: To Do
 assignee: []
 created_date: '2026-10-27 01:47'
+updated_date: '2026-10-27 01:57'
 labels:
   - debug-view
   - server
@@ -37,6 +38,12 @@ Scope: server only. The web page is the dependent card.
 - [ ] #7 GET /dm/sessions/:id/turns keeps its current response contract.
 - [ ] #8 The DM API contract and the wiki notes the change touches are updated and re-pinned.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator 2026-10-26: sequencing of the debug-view cards (TASK-0116, 0117, 0118) is discussed after the M2 First Scene sweep closes M2, not before. The M2 orchestrator raises it at the M2 close checkpoint.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
