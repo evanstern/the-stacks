@@ -72,10 +72,10 @@ if either is unavailable, or if `pdftohtml` is missing.
 
 **Goal**: the grounding corpus describes the `rule` kind and is re-pinned honestly.
 
-- [ ] T019 Update `docs/wiki/srd-data.md` (NEEDS-REVIEW per the runbook): six kinds, the `rule` schema and id form, mixed sourcing, the heading index as coverage oracle, the new counts, and the `SrdKind` widening into the adjudicate citation schema. Add the new source files to `sources:`.
-- [ ] T020 Regenerate `docs/wiki/CAPSULES.md` because the `srd-data` description changes. Update the state paragraph in `docs/wiki/INDEX.md`.
-- [ ] T021 Re-pin `verified_against` only on notes re-verified against this branch's code. Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
-- [ ] T022 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` and `pnpm ci:check`. Both pass.
+- [x] T019 Update `docs/wiki/srd-data.md` (NEEDS-REVIEW per the runbook): six kinds, the `rule` schema and id form, mixed sourcing, the heading index as coverage oracle, the new counts, and the `SrdKind` widening into the adjudicate citation schema. Add the new source files to `sources:`.
+- [x] T020 Regenerate `docs/wiki/CAPSULES.md` because the `srd-data` description changes. Update the state paragraph in `docs/wiki/INDEX.md`.
+- [x] T021 Re-pin `verified_against` only on notes re-verified against this branch's code. Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
+- [x] T022 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` and `pnpm ci:check`. Both pass.
 
 **Checkpoint**: freshness `OK`, spec-bridge exit 0, `pnpm ci:check` green.
 
