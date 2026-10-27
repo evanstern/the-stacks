@@ -1,9 +1,10 @@
 ---
 id: TASK-0134
 title: Playtest fight statistics undercount NPCs reduced to zero
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
+updated_date: '2026-10-27 04:25'
 labels:
   - playtest
   - harness
@@ -26,6 +27,12 @@ Outcome: the playtest report's fight statistics count every combatant reduced to
 - [ ] #2 A test replays a ledger with an NPC dropped to 0 HP and asserts the count
 - [ ] #3 The M2 demo session's recomputed statistics report goblin-3 reduced to zero
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0134, branch task-0134-fight-stats-npc-zero, cut from origin/main 1de90d3. Spec number 042 claimed with a stub. Track B7 (haiku implementation). Must merge before TASK-0053.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
