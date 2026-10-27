@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 20:22'
+updated_date: '2026-10-27 20:35'
 labels:
   - dm
   - rules-gate
@@ -88,6 +88,13 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Matcher gap found: "Goblin three is dead" reads as the count claim "3 down". Phase 3 changed the fallback to say "<numbered target> dies." Model prose naming a numbered goblin would still be refused falsely. Phase 4 fixes the matcher: a number word right after a group noun is part of a name, not a count.
 
 spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 8/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 0/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 4, T023-T029: 153572c; matcher fix b17efac. REQUIRE_DATABASE=1 ci:check exit 0: server 1215 pass; no flakes. Both retry paths pass end to end on the fake gateway: passed-after-regenerate, and fallback after three refusals. "Goblin three is dead" no longer reads as a count.)
+Orchestrator rulings, applying OQ-2 (a) and OQ-5 (a):
+- The ruling and goalNote input check ignores omission claims. Narration still owes omissions.
+- "rally" joins ACT_VERBS.
+Known limit: ACT_VERBS coverage. Verbs outside it ("braces", "heaves") are not refused, which is a miss, not a false refusal; the model audit is the backstop.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
