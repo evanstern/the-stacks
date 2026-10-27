@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 10:54'
+updated_date: '2026-10-27 11:01'
 labels:
   - dm
   - rules-gate
@@ -43,6 +43,15 @@ Spec: specs/048-scene-presence
 Scope added 2026-10-27 by the operator's TASK-0112 ruling (sequencing Option A): both absent checks move here; depends on TASK-0112.
 
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0141, branch task-0141-scene-presence, cut from origin/main a17d0b9. Spec number 048 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C6 (runbook amendment 1); carries the two absent checks moved from TASK-0112 (Option A).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+The spec author stopped after spec.md (95b1b52). DEVIATION: spec.md was written by hand to the Spec Kit template, not through speckit-specify, because the spec dir already existed. plan and tasks must use the skills. Finding: the engine's combatant.remove refuses an encounter member (COMBATANT_IN_ENCOUNTER) and deletes state, so AC #3 cannot be met as worded.
+OPERATOR RULINGS NEEDED (defaults first):
+OQ-1: (a) new event scene-presence.changed v1 {actorId, before, after, reason, actionId}, written through a new DM proposal kind scene-presence (policy ask). Amends frozen 029 proposals.md, policy-and-authority.md and gate-api.md §1, plus 028 additively. / (b) engine-held presence via mechanics / (c) a field on action.resolved.
+OQ-2: (a) a presence effect usable in effect steps and under onSuccess/onFailure/onHit / (b) a new step kind.
+OQ-3: (a) new engine command initiative.leave that keeps combatant state, with AC #3 amended to 'through an engine command' / (b) let combatant.remove drop an encounter member.
+OQ-4: (a) reuse UNKNOWN_COMBATANT with plan-gate reason absent / (b) new engine code ACTOR_ABSENT (28 codes) / (c) reuse ACTOR_UNABLE.
+OQ-5 (no ruling needed): yielded cannot return to present in this card.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
