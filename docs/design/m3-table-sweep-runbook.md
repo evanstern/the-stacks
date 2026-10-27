@@ -141,6 +141,44 @@ TASK-0053 (the three-human demo) runs in wave 5. It needs Track A, TASK-0114, TA
 TASK-0117 and TASK-0134 merged. It runs after C10 and C11, so the demo shows the final DM
 rules. The demo's findings become cards per decision-0020.
 
+## Amendment 1 — Track C after decision-0025 and decision-0026 (2026-10-26, operator-ruled)
+
+Operator rulings in chat, 2026-10-26: decision-0025 cards "Add all, D17 order"; U6 "Fold into
+TASK-0112"; demo gate "Demo after a subset"; TASK-0119 placement "K3 now, K1-K6 after demo".
+This section supersedes the Track C table above and the waves' Track C entries.
+
+**Track C, new order.** Strictly serial in the DM-node hotspots. TASK-0109 floats and merges
+before TASK-0144. TASK-0107 floats.
+
+| Order | Card | Deliverable | Demo subset |
+|---|---|---|---|
+| C1 | TASK-0135 | Design: decision-0025 (D17) | — (merges once TASK-0140's spec exists, AC #4) |
+| C2 | TASK-0123 | SRD Playing the Game text | — |
+| C3 | TASK-0140 | U1 actor snapshot | yes |
+| C4 | TASK-0110 | Encounter-ending action resolves applied; resolve order (D17 §4) | yes |
+| C5 | TASK-0112 | Downed hero: seat stops declaring; U6 able-actor gates | yes |
+| C6 | TASK-0141 | U2 scene presence | yes |
+| C7 | TASK-0142 | U8 seed NPC scene presence | yes |
+| C8 | TASK-0104 | Modifiers and DCs from stats | — |
+| C9 | TASK-0146 | U7 audit gets the snapshot | — |
+| C10 | TASK-0143 | U3 output claim gate | yes |
+| C11 | TASK-0144 | U4 companion say / chronicle claim gate | — |
+| C12 | TASK-0128 | Opposition as derived DC; Help | — |
+| C13 | TASK-0105 | Spells by SRD id | — |
+| C14 | TASK-0145 | U5 Director legality | — |
+| C15 | TASK-0111 | Digits check | — |
+| C16 | TASK-0113 | Narration agency residue | — |
+| C17 | TASK-0127 | Stakes before dice | — |
+| C18 | TASK-0147 | U9 resolve batch gate | — |
+| C19 | TASK-0130 | Doctrine pass against D14 and D17 | — |
+| float | TASK-0109 | Chronicle combatant identity | — (before C11) |
+| float | TASK-0107 | K3: DM-only seed view for DM-side nodes (decision-0026) | — |
+| after C17 | K1, K2, K4, K5, K6 | decision-0026 cards, created at the demo boundary | — |
+
+**Demo gate (supersedes wave 5).** TASK-0053 runs once these are merged: Track A, TASK-0114,
+TASK-0116, TASK-0117, TASK-0134, and the Track C demo subset (C3, C4, C5, C6, C7, C10). The rest
+of Track C merges after the demo, still in m-3. TASK-0130's captured run measures it.
+
 ## Model tiers (from `.claude/model-tiers.json`, checked 2026-10-26)
 
 | Tier | Agent | Pinned model | Fallback | Used for |
@@ -386,3 +424,72 @@ rules. The demo's findings become cards per decision-0020.
 | 2026-10-26 | TASK-0119 | — | — | gather ~241k (sonnet) | Gather done (`bde79d2`); analysis dispatched (opus; decides TASK-0107; decision ids 0026+). |
 | 2026-10-26 | (amendment) | — | — | — | New m-3 card TASK-0138 (adjudicate suite fails instead of skipping without a DB) joins Track B after B7, haiku tier. Revisit cards outside m-3 (no milestone, trigger-based): TASK-0136, TASK-0137, TASK-0139. Decision-id guard: ids are assigned per checkout, so a dispatch that creates a decision copies in the ids already taken on open branches first. |
 | 2026-10-26 | TASK-0055 | [#57](https://github.com/evanstern/the-stacks/pull/57) | `ac336ac` | ~81k (sonnet ×1) | Merged. decision-0023 (D15) on main. TASK-0055 Done on main (`8eef04d`), escape line E1 (no spec set; not a linked card). Worktree and branch removed; `env:prune --check` clean. |
+| 2026-10-26 | (amendment 1) | — | — | — | Track C re-ordered after decision-0025: TASK-0140 to TASK-0147 created on main; U6 folded into TASK-0112; demo after the subset. TASK-0119 rulings: K3 = TASK-0107 now; K1, K2, K4, K5, K6 after the demo; attitude per character; clue lint warns (fails only core); SRD Influence DC. |
+
+## Handoff — 2026-10-27 (first M3 orchestrator session, context near 70%)
+
+**You are the orchestrator.** Dispatch implementation to `sonnet-implementer` and spec authoring
+to `opus-implementer`, one fresh agent per `tasks.md` phase. Verify the served model from each
+transcript's assistant-message `model` field. Record one `Dispatch:` line per dispatch on the card.
+Never implement inline. Shared dispatch rules for every brief:
+`/private/tmp/claude-501/-Users-evanstern-projects-the-stacks/05e444ca-72b0-4a28-837a-bc40357b48cd/scratchpad/dispatch-rules.md`
+(copy it into your own scratchpad; it is session-local). Helper scripts there: `claim.sh`
+(worktree + claim + stub + Spec marker), `seed.py` (phase ACs + notes), `mkcards.py`.
+
+### Board and branches (state at handoff)
+
+| Card | Branch / PR | State | Next action |
+|---|---|---|---|
+| TASK-0055 | #57 merged | Done | — |
+| TASK-0118 | #58 merged | Done | — |
+| (runbook) | #56 merged | — | — |
+| TASK-0119 | PR #59 open | ACs 1–4 ticked; decision-0026 accepted | Operator merges; then set Done with final summary (escape line E2, not linked). |
+| TASK-0135 | PR #60 open | ACs 1–4 ticked; decision-0025; runbook amendment 1 + this handoff | Operator merges BEFORE TASK-0140's PR; then Done with final summary (E3). |
+| TASK-0051 | task-0051-presence | P1, P2 done (d3cd2d5, cf378f6); P3 dispatched | P4 presence strip (web, Brave screenshots = merge condition), P5 wiki, PR. Stack up :3051. |
+| TASK-0114 | task-0114-companion-react | P1, P2 done (6688ab7, f99b4df, 2932c20); P3 withdraw (W-A) dispatched | P4 wiki, PR. Migration 0005_lean_cable. Stack up :3114. |
+| TASK-0116 | task-0116-debug-api | P1, P2 done (d13f1e3, bdfeb05); P3 routes dispatched | P4 wiki, PR. Migration 0005_unknown_lizard — collides with 0114's 0005: the second to merge regenerates after merging main. Ask the operator to confirm open Q1 (routes ship everywhere behind the operator gate, no flag) before merge. Stack up :3116. |
+| TASK-0123 | task-0123-srd-rules-text | P1, P2 done (9c0fc2c, fcebdb5); P3 wiki dispatched | PR after P3. Stack `stacks-task-0123` up. |
+| TASK-0140 | task-0140-actor-snapshot | spec 040 (1fd1f48); P1 dispatched | P2–P5. Prompt version collision with TASK-0114 on dm.companion-v3 (noted on both cards). |
+| TASK-0129 | — | design-round session proposed (C4) | Operator starts it. |
+
+Dispatch lines for P1/P2 dispatches already in flight at handoff are on the cards up to the last
+completed phase. For a phase that completes after handoff, read the served model from the agent's
+output file under `/private/tmp/claude-501/-Users-evanstern-projects-the-stacks/05e444ca-72b0-4a28-837a-bc40357b48cd/tasks/`
+(ledger: `scratchpad/dispatch-ledger.md`) or, if gone, from the commit trailer plus the card note, and say so.
+
+### New cards this session (all on main)
+
+TASK-0134 (fight stats undercount NPC drops; Track B before the demo), TASK-0138 (adjudicate suite
+fails instead of skipping without a DB; Track B tail), TASK-0154 (DB integration tests time out at
+5 s under load), TASK-0140–0147 (decision-0025 U-cards), TASK-0148–0152 (decision-0026 K-cards,
+after the demo subset). Revisits outside m-3: TASK-0136, 0137, 0139, 0153.
+
+### Standing operator rulings this session (verbatim on the cards)
+
+- R1 TASK-0055 option A; R3 debug view first; C0 sign-off; C1 standing opus sign-off.
+- C2 (TASK-0051): carriage D; observers shown; timings stand; multi-process revisit.
+- C3 (TASK-0135): formulation 3 "ledger + opposition dice"; seed NPCs minimal presence in M3.
+- W (TASK-0114): W-A add withdraw.
+- TASK-0123: download the SRD PDF (done; outside the repo).
+- decision-0025 cards: add all in D17 order; U6 folded into TASK-0112; demo after the subset.
+- decision-0026: K3 now, K1–K6 after demo; attitude per character; clue lint warns (fails only core); SRD Influence DC.
+- Orchestrator defaults reported, not yet confirmed: TASK-0140's three snapshot views (dm/seat/fiction).
+
+### Known traps
+
+- Decision ids are assigned per checkout: before `backlog decision create`, copy in the ids held on
+  open branches (untracked), check the CLI auto-commit holds only the new file, then delete copies.
+- Never commit `.specify/feature.json`.
+- Root-guard: `git -C <literal path>`; stage and commit in separate calls.
+- A merged branch whose card is not spec-linked (escape lines) closes by hand: final summary + Done.
+- A finished agent may leave background work running in its worktree: TaskStop it before the next phase.
+
+### Exact next action
+
+1. Collect the reports of the five in-flight dispatches (0051 P3, 0114 P3, 0116 P3, 0123 P3, 0140 P1);
+   record Dispatch lines; dispatch each next phase.
+2. Open PRs as tasks finish their wiki phase (0123 first). Post-merge: verify merged, `pnpm env:down`,
+   remove worktree, delete branch, ff root, tick, sync → Done, log row.
+3. Wave 2 per runbook + amendment 1: TASK-0099 after 0051; TASK-0117 after 0116 (draft-held);
+   TASK-0110 and TASK-0112 after 0140; TASK-0134 any time (haiku).
+4. Before any paid run (TASK-0053 demo, TASK-0130 capture): get the operator's spending ceiling in their words on the card.
