@@ -4,7 +4,7 @@ title: Add the SRD 5.2.1 Playing the Game rules text to packages/srd
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-10-27 03:47'
+updated_date: '2026-10-27 04:07'
 labels:
   - srd
   - rules
@@ -46,6 +46,9 @@ OPERATOR RULING 2026-10-26 (OQ-3, in chat): 'Download it'. Phase 2 downloads the
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 1, T001-T009, commit 9c0fc2c; ~137k tokens; served verified from transcript.) Orchestrator ruling: the compact 'See:' line renders child TITLES per plan.md D8 (Phase 2 resolves them from the loaded rule set); slugs were a Phase 1 placeholder.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 2, T010-T018, commit fcebdb5; 117 rule records (85 dataset, 31 PDF, root bodyless); verify-against-pdf 1020 records 0 mismatches; hand check 38/38 contents entries + 16 records; five existing data files byte-identical; absentTopics: contests/opposed checks; ~278k tokens.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
