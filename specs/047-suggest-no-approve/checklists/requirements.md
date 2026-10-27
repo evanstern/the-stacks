@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Planning is blocked on operator ruling R1 (frozen seam amendment, `specs/030-play-route/contracts/proposal-seam.md`). No gate change is needed: Dismiss reuses `proposal.reject`.
+- Ruling R1 = option A (2026-10-27). No gate change: Dismiss reuses `proposal.reject`.

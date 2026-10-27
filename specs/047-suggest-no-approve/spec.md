@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-27
 
-**Status**: Draft — blocked on operator ruling R1 (frozen seam amendment). `plan.md` and `tasks.md` are not written until R1 is ruled.
+**Status**: Ruled. R1 = option A (operator, 2026-10-27, in chat; recorded on TASK-0100 at ae15f31).
 
 **Input**: TASK-0100. "The DM approval panel shows a suggest-policy proposal as a suggestion the DM can act on or dismiss. It offers no Approve button, which can only fail."
 
@@ -53,7 +53,7 @@ A human DM holds the seat. The AI DM suggests a scene change. The DM opens the a
 
 ### Functional Requirements
 
-- **FR-001**: `PendingProposalView` MUST carry the proposal's effective policy as `policy: "ask" | "suggest"`. *(Card AC #1. Frozen seam amendment, ruling R1.)*
+- **FR-001**: `PendingProposalView` MUST carry the proposal's effective policy as `policy: "ask" | "suggest"`. *(Card AC #1. Frozen seam amendment, ruling R1 option A.)*
 - **FR-002**: `selectPendingProposals` MUST copy `policy` from the projection's `ProposalView.policy`. It MUST NOT derive policy from the proposal kind or the current gate configuration.
 - **FR-003**: A row whose `policy` is `suggest` MUST render a Dismiss control and MUST NOT render an Approve control. *(Card AC #2.)*
 - **FR-004**: A row whose `policy` is `suggest` MUST show a visible "Suggestion" label, so the DM can tell it applies nothing.
@@ -78,9 +78,9 @@ A human DM holds the seat. The AI DM suggests a scene change. The DM opens the a
 - **PendingProposalView** (seam, `apps/web/app/play/proposals.ts`): gains `policy`. No other field changes.
 - **ProposalView** (session-model projection, 029): unchanged. It already carries `policy`.
 - **ProposalCommands** (seam): unchanged. Dismiss is `reject(proposalId, null)`.
-- **ProposalList props**: unchanged under R1 option A. `onReject` serves both Reject and Dismiss.
+- **ProposalList props**: unchanged (ruling R1 option A). `onReject` serves both Reject and Dismiss.
 
-## Frozen-contract changes needing an operator ruling
+## Frozen-contract changes and their rulings
 
 ### R1 — Amend the play-route proposal seam: add `policy` to `PendingProposalView`
 
@@ -92,7 +92,7 @@ A human DM holds the seat. The AI DM suggests a scene change. The DM opens the a
 | B | Option A plus a new `onDismiss(proposalId)` prop on `ProposalList`. | Names the intent in the props. Amends component props as well as the view, for no behavioural gain: `onDismiss` would call `reject(id, null)`. |
 | C | Add `approvable: boolean` instead of `policy`. | Hides the policy behind a UI flag. Fails card AC #1 as worded ("carries the effective policy"). |
 
-**Recommended default**: A.
+**Ruling (2026-10-27)**: option A. The operator's words: "TASK-0100 R1 option A (policy on PendingProposalView, one amendment line in the frozen 030 proposal-seam.md, Dismiss via onReject(id, null))".
 
 ### Not needed: no gate change
 
@@ -100,7 +100,7 @@ No 029 contract, request kind, event type or gate code changes. Dismiss reuses `
 
 ## Sibling work: TASK-0049 (PR #70, branch `task-0049-group-signoff`)
 
-TASK-0049 edits `apps/web/app/play/view-model.ts`, `apps/web/app/play/table-view.tsx`, `apps/web/app/play/components/action-card.tsx` and the last lines of `specs/030-play-route/contracts/proposal-seam.md`. This task edits `table-view.tsx` (the approvals panel description, one line) and appends to `proposal-seam.md`. It does not touch `view-model.ts` or `action-card.tsx`: `TableViewModel.proposals` already passes `PendingProposalView` through unchanged. Both seam amendments are additive lines at the end of the file. The implementer merges `origin/main` after #70 lands and keeps both lines.
+PR #70 merged on 2026-10-27; this branch merged `origin/main` at c78f901. TASK-0049 edited `apps/web/app/play/view-model.ts`, `apps/web/app/play/table-view.tsx`, `apps/web/app/play/components/action-card.tsx` and the end of `specs/030-play-route/contracts/proposal-seam.md`. This task edits `table-view.tsx` (the approvals panel description, one line) and appends one line to `proposal-seam.md` after TASK-0049's line. It does not touch `action-card.tsx`. It touches `view-model.ts` only in a test literal (`view-model.test.mjs`).
 
 ## Success Criteria *(mandatory)*
 
@@ -117,8 +117,8 @@ TASK-0049 edits `apps/web/app/play/view-model.ts`, `apps/web/app/play/table-view
 - Dismiss records `proposal.rejected` with `reason: null`. The log distinguishes a dismissed suggestion from a rejected `ask` proposal by the policy on its `proposal.created` row; no new marker is needed.
 - A decided `ai:dm` proposal re-queues a DM turn through `gate.onAppended` ([[dm-turn-jobs]]). Dismiss inherits this, exactly as reject does today. This card does not change it.
 - `dm-approvals` P3 (`scene`, `suggest`, pending) is the test subject. No fixture changes, so `specs/029-proposal-gate/contracts/fixtures.md` is untouched.
-- `speckit-clarify` is skipped. The only open point is the frozen-contract ruling R1, which is an operator decision, not a spec ambiguity.
+- `speckit-clarify` is skipped. The only open point was the frozen-contract ruling R1, an operator decision, now ruled.
 
 ## Open questions (not rulings on this card)
 
-- **OQ-1 (deferral candidate, needs a card)**: the play route gives a human DM no scene-change command. `frames.ts` builds no `scene` request. A human DM can read a scene suggestion but cannot issue it from the table. Any kind the DM sets to `suggest` without a matching table command has the same gap. This card does not close it (decision-0020: the orchestrator cards it).
+- **OQ-1 (deferral candidate, needs a card)**: the play route gives a human DM no scene-change command. `frames.ts` builds no `scene` request. A human DM can read a scene suggestion but cannot issue it from the table. Any kind the DM sets to `suggest` without a matching table command has the same gap. This card does not close it. Carded as TASK-0159 (m-3).
