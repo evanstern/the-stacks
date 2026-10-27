@@ -42,8 +42,10 @@ Spec: specs/049-turn-floor
 - [x] #10 Spec phase: Full round with two humans and one AI companion (card AC #6)
 - [x] #11 Spec phase: The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4)
 - [x] #12 Spec phase: Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5)
-- [ ] #13 Spec phase: Wiki re-ground (runbook expected reviews)
+- [x] #13 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
