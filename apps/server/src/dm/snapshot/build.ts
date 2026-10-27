@@ -191,6 +191,7 @@ export function buildSnapshot(
       aliases: dedupe([
         ...nameTerms(npc.name, [npc.id, combatantId ?? ""]),
         combatant?.name,
+        ...npc.identity.aliases,
       ]),
       kind: "npc",
       controller: { kind: "dm" },

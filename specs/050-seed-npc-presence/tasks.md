@@ -130,7 +130,7 @@ presence. Snag is one actor before and after he becomes a combatant.
 
 ### Tests first
 
-- [ ] T014 [US3] Create `apps/server/test/dm/seed-npc-presence.test.ts`. Read
+- [x] T014 [US3] Create `apps/server/test/dm/seed-npc-presence.test.ts`. Read
       `docs/design/m2-demo/demo-session/transcript.jsonl` from a path built on `import.meta.url`.
       Parse each line with `StoredEventSchema`, fold with `applyEvent` from
       `emptyProjections({ role: "dm" })` (as `test/dm/snapshot-fixtures.ts` does), and build a snapshot with `loadSeed("greyhollow-ford")`
@@ -140,11 +140,11 @@ presence. Snag is one actor before and after he becomes a combatant.
         `combatantId: "snag"` and `presence: "present"`;
       - the log holds 0 `scene-presence.changed` rows;
       - `diffSnapshots(S298, S301).actors` holds 0 entries of kind `presence`.
-- [ ] T015 [US3] In the same file, append one synthetic `scene-presence.changed` row (seq 334,
+- [x] T015 [US3] In the same file, append one synthetic `scene-presence.changed` row (seq 334,
       `actorId: "snag"`, `before: "present"`, `after: "absent"`, `reason: "fled"`) to the seq-301
       fold. Assert Snag reads `absent` and the diff from S301 holds exactly one `presence` entry
       (scenario 3).
-- [ ] T016 [US4] [P] In `apps/server/test/dm/snapshot.test.ts`, assert (User Story 4, scenarios
+- [x] T016 [US4] [P] In `apps/server/test/dm/snapshot.test.ts`, assert (User Story 4, scenarios
       1 and 2): before `combatant.add`, actor `snag` is `kind: "npc"` with `combatantId: null`;
       after it, the same id has `combatantId: "snag"`, a prior presence row still applies, and no
       `monster` actor `snag` exists. Assert NPC `aliases` end with the seed aliases, deduped
@@ -152,9 +152,9 @@ presence. Snag is one actor before and after he becomes a combatant.
 
 ### Implementation
 
-- [ ] T017 [US2] In `apps/server/src/dm/snapshot/build.ts`, append `npc.identity.aliases` to the
+- [x] T017 [US2] In `apps/server/src/dm/snapshot/build.ts`, append `npc.identity.aliases` to the
       NPC `aliases` (plan D6). Change nothing else in the build.
-- [ ] T018 [US2] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md`: rule 7 (seed
+- [x] T018 [US2] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md`: rule 7 (seed
       declarations reach presence only as logged rows), §4 (seed aliases), and the U8 extension
       row marked Built with the U9 note (contract `seed-presence.md` §4).
 

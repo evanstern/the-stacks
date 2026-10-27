@@ -171,6 +171,9 @@ the DM view.
    *Amended 2026-10-27 (TASK-0141, operator ruling OQ-4: "reuse UNKNOWN_COMBATANT with reason absent"):* `presence` comes from the
    `scenePresence` projection, keyed by actor `id` (party: character id; NPC: NPC id; monster:
    combatant id). An actor with no entry is `present`. An entry that matches no actor is ignored.
+   *Amended 2026-10-27 (TASK-0142, operator ruling OQ-2: "I accept the recommended defaults OQ-1 to OQ-6 (a)"):*
+   seed declarations (`beats[].presence`) reach `presence` only as logged `scene-presence.changed`
+   rows, written at scene start and at encounter start. The build never reads the seed for presence.
 8. **No seed.** With `seed` null, rule 3 adds nothing, every `sheet` is null, and `seedId` is
    null. The chronicle builds this way when its seed fails to load.
 9. **Id collision.** Two different actors with the same `id` throw
@@ -185,7 +188,11 @@ title list as `partyNameTerms` in `nodes/audit.ts`); the engine name and the see
 name per rules 3 and 4. The title list moves to `snapshot/aliases.ts`, and `partyNameTerms`
 calls it. `partyNameTerms` output stays byte-identical, which the existing audit tests prove.
 
-TASK-0142 (U8) may add seed-declared aliases. TASK-0143 (U3) matches prose against `aliases`.
+*Amended 2026-10-27 (TASK-0142, operator ruling OQ-6: "I accept the recommended defaults OQ-1 to OQ-6 (a), including ... the Greyhollow aliases \"the keeper\", \"the boy\", \"the goblin leader\""):*
+a seed NPC's `identity.aliases` append after the derived terms, deduped. Greyhollow Ford: Wenna "the keeper",
+Pell "the boy", Snag "the goblin leader".
+
+TASK-0143 (U3) matches prose against `aliases`.
 
 ## 5. The diff: `diffSnapshots(s0, s1)`
 
@@ -330,7 +337,7 @@ renders it for `dm.audit`, and TASK-0143 (U3) and TASK-0147 (U9) read it in code
 | Card | Extends |
 |---|---|
 | TASK-0141 (U2) | **Built** (spec 048, 2026-10-27): `presence` read from the logged presence event; `left`/`presence` diff entries from real changes |
-| TASK-0142 (U8) | seed NPC initial presence per beat; seed-declared aliases; one identity across NPC and combatant (rule 3 is the U1 join) |
+| TASK-0142 (U8) | **Built** (spec 050, 2026-10-27): seed NPC initial presence per beat, as logged rows; seed-declared aliases; one identity across NPC and combatant (rule 3 is the U1 join; the seed cross-check pins `identity.combatant` to the NPC `id`). *Amended 2026-10-27 (TASK-0142, operator rulings OQ-1 to OQ-6).* Note for TASK-0147 (U9): seed rows carry `actionId: null` and a `seed:presence:` key. They are code-owned, not an unrolled change to another actor. |
 | TASK-0104 | monster stats on `sheet` (or a sibling field) so modifiers derive from the snapshot |
 | TASK-0112 (U6) | **Built** (spec 046, 2026-10-27): the plan gate checks step actor and target ids against S0 actors' `combatantId`. TASK-0141 adds the `absent` reason (presence). **Built** (spec 048): `PlanFailureReason` gains `absent`; the verdict code stays `UNKNOWN_COMBATANT`. *Amended 2026-10-27 (TASK-0141, operator ruling OQ-4).* |
 | TASK-0143 (U3), TASK-0144 (U4) | the claim checker keyed to `aliases`, reading S1 and the diff |
