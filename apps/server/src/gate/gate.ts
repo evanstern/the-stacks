@@ -331,30 +331,28 @@ export function createGate(deps: GateDeps): Gate {
     sessionId: string,
     input: { purpose: PresencePurpose; actionId?: string },
   ): Promise<RecordPresenceResult> {
+    // The marker depends on no projection state, so it skips the projection load and the
+    // expectedLastSeq check; a load here replays the whole log once per turn. The log's
+    // per-session advisory lock orders the append; the conflict retry stays for the seam.
     for (let n = 1; n <= MAX_ATTEMPTS; n++) {
       try {
-        const p = await loadProjections(db, sessionId, { role: "dm" });
         const present = presence
           .presentUsers(sessionId)
           .map((u) => u.userId)
           .sort();
-        const [event] = await append(
-          db,
-          [
-            {
-              sessionId,
-              actor: "system",
-              type: "presence.recorded",
-              payload: {
-                present,
-                purpose: input.purpose,
-                ...(input.actionId ? { actionId: input.actionId } : {}),
-              },
-              visibility: "public",
+        const [event] = await append(db, [
+          {
+            sessionId,
+            actor: "system",
+            type: "presence.recorded",
+            payload: {
+              present,
+              purpose: input.purpose,
+              ...(input.actionId ? { actionId: input.actionId } : {}),
             },
-          ],
-          { expectedLastSeq: p.throughSeq },
-        );
+            visibility: "public",
+          },
+        ]);
         if (!event) throw new Error("presence marker was not stored");
         notify(sessionId, [event]);
         return { ok: true, event };
