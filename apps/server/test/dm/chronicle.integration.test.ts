@@ -5,10 +5,10 @@ import {
   enqueueTurn,
   listDmJobs,
 } from "../../src/dm/jobs.js";
+import { listModelCalls } from "../../src/dm/model-calls.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
 import { loadProjections } from "../../src/session/projections.js";
 import { withManyMonsters } from "./snapshot-fixtures.js";
-import { listModelCalls } from "../../src/dm/model-calls.js";
 import {
   clearDmJobsBeforeEach,
   script,
@@ -210,7 +210,7 @@ describe.skipIf(!reachable)("chronicle (database)", () => {
       new AbortController().signal,
     );
     expect(seen).toEqual([live.throughSeq + 1]);
-    expect(result).toEqual({ entries: 0, calls: [] });
+    expect(result).toEqual({ entries: 0, seqs: [], calls: [] });
     expect(logs.find((l) => l.event === "dm.chronicle.failed")).toMatchObject({
       kind: "state-overflow",
       view: "fiction",

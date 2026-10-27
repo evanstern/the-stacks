@@ -128,7 +128,7 @@ export async function runChronicleJob(
       kind: "state-overflow",
       ...error.detail,
     });
-    return { entries: 0, calls: [] };
+    return { entries: 0, seqs: [], calls: [] };
   }
   const result = await callJson(deps, {
     purpose: PURPOSE_OF.chronicle,
