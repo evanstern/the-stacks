@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 05:24'
+updated_date: '2026-10-27 05:28'
 labels:
   - debug-view
   - web
@@ -43,7 +43,7 @@ Spec: specs/041-debug-page
 - [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
 - [x] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
-- [ ] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
+- [x] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
 - [ ] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
 - [ ] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
 - [ ] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
@@ -67,6 +67,8 @@ Phase 1 done (86a9b63): debug data layer.
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (orchestrator session 2): merge a4cf579, code 86a9b63. Local ci:check without a stack fails only on adjudicate.integration (pre-existing, TASK-0138); the rest of ci:check passes. ReadAttempt is derived from the stored audit shape (deterministic/llm issues, proseSha256); data-model.md clarification rides Phase 2.
+
+Phase 2 done (39a5822): debug derivations.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
