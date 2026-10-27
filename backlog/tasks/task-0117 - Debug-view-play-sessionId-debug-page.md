@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 05:28'
+updated_date: '2026-10-27 05:29'
 labels:
   - debug-view
   - web
@@ -69,6 +69,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (orchestrator session 2): merge a4cf579, code 86a9b63. Local ci:check without a stack fails only on adjudicate.integration (pre-existing, TASK-0138); the rest of ci:check passes. ReadAttempt is derived from the stored audit shape (deterministic/llm issues, proseSha256); data-model.md clarification rides Phase 2.
 
 Phase 2 done (39a5822): debug derivations.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (39a5822): derivations. Orchestrator accepts the implementer's open choices: fallback badge from result.audit.final; a held turn leaves the strip once its companion job succeeds; scrub folds directly for non-ascending logs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
