@@ -51,21 +51,21 @@ automation uses Brave. No "for now" without a card.
 
 **Independent test**: `pnpm --filter @the-stacks/session-model test` passes with the new suite.
 
-- [ ] T001 Create `packages/session-model/src/events/presence.ts`: `PRESENCE_PURPOSES`
+- [x] T001 Create `packages/session-model/src/events/presence.ts`: `PRESENCE_PURPOSES`
   (`director`, `signoff`, `floor`) and `PresenceRecordedV1` per contracts/presence-marker.md.
   Refine `present` to sorted ascending and unique. Cite decision-0024 in the file comment.
-- [ ] T002 Add `presence.recorded` to `sessionEntries` in `packages/session-model/src/catalog.ts`:
+- [x] T002 Add `presence.recorded` to `sessionEntries` in `packages/session-model/src/catalog.ts`:
   kind `marker`, visibility `any`. Add its payload to `SessionPayloads`.
-- [ ] T003 Add `PresenceView` and `SessionProjections.presence` in
+- [x] T003 Add `PresenceView` and `SessionProjections.presence` in
   `packages/session-model/src/projections/types.ts` per data-model.md.
-- [ ] T004 In `packages/session-model/src/projections/apply.ts`, start `presence` at `null`.
+- [x] T004 In `packages/session-model/src/projections/apply.ts`, start `presence` at `null`.
   Replace it on each `presence.recorded` row. Do not add a transcript entry.
-- [ ] T005 [P] Export the schema, purposes and view type from
+- [x] T005 [P] Export the schema, purposes and view type from
   `packages/session-model/src/index.ts`. Update `packages/session-model/test/exports.test.ts`.
-- [ ] T006 [P] Add a `presenceMarker` stream to `packages/session-model/src/fixtures/index.ts`
+- [x] T006 [P] Add a `presenceMarker` stream to `packages/session-model/src/fixtures/index.ts`
   (two `director` markers with different sets, plus talk rows). Update `fixtureIds` and
   `packages/session-model/test/fixtures.test.ts`.
-- [ ] T007 Write `packages/session-model/test/presence.test.ts`: the catalog entry's kind and
+- [x] T007 Write `packages/session-model/test/presence.test.ts`: the catalog entry's kind and
   visibility; schema rejects unsorted, duplicate and over-64 `present`; the fold keeps the
   latest marker with its `seq`; the transcript is unchanged; a player viewer sees the view;
   `project()` replays deterministically. Update `packages/session-model/test/catalog.test.ts`.

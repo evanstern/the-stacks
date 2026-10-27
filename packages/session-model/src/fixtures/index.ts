@@ -2,6 +2,7 @@ import type { SessionFixture } from "./build.js";
 import { commitAuthority } from "./commit-authority.js";
 import { dmApprovals } from "./dm-approvals.js";
 import { freeModeAction } from "./free-mode-action.js";
+import { presenceMarker } from "./presence-marker.js";
 import { proposalExamples } from "./proposal-examples.js";
 import { secretTracker } from "./secret-tracker.js";
 import { talkOnly } from "./talk-only.js";
@@ -15,6 +16,7 @@ export {
   commitAuthority,
   dmApprovals,
   freeModeAction,
+  presenceMarker,
   proposalExamples,
   secretTracker,
   talkOnly,

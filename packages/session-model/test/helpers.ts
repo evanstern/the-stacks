@@ -276,6 +276,10 @@ export const sessionPayloads: Record<string, unknown> = {
     before: "auto",
     after: "ask",
   },
+  "presence.recorded": {
+    present: [PLAYER_A],
+    purpose: "director",
+  },
 };
 
 /** A payload that fails the schema of the same type. */
@@ -376,6 +380,11 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
       after: "ask",
     },
     { reason: "x", proposalKind: "journal", before: "auto", after: "never" },
+  ],
+  "presence.recorded": [
+    { present: ["not-a-uuid"], purpose: "director" },
+    { present: [], purpose: "everyone" },
+    { present: [] },
   ],
 };
 

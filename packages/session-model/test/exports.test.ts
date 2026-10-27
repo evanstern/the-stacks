@@ -54,12 +54,19 @@ describe("package entry points", () => {
     }
   });
 
+  it("the main entry exports the presence vocabulary", () => {
+    expect("PresenceRecordedV1" in main).toBe(true);
+    expect(main.PRESENCE_PURPOSES).toEqual(["director", "signoff", "floor"]);
+  });
+
   it("the fixtures subpath exports the contract, with types", () => {
     const list: readonly SessionFixture[] = fx.fixtures;
     const recipes: readonly MechanicsRecipe[] = fx.recipes;
     expect(list).toHaveLength(7);
     expect(recipes.length).toBeGreaterThan(0);
     expect(fx.fixtureIds.dmActor).toBe("ai:dm");
+    expect(fx.presenceMarker.name).toBe("presence-marker");
+    expect(list).not.toContain(fx.presenceMarker);
     expect(fx.talkOnly.name).toBe("talk-only");
     expect(fx.unknownAndInvalid.name).toBe("unknown-and-invalid");
     expect(main.project(list[0]?.events ?? [], { role: "dm" }).throughSeq).toBe(
