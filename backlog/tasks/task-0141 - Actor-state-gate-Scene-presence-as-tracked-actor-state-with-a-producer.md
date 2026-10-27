@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:17'
+updated_date: '2026-10-27 13:26'
 labels:
   - dm
   - rules-gate
@@ -73,6 +73,9 @@ Phase 2 (T007-T025) at 0a2a837, 9219e31 (main merge fee800f). REQUIRE_DATABASE=1
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (T026-T030) at 1b83c14: snapshot reads presence from the scenePresence projection; plan gate refuses absent actors/targets with UNKNOWN_COMBATANT reason absent; frozen 040 rule 7 amended (OQ-4) plus Built markers in its extension table (reviewed by the orchestrator). REQUIRE_DATABASE=1 ci:check exit 0. The plan-gate presence branch uses a local guard until Phase 4 adds the effect to EffectSchema.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 (T031-T041) at 82d9d85: presence effect in EffectSchema, resolve submits scene-presence, skipped turn.advance when the active combatant leaves, presence facts, frozen 031 resolve.md amended (OQ-2). REQUIRE_DATABASE=1 ci:check exit 0 (server 1064 passed). Gap found: a reclaim after the leave landed but before the checkpoint saved would advance twice; sent back for a fix in this task (orchestrator ruling: the skipped advance is new in this task, so it ships hardened).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
