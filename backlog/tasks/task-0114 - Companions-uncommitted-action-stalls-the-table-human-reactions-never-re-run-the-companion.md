@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:11'
+updated_date: '2026-10-27 04:20'
 labels:
   - dm
   - companions
@@ -54,6 +54,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 2, T020-T027; failing repro f99b4df (evidence/T021-failing-on-phase1-tip.txt), fix 2932c20; merge condition T021 met; prompt dm.companion-v3.)
 
 PROMPT VERSION COLLISION (orchestrator, 2026-10-27): TASK-0140's spec also bumps dm.companion to v3; whichever merges second bumps to the next free version after merging main.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 3 withdraw (W-A), T030-T037, commit 530c418; action.withdraw kind + action.withdrawn event; 029/028/031 contracts amended citing the W ruling; dm.companion-v4.)
+ORCHESTRATOR RULING 2026-10-27: the active companion in turn mode that withdraws its only open action must still end its turn (same stall class as this card: the table must never wait on a companion). Fixed in-task as Phase 3b, not deferred.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
