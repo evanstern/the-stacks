@@ -1,10 +1,10 @@
 ---
 id: TASK-0135
 title: 'Design: actor-state rule gate over every model-generated output'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 04:11'
+updated_date: '2026-10-27 04:22'
 labels:
   - design
   - dm
@@ -54,6 +54,12 @@ OPERATOR RULINGS 2026-10-26 (in chat): 'Add all, D17 order' -> TASK-0140 to TASK
 
 AC #4 met: TASK-0140's spec set is committed (specs/040-actor-snapshot, 1fd1f48, branch task-0140-actor-snapshot), written against decision-0025.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #60 (c4fe8c6). decision-0025 (D17): every model output passes code gates over a snapshot of every tracked actor and the stage; plot moves only through recorded facts; a change to another actor needs a roll against it or an engine-coded SRD rule (operator ruling, formulation 3). Amends decision-0017 and decision-0022 point 3. Design: docs/design/actor-state-gate.md. Cards TASK-0140 to TASK-0147; U6 folded into TASK-0112. Runbook amendment 1 and the 2026-10-27 handoff landed with it. Escape line E3; AC #4's spec is specs/040-actor-snapshot.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
