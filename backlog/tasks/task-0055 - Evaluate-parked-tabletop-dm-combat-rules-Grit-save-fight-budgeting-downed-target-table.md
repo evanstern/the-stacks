@@ -3,10 +3,10 @@ id: TASK-0055
 title: >-
   Evaluate parked tabletop-dm combat rules: Grit save, fight budgeting,
   downed-target table
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:32'
+updated_date: '2026-10-27 03:48'
 labels:
   - revisit
   - engine
@@ -50,6 +50,12 @@ Decision recorded: decision-0023 (D15). Grit save, fight budgeting and downed-ta
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (decision record; served verified by the orchestrator from the transcript's assistant-message model field; ~81k tokens.) Decision body written into the CLI-created file: backlog decision create has no body option.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #57. decision-0023 (D15) rejects the Grit save, fight budgeting and the downed-target table on First Scene evidence (docs/design/m2-demo.md Fight statistics: 5 rounds, no hero at 0 HP, 0 death saves, ended by flight). TASK-0122 is the single re-entry path for any combat-pacing rule. Escape line E1: the decision record stands in for the spec set. Operator ruling 2026-10-26 option A.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
