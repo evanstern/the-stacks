@@ -4,7 +4,7 @@ title: 'Play route: an unseated operator with an AI DM seat views as a player'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 03:34'
+updated_date: '2026-10-27 03:38'
 labels:
   - play-route
   - web
@@ -50,4 +50,7 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 038; served verified from transcript; ~130k tokens.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phases 1+2 grouped by orchestrator call, small card; commits 088e722, ab61727; ~102k tokens; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
