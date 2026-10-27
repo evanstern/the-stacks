@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 19:52'
+updated_date: '2026-10-27 19:59'
 labels:
   - dm
   - rules-gate
@@ -56,6 +56,12 @@ Recommended defaults:
 - OQ-6 (a): replace all four anonymous checks with keyed ones.
 
 Operator ruling 2026-10-27 (verbatim): "TASK-0143: I accept the recommended defaults OQ-1 to OQ-6 (a), including the dm.narrate-v5 prompt bump and a follow-up card for checking roll reasons at the plan gate."
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Resumed spec author for plan.md, design artifacts and tasks.md: 5393f72, e9014b0. The follow-up is TASK-0161.) Orchestrator ruling, applying OQ-5 (a); the operator may overturn it. FR-004a adds two exemptions to the act-and-speech rule, so that the fallback still passes the checker (FR-011):
+- It skips an actor whose life state or presence changed this turn, for example "Snag flees.", or a last act before a death.
+- It skips the phrase "<name> acts/moves next".
+No evidence case depends on either one.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
