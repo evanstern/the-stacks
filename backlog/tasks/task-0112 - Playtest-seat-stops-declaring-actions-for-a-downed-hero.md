@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:54'
+updated_date: '2026-10-27 12:54'
 labels:
   - playtest
   - harness
@@ -91,6 +91,9 @@ Phase 6 done (3363dbe): 11 notes re-pinned; ci:check green with REQUIRE_DATABASE
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 6 (merge 9878726, wiki 3363dbe): 9 notes amended (NEEDS-REVIEW), 2 re-pinned only. Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+Reconciled with origin/main after #70 (merge baecb93, re-pin 3bfc40c). Freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Both gate-api.md amendments kept verbatim.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
