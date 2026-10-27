@@ -33,3 +33,47 @@ test("an empty list shows No pending proposals", () => {
   );
   expect(html).toContain("No pending proposals");
 });
+
+function rows(html: string): string[] {
+  return html.split("<li").slice(1);
+}
+
+test("a suggest row shows Suggestion and Dismiss and no Approve (AC #3)", () => {
+  const html = renderToStaticMarkup(
+    <ProposalList proposals={list} onApprove={noop} onReject={noop} />,
+  );
+  const items = rows(html);
+  const p3 = items[list.findIndex((p) => p.policy === "suggest")];
+  expect(p3).toContain("Suggestion");
+  expect(p3).toContain(">Dismiss<");
+  expect(p3).not.toContain(">Approve<");
+  expect(p3).not.toContain(">Reject<");
+  expect(p3).not.toContain("Reason for rejecting");
+  // T006: Dismiss is a plain button.
+  expect(p3).toMatch(/<button type="button"[^>]*>Dismiss</);
+});
+
+test("ask rows keep Approve and Reject and have no Dismiss", () => {
+  const html = renderToStaticMarkup(
+    <ProposalList proposals={list} onApprove={noop} onReject={noop} />,
+  );
+  const items = rows(html);
+  list.forEach((p, i) => {
+    if (p.policy !== "ask") return;
+    expect(items[i]).toContain(">Approve<");
+    expect(items[i]).toContain(">Reject<");
+    expect(items[i]).not.toContain(">Dismiss<");
+  });
+});
+
+test("a suggest-only list contains no Approve", () => {
+  const html = renderToStaticMarkup(
+    <ProposalList
+      proposals={list.filter((p) => p.policy === "suggest")}
+      onApprove={noop}
+      onReject={noop}
+    />,
+  );
+  expect(html).not.toContain(">Approve<");
+  expect(html).toContain(">Dismiss<");
+});

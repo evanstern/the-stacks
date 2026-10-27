@@ -87,6 +87,7 @@ test("proposals reach the DM only", () => {
   const proposal = {
     proposalId: "p1",
     kind: "narration",
+    policy: "ask",
     summary: "s",
     proposer: "ai:dm",
     proposerLabel: "DM",
