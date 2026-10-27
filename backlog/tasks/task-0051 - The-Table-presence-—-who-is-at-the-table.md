@@ -1,10 +1,10 @@
 ---
 id: TASK-0051
 title: 'The Table: presence — who is at the table'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 05:14'
+updated_date: '2026-10-27 05:15'
 labels:
   - multiplayer
   - realtime
@@ -29,16 +29,16 @@ Spec: specs/035-presence
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A decision record states how presence is carried (protocol frame or session event) and why.
-- [ ] #2 Every connected client sees the list of present players and the DM.
-- [ ] #3 A disconnect updates presence within a stated timeout.
-- [ ] #4 The gate and the Director read presence through one server-side interface.
-- [ ] #5 Tests cover join, leave and reconnect.
-- [ ] #6 Spec phase: Session model — the marker event (Foundational; FR-018, FR-021)
-- [ ] #7 Spec phase: Live presence and the protocol amendment (US1, US2; FR-002–FR-005, FR-008–FR-013)
-- [ ] #8 Spec phase: The marker writer and the Director (US3; FR-012–FR-016, FR-019–FR-023)
-- [ ] #9 Spec phase: The presence strip (US1; FR-005–FR-007, FR-024; merge condition)
-- [ ] #10 Spec phase: Wiki (re-ground)
+- [x] #1 A decision record states how presence is carried (protocol frame or session event) and why.
+- [x] #2 Every connected client sees the list of present players and the DM.
+- [x] #3 A disconnect updates presence within a stated timeout.
+- [x] #4 The gate and the Director read presence through one server-side interface.
+- [x] #5 Tests cover join, leave and reconnect.
+- [x] #6 Spec phase: Session model — the marker event (Foundational; FR-018, FR-021)
+- [x] #7 Spec phase: Live presence and the protocol amendment (US1, US2; FR-002–FR-005, FR-008–FR-013)
+- [x] #8 Spec phase: The marker writer and the Director (US3; FR-012–FR-016, FR-019–FR-023)
+- [x] #9 Spec phase: The presence strip (US1; FR-005–FR-007, FR-024; merge condition)
+- [x] #10 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -83,6 +83,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 (evidence commit e00f2e4: operator Brave screenshots join-a.png / leave-a.png, T037 ticked, OPERATOR-STEPS create-operator fix.) Merge condition met: window A lists AI DM, Ben and op on join; Ben gone after window B closed.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #65. decision-0024 (D16, operator ruling option D at C2): an opt-in subscribe.presence flag and full-snapshot presence frame (amends the frozen ws-protocol contract), plus a logged presence.recorded marker each DM turn so the Director reads presence from the log (Constitution IV). Tracker with 5 s grace, 10 s ping heartbeat; observers shown; presence strip in the table header. Merge condition met by the operator's Brave screenshots (specs/035-presence/evidence/join-a.png, leave-a.png). Spec 035. Multi-process store: revisit TASK-0136.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
