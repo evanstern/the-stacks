@@ -3,10 +3,10 @@ id: TASK-0114
 title: >-
   Companion's uncommitted action stalls the table; human reactions never re-run
   the companion
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:59'
+updated_date: '2026-10-27 09:19'
 labels:
   - dm
   - companions
@@ -69,6 +69,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Merged in PR #63 (773d4e4); stack down, worktree and branch removed. Board stays In Progress until specs/036-companion-react/tasks.md T038 is annotated not-applicable (it applied only under W-B; the operator ruled W-A). That annotation rides the next task branch (TASK-0140), then spec-bridge sync moves this card to Done.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet): 5/5 · Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet): 8/8 · Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A: 10/10 · Wiki (re-ground) — DISPATCH (sonnet): 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
