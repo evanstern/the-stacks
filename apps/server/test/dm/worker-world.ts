@@ -17,7 +17,11 @@ export const script = (name: string) =>
 
 export function workerFor(
   w: World,
-  opts: { retrieve?: DmWorkerDeps["retrieve"]; nodes?: Nodes } = {},
+  opts: {
+    retrieve?: DmWorkerDeps["retrieve"];
+    nodes?: Nodes;
+    reactQuietMs?: number;
+  } = {},
 ) {
   const base = w.ctx().deps;
   const nudges = { count: 0 };
@@ -27,6 +31,7 @@ export function workerFor(
       nudges.count += 1;
     },
     loadProjections: base.loadProjections,
+    reactQuietMs: opts.reactQuietMs,
   });
   w.gate.onAppended((sessionId, rows) => {
     void enqueuer.onAppended(sessionId, rows);

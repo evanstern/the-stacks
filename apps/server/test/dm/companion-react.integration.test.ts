@@ -1,8 +1,26 @@
 import { randomUUID } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+import { runCompanionJob } from "../../src/dm/companion.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import { listDmJobs } from "../../src/dm/jobs.js";
-import { loudSkip, reachable, requireDb } from "./world.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
+import {
+  clearDmJobsBeforeEach,
+  drainAll,
+  tick,
+  workerFor,
+} from "./worker-world.js";
+import {
+  createWorld,
+  db,
+  loudSkip,
+  player,
+  reachable,
+  readRows,
+  requireDb,
+  startScene,
+  type World,
+} from "./world.js";
 
 /**
  * The gate listener's react rule (specs/036-companion-react FR-001-FR-004):
@@ -11,6 +29,10 @@ import { loudSkip, reachable, requireDb } from "./world.js";
  */
 
 loudSkip("companion-react.integration.test.ts");
+afterAll(async () => {
+  await db?.$client.end();
+});
+clearDmJobsBeforeEach();
 
 const HUMAN = "00000000-0000-4000-8000-0000000000a1";
 
@@ -105,5 +127,143 @@ describe.skipIf(!reachable)("companion react trigger (database)", () => {
     const rows = await jobs();
     expect(rows).toHaveLength(1);
     expect(companions(rows[0] as never)).toEqual(["odo"]);
+  });
+});
+
+const companionCall = (value: unknown) => ({
+  purpose: "dm.companion",
+  respond: { type: "json", value },
+});
+
+const jsonCall = (purpose: string, value: unknown) => ({
+  purpose,
+  respond: { type: "json", value },
+});
+
+const turnCalls = (actionId: string) => [
+  jsonCall("dm.director", {
+    beat: { decision: "resolve" },
+    tableMode: { to: "stay" },
+    trackers: [],
+    scene: { status: "continue" },
+    pacing: { tension: "low", spotlight: null, beatId: "ferry-house" },
+    goalNote: "Let the party settle on Odo's caution.",
+    companionPrompts: [],
+  }),
+  jsonCall("dm.interpret", {
+    readings: [
+      {
+        actionId,
+        intent: "talk",
+        uncertain: false,
+        needsAdjudication: false,
+        rulesQuestion: null,
+        clarify: null,
+        steps: [],
+      },
+    ],
+  }),
+  {
+    purpose: "dm.narrate",
+    respond: {
+      type: "text",
+      value: "Odo lowers his voice and tells the party to wait and listen.",
+    },
+  },
+  jsonCall("dm.audit", { verdict: "pass", issues: [] }),
+  jsonCall("dm.chronicle", { entries: [] }),
+];
+
+/** Odo declares `act-odo-1` without committing it (M2 e8c848ec seq 29-34). */
+async function odoDeclaresOpenAction(w: World) {
+  const base = w.ctx().deps;
+  const result = await runCompanionJob(
+    {
+      gateway: base.gateway,
+      gate: base.gate,
+      loadProjections: base.loadProjections,
+      loadSeed: (id: string) => loadSeed(id),
+      enqueueTurnForced: async () => {},
+      fence: async () => true,
+      log: () => {},
+    },
+    {
+      id: "00000000-0000-4000-8000-0000000000c1",
+      input: {
+        v: 1 as const,
+        sessionId: w.sessionId,
+        companions: ["odo"],
+        reason: "prompt" as const,
+        beatJobId: null,
+      },
+    },
+    new AbortController().signal,
+  );
+  expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+    ["action.declare", true],
+  ]);
+}
+
+const humanComment = (
+  w: World,
+  stance: "comment" | "approve" | "object",
+  text: string,
+) =>
+  w.as(player, {
+    kind: "action.comment",
+    comment: { actionId: "act-odo-1", stance, text },
+  });
+
+describe.skipIf(!reachable)("companion react resolution (database)", () => {
+  it("M2 e8c848ec seq 35-38: a human reaction re-runs Odo and closes act-odo-1", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [{ actionId: "act-odo-1", decision: "commit", text: null }],
+        }),
+        ...turnCalls("act-odo-1"),
+      ],
+    });
+    const { worker } = workerFor(w, { reactQuietMs: 0 });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    expect((await w.projections()).actions[0]?.status).toBe("declared");
+
+    expect((await humanComment(w, "comment", "Who is there?")).ok).toBe(true);
+    expect((await humanComment(w, "approve", "Let's be cautious")).ok).toBe(
+      true,
+    );
+    await tick();
+    await drainAll(worker);
+
+    const jobs = (await listDmJobs(requireDb(), w.sessionId, 20)).reverse();
+    const companionRuns = jobs.filter((j) => j.kind === "companion");
+    expect(
+      companionRuns.map((j) => (j.input as { reason: string }).reason),
+    ).toEqual(["react"]);
+    expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+
+    const rows = await readRows(w);
+    const committed = rows.find((r) => r.type === "action.committed");
+    expect(committed?.actor).toBe("ai:companion:odo");
+    expect((committed?.payload as { actionId: string }).actionId).toBe(
+      "act-odo-1",
+    );
+    expect(
+      jobs.filter((j) => j.kind === "turn").map((j) => j.error ?? j.status),
+    ).toEqual(["succeeded"]);
+    const odo1 = (await w.projections()).actions.find(
+      (a) => a.actionId === "act-odo-1",
+    );
+    expect(odo1?.status).toBe("resolved");
   });
 });
