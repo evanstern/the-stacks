@@ -4,6 +4,7 @@ import { project } from "@the-stacks/session-model";
 import {
   fixtureIds,
   fixtures,
+  groupSignoff,
   secretTracker,
   talkOnly,
   turnModeCombat,
@@ -201,4 +202,25 @@ test("a 1,000-event talk log projects and maps in under 50 ms", () => {
   }
   assert.equal(out.transcript.length, 1000);
   assert.ok(ms < 50, `took ${ms.toFixed(1)} ms`);
+});
+
+test("sign-off rows ride open party cards only", () => {
+  const [ana, cleo] = groupSignoff.viewers.players;
+  const open = groupSignoff.events.filter((e) => e.seq <= 5);
+  const card = (events, viewer, present) =>
+    toTableViewModel(project(events, viewer), {
+      actor: viewer.userId,
+      proposals: [],
+      present,
+    }).transcript.find((i) => i.kind === "action").card;
+  const c = card(open, cleo, [ana.userId, cleo.userId]);
+  assert.deepEqual(
+    c.signoff.map((r) => [r.userId, r.state, r.isViewer]),
+    [
+      [ana.userId, "approved", false],
+      [cleo.userId, "objects", true],
+    ],
+  );
+  const closed = card(groupSignoff.events, cleo, null);
+  assert.equal(closed.signoff, null);
 });

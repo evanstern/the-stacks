@@ -1,17 +1,18 @@
 ---
 name: presence
-description: Who is at the table (TASK-0051, decision-0024, specs/035-presence) - the in-memory tracker and PresenceReader with a 5 s grace window and a 10 s heartbeat, the opt-in presence frame, the logged presence.recorded marker the gate writes once per DM turn job, how assemble reads it, and the client strip.
+description: Who is at the table (TASK-0051, decision-0024, specs/035-presence) - the in-memory tracker and PresenceReader with a 5 s grace window and a 10 s heartbeat, the opt-in presence frame, the logged presence.recorded marker the gate writes once per DM turn job and (purpose signoff) inside a group commit batch, how assemble reads it, and the client strip.
 kind: component
 sources:
   - apps/server/src/presence/constants.ts
   - apps/server/src/presence/tracker.ts
   - apps/server/src/presence/index.ts
   - apps/server/src/gate/gate.ts
+  - packages/session-model/src/gate/plan.ts
   - apps/server/src/dm/worker.ts
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
 ---
 
 # Presence
@@ -59,9 +60,9 @@ ordinary close path and starts its grace window ([[websocket-gateway]]).
 
 `presence.recorded` v1 (`session-model/src/events/presence.ts`) is a catalogued `marker` with
 `present` (sorted, unique user ids, at most 64), `purpose` (`director`, `signoff` or `floor`) and
-optional `actionId` ([[session-model]]). `gate.recordPresence` is the only writer: a `system`
-actor, visibility `public`, no deduplication ([[proposal-gate]]). `purpose: "director"` is the
-only value written so far; TASK-0049 and TASK-0050 reserve `signoff` and `floor`. The DM worker
+optional `actionId` ([[session-model]]). `gate.recordPresence` writes the `director` marker: a `system`
+actor, visibility `public`, no deduplication ([[proposal-gate]]). `purpose: "director"` is
+written per DM turn. `purpose: "signoff"` is written by the gate (TASK-0049, specs/044-group-signoff) inside the commit batch of a party action with two or more human players, with the `actionId` and the present set the quorum was decided against; it is not written through `recordPresence`. Only `floor` stays reserved (TASK-0050). The DM worker
 writes one per claimed `turn` job, before the pipeline, and stores its `seq` as `presenceSeq` in
 the job result; a failed write fails the turn at node `presence`
 ([[dm-turn-jobs]], [[dm-failure-and-gates]]). The DM enqueuer ignores the row, so a marker never

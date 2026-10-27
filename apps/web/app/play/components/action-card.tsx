@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { SignoffRowState } from "../signoff.ts";
 import type { CommentInput, CommitInput, WithdrawInput } from "../source.ts";
 import type { ActionCardView } from "../view-model.ts";
 import { CommitControl } from "./commit-control.tsx";
@@ -16,6 +17,68 @@ const STATUS_LABEL: Record<ActionCardView["status"], string> = {
   resolved: "Resolved",
   withdrawn: "Withdrawn",
 };
+
+const SIGNOFF_LABEL: Record<SignoffRowState, string> = {
+  approved: "Approved",
+  objects: "Objects",
+  waiting: "Waiting",
+  absent: "Away",
+};
+
+const SIGNOFF_TONE: Record<SignoffRowState, string> = {
+  approved: "bg-secondary text-foreground",
+  objects: "bg-destructive/15 text-destructive",
+  waiting: "bg-muted text-muted-foreground",
+  absent: "bg-muted text-muted-foreground opacity-70",
+};
+
+function SignoffList({
+  actionId,
+  rows,
+  onComment,
+}: {
+  actionId: string;
+  rows: NonNullable<ActionCardView["signoff"]>;
+  onComment: (input: CommentInput) => boolean;
+}) {
+  return (
+    <section aria-label="Sign-off" className="mt-2 text-sm">
+      <h4 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Sign-off
+      </h4>
+      <ul className="mt-1 flex flex-col gap-1">
+        {rows.map((row) => (
+          <li
+            key={row.userId}
+            className="flex flex-wrap items-center gap-2"
+            data-state={row.state}
+          >
+            <strong>{row.label}</strong>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${SIGNOFF_TONE[row.state]}`}
+            >
+              {SIGNOFF_LABEL[row.state]}
+            </span>
+            {row.isViewer && (
+              <span className="ml-auto flex gap-2">
+                {(["approve", "object"] as const).map((stance) => (
+                  <button
+                    key={stance}
+                    type="button"
+                    onClick={() => onComment({ actionId, stance, text: "" })}
+                    className="rounded-md border border-border px-3 py-1 text-sm hover:bg-accent"
+                  >
+                    {stance === "approve" ? "Approve" : "Object"}
+                  </button>
+                ))}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function CommentForm({
   actionId,
@@ -94,12 +157,24 @@ export function ActionCard({
             <li key={c.seq}>
               <strong>{c.actorLabel}</strong>{" "}
               <span className="text-muted-foreground">
-                {c.stance === "comment" ? "commented" : `${c.stance}d`}
+                {c.stance === "comment"
+                  ? "commented"
+                  : c.stance === "approve"
+                    ? "approved"
+                    : "objected"}
               </span>
               {c.text ? `: ${c.text}` : null}
             </li>
           ))}
         </ul>
+      )}
+
+      {card.open && card.signoff && (
+        <SignoffList
+          actionId={card.actionId}
+          rows={card.signoff}
+          onComment={onComment}
+        />
       )}
 
       {card.open && (

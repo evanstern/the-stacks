@@ -28,6 +28,11 @@ proposal type" becomes "a future type"). Every listed fact stays: `skippedUnknow
 |---|---|---|
 | `dm-approvals` | `dm.seat.changed` AI → human (`dmUserId`, actor `dmUserId`); `scene.changed` and two party joins (Ana: player; Bram: companion), all by `dmUserId` (direct); `gate.policy.changed` (`journal`: auto → ask) by `dmUserId`; Ana declares and commits a lockpick in free mode (`declarer`); P1 `mechanics` `check.roll` proposal from `ai:dm` (`ask`) then `proposal.approved` by `dmUserId` landing **after** the `check.roll` batch (consecutive seqs, envelopes carry `proposalId` P1); `action.resolved` (`applied`) by `ai:dm`; P2 `narration` (`ask`) then `proposal.rejected` with a reason; P3 `scene` (`suggest`), left pending; P4 `tracker` create (`ask`), left pending; P5 `table-mode` free → turn (`ask`), left pending | DM viewer: `proposals` has P1–P5 in that order with statuses approved, rejected, pending, pending, pending and policies ask, ask, suggest, ask, ask; `pendingProposals` returns P3, P4, P5; `gate.seat` is the human DM; `gate.policyOverrides` is `{ journal: "ask" }`; `trackers` is `[]` (P4 is only proposed). Each player viewer: `proposals` is `[]`; serialized projections contain none of P1–P5's ids and none of P4's tracker name; the ledger holds the approved roll |
 | `commit-authority` | AI seat; Ana (player) and Bram (companion) join; free mode: Ana declares A1 (character), Bram declares B1 (character), Ana declares a party action P1 (party), Bram comments `approve` on P1; `table-mode.changed` free → turn with `activeActor` Bram; Ana declares A2 | The table below |
+| `group-signoff` | AI seat; Ana and Cleo (players) and Bram (companion) join; Ana declares party action P1; Cleo objects, then approves; the approval row is followed by a `presence.recorded` marker (`signoff`, `[Ana, Cleo]`, P1) and `action.committed` (`group`, actor Cleo); Ana declares party action P2; Cleo objects; `ai:dm` commits P2 (`dm`) | P1 `committed.authority` is `group`, P2 is `dm`; the marker names both players and P1; `commitAuthority` for Ana on P2 with both present returns `GROUP_SIGNOFF_REQUIRED` with `objecting: [Cleo]` |
+
+> **Amendment (TASK-0049).** The `group-signoff` row is added by the 2026-10-27 operator
+> ruling ("I accept the defaults on the TASK-0099 and TASK-0049 cards, including the
+> frozen-contract amendments to spec 029 and spec 006"). The fixtures list has eight entries.
 
 `commit-authority` facts: `commitAuthority(dmFold, { actor }, actionId)` at the end of the
 stream (turn mode, Bram active):
@@ -66,4 +71,7 @@ kind's body in the approval panel from these.
 3. Re-planning P1 with `planProposal` against the DM fold just before its approval, with the
    recipe's faces and the fixture's batch id, yields exactly the fixture's batch rows and
    `proposal.approved` row payloads.
-4. The SC-006 replay check (policy-and-authority.md) holds for every fixture.
+4. The SC-006 replay check (policy-and-authority.md) holds for every fixture. For each
+   `action.committed`, `present` is the `present` of the latest `presence.recorded` row with
+   purpose `signoff` and the same `actionId` before the commit, or omitted when none exists
+   (Amendment TASK-0049).
