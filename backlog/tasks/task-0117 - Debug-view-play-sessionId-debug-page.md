@@ -48,8 +48,10 @@ Spec: specs/041-debug-page
 - [x] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
 - [x] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
 - [x] #16 Spec phase: Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet)
-- [ ] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
+- [x] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
