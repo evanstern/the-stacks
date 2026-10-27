@@ -24,6 +24,7 @@ export function TableHeader({
   presence,
   ledgerOpen,
   approvalsOpen,
+  debugHref,
   onLedger,
   onApprovals,
 }: {
@@ -32,6 +33,7 @@ export function TableHeader({
   presence: readonly PresenceRow[];
   ledgerOpen: boolean;
   approvalsOpen: boolean;
+  debugHref?: string;
   onLedger: () => void;
   onApprovals: () => void;
 }) {
@@ -82,6 +84,11 @@ export function TableHeader({
           <span>Pending proposals ({model.proposals.length})</span>
           {chevron(approvalsOpen)}
         </button>
+      )}
+      {debugHref && (
+        <a href={debugHref} target="_blank" rel="noopener" className={TRIGGER}>
+          Debug
+        </a>
       )}
     </header>
   );

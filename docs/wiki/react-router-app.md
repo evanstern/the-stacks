@@ -1,6 +1,6 @@
 ---
 name: react-router-app
-description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) - framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (role-aware "/" redirect, ask/books/play/settings/about, play/:sessionId, operator-only play/fixtures), root.tsx as the loader-driven identity gate wrapping the app shell, and the client-only play routes. Retires spa-shell.
+description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) - framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (role-aware "/" redirect, ask/books/play/settings/about, play/:sessionId, operator-only play/:sessionId/debug and play/fixtures), root.tsx as the loader-driven identity gate wrapping the app shell, and the client-only play routes. Retires spa-shell.
 kind: component
 sources:
   - apps/web/app/root.tsx
@@ -9,13 +9,14 @@ sources:
   - apps/web/app/routes/play.tsx
   - apps/web/app/routes/play-fixtures.tsx
   - apps/web/app/routes/play-fixture.tsx
+  - apps/web/app/routes/play-debug.tsx
   - apps/web/app/routes/about.tsx
   - apps/web/app/sign-in.tsx
   - apps/web/react-router.config.ts
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
+verified_against: 796789aff1155daf0baf77c66ba90f272100035a
 ---
 
 # React Router app
@@ -37,13 +38,14 @@ constructs a `RouterContextProvider`, sets `stacksContext` (`app/context.ts`,
 `createContext<StacksLoadContext>()`) on it, and calls the request handler — the context key,
 its provider, and every loader that reads it live in one module graph (plan D5, research R1).
 
-**`routes.ts`** declares nine routes (TASK-0028 added four to the original two; TASK-0043 added `about`; TASK-0047 added the two fixture routes):
+**`routes.ts`** declares ten routes (TASK-0028 added four to the original two; TASK-0043 added `about`; TASK-0047 added the two fixture routes; TASK-0117 added the debug route):
 `index("routes/home.tsx")`, `route("ask", "routes/ask.tsx")`,
 `route("books", "routes/books.tsx")`, `route("play", "routes/table.tsx")` (the Table
 landing — join-by-id or start a fresh one), `route("play/fixtures", "routes/play-fixtures.tsx")` and
 `route("play/fixtures/:fixtureName", "routes/play-fixture.tsx")` (operator-only fixture previews),
 `route("play/:sessionId", "routes/play.tsx")`
-(the live session, rendered by `TableView`), `route("about", "routes/about.tsx")` (the SRD 5.2.1 attribution, CC-BY-4.0, a plain route not a modal; imports only `@the-stacks/srd/attribution` so no SRD data reaches the client bundle; see [[srd-data]]), and `route("settings", "routes/settings.tsx")`. The play and fixture routes are [[play-route]]'s concern; `ask.tsx`,
+(the live session, rendered by `TableView`), `route("play/:sessionId/debug", "routes/play-debug.tsx")`
+(the operator debug page, a client-only route; see [[debug-view]]), `route("about", "routes/about.tsx")` (the SRD 5.2.1 attribution, CC-BY-4.0, a plain route not a modal; imports only `@the-stacks/srd/attribution` so no SRD data reaches the client bundle; see [[srd-data]]), and `route("settings", "routes/settings.tsx")`. The play and fixture routes are [[play-route]]'s concern; `ask.tsx`,
 `books.tsx`, `table.tsx`, and `settings.tsx` are [[chat-ui]]'s concern — this note covers
 only the tree's shape and which file backs each path.
 
@@ -81,7 +83,7 @@ opens only exists in the browser. It reads the signed-in user via
 `useRouteLoaderData<typeof rootLoader>("root")` (rendering `HydrateFallback` until there is
 one) and renders `play/table-view.tsx`'s `TableView` over `useLiveTable(sessionId, user)`,
 which drives [[client-session-hook]]'s `useSession`; no optimistic append. The TASK-0047
-fixture routes follow the same client-only pattern and render `OperatorOnly` for non-operators.
+fixture routes and the TASK-0117 debug route (`play-debug.tsx`, a `clientLoader` plus `HydrateFallback` that renders `DebugGate`) follow the same client-only pattern and render `OperatorOnly` for non-operators.
 
 ## Connections
 

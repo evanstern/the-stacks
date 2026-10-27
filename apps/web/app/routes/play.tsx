@@ -25,5 +25,8 @@ function LiveTable({
   sessionId: string;
   user: { id: string; role: string };
 }) {
-  return <TableView source={useLiveTable(sessionId, user)} />;
+  const source = useLiveTable(sessionId, user);
+  const debugHref =
+    user.role === "operator" ? `/play/${sessionId}/debug` : undefined;
+  return <TableView source={source} debugHref={debugHref} />;
 }
