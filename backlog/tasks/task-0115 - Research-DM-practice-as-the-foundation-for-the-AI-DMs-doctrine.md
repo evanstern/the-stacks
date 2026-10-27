@@ -1,9 +1,10 @@
 ---
 id: TASK-0115
 title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 01:44'
+updated_date: '2026-10-27 01:44'
 labels:
   - research
   - dm
@@ -28,6 +29,16 @@ Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) 
 - [ ] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
 - [ ] #6 No DMG or other non-SRD book text is committed beyond one short attributed quote per note
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Branch 0 (DM craft map), operator-approved 2026-10-26:
+1. Dispatch three sonnet gatherers in parallel; each writes cited raw extracts to the session scratchpad. A1: books (DMG 2014, XGtE, TCoE, VRGtR, CoS, LMoP) section inventory of DM-advice chapters. A2: web guides (Alexandrian, Angry GM, Sly Flourish, Matt Colville) topic inventory. A3: the-stacks doctrine, decisions and specs: AI-DM components and what doctrine covers today.
+2. Dispatch one sonnet assembler: scaffold the vault in docs/research/, write the DM-Craft-Map branch (grounding, MOC, neutral notes), pass the branch gate.
+3. Orchestrator (opus) reviews and writes the analysis note: competency x component x refactor risk, ranked deep-dive branches.
+4. Operator check-in on the map before branch 1 (dice versus player).
+<!-- SECTION:PLAN:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
