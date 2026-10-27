@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/fallback.ts
   - apps/server/src/dm/nodes/audit.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 4af42befcf49b1e666df097dcd49e1d3b35e4057
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # DM narration quality
@@ -64,4 +64,5 @@ flag.
 
 ## Prompt versions
 
-`dm.narrate-v3`, `dm.audit-v2`, `dm.director-v2`, `dm.chronicle-v2`, `dm.companion-v2`.
+`dm.narrate-v3`, `dm.audit-v2`, `dm.director-v2`, `dm.chronicle-v2`, `dm.companion-v4` (v3 added the react trigger, v4 the withdraw and revise decisions; see
+[[dm-runtime]]).

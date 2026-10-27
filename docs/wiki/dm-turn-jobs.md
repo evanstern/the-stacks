@@ -10,7 +10,7 @@ sources:
   - apps/server/src/schema/jobs.ts
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # DM turn jobs
@@ -27,6 +27,9 @@ worker in the server process drains them. Nothing here is a new queue technology
 | `companion` | one or more AI companions acting once | 2 |
 | `chronicle` | one journal pass for a session | 3 |
 
+A `companion` payload's `reason` is `hold`, `turn`, `prompt` or `react`. A `react` payload also
+carries `firstReactionAt` and `notBefore` (ISO UTC, database time; specs/036-companion-react).
+
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
 `approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`. Stages are the node names plus
@@ -39,7 +42,11 @@ Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `index.ts` ([[server-entrypoint-and-app]]). An `action.committed` row enqueues a `commit` turn.
 A `proposal.approved` or `proposal.rejected` row whose proposal's proposer is `ai:dm` (found
 in the DM projection) enqueues an `approval` turn so the DM resumes. Then it calls `nudge()`. A
-failure is logged, not thrown; reconcile repairs it. `enqueueTurn` is `INSERT ... ON CONFLICT
+failure is logged, not thrown; reconcile repairs it. A human `action.commented` row on an
+open (`declared` or `discussed`) action of an AI companion also calls `enqueueCompanionReact`
+(quiet window 3 s, maximum wait 10 s, injectable): one queued `react` job per session
+(`jobs_companion_react_queued_key`), a further reaction merges its companion id into the
+queued job and moves `notBefore` to `least(now + quiet, firstReactionAt + maxWait)`. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so at most one beat is queued per session.
 
 ## Claim, lease, fencing
@@ -47,7 +54,8 @@ DO NOTHING` on `jobs_turn_queued_key`, so at most one beat is queued per session
 `claimDmJob` is one `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED)` like ingest's, but
 ordered: an expired running job first, then by kind priority, then age. A queued turn or
 companion job is skipped while another `turn`/`companion` job for the same session holds a live
-lease; `jobs_session_running_key` backs that with a unique index. Chronicle jobs are not
+lease, and a `react` companion job is also skipped until its `notBefore` has passed;
+`jobs_session_running_key` backs that with a unique index. Chronicle jobs are not
 serialized. `jobs/queue.ts` holds the kind-generic fenced writes (`heartbeat`, `setStage`,
 `saveResult`, `finishJob`, which takes `{ result }` or `{ error, result? }`) and the constants `LEASE_MS` 60 s, `HEARTBEAT_MS` 10 s, `POLL_MS`
 2 s, `MAX_ATTEMPTS` 3; every write filters on `claim_token`, and `false` means fenced out. The

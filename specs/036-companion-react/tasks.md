@@ -165,16 +165,16 @@ the worker claims only after its start time.
 
 ## Phase 4: Wiki (re-ground) — DISPATCH (sonnet)
 
-- [ ] T040 Classify every staled pin against `git diff <old-pin>..HEAD -- <sources>` as
+- [x] T040 Classify every staled pin against `git diff <old-pin>..HEAD -- <sources>` as
   RE-PIN-ONLY or NEEDS-REVIEW. Expected NEEDS-REVIEW (runbook): `docs/wiki/dm-runtime.md`
   ("Companions and chronicle": reason `react`, the pending-action rule) and
   `docs/wiki/dm-turn-jobs.md` (kinds and payloads, the react enqueue rule, the claim predicate,
   the new index). Under W-A also `docs/wiki/proposal-gate.md` and `docs/wiki/session-model.md`
   (thirteen kinds, `action.withdrawn`, status `withdrawn`), and `docs/wiki/play-route.md` if
   T036 changed it. Amend prose before bumping each NEEDS-REVIEW pin.
-- [ ] T041 Regenerate `docs/wiki/CAPSULES.md` when any `description:` changed. Update the state
+- [x] T041 Regenerate `docs/wiki/CAPSULES.md` when any `description:` changed. Update the state
   paragraph in `docs/wiki/INDEX.md` with one sentence on companion reactions.
-- [ ] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs
+- [x] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs
   freshness . docs/wiki` (prints `OK`), the spec-bridge check, and `pnpm ci:check`. Commit.
 
 **Checkpoint**: the task is ready for PR.

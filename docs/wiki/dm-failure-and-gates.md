@@ -11,7 +11,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # DM failure record and rules-term gates

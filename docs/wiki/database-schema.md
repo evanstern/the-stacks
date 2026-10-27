@@ -9,7 +9,8 @@ sources:
   - apps/server/drizzle/0000_mushy_thor_girl.sql
   - apps/server/drizzle/0003_dazzling_cargill.sql
   - apps/server/drizzle/0004_glamorous_warlock.sql
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+  - apps/server/drizzle/0005_lean_cable.sql
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # Database Schema
@@ -74,7 +75,7 @@ system's hottest read into a write, and it is the seed of an accidental sliding 
 is a permanent backdoor), and `redeemedAt`/`redeemedBy`, null meaning unredeemed and set
 exactly once via a conditional `UPDATE` (see [[invitations]]) — never read-then-write.
 
-**`jobs`** (TASK-0024; extended by TASK-0046, migration `0004_glamorous_warlock.sql`) — one
+**`jobs`** (TASK-0024; extended by TASK-0046, migration `0004_glamorous_warlock.sql`; react index in `0005_lean_cable.sql`) — one
 shared queue table with four `kind`s: `ingest` (one row per upload), plus the DM runtime's
 `turn`, `companion` and `chronicle` ([[dm-runtime]]). It tracks operational state
 (`queued → running → succeeded|failed`, `stage`, `attempts`, a per-claim
@@ -90,7 +91,9 @@ book IS NOT NULL`); `jobs_session_required_for_dm` (`kind = 'ingest' OR session_
 `jobs_active_book_key` (on `lower(trim(book))`) is now scoped `WHERE kind = 'ingest' AND status
 IN ('queued','running')`, so a finished book can be re-uploaded while a second concurrent upload
 is refused; `jobs_turn_queued_key` and `jobs_chronicle_queued_key` allow one queued turn / one
-queued chronicle per `session_id`; `jobs_session_running_key` allows one running `turn` or
+queued chronicle per `session_id`; `jobs_companion_react_queued_key` (migration `0005_lean_cable.sql`, TASK-0114) allows one
+queued `companion` job with `input->>'reason' = 'react'` per session;
+`jobs_session_running_key` allows one running `turn` or
 `companion` job per session. `jobs_dm_session_idx` is `(session_id, kind, status)`. Full
 lease/fencing/recovery mechanics are [[ingestion]]'s (ingest claim) and [[dm-turn-jobs]]'s (DM claim).
 

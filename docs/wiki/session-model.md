@@ -14,7 +14,7 @@ sources:
   - packages/session-model/src/gate/plan.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # Session model
@@ -35,7 +35,7 @@ Six kinds exist:
 | kind | types |
 |---|---|
 | talk | `talk`, `narration` |
-| lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved` |
+| lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn` |
 | state-change | `table-mode.changed`, `scene.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, plus engine events that change state |
 | marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed` |
 | record | `journal.entry.added` |
@@ -44,7 +44,9 @@ Six kinds exist:
 `dm.seat.changed` carries the new `DmSeat` (`{kind:"ai"}` or `{kind:"human",userId}`);
 `gate.policy.changed` carries `proposalKind`, `before` and `after` policy. `proposal.created`
 holds `{ proposalId, policy, proposal }`; `proposal.approved` holds `{ proposalId, batchId }`;
-`proposal.rejected` holds `{ proposalId, reason }`.
+`proposal.rejected` holds `{ proposalId, reason }`. `action.withdrawn` holds `{ actionId }`
+(TASK-0114); the action projection folds it to status `withdrawn`, a closed state that no
+later comment, commit or resolve reopens.
 
 Engine event types are derived from `EngineEventSchema`, so the catalog tracks the engine
 without a second list. State-change payloads carry `before` and `after`.
