@@ -1,0 +1,412 @@
+{
+  "v": 1,
+  "runId": "20261026T103427Z-greyhollow-ford-ci",
+  "sessionId": "e9d67bb0-8c17-4a2e-b3b8-dbe6e7d5f00a",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T10:34:29.379Z",
+  "commit": "0ce29e832ac857b2123cc89db5e469c322133ff9",
+  "verdict": "pass",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 84,
+    "narrations": 8,
+    "segments": 8,
+    "rolls": 16,
+    "findings": {
+      "fail": 0,
+      "warn": 0,
+      "note": 0
+    }
+  },
+  "segments": [
+    {
+      "index": 0,
+      "narrationSeq": 10,
+      "fromSeq": 1,
+      "toSeq": 10,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 1,
+      "narrationSeq": 18,
+      "fromSeq": 11,
+      "toSeq": 18,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 2,
+      "narrationSeq": 26,
+      "fromSeq": 19,
+      "toSeq": 26,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 3,
+      "narrationSeq": 45,
+      "fromSeq": 27,
+      "toSeq": 45,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 4,
+      "narrationSeq": 50,
+      "fromSeq": 46,
+      "toSeq": 50,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 5,
+      "narrationSeq": 61,
+      "fromSeq": 51,
+      "toSeq": 61,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 6,
+      "narrationSeq": 72,
+      "fromSeq": 62,
+      "toSeq": 72,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 7,
+      "narrationSeq": 83,
+      "fromSeq": 73,
+      "toSeq": 83,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    }
+  ],
+  "findings": [],
+  "fight": {
+    "rounds": 1,
+    "turns": {
+      "players": 2,
+      "npcs": 1
+    },
+    "attackRolls": {
+      "players": 3,
+      "npcs": 1
+    },
+    "hits": {
+      "players": 3,
+      "npcs": 0
+    },
+    "damageDealt": {
+      "players": 15,
+      "npcs": 0
+    },
+    "damageTaken": {
+      "players": 0,
+      "npcs": 15
+    },
+    "reducedToZero": [],
+    "deathSaveRolls": 0,
+    "fledOrBargained": [
+      "Snag offers the clapper for safe passage.",
+      "Snag trades the clapper for safe passage and the way is clear."
+    ],
+    "fledOrBargainedNote": null,
+    "turnModeNarrations": 4
+  },
+  "models": {
+    "dm.director": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.interpret": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.adjudicate": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.narrate": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.audit": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.chronicle": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.companion": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "embedding": {
+      "provider": "scripted",
+      "model": "scripted-embed"
+    },
+    "playtest.audit": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    }
+  },
+  "modelNote": "playtest.audit and dm.narrate resolve to the same provider and model; prefer a different model family for the auditor.",
+  "usage": {
+    "calls": 8,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "costUsd": null
+  }
+}

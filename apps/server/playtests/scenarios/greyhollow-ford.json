@@ -1,0 +1,49 @@
+{
+  "v": 1,
+  "name": "greyhollow-ford",
+  "seedId": "greyhollow-ford",
+  "seat": {
+    "characterId": "tamsin",
+    "userId": "00000000-0000-4000-8000-0000000000a1"
+  },
+  "moves": {
+    "free": [
+      {
+        "text": "I search the ferry-house for whoever cut the bell rope.",
+        "actionId": "act-search"
+      },
+      {
+        "text": "I tell Wenna we will bring Pell home, and ask her for the safe path.",
+        "actionId": "act-persuade"
+      },
+      {
+        "text": "I follow the old timber posts into the reeds toward the camp.",
+        "actionId": "act-advance"
+      }
+    ],
+    "combat": {
+      "text": "I swing my longsword at the goblin in the pot-helm.",
+      "firstActionId": "act-strike"
+    },
+    "fallback": [
+      {
+        "text": "I look the stranger in the eye and ask what they want from us."
+      },
+      {
+        "text": "I crouch and study the mud, the posts and the chain for anything out of place."
+      },
+      {
+        "text": "I offer a fair trade and promise no harm if they let us pass."
+      },
+      { "text": "I keep to the old posts and edge toward the reed camp." },
+      { "text": "I ready my sword, lower my voice and step forward slowly." }
+    ]
+  },
+  "limits": { "maxMoves": 30, "maxWallMs": 3600000 },
+  "dice": { "faces": [], "seed": null },
+  "ci": {
+    "dmScript": "../../test/dm/scripts/greyhollow-ford-full.json",
+    "auditScript": "../fixtures/greyhollow-ford.audit.json",
+    "retrieve": "../fixtures/greyhollow-ford.retrieve.json"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "runId": "20261027T021335Z-session-e8c848ec",
+  "mode": "session",
+  "commit": "2b9b1f1ecdb2fb74b21499635396ee7eeb765bc1",
+  "sessionId": "e8c848ec-11e9-442d-9bfa-8c26a0d84fcd",
+  "seedId": "greyhollow-ford",
+  "models": {},
+  "startedAt": "2026-10-26T20:43:13.521Z",
+  "finishedAt": "2026-10-27T02:13:01.727Z",
+  "outcome": "ended",
+  "moves": {
+    "committed": 28,
+    "refusals": []
+  }
+}

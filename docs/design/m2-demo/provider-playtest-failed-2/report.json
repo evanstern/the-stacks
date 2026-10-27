@@ -1,0 +1,277 @@
+{
+  "v": 1,
+  "runId": "20261026T142758Z-greyhollow-ford-provider",
+  "sessionId": "61246885-6640-4c30-8f4e-48660ff4fbd9",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T14:31:01.857Z",
+  "commit": "d994673dcf5c5c972e167ca53e3a854b961deb09",
+  "verdict": "incomplete",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 31,
+    "narrations": 3,
+    "segments": 4,
+    "rolls": 1,
+    "findings": {
+      "fail": 3,
+      "warn": 0,
+      "note": 1
+    }
+  },
+  "segments": [
+    {
+      "index": 0,
+      "narrationSeq": 10,
+      "fromSeq": 1,
+      "toSeq": 10,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": false
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 1,
+      "narrationSeq": 16,
+      "fromSeq": 11,
+      "toSeq": 16,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 2,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 2,
+      "narrationSeq": 25,
+      "fromSeq": 17,
+      "toSeq": 25,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    },
+    {
+      "index": 3,
+      "narrationSeq": null,
+      "fromSeq": 26,
+      "toSeq": 31,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "error": "parse"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "source": "check",
+      "check": "dice-lines",
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 0,
+      "doctrineId": null,
+      "seqs": [
+        10
+      ],
+      "detail": "The dice lines differ from the ledger (expected 0, found 1)."
+    },
+    {
+      "id": "F2",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        11,
+        16
+      ],
+      "detail": "Row #11 records small clawed tracks pressed into the dust, but #16 claims the dust gives up nothing, no print."
+    },
+    {
+      "id": "F3",
+      "source": "auditor",
+      "check": null,
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        11,
+        16
+      ],
+      "detail": "#16 refers to the creak sounding \"again\" and the stillness \"as before\", but no prior creak exists anywhere in the cited rows."
+    },
+    {
+      "id": "F4",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        16
+      ],
+      "detail": "final: passed-after-regenerate; attempts: 3; issues: ledger-mismatch, player-agency, doctrine, invented-mechanics"
+    }
+  ],
+  "fight": null,
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "modelNote": null,
+  "usage": {
+    "calls": 7,
+    "inputTokens": 37376,
+    "outputTokens": 4326,
+    "costUsd": 0.29503
+  }
+}

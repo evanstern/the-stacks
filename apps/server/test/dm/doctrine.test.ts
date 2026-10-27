@@ -42,17 +42,19 @@ describe("doctrine attribution (AC #14)", () => {
   });
 
   it("rule 3: every prompt module importing doctrine holds the notice in its header", () => {
-    const dir = join(SRC, "prompts");
-    if (!existsSync(dir)) return; // vacuous until Phase 3 adds dm/prompts/
-    for (const file of readdirSync(dir).filter((f) => f.endsWith(".ts"))) {
-      const source = readFileSync(join(dir, file), "utf8");
-      if (!/doctrine\/doctrine(\.js)?["']/.test(source)) continue;
-      const firstImport = source.search(/^import /m);
-      const header = source.slice(
-        0,
-        firstImport === -1 ? source.length : firstImport,
-      );
-      expect(header, file).toContain(NOTICE_SENTENCE);
+    const dirs = [join(SRC, "prompts"), join(SRC, "..", "playtest", "auditor")];
+    for (const dir of dirs) {
+      if (!existsSync(dir)) continue; // vacuous until the directory exists
+      for (const file of readdirSync(dir).filter((f) => f.endsWith(".ts"))) {
+        const source = readFileSync(join(dir, file), "utf8");
+        if (!/doctrine\/doctrine(\.js)?["']/.test(source)) continue;
+        const firstImport = source.search(/^import /m);
+        const header = source.slice(
+          0,
+          firstImport === -1 ? source.length : firstImport,
+        );
+        expect(header, file).toContain(NOTICE_SENTENCE);
+      }
     }
   });
 

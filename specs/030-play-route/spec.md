@@ -429,6 +429,7 @@ the DM's window.
 - **Who is the DM viewer.** In M2 the operator role is the DM viewer and a player is a player
   viewer by user id (specs/028-session-model, Assumptions). A single signed-in operator does not
   also play a character on the live route.
+  Amended (TASK-0048, operator ruling 2026-10-26): an operator is the DM viewer only when holding the DM seat; seated as a character, they view as that player.
 - **Commit authority shown, not enforced.** The route shows the commit control by
   decision-0016's table. Enforcement is the gate's (TASK-0045 AC #6). After TASK-0045 merges,
   the route adopts the gate's own rule if TASK-0045 exports one to the client.

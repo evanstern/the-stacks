@@ -1,0 +1,566 @@
+[
+  {
+    "id": "845d9984-1de1-4fc7-8176-927f525a1016",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:29.122Z",
+    "finishedAt": "2026-10-26T10:34:29.211Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "90f8699c22b2ccfb8299c3f353128f464a4c751124fbc238fe403e4533439590",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "90f8699c22b2ccfb8299c3f353128f464a4c751124fbc238fe403e4533439590"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "05152743-0f3c-48f1-9a57-960832c8f072",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:29.097Z",
+    "finishedAt": "2026-10-26T10:34:29.122Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "bcc08d06-3d0f-49e3-8444-bc1af1046018",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:29.003Z",
+    "finishedAt": "2026-10-26T10:34:29.096Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "d8d13a03f7d0442b779d54a01b98f77942253e00399971d68ecf8ad314489be1",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "d8d13a03f7d0442b779d54a01b98f77942253e00399971d68ecf8ad314489be1"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "df391375-a056-4b06-9871-d6c3a8a511d8",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:28.977Z",
+    "finishedAt": "2026-10-26T10:34:29.228Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "abe05e05-c320-42fb-99fe-4b24f02298a2",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:28.973Z",
+    "finishedAt": "2026-10-26T10:34:29.003Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2af3ea62-540a-467c-9361-3381de13a28d",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:28.840Z",
+    "finishedAt": "2026-10-26T10:34:28.970Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "9552a66cf15e4d9fdf0b871e0c50789367f2dbeeeb707fb3d7d81fe94f593ae2",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "9552a66cf15e4d9fdf0b871e0c50789367f2dbeeeb707fb3d7d81fe94f593ae2"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "203cd957-7901-4ab6-bbf7-a9f1354250e0",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:28.633Z",
+    "finishedAt": "2026-10-26T10:34:28.718Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d9151b8d-05b4-4f4a-9ce7-a7872fcc16b2",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "npc-turn",
+    "createdAt": "2026-10-26T10:34:28.629Z",
+    "finishedAt": "2026-10-26T10:34:28.702Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "a8f230b72c842dbd5c1555a35a1a481de8747a29b36c849214537793d7998185",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "a8f230b72c842dbd5c1555a35a1a481de8747a29b36c849214537793d7998185"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "6f5aeac4-a53f-4be3-934e-e3582aa87423",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:28.456Z",
+    "finishedAt": "2026-10-26T10:34:28.628Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "8b66c038331b33fdab1af855d8501fccefd96c5f335b7d2ee76d4938fe4aaeb4",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "8b66c038331b33fdab1af855d8501fccefd96c5f335b7d2ee76d4938fe4aaeb4"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f01b0531-b5ec-4dc4-99dd-e258fb89fda1",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:28.326Z",
+    "finishedAt": "2026-10-26T10:34:28.336Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "ce564d17-576a-45bc-a455-6c7ed373cf87",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:28.204Z",
+    "finishedAt": "2026-10-26T10:34:28.323Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "98f89e9587b2ab872d4f1f477c8382bf5bec346774bfced3ac9a5a489ce0a8dc",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "98f89e9587b2ab872d4f1f477c8382bf5bec346774bfced3ac9a5a489ce0a8dc"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.adjudicate",
+        "promptVersion": "dm.adjudicate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "e581850d-46ef-458d-98e1-80b28cb597a5",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:28.071Z",
+    "finishedAt": "2026-10-26T10:34:28.082Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "cb9fd4aa-dc62-45f5-b0cd-65f97626fc07",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T10:34:27.941Z",
+    "finishedAt": "2026-10-26T10:34:28.067Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "5934671d3409a11ffcf30dff6ac3c4936bd21dce23becc9e0ec6b6906e9539ea",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "5934671d3409a11ffcf30dff6ac3c4936bd21dce23becc9e0ec6b6906e9539ea"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "9653c766-e947-4ece-b700-9739a32970f6",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T10:34:27.800Z",
+    "finishedAt": "2026-10-26T10:34:27.817Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "81a3c4b6-c05d-43e9-9a40-bff1ecf4f01d",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "scene-start",
+    "createdAt": "2026-10-26T10:34:27.643Z",
+    "finishedAt": "2026-10-26T10:34:27.797Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "af680d94f96bfb228330589d50a65ecd07df76f7360755affceb9faf7f71a5e0",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "af680d94f96bfb228330589d50a65ecd07df76f7360755affceb9faf7f71a5e0"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  }
+]

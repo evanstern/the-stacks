@@ -120,6 +120,8 @@ active companion always acts (a null act becomes a hold action). A `hold` direct
 force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new.
 
+The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end to end in process and audits the result against the same facts renderers.
+
 ## Routes and boundary
 
 `routes/dm.ts` (mounted at `/dm`, operator-only, [[server-entrypoint-and-app]]):

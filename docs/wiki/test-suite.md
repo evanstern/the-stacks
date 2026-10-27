@@ -27,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 7472cb5cc6c247a5d35cbecc7e73ff47ff7b4b3f
 ---
 
 # Test suite
@@ -41,10 +41,10 @@ TASK-0029 and TASK-0030 share a third such subdirectory, `apps/server/test/bench
 TASK-0030's unit file plus two environment-gated integration files, all run the same
 loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], including why 5 of
 the load bench's tests are *always* skipped, by name, even with a reachable database.
+TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated integration files, one the CI playtest ([[m2-demo]]) ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` and
 `gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry and a
-restart losing nothing) and `write-boundary.test.ts` (no database; the AC #1 import-graph check,
-[[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
+restart losing nothing) and `write-boundary.test.ts` (no database; AC #1 import-graph check, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that

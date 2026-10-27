@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "purpose": "dm.director",
+      "provider": "claude",
+      "model": "cc/claude-opus-5",
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "durationMs": 1037,
+      "attempts": 3,
+      "outcome": "error",
+      "at": "2026-10-26T14:27:12.852Z"
+    }
+  ],
+  "totals": {
+    "calls": 1,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "costUsd": 0
+  }
+}

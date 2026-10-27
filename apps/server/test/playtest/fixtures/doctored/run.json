@@ -1,0 +1,66 @@
+{
+  "v": 1,
+  "runId": "doctored-fixture",
+  "mode": "ci",
+  "commit": "9fcae02cbe0893317e0ea1e45f14c7ab749aaef5",
+  "sessionId": "300f0d7c-eba6-4aaf-9e2f-1cf82d1c075d",
+  "seedId": "greyhollow-ford",
+  "models": {
+    "dm.director": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.interpret": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.adjudicate": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.narrate": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.audit": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.chronicle": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "dm.companion": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    },
+    "embedding": {
+      "provider": "scripted",
+      "model": "scripted-embed"
+    },
+    "playtest.audit": {
+      "provider": "scripted",
+      "model": "scripted-chat"
+    }
+  },
+  "startedAt": "2026-10-26T10:18:13.359Z",
+  "finishedAt": "2026-10-26T10:18:14.952Z",
+  "outcome": "ended",
+  "moves": {
+    "committed": 4,
+    "refusals": []
+  },
+  "scriptRemaining": {
+    "calls": {
+      "dm.director": 0,
+      "dm.interpret": 0,
+      "dm.adjudicate": 0,
+      "dm.narrate": 0,
+      "dm.audit": 0,
+      "dm.chronicle": 1,
+      "dm.companion": 0,
+      "playtest.audit": 0
+    },
+    "dice": 0
+  }
+}

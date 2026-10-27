@@ -9,7 +9,7 @@ sources:
   - apps/server/src/library/ddb/selectors.ts
   - biome.json
   - .gitignore
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
 ---
 
 # DDB parser
@@ -78,7 +78,7 @@ doesn't apply to a fixture. A separate, real-export private suite
 (`apps/server/test/library/ddb.private.test.ts`) reads
 `fixtures/private/ddb/<book>/**/*.html` (one subdirectory per book) when that directory
 exists and is non-empty, and loud-skips with a `console.warn` otherwise; `.gitignore`'s
-`fixtures/private/` entry keeps any real book content out of version control, and the suite
+`fixtures/private/` entry keeps any real book content out of version control (a later entry, `.playtests/`, ignores playtest run directories and is unrelated to this parser), and the suite
 itself only ever logs per-book counts, never book text (constitution VIII). A perf suite
 (`ddb.perf.test.ts`) parses a synthetic ~300-page book (the three fixtures repeated) and
 asserts it finishes well inside a generous, CI-safe bound.
