@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-27 02:45'
+updated_date: '2026-10-27 02:51'
 labels:
   - first-scene
   - test
@@ -43,8 +43,10 @@ Spec: specs/032-playtest-harness
 - [x] #8 Spec phase: The auditor (US2; AC #2, #3)
 - [x] #9 Spec phase: Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence)
 - [x] #10 Spec phase: Demo runbook and record template (US4, US5 preparation; AC #4, #5)
-- [ ] #11 Spec phase: The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5)
+- [x] #11 Spec phase: The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
