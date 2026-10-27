@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-27 02:26'
+updated_date: '2026-10-27 02:45'
 labels:
   - first-scene
   - test
@@ -156,6 +156,8 @@ Operator demo finding (6), UI: dice lines in narration (e.g. 'Tamsin Vale — �
 OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: keep playing with the workaround (commit Tamsin's action). Card the companion stall in m-3.' Finding 5 recurred during the resumed demo. Carded on main: TASK-0114.
 
 Demo complete and recorded (draft) at 7ff5e52: scene ended (seq 330), 47 DM turns, 0 failed, 10 fallbacks; audit $2.87 (11/24/23). Record resolutions await the operator's sign-off. Orchestrator handoff written to docs/design/m2-first-scene-sweep-runbook.md ('Handoff — 2026-10-27 UTC') on this branch.
+
+Demo record sign-off (operator, 2026-10-27, in chat with the third orchestrator session): (1) Accept all: every proposed-accepted advisory row and F19 are accepted. (2) Agree, criterion met: F40 carded to TASK-0111; F49 and F52 false positive (row 301: no hostiles left; F52 read the stale journal at row 303); 'narration never contradicts the ledger' is met. (3) F32 false positive (Pell is a world character). (4) Card findings 1, 2, 6 in m-3: TASK-0131 (OOC ask-the-DM channel), TASK-0132 (progress between Commit and narration), TASK-0133 (dice lines distinct). Finding 3 accepted.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
