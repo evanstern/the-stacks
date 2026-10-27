@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 09:59'
+updated_date: '2026-10-27 10:04'
 labels:
   - multiplayer
   - gate
@@ -36,7 +36,7 @@ Spec: specs/044-group-signoff
 - [ ] #5 The play route shows sign-off state per player and an approve or object control.
 - [ ] #6 Gate tests cover approval, objection and DM override with several players.
 - [x] #7 Spec phase: The sign-off rule and commit authority (pure core)
-- [ ] #8 Spec phase: The planner, the marker rows and the fixture
+- [x] #8 Spec phase: The planner, the marker rows and the fixture
 - [ ] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
 - [ ] #10 Spec phase: The play route shows sign-off (US4)
 - [ ] #11 Spec phase: Wiki re-ground
@@ -68,6 +68,8 @@ Phase 1 done (75e51b8): signoff.ts (signoffState), commitAuthority present arg +
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge 1ee88d1, work 75e51b8): signoffState plus commitAuthority with an optional present set. The 029 policy-and-authority.md amendment was made as ruled. session-model passes 618 tests.
+
+Phase 2 done (57d04bc): PlanContext + planProposal context param; multi-human group commit plans [presence.recorded(signoff), action.committed]; completing approve plans [action.commented, marker, action.committed]; GROUP_SIGNOFF_REQUIRED details; group-signoff fixture (8 fixtures); SC-006 replay reads present from the marker; spec 029 gate-api.md and fixtures.md amended (T008-T016). session-model 650 tests green; ci:check fails only on the 5 known adjudicate.integration tests (TASK-0138). A comment without context.present never auto-commits.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
