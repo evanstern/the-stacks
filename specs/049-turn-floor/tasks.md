@@ -107,20 +107,20 @@ the whole floor.
 **Independent test**: `pnpm --filter @the-stacks/session-model test`, including the replay check
 over the new fixture.
 
-- [ ] T009 [P] [US4] Extend `packages/session-model/test/gate-plan.test.ts`: `action.commit` with
+- [x] T009 [P] [US4] Extend `packages/session-model/test/gate-plan.test.ts`: `action.commit` with
       `override: "stall"` from `ai:dm` plans `[presence.recorded(signoff), action.committed(dm)]`;
       from a human, on a character action, or with one party human → `INVALID_PROPOSAL`; with a
       quorum member objecting → `GROUP_SIGNOFF_REQUIRED` with `objecting`; a plain `dm` commit
       still writes no marker (research R11).
-- [ ] T010 [US4] In `packages/session-model/src/gate/proposals.ts` add `override:
+- [x] T010 [US4] In `packages/session-model/src/gate/proposals.ts` add `override:
       z.literal("stall").optional()` to `action.commit`; in `src/gate/plan.ts` add the override
       branch (research R11).
-- [ ] T011 [US2] Create `packages/session-model/src/fixtures/turn-floor.ts` (`turnFloor`) with the
+- [x] T011 [US2] Create `packages/session-model/src/fixtures/turn-floor.ts` (`turnFloor`) with the
       steps in `contracts/floor-request.md` "Fixture"; register it in
       `packages/session-model/src/fixtures/index.ts`. Extend `test/fixtures.test.ts`.
-- [ ] T012 [US4] Extend the SC-006 replay check in `packages/session-model/test/gate-authority.test.ts`
+- [x] T012 [US4] Extend the SC-006 replay check in `packages/session-model/test/gate-authority.test.ts`
       per `contracts/floor-request.md` "Replay check" (stall commits and `floor`-marker batches).
-- [ ] T013 [US4] Amend `specs/029-proposal-gate/contracts/fixtures.md` (the `turn-floor` row and
+- [x] T013 [US4] Amend `specs/029-proposal-gate/contracts/fixtures.md` (the `turn-floor` row and
       the replay additions; FT-4), `proposals.md` and `gate-api.md` (the stall override and the
       exception to "a `dm` commit writes no marker"; FT-5), and add a note to
       `specs/044-group-signoff/contracts/signoff.md` pointing at spec 049's stall override.

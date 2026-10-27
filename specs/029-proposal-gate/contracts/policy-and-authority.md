@@ -84,6 +84,14 @@ decision-0016's table, made executable:
 | Party scope, any mode | group sign-off; with one human player in the party, that player | `group` |
 | Always | the DM: the seated human DM, or `ai:dm` (through its policy) | `dm` |
 
+Amended 2026-10-27 (TASK-0050, operator ruling FT-5): the "Always" row also covers the stall
+override. An `action.commit` from `ai:dm` with `override: "stall"` commits an unopposed party
+action with authority `dm`. The planner refuses `GROUP_SIGNOFF_REQUIRED` while a present quorum
+member objects.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
 ```ts
 export type CommitDecision =
   | { ok: true; authority: "declarer" | "active-player" | "group" | "dm" }

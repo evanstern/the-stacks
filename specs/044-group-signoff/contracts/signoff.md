@@ -107,3 +107,15 @@ omitted when none exists.
 `{ userId, label, state: "approved" | "objects" | "waiting" | "absent", isViewer }`.
 A non-present party human is `absent`. When the live present set is unknown (`null`), every
 row is shown present. No modal: rows render inside the action card.
+
+## Note: the AI DM's stall override (spec 049)
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-5):
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+Spec 049 adds `override: "stall"` to `action.commit` for `ai:dm`. It commits a party action with
+authority `dm` when no present quorum member objects, and writes a `signoff` marker first. The
+rule "a `dm` commit writes no marker" (FR-008) has this one exception. `signoffState` is
+unchanged. See `specs/049-turn-floor/contracts/floor-request.md`.

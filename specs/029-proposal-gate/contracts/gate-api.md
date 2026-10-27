@@ -71,6 +71,18 @@ Amended 2026-10-27 (TASK-0050, operator ruling FT-1, FT-2): the three `floor` ro
 > "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
 > frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 
+Amended 2026-10-27 (TASK-0050, operator ruling FT-5): the stall override. An `action.commit` with
+`override: "stall"` from `ai:dm` plans `presence.recorded` (`purpose: "signoff"`, `actionId`,
+`present` from `PlanContext` without `ai:dm`) then `action.committed` (`dm`). It refuses
+`INVALID_PROPOSAL` from any other proposer, for a character action, for fewer than two party
+humans, or without `context.present`. It refuses `GROUP_SIGNOFF_REQUIRED` with
+`details: { waiting, objecting }` while a present quorum member objects. This is the one
+exception to "a `dm` commit writes no marker" (spec 044 FR-008). The time window belongs to the
+`floor` job's stall check; the planner has no clock.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
 Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the `scene-presence` row above.
 
 > "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including

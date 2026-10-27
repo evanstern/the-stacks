@@ -18,6 +18,15 @@ The kinds grew from thirteen to fourteen, and the DM kinds from eleven to twelve
 `scene-presence` is new. `GATE_REQUEST_KINDS` grew from 17 to 18 literals. Every other rule
 below is unchanged.
 
+**Amendment (TASK-0050, stall override).** Amended 2026-10-27 (TASK-0050, operator ruling FT-5):
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+`action.commit` gains the optional field `override: "stall"`. Only `ai:dm` may send it. It applies
+to an open party action when the party has two or more humans; any other use is
+`INVALID_PROPOSAL`. The planned rows are in gate-api.md. A commit without `override` is unchanged.
+
 **Amendment (TASK-0050).** Amended 2026-10-27 (TASK-0050, operator ruling FT-1):
 
 > "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
@@ -74,7 +83,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("action.comment"), ...ProposalNote,
     comment: ActionCommentedV1 }),
   z.object({ kind: z.literal("action.commit"), ...ProposalNote,
-    actionId: RefIdSchema }),                       // authority is derived by the gate, never supplied
+    actionId: RefIdSchema,                          // authority is derived by the gate, never supplied
+    override: z.literal("stall").optional() }),     // `ai:dm` only; spec 049 stall override
   z.object({ kind: z.literal("action.withdraw"), ...ProposalNote,
     actionId: RefIdSchema }),                       // closes an open action; TASK-0114 amendment
 
