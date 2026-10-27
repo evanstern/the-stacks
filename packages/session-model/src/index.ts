@@ -93,6 +93,12 @@ export type {
 export { GateRefusalCodeSchema } from "./gate/refusals.js";
 export type { DmSeat } from "./gate/seat.js";
 export { DmSeatSchema } from "./gate/seat.js";
+export type {
+  SignoffRow,
+  SignoffStance,
+  SignoffState,
+} from "./gate/signoff.js";
+export { signoffState } from "./gate/signoff.js";
 export {
   ActorIdSchema,
   CombatantIdSchema,

@@ -10,9 +10,16 @@ import {
   outsider,
   seatedDm,
 } from "./gate-helpers.js";
-import { PLAYER_A, PLAYER_B } from "./helpers.js";
+import { PLAYER_A, PLAYER_B, type RowSpec } from "./helpers.js";
 
 const BRAM = "ai:companion:bram";
+const PLAYER_C = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+const object = (actor: string): RowSpec => ({
+  type: "action.commented",
+  payload: { actionId: "act-party", stance: "object", text: "no" },
+  opts: { actor },
+});
 
 describe("commitAuthority (AC #6)", () => {
   describe("free mode", () => {
@@ -100,10 +107,85 @@ describe("commitAuthority (AC #6)", () => {
       expect(commitAuthority(p, ana, "act-party")).toEqual({
         ok: false,
         code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: [PLAYER_B],
+        objecting: [],
       });
       expect(commitAuthority(p, { actor: PLAYER_B }, "act-party")).toEqual({
         ok: false,
         code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: [PLAYER_A],
+        objecting: [],
+      });
+    });
+    it("without present, three humans list every other human as waiting", () => {
+      const p = dmFold({
+        twoHumans: true,
+        extra: [
+          {
+            type: "party.member.changed",
+            payload: {
+              reason: "j",
+              characterId: "dara",
+              before: null,
+              after: {
+                characterId: "dara",
+                name: "Dara",
+                controller: { kind: "player", userId: PLAYER_C },
+                combatantId: null,
+              },
+            },
+          },
+        ],
+      });
+      expect(commitAuthority(p, ana, "act-party")).toEqual({
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: [PLAYER_B, PLAYER_C].sort(),
+        objecting: [],
+      });
+    });
+    it("with present, the acting human's own approval completes the quorum", () => {
+      const p = dmFold({ twoHumans: true });
+      expect(
+        commitAuthority(p, { actor: PLAYER_B }, "act-party", [
+          PLAYER_A,
+          PLAYER_B,
+        ]),
+      ).toEqual({ ok: true, authority: "group" });
+    });
+    it("with present, a waiting human blocks the declarer's commit", () => {
+      const p = dmFold({ twoHumans: true });
+      expect(
+        commitAuthority(p, ana, "act-party", [PLAYER_A, PLAYER_B]),
+      ).toEqual({
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: [PLAYER_B],
+        objecting: [],
+      });
+    });
+    it("with present, an absent waiting human does not block", () => {
+      const p = dmFold({ twoHumans: true });
+      expect(commitAuthority(p, ana, "act-party", [PLAYER_A])).toEqual({
+        ok: true,
+        authority: "group",
+      });
+    });
+    it("with present, an objector blocks and is named", () => {
+      const p = dmFold({ twoHumans: true, extra: [object(PLAYER_B)] });
+      expect(
+        commitAuthority(p, ana, "act-party", [PLAYER_A, PLAYER_B]),
+      ).toEqual({
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: [],
+        objecting: [PLAYER_B],
+      });
+    });
+    it("with present, a one-human party still commits as group", () => {
+      expect(commitAuthority(dmFold(), ana, "act-party", [PLAYER_A])).toEqual({
+        ok: true,
+        authority: "group",
       });
     });
     it("party scope applies in turn mode too", () => {
@@ -142,6 +224,33 @@ describe("commitAuthority (AC #6)", () => {
         ok: false,
         code: "COMMIT_NOT_ALLOWED",
       });
+    });
+  });
+
+  describe("the DM over an objection (US3)", () => {
+    const humanDm = dmFold({
+      twoHumans: true,
+      humanDm: true,
+      extra: [object(PLAYER_B)],
+    });
+    const aiSeat = dmFold({ twoHumans: true, extra: [object(PLAYER_B)] });
+    it("the seated human DM commits with dm, with and without present", () => {
+      expect(commitAuthority(humanDm, seatedDm, "act-party")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+      expect(
+        commitAuthority(humanDm, seatedDm, "act-party", [PLAYER_A, PLAYER_B]),
+      ).toEqual({ ok: true, authority: "dm" });
+    });
+    it("ai:dm commits with dm, with and without present", () => {
+      expect(commitAuthority(aiSeat, aiDm, "act-party")).toEqual({
+        ok: true,
+        authority: "dm",
+      });
+      expect(
+        commitAuthority(aiSeat, aiDm, "act-party", [PLAYER_A, PLAYER_B]),
+      ).toEqual({ ok: true, authority: "dm" });
     });
   });
 

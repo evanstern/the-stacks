@@ -44,6 +44,7 @@ describe("package entry points", () => {
     for (const name of [
       "checkPermission",
       "commitAuthority",
+      "signoffState",
       "routeProposal",
       "planProposal",
       "mechanicsRows",

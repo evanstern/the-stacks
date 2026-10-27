@@ -4,20 +4,23 @@ import type {
 } from "../projections/types.js";
 import type { Proposer } from "./proposals.js";
 import { type ActorRef, actorString, controls, isDm } from "./roles.js";
+import { signoffState } from "./signoff.js";
 
 export type CommitDecision =
   | { ok: true; authority: ActionAuthority }
   | {
       ok: false;
-      code:
-        | "UNKNOWN_ACTION"
-        | "ACTION_NOT_OPEN"
-        | "COMMIT_NOT_ALLOWED"
-        | "GROUP_SIGNOFF_REQUIRED";
+      code: "UNKNOWN_ACTION" | "ACTION_NOT_OPEN" | "COMMIT_NOT_ALLOWED";
+    }
+  | {
+      ok: false;
+      code: "GROUP_SIGNOFF_REQUIRED";
+      waiting: string[];
+      objecting: string[];
     };
 
 const refuse = (
-  code: Extract<CommitDecision, { ok: false }>["code"],
+  code: "UNKNOWN_ACTION" | "ACTION_NOT_OPEN" | "COMMIT_NOT_ALLOWED",
 ): CommitDecision => ({ ok: false, code });
 
 /**
@@ -28,6 +31,7 @@ export function commitAuthority(
   p: SessionProjections,
   committer: Proposer | { actor: string },
   actionId: string,
+  present?: readonly string[],
 ): CommitDecision {
   const action = p.actions.find((a) => a.actionId === actionId);
   if (!action) return refuse("UNKNOWN_ACTION");
@@ -45,7 +49,24 @@ export function commitAuthority(
       ),
     );
     if (!humans.has(actor)) return refuse("COMMIT_NOT_ALLOWED");
-    if (humans.size > 1) return refuse("GROUP_SIGNOFF_REQUIRED");
+    if (humans.size > 1) {
+      if (present === undefined) {
+        return {
+          ok: false,
+          code: "GROUP_SIGNOFF_REQUIRED",
+          waiting: [...humans].filter((u) => u !== actor).sort(),
+          objecting: [],
+        };
+      }
+      const state = signoffState(p, actionId, present, actor);
+      if (state?.met) return { ok: true, authority: "group" };
+      return {
+        ok: false,
+        code: "GROUP_SIGNOFF_REQUIRED",
+        waiting: state?.waiting ?? [],
+        objecting: state?.objecting ?? [],
+      };
+    }
     return { ok: true, authority: "group" };
   }
 
