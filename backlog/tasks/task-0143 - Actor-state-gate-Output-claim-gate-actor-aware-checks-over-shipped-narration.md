@@ -43,8 +43,6 @@ Spec: specs/051-output-claim-gate
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -73,6 +71,8 @@ No evidence case depends on either one.
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 1, T001-T007: 1b3d00b. Five refusal cases are it.fails; each failed as plain it against the stub at expect(r.pass).toBe(false). Controls pass. Both logs fold clean: M2 333 rows, run 192319Z 222 rows. ci:check without a DB: only the 5 expected adjudicate.integration failures.) Main is merged in, so the branch card copy of TASK-0142 matches Done.
+
+spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 0/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 0/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 0/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
