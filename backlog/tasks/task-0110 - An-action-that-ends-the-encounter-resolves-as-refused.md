@@ -71,6 +71,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (merge 60e3ed1, wiki 2b5158d): dm-runtime and dm-turn-jobs amended (NEEDS-REVIEW); dm-failure-and-gates and dnd5e-engine re-pinned with one sentence each; freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 
 OPERATOR RULING 2026-10-27 (in chat), on spec 045 OQ-1, the reading of §4 as Director opening and closing moves: "Approved". This ratifies option (a).
+
+spec-bridge sync: The resolve order in the contracts (US4, AC #2): 4/4 · Resolve runs the new order (US1, US2, US3): 10/10 · Reproduce rows 260–265 end to end (US1, AC #1): 4/4 · Wiki re-ground: 6/6 · Constitution Compliance (the-stacks): 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
