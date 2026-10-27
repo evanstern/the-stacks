@@ -35,11 +35,13 @@ Spec: specs/046-downed-hero-gate
 - [x] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
 - [x] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
 - [x] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
-- [ ] #9 Spec phase: Plan gate against S0 (card AC #6)
+- [x] #9 Spec phase: Plan gate against S0 (card AC #6)
 - [ ] #10 Spec phase: Death-save turns by settling (card AC #4)
 - [ ] #11 Spec phase: Driver and harness (card AC #1)
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
