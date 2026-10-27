@@ -22,6 +22,8 @@ ordinal: 129000
 Outcome: every seed NPC is an actor in the snapshot with scene presence, so claims about it can be checked. Richer NPC records stay with the Codex (M4).
 
 Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruling 2026-10-26 at checkpoint C3, formulation 3 'ledger + opposition dice'. Design and rule map: docs/design/actor-state-gate.md §5 (card U8). Dependencies as stated there: U1, U2.. Operator ruling 2026-10-26: added to m-3 Track C in decision-0025's order.
+
+Spec: specs/050-seed-npc-presence
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
