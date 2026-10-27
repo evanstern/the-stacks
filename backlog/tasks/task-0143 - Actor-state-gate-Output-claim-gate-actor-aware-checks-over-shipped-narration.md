@@ -1,9 +1,10 @@
 ---
 id: TASK-0143
 title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped narration'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
+updated_date: '2026-10-27 19:42'
 labels:
   - dm
   - rules-gate
@@ -33,6 +34,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #5 A refusal feeds the existing regenerate loop and code fallback.
 - [ ] #6 The actor-anonymous word checks in `audit-words.ts` are replaced or keyed to actors.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0143, branch task-0143-output-claim-gate, cut from origin/main 8d24c60. Spec number 051 claimed with a stub. Track C. Depends on TASK-0142 (PR #75, open): spec now, plan after #75 merges.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
