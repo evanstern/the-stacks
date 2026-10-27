@@ -51,8 +51,6 @@ Spec: specs/041-debug-page
 - [x] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -97,10 +95,13 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 6 (merge 38e6545, work b4d0378), under the operator's overnight grant: the agent drove Brave itself and took 44 shots (light and dark, 1280 and 390 px). Live checks: 96 PASS, 0 FAIL; AC #2, #9, #10 ticked. Test accounts exist only on the local stack, with generated passwords in an untracked scratchpad file. Fixes: the Seed panel matcher now reads JSON Pointers; the desktop board height and the follow-bottom scroll box. Limit: the env-configured fake provider returns empty bodies, so the live turn fails invalid-output at the director and no narrated turn appears in the shots. Carded as TASK-0158 (m-3).
 
 Phase 7 done (6308e82): merged origin/main (796789a); re-pinned 6 notes; pnpm ci:check green with REQUIRE_DATABASE=1; freshness OK; spec-bridge exit 0. Evidence: specs/041-debug-page/ci-evidence.txt.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 7 (merge 796789a, wiki 6308e82): play-route, react-router-app and debug-view amended; three notes re-pinned only. Freshness OK; ci:check passed with REQUIRE_DATABASE=1 (evidence in specs/041-debug-page/ci-evidence.txt).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
