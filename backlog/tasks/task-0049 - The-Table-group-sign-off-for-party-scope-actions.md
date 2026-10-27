@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 05:25'
+updated_date: '2026-10-27 05:30'
 labels:
   - multiplayer
   - gate
@@ -41,6 +41,18 @@ Spec: specs/044-group-signoff
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0049, branch task-0049-group-signoff, cut from origin/main adb4527. Spec number 044 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (orchestrator session 2) stopped after spec.md (45dc0ea): every build of group sign-off changes frozen 029 contract text. No new event type or frame change under the recommended options. OPERATOR RULINGS NEEDED before plan.md (recommended first):
+FT-1 policy-and-authority.md step 4: A commitAuthority takes an optional present set; >1 human returns group when every present party human's latest stance is approve, else GROUP_SIGNOFF_REQUIRED / B separate signoffStatus check.
+FT-2 gate-api.md rows + planner: A planProposal gains optional context {present?} from PresenceReader (TASK-0050's floor reuses it) / B gate appends marker+commit after planning.
+FT-3 SC-006 replay check reads present from the batch's signoff marker; add a group-signoff fixture row.
+FT-4 gate-api.md §2: GROUP_SIGNOFF_REQUIRED details {waiting, objecting} (additive).
+Q1 classification: A declarer sets scope, gate checks party membership, DM fixes by withdraw / B model-inferred / C new action.rescoped event.
+Q2 declaring counts as the declarer's approval (A) / must press Approve (B).
+Q3 C auto-commit on the completing approval plus explicit commit once quorum met / A auto only / B explicit only.
+Q4 new sign-off props on the action card (additive to proposal-seam.md); confirm.
+Q5 AI DM override of a stalled sign-off: fold into TASK-0050 or a new card.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
