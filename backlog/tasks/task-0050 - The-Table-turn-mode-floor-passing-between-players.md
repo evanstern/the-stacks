@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 15:29'
+updated_date: '2026-10-27 15:39'
 labels:
   - multiplayer
   - gate
@@ -88,6 +88,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3, T014-T021: 27dfd0a, ec5a25a. REQUIRE_DATABASE=1 ci:check green: server 1081 pass; no flakes.) T020 needed no change: the gate fills PlanContext.present for every request. Orchestrator follow-up: the held-floor and crash-reclaim resolve tests were never seen red, so Phase 4 runs a mutation check on the moved and held guards.
 
 spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stories 1, 2, 3 gate half): 8/8 · Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture): 5/5 · Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3): 8/8 · Full round with two humans and one AI companion (card AC #6): 0/3 · The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4): 0/9 · Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5): 0/8 · Wiki re-ground (runbook expected reviews): 0/6
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 4, T022-T024: ad7df6d, c16e472, fa0467c. REQUIRE_DATABASE=1 ci:check green: server 1082 pass; no flakes.) Mutation check: the held-floor resolve test was vacuous, because a human DM seat leaves the check pending, so the guard was never reached. It is strengthened at ad7df6d and now fails with the held guard disabled. The moved-guard tests (the End-turn race, and crash and reclaim) both fail with that guard disabled.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
