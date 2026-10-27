@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:26'
+updated_date: '2026-10-27 13:32'
 labels:
   - dm
   - rules-gate
@@ -76,6 +76,9 @@ Phase 3 (T026-T030) at 1b83c14: snapshot reads presence from the scenePresence p
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 (T031-T041) at 82d9d85: presence effect in EffectSchema, resolve submits scene-presence, skipped turn.advance when the active combatant leaves, presence facts, frozen 031 resolve.md amended (OQ-2). REQUIRE_DATABASE=1 ci:check exit 0 (server 1064 passed). Gap found: a reclaim after the leave landed but before the checkpoint saved would advance twice; sent back for a fix in this task (orchestrator ruling: the skipped advance is new in this task, so it ships hardened).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reclaim fix at e83ae9d: on a reclaim, resolve reads the leave from the landed encounter.changed row (its before holds the pre-leave turnIndex) and skips the second advance. Single-crash DB test fails without the fix and passes with it. REQUIRE_DATABASE=1 ci:check green after one re-run of events.integration T018 (unrelated flake, carded as TASK-0160).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
