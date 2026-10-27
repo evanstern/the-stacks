@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:04'
+updated_date: '2026-10-27 10:07'
 labels:
   - playtest
   - harness
@@ -32,9 +32,10 @@ Spec: specs/046-downed-hero-gate
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
 - [ ] #3 The declare gate refuses a character that is not conscious or is absent, with a refusal code and a test (decision-0025 §3.1, card U6)
 - [ ] #4 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
-- [ ] #5 A plan gate refuses a step whose actor or target is missing from S0 or absent (decision-0025 §3.2, U6; needs TASK-0140 and TASK-0141)
-- [ ] #6 Death-save turns for unconscious PCs still run (U6)
+- [ ] #5 Death-save turns for unconscious PCs still run (U6)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
