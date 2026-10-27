@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:22'
+updated_date: '2026-10-27 10:23'
 labels:
   - multiplayer
   - gate
@@ -81,6 +81,9 @@ Phase 3 (merge fbc7da0, work 344e73c): gate.ts passes presence-reader ids to eve
 Orchestrator ruling on Q2: a non-completing human approval on a companion's open action queuing a react job is intended (TASK-0114 AC #1, any human comment or approval re-runs the companion).
 
 Phase 4 done (3345568): play/signoff.ts, commitAuthorityFor present arg, sign-off rows in view model and action card (own-row Approve/Object, no modal), proposal-seam amendment, 16 Brave shots (light/dark, 1280/390) in specs/044-group-signoff/evidence/. Web tests, typecheck, lint, REQUIRE_DATABASE=1 ci:check green. AC #1 left open (classification recorded on event: not proven in this phase).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (3345568): sign-off rows and own-row Approve/Object on the action card, with no modal. The proposal-seam.md amendment was made as ruled. 16 Brave shots were taken by the agent under the operator's overnight grant; 28 live checks pass. UX points for the operator at PR: committed cards drop their sign-off rows (T025); a Commit button shows when the viewer's approval would complete the quorum (Q3 C explicit path).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
