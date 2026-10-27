@@ -131,15 +131,15 @@ the structural test and the existing no-dialog test pass.
 
 ### Tests first
 
-- [ ] T033 [P] [US4] Write `apps/web/test/debug/state-column.test.tsx`: live shows party, combatants, trackers, mode, encounter, DM seat, policy overrides and pending proposals; pinned shows "pinned at seq N" and the state through N; "back to live" renders only while pinned.
-- [ ] T034 [P] [US5] Write `apps/web/test/debug/panels.test.tsx`: Seed marks each `dmOnlyPaths` field "DM only", says "no scene" for `none` and the load failure for `failed`; Ledger renders `toLedgerItems` rows through the pinned seq; Journal marks `dm`-visibility entries; Cost shows totals, by purpose, by model and unpriced count.
-- [ ] T035 [P] Write `apps/web/test/debug/surfaces.test.mjs`: no `localStorage`, `sessionStorage` or `fixed inset-0` under `apps/web/app/debug`; the only fetch paths under `apps/web/app/debug` are the four debug reads and `POST .../turn`; only `components/panel.tsx` imports `components/ui/sheet`.
+- [x] T033 [P] [US4] Write `apps/web/test/debug/state-column.test.tsx`: live shows party, combatants, trackers, mode, encounter, DM seat, policy overrides and pending proposals; pinned shows "pinned at seq N" and the state through N; "back to live" renders only while pinned.
+- [x] T034 [P] [US5] Write `apps/web/test/debug/panels.test.tsx`: Seed marks each `dmOnlyPaths` field "DM only", says "no scene" for `none` and the load failure for `failed`; Ledger renders `toLedgerItems` rows through the pinned seq; Journal marks `dm`-visibility entries; Cost shows totals, by purpose, by model and unpriced count.
+- [x] T035 [P] Write `apps/web/test/debug/surfaces.test.mjs`: no `localStorage`, `sessionStorage` or `fixed inset-0` under `apps/web/app/debug`; the only fetch paths under `apps/web/app/debug` are the four debug reads and `POST .../turn`; only `components/panel.tsx` imports `components/ui/sheet`.
 
 ### Implementation
 
-- [ ] T036 [US4] Implement `apps/web/app/debug/components/state-column.tsx` over `createFolder` (live or `through(pinnedSeq)`), with the pin badge, "back to live" and the panel triggers in its header.
-- [ ] T037 [P] [US5] Implement `apps/web/app/debug/components/seed-panel.tsx`, `ledger-panel.tsx` (reuse `apps/web/app/play/ledger-format.ts` and `apps/web/app/play/components/ledger-list.tsx`), `journal-panel.tsx` and `cost-panel.tsx`, each inside `apps/web/app/components/panel.tsx` `Panel`.
-- [ ] T038 [US5] Mount the panels in `apps/web/app/debug/components/debug-view.tsx`; one panel open at a time; Escape closes.
+- [x] T036 [US4] Implement `apps/web/app/debug/components/state-column.tsx` over `createFolder` (live or `through(pinnedSeq)`), with the pin badge, "back to live" and the panel triggers in its header.
+- [x] T037 [P] [US5] Implement `apps/web/app/debug/components/seed-panel.tsx`, `ledger-panel.tsx` (reuse `apps/web/app/play/ledger-format.ts` and `apps/web/app/play/components/ledger-list.tsx`), `journal-panel.tsx` and `cost-panel.tsx`, each inside `apps/web/app/components/panel.tsx` `Panel`.
+- [x] T038 [US5] Mount the panels in `apps/web/app/debug/components/debug-view.tsx`; one panel open at a time; Escape closes.
 
 **Checkpoint**: `pnpm ci:check` green; `apps/web/test/no-dialog.test.mjs` unchanged and green. Commit `TASK-0117: Phase 5 — state, pin, panels`.
 

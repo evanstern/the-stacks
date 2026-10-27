@@ -1,12 +1,19 @@
+import type { Viewer } from "@the-stacks/session-model";
 import { useMemo, useState } from "react";
 import { actorLabel } from "../../play/labels.ts";
 import type { FetchLike } from "../client.ts";
 import { toJobView } from "../job-view.ts";
+import { createFolder } from "../scrub.ts";
 import { buildSeqIndex } from "../seq-index.ts";
 import { type DebugSession, useDebugSession } from "../use-debug-session.ts";
 import { toWaitingSummary } from "../waiting.ts";
+import { CostPanel } from "./cost-panel.tsx";
 import { EventLog } from "./event-log.tsx";
 import { JobTimeline } from "./job-timeline.tsx";
+import { JournalPanel } from "./journal-panel.tsx";
+import { LedgerPanel } from "./ledger-panel.tsx";
+import { SeedPanel } from "./seed-panel.tsx";
+import { type PanelName, StateColumn } from "./state-column.tsx";
 import { WaitingStrip } from "./waiting-strip.tsx";
 
 const COLUMN = "min-h-0 overflow-y-auto p-3 text-sm text-muted-foreground";
@@ -16,6 +23,8 @@ export interface Selection {
   seq: number | null;
   pinnedSeq: number | null;
 }
+
+const DM: Viewer = { role: "dm" };
 
 const NO_SELECTION: Selection = { jobId: null, seq: null, pinnedSeq: null };
 
@@ -43,7 +52,19 @@ export function DebugBoard({
   initialSelection?: Selection;
 }) {
   const [selection, setSelection] = useState<Selection>(initialSelection);
+  const [panel, setPanel] = useState<PanelName | null>(null);
   const { snapshot, projections, now } = session;
+  const folder = useMemo(() => createFolder(DM), []);
+  const shown = useMemo(
+    () =>
+      selection.pinnedSeq === null
+        ? projections
+        : folder.through(snapshot.events, selection.pinnedSeq),
+    [folder, projections, snapshot.events, selection.pinnedSeq],
+  );
+  const closePanel = (open: boolean) => {
+    if (!open) setPanel(null);
+  };
   const summary = useMemo(
     () => toWaitingSummary(snapshot, projections, now),
     [snapshot, projections, now],
@@ -115,9 +136,38 @@ export function DebugBoard({
           data-pinned-seq={selection.pinnedSeq ?? undefined}
           className={COLUMN}
         >
-          State
+          <StateColumn
+            projection={shown}
+            pinnedSeq={selection.pinnedSeq}
+            onBackToLive={() =>
+              setSelection((x) => ({ ...x, pinnedSeq: null }))
+            }
+            onOpenPanel={setPanel}
+          />
         </section>
       </div>
+      <SeedPanel
+        open={panel === "seed"}
+        onOpenChange={closePanel}
+        seed={snapshot.seed}
+      />
+      <LedgerPanel
+        open={panel === "ledger"}
+        onOpenChange={closePanel}
+        rows={shown.ledger}
+        pinnedSeq={selection.pinnedSeq}
+      />
+      <JournalPanel
+        open={panel === "journal"}
+        onOpenChange={closePanel}
+        entries={shown.journal}
+        pinnedSeq={selection.pinnedSeq}
+      />
+      <CostPanel
+        open={panel === "cost"}
+        onOpenChange={closePanel}
+        totals={snapshot.totals}
+      />
     </div>
   );
 }
