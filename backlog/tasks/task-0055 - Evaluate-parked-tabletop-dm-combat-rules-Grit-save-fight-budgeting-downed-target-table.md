@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:31'
 labels:
   - revisit
   - engine
@@ -30,10 +30,10 @@ Why: decision-0021 parked two ideas because the operator was unsure: the Grit sa
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The evaluation cites TASK-0048 playtest transcripts and ledgers as evidence.
-- [ ] #2 A decision record adopts, adapts or rejects the Grit save.
-- [ ] #3 A decision record adopts, adapts or rejects fight budgeting and the downed-target table.
-- [ ] #4 Each adopted rule gets its own board card with acceptance criteria.
+- [x] #1 The evaluation cites TASK-0048 playtest transcripts and ledgers as evidence.
+- [x] #2 A decision record adopts, adapts or rejects the Grit save.
+- [x] #3 A decision record adopts, adapts or rejects fight budgeting and the downed-target table.
+- [x] #4 Each adopted rule gets its own board card with acceptance criteria.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -44,6 +44,8 @@ RESEARCH FINDINGS 2026-10-26 (TASK-0115, branch Resolution-and-Outcome, note Out
 OPERATOR RULING 2026-10-26 (M3 sweep Lane 0, option A): 'A'. Reject the Grit save, fight budgeting and the downed-target table by one decision record citing docs/design/m2-demo.md Fight statistics (5 rounds, no hero at 0 HP, 0 death saves, ended by flight; run 5 ended by bargain). TASK-0122 (research branch 5, running combat) is the single re-entry path for any combat-pacing rule. Evidence defect carded: TASK-0134 (stats miss goblin-3 at 0 HP). Follow-up concern the operator raised with this ruling: TASK-0135 (actor-state rule gate).
 
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0055, branch task-0055-combat-rules-ruling, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track D1. Escape line E1; ruling R1 (option A).
+
+Decision recorded: decision-0023 (D15). Grit save, fight budgeting and downed-target table rejected. Re-entry path: TASK-0122. AC #4 met vacuously (no rule adopted).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
