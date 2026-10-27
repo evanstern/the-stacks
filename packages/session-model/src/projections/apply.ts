@@ -24,6 +24,7 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     viewer,
     scene: null,
     tableMode: { mode: "free" },
+    scenePresence: {},
     party: [],
     encounter: null,
     journal: [],
@@ -160,6 +161,21 @@ function applyKnown(
         ...checked,
         scene: event.payload.after,
         ledger: [...p.ledger, sessionChangeRow(event)],
+      };
+    }
+    case "scene-presence.changed": {
+      const { actorId, before, after, reason } = event.payload;
+      const checked = checkBefore(
+        p,
+        p.scenePresence[actorId]?.presence ?? "present",
+        before,
+      );
+      return {
+        ...checked,
+        scenePresence: {
+          ...p.scenePresence,
+          [actorId]: { presence: after, reason, seq: event.seq },
+        },
       };
     }
     case "party.member.changed": {

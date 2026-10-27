@@ -21,6 +21,7 @@ import {
   ProposalRejectedV1,
 } from "./events/proposals.js";
 import { SceneChangedV1 } from "./events/scene.js";
+import { ScenePresenceChangedV1 } from "./events/scene-presence.js";
 import { TableModeChangedV1 } from "./events/table-mode.js";
 import { NarrationV1, TalkV1 } from "./events/talk.js";
 import { TrackerChangedV1 } from "./events/tracker.js";
@@ -78,6 +79,7 @@ const sessionEntries: CatalogEntry[] = [
   session("action.withdrawn", "lifecycle", ActionWithdrawnV1),
   session("table-mode.changed", "state-change", TableModeChangedV1),
   session("scene.changed", "state-change", SceneChangedV1),
+  session("scene-presence.changed", "state-change", ScenePresenceChangedV1),
   session("party.member.changed", "state-change", PartyMemberChangedV1),
   session("tracker.changed", "state-change", TrackerChangedV1, "dm-only"),
   session("journal.entry.added", "record", JournalEntryAddedV1),
@@ -132,6 +134,7 @@ type SessionPayloads = {
   "action.withdrawn": z.infer<typeof ActionWithdrawnV1>;
   "table-mode.changed": z.infer<typeof TableModeChangedV1>;
   "scene.changed": z.infer<typeof SceneChangedV1>;
+  "scene-presence.changed": z.infer<typeof ScenePresenceChangedV1>;
   "party.member.changed": z.infer<typeof PartyMemberChangedV1>;
   "tracker.changed": z.infer<typeof TrackerChangedV1>;
   "journal.entry.added": z.infer<typeof JournalEntryAddedV1>;

@@ -21,6 +21,7 @@ const DM_KINDS: ReadonlySet<string> = new Set([
   "scene",
   "party",
   "tracker",
+  "scene-presence",
   "journal",
 ]);
 

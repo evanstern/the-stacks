@@ -45,6 +45,17 @@ export {
 } from "./events/proposals.js";
 export type { Scene } from "./events/scene.js";
 export { SceneChangedV1, SceneSchema } from "./events/scene.js";
+export type {
+  PresenceReason,
+  ScenePresence,
+  ScenePresenceChanged,
+} from "./events/scene-presence.js";
+export {
+  PresenceReasonSchema,
+  REASON_TO_PRESENCE,
+  ScenePresenceChangedV1,
+  ScenePresenceSchema,
+} from "./events/scene-presence.js";
 export type { TableMode } from "./events/table-mode.js";
 export { TableModeChangedV1, TableModeSchema } from "./events/table-mode.js";
 export type { Narration, Talk } from "./events/talk.js";
@@ -127,6 +138,7 @@ export type {
   PresenceView,
   ProposalStatus,
   ProposalView,
+  ScenePresenceEntry,
   SessionProjections,
   TranscriptEntry,
 } from "./projections/types.js";

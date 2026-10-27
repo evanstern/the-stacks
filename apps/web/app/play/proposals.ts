@@ -4,6 +4,7 @@ import {
   type ProposalView,
   pendingProposals,
   project,
+  REASON_TO_PRESENCE,
   type StoredEvent,
   type Viewer,
 } from "@the-stacks/session-model";
@@ -60,6 +61,8 @@ function actionIdOf(proposal: Proposal): string | null {
       return proposal.actionId;
     case "action.resolve":
       return proposal.resolution.actionId;
+    case "scene-presence":
+      return proposal.actionId;
     case "mechanics":
       return proposal.actionId;
     case "narration":
@@ -176,6 +179,16 @@ function detailsOf(
             : "Remove the tracker",
         },
         { label: "Visibility", value: "DM only" },
+      ];
+    case "scene-presence":
+      return [
+        { label: "Actor", value: who(proposal.actorId) },
+        { label: "Reason", value: proposal.reason },
+        {
+          label: "New value",
+          value: REASON_TO_PRESENCE[proposal.reason],
+        },
+        { label: "Visibility", value: "Everyone" },
       ];
     case "journal":
       return [
