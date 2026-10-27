@@ -169,15 +169,15 @@ through the gate on the task's own stack.
 
 **Independent test**: `REQUIRE_DATABASE=1 pnpm --filter server test -- turn-floor-round`.
 
-- [ ] T022 [US2] Write `apps/server/test/dm/turn-floor-round.integration.test.ts`, using
+- [x] T022 [US2] Write `apps/server/test/dm/turn-floor-round.integration.test.ts`, using
       `apps/server/test/dm/worker-world.ts` and the fake gateway: order Ana (human), Bram (human),
       Pip (AI companion), goblin. Ana ends her turn; Bram declares, commits, and the turn job
       resolves and advances; Pip's companion `turn` job acts; the goblin's `npc-turn` acts. Assert
       the `table-mode.changed` holders Ana → Bram → Pip → `ai:dm` → Ana and `encounter.round` 2
       (FR-024, SC-001).
-- [ ] T023 [US1] In the same file, assert AC #1 and #2 on the live stack: Bram's commit during
+- [x] T023 [US1] In the same file, assert AC #1 and #2 on the live stack: Bram's commit during
       Ana's turn is `COMMIT_NOT_ALLOWED`; Bram's comment on Ana's action lands for both viewers.
-- [ ] T024 [US2] Add the scripted fake-gateway steps the round needs under
+- [x] T024 [US2] Add the scripted fake-gateway steps the round needs under
       `apps/server/test/dm/scripts/` (or the helper the worker tests already use). Bump no
       prompt version.
 
