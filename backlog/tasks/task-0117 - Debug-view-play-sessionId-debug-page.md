@@ -51,8 +51,6 @@ Spec: specs/041-debug-page
 - [x] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -107,6 +105,8 @@ Reconcile with main after #68 (merge 8b43a7f, re-pin 4950a0c): INDEX keeps both 
 spec-bridge sync: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet): 10/10 · Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet): 9/9 · Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet): 7/7 · Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet): 6/6 · State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet): 6/6 · Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet): 0/3 · Wiki re-ground and full gate — DISPATCH (sonnet): 4/4
 
 PR #69 merged by the operator (2c74b6d). The PR body asked the operator to confirm two things before merging: the page ships everywhere behind the operator role, and the shots of a failed live turn satisfy the merge condition (TASK-0158 carded).
+
+spec-bridge sync: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet): 10/10 · Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet): 9/9 · Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet): 7/7 · Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet): 6/6 · State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet): 6/6 · Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet): 3/3 · Wiki re-ground and full gate — DISPATCH (sonnet): 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
