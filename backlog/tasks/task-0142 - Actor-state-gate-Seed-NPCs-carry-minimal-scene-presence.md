@@ -4,7 +4,7 @@ title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 19:09'
+updated_date: '2026-10-27 19:12'
 labels:
   - dm
   - rules-gate
@@ -68,6 +68,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 2, T008-T013: b09a675. session-model 816 pass; ci:check without a DB: only the 5 expected adjudicate.integration failures. pnpm lint was not reached; the Phase 4 DB ci:check covers it.) Deviation: resolve.ts presence submit sets visibility "public" explicitly, so it typechecks. Behaviour is unchanged.
 
 spec-bridge sync: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half): 7/7 · `scene-presence` proposal visibility (card AC #2 support, OQ-4): 6/6 · Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4): 0/5 · Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half): 0/11 · Wiki re-ground: 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 3, T014-T018: 2dd8bc1. Phase tests 26 pass; lint exit 0; ci:check without a DB: only the 5 expected adjudicate.integration failures.) The M2 log test and the one-identity test passed before implementation, as the phase expected: the log has no presence rows, and the U1 join already gives one identity. The alias tests were red first.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
