@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 09:54'
+updated_date: '2026-10-27 10:02'
 labels:
   - ws
   - session
@@ -62,6 +62,9 @@ Phase 2 done (b77e6e0): wiki re-grounded. websocket-gateway, ws-protocol, propos
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (merge 1eca063, wiki b77e6e0): six notes amended (NEEDS-REVIEW) and re-pinned; freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Reconcile with main after #67 (merge 4f375f3, re-pin 1fffa98): INDEX state paragraph keeps both clauses; CAPSULES regenerated; dm-failure-and-gates re-pinned (RE-PIN-ONLY). Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
