@@ -48,14 +48,6 @@ Spec: specs/033-director-robustness
 - [x] #11 Spec phase: Phase 4b: Verification rerun (US5; AC #3, amendment) — ORCHESTRATOR-RUN, PAID
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -107,6 +99,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Merged via PR #50 (merge commit 9658265, 2026-10-26).
 
 Done flip held: the spec-bridge gate needs T038 ticked. T038 (conditional on a failure) did not trigger and is annotated so. Its tick rides the TASK-0048 branch per the runbook's post-merge rule, and TASK-0102 flips to Done when TASK-0048 merges.
+
+spec-bridge sync: Persist diagnostics (US1; AC #1): 8/8 · Capture the real failure (US2; AC #2) — ORCHESTRATOR-RUN, PAID: 3/3 · Classify and fix (US2, US3; AC #2, #3): 6/6 · Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID: 3/3 · Phase 3b: Interpret fix and the skill gate (US5; AC #3, amendment) — DISPATCH (sonnet): 10/10 · Phase 4b: Verification rerun (US5; AC #3, amendment) — ORCHESTRATOR-RUN, PAID: 4/4 · Full gate (US4; AC #4): 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
