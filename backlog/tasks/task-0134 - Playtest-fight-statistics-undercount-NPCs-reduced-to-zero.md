@@ -4,7 +4,7 @@ title: Playtest fight statistics undercount NPCs reduced to zero
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 04:29'
+updated_date: '2026-10-27 04:39'
 labels:
   - playtest
   - harness
@@ -39,6 +39,9 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 042, commit 021b596.) Defect: stats.ts hp.changed counts reducedToZero only for side 'players'. ORCHESTRATOR RULING on OQ-1: the operator-signed docs/design/m2-demo.md stays unchanged; decision-0023 already records the evidence defect.
+
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+(Phases 1+2 grouped (small card), commits ada33ec d36ddaf; stats.test.ts 3/3; fails with the guard restored; M2 recompute = report.json with reducedToZero ['Goblin lookout']; ci:check exit 0.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
