@@ -36,12 +36,14 @@ Spec: specs/051-output-claim-gate
 - [ ] #5 A refusal feeds the existing regenerate loop and code fallback.
 - [ ] #6 The actor-anonymous word checks in `audit-words.ts` are replaced or keyed to actors.
 - [x] #7 Spec phase: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence)
-- [ ] #8 Spec phase: The claim checker (card AC #1, #2, #3)
+- [x] #8 Spec phase: The claim checker (card AC #1, #2, #3)
 - [ ] #9 Spec phase: Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6)
 - [ ] #10 Spec phase: Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5)
 - [ ] #11 Spec phase: Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020)
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
