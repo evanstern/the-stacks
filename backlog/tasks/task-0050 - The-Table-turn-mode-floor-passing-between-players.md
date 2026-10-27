@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 15:39'
+updated_date: '2026-10-27 15:52'
 labels:
   - multiplayer
   - gate
@@ -93,6 +93,14 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 4, T022-T024: ad7df6d, c16e472, fa0467c. REQUIRE_DATABASE=1 ci:check green: server 1082 pass; no flakes.) Mutation check: the held-floor resolve test was vacuous, because a human DM seat leaves the check pending, so the guard was never reached. It is strengthened at ad7df6d and now fails with the held guard disabled. The moved-guard tests (the End-turn race, and crash and reclaim) both fail with that guard disabled.
 
 spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stories 1, 2, 3 gate half): 8/8 · Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture): 5/5 · Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3): 8/8 · Full round with two humans and one AI companion (card AC #6): 3/3 · The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4): 0/9 · Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5): 0/8 · Wiki re-ground (runbook expected reviews): 0/6
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 5, T025-T033: 4d3f791. Migration apps/server/drizzle/0007_aromatic_baron_zemo.sql via db:generate, applied to both stack DBs. REQUIRE_DATABASE=1 ci:check green: server 1103 pass; no flakes. Mutation check: each "act only if unchanged" rule (holder, stanceSeq) has a test that fails without it.) Choices the implementer settled:
+- Floor jobs have stage NULL.
+- With no presence reader, nothing is armed (production passes one).
+- Floor reconcile after a restart only considers sessions with an event in the last 24 h (FLOOR_RECONCILE_LOOKBACK_MS), so the AI DM does not wake abandoned sessions.
+- The debug and playtest job-kind unions gained "floor".
+Rule note: to migrate the app DB, the implementer read the local stack POSTGRES_PASSWORD from the worktree .env into a throwaway URL. It printed nothing and committed nothing, but this breaks dispatch-rules "never read keys or passwords". Later briefs say to migrate with the repo scripts or stop.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
