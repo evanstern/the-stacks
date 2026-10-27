@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:49'
+updated_date: '2026-10-27 09:53'
 labels:
   - dm
   - engine
@@ -31,8 +31,8 @@ Spec: specs/045-encounter-end-resolves
 - [x] #3 Spec phase: The resolve order in the contracts (US4, AC #2)
 - [x] #4 Spec phase: Resolve runs the new order (US1, US2, US3)
 - [x] #5 Spec phase: Reproduce rows 260–265 end to end (US1, AC #1)
-- [ ] #6 Spec phase: Wiki re-ground
-- [ ] #7 Spec phase: Constitution Compliance (the-stacks)
+- [x] #6 Spec phase: Wiki re-ground
+- [x] #7 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -64,6 +64,8 @@ Phase 3 done (73bc3a3): encounter-end-resolves.integration.test.ts and scripts/e
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (73bc3a3): rows 260-265 reproduced through the real worker; act-odo-5 resolves applied before encounter.ended. The encounter is set up directly through runResolve, as resolve.integration does; the bargain turn itself runs on the worker. ci:check passed with REQUIRE_DATABASE=1 on the first run.
+
+Phase 4 done (2b5158d): wiki re-ground. dm-runtime and dm-turn-jobs amended (six-group resolve order, reclaim marker note) and re-pinned; dm-failure-and-gates and dnd5e-engine re-pinned (sources unchanged, one prose sentence each). CAPSULES.md regenerated, INDEX.md updated. Freshness OK, spec-bridge exit 0, pnpm ci:check green with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
