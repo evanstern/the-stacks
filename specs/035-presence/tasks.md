@@ -81,37 +81,37 @@ automation uses Brave. No "for now" without a card.
 **Independent test**: two WebSocket clients on one table see each other join and leave in
 `apps/server/test/ws.presence.integration.test.ts`.
 
-- [ ] T008 [US2] Create `apps/server/src/presence/constants.ts`, `tracker.ts` and `index.ts` per
+- [x] T008 [US2] Create `apps/server/src/presence/constants.ts`, `tracker.ts` and `index.ts` per
   contracts/presence-reader.md and the tracker table in data-model.md. Accept `graceMs`,
   `setTimer` and `clearTimer` options. `isPresent` returns true for actors starting `ai:`.
-- [ ] T009 [US1] In `apps/server/src/ws/protocol.ts`, add optional `presence: z.boolean()` to
+- [x] T009 [US1] In `apps/server/src/ws/protocol.ts`, add optional `presence: z.boolean()` to
   `SubscribeFrame`. Add `PresenceFrame` to `OutboundFrame` per contracts/ws-presence.md. Update
   the frozen-contract comment to cite decision-0024.
-- [ ] T010 [US1] In `apps/server/src/ws/registry.ts`, add `connId`, `displayName`,
+- [x] T010 [US1] In `apps/server/src/ws/registry.ts`, add `connId`, `displayName`,
   `wantsPresence` and `alive` to `Connection`. Add `sendPresence(sessionId, frame)`: send to
   subscribers with `wantsPresence` and `pendingQueue === null` only.
-- [ ] T011 [US1] [US2] In `apps/server/src/ws/gateway.ts`: take a `presence` tracker and an
+- [x] T011 [US1] [US2] In `apps/server/src/ws/gateway.ts`: take a `presence` tracker and an
   optional `heartbeatIntervalMs` in `CreateGatewayOptions`. Read `users.display_name` at
   upgrade. On subscribe, `leave` the previous table and `join` the new one, for every
   connection whether or not it opted in. On close, `leave`. Subscribe to `onChange` and call
   `registry.sendPresence` with a sorted snapshot. Run the heartbeat: ping every interval,
   `terminate()` a connection whose `alive` is still false, set `alive` on `pong`. Clear the
   interval when the server closes.
-- [ ] T012 [US1] In `apps/server/src/ws/subscribe.ts`, after `replay-complete`, send the
+- [x] T012 [US1] In `apps/server/src/ws/subscribe.ts`, after `replay-complete`, send the
   connection its snapshot when `wantsPresence` is set.
-- [ ] T013 [US1] [US2] Wire `createPresence()` in `apps/server/src/index.ts` before
+- [x] T013 [US1] [US2] Wire `createPresence()` in `apps/server/src/index.ts` before
   `createGate`, and pass it to `createGateway`. Write
   `apps/server/test/presence.tracker.test.ts` with injected timers: join emits; second tab
   does not; one tab closing keeps the user; last close emits after grace only; rejoin inside
   grace emits nothing; restart (new tracker) is empty; `isPresent` for AI actors.
-- [ ] T014 [US1] [US2] Write `apps/server/test/ws.presence.integration.test.ts` with short
+- [x] T014 [US1] [US2] Write `apps/server/test/ws.presence.integration.test.ts` with short
   grace and heartbeat: a second subscriber's arrival reaches the first; snapshot arrives after
   `replay-complete`; a close reaches the other within the bound; a reconnect inside grace sends
   no absent snapshot; a client that stops answering pings is terminated and goes absent;
   multi-tab; a subscribe without `presence` receives no `presence` frame (SC-005); a
   re-subscribe to another table leaves the first. Update
   `apps/server/test/ws.protocol.test.ts` for the new field.
-- [ ] T015 [P] [US1] Amend `specs/006-ws-gateway/contracts/ws-protocol.md`: add the `presence`
+- [x] T015 [P] [US1] Amend `specs/006-ws-gateway/contracts/ws-protocol.md`: add the `presence`
   field and frame, the heartbeat line, and "Amended by decision-0024 and
   specs/035-presence/contracts/ws-presence.md."
 
