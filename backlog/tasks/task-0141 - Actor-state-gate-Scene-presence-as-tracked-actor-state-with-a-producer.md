@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:41'
+updated_date: '2026-10-27 13:44'
 labels:
   - dm
   - rules-gate
@@ -83,6 +83,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 (T042-T048) at 311fa50, main merged at a4f6a79 (one test-file conflict, both tests kept). 12 stale notes reviewed against their diffs and re-pinned; freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Card ACs #1-#7 ticked: each is proved by the phase tests above (event + projection P2, snapshot P3, no-Director-field test P4, declare gate P2, plan gate P3, presence effect P4, initiative.leave P1).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Operator confirmed both orchestrator rulings in chat 2026-10-27, quoting them: "When the active combatant leaves the turn order, the engine handles it like a normal turn advance. A crash during that leave can’t make the turn advance twice." Reply: "Confirmed".
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
