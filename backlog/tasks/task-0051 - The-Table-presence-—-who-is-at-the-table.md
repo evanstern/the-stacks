@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 04:22'
+updated_date: '2026-10-27 04:27'
 labels:
   - multiplayer
   - realtime
@@ -68,6 +68,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 3, T016-T026, commit 5734a49; gate.recordPresence, worker marker per turn, presenceSeq, assemble presence; scripted playtest pass. scene.integration 'plays Greyhollow Ford' timed out at 5 s even solo once (5090 ms): Phase 4 baselines it against main.)
+
+OPERATOR RULING 2026-10-27 (in chat): 'I take them in Brave'. The operator takes the two-session join/leave screenshots from specs/035-presence/evidence/OPERATOR-STEPS.md. Gate unchanged.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
