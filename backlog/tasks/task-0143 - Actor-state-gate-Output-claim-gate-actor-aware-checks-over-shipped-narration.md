@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 19:42'
+updated_date: '2026-10-27 19:50'
 labels:
   - dm
   - rules-gate
@@ -41,6 +41,19 @@ Spec: specs/051-output-claim-gate
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0143, branch task-0143-output-claim-gate, cut from origin/main 8d24c60. Spec number 051 claimed with a stub. Track C. Depends on TASK-0142 (PR #75, open): spec now, plan after #75 merges.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Spec author: spec.md and the checklist at 48fb076. It stopped before plan.md with OQ-1..OQ-6.)
+Evidence locations:
+- M2 seq 225 and F52 are in docs/design/m2-demo/demo-session/transcript.jsonl and docs/design/m2-demo.md:245.
+- Run 192319Z row 162 is in specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/. Only the sha256 of that prose was recorded, so the test rebuilds it from the quoted fragments.
+Recommended defaults:
+- OQ-1 (a): model-written roll reasons stay out of U3, and the fallback stops voicing a refused reason. A follow-up card checks reasons at the plan gate.
+- OQ-2 (a): a refused ruling or goalNote is checked once before narrate, then withheld or blanked, with an advisory issue.
+- OQ-3 (a): bump to dm.narrate-v5, which allows state sections as grounds and adds the line "does not act or speak; count only what the state shows".
+- OQ-4 (a): reuse ledger-mismatch with an "Actor state:" prefix.
+- OQ-5 (a): only a unique reference triggers an act or wrong-actor refusal. Group nouns count toward counts and omission. Pronouns and descriptions pass. A bare "N down" passes if either side matches. yielded counts as present.
+- OQ-6 (a): replace all four anonymous checks with keyed ones.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
