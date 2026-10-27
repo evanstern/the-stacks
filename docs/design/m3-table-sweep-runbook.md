@@ -434,6 +434,7 @@ of Track C merges after the demo, still in m-3. TASK-0130's captured run measure
 | 2026-10-27 | TASK-0114 | [#63](https://github.com/evanstern/the-stacks/pull/63) | `773d4e4` | spec ~185k (opus), impl ×6 (sonnet) | Merged. Stack down, worktree removed. Card awaits the T038 not-applicable annotation (rides TASK-0140) before sync → Done. |
 | 2026-10-27 | TASK-0134 | [#64](https://github.com/evanstern/the-stacks/pull/64) | merged | spec ~120k (opus), impl ~117k (haiku) | Done via sync on main. Stack down, worktree removed. |
 | 2026-10-27 | TASK-0051 | [#65](https://github.com/evanstern/the-stacks/pull/65) | `1baee77` | spec ~334k (opus ×2), impl ×6 (sonnet), evidence (haiku) | Done via sync on main. Operator Brave screenshots met the merge condition. Stack down, worktree removed. |
+| 2026-10-27 | TASK-0140 | (this PR) | — | spec ~? (opus), impl ×3 (sonnet), reconcile ~99k (sonnet), wiki ~170k (sonnet) | Session 2: reconciled with main (TASK-0114 react/withdraw + seat-view state; dm.companion-v5); TASK-0114 T038 annotated not-applicable. Phase 4 wiki: new note actor-snapshot. PR opened; operator merges. |
 
 ## Handoff — 2026-10-27 (first M3 orchestrator session, context near 70%)
 
