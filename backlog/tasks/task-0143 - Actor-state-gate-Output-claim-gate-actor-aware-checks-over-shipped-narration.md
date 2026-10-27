@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 20:17'
+updated_date: '2026-10-27 20:22'
 labels:
   - dm
   - rules-gate
@@ -80,6 +80,8 @@ OPEN FOR OPERATOR: OQ-5 (a) said pronouns pass. Row 162 ("Tamsin hand twitches t
 Other matcher choices are listed in the Phase 2 report: comma stops the act scan, objects after prepositions, a passive is needed for killed and slain, quote interiors are skipped for act and speech, and Snag is in the "goblin" group via his alias.
 
 spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 0/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 0/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
+
+Operator ruling 2026-10-27 (verbatim): "TASK-0143: keep the same-sentence pronoun carry-over rule (a pronoun + body part + act verb binds to the last uniquely named actor, with no other name between), as a narrow exception to OQ-5 (a), so AC #1 row 162 is refused."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
