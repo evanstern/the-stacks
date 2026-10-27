@@ -4,12 +4,14 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:53'
+updated_date: '2026-10-27 10:07'
 labels:
   - dm
   - rules-gate
 milestone: m-3
 dependencies:
   - TASK-0140
+  - TASK-0112
 priority: high
 ordinal: 128000
 ---
@@ -29,7 +31,15 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #3 An `absent` combatant leaves the encounter order through `combatant.remove`.
 - [ ] #4 The snapshot reads scene presence from the log.
 - [ ] #5 No Director field writes scene presence, with a test.
+- [ ] #6 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
+- [ ] #7 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Scope added 2026-10-27 by the operator's TASK-0112 ruling (sequencing Option A): both absent checks move here; depends on TASK-0112.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

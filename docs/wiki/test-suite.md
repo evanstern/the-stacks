@@ -27,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # Test suite
@@ -44,9 +44,9 @@ the load bench's tests are *always* skipped, by name, even with a reachable data
 TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated integration files, one the CI playtest ([[m2-demo]]) ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` and
 `gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry and a
-restart losing nothing) and `write-boundary.test.ts` (no database; AC #1 import-graph check, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
+restart losing nothing) and `write-boundary.test.ts` (no database; AC #1 import-graph allow-list check, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
-send-path classification, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
+send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that
 use `describe.skipIf(!reachable)` like the others, over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).
