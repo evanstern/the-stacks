@@ -61,11 +61,11 @@ one shared settling rule and one `activeActorFor`.
 **Independent test**: `pnpm --filter @the-stacks/session-model test`. The new cases fail before
 T004 to T008 and pass after them.
 
-- [ ] T001 [P] [US2] Write `packages/session-model/test/gate-turn.test.ts`: `activeActorFor`
+- [x] T001 [P] [US2] Write `packages/session-model/test/gate-turn.test.ts`: `activeActorFor`
       (player, companion, monster), `canAct`, `nextSettleStep` (dying → `death-save.roll`;
       stable, dead or unable → `turn.advance`; able → null), `floorHeld`, `currentTurn`
       (research R1, R2, R6).
-- [ ] T002 [P] [US2] Extend `packages/session-model/test/gate-plan.test.ts` with a two-human,
+- [x] T002 [P] [US2] Extend `packages/session-model/test/gate-plan.test.ts` with a two-human,
       one-companion, one-monster projection: `end` by the active human plans one mechanics
       batch then a `table-mode.changed` naming the next holder; `end` with a dying next
       combatant includes `death-save.roll` (scripted dice: a fail, then a natural 20); each
@@ -73,25 +73,25 @@ T004 to T008 and pass after them.
       `INVALID_PROPOSAL` for take-while-held and return-while-not-held, `NOT_AUTHORIZED` for an
       `ai:dm` end on a present human); `ai:dm` end on an absent human prepends a `floor` marker
       with `PlanContext.present`; `take` and `return` rows; a refusal plans no rows.
-- [ ] T003 [P] [US1] Extend `packages/session-model/test/gate-authority.test.ts`: in turn mode
+- [x] T003 [P] [US1] Extend `packages/session-model/test/gate-authority.test.ts`: in turn mode
       with two humans, the active human commits `active-player`, the other human is
       `COMMIT_NOT_ALLOWED`; while the DM holds the floor, both humans are `COMMIT_NOT_ALLOWED`
       and the DM is `dm` (FR-001, FR-002).
-- [ ] T004 [US2] Create `packages/session-model/src/gate/turn.ts` with `activeActorFor`,
+- [x] T004 [US2] Create `packages/session-model/src/gate/turn.ts` with `activeActorFor`,
       `canAct` (with the `INCAPACITATING` list), `nextSettleStep`, `floorHeld`, `currentTurn`.
       Export them from `packages/session-model/src/index.ts`. Do not change server code yet.
-- [ ] T005 [US2] In `packages/session-model/src/gate/proposals.ts` add the `floor` schema
+- [x] T005 [US2] In `packages/session-model/src/gate/proposals.ts` add the `floor` schema
       (data-model.md); kinds 14 → 15, DM kinds 12 → 13, `GATE_REQUEST_KINDS` 18 → 19; fix the
       counting comments. Extend `packages/session-model/test/gate-schemas.test.ts`.
-- [ ] T006 [US3] In `packages/session-model/src/gate/permissions.ts` add the `floor` matrix from
+- [x] T006 [US3] In `packages/session-model/src/gate/permissions.ts` add the `floor` matrix from
       `contracts/floor-request.md`; in `src/gate/policy.ts` add `floor: "ask"`; in
       `src/gate/refusals.ts` add `FLOOR_NOT_HELD`, `TURN_MOVED`, `NOT_TURN_MODE`. Extend
       `test/gate-permissions.test.ts` and `test/gate-policy.test.ts`.
-- [ ] T007 [US2] In `packages/session-model/src/gate/plan.ts` add `case "floor"` per research R3
+- [x] T007 [US2] In `packages/session-model/src/gate/plan.ts` add `case "floor"` per research R3
       to R5: the checks in order, `execute` + `evolve` for `turn.advance` and each
       `nextSettleStep` (at most one lap), one `mechanicsRows` batch, the `table-mode.changed`
       row with `reason` from the proposal, the `ai:dm` `floor` marker first.
-- [ ] T008 [US3] Amend `specs/029-proposal-gate/contracts/proposals.md` (the `floor` kind,
+- [x] T008 [US3] Amend `specs/029-proposal-gate/contracts/proposals.md` (the `floor` kind,
       counts), `policy-and-authority.md` (the permission rows and `floor: "ask"`) and
       `gate-api.md` (rows-table rows for the three ops, §2 codes) with the amendment line
       (FT-1, FT-2).
