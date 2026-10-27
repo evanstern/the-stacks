@@ -164,7 +164,7 @@ checks are gone. The fallback passes the checker.
 
 ### Tests first
 
-- [ ] T015 [US2] Rewrite the tests that assert on the four replaced checks (plan D8) in
+- [x] T015 [US2] Rewrite the tests that assert on the four replaced checks (plan D8) in
       `apps/server/test/dm/audit.test.ts`. Give the `check()` helper (line 74) a `ClaimState`
       argument, defaulting to a snapshot with one living "Guard".
       - Replace "fails on an unrecorded death and on an omitted one" (lines 96–113) and "fails on
@@ -174,9 +174,9 @@ checks are gone. The fallback passes the checker.
         - a diff death on Guard with prose that never kills him fails;
         - the drop equivalents.
       - Replace the exact detail at lines 170–174 with the `Actor state:` detail.
-- [ ] T016 [US2] In `apps/server/test/dm/audit.test.ts`, assert each claim issue is
+- [x] T016 [US2] In `apps/server/test/dm/audit.test.ts`, assert each claim issue is
       `ledger-mismatch` with a detail starting `Actor state:` (OQ-4).
-- [ ] T017 [P] [US4] Extend the 400-iteration property loop in
+- [x] T017 [P] [US4] Extend the 400-iteration property loop in
       `apps/server/test/dm/fallback.test.ts` (around line 478):
       - derive a `ClaimState` from each random fact set (one actor per name, life states from
         the changes, a diff for this turn's changes);
@@ -184,22 +184,22 @@ checks are gone. The fallback passes the checker.
       - assert `checkClaims(state, prose).pass`.
       Add a case where a roll reason says "shouting that two kin have fallen" with one dead
       (M2 seq 221). Assert the fallback does not voice that reason (US4.4).
-- [ ] T018 [P] Give the call at `apps/server/test/dm/narration-quality-repro.test.ts:366` an
+- [x] T018 [P] Give the call at `apps/server/test/dm/narration-quality-repro.test.ts:366` an
       empty-diff `ClaimState` built from `EMPTY_RESOLVE_SNAPSHOT`. Keep its assertion unchanged.
-- [ ] T019 [US2] Flip the T006 assertion in `apps/server/test/dm/claim-evidence.test.ts`.
+- [x] T019 [US2] Flip the T006 assertion in `apps/server/test/dm/claim-evidence.test.ts`.
       `deterministicChecks` must now pass `SEQ216_UNCONSCIOUS` against the seq 215 state.
 
 ### Implementation
 
-- [ ] T020 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D3:
+- [x] T020 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D3:
       - add the required `state: ClaimState` argument;
       - delete the four anonymous checks and `lifeStateFacts`;
       - append `checkClaims` issues as blocking `ledger-mismatch` with the `Actor state: ` prefix;
       - in the `audit` node, pass `{ snapshot: resolved.snapshot, diff: resolved.diff }`.
-- [ ] T021 [US4] In `apps/server/src/dm/fallback.ts`, add the optional `state` argument to
+- [x] T021 [US4] In `apps/server/src/dm/fallback.ts`, add the optional `state` argument to
       `factualSummary` and the `checkClaims` test in `reasonUsable` (plan D5). In
       `apps/server/src/dm/nodes/audit.ts` `fallback()`, call `factualSummary(facts, state)`.
-- [ ] T022 Run `pnpm typecheck` and fix every caller of `deterministicChecks` the compiler
+- [x] T022 Run `pnpm typecheck` and fix every caller of `deterministicChecks` the compiler
       names, without changing what the tests assert.
 
 **Checkpoint**: claim refusals block; the run 192319Z seq 216 false positive is gone; the
