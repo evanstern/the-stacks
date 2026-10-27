@@ -26,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM runtime
@@ -43,7 +43,9 @@ The runner (`pipeline/runner.ts`, `runTurn`) walks a fixed node order. Each node
 async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framework, decision-0019).
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
-   folds the DM projection ([[session-model]]), selects scene-seed material, and looks up SRD
+   folds the DM projection ([[session-model]]), reads `projections.presence` into
+   `AssembleOutput.presence` (`present` user ids, `absent` human party controllers not in the
+   marker, and the marker's `seq`; `null` before any marker; no Director prompt text uses it yet), selects scene-seed material, and looks up SRD
    records (`@the-stacks/srd`, [[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup) and whether the beat resolves or **holds** for companions.

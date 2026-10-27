@@ -62,3 +62,32 @@ test("an error frame with a refusal code shows the code in the notice", () => {
   });
   assert.equal(s.notice, "Only the seated DM may approve (NOT_DM)");
 });
+
+test("a presence frame replaces the present set and keeps the events", () => {
+  let s = reduceFrame(initialFrameState, { type: "event", event: ev(1) });
+  assert.equal(s.present, null);
+  const a = { userId: "u1", displayName: "Ana" };
+  const b = { userId: "u2", displayName: "Ben" };
+  s = reduceFrame(s, { type: "presence", sessionId: "s", present: [a, b] });
+  assert.deepEqual(s.present, [a, b]);
+  s = reduceFrame(s, { type: "presence", sessionId: "s", present: [b] });
+  assert.deepEqual(s.present, [b]);
+  assert.equal(s.events.length, 1);
+});
+
+test("an unknown frame type leaves the state unchanged", () => {
+  const s = reduceFrame(initialFrameState, { type: "event", event: ev(1) });
+  assert.equal(reduceFrame(s, { type: "from-the-future", x: 1 }), s);
+});
+
+test("events keep accumulating after presence and unknown frames", () => {
+  let s = reduceFrame(initialFrameState, {
+    type: "presence",
+    sessionId: "s",
+    present: [],
+  });
+  s = reduceFrame(s, { type: "from-the-future" });
+  s = reduceFrame(s, { type: "event", event: ev(4) });
+  assert.equal(s.highestSeq, 4);
+  assert.deepEqual(s.present, []);
+});

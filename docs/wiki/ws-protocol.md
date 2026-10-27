@@ -1,11 +1,11 @@
 ---
 name: ws-protocol
-description: The WebSocket frame shapes (subscribe, send, event, replay-complete, error), the fields the server silently strips from a client's send frame, and what the protocol deliberately does not provide (acks, presence, a session registry).
+description: The WebSocket frame shapes (subscribe, send, event, replay-complete, error), the fields the server silently strips from a client's send frame, and the opt-in `presence` field and frame, the heartbeat, and what the protocol deliberately does not provide (acks, typing indicators, a session registry).
 kind: concept
 sources:
   - apps/server/src/ws/protocol.ts
   - specs/006-ws-gateway/contracts/ws-protocol.md
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # WS protocol
@@ -20,8 +20,11 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
 
 **Client → server**, both branches of the `InboundFrame` discriminated union:
 
-- `subscribe { sessionId, afterSeq? }` — join a session and begin replay from `afterSeq`
-  (default `0`). Handled by [[replay-live-boundary]].
+- `subscribe { sessionId, afterSeq?, presence? }` — join a session and begin replay from `afterSeq`
+  (default `0`). Handled by [[replay-live-boundary]]. `presence` is an optional boolean added by
+  decision-0024 (TASK-0051): `true` opts the connection in to `presence` frames; absent or
+  `false` leaves the stream exactly as before, and a non-boolean value is refused as a validation
+  error. The server reads it again on every `subscribe`, so a re-subscribe can change the choice.
 - `send { sessionId, eventType, payload, payloadVersion, visibility? }` — a **request** to
   record an event, not the event itself. `SendFrame`'s zod schema deliberately does not
   declare `actor`, `seq`, or `ts`: `z.object` strips unrecognized keys rather than erroring on
@@ -46,12 +49,22 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
 - `error { kind: "validation" | "forbidden" | "internal", message, code? }` — a refused request.
   The connection stays open. `code` is optional (spec 029 `ws-delivery.md`): present when the
   refusal has a stable code, such as a gate refusal code or `CATALOG_TYPE_REQUIRES_GATE`.
+- `presence { sessionId, present: [{ userId, displayName }] }` — the full set of humans at the
+  table, sorted by `userId`, one entry per user. Sent only to a connection whose latest
+  `subscribe` had `presence: true`: once right after that subscribe's `replay-complete`, then on
+  every change. Never sent to a connection still replaying. A client replaces its set on each
+  frame; there are no join or leave deltas. See [[presence]].
+
+**Heartbeat.** The server pings every connection every 10 s (`HEARTBEAT_INTERVAL_MS`) with a
+protocol-level ping, not a frame; a connection that has not answered the previous ping is
+terminated. A client's `pong` is automatic in a browser.
 
 ## What the protocol deliberately does NOT provide
 
 - **No acknowledgements** — a `send` is confirmed only by its resulting `event` frame arriving
   (which every subscriber, including the sender, receives the same way).
-- **No presence, typing indicators, or room membership.**
+- **No typing indicators or room membership.** Presence was the one exception, added by
+  decision-0024 as an opt-in frame (see [[presence]]).
 - **No play-session creation or listing** — no session registry exists; a client subscribes to
   an identifier it already knows (see [[m0-demo]]'s D6).
 - **No client-side write path**, by construction.
@@ -60,7 +73,8 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
 
 Consumed by [[websocket-gateway]] (upgrade + message loop) and [[replay-live-boundary]]
 (replay). Mirrored on the client in [[client-session-hook]]'s `types.ts`, which is a hand-kept
-copy of this same shape, not a shared import.
+copy of this same shape, not a shared import. The frozen contract was amended once, by
+decision-0024, with the `presence` field, frame and heartbeat; every other frame is unchanged.
 
 ## Operational notes
 

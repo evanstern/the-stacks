@@ -36,6 +36,8 @@ export {
   PartyMemberChangedV1,
   PartyMemberSchema,
 } from "./events/party.js";
+export type { PresencePurpose, PresenceRecorded } from "./events/presence.js";
+export { PRESENCE_PURPOSES, PresenceRecordedV1 } from "./events/presence.js";
 export {
   ProposalApprovedV1,
   ProposalCreatedV1,
@@ -112,6 +114,7 @@ export type {
   JournalEntryView,
   LedgerRow,
   PartyMemberView,
+  PresenceView,
   ProposalStatus,
   ProposalView,
   SessionProjections,

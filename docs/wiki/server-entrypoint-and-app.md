@@ -6,7 +6,7 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
-verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Server entrypoint and app
@@ -41,14 +41,13 @@ enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice.
 
-Since TASK-0046 (specs/031-dm-runtime), `const gate = createGate({ db })` (see
+Since TASK-0046 (specs/031-dm-runtime), `createGate({ db, presence: presence.reader })` (see
 [[proposal-gate]]) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
 `console.warn`; `startDmWorker({ db, gateway: aiGateway, gate, retrieve, loadProjections,
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
 and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, log })` builds the gate
-listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db,
-validateSession: createValidateSession(db), gate })` for the WebSocket side, two listeners
+listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. [[presence]] is made first. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
 register: `gate.onAppended(gateway.publish)` so every row the gate appends reaches the entitled
 subscribers, and `gate.onAppended(dmEnqueuer.onAppended)` so a committed action (or a decided
 `ai:dm` proposal) queues a DM turn ([[dm-runtime]]).

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, probeReachable } from "../../src/db.js";
+import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import {
   claimDmJob,
   enqueueChronicle,
@@ -281,6 +282,36 @@ describe.skipIf(!reachable)("DM jobs queue (Phase 1, integration)", () => {
 
     // Idempotent: a second pass finds the queued job and adds nothing.
     expect(await reconcileTurnJobs(requireDb())).not.toContain(unanswered);
+  });
+});
+
+describe.skipIf(!reachable)("DM enqueuer and the presence marker", () => {
+  it("queues no turn for a presence.recorded row", async () => {
+    const sessionId = randomUUID();
+    const enqueuer = createDmEnqueuer({
+      db: requireDb(),
+      nudge: () => {},
+      loadProjections: async () => {
+        throw new Error("a marker must not need a projection");
+      },
+    });
+    await enqueuer.onAppended(sessionId, [
+      {
+        sessionId,
+        seq: 1,
+        actor: "system",
+        type: "presence.recorded",
+        payload: { present: [], purpose: "director" },
+        payloadVersion: 1,
+        visibility: "public",
+        ts: "2026-10-27T00:00:00.000Z",
+      },
+    ]);
+    const rows = await requireDb()
+      .select()
+      .from(jobs)
+      .where(eq(jobs.sessionId, sessionId));
+    expect(rows).toHaveLength(0);
   });
 });
 

@@ -35,6 +35,7 @@ function fixtureSource(f: Fixture, viewer: Viewer): TableSource {
     events: f.events,
     status: "fixture",
     caughtUp: true,
+    presence: null,
     notice: null,
     proposals: proposalsFor(f.events, viewer, new Set()),
     commands,

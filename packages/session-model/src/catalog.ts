@@ -14,6 +14,7 @@ import {
   MechanicsEnvelopeV1,
 } from "./events/mechanics.js";
 import { PartyMemberChangedV1 } from "./events/party.js";
+import { PresenceRecordedV1 } from "./events/presence.js";
 import {
   ProposalApprovedV1,
   ProposalCreatedV1,
@@ -85,6 +86,7 @@ const sessionEntries: CatalogEntry[] = [
   session("proposal.rejected", "proposal", ProposalRejectedV1, "dm-only"),
   session("dm.seat.changed", "state-change", DmSeatChangedV1),
   session("gate.policy.changed", "state-change", GatePolicyChangedV1),
+  session("presence.recorded", "marker", PresenceRecordedV1),
 ];
 
 const mechanicsEntries: CatalogEntry[] = MECHANICS_EVENT_TYPES.map((type) =>
@@ -138,6 +140,7 @@ type SessionPayloads = {
   "proposal.rejected": z.infer<typeof ProposalRejectedV1>;
   "dm.seat.changed": z.infer<typeof DmSeatChangedV1>;
   "gate.policy.changed": z.infer<typeof GatePolicyChangedV1>;
+  "presence.recorded": z.infer<typeof PresenceRecordedV1>;
 };
 
 export type SessionNativeEvent = {

@@ -17,10 +17,10 @@ import {
 const examples = engineExamples();
 
 describe("catalog shape", () => {
-  it("has 17 session entries and 18 mechanics entries", () => {
-    expect(SESSION_EVENT_TYPES).toHaveLength(17);
+  it("has 18 session entries and 18 mechanics entries", () => {
+    expect(SESSION_EVENT_TYPES).toHaveLength(18);
     expect(MECHANICS_EVENT_TYPES).toHaveLength(18);
-    expect(catalog).toHaveLength(35);
+    expect(catalog).toHaveLength(36);
   });
 
   it("catalogues the five gate types at version 1 with their kinds and visibility", () => {
@@ -87,6 +87,7 @@ describe("catalog shape", () => {
         "attack.resolved",
         "check.resolved",
         "dice.rolled",
+        "presence.recorded",
         "rest.completed",
       ].sort(),
     );

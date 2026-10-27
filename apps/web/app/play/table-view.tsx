@@ -10,6 +10,7 @@ import {
   TableHeader,
 } from "./components/table-header.tsx";
 import { Transcript } from "./components/transcript.tsx";
+import { presenceRows } from "./presence.ts";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
 
@@ -19,9 +20,14 @@ import { toTableViewModel } from "./view-model.ts";
  */
 export function TableView({ source }: { source: TableSource }) {
   const { events, viewer, actor, proposals } = source;
+  const projected = useMemo(() => project(events, viewer), [events, viewer]);
   const model = useMemo(
-    () => toTableViewModel(project(events, viewer), { actor, proposals }),
-    [events, viewer, actor, proposals],
+    () => toTableViewModel(projected, { actor, proposals }),
+    [projected, actor, proposals],
+  );
+  const presence = useMemo(
+    () => presenceRows(source.presence, projected),
+    [source.presence, projected],
   );
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
@@ -37,6 +43,7 @@ export function TableView({ source }: { source: TableSource }) {
       <TableHeader
         model={model}
         status={source.status}
+        presence={presence}
         ledgerOpen={ledgerOpen}
         approvalsOpen={approvalsOpen}
         onLedger={() => setLedgerOpen((was) => !was)}

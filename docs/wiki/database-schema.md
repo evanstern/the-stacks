@@ -12,7 +12,7 @@ sources:
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/drizzle/0006_fearless_jamie_braddock.sql
-verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # Database Schema

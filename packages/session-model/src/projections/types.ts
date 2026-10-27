@@ -212,6 +212,15 @@ export interface ProposalView {
   } | null;
 }
 
+export interface PresenceView {
+  /** The latest marker's present set (sorted ascending user ids). */
+  present: string[];
+  purpose: "director" | "signoff" | "floor";
+  actionId: string | null;
+  /** The marker's seq. */
+  seq: number;
+}
+
 export interface SessionProjections {
   /** Projection shape version. */
   v: 1;
@@ -231,6 +240,8 @@ export interface SessionProjections {
   gate: GateView;
   /** Always [] for a player viewer. */
   proposals: ProposalView[];
+  /** The latest presence marker; null until one is folded (decision-0024). */
+  presence: PresenceView | null;
 
   /** Highest seq folded for this viewer; 0 initially. */
   throughSeq: number;

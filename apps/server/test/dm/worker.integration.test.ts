@@ -6,6 +6,7 @@ import { createSession } from "../../src/auth/session.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
 import { listModelCalls } from "../../src/dm/model-calls.js";
+import type { Gate } from "../../src/gate/index.js";
 import { MAX_ATTEMPTS } from "../../src/jobs/queue.js";
 import { users } from "../../src/schema/auth.js";
 import { jobs } from "../../src/schema/jobs.js";
@@ -258,6 +259,119 @@ describe.skipIf(!reachable)("DM enqueuer on approvals (database)", () => {
     expect(
       (queued[0] as unknown as { input: { trigger: string } }).input.trigger,
     ).toBe("approval");
+  });
+});
+
+describe.skipIf(!reachable)("DM worker presence marker (database)", () => {
+  const here = {
+    presentUsers: () => [{ userId: TAMSIN_USER, displayName: "Tamsin" }],
+    isPresent: (_sid: string, actor: string) =>
+      actor.startsWith("ai:") || actor === TAMSIN_USER,
+    onChange: () => () => {},
+  };
+  const chronicle = {
+    purpose: "dm.chronicle",
+    respond: { type: "json", value: { entries: [] } },
+  };
+
+  async function markers(w: Awaited<ReturnType<typeof createWorld>>) {
+    return (await readRows(w)).filter((r) => r.type === "presence.recorded");
+  }
+
+  it("records one director marker per turn job and stores presenceSeq", async () => {
+    const s = script("exploration-check.json");
+    const w = await createWorld({
+      dice: s.dice,
+      calls: [...s.calls, chronicle],
+      presence: here,
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await commitAction(w, "I search the ferry-house.", "act-search");
+    await tick();
+    await drainAll(worker);
+
+    const found = await markers(w);
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({
+      actor: "system",
+      visibility: "public",
+      payload: { present: [TAMSIN_USER], purpose: "director" },
+    });
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 20)).find(
+      (j) => j.kind === "turn",
+    );
+    expect(
+      (turn?.result as { presenceSeq: number } | undefined)?.presenceSeq,
+    ).toBe(found[0]?.seq);
+  });
+
+  it("records a second marker for a second turn job and writes none for companion or chronicle jobs", async () => {
+    const w = await createWorld({ calls: [], presence: here });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    // Two failing turns (no scripted calls): each still records exactly once.
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const found = await markers(w);
+    expect(found).toHaveLength(2);
+    const turns = (await listDmJobs(requireDb(), w.sessionId, 20, "turn")).map(
+      (j) => (j.result as { presenceSeq?: number } | null)?.presenceSeq,
+    );
+    expect(turns.sort()).toEqual(found.map((r) => r.seq).sort());
+    // No companion or chronicle job ran for these sessions' markers.
+    const others = await listDmJobs(requireDb(), w.sessionId, 20);
+    expect(
+      others.filter((j) => j.kind !== "turn" && j.status === "succeeded"),
+    ).toHaveLength(0);
+  });
+
+  it("fails the turn with failure.node presence when the record is refused", async () => {
+    const w = await createWorld({
+      calls: [],
+      presence: here,
+      gate: (g): Gate => ({
+        ...g,
+        recordPresence: async () => ({
+          ok: false,
+          refusal: { source: "gate", code: "CONFLICT", message: "busy" },
+        }),
+      }),
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn")).find(
+      (j) => j.status === "failed",
+    );
+    expect(turn?.error).toBe("stopped at presence: gate");
+    expect(
+      (turn?.result as { failure: { node: string } } | undefined)?.failure.node,
+    ).toBe("presence");
+    expect(await markers(w)).toHaveLength(0);
+  });
+
+  it("fails the turn with failure.node presence when the record throws", async () => {
+    const w = await createWorld({
+      calls: [],
+      gate: (g): Gate => ({
+        ...g,
+        recordPresence: async () => {
+          throw new Error("db down");
+        },
+      }),
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn")).find(
+      (j) => j.status === "failed",
+    );
+    expect(turn?.error).toBe("stopped at presence: internal");
   });
 });
 

@@ -5,7 +5,7 @@ import {
   initialFrameState,
   reduceFrame,
 } from "../play/reduce-frame.ts";
-import type { ServerFrame } from "./types";
+import type { ServerFrame, SubscribeFrame } from "./types";
 
 export type ConnectionStatus = "connecting" | "open" | "retrying";
 
@@ -76,13 +76,13 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
       socket.addEventListener("open", () => {
         if (stopped) return;
         setStatus("open");
-        socket.send(
-          JSON.stringify({
-            type: "subscribe",
-            sessionId,
-            afterSeq: highestSeqRef.current,
-          }),
-        );
+        const subscribe: SubscribeFrame = {
+          type: "subscribe",
+          sessionId,
+          afterSeq: highestSeqRef.current,
+          presence: true,
+        };
+        socket.send(JSON.stringify(subscribe));
       });
 
       socket.addEventListener("message", (messageEvent: MessageEvent) => {
@@ -100,6 +100,9 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
 
       socket.addEventListener("close", () => {
         if (stopped) return;
+        // A dead connection says nothing about who is at the table; the next subscribe
+        // brings a fresh snapshot.
+        setFrames((prev) => ({ ...prev, present: null }));
         scheduleRetry();
       });
     }
@@ -147,6 +150,7 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     status,
     caughtUp: frames.caughtUp,
     notice: frames.notice,
+    present: frames.present,
     sendEvent,
   };
 }

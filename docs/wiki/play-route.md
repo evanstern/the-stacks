@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, and the operator-only fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, and the operator-only fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -19,7 +19,10 @@ sources:
   - apps/web/app/play/ledger-format.ts
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
-verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
+  - apps/web/app/play/presence.ts
+  - apps/web/app/play/components/presence-strip.tsx
+  - apps/web/app/play/components/table-header.tsx
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # Play route
@@ -34,7 +37,8 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 
 `play/table-view.tsx`'s `TableView({ source })` is the only view. A `TableSource`
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
-`status`, `caughtUp`, `notice`, pending `proposals`, and `commands` (`sendTalk`,
+`status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
+`null` when unknown) and `commands` (`sendTalk`,
 `declareAction`, `comment`, `commit`, `approve`, `reject`). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
@@ -66,11 +70,27 @@ it holds only UI state (which panel is open). Two hooks build a source:
   `commitFrame`, `withdrawFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
   `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixture mode.
 - `reduce-frame.ts` - `reduceFrame` folds every inbound WebSocket frame into `FrameState`
-  (`events`, `highestSeq` as a max, `caughtUp`, `notice`).
+  (`events`, `highestSeq` as a max, `caughtUp`, `notice`, `present`). A `presence` frame replaces
+  `present`; a `default` branch returns the state unchanged, so a frame type the client does not
+  know is ignored.
+- `presence.ts` - `presenceRows(present, projections)`: one row per user, marked `dm`, `player`
+  or `observer`. The AI DM row is present whenever the seat is AI. A human DM seat holder is
+  always listed and shown absent when not in `present`. A present user who holds the seat is
+  `dm`, one who controls a party member is `player`, any other is `observer`. A `null` list yields
+  only the DM row. See [[presence]].
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
   oldest first; a player always gets `[]`.
 - `ledger-format.ts` formats roll, outcome and change rows; `labels.ts` resolves actor and
   character display names from the party.
+
+## Presence strip
+
+`TableView` projects the events once, derives the rows with `presenceRows`, and passes them to
+`TableHeader`, which renders `components/presence-strip.tsx`: a list labelled "At the table"
+with one chip per row, role text (DM, Player or Observer) and an "absent" mark with a dimmed,
+dashed chip. It renders nothing when there are no rows. `useLiveTable` supplies `presence` from
+`useSession`; `useFixtureTable` supplies a static list from `fixturePresence` (the human DM seat
+holder and each party controller). The strip is inline, not a panel, and opens nothing.
 
 ## Live writes and refusals
 

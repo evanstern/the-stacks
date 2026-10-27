@@ -17,6 +17,7 @@ import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
 import { loadRetrievalConfig, retrieve } from "./library/retrieve.js";
+import { createPresence } from "./presence/index.js";
 import { loadProjections } from "./session/projections.js";
 import { isReservedPath } from "./static.js";
 // `import type` only: web-dev.js itself is loaded dynamically, below, behind
@@ -56,7 +57,9 @@ const ingestWorker = startIngestWorker({
 
 // The gate and the DM runtime come before the app: the /dm routes nudge the
 // worker, and the worker submits through the gate (specs/031-dm-runtime).
-const gate = createGate({ db });
+// Presence comes first: the gate reads it (TASK-0051 Phase 3) and the gateway feeds it.
+const presence = createPresence();
+const gate = createGate({ db, presence: presence.reader });
 const loadDmProjections = (sessionId: string) =>
   loadProjections(db, sessionId, { role: "dm" });
 const missingPurposes = missingDmPurposes(aiConfig.purposes);
@@ -113,6 +116,7 @@ const gateway = createGateway({
   db,
   validateSession: createValidateSession(db),
   gate,
+  presence,
 });
 // Every row the gate appends reaches the entitled subscribers (ws-delivery.md).
 gate.onAppended(gateway.publish);

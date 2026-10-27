@@ -20,7 +20,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: ada33ec1e814257544d8e98b7b6460fa18d82acb
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # Playtest harness
@@ -33,7 +33,9 @@ Code: `apps/server/src/playtest/`. Spec: `specs/032-playtest-harness/` (contract
 
 ## The run
 
-`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate,
+`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate (with
+a static presence reader that names the scripted seat's user present and counts every `ai:`
+actor present, so each turn's marker lists the scripted seat; [[presence]]),
 gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`, then loops:
 `driver.ts`'s `nextMove` picks the next scripted move, the harness submits it through
 `gate.handle` as the human seat, and the worker drains until idle. Dice come from

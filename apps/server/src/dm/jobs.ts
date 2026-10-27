@@ -84,7 +84,8 @@ export type ChronicleJobInput = z.infer<typeof ChronicleJobInput>;
  * The queue only stores and returns the object.
  */
 export interface TurnFailure {
-  node: NodeName;
+  /** "presence" is the pre-pipeline marker write (decision-0024). */
+  node: NodeName | "presence";
   kind: NodeErrorKind | "seed";
   message: string;
   detail: Record<string, unknown> | null;
@@ -97,6 +98,8 @@ export interface TurnFailureResult {
   audit: null;
   calls: ModelCallRecord[];
   failure: TurnFailure;
+  /** Seq of the presence marker this turn recorded; null when none. */
+  presenceSeq?: number | null;
 }
 
 export interface TurnCheckpoint {

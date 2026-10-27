@@ -34,6 +34,7 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     engine: emptyState(),
     gate: { seat: { kind: "ai" }, policyOverrides: {} },
     proposals: [],
+    presence: null,
     throughSeq: 0,
     diagnostics: {
       skippedUnknownType: 0,
@@ -259,6 +260,16 @@ function applyKnown(
         ledger: [...p.ledger, sessionChangeRow(event)],
       };
     }
+    case "presence.recorded":
+      return {
+        ...p,
+        presence: {
+          present: [...event.payload.present],
+          purpose: event.payload.purpose,
+          actionId: event.payload.actionId ?? null,
+          seq: event.seq,
+        },
+      };
     default:
       return applyMechanics(p, event as MechanicsEvent);
   }

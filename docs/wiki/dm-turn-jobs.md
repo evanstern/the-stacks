@@ -13,7 +13,7 @@ sources:
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM turn jobs
@@ -89,9 +89,18 @@ never duplicates the narration. A claim past `MAX_ATTEMPTS` marks the job `faile
 A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stopped at <node>:
 <kind>`) and `jobs.result` a `TurnFailureResult` (`TurnFailure` in `dm/jobs.ts`): checkpoint,
 `outcome.status = "failed"`, `audit: null`, the model calls made, and `failure` (`node`, `kind`,
-`message`, `detail`). The worker writes it for a node failure and for the bad-seed path (`kind`
+`message`, `detail`; `node` is a pipeline node or `presence`). The worker writes it for a node failure and for the bad-seed path (`kind`
 `seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim. Excerpt bounds
 and the `invalid-output` detail are in [[dm-runtime]].
+
+**The presence marker.** The worker takes `gate: Pick<Gate, "submit" | "recordPresence">`.
+Before the pipeline of each claimed `turn` job it calls `gate.recordPresence(sessionId, {
+purpose: "director" })` once, so the log holds who was at the table when the Director decided
+(decision-0024, [[presence]]). Every `turn` job result carries `presenceSeq`, the marker's `seq`
+(`null` when none was written). Companion and chronicle jobs record nothing. A refusal or a throw
+finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `stopped at presence:
+<kind>` (`gate` for a refusal, `internal` for a throw); the pipeline does not run. The worker still
+never calls `gate.submit` from outside `resolve`.
 
 ## Calls, usage and the ledger
 
