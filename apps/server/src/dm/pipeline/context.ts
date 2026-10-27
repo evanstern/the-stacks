@@ -155,7 +155,7 @@ export type Node<N extends NodeName> = (
 export type TurnOutcome =
   | { status: "completed"; results: NodeOutputs; calls: ModelCallRecord[] }
   | { status: "empty-beat" }
-  | { status: "held"; companions: string[] }
+  | { status: "held"; companions: string[]; calls: ModelCallRecord[] }
   | {
       status: "failed";
       node: NodeName;

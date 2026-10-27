@@ -103,7 +103,12 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
-  narration: { attempts: AuditRecord["attempts"]; shipped: boolean } | null;
+  narration: {
+    attempts: AuditRecord["attempts"];
+    shipped: boolean;
+    /** The shipped narration's event seqs, ascending; absent on rows stored before TASK-0116. */
+    seqs: number[];
+  } | null;
 }
 
 interface ClaimBase {
