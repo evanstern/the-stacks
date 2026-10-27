@@ -1,6 +1,6 @@
 ---
 name: dm-turn-jobs
-description: How DM work rides the shared jobs queue (TASK-0046, specs/031-dm-runtime) - kinds turn/companion/chronicle and their payloads, the gate listener that enqueues turns, the priority claim serialized per session, lease/heartbeat/fencing in jobs/queue.ts, checkpoints, beats, reclaim idempotence (markers, landed-narration detection) and start-up reconcile. Pipeline logic is dm-runtime.
+description: How DM work rides the shared jobs queue (TASK-0046, specs/031-dm-runtime) - kinds turn/companion/chronicle and their payloads, the gate listener that enqueues turns, the priority claim serialized per session, lease/heartbeat/fencing in jobs/queue.ts, checkpoints, beats, the resolve-order contract, reclaim idempotence (markers, landed-narration detection, marker numbering across a resolve-order deploy) and start-up reconcile. Pipeline logic is dm-runtime.
 kind: pipeline
 sources:
   - apps/server/src/jobs/queue.ts
@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
 ---
 
 # DM turn jobs
@@ -76,6 +76,10 @@ the worker queues follow-up jobs: a companion job for an AI companion's turn, an
 turn when the DM acts next, a companion `hold` job when the director held, and a chronicle job
 when narration shipped. A failed turn queues nothing; the actions stay committed.
 
+## Resolve order
+
+Opening moves (encounter start), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
+
 ## Reclaim idempotence
 
 Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which
@@ -84,7 +88,7 @@ for the one in flight: proposals carry a marker `[<jobId>#<n>]` in their reason 
 checkpoint's `lastSeq` bounds the search. Narration rows carry no marker, so
 `findLandedNarration` detects a narration by position: an `ai:dm` narration row after the job's
 last known seq. When one exists the runner skips narrate and audit, spends no model calls, and
-never duplicates the narration. A claim past `MAX_ATTEMPTS` marks the job `failed` and appends a failure notice.
+never duplicates the narration. The marker `<jobId>#<n>` is a label: the six-group resolve order ([[dm-runtime]]) shifts step numbers, so a job reclaimed across a deploy could mismatch a landed row (accepted, TASK-0156). A claim past `MAX_ATTEMPTS` marks the job `failed` and appends a failure notice.
 
 ## Failed turns
 
@@ -119,8 +123,7 @@ returned: `Submission.seqs`, `TurnCheckpoint.narration.seqs`, `CompanionSubmissi
 chronicle's `seqs` (`[]` on a refusal or on a submission recovered after reclaim). That is the
 job-to-event link; routes in [[debug-view]].
 
-**Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough(sessionId, throughSeq)` (optional; the
-default reads `session/projections` with `{ throughSeq }`, and `index.ts` passes one) and the
+**Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough(sessionId, throughSeq)` and the
 worker's seed loader are handed to the chronicle job, which builds the state at its `throughSeq`
 ([[actor-snapshot]]). The companion job builds its `seat` snapshot from the projections it already
 loads, so a `react` run needs no extra seam; the react job and the snapshot state share one prompt

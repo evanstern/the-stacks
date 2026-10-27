@@ -105,20 +105,20 @@ from the order, not by reverting).
 Classify each staled pin against `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or
 NEEDS-REVIEW. Amend prose before bumping a NEEDS-REVIEW pin.
 
-- [ ] T019 [P] NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the resolve group order (opening moves, rulings, actions, NPC, closing moves, turn advance), why encounter start is an opening move, and the batch-gate slot for TASK-0147; cite decision-0025 §4; check the `description:` still holds
-- [ ] T020 [P] NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: the new "Resolve order" section of the turn-jobs contract and the reclaim note (marker count versus order across a deploy)
-- [ ] T021 [P] Review `docs/wiki/dm-failure-and-gates.md`: a refused action now resolves before a Director stage change; the plan gate stays TASK-0112's; re-pin RE-PIN-ONLY if its sources did not change, else amend
-- [ ] T022 [P] Review `docs/wiki/dnd5e-engine.md`: no engine change; record if useful that `encounter.end` keeps combatants (it is why the refusal in rows 260–265 was not the encounter end); re-pin RE-PIN-ONLY if its sources did not change
-- [ ] T023 Update the state paragraph of `docs/wiki/INDEX.md` with one clause for TASK-0110; regenerate `docs/wiki/CAPSULES.md` if any `description:` changed
-- [ ] T024 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0); commit
+- [x] T019 [P] NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the resolve group order (opening moves, rulings, actions, NPC, closing moves, turn advance), why encounter start is an opening move, and the batch-gate slot for TASK-0147; cite decision-0025 §4; check the `description:` still holds
+- [x] T020 [P] NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: the new "Resolve order" section of the turn-jobs contract and the reclaim note (marker count versus order across a deploy)
+- [x] T021 [P] Review `docs/wiki/dm-failure-and-gates.md`: a refused action now resolves before a Director stage change; the plan gate stays TASK-0112's; re-pin RE-PIN-ONLY if its sources did not change, else amend
+- [x] T022 [P] Review `docs/wiki/dnd5e-engine.md`: no engine change; record if useful that `encounter.end` keeps combatants (it is why the refusal in rows 260–265 was not the encounter end); re-pin RE-PIN-ONLY if its sources did not change
+- [x] T023 Update the state paragraph of `docs/wiki/INDEX.md` with one clause for TASK-0110; regenerate `docs/wiki/CAPSULES.md` if any `description:` changed
+- [x] T024 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0); commit
 
 ---
 
 ## Constitution Compliance (the-stacks)
 
-- [ ] T025 Principle I: the order is proven through the real worker with a scripted agent (T016–T017), not only at node level
-- [ ] T026 Principle IV: no event type added; `resolve.ts` stays the only DM gate writer (`test/dm/boundary.test.ts` passes)
-- [ ] T027 Principle VI: no engine change; every outcome assertion runs on scripted dice (T007–T012, T017)
+- [x] T025 Principle I: the order is proven through the real worker with a scripted agent (T016–T017), not only at node level
+- [x] T026 Principle IV: no event type added; `resolve.ts` stays the only DM gate writer (`test/dm/boundary.test.ts` passes)
+- [x] T027 Principle VI: no engine change; every outcome assertion runs on scripted dice (T007–T012, T017)
 
 ## Dependencies & Execution Order
 

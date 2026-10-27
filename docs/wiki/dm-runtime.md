@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, digit-free narration, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, the dm/ import boundary.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, the six-group resolve order, digit-free narration, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, import boundary.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -32,26 +32,25 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
 ---
 
 # DM runtime
 
-`apps/server/src/dm/` runs the AI dungeon master for a play session. A commit by a player
+`apps/server/src/dm/` runs the AI dungeon master for a play session. A player commit
 queues a **turn**; the turn reads the log, plans, resolves mechanics through the engine, narrates,
-audits the narration, and writes back through the proposal gate ([[proposal-gate]]) as `ai:dm`. Spec: `specs/031-dm-runtime/`. Queue and worker
-mechanics are in [[dm-turn-jobs]].
+audits the narration, and writes back through the proposal gate ([[proposal-gate]]) as `ai:dm`. Spec: `specs/031-dm-runtime/`; queue mechanics in [[dm-turn-jobs]].
 
 ## The pipeline
 
 The runner (`pipeline/runner.ts`, `runTurn`) walks a fixed node order. Each node is a plain
-async function `(TurnContext) => NodeResult` (`pipeline/context.ts`).
+async function `(TurnContext) => NodeResult`.
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
    folds the DM projection ([[session-model]]), reads `projections.presence` into
    `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0**
    (`AssembleOutput.snapshot`), selects scene-seed material, and looks up SRD
-   records (`@the-stacks/srd`, [[srd-data]]).
+   records ([[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup) and whether the beat resolves or **holds** for companions.
 3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, effect, roll) and
@@ -97,6 +96,8 @@ resolve, and no model ever sees or invents a number: the engine ([[dnd5e-engine]
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a
 retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
 `<jobId>#<n>`, key, kind, result, refusal, ids, and the `seqs` the gate returned).
+
+Resolve runs six groups: [[dm-turn-jobs]] (decision-0025 §4).
 
 ## Narration and audit
 
