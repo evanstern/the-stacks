@@ -3,7 +3,7 @@
 **Feature Branch**: `task-0112-downed-hero-gate`
 **Spec dir**: `specs/046-downed-hero-gate`
 **Created**: 2026-10-27
-**Status**: Draft — STOPPED after spec.md for operator rulings OQ-1 and OQ-2 (one-way doors)
+**Status**: Ready for planning — operator ruled OQ-1 to OQ-5 and sequencing on 2026-10-27
 **Board card**: TASK-0112 (Track C5, runbook amendment 1, U6 folded in)
 **Input**: TASK-0112, decision-0025 (D17) card U6, evidence
 `specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/classification.md` R2.
@@ -38,12 +38,34 @@ U2), seed-NPC presence (TASK-0142, U8).
 - TASK-0110 (spec 045, PR #67, merged 2026-10-27 09:57 UTC after this branch was cut). It moved
   the action groups before the Director group, except encounter start and scene-start setup
   (045 FR-003). Spec 045 names the evidence's `UNKNOWN_COMBATANT` refusal (an interpret step
-  naming a non-combatant, likely the captive seed NPC `pell`) as this card's AC #5. The first
+  naming a non-combatant, likely the captive seed NPC `pell`) as this card's plan gate (old AC #5, now AC #6). The first
   implementation phase merges `origin/main` in before touching `resolve.ts`.
 
 **Clarify**: skipped. The card, decision-0025 and the evidence settle the behaviour. Two
-choices change frozen contract text; they are raised as operator rulings OQ-1 and OQ-2, not
-asked as preferences. Interpretive choices with a stated default are OQ-3 to OQ-5.
+choices change frozen contract text; they were raised as operator rulings OQ-1 and OQ-2, not
+asked as preferences. Interpretive choices with a stated default were OQ-3 to OQ-5.
+
+## Operator rulings (2026-10-27, recorded on the card)
+
+> "TASK-0112: I accept OQ-1 (a) CHARACTER_UNABLE, OQ-2 (a) ACTOR_UNABLE, including the
+> frozen-contract amendments to spec 029 gate-api.md and spec 026 refusals.md, the OQ-3 to OQ-5
+> defaults, and sequencing Option A (absent checks move to TASK-0141)."
+
+- **OQ-1 → (a).** The declare gate's code is `CHARACTER_UNABLE` (source `gate`), with an open
+  `details.reason`. `specs/029-proposal-gate/contracts/gate-api.md` §1 and §2 are amended.
+- **OQ-2 → (a).** The engine's code is `ACTOR_UNABLE` (27 codes).
+  `specs/026-dnd5e-engine/contracts/refusals.md`, gate-api.md §2's count, and
+  `specs/028-session-model/contracts/session-events.md` (`action.resolved.refusalCode`) are
+  amended.
+- **OQ-3 to OQ-5 → defaults.** Saving throws by an unable creature are allowed. Ambush
+  combatants pass the plan gate. No interpret re-ask, no withdrawal of open declarations.
+- **Sequencing → Option A.** Both absent checks move to TASK-0141. The orchestrator amended
+  both cards: TASK-0112's ACs now read #1 driver, #2 decision, #3 engine, #4 death saves,
+  #5 life-state declare gate, #6 S0 plan gate. TASK-0141 gained the two absent ACs and depends
+  on TASK-0112.
+- **Spec 045 OQ-1 → approved** ("Approved", 2026-10-27): the opening/closing split of the
+  Director group. This card fixes the stale sentence in
+  `specs/031-dm-runtime/contracts/turn-jobs.md` "Resolve order".
 
 ## Root cause (from the evidence)
 
@@ -64,7 +86,7 @@ Three defects show:
    only `ACTION_EXISTS` and control. It accepts any declaration for a downed character.
 3. **No death-save turn exists.** In turn mode the active actor stays on the downed seat's
    user, and the turn waits for a declaration. Fixing defects 1 and 2 alone would stall every
-   turn-mode fight the moment a hero drops. That is why card AC #6 exists.
+   turn-mode fight the moment a hero drops. That is why card AC #4 exists.
 
 The engine (`packages/dnd5e-engine/src/commands/attacks.ts`, `checkNamed`) refuses an unknown
 or dead attacker, target or checker. It accepts an unconscious, stable or incapacitated one.
@@ -115,7 +137,7 @@ plus a server gate test through `gate.handle`.
 
 1. **Given** a party character whose combatant life state is `unconscious`, `stable` or
    `dead`, **When** its controller submits a character-scope `action.declare`, **Then** the
-   gate refuses with source `gate` and the able-actor code (OQ-1), with `details`
+   gate refuses with source `gate` and `CHARACTER_UNABLE`, with `details`
    `{ characterId, reason: "life-state", lifeState }`, and the log is unchanged.
 2. **Given** a conscious character, **When** its controller declares, **Then** the gate
    accepts it as today.
@@ -137,7 +159,7 @@ to the next combatant. A stable or dead character's turn passes with no roll. A 
 brings the character back to 1 HP. That character is then conscious, so the turn stays and
 its controller acts.
 
-**Why this priority**: Card AC #6. Without it, User Stories 1 and 2 stall every fight in which
+**Why this priority**: Card AC #4. Without it, User Stories 1 and 2 stall every fight in which
 a hero drops. It also replaces the evidence's invented death save (seq 156–157) with a real
 engine death save.
 
@@ -182,7 +204,7 @@ the new code to appear in a test.
 **Acceptance Scenarios**:
 
 1. **Given** an attacker whose life state is `unconscious` or `stable`, **When**
-   `attack.roll` runs, **Then** the engine refuses with the actor-unable code (OQ-2),
+   `attack.roll` runs, **Then** the engine refuses with `ACTOR_UNABLE`,
    `details: { combatantId, role: "attacker", lifeState, conditions }`, and draws no die.
 2. **Given** an attacker with the condition `incapacitated`, `paralyzed`, `petrified`,
    `stunned` or `unconscious`, **When** `attack.roll` runs, **Then** the engine refuses the
@@ -270,13 +292,13 @@ the fake gateway.
 - **FR-004**: The scenario contract (`specs/032-playtest-harness/contracts/scenario.md`
   "Driver") MUST state the downed rule and the new stall reason.
 
-**Declare gate (AC #2, AC #3)**
+**Declare gate (AC #2, AC #5)**
 
 - **FR-005**: AC #2 is met by decision-0025 "Consequences". The card's final summary MUST cite
   it.
 - **FR-006**: The planner's `action.declare` case MUST refuse a character-scope declaration
   whose character has a combatant with `lifeState` other than `conscious`. The refusal source
-  is `gate`. The code is the able-actor code ruled at OQ-1. `details` MUST carry
+  is `gate`. The code is `CHARACTER_UNABLE`. `details` MUST carry
   `{ characterId, reason: "life-state", lifeState }`.
 - **FR-007**: The planner MUST refuse a party-scope declaration when the proposer controls at
   least one party character and every one it controls is not conscious. The code and reason
@@ -286,7 +308,7 @@ the fake gateway.
 - **FR-009**: The `reason` field MUST be an open set. TASK-0141 adds `reason: "absent"` under
   the same code (see Sequencing).
 
-**Death-save turns (AC #6)**
+**Death-save turns (AC #4)**
 
 - **FR-010**: Resolve MUST settle the active turn wherever it lands turn mode on a combatant:
   after a turn advance, and after the encounter start sets the first active actor. Settling
@@ -301,20 +323,20 @@ the fake gateway.
 - **FR-012**: Settling MUST be code only. No model chooses a death save, its expression or its
   outcome. Every number comes from the engine.
 
-**Engine (AC #4)**
+**Engine (AC #3)**
 
 - **FR-013**: The engine MUST define a combatant as **unable** when its `lifeState` is
   `unconscious` or `stable`, or it holds any of the conditions `incapacitated`, `paralyzed`,
   `petrified`, `stunned`, `unconscious`. These conditions carry Incapacitated under SRD 5.2.1.
 - **FR-014**: `attack.roll` MUST refuse an unable `attackerId`. `check.roll` with
-  `kind: "ability-check"` MUST refuse an unable `combatantId`. Both use the code ruled at OQ-2,
+  `kind: "ability-check"` MUST refuse an unable `combatantId`. Both use `ACTOR_UNABLE`,
   with `details: { combatantId, role, lifeState, conditions }`.
 - **FR-015**: The check order MUST be: unknown (`UNKNOWN_COMBATANT`), then dead (`TARGET_DEAD`),
   then unable. Every check MUST run before the first `rollDie` (refuse-before-draw).
 - **FR-016**: `check.roll` with `kind: "saving-throw"` MUST NOT apply the unable check (OQ-3).
 - **FR-017**: The engine's coverage meta-test MUST pass: the new code appears in a test.
 
-**Plan gate (AC #5, S0 half)**
+**Plan gate (AC #6, S0 half)**
 
 - **FR-018**: A pure function MUST check every step of every interpret reading and adjudicate
   ruling against S0, before resolve writes anything. The checked ids are `attackerId`,
@@ -339,8 +361,11 @@ the fake gateway.
   record the plan gate as built.
 - **FR-024**: `specs/031-dm-runtime/contracts/resolve.md` MUST describe settling and the plan
   gate in its order of work.
-- **FR-025**: The frozen-contract edits ruled at OQ-1 and OQ-2 MUST land in this card's PR,
-  with the ruling quoted on the card.
+- **FR-025**: The frozen-contract edits ruled at OQ-1 and OQ-2 MUST land in this card's PR:
+  gate-api.md §1 (`action.declare` row) and §2 (code list, engine count 27), 026 refusals.md
+  (row 27), and 028 session-events.md (`action.resolved.refusalCode` accepts the new code).
+- **FR-026**: `specs/031-dm-runtime/contracts/turn-jobs.md` "Resolve order" MUST state that the
+  operator approved the opening/closing split on 2026-10-27, replacing "has not yet ratified".
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -356,7 +381,7 @@ the fake gateway.
 
 - **Unable combatant**: an engine combatant whose life state or conditions forbid acting
   (FR-013). Engine-owned.
-- **Able-actor refusal**: the gate refusal of a declaration (OQ-1 code) with a `reason`
+- **Able-actor refusal**: the gate refusal `CHARACTER_UNABLE` of a declaration, with a `reason`
   (`life-state` here, `absent` in TASK-0141).
 - **Plan-gate verdict**: per action group and NPC group, `ok` or `refused` with step index,
   field, id and reason.
@@ -380,40 +405,38 @@ the fake gateway.
 
 ## Card acceptance criteria mapping
 
-| Card AC | Text | Met by | Owner of the test |
-|---|---|---|---|
-| #1 | Driver does not declare for a seat character at 0 HP or unconscious, with a test | FR-001 to FR-004; User Story 1 | TASK-0112 |
-| #2 | A decision records whether an unconscious character's declared action is refused before narration | decision-0025 "Consequences"; FR-005 | TASK-0112 (citation) |
-| #3 | Declare gate refuses a character that is not conscious **or is absent** | life-state half: FR-006 to FR-009, User Story 2. Absent half: TASK-0141 | life-state: TASK-0112. Absent: TASK-0141 (recommended split) |
-| #4 | Engine refuses an unconscious, stable or incapacitated attacker or checker | FR-013 to FR-017; User Story 4 | TASK-0112 |
-| #5 | Plan gate refuses a step whose actor or target is missing from S0 **or absent** | S0 half: FR-018 to FR-022, User Story 5. Absent half: TASK-0141 | S0: TASK-0112. Absent: TASK-0141 (recommended split) |
-| #6 | Death-save turns for unconscious PCs still run | FR-010 to FR-012; User Story 3 | TASK-0112 |
+Numbering is the card's after the 2026-10-27 amendment.
 
-## Sequencing: the "absent" halves of AC #3 and AC #5
+| Card AC | Text | Met by | Test owner |
+|---|---|---|---|
+| #1 | The driver does not declare a move for a seat character at 0 HP or unconscious, with a test | FR-001 to FR-004; User Story 1 | TASK-0112 |
+| #2 | A decision records whether an unconscious character's declared action is refused before narration | decision-0025 "Consequences"; FR-005 | TASK-0112 (citation) |
+| #3 | The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the dead-actor refusals, with engine tests | FR-013 to FR-017; User Story 4 | TASK-0112 |
+| #4 | Death-save turns for unconscious PCs still run | FR-010 to FR-012; User Story 3 | TASK-0112 |
+| #5 | The declare gate refuses a character that is not conscious with `CHARACTER_UNABLE` (`details.reason` `life-state`) and a test | FR-006 to FR-009; User Story 2 | TASK-0112; the absent half is TASK-0141 |
+| #6 | A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test | FR-018 to FR-022; User Story 5 | TASK-0112; the absent half is TASK-0141 |
+
+## Sequencing: the "absent" halves (old AC #3 and AC #5)
 
 Scene presence (`present`, `yielded`, `absent`) does not exist yet. U1 sets every actor's
 `presence` to `present`. TASK-0141 (U2, Track C6) adds the state and its producer. It is
 ordered after this card.
 
-**Option A (recommended default): split.** This card ships the life-state declare gate and the
+**Option A (ruled 2026-10-27): split.** This card ships the life-state declare gate and the
 S0 plan gate. TASK-0141 ships both absent checks.
 
-- This card defines the able-actor gate code (OQ-1) with an open `reason`. TASK-0141 adds
+- This card defines `CHARACTER_UNABLE` with an open `reason`. TASK-0141 adds
   `reason: "absent"` under the same code, so it opens no second one-way door for the declare
   gate.
 - TASK-0141 adds the absent plan-gate check to this card's pure plan-gate function, with
   `reason: "absent"`. It needs an engine refusal code for an `action.resolved` row, because
   `refusalCode` is the engine's `RefusalCodeSchema`. That code is TASK-0141's own ruling.
 - Test ownership:
-  - TASK-0112 owns: driver tests (AC #1); declare gate life-state tests (AC #3); engine
-    unable-actor tests (AC #4); plan gate S0 tests (AC #5); settling tests (AC #6).
-  - TASK-0141 owns: declare gate absent test (AC #3, `reason: "absent"`); plan gate absent
-    test (AC #5, an actor or target with `presence: "absent"` in S0).
-- Card edits the orchestrator makes: on TASK-0112, re-word AC #3 and AC #5 to their life-state
-  and S0 halves, and remove the TASK-0141 dependency. On TASK-0141, add two ACs: "The declare
-  gate refuses an absent character with `reason: absent`, with a test (decision-0025 §3.1)"
-  and "The plan gate refuses a step whose actor or target is absent in S0, with a test
-  (decision-0025 §3.2)". Add TASK-0112 to TASK-0141's dependencies.
+  - TASK-0112 owns (new numbering): driver tests (AC #1); engine unable-actor tests (AC #3);
+    settling tests (AC #4); declare gate life-state tests (AC #5); plan gate S0 tests (AC #6).
+  - TASK-0141 owns: the declare gate absent test (`reason: "absent"`); the plan gate absent
+    test (an actor or target with `presence: "absent"` in S0).
+- Card edits: done by the orchestrator on 2026-10-27 (see Operator rulings).
 - Why: the absent check is a predicate on a field TASK-0141 creates. Its test needs that
   card's producer to make `absent` reachable. The split leaves no deferral without a card.
 
@@ -429,7 +452,7 @@ the demo date does not move, but this card's lane idles.
   (`CombatantSchema` refinements). The driver checks both, as the card wording does.
 - A death save is the SRD start-of-turn roll. Settling runs it when the turn reaches the
   combatant, not at the end of the previous turn.
-- Free mode has no death saves. The card's AC #6 covers turn mode only.
+- Free mode has no death saves. The card's AC #4 covers turn mode only.
 - No new runtime dependency. No migration. No new session-model event type. No ws-protocol
   frame change. The new `stallReason` value is additive to the 032 manifest, which is not
   frozen.
@@ -444,7 +467,7 @@ the demo date does not move, but this card's lane idles.
 
 ## Open questions
 
-### Operator rulings required (one-way doors; this spec stopped here)
+### Operator rulings (resolved 2026-10-27: OQ-1 (a), OQ-2 (a))
 
 - **OQ-1 — the declare gate's refusal code (frozen 029 text).** FR-006 needs a refusal code.
   `GateRefusalCodeSchema` (`packages/session-model/src/gate/refusals.ts`) and the code list in
@@ -467,9 +490,9 @@ the demo date does not move, but this card's lane idles.
   - (b) Reuse `TARGET_DEAD` for unable actors. No contract text changes, but the code lies
     about the state, and narration reads it as a death.
   - (c) Move the refusal out of the engine, into the server plan gate only. No engine change.
-    This contradicts AC #4 ("the engine refuses") and decision-0025 §3.2.
+    This contradicts old AC #4, now AC #3 ("the engine refuses") and decision-0025 §3.2.
 
-### Interpretive choices with a stated default (non-blocking)
+### Interpretive choices (resolved 2026-10-27: defaults accepted)
 
 - **OQ-3 — saving throws by an unable creature.** Default: allowed (FR-016). SRD 5.2.1 has
   unconscious creatures make saves. Under decision-0025 §2.2 a save is often the roll against

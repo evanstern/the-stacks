@@ -31,6 +31,6 @@
 
 ## Notes
 
-- **Blocked for planning** on operator rulings OQ-1 and OQ-2: each amends frozen
-  `specs/029-proposal-gate/contracts/gate-api.md` text. `plan.md` and `tasks.md` follow the rulings.
+- OQ-1 and OQ-2 were ruled by the operator on 2026-10-27 ((a) and (a)), with the OQ-3 to OQ-5
+  defaults and sequencing Option A. The spec records the ruling; plan.md and tasks.md follow.
 - Clarify skipped: the card, decision-0025 and the evidence settle the behaviour.
