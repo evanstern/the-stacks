@@ -35,12 +35,14 @@ Spec: specs/044-group-signoff
 - [ ] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
 - [ ] #5 The play route shows sign-off state per player and an approve or object control.
 - [ ] #6 Gate tests cover approval, objection and DM override with several players.
-- [ ] #7 Spec phase: The sign-off rule and commit authority (pure core)
+- [x] #7 Spec phase: The sign-off rule and commit authority (pure core)
 - [ ] #8 Spec phase: The planner, the marker rows and the fixture
 - [ ] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
 - [ ] #10 Spec phase: The play route shows sign-off (US4)
 - [ ] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
