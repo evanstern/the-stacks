@@ -54,6 +54,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring resumed after the operator ruling: plan, research, tasks, contracts/frozen-amendments.md; commit eacfd07.)
 
 Phase 1 done (92e0a14): gateway refuses uncatalogued types with UNKNOWN_EVENT_TYPE; appendUncataloguedEvent and allow-list entry removed; frozen amendments applied; bench + M0 WS tests send talk; refusal test added. Finding: gate CONFLICT under back-to-back/concurrent talk sends (MAX_ATTEMPTS=3); retry not widened. Tests await each echo and resend on CONFLICT. concurrency-smoke needed gate.onAppended(publish) wired (it was missing). ci:check green; concurrency-smoke PASS 0 errors wsRtP95 19.0ms.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (merge 6204c23, work 92e0a14): the uncatalogued path is retired; frozen amendments applied exactly as written; bench and M0 WS tests moved to talk; ci:check passed with REQUIRE_DATABASE=1; concurrency-smoke passes. Fixed in scope: concurrencySmoke never wired gate.onAppended to the WS publish. Finding: bursty concurrent talk through the gate can be refused with CONFLICT. The tests resend on CONFLICT, and the problem is carded as TASK-0157 (m-3, before the demo).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
