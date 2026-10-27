@@ -58,10 +58,10 @@ anonymous check refuses.
 
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/claim-evidence.test.ts test/dm/seed-npc-presence.test.ts`.
 
-- [ ] T001 Create `apps/server/test/dm/claim-fixtures.ts` (plan D9). Move `loadLog` and
+- [x] T001 Create `apps/server/test/dm/claim-fixtures.ts` (plan D9). Move `loadLog` and
       `foldThrough` from `apps/server/test/dm/seed-npc-presence.test.ts` into it, with the log
       path as an argument. Import them back in `seed-npc-presence.test.ts` and keep it green.
-- [ ] T002 In `apps/server/test/dm/claim-fixtures.ts`, export the following:
+- [x] T002 In `apps/server/test/dm/claim-fixtures.ts`, export the following:
       - `M2_LOG`: `docs/design/m2-demo/demo-session/transcript.jsonl`.
       - `RUN_192319Z_LOG`: `specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/transcript.jsonl`.
       - `stateAt(log, s0Seq, s1Seq)`: builds `buildSnapshot(projections, loadSeed("greyhollow-ford"))`
@@ -75,10 +75,10 @@ anonymous check refuses.
         - `ROW162_STATE = "Tamsin lies where she fell, her breath shallow against the night air."`
         - `SEQ201_NEGATED = "Tamsin cannot speak."`
         - `SEQ216_UNCONSCIOUS = "Tamsin lies unconscious in the mud."`
-- [ ] T003 Create `apps/server/src/dm/claims.ts` as a typed seam only. Export the
+- [x] T003 Create `apps/server/src/dm/claims.ts` as a typed seam only. Export the
       `data-model.md` types and `checkClaims` returning `{ pass: true, issues: [] }`. Add a
       header comment saying Phase 2 implements it.
-- [ ] T004 [US1] [US3] Create `apps/server/test/dm/claim-evidence.test.ts`. Write the refusal
+- [x] T004 [US1] [US3] Create `apps/server/test/dm/claim-evidence.test.ts`. Write the refusal
       cases below with `it.fails` (they fail on the seam), each naming its source seq:
       - M2 seq 225 (`stateAt(M2_LOG, 220, 224)`, `narrationAt(M2_LOG, 225)`): a `count` issue
         quoting "Two down" (US3.1).
@@ -90,18 +90,18 @@ anonymous check refuses.
         state: a `speech` issue naming goblin-3 (US1.5).
       - Snag `absent` (`withPresence(M2_LOG, 306, [snag])`, "Snag laughs from the reeds."): an
         `act` issue (US1.6).
-- [ ] T005 [US1] [US2] [US3] In the same file, write the controls with plain `it`. They expect
+- [x] T005 [US1] [US2] [US3] In the same file, write the controls with plain `it`. They expect
       `pass: true` and must pass on the seam:
       - F52 with goblin-2, goblin-4 and Snag `absent` (US3.3);
       - `ROW162_STATE` (US1.2) and `SEQ201_NEGATED` (US1.3);
       - the shipped seq 225 prose checked for acts only (US1.4): assert no `act` or `speech` issue;
       - M2 seq 220 (`stateAt(M2_LOG, 213, 219)`, `narrationAt(M2_LOG, 220)`) (US2.2).
-- [ ] T006 [US2] In the same file, add the seq 216 control
+- [x] T006 [US2] In the same file, add the seq 216 control
       (`stateAt(RUN_192319Z_LOG, 205, 215)`, `SEQ216_UNCONSCIOUS`). Assert two things: today's
       `deterministicChecks` refuses it with "The prose says a character is unconscious", and
       `checkClaims` passes it. Write the first assertion as a plain `it` that expects today's
       refusal, with a comment that Phase 3 flips it to expect a pass.
-- [ ] T007 Run the independent test. Confirm the fold of both logs parses every row. If the run
+- [x] T007 Run the independent test. Confirm the fold of both logs parses every row. If the run
       192319Z fold fails, STOP and report.
 
 **Checkpoint**: the evidence is executable; every refusal is red behind `it.fails`.
