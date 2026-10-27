@@ -4,7 +4,7 @@ title: 'Debug view: operator debug API and persisted model-call usage'
 status: To Do
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 01:57'
+updated_date: '2026-10-27 04:16'
 labels:
   - debug-view
   - server
@@ -43,6 +43,8 @@ Scope: server only. The web page is the dependent card.
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator 2026-10-26: sequencing of the debug-view cards (TASK-0116, 0117, 0118) is discussed after the M2 First Scene sweep closes M2, not before. The M2 orchestrator raises it at the M2 close checkpoint.
+
+OPERATOR RULING 2026-10-27 (in chat, spec open question 1): 'Ship everywhere' — the four debug routes ship on every host behind the operator gate, no feature flag.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

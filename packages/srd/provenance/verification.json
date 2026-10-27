@@ -6321,6 +6321,825 @@
    "page": 191,
    "ok": true,
    "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.rhythm-of-play",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.rhythm-of-play.exceptions-supersede-general-rules",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.the-six-abilities",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.the-six-abilities.ability-scores",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.the-six-abilities.ability-modifiers",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.the-six-abilities.ability-modifiers.round-down",
+   "page": 5,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests",
+   "page": 6,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.ability-checks",
+   "page": 6,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.ability-checks.ability-modifier",
+   "page": 6,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.ability-checks.proficiency-bonus",
+   "page": 6,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.ability-checks.difficulty-class",
+   "page": 6,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.saving-throws",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.saving-throws.ability-modifier",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.saving-throws.proficiency-bonus",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.saving-throws.difficulty-class",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.attack-rolls",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.attack-rolls.ability-modifier",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.attack-rolls.proficiency-bonus",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.attack-rolls.armor-class",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.attack-rolls.rolling-20-or-1",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.advantage-disadvantage",
+   "page": 7,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.advantage-disadvantage.heroic-inspiration",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.advantage-disadvantage.roll-two-d20s",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.advantage-disadvantage.they-dont-stack",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.d20-tests.advantage-disadvantage.interactions-with-rerolls",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.the-bonus-doesnt-stack",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.skill-proficiencies",
+   "page": 8,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.skill-proficiencies.skill-list",
+   "page": 9,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.skill-proficiencies.determining-skills",
+   "page": 9,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.saving-throw-proficiencies",
+   "page": 9,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.proficiency.equipment-proficiencies",
+   "page": 9,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.actions",
+   "page": 9,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.actions.one-thing-at-a-time",
+   "page": 10,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.actions.bonus-actions",
+   "page": 10,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.actions.reactions",
+   "page": 10,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.social-interaction",
+   "page": 10,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.social-interaction.roleplaying",
+   "page": 10,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.social-interaction.ability-checks",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.adventuring-equipment",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.vision-and-light",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.vision-and-light.obscured-areas",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.vision-and-light.light",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.vision-and-light.special-senses",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.hiding",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects",
+   "page": 11,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.what-is-an-object",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.time-limited-object-interactions",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.finding-hidden-objects",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.carrying-objects",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.breaking-objects",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.interacting-with-objects.breaking-objects.marching-order",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.hazards",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.travel",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.travel.travel-pace",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.exploration.travel.vehicles",
+   "page": 12,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat.combat-step-by-step",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat.initiative",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat.your-turn",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat.your-turn.playing-on-a-grid",
+   "page": 13,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.the-order-of-combat.ending-combat",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position.difficult-terrain",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position.breaking-up-your-move",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position.dropping-prone",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position.creature-size",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.movement-and-position.moving-around-other-creatures",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.making-an-attack",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.making-an-attack.unseen-attackers-and-targets",
+   "page": 14,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.cover",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.ranged-attacks",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.ranged-attacks.range",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.melee-attacks",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.melee-attacks.reach",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.melee-attacks.opportunity-attacks",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.mounted-combat",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.mounted-combat.mounting-and-dismounting",
+   "page": 15,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.mounted-combat.controlling-a-mount",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.mounted-combat.falling-off",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.underwater-combat",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.underwater-combat.impeded-weapons",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.combat.underwater-combat.fire-resistance",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.hit-points",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.hit-points.resting",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.damage-rolls",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.critical-hits",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.saving-throws-and-damage",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.saving-throws-and-damage.damage-against-multiple-targets",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.saving-throws-and-damage.half-damage",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.damage-types",
+   "page": 16,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability.no-stacking",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.resistance-and-vulnerability.order-of-application",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.immunity",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.healing",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.healing.knocking-out-a-creature",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.instant-death",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.character-demise",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.falling-unconscious",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.death-saving-throws",
+   "page": 17,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.dropping-to-0-hit-points.stabilizing-a-character",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.temporary-hit-points",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.temporary-hit-points.lose-temporary-hit-points-first",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.temporary-hit-points.duration",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.temporary-hit-points.they-dont-stack",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "playing-the-game.damage-and-healing.temporary-hit-points.theyre-not-hit-points-or-healing",
+   "page": 18,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "rules-glossary.help-action",
+   "page": 182,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "rules-glossary.influence-action",
+   "page": 184,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "rules-glossary.search-action",
+   "page": 187,
+   "ok": true,
+   "missing": []
+  },
+  {
+   "kind": "rule",
+   "id": "rules-glossary.study-action",
+   "page": 189,
+   "ok": true,
+   "missing": []
   }
  ]
 }

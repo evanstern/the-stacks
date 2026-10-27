@@ -20,7 +20,8 @@
     "spell": "dataset",
     "class": "dataset",
     "condition": "dataset",
-    "equipment": "PDF tables and entries (the dataset's descriptions for equipment are not SRD text)"
+    "equipment": "PDF tables and entries (the dataset's descriptions for equipment are not SRD text)",
+    "rule": "text from the dataset where it equals the PDF word for word, PDF text otherwise; headings, ids, page ranges, sidebars and every PDF-only record come from the PDF"
   },
   "converter": "scripts/convert-open5e.mjs v1",
   "convertedAt": "2026-10-26",
@@ -28,6 +29,73 @@
   "repairs": [
     "Awakened Tree: \"Slam\" text taken from the PDF (dataset numbers differ)",
     "Axe Beak: \"Beak\" text taken from the PDF (dataset numbers differ)",
-    "Black Pudding: feature \"Parry\" renamed to \"Split\" (dataset name absent from the PDF block)"
-  ]
+    "Black Pudding: feature \"Parry\" renamed to \"Split\" (dataset name absent from the PDF block)",
+    "rule: tables whose header spans two body columns (Cover) take their column names from the printed header text split by hand",
+    "rule: Travel Pace column names join the spanning header (\"Distance Traveled Per\") with the column header",
+    "rule: hyphenated line breaks are rejoined; a paragraph split by a sidebar or table is rejoined",
+    "rule: sidebar boxes become child records of the heading they sit under",
+    "rule: numbered steps keep the printed \"N:\" prefix (D20 Tests steps print as 4, 5 and 6)"
+  ],
+  "ruleFromPdf": [
+    "playing-the-game.rhythm-of-play",
+    "playing-the-game.rhythm-of-play.exceptions-supersede-general-rules",
+    "playing-the-game.the-six-abilities",
+    "playing-the-game.the-six-abilities.ability-modifiers.round-down",
+    "playing-the-game.d20-tests",
+    "playing-the-game.d20-tests.attack-rolls.armor-class",
+    "playing-the-game.d20-tests.attack-rolls.rolling-20-or-1",
+    "playing-the-game.d20-tests.advantage-disadvantage.heroic-inspiration",
+    "playing-the-game.proficiency",
+    "playing-the-game.proficiency.skill-proficiencies",
+    "playing-the-game.proficiency.skill-proficiencies.skill-list",
+    "playing-the-game.proficiency.equipment-proficiencies",
+    "playing-the-game.actions",
+    "playing-the-game.actions.one-thing-at-a-time",
+    "playing-the-game.actions.bonus-actions",
+    "playing-the-game.actions.reactions",
+    "playing-the-game.social-interaction",
+    "playing-the-game.exploration",
+    "playing-the-game.exploration.vision-and-light.special-senses",
+    "playing-the-game.exploration.hazards",
+    "playing-the-game.exploration.travel.travel-pace",
+    "playing-the-game.combat",
+    "playing-the-game.combat.the-order-of-combat.combat-step-by-step",
+    "playing-the-game.combat.making-an-attack",
+    "playing-the-game.combat.cover",
+    "playing-the-game.damage-and-healing",
+    "playing-the-game.damage-and-healing.healing",
+    "rules-glossary.help-action",
+    "rules-glossary.influence-action",
+    "rules-glossary.search-action",
+    "rules-glossary.study-action"
+  ],
+  "absentTopics": [
+    "contests and opposed checks: the SRD 5.2.1 PDF text prints no contest or opposed-check rule (searched pages 1-364 for \"contest\" and \"opposed\")"
+  ],
+  "ruleConvertedAt": "2026-10-26",
+  "ruleConverter": "scripts/convert-rules.mjs v1",
+  "ruleHeadingCheck": {
+    "date": "2026-10-26",
+    "result": "pass",
+    "method": "The heading index (provenance/srd-5.2.1-index.json kinds.rule) was compared with the PDF contents page: all 38 Playing the Game entries match by title and page. Sixteen records were then read against their PDF pages with pdftotext: heading, opening words, table row counts and page ranges all agree.",
+    "tocEntriesMatched": 38,
+    "checked": [
+      "playing-the-game.d20-tests.ability-checks.difficulty-class",
+      "playing-the-game.the-six-abilities.ability-modifiers",
+      "playing-the-game.d20-tests.saving-throws",
+      "playing-the-game.d20-tests.attack-rolls",
+      "playing-the-game.d20-tests.advantage-disadvantage",
+      "playing-the-game.proficiency.skill-proficiencies",
+      "playing-the-game.actions",
+      "playing-the-game.exploration.travel.travel-pace",
+      "playing-the-game.combat.cover",
+      "playing-the-game.combat.movement-and-position.creature-size",
+      "playing-the-game.damage-and-healing.dropping-to-0-hit-points.death-saving-throws",
+      "playing-the-game.damage-and-healing.temporary-hit-points",
+      "rules-glossary.help-action",
+      "rules-glossary.influence-action",
+      "rules-glossary.search-action",
+      "rules-glossary.study-action"
+    ]
+  }
 }

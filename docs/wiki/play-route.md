@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/ledger-format.ts
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
-verified_against: 7472cb5cc6c247a5d35cbecc7e73ff47ff7b4b3f
+verified_against: 088e7223b68e17bcec34ebaf47663e24d5fde53d
 ---
 
 # Play route
@@ -41,10 +41,11 @@ it holds only UI state (which panel is open). Two hooks build a source:
 
 - **`useLiveTable(sessionId, user)`** (`use-live-table.ts`, used by `play.tsx`) wraps
   [[client-session-hook]]'s `useSession`. The viewer comes from `viewer.ts`'s
-  `viewerFor(user, projections)` (TASK-0048, spec 030 research R4 amended), re-derived as seat
-  and party events arrive: a user holding the human DM seat views as `{ role: "dm" }`; else a
-  user who controls a party character views as a player; an unseated user falls back to the
-  account role (operator as DM, anyone else as a player). Nothing renders until the server sends the event
+  `viewerFor(user, projections)`, re-derived as seat events arrive: a user holding the human DM
+  seat views as `{ role: "dm" }`; every other user, operator included, views as a player with
+  their own id. This matches the server's rule in `ws/registry.ts` (TASK-0045, TASK-0118). An
+  operator reads DM-only data in the debug view (TASK-0117), not on `/play`. Nothing renders
+  until the server sends the event
   back (no optimistic append).
 - **`useFixtureTable(fixture, viewerKey, through, dmActor)`** (`use-fixture-table.ts`)
   replays a committed `@the-stacks/session-model/fixtures` fixture up to a step. Commands
