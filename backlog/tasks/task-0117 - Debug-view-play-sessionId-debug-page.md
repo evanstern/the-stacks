@@ -64,6 +64,9 @@ ORCHESTRATOR NOTES 2026-10-27 on spec open questions: Q1 the page ships wherever
 OPERATOR RULING 2026-10-27 (in chat): 'I take them in Brave'. Agents cannot drive Brave; the operator takes the merge-condition screenshots (light and dark) from steps the orchestrator gives. Gate unchanged.
 
 Phase 1 done (86a9b63): debug data layer.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (orchestrator session 2): merge a4cf579, code 86a9b63. Local ci:check without a stack fails only on adjudicate.integration (pre-existing, TASK-0138); the rest of ci:check passes. ReadAttempt is derived from the stored audit shape (deterministic/llm issues, proseSha256); data-model.md clarification rides Phase 2.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
