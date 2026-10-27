@@ -28,6 +28,7 @@ import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
 import type { Effect, InterpretReading, Step } from "./schemas.js";
+import { settleTurn } from "./settle.js";
 
 /**
  * The resolve node (contracts/resolve.md): the one module that writes, and
@@ -618,6 +619,34 @@ function directorHelpers(run: Run, local: Local) {
 }
 
 /**
+ * The `table-mode` row for the encounter's active actor, after the turn
+ * advanced or the encounter started and settling passed any downed
+ * combatants. Returns true when the row applied.
+ */
+async function setActiveMode(
+  run: Run,
+  ctx: TurnContext,
+  local: Local,
+  key: string,
+  reason: string,
+): Promise<boolean> {
+  const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+  const active = fresh.encounter?.activeCombatantId;
+  if (!active) return false;
+  const after: TableMode = { mode: "turn", ...activeActorFor(fresh, active) };
+  const sub = await run.submit(key, "table-mode", () => ({
+    kind: "table-mode",
+    ...note("Next active actor", reason),
+    reason: reason.slice(0, 500),
+    after,
+  }));
+  if (sub.result !== "applied") return false;
+  local.newTableMode = after;
+  local.mode = "turn";
+  return true;
+}
+
+/**
  * Director opening moves (decision-0025 §4): the scene-start setup and the
  * `turn` table-mode decision. They run before any action group, because an
  * action may name a combatant that an opening move adds.
@@ -632,8 +661,6 @@ async function directorOpening(
   const { seed, deps } = ctx;
   const p = assembled.projections;
   const why = (s: string) => note(s, s);
-  const { setMode } = directorHelpers(run, local);
-
   if (ctx.job.trigger === "scene-start") {
     await run.submit("director:scene", "scene", () => ({
       kind: "scene",
@@ -751,13 +778,10 @@ async function directorOpening(
       );
       if (init.result === "applied") {
         local.encounterActive = true;
-        const fresh = await deps.loadProjections(ctx.job.sessionId);
-        const active = fresh.encounter?.activeCombatantId;
-        if (active) {
-          await setMode(
-            { mode: "turn", ...activeActorFor(fresh, active) },
-            tm.reason,
-          );
+        await settleTurn(run, ctx);
+        if (
+          await setActiveMode(run, ctx, local, "director:table-mode", tm.reason)
+        ) {
           local.modeJustStarted = true;
         }
       }
@@ -1022,7 +1046,11 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       ) {
         const mode = local.newTableMode ?? assembled.projections.tableMode;
         if (mode.mode === "turn") {
+          // A reclaim whose checkpoint holds the `advance` submission has
+          // already ended the turn; the beat no longer shows the action, so
+          // the group must still run to finish settling and set the mode.
           const done =
+            run.submissions.some((x) => x.key === "advance") ||
             (mode.activeActor === "ai:dm" &&
               npcTurn !== null &&
               !npcTurn.awaitingDm) ||
@@ -1043,25 +1071,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
               null,
             );
             if (adv.result === "applied") {
-              const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
-              const active = fresh.encounter?.activeCombatantId;
-              if (active) {
-                const after: TableMode = {
-                  mode: "turn",
-                  ...activeActorFor(fresh, active),
-                };
-                const sub = await run.submit(
-                  "advance:table-mode",
-                  "table-mode",
-                  () => ({
-                    kind: "table-mode",
-                    ...note("Next active actor", "The turn advanced."),
-                    reason: "The turn advanced.",
-                    after,
-                  }),
-                );
-                if (sub.result === "applied") local.newTableMode = after;
-              }
+              await settleTurn(run, ctx);
+              await setActiveMode(
+                run,
+                ctx,
+                local,
+                "advance:table-mode",
+                "The turn advanced.",
+              );
             }
           }
         }

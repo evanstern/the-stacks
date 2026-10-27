@@ -173,7 +173,7 @@ the turn passes.
 
 **Independent test**: the new resolve integration cases and the facts test.
 
-- [ ] T023 [P] Add resolve integration cases in `apps/server/test/dm/resolve.integration.test.ts`
+- [x] T023 [P] Add resolve integration cases in `apps/server/test/dm/resolve.integration.test.ts`
       for spec User Story 3, scenarios 1 to 6, with scripted dice:
       - an unconscious party combatant (one `death-save.roll`, then an advance);
       - a stable combatant (no roll);
@@ -182,19 +182,19 @@ the turn passes.
       - an encounter start whose first active combatant is downed;
       - an unconscious non-party combatant (passed, no NPC turn job);
       - the one-lap bound when every non-dead combatant is unable.
-- [ ] T024 Implement `apps/server/src/dm/nodes/settle.ts` (`settleTurn`) per plan D4. Use the
+- [x] T024 Implement `apps/server/src/dm/nodes/settle.ts` (`settleTurn`) per plan D4. Use the
       engine command fields `{ type: "death-save.roll", targetId, mode: "normal", reason }`.
       Use stable submission keys `settle:<n>:save` and `settle:<n>:advance`.
-- [ ] T025 Call `settleTurn` from the turn-advance group (it replaces the direct
+- [x] T025 Call `settleTurn` from the turn-advance group (it replaces the direct
       `advance:table-mode` submit) and from `directorOpening`'s encounter start in
       `resolve.ts`. Keep `nextJob`'s rule.
-- [ ] T026 [P] Add a test in `apps/server/test/dm/facts.test.ts` over a settled death-save
+- [x] T026 [P] Add a test in `apps/server/test/dm/facts.test.ts` over a settled death-save
       batch. It must yield a narration fact and a dice line for the roll and its outcome. If it
       fails, add the `death-saves` fact in `apps/server/src/dm/facts.ts` and its rebuild in
       `apps/server/src/playtest/auditor/render.ts` (plan D5). Keep the edit additive.
-- [ ] T027 Add a reclaim case: re-running the job finds the landed settle submissions and
+- [x] T027 Add a reclaim case: re-running the job finds the landed settle submissions and
       writes nothing twice (pattern: `apps/server/test/dm/reclaim.integration.test.ts`).
-- [ ] T028 Amend `specs/031-dm-runtime/contracts/resolve.md`: settling runs in the turn
+- [x] T028 Amend `specs/031-dm-runtime/contracts/resolve.md`: settling runs in the turn
       advance and the encounter start, with its stop rules and the lap bound.
 
 **Checkpoint**: the DB suites are green. Report any existing fixture whose rows changed

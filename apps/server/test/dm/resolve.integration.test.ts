@@ -1,3 +1,4 @@
+import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
@@ -715,6 +716,266 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const out = await run(w, [reading(id, [checkStep()])]);
         expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
         expect(out.actionResults[0]?.outcome).toBe("applied");
+      });
+    });
+
+    describe("settling (TASK-0112, plan D4)", () => {
+      const dm = { kind: "ai", actor: "ai:dm" } as const;
+      /** An engine command through the gate as the DM; throws on refusal. */
+      async function cmd(w: World, command: Record<string, unknown>) {
+        const res = await w.gate.submit(
+          w.sessionId,
+          dm,
+          mechanicsProposal({ reason: "setup", ...command } as never, {
+            actionId: null,
+            summary: "setup",
+            rationale: "setup",
+          }),
+        );
+        if (!res.ok) throw new Error(`setup refused: ${res.refusal.code}`);
+      }
+      /** Drops a party member to 0 HP: unconscious, dying. */
+      async function down(w: World, id: string) {
+        const hp = (await w.projections()).engine.combatants[id]?.hp.current;
+        await cmd(w, {
+          type: "damage.apply",
+          targetId: id,
+          components: [
+            { amount: { kind: "fixed", value: hp }, damageType: "slashing" },
+          ],
+          critical: false,
+          defenses: null,
+        });
+      }
+      const stun = (w: World, id: string) =>
+        cmd(w, {
+          type: "condition.apply",
+          targetId: id,
+          condition: "stunned",
+          source: "test",
+          expiresAt: null,
+        });
+      const count = (rows: Row[], type: string) =>
+        rows.filter((r) => r.type === type).length;
+      const eventOf = (r: Row) =>
+        (r.payload as { event: Record<string, unknown> }).event;
+      const saveRolls = (rows: Row[]) =>
+        rows.filter(
+          (r) =>
+            r.type === "dice.rolled" && eventOf(r).purpose === "death-save",
+        );
+
+      /** Tamsin (first) acts and the turn advances onto the next combatant. */
+      async function tamsinActs(w: World) {
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        freshCheckpoint(w);
+        const before = (await readRows(w)).length;
+        const out = await run(w, [reading(id, [checkStep()])], {
+          job: nextJob(),
+        });
+        return { out, rows: (await readRows(w)).slice(before) };
+      }
+
+      it("rolls the unconscious party member's death save, then the turn passes", async () => {
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15, 12]);
+        await down(w, "kestrel");
+        const { out, rows } = await tamsinActs(w);
+        expect(saveRolls(rows)).toHaveLength(1);
+        expect(count(rows, "death-saves.changed")).toBe(1);
+        // The action's own advance, then the settle advance past kestrel.
+        expect(count(rows, "turn.advanced")).toBe(2);
+        expect(out.submissions.map((s) => s.key)).toEqual(
+          expect.arrayContaining(["settle:0:save", "settle:0:advance"]),
+        );
+        const p = await w.projections();
+        expect(p.encounter?.activeCombatantId).toBe("goblin-2");
+        expect(p.tableMode).toMatchObject({
+          mode: "turn",
+          activeActor: "ai:dm",
+        });
+        expect(out.nextJob).toEqual({ kind: "turn", trigger: "npc-turn" });
+        expect(w.scripted.remaining().dice).toBe(0);
+      });
+
+      it("passes a stable combatant with no roll", async () => {
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+        await down(w, "kestrel");
+        await cmd(w, { type: "stabilize", targetId: "kestrel" });
+        const { rows } = await tamsinActs(w);
+        expect(saveRolls(rows)).toHaveLength(0);
+        expect(count(rows, "turn.advanced")).toBe(2);
+        expect((await w.projections()).encounter?.activeCombatantId).toBe(
+          "goblin-2",
+        );
+      });
+
+      it("keeps the turn on a natural 20: 1 HP, conscious, table mode on it", async () => {
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15, 20]);
+        await down(w, "kestrel");
+        const { out, rows } = await tamsinActs(w);
+        expect(saveRolls(rows)).toHaveLength(1);
+        // Only the action's own advance: settling did not advance past kestrel.
+        expect(count(rows, "turn.advanced")).toBe(1);
+        const p = await w.projections();
+        expect(p.engine.combatants.kestrel).toMatchObject({
+          lifeState: "conscious",
+          hp: { current: 1 },
+        });
+        expect(p.encounter?.activeCombatantId).toBe("kestrel");
+        expect(p.tableMode).toMatchObject({
+          mode: "turn",
+          activeActor: "ai:companion:kestrel",
+        });
+        expect(out.nextJob).toMatchObject({ kind: "companion" });
+      });
+
+      it("a third failed save kills the combatant and the turn passes", async () => {
+        // A natural 1 counts two failures; the settled save adds the third.
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 1, 15, 5]);
+        await down(w, "kestrel");
+        await cmd(w, {
+          type: "death-save.roll",
+          targetId: "kestrel",
+          mode: "normal",
+        });
+        const { rows } = await tamsinActs(w);
+        expect(saveRolls(rows)).toHaveLength(1);
+        const p = await w.projections();
+        expect(p.engine.combatants.kestrel?.lifeState).toBe("dead");
+        expect(count(rows, "turn.advanced")).toBe(2);
+        expect(p.encounter?.activeCombatantId).toBe("goblin-2");
+      });
+
+      it("an encounter start whose first combatant is downed settles it", async () => {
+        const w = await createWorld({ dice: [...initDice(2), 12] });
+        await startScene(w);
+        await down(w, "kestrel");
+        const out = await run(w, [], {
+          director: {
+            tableMode: {
+              to: "turn",
+              encounterId: "reed-camp",
+              reason: "Fight.",
+            },
+          },
+          job: nextJob(),
+        });
+        const rows = await readRows(w);
+        expect(count(rows, "encounter.started")).toBe(1);
+        expect(saveRolls(rows)).toHaveLength(1);
+        expect(count(rows, "turn.advanced")).toBe(1);
+        const p = await w.projections();
+        expect(p.encounter?.activeCombatantId).toBe("goblin-2");
+        expect(p.tableMode).toMatchObject({
+          mode: "turn",
+          activeActor: "ai:dm",
+        });
+        expect(out.nextJob).toEqual({ kind: "turn", trigger: "npc-turn" });
+      });
+
+      it("passes an unable non-party combatant with no roll and queues no job for it", async () => {
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+        await down(w, "kestrel");
+        await cmd(w, { type: "stabilize", targetId: "kestrel" });
+        await stun(w, "goblin-2");
+        const { out, rows } = await tamsinActs(w);
+        expect(saveRolls(rows)).toHaveLength(0);
+        expect(count(rows, "turn.advanced")).toBe(3);
+        const p = await w.projections();
+        expect(p.encounter?.activeCombatantId).toBe("goblin-3");
+        // The queued job belongs to the combatant the turn stops on.
+        expect(out.nextJob).toEqual({ kind: "turn", trigger: "npc-turn" });
+        expect(p.tableMode).toMatchObject({ activeActor: "ai:dm" });
+      });
+
+      it("a reclaim finds the landed death save by its marker and rolls nothing twice", async () => {
+        const crash = { armed: false };
+        const w = await createWorld({
+          dice: [...initDice(TAMSIN_FIRST), 15, 12],
+          gate: (g) => ({
+            ...g,
+            submit: async (...args) => {
+              const res = await g.submit(...args);
+              const proposal = args[2] as {
+                kind: string;
+                command?: { type?: string };
+              };
+              if (
+                crash.armed &&
+                proposal.kind === "mechanics" &&
+                proposal.command?.type === "death-save.roll"
+              ) {
+                crash.armed = false;
+                // The save landed; the process dies before its checkpoint.
+                throw new Error("crash after the death save");
+              }
+              return res;
+            },
+          }),
+        });
+        await startScene(w);
+        await run(w, [], {
+          director: {
+            tableMode: {
+              to: "turn",
+              encounterId: "reed-camp",
+              reason: "Fight.",
+            },
+          },
+          job: nextJob(),
+        });
+        freshCheckpoint(w);
+        await down(w, "kestrel");
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        const job = nextJob();
+        const readings = [reading(id, [checkStep()])] as never;
+        crash.armed = true;
+        await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
+        const saved = w.checkpoint.current;
+        expect(saved.submissions.map((x) => x.key)).not.toContain(
+          "settle:0:save",
+        );
+        const rowsMid = await readRows(w);
+        expect(saveRolls(rowsMid)).toHaveLength(1);
+
+        const again = await w.runResolve({
+          readings,
+          job: { ...job, attempt: 2 },
+          checkpoint: saved,
+        });
+        expect(again.result.ok).toBe(true);
+        const rows = await readRows(w);
+        expect(saveRolls(rows)).toHaveLength(1);
+        expect(count(rows, "death-saves.changed")).toBe(1);
+        expect(w.scripted.remaining().dice).toBe(0);
+        const p = await w.projections();
+        expect(p.encounter?.activeCombatantId).toBe("goblin-2");
+        expect(count(rows, "turn.advanced")).toBe(2);
+      });
+
+      it("stops after one lap when every combatant is unable", async () => {
+        const w = await inTurnMode([...initDice(SNAG_FIRST)]);
+        for (const id of Object.keys(
+          (await w.projections()).engine.combatants,
+        )) {
+          await stun(w, id);
+        }
+        freshCheckpoint(w);
+        const before = (await readRows(w)).length;
+        const out = await run(
+          w,
+          [reading(null, [{ step: "none", reason: "Snag reels." }])],
+          {
+            job: { ...nextJob(), trigger: "npc-turn" },
+          },
+        );
+        const rows = (await readRows(w)).slice(before);
+        // The npc-turn advance, then one lap (seven combatants) of settle advances.
+        expect(count(rows, "turn.advanced")).toBe(8);
+        expect(saveRolls(rows)).toHaveLength(0);
+        expect(
+          out.submissions.filter((s) => s.key.endsWith(":advance")),
+        ).toHaveLength(7);
       });
     });
   });
