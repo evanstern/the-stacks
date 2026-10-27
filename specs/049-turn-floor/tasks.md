@@ -190,34 +190,34 @@ unopposed stalled party action after 120 s, in code, with the present set logged
 
 **Independent test**: `REQUIRE_DATABASE=1 pnpm --filter server test -- floor-jobs jobs`.
 
-- [ ] T025 [US4] In `apps/server/src/schema/jobs.ts` add `floor` to `jobs_kind_valid` and the
+- [x] T025 [US4] In `apps/server/src/schema/jobs.ts` add `floor` to `jobs_kind_valid` and the
       session-required CHECK, add `floor` to `jobs_session_running_key`, and add
       `jobs_floor_queued_key` (research R13). Run `pnpm --filter server db:generate` to create
       `apps/server/drizzle/0007_*.sql`. Never hand-edit `meta/_journal.json`. Migrate the
       worktree databases.
-- [ ] T026 [US4] In `apps/server/src/dm/jobs.ts` add `FloorJobInput`, `FloorJobResult`, the kind
+- [x] T026 [US4] In `apps/server/src/dm/jobs.ts` add `FloorJobInput`, `FloorJobResult`, the kind
       priority (turn 1, floor 2, companion 3, chronicle 4), the `notBefore` claim filter for
       `floor`, `enqueueFloorCheck` (insert, or move `notBefore` and `stanceSeq`),
       `cancelFloorCheck`, the constants `FLOOR_ABSENCE_WAIT_MS` 30 000 and
       `FLOOR_STALL_WINDOW_MS` 120 000, and floor reconcile (`contracts/floor-jobs.md`).
-- [ ] T027 [US4] Create `apps/server/src/dm/floor.ts` with `runFloorJob(deps, job)` per
+- [x] T027 [US4] Create `apps/server/src/dm/floor.ts` with `runFloorJob(deps, job)` per
       `contracts/floor-jobs.md` "The run". It makes no model call and writes only through
       `gate.submit` as `ai:dm`.
-- [ ] T028 [US4] Dispatch `floor` jobs in `apps/server/src/dm/worker.ts`; run floor reconcile at
+- [x] T028 [US4] Dispatch `floor` jobs in `apps/server/src/dm/worker.ts`; run floor reconcile at
       worker start.
-- [ ] T029 [US4] Arm the waits in `apps/server/src/dm/enqueue.ts` (rows in
+- [x] T029 [US4] Arm the waits in `apps/server/src/dm/enqueue.ts` (rows in
       `contracts/floor-jobs.md` "Enqueue table additions") and subscribe
       `presence.reader.onChange` in `apps/server/src/index.ts`. Make both waits injectable.
-- [ ] T030 [US4] Add a case to `apps/server/test/write-boundary.test.ts`: only `dm/floor.ts` builds
+- [x] T030 [US4] Add a case to `apps/server/test/write-boundary.test.ts`: only `dm/floor.ts` builds
       a `floor` proposal or a `stall` override under `apps/server/src`.
-- [ ] T031 [P] [US4] Write `apps/server/test/dm/floor-jobs.integration.test.ts` with an injected
+- [x] T031 [P] [US4] Write `apps/server/test/dm/floor-jobs.integration.test.ts` with an injected
       clock and presence reader: absent active human passed after the wait with a `floor`
       marker; a return inside the wait → `noop`; a present human never passed; stall commit with
       a `signoff` marker; an objection → no commit; a stance change restarts the window; a human
       seat → `skipped`; reconcile re-arms after a restart (spec US 4; FR-013 to FR-018, FR-025).
-- [ ] T032 [P] [US4] Extend `apps/server/test/dm/jobs.integration.test.ts`: claim priority, one
+- [x] T032 [P] [US4] Extend `apps/server/test/dm/jobs.integration.test.ts`: claim priority, one
       queued `floor` per `(session, check, actionId)`, serialisation with `turn`/`companion`.
-- [ ] T033 [US4] Amend `specs/031-dm-runtime/contracts/turn-jobs.md` (kinds table, enqueue
+- [x] T033 [US4] Amend `specs/031-dm-runtime/contracts/turn-jobs.md` (kinds table, enqueue
       additions, reconcile, constants) with the amendment line (FT-3).
 
 **Checkpoint**: server suites and `pnpm ci:check` green on the worktree stack.

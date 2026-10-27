@@ -50,6 +50,13 @@
       "when": 1793075604538,
       "tag": "0006_fearless_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793115765268,
+      "tag": "0007_aromatic_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

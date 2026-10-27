@@ -4,10 +4,12 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, probeReachable } from "../../src/db.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import {
+  cancelFloorCheck,
   claimDmJob,
   enqueueChronicle,
   enqueueCompanion,
   enqueueCompanionReact,
+  enqueueFloorCheck,
   enqueueTurn,
   enqueueTurnForced,
   listDmJobs,
@@ -72,7 +74,7 @@ async function claim() {
 describe.skipIf(!reachable)("DM jobs queue (Phase 1, integration)", () => {
   beforeEach(async () => {
     await requireDb().execute(
-      sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle')`,
+      sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle', 'floor')`,
     );
   });
 
@@ -320,7 +322,7 @@ describe.skipIf(!reachable)(
   () => {
     beforeEach(async () => {
       await requireDb().execute(
-        sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle')`,
+        sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle', 'floor')`,
       );
     });
 
@@ -466,6 +468,161 @@ describe.skipIf(!reachable)(
       expect(again).toEqual({ jobId: next.jobId, inserted: false });
       const rows = await listDmJobs(requireDb(), sessionId, 10, "companion");
       expect(rows.map((r) => r.status).sort()).toEqual(["queued", "running"]);
+    });
+  },
+);
+
+describe.skipIf(!reachable)(
+  "floor jobs (specs/049-turn-floor, integration)",
+  () => {
+    beforeEach(async () => {
+      await requireDb().execute(
+        sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle', 'floor')`,
+      );
+    });
+
+    const absence = (sessionId: string, holder = "user-a") => ({
+      sessionId,
+      check: "absence" as const,
+      actionId: null,
+      holder,
+      stanceSeq: null,
+    });
+    const stall = (sessionId: string, actionId: string, stanceSeq = 0) => ({
+      sessionId,
+      check: "stall" as const,
+      actionId,
+      holder: null,
+      stanceSeq,
+    });
+
+    it("claims in priority order: turn, floor, companion, chronicle", async () => {
+      const [s1, s2, s3, s4] = [
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+        randomUUID(),
+      ];
+      await enqueueChronicle(requireDb(), s1, 5);
+      await enqueueCompanion(requireDb(), {
+        sessionId: s2,
+        companions: ["mira"],
+        reason: "prompt",
+        beatJobId: null,
+      });
+      await enqueueFloorCheck(requireDb(), absence(s3), 0);
+      await enqueueTurn(requireDb(), s4, "commit", 1);
+      const order = [
+        await claim(),
+        await claim(),
+        await claim(),
+        await claim(),
+      ];
+      expect(order.map((c) => c?.kind)).toEqual([
+        "turn",
+        "floor",
+        "companion",
+        "chronicle",
+      ]);
+    });
+
+    it("holds a floor job back until its notBefore passes", async () => {
+      const sessionId = randomUUID();
+      await enqueueFloorCheck(requireDb(), absence(sessionId), 60_000);
+      expect(await claim()).toBeNull();
+      await requireDb().execute(
+        sql`UPDATE jobs SET input = jsonb_set(input, '{notBefore}', to_jsonb(to_char((now() - interval '1 second') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))) WHERE session_id = ${sessionId}::uuid AND kind = 'floor'`,
+      );
+      const claimed = await claim();
+      expect(claimed?.kind).toBe("floor");
+      expect(claimed?.input).toMatchObject({
+        check: "absence",
+        holder: "user-a",
+      });
+    });
+
+    it("keeps one queued floor job per (session, check, actionId) and moves its wait", async () => {
+      const sessionId = randomUUID();
+      const first = await enqueueFloorCheck(
+        requireDb(),
+        stall(sessionId, "act-1", 3),
+        60_000,
+      );
+      const [before] = await listDmJobs(requireDb(), sessionId, 10, "floor");
+      const again = await enqueueFloorCheck(
+        requireDb(),
+        stall(sessionId, "act-1", 7),
+        120_000,
+      );
+      expect(first.inserted).toBe(true);
+      expect(again).toEqual({ jobId: first.jobId, inserted: false });
+      const rows = await listDmJobs(requireDb(), sessionId, 10, "floor");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]?.input).toMatchObject({ stanceSeq: 7 });
+      const t0 = Date.parse(
+        ((before?.input ?? {}) as { notBefore: string }).notBefore,
+      );
+      const t1 = Date.parse(
+        ((rows[0]?.input ?? {}) as { notBefore: string }).notBefore,
+      );
+      expect(t1).toBeGreaterThan(t0);
+
+      // Another action, another check and another session each get their own row.
+      await enqueueFloorCheck(requireDb(), stall(sessionId, "act-2"), 60_000);
+      await enqueueFloorCheck(requireDb(), absence(sessionId), 60_000);
+      await enqueueFloorCheck(requireDb(), absence(randomUUID()), 60_000);
+      expect(
+        await listDmJobs(requireDb(), sessionId, 10, "floor"),
+      ).toHaveLength(3);
+    });
+
+    it("20 concurrent arms of one check leave one queued row", async () => {
+      const sessionId = randomUUID();
+      await Promise.all(
+        Array.from({ length: 20 }, (_, i) =>
+          enqueueFloorCheck(requireDb(), stall(sessionId, "act-1", i), 60_000),
+        ),
+      );
+      expect(
+        await listDmJobs(requireDb(), sessionId, 30, "floor"),
+      ).toHaveLength(1);
+    });
+
+    it("cancels only the named queued check", async () => {
+      const sessionId = randomUUID();
+      await enqueueFloorCheck(requireDb(), stall(sessionId, "act-1"), 60_000);
+      await enqueueFloorCheck(requireDb(), stall(sessionId, "act-2"), 60_000);
+      await cancelFloorCheck(requireDb(), sessionId, "stall", "act-1");
+      const rows = await listDmJobs(requireDb(), sessionId, 10, "floor");
+      expect(
+        rows.map((r) => (r.input as { actionId: string }).actionId),
+      ).toEqual(["act-2"]);
+    });
+
+    it("serialises with turn and companion jobs of the same session", async () => {
+      const sessionId = randomUUID();
+      await enqueueTurn(requireDb(), sessionId, "commit", 1);
+      const running = await claim();
+      expect(running?.kind).toBe("turn");
+      await enqueueFloorCheck(requireDb(), absence(sessionId), 0);
+      expect(await claim()).toBeNull();
+      if (!running) throw new Error("expected a claim");
+      await finishJob(requireDb(), running, { result: {} });
+      const floor = await claim();
+      expect(floor?.kind).toBe("floor");
+
+      // A running floor job blocks the session's turn and companion jobs.
+      await enqueueTurn(requireDb(), sessionId, "commit", 2);
+      await enqueueCompanion(requireDb(), {
+        sessionId,
+        companions: ["mira"],
+        reason: "turn",
+        beatJobId: null,
+      });
+      expect(await claim()).toBeNull();
+      if (!floor) throw new Error("expected a floor claim");
+      await finishJob(requireDb(), floor, { result: {} });
+      expect((await claim())?.kind).toBe("turn");
     });
   },
 );

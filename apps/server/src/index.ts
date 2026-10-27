@@ -72,6 +72,7 @@ if (missingPurposes.length > 0) {
 }
 const dmWorker = startDmWorker({
   db,
+  presence: presence.reader,
   gateway: aiGateway,
   gate,
   retrieve: (q) =>
@@ -84,6 +85,7 @@ const dmEnqueuer = createDmEnqueuer({
   db,
   nudge: dmWorker.nudge,
   loadProjections: loadDmProjections,
+  presence: presence.reader,
   log: (line) => console.error(JSON.stringify(line)),
 });
 
@@ -125,6 +127,10 @@ const gateway = createGateway({
 gate.onAppended(gateway.publish);
 // Every committed action (and AI DM proposal decision) queues a DM turn.
 gate.onAppended(dmEnqueuer.onAppended);
+// The active human leaving arms the AI DM's absence wait (specs/049-turn-floor R10).
+presence.reader.onChange((sessionId) => {
+  void dmEnqueuer.onPresenceChange(sessionId);
+});
 
 // ponytail: a 1-hour request timeout so a large, slow upload isn't cut off
 // mid-stream by Node's default (research R1); the ingest worker itself has

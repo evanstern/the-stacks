@@ -11,9 +11,11 @@ import {
   POLL_MS,
   setStage,
 } from "../jobs/queue.js";
+import type { PresenceReader } from "../presence/index.js";
 import { loadProjections as loadSessionProjections } from "../session/projections.js";
 import { runChronicleJob } from "./chronicle.js";
 import { type CompanionDeps, runCompanionJob } from "./companion.js";
+import { runFloorJob } from "./floor.js";
 import {
   type ClaimedDmJob,
   claimDmJob,
@@ -22,6 +24,7 @@ import {
   enqueueTurn,
   enqueueTurnForced,
   loadCheckpoint,
+  reconcileFloorJobs,
   reconcileTurnJobs,
   saveCheckpoint,
   type TurnCheckpoint,
@@ -49,10 +52,10 @@ import type { SceneSeed } from "./seed/schema.js";
 
 /**
  * The DM worker (contracts/turn-jobs.md): polls the shared jobs queue for
- * `turn`, `companion` and `chronicle` jobs, holds a heartbeat lease with
+ * `turn`, `floor`, `companion` and `chronicle` jobs, holds a heartbeat lease with
  * abort on fence loss, runs the job, finishes it fenced, and queues the jobs
- * that follow. It never calls `gate.submit` itself: only resolve, companion
- * and chronicle do (AC #5).
+ * that follow. It never calls `gate.submit` itself: only resolve, companion,
+ * chronicle and the floor job do (AC #5).
  */
 
 export const DEFAULT_NODES: Nodes = {
@@ -80,6 +83,11 @@ export interface DmWorkerDeps {
     sessionId: string,
     throughSeq: number,
   ) => Promise<SessionProjections>;
+  /** Who is at the table, for floor jobs (default: nobody; the gate's default too). */
+  presence?: Pick<PresenceReader, "presentUsers">;
+  /** Waits behind floor reconcile, ms (defaults: the FLOOR_* constants). */
+  floorAbsenceWaitMs?: number;
+  floorStallWindowMs?: number;
   /** ASK_MIN_SIMILARITY. */
   minSimilarity: number;
   /** Test seams; the defaults are the real nodes, SRD and seed loader. */
@@ -138,7 +146,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
 
   /** One ledger writer per claimed job; a failed insert is logged, never thrown. */
   function recorderFor(
-    job: ClaimedDmJob,
+    job: Exclude<ClaimedDmJob, { kind: "floor" }>,
   ): (call: RecordedCall) => Promise<void> {
     return async (call) => {
       try {
@@ -479,6 +487,40 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     }
   }
 
+  async function runFloorJobFenced(
+    job: Extract<ClaimedDmJob, { kind: "floor" }>,
+    controller: AbortController,
+  ): Promise<void> {
+    try {
+      const result = await runFloorJob(
+        {
+          db,
+          gate: deps.gate,
+          loadProjections: deps.loadProjections,
+          presence: deps.presence ?? { presentUsers: () => [] },
+          log,
+        },
+        job,
+      );
+      if (controller.signal.aborted) return;
+      log({
+        event: "dm.floor.done",
+        jobId: job.id,
+        check: job.input.check,
+        outcome: result.outcome,
+      });
+      await finishJob(db, job, { result });
+    } catch (error) {
+      log({
+        event: "dm.floor.threw",
+        jobId: job.id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      if (controller.signal.aborted) return;
+      await finishJob(db, job, { error: "stopped at floor: internal" });
+    }
+  }
+
   async function processOne(): Promise<boolean> {
     const job = await claimDmJob(db, {
       onAbandoned: (j) => notice(j.sessionId, j.kind, "abandoned"),
@@ -497,6 +539,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
 
     try {
       if (job.kind === "turn") await runTurnJob(job, controller, fence);
+      else if (job.kind === "floor") await runFloorJobFenced(job, controller);
       else await runSideJob(job, controller, fence);
     } finally {
       clearInterval(timer);
@@ -510,8 +553,18 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     return n;
   }
 
-  function reconcile(): Promise<string[]> {
-    return reconcileTurnJobs(db);
+  async function reconcile(): Promise<string[]> {
+    const turns = await reconcileTurnJobs(db);
+    // Without a presence reader nobody is known present, so floor arming stays off.
+    if (deps.presence) {
+      await reconcileFloorJobs(db, {
+        loadProjections: deps.loadProjections,
+        presence: deps.presence,
+        absenceWaitMs: deps.floorAbsenceWaitMs,
+        stallWindowMs: deps.floorStallWindowMs,
+      });
+    }
+    return turns;
   }
 
   const wait = (ms: number) => {

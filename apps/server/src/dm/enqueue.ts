@@ -4,10 +4,21 @@ import type {
   TableMode,
 } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
+import type { PresenceReader } from "../presence/index.js";
 import {
+  absentHolder,
+  isAiSeat,
+  isStallCandidate,
+  latestStanceSeq,
+} from "./floor-state.js";
+import {
+  cancelFloorCheck,
   enqueueCompanion,
   enqueueCompanionReact,
+  enqueueFloorCheck,
   enqueueTurn,
+  FLOOR_ABSENCE_WAIT_MS,
+  FLOOR_STALL_WINDOW_MS,
 } from "./jobs.js";
 
 /**
@@ -23,7 +34,12 @@ import {
  *    specs/049-turn-floor R8) queues the AI follow-up: `ai:dm` active queues an
  *    `npc-turn`, a companion active queues a companion `turn` job. Rows written
  *    by `ai:dm` queue none: their producer queues its own follow-up.
- * 5. `nudge()` wakes the worker.
+ * 5. Under an AI seat, and only when a presence reader is given, the floor waits arm
+ *    (specs/049-turn-floor R10): an `absence` check when a turn-mode row names an absent
+ *    human, a `stall` check for each open multi-human party action (re-armed by each
+ *    comment, cancelled by a commit or withdrawal). `onPresenceChange` arms `absence`
+ *    when the active human just left.
+ * 6. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -37,12 +53,23 @@ export interface DmEnqueuerDeps {
   reactQuietMs?: number;
   /** Cap on the wait, measured from the first reaction (ms). */
   reactMaxWaitMs?: number;
+  /** Who is at the table. Floor waits arm only when given. */
+  presence?: Pick<PresenceReader, "presentUsers">;
+  /** Wait before an absent human's turn is passed (ms; default FLOOR_ABSENCE_WAIT_MS). */
+  floorAbsenceWaitMs?: number;
+  /** Silence before a stalled party action is committed (ms; default FLOOR_STALL_WINDOW_MS). */
+  floorStallWindowMs?: number;
   log?: (line: Record<string, unknown>) => void;
 }
 
 export interface DmEnqueuer {
   onAppended(sessionId: string, rows: StoredEvent[]): Promise<void>;
+  /** The presence reader reported a change: arm `absence` if the active human left. */
+  onPresenceChange(sessionId: string): Promise<void>;
 }
+
+const isTurnAfter = (row: StoredEvent): boolean =>
+  (row.payload as { after?: TableMode }).after?.mode === "turn";
 
 export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
   async function aiDmDecision(
@@ -113,10 +140,83 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     }
   }
 
+  const presentNow = (sessionId: string): string[] =>
+    (deps.presence?.presentUsers(sessionId) ?? []).map((u) => u.userId);
+
+  async function armAbsence(
+    sessionId: string,
+    p: SessionProjections,
+  ): Promise<void> {
+    if (!deps.presence || !isAiSeat(p)) return;
+    const holder = absentHolder(p, presentNow(sessionId));
+    if (holder === null) return;
+    await enqueueFloorCheck(
+      deps.db,
+      { sessionId, check: "absence", actionId: null, holder, stanceSeq: null },
+      deps.floorAbsenceWaitMs ?? FLOOR_ABSENCE_WAIT_MS,
+    );
+  }
+
+  /** The floor waits a batch of rows arms or cancels (R10). */
+  async function floorWaits(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    if (!deps.presence) return;
+    const modeRow = rows.some(
+      (r) => r.type === "table-mode.changed" && isTurnAfter(r),
+    );
+    const stallRows = rows.filter(
+      (r) => r.type === "action.declared" || r.type === "action.commented",
+    );
+    const closed = rows.filter(
+      (r) => r.type === "action.committed" || r.type === "action.withdrawn",
+    );
+    for (const row of closed) {
+      const actionId = (row.payload as { actionId?: string }).actionId;
+      if (actionId)
+        await cancelFloorCheck(deps.db, sessionId, "stall", actionId);
+    }
+    if (!modeRow && stallRows.length === 0) return;
+    const p = await deps.loadProjections(sessionId);
+    if (!isAiSeat(p)) return;
+    if (modeRow) await armAbsence(sessionId, p);
+    for (const row of stallRows) {
+      const actionId = (row.payload as { actionId?: string }).actionId;
+      const action = p.actions.find((a) => a.actionId === actionId);
+      if (!action || !isStallCandidate(p, action)) continue;
+      await enqueueFloorCheck(
+        deps.db,
+        {
+          sessionId,
+          check: "stall",
+          actionId: action.actionId,
+          holder: null,
+          stanceSeq: latestStanceSeq(action),
+        },
+        deps.floorStallWindowMs ?? FLOOR_STALL_WINDOW_MS,
+      );
+    }
+  }
+
   return {
+    async onPresenceChange(sessionId) {
+      try {
+        if (!deps.presence) return;
+        await armAbsence(sessionId, await deps.loadProjections(sessionId));
+      } catch (error) {
+        deps.log?.({
+          event: "dm.enqueue.failed",
+          sessionId,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+      deps.nudge();
+    },
     async onAppended(sessionId, rows) {
       try {
         await floorFollowUps(sessionId, rows);
+        await floorWaits(sessionId, rows);
         const committed = rows.find((r) => r.type === "action.committed");
         if (committed) {
           await enqueueTurn(deps.db, sessionId, "commit", committed.seq);
