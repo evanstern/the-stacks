@@ -23,7 +23,7 @@ Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
-- [ ] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
+- [x] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
 - [ ] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
 - [ ] #4 A decision record is created with the backlog CLI after operator go
 - [ ] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
@@ -54,6 +54,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (assembler; served model per its transcript). Analysis written by the orchestrator (opus, judgment tier).
 Findings: SRD 5.2.1 Playing the Game text is absent from packages/srd; DMG is 2014 edition; DMG Introduction absent from export; web entries mostly title-only.
 Awaiting operator review of Analysis-Refactor-Risk-and-Deep-Dive-Order (AC #2) and five open questions before branch 1.
+
+OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approve the order and the widened branch 1.' Order: (1) resolution and outcome, widened with outcome richness, DC derivation, contests/group checks/retries, out-of-character questions to the DM; (2) NPCs, social and information; (3) exploration, awareness and time; (4) table contract; (5) running combat (trigger TASK-0048); trigger-bound: encounter/adventure design (TASK-0060), world/tone/horror (non-default content), rewards/house rules (multi-session). Open questions 1-5 pending.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
