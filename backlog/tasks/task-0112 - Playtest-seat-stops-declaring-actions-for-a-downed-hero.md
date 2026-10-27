@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:20'
+updated_date: '2026-10-27 10:21'
 labels:
   - playtest
   - harness
@@ -67,6 +67,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge 9ad8aa9, work 45991b9): engine ACTOR_UNABLE (27 codes); 026, 029 §2 and 028 amended as ruled; stale turn-jobs.md sentence fixed. Engine 228 and session-model 600 tests pass. Owed: the 028 session-events.md edit still lacks its 'Amended 2026-10-27' line; Phase 2 adds it.
 
 Phase 2 done (be540e0): origin/main merged (fbb8a93); TASK-0117 T039-T041 ticked; 028 session-events.md Amended line added; gate CHARACTER_UNABLE (details.reason life-state, CHARACTER_UNABLE_REASONS exported), 029 gate-api.md §1 and §2 amended. session-model 606 tests and ci:check green with REQUIRE_DATABASE=1 on the task stack (gate.integration 23 tests pass), no re-runs.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (merge fbb8a93, work be540e0): declare gate CHARACTER_UNABLE (details.reason life-state); 029 gate-api.md §1 and §2 amended as ruled. gate.integration passed 23 tests on stacks-task-0112; ci:check passed with REQUIRE_DATABASE=1. This branch also carries the TASK-0117 T039-T041 ticks; sync TASK-0117 to Done after this PR merges.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
