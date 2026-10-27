@@ -133,6 +133,9 @@ export function createGate(deps: GateDeps): Gate {
   ): Promise<GateResult> {
     const p = await loadProjections(db, sessionId, { role: "dm" });
     const lastSeq = p.throughSeq;
+    const context = {
+      present: presence.presentUsers(sessionId).map((e) => e.userId),
+    };
     const write = async (rows: readonly PlannedRow[]): Promise<StoredEvent[]> =>
       append(
         db,
@@ -165,6 +168,7 @@ export function createGate(deps: GateDeps): Gate {
           newRng(),
           { batchId: newId() },
           view.proposalId,
+          context,
         );
         if (!planned.ok) return { ok: false, refusal: planned.refusal };
         const events = await write([
@@ -249,6 +253,7 @@ export function createGate(deps: GateDeps): Gate {
         newRng(),
         { batchId: newId() },
         null,
+        context,
       );
       if (!planned.ok) return { ok: false, refusal: planned.refusal };
       const events = await write(planned.rows);
@@ -268,6 +273,7 @@ export function createGate(deps: GateDeps): Gate {
       seededRng(0),
       { batchId: newId() },
       null,
+      context,
     );
     if (!check.ok) return { ok: false, refusal: check.refusal };
     const proposalId = newId();

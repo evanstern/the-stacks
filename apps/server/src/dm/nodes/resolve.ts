@@ -9,6 +9,12 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
+import {
+  checkPlan,
+  encounterToStart,
+  joiningCombatants,
+  type PlanVerdict,
+} from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { combatantFromSrd } from "../seed/combatants.js";
@@ -22,6 +28,7 @@ import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
 import type { Effect, InterpretReading, Step } from "./schemas.js";
+import { settleTurn } from "./settle.js";
 
 /**
  * The resolve node (contracts/resolve.md): the one module that writes, and
@@ -88,6 +95,8 @@ export interface ResolveOutput {
   snapshot: ActorSnapshot;
   /** The S0-to-S1 diff. */
   diff: SnapshotDiff;
+  /** The plan gate's verdict per action group (TASK-0112). */
+  planGate?: PlanVerdict[];
 }
 
 class Stop extends Error {
@@ -217,6 +226,8 @@ class Run {
   lastSeq: number;
   private checkLanded: boolean;
   private checkpoint: TurnCheckpoint;
+  /** The plan gate's verdicts; saved with every checkpoint this run writes. */
+  planGate: PlanVerdict[] = [];
 
   constructor(readonly ctx: TurnContext) {
     this.checkpoint = ctx.checkpoint;
@@ -341,6 +352,7 @@ class Run {
       ...this.checkpoint,
       submissions: this.submissions,
       lastSeq: this.lastSeq,
+      planGate: this.planGate,
     });
     if (!saved) throw stop("fenced", "the lease was lost");
     return sub;
@@ -607,6 +619,34 @@ function directorHelpers(run: Run, local: Local) {
 }
 
 /**
+ * The `table-mode` row for the encounter's active actor, after the turn
+ * advanced or the encounter started and settling passed any downed
+ * combatants. Returns true when the row applied.
+ */
+async function setActiveMode(
+  run: Run,
+  ctx: TurnContext,
+  local: Local,
+  key: string,
+  reason: string,
+): Promise<boolean> {
+  const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+  const active = fresh.encounter?.activeCombatantId;
+  if (!active) return false;
+  const after: TableMode = { mode: "turn", ...activeActorFor(fresh, active) };
+  const sub = await run.submit(key, "table-mode", () => ({
+    kind: "table-mode",
+    ...note("Next active actor", reason),
+    reason: reason.slice(0, 500),
+    after,
+  }));
+  if (sub.result !== "applied") return false;
+  local.newTableMode = after;
+  local.mode = "turn";
+  return true;
+}
+
+/**
  * Director opening moves (decision-0025 §4): the scene-start setup and the
  * `turn` table-mode decision. They run before any action group, because an
  * action may name a combatant that an opening move adds.
@@ -621,8 +661,6 @@ async function directorOpening(
   const { seed, deps } = ctx;
   const p = assembled.projections;
   const why = (s: string) => note(s, s);
-  const { setMode } = directorHelpers(run, local);
-
   if (ctx.job.trigger === "scene-start") {
     await run.submit("director:scene", "scene", () => ({
       kind: "scene",
@@ -701,7 +739,7 @@ async function directorOpening(
   // table mode
   const tm = director.tableMode;
   if (tm.to === "turn") {
-    const enc = seed.encounters.find((e) => e.id === tm.encounterId);
+    const enc = encounterToStart(seed, director, ctx.job.trigger);
     if (enc) {
       for (const m of enc.monsters) {
         if (p.engine.combatants[m.combatantId]) continue;
@@ -740,13 +778,10 @@ async function directorOpening(
       );
       if (init.result === "applied") {
         local.encounterActive = true;
-        const fresh = await deps.loadProjections(ctx.job.sessionId);
-        const active = fresh.encounter?.activeCombatantId;
-        if (active) {
-          await setMode(
-            { mode: "turn", ...activeActorFor(fresh, active) },
-            tm.reason,
-          );
+        await settleTurn(run, ctx);
+        if (
+          await setActiveMode(run, ctx, local, "director:table-mode", tm.reason)
+        ) {
           local.modeJustStarted = true;
         }
       }
@@ -826,11 +861,14 @@ async function resolveAction(
   item: BeatItem,
   reading: InterpretReading | undefined,
   ruling: { steps: Step[] } | undefined,
+  verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
-  const chain: ChainResult = clarify
-    ? { batchIds: [], awaiting: false, firstRefusal: null }
-    : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
+  const planRefused = verdict !== undefined && !verdict.ok;
+  const chain: ChainResult =
+    planRefused || clarify
+      ? { batchIds: [], awaiting: false, firstRefusal: null }
+      : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
   if (chain.awaiting) {
     return {
       actionId: item.actionId,
@@ -842,7 +880,11 @@ async function resolveAction(
   const batchIds = [...new Set(chain.batchIds)].slice(0, 20);
   let outcome: "applied" | "refused" | "no-effect";
   let refusalCode: string | null = null;
-  if (batchIds.length > 0) outcome = "applied";
+  if (planRefused) {
+    // The plan gate refused the whole group before any step ran.
+    outcome = "refused";
+    refusalCode = "UNKNOWN_COMBATANT";
+  } else if (batchIds.length > 0) outcome = "applied";
   else if (chain.firstRefusal) {
     outcome = "refused";
     refusalCode = chain.firstRefusal.code;
@@ -903,6 +945,22 @@ export const resolve: Node<"resolve"> = async (ctx) => {
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {
+    // The plan gate is pure: it runs first and changes no write order. It
+    // accepts the ids this turn's encounter start adds (spec 045 SC-003).
+    const planReadings = hold ? [] : (ctx.results.interpret?.readings ?? []);
+    const planRulings = hold ? [] : (ctx.results.adjudicate?.rulings ?? []);
+    run.planGate = checkPlan({
+      snapshot: assembled.snapshot,
+      readings: planReadings,
+      rulings: planRulings,
+      joining: joiningCombatants(
+        encounterToStart(ctx.seed, director, ctx.job.trigger),
+        assembled.projections.engine.combatants,
+      ),
+    });
+    const verdictFor = (actionId: string | null) =>
+      run.planGate.find((v) => v.actionId === actionId);
+
     // Decision-0025 §4: opening moves, rulings, actions, NPC, closing moves,
     // turn advance. Hold runs the opening and closing moves only.
     await directorOpening(run, ctx, assembled, director, local);
@@ -945,7 +1003,15 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         if (item.status === "resolved") continue;
         const reading = readings.find((r) => r.actionId === item.actionId);
         const ruling = rulings.find((r) => r.actionId === item.actionId);
-        actionResults.push(await resolveAction(run, item, reading, ruling));
+        actionResults.push(
+          await resolveAction(
+            run,
+            item,
+            reading,
+            ruling,
+            verdictFor(item.actionId),
+          ),
+        );
       }
 
       // NPC group.
@@ -953,7 +1019,11 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         const reading = readings.find((r) => r.actionId === null);
         const ruling = rulings.find((r) => r.actionId === null);
         const { steps } = actionGroupSteps(reading, ruling);
-        const chain = await runSteps(run, "npc", steps, null);
+        const npcVerdict = verdictFor(null);
+        const chain =
+          npcVerdict && !npcVerdict.ok
+            ? { batchIds: [] as string[], awaiting: false }
+            : await runSteps(run, "npc", steps, null);
         npcTurn = {
           combatantId: assembled.npcTurn.combatantId,
           batchIds: [...new Set(chain.batchIds)],
@@ -976,7 +1046,11 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       ) {
         const mode = local.newTableMode ?? assembled.projections.tableMode;
         if (mode.mode === "turn") {
+          // A reclaim whose checkpoint holds the `advance` submission has
+          // already ended the turn; the beat no longer shows the action, so
+          // the group must still run to finish settling and set the mode.
           const done =
+            run.submissions.some((x) => x.key === "advance") ||
             (mode.activeActor === "ai:dm" &&
               npcTurn !== null &&
               !npcTurn.awaitingDm) ||
@@ -997,25 +1071,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
               null,
             );
             if (adv.result === "applied") {
-              const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
-              const active = fresh.encounter?.activeCombatantId;
-              if (active) {
-                const after: TableMode = {
-                  mode: "turn",
-                  ...activeActorFor(fresh, active),
-                };
-                const sub = await run.submit(
-                  "advance:table-mode",
-                  "table-mode",
-                  () => ({
-                    kind: "table-mode",
-                    ...note("Next active actor", "The turn advanced."),
-                    reason: "The turn advanced.",
-                    after,
-                  }),
-                );
-                if (sub.result === "applied") local.newTableMode = after;
-              }
+              await settleTurn(run, ctx);
+              await setActiveMode(
+                run,
+                ctx,
+                local,
+                "advance:table-mode",
+                "The turn advanced.",
+              );
             }
           }
         }
@@ -1073,6 +1136,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       chronicle: false,
       npcTurn,
       lastSeq: run.lastSeq,
+      planGate: run.planGate,
     },
   };
 };

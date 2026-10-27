@@ -1,25 +1,27 @@
 ---
 name: proposal-gate
-description: The proposal gate (TASK-0045, spec 029) - the 13 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode, createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
+description: The proposal gate (TASK-0045, spec 029) - the 13 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
 kind: component
 sources:
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/permissions.ts
   - packages/session-model/src/gate/policy.ts
   - packages/session-model/src/gate/authority.ts
+  - packages/session-model/src/gate/plan.ts
+  - packages/session-model/src/gate/signoff.ts
   - packages/session-model/src/gate/seat.ts
   - packages/session-model/src/gate/refusals.ts
   - apps/server/src/gate/gate.ts
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Proposal gate
 
-The gate is the only path by which gameplay output reaches the event log. A producer (the AI
-DM, a player, a companion, the human DM) hands the gate a typed proposal; the gate checks
+The gate is the only path by which gameplay output reaches the event log. A producer (AI
+DM, player, companion, human DM) hands the gate a typed proposal; the gate checks
 permission, routes it by policy, plans the rows, and appends them. Pure decisions live in
 `packages/session-model/src/gate/` ([[session-model]]); the stateful wrapper is
 `apps/server/src/gate/` (`createGate`). Spec: `specs/029-proposal-gate/`.
@@ -41,9 +43,8 @@ A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm
 `proposal.approve`/`reject` need the seated DM (`NOT_DM`); `dm.seat` needs an operator;
 `gate.policy` needs the seated DM or an operator; `action.declare` needs control of the
 character (party scope: any party member) and never comes from the AI DM; `action.withdraw`
-(TASK-0114) is allowed to the action's declarer and the seated DM, never the AI DM, and the
-planner refuses an action that is not open (`ACTION_NOT_OPEN`) or unknown (`UNKNOWN_ACTION`);
-`action.commit` passes here and is decided by commit authority.
+(TASK-0114) is allowed to the action's declarer and the seated DM, never the AI DM; the
+planner refuses a closed or unknown action; `action.commit` passes here and is decided by commit authority.
 
 The DM seat is `{ kind: "ai" }` or `{ kind: "human", userId }`, changed by `dm.seat.changed`
 (default AI). `DEFAULT_POLICIES`: `ask` for talk, action.comment, action.commit, mechanics,
@@ -51,16 +52,20 @@ narration, table-mode, party, tracker; `auto` for action.resolve and journal; `s
 scene. `effectivePolicy` is `auto` for every kind when the seat is AI; with a human seat it is
 the session override (`gate.policy.changed`) else the default. `routeProposal` sends humans
 and companions `direct`, and `ai:dm` by policy (`action.declare` and `action.withdraw` from
-`ai:dm` are refused `NOT_AUTHORIZED`). Operator ruling: the DM view of `dm`-only rows
-(including `proposal.*` rows) goes only to the logged human DM seat ([[subscriber-registry]]).
+`ai:dm` are refused `NOT_AUTHORIZED`). `dm`-only rows
+(including `proposal.*`) go only to the logged human DM seat ([[subscriber-registry]]).
 
 ## Commit authority
 
 `commitAuthority` turns decision-0016's table into code over public projections. It refuses
 `UNKNOWN_ACTION`, `ACTION_NOT_OPEN` (only `declared`/`discussed` commit), `COMMIT_NOT_ALLOWED`
-and `GROUP_SIGNOFF_REQUIRED`. The DM commits with authority `dm`. A party-scope action needs a
-party member: `group` authority when exactly one human player controls the party, otherwise
-`GROUP_SIGNOFF_REQUIRED`. A character action needs control of that character: in turn mode
+and `GROUP_SIGNOFF_REQUIRED`. `action.declare` is refused `CHARACTER_UNABLE` (details `characterId`, `reason`, `lifeState`) when every covered character is down. The DM commits with authority `dm`. A party-scope action needs a
+party member: `group` authority when exactly one human player controls the party. With two or
+more party humans the commit needs the sign-off quorum (TASK-0049, specs/044-group-signoff):
+`signoffState` (`gate/signoff.ts`) is met when the present humans (plus the committer) are
+non-empty and each one's latest stance is `approve` (the declarer defaults to approve).
+`commitAuthority` takes an optional `present`; omitted, every other human is `waiting`.
+`GROUP_SIGNOFF_REQUIRED` carries `waiting` and `objecting` ids in `refusal.details`. A character action needs control of that character: in turn mode
 only the active actor (`active-player`), in free mode only the declarer (`declarer`).
 
 ## The gate API
@@ -72,19 +77,25 @@ parse with the Zod schema first; a parse failure is `INVALID_PROPOSAL` and nothi
 `GateResult` is `applied` (events, `batchId`), `pending` (ask), `suggested`, `decided`
 (approve, reject, seat, policy), or `{ ok: false, refusal }`. A `GateRefusal` has a `source`
 (`gate`, `engine`, `append`), a `code` and a `message`. The gate holds no proposal state: each
-attempt calls `loadProjections` (DM view) and derives everything from the log, so a restart
-loses nothing.
+attempt calls `loadProjections` (DM view).
 
 **`recordPresence(sessionId, { purpose, actionId? })`** (decision-0024, TASK-0051) appends one
 `presence.recorded` row: `actor: "system"`, visibility `public`, `present` the sorted user ids
 from the injected `PresenceReader` (default: nobody present). It is not a proposal and does not
-go through `submit` or `handle`. It never deduplicates against an earlier marker. It skips the
-projection load and `expectedLastSeq`, because the marker depends on no projection state and a
-load would replay the whole log on every turn; the log's per-session advisory lock orders the
-append and the bounded conflict retry stays. A refusal returns `{ ok: false, refusal }`; on
+go through `submit` or `handle`. It never deduplicates. It skips the
+projection load and `expectedLastSeq` (the marker reads no projection state); the log's advisory
+lock orders the append and the bounded conflict retry stays. A refusal returns `{ ok: false, refusal }`; on
 success it calls every `onAppended` listener with the stored row. The DM worker is the only
-caller so far ([[dm-turn-jobs]]); TASK-0049 and TASK-0050 reserve the `signoff` and `floor`
-purposes. See [[presence]].
+caller of `recordPresence` ([[dm-turn-jobs]]). The `signoff` marker is not written through it: the
+planner emits it inside the commit batch. TASK-0050 reserves `floor`. See [[presence]].
+
+**Sign-off in the planner.** `planProposal` takes an optional `PlanContext { present? }`, filled
+by the gate from the `PresenceReader`. An `action.commit` of a party action
+by two or more humans plans a two-row batch: a `presence.recorded` marker (`purpose: "signoff"`,
+`actionId`, the present set plus the committer) then `action.committed` (authority `group`). An
+`approve` comment on an open party action that completes the quorum auto-commits: three rows
+(`action.commented`, the marker, `action.committed`) in one append. Every other comment plans
+the one comment row. The DM commit path is unchanged and writes no marker.
 
 **Refuse before write.** Permission, routing, `planProposal` (engine and authority checks) and
 catalog vetting all run before any append. For `ask`/`suggest` the gate runs a legality check
@@ -96,9 +107,8 @@ stored proposal as the AI DM with a fresh RNG and appends the effect rows plus
 
 **Concurrency.** Every write passes `expectedLastSeq` (the projection's `throughSeq`) to
 `appendBatch` ([[event-log]]). On `SeqConflictError` the gate re-reads and retries, at most 3
-attempts, then refuses `CONFLICT`. Catalog refusals surface as `source: "append"`. After a
-successful append each `onAppended` listener gets the stored rows in `seq` order; a throwing
-listener is logged, not propagated. `index.ts` wires `gate.onAppended(gateway.publish)`.
+attempts, then refuses `CONFLICT`. After a
+successful append each `onAppended` listener gets the stored rows in `seq` order. `index.ts` wires `gate.onAppended(gateway.publish)`.
 
 ## The write boundary (AC #1)
 
@@ -110,14 +120,12 @@ listener is logged, not propagated. `index.ts` wires `gate.onAppended(gateway.pu
 longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent` and its allow-list entry);
 no writer's transitive closure reaches `ai/`; a non-literal dynamic
 `import()` fails. A seeded violation tree under `test/fixtures/write-boundary/src` proves the
-checker trips three rules; it is excluded from Biome and the test tsconfig.
+checker trips three rules.
 
 ## Known behaviour
 
-Bursty concurrent `talk` requests through the gate can be refused with `CONFLICT` after the
-bounded retry on `SeqConflictError` is spent. The bench's `concurrency-smoke` surfaced it when
-its `talk` sends moved onto the gate (TASK-0099). The retry bound is unchanged. Carded as
-TASK-0157.
+Bursty concurrent `talk` requests can be refused `CONFLICT` once the bounded retry is spent
+(the bench's `concurrency-smoke`, TASK-0099). The retry bound is unchanged. Carded as TASK-0157.
 
 ## Connections
 

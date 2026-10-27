@@ -20,7 +20,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # Playtest harness
@@ -53,6 +53,8 @@ same text twice in a row. After each fallback move the harness checks the ledger
 table-mode row only when the mode itself changed). Three consecutive fallback moves that change
 nothing (`STALL_LIMIT`) end the run as `stalled` with `stallReason: "seat-exhausted"` in the manifest.
 
+**Downed seat.** `seatDowned` (`driver.ts`) is true when the seat's combatant is at 0 HP or not conscious. `nextMove` never declares for it: `wait` in turn mode (settling rolls its death saves, [[dm-turn-jobs]]), `done` in free mode, which ends the run `stalled` with `stallReason: "seat-downed"`.
+
 **Isolation.** `db.ts`'s `resolvePlaytestUrl` picks `PLAYTEST_DATABASE_URL`, else
 `TEST_DATABASE_URL || DATABASE_URL` suffixed `_playtest`; the host must be loopback and the URL
 must differ from the base. `recreatePlaytestDb` drops, creates and migrates it, and refuses while
@@ -84,9 +86,7 @@ already in flight.
 `export.ts`: `writeRunDir` writes atomically (tmp then rename) `run.json` (manifest),
 `transcript.jsonl` (DM view, every row), `transcript.md` (player view), `ledger.json`,
 `jobs.json` (the `/dm` turns item shape, no prompt text), `usage.json`, and `report.json` /
-`report.md` when audited. Default location `.playtests/<runId>/` (gitignored); `--out`
-overrides. `exportSession` reads an existing session read-only; `readRunDir` re-reads a saved
-directory with no database.
+`report.md` when audited. Default `.playtests/<runId>/` (gitignored); `--out` overrides. `exportSession` reads a session read-only; `readRunDir` re-reads a saved directory.
 
 ## The auditor
 
@@ -118,8 +118,8 @@ contradiction, invented mechanics, hidden-info leak, player agency, roll without
 no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM
 runtime audit was flagged. `stats.ts` derives fight statistics from the ledger for TASK-0055
 (rounds, attacks, hits, damage, reduced-to-zero, death saves, and `fledOrBargained` from roll
-reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A model note warns when
-`playtest.audit` and `dm.narrate` resolve to the same provider and model.
+reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A note warns when
+`playtest.audit` and `dm.narrate` share a provider and model.
 
 `cli.ts` (`pnpm playtest run|audit|estimate`, built with `tsc -b`, loads `../../.env`, the same
 shape as `bench:load`): `run` plays then
@@ -134,4 +134,4 @@ unconfirmed, 4 refused, 64 usage.
 `pnpm test` (database-gated: loud skip, or throw under `REQUIRE_DATABASE=1`, see [[test-suite]])
 and asserts outcome `ended` and a passing report. Other suites in `apps/server/test/playtest/`
 cover the scenario, driver, dice, checks, audit, budget, CLI and a doctored run directory the
-auditor must fail. The manual milestone run is a runbook under `docs/design/`, not covered here.
+auditor must fail. The manual milestone run is a runbook under `docs/design/`.

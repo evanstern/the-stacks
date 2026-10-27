@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, the operator-only Debug link, and the operator-only fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, per-player sign-off rows on party actions, the operator-only Debug link, and the operator-only fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -20,9 +20,11 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
   - apps/web/app/play/presence.ts
+  - apps/web/app/play/signoff.ts
+  - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: 796789aff1155daf0baf77c66ba90f272100035a
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Play route
@@ -75,7 +77,15 @@ route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-v
   "Waiting for ... to commit" line, and a "Withdrawn" status.
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
   can always commit; a player goes through `commitAuthority` from [[proposal-gate]]'s pure
-  core. The gate enforces; this only decides the display.
+  core. It takes the live present set as a fifth argument (`null` keeps the pre-sign-off
+  behaviour), so a player sees the commit control once the sign-off quorum is met. The gate
+  enforces; this only decides the display.
+- `signoff.ts` - `signoffRows` builds the per-player sign-off rows (Approved, Objects, Waiting,
+  Away) for an open party-scope action from the same `signoffState` the gate uses; it returns
+  null for a character action, a closed action or a party with fewer than two humans.
+  `toTableViewModel` takes `present` (from `source.presence`) and puts the rows on
+  `ActionCardView.signoff`; `ActionCard` renders them, with Approve and Object on the viewer's
+  own row (sent as `commentFrame`).
 - `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
   `commitFrame`, `withdrawFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
   `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixture mode.

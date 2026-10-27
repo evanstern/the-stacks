@@ -143,3 +143,59 @@ describe("fallback cycling and the stall stop", () => {
     ).toBe(true);
   });
 });
+
+describe("nextMove for a downed seat (TASK-0112)", () => {
+  const member = (hp: number, lifeState: string) => ({
+    characterId: "tamsin",
+    combatant: { hp: { current: hp, max: 13, temp: 0 }, lifeState },
+  });
+  const party = (m: unknown) => ({ party: [m] });
+
+  it("is done in free mode with 0 HP", () => {
+    expect(
+      nextMove(proj(party(member(0, "unconscious"))), scenario, fresh()),
+    ).toBe("done");
+  });
+
+  it("waits in turn mode when another combatant is active", () => {
+    expect(
+      nextMove(
+        proj({
+          ...party(member(0, "unconscious")),
+          tableMode: turnMode("odo"),
+        }),
+        scenario,
+        fresh(),
+      ),
+    ).toBe("wait");
+  });
+
+  it("waits in turn mode even when its own turn is shown active", () => {
+    expect(
+      nextMove(
+        proj({
+          ...party(member(0, "unconscious")),
+          tableMode: turnMode("tamsin"),
+        }),
+        scenario,
+        fresh(),
+      ),
+    ).toBe("wait");
+  });
+
+  it("declares again once the character is conscious", () => {
+    expect(
+      nextMove(proj(party(member(1, "conscious"))), scenario, fresh()),
+    ).toMatchObject({ actionId: "act-search" });
+  });
+
+  it("declares for a seat whose party member has no combatant", () => {
+    expect(
+      nextMove(
+        proj({ party: [{ characterId: "tamsin", combatant: null }] }),
+        scenario,
+        fresh(),
+      ),
+    ).toMatchObject({ actionId: "act-search" });
+  });
+});

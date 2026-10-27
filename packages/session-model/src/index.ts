@@ -56,6 +56,7 @@ export { commitAuthority } from "./gate/authority.js";
 export type { PermissionResult } from "./gate/permissions.js";
 export { checkPermission } from "./gate/permissions.js";
 export type {
+  PlanContext,
   PlanIds,
   PlannedRow,
   PlanResult,
@@ -90,9 +91,18 @@ export type {
   GateRefusalCode,
   GateRefusalSource,
 } from "./gate/refusals.js";
-export { GateRefusalCodeSchema } from "./gate/refusals.js";
+export {
+  CHARACTER_UNABLE_REASONS,
+  GateRefusalCodeSchema,
+} from "./gate/refusals.js";
 export type { DmSeat } from "./gate/seat.js";
 export { DmSeatSchema } from "./gate/seat.js";
+export type {
+  SignoffRow,
+  SignoffStance,
+  SignoffState,
+} from "./gate/signoff.js";
+export { signoffState } from "./gate/signoff.js";
 export {
   ActorIdSchema,
   CombatantIdSchema,

@@ -153,9 +153,9 @@ Re-run `pnpm ci:check` after the merge. Reconcile any contract drift against
 
 **Goal**: screenshots of the page during a live fake-gateway turn, light and dark.
 
-- [ ] T039 Bring up the worktree stack per quickstart.md steps 1–2 (`pnpm env:up`, migrate both databases by hand, restart the app with `dm.*` routed to a `fake` provider in the app process's environment only). Read and print no key.
-- [ ] T040 Write `specs/041-debug-page/evidence/shoot-debug.mjs` modelled on `specs/030-play-route/evidence/shoot.mjs` (playwright-core from outside the repo, Brave by `executablePath`, untracked creds file): sign in operator and player, start a table and scene, commit an action, capture the debug page while the turn job runs and after it ends, plus one expanded turn card, one pinned state column and each panel, with `stacks-theme` set to `light` and `dark`, at 1280 px and 390 px. Capture the player at the debug URL (OperatorOnly).
-- [ ] T041 Run it; save PNGs under `specs/041-debug-page/evidence/shots/`; write `specs/041-debug-page/evidence/live-check.md` (date, commit, stack, fake-provider config shape without values, the turn's outcome, the shot list, and the quickstart steps 4–9 results).
+- [x] T039 Bring up the worktree stack per quickstart.md steps 1–2 (`pnpm env:up`, migrate both databases by hand, restart the app with `dm.*` routed to a `fake` provider in the app process's environment only). Read and print no key.
+- [x] T040 Write `specs/041-debug-page/evidence/shoot-debug.mjs` modelled on `specs/030-play-route/evidence/shoot.mjs` (playwright-core from outside the repo, Brave by `executablePath`, untracked creds file): sign in operator and player, start a table and scene, commit an action, capture the debug page while the turn job runs and after it ends, plus one expanded turn card, one pinned state column and each panel, with `stacks-theme` set to `light` and `dark`, at 1280 px and 390 px. Capture the player at the debug URL (OperatorOnly).
+- [x] T041 Run it; save PNGs under `specs/041-debug-page/evidence/shots/`; write `specs/041-debug-page/evidence/live-check.md` (date, commit, stack, fake-provider config shape without values, the turn's outcome, the shot list, and the quickstart steps 4–9 results).
 
 **Checkpoint**: commit `TASK-0117: Phase 6 — Brave live check`. The PR body embeds or links the shots.
 

@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # Actor snapshot
@@ -89,7 +89,7 @@ node failure for a turn ([[dm-failure-and-gates]]), an `error` play for a compan
 ## Extension points
 
 TASK-0141 reads presence from the log; TASK-0142 seeds NPC presence and seed aliases;
-TASK-0104 adds monster stats to `sheet`; TASK-0112 checks plan step ids against S0;
+TASK-0104 adds monster stats to `sheet`; TASK-0112 built the plan gate: it checks plan step ids against S0 actors' `combatantId` ([[dm-failure-and-gates]]);
 TASK-0143 and TASK-0144 match prose against `aliases`; TASK-0145 reads S0 for the Director's
 hostility rules; TASK-0146 renders the diff in the audit prompt; TASK-0147 maps batch effect
 targets through `combatantId`. Each card amends the contract file. A new field is additive and

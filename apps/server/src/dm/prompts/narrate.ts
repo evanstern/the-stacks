@@ -85,6 +85,11 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const c of facts.npcTurn.changes)
       out.push(`  change: ${describeChange(c)}`);
   }
+  for (const st of facts.settled ?? []) {
+    out.push(`Downed turn: ${st.name}`);
+    for (const r of st.rolls) out.push(rollEntry(r));
+    for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
+  }
   for (const e of facts.events) out.push(eventEntry(e));
   if (facts.modeChange) {
     out.push(
@@ -115,6 +120,10 @@ function describeChange(
       return `${c.target} is now ${c.after}`;
     case "condition":
       return `${c.target} ${c.op === "applied" ? "gains" : "loses"} ${c.condition}`;
+    case "death-saves":
+      return c.failed
+        ? `${c.target} fails a death saving throw`
+        : `${c.target} succeeds on a death saving throw`;
   }
 }
 
