@@ -97,7 +97,7 @@ export function TableView({
           open={approvalsOpen}
           onOpenChange={setApprovalsOpen}
           title="Pending proposals"
-          description="Approve or reject each proposal."
+          description="Approve or reject each proposal. Dismiss a suggestion once you have acted on it."
           id={APPROVALS_PANEL_ID}
         >
           <ProposalList

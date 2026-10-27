@@ -15,7 +15,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: baecb93e012266902cea61c04d2633ba3bd65499
+verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
 ---
 
 # Proposal gate
@@ -64,7 +64,7 @@ party member: `group` authority when exactly one human player controls the party
 more party humans the commit needs the sign-off quorum (TASK-0049, specs/044-group-signoff):
 `signoffState` (`gate/signoff.ts`) is met when the present humans (plus the committer) are
 non-empty and each one's latest stance is `approve` (the declarer defaults to approve).
-`commitAuthority` takes an optional `present`; omitted, every other human is `waiting`.
+Without the optional `present`, every other human is `waiting`.
 `GROUP_SIGNOFF_REQUIRED` carries `waiting` and `objecting` ids in `refusal.details`. A character action needs control of that character: in turn mode
 only the active actor (`active-player`), in free mode only the declarer (`declarer`).
 
@@ -103,12 +103,12 @@ with a throwaway RNG, then appends one `dm`-visibility `proposal.created` row.
 
 **Atomic approval.** `proposal.approve` (only `ask` proposals, only pending ones) re-plans the
 stored proposal as the AI DM with a fresh RNG and appends the effect rows plus
-`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`.
+`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`. The play route ([[play-route]]) offers no Approve on a
+`suggest` proposal; it sends `proposal.reject`.
 
 **Concurrency.** Every write passes `expectedLastSeq` (the projection's `throughSeq`) to
 `appendBatch` ([[event-log]]). On `SeqConflictError` the gate re-reads and retries, at most 3
-attempts, then refuses `CONFLICT`. After a
-successful append each `onAppended` listener gets the stored rows in `seq` order. `index.ts` wires `gate.onAppended(gateway.publish)`.
+attempts, then refuses `CONFLICT`. After a successful append each `onAppended` listener gets the stored rows in `seq` order; `index.ts` wires `gate.onAppended(gateway.publish)`.
 
 ## The write boundary (AC #1)
 
@@ -117,10 +117,9 @@ successful append each `onAppended` listener gets the stored rows in `seq` order
 (`test/helpers/import-graph.ts`, `checkWriteBoundary`) over `apps/server/src`: `append` and
 `appendBatch` may be imported only by `session/events.ts`; `appendSessionEvent`,
 `appendSessionEvents` and `appendMechanicsBatch` only under `gate/`; `ws/gateway.ts` is no
-longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent` and its allow-list entry);
+longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent`);
 no writer's transitive closure reaches `ai/`; a non-literal dynamic
-`import()` fails. A seeded violation tree under `test/fixtures/write-boundary/src` proves the
-checker trips three rules.
+`import()` fails. A seeded violation tree in `test/fixtures/write-boundary/src` trips three rules.
 
 ## Known behaviour
 

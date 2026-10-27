@@ -82,3 +82,11 @@ test("a scene-presence proposal renders actor, reason, new value and visibility"
     ],
   );
 });
+
+test("each pending proposal carries its recorded policy", () => {
+  const list = selectPendingProposals(dmApprovals.events, dm);
+  assert.deepEqual(
+    list.map((p) => p.policy),
+    ["suggest", "ask", "ask"],
+  );
+});

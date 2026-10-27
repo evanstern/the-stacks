@@ -18,7 +18,7 @@ sources:
   - packages/session-model/src/fixtures/group-signoff.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: baecb93e012266902cea61c04d2633ba3bd65499
+verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
 ---
 
 # Session model

@@ -15,10 +15,16 @@ function ProposalRow({
 }) {
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
+  const suggest = proposal.policy === "suggest";
   return (
     <li className="rounded-md border border-border bg-card p-3">
       <p className="text-sm font-medium">{proposal.summary}</p>
       <p className="text-xs text-muted-foreground">
+        {suggest && (
+          <span className="mr-1 rounded-sm border border-border bg-muted px-1.5 py-0.5 font-medium text-foreground">
+            Suggestion
+          </span>
+        )}
         {proposal.kind} · from {proposal.proposerLabel}
         {proposal.actionId ? ` · action ${proposal.actionId}` : ""}
       </p>
@@ -30,47 +36,67 @@ function ProposalRow({
           </div>
         ))}
       </dl>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onApprove(proposal.proposalId)}
-          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Approve
-        </button>
-        <button
-          type="button"
-          onClick={() => setRejecting((was) => !was)}
-          aria-expanded={rejecting}
-          className={BUTTON}
-        >
-          Reject
-        </button>
-      </div>
-      {rejecting && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <input
-            type="text"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            aria-label="Reason for rejecting"
-            placeholder="Reason (optional)"
-            className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-          />
+      {suggest ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => onReject(proposal.proposalId, reason.trim() || null)}
+            onClick={() => onReject(proposal.proposalId, null)}
             className={BUTTON}
           >
-            Confirm reject
+            Dismiss
           </button>
         </div>
+      ) : (
+        <>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onApprove(proposal.proposalId)}
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={() => setRejecting((was) => !was)}
+              aria-expanded={rejecting}
+              className={BUTTON}
+            >
+              Reject
+            </button>
+          </div>
+          {rejecting && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                aria-label="Reason for rejecting"
+                placeholder="Reason (optional)"
+                className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  onReject(proposal.proposalId, reason.trim() || null)
+                }
+                className={BUTTON}
+              >
+                Confirm reject
+              </button>
+            </div>
+          )}
+        </>
       )}
     </li>
   );
 }
 
-/** The DM's pending proposals; reject asks for an optional reason inline (no modal). */
+/**
+ * The DM's pending proposals; reject asks for an optional reason inline (no modal).
+ * A `suggest` proposal shows a "Suggestion" label and Dismiss (`onReject(id, null)`), never Approve:
+ * the gate refuses Approve on a suggestion.
+ */
 export function ProposalList({
   proposals,
   onApprove,
