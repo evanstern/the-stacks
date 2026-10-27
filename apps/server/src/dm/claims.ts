@@ -626,6 +626,10 @@ function countIssues(ctx: Context, text: string): Found[] {
 
     const nd = scan(COUNT_PATTERNS.numberDown);
     for (let m = nd.exec(slice); m; m = nd.exec(slice)) {
+      // "Goblin three is dead": a number word right after a name or group
+      // noun belongs to that actor's name, not to a count (OQ-5).
+      const before = /([\p{L}'’-]+)\s+$/u.exec(slice.slice(0, m.index));
+      if (before && ctx.nounActors(before[1] as string)) continue;
       const n = NUMBER_WORDS[(m[1] as string).toLowerCase()] as number;
       const middle = tokenize(m[2] as string, 0, (m[2] as string).length);
       let ids: string[] | null = null;

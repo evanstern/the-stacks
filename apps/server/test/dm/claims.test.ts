@@ -391,6 +391,18 @@ describe("rule 7: counts", () => {
     expect(checkClaims(world, "Two down!").pass).toBe(true);
   });
 
+  it("'Goblin three is dead' names an actor and is not a count (TASK-0143 OQ-5)", () => {
+    const s = state({
+      life: { "goblin-3": "dead" },
+      changes: [died("goblin-3")],
+    });
+    expect(kinds(checkClaims(s, "Goblin three is dead.").issues)).not.toContain(
+      "count",
+    );
+    expect(checkClaims(s, "Goblin three is dead.").pass).toBe(true);
+    expect(checkClaims(s, "Goblin 3 is dead.").pass).toBe(true);
+  });
+
   it("a bare 'two down' refuses when neither side matches", () => {
     const s = state({ life: { "goblin-3": "dead" } });
     expect(kinds(checkClaims(s, '"Two down!" it shrieks.').issues)).toEqual([
