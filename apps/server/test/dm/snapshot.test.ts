@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { estimateTokens } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
 import { partyNameTerms } from "../../src/dm/nodes/audit.js";
 import { dmOnlySeedText } from "../../src/dm/seed/views.js";
@@ -241,6 +242,58 @@ describe("buildSnapshot", () => {
       "Orc",
       "orc-9",
     ]);
+  });
+});
+
+describe("buildSnapshot: logged scene presence", () => {
+  const entry = (presence: "absent" | "yielded", seq = 125) => ({
+    presence,
+    reason: presence === "absent" ? ("fled" as const) : ("conceded" as const),
+    seq,
+  });
+
+  it("reads an absent monster keyed by combatant id", () => {
+    const { projections, seed } = greyhollowFight();
+    projections.scenePresence["goblin-3"] = entry("absent");
+    const s = buildSnapshot(projections, seed);
+    expect(s.actors.find((a) => a.id === "goblin-3")?.presence).toBe("absent");
+    expect(s.actors.find((a) => a.id === "goblin-2")?.presence).toBe("present");
+  });
+
+  it("reads a party member keyed by character id, not combatant id", () => {
+    const { projections, seed } = greyhollowFight();
+    projections.scenePresence.odo = entry("yielded");
+    const s = buildSnapshot(projections, seed);
+    expect(s.actors.find((a) => a.id === "odo")?.presence).toBe("yielded");
+  });
+
+  it("reads a joined NPC keyed by NPC id", () => {
+    const { projections, seed } = greyhollowFight();
+    projections.scenePresence.snag = entry("absent");
+    const s = buildSnapshot(projections, seed);
+    expect(s.actors.find((a) => a.id === "snag")?.presence).toBe("absent");
+    expect(s.actors.filter((a) => a.id === "snag")).toHaveLength(1);
+  });
+
+  it("compresses an absent actor under the fiction cap", () => {
+    const { projections, seed } = greyhollowFight();
+    projections.scenePresence["goblin-3"] = entry("absent");
+    const snap = buildSnapshot(projections, seed);
+    const full = renderSnapshot(snap, { view: "fiction", cap: 1_000_000 });
+    if (!full.ok) throw new Error("overflow");
+    const tight = renderSnapshot(snap, {
+      view: "fiction",
+      cap: full.lines.reduce((n, l) => n + estimateTokens(l) + 1, 0) - 1,
+    });
+    if (!tight.ok) throw new Error("overflow");
+    expect(tight.lines).toContain("Goblin (monster): gone");
+  });
+
+  it("ignores an entry for an unknown id", () => {
+    const { projections, seed } = greyhollowFight();
+    const before = buildSnapshot(projections, seed);
+    projections.scenePresence["nobody-9"] = entry("absent");
+    expect(buildSnapshot(projections, seed)).toEqual(before);
   });
 });
 

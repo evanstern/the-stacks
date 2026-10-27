@@ -17,7 +17,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # 5e engine
@@ -38,10 +38,20 @@ It validates `state` against `EngineStateSchema` (refusal `INVALID_STATE`), then
 against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.type` through a
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
-`exhaustion.adjust`, `initiative.roll/join`, `turn.advance`, `encounter.end`,
+`exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
 `rest.short/long`, `spell-slot.expend/restore`). Each handler lives in `src/commands/`.
 `execute` never mutates its inputs. `evolve` applies one event; `replay(events, state)`
 folds many. Replaying every event from `emptyState()` reproduces live state.
+
+`initiative.leave` (`handleInitiativeLeave`, `src/commands/encounter.ts`) removes a combatant from the
+encounter order and keeps its state. It refuses `NO_ACTIVE_ENCOUNTER` without an encounter,
+`UNKNOWN_COMBATANT` for an unknown id or one outside the order (detail `reason: "not-in-order"`),
+and `NO_ELIGIBLE_COMBATANT` when the leaver is the last entry or the active leaver would hand
+the turn to an all-dead order. When the active combatant leaves, the leave is the turn
+transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead entries are
+skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
+turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
+The command emits `encounter.changed` and draws no dice.
 
 ## RNG
 

@@ -13,6 +13,7 @@ if (result.ok) state = replay(result.events, state);
 
 - `execute(state, command, rng)` returns `{ ok: true, events }` or `{ ok: false, refusal }`.
 - `replay(events, state)` applies events. `evolve` applies one event.
+- `initiative.leave` takes a combatant out of the encounter order and keeps its state. When the active combatant leaves, the next entry becomes active.
 - `seededRng(seed)` serves play. `scriptedRng(faces)` serves tests.
 
 ## Invariants

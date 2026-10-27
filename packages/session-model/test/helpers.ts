@@ -235,6 +235,13 @@ export const sessionPayloads: Record<string, unknown> = {
     after: { mode: "turn", activeActor: PLAYER_A, activeCharacterId: "ana" },
   },
   "scene.changed": { reason: "the party arrives", before: null, after: scene },
+  "scene-presence.changed": {
+    actorId: "goblin-1",
+    before: "present",
+    after: "absent",
+    reason: "fled",
+    actionId: null,
+  },
   "party.member.changed": {
     reason: "Ana joins",
     characterId: "ana",
@@ -297,6 +304,22 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
   "action.commented": [
     { actionId: "act-1", stance: "comment", text: "" },
     { actionId: "act-1", stance: "shout", text: "x" },
+  ],
+  "scene-presence.changed": [
+    {
+      actorId: "goblin-1",
+      before: "present",
+      after: "present",
+      reason: "arrived",
+      actionId: null,
+    },
+    {
+      actorId: "goblin-1",
+      before: "present",
+      after: "yielded",
+      reason: "fled",
+      actionId: null,
+    },
   ],
   "action.committed": [{ actionId: "act-1", authority: "everyone" }],
   "action.withdrawn": [{ actionId: "Bad Id" }, {}],

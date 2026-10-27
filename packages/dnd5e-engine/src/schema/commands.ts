@@ -184,6 +184,11 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     mode: RollMode,
     reason: Reason,
   }),
+  z.object({
+    type: z.literal("initiative.leave"),
+    combatantId: Id,
+    reason: Reason,
+  }),
   z.object({ type: z.literal("turn.advance"), reason: Reason }),
   z.object({ type: z.literal("encounter.end"), reason: Reason }),
   z.object({

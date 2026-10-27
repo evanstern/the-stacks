@@ -143,6 +143,14 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
     },
     visibility: "dm",
   },
+  "scene-presence": {
+    kind: "scene-presence",
+    summary: "The watcher flees the corridor",
+    rationale: "The watcher lost its nerve when Ana drew steel.",
+    actorId: "watcher",
+    reason: "fled",
+    actionId: null,
+  },
   journal: {
     kind: "journal",
     summary: "Record the vault opening",

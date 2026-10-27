@@ -95,6 +95,7 @@ row's `payload_version`. Every type below is at version 1.
 | `action.withdrawn` | `lifecycle` | any | `ActionWithdrawnV1` (added by `029-proposal-gate/contracts/proposal-events.md`, "Action withdrawal"; TASK-0114, W-A ruling) |
 | `table-mode.changed` | `state-change` | any | `TableModeChangedV1` |
 | `scene.changed` | `state-change` | any | `SceneChangedV1` |
+| `scene-presence.changed` | `state-change` | any | `ScenePresenceChangedV1` (TASK-0141) |
 | `party.member.changed` | `state-change` | any | `PartyMemberChangedV1` |
 | `tracker.changed` | `state-change` | `dm` only | `TrackerChangedV1` |
 | `journal.entry.added` | `record` | any | `JournalEntryAddedV1` |
@@ -179,6 +180,39 @@ export const ActionResolvedV1 = z.object({
 The `refusalCode` set follows the engine enum. `ACTOR_UNABLE` was added 2026-10-27 (TASK-0112, operator ruling). Amended 2026-10-27 (TASK-0112, operator ruling). The payload stays v1.
 
 Status rules for the projection are in projections.md ("Actions").
+
+### Scene presence
+
+```ts
+export const ScenePresenceSchema = z.enum(["present", "yielded", "absent"]);
+export const PresenceReasonSchema = z.enum([
+  "arrived", "left", "fled", "removed", "surrendered", "conceded",
+]);
+export const REASON_TO_PRESENCE = {
+  arrived: "present",
+  left: "absent", fled: "absent", removed: "absent",
+  surrendered: "yielded", conceded: "yielded",
+} as const;
+
+export const ScenePresenceChangedV1 = z.object({
+  actorId: RefIdSchema,                          // a character id, an NPC id or a combatant id
+  before: ScenePresenceSchema,
+  after: ScenePresenceSchema,
+  reason: PresenceReasonSchema,
+  actionId: RefIdSchema.nullable(),              // the resolving action; null for the NPC group
+}).refine((p) => p.after === REASON_TO_PRESENCE[p.reason])
+  .refine((p) => p.before !== p.after);
+```
+
+- Kind `state-change`, visibility `any`, current at version 1.
+- The reason fixes the new value. The schema refuses an `after` that does not match the reason.
+- The schema refuses a payload where `before` equals `after`.
+- The gate writes this row only through the `scene-presence` proposal kind.
+
+Amended 2026-10-27 (TASK-0141, operator ruling OQ-1):
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
 
 ### Table mode
 

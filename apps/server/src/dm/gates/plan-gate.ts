@@ -10,7 +10,10 @@ import type { ActorSnapshot } from "../snapshot/index.js";
  * alias: an alias only tells the verdict which reason to give.
  */
 
-export type PlanFailureReason = "not-a-combatant" | "not-in-snapshot";
+export type PlanFailureReason =
+  | "not-a-combatant"
+  | "not-in-snapshot"
+  | "absent";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -67,18 +70,25 @@ export function joiningCombatants(
     .filter((id) => !(id in existing));
 }
 
-function effectIds(
-  effects: readonly Effect[],
-  list: string,
-): { field: string; id: string }[] {
-  return effects.map((e, j) => ({
-    field: `${list}[${j}].targetId`,
-    id: e.targetId,
-  }));
+interface NamedId {
+  field: string;
+  id: string;
+  /** Set on a presence effect's target: the effect's reason. */
+  presenceReason?: string;
+}
+
+function effectIds(effects: readonly Effect[], list: string): NamedId[] {
+  return effects.map((e, j) => {
+    return {
+      field: `${list}[${j}].targetId`,
+      id: e.targetId,
+      ...(e.effect === "presence" ? { presenceReason: e.reason } : {}),
+    };
+  });
 }
 
 /** Every id a step names, in the order the step runs them. */
-function stepIds(step: Step): { field: string; id: string }[] {
+function stepIds(step: Step): NamedId[] {
   switch (step.step) {
     case "none":
     case "roll":
@@ -108,7 +118,14 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
   const noCombatant = new Set<string>();
+  const actorIds = new Set<string>(input.joining);
+  const absentIds = new Set<string>();
   for (const a of snapshot.actors) {
+    actorIds.add(a.id);
+    if (a.presence === "absent") {
+      absentIds.add(a.id);
+      if (a.combatantId) absentIds.add(a.combatantId);
+    }
     if (a.combatantId) valid.add(a.combatantId);
     else {
       noCombatant.add(a.id);
@@ -127,15 +144,31 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   for (const [actionId, steps] of groups) {
     let failure: PlanFailure | null = null;
     for (const [stepIndex, step] of steps.entries()) {
-      for (const { field, id } of stepIds(step)) {
-        if (valid.has(id)) continue;
-        failure = {
-          stepIndex,
-          field,
-          id,
-          reason: noCombatant.has(id) ? "not-a-combatant" : "not-in-snapshot",
-        };
-        break;
+      for (const { field, id, presenceReason } of stepIds(step)) {
+        if (presenceReason !== undefined) {
+          // A presence effect targets any S0 actor, combatant or not.
+          const reason: PlanFailureReason | null = !actorIds.has(id)
+            ? "not-in-snapshot"
+            : absentIds.has(id) && presenceReason !== "arrived"
+              ? "absent"
+              : null;
+          if (reason === null) continue;
+          failure = { stepIndex, field, id, reason };
+          break;
+        }
+        if (!valid.has(id)) {
+          failure = {
+            stepIndex,
+            field,
+            id,
+            reason: noCombatant.has(id) ? "not-a-combatant" : "not-in-snapshot",
+          };
+          break;
+        }
+        if (absentIds.has(id)) {
+          failure = { stepIndex, field, id, reason: "absent" };
+          break;
+        }
       }
       if (failure) break;
     }

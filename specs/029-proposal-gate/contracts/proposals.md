@@ -9,6 +9,15 @@ file in the same PR.
 **Amendment (TASK-0114).** Amended by the operator ruling "W-A: add withdraw" on TASK-0114 (checkpoint W, 2026-10-26; spec 036-companion-react, FR-017 to FR-019). The kinds grew from twelve to thirteen: `action.withdraw`
 is new. Every other rule below is unchanged.
 
+**Amendment (TASK-0141).** Amended 2026-10-27 (TASK-0141, operator ruling OQ-1):
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
+
+The kinds grew from thirteen to fourteen, and the DM kinds from eleven to twelve:
+`scene-presence` is new. `GATE_REQUEST_KINDS` grew from 17 to 18 literals. Every other rule
+below is unchanged.
+
 Siblings: [policy-and-authority.md](policy-and-authority.md),
 [proposal-events.md](proposal-events.md), [gate-api.md](gate-api.md),
 [ws-delivery.md](ws-delivery.md), [fixtures.md](fixtures.md),
@@ -16,16 +25,17 @@ Siblings: [policy-and-authority.md](policy-and-authority.md),
 
 ## Proposal kinds
 
-Thirteen kinds, closed:
+Fourteen kinds, closed:
 
 ```ts
 export const ProposalKindSchema = z.enum([
   "talk", "action.declare", "action.comment", "action.commit", "action.withdraw",
-  "action.resolve", "mechanics", "narration", "table-mode", "scene", "party", "tracker", "journal",
+  "action.resolve", "mechanics", "narration", "table-mode", "scene", "party", "tracker",
+  "scene-presence", "journal",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
-/** The eleven kinds the AI DM may propose; the policy table is total over these. */
+/** The twelve kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude(["action.declare", "action.withdraw"]);
 export type DmProposalKind = z.infer<typeof DmProposalKindSchema>;
 ```
@@ -75,6 +85,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     reason: ReasonSchema, characterId: RefIdSchema, after: PartyMemberSchema.nullable() }),
   z.object({ kind: z.literal("tracker"), ...ProposalNote,
     reason: ReasonSchema, trackerId: RefIdSchema, after: TrackerSchema.nullable() }),
+  z.object({ kind: z.literal("scene-presence"), ...ProposalNote,
+    actorId: RefIdSchema, reason: PresenceReasonSchema, actionId: RefIdSchema.nullable().default(null) }),
   z.object({ kind: z.literal("journal"), ...ProposalNote,
     entry: JournalEntryAddedV1, visibility: z.enum(["public", "dm"]).default("public") }),
 ]);
@@ -92,12 +104,15 @@ Rules:
 - **The gate fills `before`.** `table-mode`, `scene`, `party` and `tracker` carry only
   `after`. The gate reads `before` from the DM projection at plan time, so a stale `before`
   can never be written.
+- **The gate fills `before` and `after` for `scene-presence`.** The proposal carries `actorId`,
+  `reason` and `actionId`. The gate reads `before` from the `scenePresence` projection (`present`
+  when there is no entry) and derives `after` from the reason (`REASON_TO_PRESENCE`).
 - **`mechanics.command` is `unknown` on the wire.** The engine's `execute` parses it
   (engine-api.md: "a gate that forwards an LLM proposal cannot skip validation"). A bad
   command refuses with the engine's `INVALID_COMMAND`, source `engine`.
 - **Visibility.** `talk` and `narration` accept any visibility (`public`, `dm`, a user id).
   `mechanics` and `journal` accept `public` or `dm`. Actions, `table-mode`, `scene` and
-  `party` are always `public`. `tracker` is always `dm`. Proposal lifecycle events are always
+  `party` are always `public`. `tracker` is always `dm`. `scene-presence` is always `public`. Proposal lifecycle events are always
   `dm` (proposal-events.md).
 
 ## Gate requests
@@ -125,7 +140,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-export const GATE_REQUEST_KINDS: readonly string[];   // the 17 `kind` literals above
+export const GATE_REQUEST_KINDS: readonly string[];   // the 18 `kind` literals above
 export const GATE_REQUEST_VERSION = 1;                 // the send frame's payloadVersion
 ```
 
@@ -168,7 +183,7 @@ refuses with `NOT_AUTHORIZED` (source `gate`), before planning.
 | `action.comment` | yes | yes (policy) | if a party member | if a party member |
 | `action.commit` | yes (authority `dm`) | yes (policy; authority `dm`) | per commit authority | per commit authority |
 | `action.withdraw` | yes | no | for an action it declared | for an action it declared |
-| `action.resolve`, `mechanics`, `narration`, `table-mode`, `scene`, `party`, `tracker`, `journal` | yes, applied directly | yes (policy) | no | no |
+| `action.resolve`, `mechanics`, `narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal` | yes, applied directly | yes (policy) | no | no |
 | `proposal.approve`, `proposal.reject` | yes | no | no | no |
 | `gate.policy` | yes | no | no | operator only |
 | `dm.seat` | operator only | no | no | operator only |

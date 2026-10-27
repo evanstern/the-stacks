@@ -154,7 +154,22 @@ function eventSentences(e: FactEvent): string[] {
       return [`${spellDigits(e.name)} joins them.`];
     case "combatant-left":
       return [`${spellDigits(e.name)} is gone.`];
+    case "presence":
+      return [presenceLine(e)];
   }
+}
+
+const PRESENCE_VERB: Record<string, string> = {
+  arrived: "arrives",
+  left: "leaves",
+  fled: "flees",
+  removed: "is removed",
+  surrendered: "surrenders",
+  conceded: "concedes",
+};
+
+function presenceLine(e: Extract<FactEvent, { kind: "presence" }>): string {
+  return `${spellDigits(e.name)} ${PRESENCE_VERB[e.reason] ?? "changes place"}.`;
 }
 
 export function factualSummary(facts: NarrationFacts): string {

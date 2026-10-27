@@ -20,6 +20,7 @@ export const DEFAULT_POLICIES: PolicyTable = {
   scene: "suggest",
   party: "ask",
   tracker: "ask",
+  "scene-presence": "ask",
   journal: "auto",
 };
 

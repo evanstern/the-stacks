@@ -6,6 +6,7 @@ import {
 } from "@the-stacks/dnd5e-engine";
 import {
   CombatantIdSchema,
+  PresenceReasonSchema,
   ReasonSchema,
   RefIdSchema,
 } from "@the-stacks/session-model";
@@ -113,6 +114,14 @@ export const EffectSchema = z.discriminatedUnion("effect", [
     targetId: CombatantIdSchema,
     condition: ConditionKeySchema,
     source: z.string().min(1).max(100),
+  }),
+  // Scene presence (specs/048-scene-presence plan D5, R6). RefIdSchema and
+  // CombatantIdSchema share one regex, so one id grammar serves both.
+  // Strict: the reason fixes the new value, so an `after` field is refused.
+  z.strictObject({
+    effect: z.literal("presence"),
+    targetId: CombatantIdSchema,
+    reason: PresenceReasonSchema,
   }),
 ]);
 export type Effect = z.infer<typeof EffectSchema>;

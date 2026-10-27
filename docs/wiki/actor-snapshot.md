@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # Actor snapshot
@@ -27,7 +27,7 @@ never fork a second state view. Runtime wiring is in [[dm-runtime]].
 `actors` and `stage`. A `SnapshotActor` has `id`, `combatantId`, `characterId`, `name`, `aliases`,
 `kind` (`party`, `monster`, `npc`), `controller` (`player`, `ai-companion`, `dm`), `hp`,
 `lifeState`, `conditions` (with the engine instance id), `ac`, `initiative`, `resources` (death
-saves, hit dice, spell slots), `sheet` (party only) and `presence` (always `present` in U1). The
+saves, hit dice, spell slots), `sheet` (party only) and `presence` (read from the log, see Build rules). The
 stage holds the table mode with the active actor, the encounter order as actor ids, the scene and
 the DM-only trackers. The snapshot carries no seed text except names, so a player-facing prompt
 cannot leak a DM-only string ([[dm-narration-quality]]). The module imports engine and
@@ -40,7 +40,9 @@ copy the seed character's sheet numbers. Combatant state copies the engine comba
 whose `identity.combatant` names an engine combatant and that combatant are **one actor**: the
 NPC id and name, the combatant's state, the engine name in `aliases`. Every other combatant is a
 `monster` actor. Order: party, encounter order, remaining combatants by id, then seed NPCs with
-no combatant. With a null seed the build adds no NPC and no sheet. Two actors with the same id
+no combatant. With a null seed the build adds no NPC and no sheet. `presence` is the `scenePresence` projection entry keyed by actor `id` (party: character id;
+NPC: NPC id; monster: combatant id; `presenceOf` in `build.ts`). No entry means `present`, and an
+entry that matches no actor is ignored. Two actors with the same id
 throw `SnapshotBuildError` (`ACTOR_ID_COLLISION`).
 
 ## Aliases
@@ -88,7 +90,8 @@ node failure for a turn ([[dm-failure-and-gates]]), an `error` play for a compan
 
 ## Extension points
 
-TASK-0141 reads presence from the log; TASK-0142 seeds NPC presence and seed aliases;
+TASK-0141 built the presence read (spec 048; the plan gate gains the `absent` reason, same
+`UNKNOWN_COMBATANT` code); TASK-0142 seeds NPC presence and seed aliases;
 TASK-0104 adds monster stats to `sheet`; TASK-0112 built the plan gate: it checks plan step ids against S0 actors' `combatantId` ([[dm-failure-and-gates]]);
 TASK-0143 and TASK-0144 match prose against `aliases`; TASK-0145 reads S0 for the Director's
 hostility rules; TASK-0146 renders the diff in the audit prompt; TASK-0147 maps batch effect

@@ -33,6 +33,24 @@ describe("diffSnapshots", () => {
     ).toEqual([]);
   });
 
+  it("gives one presence entry when the log presence changes", () => {
+    const { s0, s1 } = pair((p) => {
+      p.scenePresence["goblin-3"] = {
+        presence: "absent",
+        reason: "fled",
+        seq: 125,
+      };
+    });
+    expect(diffSnapshots(s0, s1).actors).toEqual([
+      {
+        kind: "presence",
+        actorId: "goblin-3",
+        before: "present",
+        after: "absent",
+      },
+    ]);
+  });
+
   it("gives one hp and one life-state entry for a kill", () => {
     const { s0, s1 } = pair((p) => {
       const g = p.engine.combatants["goblin-3"];

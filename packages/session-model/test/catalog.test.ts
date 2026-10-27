@@ -17,10 +17,10 @@ import {
 const examples = engineExamples();
 
 describe("catalog shape", () => {
-  it("has 18 session entries and 18 mechanics entries", () => {
-    expect(SESSION_EVENT_TYPES).toHaveLength(18);
+  it("has 19 session entries and 18 mechanics entries", () => {
+    expect(SESSION_EVENT_TYPES).toHaveLength(19);
     expect(MECHANICS_EVENT_TYPES).toHaveLength(18);
-    expect(catalog).toHaveLength(36);
+    expect(catalog).toHaveLength(37);
   });
 
   it("catalogues the five gate types at version 1 with their kinds and visibility", () => {
@@ -91,6 +91,63 @@ describe("catalog shape", () => {
         "rest.completed",
       ].sort(),
     );
+  });
+});
+
+describe("scene-presence.changed (TASK-0141)", () => {
+  const entry = catalogEntry("scene-presence.changed", 1);
+  const reasons = {
+    arrived: ["absent", "present"],
+    left: ["present", "absent"],
+    fled: ["present", "absent"],
+    removed: ["present", "absent"],
+    surrendered: ["present", "yielded"],
+    conceded: ["present", "yielded"],
+  } as const;
+
+  it("is catalogued as a public, current state change", () => {
+    expect(entry?.kind).toBe("state-change");
+    expect(entry?.visibility).toBe("any");
+    expect(entry?.current).toBe(true);
+    expect(currentVersion("scene-presence.changed")).toBe(1);
+  });
+
+  for (const [reason, [before, after]] of Object.entries(reasons)) {
+    it(`parses a ${reason} payload`, () => {
+      expect(
+        entry?.schema.safeParse({
+          actorId: "goblin-1",
+          before,
+          after,
+          reason,
+          actionId: null,
+        }).success,
+      ).toBe(true);
+    });
+  }
+
+  it("refuses an after that does not match the reason", () => {
+    expect(
+      entry?.schema.safeParse({
+        actorId: "goblin-1",
+        before: "present",
+        after: "yielded",
+        reason: "fled",
+        actionId: null,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("refuses before equal to after", () => {
+    expect(
+      entry?.schema.safeParse({
+        actorId: "goblin-1",
+        before: "absent",
+        after: "absent",
+        reason: "left",
+        actionId: null,
+      }).success,
+    ).toBe(false);
   });
 });
 

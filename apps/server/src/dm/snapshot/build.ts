@@ -7,6 +7,7 @@ import {
   type ActorResources,
   type ActorSheet,
   type ActorSnapshot,
+  type ScenePresence,
   SNAPSHOT_VERSION,
   type SnapshotActor,
   SnapshotBuildError,
@@ -120,6 +121,18 @@ function sheetOf(
   };
 }
 
+/**
+ * The logged scene presence of an actor id (specs/048-scene-presence plan D4).
+ * No entry means `present`. An entry for an id that matches no actor is never
+ * read: the build looks up actor ids only.
+ */
+function presenceOf(
+  projections: SessionProjections,
+  id: string,
+): ScenePresence {
+  return projections.scenePresence[id]?.presence ?? "present";
+}
+
 function dedupe(values: readonly (string | null | undefined)[]): string[] {
   const out = new Set<string>();
   for (const v of values) if (v) out.add(v);
@@ -159,7 +172,7 @@ export function buildSnapshot(
         combatantId ? (initiativeOf.get(combatantId) ?? null) : null,
       ),
       sheet: sheetOf(seed, m.characterId),
-      presence: "present",
+      presence: presenceOf(projections, m.characterId),
     };
   });
 
@@ -186,7 +199,7 @@ export function buildSnapshot(
         combatantId ? (initiativeOf.get(combatantId) ?? null) : null,
       ),
       sheet: null,
-      presence: "present",
+      presence: presenceOf(projections, npc.id),
     });
   }
 
@@ -207,7 +220,7 @@ export function buildSnapshot(
       controller: { kind: "dm" },
       ...stateOf(c, initiativeOf.get(c.id) ?? null),
       sheet: null,
-      presence: "present",
+      presence: presenceOf(projections, c.id),
     });
   }
 

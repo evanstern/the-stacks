@@ -168,6 +168,9 @@ the DM view.
    `scene` copies sceneId, title and location. `trackers` copies id, name, filled and
    segments, and nothing else.
 7. **Presence.** Every actor's `presence` is `present` in U1.
+   *Amended 2026-10-27 (TASK-0141, operator ruling OQ-4: "reuse UNKNOWN_COMBATANT with reason absent"):* `presence` comes from the
+   `scenePresence` projection, keyed by actor `id` (party: character id; NPC: NPC id; monster:
+   combatant id). An actor with no entry is `present`. An entry that matches no actor is ignored.
 8. **No seed.** With `seed` null, rule 3 adds nothing, every `sheet` is null, and `seedId` is
    null. The chronicle builds this way when its seed fails to load.
 9. **Id collision.** Two different actors with the same `id` throw
@@ -326,10 +329,10 @@ renders it for `dm.audit`, and TASK-0143 (U3) and TASK-0147 (U9) read it in code
 
 | Card | Extends |
 |---|---|
-| TASK-0141 (U2) | `presence` read from the logged presence event; `left`/`presence` diff entries from real changes |
+| TASK-0141 (U2) | **Built** (spec 048, 2026-10-27): `presence` read from the logged presence event; `left`/`presence` diff entries from real changes |
 | TASK-0142 (U8) | seed NPC initial presence per beat; seed-declared aliases; one identity across NPC and combatant (rule 3 is the U1 join) |
 | TASK-0104 | monster stats on `sheet` (or a sibling field) so modifiers derive from the snapshot |
-| TASK-0112 (U6) | **Built** (spec 046, 2026-10-27): the plan gate checks step actor and target ids against S0 actors' `combatantId`. TASK-0141 adds the `absent` reason (presence) |
+| TASK-0112 (U6) | **Built** (spec 046, 2026-10-27): the plan gate checks step actor and target ids against S0 actors' `combatantId`. TASK-0141 adds the `absent` reason (presence). **Built** (spec 048): `PlanFailureReason` gains `absent`; the verdict code stays `UNKNOWN_COMBATANT`. *Amended 2026-10-27 (TASK-0141, operator ruling OQ-4).* |
 | TASK-0143 (U3), TASK-0144 (U4) | the claim checker keyed to `aliases`, reading S1 and the diff |
 | TASK-0145 (U5) | `legalizeDirector` reads S0 actors (hostile = `kind` monster or a seed NPC in the active encounter) |
 | TASK-0146 (U7) | the audit prompt renders the diff |

@@ -55,6 +55,8 @@ function eventEntry(e: FactEvent): string {
       return `Event: ${e.name} joins`;
     case "combatant-left":
       return `Event: ${e.name} leaves`;
+    case "presence":
+      return `Event: ${e.name} is now ${e.presence} (${e.reason})`;
   }
 }
 

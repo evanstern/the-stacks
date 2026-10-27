@@ -5,6 +5,10 @@ import type {
 } from "@the-stacks/dnd5e-engine";
 import type { PartyMember } from "../events/party.js";
 import type { Scene } from "../events/scene.js";
+import type {
+  PresenceReason,
+  ScenePresence,
+} from "../events/scene-presence.js";
 import type { TableMode } from "../events/table-mode.js";
 import type { Tracker } from "../events/tracker.js";
 import type { Policy } from "../gate/policy.js";
@@ -221,6 +225,13 @@ export interface PresenceView {
   seq: number;
 }
 
+export interface ScenePresenceEntry {
+  presence: ScenePresence;
+  reason: PresenceReason;
+  /** The seq of the row that set it. */
+  seq: number;
+}
+
 export interface SessionProjections {
   /** Projection shape version. */
   v: 1;
@@ -228,6 +239,8 @@ export interface SessionProjections {
 
   scene: Scene | null;
   tableMode: TableMode;
+  /** Per actor id, the latest logged presence. No entry means present. */
+  scenePresence: Record<string, ScenePresenceEntry>;
   party: PartyMemberView[];
   encounter: EncounterView | null;
   journal: JournalEntryView[];

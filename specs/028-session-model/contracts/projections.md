@@ -23,6 +23,7 @@ export interface SessionProjections {
   // ── projections (AC #4) ──
   scene: Scene | null;
   tableMode: TableMode;                          // { mode: "free" } initially
+  scenePresence: Record<string, { presence: "present" | "yielded" | "absent"; reason: PresenceReason; seq: number }>;  // {} initially (TASK-0141)
   party: PartyMemberView[];
   encounter: EncounterView | null;
   journal: JournalEntryView[];
@@ -137,6 +138,18 @@ applies.
 ### Scene
 
 `scene` starts `null`. `scene.changed` sets it to `after` (with the same `before` check).
+
+### Scene presence
+
+`scenePresence` starts `{}`. `scene-presence.changed` sets `scenePresence[actorId]` to
+`{ presence: after, reason, seq }`. An actor with no entry is `present`. When `before` differs
+from the projected presence (`present` when there is no entry), `beforeMismatches` increments
+and `after` still applies. Every viewer folds the row (visibility `any`).
+
+Amended 2026-10-27 (TASK-0141, operator ruling OQ-1):
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
 
 ### Party
 

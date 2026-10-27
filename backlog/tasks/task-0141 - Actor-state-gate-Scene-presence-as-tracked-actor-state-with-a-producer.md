@@ -1,10 +1,10 @@
 ---
 id: TASK-0141
 title: 'Actor-state gate: Scene presence as tracked actor state, with a producer'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 10:07'
+updated_date: '2026-10-27 14:55'
 labels:
   - dm
   - rules-gate
@@ -22,24 +22,78 @@ ordinal: 128000
 Outcome: an actor's scene presence (`present`, `yielded`, `absent`) is a logged fact, and only a resolved step can change it.
 
 Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruling 2026-10-26 at checkpoint C3, formulation 3 'ledger + opposition dice'. Design and rule map: docs/design/actor-state-gate.md §5 (card U2). Dependencies as stated there: U1.. Operator ruling 2026-10-26: added to m-3 Track C in decision-0025's order.
+
+Spec: specs/048-scene-presence
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A catalogued event records a scene presence change with actor id, new value and reason (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
-- [ ] #2 A step kind lets interpret and adjudicate propose a presence change; the gate applies it only through the engine, with tests.
-- [ ] #3 An `absent` combatant leaves the encounter order through `combatant.remove`.
-- [ ] #4 The snapshot reads scene presence from the log.
-- [ ] #5 No Director field writes scene presence, with a test.
-- [ ] #6 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
-- [ ] #7 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
+- [x] #1 A catalogued event records a scene presence change with actor id, new value and reason (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
+- [x] #2 The snapshot reads scene presence from the log.
+- [x] #3 No Director field writes scene presence, with a test.
+- [x] #4 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
+- [x] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
+- [x] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
+- [x] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
+- [x] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
+- [x] #9 Spec phase: Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half)
+- [x] #10 Spec phase: Snapshot from the log, plan gate absent reason (card AC #2, #5)
+- [x] #11 Spec phase: Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half)
+- [x] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Scope added 2026-10-27 by the operator's TASK-0112 ruling (sequencing Option A): both absent checks move here; depends on TASK-0112.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0141, branch task-0141-scene-presence, cut from origin/main a17d0b9. Spec number 048 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C6 (runbook amendment 1); carries the two absent checks moved from TASK-0112 (Option A).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+The spec author stopped after spec.md (95b1b52). DEVIATION: spec.md was written by hand to the Spec Kit template, not through speckit-specify, because the spec dir already existed. plan and tasks must use the skills. Finding: the engine's combatant.remove refuses an encounter member (COMBATANT_IN_ENCOUNTER) and deletes state, so AC #3 cannot be met as worded.
+OPERATOR RULINGS NEEDED (defaults first):
+OQ-1: (a) new event scene-presence.changed v1 {actorId, before, after, reason, actionId}, written through a new DM proposal kind scene-presence (policy ask). Amends frozen 029 proposals.md, policy-and-authority.md and gate-api.md §1, plus 028 additively. / (b) engine-held presence via mechanics / (c) a field on action.resolved.
+OQ-2: (a) a presence effect usable in effect steps and under onSuccess/onFailure/onHit / (b) a new step kind.
+OQ-3: (a) new engine command initiative.leave that keeps combatant state, with AC #3 amended to 'through an engine command' / (b) let combatant.remove drop an encounter member.
+OQ-4: (a) reuse UNKNOWN_COMBATANT with plan-gate reason absent / (b) new engine code ACTOR_ABSENT (28 codes) / (c) reuse ACTOR_UNABLE.
+OQ-5 (no ruling needed): yielded cannot return to present in this card.
+
+Operator ruling 2026-10-27 (in chat, verbatim; the message ended after OQ-2): "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including the frozen 029 and 028 amendments, OQ-2 (a)". OQ-1 resolved (a). OQ-2 resolved (a). OQ-3 and OQ-4 not yet ruled; plan.md waits on them.
+
+Operator ruling 2026-10-27 (in chat, verbatim): "TASK-0141: I accept OQ-3 (a) engine initiative.leave with AC #3 reworded to \"through an engine command\", and OQ-4 (a) reuse UNKNOWN_COMBATANT with reason absent." All OQ-1 to OQ-4 resolved (a). AC #3 reworded per the ruling. AC #2 reworded to match OQ-2 (a) (a presence effect, not a step kind). Both moved to the end of the list by the CLI. AC #7 code: UNKNOWN_COMBATANT, reason absent (OQ-4 (a)).
+
+Spec author resumed after OQ-1 to OQ-4 rulings: plan.md and tasks.md via speckit skills at 1ede222. 5 phases. Plan defaults R2 (no actor-existence check in the scene-presence planner; plan gate checks targets against S0) and R3 (initiative.leave reuses UNKNOWN_COMBATANT reason not-in-order and NO_ELIGIBLE_COMBATANT); the operator can overturn either. Phases 2-4 wait on PR #71.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Phase 1 (T001-T006) at 745e43c, fix-up 668ef5e. ci:check: only the 5 known no-DB adjudicate.integration failures (TASK-0138); engine 240 tests pass.
+Orchestrator rulings 2026-10-27 (for operator confirmation): (1) an active leaver mirrors turn.advance: dead combatants after it are skipped with both expiries, the incoming combatant gets its turn-start expiry, and NO_ELIGIBLE_COMBATANT refuses when every remaining entry is dead. Reason: resolve skips its own turn.advance after a leave (D5), so without this a condition ending at the next turn start would persist. (2) specs/026 commands.md count corrected 21 to 22, the count consequence of the approved amendment. Test count edit in execute.test.ts (21 to 22) accepted.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (T007-T025) at 0a2a837, 9219e31 (main merge fee800f). REQUIRE_DATABASE=1 ci:check exit 0; gate.integration 25/25. All six frozen 028/029 amendments carry dated ruling notes; count consequences (proposals.md 17→18 GATE_REQUEST_KINDS) named in the amendment notes. scene-presence rows do not enter the ledger projection (not in spec; accepted).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T026-T030) at 1b83c14: snapshot reads presence from the scenePresence projection; plan gate refuses absent actors/targets with UNKNOWN_COMBATANT reason absent; frozen 040 rule 7 amended (OQ-4) plus Built markers in its extension table (reviewed by the orchestrator). REQUIRE_DATABASE=1 ci:check exit 0. The plan-gate presence branch uses a local guard until Phase 4 adds the effect to EffectSchema.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 (T031-T041) at 82d9d85: presence effect in EffectSchema, resolve submits scene-presence, skipped turn.advance when the active combatant leaves, presence facts, frozen 031 resolve.md amended (OQ-2). REQUIRE_DATABASE=1 ci:check exit 0 (server 1064 passed). Gap found: a reclaim after the leave landed but before the checkpoint saved would advance twice; sent back for a fix in this task (orchestrator ruling: the skipped advance is new in this task, so it ships hardened).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reclaim fix at e83ae9d: on a reclaim, resolve reads the leave from the landed encounter.changed row (its before holds the pre-leave turnIndex) and skips the second advance. Single-crash DB test fails without the fix and passes with it. REQUIRE_DATABASE=1 ci:check green after one re-run of events.integration T018 (unrelated flake, carded as TASK-0160).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 (T042-T048) at 311fa50, main merged at a4f6a79 (one test-file conflict, both tests kept). 12 stale notes reviewed against their diffs and re-pinned; freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Card ACs #1-#7 ticked: each is proved by the phase tests above (event + projection P2, snapshot P3, no-Director-field test P4, declare gate P2, plan gate P3, presence effect P4, initiative.leave P1).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Operator confirmed both orchestrator rulings in chat 2026-10-27, quoting them: "When the active combatant leaves the turn order, the engine handles it like a normal turn advance. A crash during that leave can’t make the turn advance twice." Reply: "Confirmed".
+
+spec-bridge sync: Engine `initiative.leave` (card AC #7, User Story 3 engine half): 6/6 · Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half): 19/19 · Snapshot from the log, plan gate absent reason (card AC #2, #5): 5/5 · Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half): 11/11 · Wiki re-ground (runbook expected reviews): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine `initiative.leave` (card AC #7, User Story 3 engine half): 6/6 · Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half): 19/19 · Snapshot from the log, plan gate absent reason (card AC #2, #5): 5/5 · Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half): 11/11 · Wiki re-ground (runbook expected reviews): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

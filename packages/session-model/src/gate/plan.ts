@@ -1,10 +1,11 @@
 import { type EngineEvent, execute, type Rng } from "@the-stacks/dnd5e-engine";
 import { catalogEntry, currentVersion } from "../catalog.js";
+import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
-import { CHARACTER_UNABLE_REASONS, type GateRefusal } from "./refusals.js";
+import type { GateRefusal } from "./refusals.js";
 import { controls, isDm, isPartyMember } from "./roles.js";
 import { signoffState } from "./signoff.js";
 
@@ -177,16 +178,27 @@ function plan(
         action.scope === "character"
           ? p.party.filter((m) => m.characterId === action.characterId)
           : p.party.filter((m) => controls(p, proposer, m.characterId));
+      const absent = (m: (typeof downed)[number]) =>
+        p.scenePresence[m.characterId]?.presence === "absent";
       const unable = (m: (typeof downed)[number]) =>
-        m.combatant !== null && m.combatant.lifeState !== "conscious";
+        absent(m) ||
+        (m.combatant !== null && m.combatant.lifeState !== "conscious");
       if (downed.length > 0 && downed.every(unable)) {
-        const first = downed[0];
+        const firstAbsent = downed.find(absent);
+        const first = firstAbsent ?? downed[0];
+        if (firstAbsent) {
+          return refuse(
+            "CHARACTER_UNABLE",
+            "the character cannot act: absent from the scene",
+            { characterId: first.characterId, reason: "absent" },
+          );
+        }
         return refuse(
           "CHARACTER_UNABLE",
           "the character cannot act: not conscious",
           {
             characterId: first.characterId,
-            reason: CHARACTER_UNABLE_REASONS[0],
+            reason: "life-state",
             lifeState: first.combatant?.lifeState,
           },
         );
@@ -349,6 +361,85 @@ function plan(
       return {
         ok: true,
         rows,
+        batchId: rows.length > 0 ? ids.batchId : null,
+      };
+    }
+    case "scene-presence": {
+      if (proposal.actionId !== null && !findAction(p, proposal.actionId)) {
+        return refuse("UNKNOWN_ACTION", "no such action");
+      }
+      const before = p.scenePresence[proposal.actorId]?.presence ?? "present";
+      const after = REASON_TO_PRESENCE[proposal.reason];
+      if (before === after) {
+        return refuse(
+          "INVALID_PROPOSAL",
+          "a presence change changes the value",
+        );
+      }
+      const changed: PlannedRow = {
+        actor,
+        type: "scene-presence.changed",
+        payload: {
+          actorId: proposal.actorId,
+          before,
+          after,
+          reason: proposal.reason,
+          actionId: proposal.actionId,
+        },
+        visibility: "public",
+      };
+      const member = p.party.find((m) => m.characterId === proposal.actorId);
+      const cid = member ? member.combatantId : proposal.actorId;
+      const encounter = p.engine.encounter;
+      const inOrder =
+        cid !== null &&
+        (encounter?.order.some((e) => e.combatantId === cid) ?? false);
+      let command: unknown = null;
+      if (cid !== null && after === "absent" && inOrder) {
+        command = {
+          type: "initiative.leave",
+          combatantId: cid,
+          reason: `${proposal.actorId} ${proposal.reason}`,
+        };
+      } else if (
+        cid !== null &&
+        proposal.reason === "arrived" &&
+        encounter !== null &&
+        !inOrder &&
+        p.engine.combatants[cid] !== undefined
+      ) {
+        command = {
+          type: "initiative.join",
+          combatantId: cid,
+          mode: "normal",
+          reason: `${proposal.actorId} ${proposal.reason}`,
+        };
+      }
+      if (command === null) return { ok: true, rows: [changed], batchId: null };
+      const result = execute(p.engine, command, rng);
+      if (!result.ok) {
+        const { code, message, details } = result.refusal;
+        return {
+          ok: false,
+          refusal: {
+            source: "engine",
+            code,
+            message,
+            ...(details ? { details } : {}),
+          },
+        };
+      }
+      const rows = mechanicsRows({
+        actor,
+        batchId: ids.batchId,
+        events: result.events,
+        actionId: proposal.actionId,
+        proposalId,
+        visibility: "public",
+      });
+      return {
+        ok: true,
+        rows: [changed, ...rows],
         batchId: rows.length > 0 ? ids.batchId : null,
       };
     }

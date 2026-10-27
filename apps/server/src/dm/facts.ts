@@ -44,7 +44,13 @@ export type FactEvent =
   | { kind: "encounter-ended" }
   | { kind: "turn-advanced"; next: string }
   | { kind: "combatant-joined"; name: string }
-  | { kind: "combatant-left"; name: string };
+  | { kind: "combatant-left"; name: string }
+  | {
+      kind: "presence";
+      name: string;
+      presence: "present" | "yielded" | "absent";
+      reason: string;
+    };
 
 export type FactChange =
   | {
@@ -360,6 +366,7 @@ function damageTypesBySeq(rows: readonly StoredEvent[]): Map<number, string> {
 function buildEvents(
   rows: readonly StoredEvent[],
   nameOf: NameOf,
+  presenceNameOf: NameOf = nameOf,
 ): FactEvent[] {
   const pub = rows
     .filter((r) => r.visibility === "public")
@@ -404,6 +411,20 @@ function buildEvents(
       if (hasStart) continue;
       const n = nameIn(ev.after);
       if (n) out.push({ kind: "combatant-joined", name: n });
+    } else if (r.type === "scene-presence.changed") {
+      const pl = r.payload as {
+        actorId?: string;
+        after?: "present" | "yielded" | "absent";
+        reason?: string;
+      } | null;
+      if (pl?.actorId && pl.after && pl.reason) {
+        out.push({
+          kind: "presence",
+          name: presenceNameOf(pl.actorId),
+          presence: pl.after,
+          reason: pl.reason,
+        });
+      }
     } else if (r.type === "combatant.removed") {
       const n = nameIn(ev.before);
       if (n) out.push({ kind: "combatant-left", name: n });
@@ -548,7 +569,12 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       name: m.name,
       controller: m.controller.kind === "player" ? "human" : "ai-companion",
     })),
-    events: buildEvents(input.appendedRows, nameOf),
+    events: buildEvents(input.appendedRows, nameOf, (id) => {
+      const known = nameOf(id);
+      return known !== id
+        ? known
+        : (seed.npcs.find((n) => n.id === id)?.name ?? id);
+    }),
     setting: {
       locationName: seed.location.name,
       openingFraming: seed.openingFraming,

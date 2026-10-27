@@ -11,6 +11,7 @@ import {
 import {
   handleEncounterEnd,
   handleInitiativeJoin,
+  handleInitiativeLeave,
   handleInitiativeRoll,
   handleTurnAdvance,
 } from "./commands/encounter.js";
@@ -53,6 +54,7 @@ const handlers: HandlerMap = {
   "exhaustion.adjust": handleExhaustionAdjust,
   "initiative.roll": handleInitiativeRoll,
   "initiative.join": handleInitiativeJoin,
+  "initiative.leave": handleInitiativeLeave,
   "turn.advance": handleTurnAdvance,
   "encounter.end": handleEncounterEnd,
   "rest.short": handleRestShort,

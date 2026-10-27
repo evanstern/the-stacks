@@ -794,3 +794,88 @@ describe.skipIf(!reachable)(
     });
   },
 );
+
+describe.skipIf(!reachable)("gate — scene presence (TASK-0141)", () => {
+  it("refuses a declaration for an absent character and leaves the log unchanged", async () => {
+    const c = setup();
+    await seatDm(c);
+    await seedParty(c);
+    await c.must(
+      c.gate.submit(c.sessionId, operatorDm, {
+        kind: "scene-presence",
+        actorId: "ana",
+        reason: "left",
+      }),
+    );
+    const before = (await c.rows()).length;
+    const refused = await c.gate.submit(
+      c.sessionId,
+      player,
+      declare("pick-lock"),
+    );
+    const refusal = refusalOf(refused);
+    expect(refusal.source).toBe("gate");
+    expect(refusal.code).toBe("CHARACTER_UNABLE");
+    expect(refusal.details).toEqual({ characterId: "ana", reason: "absent" });
+    expect((await c.rows()).length).toBe(before);
+  });
+
+  it("lands the presence row and the order row in one batch with consecutive seqs", async () => {
+    const c = setup({ faces: [15, 5] });
+    await c.must(
+      c.gate.submit(c.sessionId, aiDm, mechanicsProposal(addAna as never)),
+    );
+    await c.must(
+      c.gate.submit(
+        c.sessionId,
+        aiDm,
+        mechanicsProposal({
+          ...addAna,
+          combatant: { ...addAna.combatant, id: "goblin-1", name: "Goblin" },
+        } as never),
+      ),
+    );
+    await c.must(
+      c.gate.submit(
+        c.sessionId,
+        aiDm,
+        mechanicsProposal({
+          type: "initiative.roll",
+          participants: [{ combatantId: "ana" }, { combatantId: "goblin-1" }],
+          reason: "Combat begins",
+        } as never),
+      ),
+    );
+    await c.must(
+      c.gate.submit(c.sessionId, aiDm, {
+        kind: "table-mode",
+        reason: "Combat begins",
+        after: {
+          mode: "turn",
+          activeActor: PLAYER_ID,
+          activeCharacterId: "ana",
+        },
+      }),
+    );
+    const before = (await c.rows()).length;
+    const result = await c.must(
+      c.gate.submit(c.sessionId, aiDm, {
+        kind: "scene-presence",
+        actorId: "goblin-1",
+        reason: "fled",
+      }),
+    );
+    expect(result.outcome).toBe("applied");
+    const rows = (await c.rows()).slice(before);
+    expect(kinds(rows)).toEqual([
+      "scene-presence.changed",
+      "encounter.changed",
+    ]);
+    expect(rows.map((r) => r.seq)).toEqual([before + 1, before + 2]);
+    const p = await loadProjections(requireDb(), c.sessionId, { role: "dm" });
+    expect(p.scenePresence["goblin-1"]?.presence).toBe("absent");
+    expect(p.engine.encounter?.order.map((e) => e.combatantId)).toEqual([
+      "ana",
+    ]);
+  });
+});

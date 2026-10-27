@@ -27,24 +27,23 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # Test suite
 
 The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.e. `vitest
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
-added a much larger suite alongside them under `apps/server/test/library/` — see [[ingestion]]
-for that one, and its `ai.*.test.ts` siblings predate this note and aren't covered here either.
-TASK-0029 and TASK-0030 share a third such subdirectory, `apps/server/test/bench/`: TASK-0029's
+added a larger suite under `apps/server/test/library/` — see [[ingestion]]
+for that one; its `ai.*.test.ts` siblings are not covered here either.
+TASK-0029 and TASK-0030 share a third subdirectory, `apps/server/test/bench/`: TASK-0029's
 `bow`-embedding determinism unit test plus its per-commit recall regression gate, and
-TASK-0030's unit file plus two environment-gated integration files, all run the same
-loud-skip-or-throw pattern as this note's three below — see [[benchmarks]], including why 5 of
-the load bench's tests are *always* skipped, by name, even with a reachable database.
-TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated integration files, one the CI playtest ([[m2-demo]]) ([[m2-demo]]).
-TASK-0045 added gate suites at the same level: `gate.integration.test.ts` and
-`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry and a
-restart losing nothing) and `write-boundary.test.ts` (no database; AC #1 import-graph allow-list check, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
+TASK-0030's unit file plus two environment-gated integration files, all with the
+loud-skip-or-throw pattern of this note's three below — see [[benchmarks]], including why 5 of
+the load bench's tests are always skipped, by name.
+TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated integration files, one the CI playtest ([[m2-demo]]).
+TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
+`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus: only `dm/nodes/resolve.ts` builds a `scene-presence` proposal, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that
