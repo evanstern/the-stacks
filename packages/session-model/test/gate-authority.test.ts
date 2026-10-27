@@ -304,8 +304,26 @@ describe("commit authority replays every fixture (SC-006)", () => {
           actionId: string;
           authority: string;
         };
+        const marker = f.events
+          .filter(
+            (e) =>
+              e.seq < event.seq &&
+              e.type === "presence.recorded" &&
+              (e.payload as { purpose?: string; actionId?: string }).purpose ===
+                "signoff" &&
+              (e.payload as { actionId?: string }).actionId ===
+                payload.actionId,
+          )
+          .at(-1);
+        const present = (marker?.payload as { present: string[] } | undefined)
+          ?.present;
         expect(
-          commitAuthority(before, { actor: event.actor }, payload.actionId),
+          commitAuthority(
+            before,
+            { actor: event.actor },
+            payload.actionId,
+            present,
+          ),
           `${f.name} seq ${event.seq}`,
         ).toEqual({ ok: true, authority: payload.authority });
       }

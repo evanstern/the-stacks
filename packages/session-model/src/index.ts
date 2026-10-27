@@ -56,6 +56,7 @@ export { commitAuthority } from "./gate/authority.js";
 export type { PermissionResult } from "./gate/permissions.js";
 export { checkPermission } from "./gate/permissions.js";
 export type {
+  PlanContext,
   PlanIds,
   PlannedRow,
   PlanResult,
