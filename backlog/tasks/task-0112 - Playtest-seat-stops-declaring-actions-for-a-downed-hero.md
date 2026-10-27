@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:40'
+updated_date: '2026-10-27 10:41'
 labels:
   - playtest
   - harness
@@ -77,6 +77,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (2abab8b): plan gate checkPlan runs before directorOpening; a refused group lands no step. SC-003 ambush still passes. One fixture changed in meaning-preserving form (the seq-naming test now uses an engine-refused expression). ci:check passed with REQUIRE_DATABASE=1, server 1006 tests.
 
 Phase 4 done (b9edfb0): settleTurn in nodes/settle.ts (death-save.roll then turn.advance, one lap bound, nat 20 keeps the turn); table-mode row stays in resolve (dm/ write boundary). Narration facts gain a death-saves change and a settled section (facts.ts, fallback.ts, narrate prompt); auditor render.ts needed no edit. Reclaim fix: the advance group re-enters when the checkpoint holds 'advance'. resolve.md amended. No existing fixture changed rows. ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (b9edfb0): settleTurn rolls death saves for unconscious PCs, with natural-20 and one-lap stop rules; facts gain a death-saves change kind (additive); 8 resolve cases; no fixture changed. ci:check passed with REQUIRE_DATABASE=1, server 1016 tests.
+ORCHESTRATOR RULINGS: Q1 the reclaim done-condition fix (a landed advance counts as done) stays in this task, because settling's correctness depends on it; Phase 5 adds a regression test for it. Q3 a turn whose only event is a death save is narrated (D5); reported to the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
