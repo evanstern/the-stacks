@@ -128,8 +128,11 @@ The operator rulings settle the four one-way doors. These decisions settle the r
   command. The planner calls the leave only for a combatant in the order (FR-017). Alternative:
   a new `NOT_IN_ENCOUNTER` code. Rejected: no caller needs to tell it apart.
 - **R4. The active combatant leaves.** Decision: `initiative.leave` removes the entry at
-  `turnIndex`. When `turnIndex` falls past the end, it wraps to 0 and the round increments. It
-  runs the same turn-end condition expiry as `turn.advance` for the outgoing combatant.
+  `turnIndex`. The leave is the turn transition and mirrors `turn.advance`. It runs the
+  turn-end condition expiry for the outgoing combatant. It skips dead entries, expiring their
+  turn-start and turn-end conditions. When the index falls past the end, it wraps to 0 and the
+  round increments. It runs the incoming combatant's turn-start expiry after `encounter.changed`.
+  It refuses with `NO_ELIGIBLE_COMBATANT` when every remaining entry is dead.
   Rationale: the next combatant is then active exactly once (SC-003). Resolve detects the leave
   and skips its own `turn.advance` (D5). Alternative: refuse a leave by the active combatant,
   and make resolve advance first. Rejected: that splits the presence row and the order change

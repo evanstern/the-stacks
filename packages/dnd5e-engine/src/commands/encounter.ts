@@ -203,10 +203,21 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
   }
   const reason = command.reason;
   const order = enc.order.filter((_, i) => i !== at);
+  const isDead = (e: Entry) =>
+    state.combatants[e.combatantId]?.lifeState === "dead";
   const events: EngineEvent[] = [];
   let turnIndex = enc.turnIndex;
   let round = enc.round;
+  let incomingId: string | null = null;
   if (at === enc.turnIndex) {
+    // The leave is the turn transition: mirror turn.advance.
+    if (order.every(isDead)) {
+      return refuse(
+        "NO_ELIGIBLE_COMBATANT",
+        "every remaining combatant in the order is dead",
+        { combatantId: id },
+      );
+    }
     events.push(
       ...expiring(
         state,
@@ -214,10 +225,27 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
         reason,
       ),
     );
-    if (turnIndex >= order.length) {
-      turnIndex = 0;
-      round += 1;
+    let index = at;
+    for (;;) {
+      if (index >= order.length) {
+        index = 0;
+        round += 1;
+      }
+      const entry = order[index] as Entry;
+      if (!isDead(entry)) break;
+      for (const boundary of ["turn-start", "turn-end"] as const) {
+        events.push(
+          ...expiring(
+            state,
+            { round, combatantId: entry.combatantId, boundary },
+            reason,
+          ),
+        );
+      }
+      index += 1;
     }
+    turnIndex = index;
+    incomingId = (order[index] as Entry).combatantId;
   } else if (at < enc.turnIndex) {
     turnIndex -= 1;
   }
@@ -229,6 +257,15 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
     before: enc,
     after: { ...enc, round, turnIndex, order },
   });
+  if (incomingId !== null) {
+    events.push(
+      ...expiring(
+        state,
+        { round, combatantId: incomingId, boundary: "turn-start" },
+        reason,
+      ),
+    );
+  }
   return { ok: true, events };
 };
 

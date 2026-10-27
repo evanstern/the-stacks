@@ -100,6 +100,89 @@ describe("initiative.leave", () => {
     expect(activeCombatant(next)?.id).toBe("b");
   });
 
+  it("expires the incoming combatant's turn-start conditions", () => {
+    let state = started(); // b active; order b, c, a
+    state = settle(
+      state,
+      run(state, {
+        type: "condition.apply",
+        targetId: "a",
+        condition: "prone",
+        source: "test",
+        expiresAt: { round: 1, combatantId: "c", boundary: "turn-start" },
+        reason: "x",
+      }).result,
+    );
+    const out = run(state, leave("b"));
+    const events = expectOk(out.result);
+    expect(events.map((e) => e.type)).toEqual([
+      "encounter.changed",
+      "condition.removed",
+    ]);
+    expect(events[1]).toMatchObject({
+      cause: "expired",
+      before: { condition: "prone" },
+    });
+    expect(activeCombatant(settle(state, out.result))?.id).toBe("c");
+  });
+
+  it("skips a dead combatant after the leaver and expires its boundaries", () => {
+    let state = started(); // b active; order b, c, a
+    state = {
+      ...state,
+      combatants: {
+        ...state.combatants,
+        c: {
+          ...(state.combatants.c as NonNullable<typeof state.combatants.c>),
+          lifeState: "dead",
+          hp: { current: 0, max: 12, temp: 0 },
+        },
+      },
+    };
+    for (const boundary of ["turn-start", "turn-end"]) {
+      state = settle(
+        state,
+        run(state, {
+          type: "condition.apply",
+          targetId: "a",
+          condition: boundary === "turn-start" ? "prone" : "poisoned",
+          source: "test",
+          expiresAt: { round: 1, combatantId: "c", boundary },
+          reason: "x",
+        }).result,
+      );
+    }
+    const out = run(state, leave("b"));
+    const events = expectOk(out.result);
+    expect(events.map((e) => e.type)).toEqual([
+      "condition.removed",
+      "condition.removed",
+      "encounter.changed",
+    ]);
+    const next = settle(state, out.result);
+    expect(ids(next)).toEqual(["c", "a"]);
+    expect(activeCombatant(next)?.id).toBe("a");
+    expect(next.encounter?.turnIndex).toBe(1);
+  });
+
+  it("refuses when every remaining combatant is dead", () => {
+    const base = started();
+    const dead = (c: NonNullable<(typeof base.combatants)[string]>) => ({
+      ...c,
+      lifeState: "dead" as const,
+      hp: { current: 0, max: 12, temp: 0 },
+    });
+    const s = {
+      ...base,
+      combatants: {
+        ...base.combatants,
+        c: dead(base.combatants.c as never),
+        a: dead(base.combatants.a as never),
+      },
+    };
+    expectRefusedBeforeDraw(run(s, leave("b")), "NO_ELIGIBLE_COMBATANT");
+  });
+
   it("replays the events from the pre-state to the post-state", () => {
     const state = started();
     const out = run(state, leave("b"));
