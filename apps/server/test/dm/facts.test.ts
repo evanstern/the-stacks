@@ -12,6 +12,7 @@ import {
   renderRollLine,
   stripMarker,
 } from "../../src/dm/facts.js";
+import { factualSummary } from "../../src/dm/fallback.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { factEntries } from "../../src/dm/prompts/narrate.js";
@@ -485,6 +486,66 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
         "Event: Pell leaves",
       ]),
     );
+  });
+});
+
+describe("presence fact (spec 048, User Story 2)", () => {
+  it("maps a landed scene-presence.changed row to a presence fact and a fallback line", () => {
+    const row = {
+      seq: 70,
+      type: "scene-presence.changed",
+      visibility: "public",
+      actor: "ai:dm",
+      payload: {
+        actorId: "snag",
+        before: "present",
+        after: "absent",
+        reason: "fled",
+        actionId: null,
+      },
+    } as unknown as StoredEvent;
+    const here = dirname(fileURLToPath(import.meta.url));
+    const fixture = JSON.parse(
+      readFileSync(join(here, "fixtures/run5-narration-quality.json"), "utf8"),
+    ) as { transcript: StoredEvent[] };
+    const facts = buildNarrationFacts({
+      trigger: "commit",
+      seed: playerFacingSeed(testSeed()),
+      beatNpcIds: [],
+      projections: projectDm(fixture.transcript.filter((r) => r.seq <= 58)),
+      beat: [],
+      director: {
+        beat: { decision: "resolve" },
+        tableMode: { to: "stay" },
+        trackers: [],
+        scene: { status: "continue" },
+        pacing: { tension: "low", spotlight: null, beatId: null },
+        goalNote: "",
+        companionPrompts: [],
+        overrides: [],
+      } as DirectorNodeOutput,
+      adjudicate: null,
+      resolve: {
+        submissions: [],
+        actionResults: [],
+        appendedRows: [row],
+        nextJob: null,
+        chronicle: false,
+        npcTurn: null,
+        ...EMPTY_RESOLVE_SNAPSHOT,
+        lastSeq: 0,
+      } as ResolveOutput,
+      presentNpcIds: [],
+      modeBefore: "free",
+      appendedRows: [row],
+      clarify: [],
+    });
+    const ev = facts.events.find((e) => e.kind === "presence");
+    expect(ev).toMatchObject({ presence: "absent", reason: "fled" });
+    expect(factEntries(facts)).toContain(
+      `Event: ${(ev as { name: string }).name} is now absent (fled)`,
+    );
+    expect(factualSummary(facts)).toMatch(/flees\./);
   });
 });
 

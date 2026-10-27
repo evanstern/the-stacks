@@ -217,29 +217,29 @@ turn on once. The Director cannot write presence.
 **Independent test**: the DB `apps/server/test/dm/resolve.integration.test.ts` cases, plus the
 unit schema, grammar, facts and write-boundary tests.
 
-- [ ] T031 [P] [US2] Add failing schema and grammar tests (the existing schema and step-grammar
+- [x] T031 [P] [US2] Add failing schema and grammar tests (the existing schema and step-grammar
       test files under `apps/server/test/dm/`): `EffectSchema` accepts
       `{ effect: "presence", targetId, reason }` in an effect step, `onSuccess`, `onFailure` and
       `onHit`; it refuses an unknown reason and an `after` field; the rendered grammar lists the
       effect, the six reasons and the two placement rules (spec User Story 2, scenario 5).
-- [ ] T032 [P] [US5] Add a failing test that walks `DirectorOutput` (`apps/server/src/dm/nodes/schemas.ts`)
+- [x] T032 [P] [US5] Add a failing test that walks `DirectorOutput` (`apps/server/src/dm/nodes/schemas.ts`)
       and asserts no key matches `/presence/i` (spec User Story 5, scenario 1).
-- [ ] T033 [US2] Add the presence effect to `EffectSchema` in `apps/server/src/dm/nodes/schemas.ts`,
+- [x] T033 [US2] Add the presence effect to `EffectSchema` in `apps/server/src/dm/nodes/schemas.ts`,
       importing the reason schema from `@the-stacks/session-model` (plan R6 decides the
       `targetId` schema). Render it in `apps/server/src/dm/prompts/step-grammar.ts` per plan D5.
       Bump the `dm.interpret` and `dm.adjudicate` prompt versions.
-- [ ] T034 [US2] In `apps/server/src/dm/nodes/resolve.ts`, add the presence-effect branch per plan
+- [x] T034 [US2] In `apps/server/src/dm/nodes/resolve.ts`, add the presence-effect branch per plan
       D5: submit a `scene-presence` proposal through `run.submit` as `ai:dm`, in effect order,
       recording the result as any effect does.
-- [ ] T035 [US3] In `apps/server/src/dm/nodes/resolve.ts`, record the active combatant at the
+- [x] T035 [US3] In `apps/server/src/dm/nodes/resolve.ts`, record the active combatant at the
       start of the turn. In the turn-advance group, skip `turn.advance` when that combatant is
       no longer in the order. Still run TASK-0112 settling and the table-mode submit.
-- [ ] T036 [P] [US2] In `apps/server/test/dm/facts.test.ts`, add a failing case: a landed
+- [x] T036 [P] [US2] In `apps/server/test/dm/facts.test.ts`, add a failing case: a landed
       `scene-presence.changed` row yields a `presence` fact with name, value and reason, and the
       fallback line names it.
-- [ ] T037 [US2] Map `scene-presence.changed` to the `presence` fact in `apps/server/src/dm/facts.ts`
+- [x] T037 [US2] Map `scene-presence.changed` to the `presence` fact in `apps/server/src/dm/facts.ts`
       (and `apps/server/src/dm/fallback.ts` if it renders facts itself). Keep the edit additive.
-- [ ] T038 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add DB cases with the fake
+- [x] T038 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add DB cases with the fake
       gateway and scripted dice:
       - Intimidation success with `onSuccess` presence `fled` on `goblin-1`: one
         `scene-presence` submission, S1 absent (US2 scenario 1; SC-001);
@@ -253,14 +253,14 @@ unit schema, grammar, facts and write-boundary tests.
       - an attack on an S0-absent goblin: `action.resolved` `refused` with
         `UNKNOWN_COMBATANT`, the checkpoint verdict says `absent`, and no row of the group lands
         (US7 scenario 2; SC-005).
-- [ ] T039 [US5] In `apps/server/test/dm/resolve.integration.test.ts`, assert across the existing
+- [x] T039 [US5] In `apps/server/test/dm/resolve.integration.test.ts`, assert across the existing
       Director fixtures that no submission has kind `scene-presence` (US5 scenario 2; SC-002).
       In `apps/server/test/write-boundary.test.ts`, pin that only `apps/server/src/dm/nodes/resolve.ts`
       builds a `scene-presence` proposal (US5 scenario 3).
-- [ ] T040 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md`: the presence effect and its
+- [x] T040 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md`: the presence effect and its
       `scene-presence` submission, the skipped second advance, and the plan gate's `absent`
       reason.
-- [ ] T041 Run `pnpm ci:check`. Re-run the shipped scenario's ci case and confirm it still ends
+- [x] T041 Run `pnpm ci:check`. Re-run the shipped scenario's ci case and confirm it still ends
       `ended` with a passing report (SC-006). Report the result in the commit message.
 
 **Checkpoint**: the full suite and `pnpm ci:check` are green, and the 031 contract is amended.

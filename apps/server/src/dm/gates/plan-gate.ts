@@ -77,24 +77,12 @@ interface NamedId {
   presenceReason?: string;
 }
 
-/**
- * A presence effect (specs/048-scene-presence plan D5). Phase 4 adds it to
- * `EffectSchema`; until then this guard reads the discriminant alone.
- */
-function presenceReasonOf(e: Effect): string | null {
-  const x = e as { effect: string; reason?: unknown };
-  return x.effect === "presence" && typeof x.reason === "string"
-    ? x.reason
-    : null;
-}
-
 function effectIds(effects: readonly Effect[], list: string): NamedId[] {
   return effects.map((e, j) => {
-    const presenceReason = presenceReasonOf(e);
     return {
       field: `${list}[${j}].targetId`,
       id: e.targetId,
-      ...(presenceReason !== null ? { presenceReason } : {}),
+      ...(e.effect === "presence" ? { presenceReason: e.reason } : {}),
     };
   });
 }

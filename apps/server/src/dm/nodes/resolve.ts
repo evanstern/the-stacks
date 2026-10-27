@@ -4,6 +4,7 @@ import {
   mechanicsProposal,
   type Proposal,
   type ProposalKind,
+  REASON_TO_PRESENCE,
   type SessionProjections,
   type StoredEvent,
   type TableMode,
@@ -211,6 +212,11 @@ function findLanded(
       return JSON.stringify(p.tableMode) === JSON.stringify(proposal.after)
         ? done(null)
         : null;
+    case "scene-presence":
+      return p.scenePresence[proposal.actorId]?.presence ===
+        REASON_TO_PRESENCE[proposal.reason]
+        ? done(null)
+        : null;
     case "journal":
       return p.journal.some((j) => j.entryId === proposal.entry.entryId)
         ? done(null)
@@ -381,7 +387,7 @@ class Run {
 // ---------------------------------------------------------------- effects
 
 function effectCommand(
-  effect: Effect,
+  effect: Exclude<Effect, { effect: "presence" }>,
   critical: boolean,
   reason: string,
 ): { key: string; command: Record<string, unknown>; reason: string } {
@@ -482,6 +488,21 @@ async function runSteps(
   ): Promise<void> => {
     for (const [j, effect] of effects.entries()) {
       if (stopped) return;
+      if (effect.effect === "presence") {
+        const sub = await run.submit(`${key}:e${j}`, "scene-presence", () => ({
+          kind: "scene-presence",
+          summary: `${reason}: ${effect.targetId} ${effect.reason}`.slice(
+            0,
+            200,
+          ),
+          rationale: `Resolve ${key}:e${j}`,
+          actorId: effect.targetId,
+          reason: effect.reason,
+          actionId,
+        }));
+        take(sub);
+        continue;
+      }
       const e = effectCommand(effect, critical, reason);
       take(await run.mech(`${key}:e${j}`, e.command, e.reason, actionId));
     }
@@ -942,6 +963,9 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     modeJustStarted: false,
   };
   const actionResults: ResolveOutput["actionResults"] = [];
+  /** The active combatant when the turn began (spec 048, the skipped advance). */
+  const activeAtStart =
+    assembled.projections.encounter?.activeCombatantId ?? null;
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {
@@ -1064,13 +1088,27 @@ export const resolve: Node<"resolve"> = async (ctx) => {
                 ),
             );
           if (done) {
-            const adv = await run.mech(
-              "advance",
-              { type: "turn.advance" },
-              "Advance the turn",
-              null,
-            );
-            if (adv.result === "applied") {
+            // Spec 048: an active combatant that left the order already
+            // handed the turn on (`initiative.leave`); a second advance
+            // would skip the next combatant.
+            const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+            const leftOrder =
+              activeAtStart !== null &&
+              fresh.encounter !== null &&
+              !fresh.encounter.order.some(
+                (o) => o.combatantId === activeAtStart,
+              );
+            const advanced = leftOrder
+              ? true
+              : (
+                  await run.mech(
+                    "advance",
+                    { type: "turn.advance" },
+                    "Advance the turn",
+                    null,
+                  )
+                ).result === "applied";
+            if (advanced) {
               await settleTurn(run, ctx);
               await setActiveMode(
                 run,
