@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:43'
+updated_date: '2026-10-27 09:48'
 labels:
   - dm
   - engine
@@ -26,11 +26,11 @@ Spec: specs/045-encounter-end-resolves
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A test reproduces rows 260-265: the action whose resolution ends the encounter resolves applied
+- [x] #1 A test reproduces rows 260-265: the action whose resolution ends the encounter resolves applied
 - [x] #2 The resolution order (encounter end versus action resolution) is documented in the turn-jobs contract
 - [x] #3 Spec phase: The resolve order in the contracts (US4, AC #2)
 - [x] #4 Spec phase: Resolve runs the new order (US1, US2, US3)
-- [ ] #5 Spec phase: Reproduce rows 260–265 end to end (US1, AC #1)
+- [x] #5 Spec phase: Reproduce rows 260–265 end to end (US1, AC #1)
 - [ ] #6 Spec phase: Wiki re-ground
 - [ ] #7 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
@@ -59,6 +59,8 @@ Phase 2 (3a28ed2): resolve runs the decision-0025 §4 order, with 6 order tests;
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 follow-up (af0baac): the marker-number difference on reclaim is a label only. Printed rows show no shared marker across steps; findLanded matches by kind. A new double-crash reclaim test passes, and ci:check passed again with REQUIRE_DATABASE=1. The orchestrator accepts the #n normalization and releases the hold.
+
+Phase 3 done (73bc3a3): encounter-end-resolves.integration.test.ts and scripts/encounter-end-bargain.json. Odo's bargain act-odo-5 runs through the real worker with the fake gateway and scripted dice; resolves applied; seq order committed < check.resolved < action.resolved < encounter.ended < table-mode.changed (free) < narration. Reading is reconstructed (Persuasion check). pnpm ci:check green with REQUIRE_DATABASE=1, no re-runs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
