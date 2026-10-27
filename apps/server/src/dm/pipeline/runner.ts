@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
+import { SnapshotOverflowError } from "../snapshot/index.js";
 import {
   depsFor,
   type ModelCallRecord,
@@ -47,6 +48,20 @@ async function safeRun<N extends NodeName>(
   try {
     return await node({ ...ctx, deps: depsFor(ctx.deps, name) });
   } catch (error) {
+    if (error instanceof SnapshotOverflowError) {
+      ctx.deps.log({
+        event: "dm.node.state-overflow",
+        node: name,
+        jobId: ctx.job.id,
+        ...error.detail,
+      });
+      const overflow: NodeError = {
+        kind: "state-overflow",
+        message: `the ${name} node's state does not fit its cap`,
+        detail: { ...error.detail, node: name },
+      };
+      return { ok: false, node: name, error: overflow, calls: [] };
+    }
     ctx.deps.log({
       event: "dm.node.threw",
       node: name,

@@ -111,8 +111,6 @@ export interface NarrationFacts {
     name: string;
     controller: "human" | "ai-companion";
   }[];
-  /** Seed NPC names plus non-party combatant names, deduped. */
-  npcNames: string[];
   /** Public ledger changes this turn, in seq order. */
   events: FactEvent[];
   setting: { locationName: string; openingFraming: string };
@@ -494,14 +492,6 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       name: m.name,
       controller: m.controller.kind === "player" ? "human" : "ai-companion",
     })),
-    npcNames: [
-      ...new Set([
-        ...seed.npcs.map((n) => n.name),
-        ...Object.values(p.engine.combatants)
-          .filter((c) => !p.party.some((m) => m.combatantId === c.id))
-          .map((c) => c.name),
-      ]),
-    ],
     events: buildEvents(input.appendedRows, nameOf),
     setting: {
       locationName: seed.location.name,

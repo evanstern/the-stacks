@@ -19,6 +19,7 @@ import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { projectDm, testSeed } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixture = JSON.parse(
@@ -70,7 +71,6 @@ function facts(over: Partial<NarrationFacts> = {}): NarrationFacts {
     rulings: [],
     clarify: [],
     party: [],
-    npcNames: [],
     events: [],
     setting: {
       locationName: "The Vault",
@@ -319,6 +319,7 @@ function replay(
     nextJob: null,
     chronicle: false,
     npcTurn: null,
+    ...EMPTY_RESOLVE_SNAPSHOT,
     lastSeq: 0,
   };
   return buildNarrationFacts({

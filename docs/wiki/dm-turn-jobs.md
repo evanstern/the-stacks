@@ -13,7 +13,9 @@ sources:
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+  - apps/server/src/dm/companion.ts
+  - apps/server/src/dm/chronicle.ts
+verified_against: ff78b96b37569e59be1f03b49f518c516043574c
 ---
 
 # DM turn jobs
@@ -116,6 +118,15 @@ the ledger, not `calls`, is the cost authority. An insert failure logs
 returned: `Submission.seqs`, `TurnCheckpoint.narration.seqs`, `CompanionSubmission.seqs` and the
 chronicle's `seqs` (`[]` on a refusal or on a submission recovered after reclaim). That is the
 job-to-event link; routes in [[debug-view]].
+
+**Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough(sessionId, throughSeq)` (optional; the
+default reads `session/projections` with `{ throughSeq }`, and `index.ts` passes one) and the
+worker's seed loader are handed to the chronicle job, which builds the state at its `throughSeq`
+([[actor-snapshot]]). The companion job builds its `seat` snapshot from the projections it already
+loads, so a `react` run needs no extra seam; the react job and the snapshot state share one prompt
+([[dm-runtime]]). A snapshot overflow in a companion job records an `error` play and in a chronicle
+job returns `entries: 0` and logs `dm.chronicle.failed`; neither fails the job. A turn's overflow
+fails the turn with kind `state-overflow` ([[dm-failure-and-gates]]).
 
 ## Reconcile
 

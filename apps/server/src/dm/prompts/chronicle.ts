@@ -1,4 +1,5 @@
 import type { TranscriptEntry } from "@the-stacks/session-model";
+import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
 import {
   CAPS,
   capEntries,
@@ -8,7 +9,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.chronicle-v2";
+export const PROMPT_VERSION = "dm.chronicle-v3";
 
 const SYSTEM = [
   "You keep the journal of a tabletop role-playing session. You write short factual entries about what happened, from the transcript you are given. You never state a dice total and never invent events.",
@@ -18,6 +19,8 @@ const SYSTEM = [
 ].join("\n\n");
 
 export interface ChroniclePromptInput {
+  /** The actor snapshot at the job's throughSeq. */
+  snapshot: ActorSnapshot;
   transcript: readonly TranscriptEntry[];
   goal: string;
   roster: readonly RosterEntry[];
@@ -29,6 +32,10 @@ export function buildChroniclePrompt(input: ChroniclePromptInput): {
   user: string;
 } {
   const user = joinSections([
+    snapshotSection("State at the end of this transcript", input.snapshot, {
+      view: "fiction",
+      cap: CAPS.snapshotFiction,
+    }),
     section("Scene goal", [input.goal], 300, "end"),
     section(
       "Trackers (names only)",

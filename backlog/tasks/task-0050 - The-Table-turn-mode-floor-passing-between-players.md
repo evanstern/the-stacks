@@ -4,6 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
+updated_date: '2026-10-27 09:31'
 labels:
   - multiplayer
   - gate
@@ -34,6 +35,12 @@ Why: decision-0016, turn-mode row. M2 has one human, so the floor only passes be
 - [ ] #5 The DM passes or reclaims the floor at any time.
 - [ ] #6 Tests cover a round with two humans and one AI companion.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Scope addition from TASK-0049 Q5 (operator accepted the defaults, 2026-10-27): the AI DM's override of a stalled party sign-off is in scope here.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

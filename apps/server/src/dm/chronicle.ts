@@ -13,6 +13,8 @@ import type { ModelCallRecord, RecordedCall } from "./pipeline/context.js";
 import { buildChroniclePrompt, PROMPT_VERSION } from "./prompts/chronicle.js";
 import { rosterOf } from "./prompts/common.js";
 import { PURPOSE_OF } from "./purposes.js";
+import type { SceneSeed } from "./seed/schema.js";
+import { buildSnapshot, SnapshotOverflowError } from "./snapshot/index.js";
 
 /**
  * The chronicle (contracts/companions.md "Chronicle"): off the hot path, it
@@ -48,6 +50,13 @@ export interface ChronicleDeps {
   gateway: Pick<Gateway, "chat">;
   gate: Pick<Gate, "submit">;
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
+  /** The DM view as of `throughSeq`: the state at the end of the transcript. */
+  loadProjectionsThrough: (
+    sessionId: string,
+    throughSeq: number,
+  ) => Promise<SessionProjections>;
+  /** Loads the scene seed; may throw. A failed load renders no seed names. */
+  loadSeed: (seedId: string) => SceneSeed;
   fence: () => Promise<boolean>;
   log: (line: Record<string, unknown>) => void;
   recordCall?: (call: RecordedCall) => Promise<void>;
@@ -93,12 +102,34 @@ export async function runChronicleJob(
   const lastNarration = narrations(fresh).at(-1);
   if (!lastNarration) return { entries: 0, seqs: [], calls: [] };
 
-  const prompt = buildChroniclePrompt({
-    transcript: fresh,
-    goal: p.scene?.summary ?? "",
-    trackerNames: p.trackers.map((t) => t.name),
-    roster: rosterOf(p.party),
-  });
+  const atSeq = await deps.loadProjectionsThrough(sessionId, throughSeq);
+  let seed: SceneSeed | null = null;
+  if (atSeq.scene) {
+    try {
+      seed = deps.loadSeed(atSeq.scene.sceneId);
+    } catch {
+      seed = null;
+    }
+  }
+  let prompt: ReturnType<typeof buildChroniclePrompt>;
+  try {
+    prompt = buildChroniclePrompt({
+      snapshot: buildSnapshot(atSeq, seed),
+      transcript: fresh,
+      goal: p.scene?.summary ?? "",
+      trackerNames: p.trackers.map((t) => t.name),
+      roster: rosterOf(p.party),
+    });
+  } catch (error) {
+    if (!(error instanceof SnapshotOverflowError)) throw error;
+    deps.log({
+      event: "dm.chronicle.failed",
+      jobId: job.id,
+      kind: "state-overflow",
+      ...error.detail,
+    });
+    return { entries: 0, seqs: [], calls: [] };
+  }
   const result = await callJson(deps, {
     purpose: PURPOSE_OF.chronicle,
     promptVersion: PROMPT_VERSION,
