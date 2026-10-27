@@ -224,6 +224,9 @@ and its ending; `turn-jobs.md` names the new enqueue rule and claim condition.
 - **FR-014**: In turn mode, a non-active companion's `commit` decision MUST NOT be submitted; the
   action stays open for the companion's turn. The active companion with an open action MUST
   commit (or, under W-A, withdraw or revise) that action instead of declaring a second one.
+  When that decision leaves no committed action (a withdraw), the active companion MUST still end
+  its turn in the same run: it declares and commits the hold act, as an active companion with no
+  open action does (Phase 3b, orchestrator ruling 2026-10-27).
 - **FR-015**: A `react` job MUST end with nothing more queued by the companion module. The
   companion's commit queues the next turn through the existing commit rule.
 - **FR-016**: The companion prompt's text change MUST bump its `PROMPT_VERSION`.

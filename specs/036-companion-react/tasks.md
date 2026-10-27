@@ -150,6 +150,10 @@ the worker claims only after its start time.
 - [x] T036 [US2] In `apps/web/app/play/view-model.ts` and the action card component, render a
   `withdrawn` action as closed, with no commit control and no "Waiting for … to commit" line.
   No modals. Update its unit test.
+- [x] T037b [US2] Phase 3b: in turn mode, an active companion that withdraws its only open action
+  ends its turn in the same run. After the decisions, if it committed nothing, it declares and
+  commits the hold act. Non-active companions are unchanged. Test in
+  `companion-react.integration.test.ts`: objection, withdraw, a new action committed, turn advances.
 - [x] T037 Run the phase gate and the DB suites. Commit.
 
 **Under W-B instead of Phase 3:**

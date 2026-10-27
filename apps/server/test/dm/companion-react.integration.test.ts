@@ -443,6 +443,57 @@ describe.skipIf(!reachable)("companion withdraw and revise (database)", () => {
     expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
   });
 
+  it("turn mode: the active companion withdraws its only open action and still ends its turn", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [
+            { actionId: "act-odo-1", decision: "withdraw", text: null },
+          ],
+        }),
+      ],
+    });
+    workerFor(w, { reactQuietMs: 0 });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    const turn = await w.gate.submit(
+      w.sessionId,
+      { kind: "ai", actor: "ai:dm" },
+      {
+        kind: "table-mode",
+        summary: null,
+        rationale: null,
+        reason: "Test: give the turn to Odo.",
+        after: {
+          mode: "turn",
+          activeActor: "ai:companion:odo",
+          activeCharacterId: "odo",
+        },
+      },
+    );
+    expect(turn.ok).toBe(true);
+    await humanComment(w, "object", "Too risky.");
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["action.withdraw", true],
+      ["action.declare", true],
+      ["action.commit", true],
+    ]);
+    expect(await statusOf(w, "act-odo-1")).toBe("withdrawn");
+    const next = (await w.projections()).actions.find(
+      (a) => a.actionId !== "act-odo-1",
+    );
+    expect(next?.status).toBe("committed");
+    expect(next?.actor).toBe("ai:companion:odo");
+    await tick();
+    const jobs = await listDmJobs(requireDb(), w.sessionId, 20);
+    expect(jobs.filter((j) => j.kind === "turn")).toHaveLength(1);
+  });
+
   it("a revise withdraws the old action and declares and commits the new text", async () => {
     const w = await createWorld({
       calls: [

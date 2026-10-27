@@ -257,6 +257,7 @@ export async function runCompanionJob(
     }
 
     const submissions: CompanionSubmission[] = [];
+    let committed = false;
     const proposer: Proposer = {
       kind: "ai",
       actor: companionActor(companionId),
@@ -264,6 +265,7 @@ export async function runCompanionJob(
     const send = async (proposal: Proposal): Promise<boolean> => {
       if (!(await deps.fence())) return false;
       const res = await deps.gate.submit(sessionId, proposer, proposal);
+      if (res.ok && proposal.kind === "action.commit") committed = true;
       submissions.push({
         kind: proposal.kind,
         ok: res.ok,
@@ -367,6 +369,18 @@ export async function runCompanionJob(
           });
         }
       }
+    }
+    // Phase 3b: the active companion in turn mode that started with an open
+    // action and committed nothing (it withdrew) still ends its turn: it takes
+    // the hold act, as an active companion with no open action does.
+    if (
+      active &&
+      turnMode &&
+      ownOpen.length > 0 &&
+      !committed &&
+      output.act === null
+    ) {
+      output = { ...output, act: { text: HOLD_ACT_TEXT, commit: true } };
     }
     if (output.act !== null) {
       const actionId = nextActionId(projections, companionId, minted);

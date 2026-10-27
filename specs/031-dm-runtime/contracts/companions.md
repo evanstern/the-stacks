@@ -85,6 +85,8 @@ fails the schema, and the whole output is then invalid.
 - In turn mode, only the active companion's commit is submitted (authority `active-player`).
   A non-active companion's commit is not submitted, and the action stays open for its turn.
   The active companion with an own open action commits it instead of declaring the hold act.
+  When the active companion's decisions commit nothing (a withdraw), it then declares and commits
+  the hold act in the same run, so the turn advances.
 - `PROMPT_VERSION` is `dm.companion-v4`.
 
 Amended by specs/036-companion-react.
