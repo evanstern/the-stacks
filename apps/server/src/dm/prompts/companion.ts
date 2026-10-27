@@ -4,17 +4,17 @@
 import type { SessionProjections } from "@the-stacks/session-model";
 import { renderDoctrine } from "../doctrine/doctrine.js";
 import type { PlayerSeedView } from "../seed/views.js";
+import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
 import {
   CAPS,
   capEntries,
   joinSections,
-  projectionEntries,
   rosterOf,
   section,
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v4";
+export const PROMPT_VERSION = "dm.companion-v5";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -36,6 +36,8 @@ const SYSTEM = [
 export interface CompanionPromptInput {
   seed: PlayerSeedView;
   projections: SessionProjections;
+  /** The actor snapshot built from these projections and the full seed. */
+  snapshot: ActorSnapshot;
   characterId: string;
   active: boolean;
   /** Ids of the companion's own open actions; they get their own section. */
@@ -46,7 +48,7 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
   system: string;
   user: string;
 } {
-  const { seed, projections, characterId, active } = input;
+  const { seed, projections, snapshot, characterId, active } = input;
   const doctrine = capEntries(
     renderDoctrine("companion").split("\n\n"),
     CAPS.doctrine,
@@ -95,12 +97,11 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
   const user = joinSections([
     section("Your character", portrayal, 600, "end"),
     section("Scene", scene, 400, "end"),
-    section(
-      "State",
-      projectionEntries(projections, seed, false),
-      CAPS.projections,
-      "end",
-    ),
+    snapshotSection("State", snapshot, {
+      view: "seat",
+      cap: CAPS.snapshotSeat,
+      self: characterId,
+    }),
     section(
       "Recent transcript",
       transcriptEntries(

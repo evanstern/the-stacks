@@ -158,8 +158,7 @@ the worker claims only after its start time.
 
 **Under W-B instead of Phase 3:**
 
-- [ ] T038 Orchestrator: append a bypass note to TASK-0114 AC #2 ("revise or withdraw" not built,
-  checkpoint W ruled W-B) and create the follow-up card for W-A, cited in the note.
+- [x] T038 Orchestrator: append a bypass note to TASK-0114 AC #2 ("revise or withdraw" not built, checkpoint W ruled W-B) and create the follow-up card for W-A, cited in the note. — not applicable: operator ruled W-A (2026-10-26)
 
 ---
 

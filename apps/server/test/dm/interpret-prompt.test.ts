@@ -19,6 +19,7 @@ import {
 } from "../../src/dm/prompts/interpret.js";
 import { STEP_GRAMMAR } from "../../src/dm/prompts/step-grammar.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import { clone, condition, greyhollowFight } from "./snapshot-fixtures.js";
 
 const director: DirectorNodeOutput = {
   beat: { decision: "resolve" },
@@ -60,8 +61,42 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v2");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v2");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v3");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v3");
+  });
+
+  it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
+    const { projections, seed } = greyhollowFight();
+    const p = clone(projections);
+    const goblin = p.engine.combatants["goblin-2"];
+    if (!goblin) throw new Error("fixture lacks goblin-2");
+    goblin.conditions = [condition("f1", "frightened")];
+    const ctx = makeCtx({
+      seed,
+      deps: { loadProjections: async () => p },
+    });
+    const assembled = await assemble(ctx);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const { interpret } = {
+      interpret: buildInterpretPrompt({
+        ctx,
+        assembled: assembled.output,
+        director,
+      }),
+    };
+    const line = interpret.user
+      .split("\n")
+      .find((l) => l.startsWith('goblin-2 "'));
+    expect(line).toContain("AC 15");
+    expect(line).toContain("frightened");
+    const adj = buildAdjudicatePrompt({
+      seed,
+      assembled: assembled.output,
+      reading: InterpretOutput.parse(EXAMPLE_OUTPUT).readings[0] as never,
+      actionText: "x",
+      passages: [],
+    });
+    expect(adj.user).toContain("frightened");
   });
 
   it("the interpret system prompt holds every rules-term key", async () => {

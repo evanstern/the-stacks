@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
+import { diffSnapshots } from "../../src/dm/snapshot/index.js";
 import {
   attackStep,
   checkStep,
@@ -426,5 +427,90 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const rows = await readRows(w);
     expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(1);
     expect(w.scripted.remaining().dice).toBe(0);
+  });
+
+  describe("S1 and the diff", () => {
+    it("a scripted-dice damage hit gives S1 the lowered HP and the exact diff", async () => {
+      const w = await createWorld({ dice: [14, 8] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin spars with Odo.");
+      const { result, ctx } = await w.runResolve({
+        readings: [
+          reading(id, [attackStep("odo")], { intent: "attack" }),
+        ] as never,
+      });
+      if (!result.ok) throw new Error("resolve failed");
+      const out = result.output as ResolveOutput;
+      const s0 = ctx.results.assemble?.snapshot;
+      if (!s0) throw new Error("no S0");
+      const p = await w.projections();
+      const odoNow = p.engine.combatants.odo;
+      const odo = out.snapshot.actors.find((a) => a.id === "odo");
+      expect(odo?.hp?.current).toBe(odoNow?.hp.current);
+      expect(odo?.hp?.current).toBeLessThan(
+        s0.actors.find((a) => a.id === "odo")?.hp?.current ?? 0,
+      );
+      expect(out.snapshot.throughSeq).toBe(p.throughSeq);
+      expect(out.diff).toEqual(diffSnapshots(s0, out.snapshot));
+      const odoChanges = out.diff.actors.filter((c) => c.actorId === "odo");
+      expect(odoChanges.some((c) => c.kind === "hp")).toBe(true);
+      expect(out.diff.actors.every((c) => c.actorId === "odo")).toBe(true);
+      if (odoNow?.lifeState !== "conscious") {
+        expect(odo?.lifeState).toBe(odoNow?.lifeState);
+        expect(odoChanges.some((c) => c.kind === "life-state")).toBe(true);
+      }
+    });
+
+    it("an encounter start gives joined actors and stage entries", async () => {
+      const w = await createWorld({ dice: [15, 12, 9, 14, 11, 8, 6] });
+      await startScene(w);
+      const out = await run(w, [], {
+        director: {
+          tableMode: {
+            to: "turn",
+            encounterId: "reed-camp",
+            reason: "The goblins rush out.",
+          },
+        },
+      });
+      const joined = out.diff.actors
+        .filter((c) => c.kind === "joined")
+        .map((c) => c.actorId);
+      expect(joined).toEqual(
+        expect.arrayContaining(["goblin-2", "goblin-3", "goblin-4"]),
+      );
+      const kinds = out.diff.stage.map((c) => c.kind);
+      expect(kinds).toContain("encounter-started");
+      expect(kinds).toContain("table-mode");
+      expect(out.snapshot.stage.encounter).not.toBeNull();
+    });
+
+    it("a no-op turn gives an empty diff", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      const out = await run(w, []);
+      expect(out.diff.actors).toEqual([]);
+      expect(out.diff.stage).toEqual([]);
+    });
+
+    it("a reclaim rebuilds an equal S1", async () => {
+      const w = await createWorld({ dice: [15] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      const first = await w.runResolve({
+        readings: [reading(id, [checkStep()])] as never,
+      });
+      if (!first.result.ok) throw new Error("first failed");
+      const saved = w.checkpoint.current;
+      const again = await w.runResolve({
+        readings: [reading(id, [checkStep()])] as never,
+        job: { attempt: 2 },
+        checkpoint: saved,
+      });
+      if (!again.result.ok) throw new Error("reclaim failed");
+      const a = first.result.output as ResolveOutput;
+      const b = again.result.output as ResolveOutput;
+      expect(b.snapshot).toEqual(a.snapshot);
+    });
   });
 });

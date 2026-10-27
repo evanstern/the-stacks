@@ -7,6 +7,11 @@ import type { AssembleOutput } from "../nodes/assemble.js";
 import type { AuditIssue } from "../nodes/audit.js";
 import type { PlayerSeedView } from "../seed/views.js";
 import {
+  type ActorSnapshot,
+  renderSnapshot,
+  SnapshotOverflowError,
+} from "../snapshot/index.js";
+import {
   CAPS,
   capEntries,
   joinSections,
@@ -15,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v3";
+export const PROMPT_VERSION = "dm.narrate-v4";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -113,19 +118,33 @@ function describeChange(
   }
 }
 
-/** The party and world sections, shared by the narrate and audit prompts. */
-export function characterSections(facts: NarrationFacts): string[] {
+/**
+ * The scene, party and world sections, shared by the narrate and audit
+ * prompts: the snapshot S1 in the `fiction` view, rendered once under
+ * `CAPS.snapshotFiction` and split by actor kind. Throws SnapshotOverflowError
+ * when the state does not fit.
+ */
+export function characterSections(snapshot: ActorSnapshot): string[] {
+  const r = renderSnapshot(snapshot, {
+    view: "fiction",
+    cap: CAPS.snapshotFiction,
+  });
+  if (!r.ok) throw new SnapshotOverflowError(r.detail);
+  // One line per actor follows the stage lines, in snapshot order.
+  const stage = r.lines.slice(0, r.lines.length - snapshot.actors.length);
+  const actorLines = r.lines.slice(stage.length);
+  const party = actorLines.filter(
+    (_, i) => snapshot.actors[i]?.kind === "party",
+  );
+  const world = actorLines.filter(
+    (_, i) => snapshot.actors[i]?.kind !== "party",
+  );
+  const label = (name: string, lines: string[]): string =>
+    lines.length > 0 ? `## ${name}\n${lines.join("\n")}` : "";
   return [
-    section(
-      "Party (player characters)",
-      facts.party.map(
-        (m) =>
-          `${m.name} (${m.controller === "human" ? "human player" : "AI companion"})`,
-      ),
-      400,
-      "end",
-    ),
-    section("Other characters (the world)", facts.npcNames, 400, "end"),
+    label("Scene state", stage),
+    label("Party (player characters)", party),
+    label("Other characters (the world)", world),
   ];
 }
 
@@ -133,6 +152,8 @@ export interface NarratePromptInput {
   seed: PlayerSeedView;
   roster: readonly RosterEntry[];
   assembled: AssembleOutput;
+  /** S1: the actor snapshot after resolve. */
+  snapshot: ActorSnapshot;
   facts: NarrationFacts;
   prior: { prose: string; issues: AuditIssue[] } | null;
 }
@@ -168,7 +189,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
     : [];
   const user = joinSections([
     scene.join("\n"),
-    ...characterSections(facts),
+    ...characterSections(input.snapshot),
     section("Facts", factEntries(facts), CAPS.facts, "end"),
     `Pacing: ${facts.director.pacing.tension}. Private note: ${facts.director.goalNote}`,
     section("Present characters", npcs, 400, "end"),
