@@ -1,9 +1,10 @@
 ---
 id: TASK-0049
 title: 'The Table: group sign-off for party-scope actions'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
+updated_date: '2026-10-27 05:25'
 labels:
   - multiplayer
   - gate
@@ -33,6 +34,12 @@ Why: decision-0016 commit-authority table, party-scope row. In M2 a single human
 - [ ] #5 The play route shows sign-off state per player and an approve or object control.
 - [ ] #6 Gate tests cover approval, objection and DM override with several players.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0049, branch task-0049-group-signoff, cut from origin/main adb4527. Spec number 044 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
