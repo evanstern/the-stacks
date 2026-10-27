@@ -4,7 +4,7 @@ title: 'Approval panel: suggest proposals offer no Approve control'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
-updated_date: '2026-10-27 13:04'
+updated_date: '2026-10-27 13:06'
 labels:
   - ui
   - gate
@@ -54,6 +54,9 @@ Phase 1 (T001-T010) at f32aa03. ci:check: web and lint pass; only the 5 known no
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (T011-T013) at d6935ba. Brave live check 68 PASS / 0 FAIL; Dismiss wrote exactly one proposal.rejected row (seq 20, reason null, prop-3); no <dialog>; 0 px overflow at 390 px. REQUIRE_DATABASE=1 ci:check exit 0. Screenshots reviewed by the orchestrator (suggest-live-before-1280-light.png).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T014-T017) wiki re-ground at 1f42fda: play-route and proposal-gate reviewed and re-pinned; freshness 51 fresh.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
