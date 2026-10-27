@@ -42,16 +42,6 @@ Spec: specs/048-scene-presence
 - [x] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -95,6 +85,8 @@ Phase 5 (T042-T048) at 311fa50, main merged at a4f6a79 (one test-file conflict, 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Operator confirmed both orchestrator rulings in chat 2026-10-27, quoting them: "When the active combatant leaves the turn order, the engine handles it like a normal turn advance. A crash during that leave can’t make the turn advance twice." Reply: "Confirmed".
+
+spec-bridge sync: Engine `initiative.leave` (card AC #7, User Story 3 engine half): 6/6 · Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half): 19/19 · Snapshot from the log, plan gate absent reason (card AC #2, #5): 5/5 · Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half): 11/11 · Wiki re-ground (runbook expected reviews): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
