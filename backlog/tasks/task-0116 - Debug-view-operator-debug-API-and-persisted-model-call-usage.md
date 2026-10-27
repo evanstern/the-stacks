@@ -4,7 +4,7 @@ title: 'Debug view: operator debug API and persisted model-call usage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 04:06'
+updated_date: '2026-10-27 04:15'
 labels:
   - debug-view
   - server
@@ -60,6 +60,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 2, T008-T017, commit bdfeb05; migration 0005_unknown_lizard (dm_model_calls). Merge condition T013 met: ledger rows equal jobs.result.calls in a full fake-gateway turn. scene.integration 'plays Greyhollow Ford' hit the 5 s vitest timeout under full-suite load once; passed on the single re-run.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 3, T018-T029, commit fac9d65; four operator-only GET routes; first full ci:check failed only on playtest/provider.integration 5 s load timeout (TASK-0154), passed alone.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
