@@ -16,6 +16,7 @@ const card = (over: Partial<ActionCardView> = {}): ActionCardView => ({
   open: true,
   canWithdraw: false,
   commit: { canCommit: true, authority: "declarer" },
+  signoff: null,
   committed: null,
   resolved: null,
   ...over,
@@ -106,4 +107,35 @@ test("a withdrawn card is closed: no form, no control, no waiting line", () => {
   expect(html).not.toContain("<form");
   expect(html).not.toContain("<button");
   expect(html).not.toContain("Waiting for");
+});
+
+test("a party card with sign-off rows shows state and own-row Approve and Object", () => {
+  const html = renderToStaticMarkup(
+    <ActionCard
+      card={card({
+        scope: "party",
+        signoff: [
+          { userId: "u1", label: "You", state: "approved", isViewer: true },
+          { userId: "u2", label: "Cleo", state: "objects", isViewer: false },
+          { userId: "u3", label: "Dov", state: "absent", isViewer: false },
+        ],
+      })}
+      onComment={noop}
+      onCommit={noop}
+      onWithdraw={noop}
+    />,
+  );
+  expect(html).toContain('aria-label="Sign-off"');
+  expect(html).toContain("Approved");
+  expect(html).toContain("Objects");
+  expect(html).toContain("Away");
+  const section = html.slice(html.indexOf('aria-label="Sign-off"'));
+  const list = section.slice(0, section.indexOf("</section>"));
+  expect(list.match(/>Approve</g)?.length).toBe(1);
+  expect(list.match(/>Object</g)?.length).toBe(1);
+  expect(html).not.toContain("<dialog");
+});
+
+test("a card without sign-off rows has no sign-off section", () => {
+  expect(render(card())).not.toContain('aria-label="Sign-off"');
 });

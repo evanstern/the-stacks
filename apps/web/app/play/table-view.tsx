@@ -21,9 +21,14 @@ import { toTableViewModel } from "./view-model.ts";
 export function TableView({ source }: { source: TableSource }) {
   const { events, viewer, actor, proposals } = source;
   const projected = useMemo(() => project(events, viewer), [events, viewer]);
+  const presentIds = useMemo(
+    () => source.presence?.map((e) => e.userId) ?? null,
+    [source.presence],
+  );
   const model = useMemo(
-    () => toTableViewModel(projected, { actor, proposals }),
-    [projected, actor, proposals],
+    () =>
+      toTableViewModel(projected, { actor, proposals, present: presentIds }),
+    [projected, actor, proposals, presentIds],
   );
   const presence = useMemo(
     () => presenceRows(source.presence, projected),

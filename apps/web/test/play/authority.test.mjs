@@ -134,3 +134,45 @@ test("a discussed action is still open to commit", () => {
     true,
   );
 });
+
+const CLEO_PARTY = [
+  ...party,
+  {
+    characterId: "cleo",
+    name: "Cleo",
+    controller: { kind: "player", userId: OTHER },
+    combatantId: "cleo",
+    combatant: null,
+  },
+];
+const groupAction = (over = {}) =>
+  action({ scope: "party", characterId: null, actor: ANA, ...over });
+
+test("sign-off: with the present set, the commit control waits for the quorum", () => {
+  const present = [ANA, OTHER];
+  assert.deepEqual(
+    commitAuthorityFor(groupAction(), free, player(ANA), CLEO_PARTY, present),
+    { canCommit: false, holder: null },
+  );
+});
+
+test("sign-off: the control appears once the other present human approved", () => {
+  const a = groupAction({
+    comments: [{ seq: 5, actor: OTHER, stance: "approve", text: "", ts: "t" }],
+  });
+  assert.deepEqual(
+    commitAuthorityFor(a, free, player(ANA), CLEO_PARTY, [ANA, OTHER]),
+    { canCommit: true, authority: "group" },
+  );
+});
+
+test("sign-off: an objection blocks the control", () => {
+  const a = groupAction({
+    comments: [{ seq: 5, actor: OTHER, stance: "object", text: "no", ts: "t" }],
+  });
+  assert.equal(
+    commitAuthorityFor(a, free, player(ANA), CLEO_PARTY, [ANA, OTHER])
+      .canCommit,
+    false,
+  );
+});

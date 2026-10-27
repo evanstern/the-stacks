@@ -89,13 +89,13 @@ action card (AC #5). No modal (FR-010). Browser automation uses Brave.
 **Independent test**: `pnpm --filter @the-stacks/web test` green, including
 `no-dialog.test.mjs`; Brave screenshot of `play/fixtures` on `group-signoff`.
 
-- [ ] T023 [US4] Create `apps/web/app/play/signoff.ts`: `signoffRows(action, party, present, viewer, label)` mapping `signoffState` to `{ userId, label, state: "approved" | "objects" | "waiting" | "absent", isViewer }`; `present === null` shows every party human as present (plan D9).
-- [ ] T024 [US4] Add a `present: readonly string[] | null` argument to `commitAuthorityFor` in `apps/web/app/play/authority.ts` and pass it to `commitAuthority`, so a player sees the commit control once the quorum is met. When `present` is null, pass nothing (today's behaviour).
-- [ ] T025 [US4] In `apps/web/app/play/view-model.ts`, add `signoff: SignoffRowView[] | null` to the action card view (null for character scope and closed actions), fed by the present ids; thread the ids from `table-view.tsx` (`source.presence`) and `use-fixture-table.ts` (`fixturePresence`).
-- [ ] T026 [US4] In `apps/web/app/play/components/action-card.tsx`, render a "Sign-off" list inside the card under the comments: one row per entry with label and state; the viewer's own row carries Approve and Object buttons that call the existing `onComment` with that stance. No `<dialog>`, no overlay.
-- [ ] T027 [P] [US4] Write `apps/web/test/play/signoff.test.mjs`; extend `authority.test.mjs`, `view-model.test.mjs` and `action-card.test.tsx` (rows render; Approve sends stance `approve`; absent row marked; character-scope card has no rows).
-- [ ] T028 [US4] Amend `specs/030-play-route/contracts/proposal-seam.md` with one "Amendment (TASK-0049)" line: the sign-off props on the action card are additive (ruling Q4); `CommitAuthority` is unchanged.
-- [ ] T029 [US4] Capture Brave screenshots (light and dark) of `play/fixtures` on `group-signoff` with one row approved and one waiting; save them under `specs/044-group-signoff/evidence/`.
+- [x] T023 [US4] Create `apps/web/app/play/signoff.ts`: `signoffRows(action, party, present, viewer, label)` mapping `signoffState` to `{ userId, label, state: "approved" | "objects" | "waiting" | "absent", isViewer }`; `present === null` shows every party human as present (plan D9).
+- [x] T024 [US4] Add a `present: readonly string[] | null` argument to `commitAuthorityFor` in `apps/web/app/play/authority.ts` and pass it to `commitAuthority`, so a player sees the commit control once the quorum is met. When `present` is null, pass nothing (today's behaviour).
+- [x] T025 [US4] In `apps/web/app/play/view-model.ts`, add `signoff: SignoffRowView[] | null` to the action card view (null for character scope and closed actions), fed by the present ids; thread the ids from `table-view.tsx` (`source.presence`) and `use-fixture-table.ts` (`fixturePresence`).
+- [x] T026 [US4] In `apps/web/app/play/components/action-card.tsx`, render a "Sign-off" list inside the card under the comments: one row per entry with label and state; the viewer's own row carries Approve and Object buttons that call the existing `onComment` with that stance. No `<dialog>`, no overlay.
+- [x] T027 [P] [US4] Write `apps/web/test/play/signoff.test.mjs`; extend `authority.test.mjs`, `view-model.test.mjs` and `action-card.test.tsx` (rows render; Approve sends stance `approve`; absent row marked; character-scope card has no rows).
+- [x] T028 [US4] Amend `specs/030-play-route/contracts/proposal-seam.md` with one "Amendment (TASK-0049)" line: the sign-off props on the action card are additive (ruling Q4); `CommitAuthority` is unchanged.
+- [x] T029 [US4] Capture Brave screenshots (light and dark) of `play/fixtures` on `group-signoff` with one row approved and one waiting; save them under `specs/044-group-signoff/evidence/`.
 
 **Checkpoint**: all four stories demonstrable.
 
