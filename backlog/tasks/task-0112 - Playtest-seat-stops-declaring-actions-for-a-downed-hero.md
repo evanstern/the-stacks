@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:15'
+updated_date: '2026-10-27 10:20'
 labels:
   - playtest
   - harness
@@ -31,10 +31,10 @@ Spec: specs/046-downed-hero-gate
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
 - [x] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
 - [ ] #4 Death-save turns for unconscious PCs still run (U6)
-- [ ] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
+- [x] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
 - [ ] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
 - [x] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
-- [ ] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
+- [x] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
 - [ ] #9 Spec phase: Plan gate against S0 (card AC #6)
 - [ ] #10 Spec phase: Death-save turns by settling (card AC #4)
 - [ ] #11 Spec phase: Driver and harness (card AC #1)
@@ -65,6 +65,8 @@ Phase 1 done (45991b9): origin/main merged (9ad8aa9); turn-jobs Resolve order re
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge 9ad8aa9, work 45991b9): engine ACTOR_UNABLE (27 codes); 026, 029 §2 and 028 amended as ruled; stale turn-jobs.md sentence fixed. Engine 228 and session-model 600 tests pass. Owed: the 028 session-events.md edit still lacks its 'Amended 2026-10-27' line; Phase 2 adds it.
+
+Phase 2 done (be540e0): origin/main merged (fbb8a93); TASK-0117 T039-T041 ticked; 028 session-events.md Amended line added; gate CHARACTER_UNABLE (details.reason life-state, CHARACTER_UNABLE_REASONS exported), 029 gate-api.md §1 and §2 amended. session-model 606 tests and ci:check green with REQUIRE_DATABASE=1 on the task stack (gate.integration 23 tests pass), no re-runs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
