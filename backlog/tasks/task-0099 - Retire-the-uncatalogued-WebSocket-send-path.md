@@ -65,6 +65,8 @@ Phase 2 (merge 1eca063, wiki b77e6e0): six notes amended (NEEDS-REVIEW) and re-p
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Reconcile with main after #67 (merge 4f375f3, re-pin 1fffa98): INDEX state paragraph keeps both clauses; CAPSULES regenerated; dm-failure-and-gates re-pinned (RE-PIN-ONLY). Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+spec-bridge sync: Retire the path and migrate its senders (US1, US2, US3; FR-001–FR-007, FR-009): 11/11 · Wiki (re-ground): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
