@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:52'
+updated_date: '2026-10-27 03:55'
 labels:
   - design
   - dm
@@ -26,9 +26,11 @@ Outcome: a decision record and design pattern by which every model-generated seq
 <!-- AC:BEGIN -->
 - [x] #1 An inventory lists every model-generated output and, for each, the actor and stage state it receives today and the gates it passes
 - [x] #2 A decision record (amending decision-0017 and decision-0022 where needed) states the actor-state contract and the hard rules, with the operator's ruling on the dice-only rule recorded in the operator's words
-- [ ] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
+- [x] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
 - [ ] #4 The spec for the first implementation card is written against the decision
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
