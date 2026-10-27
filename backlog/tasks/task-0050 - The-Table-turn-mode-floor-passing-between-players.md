@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 15:03'
+updated_date: '2026-10-27 15:11'
 labels:
   - multiplayer
   - gate
@@ -45,8 +45,6 @@ Spec: specs/049-turn-floor
 - [ ] #13 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -75,6 +73,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Orchestrator rulings 2026-10-27, applying the operator rulings (the operator may overturn either one):
 - The FT-3 floor job payload gets two nullable fields, holder and stanceSeq. They let the job tell that the absence or stall it was armed for has not changed. They sit inside the ruled 031 amendment.
 - Only an ai:dm floor end writes a floor marker. The planner refuses an ai:dm end with NOT_AUTHORIZED unless the active human is absent. This turns ruling Q4 (A) into a gate rule.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 1, T001-T008: bfd575c, 1cfb2ba, 6c7a9af. session-model 749 pass; ci:check without a DB: only the 5 expected adjudicate.integration failures.) The implementer settled several points the spec left open: TURN_MOVED details are {expected, actual}; an ai:dm end with no present set, or on an ai:* holder, is NOT_AUTHORIZED; the floor marker actor is system. It also added a minimal web case "floor" so the code typechecks; Phase 6 does the full web work. Commits carry the Sonnet trailer, and per the no-rewrite rule they stay as they are.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
