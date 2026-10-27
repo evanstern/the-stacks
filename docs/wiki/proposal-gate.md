@@ -15,13 +15,13 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Proposal gate
 
-The gate is the only path by which gameplay output reaches the event log. A producer (the AI
-DM, a player, a companion, the human DM) hands the gate a typed proposal; the gate checks
+The gate is the only path by which gameplay output reaches the event log. A producer (AI
+DM, player, companion, human DM) hands the gate a typed proposal; the gate checks
 permission, routes it by policy, plans the rows, and appends them. Pure decisions live in
 `packages/session-model/src/gate/` ([[session-model]]); the stateful wrapper is
 `apps/server/src/gate/` (`createGate`). Spec: `specs/029-proposal-gate/`.
@@ -43,9 +43,8 @@ A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm
 `proposal.approve`/`reject` need the seated DM (`NOT_DM`); `dm.seat` needs an operator;
 `gate.policy` needs the seated DM or an operator; `action.declare` needs control of the
 character (party scope: any party member) and never comes from the AI DM; `action.withdraw`
-(TASK-0114) is allowed to the action's declarer and the seated DM, never the AI DM, and the
-planner refuses a closed or unknown action;
-`action.commit` passes here and is decided by commit authority.
+(TASK-0114) is allowed to the action's declarer and the seated DM, never the AI DM; the
+planner refuses a closed or unknown action; `action.commit` passes here and is decided by commit authority.
 
 The DM seat is `{ kind: "ai" }` or `{ kind: "human", userId }`, changed by `dm.seat.changed`
 (default AI). `DEFAULT_POLICIES`: `ask` for talk, action.comment, action.commit, mechanics,
@@ -53,20 +52,20 @@ narration, table-mode, party, tracker; `auto` for action.resolve and journal; `s
 scene. `effectivePolicy` is `auto` for every kind when the seat is AI; with a human seat it is
 the session override (`gate.policy.changed`) else the default. `routeProposal` sends humans
 and companions `direct`, and `ai:dm` by policy (`action.declare` and `action.withdraw` from
-`ai:dm` are refused `NOT_AUTHORIZED`). The DM view of `dm`-only rows
-(including `proposal.*`) goes only to the logged human DM seat ([[subscriber-registry]]).
+`ai:dm` are refused `NOT_AUTHORIZED`). `dm`-only rows
+(including `proposal.*`) go only to the logged human DM seat ([[subscriber-registry]]).
 
 ## Commit authority
 
 `commitAuthority` turns decision-0016's table into code over public projections. It refuses
 `UNKNOWN_ACTION`, `ACTION_NOT_OPEN` (only `declared`/`discussed` commit), `COMMIT_NOT_ALLOWED`
-and `GROUP_SIGNOFF_REQUIRED`. The DM commits with authority `dm`. A party-scope action needs a
+and `GROUP_SIGNOFF_REQUIRED`. `action.declare` is refused `CHARACTER_UNABLE` (details `characterId`, `reason`, `lifeState`) when every covered character is down. The DM commits with authority `dm`. A party-scope action needs a
 party member: `group` authority when exactly one human player controls the party. With two or
 more party humans the commit needs the sign-off quorum (TASK-0049, specs/044-group-signoff):
 `signoffState` (`gate/signoff.ts`) is met when the present humans (plus the committer) are
-non-empty and each one's latest approve/object stance is `approve` (the declarer defaults to
-approve). `commitAuthority` takes an optional `present`; omitted, every other human is `waiting`.
-`GROUP_SIGNOFF_REQUIRED` carries `waiting` and `objecting` user ids as `refusal.details`. A character action needs control of that character: in turn mode
+non-empty and each one's latest stance is `approve` (the declarer defaults to approve).
+`commitAuthority` takes an optional `present`; omitted, every other human is `waiting`.
+`GROUP_SIGNOFF_REQUIRED` carries `waiting` and `objecting` ids in `refusal.details`. A character action needs control of that character: in turn mode
 only the active actor (`active-player`), in free mode only the declarer (`declarer`).
 
 ## The gate API
@@ -78,12 +77,12 @@ parse with the Zod schema first; a parse failure is `INVALID_PROPOSAL` and nothi
 `GateResult` is `applied` (events, `batchId`), `pending` (ask), `suggested`, `decided`
 (approve, reject, seat, policy), or `{ ok: false, refusal }`. A `GateRefusal` has a `source`
 (`gate`, `engine`, `append`), a `code` and a `message`. The gate holds no proposal state: each
-attempt calls `loadProjections` (DM view), so a restart loses nothing.
+attempt calls `loadProjections` (DM view).
 
 **`recordPresence(sessionId, { purpose, actionId? })`** (decision-0024, TASK-0051) appends one
 `presence.recorded` row: `actor: "system"`, visibility `public`, `present` the sorted user ids
 from the injected `PresenceReader` (default: nobody present). It is not a proposal and does not
-go through `submit` or `handle`. It never deduplicates against an earlier marker. It skips the
+go through `submit` or `handle`. It never deduplicates. It skips the
 projection load and `expectedLastSeq` (the marker reads no projection state); the log's advisory
 lock orders the append and the bounded conflict retry stays. A refusal returns `{ ok: false, refusal }`; on
 success it calls every `onAppended` listener with the stored row. The DM worker is the only

@@ -10,6 +10,7 @@ import {
   saveResult,
 } from "../jobs/queue.js";
 import { jobs } from "../schema/jobs.js";
+import type { PlanVerdict } from "./gates/plan-gate.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { AuditRecord } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
@@ -110,6 +111,8 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
+  /** The plan gate's verdict per action group; absent on rows stored before TASK-0112. */
+  planGate?: PlanVerdict[];
   narration: {
     attempts: AuditRecord["attempts"];
     shipped: boolean;

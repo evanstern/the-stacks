@@ -31,7 +31,9 @@ import {
   initialDriverState,
   nextMove,
   STALL_LIMIT,
+  STALL_REASON_SEAT_DOWNED,
   STALL_REASON_SEAT_EXHAUSTED,
+  seatDowned,
   turnChangedState,
 } from "./driver.js";
 import { exportSession, writeRunDir } from "./export.js";
@@ -350,7 +352,9 @@ export async function runPlaytest(
     const move = nextMove(p, scenario, state);
     if (move === "done" || move === "wait") {
       outcome = "stalled";
-      if (move === "done" && state.stallStreak >= STALL_LIMIT)
+      if (move === "done" && seatDowned(p, scenario))
+        stallReason = STALL_REASON_SEAT_DOWNED;
+      else if (move === "done" && state.stallStreak >= STALL_LIMIT)
         stallReason = STALL_REASON_SEAT_EXHAUSTED;
       break;
     }

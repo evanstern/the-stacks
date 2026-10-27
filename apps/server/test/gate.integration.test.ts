@@ -754,3 +754,43 @@ describe.skipIf(!reachable)("gate — onAppended", () => {
     expect(heard[0].map((e) => e.seq)).toEqual(heard[0].map((_, i) => 1 + i));
   });
 });
+
+describe.skipIf(!reachable)(
+  "gate — downed character (CHARACTER_UNABLE)",
+  () => {
+    it("refuses a declaration for an unconscious character and leaves the log unchanged", async () => {
+      const c = setup();
+      await seatDm(c);
+      await seedParty(c);
+      await c.must(
+        c.gate.submit(
+          c.sessionId,
+          operatorDm,
+          mechanicsProposal({
+            type: "damage.apply",
+            targetId: "ana",
+            components: [
+              { amount: { kind: "fixed", value: 14 }, damageType: "fire" },
+            ],
+            reason: "Ana drops",
+          } as never),
+        ),
+      );
+      const before = (await c.rows()).length;
+      const refused = await c.gate.submit(
+        c.sessionId,
+        player,
+        declare("pick-lock"),
+      );
+      const refusal = refusalOf(refused);
+      expect(refusal.source).toBe("gate");
+      expect(refusal.code).toBe("CHARACTER_UNABLE");
+      expect(refusal.details).toEqual({
+        characterId: "ana",
+        reason: "life-state",
+        lifeState: "unconscious",
+      });
+      expect((await c.rows()).length).toBe(before);
+    });
+  },
+);

@@ -33,8 +33,14 @@ export interface Submission {
 Resolve runs these groups in order. Each group is a list of submissions. The order is stated in
 [turn-jobs.md](turn-jobs.md) "Resolve order (decision-0025 §4)".
 
+0. **Plan gate** (pure, runs once before any write). `checkPlan` tests every actor and target id of
+   every action group and the NPC group against the S0 actors' `combatantId`s plus the ids the
+   turn's encounter start adds. A refused action group submits `action.resolve` `refused`
+   `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
+   advances. The verdicts go to `TurnCheckpoint.planGate`.
 1. **Opening moves** ([director.md](director.md)): scene, party, combatants and trackers (scene
-   start); the `turn` decision's combatants, initiative and turn mode.
+   start); the `turn` decision's combatants, initiative and turn mode. After initiative,
+   **settling** runs for the first active combatant (group 6, "Settling").
 2. **Ruling group**: one `journal` proposal per ruling, visibility `dm`, entry id
    `ruling-<jobId>-<n>`, `sourceActionIds: [actionId]`.
 3. **Action groups**, one per beat item in commit `seq` order (AC #9). Skip items with
@@ -43,8 +49,23 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
 5. **Closing moves** ([director.md](director.md)): tracker advances, the `free` decision, scene
    end. The batch gate (TASK-0147) will run after this group; the slot is empty.
 6. **Turn advance group** in turn mode, after the active actor's action or the NPC turn
-   resolved: `mechanics` `turn.advance`, then `table-mode` with the next active actor. It runs
-   only while the encounter is active and the mode is still turn.
+   resolved: `mechanics` `turn.advance`, then settling, then `table-mode` with the next active
+   actor. It runs only while the encounter is active and the mode is still turn. A reclaim whose
+   checkpoint holds the `advance` submission runs the group again, so the settling and the mode
+   row still land.
+
+   **Settling** (code only; `settleTurn` in `nodes/settle.ts`). Amended 2026-10-27 (TASK-0112,
+   operator ruling). Settling runs in the turn advance group and at the encounter start. It
+   repeats while the active combatant cannot act (not `conscious`, or holding an incapacitating
+   condition):
+   - An `unconscious` combatant with `zeroHpRule: death-saves` gets one engine `death-save.roll`
+     (`mode: normal`), submission key `settle:<n>:save`. A natural 20 returns it to 1 HP,
+     conscious. Settling then stops and the combatant keeps the turn.
+   - Otherwise (stable, dead, monster or NPC, incapacitating condition) no roll is made.
+   - The turn passes with `turn.advance`, submission key `settle:<n>:advance`.
+   - The loop runs at most once around the initiative order (one lap), then stops.
+   - A `table-mode` row for the actor it stops on follows (`advance:table-mode`, or
+     `director:table-mode` at the encounter start). `nextJob` keeps its rule over that mode.
 
 In hold mode (runner step 2.7), resolve runs the opening moves, then the closing moves.
 

@@ -329,7 +329,7 @@ renders it for `dm.audit`, and TASK-0143 (U3) and TASK-0147 (U9) read it in code
 | TASK-0141 (U2) | `presence` read from the logged presence event; `left`/`presence` diff entries from real changes |
 | TASK-0142 (U8) | seed NPC initial presence per beat; seed-declared aliases; one identity across NPC and combatant (rule 3 is the U1 join) |
 | TASK-0104 | monster stats on `sheet` (or a sibling field) so modifiers derive from the snapshot |
-| TASK-0112 (U6) | the plan gate checks step actor and target ids against S0 actors and presence |
+| TASK-0112 (U6) | **Built** (spec 046, 2026-10-27): the plan gate checks step actor and target ids against S0 actors' `combatantId`. TASK-0141 adds the `absent` reason (presence) |
 | TASK-0143 (U3), TASK-0144 (U4) | the claim checker keyed to `aliases`, reading S1 and the diff |
 | TASK-0145 (U5) | `legalizeDirector` reads S0 actors (hostile = `kind` monster or a seed NPC in the active encounter) |
 | TASK-0146 (U7) | the audit prompt renders the diff |

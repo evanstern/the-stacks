@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # DM failure record and rules-term gates
@@ -35,7 +35,7 @@ one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`).
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
 
-Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The plan gate stays TASK-0112's.
+Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The **plan gate** (`dm/gates/plan-gate.ts`, `checkPlan`, TASK-0112) is pure and runs first in resolve. It checks every actor and target id a step names against the S0 actors' `combatantId`s plus the combatants this turn's encounter start adds. An action group with an unknown id resolves `refused` with `UNKNOWN_COMBATANT` before any step runs; the verdict reason is `not-a-combatant` (the id is an NPC or alias with no combatant) or `not-in-snapshot`. It never maps an alias. Verdicts are stored as `checkpoint.planGate` (absent on older rows). The declare gate refuses a declaration for a downed character with `CHARACTER_UNABLE` ([[proposal-gate]]).
 
 A **rules term** is a value with a rules definition that a model writes into node output. The
 interpret and adjudicate schemas accept only closed lists derived from engine enums:

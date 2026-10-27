@@ -487,3 +487,71 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     );
   });
 });
+
+describe("settled death saves (TASK-0112, plan D5)", () => {
+  const saveRows = (natural: number, before: number, after: number) => [
+    roll(1, "s1", 0, {
+      reason: "Death saving throw at the start of the turn [0a#3]",
+      expression: "1d20",
+      purpose: "death-save",
+      combatantId: "ana",
+      faces: [natural],
+      mod: 0,
+      natural,
+    }),
+    {
+      kind: "change",
+      ...common(2, "s1", 1),
+      actionId: null,
+      reason: "Death saving throw at the start of the turn [0a#3]",
+      type: "death-saves.changed",
+      subject: "ana",
+      before: { successes: 0, failures: before },
+      after: { successes: 0, failures: after },
+    } as unknown as LedgerRow,
+  ];
+
+  it("yields a roll line and a tally line for the save", () => {
+    const c = collectFacts(saveRows(4, 1, 2), nameOf);
+    expect(c.rolls.map(renderRollLine)).toEqual([
+      "Ana — Death saving throw at the start of the turn: 1d20 → 4 = 4",
+    ]);
+    expect(c.changes).toEqual([
+      {
+        kind: "death-saves",
+        target: "Ana",
+        successes: 0,
+        failures: 2,
+        failed: true,
+      },
+    ]);
+    expect(c.changes.map(renderChangeLine)).toEqual([
+      "Ana death saves: 0 successes, 2 failures",
+    ]);
+  });
+
+  it("renders a settled save in the dice lines and the narration facts", () => {
+    const c = collectFacts(saveRows(4, 1, 2), nameOf);
+    const facts = {
+      actions: [],
+      npcTurn: null,
+      settled: [{ name: "Ana", ...c }],
+      events: [],
+      rulings: [],
+      clarify: [],
+      modeChange: null,
+      director: { sceneEnded: false },
+    } as unknown as NarrationFacts;
+    expect(renderDiceLines(facts)).toEqual([
+      "Ana — Death saving throw at the start of the turn: 1d20 → 4 = 4",
+      "Ana death saves: 0 successes, 2 failures",
+    ]);
+    const entries = factEntries(facts);
+    expect(entries).toContain("Downed turn: Ana");
+    expect(entries).toContain("  change: Ana fails a death saving throw");
+    // The model never sees a digit from the tally.
+    expect(entries.filter((e) => e.includes("change:")).join("")).not.toMatch(
+      /\d/,
+    );
+  });
+});

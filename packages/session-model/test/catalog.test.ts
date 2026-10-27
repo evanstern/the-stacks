@@ -140,6 +140,14 @@ describe("session payload schemas", () => {
     expect(
       schema?.safeParse({
         actionId: "a",
+        outcome: "refused",
+        batchIds: [],
+        refusalCode: "ACTOR_UNABLE",
+      }).success,
+    ).toBe(true);
+    expect(
+      schema?.safeParse({
+        actionId: "a",
         outcome: "no-effect",
         batchIds: [],
         refusalCode: null,

@@ -18,7 +18,7 @@ sources:
   - packages/session-model/src/fixtures/group-signoff.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Session model
@@ -100,7 +100,7 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 (the group sign-off rule over public projections: rows per party human, quorum, waiting,
 objecting, `met`; see [[proposal-gate]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
-proposal into catalog rows, or a refusal, using the engine). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE`, a downed declarer). All are exported from the package
 index. The kinds, policy table, authority rules and server wrapper are described in
 [[proposal-gate]].
 

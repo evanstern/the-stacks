@@ -755,6 +755,114 @@ describe("planProposal purity", () => {
   });
 });
 
+describe("action.declare able-actor gate (CHARACTER_UNABLE, TASK-0112)", () => {
+  const dmg = (value: number) => ({
+    type: "damage.apply",
+    targetId: "ana",
+    components: [{ amount: { kind: "fixed", value }, damageType: "fire" }],
+    reason: "r",
+  });
+  const declareFor = (scope: "character" | "party") =>
+    parse({
+      kind: "action.declare",
+      action: {
+        actionId: "act-new",
+        characterId: scope === "character" ? "ana" : null,
+        scope,
+        text: "Ana tries.",
+      },
+    });
+  const unconscious = dmFoldWith([dmg(14)]);
+  const stable = dmFoldWith([
+    dmg(14),
+    { type: "stabilize", targetId: "ana", reason: "r" },
+  ]);
+  const dead = dmFoldWith([dmg(30)]);
+
+  it.each([
+    ["unconscious", unconscious],
+    ["stable", stable],
+    ["dead", dead],
+  ] as const)("refuses a %s character before any row", (state, fold) => {
+    expect(
+      fold.party.find((m) => m.characterId === "ana")?.combatant?.lifeState,
+    ).toBe(state);
+    const result = plan(fold, ana, declareFor("character"));
+    expect(result).toMatchObject({
+      ok: false,
+      refusal: {
+        source: "gate",
+        code: "CHARACTER_UNABLE",
+        details: { characterId: "ana", reason: "life-state", lifeState: state },
+      },
+    });
+  });
+
+  it("accepts a conscious character and a member with no combatant", () => {
+    expect(plan(dmFold(), ana, declareFor("character")).ok).toBe(true);
+    const noCombatant = dmFold({
+      extra: [
+        {
+          type: "party.member.changed",
+          payload: {
+            reason: "j",
+            characterId: "dara",
+            before: null,
+            after: {
+              characterId: "dara",
+              name: "Dara",
+              controller: { kind: "player", userId: PLAYER_A },
+              combatantId: null,
+            },
+          },
+        },
+      ],
+    });
+    const daraDeclare = parse({
+      kind: "action.declare",
+      action: {
+        actionId: "act-dara",
+        characterId: "dara",
+        scope: "character",
+        text: "Dara waits.",
+      },
+    });
+    expect(plan(noCombatant, ana, daraDeclare).ok).toBe(true);
+  });
+
+  it("party scope: refused when every controlled character is down, accepted when one is conscious", () => {
+    expect(plan(unconscious, ana, declareFor("party"))).toMatchObject({
+      ok: false,
+      refusal: { code: "CHARACTER_UNABLE" },
+    });
+    const extra = [
+      {
+        type: "party.member.changed",
+        payload: {
+          reason: "j",
+          characterId: "dara",
+          before: null,
+          after: {
+            characterId: "dara",
+            name: "Dara",
+            controller: { kind: "player", userId: PLAYER_A },
+            combatantId: null,
+          },
+        },
+      },
+    ];
+    const mixed = dmFoldWith([dmg(14)], { extra });
+    expect(plan(mixed, ana, declareFor("party")).ok).toBe(true);
+  });
+
+  it("an unauthorised proposer for a downed character is still NOT_AUTHORIZED", () => {
+    expect(plan(unconscious, outsider, declareFor("character"))).toMatchObject({
+      ok: false,
+      refusal: { code: "NOT_AUTHORIZED" },
+    });
+  });
+});
+
 describe("group sign-off planning (specs/044-group-signoff/contracts/signoff.md)", () => {
   const cade: Proposer = { kind: "human", userId: PLAYER_B, role: "player" };
   const present = [PLAYER_A, PLAYER_B];

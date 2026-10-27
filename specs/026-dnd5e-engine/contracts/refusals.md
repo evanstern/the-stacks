@@ -1,7 +1,7 @@
 # Contract: refusals
 
 ```ts
-export const RefusalCodeSchema = z.enum([ /* the 26 codes below, in this order */ ]);
+export const RefusalCodeSchema = z.enum([ /* the 27 codes below, in this order */ ]);
 
 export const RefusalSchema = z.object({
   code: RefusalCodeSchema,
@@ -54,3 +54,4 @@ export const RefusalSchema = z.object({
 | 24 | `SLOT_LEVEL_UNAVAILABLE` | No slot of that level in that pool | `spell-slot.expend`, `spell-slot.restore` |
 | 25 | `NO_SLOT_AVAILABLE` | Every slot of that level and pool is expended | `spell-slot.expend` |
 | 26 | `SLOT_NOT_EXPENDED` | Restoring more slots than are expended | `spell-slot.restore` |
+| 27 | `ACTOR_UNABLE` | An unable attacker (`attack.roll`) or ability checker (`check.roll`): `unconscious` or `stable`, or an incapacitating condition. Amended 2026-10-27 (TASK-0112, operator ruling) | `attack.roll`, `check.roll` |

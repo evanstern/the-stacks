@@ -126,6 +126,53 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
     expect(committers).toContain("ai:companion:kestrel");
   });
 
+  it("stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112)", async () => {
+    const { scenario, dir } = variant((s) => {
+      s.ci.dmScript = new URL(
+        "./fixtures/downed-seat.json",
+        import.meta.url,
+      ).pathname;
+    });
+    const out = join(dir, "run");
+    const manifest = await runPlaytest({
+      db: db as NonNullable<typeof db>,
+      scenario,
+      mode: "ci",
+      out,
+      noAudit: true,
+    });
+    expect(manifest.outcome).toBe("stalled");
+    expect(manifest.stallReason).toBe("seat-downed");
+    // The seat drops in round 1 and never declares for the downed character.
+    expect(manifest.moves.refusals).toEqual([]);
+
+    const run = readRunDir(out);
+    const rows = run.transcript;
+    const downedAt = rows.findIndex(
+      (r) =>
+        r.type === "life-state.changed" &&
+        (r.payload as { event?: { combatantId?: string } }).event
+          ?.combatantId === "tamsin",
+    );
+    expect(downedAt).toBeGreaterThan(-1);
+    const after = rows.slice(downedAt);
+    const declaredBySeat = after.filter(
+      (r) =>
+        r.type === "action.declared" &&
+        (r.payload as { characterId?: string }).characterId === "tamsin",
+    );
+    expect(declaredBySeat).toEqual([]);
+    expect(
+      after.filter(
+        (r) =>
+          r.type === "dice.rolled" &&
+          (r.payload as { event?: { purpose?: string } }).event?.purpose ===
+            "death-save",
+      ).length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(manifest.scriptRemaining?.dice).toBe(0);
+  });
+
   it("ends stalled with artifacts saved when the move cap is reached", async () => {
     const { scenario, dir } = variant((s) => {
       s.limits.maxMoves = 2;

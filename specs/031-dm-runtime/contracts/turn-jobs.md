@@ -218,8 +218,7 @@ decision-0017 in place, as decision-0025 §4 directs. [resolve.md](resolve.md) "
 
 Decision-0025 §4 says: "`resolve`: action groups first, then the Director group, then the batch
 gate." Decision-0025 §4 names the Director group as one unit. This contract splits that unit
-into opening moves and closing moves. This split is the reading of decision-0025 §4 that the
-operator has not yet ratified (spec 045, OQ-1). Decision-0025 §4 gives the rationale: a Director
+into opening moves and closing moves. The operator approved this split on 2026-10-27 ("Approved"). Decision-0025 §4 gives the rationale: a Director
 move sees the results of the actions. Closing moves follow that rationale.
 
 Encounter start and scene-start setup are opening moves. An action may name a combatant that the

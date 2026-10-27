@@ -67,6 +67,15 @@ export type FactChange =
       target: string;
       op: "applied" | "removed";
       condition: string;
+    }
+  | {
+      kind: "death-saves";
+      target: string;
+      /** The tally after the save. */
+      successes: number;
+      failures: number;
+      /** True when the save added a failure; false when it added a success. */
+      failed: boolean;
     };
 
 export interface FactAction {
@@ -87,10 +96,20 @@ export interface FactNpcTurn {
   changes: FactChange[];
 }
 
+/** One combatant the turn passed over, with the death save settling rolled for it. */
+export interface FactSettled {
+  name: string;
+  rolls: FactRoll[];
+  outcomes: FactOutcome[];
+  changes: FactChange[];
+}
+
 export interface NarrationFacts {
   trigger: TurnTrigger;
   actions: FactAction[];
   npcTurn: FactNpcTurn | null;
+  /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
+  settled?: FactSettled[];
   director: {
     pacing: DirectorNodeOutput["pacing"];
     goalNote: string;
@@ -239,6 +258,16 @@ export function collectFacts(
         before: String(row.before),
         after: String(row.after),
       });
+    } else if (row.type === "death-saves.changed") {
+      const b = row.before as { successes: number; failures: number };
+      const a = row.after as { successes: number; failures: number };
+      out.changes.push({
+        kind: "death-saves",
+        target,
+        successes: a.successes,
+        failures: a.failures,
+        failed: a.failures > b.failures,
+      });
     } else if (row.type === "condition.applied") {
       const c = row.after as { condition: string };
       out.changes.push({
@@ -282,6 +311,11 @@ export function renderRollLine(roll: FactRoll): string {
 
 /** `<target> takes <n> <type> (<before>→<after> HP)`; healing reads "regains". */
 export function renderChangeLine(change: FactChange): string | null {
+  if (change.kind === "death-saves") {
+    const successes = change.successes === 1 ? "success" : "successes";
+    const failures = change.failures === 1 ? "failure" : "failures";
+    return `${change.target} death saves: ${change.successes} ${successes}, ${change.failures} ${failures}`;
+  }
   if (change.kind !== "hp") return null;
   const hp = `(${change.before}→${change.after} HP)`;
   if (change.direction === "heal") {
@@ -303,6 +337,7 @@ export function renderDiceLines(facts: NarrationFacts): string[] {
   };
   for (const a of facts.actions) push(a.rolls, a.changes);
   if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
+  for (const s of facts.settled ?? []) push(s.rolls, s.changes);
   return lines;
 }
 
@@ -450,6 +485,26 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     };
   }
 
+  // Settling (TASK-0112): the death saves rolled for combatants the turn passed.
+  const settleBatches = new Set(
+    input.resolve.submissions.flatMap((s) =>
+      s.key.startsWith("settle:") && s.key.endsWith(":save") && s.batchId
+        ? [s.batchId]
+        : [],
+    ),
+  );
+  const settled: FactSettled[] = [];
+  for (const batchId of settleBatches) {
+    const rows = p.ledger.filter((r) => r.batchId === batchId);
+    const first = rows.find((r) => r.kind === "roll");
+    const subject =
+      first && first.kind === "roll" ? first.roll.combatantId : null;
+    settled.push({
+      name: nameOf(subject),
+      ...collectFacts(rows, nameOf, types),
+    });
+  }
+
   const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
@@ -471,6 +526,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     trigger: input.trigger,
     actions,
     npcTurn,
+    ...(settled.length > 0 ? { settled } : {}),
     director: {
       pacing: input.director.pacing,
       goalNote: input.director.goalNote,
@@ -506,6 +562,7 @@ export function nothingToNarrate(facts: NarrationFacts): boolean {
     facts.trigger !== "scene-start" &&
     facts.actions.length === 0 &&
     facts.npcTurn === null &&
+    (facts.settled?.length ?? 0) === 0 &&
     facts.clarify.length === 0
   );
 }
