@@ -61,10 +61,10 @@ operator included, gets the player viewer with their own id.
 
 **Goal**: `docs/wiki/play-route.md` describes the new viewer rule and is pinned honestly.
 
-- [ ] T006 Classify the `play-route` pin: run `git diff <its verified_against>..HEAD -- <its sources>`. Expect NEEDS-REVIEW, because `viewer.ts` and `use-live-table.ts` changed behaviour.
-- [ ] T007 In `docs/wiki/play-route.md`, rewrite the `useLiveTable` bullet's viewer sentence: a user holding the human DM seat views as `{ role: "dm" }`; every other user, operator included, views as a player with their own id, matching the server's rule (TASK-0045, TASK-0118). Remove the "falls back to the account role" clause. Note that an operator reads DM-only data in the debug view (TASK-0117), not `/play`. Then re-pin `verified_against` to the Phase 1 commit or later.
-- [ ] T008 If `play-route`'s `description:` changed, regenerate `docs/wiki/CAPSULES.md`. Update the state paragraph in `docs/wiki/INDEX.md` with one clause for TASK-0118 only if the paragraph names the viewer fallback; otherwise leave `INDEX.md` unchanged and say so in the commit message.
-- [ ] T009 Run `pnpm ci:check`, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (expect `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (expect exit 0). Commit with a message led by `TASK-0118:`.
+- [x] T006 Classify the `play-route` pin: run `git diff <its verified_against>..HEAD -- <its sources>`. Expect NEEDS-REVIEW, because `viewer.ts` and `use-live-table.ts` changed behaviour.
+- [x] T007 In `docs/wiki/play-route.md`, rewrite the `useLiveTable` bullet's viewer sentence: a user holding the human DM seat views as `{ role: "dm" }`; every other user, operator included, views as a player with their own id, matching the server's rule (TASK-0045, TASK-0118). Remove the "falls back to the account role" clause. Note that an operator reads DM-only data in the debug view (TASK-0117), not `/play`. Then re-pin `verified_against` to the Phase 1 commit or later.
+- [x] T008 If `play-route`'s `description:` changed, regenerate `docs/wiki/CAPSULES.md`. Update the state paragraph in `docs/wiki/INDEX.md` with one clause for TASK-0118 only if the paragraph names the viewer fallback; otherwise leave `INDEX.md` unchanged and say so in the commit message.
+- [x] T009 Run `pnpm ci:check`, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (expect `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (expect exit 0). Commit with a message led by `TASK-0118:`.
 
 **Checkpoint**: wiki fresh; gates green; PR-ready.
 
