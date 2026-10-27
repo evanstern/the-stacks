@@ -4,7 +4,7 @@ title: 'Approval panel: suggest proposals offer no Approve control'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
-updated_date: '2026-10-27 10:33'
+updated_date: '2026-10-27 12:46'
 labels:
   - ui
   - gate
@@ -41,6 +41,8 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 The spec author stopped after spec.md (c53d50f). Dismiss reuses proposal.reject with reason null, so 029 and the gate do not change. OPERATOR RULING NEEDED, R1 (amends the frozen 030 proposal-seam.md): A (rec) add policy: 'ask'|'suggest' to PendingProposalView, copied from the projection; Dismiss calls the existing onReject(id, null). B: A plus a new onDismiss prop. C: approvable: boolean (fails AC #1). OQ-1 (no human-DM scene-change command) carded as TASK-0159 (m-3).
+
+Operator ruling 2026-10-27 (in chat, verbatim): "I accept the defaults: TASK-0100 R1 option A (policy on PendingProposalView, one amendment line in the frozen 030 proposal-seam.md, Dismiss via onReject(id, null))". R1 resolved: option A. Spec author resumes for plan.md and tasks.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
