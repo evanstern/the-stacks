@@ -87,7 +87,7 @@ export interface GateRefusal {
 | Source | Codes | When |
 |---|---|---|
 | `gate` | the list above | schema, permission, lifecycle and supervision checks; `CONFLICT` after three sequence conflicts |
-| `engine` | the engine's 26 `RefusalCode`s, unchanged (refusals.md) | `execute` returned `ok: false` (AC #8) |
+| `engine` | the engine's 27 `RefusalCode`s, unchanged (refusals.md). Amended 2026-10-27 (TASK-0112, operator ruling): the count was 26 before `ACTOR_UNABLE` | `execute` returned `ok: false` (AC #8) |
 | `append` | 028's `AppendRefusalCode`s | the session seam refused a planned row (a planner bug; tested as unreachable for every fixture) |
 
 Every refusal leaves the log unchanged. The planner runs fully before the first write, and

@@ -1,7 +1,7 @@
 import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
-import type { EngineState } from "../schema/state.js";
+import type { Combatant, EngineState } from "../schema/state.js";
 
 function d20Required(expression: string): RefusalResult {
   return refuse(
@@ -34,6 +34,46 @@ function checkNamed(
   return null;
 }
 
+/** Conditions that stop a combatant acting (attack rolls and ability checks). */
+const INCAPACITATING = [
+  "incapacitated",
+  "paralyzed",
+  "petrified",
+  "stunned",
+  "unconscious",
+] as const;
+
+function incapacitatingKeys(c: Combatant): string[] {
+  return c.conditions
+    .map((i) => i.condition as string)
+    .filter((k) => (INCAPACITATING as readonly string[]).includes(k));
+}
+
+/** True when the combatant is down (unconscious or stable) or holds an incapacitating condition. */
+function isUnable(c: Combatant): boolean {
+  return (
+    c.lifeState === "unconscious" ||
+    c.lifeState === "stable" ||
+    incapacitatingKeys(c).length > 0
+  );
+}
+
+function actorUnable(
+  state: EngineState,
+  id: string | null,
+  role: "attacker" | "checker",
+): RefusalResult | null {
+  if (id === null) return null;
+  const c = state.combatants[id];
+  if (!c || !isUnable(c)) return null;
+  return refuse("ACTOR_UNABLE", `combatant "${id}" cannot act`, {
+    combatantId: id,
+    role,
+    lifeState: c.lifeState,
+    conditions: incapacitatingKeys(c),
+  });
+}
+
 export const handleAttackRoll: Handler<"attack.roll"> = (
   state,
   command,
@@ -44,6 +84,8 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
   const named = checkNamed(state, [command.targetId, command.attackerId]);
   if (named) return named;
+  const unable = actorUnable(state, command.attackerId, "attacker");
+  if (unable) return unable;
   const target = state.combatants[command.targetId];
   const ac = command.targetAc ?? target?.ac ?? null;
   if (ac === null) {
@@ -101,6 +143,10 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
   if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
   const named = checkNamed(state, [command.combatantId]);
   if (named) return named;
+  if (command.kind === "ability-check") {
+    const unable = actorUnable(state, command.combatantId, "checker");
+    if (unable) return unable;
+  }
   const base = {
     type: "check.resolved" as const,
     v: 1 as const,

@@ -53,13 +53,13 @@ or ability checker before any die is drawn.
 **Independent test**: `pnpm --filter @the-stacks/dnd5e-engine test`. The new cases fail before
 T005 and pass after it.
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`. Merge `origin/main` into the branch as a merge
+- [x] T001 Run `pnpm install --frozen-lockfile`. Merge `origin/main` into the branch as a merge
       commit. Resolve no conflict by hand in `backlog/`; report one if it appears.
-- [ ] T002 In `specs/031-dm-runtime/contracts/turn-jobs.md` "Resolve order", replace the
+- [x] T002 In `specs/031-dm-runtime/contracts/turn-jobs.md` "Resolve order", replace the
       sentence saying the opening/closing split is the reading "the operator has not yet
       ratified (spec 045, OQ-1)". State that the operator approved it on 2026-10-27
       ("Approved"). Change nothing else in the section.
-- [ ] T003 [P] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add failing cases for
+- [x] T003 [P] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add failing cases for
       spec User Story 4, scenarios 1 to 7:
       - an unconscious attacker and a stable attacker;
       - an attacker with each condition `incapacitated`, `paralyzed`, `petrified`, `stunned`,
@@ -70,21 +70,21 @@ T005 and pass after it.
       - null ids (no check);
       - an unconscious target (accepted).
       Each refusal case asserts `scriptedRng(...).calls() === 0` and the `details` shape.
-- [ ] T004 Append `"ACTOR_UNABLE"` to `RefusalCodeSchema` in
+- [x] T004 Append `"ACTOR_UNABLE"` to `RefusalCodeSchema` in
       `packages/dnd5e-engine/src/schema/refusals.ts`.
-- [ ] T005 In `packages/dnd5e-engine/src/commands/attacks.ts`, add `INCAPACITATING` and
+- [x] T005 In `packages/dnd5e-engine/src/commands/attacks.ts`, add `INCAPACITATING` and
       `isUnable`. Refuse in `handleAttackRoll` and `handleCheckRoll` (ability checks only) after
       `checkNamed`, per plan D1.
-- [ ] T006 Confirm `test/coverage.test.ts` passes with the new code. Name the rule in
+- [x] T006 Confirm `test/coverage.test.ts` passes with the new code. Name the rule in
       `packages/dnd5e-engine/README.md` beside the dead-actor refusals.
-- [ ] T007 In `packages/session-model/test/catalog.test.ts`, add a case: an `action.resolved`
+- [x] T007 In `packages/session-model/test/catalog.test.ts`, add a case: an `action.resolved`
       payload with `outcome: "refused"` and `refusalCode: "ACTOR_UNABLE"` parses.
-- [ ] T008 Amend `specs/026-dnd5e-engine/contracts/refusals.md`: add row 27 `ACTOR_UNABLE`
+- [x] T008 Amend `specs/026-dnd5e-engine/contracts/refusals.md`: add row 27 `ACTOR_UNABLE`
       (when: an unable attacker or ability checker; commands: `attack.roll`, `check.roll`), and
       set the header count to 27.
-- [ ] T009 Amend `specs/029-proposal-gate/contracts/gate-api.md` §2: "the engine's 26
+- [x] T009 Amend `specs/029-proposal-gate/contracts/gate-api.md` §2: "the engine's 26
       `RefusalCode`s" becomes 27.
-- [ ] T010 Amend `specs/028-session-model/contracts/session-events.md` at
+- [x] T010 Amend `specs/028-session-model/contracts/session-events.md` at
       `action.resolved.refusalCode`. Note that the set follows the engine enum, that
       `ACTOR_UNABLE` was added 2026-10-27 (TASK-0112), and that the payload stays v1.
 
