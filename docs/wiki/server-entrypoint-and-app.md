@@ -6,7 +6,7 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # Server entrypoint and app
@@ -77,7 +77,7 @@ default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and
 (`Omit<AnswerDeps, "db">`, TASK-0027), [[rules-answerer]]; an absent `answer` makes
 `POST /library/ask` stream a single SSE `error` event, `{kind:"config"}`, rather than the
 `{error:{kind,...}}` JSON shape [[error-contract]] describes for non-streamed routes; `dm` is
-`{ nudge? }`, default a no-op, wired into `createDmRoutes` at `/dm`) and
+`{ nudge? }`, default a no-op, wired into `createDmRoutes` at `/dm`, plus [[debug-view]] routes) and
 returns a plain `Hono` app with no port bound. It builds one `identityLookup`
 (`createIdentityLookup({ db, validateSession })`, plan D2) shared by `/auth/me` and the web
 load context, so the two callers cannot drift. It registers, **in this exact order**:

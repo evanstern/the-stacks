@@ -50,3 +50,10 @@ Lists the session's DM jobs, newest first (`limit` 1..100). Each item:
 
 The list never includes prompt text, model output, or retrieved passages. Hashes stand in
 for prose (audit.md).
+
+## Debug routes (TASK-0116)
+
+Four read-only, operator-only `GET` routes sit beside the routes above: `events`, `jobs`,
+`seed` and `calls`, all under `/dm/sessions/:sessionId/`. Their request and response shapes
+live in [specs/037-debug-api/contracts/debug-api.md](../../037-debug-api/contracts/debug-api.md).
+The `GET .../turns` response above does not change.

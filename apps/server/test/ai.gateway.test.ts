@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { FakeProvider } from "../src/ai/adapters/fake.js";
 import type { AiConfig } from "../src/ai/config.js";
 import { createGateway } from "../src/ai/gateway.js";
-import type { ChatEvent } from "../src/ai/types.js";
+import type { ChatEvent, UsageRecord } from "../src/ai/types.js";
 import { memorySink } from "../src/ai/usage.js";
 
 /** Builds a gateway wired to one or more named fake providers, keyed by purpose. */
@@ -89,6 +89,71 @@ describe("gateway.chat", () => {
     // invariant 7: no prompt/completion text anywhere in the usage record.
     expect(JSON.stringify(sink.records[0])).not.toContain("secret prompt");
     expect(JSON.stringify(sink.records[0])).not.toContain("Hello");
+  });
+
+  it("fires onUsage once with the sink's record on done, error and cancel; never for an unknown purpose; a throwing onUsage is harmless", async () => {
+    const run = async (
+      script: ChatEvent[],
+      opts: { abort?: boolean; purpose?: string; throws?: boolean } = {},
+    ) => {
+      const provider = new FakeProvider();
+      provider.scriptChat(script);
+      const { gateway, sink } = buildGateway({ answering: provider });
+      const seen: UsageRecord[] = [];
+      const controller = new AbortController();
+      const events: ChatEvent[] = [];
+      for await (const event of gateway.chat({
+        purpose: opts.purpose ?? "answering",
+        messages: [],
+        signal: controller.signal,
+        onUsage: (r) => {
+          seen.push(r);
+          if (opts.throws) throw new Error("observer boom");
+        },
+      })) {
+        events.push(event);
+        if (opts.abort && event.type === "text") controller.abort();
+      }
+      return { seen, sink, events };
+    };
+    const done: ChatEvent = {
+      type: "done",
+      usage: { inputTokens: 1, outputTokens: 1 },
+    };
+
+    const ok = await run([{ type: "text", text: "a" }, done]);
+    expect(ok.seen).toHaveLength(1);
+    expect(ok.seen[0]).toEqual(ok.sink.records[0]);
+
+    const err = await run([
+      {
+        type: "error",
+        kind: "upstream",
+        message: "x",
+        usage: { inputTokens: 0, outputTokens: 0 },
+      },
+    ]);
+    expect(err.seen).toHaveLength(1);
+    expect(err.seen[0]).toEqual(err.sink.records[0]);
+    expect(err.seen[0]?.outcome).toBe("error");
+
+    const cancel = await run(
+      [{ type: "text", text: "a" }, { type: "text", text: "b" }, done],
+      { abort: true },
+    );
+    expect(cancel.seen).toHaveLength(1);
+    expect(cancel.seen[0]).toEqual(cancel.sink.records[0]);
+    expect(cancel.seen[0]?.outcome).toBe("cancelled");
+
+    const unknown = await run([], { purpose: "nope" });
+    expect(unknown.seen).toHaveLength(0);
+
+    const plain = await run([{ type: "text", text: "a" }, done]);
+    const thrown = await run([{ type: "text", text: "a" }, done], {
+      throws: true,
+    });
+    expect(thrown.events).toEqual(plain.events);
+    expect(thrown.sink.records).toHaveLength(1);
   });
 
   it("fails immediately with a config error naming the purpose, without calling any provider (US1 AC2, invariant 1)", async () => {

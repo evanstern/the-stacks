@@ -147,7 +147,7 @@ export function createGateway(opts: GatewayOptions): Gateway {
           usage,
         };
       } finally {
-        sink.record({
+        const record: UsageRecord = {
           purpose: req.purpose,
           provider: purpose.provider,
           model: purpose.model,
@@ -166,7 +166,13 @@ export function createGateway(opts: GatewayOptions): Gateway {
           attempts: usage.attempts ?? 1,
           outcome,
           at: new Date().toISOString(),
-        });
+        };
+        sink.record(record);
+        try {
+          req.onUsage?.(record);
+        } catch {
+          // A throwing observer must not break the stream.
+        }
       }
     },
 

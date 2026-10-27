@@ -11,7 +11,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # DM failure record and rules-term gates
@@ -20,7 +20,7 @@ Part of the DM runtime ([[dm-runtime]]); turn jobs are in [[dm-turn-jobs]]. The 
 normalizer is described in [[dm-runtime]].
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
-the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made, and
+the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
 `failure: { node, kind, message, detail }`. `kind` is a node error kind or `seed` (the bad-seed
 path, `detail: null`). An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`

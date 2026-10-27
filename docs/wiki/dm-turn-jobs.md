@@ -8,9 +8,12 @@ sources:
   - apps/server/src/dm/worker.ts
   - apps/server/src/dm/enqueue.ts
   - apps/server/src/schema/jobs.ts
+  - apps/server/src/schema/dm-model-calls.ts
+  - apps/server/src/dm/model-calls.ts
   - apps/server/drizzle/0004_glamorous_warlock.sql
+  - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # DM turn jobs
@@ -81,6 +84,21 @@ A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stoppe
 `message`, `detail`). The worker writes it for a node failure and for the bad-seed path (`kind`
 `seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim. Excerpt bounds
 and the `invalid-output` detail are in [[dm-runtime]].
+
+## Calls, usage and the ledger
+
+Each `ModelCallRecord` in `jobs.result.calls` carries `provider`, `model`, `inputTokens`,
+`outputTokens`, `costUsd` and `durationMs` (each null when the gateway emitted no usage record;
+TASK-0116, via `ChatRequest.onUsage`, [[ai-gateway]]). A `held` turn now keeps its calls in
+`jobs.result.calls` instead of `[]`. As each attempt ends, the worker's `recordCall` seam inserts
+one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
+id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts that
+`calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
+the ledger, not `calls`, is the cost authority. An insert failure logs
+`dm.call.record-failed` and never fails the job. Every submission names the seqs the gate
+returned: `Submission.seqs`, `TurnCheckpoint.narration.seqs`, `CompanionSubmission.seqs` and the
+chronicle's `seqs` (`[]` on a refusal or on a submission recovered after reclaim). That is the
+job-to-event link; routes in [[debug-view]].
 
 ## Reconcile
 
