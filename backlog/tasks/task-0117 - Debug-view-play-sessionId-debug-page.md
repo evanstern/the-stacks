@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 04:34'
+updated_date: '2026-10-27 05:24'
 labels:
   - debug-view
   - web
@@ -42,7 +42,7 @@ Spec: specs/041-debug-page
 - [ ] #8 Seed, ledger, journal and cost-total panels open as slide-out Panels; the page uses no modals.
 - [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
-- [ ] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
+- [x] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
 - [ ] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
 - [ ] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
 - [ ] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
@@ -62,6 +62,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 ORCHESTRATOR NOTES 2026-10-27 on spec open questions: Q1 the page ships wherever the app runs behind the operator role, following the operator's TASK-0116 ruling 'Ship everywhere' (to confirm with the operator at PR). Q2 Phase 6 decides the fake-gateway config; if neither outcome gives a useful turn, the Phase 6 implementer scripts one in the test harness style. Q3 carded as revisit (windowed fetch). Q4/Q5: TASK-0116 merged (#62, 654ad7b) — merge origin/main before Phase 1. Brave screenshots (Phase 6) are taken by the operator (ruling 2026-10-27).
 
 OPERATOR RULING 2026-10-27 (in chat): 'I take them in Brave'. Agents cannot drive Brave; the operator takes the merge-condition screenshots (light and dark) from steps the orchestrator gives. Gate unchanged.
+
+Phase 1 done (86a9b63): debug data layer.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
