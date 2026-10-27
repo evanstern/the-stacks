@@ -21,7 +21,8 @@ export const SeedNpc = z.object({
   identity: z.object({
     role: Text(100),
     srdMonsterId: z.string().min(1).nullable(),   // must exist in @the-stacks/srd when set
-    combatant: RefIdSchema.nullable(),             // the encounter combatantId it fights as
+    combatant: RefIdSchema.nullable(),             // the encounter combatantId it fights as; when set, equals `id`
+    aliases: z.array(Text(60)).max(6).default([]), // authored alternate names (spec 050)
   }),
   portrayal: z.object({ voice: Text(300), want: Text(300), detail: Text(300), appearance: Text(300) }),
   hooks: z.object({
@@ -74,6 +75,7 @@ export const SceneSeedSchema = z.object({
                         dc: z.number().int().min(5).max(30) }).nullable(),
     })).max(8),
     npcIds: z.array(RefIdSchema).max(8),
+    presence: z.record(RefIdSchema, ScenePresenceSchema), // one value per seed NPC (spec 050)
     encounterId: RefIdSchema.nullable(),
   })).min(1).max(12),
   npcs: z.array(SeedNpc).max(20),
@@ -94,6 +96,21 @@ export const SceneSeedSchema = z.object({
 
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
 
+### Amended by specs/050-seed-npc-presence
+
+Amended 2026-10-27 (TASK-0142, operator ruling OQ-1): "I accept the recommended defaults OQ-1
+to OQ-6 (a), including the frozen 029 and 031 amendments". OQ-1 (a): a required
+`beats[].presence` map per beat covers every seed NPC; `npcIds` stays and is cross-checked;
+seed `v` stays 1. `beats[0]` is the opening beat: its `presence` is each NPC's value at scene
+start.
+
+Amended 2026-10-27 (TASK-0142, operator ruling OQ-5): OQ-5 (a): `identity.combatant`, when
+set, equals the NPC `id` and names an encounter monster.
+
+Amended 2026-10-27 (TASK-0142, operator ruling OQ-6): OQ-6 (a): optional `identity.aliases`,
+at most 6 strings of 1-60 characters. Greyhollow: Wenna "the keeper", Pell "the boy", Snag
+"the goblin leader".
+
 Amended by specs/034-narration-quality/contracts/player-facing-context.md.
 
 ## Loader
@@ -113,7 +130,11 @@ export class SeedError extends Error { readonly issues: string[]; }
    - every character's `combatant.id` equals its `characterId`;
    - every attack `expression` parses with the engine's `parseDiceExpression` and has a
      plain d20 term; every damage `dice` parses;
-   - exactly one character has `seat: "human"` (M2 seats one human, decision-0014).
+   - exactly one character has `seat: "human"` (M2 seats one human, decision-0014);
+   - every beat's `presence` keys equal the seed's NPC ids, and no `npcIds` entry is
+     `absent` in the same beat's `presence`;
+   - every NPC's `identity.combatant`, when set, equals the NPC `id` and names an encounter
+     monster `combatantId`.
 4. A failure throws `SeedError` listing every issue. The start route returns `400
    validation` with them.
 

@@ -3,7 +3,11 @@ import {
   type EngineCommand,
   EngineCommandSchema,
 } from "@the-stacks/dnd5e-engine";
-import { CombatantIdSchema, RefIdSchema } from "@the-stacks/session-model";
+import {
+  CombatantIdSchema,
+  RefIdSchema,
+  ScenePresenceSchema,
+} from "@the-stacks/session-model";
 import { z } from "zod";
 import { SkillSchema } from "../nodes/schemas.js";
 
@@ -52,6 +56,7 @@ export const SeedNpc = z.object({
     role: Text(100),
     srdMonsterId: z.string().min(1).nullable(),
     combatant: RefIdSchema.nullable(),
+    aliases: z.array(Text(60)).max(6).default([]),
   }),
   portrayal: Portrayal,
   hooks: Hooks,
@@ -137,6 +142,7 @@ export const SceneSeedSchema = z.object({
           )
           .max(8),
         npcIds: z.array(RefIdSchema).max(8),
+        presence: z.record(RefIdSchema, ScenePresenceSchema),
         encounterId: RefIdSchema.nullable(),
       }),
     )

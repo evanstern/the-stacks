@@ -61,31 +61,31 @@ and carries authored aliases. The loader refuses every breach.
 
 ### Tests first
 
-- [ ] T001 [US1] In `apps/server/test/dm/seed.test.ts`, add tests that fail today:
+- [x] T001 [US1] In `apps/server/test/dm/seed.test.ts`, add tests that fail today:
       the shipped seed's beats carry `presence` for `wenna`, `pell` and `snag` with the plan D2
       values; and `issuesFor` refusals for: a beat missing an NPC key, a beat with an unknown
       key, a beat whose `npcIds` names an NPC it declares `absent`, an NPC whose
       `identity.combatant` differs from its `id`, an NPC whose `identity.combatant` names no
       encounter monster, an alias over 60 characters, and seven aliases. Assert each issue text
       names the beat or NPC (plan D1).
-- [ ] T002 [US1] [P] In the same file, assert `parseSeed` yields `identity.aliases` `[]` for an
+- [x] T002 [US1] [P] In the same file, assert `parseSeed` yields `identity.aliases` `[]` for an
       NPC with no `aliases`, and the plan D2 aliases on the shipped seed.
 
 ### Implementation
 
-- [ ] T003 [US1] In `apps/server/src/dm/seed/schema.ts`, add `beats[].presence`
+- [x] T003 [US1] In `apps/server/src/dm/seed/schema.ts`, add `beats[].presence`
       (`z.record(RefIdSchema, ScenePresenceSchema)`, required, `ScenePresenceSchema` imported
       from `@the-stacks/session-model`) and `SeedNpc.identity.aliases`
       (`z.array(Text(60)).max(6).default([])`).
-- [ ] T004 [US1] In `apps/server/src/dm/seed/load.ts` `crossCheckSeed`, add the three plan D1
+- [x] T004 [US1] In `apps/server/src/dm/seed/load.ts` `crossCheckSeed`, add the three plan D1
       checks with the plan D1 issue texts.
-- [ ] T005 [US1] Edit `apps/server/seeds/greyhollow-ford.json` to the plan D2 presence maps and
+- [x] T005 [US1] Edit `apps/server/seeds/greyhollow-ford.json` to the plan D2 presence maps and
       aliases. Apply the same edit to `specs/031-dm-runtime/data/greyhollow-ford.seed.json` so
       the existing copy-equality test passes.
-- [ ] T006 [US1] Amend `specs/031-dm-runtime/contracts/scene-seed.md`: the `presence` map in the
+- [x] T006 [US1] Amend `specs/031-dm-runtime/contracts/scene-seed.md`: the `presence` map in the
       schema block, `beats[0]` as the opening beat, the identity rule, `aliases`, and the new
       loader checks (contract `seed-presence.md` §1). Add the amendment line quoting the ruling.
-- [ ] T007 [US1] Run `pnpm typecheck`. Fix any type error in tests that build a `SceneSeed` by
+- [x] T007 [US1] Run `pnpm typecheck`. Fix any type error in tests that build a `SceneSeed` by
       hand (for example `snapshot-render.test.ts` `big()`), without changing what they assert.
 
 **Checkpoint**: the seed loads; every breach is refused with its issue.
