@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:12'
+updated_date: '2026-10-27 10:15'
 labels:
   - playtest
   - harness
@@ -29,11 +29,11 @@ Spec: specs/046-downed-hero-gate
 <!-- AC:BEGIN -->
 - [ ] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
-- [ ] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
+- [x] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
 - [ ] #4 Death-save turns for unconscious PCs still run (U6)
 - [ ] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
 - [ ] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
-- [ ] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
+- [x] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
 - [ ] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
 - [ ] #9 Spec phase: Plan gate against S0 (card AC #6)
 - [ ] #10 Spec phase: Death-save turns by settling (card AC #4)
@@ -60,6 +60,8 @@ OPERATOR RULING 2026-10-27 (in chat): "TASK-0112: I accept OQ-1 (a) CHARACTER_UN
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (Spec authoring resumed after the operator ruling: plan and tasks, commit 44601a4. Six phases. FR-026 fixes the stale sentence in turn-jobs.md.)
+
+Phase 1 done (45991b9): origin/main merged (9ad8aa9); turn-jobs Resolve order records operator approval; engine ACTOR_UNABLE (attack.roll, ability-check check.roll) with tests; contracts amended (026 row 27, 029 engine count 27, 028 refusalCode note); session-model catalog test. Engine 228 and session-model 600 tests green; ci:check fails only on the 5 adjudicate.integration tests (no stack, TASK-0138).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
