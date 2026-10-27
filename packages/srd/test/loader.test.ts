@@ -11,7 +11,7 @@ import {
   SrdDataError,
 } from "../src/index.js";
 import { createLoader } from "../src/loader.js";
-import { KINDS, readData } from "./helpers.js";
+import { KINDS, readData, ruleFixture } from "./helpers.js";
 
 const SAMPLE: Record<(typeof KINDS)[number], { id: string; name: string }> = {
   monster: { id: "goblin-warrior", name: "Goblin Warrior" },
@@ -43,6 +43,43 @@ describe.each(KINDS)("%s lookups", (kind) => {
     expect(getById(kind, "no-such-record")).toBeUndefined();
     expect(getByName(kind, "No Such Record")).toBeUndefined();
     expect(compact(kind, "No Such Record")).toBeUndefined();
+  });
+});
+
+describe("rule lookups", () => {
+  const sample = {
+    id: "playing-the-game.d20-tests.ability-checks.difficulty-class",
+    name: "Playing the Game › D20 Tests › Ability Checks › Difficulty Class",
+  };
+
+  it("list returns every shipped record", () => {
+    expect(list("rule").length).toBe(readData("rule").length);
+    expect(list("rule").length).toBeGreaterThan(0);
+  });
+
+  it("resolves by id and by full name to the same record", () => {
+    const byId = getById("rule", sample.id);
+    expect(byId?.name).toBe(sample.name);
+    expect(getByName("rule", sample.name)).toBe(byId);
+  });
+
+  it("resolves case and spacing variants", () => {
+    const variant = `  ${sample.name.toUpperCase().replace(/ /g, "   ")} `;
+    expect(getByName("rule", variant)?.id).toBe(sample.id);
+  });
+
+  it("gives undefined for unknown id and name", () => {
+    expect(getById("rule", "no-such-record")).toBeUndefined();
+    expect(getByName("rule", "No Such Record")).toBeUndefined();
+    expect(compact("rule", "No Such Record")).toBeUndefined();
+  });
+
+  it("compact resolves a rule by id and names children by title", () => {
+    const text = compact("rule", "playing-the-game.combat");
+    expect(text).toMatch(/^Combat \[rule\/playing-the-game\.combat\]/);
+    expect(text).toContain(
+      "See: The Order of Combat, Movement and Position, Making an Attack, Cover, Ranged Attacks, Melee Attacks, Mounted Combat, Underwater Combat",
+    );
   });
 });
 
@@ -132,5 +169,57 @@ describe("data validation", () => {
 
   it("caches: a second call returns the same array", () => {
     expect(list("condition")).toBe(list("condition"));
+  });
+});
+
+describe("rule lookups (temp data directory)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "srd-rule-"));
+  const rules = [
+    ruleFixture({
+      id: "playing-the-game.d20-tests.ability-checks",
+      name: "Playing the Game › D20 Tests › Ability Checks",
+      title: "Ability Checks",
+      path: ["Playing the Game", "D20 Tests", "Ability Checks"],
+    }),
+    ruleFixture({
+      id: "playing-the-game.the-six-abilities.ability-checks",
+      name: "Playing the Game › The Six Abilities › Ability Checks",
+      title: "Ability Checks",
+      path: ["Playing the Game", "The Six Abilities", "Ability Checks"],
+    }),
+  ];
+  writeFileSync(join(dir, "rule.json"), JSON.stringify(rules));
+  const loader = createLoader(dir);
+
+  it("getById resolves a heading-path id", () => {
+    expect(
+      loader.getById("rule", "playing-the-game.d20-tests.ability-checks")
+        ?.title,
+    ).toBe("Ability Checks");
+  });
+
+  it("getByName resolves the full path name", () => {
+    expect(
+      loader.getByName(
+        "rule",
+        "playing the game › the six abilities › ability checks",
+      )?.id,
+    ).toBe("playing-the-game.the-six-abilities.ability-checks");
+  });
+
+  it("a miss returns undefined", () => {
+    expect(loader.getById("rule", "playing-the-game.nope")).toBeUndefined();
+    expect(loader.getByName("rule", "Ability Checks")).toBeUndefined();
+    expect(loader.compact("rule", "nope")).toBeUndefined();
+  });
+
+  it("two records sharing a bare title load without a duplicate-name error", () => {
+    expect(loader.list("rule")).toHaveLength(2);
+  });
+
+  it("compact resolves a rule by id", () => {
+    expect(
+      loader.compact("rule", "playing-the-game.d20-tests.ability-checks"),
+    ).toContain("[rule/playing-the-game.d20-tests.ability-checks]");
   });
 });

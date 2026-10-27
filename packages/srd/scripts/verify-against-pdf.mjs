@@ -237,6 +237,77 @@ for (const c of read("data/condition.json")) {
   add("condition", c, miss);
 }
 
+// ---- rules: every block of every record must appear on its pages (page..pageEnd).
+// Comparison key: lower case, letters and digits only, so line breaks, hyphenation and quote style drop out.
+const key = (s) => norm(String(s)).replace(/[^a-z0-9]+/g, "");
+const blockKey = (blocks) =>
+  key(
+    blocks
+      .map((b) =>
+        b.type === "text"
+          ? b.text
+          : b.type === "list"
+            ? b.items.join(" ")
+            : `${b.title ?? ""} ${b.columns.join(" ")} ${b.rows.flat().join(" ")}`,
+      )
+      .join(" "),
+  );
+const WINDOW = 28;
+const ruleRecords = read("data/rule.json");
+for (const r of ruleRecords) {
+  const miss = [];
+  const rangeRaw = rangeText(r.source.page, r.pageEnd);
+  const hay = key(rangeRaw).replace(/systemreferencedocument521\d{0,3}/g, "");
+  // A sidebar printed inside a paragraph splits it in the text stream. Second haystack: the same
+  // pages with every other overlapping record's text taken out.
+  let hay2 = null;
+  const flowHay = () => {
+    if (hay2 === null) {
+      hay2 = hay;
+      for (const o of ruleRecords) {
+        if (o === r || o.blocks.length === 0) continue;
+        if (o.source.page > r.pageEnd || o.pageEnd < r.source.page) continue;
+        hay2 = hay2.replace(blockKey(o.blocks), "");
+        hay2 = hay2.replace(key(o.title), "");
+      }
+    }
+    return hay2;
+  };
+  const found = (k) => hay.includes(k) || flowHay().includes(k);
+  const need = (label, text) => {
+    const k = key(text);
+    if (k === "") return;
+    // Short strings must appear whole; long ones in consecutive windows.
+    for (let i = 0; i < k.length; i += WINDOW) {
+      const piece = k.slice(
+        i,
+        i + Math.max(WINDOW, Math.min(k.length - i, WINDOW * 2 - 1)),
+      );
+      if (!found(piece)) {
+        miss.push(`${label}: ${String(text).slice(0, 60)}`);
+        return;
+      }
+      if (k.length - i < WINDOW * 2) return;
+    }
+  };
+  r.blocks.forEach((b, i) => {
+    if (b.type === "text") {
+      need(`text[${i}]`, b.text);
+      for (const n of numbersMissing(b.text, rangeRaw))
+        miss.push(`number in text[${i}]: ${n}`);
+    } else if (b.type === "list") {
+      for (const item of b.items) need(`list[${i}]`, item);
+    } else {
+      need(`table[${i}] title`, b.title ?? "");
+      for (const c of b.columns)
+        need(`table[${i}] column`, c.replace(/^Distance Traveled Per /, ""));
+      for (const row of b.rows)
+        for (const cell of row) need(`table[${i}] cell`, cell);
+    }
+  });
+  add("rule", r, miss);
+}
+
 const bad = out.filter((r) => !r.ok);
 writeFileSync(
   join(pkg, "provenance", "verification.json"),
