@@ -134,29 +134,29 @@ that already moved; a human's floor row queues the AI follow-up once.
 
 **Independent test**: `REQUIRE_DATABASE=1 pnpm --filter server test -- gate.floor resolve`.
 
-- [ ] T014 [P] [US2] Write `apps/server/test/gate.floor.integration.test.ts` (DB, two human seats
+- [x] T014 [P] [US2] Write `apps/server/test/gate.floor.integration.test.ts` (DB, two human seats
       and a seated human DM): End turn by the active human lands one batch; the other human is
       refused `FLOOR_NOT_HELD` with the log unchanged; a stale `turn` is `TURN_MOVED`; Pass, Take
       floor, Return floor by the DM; a player commit while held is `COMMIT_NOT_ALLOWED`; every
       subscriber receives the `table-mode.changed` row.
-- [ ] T015 [US2] Make `apps/server/src/dm/nodes/resolve.ts` and `apps/server/src/dm/nodes/settle.ts`
+- [x] T015 [US2] Make `apps/server/src/dm/nodes/resolve.ts` and `apps/server/src/dm/nodes/settle.ts`
       import `activeActorFor`, `canAct` and `nextSettleStep` from `@the-stacks/session-model`;
       delete the local copies. Keep settle's checkpoint keys. The spec 046 settle tests stay green.
-- [ ] T016 [US2] In `apps/server/src/dm/nodes/resolve.ts` extend spec 048's `activeAtStart` to a
+- [x] T016 [US2] In `apps/server/src/dm/nodes/resolve.ts` extend spec 048's `activeAtStart` to a
       turn `{ round, activeCombatantId }` and add the `moved` and `held` skips to the turn-advance
       group (research R7, `contracts/floor-jobs.md` "Resolve").
-- [ ] T017 [P] [US2] Extend `apps/server/test/dm/resolve.integration.test.ts`: End turn lands
+- [x] T017 [P] [US2] Extend `apps/server/test/dm/resolve.integration.test.ts`: End turn lands
       while a turn job resolves the same action → exactly one `turn.advance` for that turn; a held
       floor → no advance; spec 048's fled-active case is unchanged.
-- [ ] T018 [US2] In `apps/server/src/dm/enqueue.ts` queue the follow-up for a turn-mode
+- [x] T018 [US2] In `apps/server/src/dm/enqueue.ts` queue the follow-up for a turn-mode
       `table-mode.changed` row whose actor is a human: `ai:dm` → `enqueueTurn("npc-turn")`;
       `ai:companion:<id>` → companion job reason `turn` (research R8).
-- [ ] T019 [P] [US2] Test T018 in `apps/server/test/dm/jobs.integration.test.ts` (or a new
+- [x] T019 [P] [US2] Test T018 in `apps/server/test/dm/jobs.integration.test.ts` (or a new
       `apps/server/test/dm/enqueue-floor.integration.test.ts`): a human row queues one follow-up;
       an `ai:dm` row (resolve's) queues none.
-- [ ] T020 [US3] Confirm `apps/server/src/gate/gate.ts` fills `PlanContext.present` for `floor` and
+- [x] T020 [US3] Confirm `apps/server/src/gate/gate.ts` fills `PlanContext.present` for `floor` and
       `action.commit`; change it only if it does not.
-- [ ] T021 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md` (the one "turn moved" guard,
+- [x] T021 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md` (the one "turn moved" guard,
       shared rules) and the `turn-jobs.md` enqueue table (the human-row follow-up) with the
       amendment line (FT-1, FT-3, Q6).
 

@@ -161,7 +161,13 @@ it with `gate.onAppended`. For each call:
    `ai:companion:<id>` → `enqueueCompanionReact(sessionId, id, { quietMs, maxWaitMs })`.
    Comments by any `ai:` actor queue none. A failure is logged and never fails the human's
    submission. Amended by specs/036-companion-react.
-4. Call `nudge()` so the worker polls at once.
+4. For each `table-mode.changed` row in turn mode whose actor is a human (a `floor` request:
+   End turn, Pass, Take floor or Return floor): `after` names `ai:dm` →
+   `enqueueTurn(sessionId, "npc-turn", seq)`; `after` names `ai:companion:<id>` →
+   `enqueueCompanion` with reason `turn` for that character. Rows written by `ai:dm` queue
+   none: their producer (resolve's `nextJob`) queues its own follow-up. Amended 2026-10-27
+   (TASK-0050, operator rulings FT-3, Q6; specs/049-turn-floor R8).
+5. Call `nudge()` so the worker polls at once.
 
 `enqueueTurn` is `INSERT … ON CONFLICT ON jobs_turn_queued_key DO NOTHING`. A queued job
 already covers the next beat. A listener failure is logged, and FR-008's reconcile repairs

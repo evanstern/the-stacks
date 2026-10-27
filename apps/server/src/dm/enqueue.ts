@@ -1,9 +1,14 @@
 import type {
   SessionProjections,
   StoredEvent,
+  TableMode,
 } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
-import { enqueueCompanionReact, enqueueTurn } from "./jobs.js";
+import {
+  enqueueCompanion,
+  enqueueCompanionReact,
+  enqueueTurn,
+} from "./jobs.js";
 
 /**
  * The gate listener (contracts/turn-jobs.md "Enqueue"). Registered with
@@ -14,7 +19,11 @@ import { enqueueCompanionReact, enqueueTurn } from "./jobs.js";
  *    `ai:dm` enqueues a turn (`approval`), so the DM resumes.
  * 3. A human `action.commented` row on an open action of an AI companion
  *    queues a coalesced `react` companion job (specs/036-companion-react).
- * 4. `nudge()` wakes the worker.
+ * 4. A turn-mode `table-mode.changed` row written by a human (a floor request,
+ *    specs/049-turn-floor R8) queues the AI follow-up: `ai:dm` active queues an
+ *    `npc-turn`, a companion active queues a companion `turn` job. Rows written
+ *    by `ai:dm` queue none: their producer queues its own follow-up.
+ * 5. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -78,9 +87,36 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     return [...companions];
   }
 
+  /** The follow-up for each human-written turn-mode `table-mode.changed` row (R8). */
+  async function floorFollowUps(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    for (const row of rows) {
+      if (row.type !== "table-mode.changed") continue;
+      if (row.actor.startsWith("ai:") || row.actor === "system") continue;
+      const after = (row.payload as { after?: TableMode }).after;
+      if (after?.mode !== "turn") continue;
+      if (after.activeActor === "ai:dm") {
+        await enqueueTurn(deps.db, sessionId, "npc-turn", row.seq);
+      } else if (
+        after.activeActor.startsWith("ai:companion:") &&
+        after.activeCharacterId
+      ) {
+        await enqueueCompanion(deps.db, {
+          sessionId,
+          companions: [after.activeCharacterId],
+          reason: "turn",
+          beatJobId: null,
+        });
+      }
+    }
+  }
+
   return {
     async onAppended(sessionId, rows) {
       try {
+        await floorFollowUps(sessionId, rows);
         const committed = rows.find((r) => r.type === "action.committed");
         if (committed) {
           await enqueueTurn(deps.db, sessionId, "commit", committed.seq);
