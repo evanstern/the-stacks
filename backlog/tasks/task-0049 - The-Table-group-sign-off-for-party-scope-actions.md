@@ -23,6 +23,8 @@ ordinal: 39000
 Outcome: a party-scope action (for example "we take the left tunnel" or "we long rest") commits only after the party signs off, in any table mode. Each player approves or objects. The DM may commit or override at any time.
 
 Why: decision-0016 commit-authority table, party-scope row. In M2 a single human makes every party call; with several humans the gate needs a sign-off policy. It reuses the proposal gate (decision-0015); it is a policy, not a new mechanism.
+
+Spec: specs/044-group-signoff
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
