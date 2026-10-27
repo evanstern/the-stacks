@@ -4,6 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
+updated_date: '2026-10-27 02:34'
 labels:
   - dm
   - engine
@@ -26,6 +27,12 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 - [ ] #1 A test reproduces rows 260-265: the action whose resolution ends the encounter resolves applied
 - [ ] #2 The resolution order (encounter end versus action resolution) is documented in the turn-jobs contract
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-10-27 (via parent session local_415a1f81): "Leave TASK-0110 in m-3: the demo never hit it." It stays in m-3 and does not block M2 close. This answers next action 1 of the runbook handoff of 2026-10-27.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

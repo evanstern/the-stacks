@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
+updated_date: '2026-10-27 02:33'
 labels:
   - revisit
   - engine
@@ -34,6 +35,12 @@ Why: decision-0021 parked two ideas because the operator was unsure: the Grit sa
 - [ ] #3 A decision record adopts, adapts or rejects fight budgeting and the downed-target table.
 - [ ] #4 Each adopted rule gets its own board card with acceptance criteria.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+RESEARCH FINDINGS 2026-10-26 (TASK-0115, branch Resolution-and-Outcome, note Outcome-Shapes): DMG 2014 Ch 9 Combat Options offers optional Injuries (on a critical hit, drop to 0 HP, or death save failed by 5 or more; a variant hands the injury to the player as a flaw to portray), Massive Damage (half HP max from one source forces a DC 15 Con save or a System Shock roll), Hitting Cover, Cleaving and Morale (monsters and NPCs only). None are in SRD 5.2.1. Branch 5 (TASK-0122) researches these against TASK-0048 evidence. The half-HP threshold is already used as the heavy-hit reflex trigger in TASK-0113 (narration colour only, no mechanics).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

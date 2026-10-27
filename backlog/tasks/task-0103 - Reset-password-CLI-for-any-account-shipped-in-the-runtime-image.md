@@ -4,6 +4,7 @@ title: 'Reset-password CLI for any account, shipped in the runtime image'
 status: To Do
 assignee: []
 created_date: '2026-10-26 15:29'
+updated_date: '2026-10-26 20:26'
 labels:
   - auth
   - ops
@@ -30,6 +31,12 @@ An operator who forgets a password has no supported way back in. Passwords are s
 - [ ] #7 Tests cover success, unknown user, mismatch and session invalidation
 - [ ] #8 docs/ops/dev-vm-104.md documents the exact reset command for hosted dev
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Finding 2026-10-26 (M2 demo prep): the existing create-operator CLI ECHOES the password as it is typed (seen in the operator's terminal on the TASK-0048 stack). The reset CLI's no-echo requirement (AC #2) should apply to create-operator too; share the prompt helper.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
