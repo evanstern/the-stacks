@@ -22,6 +22,8 @@ ordinal: 104000
 Outcome: a companion's declared-but-uncommitted action always reaches a resolution. A human's comment, approval or objection on it re-runs that companion, which can then commit, revise or withdraw the action, so the table never waits on a companion that will not act again.
 
 Evidence: M2 demo (TASK-0048), session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd, recurring. Odo declared act-odo-1 at seq 35 without committing; the human's comment and approval (seq 37-38) changed nothing, and the card showed 'Waiting for Brother Odo to commit' indefinitely. Companion jobs run only after a DM turn ('prompt') or when a hold ends (apps/server/src/dm/companion.ts, apps/server/src/dm/worker.ts:300). Workaround: the human commits their own action to start the next turn. Operator ruling 2026-10-26: keep playing with the workaround; card it in m-3. Preferred fix offered: a 'react' companion job enqueued on a human reaction to a companion's pending action.
+
+Spec: specs/036-companion-react
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
