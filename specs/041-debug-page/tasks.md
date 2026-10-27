@@ -29,19 +29,19 @@ fake `fetch`, fake timers and a fake visibility source.
 
 ### Tests first
 
-- [ ] T001 [P] Write `apps/web/test/debug/read-result.test.mjs`: a finished turn, a failed turn (failure + excerpts), a held turn, a running turn (checkpoint only), a queued job (`null`), a companion result, a chronicle result; a call without usage fields reads `usage: null`; a submission without `seqs` reads `seqs: undefined`; `narration` without `seqs` reads `undefined`; `null`, `42`, `{}` and `{ checkpoint: "x" }` never throw.
-- [ ] T002 [P] Write `apps/web/test/debug/client.test.mjs`: each method builds the contract URL (`/dm/sessions/<id>/events?after=&limit=`, `/jobs?limit=50[&before=]`, `/calls?after=&limit=`, `/seed`, `POST /turn`) with `credentials: "same-origin"`; 401 and 403 map to `{ kind: "auth" }`; 500 to `http`; a thrown fetch to `network`; seed 404 → `{ kind: "none" }`, 409 → `{ kind: "failed" }`.
-- [ ] T003 [P] Write `apps/web/test/debug/snapshot.test.mjs`: `mergeEvents` keeps ascending seq and drops duplicates, sets `lastEventAt` only when a new seq arrives; `mergeJobs` replaces by id; `mergeOlderJobs` adds without replacing newer copies; `mergeCalls` keeps ascending id and replaces `totals`; reducers never mutate input.
-- [ ] T004 [P] Write `apps/web/test/debug/activity.test.mjs`: active with a queued job, with a running job, with `lastEventAt` 29 s ago, with a retry 29 s ago; idle at 31 s with only terminal jobs; `nextDelayMs` returns 2000 and 10000.
-- [ ] T005 [P] Write `apps/web/test/debug/poller.test.mjs`: ticks never overlap (a 5 s tick delays the next); the delay follows `delayMs()` after each tick; `kick()` ticks at once and cancels the pending wait; hidden → no tick scheduled; visible → immediate tick; a tick that reports an auth error stops the poller.
+- [x] T001 [P] Write `apps/web/test/debug/read-result.test.mjs`: a finished turn, a failed turn (failure + excerpts), a held turn, a running turn (checkpoint only), a queued job (`null`), a companion result, a chronicle result; a call without usage fields reads `usage: null`; a submission without `seqs` reads `seqs: undefined`; `narration` without `seqs` reads `undefined`; `null`, `42`, `{}` and `{ checkpoint: "x" }` never throw.
+- [x] T002 [P] Write `apps/web/test/debug/client.test.mjs`: each method builds the contract URL (`/dm/sessions/<id>/events?after=&limit=`, `/jobs?limit=50[&before=]`, `/calls?after=&limit=`, `/seed`, `POST /turn`) with `credentials: "same-origin"`; 401 and 403 map to `{ kind: "auth" }`; 500 to `http`; a thrown fetch to `network`; seed 404 → `{ kind: "none" }`, 409 → `{ kind: "failed" }`.
+- [x] T003 [P] Write `apps/web/test/debug/snapshot.test.mjs`: `mergeEvents` keeps ascending seq and drops duplicates, sets `lastEventAt` only when a new seq arrives; `mergeJobs` replaces by id; `mergeOlderJobs` adds without replacing newer copies; `mergeCalls` keeps ascending id and replaces `totals`; reducers never mutate input.
+- [x] T004 [P] Write `apps/web/test/debug/activity.test.mjs`: active with a queued job, with a running job, with `lastEventAt` 29 s ago, with a retry 29 s ago; idle at 31 s with only terminal jobs; `nextDelayMs` returns 2000 and 10000.
+- [x] T005 [P] Write `apps/web/test/debug/poller.test.mjs`: ticks never overlap (a 5 s tick delays the next); the delay follows `delayMs()` after each tick; `kick()` ticks at once and cancels the pending wait; hidden → no tick scheduled; visible → immediate tick; a tick that reports an auth error stops the poller.
 
 ### Implementation
 
-- [ ] T006 [P] Create `apps/web/app/debug/api-types.ts` (type-only mirrors per data-model.md "Wire mirrors").
-- [ ] T007 [P] Implement `apps/web/app/debug/read-result.ts` (`readTurnResult`, `readCompanionResult`, `readChronicleResult`, `readTrigger`) per data-model.md and research R5.
-- [ ] T008 [P] Implement `apps/web/app/debug/client.ts` (`createDebugClient(sessionId, fetchImpl)`; first-load helpers `loadAllEvents(after)` and `loadAllCalls(after)` that loop while `hasMore` at `limit=1000`) per research R3.
-- [ ] T009 [P] Implement `apps/web/app/debug/snapshot.ts` (`emptySnapshot`, `mergeEvents`, `mergeJobs`, `mergeOlderJobs`, `mergeCalls`, `setSeed`, `setNotice`).
-- [ ] T010 Implement `apps/web/app/debug/activity.ts` (`isActive`, `nextDelayMs`) and `apps/web/app/debug/poller.ts` (`createPoller`) per research R2. No React import in either.
+- [x] T006 [P] Create `apps/web/app/debug/api-types.ts` (type-only mirrors per data-model.md "Wire mirrors").
+- [x] T007 [P] Implement `apps/web/app/debug/read-result.ts` (`readTurnResult`, `readCompanionResult`, `readChronicleResult`, `readTrigger`) per data-model.md and research R5.
+- [x] T008 [P] Implement `apps/web/app/debug/client.ts` (`createDebugClient(sessionId, fetchImpl)`; first-load helpers `loadAllEvents(after)` and `loadAllCalls(after)` that loop while `hasMore` at `limit=1000`) per research R3.
+- [x] T009 [P] Implement `apps/web/app/debug/snapshot.ts` (`emptySnapshot`, `mergeEvents`, `mergeJobs`, `mergeOlderJobs`, `mergeCalls`, `setSeed`, `setNotice`).
+- [x] T010 Implement `apps/web/app/debug/activity.ts` (`isActive`, `nextDelayMs`) and `apps/web/app/debug/poller.ts` (`createPoller`) per research R2. No React import in either.
 
 **Checkpoint**: web tests green. Commit `TASK-0117: Phase 1 — debug data layer`.
 
