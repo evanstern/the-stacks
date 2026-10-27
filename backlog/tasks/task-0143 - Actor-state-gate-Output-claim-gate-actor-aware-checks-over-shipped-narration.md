@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 20:04'
+updated_date: '2026-10-27 20:17'
 labels:
   - dm
   - rules-gate
@@ -73,6 +73,11 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 1, T001-T007: 1b3d00b. Five refusal cases are it.fails; each failed as plain it against the stub at expect(r.pass).toBe(false). Controls pass. Both logs fold clean: M2 333 rows, run 192319Z 222 rows. ci:check without a DB: only the 5 expected adjudicate.integration failures.) Main is merged in, so the branch card copy of TASK-0142 matches Done.
 
 spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 0/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 0/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 0/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 2, T008-T014: d5e6a23, 2a594e6. claims and claim-evidence 76 pass; all five evidence cases refuse with the expected kind and quote; controls pass. FR-004a mutation check: each exemption has a failing test without it. ci:check without a DB: only the 5 expected adjudicate.integration failures.)
+OPEN FOR OPERATOR: OQ-5 (a) said pronouns pass. Row 162 ("Tamsin hand twitches toward her sword, her fingers curling") has no act verb near the name, so the implementer added a narrow carry-over rule. A pronoun + body part + act verb later in the same sentence binds to the last uniquely named actor, if no other name comes between. Without the rule, AC #1 row 162 is not refused. The operator either keeps the rule or drops it and accepts that row 162 passes.
+Other matcher choices are listed in the Phase 2 report: comma stops the act scan, objects after prepositions, a passive is needed for killed and slain, quote interiors are skipped for act and speech, and Snag is in the "goblin" group via his alias.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
