@@ -25,11 +25,17 @@ export const DEFAULT_POLICIES: PolicyTable = {
   "scene":          "suggest",  // a scene change is a story decision: show it, let the DM act
   "party":          "ask",
   "tracker":        "ask",
+  "scene-presence": "ask",      // a presence change is a story decision (TASK-0141)
   "journal":        "auto",     // chronicle, off the hot path; the DM may dial it
 };
 ```
 
 Every kind has an entry; a test asserts the table's keys equal `DmProposalKindSchema.options`.
+
+Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the table gains the `"scene-presence": "ask"` row, and the DM kinds number twelve.
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
 
 ## The effective policy
 

@@ -95,19 +95,19 @@ character.
 **Independent test**: `pnpm --filter @the-stacks/session-model test`, plus the DB
 `apps/server/test/gate.integration.test.ts` cases.
 
-- [ ] T007 Confirm PR #71 (TASK-0112) has merged: `gh api repos/evanstern/the-stacks/pulls/71 --jq .merged`
+- [x] T007 Confirm PR #71 (TASK-0112) has merged: `gh api repos/evanstern/the-stacks/pulls/71 --jq .merged`
       prints `true`. If not, STOP and report. Merge `origin/main` into the branch as a merge
       commit. Confirm `CHARACTER_UNABLE_REASONS`, `checkPlan` and `PlanFailureReason` exist as
       plan.md describes; report any difference before coding.
-- [ ] T008 [P] [US1] In `packages/session-model/test/catalog.test.ts`, add failing cases:
+- [x] T008 [P] [US1] In `packages/session-model/test/catalog.test.ts`, add failing cases:
       `scene-presence.changed` v1 is catalogued (`state-change`, `any`, current); a valid payload
       parses for each of the six reasons; a payload whose `after` does not match its `reason`
       fails; a payload with `before === after` fails.
-- [ ] T009 [P] [US1] Add a projection fold test beside the existing ones in
+- [x] T009 [P] [US1] Add a projection fold test beside the existing ones in
       `packages/session-model/test/` (spec User Story 1, scenarios 1, 2, 5): a row folds to
       `{ presence, reason, seq }`; no row gives no entry; a player viewer sees the row; a
       `before` mismatch bumps the diagnostic and still applies.
-- [ ] T010 [P] [US1] In `packages/session-model/test/gate-plan.test.ts`, add failing cases for
+- [x] T010 [P] [US1] In `packages/session-model/test/gate-plan.test.ts`, add failing cases for
       the `scene-presence` planner (plan D2):
       - a free-mode `fled` lands one presence row only;
       - turn mode, combatant in the order, `fled`: the presence row plus the `initiative.leave`
@@ -118,57 +118,57 @@ character.
       - same value: `INVALID_PROPOSAL`; unknown `actionId`: `UNKNOWN_ACTION`;
       - an engine refusal (the last entry leaves) returns source `engine` and no rows;
       - a player or companion proposer is refused by permissions.
-- [ ] T011 [P] [US6] In `packages/session-model/test/gate-plan.test.ts`, add failing declare cases
+- [x] T011 [P] [US6] In `packages/session-model/test/gate-plan.test.ts`, add failing declare cases
       (spec User Story 6, scenarios 1 to 5): character scope absent refuses with
       `CHARACTER_UNABLE` and `details: { characterId, reason: "absent" }`; party scope with
       every controlled member absent or unable refuses, with `reason` `absent` when any is
       absent; a `yielded` character declares; an arrived character declares; an unauthorised
       proposer still gets `NOT_AUTHORIZED`.
-- [ ] T012 [US1] Create `packages/session-model/src/events/scene-presence.ts` with
+- [x] T012 [US1] Create `packages/session-model/src/events/scene-presence.ts` with
       `ScenePresenceSchema`, `PresenceReasonSchema`, `REASON_TO_PRESENCE` and
       `ScenePresenceChangedV1` (plan D2). Catalogue it in `packages/session-model/src/catalog.ts`.
-- [ ] T013 [US1] Add `scenePresence` to `SessionProjections` in
+- [x] T013 [US1] Add `scenePresence` to `SessionProjections` in
       `packages/session-model/src/projections/types.ts`. Fold `scene-presence.changed` in
       `packages/session-model/src/projections/apply.ts` (empty `{}` initial state).
-- [ ] T014 [US1] Add the `scene-presence` kind to `ProposalKindSchema` in
+- [x] T014 [US1] Add the `scene-presence` kind to `ProposalKindSchema` in
       `packages/session-model/src/gate/proposals.ts` (14 kinds; `DmProposalKindSchema` 12; fix
       the stale "eleven" comment). Make it DM-only in `src/gate/permissions.ts`. Add
       `"scene-presence": "ask"` in `src/gate/policy.ts`.
-- [ ] T015 [US1] Add `case "scene-presence"` to `packages/session-model/src/gate/plan.ts` per plan
+- [x] T015 [US1] Add `case "scene-presence"` to `packages/session-model/src/gate/plan.ts` per plan
       D2, steps 1 to 5 (no actor-existence check, R2; engine rows through `execute` and
       `mechanicsRows`).
-- [ ] T016 [US6] Add `"absent"` to `CHARACTER_UNABLE_REASONS` in
+- [x] T016 [US6] Add `"absent"` to `CHARACTER_UNABLE_REASONS` in
       `packages/session-model/src/gate/refusals.ts`. Add the absent check to the
       `action.declare` case in `packages/session-model/src/gate/plan.ts` per plan D3.
-- [ ] T017 [US1] Export the new schemas, `REASON_TO_PRESENCE` and the reason list from
+- [x] T017 [US1] Export the new schemas, `REASON_TO_PRESENCE` and the reason list from
       `packages/session-model/src/index.ts`.
-- [ ] T018 [P] [US1] Add `case "scene-presence"` to `apps/web/app/play/proposals.ts` per plan D6
+- [x] T018 [P] [US1] Add `case "scene-presence"` to `apps/web/app/play/proposals.ts` per plan D6
       (actor, reason, new value, visibility "Everyone"). Add or extend its unit test. No modal.
-- [ ] T019 [US6] In `apps/server/test/gate.integration.test.ts`, add DB cases: a declare for an
+- [x] T019 [US6] In `apps/server/test/gate.integration.test.ts`, add DB cases: a declare for an
       absent character through `gate.handle` is refused with `CHARACTER_UNABLE`
       (`reason: "absent"`) and the log is unchanged; a `scene-presence` `fled` proposal through
       `gate.submit` as `ai:dm` in turn mode appends the presence row and the `encounter.changed`
       row with consecutive seqs in one batch.
-- [ ] T020 [US1] Amend `specs/028-session-model/contracts/session-events.md`: add the
+- [x] T020 [US1] Amend `specs/028-session-model/contracts/session-events.md`: add the
       `scene-presence.changed` v1 section (payload, reason-to-value rule, `before !== after`,
       visibility `any`, kind state-change). Note "Amended 2026-10-27 (TASK-0141, operator
       ruling OQ-1)".
-- [ ] T021 [US1] Amend `specs/028-session-model/contracts/projections.md`: add the
+- [x] T021 [US1] Amend `specs/028-session-model/contracts/projections.md`: add the
       `scenePresence` view and its fold rule, including the `before` mismatch diagnostic.
-- [ ] T022 [US1] Amend frozen `specs/029-proposal-gate/contracts/proposals.md`: add the
+- [x] T022 [US1] Amend frozen `specs/029-proposal-gate/contracts/proposals.md`: add the
       `scene-presence` kind and its schema; the kind count 13 becomes 14 and the DM kind count
       11 becomes 12; state that the gate fills `before` and `after` from the projection and the
       reason; state its visibility is always `public`; add `scene-presence` to the permission
       matrix row with `action.resolve`, `mechanics` and the other DM kinds. Add the amendment
       line quoting OQ-1.
-- [ ] T023 [US1] Amend frozen `specs/029-proposal-gate/contracts/policy-and-authority.md`: add the
+- [x] T023 [US1] Amend frozen `specs/029-proposal-gate/contracts/policy-and-authority.md`: add the
       `"scene-presence": "ask"` row to the default policy table. Add the amendment line quoting
       OQ-1.
-- [ ] T024 [US1] Amend frozen `specs/029-proposal-gate/contracts/gate-api.md` §1: add a
+- [x] T024 [US1] Amend frozen `specs/029-proposal-gate/contracts/gate-api.md` §1: add a
       `scene-presence` row to the rows table (one `scene-presence.changed`, plus the engine
       `initiative.leave` or `initiative.join` rows; checks `UNKNOWN_ACTION`, and
       `INVALID_PROPOSAL` for no change). Add the amendment line quoting OQ-1.
-- [ ] T025 [US6] Amend frozen `specs/029-proposal-gate/contracts/gate-api.md` §1, the
+- [x] T025 [US6] Amend frozen `specs/029-proposal-gate/contracts/gate-api.md` §1, the
       `action.declare` row: add `reason: "absent"` beside `life-state`. Update the §2 comment
       that says "TASK-0141 adds absent" to state that it is added. Add the amendment line
       (TASK-0141, the TASK-0112 OQ-1 open-reason ruling).
