@@ -141,6 +141,44 @@ TASK-0053 (the three-human demo) runs in wave 5. It needs Track A, TASK-0114, TA
 TASK-0117 and TASK-0134 merged. It runs after C10 and C11, so the demo shows the final DM
 rules. The demo's findings become cards per decision-0020.
 
+## Amendment 1 — Track C after decision-0025 and decision-0026 (2026-10-26, operator-ruled)
+
+Operator rulings in chat, 2026-10-26: decision-0025 cards "Add all, D17 order"; U6 "Fold into
+TASK-0112"; demo gate "Demo after a subset"; TASK-0119 placement "K3 now, K1-K6 after demo".
+This section supersedes the Track C table above and the waves' Track C entries.
+
+**Track C, new order.** Strictly serial in the DM-node hotspots. TASK-0109 floats and merges
+before TASK-0144. TASK-0107 floats.
+
+| Order | Card | Deliverable | Demo subset |
+|---|---|---|---|
+| C1 | TASK-0135 | Design: decision-0025 (D17) | — (merges once TASK-0140's spec exists, AC #4) |
+| C2 | TASK-0123 | SRD Playing the Game text | — |
+| C3 | TASK-0140 | U1 actor snapshot | yes |
+| C4 | TASK-0110 | Encounter-ending action resolves applied; resolve order (D17 §4) | yes |
+| C5 | TASK-0112 | Downed hero: seat stops declaring; U6 able-actor gates | yes |
+| C6 | TASK-0141 | U2 scene presence | yes |
+| C7 | TASK-0142 | U8 seed NPC scene presence | yes |
+| C8 | TASK-0104 | Modifiers and DCs from stats | — |
+| C9 | TASK-0146 | U7 audit gets the snapshot | — |
+| C10 | TASK-0143 | U3 output claim gate | yes |
+| C11 | TASK-0144 | U4 companion say / chronicle claim gate | — |
+| C12 | TASK-0128 | Opposition as derived DC; Help | — |
+| C13 | TASK-0105 | Spells by SRD id | — |
+| C14 | TASK-0145 | U5 Director legality | — |
+| C15 | TASK-0111 | Digits check | — |
+| C16 | TASK-0113 | Narration agency residue | — |
+| C17 | TASK-0127 | Stakes before dice | — |
+| C18 | TASK-0147 | U9 resolve batch gate | — |
+| C19 | TASK-0130 | Doctrine pass against D14 and D17 | — |
+| float | TASK-0109 | Chronicle combatant identity | — (before C11) |
+| float | TASK-0107 | K3: DM-only seed view for DM-side nodes (decision-0026) | — |
+| after C17 | K1, K2, K4, K5, K6 | decision-0026 cards, created at the demo boundary | — |
+
+**Demo gate (supersedes wave 5).** TASK-0053 runs once these are merged: Track A, TASK-0114,
+TASK-0116, TASK-0117, TASK-0134, and the Track C demo subset (C3, C4, C5, C6, C7, C10). The rest
+of Track C merges after the demo, still in m-3. TASK-0130's captured run measures it.
+
 ## Model tiers (from `.claude/model-tiers.json`, checked 2026-10-26)
 
 | Tier | Agent | Pinned model | Fallback | Used for |
@@ -386,3 +424,4 @@ rules. The demo's findings become cards per decision-0020.
 | 2026-10-26 | TASK-0119 | — | — | gather ~241k (sonnet) | Gather done (`bde79d2`); analysis dispatched (opus; decides TASK-0107; decision ids 0026+). |
 | 2026-10-26 | (amendment) | — | — | — | New m-3 card TASK-0138 (adjudicate suite fails instead of skipping without a DB) joins Track B after B7, haiku tier. Revisit cards outside m-3 (no milestone, trigger-based): TASK-0136, TASK-0137, TASK-0139. Decision-id guard: ids are assigned per checkout, so a dispatch that creates a decision copies in the ids already taken on open branches first. |
 | 2026-10-26 | TASK-0055 | [#57](https://github.com/evanstern/the-stacks/pull/57) | `ac336ac` | ~81k (sonnet ×1) | Merged. decision-0023 (D15) on main. TASK-0055 Done on main (`8eef04d`), escape line E1 (no spec set; not a linked card). Worktree and branch removed; `env:prune --check` clean. |
+\n| 2026-10-26 | (amendment 1) | — | — | — | Track C re-ordered after decision-0025: TASK-0140 to TASK-0147 created on main; U6 folded into TASK-0112; demo after the subset. TASK-0119 rulings: K3 = TASK-0107 now; K1, K2, K4, K5, K6 after the demo; attitude per character; clue lint warns (fails only core); SRD Influence DC. |\n
