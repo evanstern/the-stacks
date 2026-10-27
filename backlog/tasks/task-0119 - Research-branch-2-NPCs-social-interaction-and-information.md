@@ -4,7 +4,7 @@ title: 'Research branch 2: NPCs, social interaction and information'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:05'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:45'
 labels:
   - research
   - dm
@@ -34,6 +34,9 @@ Outcome: the AI DM's NPC and information doctrine rests on documented DM practic
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0119, branch task-0119-research-npcs-social, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track D2. Escape line E2. Decides TASK-0107.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(research gather, branch docs/research/NPCs-Social-and-Information, commits a612765 bde79d2; ~241k tokens; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
