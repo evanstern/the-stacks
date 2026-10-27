@@ -31,6 +31,7 @@ describe("DEFAULT_POLICIES (AC #2)", () => {
       tracker: "ask",
       "scene-presence": "ask",
       journal: "auto",
+      floor: "ask",
     };
     expect({ ...DEFAULT_POLICIES }).toEqual(expected);
   });

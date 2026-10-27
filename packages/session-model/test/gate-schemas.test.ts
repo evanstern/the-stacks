@@ -19,17 +19,17 @@ describe("proposal kinds", () => {
       (o) => (o.shape.kind as unknown as { value: string }).value,
     );
     expect([...options].sort()).toEqual([...ProposalKindSchema.options].sort());
-    expect(ProposalKindSchema.options).toHaveLength(14);
+    expect(ProposalKindSchema.options).toHaveLength(15);
   });
 
-  it("DM kinds are the fourteen minus action.declare and action.withdraw", () => {
-    expect(DmProposalKindSchema.options).toHaveLength(12);
+  it("DM kinds are the fifteen minus action.declare and action.withdraw", () => {
+    expect(DmProposalKindSchema.options).toHaveLength(13);
     expect(DmProposalKindSchema.options).not.toContain("action.declare");
     expect(DmProposalKindSchema.options).not.toContain("action.withdraw");
   });
 
-  it("GATE_REQUEST_KINDS has 18 entries", () => {
-    expect(GATE_REQUEST_KINDS).toHaveLength(18);
+  it("GATE_REQUEST_KINDS has 19 entries", () => {
+    expect(GATE_REQUEST_KINDS).toHaveLength(19);
     expect(GATE_REQUEST_KINDS).toContain("proposal.approve");
     expect(GATE_REQUEST_KINDS).toContain("gate.policy");
     expect(GATE_REQUEST_VERSION).toBe(1);
@@ -161,5 +161,41 @@ describe("actorOf", () => {
     expect(actorOf({ kind: "ai", actor: "ai:companion:bram" })).toBe(
       "ai:companion:bram",
     );
+  });
+});
+
+describe("floor proposal (spec 049, FT-1)", () => {
+  const turn = { round: 1, combatantId: "ana" };
+  it("parses each op and defaults the note", () => {
+    for (const op of ["end", "take", "return"]) {
+      const parsed = ProposalSchema.parse({
+        kind: "floor",
+        op,
+        turn,
+        reason: "r",
+      });
+      expect(parsed).toMatchObject({ kind: "floor", op, summary: null });
+    }
+  });
+  it("rejects a bad op, a round below 1, a bad combatant id and a missing reason", () => {
+    const bad = [
+      { kind: "floor", op: "give", turn, reason: "r" },
+      { kind: "floor", op: "end", turn: { ...turn, round: 0 }, reason: "r" },
+      {
+        kind: "floor",
+        op: "end",
+        turn: { ...turn, combatantId: "Bad Id" },
+        reason: "r",
+      },
+      { kind: "floor", op: "end", turn },
+    ];
+    for (const input of bad) {
+      expect(ProposalSchema.safeParse(input).success).toBe(false);
+    }
+  });
+  it("is both a proposal kind and a gate request kind", () => {
+    expect(ProposalKindSchema.options).toContain("floor");
+    expect(DmProposalKindSchema.options).toContain("floor");
+    expect(GATE_REQUEST_KINDS).toContain("floor");
   });
 });

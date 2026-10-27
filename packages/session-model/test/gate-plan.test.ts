@@ -17,10 +17,13 @@ import {
 import {
   aiDm,
   ana,
+  BRAM_ACTOR,
   bram,
+  CADE_USER,
   DM_USER,
   dmFold,
   dmFoldWith,
+  floorFold,
   OPERATOR,
   outsider,
   seatedDm,
@@ -1260,5 +1263,259 @@ describe("action.declare absent gate (CHARACTER_UNABLE, TASK-0141)", () => {
       ok: false,
       refusal: { code: "NOT_AUTHORIZED" },
     });
+  });
+});
+
+describe("floor planner (spec 049, research R3 to R5)", () => {
+  const cade: Proposer = { kind: "human", userId: CADE_USER, role: "player" };
+  const turnOf = (combatantId: string, round = 1) => ({ round, combatantId });
+  const floor = (
+    op: "end" | "take" | "return",
+    turn: { round: number; combatantId: string },
+    reason = "Turn handled.",
+  ) => parse({ kind: "floor", op, turn, reason });
+  const types = (rows: { type: string }[]) => rows.map((r) => r.type);
+  const refusalOf = (result: PlanResult) => {
+    if (result.ok) throw new Error("expected a refusal");
+    return result.refusal;
+  };
+
+  it("end by the active human plans one mechanics batch then the next holder", () => {
+    const p = floorFold({ active: "ana" });
+    const result = plan(
+      p,
+      ana,
+      floor("end", turnOf("ana"), "Ana ends her turn."),
+    );
+    const rows = okRows(result);
+    expect(result.ok && result.batchId).toBe("b-plan");
+    const last = rows[rows.length - 1];
+    expect(rows.slice(0, -1).map((r) => r.type)).toContain("turn.advanced");
+    for (const r of rows.slice(0, -1)) {
+      expect(r.payload).toMatchObject({ batchId: "b-plan" });
+    }
+    expect(last).toEqual({
+      actor: PLAYER_A,
+      type: "table-mode.changed",
+      visibility: "public",
+      payload: {
+        reason: "Ana ends her turn.",
+        before: p.tableMode,
+        after: {
+          mode: "turn",
+          activeActor: BRAM_ACTOR,
+          activeCharacterId: "bram",
+        },
+      },
+    });
+  });
+
+  it("the companion ends its own turn", () => {
+    const p = floorFold({ active: "bram" });
+    const rows = okRows(plan(p, bram, floor("end", turnOf("bram"))));
+    expect(rows[rows.length - 1]?.payload).toMatchObject({
+      after: { activeActor: CADE_USER, activeCharacterId: "cade" },
+    });
+  });
+
+  it("end past the last combatant starts the next round and names the goblin's turn as ai:dm", () => {
+    const p = floorFold({ active: "cade" });
+    const rows = okRows(plan(p, cade, floor("end", turnOf("cade"))));
+    expect(rows[rows.length - 1]?.payload).toMatchObject({
+      after: { mode: "turn", activeActor: "ai:dm", activeCharacterId: null },
+    });
+    const wrap = floorFold({ active: "goblin" });
+    const wrapRows = okRows(plan(wrap, aiDm, floor("end", turnOf("goblin"))));
+    expect(wrapRows[wrapRows.length - 1]?.payload).toMatchObject({
+      after: { activeActor: PLAYER_A, activeCharacterId: "ana" },
+    });
+  });
+
+  it("end with a dying next combatant rolls a death save, then passes it (scripted fail)", () => {
+    const p = floorFold({ active: "ana", downBram: true });
+    const result = plan(p, ana, floor("end", turnOf("ana")), [5]);
+    const rows = okRows(result);
+    const kinds = types(rows);
+    expect(kinds.filter((t) => t === "turn.advanced")).toHaveLength(2);
+    expect(kinds).toContain("death-saves.changed");
+    expect(result.ok && result.batchId).toBe("b-plan");
+    const mech = rows.slice(0, -1);
+    mech.forEach((r, i) => {
+      expect(r.payload).toMatchObject({ batchId: "b-plan", index: i });
+      expect(r.payload).toMatchObject({ count: mech.length });
+    });
+    expect(rows[rows.length - 1]?.payload).toMatchObject({
+      after: { activeActor: CADE_USER, activeCharacterId: "cade" },
+    });
+  });
+
+  it("a natural 20 revives the dying combatant and keeps the turn on it", () => {
+    const p = floorFold({ active: "ana", downBram: true });
+    const rows = okRows(plan(p, ana, floor("end", turnOf("ana")), [20]));
+    const kinds = types(rows);
+    expect(kinds.filter((t) => t === "turn.advanced")).toHaveLength(1);
+    expect(kinds).toContain("life-state.changed");
+    expect(rows[rows.length - 1]?.payload).toMatchObject({
+      after: { activeActor: BRAM_ACTOR, activeCharacterId: "bram" },
+    });
+  });
+
+  it("the seated DM passes (end) during a player's turn and while holding the floor", () => {
+    const p = floorFold({ active: "ana" });
+    const rows = okRows(plan(p, seatedDm, floor("end", turnOf("ana"))));
+    expect(rows[rows.length - 1]?.actor).toBe(DM_USER);
+    const held = floorFold({ active: "ana", held: true });
+    const heldRows = okRows(plan(held, seatedDm, floor("end", turnOf("ana"))));
+    expect(heldRows[heldRows.length - 1]?.payload).toMatchObject({
+      before: { activeActor: DM_USER },
+      after: { activeActor: BRAM_ACTOR },
+    });
+  });
+
+  it("take plans one table-mode row naming the DM and leaves the engine turn alone", () => {
+    const p = floorFold({ active: "ana" });
+    const result = plan(p, seatedDm, floor("take", turnOf("ana"), "DM steps in."));
+    expect(okRows(result)).toEqual([
+      {
+        actor: DM_USER,
+        type: "table-mode.changed",
+        visibility: "public",
+        payload: {
+          reason: "DM steps in.",
+          before: p.tableMode,
+          after: { mode: "turn", activeActor: DM_USER, activeCharacterId: null },
+        },
+      },
+    ]);
+    expect(result.ok && result.batchId).toBeNull();
+  });
+
+  it("return plans one table-mode row for the active combatant's actor", () => {
+    const p = floorFold({ active: "cade", held: true });
+    const rows = okRows(plan(p, seatedDm, floor("return", turnOf("cade"))));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.payload).toMatchObject({
+      before: { activeActor: DM_USER },
+      after: {
+        mode: "turn",
+        activeActor: CADE_USER,
+        activeCharacterId: "cade",
+      },
+    });
+  });
+
+  it("ai:dm ending an absent human's turn writes a floor marker first", () => {
+    const p = floorFold({ active: "ana" });
+    const rows = okRows(
+      plan(p, aiDm, floor("end", turnOf("ana")), [], null, {
+        present: [CADE_USER],
+      }),
+    );
+    expect(rows[0]).toEqual({
+      actor: "system",
+      type: "presence.recorded",
+      visibility: "public",
+      payload: { present: [CADE_USER], purpose: "floor" },
+    });
+    expect(rows[rows.length - 1]?.type).toBe("table-mode.changed");
+    expect(types(rows)).toContain("turn.advanced");
+  });
+
+  describe("refusals append nothing (research R5 order)", () => {
+    it("free mode, or turn mode with no encounter -> NOT_TURN_MODE", () => {
+      expect(
+        refusalOf(plan(dmFold(), ana, floor("end", turnOf("ana")))).code,
+      ).toBe("NOT_TURN_MODE");
+      const noEncounter = dmFold({
+        turn: { activeActor: PLAYER_A, activeCharacterId: "ana" },
+      });
+      const refusal = refusalOf(
+        plan(noEncounter, ana, floor("end", turnOf("ana"))),
+      );
+      expect(refusal).toMatchObject({ source: "gate", code: "NOT_TURN_MODE" });
+    });
+
+    it("a stale turn -> TURN_MOVED with expected and actual", () => {
+      const p = floorFold({ active: "bram" });
+      const refusal = refusalOf(plan(p, ana, floor("end", turnOf("ana"))));
+      expect(refusal.code).toBe("TURN_MOVED");
+      expect(refusal.details).toEqual({
+        expected: turnOf("ana"),
+        actual: turnOf("bram"),
+      });
+      const round = refusalOf(
+        plan(floorFold(), ana, floor("end", turnOf("ana", 2))),
+      );
+      expect(round.code).toBe("TURN_MOVED");
+    });
+
+    it("TURN_MOVED comes before the proposer check", () => {
+      const p = floorFold({ active: "bram" });
+      expect(refusalOf(plan(p, cade, floor("end", turnOf("ana")))).code).toBe(
+        "TURN_MOVED",
+      );
+    });
+
+    it("another party member -> FLOOR_NOT_HELD with the holder", () => {
+      const p = floorFold({ active: "ana" });
+      const refusal = refusalOf(plan(p, cade, floor("end", turnOf("ana"))));
+      expect(refusal.code).toBe("FLOOR_NOT_HELD");
+      expect(refusal.details).toEqual({ holder: PLAYER_A });
+    });
+
+    it("a player ending while the DM holds the floor -> FLOOR_NOT_HELD", () => {
+      const p = floorFold({ active: "ana", held: true });
+      const refusal = refusalOf(plan(p, ana, floor("end", turnOf("ana"))));
+      expect(refusal.code).toBe("FLOOR_NOT_HELD");
+      expect(refusal.details).toEqual({ holder: DM_USER });
+    });
+
+    it("take while held and return while not held -> INVALID_PROPOSAL", () => {
+      const held = floorFold({ active: "ana", held: true });
+      expect(
+        refusalOf(plan(held, seatedDm, floor("take", turnOf("ana")))).code,
+      ).toBe("INVALID_PROPOSAL");
+      const free = floorFold({ active: "ana" });
+      expect(
+        refusalOf(plan(free, seatedDm, floor("return", turnOf("ana")))).code,
+      ).toBe("INVALID_PROPOSAL");
+    });
+
+    it("ai:dm ending a present human's turn -> NOT_AUTHORIZED", () => {
+      const p = floorFold({ active: "ana" });
+      const refusal = refusalOf(
+        plan(p, aiDm, floor("end", turnOf("ana")), [], null, {
+          present: [PLAYER_A, CADE_USER],
+        }),
+      );
+      expect(refusal.code).toBe("NOT_AUTHORIZED");
+    });
+
+    it("ai:dm take or return -> NOT_AUTHORIZED; a player's take -> NOT_DM", () => {
+      const p = floorFold({ active: "ana" });
+      expect(
+        refusalOf(plan(p, aiDm, floor("take", turnOf("ana")))).code,
+      ).toBe("NOT_AUTHORIZED");
+      const held = floorFold({ active: "ana", held: true });
+      expect(
+        refusalOf(plan(held, aiDm, floor("return", turnOf("ana")))).code,
+      ).toBe("NOT_AUTHORIZED");
+      expect(refusalOf(plan(p, ana, floor("take", turnOf("ana")))).code).toBe(
+        "NOT_DM",
+      );
+    });
+
+    it("a refusal carries no rows", () => {
+      const result = plan(floorFold(), cade, floor("end", turnOf("ana")));
+      expect(result.ok).toBe(false);
+      expect("rows" in result).toBe(false);
+    });
+  });
+
+  it("mutates no input", () => {
+    const p = deepFreeze(floorFold({ active: "ana", downBram: true }));
+    expect(() =>
+      plan(p, ana, floor("end", turnOf("ana")), [5]),
+    ).not.toThrow();
   });
 });

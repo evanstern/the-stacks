@@ -86,6 +86,24 @@ const requests: Record<string, GateRequest> = {
     trackerId: "ritual",
     after: tracker,
   }),
+  "floor.end": req({
+    kind: "floor",
+    op: "end",
+    turn: { round: 1, combatantId: "ana" },
+    reason: "r",
+  }),
+  "floor.take": req({
+    kind: "floor",
+    op: "take",
+    turn: { round: 1, combatantId: "ana" },
+    reason: "r",
+  }),
+  "floor.return": req({
+    kind: "floor",
+    op: "return",
+    turn: { round: 1, combatantId: "ana" },
+    reason: "r",
+  }),
   journal: req({
     kind: "journal",
     entry: { entryId: "j", title: "t", body: "b", sourceActionIds: [] },
@@ -151,6 +169,10 @@ const allowed: Record<string, Who[]> = {
     "operator",
   ],
   "action.withdraw": ["seatedDm", "player"],
+  // Who may END is narrowed at plan time (FLOOR_NOT_HELD, absent-human rule).
+  "floor.end": ["seatedDm", "aiDm", "companion", "player"],
+  "floor.take": ["seatedDm"],
+  "floor.return": ["seatedDm"],
   "proposal.approve": ["seatedDm"],
   "proposal.reject": ["seatedDm"],
   "gate.policy": ["seatedDm", "operator"],
@@ -188,6 +210,26 @@ describe("permission matrix (contracts/proposals.md)", () => {
       });
     }
   }
+
+  it("floor take/return by a party member is NOT_DM; by ai:dm or an outsider NOT_AUTHORIZED", () => {
+    for (const name of ["floor.take", "floor.return"]) {
+      const request = requests[name] as GateRequest;
+      expect(checkPermission(p, ana, request)).toMatchObject({
+        ok: false,
+        code: "NOT_DM",
+      });
+      expect(checkPermission(p, bram, request)).toMatchObject({
+        ok: false,
+        code: "NOT_DM",
+      });
+      for (const who of [aiDm, outsider, operator]) {
+        expect(checkPermission(p, who, request)).toMatchObject({
+          ok: false,
+          code: "NOT_AUTHORIZED",
+        });
+      }
+    }
+  });
 
   it("proposal.approve by a non-DM is NOT_DM", () => {
     const result = checkPermission(

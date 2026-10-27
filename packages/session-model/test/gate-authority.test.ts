@@ -7,6 +7,7 @@ import {
   bram,
   DM_USER,
   dmFold,
+  floorFold,
   outsider,
   seatedDm,
 } from "./gate-helpers.js";
@@ -329,4 +330,52 @@ describe("commit authority replays every fixture (SC-006)", () => {
       }
     });
   }
+});
+
+describe("commitAuthority with two humans in turn mode (spec 049 FR-001, FR-002)", () => {
+  const cade = {
+    kind: "human",
+    userId: PLAYER_B,
+    role: "player",
+  } as const;
+
+  it("the active human commits active-player; the other human is COMMIT_NOT_ALLOWED", () => {
+    const p = floorFold({ active: "ana" });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: true,
+      authority: "active-player",
+    });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+  });
+
+  it("the turn passes: the other human commits and the first is refused", () => {
+    const p = floorFold({ active: "cade" });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: true,
+      authority: "active-player",
+    });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+  });
+
+  it("while the DM holds the floor, both humans are refused and the DM commits as dm", () => {
+    const p = floorFold({ active: "ana", held: true });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+    expect(commitAuthority(p, seatedDm, "act-ana")).toEqual({
+      ok: true,
+      authority: "dm",
+    });
+  });
 });
