@@ -1593,25 +1593,29 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     // advance group reads the board. A floor held before the job starts
     // leaves `done` false (a human seat holds the check as a proposal), so
     // only a mid-job take reaches the held guard.
-    const { w, arm } = await turnWorld([...initDice(0), 15], async (world) => {
-      const seat = await world.as(operator, {
-        kind: "dm.seat",
-        reason: "A human takes the DM seat",
-        after: { kind: "human", userId: HUMAN_DM },
-      });
-      if (!seat.ok) throw new Error(`seat refused: ${seat.refusal.code}`);
-      const p = await world.projections();
-      const taken = await world.as(operator, {
-        kind: "floor",
-        op: "take",
-        turn: {
-          round: p.encounter?.round ?? 1,
-          combatantId: p.encounter?.activeCombatantId ?? "",
-        },
-        reason: "The DM takes the floor.",
-      });
-      if (!taken.ok) throw new Error(`take refused: ${taken.refusal.code}`);
-    }, "after");
+    const { w, arm } = await turnWorld(
+      [...initDice(0), 15],
+      async (world) => {
+        const seat = await world.as(operator, {
+          kind: "dm.seat",
+          reason: "A human takes the DM seat",
+          after: { kind: "human", userId: HUMAN_DM },
+        });
+        if (!seat.ok) throw new Error(`seat refused: ${seat.refusal.code}`);
+        const p = await world.projections();
+        const taken = await world.as(operator, {
+          kind: "floor",
+          op: "take",
+          turn: {
+            round: p.encounter?.round ?? 1,
+            combatantId: p.encounter?.activeCombatantId ?? "",
+          },
+          reason: "The DM takes the floor.",
+        });
+        if (!taken.ok) throw new Error(`take refused: ${taken.refusal.code}`);
+      },
+      "after",
+    );
     const id = await commitAction(w, "Tamsin forces the shutter.");
     arm();
     const before = (await readRows(w)).length;

@@ -1,16 +1,7 @@
 {
   "v": 1,
   "name": "turn-floor-round",
-  "dice": [
-    20,
-    10,
-    15,
-    5,
-    1,
-    1,
-    1,
-    2
-  ],
+  "dice": [20, 10, 15, 5, 1, 1, 1, 2],
   "calls": [
     {
       "purpose": "dm.director",

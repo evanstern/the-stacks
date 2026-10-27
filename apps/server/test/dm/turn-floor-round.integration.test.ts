@@ -163,7 +163,10 @@ describe.skipIf(!reachable)("turn floor, a full round (database)", () => {
     });
     expect(bramAct.ok).toBe(true);
     const rowsBefore = (await readRows(w)).length;
-    const early = await w.as(bram, { kind: "action.commit", actionId: "act-bram" });
+    const early = await w.as(bram, {
+      kind: "action.commit",
+      actionId: "act-bram",
+    });
     expect(early.ok ? "ok" : early.refusal.code).toBe("COMMIT_NOT_ALLOWED");
     expect(await readRows(w)).toHaveLength(rowsBefore);
 
@@ -224,7 +227,8 @@ describe.skipIf(!reachable)("turn floor, a full round (database)", () => {
     const left = w.scripted.remaining();
     expect(left.dice).toBe(0);
     for (const [purpose, n] of Object.entries(left.calls)) {
-      if (purpose !== "dm.chronicle") expect([purpose, n]).toEqual([purpose, 0]);
+      if (purpose !== "dm.chronicle")
+        expect([purpose, n]).toEqual([purpose, 0]);
     }
 
     // Jobs: three turn jobs (Bram, Pip, Snag), one companion turn job; none failed.
