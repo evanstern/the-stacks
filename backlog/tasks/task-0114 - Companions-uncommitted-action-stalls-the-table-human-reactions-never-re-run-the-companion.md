@@ -3,9 +3,10 @@ id: TASK-0114
 title: >-
   Companion's uncommitted action stalls the table; human reactions never re-run
   the companion
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
+updated_date: '2026-10-27 03:28'
 labels:
   - dm
   - companions
@@ -29,6 +30,12 @@ Evidence: M2 demo (TASK-0048), session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd, rec
 - [ ] #2 The re-run companion commits, revises or withdraws, and a test shows the table no longer waits indefinitely
 - [ ] #3 The companions contract (specs/031-dm-runtime/contracts/companions.md) records the new trigger
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0114, branch task-0114-companion-react, cut from origin/main a4aab3c. Spec number 036 claimed with a stub. Track B1.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
