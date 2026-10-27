@@ -4,7 +4,7 @@ title: Add the SRD 5.2.1 Playing the Game rules text to packages/srd
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-10-27 04:07'
+updated_date: '2026-10-27 04:14'
 labels:
   - srd
   - rules
@@ -49,6 +49,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 2, T010-T018, commit fcebdb5; 117 rule records (85 dataset, 31 PDF, root bodyless); verify-against-pdf 1020 records 0 mismatches; hand check 38/38 contents entries + 16 records; five existing data files byte-identical; absentTopics: contests/opposed checks; ~278k tokens.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 3 wiki, T019-T022, commit 0849064; srd-data NEEDS-REVIEW amended and re-pinned to 64daef4; CAPSULES regenerated; ci:check, freshness, spec-bridge green.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
