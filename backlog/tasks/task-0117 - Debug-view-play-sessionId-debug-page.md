@@ -79,6 +79,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (a02fd74): route, strip, retry, Debug link; AC #1, #3 ticked. AC #2 (polling) and #9 (retry POST) are left for Phase 6's live check: no hook-level test exists. Next: Phase 4. The orchestrator paused after opening PR #66 (TASK-0140), per the operator's overnight instruction.
 
 Phase 4 done (1379857): job-card, job-timeline, type-filter (ARIA combobox), event-log, DebugBoard selection wiring (job <-> seq highlight via buildSeqIndex). 19 new vitest cases (job-card, event-log, cross-link). Gates: web tests, typecheck, lint green; ci:check fails only adjudicate.integration (TASK-0138). Pin state is held (data-pinned-seq) for Phase 5 to render.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (1379857): job timeline, event log, cross-links; AC #4-#6 ticked. Phase 6's live check covers the untested interactions: follow-bottom, scroll-into-view, combobox keys.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
