@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 09:30'
+updated_date: '2026-10-27 09:35'
 labels:
   - multiplayer
   - gate
@@ -35,6 +35,11 @@ Spec: specs/044-group-signoff
 - [ ] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
 - [ ] #5 The play route shows sign-off state per player and an approve or object control.
 - [ ] #6 Gate tests cover approval, objection and DM override with several players.
+- [ ] #7 Spec phase: The sign-off rule and commit authority (pure core)
+- [ ] #8 Spec phase: The planner, the marker rows and the fixture
+- [ ] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
+- [ ] #10 Spec phase: The play route shows sign-off (US4)
+- [ ] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -55,6 +60,9 @@ Q4 new sign-off props on the action card (additive to proposal-seam.md); confirm
 Q5 AI DM override of a stalled sign-off: fold into TASK-0050 or a new card.
 
 OPERATOR RULING 2026-10-27 (in chat): "I accept the defaults on the TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006." Spec authoring resumes with plan.md and tasks.md.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(The spec author resumed after the operator ruling: plan, tasks, data-model, contracts/signoff.md; commit 346308c. Five phases. Implementation waits for TASK-0099, because the runbook allows one Track A task in implementation at a time. FR-015 to FR-017 were added during planning.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
