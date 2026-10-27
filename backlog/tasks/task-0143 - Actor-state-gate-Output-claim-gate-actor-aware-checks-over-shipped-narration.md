@@ -23,6 +23,8 @@ ordinal: 130000
 Outcome: a deterministic checker keyed to snapshot aliases refuses shipped text that contradicts actor state.
 
 Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruling 2026-10-26 at checkpoint C3, formulation 3 'ledger + opposition dice'. Design and rule map: docs/design/actor-state-gate.md §5 (card U3). Dependencies as stated there: U1, U2, U8.. Operator ruling 2026-10-26: added to m-3 Track C in decision-0025's order.
+
+Spec: specs/051-output-claim-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
