@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:26'
+updated_date: '2026-10-27 04:41'
 labels:
   - dm
   - companions
@@ -61,6 +61,8 @@ ORCHESTRATOR RULING 2026-10-27: the active companion in turn mode that withdraws
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3b T037b, commit 3d8f3a8: an active companion that withdraws still declares and commits its hold act, so the turn advances; Phase 4 wiki, commit e4d5108: 7 NEEDS-REVIEW + 2 RE-PIN-ONLY notes; ci:check green first run.) Brave screenshots of the Withdraw control not captured: agents cannot drive Brave (not a merge condition for this card).
+
+Reconcile after TASK-0116 (PR #62) merged: react queued index regenerated as migration 0006_fearless_jamie_braddock (0005_lean_cable dropped; 0005 is main's unknown_lizard).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
