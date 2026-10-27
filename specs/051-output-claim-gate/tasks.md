@@ -115,7 +115,7 @@ turn green.
 
 ### Tests first
 
-- [ ] T008 [P] [US1] Create `apps/server/test/dm/claims.test.ts` with unit cases for references
+- [x] T008 [P] [US1] Create `apps/server/test/dm/claims.test.ts` with unit cases for references
       and acts (contract rules 1 to 3). Build each snapshot by hand with
       `apps/server/test/dm/snapshot-fixtures.ts`.
       - Unique versus group terms: "goblin" is shared by four actors.
@@ -127,30 +127,30 @@ turn green.
       - FR-004a: an actor that dies this turn ("The goblin lookout lunges, then drops") and an
         actor that flees this turn ("Snag flees into the reeds") pass. "Tamsin moves next" with
         Tamsin unconscious passes.
-- [ ] T009 [P] [US2] In the same file, add cases for contract rules 4 to 6:
+- [x] T009 [P] [US2] In the same file, add cases for contract rules 4 to 6:
       - "Snag falls dead" with goblin-3 dying refuses (US2.1);
       - "Snag drops the clapper" passes (no down attribution);
       - "the dead lookout" with goblin-3 dead earlier passes (US2.4);
       - an omitted drop for Kestrel refuses (US2.5);
       - an unattributed "someone dies" with no dead actor refuses.
-- [ ] T010 [P] [US3] In the same file, add cases for contract rule 7:
+- [x] T010 [P] [US3] In the same file, add cases for contract rule 7:
       - "two goblins lie dead" with two dead passes (US3.4);
       - "both down" with two downed party members passes;
       - "his last goblin" with three goblin-group actors standing refuses;
       - "all the goblins are dead" with one standing refuses;
       - a `yielded` goblin counts as left.
-- [ ] T011 [P] In the same file, pin the lexicons: `ACT_VERBS`, `SPEECH_VERBS` and
+- [x] T011 [P] In the same file, pin the lexicons: `ACT_VERBS`, `SPEECH_VERBS` and
       `INVOLUNTARY_VERBS` are pairwise disjoint, and every issue's `matched` is at most 60
       characters.
 
 ### Implementation
 
-- [ ] T012 Add the plan D2 lexicons to `apps/server/src/dm/audit-words.ts` (data-model.md
+- [x] T012 Add the plan D2 lexicons to `apps/server/src/dm/audit-words.ts` (data-model.md
       "Lexicons"). Keep every existing export unchanged.
-- [ ] T013 [US1] [US2] [US3] Implement `checkClaims` in `apps/server/src/dm/claims.ts` per plan D1
+- [x] T013 [US1] [US2] [US3] Implement `checkClaims` in `apps/server/src/dm/claims.ts` per plan D1
       and contracts/claim-gate.md. Import snapshot types only (`import type`). The narrate import
       boundary must hold.
-- [ ] T014 Flip every `it.fails` in `apps/server/test/dm/claim-evidence.test.ts` to `it`. Leave
+- [x] T014 Flip every `it.fails` in `apps/server/test/dm/claim-evidence.test.ts` to `it`. Leave
       the T006 `deterministicChecks` assertion alone; Phase 3 flips it.
 
 **Checkpoint**: the checker decides every card evidence case; no control is refused.
