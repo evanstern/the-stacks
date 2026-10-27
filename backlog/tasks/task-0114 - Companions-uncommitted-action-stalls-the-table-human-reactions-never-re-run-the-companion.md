@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:07'
+updated_date: '2026-10-27 04:11'
 labels:
   - dm
   - companions
@@ -52,6 +52,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 2, T020-T027; failing repro f99b4df (evidence/T021-failing-on-phase1-tip.txt), fix 2932c20; merge condition T021 met; prompt dm.companion-v3.)
+
+PROMPT VERSION COLLISION (orchestrator, 2026-10-27): TASK-0140's spec also bumps dm.companion to v3; whichever merges second bumps to the next free version after merging main.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
