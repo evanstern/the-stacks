@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:35'
+updated_date: '2026-10-27 03:37'
 labels:
   - multiplayer
   - realtime
@@ -43,6 +43,12 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md, Track
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring to checkpoint C2: spec.md + decision-draft.md, commit 1d2f809; served verified from transcript.) Note: .specify/feature.json was committed pointing at 035; revert it before PR.
+
+OPERATOR RULINGS 2026-10-26 (checkpoint C2, answered in chat to the orchestrator's four questions):
+- Carriage: 'D: frame + log marker'. Opt-in subscribe.presence flag and a full-snapshot presence frame for the UI, as in draft option A, PLUS a log event recording who was present whenever presence feeds a decision (sign-off quorum, floor, Director). Reason: Constitution IV ('Client state and agent context MUST both be projections of the log').
+- Observers: 'Show as observer'.
+- Timings: 'Timings stand' (5 s reload grace, 10 s ping, clean leave within 10 s, silent loss within 30 s).
+- Multi-process: 'Card the revisit' (trigger: a second server process is planned). An absent human DM gets no new behaviour beyond the strip.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
