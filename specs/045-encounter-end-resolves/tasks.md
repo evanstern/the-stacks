@@ -66,16 +66,16 @@ with resolve-level tests that pin each order by row seq.
 
 **Independent test**: the six new resolve tests pass; every existing DM test passes.
 
-- [ ] T005 [US1] In `apps/server/src/dm/nodes/resolve.ts`, split `directorGroup` into `directorOpening` (scene-start setup with its early return; the `turn` decision) and `directorClosing` (tracker advances; the `free` decision; scene end), sharing the `endEncounter` and `setMode` helpers; move code only
-- [ ] T006 [US1] In the `resolve` node body, call `directorOpening`, then (unless hold) the ruling, action and NPC groups, then `directorClosing`, then (unless hold) the unchanged turn advance block; on scene start skip the closing moves exactly as today; update the module and `Local` doc comments to name the order and cite decision-0025 §4
-- [ ] T007 [P] [US1] Test in `apps/server/test/dm/resolve.integration.test.ts`: in turn mode, a committed check plus a `free` decision gives `action.resolved` (applied) < `encounter.ended` < `table-mode.changed` (free) by seq, and no `turn.advanced`
-- [ ] T008 [P] [US2] Test: in free mode, a committed attack on `goblin-2` plus a `turn` decision for `reed-camp` gives `combatant.added` and `encounter.started` before the attack's rows, no `UNKNOWN_COMBATANT`, and no turn advance
-- [ ] T009 [P] [US3] Test: an `npc-turn` job plus a `free` decision gives the NPC step rows before `encounter.ended`
-- [ ] T010 [P] [US3] Test: a committed action plus a tracker advance and a scene end gives `action.resolved` < `tracker.changed` (advance) < `encounter.ended` < `scene.changed` (after null)
-- [ ] T011 [P] [US3] Test: hold runs the opening and closing moves only; no `act:` or `npc:` submission is recorded
-- [ ] T012 [P] [US1] Test: a reading whose first step names `pell` (no engine combatant) resolves `refused` with `UNKNOWN_COMBATANT`, and its `action.resolved` precedes `encounter.ended`; name TASK-0112 AC #5 in the test comment as the card that will refuse the plan
-- [ ] T013 Run every existing test in `resolve.integration.test.ts`, `resolve.human-seat.integration.test.ts`, `reclaim.integration.test.ts`, `beat.integration.test.ts`, `scene.integration.test.ts` and `full-turn.integration.test.ts`; change only an assertion that encodes the old order, and list each such change in the commit message
-- [ ] T014 Run the phase gate with the DB suites and commit
+- [x] T005 [US1] In `apps/server/src/dm/nodes/resolve.ts`, split `directorGroup` into `directorOpening` (scene-start setup with its early return; the `turn` decision) and `directorClosing` (tracker advances; the `free` decision; scene end), sharing the `endEncounter` and `setMode` helpers; move code only
+- [x] T006 [US1] In the `resolve` node body, call `directorOpening`, then (unless hold) the ruling, action and NPC groups, then `directorClosing`, then (unless hold) the unchanged turn advance block; on scene start skip the closing moves exactly as today; update the module and `Local` doc comments to name the order and cite decision-0025 §4
+- [x] T007 [P] [US1] Test in `apps/server/test/dm/resolve.integration.test.ts`: in turn mode, a committed check plus a `free` decision gives `action.resolved` (applied) < `encounter.ended` < `table-mode.changed` (free) by seq, and no `turn.advanced`
+- [x] T008 [P] [US2] Test: in free mode, a committed attack on `goblin-2` plus a `turn` decision for `reed-camp` gives `combatant.added` and `encounter.started` before the attack's rows, no `UNKNOWN_COMBATANT`, and no turn advance
+- [x] T009 [P] [US3] Test: an `npc-turn` job plus a `free` decision gives the NPC step rows before `encounter.ended`
+- [x] T010 [P] [US3] Test: a committed action plus a tracker advance and a scene end gives `action.resolved` < `tracker.changed` (advance) < `encounter.ended` < `scene.changed` (after null)
+- [x] T011 [P] [US3] Test: hold runs the opening and closing moves only; no `act:` or `npc:` submission is recorded
+- [x] T012 [P] [US1] Test: a reading whose first step names `pell` (no engine combatant) resolves `refused` with `UNKNOWN_COMBATANT`, and its `action.resolved` precedes `encounter.ended`; name TASK-0112 AC #5 in the test comment as the card that will refuse the plan
+- [x] T013 Run every existing test in `resolve.integration.test.ts`, `resolve.human-seat.integration.test.ts`, `reclaim.integration.test.ts`, `beat.integration.test.ts`, `scene.integration.test.ts` and `full-turn.integration.test.ts`; change only an assertion that encodes the old order, and list each such change in the commit message
+- [x] T014 Run the phase gate with the DB suites and commit
 
 **Checkpoint**: the order is code. AC #1 still needs its end-to-end reproduction.
 

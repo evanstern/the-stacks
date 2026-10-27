@@ -40,6 +40,10 @@ function normalized(rows: Awaited<ReturnType<typeof readRows>>): string[] {
     .map((r) =>
       JSON.stringify([r.type, r.actor, r.visibility, r.payload])
         .replace(UUID, "<uuid>")
+        // The marker's step number counts submissions. A reclaim skips an action
+        // that already resolved, so a later marker's number can differ from the
+        // clean run's under the decision-0025 §4 order (spec 045 OQ-2; TASK-0156).
+        .replace(/\[<uuid>#\d+\]/g, "[<uuid>#n]")
         .replace(BATCH, "<id>"),
     );
 }
