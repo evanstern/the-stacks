@@ -15,7 +15,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: baecb93e012266902cea61c04d2633ba3bd65499
+verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
 ---
 
 # Proposal gate
