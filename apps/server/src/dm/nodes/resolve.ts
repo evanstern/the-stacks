@@ -29,6 +29,11 @@ import type { Effect, InterpretReading, Step } from "./schemas.js";
  * events alone; no model is read here. Each submission is checkpointed, so a
  * reclaimed job replays recorded submissions and looks for the in-flight
  * one's marker (FR-006).
+ *
+ * Group order (decision-0025 §4, contracts/turn-jobs.md "Resolve order"):
+ * Director opening moves, rulings, action groups, NPC group, Director closing
+ * moves, turn advance. The batch gate (TASK-0147) slots between the closing
+ * moves and the turn advance.
  */
 
 const AI_DM = { kind: "ai", actor: "ai:dm" } as const;
@@ -574,7 +579,39 @@ interface Local {
   modeJustStarted: boolean;
 }
 
-async function directorGroup(
+/** The encounter-end and table-mode helpers the opening and closing moves share. */
+function directorHelpers(run: Run, local: Local) {
+  const endEncounter = async (reason: string): Promise<void> => {
+    if (!local.encounterActive) return;
+    const sub = await run.mech(
+      "director:encounter-end",
+      { type: "encounter.end" },
+      reason,
+      null,
+    );
+    if (sub.result === "applied") local.encounterActive = false;
+  };
+  const setMode = async (after: TableMode, reason: string): Promise<void> => {
+    const sub = await run.submit("director:table-mode", "table-mode", () => ({
+      kind: "table-mode",
+      ...note(`Table mode: ${after.mode}`, reason),
+      reason: reason.slice(0, 500),
+      after,
+    }));
+    if (sub.result === "applied") {
+      local.newTableMode = after;
+      local.mode = after.mode;
+    }
+  };
+  return { endEncounter, setMode };
+}
+
+/**
+ * Director opening moves (decision-0025 §4): the scene-start setup and the
+ * `turn` table-mode decision. They run before any action group, because an
+ * action may name a combatant that an opening move adds.
+ */
+async function directorOpening(
   run: Run,
   ctx: TurnContext,
   assembled: AssembleOutput,
@@ -584,6 +621,7 @@ async function directorGroup(
   const { seed, deps } = ctx;
   const p = assembled.projections;
   const why = (s: string) => note(s, s);
+  const { setMode } = directorHelpers(run, local);
 
   if (ctx.job.trigger === "scene-start") {
     await run.submit("director:scene", "scene", () => ({
@@ -660,49 +698,6 @@ async function directorGroup(
     return;
   }
 
-  // trackers
-  for (const adv of director.trackers) {
-    const before = p.trackers.find((t) => t.trackerId === adv.trackerId);
-    if (!before) continue;
-    const filled = Math.max(
-      0,
-      Math.min(before.segments, before.filled + adv.advance),
-    );
-    if (filled === before.filled) continue;
-    await run.submit(`director:tracker:${adv.trackerId}`, "tracker", (ref) => ({
-      kind: "tracker",
-      ...note(`Advance ${before.name}`, adv.reason),
-      // The marker lets a reclaim find an advance that landed before its checkpoint save.
-      reason: withMarker(adv.reason, ref),
-      trackerId: adv.trackerId,
-      visibility: "dm",
-      after: { ...before, filled },
-    }));
-  }
-
-  const endEncounter = async (reason: string): Promise<void> => {
-    if (!local.encounterActive) return;
-    const sub = await run.mech(
-      "director:encounter-end",
-      { type: "encounter.end" },
-      reason,
-      null,
-    );
-    if (sub.result === "applied") local.encounterActive = false;
-  };
-  const setMode = async (after: TableMode, reason: string): Promise<void> => {
-    const sub = await run.submit("director:table-mode", "table-mode", () => ({
-      kind: "table-mode",
-      ...note(`Table mode: ${after.mode}`, reason),
-      reason: reason.slice(0, 500),
-      after,
-    }));
-    if (sub.result === "applied") {
-      local.newTableMode = after;
-      local.mode = after.mode;
-    }
-  };
-
   // table mode
   const tm = director.tableMode;
   if (tm.to === "turn") {
@@ -756,7 +751,47 @@ async function directorGroup(
         }
       }
     }
-  } else if (tm.to === "free") {
+  }
+}
+
+/**
+ * Director closing moves (decision-0025 §4): tracker advances, the `free`
+ * table-mode decision (encounter end, then free mode) and the scene end. They
+ * run after the action and NPC groups, so an encounter-ending action resolves
+ * while the encounter is still active.
+ */
+async function directorClosing(
+  run: Run,
+  assembled: AssembleOutput,
+  director: DirectorNodeOutput,
+  local: Local,
+): Promise<void> {
+  const p = assembled.projections;
+  const { endEncounter, setMode } = directorHelpers(run, local);
+
+  // trackers
+  for (const adv of director.trackers) {
+    const before = p.trackers.find((t) => t.trackerId === adv.trackerId);
+    if (!before) continue;
+    const filled = Math.max(
+      0,
+      Math.min(before.segments, before.filled + adv.advance),
+    );
+    if (filled === before.filled) continue;
+    await run.submit(`director:tracker:${adv.trackerId}`, "tracker", (ref) => ({
+      kind: "tracker",
+      ...note(`Advance ${before.name}`, adv.reason),
+      // The marker lets a reclaim find an advance that landed before its checkpoint save.
+      reason: withMarker(adv.reason, ref),
+      trackerId: adv.trackerId,
+      visibility: "dm",
+      after: { ...before, filled },
+    }));
+  }
+
+  // table mode
+  const tm = director.tableMode;
+  if (tm.to === "free") {
     await endEncounter(tm.reason);
     await setMode({ mode: "free" }, tm.reason);
   }
@@ -868,7 +903,9 @@ export const resolve: Node<"resolve"> = async (ctx) => {
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {
-    await directorGroup(run, ctx, assembled, director, local);
+    // Decision-0025 §4: opening moves, rulings, actions, NPC, closing moves,
+    // turn advance. Hold runs the opening and closing moves only.
+    await directorOpening(run, ctx, assembled, director, local);
 
     if (!hold) {
       const readings = ctx.results.interpret?.readings ?? [];
@@ -923,7 +960,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
           awaitingDm: chain.awaiting,
         };
       }
+    }
 
+    // Closing moves. A scene-start job has none (its opening moves returned).
+    if (ctx.job.trigger !== "scene-start") {
+      await directorClosing(run, assembled, director, local);
+    }
+
+    if (!hold) {
       // Turn advance group.
       if (
         local.mode === "turn" &&
