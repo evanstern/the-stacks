@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:38'
 labels:
   - dm
   - companions
@@ -31,12 +31,19 @@ Spec: specs/036-companion-react
 - [ ] #1 A human comment, approval or objection on a companion's pending declared action enqueues that companion, with an integration test
 - [ ] #2 The re-run companion commits, revises or withdraws, and a test shows the table no longer waits indefinitely
 - [ ] #3 The companions contract (specs/031-dm-runtime/contracts/companions.md) records the new trigger
+- [ ] #4 Spec phase: Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet)
+- [ ] #5 Spec phase: Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet)
+- [ ] #6 Spec phase: Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A
+- [ ] #7 Spec phase: Wiki (re-ground) — DISPATCH (sonnet)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0114, branch task-0114-companion-react, cut from origin/main a4aab3c. Spec number 036 claimed with a stub. Track B1.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring, spec 036, commit f81c2ab; ~185k tokens; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
