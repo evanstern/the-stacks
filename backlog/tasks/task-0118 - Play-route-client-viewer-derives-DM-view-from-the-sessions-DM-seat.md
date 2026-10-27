@@ -1,10 +1,10 @@
 ---
 id: TASK-0118
 title: 'Play route: an unseated operator with an AI DM seat views as a player'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 01:49'
+updated_date: '2026-10-27 03:28'
 labels:
   - play-route
   - web
@@ -38,3 +38,9 @@ Why: TASK-0048 (commit 53a78fa on branch task-0048-playtest, operator ruling 'Fi
 - [ ] #2 The seat-holder and character-controller cases of viewerFor keep their TASK-0048 behaviour.
 - [ ] #3 viewer.test covers the unseated-operator case with an AI DM seat and with a human DM seat held by someone else.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0118, branch task-0118-unseated-operator-view, cut from origin/main a4aab3c. Spec number 038 claimed with a stub. Track B3.
+<!-- SECTION:NOTES:END -->
