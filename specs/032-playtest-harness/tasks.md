@@ -173,12 +173,12 @@ human seat in Brave and approves every paid run. No implementer runs any task in
 
 **Precondition**: Phases 1 to 5 ticked; T043 green.
 
-- [ ] T044 [US4] **Checkpoint (operator)**: follow `docs/design/m2-demo.md` section B. Present `pnpm playtest estimate` output, the provider names and the model per purpose. Get the operator's approval and ceilings. Record them on TASK-0048 with `backlog task edit TASK-0048 --append-notes` from the worktree. Do not run any provider command before this approval.
-- [ ] T045 [US4] Run the paid scripted playtest (section C) under the approved ceiling. Copy its run directory to `docs/design/m2-demo/provider-playtest/`. Stop and report to the operator on outcome `failed` or `timed-out`.
-- [ ] T046 [US4] Play the demo (section D): the operator plays Tamsin in Brave to the scene's end; the orchestrator watches `/dm/sessions/<id>/turns`, records retries, and saves `docs/design/m2-demo/scene-end.png`.
-- [ ] T047 [US5] Audit the demo session (section E) under the approved ceiling into `docs/design/m2-demo/demo-session/`.
-- [ ] T048 [US5] Fill `docs/design/m2-demo.md` (section F): the criteria table, the runs table, one failure-table row per finding and DM-runtime audit flag in both reports, each with a resolution; card each `carded` row and each failed demo criterion with the `backlog` CLI; get the operator's sign-off for `accepted` and `false-positive` rows.
-- [ ] T049 [US5] Verify SC-006: the failure table's row count equals the findings plus flags in both `report.json` files, and no row lacks a resolution. Commit the record and `docs/design/m2-demo/` on the task branch.
+- [x] T044 [US4] **Checkpoint (operator)**: follow `docs/design/m2-demo.md` section B. Present `pnpm playtest estimate` output, the provider names and the model per purpose. Get the operator's approval and ceilings. Record them on TASK-0048 with `backlog task edit TASK-0048 --append-notes` from the worktree. Do not run any provider command before this approval.
+- [x] T045 [US4] Run the paid scripted playtest (section C) under the approved ceiling. Copy its run directory to `docs/design/m2-demo/provider-playtest/`. Stop and report to the operator on outcome `failed` or `timed-out`.
+- [x] T046 [US4] Play the demo (section D): the operator plays Tamsin in Brave to the scene's end; the orchestrator watches `/dm/sessions/<id>/turns`, records retries, and saves `docs/design/m2-demo/scene-end.png`.
+- [x] T047 [US5] Audit the demo session (section E) under the approved ceiling into `docs/design/m2-demo/demo-session/`.
+- [x] T048 [US5] Fill `docs/design/m2-demo.md` (section F): the criteria table, the runs table, one failure-table row per finding and DM-runtime audit flag in both reports, each with a resolution; card each `carded` row and each failed demo criterion with the `backlog` CLI; get the operator's sign-off for `accepted` and `false-positive` rows.
+- [x] T049 [US5] Verify SC-006: the failure table's row count equals the findings plus flags in both `report.json` files, and no row lacks a resolution. Commit the record and `docs/design/m2-demo/` on the task branch.
 
 ---
 
