@@ -43,8 +43,6 @@ Spec: specs/051-output-claim-gate
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -97,6 +95,8 @@ Orchestrator rulings, applying OQ-2 (a) and OQ-5 (a):
 - The ruling and goalNote input check ignores omission claims. Narration still owes omissions.
 - "rally" joins ACT_VERBS.
 Known limit: ACT_VERBS coverage. Verbs outside it ("braces", "heaves") are not refused, which is a miss, not a false refusal; the model audit is the backstop.
+
+spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 8/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 7/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
