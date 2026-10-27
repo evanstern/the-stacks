@@ -31,4 +31,4 @@
 
 ## Notes
 
-- `plan.md` and `tasks.md` wait for the operator's rulings on FT-1..FT-5 and Q1..Q6.
+- The operator ruled FT-1..FT-5 and Q1..Q6 on 2026-10-27 (all recommended defaults); rulings folded into spec.md.

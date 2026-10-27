@@ -6,10 +6,9 @@
 
 **Created**: 2026-10-27
 
-**Status**: Awaiting operator rulings. The open items FT-1 to FT-5 and Q1 to Q6 below each
-carry a recommended default. `plan.md` and `tasks.md` are not written until the operator
-rules (dispatch rule: stop before planning when a frozen contract, a new proposal kind or a
-UI interaction model is in play).
+**Status**: Ruled. The operator accepted every recommended default on 2026-10-27 (see
+"Operator rulings" below), including the frozen-contract amendments to specs 029, 031 and 044
+and the one jobs migration. `plan.md` and `tasks.md` follow from these rulings.
 
 **Input**: Board card TASK-0050. "In turn mode, the floor passes between human players in
 initiative order. Only the active player commits for their turn. Everyone else talks and
@@ -27,16 +26,15 @@ wait on an absent player"), decision-0025 (D17, code gates over tracked actors);
 `specs/044-group-signoff/` (`signoffState`, `PlanContext.present`, the quorum, ruling Q5);
 `specs/045-encounter-end-resolves/` (the six resolve groups); `specs/046-downed-hero-gate/`
 (settling downed combatants at turn advance); `specs/047-suggest-no-approve/` (`policy` on
-the proposal view); `specs/048-scene-presence/` (PR #73, not on main; read from branch
-`task-0141-scene-presence`). Frozen: `specs/029-proposal-gate/contracts/`,
+the proposal view); `specs/048-scene-presence/` (PR #73, merged; in this branch's base at `5cc34fb`). Frozen: `specs/029-proposal-gate/contracts/`,
 `specs/030-play-route/contracts/proposal-seam.md`, `specs/031-dm-runtime/contracts/`.
 Code read at `46872a1`: `packages/session-model/src/gate/{authority,permissions,plan,refusals}.ts`,
 `src/events/table-mode.ts`, `apps/server/src/dm/nodes/{resolve,settle}.ts`,
 `apps/server/src/dm/{jobs,worker}.ts`, `apps/server/src/schema/jobs.ts`,
 `apps/web/app/play/{view-model,authority}.ts`, `components/{mode-badge,table-header,action-card}.tsx`.
 
-**Clarify step**: `speckit-clarify` was not run. The open choices are one-way doors on frozen
-contracts and a UI interaction model, so they go to the operator as rulings (below), as
+**Clarify step**: `speckit-clarify` was not run. The open choices were one-way doors on frozen
+contracts and a UI interaction model, so they went to the operator as rulings (below), as
 spec 044 did.
 
 ## Background
@@ -78,7 +76,7 @@ humans expose.
    non-active player's own action card reads "Waiting for <active> to commit", which is wrong:
    it commits on the owner's own turn.
 
-### Relation to spec 048 (PR #73, TASK-0141)
+### Relation to spec 048 (TASK-0141, merged in PR #73)
 
 Spec 048 is about **scene presence** (a character is `present`, `yielded` or `absent` in the
 fiction). This spec is about **connection presence** (decision-0024: is the human at the
@@ -89,9 +87,8 @@ scene presence and does not need `initiative.leave`.
 turn-advance group of `apps/server/src/dm/nodes/resolve.ts`. 048 FR-016 makes resolve skip its
 own `turn.advance` when the active combatant left the order. This spec's FR-012 makes resolve
 skip it when the turn moved since assemble. Both are "the turn already moved" guards.
-**Recommended sequencing**: write `plan.md` against `main` after PR #73 merges, so the two
-guards become one rule. If #73 has not merged when the rulings land, the plan names the
-reconcile merge in `resolve.ts` and `settle.ts` as a task.
+**Sequencing (ruling Q6 A)**: `plan.md` is written against `main` after PR #73 merged, so the
+two guards become one rule ("the turn moved since assemble") in `resolve.ts`.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -206,12 +203,12 @@ present quorum member's party action is committed by `ai:dm` after the stall win
 2. **Given** the human returns before the wait passes, **When** the wait ends, **Then** nothing
    is written.
 3. **Given** a present active human, **When** any time passes, **Then** the AI DM does not
-   pass their turn (Q4 default).
+   pass their turn (ruling Q4 A).
 4. **Given** an AI seat and an open party action whose present quorum is unmet with no
    objection, **When** the stall window passes with no stance change, **Then** `ai:dm` commits
    it with authority `dm` and the batch holds a `signoff` marker.
 5. **Given** a quorum member's latest stance is `object`, **When** the stall window passes,
-   **Then** the AI DM does not commit (Q5 default).
+   **Then** the AI DM does not commit (ruling Q5 A).
 6. **Given** a human DM seat, **When** any stall occurs, **Then** the AI DM overrides nothing.
 
 ---
@@ -286,7 +283,7 @@ the transcript line, and that End turn sends the floor request.
 
 - **FR-003** (AC #2): Any party member MUST be able to comment on the active player's open
   action, with text, in turn mode (existing permission). The play route MUST label a
-  non-active player's comment input on the active player's card as a suggestion (Q2 default:
+  non-active player's comment input on the active player's card as a suggestion (ruling Q2 A:
   no new stance).
 - **FR-004** (AC #2): A non-active player's own open character action MUST show that it
   commits on its owner's turn, not "Waiting for <active> to commit".
@@ -294,15 +291,15 @@ the transcript line, and that End turn sends the floor request.
 **Ending a turn (AC #3)**
 
 - **FR-005** (AC #3): The active actor MUST be able to end their own turn with one gate request
-  (FT-1). The gate MUST refuse it from any other non-DM proposer, refuse it outside turn mode or
+  (ruling FT-1 A: proposal kind `floor`). The gate MUST refuse it from any other non-DM proposer, refuse it outside turn mode or
   without an active encounter, and refuse it when the request names a turn that is no longer
-  current (FT-4). A refusal writes nothing.
+  current (ruling FT-2: `TURN_MOVED`). A refusal writes nothing.
 - **FR-006** (AC #3): Ending a turn MUST plan one atomic batch: the engine's `turn.advance`,
   then settling of any downed combatants the turn reaches (spec 046 rules), then one
   `table-mode.changed` row naming the actor of the new active combatant. The next actor is
   chosen by the same pure rule resolve uses (`activeActorFor`), in one place.
 - **FR-007** (AC #3): When the new active actor is `ai:dm` or an AI companion, the matching job
-  MUST be queued: an `npc-turn` turn job, or a companion `turn` job (FT-3). A floor that lands
+  MUST be queued: an `npc-turn` turn job, or a companion `turn` job (ruling FT-3). A floor that lands
   on a human queues nothing, except the absence check (FR-013).
 
 **DM pass and reclaim (AC #5)**
@@ -312,10 +309,11 @@ the transcript line, and that End turn sends the floor request.
   `table-mode` row naming the DM, with `activeCharacterId` null; the engine encounter
   unchanged), and to return it (a `table-mode` row naming the actor of the encounter's active
   combatant). Players MUST be refused all three.
-- **FR-009** (AC #5): `ai:dm` MUST be able to pass the floor through the same request. Whether
-  `ai:dm` may take and return the floor is Q3 (default: no).
+- **FR-009** (AC #5): `ai:dm` MUST be able to pass the floor through the same request, only
+  for an active human who is absent from the present set (Q4). `ai:dm` MUST NOT take or return
+  the floor (ruling Q3 A).
 - **FR-010** (AC #5): With a human DM seat, `ai:dm` floor requests MUST route by policy like
-  every other AI DM kind (FT-2 default `ask`); with an AI seat they are `auto`.
+  every other AI DM kind (ruling FT-2: default `ask`); with an AI seat they are `auto`.
 
 **Turn integrity**
 
@@ -328,22 +326,22 @@ the transcript line, and that End turn sends the floor request.
 **The AI DM's waits (decision-0024; TASK-0049 Q5)**
 
 - **FR-013**: With an AI seat, when the floor sits with a human who is absent, the AI DM MUST
-  pass the floor once the human has been absent for the absence wait (Q4 default 30 s after
+  pass the floor once the human has been absent for the absence wait (ruling Q4 A: 30 s after
   the 5 s grace window), unless they return first. The decision MUST be code, not a model call.
 - **FR-014**: The AI DM's floor pass under FR-013 MUST append a `presence.recorded` row with
   purpose `floor` and the present set it read, in the same batch as the pass (decision-0024 §4
   and §5). A pass by a human, or by `ai:dm` for any other reason, writes no `floor` marker.
 - **FR-015**: With an AI seat, when an open party-scope action has an unmet quorum, no quorum
   member's latest stance is `object`, and no stance on it has changed for the stall window
-  (Q5 default 120 s), the AI DM MUST commit it through `gate.submit` as `ai:dm` (authority
+  (ruling Q5 A: 120 s), the AI DM MUST commit it through `gate.submit` as `ai:dm` (authority
   `dm`). The decision MUST be code, not a model call.
 - **FR-016**: The commit under FR-015 MUST append a `presence.recorded` row with purpose
-  `signoff`, the `actionId` and the present set it read, in the commit batch (FT-5). Other `dm`
+  `signoff`, the `actionId` and the present set it read, in the commit batch (ruling FT-5). The commit proposal carries `override: "stall"`. Other `dm`
   commits stay unchanged and write no marker (spec 044 FR-008).
 - **FR-017**: With a human seat, the AI DM MUST NOT pass the floor or commit a party action on
   its own (FR-013, FR-015 do not apply). The human DM decides.
 - **FR-018**: The waits MUST be durable across a server restart: a pending wait is a queued job
-  or is re-armed by reconcile (FT-3). Each wait re-reads the projection and presence when it
+  or is re-armed by reconcile (ruling FT-3 A: a `floor` job kind). Each wait re-reads the projection and presence when it
   fires and writes nothing when the stall has ended.
 
 **The view (AC #4)**
@@ -354,7 +352,7 @@ the transcript line, and that End turn sends the floor request.
 - **FR-020** (AC #4): Every `table-mode.changed` row in turn mode MUST add one transcript line
   for every viewer naming the new holder. The line is derived in the view model; no new event.
 - **FR-021** (AC #3, #5): The active player MUST see an End turn control; the DM MUST see Pass,
-  Take floor and Return floor controls (Q1 placement). The UI MUST NOT use a modal or a
+  Take floor and Return floor controls (ruling Q1 A: inline in the header). The UI MUST NOT use a modal or a
   confirmation dialog. Controls live inline in the table header.
 - **FR-022**: The order strip and controls MUST be derived by pure functions from the
   projection, testable without a browser.
@@ -364,7 +362,7 @@ the transcript line, and that End turn sends the floor request.
 - **FR-023** (AC #6): Pure tests MUST cover FR-001 to FR-012 over projections with two humans
   and one AI companion. A new session-model fixture `turn-floor` (two humans, one companion,
   one monster; End turn, commit and resolve, DM take and return, an AI DM absence pass) MUST
-  feed the replay check and the play route's fixture route (FT-4).
+  feed the replay check and the play route's fixture route (ruling FT-4).
 - **FR-024** (AC #6): A database integration test on the task's own stack MUST play one full
   round with two human seats and one AI companion through the gate and the DM worker on the
   fake gateway (runbook merge condition for TASK-0050). It MUST include one End turn handoff,
@@ -422,7 +420,7 @@ the transcript line, and that End turn sends the floor request.
 - A committed action still ends the turn when it resolves, as today. End turn is a second way,
   not a replacement.
 - Bonus actions, reactions and readied actions are out of scope. The floor is one turn per
-  combatant. Lending the floor to one actor out of order is option Q3-C, not the default.
+  combatant. Lending the floor to one actor out of order was option Q3-C and was not chosen.
 - No new event type is needed: a floor change is a `table-mode.changed` row plus engine
   events, and the marker purpose `floor` is already catalogued (decision-0024).
 - The stall and absence waits are fixed constants with injectable overrides, as the companion
@@ -441,11 +439,33 @@ the transcript line, and that End turn sends the floor request.
 | TASK-0049 Q5 AI DM override of a stalled sign-off | FR-015, FR-016, FR-017, FR-018, FR-025 | US 4 |
 | decision-0024 "no wait on an absent player" (inherited) | FR-013, FR-014, FR-017, FR-018 | US 4 |
 
-## Open Questions (for the operator)
+## Operator rulings (2026-10-27)
 
-Items marked **FT** change frozen contract text. Items marked **Q** are design choices. Each
-has a recommended default. No new event type and no WebSocket frame change is needed under
-any recommended option.
+Recorded on TASK-0050 (card at `c3c86da`). The operator's words: "TASK-0050: I accept the
+recommended defaults FT-1 to FT-5 and Q1 to Q6, including the frozen-contract amendments to
+029, 031 and 044 and the one jobs migration." Every item settles on its recommended default:
+
+| Item | Ruling |
+|---|---|
+| FT-1 | A: new proposal kind `floor` `{ op: end \| take \| return, turn: { round, combatantId }, reason }`, planned atomically (`turn.advance`, settling, `table-mode.changed`). Settling becomes one pure rule shared with resolve. After spec 048 the counts are: proposal kinds 14 to 15, DM kinds 12 to 13, `GATE_REQUEST_KINDS` 18 to 19. |
+| FT-2 | `end` for the active actor or the DM; `take`/`return` for the seated human DM; policy `ask` under a human seat, `auto` under an AI seat; new refusal codes `FLOOR_NOT_HELD`, `TURN_MOVED`, `NOT_TURN_MODE`. |
+| FT-3 | A: a code-only `floor` job kind (`check: absence \| stall`, `notBefore`), serialised per session with `turn` and `companion`, re-armed by reconcile; one migration. |
+| FT-4 | A `turn-floor` fixture row in 029 `fixtures.md`; the replay check covers AI DM overrides. |
+| FT-5 | An `ai:dm` `action.commit` with `override: "stall"` plans `[presence.recorded(signoff), action.committed(dm)]`; amends spec 044's gate-api text. |
+| Q1 | A: inline header controls and a turn-order strip; no confirmation, no modal. |
+| Q2 | A: no new stance; a comment labelled as a suggestion. |
+| Q3 | A: the AI DM passes only; it never takes or returns the floor. |
+| Q4 | A: the AI DM passes only an absent human, 30 s after the 5 s grace. If the idle-present case shows up in play, the orchestrator cards a revisit (decision-0020). |
+| Q5 | A: 120 s with no stance change, quorum unmet, no objection: `ai:dm` commits; an objection blocks it. |
+| Q6 | A: `plan.md` is written after PR #73 merged. |
+
+No ruling conflicts with what PR #73 landed. 048 adds the `scene-presence` kind (hence the
+counts above) and a "left the order" skip in resolve's turn advance, which `plan.md` folds into
+this spec's FR-012 guard.
+
+The sections below keep the options as they were put to the operator.
+
+## Open Questions (as put to the operator; all ruled above)
 
 ### FT-1 — A new proposal kind for the floor (`specs/029-proposal-gate/contracts/proposals.md`)
 
