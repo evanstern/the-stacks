@@ -1,9 +1,10 @@
 ---
 id: TASK-0119
 title: 'Research branch 2: NPCs, social interaction and information'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 02:05'
+updated_date: '2026-10-27 03:28'
 labels:
   - research
   - dm
@@ -28,6 +29,12 @@ Outcome: the AI DM's NPC and information doctrine rests on documented DM practic
 - [ ] #3 A decision record is created with the backlog CLI after operator go
 - [ ] #4 Follow-up cards exist, and TASK-0107 carries the applicable findings
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0119, branch task-0119-research-npcs-social, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track D2. Escape line E2. Decides TASK-0107.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
