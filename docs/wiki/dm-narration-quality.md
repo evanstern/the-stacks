@@ -1,6 +1,6 @@
 ---
 name: dm-narration-quality
-description: DM narration quality (TASK-0106, specs/034-narration-quality) - the PlayerSeedView that keeps DM-only seed text out of player-facing prompts, named public-only transcripts, facts v2 (party, public events, setting, roll target), the party and world prompt sections from the S1 snapshot, the code-derived blocking/advisory audit with the party-name filter, and the in-fiction deterministic fallback. Read before touching narrate, audit, facts or fallback.
+description: DM narration quality (TASK-0106, specs/034) - the PlayerSeedView that keeps DM-only seed text out of player prompts, named public-only transcripts, facts v2, party and world prompt sections from S1, the code-derived blocking/advisory audit with the party-name filter, the claim gate hook-up (see output-claim-gate), and the in-fiction fallback. Read before touching narrate, audit, facts or fallback.
 kind: component
 sources:
   - apps/server/src/dm/seed/views.ts
@@ -11,8 +11,11 @@ sources:
   - apps/server/src/dm/snapshot/aliases.ts
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/nodes/audit.ts
+  - apps/server/src/dm/nodes/narrate.ts
+  - apps/server/src/dm/claims.ts
+  - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
 ---
 
 # DM narration quality
@@ -54,12 +57,14 @@ throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-ru
 
 ## Audit
 
-`nodes/audit.ts`: `deterministicChecks` is pure and every issue blocks (empty prose, digits,
-dice language with no roll, death or unconscious words versus recorded life-state, omitted
-recorded death or down, outcome-word pairing, `MAX_WORDS`, option menu, a clarify turn that
-does not end in `?`, dice lines versus the renderer). Then one `dm.audit` call. Pass or fail is
-derived in code, not read from the model verdict. Each issue is recorded as `RecordedIssue`
-with `blocking`. From `dm.audit`, kinds `ledger-mismatch`, `invented-mechanics` and
+`nodes/audit.ts`: `deterministicChecks(facts, narration, state)` is pure and every issue blocks
+(empty prose, digits, dice language with no roll, outcome-word pairing, `MAX_WORDS`, option menu,
+a clarify turn that does not end in `?`, dice lines versus the renderer). The four actor-anonymous
+death and unconscious word checks are gone: `checkClaims(state, prose)` (`claims.ts`, spec 051)
+replaces them, and each claim issue blocks as `ledger-mismatch` with the detail prefix
+`Actor state:`. The `ClaimState` is S1 plus the S0-to-S1 diff from resolve ([[actor-snapshot]]).
+Then one `dm.audit` call. Pass or fail is derived in code, not read from the model verdict. Each
+issue is recorded as `RecordedIssue` with `blocking`. From `dm.audit`, kinds `ledger-mismatch`, `invented-mechanics` and
 `player-agency` may block; `doctrine` and `other` are advisory and logged with an
 `[advisory]` prefix. A `player-agency` issue blocks only when its detail names a party member
 (`llmIssueBlocksFor`, `partyNameTerms`, `detailNamesPartyMember`: full name, characterId, or
@@ -67,18 +72,27 @@ given name after a title word, whole-word match). The title list and the given-n
 `snapshot/aliases.ts` (`nameTerms`); `partyNameTerms` calls it and its output is unchanged. Each `AuditAttempt` records the prose word
 count, both result sets and the prose hash. Regeneration passes blocking issues back.
 
+## Output claim gate
+
+`checkClaims` (`claims.ts`, spec 051) replaces the four anonymous checks and `withholdRefusedInputs`
+(`nodes/narrate.ts`) withholds refused rulings and `goalNote` text before the first model call;
+the audit records the withheld texts as non-blocking issues on attempt 1 only. Detail: [[output-claim-gate]].
+
 ## Fallback
 
 `factualSummary(facts)` (`fallback.ts`) is deterministic in-fiction prose: opening framing on
 scene start, one sentence per refusal, roll outcome, public change and event, "What does X do?"
 for each clarify, and a scene-end line. It holds no digit, system word or tracker name, passes
-`deterministicChecks` by construction and is never sent to `dm.audit`. It ships after three
+`deterministicChecks` by construction and is never sent to `dm.audit`. `factualSummary(facts, state?)` passes
+each roll reason through `checkClaims` in `reasonUsable` (a refused reason is not voiced), and
+says "<name> dies" instead of "is dead" for a numbered name ("Goblin three"), which the checker
+would read as the count word. It ships after three
 failed attempts, a failed audit call or a failed regeneration, with a `dm`-visibility journal
 flag.
 
 ## Prompt versions
 
-`dm.narrate-v4`, `dm.audit-v3`, `dm.director-v3`, `dm.chronicle-v3`, `dm.companion-v5` (v3 on the
+`dm.narrate-v5`, `dm.audit-v3`, `dm.director-v3`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
-revise decisions; v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
+revise decisions; companion v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.

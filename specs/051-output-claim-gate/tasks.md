@@ -293,26 +293,26 @@ then `pnpm ci:check` and `pnpm playtest run` (CI mode).
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T036 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed as
+- [x] T036 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed as
       RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`.
-- [ ] T037 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`. Cover:
+- [x] T037 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`. Cover:
       - the "Audit" section: the claim checks replace the four anonymous checks;
       - the withheld ruling and `goalNote`;
       - the fallback's reason filter;
       - "Prompt versions": `dm.narrate-v5`.
       Add `apps/server/src/dm/claims.ts` and `apps/server/src/dm/audit-words.ts` to its sources.
       Re-pin it.
-- [ ] T038 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the audit step (step 7) and "Narration and
+- [x] T038 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the audit step (step 7) and "Narration and
       audit" name the claim gate against S1. Re-pin it.
-- [ ] T039 NEEDS-REVIEW `docs/wiki/actor-snapshot.md` "Extension points": state that TASK-0143
+- [x] T039 NEEDS-REVIEW `docs/wiki/actor-snapshot.md` "Extension points": state that TASK-0143
       built the alias matcher (`checkClaims`), which TASK-0144 and TASK-0161 reuse. Re-pin it.
-- [ ] T040 Review `docs/wiki/seed-npc-presence.md` (it lists `nodes/narrate.ts`),
+- [x] T040 Review `docs/wiki/seed-npc-presence.md` (it lists `nodes/narrate.ts`),
       `docs/wiki/dm-failure-and-gates.md` and `docs/wiki/playtest-harness.md` (it reads the
       `audit-words.ts` lexicons). Re-pin each note whose sources changed. Where behaviour
       changed, amend the prose before re-pinning.
-- [ ] T041 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence
+- [x] T041 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence
       for the output claim gate to the `docs/wiki/INDEX.md` state paragraph.
-- [ ] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0).

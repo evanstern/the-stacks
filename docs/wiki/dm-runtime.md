@@ -33,7 +33,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
+verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
 ---
 
 # DM runtime
@@ -49,8 +49,8 @@ async function `(TurnContext) => NodeResult`.
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
    folds the DM projection ([[session-model]]), reads `projections.presence` into
-   `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0** (with each actor's logged scene presence, which sets `presentNpcIds`)
-   (`AssembleOutput.snapshot`), selects scene-seed material, and looks up SRD
+   `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0**
+   (`AssembleOutput.snapshot`; each actor's logged scene presence sets `presentNpcIds`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup) and whether the beat resolves or **holds** for companions.
@@ -61,7 +61,7 @@ async function `(TurnContext) => NodeResult`.
 5. **resolve** - code only; the one node that writes. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
-7. **audit** - deterministic checks plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
+7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay model calls. The runner aborts on a fence loss between nodes.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
@@ -77,8 +77,7 @@ discriminant (spec 033, `contracts/director-output.md` row C4).
 Every prompt's state comes from one `ActorSnapshot` ([[actor-snapshot]]): S0 for director,
 interpret and adjudicate (`dm` view); S1 for narrate and audit (`fiction` view); the current
 state for the companion (`seat` view); the state at `throughSeq` for the chronicle (`fiction`
-view). A snapshot over its cap makes `safeRun` return a `state-overflow` `NodeError` and log
-`dm.node.state-overflow`, failing the turn. The failure record and the closed rules-term lists are in [[dm-failure-and-gates]].
+view). A snapshot over its cap fails the turn with `state-overflow` (`safeRun`). The failure record and the closed rules-term lists: [[dm-failure-and-gates]].
 
 ## Resolve: the only writer
 
@@ -87,15 +86,14 @@ view). A snapshot over its cap makes `safeRun` return a `state-overflow` `NodeEr
 `mechanics` proposal goes in, the appended `check.resolved`/hit outcome comes out, and only then
 do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve is the only builder of that kind ([[proposal-gate]]); its seed-presence group logs the seed's declared presence at scene and encounter start ([[seed-npc-presence]]). No model is read inside
 resolve, and no model sees or invents a number: the engine ([[dnd5e-engine]]) owns dice,
-modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a retry. Each submission is stored in the checkpoint (`Submission`: `stepRef`
-`<jobId>#<n>`, key, kind, result, refusal, ids, gate `seqs`).
+modifiers and damage. A gate refusal ([[proposal-gate]]) is recorded, never retried. Each submission is stored in the checkpoint (`Submission`, keyed by `stepRef` `<jobId>#<n>`).
 
 Resolve's six plan-gated groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
 ## Narration and audit
 
 Prose is **digit-free**; code builds the facts and dice lines, so prose cannot misstate a roll. The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
-a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. Facts, audit checks,
+a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. The claim gate: [[output-claim-gate]]. Facts, audit checks,
 the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Purposes
