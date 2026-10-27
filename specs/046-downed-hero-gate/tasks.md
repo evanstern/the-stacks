@@ -241,22 +241,22 @@ ends the run with `stallReason: "seat-downed"`.
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T036 For each staled note, classify it against
+- [x] T036 For each staled note, classify it against
       `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or NEEDS-REVIEW. Amend prose
       before bumping any NEEDS-REVIEW pin.
-- [ ] T037 NEEDS-REVIEW `docs/wiki/playtest-harness.md`: the downed-seat rule,
+- [x] T037 NEEDS-REVIEW `docs/wiki/playtest-harness.md`: the downed-seat rule,
       `seat-downed`, the new fixture.
-- [ ] T038 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md`: the plan gate (`checkPlan`, the
+- [x] T038 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md`: the plan gate (`checkPlan`, the
       `UNKNOWN_COMBATANT` group refusal, `checkpoint.planGate`) and the declare gate's
       `CHARACTER_UNABLE`.
-- [ ] T039 NEEDS-REVIEW `docs/wiki/dnd5e-engine.md`: `ACTOR_UNABLE`, the unable rule, the
+- [x] T039 NEEDS-REVIEW `docs/wiki/dnd5e-engine.md`: `ACTOR_UNABLE`, the unable rule, the
       saving-throw exemption, 27 codes.
-- [ ] T040 Review `docs/wiki/dm-runtime.md` (settling, death-save turns), `docs/wiki/proposal-gate.md`
+- [x] T040 Review `docs/wiki/dm-runtime.md` (settling, death-save turns), `docs/wiki/proposal-gate.md`
       (`CHARACTER_UNABLE`) and `docs/wiki/actor-snapshot.md` (the extension point is built).
       Classify each and amend if its sources changed.
-- [ ] T041 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
+- [x] T041 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
       `docs/wiki/INDEX.md` state paragraph with one sentence for the able-actor gates.
-- [ ] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T042 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0).

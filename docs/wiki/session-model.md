@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/plan.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # Session model
@@ -96,7 +96,7 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 
 `src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
-proposal into catalog rows, or a refusal, using the engine). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; `planProposal` refuses `CHARACTER_UNABLE` for a downed declarer, and the package exports `CHARACTER_UNABLE_REASONS`). All are exported from the package
 index. The kinds, policy table, authority rules and server wrapper are described in
 [[proposal-gate]].
 

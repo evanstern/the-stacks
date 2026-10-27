@@ -13,7 +13,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # Proposal gate
@@ -58,7 +58,7 @@ and companions `direct`, and `ai:dm` by policy (`action.declare` and `action.wit
 
 `commitAuthority` turns decision-0016's table into code over public projections. It refuses
 `UNKNOWN_ACTION`, `ACTION_NOT_OPEN` (only `declared`/`discussed` commit), `COMMIT_NOT_ALLOWED`
-and `GROUP_SIGNOFF_REQUIRED`. The DM commits with authority `dm`. A party-scope action needs a
+and `GROUP_SIGNOFF_REQUIRED`. `action.declare` is also refused `CHARACTER_UNABLE` (details `characterId`, `reason: "life-state"`, `lifeState`) when every character it covers has a combatant that is not conscious. The DM commits with authority `dm`. A party-scope action needs a
 party member: `group` authority when exactly one human player controls the party, otherwise
 `GROUP_SIGNOFF_REQUIRED`. A character action needs control of that character: in turn mode
 only the active actor (`active-player`), in free mode only the declarer (`declarer`).
