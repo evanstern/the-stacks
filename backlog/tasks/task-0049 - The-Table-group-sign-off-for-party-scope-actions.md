@@ -89,6 +89,8 @@ Phase 5 done (2aa2a02): wiki re-ground. Five notes re-pinned to 351fc19 (proposa
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (merge 351fc19, wiki 2aa2a02): proposal-gate, session-model, play-route and presence amended; AC #1 proved by a new gate-plan test of the declared scope. Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+spec-bridge sync: The sign-off rule and commit authority (pure core): 7/7 · The planner, the marker rows and the fixture: 9/9 · Server gate wiring and the two-seat DB test (merge condition): 6/6 · The play route shows sign-off (US4): 7/7 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
