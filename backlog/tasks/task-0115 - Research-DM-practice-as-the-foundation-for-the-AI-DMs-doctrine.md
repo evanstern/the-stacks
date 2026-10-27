@@ -1,10 +1,10 @@
 ---
 id: TASK-0115
 title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 01:44'
-updated_date: '2026-10-27 02:24'
+updated_date: '2026-10-27 02:34'
 labels:
   - research
   - dm
@@ -26,9 +26,9 @@ Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) 
 - [x] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
 - [x] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
 - [x] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
-- [ ] #4 A decision record is created with the backlog CLI after operator go
-- [ ] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
-- [ ] #6 No DMG or other non-SRD book text is committed beyond one short attributed quote per note
+- [x] #4 A decision record is created with the backlog CLI after operator go
+- [x] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
+- [x] #6 No DMG or other non-SRD book text is committed beyond one short attributed quote per note
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -68,10 +68,20 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Branch 1 landed (142af0d): docs/research/Resolution-and-Outcome, gates green.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (assembler). Orchestrator review trimmed five book paraphrases that tracked DMG/VRGtR examples or tables too closely, and corrected the analysis: SRD 5.2.1 has no contest rule (opposition is a check against a derived DC). Analysis-Dice-Versus-Player recommends seven points; awaiting operator go and three open questions before the decision record and cards.
+
+Decision-0022 (D14) created with the backlog CLI after operator go 2026-10-26; body sections filled after creation, following the decision-0021 precedent (the CLI takes title and status only). Operator answers: outcome bands default ON; nat 20 succeeds and nat 1 fails on any d20 test, default ON; reflex thresholds confirmed; flavour intensity follows the natural die; Ask the DM carded as a design round with the M3 table work.
+Cards on main (7f31dce): TASK-0127 stakes before dice, TASK-0128 opposition DC and Help, TASK-0129 Ask-the-DM design round, TASK-0130 doctrine pass. Findings appended to TASK-0113, TASK-0104, TASK-0055.
+Validation: research branch and analysis gates green for DM-Craft-Map and Resolution-and-Outcome; praxisflux commit gates clear (6); book-text check: notes paraphrase by heading path, no book quotations, only SRD quotes with CC-BY-4.0 attribution; five over-close paraphrases trimmed on review.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Grounded the AI DM's resolution doctrine in documented DM practice. Added a research vault at docs/research/ with two branches: DM-Craft-Map (606 cited entries across six of the operator's books, SRD 5.2.1 and four web sources, plus an analysis ranking deep-dive branches by refactor risk) and Resolution-and-Outcome (SRD 5.2.1 PDF, DMG 2014 Ch 8-9, 29 web articles; analysis answering what the dice decide versus the player). Ratified decision-0022 (D14): the capability-not-decision agency line, stakes before dice, numbers from the sheet, table-rules settings, flavour intensity, and Ask the DM. Carded branches 2-5 (TASK-0119 to 0122), the SRD text package (TASK-0123), three revisits (TASK-0124 to 0126) and four D14 implementation cards (TASK-0127 to 0130); fed TASK-0113, 0104, 0055. No doctrine or prompt code changed.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
