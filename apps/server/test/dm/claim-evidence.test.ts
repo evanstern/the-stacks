@@ -115,15 +115,15 @@ function emptyFacts(): NarrationFacts {
 }
 
 describe("claim evidence: seq 216 false positive (US2)", () => {
-  it("today's anonymous check refuses it (Phase 3 flips this to expect a pass)", () => {
+  it("deterministicChecks passes it: the anonymous check is replaced by a keyed one", () => {
     const f = emptyFacts();
-    const r = deterministicChecks(f, {
-      prose: SEQ216_UNCONSCIOUS,
-      diceLines: renderDiceLines(f),
-    });
-    expect(r.issues.map((i) => i.detail)).toContain(
-      "The prose says a character is unconscious, and no fact records it.",
+    const r = deterministicChecks(
+      f,
+      { prose: SEQ216_UNCONSCIOUS, diceLines: renderDiceLines(f) },
+      stateAt(RUN_192319Z_LOG, 205, 215),
     );
+    expect(r.issues).toEqual([]);
+    expect(r.pass).toBe(true);
   });
 
   it("checkClaims passes it: Tamsin is unconscious since seq 135", () => {
