@@ -4,13 +4,14 @@ title: 'Debug view: play/:sessionId/debug page'
 status: To Do
 assignee: []
 created_date: '2026-10-27 01:47'
+updated_date: '2026-10-27 01:47'
 labels:
   - debug-view
   - web
   - play-route
 milestone: m-3
 dependencies:
-  - TASK-0114
+  - TASK-0116
 documentation:
   - docs/design/debug-view.md
 priority: high
