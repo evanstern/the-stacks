@@ -207,31 +207,31 @@ ends the run with `stallReason: "seat-downed"`.
 
 **Independent test**: `apps/server/test/playtest/driver.test.ts` and the new harness case.
 
-- [ ] T029 [P] Add driver cases in `apps/server/test/playtest/driver.test.ts` for spec User
+- [x] T029 [P] Add driver cases in `apps/server/test/playtest/driver.test.ts` for spec User
       Story 1, scenarios 1 to 3:
       - free mode with HP 0 returns `"done"`;
       - turn mode with another combatant active returns `"wait"`;
       - a conscious-again seat declares;
       - a seat with `combatant: null` declares.
-- [ ] T030 Implement `seatDowned` and `STALL_REASON_SEAT_DOWNED` in
+- [x] T030 Implement `seatDowned` and `STALL_REASON_SEAT_DOWNED` in
       `apps/server/src/playtest/driver.ts`, and record the reason in
       `apps/server/src/playtest/harness.ts`, per plan D6. `stallReason` stays `z.string()` in
       `auditor/schema.ts`.
-- [ ] T031 Add the fixture `apps/server/test/playtest/fixtures/downed-seat.json` and its fake
+- [x] T031 Add the fixture `apps/server/test/playtest/fixtures/downed-seat.json` and its fake
       gateway DM script. A monster attack and the scripted dice drop the seat in round 1.
-- [ ] T032 Add a case in `apps/server/test/playtest/harness.integration.test.ts` for User
+- [x] T032 Add a case in `apps/server/test/playtest/harness.integration.test.ts` for User
       Story 1, scenario 4:
       - no `action.declared` row names the seat while it is at 0 HP;
       - the manifest records no declare refusal for the seat;
       - at least one engine death-save roll lands;
       - when the fight ends with the seat down, the outcome is `stalled` with
         `stallReason: "seat-downed"`.
-- [ ] T033 Re-run the shipped `greyhollow-ford` ci case
+- [x] T033 Re-run the shipped `greyhollow-ford` ci case
       (`apps/server/test/playtest/playtest.integration.test.ts`). It must still end `ended`
       with a passing report (SC-007).
-- [ ] T034 Amend `specs/032-playtest-harness/contracts/scenario.md` "Driver" with the downed
+- [x] T034 Amend `specs/032-playtest-harness/contracts/scenario.md` "Driver" with the downed
       rule and the `seat-downed` stall reason.
-- [ ] T035 Run `pnpm ci:check`. It must be green.
+- [x] T035 Run `pnpm ci:check`. It must be green.
 
 **Checkpoint**: every suite is green, and `pnpm ci:check` passes.
 
