@@ -41,8 +41,6 @@ Spec: specs/046-downed-hero-gate
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -74,6 +72,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (merge fbb8a93, work be540e0): declare gate CHARACTER_UNABLE (details.reason life-state); 029 gate-api.md §1 and §2 amended as ruled. gate.integration passed 23 tests on stacks-task-0112; ci:check passed with REQUIRE_DATABASE=1. This branch also carries the TASK-0117 T039-T041 ticks; sync TASK-0117 to Done after this PR merges.
 
 Phase 3 done (2abab8b): checkPlan in apps/server/src/dm/gates/plan-gate.ts, TurnCheckpoint.planGate, resolve wiring (refused UNKNOWN_COMBATANT before any step; refused NPC group still advances). SC-003 ambush test passes unchanged. ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (2abab8b): plan gate checkPlan runs before directorOpening; a refused group lands no step. SC-003 ambush still passes. One fixture changed in meaning-preserving form (the seq-naming test now uses an engine-refused expression). ci:check passed with REQUIRE_DATABASE=1, server 1006 tests.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
