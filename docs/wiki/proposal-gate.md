@@ -15,7 +15,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: b858c209b39453238819def33be72aee1ac9b59b
 ---
 
 # Proposal gate
@@ -104,12 +104,12 @@ with a throwaway RNG, then appends one `dm`-visibility `proposal.created` row.
 
 **Atomic approval.** `proposal.approve` (only `ask` proposals, only pending ones) re-plans the
 stored proposal as the AI DM with a fresh RNG and appends the effect rows plus
-`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`.
+`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`. The play route ([[play-route]]) offers no Approve on a
+`suggest` proposal; it sends `proposal.reject`.
 
 **Concurrency.** Every write passes `expectedLastSeq` (the projection's `throughSeq`) to
 `appendBatch` ([[event-log]]). On `SeqConflictError` the gate re-reads and retries, at most 3
-attempts, then refuses `CONFLICT`. After a
-successful append each `onAppended` listener gets the stored rows in `seq` order. `index.ts` wires `gate.onAppended(gateway.publish)`.
+attempts, then refuses `CONFLICT`. After a successful append each `onAppended` listener gets the stored rows in `seq` order; `index.ts` wires `gate.onAppended(gateway.publish)`.
 
 ## The write boundary (AC #1)
 
@@ -118,10 +118,9 @@ successful append each `onAppended` listener gets the stored rows in `seq` order
 (`test/helpers/import-graph.ts`, `checkWriteBoundary`) over `apps/server/src`: `append` and
 `appendBatch` may be imported only by `session/events.ts`; `appendSessionEvent`,
 `appendSessionEvents` and `appendMechanicsBatch` only under `gate/`; `ws/gateway.ts` is no
-longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent` and its allow-list entry);
+longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent`);
 no writer's transitive closure reaches `ai/`; a non-literal dynamic
-`import()` fails. A seeded violation tree under `test/fixtures/write-boundary/src` proves the
-checker trips three rules.
+`import()` fails. A seeded violation tree in `test/fixtures/write-boundary/src` trips three rules.
 
 ## Known behaviour
 

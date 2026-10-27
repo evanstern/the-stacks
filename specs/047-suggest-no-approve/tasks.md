@@ -56,10 +56,10 @@ description: "Tasks for suggest proposals without an Approve control (TASK-0100)
 
 **Goal**: the grounding wiki describes the merged behaviour, re-pinned honestly.
 
-- [ ] T014 Review and amend `docs/wiki/play-route.md` (NEEDS-REVIEW): `PendingProposalView.policy`; the suggest row's Suggestion label and Dismiss (`onReject(id, null)`, the existing `proposal.reject` request); remove the "Known gap: suggest-policy proposals still show an Approve control (TASK-0100)" sentence; name TASK-0159 as the open scene-command gap.
-- [ ] T015 [P] Review and amend `docs/wiki/proposal-gate.md` (NEEDS-REVIEW): under "Atomic approval", state that the play route offers no Approve on a `suggest` proposal and dismisses it through `proposal.reject`; the gate code is unchanged.
-- [ ] T016 Update the state paragraph in `docs/wiki/INDEX.md` for TASK-0100 (specs/047). Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Classify each staled pin as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`, and re-pin.
-- [ ] T017 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0). Commit `TASK-0100: Phase 3 — wiki re-ground`.
+- [x] T014 Review and amend `docs/wiki/play-route.md` (NEEDS-REVIEW): `PendingProposalView.policy`; the suggest row's Suggestion label and Dismiss (`onReject(id, null)`, the existing `proposal.reject` request); remove the "Known gap: suggest-policy proposals still show an Approve control (TASK-0100)" sentence; name TASK-0159 as the open scene-command gap.
+- [x] T015 [P] Review and amend `docs/wiki/proposal-gate.md` (NEEDS-REVIEW): under "Atomic approval", state that the play route offers no Approve on a `suggest` proposal and dismisses it through `proposal.reject`; the gate code is unchanged.
+- [x] T016 Update the state paragraph in `docs/wiki/INDEX.md` for TASK-0100 (specs/047). Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Classify each staled pin as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`, and re-pin.
+- [x] T017 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0). Commit `TASK-0100: Phase 3 — wiki re-ground`.
 
 ---
 
