@@ -39,12 +39,6 @@ Spec: specs/040-actor-snapshot
 - [x] #11 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -75,6 +69,8 @@ Phase 4 done (7e9c226): wiki re-ground. New actor-snapshot note; dm-runtime, dm-
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (7e9c226): wiki re-ground; new note actor-snapshot; 11 staled pins classified (5 NEEDS-REVIEW amended, 6 RE-PIN-ONLY). Freshness OK (51 notes).
+
+spec-bridge sync: The snapshot module (US1, US2 diff, US4 render): 11/11 · S0, S1 and the planning prompts (US2, US3, US4): 8/8 · Player-facing prompts and retirement (US3, US4, US5): 10/10 · Wiki re-ground: 7/7 · Constitution Compliance (the-stacks): 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
