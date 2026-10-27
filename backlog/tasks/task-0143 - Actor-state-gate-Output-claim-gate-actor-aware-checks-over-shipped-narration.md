@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 19:50'
+updated_date: '2026-10-27 19:52'
 labels:
   - dm
   - rules-gate
@@ -54,6 +54,8 @@ Recommended defaults:
 - OQ-4 (a): reuse ledger-mismatch with an "Actor state:" prefix.
 - OQ-5 (a): only a unique reference triggers an act or wrong-actor refusal. Group nouns count toward counts and omission. Pronouns and descriptions pass. A bare "N down" passes if either side matches. yielded counts as present.
 - OQ-6 (a): replace all four anonymous checks with keyed ones.
+
+Operator ruling 2026-10-27 (verbatim): "TASK-0143: I accept the recommended defaults OQ-1 to OQ-6 (a), including the dm.narrate-v5 prompt bump and a follow-up card for checking roll reasons at the plan gate."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
