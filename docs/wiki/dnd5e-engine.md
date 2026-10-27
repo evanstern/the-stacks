@@ -17,7 +17,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
 ---
 
 # 5e engine
@@ -77,7 +77,7 @@ A handler runs every refusal check before it calls `rollDie`. A refused command 
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
 `NO_SLOT_AVAILABLE`), a message and optional detail. A broken RNG contract (a face outside
-`1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing.
+`1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
 
 ## Boundary rule
 

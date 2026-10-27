@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
 ---
 
 # DM failure record and rules-term gates
@@ -34,6 +34,8 @@ one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`).
 6,000, an elision marker, the last 2,000. The `dm.turn.failed` log line carries the detail
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
+
+Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The plan gate stays TASK-0112's.
 
 A **rules term** is a value with a rules definition that a model writes into node output. The
 interpret and adjudicate schemas accept only closed lists derived from engine enums:

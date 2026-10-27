@@ -40,6 +40,13 @@ function normalized(rows: Awaited<ReturnType<typeof readRows>>): string[] {
     .map((r) =>
       JSON.stringify([r.type, r.actor, r.visibility, r.payload])
         .replace(UUID, "<uuid>")
+        // The marker's step number counts submissions. A reclaim skips an action
+        // that already resolved, so a later marker's number can differ from the
+        // clean run's under the decision-0025 §4 order (spec 045 OQ-2; TASK-0156).
+        // Label only: the skipped step is action.resolve, which carries no marker,
+        // so no two steps of one job share a marker. The double-crash test below
+        // pins that each step lands once.
+        .replace(/\[<uuid>#\d+\]/g, "[<uuid>#n]")
         .replace(BATCH, "<id>"),
     );
 }
@@ -49,8 +56,17 @@ const chronicle = {
   respond: { type: "json", value: { entries: [] } },
 };
 
-/** A run of the search turn with an optional crash after the k-th submission. */
-async function runTurn(crashAfter: number | null) {
+/**
+ * A run of the search turn with an optional crash after the k-th submission.
+ * An array crashes after each listed submission, counted across claims.
+ */
+async function runTurn(crashAfter: number | number[] | null) {
+  const crashes =
+    crashAfter === null
+      ? []
+      : Array.isArray(crashAfter)
+        ? crashAfter
+        : [crashAfter];
   const s = script("exploration-check.json");
   const state = { armed: false, count: 0, sessionId: "", firstClaim: 0 };
   const w = await createWorld({
@@ -62,7 +78,7 @@ async function runTurn(crashAfter: number | null) {
         const result = await g.submit(...args);
         if (state.armed) {
           state.count += 1;
-          if (crashAfter !== null && state.count === crashAfter) {
+          if (crashes.includes(state.count)) {
             // The process "dies" here: the lease token is lost, so the worker's
             // next fence check and checkpoint write fail.
             await requireDb().execute(
@@ -86,7 +102,12 @@ async function runTurn(crashAfter: number | null) {
   await tick();
   state.armed = true;
 
-  if (crashAfter === null) {
+  const expire = () =>
+    requireDb().execute(
+      sql`UPDATE jobs SET heartbeat_at = now() - interval '5 minutes'
+          WHERE session_id = ${w.sessionId} AND kind = 'turn' AND status = 'running'`,
+    );
+  if (crashes.length === 0) {
     await drainAll(worker);
   } else {
     await worker.processOne(); // crashes: fenced out, the job stays running
@@ -94,10 +115,13 @@ async function runTurn(crashAfter: number | null) {
     const [job] = await listDmJobs(requireDb(), w.sessionId, 5, "turn");
     expect(job?.status).toBe("running");
     expect(job?.attempts).toBe(1);
-    await requireDb().execute(
-      sql`UPDATE jobs SET heartbeat_at = now() - interval '5 minutes'
-          WHERE session_id = ${w.sessionId} AND kind = 'turn' AND status = 'running'`,
-    );
+    for (let i = 1; i < crashes.length; i += 1) {
+      await expire();
+      await worker.processOne(); // a reclaim that crashes again
+      const [again] = await listDmJobs(requireDb(), w.sessionId, 5, "turn");
+      expect(again?.status).toBe("running");
+    }
+    await expire();
     await drainAll(worker); // reclaim, finish, chronicle
   }
   return { w, state };
@@ -157,6 +181,35 @@ describe.skipIf(!reachable)("lease expiry and reclaim (database)", () => {
 
     // The reclaim spent no narrate or audit call: nothing is left over, and
     // nothing ran twice (an unscripted call would have failed the turn).
+    const left = run.w.scripted.remaining();
+    expect(left.dice).toBe(0);
+    expect(Object.values(left.calls).every((n) => n === 0)).toBe(true);
+  });
+
+  it("a second crash after the tracker lands reclaims to the same log, each step once", async () => {
+    const base = await runTurn(null);
+    const baseRows = normalized(await readRows(base.w));
+    // Submission 2 is action.resolve (no marker). Submission 3 counts the
+    // reclaim's tracker advance, which lands and then crashes before its checkpoint.
+    const run = await runTurn([2, 3]);
+    const rows = await readRows(run.w);
+    expect(normalized(rows)).toEqual(baseRows);
+    const jobMarkers = rows.flatMap(
+      (r) => JSON.stringify(r.payload).match(/\[[0-9a-f-]{36}#\d+\]/g) ?? [],
+    );
+    // No two steps of the job share a marker: dice and check rows share #1, the tracker has its own.
+    const byType = rows
+      .filter((r) => /#\d+\]/.test(JSON.stringify(r.payload)))
+      .filter((r) => r.type === "tracker.changed" || r.type === "dice.rolled")
+      .map(
+        (r) => `${r.type}:${JSON.stringify(r.payload).match(/#(\d+)\]/)?.[1]}`,
+      );
+    expect(byType).toEqual(["dice.rolled:1", "tracker.changed:2"]);
+    expect(jobMarkers.length).toBeGreaterThan(0);
+    expect(rows.filter((r) => r.type === "action.resolved")).toHaveLength(1);
+    const turns = await listDmJobs(requireDb(), run.w.sessionId, 5, "turn");
+    expect(turns[0]?.status).toBe("succeeded");
+    expect(turns[0]?.attempts).toBe(3);
     const left = run.w.scripted.remaining();
     expect(left.dice).toBe(0);
     expect(Object.values(left.calls).every((n) => n === 0)).toBe(true);
