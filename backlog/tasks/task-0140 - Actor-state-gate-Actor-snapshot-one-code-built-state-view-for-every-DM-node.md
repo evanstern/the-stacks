@@ -1,10 +1,10 @@
 ---
 id: TASK-0140
 title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM node'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 05:29'
+updated_date: '2026-10-27 09:19'
 labels:
   - dm
   - rules-gate
@@ -70,6 +70,12 @@ Phase 4 done (7e9c226): wiki re-ground. New actor-snapshot note; dm-runtime, dm-
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (7e9c226): wiki re-ground; new note actor-snapshot; 11 staled pins classified (5 NEEDS-REVIEW amended, 6 RE-PIN-ONLY). Freshness OK (51 notes).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The snapshot module (US1, US2 diff, US4 render): 11/11 · S0, S1 and the planning prompts (US2, US3, US4): 8/8 · Player-facing prompts and retirement (US3, US4, US5): 10/10 · Wiki re-ground: 7/7 · Constitution Compliance (the-stacks): 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
