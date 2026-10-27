@@ -2,6 +2,7 @@
 
 - **Status:** agreed with the operator, 2026-10-26 (design Q&A session; no mockup rounds)
 - **Milestone:** M3 — The Table, first in line
+- **Cards:** TASK-0116 (card A, server), TASK-0117 (card B, web; depends on TASK-0116), TASK-0118 (viewer bug)
 - **Origin:** the M2 demo (TASK-0048). The operator played Tamsin with an AI DM and two AI
   companions and could not see the machinery from the table. A companion's uncommitted
   action looked like a frozen table. Narration fallbacks had to be diagnosed by SQL.
@@ -107,7 +108,7 @@ slide-out `Panel`s opened from the column header (no modals):
 - **Journal** — journal entries, including the `dm`-visibility fallback flags.
 - **Cost** — session totals by purpose and model.
 
-## Card A (server): debug API and persisted usage
+## Card A (TASK-0116, server): debug API and persisted usage
 
 - Extend `ModelCallRecord` with `provider`, `model`, `inputTokens`, `outputTokens`,
   `costUsd`, `durationMs`. Fill them from the gateway's usage on every call path
@@ -120,7 +121,7 @@ slide-out `Panel`s opened from the column header (no modals):
 - Keep the existing `GET /dm/sessions/:id/turns` contract unchanged.
 - Update `contracts/dm-api.md` and re-ground the wiki notes the change touches.
 
-## Card B (web): the debug page
+## Card B (TASK-0117, web): the debug page
 
 - Add the `play/:sessionId/debug` route and the `/play` header link, operator-only.
 - Poll card A's endpoints about every 2 s; advance the log by seq cursor.
@@ -129,7 +130,7 @@ slide-out `Panel`s opened from the column header (no modals):
 - Use the Daylight tokens and `Panel`; use no modals.
 - Verify in Brave (screenshots in the PR).
 
-## Separate bug card (side finding)
+## Separate bug card (TASK-0118, side finding)
 
 `apps/web/app/play/use-live-table.ts` `viewerForUser` treats any operator as DM. The server
 gives the DM view only to a seated human DM. With an AI DM seat, the operator's `/play`
