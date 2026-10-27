@@ -22,6 +22,8 @@ ordinal: 102000
 Outcome: the scripted playtest seat does not declare actions for its character while that character is at 0 HP or unconscious. It waits, or the run ends with a stated reason.
 
 Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/ classification.md, R2). After Tamsin dropped to 0 HP, the seat kept declaring 'offer a fair trade' and 'ready my sword' (seq 201, 216). The narrator correctly showed she could not act, and the auditor flagged player-agency, forcing the fallback. Also decide whether the engine or gate should refuse a declared action from an unconscious character before narration. Operator ruling 2026-10-26: card it in m-3.
+
+Spec: specs/046-downed-hero-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
