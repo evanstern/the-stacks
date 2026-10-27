@@ -4,8 +4,8 @@ The operator takes these two screenshots. Ruling 2026-10-27.
 
 ## Stack
 
-- App: http://localhost:3051 (this worktree's stack, built from the Phase 4 commit).
-- The app database on :15051 is migrated. It holds no accounts yet.
+- App: http://localhost:3051 (this worktree's stack, built from the merge of origin/main (PR #63, PR #64); the Withdraw control does not change these steps).
+- The app database on :15051 is migrated through 0006_fearless_jamie_braddock. It holds no accounts yet.
 
 ## Create the accounts (once)
 

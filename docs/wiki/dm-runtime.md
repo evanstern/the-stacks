@@ -26,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM runtime
