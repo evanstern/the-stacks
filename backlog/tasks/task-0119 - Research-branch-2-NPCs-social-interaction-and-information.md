@@ -4,7 +4,7 @@ title: 'Research branch 2: NPCs, social interaction and information'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:05'
-updated_date: '2026-10-27 03:57'
+updated_date: '2026-10-27 03:59'
 labels:
   - research
   - dm
@@ -27,10 +27,8 @@ Outcome: the AI DM's NPC and information doctrine rests on documented DM practic
 - [x] #1 A vault branch for this topic passes the research branch gate
 - [x] #2 An analysis note answers which NPC and information facts need contract fields, with a recommendation
 - [x] #3 A decision record is created with the backlog CLI after operator go
-- [ ] #4 Follow-up cards exist, and TASK-0107 carries the applicable findings
+- [x] #4 Follow-up cards exist, and TASK-0107 carries the applicable findings
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -43,6 +41,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (analyze-vault + decision-0026 (D18, proposed), commits 04fa413 0093406; ~172k tokens; served verified from transcript.)
 OPERATOR RULINGS 2026-10-26 (in chat): placement 'K3 now, K1-K6 after demo' (TASK-0107 = K3 joins Track C now; K1, K2, K4, K5, K6 are created in m-3 after the demo subset); attitude 'Per character' (each NPC tracks an attitude toward each PC; the analysis recommended party-with-override); clue lint 'Warn; fail only core'; Influence 'SRD Influence DC' (DMG table rejected).
+
+AC #4: follow-up cards created on main 2026-10-26: K1 TASK-0148, K2 TASK-0149, K4 TASK-0150, K5 TASK-0151, K6 TASK-0152 (m-3, after the demo subset); K3 carried by TASK-0107 (m-3, ACs added). Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(decision-0026 accepted with operator rulings, commit be522d8; ~86k tokens.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
