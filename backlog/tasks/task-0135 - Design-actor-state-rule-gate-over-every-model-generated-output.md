@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:38'
 labels:
   - design
   - dm
@@ -24,7 +24,7 @@ Outcome: a decision record and design pattern by which every model-generated seq
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An inventory lists every model-generated output and, for each, the actor and stage state it receives today and the gates it passes
+- [x] #1 An inventory lists every model-generated output and, for each, the actor and stage state it receives today and the gates it passes
 - [ ] #2 A decision record (amending decision-0017 and decision-0022 where needed) states the actor-state contract and the hard rules, with the operator's ruling on the dice-only rule recorded in the operator's words
 - [ ] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
 - [ ] #4 The spec for the first implementation card is written against the decision
@@ -34,6 +34,9 @@ Outcome: a decision record and design pattern by which every model-generated seq
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0135, branch task-0135-actor-state-gate, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track C1. Escape line E3. Checkpoint C3 after the inventory.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(design inventory, docs/design/actor-state-gate.md, commit 0cb18c8; ~220k tokens; served verified from transcript.) AC #1 met. Stopped at checkpoint C3.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
