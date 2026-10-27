@@ -35,9 +35,11 @@ Spec: specs/050-seed-npc-presence
 - [x] #5 Spec phase: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half)
 - [x] #6 Spec phase: `scene-presence` proposal visibility (card AC #2 support, OQ-4)
 - [x] #7 Spec phase: Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4)
-- [ ] #8 Spec phase: Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half)
+- [x] #8 Spec phase: Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half)
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
