@@ -40,10 +40,12 @@ Spec: specs/049-turn-floor
 - [x] #8 Spec phase: Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture)
 - [x] #9 Spec phase: Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3)
 - [x] #10 Spec phase: Full round with two humans and one AI companion (card AC #6)
-- [ ] #11 Spec phase: The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4)
+- [x] #11 Spec phase: The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4)
 - [ ] #12 Spec phase: Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5)
 - [ ] #13 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
