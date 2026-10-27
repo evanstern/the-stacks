@@ -526,6 +526,7 @@ None. TASK-0099 and TASK-0049 (Track A) are unblocked by TASK-0051.
 
 ### Handoff 3 addenda (2026-10-27, final)
 
+- **First action for the resuming session:** TASK-0140's branch is NOT merged with main. `git merge origin/main` conflicts in `apps/server/src/dm/companion.ts`, `dm/prompts/companion.ts`, `test/dm/companion.integration.test.ts` and `test/dm/chronicle.integration.test.ts` (TASK-0114's react/withdraw/pending decisions vs TASK-0140's snapshot seat view and chronicle state). Dispatch a sonnet reconcile keeping both (react job + pending decisions AND the seat-view `## State`; prompt `dm.companion-v5`), re-run ci:check with REQUIRE_DATABASE=1, then Phase 4 wiki.
 - **Open PRs: none.** #57–#65 are all merged. Merge order for the next PRs: TASK-0140 first (Track C base; companion prompt bumps to v5 after merging main), then TASK-0117 (debug page; draft until its operator Brave screenshots), then Track A TASK-0099 → TASK-0049 → TASK-0100 → TASK-0050 (same gate/ws hotspots, smallest first).
 - **TASK-0114** is merged (#63, 773d4e4) but its card stays In Progress until `specs/036-companion-react/tasks.md` T038 reads `- [x] T038 … — not applicable: operator ruled W-A (2026-10-26)`. The annotation is not yet made: add it on the TASK-0140 branch (or the next branch claimed), then sync TASK-0114 → Done after that branch merges.
 - **TASK-0140 snapshot views confirmed** by the operator (relayed 2026-10-27): "the TASK-0140 snapshot views (DM all, companion no monster AC/resources, narration no numbers/ids) are confirmed."
