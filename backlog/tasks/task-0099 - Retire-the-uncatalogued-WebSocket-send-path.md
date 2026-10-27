@@ -22,6 +22,8 @@ ordinal: 89000
 Outcome: the WebSocket send path accepts only catalogued session-model requests, which go through the proposal gate. The inert legacy append for uncatalogued event types (the M0 chat event, the bench ping) is removed.
 
 Why: TASK-0045 (specs/029-proposal-gate, contracts/write-boundary.md) keeps an inert append for uncatalogued types, so existing M0 senders keep working while the gate lands. decision-0020 requires a card for that deferral. TASK-0047's play route replaces the M0 chat sender. Carded 2026-10-26 by the M2 First Scene sweep orchestrator, at the TASK-0045 spec author's request.
+
+Spec: specs/043-retire-uncatalogued-send
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
