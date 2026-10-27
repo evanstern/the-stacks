@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
 ---
 
 # DM failure record and rules-term gates
@@ -43,7 +43,7 @@ A **rules term** is a value with a rules definition that a model writes into nod
 interpret and adjudicate schemas accept only closed lists derived from engine enums:
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
-and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. `prompts/step-grammar.ts` renders the same lists
+and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
 into the interpret and adjudicate prompts (`dm.interpret-v4`, `dm.adjudicate-v4`), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.

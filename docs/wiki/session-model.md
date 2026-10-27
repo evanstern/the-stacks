@@ -21,7 +21,7 @@ sources:
   - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
 ---
 
 # Session model
@@ -50,7 +50,7 @@ Six kinds exist:
 `dm.seat.changed` carries the new `DmSeat` (`{kind:"ai"}` or `{kind:"human",userId}`);
 `gate.policy.changed` carries `proposalKind`, `before` and `after` policy. `proposal.created`
 holds `{ proposalId, policy, proposal }`; `proposal.approved` `{ proposalId, batchId }`;
-`proposal.rejected` `{ proposalId, reason }`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141, public) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
+`proposal.rejected` `{ proposalId, reason }`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141; `public`, or `dm` for a seed row, [[seed-npc-presence]]) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
 `any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
 the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`
 (per DM turn), `signoff` (by the gate in a group commit batch) or `floor` (an AI DM floor pass). See [[presence]].
@@ -104,8 +104,7 @@ index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 The `@the-stacks/session-model/fixtures` subpath exports ten stored-event streams
 (`talkOnly`, `freeModeAction`, `turnModeCombat`, `secretTracker`, `unknownAndInvalid`,
 `dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`, `turnFloor`) as `fixtures`, plus the `proposalExamples` set, plus `recipes`, `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
-quorum commit with its `signoff` marker. The `turn-floor` fixture walks floor passing ([[turn-floor]]). The SC-006 replay check (`gate-authority.test.ts`) passes
-`present` from the latest `signoff` marker for the `actionId` before each recorded commit.
+quorum commit with its `signoff` marker. The `turn-floor` fixture walks floor passing ([[turn-floor]]).
 They are shared test input on a separate subpath; the main entry holds no test data.
 
 ## Server seam

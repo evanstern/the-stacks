@@ -216,20 +216,20 @@ list only NPCs that are not absent.
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T030 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed as
+- [x] T030 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed as
       RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`.
-- [ ] T031 NEEDS-REVIEW `docs/wiki/actor-snapshot.md`: seed aliases, seed rows as the only path
+- [x] T031 NEEDS-REVIEW `docs/wiki/actor-snapshot.md`: seed aliases, seed rows as the only path
       from the seed to presence, the U8 extension point built. Re-pin it.
-- [ ] T032 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the per-beat presence map, the identity
+- [x] T032 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: the per-beat presence map, the identity
       check, the seed-presence group, NPC lists from presence. Re-pin it.
-- [ ] T033 NEEDS-REVIEW `docs/wiki/proposal-gate.md` and `docs/wiki/session-model.md`:
+- [x] T033 NEEDS-REVIEW `docs/wiki/proposal-gate.md` and `docs/wiki/session-model.md`:
       `scene-presence.visibility`. Re-pin each.
-- [ ] T034 Review `docs/wiki/dm-turn-jobs.md`, `docs/wiki/dm-failure-and-gates.md`,
+- [x] T034 Review `docs/wiki/dm-turn-jobs.md`, `docs/wiki/dm-failure-and-gates.md`,
       `docs/wiki/presence.md` and `docs/wiki/turn-floor.md`. Re-pin each whose sources changed;
       amend prose before re-pinning where behaviour changed.
-- [ ] T035 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence for
+- [x] T035 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence for
       seed NPC presence to the `docs/wiki/INDEX.md` state paragraph.
-- [ ] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0).

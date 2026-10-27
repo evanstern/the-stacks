@@ -33,7 +33,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
 ---
 
 # DM runtime
@@ -49,7 +49,7 @@ async function `(TurnContext) => NodeResult`.
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
    folds the DM projection ([[session-model]]), reads `projections.presence` into
-   `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0** (with each actor's logged scene presence)
+   `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0** (with each actor's logged scene presence, which sets `presentNpcIds`)
    (`AssembleOutput.snapshot`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
@@ -83,10 +83,9 @@ view). A snapshot over its cap makes `safeRun` return a `state-overflow` `NodeEr
 ## Resolve: the only writer
 
 `nodes/resolve.ts` submits every gameplay write through `gate.submit` as `ai:dm`
-(`companion.ts` and `chronicle.ts` also call it, as their own actors; an import-graph test pins
-the set). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`
+(`companion.ts` and `chronicle.ts` also call it; an import-graph test pins the set). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`
 `mechanics` proposal goes in, the appended `check.resolved`/hit outcome comes out, and only then
-do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve is the only builder of that kind ([[proposal-gate]]). No model is read inside
+do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve is the only builder of that kind ([[proposal-gate]]); its seed-presence group logs the seed's declared presence at scene and encounter start ([[seed-npc-presence]]). No model is read inside
 resolve, and no model sees or invents a number: the engine ([[dnd5e-engine]]) owns dice,
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a retry. Each submission is stored in the checkpoint (`Submission`: `stepRef`
 `<jobId>#<n>`, key, kind, result, refusal, ids, gate `seqs`).
@@ -102,14 +101,13 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 ## Purposes
 
 `dm/purposes.ts` fixes seven purposes: `dm.director`, `dm.interpret`, `dm.adjudicate`,
-`dm.narrate`, `dm.audit`, `dm.chronicle`, `dm.companion`. `PURPOSE_OF` maps each node to its purpose; `PURPOSE_MAX_TOKENS` holds default caps. Model choice stays in `AI_PURPOSES`
-([[ai-gateway]], [[configuration]]); `missingDmPurposes` feeds a boot warning.
+`dm.narrate`, `dm.audit`, `dm.chronicle`, `dm.companion`.  Model choice: `AI_PURPOSES` ([[ai-gateway]]).
 
 ## Seed, doctrine, script
 
 - **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`):
-  a validated JSON scene (goal, location, beats, NPCs, encounters); the seed id is the scene id,
-  so the log alone names the seed. The Dockerfile copies `apps/server/seeds` ([[container-image]]).
+  a validated JSON scene (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]); the seed id is the scene id,
+  so the log alone names the seed.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the full licence
   text and ships beside the compiled module.
