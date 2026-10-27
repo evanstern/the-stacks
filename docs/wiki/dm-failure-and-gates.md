@@ -11,7 +11,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # DM failure record and rules-term gates
@@ -21,8 +21,10 @@ normalizer is described in [[dm-runtime]].
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
 the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
-`failure: { node, kind, message, detail }`. `kind` is a node error kind or `seed` (the bad-seed
-path, `detail: null`). An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
+`failure: { node, kind, message, detail }`. `node` is a pipeline node, or `presence` when the
+marker write before the pipeline failed (`kind` `gate` for a refusal, `internal` for a throw;
+`detail` holds the refusal `code` or `null`; [[presence]]). `kind` is a node error kind or `seed` (the bad-seed
+path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
 (`pipeline/call.ts`) bounds each excerpt: text up to 8,000 characters whole, else the first
 6,000, an elision marker, the last 2,000. The `dm.turn.failed` log line carries the detail

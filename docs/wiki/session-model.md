@@ -10,11 +10,13 @@ sources:
   - packages/session-model/src/stored-event.ts
   - packages/session-model/src/events/mechanics.ts
   - packages/session-model/src/projections/apply.ts
+  - packages/session-model/src/projections/types.ts
+  - packages/session-model/src/events/presence.ts
   - packages/session-model/src/fixtures/index.ts
   - packages/session-model/src/gate/plan.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Session model
@@ -37,14 +39,17 @@ Six kinds exist:
 | talk | `talk`, `narration` |
 | lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved` |
 | state-change | `table-mode.changed`, `scene.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, plus engine events that change state |
-| marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed` |
+| marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`, and `presence.recorded` |
 | record | `journal.entry.added` |
 | proposal | `proposal.created`, `proposal.approved`, `proposal.rejected` (all `dm-only`) |
 
 `dm.seat.changed` carries the new `DmSeat` (`{kind:"ai"}` or `{kind:"human",userId}`);
 `gate.policy.changed` carries `proposalKind`, `before` and `after` policy. `proposal.created`
 holds `{ proposalId, policy, proposal }`; `proposal.approved` holds `{ proposalId, batchId }`;
-`proposal.rejected` holds `{ proposalId, reason }`.
+`proposal.rejected` holds `{ proposalId, reason }`. `presence.recorded` (decision-0024; visibility
+`any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
+the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`,
+`signoff` or `floor` (`PRESENCE_PURPOSES`; only `director` is written so far). See [[presence]].
 
 Engine event types are derived from `EngineEventSchema`, so the catalog tracks the engine
 without a second list. State-change payloads carry `before` and `after`.
@@ -71,7 +76,9 @@ delivery uses the same function per connection ([[subscriber-registry]]).
 pure, total and never throws. `SessionProjections` holds: `scene`, `tableMode`, `party`,
 `encounter`, `journal`, `transcript`, `actions` (lifecycle status), `ledger`, DM-only
 `trackers`, `gate` (`seat`, `policyOverrides`; default AI seat), `proposals` (`ProposalView`s with a status, DM view only; `pendingProposals`, `findProposal`), the folded `engine` state (via the engine's `evolve`, never recomputed rules),
-`throughSeq`, and `diagnostics`. Order inside `applyEvent`: hidden rows are dropped
+`presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
+until a marker folds, and each marker replaces the last), `throughSeq`, and `diagnostics`. The
+marker adds no transcript entry. Order inside `applyEvent`: hidden rows are dropped
 uncounted and do not move `throughSeq`; a row at or below `throughSeq` counts as `outOfOrder`;
 then the row is decoded and applied. Replaying the same stream for the same viewer gives the
 same projection, so a client can rebuild state from `seq` 0.
@@ -93,9 +100,9 @@ index. The kinds, policy table, authority rules and server wrapper are described
 
 ## Fixtures contract
 
-The `@the-stacks/session-model/fixtures` subpath exports seven stored-event streams
+The `@the-stacks/session-model/fixtures` subpath exports eight stored-event streams
 (`talkOnly`, `freeModeAction`, `turnModeCombat`, `secretTracker`, `unknownAndInvalid`,
-`dmApprovals`, `commitAuthority`) as `fixtures`, plus the `proposalExamples` set, plus `recipes` and `fixtureIds`. They are the shared input for server, client and
+`dmApprovals`, `commitAuthority`, `presenceMarker`) as `fixtures`, plus the `proposalExamples` set, plus `recipes` and `fixtureIds`. They are the shared input for server, client and
 later DM tests, and are a separate subpath so the main entry stays free of test data.
 
 ## Server seam

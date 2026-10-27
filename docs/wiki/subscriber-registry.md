@@ -4,7 +4,7 @@ description: Connection bookkeeping for the WebSocket gateway — one session pe
 kind: component
 sources:
   - apps/server/src/ws/registry.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Subscriber registry
@@ -13,8 +13,11 @@ verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
 `subscribe`/`unsubscribe`/`broadcast`/`subscriberCount`. A `Connection` (defined here, built
 once by [[websocket-gateway]] at upgrade time) carries `socket`, the authenticated `userId`
 and `role`, the `sessionId` it's currently subscribed to (or `null`), and `pendingQueue` — the
-buffer [[replay-live-boundary]] uses to queue live events during a replay — and
-`replayedThroughSeq`, the replay floor described below.
+buffer [[replay-live-boundary]] uses to queue live events during a replay —
+`replayedThroughSeq`, the replay floor described below, and four presence fields added by
+decision-0024: `connId` (unique per connection, the tracker's key), `displayName` (read once at
+upgrade), `wantsPresence` (the latest `subscribe` carried `presence: true`) and `alive` (the
+heartbeat flag [[websocket-gateway]] clears on ping and sets on pong).
 
 ## How it works
 
@@ -60,6 +63,12 @@ to the subscribe's `afterSeq` on entry to `subscribe()`, and to the replay's `th
 before `pendingQueue` clears. The skip runs before the queue/send split, so it covers both
 paths. It closes a race: the gateway appends, then broadcasts, so a replay may already have
 delivered an event whose broadcast runs only after the queue is gone.
+
+**`sendPresence(sessionId, frame)`** sends a `presence` frame to the table's subscribers. It
+skips any connection without `wantsPresence`, any with a non-null `pendingQueue` (it gets its
+snapshot after `replay-complete`, [[replay-live-boundary]]), and any whose socket is not open. A
+send that throws is logged and does not stop the rest. It never touches the event queue:
+presence is a snapshot, so a dropped one is replaced by the next. See [[presence]].
 
 A connection whose `pendingQueue` is non-null (replay in flight) gets the event pushed onto
 that queue instead of sent directly — only events that passed `canSee` and the replay floor

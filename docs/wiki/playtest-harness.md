@@ -19,7 +19,7 @@ sources:
   - apps/server/playtests/scenarios/greyhollow-ford.json
   - apps/server/test/playtest/playtest.integration.test.ts
   - .env.example
-verified_against: 944f2a182daf428604594fba1ff7635e3594f5ea
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Playtest harness
@@ -32,7 +32,9 @@ Code: `apps/server/src/playtest/`. Spec: `specs/032-playtest-harness/` (contract
 
 ## The run
 
-`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate,
+`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate (with
+a static presence reader that names the scripted seat's user present and counts every `ai:`
+actor present, so each turn's marker lists the scripted seat; [[presence]]),
 gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`, then loops:
 `driver.ts`'s `nextMove` picks the next scripted move, the harness submits it through
 `gate.handle` as the human seat, and the worker drains until idle. Dice come from

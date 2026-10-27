@@ -206,23 +206,23 @@ the other join and leave. Screenshots in the PR.
 
 **Goal**: the grounding wiki describes presence at the branch's head, re-pinned honestly.
 
-- [ ] T038 Review and update `docs/wiki/ws-protocol.md`: the `subscribe.presence` field, the
+- [x] T038 Review and update `docs/wiki/ws-protocol.md`: the `subscribe.presence` field, the
   `presence` frame, the heartbeat, and presence removed from "deliberately does not provide".
   Re-pin only after verifying each source.
-- [ ] T039 [P] Review and update `docs/wiki/websocket-gateway.md`: display name at upgrade,
+- [x] T039 [P] Review and update `docs/wiki/websocket-gateway.md`: display name at upgrade,
   join/leave, heartbeat, snapshot send.
-- [ ] T040 [P] Review and update `docs/wiki/play-route.md`: the presence strip, the
+- [x] T040 [P] Review and update `docs/wiki/play-route.md`: the presence strip, the
   `reduceFrame` `default` branch, `TableSource.presence`.
-- [ ] T041 [P] Review and update `docs/wiki/session-model.md`: `presence.recorded` in the marker
+- [x] T041 [P] Review and update `docs/wiki/session-model.md`: `presence.recorded` in the marker
   row of the kind table, the `presence` projection view.
-- [ ] T042 Create `docs/wiki/presence.md`: tracker, `PresenceReader`, the constants and bounds,
+- [x] T042 Create `docs/wiki/presence.md`: tracker, `PresenceReader`, the constants and bounds,
   the marker and its writer, the Director's read path, decision-0024, TASK-0136. List its
   sources and pin it.
-- [ ] T043 Update `docs/wiki/proposal-gate.md` and `docs/wiki/dm-turn-jobs.md` only if their
+- [x] T043 Update `docs/wiki/proposal-gate.md` and `docs/wiki/dm-turn-jobs.md` only if their
   sources changed (`gate.ts`, `worker.ts`); otherwise leave them.
-- [ ] T044 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Update the
+- [x] T044 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Update the
   state paragraph and the Realtime list in `docs/wiki/INDEX.md`.
-- [ ] T045 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs
+- [x] T045 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs
   freshness . docs/wiki` (prints `OK`) and
   `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0).
 

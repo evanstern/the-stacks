@@ -13,7 +13,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Proposal gate
@@ -62,14 +62,26 @@ only the active actor (`active-player`), in free mode only the declarer (`declar
 
 ## The gate API
 
-`createGate({ db, rng?, newId?, appendSessionEvents? })` returns `submit(sessionId, proposer,
-proposal)`, `handle(sessionId, proposer, request)` and `onAppended(listener)`. Both entries
+`createGate({ db, rng?, newId?, appendSessionEvents?, presence? })` returns `submit(sessionId,
+proposer, proposal)`, `handle(sessionId, proposer, request)`, `recordPresence(sessionId, input)` and
+`onAppended(listener)`. Both entries
 parse with the Zod schema first; a parse failure is `INVALID_PROPOSAL` and nothing is written.
 `GateResult` is `applied` (events, `batchId`), `pending` (ask), `suggested`, `decided`
 (approve, reject, seat, policy), or `{ ok: false, refusal }`. A `GateRefusal` has a `source`
 (`gate`, `engine`, `append`), a `code` and a `message`. The gate holds no proposal state: each
 attempt calls `loadProjections` (DM view) and derives everything from the log, so a restart
 loses nothing.
+
+**`recordPresence(sessionId, { purpose, actionId? })`** (decision-0024, TASK-0051) appends one
+`presence.recorded` row: `actor: "system"`, visibility `public`, `present` the sorted user ids
+from the injected `PresenceReader` (default: nobody present). It is not a proposal and does not
+go through `submit` or `handle`. It never deduplicates against an earlier marker. It skips the
+projection load and `expectedLastSeq`, because the marker depends on no projection state and a
+load would replay the whole log on every turn; the log's per-session advisory lock orders the
+append and the bounded conflict retry stays. A refusal returns `{ ok: false, refusal }`; on
+success it calls every `onAppended` listener with the stored row. The DM worker is the only
+caller so far ([[dm-turn-jobs]]); TASK-0049 and TASK-0050 reserve the `signoff` and `floor`
+purposes. See [[presence]].
 
 **Refuse before write.** Permission, routing, `planProposal` (engine and authority checks) and
 catalog vetting all run before any append. For `ask`/`suggest` the gate runs a legality check

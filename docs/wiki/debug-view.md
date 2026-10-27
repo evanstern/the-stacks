@@ -11,7 +11,7 @@ sources:
   - apps/server/src/dm/worker.ts
   - apps/server/src/schema/dm-model-calls.ts
   - specs/037-debug-api/contracts/debug-api.md
-verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Debug view API
@@ -28,7 +28,9 @@ player is `403`, both before any query validation or read. Query values are Zod-
 failure is `400` in the standard shape ([[error-contract]]). No route appends an event, changes
 a job or enqueues work. Nothing is masked: DM-visibility events and DM-only seed fields return.
 No response carries prompt or completion text. The one exception is the bounded excerpts inside
-a failed job's `result.failure.detail` ([[dm-failure-and-gates]]). The routes ship in every
+a failed job's `result.failure.detail` ([[dm-failure-and-gates]]). A turn job's `result` also
+carries `presenceSeq` and, when the pre-pipeline marker write fails, `failure.node = "presence"`
+([[dm-turn-jobs]]); the routes return them as stored. The routes ship in every
 environment with no flag. `GET /dm/sessions/:id/turns` is unchanged.
 
 ## The routes
