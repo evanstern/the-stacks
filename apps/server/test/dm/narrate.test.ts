@@ -307,7 +307,14 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v4");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v5");
+    expect(prompt.system).toContain(
+      "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
+    );
+    expect(prompt.system).toContain(
+      "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
+    );
+    expect(prompt.system).not.toContain("only when a fact says so;");
     expect(prompt.user).toContain("## Party (player characters)");
     expect(prompt.user).toContain("Tamsin Vale (party, human player)");
     expect(prompt.user).toContain("Brother Odo (party, AI companion)");

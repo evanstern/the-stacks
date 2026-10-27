@@ -258,27 +258,27 @@ then `pnpm ci:check` and `pnpm playtest run` (CI mode).
 
 ### Tests first
 
-- [ ] T030 [US1] In `apps/server/test/dm/narrate.test.ts:310`, expect `dm.narrate-v5`. Assert the
+- [x] T030 [US1] In `apps/server/test/dm/narrate.test.ts:310`, expect `dm.narrate-v5`. Assert the
       system prompt holds the two plan D6 rule lines verbatim and no longer holds "only when a
       fact says so;".
 
 ### Implementation
 
-- [ ] T031 [US1] In `apps/server/src/dm/prompts/narrate.ts`, set `PROMPT_VERSION` to
+- [x] T031 [US1] In `apps/server/src/dm/prompts/narrate.ts`, set `PROMPT_VERSION` to
       `dm.narrate-v5` and apply the two `RULES` edits of plan D6. Change nothing else in the
       builder.
-- [ ] T032 Check every other consumer in the plan D6 table. Confirm that none needs an edit.
+- [x] T032 Check every other consumer in the plan D6 table. Confirm that none needs an edit.
       Grep for `dm.narrate-v4` outside recorded evidence and specs. The only hits allowed are in
       `specs/040-actor-snapshot/**`, `specs/051-output-claim-gate/**`, `backlog/**` and
       `docs/wiki/dm-narration-quality.md`; Phase 6 updates the wiki note.
-- [ ] T033 [P] Amend `specs/034-narration-quality/contracts/audit-criteria.md`. Add a section
+- [x] T033 [P] Amend `specs/034-narration-quality/contracts/audit-criteria.md`. Add a section
       "Deterministic checks (amendment, spec 051)" that covers:
       - the four retired checks;
       - the claim checks, which block as `ledger-mismatch` "Actor state:";
       - the withheld-input record on attempt 1 (`blocking: false`).
       Add the line "Amended 2026-10-27 (TASK-0143, operator ruling OQ-2, OQ-4, OQ-6)" with the
       ruling quoted.
-- [ ] T034 [P] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md` consumers. State that
+- [x] T034 [P] Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md` consumers. State that
       `checkClaims` (spec 051) reads `aliases`, `kind`, `lifeState`, `presence` and the diff.
       Add the amendment line.
 - [ ] T035 Run `pnpm ci:check`, the DB suites and `pnpm playtest run` in CI mode. Compare the
