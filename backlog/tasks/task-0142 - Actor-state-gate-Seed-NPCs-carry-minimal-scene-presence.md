@@ -4,7 +4,7 @@ title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 18:57'
+updated_date: '2026-10-27 19:03'
 labels:
   - dm
   - rules-gate
@@ -50,6 +50,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Also for the operator: the encounter-start rows are triggered by a Director tableMode move. Confirm this fits decision-0025 §2.5 and 048 AC #5.
 
 Operator ruling 2026-10-27 (verbatim): "TASK-0142: I accept the recommended defaults OQ-1 to OQ-6 (a), including the frozen 029 and 031 amendments and the Greyhollow aliases "the keeper", "the boy", "the goblin leader". The Director-triggered encounter-start seed rows are fine under decision-0025 §2.5 and 048 AC #5."
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Resumed spec author for plan.md, design artifacts and tasks.md: 3fd89db.) The M2 log, rows 1-333, folds cleanly under the current catalog, so the AC #3 test reads the recorded file in place. The Greyhollow presence values chosen by the spec author: Wenna is present at ferry-house and the-keeper and absent at reed-camp; Pell and Snag are absent, absent, then present. Orchestrator ruling: Phases 1 and 2 run serially, not in parallel, because two writers in one worktree risk index collisions.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
