@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 04:16'
+updated_date: '2026-10-27 04:22'
 labels:
   - dm
   - rules-gate
@@ -50,6 +50,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 ORCHESTRATOR RULINGS 2026-10-27 on spec open questions: Q1 split confirmed: U1 builds and tests the diff; TASK-0146 renders it for audit. Q2 the three views (dm / seat / fiction) stand as the orchestrator default; reported to the operator. Q3 reclaim S0 carded as revisit TASK-0153. Q4 TASK-0142's spec cites contract §3 rule 3. Q5 TASK-0135 merges before this PR. Q6 reconcile merges budgeted. PROMPT VERSION COLLISION: TASK-0114 Phase 2 already bumped dm.companion to v3; whichever of TASK-0114 / TASK-0140 merges second bumps to the next free version after merging main.
 
 OPERATOR RULING 2026-10-27 (in chat): 'Keep three views' (dm / seat / fiction), confirming the orchestrator default.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 1, T001-T011, commit 3ca21d2; 31 new tests.) ORCHESTRATOR RULINGS 2026-10-27: seat cap 2000 accepted (measured schema-max seat 1716 tokens > 1600); ActorCondition.instanceId accepted as an additive contract change; Phase 2 amends contracts/actor-snapshot.md §2 and §6.2 to match.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
