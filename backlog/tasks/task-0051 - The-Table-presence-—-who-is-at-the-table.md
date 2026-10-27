@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:27'
+updated_date: '2026-10-27 03:28'
 labels:
   - multiplayer
   - realtime
@@ -23,6 +23,8 @@ ordinal: 41000
 Outcome: every client sees who is at the table, and the gate and the Director know which players are present.
 
 Why: group sign-off (TASK-0049) needs the set of present players, and the Director should not wait on an absent one. The WebSocket protocol omits presence by design today (docs/wiki/ws-protocol.md), and its frame shapes are a frozen contract. Changing them is an operator checkpoint, so this card records a decision first.
+
+Spec: specs/035-presence
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
