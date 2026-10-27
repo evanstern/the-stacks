@@ -4,7 +4,7 @@ title: 'Approval panel: suggest proposals offer no Approve control'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
-updated_date: '2026-10-27 13:06'
+updated_date: '2026-10-27 13:13'
 labels:
   - ui
   - gate
@@ -57,6 +57,9 @@ Phase 2 (T011-T013) at d6935ba. Brave live check 68 PASS / 0 FAIL; Dismiss wrote
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (T014-T017) wiki re-ground at 1f42fda: play-route and proposal-gate reviewed and re-pinned; freshness 51 fresh.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Reconciled with origin/main after #71 (merge a66aa36, re-pin 394d468); 4 wiki conflicts, both sides kept. Freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
