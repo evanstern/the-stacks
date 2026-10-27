@@ -74,6 +74,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (39a5822): derivations. Orchestrator accepts the implementer's open choices: fallback badge from result.audit.final; a held turn leaves the strip once its companion job succeeds; scrub folds directly for non-ascending logs.
 
 Phase 3 done (a02fd74): route play-debug.tsx, DebugGate, useDebugSession hook (first load, poller + visibilitychange, seed refetch on scene change, retry, loadOlderJobs), WaitingStrip, Debug link via debugHref. AC #1 and #3 proven by route-gate, waiting-strip and table-view tests. AC #2 (polling) and #9 (POST wiring) left unticked: the hook has no test that exercises polling or the POST; Phase 6 live check proves them.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (a02fd74): route, strip, retry, Debug link; AC #1, #3 ticked. AC #2 (polling) and #9 (retry POST) are left for Phase 6's live check: no hook-level test exists. Next: Phase 4. The orchestrator paused after opening PR #66 (TASK-0140), per the operator's overnight instruction.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
