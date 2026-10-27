@@ -1,10 +1,10 @@
 ---
 id: TASK-0050
 title: 'The Table: turn-mode floor passing between players'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 09:31'
+updated_date: '2026-10-27 13:43'
 labels:
   - multiplayer
   - gate
@@ -40,6 +40,8 @@ Why: decision-0016, turn-mode row. M2 has one human, so the floor only passes be
 
 <!-- SECTION:NOTES:BEGIN -->
 Scope addition from TASK-0049 Q5 (operator accepted the defaults, 2026-10-27): the AI DM's override of a stalled party sign-off is in scope here.
+
+Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0050, branch task-0050-turn-floor, cut from origin/main 3529df2. Spec number 049 claimed with a stub. Spec 048 is taken by TASK-0141 (PR #73). Scope includes TASK-0049 Q5 (AI DM overrides a stalled party sign-off).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
