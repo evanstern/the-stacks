@@ -127,34 +127,34 @@ automation uses Brave. No "for now" without a card.
 finds one public `presence.recorded` row naming only the present player, and `presenceSeq` in
 `jobs.result` (SC-006).
 
-- [ ] T016 [US3] In `apps/server/src/gate/gate.ts`, add `GateDeps.presence?: PresenceReader`
+- [x] T016 [US3] In `apps/server/src/gate/gate.ts`, add `GateDeps.presence?: PresenceReader`
   (default: no humans present). Export the type through `apps/server/src/gate/index.ts`.
-- [ ] T017 [US3] Add `Gate.recordPresence(sessionId, { purpose, actionId? })` per
+- [x] T017 [US3] Add `Gate.recordPresence(sessionId, { purpose, actionId? })` per
   contracts/presence-marker.md: actor `system`, visibility `public`, `expectedLastSeq`, the
   existing bounded retry, `onAppended` notification, no deduplication. Leave `submit` and
   `handle` unchanged.
-- [ ] T018 [US3] Pass the tracker's reader to `createGate` in `apps/server/src/index.ts`.
-- [ ] T019 [US3] In `apps/server/src/dm/worker.ts`, widen `gate` to
+- [x] T018 [US3] Pass the tracker's reader to `createGate` in `apps/server/src/index.ts`.
+- [x] T019 [US3] In `apps/server/src/dm/worker.ts`, widen `gate` to
   `Pick<Gate, "submit" | "recordPresence">`. Call `recordPresence(sessionId, { purpose:
   "director" })` once per claimed `turn` job, before `runTurn`. On a refusal or throw, finish
   the job failed with `failure.node = "presence"`. Add `presenceSeq` to every `turn` job result.
   Companion and chronicle jobs do not record. Keep the "never calls gate.submit" comment true.
-- [ ] T020 [US3] In `apps/server/src/dm/nodes/assemble.ts`, add `AssembleOutput.presence`
+- [x] T020 [US3] In `apps/server/src/dm/nodes/assemble.ts`, add `AssembleOutput.presence`
   (`present`, `absent`, `seq`) from `projections.presence` and the party's human controllers.
   Do not change any Director prompt text.
-- [ ] T021 [US3] In `apps/server/src/playtest/harness.ts`, inject a static reader that names
+- [x] T021 [US3] In `apps/server/src/playtest/harness.ts`, inject a static reader that names
   the scripted seat's user present (CR-001).
-- [ ] T022 [P] [US3] Add `recordPresence` to the gate fakes in `apps/server/test/dm/world.ts`
+- [x] T022 [P] [US3] Add `recordPresence` to the gate fakes in `apps/server/test/dm/world.ts`
   and `apps/server/test/dm/worker-world.ts`.
-- [ ] T023 [P] [US3] Write `apps/server/test/gate.presence.integration.test.ts`: the row's
+- [x] T023 [P] [US3] Write `apps/server/test/gate.presence.integration.test.ts`: the row's
   type, version, actor, visibility and sorted payload; one row per call with an unchanged set;
   retry on a seq conflict; listeners receive the row; an AI-only table records `present: []`.
-- [ ] T024 [US3] Extend `apps/server/test/dm/assemble.test.ts`: present and absent split from a
+- [x] T024 [US3] Extend `apps/server/test/dm/assemble.test.ts`: present and absent split from a
   folded marker; `null` view gives `null`.
-- [ ] T025 [US3] Extend `apps/server/test/dm/worker.integration.test.ts`: one marker per turn
+- [x] T025 [US3] Extend `apps/server/test/dm/worker.integration.test.ts`: one marker per turn
   job, two turns give two markers, `presenceSeq` matches, companion jobs record nothing, a
   failed record fails the turn.
-- [ ] T026 [US3] Add a test that the DM enqueuer enqueues nothing for a `presence.recorded` row
+- [x] T026 [US3] Add a test that the DM enqueuer enqueues nothing for a `presence.recorded` row
   (in `apps/server/test/dm/jobs.integration.test.ts` or beside the enqueuer's existing test).
   Confirm `apps/server/test/write-boundary.test.ts` passes unchanged.
 

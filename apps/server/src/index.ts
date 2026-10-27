@@ -59,7 +59,7 @@ const ingestWorker = startIngestWorker({
 // worker, and the worker submits through the gate (specs/031-dm-runtime).
 // Presence comes first: the gate reads it (TASK-0051 Phase 3) and the gateway feeds it.
 const presence = createPresence();
-const gate = createGate({ db });
+const gate = createGate({ db, presence: presence.reader });
 const loadDmProjections = (sessionId: string) =>
   loadProjections(db, sessionId, { role: "dm" });
 const missingPurposes = missingDmPurposes(aiConfig.purposes);

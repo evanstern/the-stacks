@@ -17,6 +17,7 @@ import {
   type StoredEvent,
 } from "@the-stacks/session-model";
 import { type DbClient, SeqConflictError } from "../events/log.js";
+import type { PresenceReader } from "../presence/index.js";
 import {
   type AppendSessionEventInput,
   appendSessionEvents,
@@ -59,7 +60,15 @@ export interface GateDeps {
   newId?: () => string;
   /** Test seam: the session seam's batch append (failure and conflict injection). */
   appendSessionEvents?: typeof appendSessionEvents;
+  /** Who is at the table (decision-0024). Default: no humans present. */
+  presence?: PresenceReader;
 }
+
+export type PresencePurpose = "director" | "signoff" | "floor";
+
+export type RecordPresenceResult =
+  | { ok: true; event: StoredEvent }
+  | { ok: false; refusal: GateRefusal };
 
 export interface Gate {
   /** A proposal from any proposer. The DM runtime's entry point. */
@@ -74,6 +83,14 @@ export interface Gate {
     proposer: Proposer,
     request: unknown,
   ): Promise<GateResult>;
+  /**
+   * Appends one public `presence.recorded` marker naming the humans present now
+   * (specs/035-presence/contracts/presence-marker.md). Never deduplicates.
+   */
+  recordPresence(
+    sessionId: string,
+    input: { purpose: PresencePurpose; actionId?: string },
+  ): Promise<RecordPresenceResult>;
   /** Called after every successful append with the stored rows, in seq order. */
   onAppended(
     listener: (sessionId: string, events: StoredEvent[]) => void,
@@ -100,6 +117,11 @@ export function createGate(deps: GateDeps): Gate {
   const newRng = deps.rng ?? (() => seededRng(randomInt(0, 2 ** 32)));
   const newId = deps.newId ?? randomUUID;
   const append = deps.appendSessionEvents ?? appendSessionEvents;
+  const presence: PresenceReader = deps.presence ?? {
+    presentUsers: () => [],
+    isPresent: (_sessionId, actor) => actor.startsWith("ai:"),
+    onChange: () => () => {},
+  };
   const listeners = new Set<
     (sessionId: string, events: StoredEvent[]) => void
   >();
@@ -295,7 +317,67 @@ export function createGate(deps: GateDeps): Gate {
     return refusal("CONFLICT", "the log kept changing; try again");
   }
 
+  function notify(sessionId: string, events: StoredEvent[]): void {
+    for (const listener of listeners) {
+      try {
+        listener(sessionId, events);
+      } catch (err) {
+        console.error("gate: onAppended listener threw", err);
+      }
+    }
+  }
+
+  async function recordPresence(
+    sessionId: string,
+    input: { purpose: PresencePurpose; actionId?: string },
+  ): Promise<RecordPresenceResult> {
+    for (let n = 1; n <= MAX_ATTEMPTS; n++) {
+      try {
+        const p = await loadProjections(db, sessionId, { role: "dm" });
+        const present = presence
+          .presentUsers(sessionId)
+          .map((u) => u.userId)
+          .sort();
+        const [event] = await append(
+          db,
+          [
+            {
+              sessionId,
+              actor: "system",
+              type: "presence.recorded",
+              payload: {
+                present,
+                purpose: input.purpose,
+                ...(input.actionId ? { actionId: input.actionId } : {}),
+              },
+              visibility: "public",
+            },
+          ],
+          { expectedLastSeq: p.throughSeq },
+        );
+        if (!event) throw new Error("presence marker was not stored");
+        notify(sessionId, [event]);
+        return { ok: true, event };
+      } catch (err) {
+        if (err instanceof SeqConflictError) continue;
+        if (err instanceof SessionEventRefused) {
+          return refusal(
+            err.code,
+            err.message,
+            "append",
+          ) as RecordPresenceResult;
+        }
+        throw err;
+      }
+    }
+    return refusal(
+      "CONFLICT",
+      "the log kept changing; try again",
+    ) as RecordPresenceResult;
+  }
+
   return {
+    recordPresence,
     async submit(sessionId, proposer, proposal) {
       const parsed = ProposalSchema.safeParse(proposal);
       if (!parsed.success) {

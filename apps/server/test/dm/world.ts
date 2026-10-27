@@ -17,6 +17,7 @@ import {
 } from "../../src/dm/script/load.js";
 import { readFrom } from "../../src/events/log.js";
 import { createGate, type Gate } from "../../src/gate/index.js";
+import type { PresenceReader } from "../../src/presence/index.js";
 import { toStoredEvent } from "../../src/session/events.js";
 import { loadProjections } from "../../src/session/projections.js";
 import { emptyCheckpoint, makeCtx } from "./helpers.js";
@@ -100,7 +101,13 @@ export interface World {
 }
 
 export async function createWorld(
-  opts: { dice?: number[]; calls?: unknown[]; gate?: (g: Gate) => Gate } = {},
+  opts: {
+    dice?: number[];
+    calls?: unknown[];
+    gate?: (g: Gate) => Gate;
+    /** Who is at the table for `recordPresence`. Default: no humans. */
+    presence?: PresenceReader;
+  } = {},
 ): Promise<World> {
   const sessionId = randomUUID();
   const scripted = createScriptedDm(
@@ -115,6 +122,7 @@ export async function createWorld(
   const realGate = createGate({
     db: requireDb(),
     rng: scripted.gateRng,
+    presence: opts.presence,
     newId: () => `id-${sessionId.slice(0, 8)}-${++n}`,
   });
   const submitCalls = { count: 0 };
