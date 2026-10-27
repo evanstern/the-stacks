@@ -1024,6 +1024,140 @@ describe("group sign-off planning (specs/044-group-signoff/contracts/signoff.md)
   });
 });
 
+describe("stall override (spec 049 research R11, ruling FT-5)", () => {
+  const cade: Proposer = { kind: "human", userId: CADE_USER, role: "player" };
+  const present = [PLAYER_A, PLAYER_B];
+  const stall = (actionId = "act-party") =>
+    parse({ kind: "action.commit", actionId, override: "stall" });
+  const refusalOf = (result: PlanResult) => {
+    if (result.ok) throw new Error("expected a refusal");
+    return result.refusal;
+  };
+
+  it("parses override stall and rejects any other value", () => {
+    expect(stall()).toMatchObject({ override: "stall" });
+    expect(
+      ProposalSchema.safeParse({
+        kind: "action.commit",
+        actionId: "act-party",
+        override: "force",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("ai:dm with no objection plans the signoff marker then the dm commit", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(plan(p, aiDm, stall(), [], null, { present }));
+    expect(rows.map((r) => r.type)).toEqual([
+      "presence.recorded",
+      "action.committed",
+    ]);
+    expect(rows[0]).toEqual({
+      actor: "system",
+      type: "presence.recorded",
+      visibility: "public",
+      payload: { present, purpose: "signoff", actionId: "act-party" },
+    });
+    expect(rows[1]).toMatchObject({
+      actor: "ai:dm",
+      payload: { actionId: "act-party", authority: "dm" },
+    });
+  });
+
+  it("a waiting (silent) quorum member does not block the override", () => {
+    const p = dmFold({ twoHumans: true });
+    expect(plan(p, aiDm, stall(), [], null, { present }).ok).toBe(true);
+  });
+
+  it("from a human proposer -> INVALID_PROPOSAL", () => {
+    const p = dmFold({ twoHumans: true });
+    expect(refusalOf(plan(p, ana, stall(), [], null, { present })).code).toBe(
+      "INVALID_PROPOSAL",
+    );
+    expect(refusalOf(plan(p, cade, stall(), [], null, { present })).code).toBe(
+      "INVALID_PROPOSAL",
+    );
+    const seated = dmFold({ twoHumans: true, humanDm: true });
+    expect(
+      refusalOf(plan(seated, seatedDm, stall(), [], null, { present })).code,
+    ).toBe("INVALID_PROPOSAL");
+  });
+
+  it("on a character action -> INVALID_PROPOSAL", () => {
+    const p = dmFold({ twoHumans: true });
+    expect(
+      refusalOf(plan(p, aiDm, stall("act-ana"), [], null, { present })).code,
+    ).toBe("INVALID_PROPOSAL");
+  });
+
+  it("with one party human -> INVALID_PROPOSAL", () => {
+    const p = dmFold();
+    expect(
+      refusalOf(plan(p, aiDm, stall(), [], null, { present: [PLAYER_A] })).code,
+    ).toBe("INVALID_PROPOSAL");
+  });
+
+  it("an unknown action keeps UNKNOWN_ACTION", () => {
+    const p = dmFold({ twoHumans: true });
+    expect(
+      refusalOf(plan(p, aiDm, stall("nope"), [], null, { present })).code,
+    ).toBe("UNKNOWN_ACTION");
+  });
+
+  it("a quorum member's objection -> GROUP_SIGNOFF_REQUIRED with objecting", () => {
+    const p = dmFold({
+      twoHumans: true,
+      extra: [
+        {
+          type: "action.commented",
+          payload: { actionId: "act-party", stance: "object", text: "no" },
+          opts: { actor: PLAYER_B },
+        },
+      ],
+    });
+    const refusal = refusalOf(plan(p, aiDm, stall(), [], null, { present }));
+    expect(refusal).toMatchObject({
+      source: "gate",
+      code: "GROUP_SIGNOFF_REQUIRED",
+      details: { waiting: [], objecting: [PLAYER_B] },
+    });
+  });
+
+  it("an objector outside the present set does not block", () => {
+    const p = dmFold({
+      twoHumans: true,
+      extra: [
+        {
+          type: "action.commented",
+          payload: { actionId: "act-party", stance: "object", text: "no" },
+          opts: { actor: PLAYER_B },
+        },
+      ],
+    });
+    const rows = okRows(
+      plan(p, aiDm, stall(), [], null, { present: [PLAYER_A] }),
+    );
+    expect(rows[0]?.payload).toMatchObject({ present: [PLAYER_A] });
+  });
+
+  it("a plain dm commit still writes no marker", () => {
+    const p = dmFold({ twoHumans: true });
+    const rows = okRows(
+      plan(
+        p,
+        aiDm,
+        parse({ kind: "action.commit", actionId: "act-party" }),
+        [],
+        null,
+        {
+          present,
+        },
+      ),
+    );
+    expect(rows.map((r) => r.type)).toEqual(["action.committed"]);
+  });
+});
+
 describe("scene-presence planner (TASK-0141)", () => {
   const presence = (actorId: string, reason: string, actionId?: string) =>
     parse({

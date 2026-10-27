@@ -75,6 +75,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     kind: z.literal("action.commit"),
     ...ProposalNote,
     actionId: RefIdSchema,
+    /** `ai:dm` only: commit a stalled party action (specs/049-turn-floor, ruling FT-5). */
+    override: z.literal("stall").optional(),
   }),
   z.object({
     kind: z.literal("action.withdraw"),

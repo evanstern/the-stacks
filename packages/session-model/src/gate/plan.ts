@@ -157,6 +157,70 @@ function floorMarker(present: readonly string[]): PlannedRow {
   };
 }
 
+/**
+ * The AI DM's stall override (specs/049-turn-floor, research R11, ruling FT-5). The time
+ * window is the job's check; the planner has no clock. It refuses unless the proposer is
+ * `ai:dm`, the action is an open party action and the party has two or more humans, and it
+ * refuses `GROUP_SIGNOFF_REQUIRED` when a present quorum member objects. The `signoff`
+ * marker holds exactly the present set: `ai:dm` is not a party human, so it is not added.
+ */
+function planStall(
+  p: SessionProjections,
+  proposer: Proposer,
+  actionId: string,
+  present: readonly string[] | undefined,
+): PlanResult {
+  const action = findAction(p, actionId);
+  if (!action) return refuse("UNKNOWN_ACTION", "no such action");
+  if (action.status !== "declared" && action.status !== "discussed") {
+    return refuse("ACTION_NOT_OPEN", "the action is not open");
+  }
+  if (!isAiDm(proposer)) {
+    return refuse("INVALID_PROPOSAL", "only the AI DM overrides a stall");
+  }
+  if (action.scope !== "party") {
+    return refuse("INVALID_PROPOSAL", "a stall override needs a party action");
+  }
+  if (partyHumans(p).size < 2) {
+    return refuse(
+      "INVALID_PROPOSAL",
+      "a stall override needs two or more party humans",
+    );
+  }
+  if (present === undefined) {
+    return refuse("INVALID_PROPOSAL", "a stall override needs the present set");
+  }
+  const state = signoffState(p, actionId, present);
+  if (state && state.objecting.length > 0) {
+    return refuse("GROUP_SIGNOFF_REQUIRED", "a present party member objects", {
+      waiting: state.waiting,
+      objecting: state.objecting,
+    });
+  }
+  return {
+    ok: true,
+    rows: [
+      {
+        actor: "system",
+        type: "presence.recorded",
+        visibility: "public",
+        payload: {
+          present: [...new Set(present)].sort(),
+          purpose: "signoff",
+          actionId,
+        },
+      },
+      {
+        actor: "ai:dm",
+        type: "action.committed",
+        payload: { actionId, authority: "dm" },
+        visibility: "public",
+      },
+    ],
+    batchId: null,
+  };
+}
+
 type FloorProposal = Extract<Proposal, { kind: "floor" }>;
 
 /**
@@ -437,6 +501,9 @@ function plan(
       return { ok: true, rows: [commented], batchId: null };
     }
     case "action.commit": {
+      if (proposal.override === "stall") {
+        return planStall(p, proposer, proposal.actionId, context?.present);
+      }
       const decision = commitAuthority(
         p,
         proposer,
