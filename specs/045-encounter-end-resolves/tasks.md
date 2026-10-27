@@ -50,10 +50,10 @@ decision-0025 §4. No code changes.
 **Independent test**: a reader of the three files finds the same six-group order and the same
 encounter-start exception.
 
-- [ ] T001 [US4] Add the section "Resolve order (decision-0025 §4)" after "Beats" in `specs/031-dm-runtime/contracts/turn-jobs.md`: the six groups of plan.md "Group order" in order; why encounter start and scene-start setup are opening moves (actions name the combatants they add; D17 §2.5 passes encounter start); hold runs opening then closing moves only; the empty batch-gate slot between closing moves and S1 (TASK-0147); the amendment of decision-0017; the reclaim note of spec OQ-2 option (a) with the window stated
-- [ ] T002 [P] [US4] Rewrite "Order of work" in `specs/031-dm-runtime/contracts/resolve.md` to the six groups and the hold rule; link the turn-jobs section; update the "Proposal kinds resolve uses" row that names the Director group so it names opening and closing moves
-- [ ] T003 [P] [US4] In `specs/031-dm-runtime/contracts/director.md` "Decision → proposals", name each decision's group (scene start and `turn`: opening; tracker advance, `free`, scene `end`: closing); in "Holding a beat" step 1, say the runner applies the opening and then the closing moves
-- [ ] T004 Cross-read the three files for one order and one vocabulary ("opening moves", "closing moves"); commit
+- [x] T001 [US4] Add the section "Resolve order (decision-0025 §4)" after "Beats" in `specs/031-dm-runtime/contracts/turn-jobs.md`: the six groups of plan.md "Group order" in order; why encounter start and scene-start setup are opening moves (actions name the combatants they add; D17 §2.5 passes encounter start); hold runs opening then closing moves only; the empty batch-gate slot between closing moves and S1 (TASK-0147); the amendment of decision-0017; the reclaim note of spec OQ-2 option (a) with the window stated
+- [x] T002 [P] [US4] Rewrite "Order of work" in `specs/031-dm-runtime/contracts/resolve.md` to the six groups and the hold rule; link the turn-jobs section; update the "Proposal kinds resolve uses" row that names the Director group so it names opening and closing moves
+- [x] T003 [P] [US4] In `specs/031-dm-runtime/contracts/director.md` "Decision → proposals", name each decision's group (scene start and `turn`: opening; tracker advance, `free`, scene `end`: closing); in "Holding a beat" step 1, say the runner applies the opening and then the closing moves
+- [x] T004 Cross-read the three files for one order and one vocabulary ("opening moves", "closing moves"); commit
 
 **Checkpoint**: AC #2's artifact exists. The code still runs the old order.
 
