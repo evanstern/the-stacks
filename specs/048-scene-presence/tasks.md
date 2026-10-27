@@ -58,10 +58,10 @@ hands the turn on exactly once when the leaver is active.
 **Independent test**: `pnpm --filter @the-stacks/dnd5e-engine test`. The new cases fail before
 T004 and pass after it.
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`. Merge `origin/main` into the branch as a merge
+- [x] T001 Run `pnpm install --frozen-lockfile`. Merge `origin/main` into the branch as a merge
       commit when main has moved. Resolve no conflict by hand in `backlog/`; report one if it
       appears.
-- [ ] T002 [P] [US3] Create `packages/dnd5e-engine/test/commands/initiative-leave.test.ts` with
+- [x] T002 [P] [US3] Create `packages/dnd5e-engine/test/commands/initiative-leave.test.ts` with
       failing cases (plan R3, R4):
       - a non-active combatant leaves: one `encounter.changed`, order without it, `turnIndex`
         still on the same active combatant, state kept in `combatants`;
@@ -73,14 +73,14 @@ T004 and pass after it.
         (`NO_ELIGIBLE_COMBATANT`);
       - each refusal asserts `scriptedRng([]).calls() === 0`;
       - `replay` of the events from the pre-state equals the post-state.
-- [ ] T003 [US3] Add `{ type: "initiative.leave", combatantId, reason }` to
+- [x] T003 [US3] Add `{ type: "initiative.leave", combatantId, reason }` to
       `EngineCommandSchema` in `packages/dnd5e-engine/src/schema/commands.ts`.
-- [ ] T004 [US3] Add `handleInitiativeLeave` to `packages/dnd5e-engine/src/commands/encounter.ts`
+- [x] T004 [US3] Add `handleInitiativeLeave` to `packages/dnd5e-engine/src/commands/encounter.ts`
       per plan D1, R3 and R4. Reuse the module's `expiring` helper for the turn-end expiry.
       Register it in `packages/dnd5e-engine/src/execute.ts`.
-- [ ] T005 [US3] Confirm `packages/dnd5e-engine/test/coverage.test.ts` passes with the new
+- [x] T005 [US3] Confirm `packages/dnd5e-engine/test/coverage.test.ts` passes with the new
       command. List the command in `packages/dnd5e-engine/README.md`.
-- [ ] T006 [US3] Amend `specs/026-dnd5e-engine/contracts/commands.md`: add `initiative.leave`
+- [x] T006 [US3] Amend `specs/026-dnd5e-engine/contracts/commands.md`: add `initiative.leave`
       (fields, refusals of R3, the active-leaver rule of R4, event `encounter.changed`). Note
       "Amended 2026-10-27 (TASK-0141, operator ruling OQ-3)".
 

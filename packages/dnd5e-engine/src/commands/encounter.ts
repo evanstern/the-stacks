@@ -178,6 +178,60 @@ function expiring(
   return events;
 }
 
+export const handleInitiativeLeave: Handler<"initiative.leave"> = (
+  state,
+  command,
+  _rng,
+) => {
+  const enc = state.encounter;
+  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  const id = command.combatantId;
+  if (!state.combatants[id]) return unknownCombatant(id);
+  const at = enc.order.findIndex((e) => e.combatantId === id);
+  if (at === -1) {
+    return refuse("UNKNOWN_COMBATANT", `"${id}" is not in the order`, {
+      combatantId: id,
+      reason: "not-in-order",
+    });
+  }
+  if (enc.order.length === 1) {
+    return refuse(
+      "NO_ELIGIBLE_COMBATANT",
+      "leaving would empty the initiative order",
+      { combatantId: id },
+    );
+  }
+  const reason = command.reason;
+  const order = enc.order.filter((_, i) => i !== at);
+  const events: EngineEvent[] = [];
+  let turnIndex = enc.turnIndex;
+  let round = enc.round;
+  if (at === enc.turnIndex) {
+    events.push(
+      ...expiring(
+        state,
+        { round: enc.round, combatantId: id, boundary: "turn-end" },
+        reason,
+      ),
+    );
+    if (turnIndex >= order.length) {
+      turnIndex = 0;
+      round += 1;
+    }
+  } else if (at < enc.turnIndex) {
+    turnIndex -= 1;
+  }
+  events.push({
+    type: "encounter.changed",
+    v: 1,
+    reason,
+    combatantId: id,
+    before: enc,
+    after: { ...enc, round, turnIndex, order },
+  });
+  return { ok: true, events };
+};
+
 export const handleTurnAdvance: Handler<"turn.advance"> = (
   state,
   command,

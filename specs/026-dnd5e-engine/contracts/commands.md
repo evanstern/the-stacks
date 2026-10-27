@@ -202,6 +202,7 @@ source `"hp-zero"`.
 |---|---|---|---|
 | `initiative.roll` | `participants: [{ combatantId, mode: RollMode }]` (1..50, unique), `reason` | one `dice.rolled` per participant in list order, then `encounter.started` | `ENCOUNTER_ACTIVE`, `UNKNOWN_COMBATANT`, `DUPLICATE_PARTICIPANT`, `TARGET_DEAD` |
 | `initiative.join` | `combatantId`, `mode: RollMode`, `reason` | `dice.rolled`, `encounter.changed` | `NO_ACTIVE_ENCOUNTER`, `UNKNOWN_COMBATANT`, `ALREADY_IN_ENCOUNTER`, `TARGET_DEAD` |
+| `initiative.leave` | `combatantId`, `reason` | `condition.removed` for each `turn-end` expiry of the leaver (only when the leaver is active), `encounter.changed` | `NO_ACTIVE_ENCOUNTER`, `UNKNOWN_COMBATANT` (also `details.reason: "not-in-order"` when the combatant is not in the order), `NO_ELIGIBLE_COMBATANT` |
 | `turn.advance` | `reason` | `condition.removed` for each `turn-end` expiry of the outgoing turn, `turn.advanced`, `condition.removed` for each `turn-start` expiry of the incoming turn | `NO_ACTIVE_ENCOUNTER`, `NO_ELIGIBLE_COMBATANT` |
 | `encounter.end` | `reason` | `condition.removed` for each instance with `expiresAt`, then `encounter.ended` | `NO_ACTIVE_ENCOUNTER` |
 
@@ -210,6 +211,13 @@ source `"hp-zero"`.
   `turnIndex` 0.
 - `initiative.join` inserts by the same ordering. If the insert lands at or before the
   current `turnIndex`, `turnIndex` rises by 1, so the active combatant does not change.
+- `initiative.leave` removes the combatant's entry from the order and keeps its state in
+  `combatants`. It draws no die. It refuses with `NO_ELIGIBLE_COMBATANT` when the order would
+  be left empty. If the leaver sits before `turnIndex`, `turnIndex` falls by 1, so the active
+  combatant does not change. If the leaver is the active combatant, the `turn-end` expiries of
+  that combatant run, the entry at the same index becomes active, and an index past the end
+  wraps to 0 with the round + 1. The next combatant is then active exactly once.
+  Amended 2026-10-27 (TASK-0141, operator ruling OQ-3).
 - `turn.advance` moves to the next entry whose combatant is not `dead`, wrapping to a new
   round after the last entry. Turns skipped because the combatant is dead still cross that
   combatant's `turn-start` and `turn-end` expiry points. If every combatant in the order is
