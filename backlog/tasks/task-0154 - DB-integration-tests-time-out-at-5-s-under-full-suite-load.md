@@ -4,7 +4,7 @@ title: DB integration tests time out at 5 s under full-suite load
 status: To Do
 assignee: []
 created_date: '2026-10-27 04:11'
-updated_date: '2026-10-27 04:15'
+updated_date: '2026-10-27 04:32'
 labels:
   - test
   - bug
@@ -31,6 +31,8 @@ Outcome: the server's DB-backed scene and playtest integration tests pass reliab
 
 <!-- SECTION:NOTES:BEGIN -->
 Third instance 2026-10-27: test/playtest/provider.integration.test.ts timed out at 5 s under full-suite load on TASK-0116 Phase 3; passed alone (3 tests).
+
+2026-10-27: on TASK-0051 the 5090 ms scene.integration hit was load plus a per-turn full-log replay in gate.recordPresence; fixed on that branch (2b09a07). The other instances stand.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

@@ -38,6 +38,12 @@ export interface ChatRequest {
   system?: string;
   messages: ChatMessage[];
   signal?: AbortSignal;
+  /**
+   * Called once per call that emits a usage record, with the record the sink
+   * receives. Not called for an unknown purpose (no record exists). A throwing
+   * callback never breaks the stream.
+   */
+  onUsage?: (r: UsageRecord) => void;
 }
 
 export type ErrorKind =

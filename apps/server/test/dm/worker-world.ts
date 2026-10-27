@@ -21,6 +21,9 @@ export function workerFor(
     retrieve?: DmWorkerDeps["retrieve"];
     nodes?: Nodes;
     reactQuietMs?: number;
+    gateway?: DmWorkerDeps["gateway"];
+    heartbeatMs?: number;
+    log?: (line: Record<string, unknown>) => void;
   } = {},
 ) {
   const base = w.ctx().deps;
@@ -38,7 +41,8 @@ export function workerFor(
   });
   const worker = createDmWorker({
     db: requireDb(),
-    gateway: base.gateway,
+    gateway: opts.gateway ?? base.gateway,
+    heartbeatMs: opts.heartbeatMs,
     gate: w.gate,
     retrieve:
       opts.retrieve ??
@@ -49,6 +53,7 @@ export function workerFor(
     loadProjections: base.loadProjections,
     minSimilarity: 0.3,
     log: (l) => {
+      opts.log?.(l);
       if (process.env.DM_TEST_LOG) console.log(l);
     },
   });

@@ -26,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # DM runtime
@@ -58,7 +58,7 @@ async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framewor
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so a reclaimed job
 does not re-pay model calls. Between nodes the runner checks the lease and aborts on a fence loss.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-records its purpose, prompt version and outcome, never prompt text.
+records its purpose, prompt version, outcome and (TASK-0116) provider, model, token counts, cost and duration, never prompt text. Each attempt also goes to an optional `recordCall` seam that stores a usage-ledger row ([[dm-turn-jobs]]).
 
 `callJson` makes at most two attempts: the second sends the first attempt's schema issues back.
 A node may pass `normalize`, applied to the parsed JSON before the schema on every attempt. Only
@@ -82,7 +82,7 @@ do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. No model is 
 resolve, and no model ever sees or invents a number: the engine ([[dnd5e-engine]]) owns dice,
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a
 retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
-`<jobId>#<n>`, key, kind, result, refusal, batch and proposal ids).
+`<jobId>#<n>`, key, kind, result, refusal, batch and proposal ids, and `seqs`, the seqs the gate returned).
 
 ## Narration and audit
 
@@ -135,6 +135,6 @@ The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end 
 `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 409 if a scene or a
 start job exists), `POST /dm/sessions/:id/turn` (manual retry, 202), and
 `GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata, never
-prompt text). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
+prompt text). Four read-only operator routes serve the debug view (TASK-0116): `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls`; `/turns` is unchanged ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
 writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
 session state is written only through the gate.

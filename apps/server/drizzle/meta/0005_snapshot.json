@@ -1,5 +1,5 @@
 {
-  "id": "e83ec4d8-5843-4b1b-83bc-d01a7a16eaf5",
+  "id": "1c7f0eff-46a5-4411-ab0b-ded24c145c87",
   "prevId": "26ad092c-0102-434e-9ce3-bc4e64821d91",
   "version": "7",
   "dialect": "postgresql",
@@ -254,6 +254,199 @@
       },
       "isRLSEnabled": false
     },
+    "public.dm_model_calls": {
+      "name": "dm_model_calls",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "dm_model_calls_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_kind": {
+          "name": "job_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_attempt": {
+          "name": "job_attempt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "purpose": {
+          "name": "purpose",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prompt_version": {
+          "name": "prompt_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "call_attempt": {
+          "name": "call_attempt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outcome": {
+          "name": "outcome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "error_kind": {
+          "name": "error_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "input_tokens": {
+          "name": "input_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "output_tokens": {
+          "name": "output_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_usd": {
+          "name": "cost_usd",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration_ms": {
+          "name": "duration_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "http_attempts": {
+          "name": "http_attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "dm_model_calls_session_idx": {
+          "name": "dm_model_calls_session_idx",
+          "columns": [
+            {
+              "expression": "session_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dm_model_calls_job_idx": {
+          "name": "dm_model_calls_job_idx",
+          "columns": [
+            {
+              "expression": "job_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "dm_model_calls_job_id_jobs_id_fk": {
+          "name": "dm_model_calls_job_id_jobs_id_fk",
+          "tableFrom": "dm_model_calls",
+          "tableTo": "jobs",
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "dm_model_calls_job_kind_valid": {
+          "name": "dm_model_calls_job_kind_valid",
+          "value": "\"dm_model_calls\".\"job_kind\" IN ('turn', 'companion', 'chronicle')"
+        },
+        "dm_model_calls_call_attempt_valid": {
+          "name": "dm_model_calls_call_attempt_valid",
+          "value": "\"dm_model_calls\".\"call_attempt\" IN (1, 2)"
+        },
+        "dm_model_calls_outcome_valid": {
+          "name": "dm_model_calls_outcome_valid",
+          "value": "\"dm_model_calls\".\"outcome\" IN ('ok', 'invalid-json', 'error', 'aborted')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.events": {
       "name": "events",
       "schema": "",
@@ -497,22 +690,6 @@
           ],
           "isUnique": true,
           "where": "\"jobs\".\"kind\" = 'chronicle' AND \"jobs\".\"status\" = 'queued'",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "jobs_companion_react_queued_key": {
-          "name": "jobs_companion_react_queued_key",
-          "columns": [
-            {
-              "expression": "session_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"jobs\".\"kind\" = 'companion' AND \"jobs\".\"status\" = 'queued' AND \"jobs\".\"input\"->>'reason' = 'react'",
           "concurrently": false,
           "method": "btree",
           "with": {}

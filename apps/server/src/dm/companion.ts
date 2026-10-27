@@ -9,7 +9,7 @@ import type { Gateway } from "../ai/gateway.js";
 import type { Gate } from "../gate/index.js";
 import type { CompanionJobInput } from "./jobs.js";
 import { callJson } from "./pipeline/call.js";
-import type { ModelCallRecord } from "./pipeline/context.js";
+import type { ModelCallRecord, RecordedCall } from "./pipeline/context.js";
 import { buildCompanionPrompt, PROMPT_VERSION } from "./prompts/companion.js";
 import { PURPOSE_OF } from "./purposes.js";
 import type { SceneSeed } from "./seed/schema.js";
@@ -59,6 +59,8 @@ export interface CompanionSubmission {
   kind: string;
   ok: boolean;
   code: string | null;
+  /** The seqs the gate returned, ascending; `[]` on a refusal. */
+  seqs: number[];
 }
 
 export interface CompanionPlay {
@@ -82,6 +84,7 @@ export interface CompanionDeps {
   /** True while this worker holds the lease. */
   fence: () => Promise<boolean>;
   log: (line: Record<string, unknown>) => void;
+  recordCall?: (call: RecordedCall) => Promise<void>;
 }
 
 export const companionActor = (id: string) => `ai:companion:${id}` as const;
@@ -270,6 +273,7 @@ export async function runCompanionJob(
         kind: proposal.kind,
         ok: res.ok,
         code: res.ok ? null : res.refusal.code,
+        seqs: res.ok ? res.events.map((e) => e.seq).sort((a, b) => a - b) : [],
       });
       if (!res.ok) {
         deps.log({

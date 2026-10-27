@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { runCompanionJob } from "../../src/dm/companion.js";
 import { enqueueTurnForced, listDmJobs } from "../../src/dm/jobs.js";
+import type { RecordedCall } from "../../src/dm/pipeline/context.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   createWorld,
@@ -44,9 +45,11 @@ async function turnModeWith(w: World, active: string) {
   await startScene(w);
   await giveTurn(w, active);
 }
+const recorded: RecordedCall[] = [];
 
 function deps(w: World, enqueue?: (id: string) => Promise<unknown>) {
   const base = w.ctx().deps;
+  recorded.length = 0;
   return {
     gateway: base.gateway,
     gate: base.gate,
@@ -55,6 +58,9 @@ function deps(w: World, enqueue?: (id: string) => Promise<unknown>) {
     enqueueTurnForced: enqueue ?? (async () => {}),
     fence: async () => true,
     log: () => {},
+    recordCall: async (c: RecordedCall) => {
+      recorded.push(c);
+    },
   };
 }
 
@@ -118,6 +124,33 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
         .authority,
     ).toBe("active-player");
     expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+
+    // Seqs (TASK-0116): each ok submission names the rows it appended.
+    const seqs = result.plays[0]?.submissions.flatMap((s) => s.seqs) ?? [];
+    expect(seqs).toHaveLength(3);
+    expect(seqs).toEqual(
+      rows
+        .filter((r) =>
+          ["talk", "action.declared", "action.committed"].includes(r.type),
+        )
+        .filter((r) => r.actor === "ai:companion:odo")
+        .map((r) => r.seq),
+    );
+
+    // Usage (TASK-0116): the stored call carries the six fields and was recorded.
+    const call = result.calls[0];
+    expect(call?.provider).not.toBeNull();
+    expect(call?.model).not.toBeNull();
+    expect(call?.inputTokens).not.toBeNull();
+    expect(call?.outputTokens).not.toBeNull();
+    expect(call?.durationMs).not.toBeNull();
+    expect(recorded).toHaveLength(result.calls.length);
+    expect(recorded[0]).toMatchObject({
+      purpose: call?.purpose,
+      provider: call?.provider,
+      model: call?.model,
+      inputTokens: call?.inputTokens,
+    });
   });
 
   it("refuses and records a commit from a companion who is not active", async () => {
