@@ -1,6 +1,11 @@
-import type { StoredEvent, Viewer } from "@the-stacks/session-model";
+import {
+  project,
+  type StoredEvent,
+  type Viewer,
+} from "@the-stacks/session-model";
 import type { SessionFixture } from "@the-stacks/session-model/fixtures";
 import { useMemo, useState } from "react";
+import type { PresenceEntry } from "../ws/types.ts";
 import {
   commentFrame,
   commitFrame,
@@ -39,6 +44,26 @@ export function proposalsFor(
   return selectPendingProposals(events, viewer).filter(
     (p) => !decided.has(p.proposalId),
   );
+}
+
+/**
+ * The static presence list a fixture shows: the human DM seat holder and every player who
+ * controls a party member, each named for what the fixture calls them. Nobody is observing.
+ */
+export function fixturePresence(
+  events: readonly StoredEvent[],
+): PresenceEntry[] {
+  const p = project(events, { role: "player", userId: "fixture-presence" });
+  const byUser = new Map<string, string>();
+  if (p.gate.seat.kind === "human") byUser.set(p.gate.seat.userId, "DM");
+  for (const m of p.party) {
+    if (m.controller.kind === "player" && !byUser.has(m.controller.userId)) {
+      byUser.set(m.controller.userId, m.name);
+    }
+  }
+  return [...byUser]
+    .map(([userId, displayName]) => ({ userId, displayName }))
+    .sort((a, b) => a.userId.localeCompare(b.userId));
 }
 
 interface LocalState {
@@ -85,6 +110,8 @@ export function useFixtureTable(
     [base, viewer, decided],
   );
 
+  const presence = useMemo(() => fixturePresence(base), [base]);
+
   const commands = useMemo<TableCommands>(() => {
     function append(frame: EventFrame | null, authority?: string): boolean {
       const local = frame ? localEventOf(frame, authority) : null;
@@ -122,6 +149,7 @@ export function useFixtureTable(
     caughtUp: true,
     notice: null,
     proposals,
+    presence,
     commands,
   };
 }

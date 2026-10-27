@@ -170,31 +170,31 @@ finds one public `presence.recorded` row naming only the present player, and `pr
 **Independent test**: the runbook merge condition — two Brave sessions on one table each see
 the other join and leave. Screenshots in the PR.
 
-- [ ] T027 [US1] In `apps/web/app/ws/types.ts`, add `presence?: boolean` to the subscribe shape
+- [x] T027 [US1] In `apps/web/app/ws/types.ts`, add `presence?: boolean` to the subscribe shape
   and `PresenceFrame` to `ServerFrame`, matching contracts/ws-presence.md.
-- [ ] T028 [US1] In `apps/web/app/play/reduce-frame.ts`, add `present: PresenceEntry[] | null`
+- [x] T028 [US1] In `apps/web/app/play/reduce-frame.ts`, add `present: PresenceEntry[] | null`
   to `FrameState` (initially `null`). Add a `presence` branch that replaces it. Add a `default`
   branch that returns `state` unchanged.
-- [ ] T029 [US1] Extend `apps/web/test/play/reduce-frame.test.mjs`: the `presence` branch, an
+- [x] T029 [US1] Extend `apps/web/test/play/reduce-frame.test.mjs`: the `presence` branch, an
   unknown frame type leaves state unchanged, events still accumulate.
-- [ ] T030 [US1] In `apps/web/app/ws/useSession.ts`, send `presence: true` on subscribe, expose
+- [x] T030 [US1] In `apps/web/app/ws/useSession.ts`, send `presence: true` on subscribe, expose
   `present`, and reset it to `null` on disconnect.
-- [ ] T031 [US1] Add `presence: PresenceEntry[] | null` to `TableSource` in
+- [x] T031 [US1] Add `presence: PresenceEntry[] | null` to `TableSource` in
   `apps/web/app/play/source.ts`. Supply it from `apps/web/app/play/use-live-table.ts`. Supply a
   static list from `apps/web/app/play/use-fixture-table.ts`.
-- [ ] T032 [P] [US1] Create `apps/web/app/play/presence.ts`: pure `presenceRows(present,
+- [x] T032 [P] [US1] Create `apps/web/app/play/presence.ts`: pure `presenceRows(present,
   projections)` returning rows marked `dm`, `player` or `observer`. The AI DM is present
   whenever the seat is AI. A human DM seat whose holder is absent shows absent. One row per
   user.
-- [ ] T033 [P] [US1] Write `apps/web/test/play/presence.test.mjs` for `presenceRows`: AI seat,
+- [x] T033 [P] [US1] Write `apps/web/test/play/presence.test.mjs` for `presenceRows`: AI seat,
   human seat present and absent, observer, party player, dedup.
-- [ ] T034 [US1] Create `apps/web/app/play/components/presence-strip.tsx` and render it in
+- [x] T034 [US1] Create `apps/web/app/play/components/presence-strip.tsx` and render it in
   `apps/web/app/play/components/table-header.tsx`. No modal; a detail view, if any, is a
   slide-out panel.
-- [ ] T035 [US1] Write `apps/web/test/play/presence-strip.test.tsx`. Confirm
+- [x] T035 [US1] Write `apps/web/test/play/presence-strip.test.tsx`. Confirm
   `apps/web/test/no-dialog.test.mjs` passes.
-- [ ] T036 [US1] Run `pnpm ci:check`.
-- [ ] T037 [US1] Run quickstart.md "Manual — the merge condition" in Brave on the worktree's
+- [x] T036 [US1] Run `pnpm ci:check`.
+- [ ] T037 [US1] (awaiting operator (ruling 2026-10-27)) Run quickstart.md "Manual — the merge condition" in Brave on the worktree's
   stack. Save the screenshots under `specs/035-presence/evidence/` and list them in the commit
   message.
 

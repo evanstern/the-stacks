@@ -23,7 +23,7 @@ export type { LiveUser };
  */
 export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
   const revalidator = useRevalidator();
-  const { events, status, caughtUp, notice, sendEvent } = useSession(
+  const { events, status, caughtUp, notice, present, sendEvent } = useSession(
     sessionId,
     revalidator.revalidate,
   );
@@ -60,6 +60,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     caughtUp,
     notice,
     proposals,
+    presence: present,
     commands,
   };
 }
