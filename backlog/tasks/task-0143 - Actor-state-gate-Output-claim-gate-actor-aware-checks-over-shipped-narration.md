@@ -4,7 +4,7 @@ title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped nar
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 19:59'
+updated_date: '2026-10-27 20:04'
 labels:
   - dm
   - rules-gate
@@ -43,8 +43,6 @@ Spec: specs/051-output-claim-gate
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -70,6 +68,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 - It skips an actor whose life state or presence changed this turn, for example "Snag flees.", or a last act before a death.
 - It skips the phrase "<name> acts/moves next".
 No evidence case depends on either one.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 1, T001-T007: 1b3d00b. Five refusal cases are it.fails; each failed as plain it against the stub at expect(r.pass).toBe(false). Controls pass. Both logs fold clean: M2 333 rows, run 192319Z 222 rows. ci:check without a DB: only the 5 expected adjudicate.integration failures.) Main is merged in, so the branch card copy of TASK-0142 matches Done.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
