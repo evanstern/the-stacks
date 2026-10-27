@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:37'
+updated_date: '2026-10-27 03:46'
 labels:
   - multiplayer
   - realtime
@@ -34,6 +34,11 @@ Spec: specs/035-presence
 - [ ] #3 A disconnect updates presence within a stated timeout.
 - [ ] #4 The gate and the Director read presence through one server-side interface.
 - [ ] #5 Tests cover join, leave and reconnect.
+- [ ] #6 Spec phase: Session model — the marker event (Foundational; FR-018, FR-021)
+- [ ] #7 Spec phase: Live presence and the protocol amendment (US1, US2; FR-002–FR-005, FR-008–FR-013)
+- [ ] #8 Spec phase: The marker writer and the Director (US3; FR-012–FR-016, FR-019–FR-023)
+- [ ] #9 Spec phase: The presence strip (US1; FR-005–FR-007, FR-024; merge condition)
+- [ ] #10 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -49,6 +54,11 @@ OPERATOR RULINGS 2026-10-26 (checkpoint C2, answered in chat to the orchestrator
 - Observers: 'Show as observer'.
 - Timings: 'Timings stand' (5 s reload grace, 10 s ping, clean leave within 10 s, silent loss within 30 s).
 - Multi-process: 'Card the revisit' (trigger: a second server process is planned). An absent human DM gets no new behaviour beyond the strip.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring after C2: decision-0024, spec/plan/tasks, commits d50a41a 8aa013c 6838967; ~183k tokens; served verified from transcript.)
+
+ORCHESTRATOR RULINGS 2026-10-26 on spec open questions: Q1 one presence.recorded marker per DM turn stands (the operator's ruling: whenever presence feeds a decision; the Director reads it every turn). Q2 the Phase 3 implementer extends the failure-record node type with 'presence' if needed. Q3 no Director prompt change here (TASK-0050 owns it). Q4 the playtest harness static reader is accepted. NOTE: decision-0024 exists only on this branch; TASK-0135 reserves decision-0025.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
