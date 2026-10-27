@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:07'
+updated_date: '2026-10-27 10:12'
 labels:
   - playtest
   - harness
@@ -33,6 +33,12 @@ Spec: specs/046-downed-hero-gate
 - [ ] #4 Death-save turns for unconscious PCs still run (U6)
 - [ ] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
 - [ ] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
+- [ ] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
+- [ ] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
+- [ ] #9 Spec phase: Plan gate against S0 (card AC #6)
+- [ ] #10 Spec phase: Death-save turns by settling (card AC #4)
+- [ ] #11 Spec phase: Driver and harness (card AC #1)
+- [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -51,6 +57,9 @@ Defaults stated, not blocking: OQ-3 an unable creature's saving throw is allowed
 Finding: death saves today ride on the seat's declaration. AC #6 needs a code-only settling loop in resolve that rolls an engine death-save.roll for an unconscious PC.
 
 OPERATOR RULING 2026-10-27 (in chat): "TASK-0112: I accept OQ-1 (a) CHARACTER_UNABLE, OQ-2 (a) ACTOR_UNABLE, including the frozen-contract amendments to spec 029 gate-api.md and spec 026 refusals.md, the OQ-3 to OQ-5 defaults, and sequencing Option A (absent checks move to TASK-0141)." Orchestrator applied Option A: ACs #3 and #5 replaced by their life-state and S0 halves; dependency on TASK-0141 dropped; TASK-0141 gains the two absent ACs and depends on TASK-0112.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Spec authoring resumed after the operator ruling: plan and tasks, commit 44601a4. Six phases. FR-026 fixes the stale sentence in turn-jobs.md.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
