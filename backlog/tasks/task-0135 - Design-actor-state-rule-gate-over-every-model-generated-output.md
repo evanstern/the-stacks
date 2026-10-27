@@ -1,9 +1,10 @@
 ---
 id: TASK-0135
 title: 'Design: actor-state rule gate over every model-generated output'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
+updated_date: '2026-10-27 03:28'
 labels:
   - design
   - dm
@@ -28,6 +29,12 @@ Outcome: a decision record and design pattern by which every model-generated seq
 - [ ] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
 - [ ] #4 The spec for the first implementation card is written against the decision
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0135, branch task-0135-actor-state-gate, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track C1. Escape line E3. Checkpoint C3 after the inventory.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
