@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 05:25'
+updated_date: '2026-10-27 09:30'
 labels:
   - ws
   - session
@@ -45,6 +45,8 @@ OQ2 amend frozen 029 ws-delivery.md send table row 3 to the OQ1 refusal, plus an
 OQ3 amend frozen 029 write-boundary.md: drop appendUncataloguedEvent from rule 3 and its table row; rule 4 writers become (session/**, gate/**); amendment line.
 OQ4 prose amendment note in specs/006-ws-gateway/contracts/ws-protocol.md beneath 'Extended by spec 029'; send example stays 'chat' by default.
 Design in spec.md: bench and M0 WS tests move to an out-of-character talk request (characterId null). Blocked until the operator rules; TASK-0049 waits behind it (same hotspots).
+
+OPERATOR RULING 2026-10-27 (in chat): "I accept the defaults on the TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006." Spec authoring resumes with plan.md and tasks.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
