@@ -4,6 +4,7 @@ title: 'Narration digits check: quote the match and fix the source'
 status: To Do
 assignee: []
 created_date: '2026-10-26 20:08'
+updated_date: '2026-10-27 01:27'
 labels:
   - dm
   - narration
@@ -26,6 +27,12 @@ Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence
 - [ ] #1 The digits check's issue detail quotes the matched text, with a test
 - [ ] #2 A captured run identifies where the digits come from, and a fix with a test removes that source
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Source found 2026-10-26 (M2 demo session e8c848ec, seq 124-126): the interpret/adjudicate step's reason text uses combatant ids ('Goblin-2 closes through the mud and swings its scimitar at Tamsin.'). TASK-0106 facts v2 render each roll's reason verbatim to the narrator (factEntries 'roll: <reason> ...'), and the narrator copies 'Goblin-2', so the deterministic digits check fails all 3 attempts. Fix candidates: render reasons with spellDigits or display names before they reach the narrator, or require display names in the interpret/adjudicate reason text. The fallback also names the same combatant two ways ('Goblin two' from the reason, 'Goblin with a pot-helm' from its display name).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
