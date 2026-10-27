@@ -4,7 +4,7 @@ title: 'Research branch 2: NPCs, social interaction and information'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:05'
-updated_date: '2026-10-27 03:56'
+updated_date: '2026-10-27 03:57'
 labels:
   - research
   - dm
@@ -24,11 +24,13 @@ Outcome: the AI DM's NPC and information doctrine rests on documented DM practic
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A vault branch for this topic passes the research branch gate
-- [ ] #2 An analysis note answers which NPC and information facts need contract fields, with a recommendation
-- [ ] #3 A decision record is created with the backlog CLI after operator go
+- [x] #1 A vault branch for this topic passes the research branch gate
+- [x] #2 An analysis note answers which NPC and information facts need contract fields, with a recommendation
+- [x] #3 A decision record is created with the backlog CLI after operator go
 - [ ] #4 Follow-up cards exist, and TASK-0107 carries the applicable findings
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
