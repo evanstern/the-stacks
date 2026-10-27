@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 04:22'
+updated_date: '2026-10-27 04:30'
 labels:
   - dm
   - rules-gate
@@ -53,6 +53,9 @@ OPERATOR RULING 2026-10-27 (in chat): 'Keep three views' (dm / seat / fiction), 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 1, T001-T011, commit 3ca21d2; 31 new tests.) ORCHESTRATOR RULINGS 2026-10-27: seat cap 2000 accepted (measured schema-max seat 1716 tokens > 1600); ActorCondition.instanceId accepted as an additive contract change; Phase 2 amends contracts/actor-snapshot.md §2 and §6.2 to match.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 2, T012-T019: contract amendment f918e6e, work af65201; S0 at assemble, S1 + diff at resolve, state-overflow; dm.director-v3, dm.interpret-v3, dm.adjudicate-v3; server 889 passed.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
