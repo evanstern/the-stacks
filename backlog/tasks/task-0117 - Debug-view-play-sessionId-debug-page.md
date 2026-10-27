@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 05:29'
+updated_date: '2026-10-27 05:32'
 labels:
   - debug-view
   - web
@@ -32,9 +32,9 @@ Spec: specs/041-debug-page
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The play/:sessionId/debug route renders for an operator and renders OperatorOnly for anyone else; /play shows a Debug link to operators.
+- [x] #1 The play/:sessionId/debug route renders for an operator and renders OperatorOnly for anyone else; /play shows a Debug link to operators.
 - [ ] #2 The page polls the debug API about every 2 s and advances the event log by seq cursor.
-- [ ] #3 The strip shows queued and running jobs with stage and heartbeat age, uncommitted actions, table mode and turn, pending proposals, companion holds, and the latest failed turn.
+- [x] #3 The strip shows queued and running jobs with stage and heartbeat age, uncommitted actions, table mode and turn, pending proposals, companion holds, and the latest failed turn.
 - [ ] #4 The job timeline shows one card per DM job; an expanded turn card shows each pipeline node's output, submissions with linked seqs, audit attempts split blocking and advisory, the fallback flag, the failure record, and per-call usage.
 - [ ] #5 The event log shows every event with seq, time, actor name, type, visibility and payload, filtered by type, actor and visibility.
 - [ ] #6 Selecting a job highlights the events it wrote; selecting an event highlights the job that wrote it.
@@ -44,7 +44,7 @@ Spec: specs/041-debug-page
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
 - [x] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
 - [x] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
-- [ ] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
+- [x] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
 - [ ] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
 - [ ] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
 - [ ] #16 Spec phase: Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet)
@@ -72,6 +72,8 @@ Phase 2 done (39a5822): debug derivations.
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (39a5822): derivations. Orchestrator accepts the implementer's open choices: fallback badge from result.audit.final; a held turn leaves the strip once its companion job succeeds; scrub folds directly for non-ascending logs.
+
+Phase 3 done (a02fd74): route play-debug.tsx, DebugGate, useDebugSession hook (first load, poller + visibilitychange, seed refetch on scene change, retry, loadOlderJobs), WaitingStrip, Debug link via debugHref. AC #1 and #3 proven by route-gate, waiting-strip and table-view tests. AC #2 (polling) and #9 (POST wiring) left unticked: the hook has no test that exercises polling or the POST; Phase 6 live check proves them.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
