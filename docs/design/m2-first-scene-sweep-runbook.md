@@ -408,3 +408,115 @@ the run shows no director failure, stop and ask the operator (FR-011). Then: orc
 approved) → Phase 5 gate → wiki re-ground → PR → merge → resume TASK-0048 Phase 6 per
 `docs/design/m2-demo.md` (rebuild the TASK-0048 stack first; the operator plays Tamsin in Brave;
 audit with the $6 ceiling; fill the record).
+
+## Handoff — 2026-10-27 UTC (second orchestrator session ended at the operator's request, context near 70%)
+
+Supersedes the 2026-10-26 handoff above for state; its doctrine notes still hold. Read the
+doctrine sections first, then this section, then the cards named below. You are the ORCHESTRATOR:
+dispatch implementation to `sonnet-implementer`, spec authoring to `opus-implementer`, verify
+`served=` from each transcript, record one `Dispatch:` line per dispatch, never implement inline.
+Nothing is running at handoff time (no dispatch, no paid run, no watcher).
+
+### Board state
+
+| Card | Status | Branch / worktree | Last commit | Next step |
+|---|---|---|---|---|
+| TASK-0042–0047 | Done | removed | — | none |
+| TASK-0102 (spec 033) | In Progress, **Done-eligible** | merged #50 (`9658265`); worktree removed | — | Flip to Done on main **after TASK-0048 merges**: its last tick (T038) rides the TASK-0048 branch (`79c035a`). Then `--check-dod`, final summary already written. |
+| TASK-0106 (spec 034) | **Done** | merged #51 (`bb5cbb7`); worktree removed | — | none |
+| TASK-0048 (spec 032) | In Progress | `task-0048-playtest` · `.worktrees/task-0048` | `7ff5e52` (demo record draft + evidence) | **Operator sign-off on the demo record**, then card findings 1, 2, 6, then wiki note `m2-demo`, merge `origin/main` (PR #52 landed since), gates, PR, merge. See Exact next action. |
+| TASK-0110 | To Do, **m-3** | — | — | **Awaiting the operator's direct answer**: the parent session relayed "move TASK-0110 into m-2 before the demo" (arrived after the demo). Evidence: the live demo never hit it (no `refused` outcome in e8c848ec). Ask the operator; if yes, `backlog task edit TASK-0110 -m m-2` on main and it blocks M2 close. Report the result to the parent session `local_415a1f81-9278-483d-a3f4-b5081ad9d0a6`. |
+| TASK-0101 (hosted dev AI) | To Do | main (board only) | — | Not M2 scope. The operator has another agent on the hosted-dev 9router auth failure (Ask returns "provider rejected the configured credentials"); do not touch vm-104. |
+| New this session, all m-3 unless noted | To Do | — | — | TASK-0104/0105 (rules gate: modifiers/DCs, spells), 0107/0108 (revisits with triggers), 0109 (chronicle conflation, F32), 0110 (above), 0111 (digits — **source found**, see card), 0112 (seat acts for a downed hero), 0113 (player-agency residue + **operator ruling on rollable involuntary effects**), 0114 (companion stall, HIGH), 0116/0117/0118 (debug view, from PR #52; sequencing discussed after M2 closes — note on TASK-0116). |
+
+### Running stacks and hand-applied state
+
+- **`stacks-task-0048`** (`.worktrees/task-0048`): app `:3048`, db `:15048`, test-db `:25048`, built at
+  `5620ad9` (code `53a78fa`). Holds the operator account and the demo session — **do not `env:down`**
+  until the demo record is signed off (it wipes the session). `pnpm env:up` alone rebuilds the app and
+  keeps the DB.
+- **`stacks-main`** (`.worktrees/env-main`): `:3000`/`:5432`, operator's long-running stack. Don't touch.
+- **Migrations / CLIs on a host worktree**: `apps/server/scripts/migrate.ts` and `create-operator`
+  prefer `TEST_DATABASE_URL`, which the worktree `.env` sets. To target the **app** DB pass its URL as
+  `TEST_DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$DB_PORT/$POSTGRES_DB`
+  (read values with `grep '^KEY=' .env | cut -d= -f2-`, never `source`). After migrating, `docker
+  restart stacks-<env>-app-1` (an unmigrated boot leaves the ingest worker in a no-backoff error loop).
+  Recorded on TASK-0098; `create-operator` echoing the password is on TASK-0103.
+- **AI config changes this session (operator-approved, root `.env` and `.worktrees/task-0048/.env`)**:
+  `dm.interpret` maxTokens 1200 → 2500; `dm.narrate` maxTokens 500 → 1500. Hidden reasoning counts
+  against maxTokens on these routes (033 R10, 034 R7.1).
+- `.claude/launch.json` (untracked, excluded): entry `task-0048-stack` → `http://localhost:3048` added.
+
+### Spend: approvals and actuals (list prices; `cc/` routes are subscription-backed)
+
+| Approval (operator's words on the card) | Used by | Spent |
+|---|---|---|
+| $22 TASK-0102 capture + $22 verification (prior handoff) | capture (attempt 1 killed by app restart, unrecorded) + $2.82; verify $1.00; rerun $5.07 | $8.89 |
+| "Approved: spend ceiling $22 for the M2 demo's paid scripted playtest (section C). The $6 demo-session audit ceiling stands." | run 5 $7.52; demo audit $2.87 | $10.39 |
+| "Approved: spend ceiling $22 for the TASK-0106 verification run (Phase 5)." | verify $7.18 | $7.18 |
+| "Approved: $25 ceiling for the TASK-0106 rerun." | rerun $5.37 | $5.37 |
+
+This session's total: **$31.83** (+ one unrecorded killed attempt). Sweep total incl. the prior $1.11: $32.94.
+
+### Paid runs this session and their evidence
+
+| Run | Outcome | Evidence |
+|---|---|---|
+| 0102 capture `20261026T150925Z` | director invalid-output (goalNote > 300) | merged: `specs/033-director-robustness/evidence/capture-*` + fixture |
+| 0102 verify `20261026T152743Z` | interpret invalid-output → spec amended | `specs/033…/evidence/verify-20261026T152743Z…` + interpret fixture |
+| 0102 rerun `20261026T155348Z` | 29 turns, 0 failed, timed out at 15-min cap | `specs/033…/evidence/verify-20261026T155348Z…` |
+| Demo run 5 `20261026T171359Z` | stalled (seat out of script), 13 fails | `docs/design/m2-demo/provider-playtest-stalled-5/` (TASK-0048) + `specs/034…/evidence/run5-*` |
+| 0106 verify `20261026T183818Z` | fail (35% fallback) | `specs/034…/evidence/verify-20261026T183818Z…` |
+| 0106 rerun `20261026T192319Z` | 18% fallback, 0 leaks, 0 contradictions; accepted at 20% | `specs/034…/evidence/verify-20261026T192319Z…` |
+| Demo audit `20261027T021335Z-session-e8c848ec` | verdict incomplete, 11/24/23 | `docs/design/m2-demo/demo-session/` (TASK-0048, `7ff5e52`) |
+
+### The demo (TASK-0048 Phase 6) — outcome
+
+Session `e8c848ec-11e9-442d-9bfa-8c26a0d84fcd`, operator as Tamsin in Brave: **the scene ended**
+(seq 330); 47 DM turns, 20 companion, 20 chronicle, **0 failed jobs**, 10 narration fallbacks of
+44. All three beats played. Session `2811b339…` was abandoned after the viewer bug (fixed `53a78fa`).
+The record is in `docs/design/m2-demo.md` ("M2 demo record", DRAFT) with every finding row and a
+**proposed** resolution; operator findings 1–8 and their dispositions are in its table. The
+criterion "narration never contradicts the ledger" is **pending sign-off** (F40 carded to TASK-0111;
+F49, F52 proposed false-positive).
+
+### Side sessions started this session
+
+- **debug-view-design** (`local_c750d369-ef4b-4fa8-a984-bc7f96270e46`): done. PR #52 merged
+  (`0ac8c04`): `docs/design/debug-view.md`, TASK-0116/0117/0118 (m-3). Nothing owed either way;
+  sequencing is an M2-close agenda item.
+- **research-how-a-dm-decide** (`local_275bf128-e202-4884-bd00-c3380320b4e1`): working with the
+  operator on DM-practice research (vault of ~606 cited entries; deep dives on rollable vs player
+  choice). Its branch is not pushed; it owes the operator a decision record + doctrine cards, which
+  feed TASK-0113, TASK-0104, TASK-0055. Nothing owed by the orchestrator.
+
+### Standing operator rulings from this session (not elsewhere)
+
+- TASK-0102 widened to interpret + skill gate; rules terms with definitions must be gated
+  deterministically (skills now a closed engine enum).
+- TASK-0106 accepted at a 20% fallback-rate bar; F4 false positive; only narration-caused
+  contradictions count against AC #4.
+- **Player agency (TASK-0113 note, verbatim there)**: narrating involuntary reactions a roll justifies
+  (stagger on a crit, visible surprise) is fine; volitional choices are the player's. TASK-0106's E3
+  "unchanged and unmoved" is stricter than this and is to be revised.
+- Companion stall: keep the workaround in play, carded TASK-0114.
+- "Fix the view": an operator views as DM only while holding the DM seat (done, `53a78fa`).
+- Debug-view sequencing is discussed after M2 closes.
+- The operator wants a DM-practice research effort (DMG paraphrase only, online guides) — running.
+
+### Exact next action
+
+1. Ask the operator about **TASK-0110** (m-2 or stay m-3) and report the answer to the parent session.
+2. Walk the operator through the **demo record sign-off** (`docs/design/m2-demo.md`, M2 demo record):
+   confirm or change each proposed `accepted` / `false-positive` row, the three `ledger-contradiction`
+   rows, and findings 1, 2, 6 (card each in m-3 with the `backlog` CLI on main). Write the sign-off
+   line. A failed criterion becomes an m-2 card and blocks M2 close (runbook).
+3. Dispatch (sonnet) the TASK-0048 wrap: wiki note `m2-demo` beside `m0-demo` (expected reviews:
+   `test-suite`, `ci-pipeline`), merge `origin/main` (PR #52 landed), `ci:check` with
+   `REQUIRE_DATABASE=1`, CI playtest, freshness + spec-bridge gates; tick spec 032 T044–T049.
+4. Open the TASK-0048 PR (body: demo outcome, record link, findings, gates, dispatch lines); the
+   operator merges. Then on main: TASK-0048 → Done (sync), TASK-0102 → Done (its T038 tick lands
+   with this merge), clean up `.worktrees/task-0048` (`env:down` only after merge), `env:prune --check`.
+5. Close out the runbook (status → done, log rows for TASK-0048) on a wrap-up PR, then present
+   M2 close to the operator per `docs/design/milestones.md` (closing `m-2` is the operator's call;
+   raise TASK-0055 and the debug-view sequencing there).
