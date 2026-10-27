@@ -52,3 +52,11 @@ test("a view carries summary, proposer label, action id and detail rows", () => 
     assert.ok(p.ts);
   }
 });
+
+test("each pending proposal carries its recorded policy", () => {
+  const list = selectPendingProposals(dmApprovals.events, dm);
+  assert.deepEqual(
+    list.map((p) => p.policy),
+    ["suggest", "ask", "ask"],
+  );
+});

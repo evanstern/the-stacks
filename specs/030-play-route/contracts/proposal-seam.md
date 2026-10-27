@@ -85,3 +85,5 @@ phase obligations:
 change to any of them is a spec amendment recorded in `spec.md`, not an implementer decision.
 
 **Amendment (TASK-0049, operator ruling 2026-10-27, Q4):** the sign-off props on the action card (`ActionCardView.signoff` and the `present` argument of `commitAuthorityFor`) are additive; `CommitAuthority` is unchanged.
+
+**Amendment (TASK-0100, operator ruling 2026-10-27, R1 option A):** `PendingProposalView` gains `policy: "ask" | "suggest"`, copied from the projection; a `suggest` row offers Dismiss (`onReject(id, null)`) and no Approve. `ProposalCommands` and component props are unchanged. See `specs/047-suggest-no-approve/contracts/pending-proposal-policy.md`.

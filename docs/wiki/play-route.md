@@ -24,7 +24,7 @@ sources:
   - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: baecb93e012266902cea61c04d2633ba3bd65499
+verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
 ---
 
 # Play route
@@ -99,7 +99,8 @@ route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-v
   `dm`, one who controls a party member is `player`, any other is `observer`. A `null` list yields
   only the DM row. See [[presence]].
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
-  oldest first; a player always gets `[]`.
+  oldest first; a player always gets `[]`. Each `PendingProposalView` carries `policy` (`ask` or
+  `suggest`) from the `proposal.created` row.
 - `ledger-format.ts` formats roll, outcome and change rows; `labels.ts` resolves actor and
   character display names from the party.
 
@@ -124,8 +125,11 @@ which the composer shows inline. A refusal does not close the socket.
 ## Surfaces
 
 Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list for the human DM. The ledger and the DM approvals list open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
-the project uses no modals. The approvals panel mounts only for the DM. Known gap: suggest-policy
-proposals still show an Approve control (TASK-0100).
+the project uses no modals. The approvals panel mounts only for the DM. A `suggest` row
+(TASK-0100, specs/047) shows a Suggestion label and a Dismiss button, never Approve: Dismiss calls
+`onReject(id, null)`, the existing `proposal.reject` request, because the gate refuses Approve on a
+suggestion. An `ask` row keeps Approve and Reject. Open gap: the human DM has no scene-change
+command on this route (TASK-0159).
 
 ## Fixture routes
 

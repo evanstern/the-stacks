@@ -13,6 +13,8 @@ export interface PendingProposalView {
   proposalId: string;
   /** The proposal kind as the gate names it (for example "narration", "damage.apply"). */
   kind: string;
+  /** The policy recorded on the proposal's `proposal.created` row. `suggest` applies nothing. */
+  policy: "ask" | "suggest";
   /** One line the DM reads first: what approving would do. */
   summary: string;
   /** The proposing actor id ("ai:dm", "ai:companion:<id>", or a user id). */
@@ -198,6 +200,7 @@ function toView(
   return {
     proposalId: view.proposalId,
     kind: proposal.kind,
+    policy: view.policy,
     summary: proposal.summary ?? `${proposal.kind} proposal`,
     proposer: view.proposer,
     proposerLabel: actorLabel(view.proposer, party, ""),

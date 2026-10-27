@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { project } from "@the-stacks/session-model";
 import { fixtureIds, fixtures } from "@the-stacks/session-model/fixtures";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
+import { ProposalList } from "~/play/components/proposal-list";
 import type { TableSource } from "~/play/source";
 import { TableView } from "~/play/table-view";
 import { proposalsFor } from "~/play/use-fixture-table";
@@ -120,4 +123,27 @@ test("the Debug link renders only with debugHref, opening a new tab", () => {
   );
   expect(without).not.toContain("/debug");
   expect(without).not.toMatch(/>Debug</);
+});
+
+test("the DM's dm-approvals panel content has two Approve, one Dismiss and the new description", () => {
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("dm-approvals fixture missing");
+  const source = sourceFor(f, f.viewers.dm);
+  // The slide-out renders no content while closed, so render the panel body directly.
+  const html = renderToStaticMarkup(
+    <ProposalList
+      proposals={source.proposals}
+      onApprove={yes}
+      onReject={yes}
+    />,
+  );
+  expect(html.split(">Approve<").length - 1).toBe(2);
+  expect(html.split(">Dismiss<").length - 1).toBe(1);
+  const src = readFileSync(
+    fileURLToPath(new URL("../../app/play/table-view.tsx", import.meta.url)),
+    "utf8",
+  );
+  expect(src).toContain(
+    "Approve or reject each proposal. Dismiss a suggestion once you have acted on it.",
+  );
 });
