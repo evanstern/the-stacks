@@ -32,10 +32,12 @@ Spec: specs/036-companion-react
 - [ ] #2 The re-run companion commits, revises or withdraws, and a test shows the table no longer waits indefinitely
 - [ ] #3 The companions contract (specs/031-dm-runtime/contracts/companions.md) records the new trigger
 - [x] #4 Spec phase: Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet)
-- [ ] #5 Spec phase: Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet)
+- [x] #5 Spec phase: Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet)
 - [ ] #6 Spec phase: Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A
 - [ ] #7 Spec phase: Wiki (re-ground) — DISPATCH (sonnet)
 <!-- AC:END -->
+
+
 
 
 
