@@ -425,6 +425,15 @@ of Track C merges after the demo, still in m-3. TASK-0130's captured run measure
 | 2026-10-26 | (amendment) | — | — | — | New m-3 card TASK-0138 (adjudicate suite fails instead of skipping without a DB) joins Track B after B7, haiku tier. Revisit cards outside m-3 (no milestone, trigger-based): TASK-0136, TASK-0137, TASK-0139. Decision-id guard: ids are assigned per checkout, so a dispatch that creates a decision copies in the ids already taken on open branches first. |
 | 2026-10-26 | TASK-0055 | [#57](https://github.com/evanstern/the-stacks/pull/57) | `ac336ac` | ~81k (sonnet ×1) | Merged. decision-0023 (D15) on main. TASK-0055 Done on main (`8eef04d`), escape line E1 (no spec set; not a linked card). Worktree and branch removed; `env:prune --check` clean. |
 | 2026-10-26 | (amendment 1) | — | — | — | Track C re-ordered after decision-0025: TASK-0140 to TASK-0147 created on main; U6 folded into TASK-0112; demo after the subset. TASK-0119 rulings: K3 = TASK-0107 now; K1, K2, K4, K5, K6 after the demo; attitude per character; clue lint warns (fails only core); SRD Influence DC. |
+| 2026-10-27 | (ruling) | — | — | — | Brave screenshot gates (TASK-0051, TASK-0117, any UI merge condition): agents cannot drive Brave; operator ruling "I take them in Brave" — the orchestrator supplies stack URL and exact steps, the operator saves the shots into the spec evidence dir. TASK-0114 opened as draft PR #63 (held on #62 for the 0005 migration). TASK-0116 PR #62. |
+| 2026-10-27 | TASK-0116 | [#62](https://github.com/evanstern/the-stacks/pull/62) | `654ad7b` | spec ~202k (opus), impl ~113k+179k+159k+131k (sonnet ×4) | Debug API + usage ledger. Done via sync on main. Stack down, worktree removed. |
+| 2026-10-27 | TASK-0114 | [#63](https://github.com/evanstern/the-stacks/pull/63) | — | spec ~185k (opus), impl ×6 (sonnet) incl. reconcile ~110k | Ready after reconcile with #62 (migration 0006). Open. |
+| 2026-10-27 | TASK-0134 | [#64](https://github.com/evanstern/the-stacks/pull/64) | — | spec ~120k (opus), impl ~117k (haiku ×1, P1+P2) | Ready. Open. |
+| 2026-10-27 | TASK-0051 | [#65](https://github.com/evanstern/the-stacks/pull/65) | — | spec ~334k (opus ×2), impl ×5 (sonnet) | Draft: awaiting operator Brave screenshots (T037). |
+| 2026-10-27 | (handoff) | — | — | — | First orchestrator session ends; Handoff 3 in the shared notes folder. |
+| 2026-10-27 | TASK-0114 | [#63](https://github.com/evanstern/the-stacks/pull/63) | `773d4e4` | spec ~185k (opus), impl ×6 (sonnet) | Merged. Stack down, worktree removed. Card awaits the T038 not-applicable annotation (rides TASK-0140) before sync → Done. |
+| 2026-10-27 | TASK-0134 | [#64](https://github.com/evanstern/the-stacks/pull/64) | merged | spec ~120k (opus), impl ~117k (haiku) | Done via sync on main. Stack down, worktree removed. |
+| 2026-10-27 | TASK-0051 | [#65](https://github.com/evanstern/the-stacks/pull/65) | `1baee77` | spec ~334k (opus ×2), impl ×6 (sonnet), evidence (haiku) | Done via sync on main. Operator Brave screenshots met the merge condition. Stack down, worktree removed. |
 
 ## Handoff — 2026-10-27 (first M3 orchestrator session, context near 70%)
 
@@ -493,3 +502,31 @@ after the demo subset). Revisits outside m-3: TASK-0136, 0137, 0139, 0153.
 3. Wave 2 per runbook + amendment 1: TASK-0099 after 0051; TASK-0117 after 0116 (draft-held);
    TASK-0110 and TASK-0112 after 0140; TASK-0134 any time (haiku).
 4. Before any paid run (TASK-0053 demo, TASK-0130 capture): get the operator's spending ceiling in their words on the card.
+
+## Handoff 3 — 2026-10-27 (first M3 orchestrator session ends; supersedes Handoff 2's PR/in-flight tables)
+
+Read Handoff 2 (`m3-sweep-handoff-2.md`) for role, tools, rulings and traps; this note updates state only.
+Append `m3-sweep-tools/pending-log-rows.md` to the runbook's Execution log on the next task branch, then empty it.
+
+### Done on main
+TASK-0055 #57, TASK-0118 #58, runbook #56, TASK-0119 #59, TASK-0135 #60, TASK-0123 #61, TASK-0116 #62, TASK-0134 #64, TASK-0051 #65. TASK-0114 #63 merged (card awaits the T038 annotation).
+
+### PRs open
+None. TASK-0099 and TASK-0049 (Track A) are unblocked by TASK-0051.
+
+### In flight / next
+- **TASK-0140** (task-0140-actor-snapshot): P1–P3 done (P3 914a112, ci:check green). Next: dispatch P4 wiki (sonnet), then PR (after #63 merges, re-bump dm.companion past v4).
+  Stack :3140. Companion prompt bumped to v3 here; main now has dm.companion-v4 (#63) — after merging main, bump to v5.
+- **TASK-0117** (task-0117-debug-page, spec 041, 7 phases): spec done, card seeded; dispatch P1 (merge origin/main
+  first — TASK-0116 is merged). P6 Brave screenshots are the operator's. Confirm with the operator at PR that the page
+  ships everywhere behind the operator role (follows the TASK-0116 ruling).
+- **TASK-0129**: design-round session card still awaiting the operator.
+- New cards this stretch: TASK-0153 (revisit, reclaim S0), TASK-0154 (5 s load timeouts, m-3), TASK-0155 (revisit, debug page windowed fetch).
+- Wave 2 per runbook amendment 1 after TASK-0140: TASK-0110, TASK-0112 (+U6), TASK-0141, TASK-0142, TASK-0143.
+
+### Handoff 3 addenda (2026-10-27, final)
+
+- **Open PRs: none.** #57–#65 are all merged. Merge order for the next PRs: TASK-0140 first (Track C base; companion prompt bumps to v5 after merging main), then TASK-0117 (debug page; draft until its operator Brave screenshots), then Track A TASK-0099 → TASK-0049 → TASK-0100 → TASK-0050 (same gate/ws hotspots, smallest first).
+- **TASK-0114** is merged (#63, 773d4e4) but its card stays In Progress until `specs/036-companion-react/tasks.md` T038 reads `- [x] T038 … — not applicable: operator ruled W-A (2026-10-26)`. The annotation is not yet made: add it on the TASK-0140 branch (or the next branch claimed), then sync TASK-0114 → Done after that branch merges.
+- **TASK-0140 snapshot views confirmed** by the operator (relayed 2026-10-27): "the TASK-0140 snapshot views (DM all, companion no monster AC/resources, narration no numbers/ids) are confirmed."
+- **Tools** for the resuming orchestrator are in the shared notes folder `side-session-notes/local_415a1f81-9278-483d-a3f4-b5081ad9d0a6/m3-sweep-tools/` (claim.sh, seed.py, link.py, mkcards.py, dispatch-rules.md; update its scratchpad paths). No agents are running.
