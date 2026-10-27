@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:12'
+updated_date: '2026-10-27 10:22'
 labels:
   - multiplayer
   - gate
@@ -33,12 +33,12 @@ Spec: specs/044-group-signoff
 - [x] #2 A party-scope action commits only after every present player approves.
 - [x] #3 Any player objects to a party-scope action, and the objection is visible to the table.
 - [x] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
-- [ ] #5 The play route shows sign-off state per player and an approve or object control.
+- [x] #5 The play route shows sign-off state per player and an approve or object control.
 - [x] #6 Gate tests cover approval, objection and DM override with several players.
 - [x] #7 Spec phase: The sign-off rule and commit authority (pure core)
 - [x] #8 Spec phase: The planner, the marker rows and the fixture
 - [x] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
-- [ ] #10 Spec phase: The play route shows sign-off (US4)
+- [x] #10 Spec phase: The play route shows sign-off (US4)
 - [ ] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
@@ -79,6 +79,8 @@ Phase 3 done (344e73c): gate.ts passes the presence ids to every planProposal ca
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (merge fbc7da0, work 344e73c): gate.ts passes presence-reader ids to every planProposal. The two-seat DB test (gate.signoff.integration, 8 cases) passes on stacks-task-0049; this is the runbook merge condition. ci:check passed with REQUIRE_DATABASE=1 on the first run.
 Orchestrator ruling on Q2: a non-completing human approval on a companion's open action queuing a react job is intended (TASK-0114 AC #1, any human comment or approval re-runs the companion).
+
+Phase 4 done (3345568): play/signoff.ts, commitAuthorityFor present arg, sign-off rows in view model and action card (own-row Approve/Object, no modal), proposal-seam amendment, 16 Brave shots (light/dark, 1280/390) in specs/044-group-signoff/evidence/. Web tests, typecheck, lint, REQUIRE_DATABASE=1 ci:check green. AC #1 left open (classification recorded on event: not proven in this phase).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
