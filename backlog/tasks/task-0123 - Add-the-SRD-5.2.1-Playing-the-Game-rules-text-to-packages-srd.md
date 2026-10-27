@@ -1,10 +1,10 @@
 ---
 id: TASK-0123
 title: Add the SRD 5.2.1 Playing the Game rules text to packages/srd
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-10-27 04:14'
+updated_date: '2026-10-27 04:21'
 labels:
   - srd
   - rules
@@ -24,12 +24,12 @@ Spec: specs/039-srd-rules-text
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 packages/srd exposes the Playing the Game sections as validated records with heading-path ids
-- [ ] #2 The CC-BY-4.0 attribution covers the new records
-- [ ] #3 A test proves the DC table and each d20-test section load
-- [ ] #4 Spec phase: Rule kind in the package (schema, loader, compact)
-- [ ] #5 Spec phase: Generated rule data and coverage proof
-- [ ] #6 Spec phase: Wiki re-ground
+- [x] #1 packages/srd exposes the Playing the Game sections as validated records with heading-path ids
+- [x] #2 The CC-BY-4.0 attribution covers the new records
+- [x] #3 A test proves the DC table and each d20-test section load
+- [x] #4 Spec phase: Rule kind in the package (schema, loader, compact)
+- [x] #5 Spec phase: Generated rule data and coverage proof
+- [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -53,6 +53,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3 wiki, T019-T022, commit 0849064; srd-data NEEDS-REVIEW amended and re-pinned to 64daef4; CAPSULES regenerated; ci:check, freshness, spec-bridge green.)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #61 (0dfa3da). packages/srd gains the 'rule' kind: 117 records from SRD 5.2.1 Playing the Game (every heading level) plus the Help, Influence, Search and Study glossary actions, with heading-path ids, getById/compact lookup, and child titles in the compact See: line. Sourced from Open5e srd-2024 (pinned e69ac13) and the SRD PDF (sha256-pinned, kept outside the repo); verify-against-pdf 1020 records, 0 mismatches; index and data 1:1; DC table and d20-section tests; attribution covers six kinds. absentTopics: contests and opposed checks. Spec 039, 22/22 tasks. Wiki srd-data re-pinned. Rest of the glossary: revisit TASK-0137.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
