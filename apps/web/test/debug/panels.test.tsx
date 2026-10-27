@@ -20,12 +20,27 @@ test("Seed marks dmOnlyPaths fields DM only and leaves others unmarked", () => {
         kind: "ok",
         seedId: "s1",
         seed: { title: "Crypt", secrets: { vault: "behind the altar" } },
-        dmOnlyPaths: ["secrets"],
+        dmOnlyPaths: ["/secrets"],
       }}
     />,
   );
   expect(html).toContain("secrets.vault");
   expect(html).toContain("DM only");
+  expect(html.match(/DM only/g)).toHaveLength(1);
+});
+
+test("Seed marks array fields named by a JSON Pointer, as the server sends them", () => {
+  const html = renderToStaticMarkup(
+    <SeedBody
+      seed={{
+        kind: "ok",
+        seedId: "s1",
+        seed: { beats: [{ summary: "a" }, { summary: "b" }], title: "T" },
+        dmOnlyPaths: ["/beats/1/summary"],
+      }}
+    />,
+  );
+  expect(html).toContain("beats[1].summary");
   expect(html.match(/DM only/g)).toHaveLength(1);
 });
 

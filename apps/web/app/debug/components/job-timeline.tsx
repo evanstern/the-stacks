@@ -53,7 +53,7 @@ export function JobTimeline({
         const el = e.currentTarget;
         follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
       }}
-      className="flex min-h-0 flex-col gap-2 overflow-y-auto"
+      className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
     >
       {canLoadOlder && (
         <button

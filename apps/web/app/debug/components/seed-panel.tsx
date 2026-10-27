@@ -23,10 +23,25 @@ function leaves(v: unknown, path: string, out: [string, string][]) {
   out.push([path, typeof v === "string" ? v : JSON.stringify(v)]);
 }
 
+/** Server paths are JSON Pointers ("/beats/0/summary"); rows use "beats[0].summary". */
+export function pointerToPath(pointer: string): string {
+  return pointer
+    .split("/")
+    .slice(1)
+    .map((seg) => seg.replace(/~1/g, "/").replace(/~0/g, "~"))
+    .reduce(
+      (acc, seg) =>
+        /^\d+$/.test(seg) ? `${acc}[${seg}]` : acc ? `${acc}.${seg}` : seg,
+      "",
+    );
+}
+
 const covered = (path: string, dmOnly: readonly string[]) =>
-  dmOnly.some(
-    (d) => path === d || path.startsWith(`${d}.`) || path.startsWith(`${d}[`),
-  );
+  dmOnly
+    .map(pointerToPath)
+    .some(
+      (d) => path === d || path.startsWith(`${d}.`) || path.startsWith(`${d}[`),
+    );
 
 /** The seed body: every field named in `dmOnlyPaths` carries a "DM only" mark (FR-044). */
 export function SeedBody({ seed }: { seed: SeedResult | null }) {

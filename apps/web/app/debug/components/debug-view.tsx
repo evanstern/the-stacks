@@ -17,6 +17,10 @@ import { type PanelName, StateColumn } from "./state-column.tsx";
 import { WaitingStrip } from "./waiting-strip.tsx";
 
 const COLUMN = "min-h-0 overflow-y-auto p-3 text-sm text-muted-foreground";
+// The jobs column hosts its own scroller (JobTimeline), so follow-bottom and
+// scroll-into-view act on a bounded box on every width.
+const JOBS_COLUMN =
+  "flex min-h-0 max-h-[60dvh] flex-col p-3 text-sm text-muted-foreground xl:max-h-none";
 
 export interface Selection {
   jobId: string | null;
@@ -95,7 +99,7 @@ export function DebugBoard({
     setSelection({ jobId: null, seq, pinnedSeq: seq });
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
+    <div className="flex h-full min-h-0 flex-1 flex-col xl:h-dvh">
       <div className="sticky top-0 z-10">
         <WaitingStrip
           summary={summary}
@@ -112,7 +116,7 @@ export function DebugBoard({
         )}
       </div>
       <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(20rem,1fr)_minmax(24rem,1.4fr)_minmax(20rem,1fr)]">
-        <section aria-label="Jobs" className={COLUMN}>
+        <section aria-label="Jobs" className={JOBS_COLUMN}>
           <JobTimeline
             views={views}
             highlightedJobId={highlightedJobId}
