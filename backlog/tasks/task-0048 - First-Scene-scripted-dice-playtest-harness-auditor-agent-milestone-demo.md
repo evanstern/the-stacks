@@ -1,7 +1,7 @@
 ---
 id: TASK-0048
 title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone demo'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 19:59'
 updated_date: '2026-10-27 02:56'
@@ -167,8 +167,14 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 spec-bridge sync: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3): 9/9 · The harness run (US1; AC #1): 9/9 · The auditor (US2; AC #2, #3): 12/12 · Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence): 9/9 · Demo runbook and record template (US4, US5 preparation; AC #4, #5): 4/4 · The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+The playtest harness (scripted seat, fake-gateway CI case, cost-guarded provider mode, pnpm playtest CLI) and the playtest auditor agent shipped, and the M2 demo ran: the operator played Tamsin with two AI companions to the scene's end (session e8c848ec; 47 DM turns, 0 failed jobs; exploration, social beat and a 5-round fight). The signed record is docs/design/m2-demo.md: 167 audit findings, each resolved; operator sign-off 2026-10-27 met the ledger criterion (F40 carded TASK-0111; F49, F52 false positive). Lane-5 amendments TASK-0102 (#50) and TASK-0106 (#51) fixed director/interpret schema failures and narration quality first. Follow-ups in m-3: TASK-0111, 0113, 0114, 0131-0133. Gates: ci:check REQUIRE_DATABASE=1 green (850 passed), CI playtest pass, wiki freshness OK (new note m2-demo), spec-bridge ok. Merged as #54 (627a942).
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
