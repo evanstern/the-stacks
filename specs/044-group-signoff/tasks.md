@@ -105,12 +105,12 @@ action card (AC #5). No modal (FR-010). Browser automation uses Brave.
 
 **Goal**: the grounding wiki describes the merged behaviour, re-pinned honestly.
 
-- [ ] T030 Review and amend `docs/wiki/proposal-gate.md` (NEEDS-REVIEW): commit authority quorum, `PlanContext`, the three-row auto-commit batch, refusal details, the `signoff` purpose now written.
-- [ ] T031 [P] Review and amend `docs/wiki/session-model.md` (NEEDS-REVIEW): `signoffState`, the `group-signoff` fixture, the SC-006 amendment.
-- [ ] T032 [P] Review and amend `docs/wiki/play-route.md` (NEEDS-REVIEW): `signoff.ts`, the sign-off rows, `commitAuthorityFor`'s present argument.
-- [ ] T033 [P] Update `docs/wiki/presence.md`: `signoff` is written by the gate in the commit batch; only `floor` stays reserved (TASK-0050).
-- [ ] T034 Update the state paragraph in `docs/wiki/INDEX.md`; regenerate `docs/wiki/CAPSULES.md` if any `description:` changed; classify each staled pin as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>` and re-pin.
-- [ ] T035 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0).
+- [x] T030 Review and amend `docs/wiki/proposal-gate.md` (NEEDS-REVIEW): commit authority quorum, `PlanContext`, the three-row auto-commit batch, refusal details, the `signoff` purpose now written.
+- [x] T031 [P] Review and amend `docs/wiki/session-model.md` (NEEDS-REVIEW): `signoffState`, the `group-signoff` fixture, the SC-006 amendment.
+- [x] T032 [P] Review and amend `docs/wiki/play-route.md` (NEEDS-REVIEW): `signoff.ts`, the sign-off rows, `commitAuthorityFor`'s present argument.
+- [x] T033 [P] Update `docs/wiki/presence.md`: `signoff` is written by the gate in the commit batch; only `floor` stays reserved (TASK-0050).
+- [x] T034 Update the state paragraph in `docs/wiki/INDEX.md`; regenerate `docs/wiki/CAPSULES.md` if any `description:` changed; classify each staled pin as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>` and re-pin.
+- [x] T035 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0).
 
 ---
 

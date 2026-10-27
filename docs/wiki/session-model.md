@@ -14,9 +14,11 @@ sources:
   - packages/session-model/src/events/presence.ts
   - packages/session-model/src/fixtures/index.ts
   - packages/session-model/src/gate/plan.ts
+  - packages/session-model/src/gate/signoff.ts
+  - packages/session-model/src/fixtures/group-signoff.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
 ---
 
 # Session model
@@ -51,7 +53,7 @@ holds `{ proposalId, policy, proposal }`; `proposal.approved` holds `{ proposalI
 later comment, commit or resolve reopens. `presence.recorded` (decision-0024; visibility
 `any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
 the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`,
-`signoff` or `floor` (`PRESENCE_PURPOSES`; only `director` is written so far). See [[presence]].
+`signoff` or `floor` (`PRESENCE_PURPOSES`; `director` is written per DM turn, `signoff` by the gate in a group commit batch; `floor` is reserved). See [[presence]].
 
 Engine event types are derived from `EngineEventSchema`, so the catalog tracks the engine
 without a second list. State-change payloads carry `before` and `after`.
@@ -94,7 +96,9 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 
 ## Gate core
 
-`src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `routeProposal`
+`src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `signoffState`
+(the group sign-off rule over public projections: rows per party human, quorum, waiting,
+objecting, `met`; see [[proposal-gate]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
 proposal into catalog rows, or a refusal, using the engine). All are exported from the package
 index. The kinds, policy table, authority rules and server wrapper are described in
@@ -102,9 +106,12 @@ index. The kinds, policy table, authority rules and server wrapper are described
 
 ## Fixtures contract
 
-The `@the-stacks/session-model/fixtures` subpath exports eight stored-event streams
+The `@the-stacks/session-model/fixtures` subpath exports nine stored-event streams
 (`talkOnly`, `freeModeAction`, `turnModeCombat`, `secretTracker`, `unknownAndInvalid`,
-`dmApprovals`, `commitAuthority`, `presenceMarker`) as `fixtures`, plus the `proposalExamples` set, plus `recipes` and `fixtureIds`. They are the shared input for server, client and
+`dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`) as `fixtures`, plus the `proposalExamples` set, plus `recipes` and `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
+quorum commit with its `signoff` marker. The SC-006 replay check (`gate-authority.test.ts`) passes
+`present` from the latest `signoff` marker for the same `actionId` before each recorded commit.
+They are the shared input for server, client and
 later DM tests, and are a separate subpath so the main entry stays free of test data.
 
 ## Server seam

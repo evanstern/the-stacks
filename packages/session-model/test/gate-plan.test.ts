@@ -288,6 +288,34 @@ describe("planProposal rows per kind (gate-api.md section 1)", () => {
     expect(rows[0]).toMatchObject({ type: "action.resolved", actor: "ai:dm" });
   });
 
+  it("records the declared scope on the action.declared row (card AC #1)", () => {
+    const q = dmFold({ humanDm: true });
+    const declare = (scope: "character" | "party", actionId: string) =>
+      okRows(
+        plan(
+          q,
+          ana,
+          parse({
+            kind: "action.declare",
+            action: {
+              actionId,
+              characterId: scope === "party" ? null : "ana",
+              scope,
+              text: "x",
+            },
+          }),
+        ),
+      )[0];
+    expect(declare("party", "n-party")).toMatchObject({
+      type: "action.declared",
+      payload: { scope: "party" },
+    });
+    expect(declare("character", "n-char")).toMatchObject({
+      type: "action.declared",
+      payload: { scope: "character" },
+    });
+  });
+
   it("every planned payload validates against its catalog schema", () => {
     for (const c of cases) {
       for (const row of okRows(plan(p, c.proposer, c.proposal))) {
