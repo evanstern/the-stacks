@@ -42,8 +42,6 @@ Spec: specs/044-group-signoff
 - [ ] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -67,6 +65,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (The spec author resumed after the operator ruling: plan, tasks, data-model, contracts/signoff.md; commit 346308c. Five phases. Implementation waits for TASK-0099, because the runbook allows one Track A task in implementation at a time. FR-015 to FR-017 were added during planning.)
 
 Phase 1 done (75e51b8): signoff.ts (signoffState), commitAuthority present arg + GROUP_SIGNOFF_REQUIRED waiting/objecting, exports, gate-signoff and gate-authority tests, spec 029 policy-and-authority.md amended (T001-T007). session-model 618 tests green; ci:check fails only on the 5 known adjudicate.integration tests (TASK-0138).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (merge 1ee88d1, work 75e51b8): signoffState plus commitAuthority with an optional present set. The 029 policy-and-authority.md amendment was made as ruled. session-model passes 618 tests.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
