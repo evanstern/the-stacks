@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 09:55'
+updated_date: '2026-10-27 10:04'
 labels:
   - playtest
   - harness
@@ -42,6 +42,14 @@ Spec: specs/046-downed-hero-gate
 OPERATOR RULING 2026-10-26: 'Fold into TASK-0112'. decision-0025 card U6 (able-actor gates) lands here as added ACs; it answers this card's question of whether the engine or gate refuses a declared action from an unconscious character: yes.
 
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0112, branch task-0112-downed-hero-gate, cut from origin/main 429e865. Spec number 046 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C5 (runbook amendment 1), with U6 folded in.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+The spec author stopped after spec.md (c0f38e9): two refusal codes amend frozen 029 gate-api.md. OPERATOR RULINGS NEEDED (recommended first):
+OQ-1, the declare-gate code: (a) new CHARACTER_UNABLE with details.reason (life-state now, absent from TASK-0141) / (b) reuse NOT_AUTHORIZED / (c) two codes.
+OQ-2, the engine code: (a) new ACTOR_UNABLE (26 to 27 codes; amends gate-api.md §2, specs/026 refusals.md and the action.resolved payload, additively) / (b) reuse TARGET_DEAD / (c) server-only.
+SEQUENCING (amends the runbook across Track C cards): Option A (rec). TASK-0112 takes the life-state declare gate and the S0 plan gate. TASK-0141 takes both absent checks, adding 2 ACs and a dependency on TASK-0112. Option B: TASK-0141 first.
+Defaults stated, not blocking: OQ-3 an unable creature's saving throw is allowed; OQ-4 the plan gate accepts ids added by this turn's encounter start; OQ-5 no interpret re-ask.
+Finding: death saves today ride on the seat's declaration. AC #6 needs a code-only settling loop in resolve that rolls an engine death-save.roll for an unconscious PC.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
