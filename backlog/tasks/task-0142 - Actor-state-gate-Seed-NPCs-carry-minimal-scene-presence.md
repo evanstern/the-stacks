@@ -4,7 +4,7 @@ title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 18:44'
+updated_date: '2026-10-27 18:51'
 labels:
   - dm
   - rules-gate
@@ -38,6 +38,16 @@ Spec: specs/050-seed-npc-presence
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0142, branch task-0142-seed-npc-presence, cut from origin/main 4fb8cbe. Spec number 050 claimed with a stub. Track C, first card after TASK-0050 (#74, 464b336).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Spec author: spec.md and the checklist at 0cd9a9e. It stopped before plan.md with OQ-1..OQ-6.) Recommended defaults:
+- OQ-1 (a): a required beats[].presence map per seed NPC, cross-checked against npcIds; seed v stays 1; amends 031 scene-seed.md.
+- OQ-2 (a): code-owned seed rows at scene start for opening-beat NPCs that are not present, plus arrived at encounter start, before initiative, for NPCs that beat declares present. Later beats are guidance only.
+- OQ-3 (a): reuse the reasons removed, conceded and arrived; no new reason.
+- OQ-4 (a): an optional visibility on the scene-presence proposal, with scene-start seed rows at dm visibility and kept out of narration facts; amends 029 proposals.md and gate-api.md §1.
+- OQ-5 (a): a seed cross-check that identity.combatant equals id and names an encounter monster.
+- OQ-6 (a): optional identity.aliases (at most 6); proposed Greyhollow values "the keeper", "the boy", "the goblin leader".
+Also for the operator: the encounter-start rows are triggered by a Director tableMode move. Confirm this fits decision-0025 §2.5 and 048 AC #5.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
