@@ -89,6 +89,12 @@ function stubNodes(
             attempt: 1,
             outcome: "ok",
             errorKind: null,
+            provider: null,
+            model: null,
+            inputTokens: null,
+            outputTokens: null,
+            costUsd: null,
+            durationMs: null,
           },
         ],
       };
