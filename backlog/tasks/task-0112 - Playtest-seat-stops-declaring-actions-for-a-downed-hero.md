@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:48'
+updated_date: '2026-10-27 10:54'
 labels:
   - playtest
   - harness
@@ -38,7 +38,7 @@ Spec: specs/046-downed-hero-gate
 - [x] #9 Spec phase: Plan gate against S0 (card AC #6)
 - [x] #10 Spec phase: Death-save turns by settling (card AC #4)
 - [x] #11 Spec phase: Driver and harness (card AC #1)
-- [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
+- [x] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -86,6 +86,8 @@ Phase 5 done (4fa930d): seatDowned and seat-downed stall reason in the playtest 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (reclaim regression a6cad1c, work 4fa930d): driver waits or stops for a downed seat; stall reason seat-downed; downed-seat harness case; 032 scenario.md amended. The shipped greyhollow-ford CI case still passes. ci:check passed with REQUIRE_DATABASE=1.
+
+Phase 6 done (3363dbe): 11 notes re-pinned; ci:check green with REQUIRE_DATABASE=1; freshness OK; spec-bridge exit 0.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
