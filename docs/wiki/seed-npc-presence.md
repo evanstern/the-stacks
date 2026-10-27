@@ -1,0 +1,78 @@
+---
+name: seed-npc-presence
+description: Seed NPC presence (TASK-0142, specs/050-seed-npc-presence, decision-0025 U8) - the required per-beat `presence` map in the scene seed, its cross-checks, NPC `aliases`, the dm-visibility option on the `scene-presence` proposal, the code-owned seed-presence group in resolve (scene start as dm rows, encounter start as arrived rows), and NPC lists read from logged presence.
+kind: pipeline
+sources:
+  - apps/server/src/dm/seed/schema.ts
+  - apps/server/src/dm/seed/load.ts
+  - apps/server/seeds/greyhollow-ford.json
+  - apps/server/src/dm/nodes/resolve.ts
+  - apps/server/src/dm/nodes/assemble.ts
+  - apps/server/src/dm/nodes/narrate.ts
+  - apps/server/src/dm/snapshot/build.ts
+  - packages/session-model/src/gate/proposals.ts
+  - packages/session-model/src/gate/plan.ts
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
+---
+
+# Seed NPC presence
+
+The scene seed declares where each NPC stands in each beat. Code turns that declaration into
+logged `scene-presence.changed` rows, so the actor snapshot ([[actor-snapshot]]) and every NPC
+list read presence from the log, never from the seed. Spec: `specs/050-seed-npc-presence/`.
+The rows use the existing proposal kind ([[proposal-gate]]) and event ([[session-model]]);
+the DM pipeline is in [[dm-runtime]].
+
+## The seed declaration
+
+`SceneSeedSchema` (`seed/schema.ts`) gives every beat a required `presence`: a record from NPC
+id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
+without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
+characters, default empty). `greyhollow-ford.json` declares all three NPCs in all three beats
+and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
+
+`crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
+
+- an NPC whose `identity.combatant` differs from its id, or names no encounter monster;
+- a beat that lists an NPC in `npcIds` and declares no presence for it;
+- a beat whose `presence` names an unknown NPC;
+- a beat that lists an NPC in `npcIds` and declares it `absent`.
+
+## The proposal option
+
+The `scene-presence` proposal gains `visibility`: `"public"` or `"dm"`, default `public`
+(`gate/proposals.ts`). The planner (`gate/plan.ts`) writes that value as the row's visibility,
+where it used to write `public`. An effect-driven `presence` effect in resolve sets
+`visibility: "public"` explicitly. Only the seed-presence group sends `dm`.
+
+## The seed-presence group
+
+`seedPresence` in `nodes/resolve.ts` runs inside the Director's opening moves. It reads the
+seed and the projections only and never a Director field. For each seed NPC it reads the beat's
+declared value and the logged value (no entry means `present`):
+
+| Moment | Beat read | Declared | Row |
+|---|---|---|---|
+| Scene start, after the party and tracker rows | `seed.beats[0]` | `absent` | reason `removed`, visibility `dm` |
+| Scene start | `seed.beats[0]` | `yielded` | reason `conceded`, visibility `dm` |
+| Encounter start, before the initiative join | the beat whose `encounterId` is that encounter | `present` | reason `arrived`, visibility `public` |
+
+A declared `present` at scene start logs nothing, and a declared `absent` or `yielded` at
+encounter start logs nothing. A row is skipped when the logged value already equals
+`REASON_TO_PRESENCE[reason]`. Each row is submitted under the key
+`seed:presence:<moment>:<npcId>` with `actionId: null` and a note `Seed presence: <name>
+<reason>`. The key makes a reclaim replay the same submission, and `findLanded` recognises a
+row that landed before its checkpoint.
+
+Resolve builds these proposals, as it does every `scene-presence` proposal. Seed rows are the only path from the seed to logged presence.
+
+## NPC lists from presence
+
+- `assemble` builds S0 first, then sets `presentNpcIds` to the seed NPCs (in seed order) whose
+  snapshot actor does not read `absent`. It no longer collects `beats[].npcIds`.
+- `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
+  against the S1 snapshot and drops each actor that reads `absent`.
+- `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`
+  ([[actor-snapshot]]).
+
+`canSee` shows a `dm`-visibility row to the DM viewer only ([[session-model]]).

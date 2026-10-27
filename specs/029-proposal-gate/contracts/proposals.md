@@ -18,6 +18,16 @@ The kinds grew from thirteen to fourteen, and the DM kinds from eleven to twelve
 `scene-presence` is new. `GATE_REQUEST_KINDS` grew from 17 to 18 literals. Every other rule
 below is unchanged.
 
+**Amendment (TASK-0142).** Amended 2026-10-27 (TASK-0142, operator ruling OQ-4):
+
+> "TASK-0142: I accept the recommended defaults OQ-1 to OQ-6 (a), including the frozen 029 and
+> 031 amendments" (OQ-4 (a): the `scene-presence` proposal gains optional `visibility`, `public`
+> default, or `dm`; scene-start seed rows are `dm`)
+
+`scene-presence` gains `visibility: "public" | "dm"`, default `"public"`. The rule
+"`scene-presence` is always `public`" (Visibility, below) now reads "`scene-presence` is `public`
+unless the proposal says `dm`". No kind is added. Every other rule below is unchanged.
+
 **Amendment (TASK-0050, stall override).** Amended 2026-10-27 (TASK-0050, operator ruling FT-5):
 
 > "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
@@ -106,7 +116,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("tracker"), ...ProposalNote,
     reason: ReasonSchema, trackerId: RefIdSchema, after: TrackerSchema.nullable() }),
   z.object({ kind: z.literal("scene-presence"), ...ProposalNote,
-    actorId: RefIdSchema, reason: PresenceReasonSchema, actionId: RefIdSchema.nullable().default(null) }),
+    actorId: RefIdSchema, reason: PresenceReasonSchema, actionId: RefIdSchema.nullable().default(null),
+    visibility: z.enum(["public", "dm"]).default("public") }),
   z.object({ kind: z.literal("journal"), ...ProposalNote,
     entry: JournalEntryAddedV1, visibility: z.enum(["public", "dm"]).default("public") }),
   z.object({ kind: z.literal("floor"), ...ProposalNote,           // TASK-0050 amendment, FT-1
@@ -136,7 +147,7 @@ Rules:
   command refuses with the engine's `INVALID_COMMAND`, source `engine`.
 - **Visibility.** `talk` and `narration` accept any visibility (`public`, `dm`, a user id).
   `mechanics` and `journal` accept `public` or `dm`. Actions, `table-mode`, `scene` and
-  `party` are always `public`. `tracker` is always `dm`. `scene-presence` is always `public`. Proposal lifecycle events are always
+  `party` are always `public`. `tracker` is always `dm`. `scene-presence` is `public` unless the proposal says `dm`. Proposal lifecycle events are always
   `dm` (proposal-events.md).
 
 ## Gate requests

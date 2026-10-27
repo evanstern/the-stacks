@@ -60,7 +60,7 @@ Rows per kind:
 | `scene` | one `scene.changed`, `before` = `p.scene` | not both null (`INVALID_PROPOSAL`) |
 | `party` | one `party.member.changed`, `before` from `p.party` | not both null (`INVALID_PROPOSAL`) |
 | `tracker` | one `tracker.changed` (`dm`), `before` from `p.trackers` | not both null (`INVALID_PROPOSAL`) |
-| `scene-presence` | one `scene-presence.changed` (`public`), `before` from `p.scenePresence`, `after` from the reason; then, in the same batch, the engine `initiative.leave` rows (an absent value, actor in the order) or `initiative.join` rows (`arrived`, encounter active, actor not in the order) | `actionId`, when set, names an existing action (`UNKNOWN_ACTION`); not a no-change (`INVALID_PROPOSAL`); engine refusal (source `engine`) |
+| `scene-presence` | one `scene-presence.changed` (visibility from the proposal: `public` by default, or `dm`), `before` from `p.scenePresence`, `after` from the reason; then, in the same batch, the engine `initiative.leave` rows (an absent value, actor in the order) or `initiative.join` rows (`arrived`, encounter active, actor not in the order) | `actionId`, when set, names an existing action (`UNKNOWN_ACTION`); not a no-change (`INVALID_PROPOSAL`); engine refusal (source `engine`) |
 | `journal` | one `journal.entry.added` | `entryId` unused (`JOURNAL_ENTRY_EXISTS`) |
 | `floor` `end` | one mechanics batch (`turn.advance`, then each settling step: `death-save.roll` for a dying combatant, `turn.advance` for a downed one, at most one lap), then one `table-mode.changed` (`public`) naming `activeActorFor(next)`; an `ai:dm` proposer prepends a `presence.recorded` row (`purpose: "floor"`, `present` from `PlanContext`) | in order: `NOT_TURN_MODE`; `TURN_MOVED` (`details: { expected, actual }`); proposer is the active actor or the seated DM, else `FLOOR_NOT_HELD` (`details: { holder }`); `ai:dm` only for an absent active human, else `NOT_AUTHORIZED`; engine refusal (source `engine`) |
 | `floor` `take` | one `table-mode.changed` (`public`), `after` = `{ mode: "turn", activeActor: <DM user id>, activeCharacterId: null }`; the engine turn is unchanged | `NOT_TURN_MODE`; `TURN_MOVED`; not the seated DM (`NOT_DM`, `NOT_AUTHORIZED` for `ai:dm`); floor already held (`INVALID_PROPOSAL`) |
@@ -87,6 +87,13 @@ Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the `scene-presence` row a
 
 > "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
 > the frozen 029 and 028 amendments, OQ-2 (a)"
+
+Amended 2026-10-27 (TASK-0142, operator ruling OQ-4): the `scene-presence` row above writes its
+`scene-presence.changed` row with the proposal's `visibility` (`public` by default, or `dm`).
+Engine rows planned in the same batch stay `public`.
+
+> "TASK-0142: I accept the recommended defaults OQ-1 to OQ-6 (a), including the frozen 029 and
+> 031 amendments" (OQ-4 (a): optional `visibility` on the `scene-presence` proposal)
 
 The row's `actor` is `actorOf(proposer)` for direct and auto applications, and the original
 proposer for an approved proposal (the approval row carries the DM). Each planned payload is

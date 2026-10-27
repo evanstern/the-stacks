@@ -135,6 +135,7 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     actorId: RefIdSchema,
     reason: PresenceReasonSchema,
     actionId: RefIdSchema.nullable().default(null),
+    visibility: z.enum(["public", "dm"]).default("public"),
   }),
   z.object({
     kind: z.literal("journal"),

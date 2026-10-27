@@ -1,0 +1,40 @@
+# Specification Quality Checklist: Seed NPCs carry minimal scene presence
+
+**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Created**: 2026-10-27
+**Feature**: [spec.md](../spec.md)
+
+## Content Quality
+
+- [x] No implementation details (languages, frameworks, APIs)
+- [x] Focused on user value and business needs
+- [x] Written for non-technical stakeholders
+- [x] All mandatory sections completed
+
+## Requirement Completeness
+
+- [x] No [NEEDS CLARIFICATION] markers remain
+- [x] Requirements are testable and unambiguous
+- [x] Success criteria are measurable
+- [x] Success criteria are technology-agnostic (no implementation details)
+- [x] All acceptance scenarios are defined
+- [x] Edge cases are identified
+- [x] Scope is clearly bounded
+- [x] Dependencies and assumptions identified
+
+## Feature Readiness
+
+- [x] All functional requirements have clear acceptance criteria
+- [x] User scenarios cover primary flows
+- [x] Feature meets measurable outcomes defined in Success Criteria
+- [x] No implementation details leak into specification
+
+## Notes
+
+- Project convention (specs 040, 046, 048) names code seams (`buildSnapshot`, `scene-presence`,
+  file paths) in FRs so implementers and the bridge gate can trace them. These are accepted as
+  contract names, not leaked implementation choices.
+- No [NEEDS CLARIFICATION] markers. The six open questions were ruled (a) by the operator on 2026-10-27.
+
+- Every card AC maps to FRs and a user story ("Card acceptance criteria mapping").
+- Ruled: plan.md proceeds on the rulings.

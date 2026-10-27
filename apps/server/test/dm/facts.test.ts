@@ -549,6 +549,72 @@ describe("presence fact (spec 048, User Story 2)", () => {
   });
 });
 
+describe("dm presence rows (spec 050, OQ-4)", () => {
+  const input = (rows: StoredEvent[]) => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const fixture = JSON.parse(
+      readFileSync(join(here, "fixtures/run5-narration-quality.json"), "utf8"),
+    ) as { transcript: StoredEvent[] };
+    return buildNarrationFacts({
+      trigger: "commit",
+      seed: playerFacingSeed(testSeed()),
+      beatNpcIds: [],
+      projections: projectDm(fixture.transcript.filter((r) => r.seq <= 58)),
+      beat: [],
+      director: {
+        beat: { decision: "resolve" },
+        tableMode: { to: "stay" },
+        trackers: [],
+        scene: { status: "continue" },
+        pacing: { tension: "low", spotlight: null, beatId: null },
+        goalNote: "",
+        companionPrompts: [],
+        overrides: [],
+      } as DirectorNodeOutput,
+      adjudicate: null,
+      resolve: {
+        submissions: [],
+        actionResults: [],
+        appendedRows: rows,
+        nextJob: null,
+        chronicle: false,
+        npcTurn: null,
+        ...EMPTY_RESOLVE_SNAPSHOT,
+        lastSeq: 0,
+      } as ResolveOutput,
+      presentNpcIds: [],
+      modeBefore: "free",
+      appendedRows: rows,
+      clarify: [],
+    });
+  };
+  const presenceRow = (visibility: string) =>
+    ({
+      seq: 70,
+      type: "scene-presence.changed",
+      visibility,
+      actor: "ai:dm",
+      payload: {
+        actorId: "snag",
+        before: "present",
+        after: "absent",
+        reason: "removed",
+        actionId: null,
+      },
+    }) as unknown as StoredEvent;
+
+  it("yields no presence fact for a dm row and one for a public row", () => {
+    expect(
+      input([presenceRow("dm")]).events.filter((e) => e.kind === "presence"),
+    ).toEqual([]);
+    expect(
+      input([presenceRow("public")]).events.filter(
+        (e) => e.kind === "presence",
+      ),
+    ).toHaveLength(1);
+  });
+});
+
 describe("settled death saves (TASK-0112, plan D5)", () => {
   const saveRows = (natural: number, before: number, after: number) => [
     roll(1, "s1", 0, {

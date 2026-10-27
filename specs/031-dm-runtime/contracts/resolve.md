@@ -41,6 +41,21 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
 1. **Opening moves** ([director.md](director.md)): scene, party, combatants and trackers (scene
    start); the `turn` decision's combatants, initiative and turn mode. After initiative,
    **settling** runs for the first active combatant (group 6, "Settling").
+
+   **Seed-presence group** (code only; `seedPresence` in `nodes/resolve.ts`). Amended 2026-10-27
+   (TASK-0142, operator rulings OQ-2, OQ-3, OQ-4): "I accept the recommended defaults OQ-1 to
+   OQ-6 (a)". The group is code-owned. It reads the seed and the projections only, never a
+   Director field. Its submission keys start `seed:presence:<moment>:<npcId>`.
+   - Scene start, after the trackers: one `scene-presence` proposal per NPC whose `beats[0]`
+     value is not `present`. Reason `removed` (absent) or `conceded` (yielded), `actionId: null`,
+     visibility `dm`. These rows never reach narration facts.
+   - Encounter start, after the monsters' `combatant.add` and before `initiative.roll`: one
+     `arrived` proposal per NPC the encounter's beat declares `present` whose logged value is not
+     `present`. `actionId: null`, visibility `public`. No encounter is active yet, so the
+     planner plans no `initiative.join`.
+   - No other beat change writes presence. A later arrival is a presence effect (spec 048).
+   - A NPC whose logged value already equals the target gets no proposal. A reclaim replays
+     recorded submissions by key, and `findLanded` covers a row that landed before its checkpoint.
 2. **Ruling group**: one `journal` proposal per ruling, visibility `dm`, entry id
    `ruling-<jobId>-<n>`, `sourceActionIds: [actionId]`.
 3. **Action groups**, one per beat item in commit `seq` order (AC #9). Skip items with
@@ -152,7 +167,7 @@ The gate itself has no idempotency key. This contract adds none.
 |---|---|
 | `scene`, `party`, `tracker`, `table-mode` | opening moves and closing moves |
 | `mechanics` | combatants, initiative, encounter end, every step, turn advance |
-| `scene-presence` | each presence effect (TASK-0141) |
+| `scene-presence` | each presence effect (TASK-0141); the seed-presence group (TASK-0142) |
 | `journal` | rulings; the audit flag ([audit.md](audit.md)) |
 | `action.resolve` | each beat item |
 | `narration` | `submitNarration`, after audit ([audit.md](audit.md)) |

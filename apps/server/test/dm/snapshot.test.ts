@@ -245,6 +245,39 @@ describe("buildSnapshot", () => {
   });
 });
 
+describe("one identity across the NPC and its combatant (US4)", () => {
+  it("Snag is one npc actor before and after combatant.add", () => {
+    const { projections, seed } = greyhollowFight();
+    const before = clone(projections);
+    delete before.engine.combatants.snag;
+    before.engine.encounter = null;
+    before.encounter = null;
+    before.scenePresence.snag = {
+      presence: "present",
+      reason: "arrived",
+      seq: 5,
+    };
+    const s0 = buildSnapshot(before, seed);
+    const a0 = s0.actors.filter((a) => a.id === "snag");
+    expect(a0).toHaveLength(1);
+    expect(a0[0]).toMatchObject({ kind: "npc", combatantId: null });
+
+    const after = clone(before);
+    after.engine.combatants.snag = combatant("snag", "Snag");
+    const s1 = buildSnapshot(after, seed);
+    const a1 = s1.actors.filter((a) => a.id === "snag");
+    expect(a1).toHaveLength(1);
+    expect(a1[0]).toMatchObject({
+      kind: "npc",
+      combatantId: "snag",
+      presence: "present",
+    });
+    expect(s1.actors.some((a) => a.kind === "monster" && a.id === "snag")).toBe(
+      false,
+    );
+  });
+});
+
 describe("buildSnapshot: logged scene presence", () => {
   const entry = (presence: "absent" | "yielded", seq = 125) => ({
     presence,
@@ -314,11 +347,37 @@ describe("aliases", () => {
     e.name = "Snag the Quick";
     const snag = buildSnapshot(p, seed).actors.find((a) => a.id === "snag");
     // name "Snag", id "snag" (differs from the name by case), engine name
-    expect(snag?.aliases).toEqual(["Snag", "snag", "Snag the Quick"]);
+    expect(snag?.aliases).toEqual([
+      "Snag",
+      "snag",
+      "Snag the Quick",
+      "the goblin leader",
+    ]);
     const tamsin = buildSnapshot(projections, seed).actors.find(
       (a) => a.id === "tamsin",
     );
     expect(tamsin?.aliases).toEqual(["Tamsin Vale", "tamsin", "Tamsin"]);
+  });
+
+  it("NPC aliases end with the seed aliases, deduped", () => {
+    const { projections, seed } = greyhollowFight();
+    const s = buildSnapshot(projections, seed);
+    const wenna = s.actors.find((a) => a.id === "wenna");
+    expect(wenna?.aliases).toContain("the keeper");
+    expect(wenna?.aliases.at(-1)).toBe("the keeper");
+    expect(s.actors.find((a) => a.id === "pell")?.aliases.at(-1)).toBe(
+      "the boy",
+    );
+    // a seed alias equal to a derived term joins once
+    const twin = clone(seed);
+    const w = twin.npcs.find((n) => n.id === "wenna");
+    if (!w) throw new Error("no wenna");
+    w.identity.aliases = ["Wenna", "the keeper", "the keeper"];
+    const t = buildSnapshot(projections, twin).actors.find(
+      (a) => a.id === "wenna",
+    );
+    expect(t?.aliases.filter((x) => x === "Wenna")).toHaveLength(1);
+    expect(t?.aliases.filter((x) => x === "the keeper")).toHaveLength(1);
   });
 
   it("nameTerms matches partyNameTerms output", () => {

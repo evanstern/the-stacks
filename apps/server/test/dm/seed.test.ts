@@ -289,3 +289,83 @@ describe("player-facing authoring rule (TASK-0106)", () => {
     expect(paths.map(at)).not.toContain(pf.openingFraming);
   });
 });
+
+describe("seed NPC presence, identity and aliases (spec 050)", () => {
+  it("declares presence per beat for every seed NPC (plan D2)", () => {
+    const seed = loadSeed("greyhollow-ford");
+    expect(seed.beats.map((b) => [b.id, b.presence])).toEqual([
+      ["ferry-house", { wenna: "present", pell: "absent", snag: "absent" }],
+      ["the-keeper", { wenna: "present", pell: "absent", snag: "absent" }],
+      ["reed-camp", { wenna: "absent", pell: "present", snag: "present" }],
+    ]);
+  });
+
+  it("names a beat that declares no presence for an NPC", () => {
+    const issues = issuesFor((s) => {
+      delete s.beats[1].presence.pell;
+    });
+    expect(issues).toContain(
+      'beat "the-keeper" declares no presence for npc "pell"',
+    );
+  });
+
+  it("names a beat that declares presence for an unknown NPC", () => {
+    const issues = issuesFor((s) => {
+      s.beats[0].presence.ghost = "present";
+    });
+    expect(issues).toContain(
+      'beat "ferry-house" declares presence for unknown npc "ghost"',
+    );
+  });
+
+  it("names a beat whose npcIds lists an NPC it declares absent", () => {
+    const issues = issuesFor((s) => {
+      s.beats[1].presence.wenna = "absent";
+    });
+    expect(issues.join(" ")).toContain('beat "the-keeper"');
+    expect(issues.join(" ")).toContain('"wenna"');
+    expect(issues.join(" ")).toContain("absent");
+  });
+
+  it("names an NPC whose identity.combatant differs from its id", () => {
+    const issues = issuesFor((s) => {
+      s.npcs[2].identity.combatant = "goblin-2";
+    });
+    expect(issues.join(" ")).toContain('npc "snag"');
+    expect(issues.join(" ")).toContain('combatant "goblin-2" differs');
+  });
+
+  it("names an NPC whose identity.combatant names no encounter monster", () => {
+    const issues = issuesFor((s) => {
+      s.npcs[0].identity.combatant = "wenna";
+    });
+    expect(issues.join(" ")).toContain('npc "wenna"');
+    expect(issues.join(" ")).toContain("names no encounter monster");
+  });
+
+  it("refuses an alias over 60 characters and seven aliases", () => {
+    const long = issuesFor((s) => {
+      s.npcs[0].identity.aliases = ["x".repeat(61)];
+    });
+    expect(long.length).toBeGreaterThan(0);
+    const many = issuesFor((s) => {
+      s.npcs[0].identity.aliases = ["a", "b", "c", "d", "e", "f", "g"];
+    });
+    expect(many.length).toBeGreaterThan(0);
+  });
+
+  it("yields aliases [] when absent and the ruled aliases on the shipped seed", () => {
+    const seed = loadSeed("greyhollow-ford");
+    expect(
+      Object.fromEntries(seed.npcs.map((n) => [n.id, n.identity.aliases])),
+    ).toEqual({
+      wenna: ["the keeper"],
+      pell: ["the boy"],
+      snag: ["the goblin leader"],
+    });
+    const bare = raw();
+    for (const n of bare.npcs) delete n.identity.aliases;
+    for (const n of parseSeed(bare).npcs)
+      expect(n.identity.aliases).toEqual([]);
+  });
+});

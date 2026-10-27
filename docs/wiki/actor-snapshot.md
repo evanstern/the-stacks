@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
 ---
 
 # Actor snapshot
@@ -48,7 +48,7 @@ throw `SnapshotBuildError` (`ACTOR_ID_COLLISION`).
 ## Aliases
 
 `aliases` holds the name, the id, the combatant id, the given name after leading title words
-(`snapshot/aliases.ts` `nameTerms`, `TITLE_WORDS`) and the engine and seed names, deduped.
+(`snapshot/aliases.ts` `nameTerms`, `TITLE_WORDS`) and the engine and seed names and the seed NPC's `identity.aliases` (spec 050), deduped.
 `partyNameTerms` in the audit calls `nameTerms`; its output is unchanged.
 
 ## The diff
@@ -91,7 +91,7 @@ node failure for a turn ([[dm-failure-and-gates]]), an `error` play for a compan
 ## Extension points
 
 TASK-0141 built the presence read (spec 048; the plan gate gains the `absent` reason, same
-`UNKNOWN_COMBATANT` code); TASK-0142 seeds NPC presence and seed aliases;
+`UNKNOWN_COMBATANT` code); TASK-0142 built seed aliases and the seed rows, the only path from the seed to `presence` ([[seed-npc-presence]]);
 TASK-0104 adds monster stats to `sheet`; TASK-0112 built the plan gate: it checks plan step ids against S0 actors' `combatantId` ([[dm-failure-and-gates]]);
 TASK-0143 and TASK-0144 match prose against `aliases`; TASK-0145 reads S0 for the Director's
 hostility rules; TASK-0146 renders the diff in the audit prompt; TASK-0147 maps batch effect

@@ -83,6 +83,20 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
       }
     }
   }
+  const monsterIds = new Set(
+    seed.encounters.flatMap((e) => e.monsters.map((m) => m.combatantId)),
+  );
+  for (const npc of seed.npcs) {
+    const c = npc.identity.combatant;
+    if (c === null) continue;
+    if (c !== npc.id) {
+      issues.push(`npc "${npc.id}" combatant "${c}" differs from its id`);
+    } else if (!monsterIds.has(c)) {
+      issues.push(
+        `npc "${npc.id}" combatant "${c}" names no encounter monster`,
+      );
+    }
+  }
   for (const enc of seed.encounters) {
     for (const mon of enc.monsters) {
       if (!getById("monster", mon.srdMonsterId)) {
@@ -96,6 +110,25 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
     for (const id of beat.npcIds) {
       if (!npcIds.has(id)) {
         issues.push(`beat "${beat.id}" names unknown npc "${id}"`);
+      }
+    }
+    for (const id of npcIds) {
+      if (!(id in beat.presence)) {
+        issues.push(`beat "${beat.id}" declares no presence for npc "${id}"`);
+      }
+    }
+    for (const id of Object.keys(beat.presence)) {
+      if (!npcIds.has(id)) {
+        issues.push(
+          `beat "${beat.id}" declares presence for unknown npc "${id}"`,
+        );
+      }
+    }
+    for (const id of beat.npcIds) {
+      if (beat.presence[id] === "absent") {
+        issues.push(
+          `beat "${beat.id}" lists npc "${id}" in npcIds but declares it absent`,
+        );
       }
     }
     if (beat.encounterId !== null && !encounterIds.has(beat.encounterId)) {

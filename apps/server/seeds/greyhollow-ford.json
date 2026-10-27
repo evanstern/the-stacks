@@ -44,6 +44,7 @@
         { "text": "Someone is hiding in the loft above the ferry-house; dust sifts down.", "check": { "ability": "wis", "skill": "perception", "dc": 14 } }
       ],
       "npcIds": [],
+      "presence": { "wenna": "present", "pell": "absent", "snag": "absent" },
       "encounterId": null
     },
     {
@@ -56,6 +57,7 @@
         { "text": "Her grandson Pell went after them with a fishing spear; she is frightened for him.", "check": { "ability": "wis", "skill": "insight", "dc": 11 } }
       ],
       "npcIds": ["wenna"],
+      "presence": { "wenna": "present", "pell": "absent", "snag": "absent" },
       "encounterId": null
     },
     {
@@ -64,6 +66,7 @@
       "summary": "A goblin camp on a mud island in the reeds: a smoky fire, the clapper hung on a pole as a trophy, Pell tied to a post.",
       "clues": [],
       "npcIds": ["snag", "pell"],
+      "presence": { "wenna": "absent", "pell": "present", "snag": "present" },
       "encounterId": "reed-camp"
     }
   ],
@@ -71,7 +74,7 @@
     {
       "id": "wenna",
       "name": "Wenna Marsh",
-      "identity": { "role": "ferry keeper", "srdMonsterId": null, "combatant": null },
+      "identity": { "role": "ferry keeper", "srdMonsterId": null, "combatant": null, "aliases": ["the keeper"] },
       "portrayal": {
         "voice": "Clipped river talk; drops the ends of words; swears by 'the old water'.",
         "want": "Her ferry running and her grandson Pell home before dark.",
@@ -87,7 +90,7 @@
     {
       "id": "pell",
       "name": "Pell Marsh",
-      "identity": { "role": "keeper's grandson, captive", "srdMonsterId": null, "combatant": null },
+      "identity": { "role": "keeper's grandson, captive", "srdMonsterId": null, "combatant": null, "aliases": ["the boy"] },
       "portrayal": {
         "voice": "Too loud when scared; tries to sound older than twelve.",
         "want": "To not be the one who needed rescuing.",
@@ -103,7 +106,7 @@
     {
       "id": "snag",
       "name": "Snag",
-      "identity": { "role": "goblin leader", "srdMonsterId": "goblin-warrior", "combatant": "snag" },
+      "identity": { "role": "goblin leader", "srdMonsterId": "goblin-warrior", "combatant": "snag", "aliases": ["the goblin leader"] },
       "portrayal": {
         "voice": "Sing-song threats; calls everyone 'big-feet'.",
         "want": "To keep the clapper and make the big-feet pay to cross his reeds.",

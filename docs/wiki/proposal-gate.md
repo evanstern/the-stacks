@@ -16,7 +16,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
 ---
 
 # Proposal gate
@@ -84,11 +84,11 @@ caller of `recordPresence` ([[dm-turn-jobs]]). The planner emits the `signoff` m
 by two or more humans plans two rows: a `presence.recorded` marker (`purpose: "signoff"`,
 `actionId`, the present set plus the committer) then `action.committed` (authority `group`). A quorum-completing
 `approve` comment on an open party action auto-commits: three rows
-(`action.commented`, the marker, `action.committed`) in one append. Other comments plan one row. The DM commit path writes no marker.
+(`action.commented`, the marker, `action.committed`) in one append.
 
 **Floor and stall** (TASK-0050): the `floor` kind, turn rules, the `ai:dm` stall override and refusal codes: [[turn-floor]].
 
-**Scene presence.** The `scene-presence` kind (`{ actorId, reason, actionId }`, TASK-0141) is a DM kind with policy `ask`. The planner takes `before` from the `scenePresence` projection and `after` from `REASON_TO_PRESENCE`, and refuses `INVALID_PROPOSAL` on no change. It plans a public `scene-presence.changed` row, plus an engine `initiative.leave` (absent actor in the order) or `initiative.join` (`arrived` into a running encounter). Only `dm/nodes/resolve.ts` builds one.
+**Scene presence.** The `scene-presence` kind (`{ actorId, reason, actionId, visibility }`, TASK-0141; `visibility` `public` by default, or `dm`) is a DM kind with policy `ask`. The planner takes `before` from `scenePresence` and `after` from `REASON_TO_PRESENCE`, and refuses `INVALID_PROPOSAL` on no change, and plans a `scene-presence.changed` row with the proposal's visibility, plus an engine `initiative.leave` (absent, in the order) or `initiative.join` (`arrived` into a running encounter). Only `dm/nodes/resolve.ts` builds one ([[seed-npc-presence]]).
 
 **Refuse before write.** Permission, routing, `planProposal` and
 catalog vetting run before any append. For `ask`/`suggest` the gate checks legality
