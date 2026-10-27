@@ -271,11 +271,11 @@ Director). A `fiction` render of a snapshot whose names hold no digit holds no d
    cut a line short. Stage lines are never compressed.
 4. Every actor in the snapshot has exactly one line in the output, full or compressed.
 
-Caps (in `prompts/common.ts` `CAPS`): `snapshotDm: 2000`, `snapshotSeat: 1600`,
+Caps (in `prompts/common.ts` `CAPS`): `snapshotDm: 2000`, `snapshotSeat: 2000`,
 `snapshotFiction: 800`. They replace `CAPS.projections` (800). The schema-maximum seed shape
 (6 party members, 12 monsters in one encounter, 20 seed NPCs, all alive) MUST fit every view
-uncompressed. Phase 1 measures it and raises a cap if needed, recording the measured numbers
-in the commit message.
+uncompressed. Phase 1 measured the schema maximum: `dm` 1740 tokens, `seat` 1716 tokens,
+`fiction` 448 tokens. The `seat` cap rose from 1600 to 2000 because 1716 exceeds 1600.
 
 ### 6.3 Failing loudly
 
