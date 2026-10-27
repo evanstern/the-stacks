@@ -34,7 +34,7 @@
 - Project convention (specs 040, 046, 048) names code seams (`buildSnapshot`, `scene-presence`,
   file paths) in FRs so implementers and the bridge gate can trace them. These are accepted as
   contract names, not leaked implementation choices.
-- No [NEEDS CLARIFICATION] markers: the six open questions are operator rulings (seed schema,
-  frozen 029 contract, player-visible behaviour), each with a recommended default the FRs follow.
+- No [NEEDS CLARIFICATION] markers. The six open questions were ruled (a) by the operator on 2026-10-27.
+
 - Every card AC maps to FRs and a user story ("Card acceptance criteria mapping").
-- Blocked: plan.md waits for operator rulings on OQ-1 to OQ-6.
+- Ruled: plan.md proceeds on the rulings.

@@ -3,8 +3,8 @@
 **Feature Branch**: `task-0142-seed-npc-presence`
 **Spec dir**: `specs/050-seed-npc-presence`
 **Created**: 2026-10-27
-**Status**: Draft — blocked on operator rulings OQ-1 to OQ-6 (see "Open questions"). No plan.md
-until they are ruled.
+**Status**: Ready for planning — operator ruled OQ-1 to OQ-6, all (a), on 2026-10-27 (see
+"Operator rulings").
 **Board card**: TASK-0142 (Track C7, runbook amendment 1)
 **Input**: TASK-0142, decision-0025 (D17) card U8, `docs/design/actor-state-gate.md` §5.3 (U8),
 specs/040-actor-snapshot (U1, merged), specs/048-scene-presence (U2, merged).
@@ -42,6 +42,26 @@ It implements none of these, each owned by a card:
   `before` from the projection and plans `initiative.leave` or `initiative.join`; the resolve
   `presence` effect; the plan gate's `absent` reason. A resolve test asserts no Director fixture
   produces a `scene-presence` submission (048 FR-021, card AC #5).
+
+## Operator rulings (2026-10-27, recorded on the card, commit 43e6d6a)
+
+The operator's words:
+
+> "TASK-0142: I accept the recommended defaults OQ-1 to OQ-6 (a), including the frozen 029 and
+> 031 amendments and the Greyhollow aliases "the keeper", "the boy", "the goblin leader". The
+> Director-triggered encounter-start seed rows are fine under decision-0025 §2.5 and 048 AC #5."
+
+| Question | Ruling | What it binds |
+|---|---|---|
+| OQ-1 seed shape | (a) | A required `beats[].presence` map per beat covering every seed NPC; `npcIds` kept and cross-checked; seed `v` stays 1; `specs/031-dm-runtime/contracts/scene-seed.md` amended |
+| OQ-2 when rows are logged | (a) | Seed rows at scene start (opening beat) and at encounter start (`arrived`, before the initiative roll); other beats are guidance only |
+| OQ-3 reasons | (a) | `removed` for `absent`, `conceded` for `yielded`, `arrived` for `present`; no event change |
+| OQ-4 visibility | (a) | The `scene-presence` proposal gains optional `visibility` (`public` default, or `dm`); scene-start seed rows are `dm`; `specs/029-proposal-gate/contracts/proposals.md` and `gate-api.md` §1 amended |
+| OQ-5 one identity | (a) | Seed cross-check: `identity.combatant`, when set, equals the NPC `id` and names an encounter monster |
+| OQ-6 aliases | (a) | Optional `identity.aliases` (at most 6); Greyhollow: Wenna "the keeper", Pell "the boy", Snag "the goblin leader" |
+| Director-triggered seed rows | accepted | Encounter-start seed rows are fine under decision-0025 §2.5 and 048 AC #5 |
+
+The options under "Open questions" stay below as the record.
 
 ## Root cause (from the evidence)
 
@@ -193,9 +213,10 @@ otherwise.
   `present` whose logged presence is not `present`.
 - **FR-008**: These seed submissions MUST read only the seed and the projections. They MUST run
   in a code-owned seed-presence group, not the Director group, with stepRefs under `seed:presence:`.
-  The 048 test "no Director fixture produces a scene-presence submission" MUST stay green, and a
-  new test MUST show the seed rows are identical for any two Director outputs that start the
-  same encounter.
+  The 048 test "no Director fixture produces a scene-presence submission" MUST keep asserting
+  that no `director:`-keyed submission has kind `scene-presence`; its total-row count is amended
+  to count only non-seed rows. A new test MUST show the seed rows are identical for any two
+  Director outputs that start the same encounter.
 - **FR-009**: Seed rows MUST use reasons from the existing closed list (OQ-3): `removed` for
   `absent`, `conceded` for `yielded`, `arrived` for `present`.
 - **FR-010**: Scene-start seed rows MUST NOT reveal a not-yet-met NPC to players (OQ-4): they
@@ -206,7 +227,8 @@ otherwise.
 - **FR-011**: `buildSnapshot` MUST keep reading a seed NPC's presence from the `scenePresence`
   projection by NPC id. It MUST NOT read the seed's beat declarations.
 - **FR-012**: Assemble's present-NPC list (`presentNpcIds`) MUST become the seed NPCs whose S0
-  presence is not `absent`, in seed order.
+  presence is not `absent`, in seed order. Narrate's beat NPC list (`beatNpcIds`) MUST drop NPCs
+  whose S1 presence is `absent`.
 - **FR-013**: Seed NPC aliases MUST include seed-declared aliases when present (OQ-6).
 
 **Only the event changes presence (AC #3)**
@@ -278,8 +300,9 @@ otherwise.
 
 - **Kind `NPC`.** The card's "kind `NPC`" is the snapshot's existing `kind: "npc"`. No rename;
   the enum is a frozen-in-practice value read by every view.
-- **The recorded log folds today.** The M2 demo rows are catalogued v1 payloads. If a row fails
-  to parse under the current catalog, the plan names it; the test never edits the record.
+- **The recorded log folds today.** Verified 2026-10-27 (plan research R1): all 333 rows of
+  `docs/design/m2-demo/demo-session/transcript.jsonl` pass `StoredEventSchema` and decode as
+  `known` under the current catalog, with 0 fold diagnostics. The test never edits the record.
 - **The Director's `pacing.beatId` is not state.** It is per-turn model output and is never
   logged. This card does not log it (OQ-2 option (c) is rejected for that reason).
 - **No `speckit-clarify` run.** The open questions below change a seed schema, a frozen
@@ -296,7 +319,8 @@ otherwise.
 ## Open questions
 
 Each question changes a seed or event schema, a frozen contract, or what a player sees. Each
-gives options, a recommended default and why. The FRs above follow the defaults.
+gives options, a recommended default and why. The operator ruled every one (a) on 2026-10-27
+(see "Operator rulings"); the FRs above follow the rulings.
 
 ### OQ-1 — The shape of the per-beat declaration (seed schema; AC #1)
 
