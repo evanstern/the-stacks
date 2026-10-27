@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-26 20:08'
+updated_date: '2026-10-27 01:34'
 labels:
   - dm
   - narration
@@ -29,6 +30,13 @@ Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence
 - [ ] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
 - [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+OPERATOR RULING 2026-10-26 (during the M2 demo), in the operator's words: 'It makes perfect sense for the DM to narrate the reaction of a character in combat *after* being hit, or missing, etc. As long as that description is not something that takes away *choices* from the player. Saying "You get hit by a big club and it staggers you back a step" is fine if the roll makes sense (critical hit, for example) -- the player has no agency there, it happened, they got staggered back a step. Or even "You are surprised by this and it shows on your face" -- that's another one that a roll could decide, it's reflexive. But, you don't want "You see your long long love and run to meet her" -- that's a decision for the player and it is not something a DM roll could account for. ... Actions occur -> Evaluate for potential roll-able side-effects (reactions, reflexes, etc) -> Narration suggestion -> Evaluation (do not take away agency) -> loop until accepted'.
+Consequences, stated by the orchestrator: (1) TASK-0106's narrate-v3 rule E3 ('unchanged and unmoved: no wound, no dodge') and audit-v2's player-agency definition are stricter than the ruling and must be revised. (2) Proposed shape: code derives the allowed involuntary effects from the ledger (critical hit, damage share of max HP, a failed save's effect) as facts for both the narrator and the auditor. player-agency blocks only volitional acts (movement with intent, speech, decisions, chosen emotional responses). The existing narrate, audit and regenerate loop (3 attempts) stays. (3) Scope this card as a spec (doctrine change), not a patch.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

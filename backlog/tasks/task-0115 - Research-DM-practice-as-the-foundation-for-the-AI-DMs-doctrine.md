@@ -1,0 +1,36 @@
+---
+id: TASK-0115
+title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
+status: To Do
+assignee: []
+created_date: '2026-10-27 01:44'
+labels:
+  - research
+  - dm
+  - doctrine
+dependencies: []
+priority: high
+ordinal: 105000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) is grounded in documented DM practice, not thin definitions. Why: every M2 First Scene narration-quality problem traced to thin doctrine definitions (player agency, fail-forward, 'no effect', what a roll may decide); operator ruling 2026-10-26 on TASK-0113. Method: research plugin vault in docs/research/. Branch 0 maps DM craft across sources and ranks deep-dive branches by refactor risk; branch 1 answers how a DM decides what the dice decide versus the player. Sources: operator's DMG 2014, XGtE, TCoE, VRGtR, CoS, LMoP (D&D Beyond exports, paraphrase only, never committed), SRD 5.2.1, The Alexandrian, The Angry GM, Sly Flourish, Matt Colville. No doctrine or prompt implementation in this task.
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
+- [ ] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
+- [ ] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
+- [ ] #4 A decision record is created with the backlog CLI after operator go
+- [ ] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
+- [ ] #6 No DMG or other non-SRD book text is committed beyond one short attributed quote per note
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
