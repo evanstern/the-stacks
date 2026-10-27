@@ -45,8 +45,6 @@ Spec: specs/049-turn-floor
 - [ ] #13 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -108,6 +106,8 @@ spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stor
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 6, T034-T041: b6646e1, 6a9872e. REQUIRE_DATABASE=1 ci:check green; web node 234, vitest 83; no-dialog green; no flakes.) Ten Brave screenshots are in specs/049-turn-floor/evidence/, taken as TEST operator op0050, whose credentials are only in a scratchpad file. The orchestrator viewed dm-free-1280-light and active-player-390-dark: the controls are inline, the strip shows next and you, nothing overflows. Choices the implementer settled: DM buttons show only for a seated human DM with an encounter; the fixture mode builds floor rows locally and does not settle downed characters; the comment box is relabelled "Suggest an alternative".
+
+spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stories 1, 2, 3 gate half): 8/8 · Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture): 5/5 · Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3): 8/8 · Full round with two humans and one AI companion (card AC #6): 3/3 · The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4): 9/9 · Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5): 8/8 · Wiki re-ground (runbook expected reviews): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
