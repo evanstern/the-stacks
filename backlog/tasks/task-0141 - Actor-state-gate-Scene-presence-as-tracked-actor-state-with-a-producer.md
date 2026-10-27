@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:32'
+updated_date: '2026-10-27 13:41'
 labels:
   - dm
   - rules-gate
@@ -28,13 +28,13 @@ Spec: specs/048-scene-presence
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A catalogued event records a scene presence change with actor id, new value and reason (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
-- [ ] #2 The snapshot reads scene presence from the log.
-- [ ] #3 No Director field writes scene presence, with a test.
-- [ ] #4 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
-- [ ] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
-- [ ] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
-- [ ] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
+- [x] #1 A catalogued event records a scene presence change with actor id, new value and reason (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
+- [x] #2 The snapshot reads scene presence from the log.
+- [x] #3 No Director field writes scene presence, with a test.
+- [x] #4 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
+- [x] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
+- [x] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
+- [x] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
 - [ ] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
 - [ ] #9 Spec phase: Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half)
 - [ ] #10 Spec phase: Snapshot from the log, plan gate absent reason (card AC #2, #5)
@@ -79,6 +79,9 @@ Phase 4 (T031-T041) at 82d9d85: presence effect in EffectSchema, resolve submits
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Reclaim fix at e83ae9d: on a reclaim, resolve reads the leave from the landed encounter.changed row (its before holds the pre-leave turnIndex) and skips the second advance. Single-crash DB test fails without the fix and passes with it. REQUIRE_DATABASE=1 ci:check green after one re-run of events.integration T018 (unrelated flake, carded as TASK-0160).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 (T042-T048) at 311fa50, main merged at a4f6a79 (one test-file conflict, both tests kept). 12 stale notes reviewed against their diffs and re-pinned; freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Card ACs #1-#7 ticked: each is proved by the phase tests above (event + projection P2, snapshot P3, no-Director-field test P4, declare gate P2, plan gate P3, presence effect P4, initiative.leave P1).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
