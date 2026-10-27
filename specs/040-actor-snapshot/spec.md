@@ -225,7 +225,7 @@ and order per turn do not change.
 - **FR-013**: A companion or chronicle job whose snapshot overflows MUST log the overflow, make
   no model call for it and submit nothing for it.
 - **FR-014**: Every prompt whose text changes MUST bump its `PROMPT_VERSION`: `dm.director-v3`,
-  `dm.interpret-v3`, `dm.adjudicate-v3`, `dm.narrate-v4`, `dm.audit-v3`, `dm.companion-v3`,
+  `dm.interpret-v3`, `dm.adjudicate-v3`, `dm.narrate-v4`, `dm.audit-v3`, `dm.companion-v5` (v3 on this branch; v5 after reconciling with TASK-0114's v4),
   `dm.chronicle-v3`.
 - **FR-015**: The number and order of model calls per turn, companion job and chronicle job
   MUST NOT change.

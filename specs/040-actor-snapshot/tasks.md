@@ -95,7 +95,7 @@ overflow, and director, interpret and adjudicate render state from S0.
 - [x] T020 [US3] Delete `npcNames` from `NarrationFacts` and `buildNarrationFacts` in `apps/server/src/dm/facts.ts`; remove it from fixtures in `apps/server/test/dm/facts.test.ts`, `audit.test.ts`, `fallback.test.ts`, `narrate.test.ts` and `apps/server/test/playtest/checks.test.ts`; move the Snag/dedupe cases of `facts.test.ts` into `apps/server/test/dm/snapshot.test.ts` as fiction-render cases
 - [x] T021 [US3] Change `characterSections` to take the snapshot and render the party section and the `## Other characters (the world)` section from S1 in the `fiction` view in `apps/server/src/dm/prompts/narrate.ts`; add `snapshot` to `NarratePromptInput`; pass `resolve.snapshot` from `apps/server/src/dm/nodes/narrate.ts`; bump to `dm.narrate-v4`; in `apps/server/test/dm/narrate.test.ts` assert the version and that a goblin dead since an earlier turn appears as dead
 - [x] T022 [US3] Render the same sections from S1 in `apps/server/src/dm/prompts/audit.ts`; add `snapshot` to its input; pass `resolve.snapshot` to the audit prompt and to `narrateAttempt` on regenerate in `apps/server/src/dm/nodes/audit.ts`; bump to `dm.audit-v3`; update `apps/server/test/dm/narrate.test.ts` and `apps/server/test/dm/audit.integration.test.ts`. Leave the deterministic checks and blocking derivation unchanged
-- [x] T023 [US3] Build the snapshot per companion from the loaded projections and the full seed in `apps/server/src/dm/companion.ts`; render `## State` in the `seat` view with `self` in `apps/server/src/dm/prompts/companion.ts`; bump to `dm.companion-v3`; on `SnapshotOverflowError` record the play as `status: "error"`, log `dm.companion.state-overflow`, and make no model call; test in `apps/server/test/dm/companion.integration.test.ts`
+- [x] T023 [US3] Build the snapshot per companion from the loaded projections and the full seed in `apps/server/src/dm/companion.ts`; render `## State` in the `seat` view with `self` in `apps/server/src/dm/prompts/companion.ts`; bump to `dm.companion-v5` (v3 on this branch; v5 after reconciling with TASK-0114's v4); on `SnapshotOverflowError` record the play as `status: "error"`, log `dm.companion.state-overflow`, and make no model call; test in `apps/server/test/dm/companion.integration.test.ts`
 - [x] T024 [US3] Add the optional `{ throughSeq }` bound to `loadProjections` in `apps/server/src/session/projections.ts`; build a `loadProjectionsThrough` dep in `apps/server/src/index.ts`; wire it and `loadSeed` into the chronicle deps in `apps/server/src/dm/worker.ts`
 - [x] T025 [US3] Add `loadSeed` and `loadProjectionsThrough` to `ChronicleDeps`; build the snapshot from projections through the job's `throughSeq` and the scene's seed (null seed when it fails to load) in `apps/server/src/dm/chronicle.ts`; render `## State at the end of this transcript` in the `fiction` view in `apps/server/src/dm/prompts/chronicle.ts`; bump to `dm.chronicle-v3`; on overflow write nothing, return `entries: 0`, log `dm.chronicle.failed` with `kind: "state-overflow"`; test the state-at-seq read and the overflow in `apps/server/test/dm/chronicle.integration.test.ts`
 - [x] T026 [US3] Delete `projectionEntries` and `CAPS.projections` from `apps/server/src/dm/prompts/common.ts`; add a source-scan test in `apps/server/test/dm/snapshot.test.ts` that no file under `apps/server/src` contains `projectionEntries` or `npcNames`
@@ -114,21 +114,21 @@ overflow, and director, interpret and adjudicate render state from S0.
 Classify each staled pin against `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or
 NEEDS-REVIEW. Amend prose before bumping a NEEDS-REVIEW pin.
 
-- [ ] T030 [P] NEEDS-REVIEW `docs/wiki/dm-runtime.md`: S0 in assemble, S1 and the diff in resolve, the `state-overflow` failure, which prompt renders which view, chronicle state at `throughSeq`; add `apps/server/src/dm/snapshot/*.ts` and `pipeline/runner.ts` to sources if not listed
-- [ ] T031 [P] NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`: facts without `npcNames`; the party and world sections now from S1 in the `fiction` view; the `nameTerms` move behind `partyNameTerms`; update the `description:` (it names `npcNames`)
-- [ ] T032 [P] NEEDS-REVIEW `docs/wiki/session-model.md`: the `{ throughSeq }` bound on `loadProjections`
-- [ ] T033 [P] Review `docs/wiki/dm-failure-and-gates.md`: the failure record's `kind` can now be `state-overflow`; re-pin RE-PIN-ONLY if its sources did not change, else amend
-- [ ] T034 Create `docs/wiki/actor-snapshot.md` (kind `concept`): the type, build rules, the NPC-combatant join, aliases, diff, the three views, the cap and overflow, the readers table, and the Track C cards that extend it (contract §9); sources `apps/server/src/dm/snapshot/*.ts` and `specs/040-actor-snapshot/contracts/actor-snapshot.md`; pin to HEAD
-- [ ] T035 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:` and the new note; add `[[actor-snapshot]]` to `docs/wiki/INDEX.md` under the DM entries and update its state paragraph
-- [ ] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0); commit
+- [x] T030 [P] NEEDS-REVIEW `docs/wiki/dm-runtime.md`: S0 in assemble, S1 and the diff in resolve, the `state-overflow` failure, which prompt renders which view, chronicle state at `throughSeq`; add `apps/server/src/dm/snapshot/*.ts` and `pipeline/runner.ts` to sources if not listed
+- [x] T031 [P] NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`: facts without `npcNames`; the party and world sections now from S1 in the `fiction` view; the `nameTerms` move behind `partyNameTerms`; update the `description:` (it names `npcNames`)
+- [x] T032 [P] NEEDS-REVIEW `docs/wiki/session-model.md`: the `{ throughSeq }` bound on `loadProjections`
+- [x] T033 [P] Review `docs/wiki/dm-failure-and-gates.md`: the failure record's `kind` can now be `state-overflow`; re-pin RE-PIN-ONLY if its sources did not change, else amend
+- [x] T034 Create `docs/wiki/actor-snapshot.md` (kind `concept`): the type, build rules, the NPC-combatant join, aliases, diff, the three views, the cap and overflow, the readers table, and the Track C cards that extend it (contract §9); sources `apps/server/src/dm/snapshot/*.ts` and `specs/040-actor-snapshot/contracts/actor-snapshot.md`; pin to HEAD
+- [x] T035 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:` and the new note; add `[[actor-snapshot]]` to `docs/wiki/INDEX.md` under the DM entries and update its state paragraph
+- [x] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0); commit
 
 ---
 
 ## Constitution Compliance (the-stacks)
 
-- [ ] T037 Principle I: the snapshot is exercised through the agent nodes' prompts by tests (T015–T017, T021–T025), not only by unit tests
-- [ ] T038 Principle IV: no event type added; trackers never reach a `seat` or `fiction` render (T009)
-- [ ] T039 Principle VI: `dm/snapshot/` imports engine types only; resolve's scripted-dice tests cover S1 (T013)
+- [x] T037 Principle I: the snapshot is exercised through the agent nodes' prompts by tests (T015–T017, T021–T025), not only by unit tests
+- [x] T038 Principle IV: no event type added; trackers never reach a `seat` or `fiction` render (T009)
+- [x] T039 Principle VI: `dm/snapshot/` imports engine types only; resolve's scripted-dice tests cover S1 (T013)
 
 ## Dependencies & Execution Order
 

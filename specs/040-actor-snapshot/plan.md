@@ -117,7 +117,7 @@ specs/040-actor-snapshot/
 | `apps/server/src/dm/prompts/adjudicate.ts` | State from S0 `dm` view; `dm.adjudicate-v3` |
 | `apps/server/src/dm/prompts/narrate.ts` | `characterSections(snapshot)` from S1 `fiction` view; input gains `snapshot`; `dm.narrate-v4` |
 | `apps/server/src/dm/prompts/audit.ts` | the same sections from S1; input gains `snapshot`; `dm.audit-v3` |
-| `apps/server/src/dm/prompts/companion.ts` | State from a `seat` view snapshot; input takes `snapshot` and `self` instead of `projections` for state; `dm.companion-v3` |
+| `apps/server/src/dm/prompts/companion.ts` | State from a `seat` view snapshot; input takes `snapshot` and `self` instead of `projections` for state; `dm.companion-v5` (v3 on this branch; v5 after reconciling with TASK-0114's v4) |
 | `apps/server/src/dm/prompts/chronicle.ts` | new `## State at the end of this transcript` section, `fiction` view; `dm.chronicle-v3` |
 | `apps/server/src/dm/nodes/narrate.ts` | passes `resolve.snapshot` to the prompt |
 | `apps/server/src/dm/nodes/audit.ts` | passes `resolve.snapshot` to the audit and regenerate prompts; `partyNameTerms` calls `nameTerms` with identical output |
