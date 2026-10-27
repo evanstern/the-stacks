@@ -63,6 +63,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3b T037b, commit 3d8f3a8: an active companion that withdraws still declares and commits its hold act, so the turn advances; Phase 4 wiki, commit e4d5108: 7 NEEDS-REVIEW + 2 RE-PIN-ONLY notes; ci:check green first run.) Brave screenshots of the Withdraw control not captured: agents cannot drive Brave (not a merge condition for this card).
 
 Reconcile after TASK-0116 (PR #62) merged: react queued index regenerated as migration 0006_fearless_jamie_braddock (0005_lean_cable dropped; 0005 is main's unknown_lizard).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(reconcile after #62: merge 2b58684, fixes 9e3fd3f; migration regenerated as 0006_fearless_jamie_braddock; main's worker test gained pending: []; 7 notes re-pinned (2 NEEDS-REVIEW); ci:check exit 0, server 900 passed.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
