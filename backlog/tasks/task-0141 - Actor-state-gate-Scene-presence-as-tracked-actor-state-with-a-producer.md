@@ -35,12 +35,14 @@ Spec: specs/048-scene-presence
 - [x] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
 - [x] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
 - [x] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
-- [ ] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
+- [x] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
 - [ ] #9 Spec phase: Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half)
 - [ ] #10 Spec phase: Snapshot from the log, plan gate absent reason (card AC #2, #5)
 - [ ] #11 Spec phase: Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half)
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
