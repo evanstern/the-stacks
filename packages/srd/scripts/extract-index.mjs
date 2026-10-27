@@ -7,6 +7,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEquipment } from "./lib/equipment.mjs";
 import { assertPdf, loadPages, PDF_SHA256, PDF_URL } from "./lib/pdf.mjs";
+import {
+  CHAPTER_FIRST,
+  CHAPTER_LAST,
+  GLOSSARY_FIRST,
+  GLOSSARY_LAST,
+  headingIndex,
+  readLayout,
+} from "./lib/rules.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pdf = process.argv[2];
@@ -129,6 +137,15 @@ function conditions() {
   return out;
 }
 
+// ---- rules: headings (and sidebar titles) of "Playing the Game" plus four Rules Glossary actions.
+// Read from font sizes with `pdftohtml -xml`; document order, no sorting.
+function rules() {
+  return headingIndex(
+    readLayout(pdf, CHAPTER_FIRST, CHAPTER_LAST),
+    readLayout(pdf, GLOSSARY_FIRST, GLOSSARY_LAST),
+  );
+}
+
 const sortByName = (a) => a.sort((x, y) => x.name.localeCompare(y.name, "en"));
 const equipment = parseEquipment(raw).map((e) => ({
   name: e.name,
@@ -146,6 +163,7 @@ const index = {
     class: classes(),
     equipment: sortByName(equipment),
     condition: sortByName(conditions()),
+    rule: rules(),
   },
 };
 const dest = join(here, "..", "provenance", "srd-5.2.1-index.json");

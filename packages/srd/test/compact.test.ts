@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { toCompact } from "../src/compact.js";
-import { getById, list } from "../src/index.js";
+import { compact, getById, list } from "../src/index.js";
 import { estimateTokens } from "../src/tokens.js";
 import { KINDS, ruleFixture } from "./helpers.js";
 
@@ -137,5 +137,33 @@ describe("rule compact form (fixture records)", () => {
       ],
     });
     expect(toCompact("rule", record as never)).toContain("See: alpha, beta");
+  });
+
+  it("names children by title when the caller supplies a lookup", () => {
+    const record = ruleFixture({
+      children: [
+        "playing-the-game.fixture.alpha",
+        "playing-the-game.fixture.beta",
+      ],
+    });
+    const titles: Record<string, string> = {
+      "playing-the-game.fixture.alpha": "Alpha Heading",
+      "playing-the-game.fixture.beta": "Beta’s Heading",
+    };
+    const text = toCompact("rule", record as never, {
+      ruleTitle: (id) => titles[id],
+    });
+    expect(text).toContain("See: Alpha Heading, Beta’s Heading");
+  });
+});
+
+describe("rule compact snapshots (shipped records)", () => {
+  it.each([
+    "playing-the-game.d20-tests.ability-checks.difficulty-class",
+    "playing-the-game.the-six-abilities.ability-modifiers",
+    "playing-the-game.combat",
+    "rules-glossary.help-action",
+  ])("%s", (id) => {
+    expect(compact("rule", id)).toMatchSnapshot();
   });
 });

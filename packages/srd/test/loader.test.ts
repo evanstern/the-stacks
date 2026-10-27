@@ -46,6 +46,43 @@ describe.each(KINDS)("%s lookups", (kind) => {
   });
 });
 
+describe("rule lookups", () => {
+  const sample = {
+    id: "playing-the-game.d20-tests.ability-checks.difficulty-class",
+    name: "Playing the Game › D20 Tests › Ability Checks › Difficulty Class",
+  };
+
+  it("list returns every shipped record", () => {
+    expect(list("rule").length).toBe(readData("rule").length);
+    expect(list("rule").length).toBeGreaterThan(0);
+  });
+
+  it("resolves by id and by full name to the same record", () => {
+    const byId = getById("rule", sample.id);
+    expect(byId?.name).toBe(sample.name);
+    expect(getByName("rule", sample.name)).toBe(byId);
+  });
+
+  it("resolves case and spacing variants", () => {
+    const variant = `  ${sample.name.toUpperCase().replace(/ /g, "   ")} `;
+    expect(getByName("rule", variant)?.id).toBe(sample.id);
+  });
+
+  it("gives undefined for unknown id and name", () => {
+    expect(getById("rule", "no-such-record")).toBeUndefined();
+    expect(getByName("rule", "No Such Record")).toBeUndefined();
+    expect(compact("rule", "No Such Record")).toBeUndefined();
+  });
+
+  it("compact resolves a rule by id and names children by title", () => {
+    const text = compact("rule", "playing-the-game.combat");
+    expect(text).toMatch(/^Combat \[rule\/playing-the-game\.combat\]/);
+    expect(text).toContain(
+      "See: The Order of Combat, Movement and Position, Making an Attack, Cover, Ranged Attacks, Melee Attacks, Mounted Combat, Underwater Combat",
+    );
+  });
+});
+
 describe("name matching", () => {
   it("normalizeName maps curly apostrophes, case and spaces", () => {
     expect(normalizeName("  Tasha’s   Hideous  LAUGHTER ")).toBe(

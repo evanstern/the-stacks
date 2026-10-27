@@ -38,11 +38,17 @@ export interface IndexEntry {
   embedded?: string;
 }
 
+export interface RuleIndexEntry {
+  id: string;
+  path: string[];
+  page: number;
+}
+
 export interface Index {
   document: string;
   pdfSha256: string;
   pdfUrl: string;
-  kinds: Record<LegacyKind, IndexEntry[]>;
+  kinds: Record<LegacyKind, IndexEntry[]> & { rule: RuleIndexEntry[] };
 }
 
 export function readIndex(): Index {

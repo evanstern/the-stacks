@@ -21,6 +21,12 @@ const RANGE = {
   condition: [176, 191],
 } as const;
 
+// `rule` pages: "Playing the Game" (5-18) and the four Rules Glossary actions (176-191).
+const RULE_RANGES = [
+  [5, 18],
+  [176, 191],
+] as const;
+
 const index = readIndex();
 
 describe("SRD 5.2.1 index", () => {
@@ -82,6 +88,61 @@ describe.each(KINDS)("%s records against the index", (kind) => {
   });
 });
 
+describe("rule records against the index", () => {
+  const records = readData("rule") as unknown as {
+    id: string;
+    path: string[];
+    source: { page: number; section: string };
+    pageEnd: number;
+  }[];
+  const entries = index.kinds.rule;
+  const inRanges = (p: number) =>
+    RULE_RANGES.some(([lo, hi]) => p >= lo && p <= hi);
+
+  it("rule pages and page ends fall in the chapter and glossary ranges", () => {
+    for (const r of records) {
+      expect(inRanges(r.source.page), r.id).toBe(true);
+      expect(inRanges(r.pageEnd), r.id).toBe(true);
+      const [lo, hi] =
+        r.source.section === "Rules Glossary" ? RULE_RANGES[1] : RULE_RANGES[0];
+      expect(r.source.page, r.id).toBeGreaterThanOrEqual(lo);
+      expect(r.pageEnd, r.id).toBeLessThanOrEqual(hi);
+    }
+  });
+
+  it("index entries lie in the ranges", () => {
+    for (const e of entries) expect(inRanges(e.page), e.id).toBe(true);
+  });
+
+  it("index kinds.rule and data/rule.json match one to one on id and page", () => {
+    expect(records.map((r) => r.id).sort()).toEqual(
+      entries.map((e) => e.id).sort(),
+    );
+    const byId = new Map(entries.map((e) => [e.id, e]));
+    for (const r of records) {
+      expect(r.source.page, r.id).toBe(byId.get(r.id)?.page);
+      expect(r.path, r.id).toEqual(byId.get(r.id)?.path);
+    }
+  });
+
+  it("index ids are unique", () => {
+    expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length);
+  });
+
+  it("records source.json absent topics, PDF-sourced ids and the heading check", () => {
+    const src = readJson("provenance/source.json") as {
+      ruleFromPdf: string[];
+      absentTopics: string[];
+      ruleHeadingCheck: { date: string; result: string; checked: string[] };
+    };
+    const ids = new Set(records.map((r) => r.id));
+    for (const id of src.ruleFromPdf) expect(ids.has(id), id).toBe(true);
+    expect(src.absentTopics.length).toBeGreaterThan(0);
+    expect(src.ruleHeadingCheck.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(src.ruleHeadingCheck.checked.length).toBeGreaterThanOrEqual(10);
+  });
+});
+
 describe("verification report", () => {
   const report = readJson("provenance/verification.json") as {
     pdfSha256: string;
@@ -105,6 +166,15 @@ describe("verification report", () => {
     ).toEqual([]);
   });
 
+  it("has no missing item on any rule record", () => {
+    const rule = report.records.filter((r) => r.kind === "rule");
+    expect(rule.length).toBe(readData("rule").length);
+    for (const r of rule) {
+      expect(r.missing, r.id).toEqual([]);
+      expect(r.ok, r.id).toBe(true);
+    }
+  });
+
   it("covers every shipped record", () => {
     const covered = new Set(report.records.map((r) => `${r.kind}/${r.id}`));
     for (const kind of KINDS) {
@@ -112,7 +182,12 @@ describe("verification report", () => {
         expect(covered.has(`${kind}/${r.id}`), `${kind}/${r.id}`).toBe(true);
       }
     }
-    const total = KINDS.reduce((n, k) => n + readData(k).length, 0);
+    const rules = readData("rule");
+    for (const r of rules) {
+      expect(covered.has(`rule/${r.id}`), `rule/${r.id}`).toBe(true);
+    }
+    const total =
+      KINDS.reduce((n, k) => n + readData(k).length, 0) + rules.length;
     expect(report.records.length).toBe(total);
   });
 });

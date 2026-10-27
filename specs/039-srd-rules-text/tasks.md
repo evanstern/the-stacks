@@ -56,15 +56,15 @@ against the PDF. Needs the SRD PDF on disk (spec OQ-3) and an Open5e checkout at
 `e69ac13b49dae6a9d84abf38fc674fe1db5b392b`. Store both outside the repository. Stop and report
 if either is unavailable, or if `pdftohtml` is missing.
 
-- [ ] T010 [US3] Extend `packages/srd/scripts/extract-index.mjs` with a `rule` pass, per plan.md D6. Write `kinds.rule` entries `{ id, path, page }` to `provenance/srd-5.2.1-index.json`. Prove the other kinds' entries are unchanged with `git diff`.
-- [ ] T011 [US1] Add `packages/srd/scripts/lib/rules.mjs` and `packages/srd/scripts/convert-rules.mjs`, per plan.md D1–D5. Use dataset text where it matches the PDF and PDF text otherwise. Write `data/rule.json`.
-- [ ] T012 [US1] Update `packages/srd/provenance/source.json`: `usedFor.rule`, `ruleFromPdf` (ids taken from the PDF), each repair, `absentTopics` (card-named topics the PDF does not print, e.g. contests if absent), and `ruleHeadingCheck` (date and result of the hand check in T016).
-- [ ] T013 [US3] Extend `packages/srd/scripts/verify-against-pdf.mjs` to check each rule record's text and numbers over pages `source.page..pageEnd`. Re-run it. Resolve every rule mismatch to zero. Confirm the existing records still report `ok`.
-- [ ] T014 [US3] Extend `packages/srd/test/provenance.test.ts`: rule pages fall in the chapter and glossary ranges; index `kinds.rule` and `data/rule.json` match one to one on id and page; no rule entry in `verification.json` has a `missing` item.
-- [ ] T015 [US1] Add `packages/srd/test/rule.test.ts`: the DC table record holds exactly the six SRD rows; every child of `playing-the-game.d20-tests` loads; every id in spec.md "Downstream lookups" exists; id equals slugged path; parent and children agree; every record's compact form is at or under 120 tokens.
-- [ ] T016 [US3] Hand-check at least 10 rule records and the heading list against the PDF. Record the check in `source.json` (T012) and in the phase commit message.
-- [ ] T017 [US1] Correct the spec.md "Downstream lookups" table if any expected id differs from the generated index. Add a loader-test sample row for `rule` in `packages/srd/test/loader.test.ts`. Update `test/__snapshots__/` for rule compact forms.
-- [ ] T018 Prove SC-006: `git diff --stat origin/main -- packages/srd/data/monster.json packages/srd/data/spell.json packages/srd/data/class.json packages/srd/data/equipment.json packages/srd/data/condition.json` prints nothing.
+- [x] T010 [US3] Extend `packages/srd/scripts/extract-index.mjs` with a `rule` pass, per plan.md D6. Write `kinds.rule` entries `{ id, path, page }` to `provenance/srd-5.2.1-index.json`. Prove the other kinds' entries are unchanged with `git diff`.
+- [x] T011 [US1] Add `packages/srd/scripts/lib/rules.mjs` and `packages/srd/scripts/convert-rules.mjs`, per plan.md D1–D5. Use dataset text where it matches the PDF and PDF text otherwise. Write `data/rule.json`.
+- [x] T012 [US1] Update `packages/srd/provenance/source.json`: `usedFor.rule`, `ruleFromPdf` (ids taken from the PDF), each repair, `absentTopics` (card-named topics the PDF does not print, e.g. contests if absent), and `ruleHeadingCheck` (date and result of the hand check in T016).
+- [x] T013 [US3] Extend `packages/srd/scripts/verify-against-pdf.mjs` to check each rule record's text and numbers over pages `source.page..pageEnd`. Re-run it. Resolve every rule mismatch to zero. Confirm the existing records still report `ok`.
+- [x] T014 [US3] Extend `packages/srd/test/provenance.test.ts`: rule pages fall in the chapter and glossary ranges; index `kinds.rule` and `data/rule.json` match one to one on id and page; no rule entry in `verification.json` has a `missing` item.
+- [x] T015 [US1] Add `packages/srd/test/rule.test.ts`: the DC table record holds exactly the six SRD rows; every child of `playing-the-game.d20-tests` loads; every id in spec.md "Downstream lookups" exists; id equals slugged path; parent and children agree; every record's compact form is at or under 120 tokens.
+- [x] T016 [US3] Hand-check at least 10 rule records and the heading list against the PDF. Record the check in `source.json` (T012) and in the phase commit message.
+- [x] T017 [US1] Correct the spec.md "Downstream lookups" table if any expected id differs from the generated index. Add a loader-test sample row for `rule` in `packages/srd/test/loader.test.ts`. Update `test/__snapshots__/` for rule compact forms.
+- [x] T018 Prove SC-006: `git diff --stat origin/main -- packages/srd/data/monster.json packages/srd/data/spell.json packages/srd/data/class.json packages/srd/data/equipment.json packages/srd/data/condition.json` prints nothing.
 
 **Checkpoint**: `pnpm ci:check` green. The card's three ACs are provable from tests.
 
