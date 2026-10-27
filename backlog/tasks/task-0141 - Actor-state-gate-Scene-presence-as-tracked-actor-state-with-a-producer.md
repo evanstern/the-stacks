@@ -1,10 +1,10 @@
 ---
 id: TASK-0141
 title: 'Actor-state gate: Scene presence as tracked actor state, with a producer'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:44'
+updated_date: '2026-10-27 14:55'
 labels:
   - dm
   - rules-gate
@@ -86,6 +86,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Operator confirmed both orchestrator rulings in chat 2026-10-27, quoting them: "When the active combatant leaves the turn order, the engine handles it like a normal turn advance. A crash during that leave can’t make the turn advance twice." Reply: "Confirmed".
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine `initiative.leave` (card AC #7, User Story 3 engine half): 6/6 · Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half): 19/19 · Snapshot from the log, plan gate absent reason (card AC #2, #5): 5/5 · Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half): 11/11 · Wiki re-ground (runbook expected reviews): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
