@@ -4,6 +4,7 @@ title: 'Research branch 5: running combat'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
+updated_date: '2026-10-27 03:22'
 labels:
   - research
   - dm
@@ -29,6 +30,12 @@ Outcome: combat doctrine and the parked combat rules are decided from documented
 - [ ] #3 A decision record is created with the backlog CLI after operator go
 - [ ] #4 TASK-0055 carries the findings
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+RE-ENTRY TRIGGER 2026-10-26 (TASK-0055 ruling, option A): this branch is the only path by which the Grit save, fight budgeting, the downed-target table or any other combat-pacing rule returns. Evaluate against TASK-0048 and TASK-0053 fight statistics (after TASK-0134 fixes the NPC zero-HP count). Any rule this branch recommends gets its own decision record and card.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
