@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:45'
+updated_date: '2026-10-27 03:51'
 labels:
   - design
   - dm
@@ -25,7 +25,7 @@ Outcome: a decision record and design pattern by which every model-generated seq
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 An inventory lists every model-generated output and, for each, the actor and stage state it receives today and the gates it passes
-- [ ] #2 A decision record (amending decision-0017 and decision-0022 where needed) states the actor-state contract and the hard rules, with the operator's ruling on the dice-only rule recorded in the operator's words
+- [x] #2 A decision record (amending decision-0017 and decision-0022 where needed) states the actor-state contract and the hard rules, with the operator's ruling on the dice-only rule recorded in the operator's words
 - [ ] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
 - [ ] #4 The spec for the first implementation card is written against the decision
 <!-- AC:END -->
@@ -42,6 +42,8 @@ OPERATOR RULINGS 2026-10-26 (checkpoint C3, answered in chat to the orchestrator
 - Binding wording: '3: Ledger + opposition dice'. Every model output passes a code gate over a snapshot of every tracked actor and the stage. Plot changes only through a recorded fact (a die result, or an engine outcome under decision-0022 point 3). Any change to an actor other than the one acting (harm, condition, flight, surrender, handover, disposition) needs a roll against that actor or an SRD rule that decides it. Uncontested effort needs no roll.
 - Seed NPCs: 'M3, minimal'. Add presence state for seed NPCs now as a Track C card; richer NPC records stay with the Codex (M4).
 - Position and range: carded as revisit TASK-0139 (orchestrator, decision-0020).
+
+decision-0025 (D17) written, status accepted, commit ce68d69: formulation 3 adopted in the operator's words. AC #2 met. AC #3 half met: decision-0025 and docs/design/actor-state-gate.md section 5 map every rule to a card; uncovered rules are proposed as U1-U5, U7-U9 (U6 recommended as added ACs on TASK-0112). AC #3 ticks once the orchestrator creates those cards on main and the decision names their ids.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
