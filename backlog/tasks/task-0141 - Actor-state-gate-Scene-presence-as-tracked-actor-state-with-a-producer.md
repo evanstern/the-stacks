@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:00'
+updated_date: '2026-10-27 13:10'
 labels:
   - dm
   - rules-gate
@@ -67,6 +67,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Phase 1 (T001-T006) at 745e43c, fix-up 668ef5e. ci:check: only the 5 known no-DB adjudicate.integration failures (TASK-0138); engine 240 tests pass.
 Orchestrator rulings 2026-10-27 (for operator confirmation): (1) an active leaver mirrors turn.advance: dead combatants after it are skipped with both expiries, the incoming combatant gets its turn-start expiry, and NO_ELIGIBLE_COMBATANT refuses when every remaining entry is dead. Reason: resolve skips its own turn.advance after a leave (D5), so without this a condition ending at the next turn start would persist. (2) specs/026 commands.md count corrected 21 to 22, the count consequence of the approved amendment. Test count edit in execute.test.ts (21 to 22) accepted.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (T007-T025) at 0a2a837, 9219e31 (main merge fee800f). REQUIRE_DATABASE=1 ci:check exit 0; gate.integration 25/25. All six frozen 028/029 amendments carry dated ruling notes; count consequences (proposals.md 17→18 GATE_REQUEST_KINDS) named in the amendment notes. scene-presence rows do not enter the ledger projection (not in spec; accepted).
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
