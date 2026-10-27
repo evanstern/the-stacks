@@ -120,14 +120,14 @@ calls. Every stored submission names its seqs.
 Classify each staled pin against `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or
 NEEDS-REVIEW. Amend prose before bumping a NEEDS-REVIEW pin.
 
-- [ ] T030 [P] NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: the usage fields in `jobs.result.calls`, held turns keep calls, submission `seqs`, the ledger written per call.
-- [ ] T031 [P] NEEDS-REVIEW `docs/wiki/ai-gateway.md`: `ChatRequest.onUsage` beside the sink.
-- [ ] T032 [P] NEEDS-REVIEW `docs/wiki/database-schema.md`: the `dm_model_calls` table, its FK, checks and indexes.
-- [ ] T033 [P] NEEDS-REVIEW `docs/wiki/migrations.md`: migration 0005 and the regenerate-on-collision rule.
-- [ ] T034 [P] Review `docs/wiki/dm-runtime.md` (its `/dm` routes section). Update it if it lists routes; otherwise re-pin only.
-- [ ] T035 Create `docs/wiki/debug-view.md`: the four routes, auth, cursors, the job-to-seq link, the ledger as cost authority, what TASK-0117 and TASK-0132 can and cannot use. Pin it to the commit it is verified against.
-- [ ] T036 Update `docs/wiki/INDEX.md` (state paragraph and a `[[debug-view]]` entry) and regenerate `docs/wiki/CAPSULES.md` for every changed `description:`.
-- [ ] T037 Run `pnpm ci:check`, the database suites, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0).
+- [x] T030 [P] NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: the usage fields in `jobs.result.calls`, held turns keep calls, submission `seqs`, the ledger written per call.
+- [x] T031 [P] NEEDS-REVIEW `docs/wiki/ai-gateway.md`: `ChatRequest.onUsage` beside the sink.
+- [x] T032 [P] NEEDS-REVIEW `docs/wiki/database-schema.md`: the `dm_model_calls` table, its FK, checks and indexes.
+- [x] T033 [P] NEEDS-REVIEW `docs/wiki/migrations.md`: migration 0005 and the regenerate-on-collision rule.
+- [x] T034 [P] Review `docs/wiki/dm-runtime.md` (its `/dm` routes section). Update it if it lists routes; otherwise re-pin only.
+- [x] T035 Create `docs/wiki/debug-view.md`: the four routes, auth, cursors, the job-to-seq link, the ledger as cost authority, what TASK-0117 and TASK-0132 can and cannot use. Pin it to the commit it is verified against.
+- [x] T036 Update `docs/wiki/INDEX.md` (state paragraph and a `[[debug-view]]` entry) and regenerate `docs/wiki/CAPSULES.md` for every changed `description:`.
+- [x] T037 Run `pnpm ci:check`, the database suites, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0).
 
 **Checkpoint**: commit `TASK-0116: Phase 4 — wiki re-ground`.
 
