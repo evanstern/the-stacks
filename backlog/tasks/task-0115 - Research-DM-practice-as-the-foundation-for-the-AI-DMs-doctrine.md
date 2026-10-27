@@ -4,7 +4,7 @@ title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:44'
-updated_date: '2026-10-27 01:46'
+updated_date: '2026-10-27 02:03'
 labels:
   - research
   - dm
@@ -22,7 +22,7 @@ Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
+- [x] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
 - [ ] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
 - [ ] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
 - [ ] #4 A decision record is created with the backlog CLI after operator go
@@ -48,6 +48,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (A1 served model verified from its transcript before A2/A3 launched; A2/A3 re-verified at completion.)
+
+Branch 0 landed on this branch (c763ada): docs/research/DM-Craft-Map, 606 entries, branch and analysis gates green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(assembler; served model per its transcript). Analysis written by the orchestrator (opus, judgment tier).
+Findings: SRD 5.2.1 Playing the Game text is absent from packages/srd; DMG is 2014 edition; DMG Introduction absent from export; web entries mostly title-only.
+Awaiting operator review of Analysis-Refactor-Risk-and-Deep-Dive-Order (AC #2) and five open questions before branch 1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
