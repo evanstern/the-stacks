@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 09:46'
+updated_date: '2026-10-27 09:53'
 labels:
   - ws
   - session
@@ -32,7 +32,7 @@ Spec: specs/043-retire-uncatalogued-send
 - [x] #2 appendUncataloguedEvent and its write-boundary allow-list entry are removed.
 - [x] #3 The load benchmark and any remaining M0 sender use a catalogued type or are retired, and their tests pass.
 - [x] #4 Spec phase: Retire the path and migrate its senders (US1, US2, US3; FR-001–FR-007, FR-009)
-- [ ] #5 Spec phase: Wiki (re-ground)
+- [x] #5 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -57,6 +57,8 @@ Phase 1 done (92e0a14): gateway refuses uncatalogued types with UNKNOWN_EVENT_TY
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge 6204c23, work 92e0a14): the uncatalogued path is retired; frozen amendments applied exactly as written; bench and M0 WS tests moved to talk; ci:check passed with REQUIRE_DATABASE=1; concurrency-smoke passes. Fixed in scope: concurrencySmoke never wired gate.onAppended to the WS publish. Finding: bursty concurrent talk through the gate can be refused with CONFLICT. The tests resend on CONFLICT, and the problem is carded as TASK-0157 (m-3, before the demo).
+
+Phase 2 done (b77e6e0): wiki re-grounded. websocket-gateway, ws-protocol, proposal-gate, session-model, benchmarks, test-suite re-pinned after prose review; event-log prose updated (pin unchanged, sources untouched); CAPSULES.md regenerated; INDEX.md state paragraph and websocket-gateway entry updated. TASK-0157 CONFLICT behaviour noted in websocket-gateway and proposal-gate. Freshness OK, spec-bridge exit 0, ci:check green.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
