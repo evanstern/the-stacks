@@ -4,7 +4,7 @@ title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 19:03'
+updated_date: '2026-10-27 19:06'
 labels:
   - dm
   - rules-gate
@@ -39,8 +39,6 @@ Spec: specs/050-seed-npc-presence
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -60,6 +58,9 @@ Operator ruling 2026-10-27 (verbatim): "TASK-0142: I accept the recommended defa
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (Resumed spec author for plan.md, design artifacts and tasks.md: 3fd89db.) The M2 log, rows 1-333, folds cleanly under the current catalog, so the AC #3 test reads the recorded file in place. The Greyhollow presence values chosen by the spec author: Wenna is present at ferry-house and the-keeper and absent at reed-camp; Pell and Snag are absent, absent, then present. Orchestrator ruling: Phases 1 and 2 run serially, not in parallel, because two writers in one worktree risk index collisions.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 1, T001-T007: aa900c6. seed.test 31 pass; ci:check without a DB: only the 5 expected adjudicate.integration failures. The two seed copies are byte-identical.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
