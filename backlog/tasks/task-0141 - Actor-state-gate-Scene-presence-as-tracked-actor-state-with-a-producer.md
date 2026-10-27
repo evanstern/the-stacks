@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 11:01'
+updated_date: '2026-10-27 12:46'
 labels:
   - dm
   - rules-gate
@@ -52,6 +52,8 @@ OQ-2: (a) a presence effect usable in effect steps and under onSuccess/onFailure
 OQ-3: (a) new engine command initiative.leave that keeps combatant state, with AC #3 amended to 'through an engine command' / (b) let combatant.remove drop an encounter member.
 OQ-4: (a) reuse UNKNOWN_COMBATANT with plan-gate reason absent / (b) new engine code ACTOR_ABSENT (28 codes) / (c) reuse ACTOR_UNABLE.
 OQ-5 (no ruling needed): yielded cannot return to present in this card.
+
+Operator ruling 2026-10-27 (in chat, verbatim; the message ended after OQ-2): "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including the frozen 029 and 028 amendments, OQ-2 (a)". OQ-1 resolved (a). OQ-2 resolved (a). OQ-3 and OQ-4 not yet ruled; plan.md waits on them.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
