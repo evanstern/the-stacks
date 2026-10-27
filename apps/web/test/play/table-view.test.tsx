@@ -103,3 +103,21 @@ test("presence.recorded rows stay out of the transcript and the ledger", async (
   expect(html).not.toContain("presence.recorded");
   expect(html).not.toContain("director");
 });
+
+test("the Debug link renders only with debugHref, opening a new tab", () => {
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("fixture missing");
+  const href = "/play/s1/debug";
+  const withLink = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.dm)} debugHref={href} />,
+  );
+  expect(withLink).toMatch(
+    /<a [^>]*href="\/play\/s1\/debug"[^>]*target="_blank"[^>]*rel="noopener"/,
+  );
+  expect(withLink).toContain("Debug");
+  const without = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.dm)} />,
+  );
+  expect(without).not.toContain("/debug");
+  expect(without).not.toMatch(/>Debug</);
+});

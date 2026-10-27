@@ -83,16 +83,16 @@ the strip for each waiting state; the table header shows the Debug link only wit
 
 ### Tests first
 
-- [ ] T020 [P] [US6] Write `apps/web/test/debug/route-gate.test.tsx`: the route component with a non-operator root user renders the OperatorOnly message and the injected `fetch` records zero calls; with an operator it renders the strip region.
-- [ ] T021 [P] [US6] Extend `apps/web/test/play/table-view.test.tsx`: with `debugHref="/play/<id>/debug"` the header has a link with that href, `target="_blank"` and `rel="noopener"`; without it, no Debug link.
-- [ ] T022 [P] [US1] Write `apps/web/test/debug/waiting-strip.test.tsx`: "nothing queued" when empty; a running job row with kind, stage, attempts and age; uncommitted actions, mode, proposals, holds and the latest failure render; the retry control renders only when `showRetry`; a disabled state while in flight; the returned job id and a refusal render inline.
+- [x] T020 [P] [US6] Write `apps/web/test/debug/route-gate.test.tsx`: the route component with a non-operator root user renders the OperatorOnly message and the injected `fetch` records zero calls; with an operator it renders the strip region.
+- [x] T021 [P] [US6] Extend `apps/web/test/play/table-view.test.tsx`: with `debugHref="/play/<id>/debug"` the header has a link with that href, `target="_blank"` and `rel="noopener"`; without it, no Debug link.
+- [x] T022 [P] [US1] Write `apps/web/test/debug/waiting-strip.test.tsx`: "nothing queued" when empty; a running job row with kind, stage, attempts and age; uncommitted actions, mode, proposals, holds and the latest failure render; the retry control renders only when `showRetry`; a disabled state while in flight; the returned job id and a refusal render inline.
 
 ### Implementation
 
-- [ ] T023 [US6] Add `route("play/:sessionId/debug", "routes/play-debug.tsx")` to `apps/web/app/routes.ts` after `play/:sessionId`; create `apps/web/app/routes/play-debug.tsx` (client-only; `clientLoader`, `HydrateFallback`; non-operator → `OperatorOnly` "The debug view is available to the operator only.") per research R1.
-- [ ] T024 [US6] Add optional `debugHref` to `TableView` in `apps/web/app/play/table-view.tsx` and render the Debug link in `apps/web/app/play/components/table-header.tsx`; pass `debugHref` from `apps/web/app/routes/play.tsx` when `user.role === "operator"`. Keep the edit minimal (hotspot).
-- [ ] T025 [US1] Implement `apps/web/app/debug/use-debug-session.ts`: builds the client, runs the first load (events and calls by cursor, newest jobs, seed), starts the poller with `visibilitychange`, refetches the seed when `scene.sceneId` changes, keeps a 1 s clock for ages, exposes `retry()` (POST, then `kick()`, records `lastRetryAt`), `loadOlderJobs()`, the snapshot, the live DM projection and the notice. Stops polling on an auth error.
-- [ ] T026 [US1] Implement `apps/web/app/debug/components/debug-view.tsx` (sticky strip over the three-column grid per plan decision 7, empty column placeholders) and `apps/web/app/debug/components/waiting-strip.tsx` with the retry control.
+- [x] T023 [US6] Add `route("play/:sessionId/debug", "routes/play-debug.tsx")` to `apps/web/app/routes.ts` after `play/:sessionId`; create `apps/web/app/routes/play-debug.tsx` (client-only; `clientLoader`, `HydrateFallback`; non-operator → `OperatorOnly` "The debug view is available to the operator only.") per research R1.
+- [x] T024 [US6] Add optional `debugHref` to `TableView` in `apps/web/app/play/table-view.tsx` and render the Debug link in `apps/web/app/play/components/table-header.tsx`; pass `debugHref` from `apps/web/app/routes/play.tsx` when `user.role === "operator"`. Keep the edit minimal (hotspot).
+- [x] T025 [US1] Implement `apps/web/app/debug/use-debug-session.ts`: builds the client, runs the first load (events and calls by cursor, newest jobs, seed), starts the poller with `visibilitychange`, refetches the seed when `scene.sceneId` changes, keeps a 1 s clock for ages, exposes `retry()` (POST, then `kick()`, records `lastRetryAt`), `loadOlderJobs()`, the snapshot, the live DM projection and the notice. Stops polling on an auth error.
+- [x] T026 [US1] Implement `apps/web/app/debug/components/debug-view.tsx` (sticky strip over the three-column grid per plan decision 7, empty column placeholders) and `apps/web/app/debug/components/waiting-strip.tsx` with the retry control.
 
 **Checkpoint**: web tests and `pnpm --filter @the-stacks/web typecheck` green. Commit `TASK-0117: Phase 3 — route, strip, retry, Debug link`.
 
