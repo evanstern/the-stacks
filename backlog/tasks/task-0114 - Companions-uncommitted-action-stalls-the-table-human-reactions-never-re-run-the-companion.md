@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:20'
+updated_date: '2026-10-27 04:26'
 labels:
   - dm
   - companions
@@ -58,6 +58,9 @@ PROMPT VERSION COLLISION (orchestrator, 2026-10-27): TASK-0140's spec also bumps
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 3 withdraw (W-A), T030-T037, commit 530c418; action.withdraw kind + action.withdrawn event; 029/028/031 contracts amended citing the W ruling; dm.companion-v4.)
 ORCHESTRATOR RULING 2026-10-27: the active companion in turn mode that withdraws its only open action must still end its turn (same stall class as this card: the table must never wait on a companion). Fixed in-task as Phase 3b, not deferred.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 3b T037b, commit 3d8f3a8: an active companion that withdraws still declares and commits its hold act, so the turn advances; Phase 4 wiki, commit e4d5108: 7 NEEDS-REVIEW + 2 RE-PIN-ONLY notes; ci:check green first run.) Brave screenshots of the Withdraw control not captured: agents cannot drive Brave (not a merge condition for this card).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
