@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:23'
+updated_date: '2026-10-27 10:29'
 labels:
   - multiplayer
   - gate
@@ -29,7 +29,7 @@ Spec: specs/044-group-signoff
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The gate classifies an action as party-scope or character-scope, and the classification is recorded on the event.
+- [x] #1 The gate classifies an action as party-scope or character-scope, and the classification is recorded on the event.
 - [x] #2 A party-scope action commits only after every present player approves.
 - [x] #3 Any player objects to a party-scope action, and the objection is visible to the table.
 - [x] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
@@ -39,7 +39,7 @@ Spec: specs/044-group-signoff
 - [x] #8 Spec phase: The planner, the marker rows and the fixture
 - [x] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
 - [x] #10 Spec phase: The play route shows sign-off (US4)
-- [ ] #11 Spec phase: Wiki re-ground
+- [x] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -84,6 +84,8 @@ Phase 4 done (3345568): play/signoff.ts, commitAuthorityFor present arg, sign-of
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (3345568): sign-off rows and own-row Approve/Object on the action card, with no modal. The proposal-seam.md amendment was made as ruled. 16 Brave shots were taken by the agent under the operator's overnight grant; 28 live checks pass. UX points for the operator at PR: committed cards drop their sign-off rows (T025); a Commit button shows when the viewer's approval would complete the quorum (Q3 C explicit path).
+
+Phase 5 done (2aa2a02): wiki re-ground. Five notes re-pinned to 351fc19 (proposal-gate, session-model, play-route, presence amended; dm-failure-and-gates re-pin-only). AC 1 evidence: scope is on the action.declared payload; new test 'records the declared scope on the action.declared row' in packages/session-model/test/gate-plan.test.ts; party-membership gate tested by 'party declare by an outsider' (NOT_AUTHORIZED) and the declare.party permission matrix row. Freshness OK, spec-bridge 0, ci:check green with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
