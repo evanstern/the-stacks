@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 09:57'
+updated_date: '2026-10-27 09:59'
 labels:
   - debug-view
   - web
@@ -90,6 +90,9 @@ Phase 5 (a8684c3): state column, seq pin, four slide-out panels, structural no-m
 OPERATOR GRANT 2026-10-27, relayed verbatim from the parent session: "I'll let the session pick up and go as far as it can -- if it needs to automate browser work and/or set passwords for users in the dev environment for the-stacks, or needs to take screenshots, i give permission for the session to automate that itself. go forward without my supervision until you hit a PR." Phase 6 acts under it. The agent drives Brave by executablePath and takes the merge-condition screenshots. It creates test accounts on the local worktree stack only, with generated passwords kept in an untracked creds file that is never printed.
 
 Phase 6 done (b4d0378): Brave live check on this worktree's stack (fake provider, no key). 96 checks pass across 1280/390 px, light/dark; 44 shots in specs/041-debug-page/evidence/shots. Fixed three defects found live: Seed DM-only matcher (JSON Pointer paths, 0 marks before), unbounded desktop columns, follow-bottom scroller. Every turn fails (fake provider is empty and unscriptable via env), so job-to-row highlight was not exercised live. Retry POST returned 202. See evidence/live-check.md.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 6 (merge 38e6545, work b4d0378), under the operator's overnight grant: the agent drove Brave itself and took 44 shots (light and dark, 1280 and 390 px). Live checks: 96 PASS, 0 FAIL; AC #2, #9, #10 ticked. Test accounts exist only on the local stack, with generated passwords in an untracked scratchpad file. Fixes: the Seed panel matcher now reads JSON Pointers; the desktop board height and the follow-bottom scroll box. Limit: the env-configured fake provider returns empty bodies, so the live turn fails invalid-output at the director and no narrated turn appears in the shots. Carded as TASK-0158 (m-3).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
