@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 03:38'
+updated_date: '2026-10-27 03:45'
 labels:
   - dm
   - companions
@@ -44,6 +44,8 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 036, commit f81c2ab; ~185k tokens; served verified from transcript.)
+
+OPERATOR RULING 2026-10-26 (checkpoint W, in chat): 'W-A: add withdraw'. New action.withdraw proposal kind and action.withdrawn event; revise = withdraw + new declaration; humans can use it too. Amends the frozen specs/029-proposal-gate contract in Phase 3. Orchestrator defaults on the spec's other open questions: only human reactions trigger a re-run (as the card says); the 3 s quiet window and 10 s max wait stay code constants; the outlives-a-fight risk stays a listed risk.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
