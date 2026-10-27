@@ -22,6 +22,8 @@ ordinal: 128000
 Outcome: an actor's scene presence (`present`, `yielded`, `absent`) is a logged fact, and only a resolved step can change it.
 
 Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruling 2026-10-26 at checkpoint C3, formulation 3 'ledger + opposition dice'. Design and rule map: docs/design/actor-state-gate.md §5 (card U2). Dependencies as stated there: U1.. Operator ruling 2026-10-26: added to m-3 Track C in decision-0025's order.
+
+Spec: specs/048-scene-presence
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
