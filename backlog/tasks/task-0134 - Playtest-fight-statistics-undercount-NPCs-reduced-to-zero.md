@@ -4,7 +4,7 @@ title: Playtest fight statistics undercount NPCs reduced to zero
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 04:25'
+updated_date: '2026-10-27 04:29'
 labels:
   - playtest
   - harness
@@ -28,12 +28,17 @@ Spec: specs/042-fight-stats-npc-zero
 - [ ] #1 The fight-statistics fold counts NPCs reduced to 0 HP
 - [ ] #2 A test replays a ledger with an NPC dropped to 0 HP and asserts the count
 - [ ] #3 The M2 demo session's recomputed statistics report goblin-3 reduced to zero
+- [ ] #4 Spec phase: Fix the fold and prove it
+- [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0134, branch task-0134-fight-stats-npc-zero, cut from origin/main 1de90d3. Spec number 042 claimed with a stub. Track B7 (haiku implementation). Must merge before TASK-0053.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring, spec 042, commit 021b596.) Defect: stats.ts hp.changed counts reducedToZero only for side 'players'. ORCHESTRATOR RULING on OQ-1: the operator-signed docs/design/m2-demo.md stays unchanged; decision-0023 already records the evidence defect.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
