@@ -95,6 +95,7 @@ export const ACT_VERBS: readonly string[] = [
   "climb",
   "run",
   "charge",
+  "rally",
   "step",
   "walk",
   "wade",

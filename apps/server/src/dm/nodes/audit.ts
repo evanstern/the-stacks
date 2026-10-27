@@ -270,6 +270,8 @@ export const audit: Node<"audit"> = async (ctx) => {
   const allIssues: string[] = [];
   const line = (i: RecordedIssue): string =>
     `${i.blocking ? "" : "[advisory] "}${i.kind}: ${i.detail}`;
+  const advisory = (xs: readonly AuditIssue[]): RecordedIssue[] =>
+    xs.map((i) => ({ ...i, blocking: false }));
   let current = { prose: narration.prose, diceLines: narration.diceLines };
   let issuesSoFar: AuditIssue[] = [];
   let attempt = 1;
@@ -338,7 +340,13 @@ export const audit: Node<"audit"> = async (ctx) => {
     attempts.push({
       attempt,
       words: wordCount(current.prose),
-      deterministic: det,
+      deterministic:
+        attempt === 1
+          ? {
+              pass: det.pass,
+              issues: [...det.issues, ...advisory(narration.withheld)],
+            }
+          : det,
       llm,
       proseSha256: sha(current.prose),
     });
@@ -368,7 +376,11 @@ export const audit: Node<"audit"> = async (ctx) => {
       };
     }
 
-    const found = [...det.issues, ...llmIssues];
+    const found = [
+      ...(attempt === 1 ? advisory(narration.withheld) : []),
+      ...det.issues,
+      ...llmIssues,
+    ];
     allIssues.push(
       `Attempt ${attempt}: ${
         llmFailed ? "the audit call failed; " : ""

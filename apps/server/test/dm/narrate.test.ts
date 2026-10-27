@@ -351,6 +351,94 @@ describe("narrate", () => {
     expect(prompt.system).toContain("companions speak for themselves");
   });
 
+  describe("input check on rulings and goalNote (spec 051, OQ-2)", () => {
+    async function withheldRun(ruling: string, goalNote: string) {
+      const base = await setup(["x"]);
+      // goblin-3 ("Goblin lookout") died on an earlier turn: dead in S1,
+      // absent from the diff.
+      const fight = greyhollowFight();
+      const snapshot = buildSnapshot(fight.projections, fight.seed);
+      for (const a of snapshot.actors) {
+        if (a.id === "goblin-3") a.lifeState = "dead";
+      }
+      const out = await narrate({
+        ...base.ctx,
+        results: {
+          ...base.ctx.results,
+          director: { ...director, goalNote },
+          adjudicate: {
+            rulings: [
+              {
+                actionId: "act-lockpick",
+                ruling,
+                improvised: false,
+                citations: [],
+                dropped: 0,
+                steps: [],
+              },
+            ],
+          },
+          resolve: {
+            ...resolved,
+            snapshot,
+            diff: { fromSeq: 0, toSeq: 1, stage: [], actors: [] },
+          },
+        },
+      });
+      if (!out.ok) throw new Error("narrate failed");
+      const prompt = buildNarratePrompt({
+        seed: playerFacingSeed(base.ctx.seed),
+        roster: rosterOf(base.assembled.projections.party),
+        assembled: base.assembled,
+        snapshot,
+        facts: out.output.facts,
+        prior: null,
+      });
+      return { n: out.output, prompt };
+    }
+
+    it("removes a refused ruling from the facts the prompt receives", async () => {
+      const { n, prompt } = await withheldRun(
+        "The goblin lookout rallies the others.",
+        "Keep the vault door in view.",
+      );
+      expect(n.facts.rulings).toEqual([]);
+      expect(prompt.user).not.toContain("rallies the others");
+      expect(n.withheld).toHaveLength(1);
+      expect(n.withheld[0]?.kind).toBe("ledger-mismatch");
+      expect(n.withheld[0]?.detail).toMatch(
+        /^Actor state: withheld ruling for act-lockpick: /,
+      );
+    });
+
+    it("blanks a refused goalNote", async () => {
+      const { n, prompt } = await withheldRun(
+        "The lock yields to patient work.",
+        "Two goblins are down; press the survivors.",
+      );
+      expect(n.facts.director.goalNote).toBe("");
+      expect(prompt.user).toMatch(/Private note: (\n|$)/);
+      expect(prompt.user).not.toContain("press the survivors");
+      expect(n.withheld).toHaveLength(1);
+      expect(n.withheld[0]?.detail).toMatch(
+        /^Actor state: withheld goalNote: /,
+      );
+      expect(n.facts.rulings).toHaveLength(1);
+    });
+
+    it("passes a clean ruling and note unchanged", async () => {
+      const { n } = await withheldRun(
+        "The lock yields to patient work.",
+        "Keep the vault door in view.",
+      );
+      expect(n.withheld).toEqual([]);
+      expect(n.facts.rulings[0]?.ruling).toBe(
+        "The lock yields to patient work.",
+      );
+      expect(n.facts.director.goalNote).toBe("Keep the vault door in view.");
+    });
+  });
+
   it("drops NPCs that S1 reads absent from the beat's NPC list (spec 050)", async () => {
     const { ctx, snapshot } = await setup(["x"]);
     const s1 = {

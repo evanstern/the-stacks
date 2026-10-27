@@ -1,0 +1,74 @@
+{
+  "v": 1,
+  "name": "audit-claim-goalnote",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Tamsin lunges at the shutter and strikes it open.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-shutter",
+              "intent": "check",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Tamsin lies senseless and cannot force the shutter"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The shutter stays shut above Tamsin, who lies senseless on the boards."
+      },
+      "note": "clean: the downed actor does not act"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

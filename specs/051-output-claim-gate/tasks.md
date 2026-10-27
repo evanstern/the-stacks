@@ -215,7 +215,7 @@ then `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server exec vitest run test/d
 
 ### Tests first
 
-- [ ] T023 [US4] In `apps/server/test/dm/narrate.test.ts`, add unit cases for the narrate node's
+- [x] T023 [US4] In `apps/server/test/dm/narrate.test.ts`, add unit cases for the narrate node's
       input check (plan D4):
       - A ruling "The goblin lookout rallies the others" with goblin-3 dead is removed from the
         facts the prompt receives (US4.1).
@@ -224,28 +224,28 @@ then `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server exec vitest run test/d
       - `NarrateOutput.withheld` holds one `ledger-mismatch` issue each, with details starting
         `Actor state: withheld`.
       - A clean ruling and note pass through unchanged, and `withheld` is `[]`.
-- [ ] T024 [US4] Create `apps/server/test/dm/scripts/audit-claim-fallback.json` in the
+- [x] T024 [US4] Create `apps/server/test/dm/scripts/audit-claim-fallback.json` in the
       `audit-fallback.json` shape. Script three `dm.narrate` responses, each showing a downed
       Tamsin acting. Add a `note` on each response naming the rule it breaks.
-- [ ] T025 [US4] In `apps/server/test/dm/audit.integration.test.ts`, add a case for that script
+- [x] T025 [US4] In `apps/server/test/dm/audit.integration.test.ts`, add a case for that script
       (plan D10, US4.3). Assert the following:
       - three attempts, each with a blocking "Actor state:" issue;
       - `llm: { skipped: true }` on each attempt;
       - `final: "fallback"` and the DM journal flag;
       - the shipped prose passes `checkClaims`.
-- [ ] T026 [US4] In the same file, add a refused-`goalNote` case (plan D10). Assert two things:
+- [x] T026 [US4] In the same file, add a refused-`goalNote` case (plan D10). Assert two things:
       the attempt-1 record holds the withheld issue with `blocking: false`, and the shipped
       narration is not a fallback.
 
 ### Implementation
 
-- [ ] T027 [US4] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D4: check rulings and
+- [x] T027 [US4] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D4: check rulings and
       `goalNote` once after `buildNarrationFacts`, filter the facts, and add `withheld` to
       `NarrateOutput` (always present).
-- [ ] T028 [US4] In `apps/server/src/dm/nodes/audit.ts`, record `narration.withheld` on attempt 1
+- [x] T028 [US4] In `apps/server/src/dm/nodes/audit.ts`, record `narration.withheld` on attempt 1
       as `blocking: false` issues (plan D3). Keep `det.pass` counting blocking issues only. Keep
       withheld issues out of `issuesSoFar`. Prefix them `[advisory]` in the fallback journal body.
-- [ ] T029 Run the DB suites per the header. Record any flake re-run.
+- [x] T029 Run the DB suites per the header. Record any flake re-run.
 
 **Checkpoint**: AC #4 and #5 hold through a real turn on the fake gateway.
 

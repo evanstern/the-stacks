@@ -1,3 +1,4 @@
+import { type ClaimState, checkClaims } from "../claims.js";
 import {
   buildNarrationFacts,
   type NarrationFacts,
@@ -42,6 +43,46 @@ export interface NarrateOutput {
   /** True when there was nothing to narrate (no model call was made). */
   skipped: boolean;
   facts: NarrationFacts;
+  /**
+   * Refused ruling and `goalNote` texts (spec 051, OQ-2). Always present;
+   * empty when nothing was withheld. The audit node records them as advisory.
+   */
+  withheld: AuditIssue[];
+}
+
+/**
+ * Checks the ruling texts and the `goalNote` once against S1 and the diff.
+ * A refused ruling leaves the facts; a refused `goalNote` becomes "".
+ */
+export function withholdRefusedInputs(
+  facts: NarrationFacts,
+  state: ClaimState,
+): { facts: NarrationFacts; withheld: AuditIssue[] } {
+  const withheld: AuditIssue[] = [];
+  const refuse = (label: string, text: string): boolean => {
+    // An input text need not name this turn's death or drop, so omission
+    // claims do not apply to it; the narration itself still owes them.
+    const issues = checkClaims(state, text).issues.filter(
+      (c) => c.claim !== "omission",
+    );
+    for (const c of issues) {
+      withheld.push({
+        kind: "ledger-mismatch",
+        detail: `Actor state: withheld ${label}: ${c.detail}`,
+      });
+    }
+    return issues.length > 0;
+  };
+  const rulings = facts.rulings.filter(
+    (r) => !refuse(`ruling for ${r.actionId}`, r.ruling),
+  );
+  const goalNote = refuse("goalNote", facts.director.goalNote)
+    ? ""
+    : facts.director.goalNote;
+  return {
+    facts: { ...facts, rulings, director: { ...facts.director, goalNote } },
+    withheld,
+  };
 }
 
 /** Cuts prose to the cap at a sentence end when one exists. */
@@ -111,7 +152,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       ? [{ actionId: r.actionId, question: r.clarify }]
       : [],
   );
-  const facts = buildNarrationFacts({
+  const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
     beatNpcIds: (
@@ -131,6 +172,10 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     appendedRows: resolve.appendedRows,
     clarify,
   });
+  const { facts, withheld } = withholdRefusedInputs(built, {
+    snapshot: resolve.snapshot,
+    diff: resolve.diff,
+  });
   const actionIds = facts.actions.map((a) => a.actionId);
 
   if (nothingToNarrate(facts)) {
@@ -146,6 +191,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         attempt: 1,
         skipped: true,
         facts,
+        withheld,
       },
     };
   }
@@ -178,6 +224,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       attempt: 1,
       skipped: false,
       facts,
+      withheld,
     },
   };
 };
