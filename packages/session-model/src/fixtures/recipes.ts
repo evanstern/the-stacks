@@ -382,4 +382,199 @@ export const recipes: readonly MechanicsRecipe[] = [
     },
     faces: [13],
   },
+  {
+    fixture: "turn-floor",
+    batchId: "b-add-ana",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "ana",
+        name: "Ana",
+        hp: {
+          max: 12,
+        },
+        zeroHpRule: "death-saves",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 15,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [
+          {
+            die: 8,
+            total: 2,
+          },
+        ],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "Ana joins the session",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-add-bram",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "bram",
+        name: "Bram",
+        hp: {
+          max: 10,
+        },
+        zeroHpRule: "death-saves",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 14,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [
+          {
+            die: 8,
+            total: 2,
+          },
+        ],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "Bram joins the session",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-add-pip",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "pip",
+        name: "Pip",
+        hp: {
+          max: 9,
+        },
+        zeroHpRule: "death-saves",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 13,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [
+          {
+            die: 8,
+            total: 2,
+          },
+        ],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "Pip joins the session",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-add-goblin",
+    command: {
+      type: "combatant.add",
+      combatant: {
+        id: "goblin",
+        name: "Goblin",
+        hp: {
+          max: 7,
+        },
+        zeroHpRule: "dies",
+        initiativeBonus: 0,
+        conModifier: 0,
+        ac: 13,
+        defenses: {
+          resistances: [],
+          vulnerabilities: [],
+          immunities: [],
+        },
+        hitDice: [],
+        spellSlots: {
+          standard: {},
+          pact: null,
+        },
+      },
+      reason: "A goblin ambushes the party",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-init",
+    command: {
+      type: "initiative.roll",
+      participants: [
+        { combatantId: "ana", mode: "normal" },
+        { combatantId: "bram", mode: "normal" },
+        { combatantId: "pip", mode: "normal" },
+        { combatantId: "goblin", mode: "normal" },
+      ],
+      reason: "A goblin ambushes the party",
+    },
+    faces: [18, 15, 12, 8],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-ana-end",
+    command: {
+      type: "turn.advance",
+      reason: "Ana ends her turn.",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-bram-advance",
+    command: {
+      type: "turn.advance",
+      reason: "Bram's action resolves; the turn passes.",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-pip-end",
+    command: {
+      type: "turn.advance",
+      reason: "Pip ends her turn.",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-goblin-advance",
+    command: {
+      type: "turn.advance",
+      reason: "The goblin's turn ends.",
+    },
+    faces: [],
+  },
+  {
+    fixture: "turn-floor",
+    batchId: "b-absence-pass",
+    command: {
+      type: "turn.advance",
+      reason: "Ana is away; the DM passes her turn.",
+    },
+    faces: [],
+  },
 ];

@@ -7,6 +7,7 @@ import { presenceMarker } from "./presence-marker.js";
 import { proposalExamples } from "./proposal-examples.js";
 import { secretTracker } from "./secret-tracker.js";
 import { talkOnly } from "./talk-only.js";
+import { turnFloor } from "./turn-floor.js";
 import { turnModeCombat } from "./turn-mode-combat.js";
 import { unknownAndInvalid } from "./unknown-and-invalid.js";
 
@@ -22,6 +23,7 @@ export {
   proposalExamples,
   secretTracker,
   talkOnly,
+  turnFloor,
   turnModeCombat,
   unknownAndInvalid,
 };
@@ -35,4 +37,5 @@ export const fixtures: readonly SessionFixture[] = [
   dmApprovals,
   commitAuthority,
   groupSignoff,
+  turnFloor,
 ];

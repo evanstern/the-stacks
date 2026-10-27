@@ -12,6 +12,7 @@ import {
   type SessionFixture,
   secretTracker,
   talkOnly,
+  turnFloor,
   turnModeCombat,
   unknownAndInvalid,
 } from "../src/fixtures/index.js";
@@ -50,7 +51,7 @@ function foldUpTo(f: SessionFixture, seqExclusive: number): SessionProjections {
 const cleanDiagnostics: Diagnostics = emptyProjections(dm).diagnostics;
 
 describe("fixture identity (guarantee 2)", () => {
-  it("has the eight contract fixtures with unique names and session ids", () => {
+  it("has the nine contract fixtures with unique names and session ids", () => {
     expect(fixtures.map((f) => f.name)).toEqual([
       "talk-only",
       "free-mode-action",
@@ -60,9 +61,10 @@ describe("fixture identity (guarantee 2)", () => {
       "dm-approvals",
       "commit-authority",
       "group-signoff",
+      "turn-floor",
     ]);
-    expect(new Set(fixtures.map((f) => f.name)).size).toBe(8);
-    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(8);
+    expect(new Set(fixtures.map((f) => f.name)).size).toBe(9);
+    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(9);
     for (const f of fixtures) {
       expect(f.name).toMatch(/^[a-z]+(-[a-z]+)*$/);
       expect(f.description.length).toBeGreaterThan(40);
@@ -610,6 +612,105 @@ describe("group-signoff facts (specs/029 contracts/fixtures.md, TASK-0049)", () 
       waiting: [],
       objecting: [otherPlayerUserId],
     });
+  });
+});
+
+describe("turn-floor facts (specs/049-turn-floor contracts/floor-request.md, FT-4)", () => {
+  const f = turnFloor;
+  const { playerUserId, otherPlayerUserId, dmUserId } = fixtureIds;
+  const holders = f.events
+    .filter((e) => e.type === "table-mode.changed")
+    .map((e) => {
+      const after = (e.payload as { after: { activeActor?: string } }).after;
+      return after.activeActor;
+    });
+
+  it("the stream is clean for every viewer", () => {
+    for (const viewer of viewersOf(f)) {
+      expect(project(f.events, viewer).diagnostics).toEqual(cleanDiagnostics);
+    }
+  });
+
+  it("the floor walks Ana, Bram, Pip, the goblin, Ana, the DM, Ana, then Bram", () => {
+    expect(holders).toEqual([
+      playerUserId,
+      otherPlayerUserId,
+      "ai:companion:pip",
+      "ai:dm",
+      playerUserId,
+      dmUserId,
+      playerUserId,
+      otherPlayerUserId,
+    ]);
+    // The first row starts turn mode; the second is the first pass.
+    const rows = f.events.filter((e) => e.type === "table-mode.changed");
+    expect(rows).toHaveLength(8);
+  });
+
+  it("the encounter reaches round 2 and ends on Bram", () => {
+    const end = project(f.events, dm);
+    expect(end.engine.encounter?.round).toBe(2);
+    expect(end.tableMode).toMatchObject({
+      mode: "turn",
+      activeActor: otherPlayerUserId,
+    });
+  });
+
+  it("Bram commits on his own turn with active-player authority", () => {
+    const end = project(f.events, dm);
+    expect(
+      end.actions.find((a) => a.actionId === "act-bram")?.committed?.authority,
+    ).toBe("active-player");
+  });
+
+  it("holds one floor marker naming only Bram, written before the pass", () => {
+    const markers = f.events.filter(
+      (e) =>
+        e.type === "presence.recorded" &&
+        (e.payload as { purpose: string }).purpose === "floor",
+    );
+    expect(markers).toHaveLength(1);
+    expect(markers[0]?.actor).toBe("system");
+    expect(markers[0]?.payload).toEqual({
+      present: [otherPlayerUserId],
+      purpose: "floor",
+    });
+    const next = f.events.find(
+      (e) =>
+        e.seq > (markers[0] as StoredEvent).seq &&
+        e.type === "table-mode.changed",
+    ) as StoredEvent;
+    expect(
+      (next.payload as { before: { activeActor: string } }).before.activeActor,
+    ).toBe(playerUserId);
+  });
+
+  it("holds one signoff marker and a dm commit by ai:dm with no objection", () => {
+    const markers = f.events.filter(
+      (e) =>
+        e.type === "presence.recorded" &&
+        (e.payload as { purpose: string }).purpose === "signoff",
+    );
+    expect(markers).toHaveLength(1);
+    expect(markers[0]?.payload).toEqual({
+      present: [playerUserId, otherPlayerUserId],
+      purpose: "signoff",
+      actionId: "act-party",
+    });
+    const commit = f.events.find(
+      (e) =>
+        e.type === "action.committed" &&
+        (e.payload as { actionId: string }).actionId === "act-party",
+    ) as StoredEvent;
+    expect(commit.actor).toBe("ai:dm");
+    expect(commit.payload).toEqual({ actionId: "act-party", authority: "dm" });
+    expect(commit.seq).toBe((markers[0] as StoredEvent).seq + 1);
+  });
+
+  it("the DM seat is human for the take and return, then back to the AI", () => {
+    const seats = f.events.filter((e) => e.type === "dm.seat.changed");
+    expect(seats).toHaveLength(2);
+    expect(project(f.events, dm).gate.seat).toEqual({ kind: "ai" });
   });
 });
 

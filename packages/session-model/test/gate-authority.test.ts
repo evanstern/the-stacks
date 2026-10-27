@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fixtures } from "../src/fixtures/index.js";
-import { commitAuthority, project } from "../src/index.js";
+import { commitAuthority, project, signoffState } from "../src/index.js";
 import {
   aiDm,
   ana,
@@ -327,6 +327,62 @@ describe("commit authority replays every fixture (SC-006)", () => {
           ),
           `${f.name} seq ${event.seq}`,
         ).toEqual({ ok: true, authority: payload.authority });
+      }
+    });
+  }
+});
+
+describe("replay checks for the AI DM's stall and floor markers (spec 049, FT-4, FT-5)", () => {
+  for (const f of fixtures) {
+    it(`${f.name}: a dm commit with a signoff marker has no objection against the marker`, () => {
+      for (const event of f.events) {
+        if (event.type !== "action.committed") continue;
+        const payload = event.payload as {
+          actionId: string;
+          authority: string;
+        };
+        if (payload.authority !== "dm") continue;
+        const prior = f.events.filter((e) => e.seq < event.seq);
+        const marker = prior
+          .filter(
+            (e) =>
+              e.type === "presence.recorded" &&
+              (e.payload as { purpose?: string }).purpose === "signoff" &&
+              (e.payload as { actionId?: string }).actionId ===
+                payload.actionId,
+          )
+          .at(-1);
+        // A marker directly before the commit belongs to that commit's batch.
+        if (!marker || marker.seq !== event.seq - 1) continue;
+        const present = (marker.payload as { present: string[] }).present;
+        const before = project(
+          f.events.filter((e) => e.seq < marker.seq),
+          { role: "dm" },
+        );
+        const state = signoffState(before, payload.actionId, present);
+        expect(state, `${f.name} seq ${event.seq}`).not.toBeNull();
+        expect(state?.objecting, `${f.name} seq ${event.seq}`).toEqual([]);
+      }
+    });
+
+    it(`${f.name}: a floor marker's batch passes a user id absent from its present set`, () => {
+      for (const marker of f.events) {
+        if (marker.type !== "presence.recorded") continue;
+        const payload = marker.payload as {
+          purpose: string;
+          present: string[];
+        };
+        if (payload.purpose !== "floor") continue;
+        const row = f.events.find(
+          (e) => e.seq > marker.seq && e.type === "table-mode.changed",
+        );
+        if (!row)
+          throw new Error(`${f.name} seq ${marker.seq}: no table-mode row`);
+        const before = (
+          row.payload as { before: { mode: string; activeActor?: string } }
+        ).before;
+        expect(before.mode).toBe("turn");
+        expect(payload.present).not.toContain(before.activeActor);
       }
     });
   }
