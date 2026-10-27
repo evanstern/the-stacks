@@ -5,7 +5,7 @@ tags: [npcs, social, information, dm-craft]
 type: moc
 created: 2026-10-26
 updated: 2026-10-26
-related: []
+related: [[Analysis-NPC-and-Information-Contracts]]
 ---
 
 # NPCs, Social Interaction and Information
@@ -36,6 +36,10 @@ Out: resolution and outcome in general (see the Resolution and Outcome branch), 
 - [[NPC-Records-and-Motives]] — Q5: fields sources give an NPC, public versus hidden data
 - [[DM-Side-Reading-of-NPC-Secrets]] — Q6: TASK-0107 gathered facts
 - [[The-Stacks-NPCs-and-Information-Today]] — components, contracts, doctrine, gaps in the-stacks
+
+## Analyses
+
+- [[Analysis-NPC-and-Information-Contracts]] — which NPC and information facts need contract fields, in what order; decides TASK-0107 (adopt)
 
 ## Open questions
 
