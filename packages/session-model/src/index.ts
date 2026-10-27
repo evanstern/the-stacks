@@ -90,7 +90,10 @@ export type {
   GateRefusalCode,
   GateRefusalSource,
 } from "./gate/refusals.js";
-export { GateRefusalCodeSchema } from "./gate/refusals.js";
+export {
+  CHARACTER_UNABLE_REASONS,
+  GateRefusalCodeSchema,
+} from "./gate/refusals.js";
 export type { DmSeat } from "./gate/seat.js";
 export { DmSeatSchema } from "./gate/seat.js";
 export {

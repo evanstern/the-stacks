@@ -98,7 +98,7 @@ contracts carry 27 engine codes.
 **Independent test**: `pnpm --filter @the-stacks/session-model test`. The new
 `gate-plan.test.ts` cases pass.
 
-- [ ] T011 [P] In `packages/session-model/test/gate-plan.test.ts`, add failing cases for spec
+- [x] T011 [P] In `packages/session-model/test/gate-plan.test.ts`, add failing cases for spec
       User Story 2, scenarios 1 to 4:
       - character scope with `unconscious`, `stable` and `dead`;
       - a conscious character (accepted);
@@ -108,16 +108,16 @@ contracts carry 27 engine codes.
       - an unauthorised proposer for a downed character (still `NOT_AUTHORIZED`).
       Assert `source: "gate"`, `code: "CHARACTER_UNABLE"` and
       `details: { characterId, reason: "life-state", lifeState }`.
-- [ ] T012 Append `"CHARACTER_UNABLE"` to `GateRefusalCodeSchema` in
+- [x] T012 Append `"CHARACTER_UNABLE"` to `GateRefusalCodeSchema` in
       `packages/session-model/src/gate/refusals.ts`. Export
       `CHARACTER_UNABLE_REASONS = ["life-state"] as const`.
-- [ ] T013 Implement the check in the `action.declare` case of
+- [x] T013 Implement the check in the `action.declare` case of
       `packages/session-model/src/gate/plan.ts`, after the control check, per plan D2.
-- [ ] T014 Add one server test through `gate.handle`: a human seat declaring for an unconscious
+- [x] T014 Add one server test through `gate.handle`: a human seat declaring for an unconscious
       character is refused and the log is unchanged. Put it in
       `apps/server/test/gate.integration.test.ts`. It is DB-gated; run it under Phase 3's stack if
       this phase has no stack. Say which in the commit.
-- [ ] T015 Amend `specs/029-proposal-gate/contracts/gate-api.md`. In the §1 Rows table, the
+- [x] T015 Amend `specs/029-proposal-gate/contracts/gate-api.md`. In the §1 Rows table, the
       `action.declare` row adds "character able (`CHARACTER_UNABLE`)". In §2, the gate code
       list gains `CHARACTER_UNABLE`, with `details.reason` named as an open set
       (`life-state`; TASK-0141 adds `absent`).

@@ -4,7 +4,7 @@ import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
-import type { GateRefusal } from "./refusals.js";
+import { CHARACTER_UNABLE_REASONS, type GateRefusal } from "./refusals.js";
 import { controls, isDm, isPartyMember } from "./roles.js";
 
 export interface PlannedRow {
@@ -136,6 +136,24 @@ function plan(
           : isPartyMember(p, proposer);
       if (!allowed) {
         return refuse("NOT_AUTHORIZED", "the proposer cannot declare this");
+      }
+      const downed =
+        action.scope === "character"
+          ? p.party.filter((m) => m.characterId === action.characterId)
+          : p.party.filter((m) => controls(p, proposer, m.characterId));
+      const unable = (m: (typeof downed)[number]) =>
+        m.combatant !== null && m.combatant.lifeState !== "conscious";
+      if (downed.length > 0 && downed.every(unable)) {
+        const first = downed[0];
+        return refuse(
+          "CHARACTER_UNABLE",
+          "the character cannot act: not conscious",
+          {
+            characterId: first.characterId,
+            reason: CHARACTER_UNABLE_REASONS[0],
+            lifeState: first.combatant?.lifeState,
+          },
+        );
       }
       return one(actor, "action.declared", action);
     }
