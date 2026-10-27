@@ -70,12 +70,12 @@ human seats proves approval, objection and DM override (AC #2, #3, #4, #6).
 
 **Independent test**: `REQUIRE_DATABASE=1` run of `apps/server/test/gate.signoff.integration.test.ts` on the worktree stack, green.
 
-- [ ] T017 [US1] In `apps/server/src/gate/gate.ts`, pass `{ present: presence.presentUsers(sessionId).map((e) => e.userId) }` as the context to every `planProposal` call (direct/auto, the ask/suggest legality check, and `proposal.approve`). Keep `submit`, `handle` and `recordPresence` signatures unchanged.
-- [ ] T018 [US1] Create `apps/server/test/gate.signoff.integration.test.ts`, modelled on `gate.presence.integration.test.ts` (loud skip, throw under `REQUIRE_DATABASE=1`, fresh session id per test, injected `PresenceReader`). Seat two human players in the party: approval by the second auto-commits; the stored batch holds the `signoff` marker naming both, then `action.committed` `group`; `onAppended` gets the three rows in order.
-- [ ] T019 [US2] In the same file: the second player objects; the first's explicit commit refuses `GROUP_SIGNOFF_REQUIRED` with `details.objecting` naming the objector; the log is unchanged; a later approve commits.
-- [ ] T020 [US1] In the same file: three humans, one absent from the reader; both present approve → commits; the marker omits the absent one.
-- [ ] T021 [US3] In the same file: a seated human DM commits over an objection (`dm`, no marker); with the AI seat, `gate.submit` as `ai:dm` commits with `dm`; the seated DM withdraws an open party action and a later approval refuses `ACTION_NOT_OPEN`.
-- [ ] T022 [US1] Add a case to `apps/server/test/dm/companion-react.integration.test.ts`: a companion-declared party action auto-committed by human approvals queues one `commit` turn and no `react` job (plan D8). Change `apps/server/src/dm/enqueue.ts` only if this case fails.
+- [x] T017 [US1] In `apps/server/src/gate/gate.ts`, pass `{ present: presence.presentUsers(sessionId).map((e) => e.userId) }` as the context to every `planProposal` call (direct/auto, the ask/suggest legality check, and `proposal.approve`). Keep `submit`, `handle` and `recordPresence` signatures unchanged.
+- [x] T018 [US1] Create `apps/server/test/gate.signoff.integration.test.ts`, modelled on `gate.presence.integration.test.ts` (loud skip, throw under `REQUIRE_DATABASE=1`, fresh session id per test, injected `PresenceReader`). Seat two human players in the party: approval by the second auto-commits; the stored batch holds the `signoff` marker naming both, then `action.committed` `group`; `onAppended` gets the three rows in order.
+- [x] T019 [US2] In the same file: the second player objects; the first's explicit commit refuses `GROUP_SIGNOFF_REQUIRED` with `details.objecting` naming the objector; the log is unchanged; a later approve commits.
+- [x] T020 [US1] In the same file: three humans, one absent from the reader; both present approve → commits; the marker omits the absent one.
+- [x] T021 [US3] In the same file: a seated human DM commits over an objection (`dm`, no marker); with the AI seat, `gate.submit` as `ai:dm` commits with `dm`; the seated DM withdraws an open party action and a later approval refuses `ACTION_NOT_OPEN`.
+- [x] T022 [US1] Add a case to `apps/server/test/dm/companion-react.integration.test.ts`: a companion-declared party action auto-committed by human approvals queues one `commit` turn and no `react` job (plan D8). Change `apps/server/src/dm/enqueue.ts` only if this case fails.
 
 **Checkpoint**: merge condition met. Record the passing run in the phase commit message.
 

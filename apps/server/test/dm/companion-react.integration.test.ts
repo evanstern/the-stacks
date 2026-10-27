@@ -14,12 +14,14 @@ import {
   createWorld,
   db,
   loudSkip,
+  operator,
   payloadOf,
   player,
   reachable,
   readRows,
   requireDb,
   startScene,
+  TAMSIN_USER,
   type World,
 } from "./world.js";
 
@@ -355,6 +357,72 @@ describe.skipIf(!reachable)("companion react resolution (database)", () => {
     expect(result.plays[0]?.status).toBe("skipped");
     expect(result.calls).toHaveLength(0);
     expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+  });
+
+  it("a human approval that auto-commits a companion's party action queue one commit turn and no react job", async () => {
+    const CLEO = "00000000-0000-4000-8000-0000000000a2";
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+      ],
+      presence: {
+        presentUsers: () =>
+          [TAMSIN_USER].map((userId) => ({
+            userId,
+            displayName: userId,
+          })),
+        isPresent: () => true,
+        onChange: () => () => {},
+      },
+    });
+    workerFor(w, { reactQuietMs: 0 });
+    await startScene(w);
+    // A second human seat joins the party, so group sign-off applies.
+    const joined = await w.as(
+      { kind: "ai", actor: "ai:dm" },
+      {
+        kind: "party",
+        reason: "Cleo joins the party",
+        characterId: "cleo",
+        after: {
+          characterId: "cleo",
+          name: "Cleo",
+          controller: { kind: "player", userId: CLEO },
+          combatantId: null,
+        },
+      },
+    );
+    expect(joined.ok ? "ok" : joined.refusal).toBe("ok");
+    // Odo declares a party-scope action; the declarer defaults to approve.
+    const declared = await w.as(
+      { kind: "ai", actor: "ai:companion:odo" },
+      {
+        kind: "action.declare",
+        action: {
+          actionId: "act-odo-1",
+          characterId: null,
+          scope: "party",
+          text: "Odo leads the party across the ford.",
+        },
+      },
+    );
+    expect(declared.ok).toBe(true);
+    // Cleo is seated but absent, so Tamsin's approval alone completes the quorum: the
+    // comment, the signoff marker and the commit land in one batch.
+    const approved = await humanComment(w, "approve", "Agreed");
+    expect(approved.ok).toBe(true);
+    const rows = await readRows(w);
+    expect(rows.filter((r) => r.type === "action.committed")).toHaveLength(1);
+    await tick();
+
+    const jobs = await listDmJobs(requireDb(), w.sessionId, 20);
+    expect(jobs.filter((j) => j.kind === "companion")).toHaveLength(0);
+    expect(jobs.filter((j) => j.kind === "turn")).toHaveLength(1);
   });
 
   it("five human comments inside the window run Odo once, and the prompt carries all five", async () => {
