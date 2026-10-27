@@ -160,6 +160,9 @@ Demo complete and recorded (draft) at 7ff5e52: scene ended (seq 330), 47 DM turn
 Demo record sign-off (operator, 2026-10-27, in chat with the third orchestrator session): (1) Accept all: every proposed-accepted advisory row and F19 are accepted. (2) Agree, criterion met: F40 carded to TASK-0111; F49 and F52 false positive (row 301: no hostiles left; F52 read the stale journal at row 303); 'narration never contradicts the ledger' is met. (3) F32 false positive (Pell is a world character). (4) Card findings 1, 2, 6 in m-3: TASK-0131 (OOC ask-the-DM channel), TASK-0132 (progress between Commit and narration), TASK-0133 (dice lines distinct). Finding 3 accepted.
 
 spec-bridge sync: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3): 9/9 · The harness run (US1; AC #1): 9/9 · The auditor (US2; AC #2, #3): 12/12 · Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence): 9/9 · Demo runbook and record template (US4, US5 preparation; AC #4, #5): 4/4 · The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5): 6/6 — status In Progress → Done
+
+Wrap (third orchestrator session, 2026-10-27): sign-off applied to the record, origin/main merged (no conflicts), wiki m2-demo + play-route/test-suite re-ground, gates green (ci:check REQUIRE_DATABASE=1: 850 passed/5 skipped; freshness OK 48; spec-bridge ok 34), T044-T049 ticked. ~123k tokens.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
