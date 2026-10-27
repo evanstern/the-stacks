@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, and the operator-only fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, the operator-only Debug link, and the operator-only fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -22,7 +22,7 @@ sources:
   - apps/web/app/play/presence.ts
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: 796789aff1155daf0baf77c66ba90f272100035a
 ---
 
 # Play route
@@ -48,13 +48,23 @@ it holds only UI state (which panel is open). Two hooks build a source:
   `viewerFor(user, projections)`, re-derived as seat events arrive: a user holding the human DM
   seat views as `{ role: "dm" }`; every other user, operator included, views as a player with
   their own id. This matches the server's rule in `ws/registry.ts` (TASK-0045, TASK-0118). An
-  operator reads DM-only data in the debug view (TASK-0117), not on `/play`. Nothing renders
+  operator reads DM-only data on the debug page ([[debug-view]], TASK-0117), not on `/play`.
+  Nothing renders
   until the server sends the event
   back (no optimistic append).
 - **`useFixtureTable(fixture, viewerKey, through, dmActor)`** (`use-fixture-table.ts`)
   replays a committed `@the-stacks/session-model/fixtures` fixture up to a step. Commands
   append to a page-local copy via `local-log.ts`'s `appendLocal` (seq = last + 1, no clock
   read); the copy resets when the fixture, viewer or step changes.
+
+## The Debug link
+
+`play.tsx`'s `LiveTable` passes `TableView` a `debugHref` of `/play/<sessionId>/debug` when
+`user.role === "operator"`, else `undefined`. `TableView` forwards it to `TableHeader`
+(`components/table-header.tsx`), which renders a "Debug" anchor after the ledger and approvals
+triggers only when the prop is set. The anchor opens in a new tab (`target="_blank"`,
+`rel="noopener"`). The fixture routes pass no `debugHref`. The page behind the link is a separate
+route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-view]].
 
 ## Pure modules
 

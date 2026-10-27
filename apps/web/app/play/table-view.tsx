@@ -18,7 +18,13 @@ import { toTableViewModel } from "./view-model.ts";
  * The one table view both routes render (AC #7). Everything shown derives from the source's
  * events and viewer; the only state here is UI state (which panel is open).
  */
-export function TableView({ source }: { source: TableSource }) {
+export function TableView({
+  source,
+  debugHref,
+}: {
+  source: TableSource;
+  debugHref?: string;
+}) {
   const { events, viewer, actor, proposals } = source;
   const projected = useMemo(() => project(events, viewer), [events, viewer]);
   const presentIds = useMemo(
@@ -51,6 +57,7 @@ export function TableView({ source }: { source: TableSource }) {
         presence={presence}
         ledgerOpen={ledgerOpen}
         approvalsOpen={approvalsOpen}
+        debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
       />

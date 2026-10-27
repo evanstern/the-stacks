@@ -8,6 +8,7 @@ export default [
   route("play/fixtures", "routes/play-fixtures.tsx"),
   route("play/fixtures/:fixtureName", "routes/play-fixture.tsx"),
   route("play/:sessionId", "routes/play.tsx"),
+  route("play/:sessionId/debug", "routes/play-debug.tsx"),
   route("about", "routes/about.tsx"),
   route("settings", "routes/settings.tsx"),
 ] satisfies RouteConfig;

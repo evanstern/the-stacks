@@ -84,7 +84,7 @@ passing `undefined`, so the schema's default applies instead of an explicit null
 ## Connections
 
 Built on [[database-access]]'s `createDb`. The table shape is [[database-schema]]. Fed by
-[[websocket-gateway]] (legacy uncatalogued writes only) and [[session-model]] (typed `appendSessionEvent` / `appendSessionEvents` / `appendMechanicsBatch` over `append` / `appendBatch`; also `loadDmSeat`, which reads `readLatestOfType`) and [[proposal-gate]] and read by [[replay-live-boundary]] (the gap-free
+[[session-model]] (typed `appendSessionEvent` / `appendSessionEvents` / `appendMechanicsBatch` over `append` / `appendBatch`; also `loadDmSeat`, which reads `readLatestOfType`) and [[proposal-gate]] and read by [[replay-live-boundary]] (the gap-free
 replay-then-live handoff) and [[subscriber-registry]] (per-viewer filtered fan-out).
 
 ## Operational notes

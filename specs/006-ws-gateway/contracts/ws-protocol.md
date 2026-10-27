@@ -126,5 +126,7 @@ client that may immediately send a good one.
 > append); `error` frames gain an optional `code`; delivery filters per recipient with
 > `canSee` against the session's DM seat.
 
+> Amended by `specs/043-retire-uncatalogued-send` (TASK-0099): an uncatalogued `eventType` is refused with `error { kind: "validation", code: "UNKNOWN_EVENT_TYPE" }`; no frame shape changes.
+
 > Amended by decision-0024 and `specs/035-presence/contracts/ws-presence.md`: the optional
 > `subscribe.presence` field, the `presence` frame, and the protocol-level heartbeat.
