@@ -51,8 +51,6 @@ Spec: specs/041-debug-page
 - [x] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -103,6 +101,8 @@ Phase 7 (merge 796789a, wiki 6308e82): play-route, react-router-app and debug-vi
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Reconcile with main after #68 (merge 8b43a7f, re-pin 4950a0c): INDEX keeps both clauses; CAPSULES regenerated; dm-failure-and-gates re-pinned (RE-PIN-ONLY). Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+spec-bridge sync: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet): 10/10 · Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet): 9/9 · Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet): 7/7 · Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet): 6/6 · State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet): 6/6 · Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet): 0/3 · Wiki re-ground and full gate — DISPATCH (sonnet): 4/4
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
