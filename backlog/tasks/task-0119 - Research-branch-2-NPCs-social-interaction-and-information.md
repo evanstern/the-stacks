@@ -1,10 +1,10 @@
 ---
 id: TASK-0119
 title: 'Research branch 2: NPCs, social interaction and information'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 02:05'
-updated_date: '2026-10-27 03:59'
+updated_date: '2026-10-27 04:21'
 labels:
   - research
   - dm
@@ -45,6 +45,12 @@ OPERATOR RULINGS 2026-10-26 (in chat): placement 'K3 now, K1-K6 after demo' (TAS
 AC #4: follow-up cards created on main 2026-10-26: K1 TASK-0148, K2 TASK-0149, K4 TASK-0150, K5 TASK-0151, K6 TASK-0152 (m-3, after the demo subset); K3 carried by TASK-0107 (m-3, ACs added). Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (decision-0026 accepted with operator rulings, commit be522d8; ~86k tokens.)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #59 (2371ed5). Research branch docs/research/NPCs-Social-and-Information (11 notes + analysis) and decision-0026 (D18): NPC information and attitude move only through recorded facts. Operator rulings: attitude per character; clue lint warns, fails only core; SRD Influence DC; K3 = TASK-0107 now; K1, K2, K4, K5, K6 = TASK-0148 to TASK-0152 after the demo subset. Escape line E2.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
