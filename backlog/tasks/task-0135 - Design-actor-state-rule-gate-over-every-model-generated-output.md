@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:56'
+updated_date: '2026-10-27 04:11'
 labels:
   - design
   - dm
@@ -27,7 +27,7 @@ Outcome: a decision record and design pattern by which every model-generated seq
 - [x] #1 An inventory lists every model-generated output and, for each, the actor and stage state it receives today and the gates it passes
 - [x] #2 A decision record (amending decision-0017 and decision-0022 where needed) states the actor-state contract and the hard rules, with the operator's ruling on the dice-only rule recorded in the operator's words
 - [x] #3 The decision record names which existing m-3 cards implement which rules, and cards any rule no card covers
-- [ ] #4 The spec for the first implementation card is written against the decision
+- [x] #4 The spec for the first implementation card is written against the decision
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -51,6 +51,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 (docs: card ids linked into decision-0025 and actor-state-gate.md, commit dc5e74e; ~87k tokens; served verified from transcript.)
 OPERATOR RULINGS 2026-10-26 (in chat): 'Add all, D17 order' -> TASK-0140 to TASK-0147 created on main; 'Fold into TASK-0112' (U6); 'Demo after a subset' (TASK-0053 runs after TASK-0140, TASK-0110, TASK-0112 with U6, TASK-0141, TASK-0142, TASK-0143; the rest of Track C merges after the demo, still in m-3). AC #4 (spec for the first implementation card) is met when TASK-0140's spec set is committed.
+
+AC #4 met: TASK-0140's spec set is committed (specs/040-actor-snapshot, 1fd1f48, branch task-0140-actor-snapshot), written against decision-0025.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
