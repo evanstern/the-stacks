@@ -13,7 +13,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # Proposal gate
@@ -106,15 +106,18 @@ listener is logged, not propagated. `index.ts` wires `gate.onAppended(gateway.pu
 `apps/server/test/write-boundary.test.ts` uses a TypeScript-API import graph
 (`test/helpers/import-graph.ts`, `checkWriteBoundary`) over `apps/server/src`: `append` and
 `appendBatch` may be imported only by `session/events.ts`; `appendSessionEvent`,
-`appendSessionEvents` and `appendMechanicsBatch` only under `gate/`; `appendUncataloguedEvent`
-only by `ws/gateway.ts`; no writer's transitive closure reaches `ai/`; a non-literal dynamic
+`appendSessionEvents` and `appendMechanicsBatch` only under `gate/`; `ws/gateway.ts` is no
+longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent` and its allow-list entry);
+no writer's transitive closure reaches `ai/`; a non-literal dynamic
 `import()` fails. A seeded violation tree under `test/fixtures/write-boundary/src` proves the
 checker trips three rules; it is excluded from Biome and the test tsconfig.
 
-## Legacy path
+## Known behaviour
 
-The WebSocket `send` for an uncatalogued event type still appends through
-`appendUncataloguedEvent`. TASK-0099 retires it.
+Bursty concurrent `talk` requests through the gate can be refused with `CONFLICT` after the
+bounded retry on `SeqConflictError` is spent. The bench's `concurrency-smoke` surfaced it when
+its `talk` sends moved onto the gate (TASK-0099). The retry bound is unchanged. Carded as
+TASK-0157.
 
 ## Connections
 

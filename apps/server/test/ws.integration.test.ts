@@ -139,6 +139,67 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
     });
   }
 
+  /** A `talk` gate request: the smallest catalogued write (out of character, no character). */
+  function talkBody(text: string) {
+    return {
+      eventType: "talk",
+      payload: { talk: { text, channel: "ooc", characterId: null } },
+      payloadVersion: 1,
+    };
+  }
+
+  /** Count of gate `CONFLICT` refusals seen by sendTalkAndAwait (printed once at the end). */
+  let conflictRefusals = 0;
+  afterAll(() => {
+    if (conflictRefusals > 0) {
+      console.warn(
+        `ws.integration: ${conflictRefusals} gate CONFLICT refusal(s) under concurrent talk sends (TASK-0099)`,
+      );
+    }
+  });
+
+  /**
+   * Sends a `talk` and resolves on this socket's own echo of it (matched by text).
+   * The gate appends with `expectedLastSeq` and retries a bounded number of times, so
+   * concurrent senders can be refused `CONFLICT` ("try again"). This helper resends on
+   * that refusal, as a client would, and counts it.
+   */
+  function sendTalkAndAwait(
+    ws: WebSocket,
+    sessionId: string,
+    text: string,
+    timeoutMs = 3000,
+  ): Promise<RecordedEventFrame> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        ws.off("message", onMessage);
+        reject(new Error(`no echo of ${text}`));
+      }, timeoutMs);
+      const transmit = () =>
+        send(ws, { type: "send", sessionId, ...talkBody(text) });
+      function onMessage(data: WebSocket.RawData) {
+        const frame = JSON.parse(data.toString()) as
+          | RecordedEventFrame
+          | ErrorFrame;
+        if (frame.type === "error" && frame.code === "CONFLICT") {
+          conflictRefusals += 1;
+          transmit();
+          return;
+        }
+        if (
+          frame.type === "event" &&
+          (frame.event.payload as { text?: string } | undefined)?.text === text
+        ) {
+          clearTimeout(timer);
+          ws.off("message", onMessage);
+          resolve(frame);
+        }
+      }
+      ws.on("message", onMessage);
+      transmit();
+    });
+  }
+
   function send(ws: WebSocket, frame: unknown): void {
     ws.send(JSON.stringify(frame));
   }
@@ -266,9 +327,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(a, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: { text: "hello" },
-            payloadVersion: 1,
+            ...talkBody("hello"),
           });
         })(),
       ]);
@@ -280,8 +339,8 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           event: {
             sessionId,
             actor: userId,
-            type: "chat",
-            payload: { text: "hello" },
+            type: "talk",
+            payload: { text: "hello", channel: "ooc", characterId: null },
             payloadVersion: 1,
             visibility: "public",
           },
@@ -312,9 +371,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(inA, {
             type: "send",
             sessionId: sessionA,
-            eventType: "chat",
-            payload: {},
-            payloadVersion: 1,
+            ...talkBody("msg"),
           });
         })(),
       ]);
@@ -336,9 +393,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "ambient",
-            payload: { text: "the door creaks open" },
-            payloadVersion: 1,
+            ...talkBody("the door creaks open"),
           });
         })(),
       ]);
@@ -350,7 +405,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         sessionId,
         seq: delivered.seq,
         actor: userId,
-        type: "ambient",
+        type: "talk",
         payload: { text: "the door creaks open" },
         payloadVersion: 1,
       });
@@ -380,20 +435,19 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         collectFrames(subA, TOTAL, 5000),
         collectFrames(subB, TOTAL, 5000),
         (async () => {
+          // Each sender keeps one send in flight (see sendTalkAndAwait); the
+          // senders run concurrently with one another.
           await Promise.all(
-            senders.flatMap((ws, senderIdx) =>
-              Array.from({ length: PER_SENDER }, (_, i) =>
-                Promise.resolve().then(() =>
-                  send(ws, {
-                    type: "send",
-                    sessionId,
-                    eventType: "ambient",
-                    payload: { senderIdx, i },
-                    payloadVersion: 1,
-                  }),
-                ),
-              ),
-            ),
+            senders.map(async (ws, senderIdx) => {
+              for (let i = 0; i < PER_SENDER; i++) {
+                await sendTalkAndAwait(
+                  ws,
+                  sessionId,
+                  `sender ${senderIdx} message ${i}`,
+                  5000,
+                );
+              }
+            }),
           );
         })(),
       ]);
@@ -446,9 +500,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: {},
-            payloadVersion: 1,
+            ...talkBody("msg"),
             actor: "someone-else-entirely",
           });
         })(),
@@ -470,9 +522,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: {},
-            payloadVersion: 1,
+            ...talkBody("msg"),
             seq: 999,
             ts: "2020-01-01T00:00:00.000Z",
           });
@@ -501,9 +551,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: { n: 1 },
-            payloadVersion: 1,
+            ...talkBody("first"),
           }),
         ),
       ]);
@@ -519,9 +567,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(ws, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: { n: 2 },
-            payloadVersion: 1,
+            ...talkBody("second"),
           }),
         ),
       ]);
@@ -545,17 +591,10 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       await waitForSubscribers(sessionId, 1);
 
       const HISTORY = 5;
-      const seedFrames = collectFrames(seeder, HISTORY);
+      const seeded: RecordedEventFrame[] = [];
       for (let i = 0; i < HISTORY; i++) {
-        send(seeder, {
-          type: "send",
-          sessionId,
-          eventType: "tick",
-          payload: { i },
-          payloadVersion: 1,
-        });
+        seeded.push(await sendTalkAndAwait(seeder, sessionId, `tick ${i}`));
       }
-      const seeded = await seedFrames;
       const cursor = seeded[2].event.seq; // partway through history
 
       const late = connect(token);
@@ -578,17 +617,10 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       await waitForSubscribers(sessionId, 1);
 
       const SEED = 3;
-      const seedFrames = collectFrames(sender, SEED);
+      const seeded: RecordedEventFrame[] = [];
       for (let i = 0; i < SEED; i++) {
-        send(sender, {
-          type: "send",
-          sessionId,
-          eventType: "tick",
-          payload: { i },
-          payloadVersion: 1,
-        });
+        seeded.push(await sendTalkAndAwait(sender, sessionId, `tick ${i}`));
       }
-      const seeded = await seedFrames;
       const cursor = seeded[seeded.length - 1].event.seq;
 
       // Keep the session under sustained, high-concurrency write pressure
@@ -628,9 +660,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         send(ws, {
           type: "send",
           sessionId,
-          eventType: "tick",
-          payload: { tag },
-          payloadVersion: 1,
+          ...talkBody(tag),
         });
         // Fire the next one only on receipt of THIS socket's own echo
         // (identified by `tag`, since every hammer socket shares one
@@ -640,9 +670,12 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         // concurrency.
         function onMessage(data: WebSocket.RawData) {
           const frame = JSON.parse(data.toString()) as RecordedEventFrame;
+          const refused = (frame as { type: string }).type === "error";
           if (
-            frame.type === "event" &&
-            (frame.event.payload as { tag?: string } | undefined)?.tag === tag
+            refused ||
+            (frame.type === "event" &&
+              (frame.event.payload as { text?: string } | undefined)?.text ===
+                tag)
           ) {
             ws.off("message", onMessage);
             hammer(ws, tag);
@@ -696,17 +729,10 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       await waitForSubscribers(sessionId, 1);
 
       const HISTORY = 3;
-      const seedFrames = collectFrames(seeder, HISTORY);
+      const seeded: RecordedEventFrame[] = [];
       for (let i = 0; i < HISTORY; i++) {
-        send(seeder, {
-          type: "send",
-          sessionId,
-          eventType: "tick",
-          payload: { i },
-          payloadVersion: 1,
-        });
+        seeded.push(await sendTalkAndAwait(seeder, sessionId, `tick ${i}`));
       }
-      const seeded = await seedFrames;
       const newest = seeded[seeded.length - 1].event.seq;
 
       // No cursor -> replays from the beginning.
@@ -730,9 +756,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       send(seeder, {
         type: "send",
         sessionId,
-        eventType: "tick",
-        payload: { later: true },
-        payloadVersion: 1,
+        ...talkBody("later"),
       });
       const [live] = await liveFrame;
       expect(live.event.seq).toBe(newest + 1);
@@ -758,9 +782,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(sender, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: {},
-            payloadVersion: 1,
+            ...talkBody("msg"),
             visibility: "public",
           });
         })(),
@@ -792,9 +814,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(sender, {
             type: "send",
             sessionId,
-            eventType: "whisper",
-            payload: { text: "psst" },
-            payloadVersion: 1,
+            ...talkBody("psst"),
             visibility: recipientId,
           });
         })(),
@@ -817,9 +837,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       send(recipient, {
         type: "send",
         sessionId,
-        eventType: "whisper",
-        payload: { text: "for your eyes only" },
-        payloadVersion: 1,
+        ...talkBody("for your eyes only"),
         visibility: recipientId,
       });
       const [seeded] = await seedFrame;
@@ -874,9 +892,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
             send(sender, {
               type: "send",
               sessionId,
-              eventType: restricted ? "whisper" : "chat",
-              payload: {},
-              payloadVersion: 1,
+              ...talkBody(restricted ? "hidden" : "shown"),
               ...(restricted ? { visibility: senderId } : {}),
             }),
           ),
@@ -952,6 +968,48 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       expect(
         await readFrom(requireDb(), { sessionId, limit: 10 }),
       ).toHaveLength(0);
+    });
+
+    it("an uncatalogued type is refused with UNKNOWN_EVENT_TYPE: nothing written, nothing broadcast, the connection still works (TASK-0099)", async () => {
+      const { token } = await createTestUser();
+      const sessionId = randomUUID();
+      const sender = await open(token, sessionId);
+      const other = await open(token, sessionId);
+      await waitForSubscribers(sessionId, 2);
+
+      const errors = collectFramesOfType<ErrorFrame>(sender, "error", 1);
+      await Promise.all([
+        assertNoMessage(other),
+        assertNoMessage(sender),
+        (async () => {
+          send(sender, {
+            type: "send",
+            sessionId,
+            eventType: "chat",
+            payload: { text: "hello" },
+            payloadVersion: 1,
+          });
+          const [error] = await errors;
+          expect(error).toMatchObject({
+            kind: "validation",
+            code: "UNKNOWN_EVENT_TYPE",
+          });
+        })(),
+      ]);
+      expect(
+        await readFrom(requireDb(), { sessionId, limit: 10 }),
+      ).toHaveLength(0);
+
+      // The connection still works: a following talk reaches both subscribers.
+      const [atSender, atOther] = await Promise.all([
+        collectFrames(sender, 1),
+        collectFrames(other, 1),
+        Promise.resolve().then(() =>
+          send(sender, { type: "send", sessionId, ...talkBody("after") }),
+        ),
+      ]);
+      expect(atSender[0].event.type).toBe("talk");
+      expect(atOther[0].event.type).toBe("talk");
     });
 
     it("a gate request over send is appended and broadcast", async () => {
@@ -1135,9 +1193,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
           send(survivorA, {
             type: "send",
             sessionId,
-            eventType: "chat",
-            payload: {},
-            payloadVersion: 1,
+            ...talkBody("msg"),
           });
         })(),
       ]);

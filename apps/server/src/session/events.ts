@@ -140,20 +140,6 @@ export async function appendSessionEvents(
   return rows.map(toStoredEvent);
 }
 
-/**
- * The inert legacy path (ws-delivery.md). Refuses CATALOG_TYPE_REQUIRES_GATE for any
- * catalogued type; otherwise calls M0 `append` unchanged.
- */
-export async function appendUncataloguedEvent(
-  db: DbClient,
-  input: AppendInput,
-): Promise<StoredEvent> {
-  if (currentVersion(input.type) !== undefined) {
-    throw new SessionEventRefused("CATALOG_TYPE_REQUIRES_GATE", [input.type]);
-  }
-  return toStoredEvent(await append(db, input));
-}
-
 /** The session's DM seat: the latest dm.seat.changed row's `after`, else the AI DM. */
 export async function loadDmSeat(
   db: DbClient,
