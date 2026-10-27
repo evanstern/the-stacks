@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 09:19'
+updated_date: '2026-10-27 09:20'
 labels:
   - dm
   - companions
@@ -28,9 +28,9 @@ Spec: specs/036-companion-react
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A human comment, approval or objection on a companion's pending declared action enqueues that companion, with an integration test
-- [ ] #2 The re-run companion commits, revises or withdraws, and a test shows the table no longer waits indefinitely
-- [ ] #3 The companions contract (specs/031-dm-runtime/contracts/companions.md) records the new trigger
+- [x] #1 A human comment, approval or objection on a companion's pending declared action enqueues that companion, with an integration test
+- [x] #2 The re-run companion commits, revises or withdraws, and a test shows the table no longer waits indefinitely
+- [x] #3 The companions contract (specs/031-dm-runtime/contracts/companions.md) records the new trigger
 - [x] #4 Spec phase: Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet)
 - [x] #5 Spec phase: Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet)
 - [x] #6 Spec phase: Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A
@@ -70,6 +70,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Merged in PR #63 (773d4e4); stack down, worktree and branch removed. Board stays In Progress until specs/036-companion-react/tasks.md T038 is annotated not-applicable (it applied only under W-B; the operator ruled W-A). That annotation rides the next task branch (TASK-0140), then spec-bridge sync moves this card to Done.
 
 spec-bridge sync: Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet): 5/5 · Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet): 8/8 · Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A: 10/10 · Wiki (re-ground) — DISPATCH (sonnet): 3/3 — status In Progress → Done
+
+ACs #1-#3 ticked by the orchestrator: PR #63 merged (773d4e4), and spec 036 maps each one to its tests (the M2 repro is T021). The T038 not-applicable note landed in PR #66.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -80,6 +82,6 @@ All spec tasks complete (Trigger and coalescing (US1, US3; AC #1) — DISPATCH (
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
