@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 05:04'
+updated_date: '2026-10-27 05:14'
 labels:
   - multiplayer
   - realtime
@@ -79,6 +79,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (reconcile after #63/#64: merge 7698263, re-pins 0f90916; catalog 18 session / 36 total; ci:check exit 0, server 935 passed.) Orchestrator rebuilt the stacks-task-0051 app image from 0f90916 for the operator's screenshots.
+
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+(evidence commit e00f2e4: operator Brave screenshots join-a.png / leave-a.png, T037 ticked, OPERATOR-STEPS create-operator fix.) Merge condition met: window A lists AI DM, Ben and op on join; Ben gone after window B closed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
