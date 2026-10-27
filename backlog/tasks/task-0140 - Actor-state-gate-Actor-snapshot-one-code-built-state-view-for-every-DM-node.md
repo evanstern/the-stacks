@@ -26,12 +26,12 @@ Spec: specs/040-actor-snapshot
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An `ActorSnapshot` type carries, per actor, id, display name, aliases, kind, controller, HP, life state, conditions, initiative, resources and scene presence; and the stage.
-- [ ] #2 `assemble` builds S0 and `resolve` builds S1 plus the S0-to-S1 diff, with tests.
-- [ ] #3 Director, interpret, adjudicate, narrate, audit, companion and chronicle prompts render state from the snapshot; `projectionEntries` and `npcNames` are retired.
-- [ ] #4 Under the token cap, dead and absent actors compress to one line; no actor is dropped, with a test over a large party and encounter.
-- [ ] #5 A snapshot that cannot fit fails the node loudly, with a test.
-- [ ] #6 Existing dm tests and the scripted CI playtest stay green.
+- [x] #1 An `ActorSnapshot` type carries, per actor, id, display name, aliases, kind, controller, HP, life state, conditions, initiative, resources and scene presence; and the stage.
+- [x] #2 `assemble` builds S0 and `resolve` builds S1 plus the S0-to-S1 diff, with tests.
+- [x] #3 Director, interpret, adjudicate, narrate, audit, companion and chronicle prompts render state from the snapshot; `projectionEntries` and `npcNames` are retired.
+- [x] #4 Under the token cap, dead and absent actors compress to one line; no actor is dropped, with a test over a large party and encounter.
+- [x] #5 A snapshot that cannot fit fails the node loudly, with a test.
+- [x] #6 Existing dm tests and the scripted CI playtest stay green.
 - [x] #7 Spec phase: The snapshot module (US1, US2 diff, US4 render)
 - [x] #8 Spec phase: S0, S1 and the planning prompts (US2, US3, US4)
 - [x] #9 Spec phase: Player-facing prompts and retirement (US3, US4, US5)
@@ -71,6 +71,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (7e9c226): wiki re-ground; new note actor-snapshot; 11 staled pins classified (5 NEEDS-REVIEW amended, 6 RE-PIN-ONLY). Freshness OK (51 notes).
 
 spec-bridge sync: The snapshot module (US1, US2 diff, US4 render): 11/11 · S0, S1 and the planning prompts (US2, US3, US4): 8/8 · Player-facing prompts and retirement (US3, US4, US5): 10/10 · Wiki re-ground: 7/7 · Constitution Compliance (the-stacks): 3/3 — status In Progress → Done
+
+ACs #1-#6 ticked by the orchestrator after PR #66 merged (ecbc0a0): spec 040 maps each one to its tests, and ci:check passed with REQUIRE_DATABASE=1 plus the scripted playtest.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -81,6 +83,6 @@ All spec tasks complete (The snapshot module (US1, US2 diff, US4 render): 11/11 
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
