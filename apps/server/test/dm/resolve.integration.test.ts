@@ -17,6 +17,7 @@ import {
   reading,
   readRows,
   startScene,
+  TAMSIN_USER,
   type World,
 } from "./world.js";
 
@@ -1191,6 +1192,8 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
     const id = await commitAction(w, "Tamsin scares the goblin off.");
     fresh(w);
+    // Spec 050: scene and encounter start log seed rows; count this turn's rows only.
+    const start = (await readRows(w)).length;
     const out = await run(
       w,
       [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
@@ -1199,7 +1202,7 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
     expect(presenceSubs(out)).toHaveLength(1);
     expect(presenceSubs(out)[0]).toMatchObject({ result: "applied" });
-    const rows = await readRows(w);
+    const rows = (await readRows(w)).slice(start);
     const changed = rows.filter((r) => r.type === "scene-presence.changed");
     expect(changed).toHaveLength(1);
     expect(payloadOf(changed[0])).toMatchObject({
@@ -1222,13 +1225,15 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 2]);
     const id = await commitAction(w, "Tamsin scares the goblin off.");
     fresh(w);
+    // Spec 050: scene and encounter start log seed rows; count this turn's rows only.
+    const start = (await readRows(w)).length;
     const out = await run(
       w,
       [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
       { job: nextJob() },
     );
     expect(presenceSubs(out)).toHaveLength(0);
-    const rows = await readRows(w);
+    const rows = (await readRows(w)).slice(start);
     expect(count(rows, "scene-presence.changed")).toBe(0);
     expect(out.snapshot.actors.find((a) => a.id === "goblin-2")?.presence).toBe(
       "present",
@@ -1476,10 +1481,190 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
       director: { tableMode: { to: "free", reason: "The goblins flee." } },
       job: nextJob(),
     });
-    for (const out of [started, entered, left]) {
-      expect(presenceSubs(out)).toHaveLength(0);
-    }
-    expect(count(await readRows(w), "scene-presence.changed")).toBe(0);
+    // Spec 050 (FR-008): the Director keys no scene-presence submission. The
+    // code-owned `seed:presence:` rows are the only presence writes.
+    const all = [started, entered, left].flatMap(presenceSubs);
+    expect(all.filter((s) => s.key.startsWith("director:"))).toHaveLength(0);
+    expect(all.filter((s) => !s.key.startsWith("seed:presence:"))).toHaveLength(
+      0,
+    );
+    const seedApplied = all.filter(
+      (s) => s.key.startsWith("seed:presence:") && s.result === "applied",
+    );
+    expect(seedApplied).toHaveLength(4);
+    expect(count(await readRows(w), "scene-presence.changed")).toBe(
+      seedApplied.length,
+    );
+  });
+});
+
+describe.skipIf(!reachable)("seed presence (spec 050)", () => {
+  let jobN = 0;
+  const nextJob = () => ({
+    id: `00000000-0000-4000-8000-${String(700 + ++jobN).padStart(12, "0")}`,
+  });
+  const initDice = (first: number) =>
+    [1, 1, 1, 1, 1, 1, 1].map((d, i) => (i === first ? 20 : d));
+  const fresh = (w: World) => {
+    w.checkpoint.current = {
+      ...w.checkpoint.current,
+      submissions: [],
+      lastSeq: 0,
+    };
+  };
+  const presenceRows = (rows: Awaited<ReturnType<typeof readRows>>) =>
+    rows.filter((r) => r.type === "scene-presence.changed");
+  const seedSubs = (out: ResolveOutput) =>
+    out.submissions.filter((s) => s.key.startsWith("seed:presence:"));
+
+  it("scene start logs the opening beat's non-present NPCs as dm rows", async () => {
+    const w = await createWorld();
+    const out = await startScene(w);
+    const rows = presenceRows(await readRows(w));
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => payloadOf(r))).toMatchObject([
+      {
+        actorId: "pell",
+        before: "present",
+        after: "absent",
+        reason: "removed",
+        actionId: null,
+      },
+      {
+        actorId: "snag",
+        before: "present",
+        after: "absent",
+        reason: "removed",
+        actionId: null,
+      },
+    ]);
+    expect(rows.every((r) => r.visibility === "dm")).toBe(true);
+    expect(seedSubs(out).map((s) => s.key)).toEqual([
+      "seed:presence:scene-start:pell",
+      "seed:presence:scene-start:snag",
+    ]);
+    const presence = (id: string) =>
+      out.snapshot.actors.find((a) => a.id === id)?.presence;
+    expect(presence("wenna")).toBe("present");
+    expect(presence("pell")).toBe("absent");
+    expect(presence("snag")).toBe("absent");
+  });
+
+  it("encounter start logs public arrived rows before the initiative roll", async () => {
+    const w = await createWorld({ dice: [...initDice(0)] });
+    await startScene(w);
+    const start = (await readRows(w)).length;
+    const { result } = await w.runResolve({
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+      },
+      job: nextJob(),
+    });
+    if (!result.ok) throw new Error(result.error.message);
+    const out = result.output as ResolveOutput;
+    const rows = (await readRows(w)).slice(start);
+    const arrived = presenceRows(rows);
+    expect(arrived.map((r) => payloadOf(r))).toMatchObject([
+      {
+        actorId: "pell",
+        before: "absent",
+        after: "present",
+        reason: "arrived",
+        actionId: null,
+      },
+      {
+        actorId: "snag",
+        before: "absent",
+        after: "present",
+        reason: "arrived",
+        actionId: null,
+      },
+    ]);
+    expect(arrived.every((r) => r.visibility === "public")).toBe(true);
+    const firstRoll = Math.min(
+      ...rows.filter((r) => r.type === "dice.rolled").map((r) => r.seq),
+    );
+    expect(Math.max(...arrived.map((r) => r.seq))).toBeLessThan(firstRoll);
+    const lastAdd = Math.max(
+      ...rows.filter((r) => r.type === "combatant.added").map((r) => r.seq),
+    );
+    expect(Math.min(...arrived.map((r) => r.seq))).toBeGreaterThan(lastAdd);
+    const presence = (id: string) =>
+      out.snapshot.actors.find((a) => a.id === id)?.presence;
+    expect(presence("pell")).toBe("present");
+    expect(presence("snag")).toBe("present");
+    const p = await w.projections();
+    expect(
+      p.encounter?.order.filter((o) => o.combatantId === "snag"),
+    ).toHaveLength(1);
+  });
+
+  it("two different Director outputs starting reed-camp write identical seed rows", async () => {
+    const shape = async (
+      director: NonNullable<Parameters<World["runResolve"]>[0]["director"]>,
+    ) => {
+      const w = await createWorld({ dice: [...initDice(0)] });
+      await startScene(w);
+      fresh(w);
+      const { result } = await w.runResolve({ director, job: nextJob() });
+      if (!result.ok) throw new Error(result.error.message);
+      const rows = presenceRows(await readRows(w));
+      return {
+        keys: seedSubs(result.output as ResolveOutput).map((s) => s.key),
+        rows: rows.map((r) => ({ p: payloadOf(r), v: r.visibility })),
+      };
+    };
+    const a = await shape({
+      tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+    });
+    const b = await shape({
+      tableMode: {
+        to: "turn",
+        encounterId: "reed-camp",
+        reason: "A completely different reason.",
+      },
+      trackers: [{ trackerId: "dusk", advance: 1, reason: "Time." }],
+    });
+    expect(b).toEqual(a);
+    expect(a.rows).toHaveLength(4);
+  });
+
+  it("a reclaimed scene start writes each seed row once", async () => {
+    const crash = { armed: true };
+    const w = await createWorld({
+      gate: (g) => ({
+        ...g,
+        submit: async (...args) => {
+          const res = await g.submit(...args);
+          if (
+            crash.armed &&
+            (args[2] as { kind: string }).kind === "scene-presence"
+          ) {
+            crash.armed = false;
+            throw new Error("crash after the seed row landed");
+          }
+          return res;
+        },
+      }),
+    });
+    const job = {
+      trigger: "scene-start" as const,
+      start: { seedId: "greyhollow-ford", seats: { tamsin: TAMSIN_USER } },
+    };
+    await expect(w.runResolve({ job })).rejects.toThrow(/crash/);
+    const saved = w.checkpoint.current;
+    expect(saved.submissions.some((s) => s.kind === "scene-presence")).toBe(
+      false,
+    );
+    const again = await w.runResolve({
+      job: { ...job, attempt: 2 },
+      checkpoint: saved,
+    });
+    expect(again.result.ok).toBe(true);
+    const rows = presenceRows(await readRows(w));
+    expect(
+      rows.map((r) => (payloadOf(r) as { actorId: string }).actorId),
+    ).toEqual(["pell", "snag"]);
   });
 });
 

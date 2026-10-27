@@ -351,6 +351,30 @@ describe("narrate", () => {
     expect(prompt.system).toContain("companions speak for themselves");
   });
 
+  it("drops NPCs that S1 reads absent from the beat's NPC list (spec 050)", async () => {
+    const { ctx, snapshot } = await setup(["x"]);
+    const s1 = {
+      ...snapshot,
+      actors: snapshot.actors.map((a) =>
+        a.id === "pell" ? { ...a, presence: "absent" as const } : a,
+      ),
+    };
+    expect(s1.actors.find((a) => a.id === "snag")?.presence).toBe("present");
+    const out = await narrate({
+      ...ctx,
+      results: {
+        ...ctx.results,
+        director: {
+          ...director,
+          pacing: { ...director.pacing, beatId: "reed-camp" },
+        },
+        resolve: { ...resolved, snapshot: s1 },
+      },
+    });
+    if (!out.ok) throw new Error("narrate failed");
+    expect(out.output.facts.presentNpcs.map((n) => n.id)).toEqual(["snag"]);
+  });
+
   it("builds the v2 audit prompt: party section and the five statements", async () => {
     const { ctx } = await setup(["x"]);
     const out = await narrate(ctx);

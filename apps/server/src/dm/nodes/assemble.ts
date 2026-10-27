@@ -293,12 +293,11 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
   const npcTurn = deriveNpcTurn(projections, ctx.seed, beat);
   const activeEncounterId = deriveActiveEncounterId(projections, ctx.seed);
 
-  const presentNpcIds: string[] = [];
-  for (const b of ctx.seed.beats) {
-    for (const id of b.npcIds) {
-      if (!presentNpcIds.includes(id)) presentNpcIds.push(id);
-    }
-  }
+  // Spec 050 D5: the NPCs the logged presence does not read `absent`, in seed order.
+  const s0 = buildSnapshot(projections, ctx.seed);
+  const presentNpcIds = ctx.seed.npcs
+    .filter((n) => s0.actors.find((a) => a.id === n.id)?.presence !== "absent")
+    .map((n) => n.id);
 
   return {
     ok: true,
@@ -306,7 +305,7 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
     calls: [],
     output: {
       projections,
-      snapshot: buildSnapshot(projections, ctx.seed),
+      snapshot: s0,
       throughSeq: projections.throughSeq,
       beat,
       npcTurn,

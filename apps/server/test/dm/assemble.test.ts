@@ -374,4 +374,25 @@ describe("prompt caps (SC-007)", () => {
       expect(output.presence).toBeNull();
     });
   });
+
+  it("lists only NPCs that are not absent, in seed order (spec 050)", async () => {
+    const events = freeEventsThrough("action.resolved");
+    const gone = (seq: number, actorId: string) =>
+      row(seq, "ai:dm", "scene-presence.changed", {
+        actorId,
+        before: "present",
+        after: "absent",
+        reason: "removed",
+        actionId: null,
+      });
+    const base = events.length;
+    const none = await run(events);
+    expect(none.output.presentNpcIds).toEqual(["wenna", "pell", "snag"]);
+    const { output } = await run([
+      ...events,
+      gone(base + 1, "pell"),
+      gone(base + 2, "snag"),
+    ]);
+    expect(output.presentNpcIds).toEqual(["wenna"]);
+  });
 });

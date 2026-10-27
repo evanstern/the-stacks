@@ -21,6 +21,7 @@ import {
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { combatantFromSrd } from "../seed/combatants.js";
+import type { SceneSeed } from "../seed/schema.js";
 import {
   type ActorSnapshot,
   buildSnapshot,
@@ -707,6 +708,57 @@ async function setActiveMode(
 }
 
 /**
+ * The seed-presence group (spec 050): code-owned `scene-presence` rows that
+ * turn the seed's per-beat declaration into logged facts. It reads the seed
+ * and the projections only, never a Director field. Scene start logs the
+ * opening beat's non-`present` NPCs as `dm` rows; encounter start logs
+ * `arrived` for the NPCs the encounter's beat declares `present`. A NPC whose
+ * logged value already equals the target gets no row (a reclaim replays by
+ * key, and `findLanded` covers a row that landed before its checkpoint).
+ */
+async function seedPresence(
+  run: Run,
+  ctx: TurnContext,
+  p: SessionProjections,
+  moment: "scene-start" | "encounter-start",
+  beat: SceneSeed["beats"][number] | undefined,
+): Promise<void> {
+  if (!beat) return;
+  for (const npc of ctx.seed.npcs) {
+    const declared = beat.presence[npc.id];
+    if (!declared) continue;
+    const logged = p.scenePresence[npc.id]?.presence ?? "present";
+    let reason: "removed" | "conceded" | "arrived";
+    let visibility: "dm" | "public";
+    if (moment === "scene-start") {
+      if (declared === "present") continue;
+      reason = declared === "absent" ? "removed" : "conceded";
+      visibility = "dm";
+    } else {
+      if (declared !== "present") continue;
+      reason = "arrived";
+      visibility = "public";
+    }
+    if (logged === REASON_TO_PRESENCE[reason]) continue;
+    await run.submit(
+      `seed:presence:${moment}:${npc.id}`,
+      "scene-presence",
+      () => ({
+        kind: "scene-presence",
+        ...note(
+          `Seed presence: ${npc.name} ${reason}`,
+          `The seed declares ${npc.name} ${declared} at ${beat.id}.`,
+        ),
+        actorId: npc.id,
+        reason,
+        actionId: null,
+        visibility,
+      }),
+    );
+  }
+}
+
+/**
  * Director opening moves (decision-0025 §4): the scene-start setup and the
  * `turn` table-mode decision. They run before any action group, because an
  * action may name a combatant that an opening move adds.
@@ -793,6 +845,7 @@ async function directorOpening(
         }),
       );
     }
+    await seedPresence(run, ctx, p, "scene-start", seed.beats[0]);
     return;
   }
 
@@ -815,6 +868,13 @@ async function directorOpening(
           null,
         );
       }
+      await seedPresence(
+        run,
+        ctx,
+        p,
+        "encounter-start",
+        seed.beats.find((b) => b.encounterId === enc.id),
+      );
       const ids = [
         ...p.party
           .filter(

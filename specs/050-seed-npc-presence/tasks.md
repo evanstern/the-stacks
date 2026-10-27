@@ -169,43 +169,43 @@ list only NPCs that are not absent.
 
 ### Tests first
 
-- [ ] T019 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add a "seed presence
+- [x] T019 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add a "seed presence
       (spec 050)" block. Assert after `startScene` on Greyhollow Ford: exactly two
       `scene-presence.changed` rows, for `pell` and `snag`, `after: "absent"`, reason
       `removed`, `actionId: null`, visibility `dm`; their submissions are keyed
       `seed:presence:`; S1 reads `wenna` `present`, `pell` and `snag` `absent` (User Story 2,
       scenario 1).
-- [ ] T020 [US4] In the same block, start the reed-camp encounter. Assert two public `arrived`
+- [x] T020 [US4] In the same block, start the reed-camp encounter. Assert two public `arrived`
       rows (`pell`, `snag`) land before the `initiative.roll` rows; S1 reads both `present`;
       `snag` appears exactly once in the order (User Story 4, scenario 4).
-- [ ] T021 [US2] In the same block, run two different Director outputs that start `reed-camp`
+- [x] T021 [US2] In the same block, run two different Director outputs that start `reed-camp`
       (different reasons and trackers) on fresh worlds. Assert identical seed submissions
       (FR-008). Re-run a reclaimed scene start and assert no second seed row.
-- [ ] T022 [US3] Amend the 048 test "no Director fixture produces a scene-presence submission":
+- [x] T022 [US3] Amend the 048 test "no Director fixture produces a scene-presence submission":
       keep asserting 0 `director:`-keyed `scene-presence` submissions; count only rows whose
       submission key does not start `seed:presence:` (plan D4).
-- [ ] T023 [US2] [P] In `apps/server/test/dm/facts.test.ts`, assert a `dm` `scene-presence.changed`
+- [x] T023 [US2] [P] In `apps/server/test/dm/facts.test.ts`, assert a `dm` `scene-presence.changed`
       row yields no presence fact, and a `public` one still does.
-- [ ] T024 [US2] [P] Add assemble and narrate tests (in the existing assemble or narrate test file):
+- [x] T024 [US2] [P] Add assemble and narrate tests (in the existing assemble or narrate test file):
       `presentNpcIds` lists only S0 NPCs not `absent`, in seed order; narrate's `beatNpcIds`
       drops S1-absent NPCs.
 
 ### Implementation
 
-- [ ] T025 [US2] In `apps/server/src/dm/nodes/resolve.ts`, add `seedPresence` (plan D4): the
+- [x] T025 [US2] In `apps/server/src/dm/nodes/resolve.ts`, add `seedPresence` (plan D4): the
       scene-start call after the setup group, and the encounter-start call after the monsters'
       `combatant.add` and before `initiative.roll`. Submit through `run.submit` with keys
       `seed:presence:<moment>:<npcId>`, kind `scene-presence`, reasons per OQ-3, visibility per
       OQ-4. Read only the seed and the projections.
-- [ ] T026 [US2] In `apps/server/src/dm/nodes/assemble.ts`, derive `presentNpcIds` from S0 (plan
+- [x] T026 [US2] In `apps/server/src/dm/nodes/assemble.ts`, derive `presentNpcIds` from S0 (plan
       D5). In `apps/server/src/dm/nodes/narrate.ts`, filter `beatNpcIds` by S1 presence.
-- [ ] T027 [US2] Run the full DM, session-model and playtest suites with the DB. Fix any
+- [x] T027 [US2] Run the full DM, session-model and playtest suites with the DB. Fix any
       row-count or seq assertion the new seed rows shift (for example in
       `scene.integration.test.ts`) by excluding `seed:presence:` rows, never by deleting a check.
       List each adjusted test in the commit message.
-- [ ] T028 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md` with the seed-presence group
+- [x] T028 [US2] Amend `specs/031-dm-runtime/contracts/resolve.md` with the seed-presence group
       (contract `seed-presence.md` §3) and the amendment line.
-- [ ] T029 Run `pnpm ci:check` and `pnpm playtest run` (ci mode, default scenario). The scenario
+- [x] T029 Run `pnpm ci:check` and `pnpm playtest run` (ci mode, default scenario). The scenario
       must end `ended` with a passing report (SC-006).
 
 **Checkpoint**: Greyhollow Ford opens with Pell and Snag absent, and the fight brings them in.
