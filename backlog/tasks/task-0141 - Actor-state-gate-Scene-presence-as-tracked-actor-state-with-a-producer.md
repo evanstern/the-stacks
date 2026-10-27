@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 12:46'
+updated_date: '2026-10-27 12:48'
 labels:
   - dm
   - rules-gate
@@ -30,12 +30,13 @@ Spec: specs/048-scene-presence
 <!-- AC:BEGIN -->
 - [ ] #1 A catalogued event records a scene presence change with actor id, new value and reason (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
 - [ ] #2 A step kind lets interpret and adjudicate propose a presence change; the gate applies it only through the engine, with tests.
-- [ ] #3 An `absent` combatant leaves the encounter order through `combatant.remove`.
-- [ ] #4 The snapshot reads scene presence from the log.
-- [ ] #5 No Director field writes scene presence, with a test.
-- [ ] #6 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
-- [ ] #7 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
+- [ ] #3 The snapshot reads scene presence from the log.
+- [ ] #4 No Director field writes scene presence, with a test.
+- [ ] #5 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
+- [ ] #6 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
