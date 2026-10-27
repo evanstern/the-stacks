@@ -11,7 +11,6 @@ labels:
 milestone: m-3
 dependencies:
   - TASK-0140
-  - TASK-0141
 priority: medium
 ordinal: 102000
 ---
@@ -32,11 +31,9 @@ Spec: specs/046-downed-hero-gate
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
 - [ ] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
 - [ ] #4 Death-save turns for unconscious PCs still run (U6)
+- [ ] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
+- [ ] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
 <!-- AC:END -->
-
-
-
-
 
 ## Implementation Notes
 
@@ -52,6 +49,8 @@ OQ-2, the engine code: (a) new ACTOR_UNABLE (26 to 27 codes; amends gate-api.md 
 SEQUENCING (amends the runbook across Track C cards): Option A (rec). TASK-0112 takes the life-state declare gate and the S0 plan gate. TASK-0141 takes both absent checks, adding 2 ACs and a dependency on TASK-0112. Option B: TASK-0141 first.
 Defaults stated, not blocking: OQ-3 an unable creature's saving throw is allowed; OQ-4 the plan gate accepts ids added by this turn's encounter start; OQ-5 no interpret re-ask.
 Finding: death saves today ride on the seat's declaration. AC #6 needs a code-only settling loop in resolve that rolls an engine death-save.roll for an unconscious PC.
+
+OPERATOR RULING 2026-10-27 (in chat): "TASK-0112: I accept OQ-1 (a) CHARACTER_UNABLE, OQ-2 (a) ACTOR_UNABLE, including the frozen-contract amendments to spec 029 gate-api.md and spec 026 refusals.md, the OQ-3 to OQ-5 defaults, and sequencing Option A (absent checks move to TASK-0141)." Orchestrator applied Option A: ACs #3 and #5 replaced by their life-state and S0 halves; dependency on TASK-0141 dropped; TASK-0141 gains the two absent ACs and depends on TASK-0112.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
