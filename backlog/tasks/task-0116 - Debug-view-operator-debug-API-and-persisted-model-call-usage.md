@@ -1,10 +1,10 @@
 ---
 id: TASK-0116
 title: 'Debug view: operator debug API and persisted model-call usage'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 01:57'
+updated_date: '2026-10-27 03:28'
 labels:
   - debug-view
   - server
@@ -43,6 +43,8 @@ Scope: server only. The web page is the dependent card.
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator 2026-10-26: sequencing of the debug-view cards (TASK-0116, 0117, 0118) is discussed after the M2 First Scene sweep closes M2, not before. The M2 orchestrator raises it at the M2 close checkpoint.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0116, branch task-0116-debug-api, cut from origin/main a4aab3c. Spec number 037 claimed with a stub. Track B2. Design: docs/design/debug-view.md card A.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
