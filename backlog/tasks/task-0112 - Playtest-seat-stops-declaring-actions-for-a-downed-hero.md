@@ -1,10 +1,10 @@
 ---
 id: TASK-0112
 title: Playtest seat stops declaring actions for a downed hero
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 03:54'
+updated_date: '2026-10-27 09:55'
 labels:
   - playtest
   - harness
@@ -38,6 +38,8 @@ Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence
 
 <!-- SECTION:NOTES:BEGIN -->
 OPERATOR RULING 2026-10-26: 'Fold into TASK-0112'. decision-0025 card U6 (able-actor gates) lands here as added ACs; it answers this card's question of whether the engine or gate refuses a declared action from an unconscious character: yes.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0112, branch task-0112-downed-hero-gate, cut from origin/main 429e865. Spec number 046 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C5 (runbook amendment 1), with U6 folded in.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
