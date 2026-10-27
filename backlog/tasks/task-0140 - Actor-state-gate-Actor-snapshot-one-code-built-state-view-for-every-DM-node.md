@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 04:43'
+updated_date: '2026-10-27 05:16'
 labels:
   - dm
   - rules-gate
@@ -59,6 +59,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3, T020-T029, commit 914a112; npcNames and projectionEntries removed; narrate-v4, audit-v3, companion-v3, chronicle-v3; ci:check exit 0, server 896 passed.) Next: Phase 4 wiki (pins on dm/facts.ts, prompts, nodes narrate/audit, companion, chronicle, worker, index.ts, session/projections.ts).
+
+OPERATOR RULING 2026-10-27 (relayed verbatim from the parent session): "Also: the TASK-0140 snapshot views (DM all, companion no monster AC/resources, narration no numbers/ids) are confirmed."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
