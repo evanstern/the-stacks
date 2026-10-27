@@ -4,7 +4,7 @@ title: 'Research branch 2: NPCs, social interaction and information'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:05'
-updated_date: '2026-10-27 03:45'
+updated_date: '2026-10-27 03:56'
 labels:
   - research
   - dm
@@ -37,6 +37,10 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (research gather, branch docs/research/NPCs-Social-and-Information, commits a612765 bde79d2; ~241k tokens; served verified from transcript.)
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(analyze-vault + decision-0026 (D18, proposed), commits 04fa413 0093406; ~172k tokens; served verified from transcript.)
+OPERATOR RULINGS 2026-10-26 (in chat): placement 'K3 now, K1-K6 after demo' (TASK-0107 = K3 joins Track C now; K1, K2, K4, K5, K6 are created in m-3 after the demo subset); attitude 'Per character' (each NPC tracks an attitude toward each PC; the analysis recommended party-with-override); clue lint 'Warn; fail only core'; Influence 'SRD Influence DC' (DMG table rejected).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
