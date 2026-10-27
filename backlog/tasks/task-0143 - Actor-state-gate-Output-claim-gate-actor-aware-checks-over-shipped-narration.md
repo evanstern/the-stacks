@@ -43,8 +43,6 @@ Spec: specs/051-output-claim-gate
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -102,6 +100,8 @@ spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 5, T030-T035: 5604155, 0a12433. dm.narrate-v5; the 034 and 040 contracts amended. REQUIRE_DATABASE=1 ci:check exit 0; no flakes. CI playtest: on both the branch and origin/main 88194c8, ended, verdict pass, 8 audited turns, 0 fallbacks.) Limit: the CI playtest is scripted, so the comparison shows no regression on the scripted narration only. It says nothing about live-model fallback rates.
+
+spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 8/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 7/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 6/6 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
