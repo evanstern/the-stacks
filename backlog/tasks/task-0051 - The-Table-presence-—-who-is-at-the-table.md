@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 04:42'
+updated_date: '2026-10-27 05:04'
 labels:
   - multiplayer
   - realtime
@@ -76,6 +76,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 5 wiki, merge a10626b + f125c0e; 18 stale notes classified (11 amended, 4 small additions, 3 re-pin-only), new note presence; ci:check exit 0.) Remaining: T037 operator Brave screenshots per specs/035-presence/evidence/OPERATOR-STEPS.md.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(reconcile after #63/#64: merge 7698263, re-pins 0f90916; catalog 18 session / 36 total; ci:check exit 0, server 935 passed.) Orchestrator rebuilt the stacks-task-0051 app image from 0f90916 for the operator's screenshots.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
