@@ -20,6 +20,8 @@ ordinal: 127000
 Outcome: code builds an `ActorSnapshot` from the projections and the seed, and every DM node renders state from it. This is the first implementation card (TASK-0135 AC #4).
 
 Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruling 2026-10-26 at checkpoint C3, formulation 3 'ledger + opposition dice'. Design and rule map: docs/design/actor-state-gate.md §5 (card U1). Dependencies as stated there: none. Scene presence fields are present but default to `present` until U2.. Operator ruling 2026-10-26: added to m-3 Track C in decision-0025's order.
+
+Spec: specs/040-actor-snapshot
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
