@@ -3,7 +3,7 @@
 **Feature Branch**: `task-0141-scene-presence`
 **Spec dir**: `specs/048-scene-presence`
 **Created**: 2026-10-27
-**Status**: Draft — STOPPED for operator rulings OQ-1 to OQ-4 (one-way doors). No plan.md yet.
+**Status**: Ready for planning — operator ruled OQ-1 to OQ-4, all (a), on 2026-10-27
 **Board card**: TASK-0141 (Track C6, runbook amendment 1; carries the two absent checks moved
 from TASK-0112 by the 2026-10-27 operator ruling, sequencing Option A)
 **Input**: TASK-0141, decision-0025 (D17) card U2, `docs/design/actor-state-gate.md` §5,
@@ -54,9 +54,29 @@ It implements none of these, each owned by a card:
 
 **Clarify**: skipped. The card, decision-0025 and spec 046 settle the behaviour. Four choices are
 one-way doors: a new catalogued event, a new step grammar, an engine command change and a
-refusal code. They are raised below as operator rulings OQ-1 to OQ-4, each with a recommended
-default. This spec is written against the defaults. A different ruling changes the FRs marked
-"(OQ-n)".
+refusal code. They were raised as operator rulings OQ-1 to OQ-4. The operator ruled all four (a)
+on 2026-10-27 (see "Operator rulings"). The FRs marked "(OQ-n)" implement those rulings.
+
+## Operator rulings (2026-10-27, recorded on the card, commit 6affe8d)
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
+
+> "TASK-0141: I accept OQ-3 (a) engine initiative.leave with AC #3 reworded to \"through an
+> engine command\", and OQ-4 (a) reuse UNKNOWN_COMBATANT with reason absent."
+
+- **OQ-1 → (a).** Event `scene-presence.changed` v1, written through a new DM proposal kind
+  `scene-presence` (policy `ask`). The amendments to frozen `specs/029-proposal-gate/contracts/`
+  (`proposals.md`, `policy-and-authority.md`, `gate-api.md` §1) and to
+  `specs/028-session-model/contracts/session-events.md` land in this card's PR.
+- **OQ-2 → (a).** A presence **effect** variant, usable under a roll's outcome.
+- **OQ-3 → (a).** Engine command `initiative.leave`, which keeps the combatant's state. The card
+  AC now reads "through an engine command".
+- **OQ-4 → (a).** The plan gate's absent failure resolves under `UNKNOWN_COMBATANT` with plan-gate
+  reason `absent`. No refusal-code enum changes.
+- **Card renumbering.** The orchestrator renumbered the card ACs (6affe8d): #1 event, #2
+  snapshot, #3 no Director field, #4 declare gate absent, #5 plan gate absent, #6 presence
+  effect, #7 `initiative.leave`. This spec uses the new numbers.
 
 ## Root cause (from the evidence)
 
@@ -108,7 +128,7 @@ and on success the goblin flees. Resolve rolls the check through the engine. Onl
 does it submit the presence change. On failure the goblin stays. A party member who walks out of
 the scene is the acting actor; that change needs no roll (decision-0025 §2.3).
 
-**Why this priority**: Card AC #2. It is the only producer, and it ties presence to dice.
+**Why this priority**: Card AC #6. It is the only producer, and it ties presence to dice.
 
 **Independent Test**: Schema and grammar unit tests, plus resolve node tests with the fake
 gateway and scripted dice.
@@ -139,7 +159,7 @@ out of the initiative order. Its turn never comes up again. Its HP and condition
 state, so the snapshot still shows it, compressed, as gone. If it arrives back during the fight,
 it rejoins the order with an initiative roll.
 
-**Why this priority**: Card AC #3. Without it a fled goblin still gets NPC turns.
+**Why this priority**: Card AC #7. Without it a fled goblin still gets NPC turns.
 
 **Independent Test**: Engine unit tests with `scriptedRng`, planner unit tests, and resolve node
 tests with the fake gateway over a turn-mode fixture.
@@ -169,7 +189,7 @@ tests with the fake gateway over a turn-mode fixture.
 Every DM prompt that renders actor state shows the logged presence. S0 shows what assemble read.
 S1 shows what resolve wrote. The diff reports each change.
 
-**Why this priority**: Card AC #4. Narrate, audit, the Director and the later gates all read the
+**Why this priority**: Card AC #2. Narrate, audit, the Director and the later gates all read the
 snapshot.
 
 **Independent Test**: Snapshot build and diff unit tests over fixture projections.
@@ -194,7 +214,7 @@ snapshot.
 The Director decides scene-level moves. It has no field that changes presence. A Director output
 that tries to carry one does not reach the log.
 
-**Why this priority**: Card AC #5 and decision-0025 §2.1. It stops the M2 seq 296–301 path:
+**Why this priority**: Card AC #3 and decision-0025 §2.1. It stops the M2 seq 296–301 path:
 prose flight followed by a Director encounter end.
 
 **Independent Test**: A schema test over `DirectorOutput`, and a resolve test that inspects every
@@ -216,7 +236,7 @@ Director-group submission.
 A player, a companion or the scripted seat declares for a character that has left the scene.
 The gate refuses before any row is written and before any model runs.
 
-**Why this priority**: Card AC #6 (decision-0025 §3.1; moved from TASK-0112).
+**Why this priority**: Card AC #4 (decision-0025 §3.1; moved from TASK-0112).
 
 **Independent Test**: Planner unit tests in `packages/session-model`, plus one server gate test
 through `gate.handle`.
@@ -243,7 +263,7 @@ Interpret returns an attack on the goblin that fled last turn. Before resolve wr
 the plan gate refuses the whole action group. The action resolves `refused`. The job result
 names the step, the field, the id and the reason `absent`.
 
-**Why this priority**: Card AC #7 (decision-0025 §3.2; moved from TASK-0112).
+**Why this priority**: Card AC #5 (decision-0025 §3.2; moved from TASK-0112).
 
 **Independent Test**: Pure plan-gate unit tests over S0 fixtures, plus a resolve node test with
 the fake gateway.
@@ -314,7 +334,7 @@ the fake gateway.
   `policy-and-authority.md` (the policy row), `gate-api.md` §1 (the rows table), and
   `specs/028-session-model/contracts/session-events.md` (the new event).
 
-**The step grammar (AC #2) (OQ-2)**
+**The step grammar (AC #6) (OQ-2)**
 
 - **FR-008**: `EffectSchema` MUST gain a variant `{ effect: "presence", targetId, reason }`.
   It may appear wherever an effect may: an `effect` step, a check's `onSuccess` and
@@ -333,7 +353,7 @@ the fake gateway.
 - **FR-013**: Narration facts MUST include each landed presence change (actor name, new value,
   reason), so narrate may show a recorded flight. The fiction view in S1 already shows the value.
 
-**Leaving the order (AC #3) (OQ-3)**
+**Leaving the order (AC #7) (OQ-3)**
 
 - **FR-014**: The engine MUST gain a command `initiative.leave { combatantId, reason }`. It
   removes the combatant from the active encounter's order and emits the existing
@@ -342,7 +362,7 @@ the fake gateway.
   `UNKNOWN_COMBATANT` for an unknown id, a not-in-order refusal for a combatant not in the order,
   and a refusal when the order would be empty. Every check runs before any die (refuse before
   draw). The exact refusal codes for "not in order" and "would empty" reuse existing codes where
-  one fits; plan.md names them, and any new code is an OQ-4-class ruling.
+  one fits; plan.md names them. Plan default: reuse, so no engine enum change (plan R3).
 - **FR-016**: When the leaving combatant is the active one, the next entry in the order becomes
   active. A wrap past the end increments the round, as `turn.advance` does. Resolve MUST then
   skip its own turn advance for that turn (User Story 3, scenario 2).
@@ -353,7 +373,7 @@ the fake gateway.
 - **FR-018**: The engine coverage meta-test MUST pass: the new command appears in a test.
   `specs/026-dnd5e-engine/contracts/commands.md` and the `dnd5e-engine` wiki note MUST record it.
 
-**The snapshot (AC #4)**
+**The snapshot (AC #2)**
 
 - **FR-019**: `buildSnapshot` MUST read each actor's `presence` from the scene presence
   projection by actor id, defaulting to `present`. Party actors match by character id, NPC
@@ -362,13 +382,13 @@ the fake gateway.
   table MUST record that presence comes from the log. `SNAPSHOT_VERSION` stays 1: the field's
   meaning does not change.
 
-**No Director field (AC #5)**
+**No Director field (AC #3)**
 
 - **FR-021**: `DirectorOutput` MUST hold no presence field. A test MUST walk its schema and
   assert it, and a resolve test MUST assert no Director-group submission has kind
   `scene-presence`.
 
-**Declare gate, absent (AC #6)**
+**Declare gate, absent (AC #4)**
 
 - **FR-022**: The planner's `action.declare` case MUST refuse a character-scope declaration whose
   character is `absent` in the scene presence projection, with `CHARACTER_UNABLE` and
@@ -379,7 +399,7 @@ the fake gateway.
 - **FR-024**: The absent check MUST run after `ACTION_EXISTS` and `NOT_AUTHORIZED`, beside the
   life-state check. The gate-api.md §1 `action.declare` row MUST name `reason: "absent"`.
 
-**Plan gate, absent (AC #7) (OQ-4)**
+**Plan gate, absent (AC #5) (OQ-4)**
 
 - **FR-025**: `checkPlan` MUST fail an id whose S0 actor has `presence: "absent"`, with
   `PlanFailureReason` `absent`. The one exception is a presence effect with reason `arrived`.
@@ -440,12 +460,12 @@ the fake gateway.
 | Card AC | Text (short) | Met by | Test owner |
 |---|---|---|---|
 | #1 | A catalogued event records a presence change with actor id, new value and reason | FR-001 to FR-007; User Story 1 | TASK-0141 |
-| #2 | A step kind lets interpret and adjudicate propose a change; the gate applies it only through the engine, with tests | FR-008 to FR-013, FR-017; User Story 2 | TASK-0141 |
-| #3 | An `absent` combatant leaves the encounter order through `combatant.remove` | FR-014 to FR-018; User Story 3 (OQ-3 amends the wording) | TASK-0141 |
-| #4 | The snapshot reads scene presence from the log | FR-019, FR-020; User Story 4 | TASK-0141 |
-| #5 | No Director field writes scene presence, with a test | FR-021; User Story 5 | TASK-0141 |
-| #6 | The declare gate refuses an absent character with `CHARACTER_UNABLE` (`reason: "absent"`) and a test | FR-022 to FR-024; User Story 6 | TASK-0141 |
-| #7 | A plan gate refuses a step whose actor or target is absent in S0, with a test and its refusal code ruled here | FR-025, FR-026; User Story 7; OQ-4 | TASK-0141 |
+| #2 | The snapshot reads scene presence from the log | FR-019, FR-020; User Story 4 | TASK-0141 |
+| #3 | No Director field writes scene presence, with a test | FR-021; User Story 5 | TASK-0141 |
+| #4 | The declare gate refuses an absent character with `CHARACTER_UNABLE` (`reason: "absent"`) and a test | FR-022 to FR-024; User Story 6 | TASK-0141 |
+| #5 | A plan gate refuses a step whose actor or target is absent in S0, with a test and its refusal code ruled here | FR-025, FR-026; User Story 7; OQ-4 (a) | TASK-0141 |
+| #6 | A presence effect lets interpret and adjudicate propose a change, including under a roll outcome; the gate applies it only through a `scene-presence` proposal (policy `ask`), with tests | FR-004, FR-008 to FR-013, FR-017; User Story 2; OQ-1 (a), OQ-2 (a) | TASK-0141 |
+| #7 | An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) | FR-014 to FR-018; User Story 3; OQ-3 (a) | TASK-0141 |
 
 ## Assumptions
 
@@ -469,7 +489,9 @@ the fake gateway.
 
 ## Open questions
 
-### Operator rulings (one-way doors; the spec is written against each default)
+### Operator rulings (resolved 2026-10-27: OQ-1 to OQ-4 all (a))
+
+The options below are kept as the record of what was weighed.
 
 - **OQ-1 — the event and how it reaches the log (catalogue + frozen 029 text).**
   - (a) **Recommended.** A session-model event `scene-presence.changed` v1 (`state-change`,
@@ -489,7 +511,7 @@ the fake gateway.
     catalogued event, and the NPC group has no action.
   - Name note: `presence.recorded` (decision-0024) already exists. The `scene-` prefix keeps the
     two apart, as decision-0025 "Terms" requires.
-- **OQ-2 — the step grammar for AC #2.**
+- **OQ-2 — the step grammar for AC #6 (old AC #2).**
   - (a) **Recommended.** A new **effect** variant `{ effect: "presence", targetId, reason }`,
     usable in an `effect` step and in `onSuccess`, `onFailure` and `onHit`. It composes with a
     roll against the actor, which is how decision-0025 §2.2 wants flight and surrender gated.
@@ -498,18 +520,18 @@ the fake gateway.
   - (b) A new **step** kind `{ step: "presence", targetId, reason }`. It matches the card
     wording literally. It cannot sit under a roll's outcome, so a dared goblin's flight would be
     a separate, unconditioned step. That defeats Formulation 3.
-- **OQ-3 — how an absent combatant leaves the order (engine contract; card AC #3 wording).**
+- **OQ-3 — how an absent combatant leaves the order (engine contract; old card AC #3 wording, now AC #7).**
   `combatant.remove` refuses a combatant in the active encounter and deletes its state.
   - (a) **Recommended.** A new engine command `initiative.leave` that takes the combatant out of
     the order and keeps its state (event: the existing `encounter.changed`). An arrival rejoins
-    through `initiative.join`. The snapshot keeps the absent actor with its HP. Amend card AC #3
+    through `initiative.join`. The snapshot keeps the absent actor with its HP. Amend card AC #3 (done: now AC #7)
     to read "leaves the encounter order through an engine command".
   - (b) Amend `combatant.remove` to drop an encounter member from the order (AC #3 literal). The
     combatant's state is deleted: the snapshot loses the actor unless the presence projection
     keeps a name stub, and a returning goblin comes back at full HP. A party member who leaves
     loses HP, hit dice and slots. `COMBATANT_IN_ENCOUNTER` then needs a new meaning or goes
     unused.
-- **OQ-4 — the plan-gate refusal code for an absent actor (AC #7).** `action.resolved.refusalCode`
+- **OQ-4 — the plan-gate refusal code for an absent actor (AC #5, old AC #7).** `action.resolved.refusalCode`
   is the engine's `RefusalCodeSchema`, so the code must be an engine code.
   - (a) **Recommended.** Reuse `UNKNOWN_COMBATANT`, with plan-gate reason `absent` in the job
     result. This is what TASK-0112's plan gate already does for `not-a-combatant`. No frozen text
