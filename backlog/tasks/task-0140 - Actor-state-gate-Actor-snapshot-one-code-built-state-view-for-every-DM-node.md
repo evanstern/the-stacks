@@ -32,12 +32,14 @@ Spec: specs/040-actor-snapshot
 - [ ] #4 Under the token cap, dead and absent actors compress to one line; no actor is dropped, with a test over a large party and encounter.
 - [ ] #5 A snapshot that cannot fit fails the node loudly, with a test.
 - [ ] #6 Existing dm tests and the scripted CI playtest stay green.
-- [ ] #7 Spec phase: The snapshot module (US1, US2 diff, US4 render)
+- [x] #7 Spec phase: The snapshot module (US1, US2 diff, US4 render)
 - [ ] #8 Spec phase: S0, S1 and the planning prompts (US2, US3, US4)
 - [ ] #9 Spec phase: Player-facing prompts and retirement (US3, US4, US5)
 - [x] #10 Spec phase: Wiki re-ground
 - [x] #11 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
