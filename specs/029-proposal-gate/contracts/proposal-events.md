@@ -5,6 +5,9 @@ Package: `@the-stacks/session-model`. This extends
 and additive projection fields, as those contracts provide ("a future card adds a type by
 adding a catalog entry"). Update both 028 contracts in the same PR with a pointer here.
 
+**Amendment (TASK-0114).** Amended by the operator ruling "W-A: add withdraw" on TASK-0114 (checkpoint W, 2026-10-26; spec 036-companion-react, FR-017 to FR-019). One catalog entry is added, `action.withdrawn`; see
+"Action withdrawal" at the end of this file.
+
 ## New event kind
 
 ```ts
@@ -119,3 +122,29 @@ Rules:
 export function pendingProposals(p: SessionProjections): ProposalView[];  // status "pending", log order
 export function findProposal(p: SessionProjections, proposalId: string): ProposalView | undefined;
 ```
+
+## Action withdrawal (TASK-0114 amendment)
+
+Amended by the operator ruling "W-A: add withdraw" on TASK-0114 (checkpoint W, 2026-10-26; spec 036-companion-react, FR-017 to FR-019).
+
+| Type | Kind | Visibility rule | Payload schema |
+|---|---|---|---|
+| `action.withdrawn` | `lifecycle` | any (gate writes `public`) | `ActionWithdrawnV1` |
+
+```ts
+export const ActionWithdrawnV1 = z.object({ actionId: RefIdSchema });   // version 1
+```
+
+The row's actor is the proposer (the declarer, or the seated human DM).
+
+Projection rules:
+
+- `ActionStatus` gains the terminal status `withdrawn`.
+- `action.withdrawn` moves a `declared` or `discussed` action to `withdrawn`. It is ignored
+  (counted in `ignoredTransitions`) on a `committed`, `resolved` or `withdrawn` action, and on
+  an unknown id.
+- A comment, commit or resolve on a `withdrawn` action is ignored (counted), as for a
+  `resolved` action.
+- The transcript gains the entry `{ kind: "action.withdrawn"; actionId: string }`.
+- A `withdrawn` action never joins a beat, enqueues no turn and shows no commit control.
+- The catalog grows from 34 to 35 entries (17 session entries, 18 mechanics entries).

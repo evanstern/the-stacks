@@ -43,9 +43,14 @@ export interface CommitInput {
   authority: "declarer" | "active-player" | "group" | "dm";
 }
 
+export interface WithdrawInput {
+  actionId: string;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
   comment(input: CommentInput): boolean;
   commit(input: CommitInput): boolean;
+  withdraw(input: WithdrawInput): boolean;
 }

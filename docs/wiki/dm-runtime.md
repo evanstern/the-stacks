@@ -26,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
 ---
 
 # DM runtime
@@ -118,7 +118,14 @@ purpose; `PURPOSE_MAX_TOKENS` holds default caps. Model choice stays in `AI_PURP
 An AI companion is a party member with controller `ai-companion`. `companion.ts` asks
 `dm.companion` for `say`, `comment` and `act` output and submits it through the gate as that
 companion, under the same permission matrix and commit authority as a human. In turn mode the
-active companion always acts (a null act becomes a hold action). A `hold` director decision queues a companion job; when it ends it
+active companion always acts (a null act becomes a hold action).
+Each run shows the model the companion's own open actions and returns one `pending` decision
+per action: `commit`, `withdraw` or `revise` (default: `withdraw` when the latest human stance
+is `object`, else `commit`; a new act is dropped while an own action is open). A human
+comment on a companion's open action queues a `react` run ([[dm-turn-jobs]]). In turn mode a
+non-active companion never commits (the action waits for its turn), and an active companion
+that commits nothing (a withdraw) still takes the hold act so the turn advances.
+`PROMPT_VERSION` is `dm.companion-v4`. A `hold` director decision queues a companion job; when it ends it
 force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new.
 

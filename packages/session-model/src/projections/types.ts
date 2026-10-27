@@ -76,6 +76,7 @@ export type TranscriptEntry = {
     }
   | { kind: "action.commented"; actionId: string; stance: Stance; text: string }
   | { kind: "action.committed"; actionId: string; authority: ActionAuthority }
+  | { kind: "action.withdrawn"; actionId: string }
   | {
       kind: "action.resolved";
       actionId: string;
@@ -84,7 +85,12 @@ export type TranscriptEntry = {
     }
 );
 
-export type ActionStatus = "declared" | "discussed" | "committed" | "resolved";
+export type ActionStatus =
+  | "declared"
+  | "discussed"
+  | "committed"
+  | "resolved"
+  | "withdrawn";
 
 export interface ActionView {
   actionId: string;

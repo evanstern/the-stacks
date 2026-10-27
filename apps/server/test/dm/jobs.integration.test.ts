@@ -7,6 +7,7 @@ import {
   claimDmJob,
   enqueueChronicle,
   enqueueCompanion,
+  enqueueCompanionReact,
   enqueueTurn,
   enqueueTurnForced,
   listDmJobs,
@@ -313,3 +314,158 @@ describe.skipIf(!reachable)("DM enqueuer and the presence marker", () => {
     expect(rows).toHaveLength(0);
   });
 });
+
+describe.skipIf(!reachable)(
+  "companion react coalescing (specs/036-companion-react, integration)",
+  () => {
+    beforeEach(async () => {
+      await requireDb().execute(
+        sql`DELETE FROM jobs WHERE kind IN ('turn', 'companion', 'chronicle')`,
+      );
+    });
+
+    const opts = { quietMs: 0, maxWaitMs: 10_000 };
+    const inputOf = async (id: string) =>
+      (await statusOf(id))?.input as {
+        companions: string[];
+        reason: string;
+        firstReactionAt: string;
+        notBefore: string;
+      };
+
+    it("two enqueues give one queued row naming both companions", async () => {
+      const sessionId = randomUUID();
+      const a = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        opts,
+      );
+      const b = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "mira",
+        opts,
+      );
+      const c = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        opts,
+      );
+      expect(a.inserted).toBe(true);
+      expect(b).toEqual({ jobId: a.jobId, inserted: false });
+      expect(c).toEqual({ jobId: a.jobId, inserted: false });
+      const queued = await listDmJobs(requireDb(), sessionId, 10, "companion");
+      expect(queued).toHaveLength(1);
+      expect((await inputOf(a.jobId)).companions).toEqual(["odo", "mira"]);
+      expect((await inputOf(a.jobId)).reason).toBe("react");
+    });
+
+    it("does not claim a row before notBefore and claims it after", async () => {
+      const sessionId = randomUUID();
+      const { jobId } = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        {
+          quietMs: 60_000,
+          maxWaitMs: 120_000,
+        },
+      );
+      expect(await claim()).toBeNull();
+      await requireDb().execute(sql`
+        UPDATE jobs SET input = jsonb_set(input, '{notBefore}', to_jsonb(to_char((now() - interval '1 second') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')))
+        WHERE id = ${jobId}
+      `);
+      const claimed = await claim();
+      expect(claimed?.id).toBe(jobId);
+      expect(claimed?.kind).toBe("companion");
+    });
+
+    it("the maximum wait caps a moving notBefore", async () => {
+      const sessionId = randomUUID();
+      const { jobId } = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        {
+          quietMs: 5_000,
+          maxWaitMs: 8_000,
+        },
+      );
+      const first = await inputOf(jobId);
+      // The first reaction happened 7 s ago; a new reaction would push to now+5s,
+      // beyond first+8s, so the cap (first+8s) wins.
+      await requireDb().execute(sql`
+        UPDATE jobs SET input = jsonb_set(input, '{firstReactionAt}', to_jsonb(to_char((now() - interval '7 seconds') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')))
+        WHERE id = ${jobId}
+      `);
+      await enqueueCompanionReact(requireDb(), sessionId, "mira", {
+        quietMs: 5_000,
+        maxWaitMs: 8_000,
+      });
+      const after = await inputOf(jobId);
+      const nowMs = Date.now();
+      const notBefore = Date.parse(after.notBefore);
+      const firstMs = Date.parse(first.firstReactionAt);
+      // capped: about 1 s from now (7 s elapsed of 8 s), far less than now + 5 s
+      expect(notBefore).toBeLessThan(nowMs + 3_000);
+      expect(notBefore).toBeGreaterThan(nowMs - 3_000);
+      expect(Date.parse(after.firstReactionAt)).toBeLessThan(firstMs);
+    });
+
+    it("ten concurrent enqueues leave exactly one queued row", async () => {
+      const sessionId = randomUUID();
+      await Promise.all(
+        Array.from({ length: 10 }, (_, i) =>
+          enqueueCompanionReact(
+            requireDb(),
+            sessionId,
+            i % 2 ? "odo" : "mira",
+            opts,
+          ),
+        ),
+      );
+      const queued = (
+        await listDmJobs(requireDb(), sessionId, 20, "companion")
+      ).filter((j) => j.status === "queued");
+      expect(queued).toHaveLength(1);
+      expect(
+        [
+          ...(queued[0] as unknown as { input: { companions: string[] } }).input
+            .companions,
+        ].sort(),
+      ).toEqual(["mira", "odo"]);
+    });
+
+    it("a running react job plus a new reaction gives one new queued row", async () => {
+      const sessionId = randomUUID();
+      const first = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        opts,
+      );
+      const claimed = await claim();
+      expect(claimed?.id).toBe(first.jobId);
+      const next = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "odo",
+        opts,
+      );
+      const again = await enqueueCompanionReact(
+        requireDb(),
+        sessionId,
+        "mira",
+        opts,
+      );
+      expect(next.inserted).toBe(true);
+      expect(next.jobId).not.toBe(first.jobId);
+      expect(again).toEqual({ jobId: next.jobId, inserted: false });
+      const rows = await listDmJobs(requireDb(), sessionId, 10, "companion");
+      expect(rows.map((r) => r.status).sort()).toEqual(["queued", "running"]);
+    });
+  },
+);

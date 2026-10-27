@@ -11,7 +11,7 @@ sources:
   - apps/server/src/dm/worker.ts
   - apps/server/src/schema/dm-model-calls.ts
   - specs/037-debug-api/contracts/debug-api.md
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
 ---
 
 # Debug view API

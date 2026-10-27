@@ -525,7 +525,7 @@ describe.skipIf(!reachable)("DM worker usage ledger (database)", () => {
           purpose: "dm.companion",
           respond: {
             type: "json",
-            value: { say: null, comment: null, act: null },
+            value: { say: null, comment: null, act: null, pending: [] },
           },
         },
         {

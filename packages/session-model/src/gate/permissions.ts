@@ -1,5 +1,5 @@
 import type { SessionProjections } from "../projections/types.js";
-import type { GateRequest, Proposer } from "./proposals.js";
+import { actorOf, type GateRequest, type Proposer } from "./proposals.js";
 import {
   controls,
   isAiDm,
@@ -76,6 +76,15 @@ export function checkPermission(
         : no("a comment needs a party member or the DM");
     case "action.commit":
       return ok;
+    case "action.withdraw": {
+      if (request.kind !== "action.withdraw" || ai) {
+        return no("the AI DM does not withdraw actions");
+      }
+      const action = p.actions.find((a) => a.actionId === request.actionId);
+      // An unknown action passes here; the planner refuses it with UNKNOWN_ACTION.
+      if (!action || seated || action.actor === actorOf(proposer)) return ok;
+      return no("only the declarer or the seated DM withdraws an action");
+    }
     case "proposal.approve":
     case "proposal.reject":
       return seated

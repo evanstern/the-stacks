@@ -43,8 +43,10 @@ export const CompanionJobInput = z.object({
   v: z.literal(1),
   sessionId: z.uuid(),
   companions: z.array(RefIdSchema).min(1).max(4),
-  reason: z.enum(["hold", "turn", "prompt"]),
+  reason: z.enum(["hold", "turn", "prompt", "react"]),
   beatJobId: z.uuid().nullable(),                    // the held turn job, for reason "hold"
+  firstReactionAt: z.iso.datetime().optional(),      // react only: database time of the first reaction
+  notBefore: z.iso.datetime().optional(),            // react only: earliest claim time
 });
 
 export const ChronicleJobInput = z.object({
@@ -110,6 +112,9 @@ WHERE id = (
 RETURNING …;
 ```
 
+- A queued companion job whose `input->>'notBefore'` is set is claimable only when
+  `(input->>'notBefore')::timestamptz <= now()`. Rows without `notBefore` are unaffected.
+  Amended by specs/036-companion-react.
 - A reclaim of an expired job comes first.
 - A unique violation on `jobs_session_running_key` (a race between a reclaim and a queued
   claim for the same session) returns "nothing claimed". The loop polls again.
@@ -152,7 +157,11 @@ it with `gate.onAppended`. For each call:
 1. If any row is `action.committed` → `enqueueTurn(sessionId, "commit", seq)`.
 2. If any row is `proposal.approved` or `proposal.rejected` whose proposal came from `ai:dm`
    → `enqueueTurn(sessionId, "approval", seq)`.
-3. Call `nudge()` so the worker polls at once.
+3. For each human `action.commented` row on an open action whose actor is
+   `ai:companion:<id>` → `enqueueCompanionReact(sessionId, id, { quietMs, maxWaitMs })`.
+   Comments by any `ai:` actor queue none. A failure is logged and never fails the human's
+   submission. Amended by specs/036-companion-react.
+4. Call `nudge()` so the worker polls at once.
 
 `enqueueTurn` is `INSERT … ON CONFLICT ON jobs_turn_queued_key DO NOTHING`. A queued job
 already covers the next beat. A listener failure is logged, and FR-008's reconcile repairs
@@ -160,6 +169,14 @@ it at the next worker start.
 
 `enqueueTurnForced(sessionId)` is the companion job's upsert: insert with
 `forceResolve: true`, or update the queued row's `input.forceResolve` to `true`.
+
+`enqueueCompanionReact` inserts a `react` companion job `ON CONFLICT` on the partial unique
+index `jobs_companion_react_queued_key` (`session_id` where `kind = 'companion'`,
+`status = 'queued'` and `input->>'reason' = 'react'`). On conflict it merges the companion id
+into `input.companions` and sets `input.notBefore` to
+`least(now() + quietMs, firstReactionAt + maxWaitMs)` in one statement, and loops when the
+queued row was claimed in between. Both times are database time (migration `0005`).
+Amended by specs/036-companion-react.
 
 `enqueueCompanion` and `enqueueChronicle` insert their kinds (`chronicle` with `ON CONFLICT
 DO NOTHING`).

@@ -18,8 +18,9 @@ sources:
   - apps/server/src/playtest/auditor/stats.ts
   - apps/server/playtests/scenarios/greyhollow-ford.json
   - apps/server/test/playtest/playtest.integration.test.ts
+  - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: ada33ec1e814257544d8e98b7b6460fa18d82acb
 ---
 
 # Playtest harness
@@ -117,7 +118,7 @@ contradiction, invented mechanics, hidden-info leak, player agency, roll without
 no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM
 runtime audit was flagged. `stats.ts` derives fight statistics from the ledger for TASK-0055
 (rounds, attacks, hits, damage, reduced-to-zero, death saves, and `fledOrBargained` from roll
-reasons, `null` plus `fledOrBargainedNote` when not derivable). A model note warns when
+reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A model note warns when
 `playtest.audit` and `dm.narrate` resolve to the same provider and model.
 
 `cli.ts` (`pnpm playtest run|audit|estimate`, built with `tsc -b`, loads `../../.env`, the same

@@ -10,6 +10,7 @@ import {
   type EventFrame,
   rejectFrame,
   talkFrame,
+  withdrawFrame,
 } from "./frames.ts";
 import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
@@ -45,6 +46,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       declareAction: (input) => send(declareFrame(input)),
       comment: (input) => send(commentFrame(input)),
       commit: (input) => send(commitFrame(input)),
+      withdraw: (input) => send(withdrawFrame(input)),
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).
       approve: (proposalId) => send(approveFrame(proposalId)),

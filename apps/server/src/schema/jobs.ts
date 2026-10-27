@@ -70,6 +70,12 @@ export const jobs = pgTable(
     uniqueIndex("jobs_chronicle_queued_key")
       .on(table.sessionId)
       .where(sql`${table.kind} = 'chronicle' AND ${table.status} = 'queued'`),
+    // One queued react companion job per session (specs/036-companion-react).
+    uniqueIndex("jobs_companion_react_queued_key")
+      .on(table.sessionId)
+      .where(
+        sql`${table.kind} = 'companion' AND ${table.status} = 'queued' AND ${table.input}->>'reason' = 'react'`,
+      ),
     // One acting (turn or companion) job running per session (FR-003).
     uniqueIndex("jobs_session_running_key")
       .on(table.sessionId)

@@ -7,6 +7,7 @@ import {
   createWorld,
   db,
   loudSkip,
+  player,
   reachable,
   readRows,
   startScene,
@@ -25,8 +26,7 @@ const companionCall = (value: unknown) => ({
   respond: { type: "json", value },
 });
 
-async function turnModeWith(w: World, active: string) {
-  await startScene(w);
+async function giveTurn(w: World, active: string) {
   const res = await w.gate.submit(w.sessionId, AI_DM, {
     kind: "table-mode",
     summary: null,
@@ -41,6 +41,10 @@ async function turnModeWith(w: World, active: string) {
   if (!res.ok) throw new Error(`table-mode refused: ${res.refusal.code}`);
 }
 
+async function turnModeWith(w: World, active: string) {
+  await startScene(w);
+  await giveTurn(w, active);
+}
 const recorded: RecordedCall[] = [];
 
 function deps(w: World, enqueue?: (id: string) => Promise<unknown>) {
@@ -63,7 +67,7 @@ function deps(w: World, enqueue?: (id: string) => Promise<unknown>) {
 const jobOf = (
   w: World,
   companions: string[],
-  reason: "hold" | "turn" | "prompt",
+  reason: "hold" | "turn" | "prompt" | "react",
 ) => ({
   id: "00000000-0000-4000-8000-0000000000c1",
   input: {
@@ -88,6 +92,7 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
             text: "Odo steps to the shutter and braces it open.",
             commit: true,
           },
+          pending: [],
         }),
       ],
     });
@@ -155,6 +160,7 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
           say: null,
           comment: null,
           act: { text: "Kestrel looses an arrow.", commit: true },
+          pending: [],
         }),
       ],
     });
@@ -175,7 +181,9 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
 
   it("replaces a null act in turn mode with a committed hold-position act", async () => {
     const w = await createWorld({
-      calls: [companionCall({ say: null, comment: null, act: null })],
+      calls: [
+        companionCall({ say: null, comment: null, act: null, pending: [] }),
+      ],
     });
     await turnModeWith(w, "odo");
     await runCompanionJob(deps(w), jobOf(w, ["odo"], "turn"), signal);
@@ -194,6 +202,7 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
           say: "Hm. I do not like this.",
           comment: null,
           act: null,
+          pending: [],
         }),
       ],
     });
@@ -226,5 +235,79 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
       signal,
     );
     expect(result.plays[0]?.status).toBe("skipped");
+  });
+
+  it("turn mode: a non-active companion's react run submits no commit", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Kestrel nocks an arrow.", commit: false },
+          pending: [],
+        }),
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [
+            { actionId: "act-kestrel-1", decision: "commit", text: null },
+          ],
+        }),
+      ],
+    });
+    await turnModeWith(w, "odo");
+    await runCompanionJob(deps(w), jobOf(w, ["kestrel"], "turn"), signal);
+    const commented = await w.as(player, {
+      kind: "action.comment",
+      comment: { actionId: "act-kestrel-1", stance: "approve", text: "Go." },
+    });
+    expect(commented.ok).toBe(true);
+    const result = await runCompanionJob(
+      deps(w),
+      jobOf(w, ["kestrel"], "react"),
+      signal,
+    );
+    expect(result.plays[0]?.status).toBe("played");
+    expect(result.plays[0]?.submissions).toEqual([]);
+    const rows = await readRows(w);
+    expect(rows.some((r) => r.type === "action.committed")).toBe(false);
+  });
+
+  it("turn mode: the active companion commits its open action and declares no second one", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo raises his shield.", commit: false },
+          pending: [],
+        }),
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo does something else.", commit: true },
+          pending: [{ actionId: "act-odo-1", decision: "commit", text: null }],
+        }),
+      ],
+    });
+    await turnModeWith(w, "kestrel");
+    await runCompanionJob(deps(w), jobOf(w, ["odo"], "prompt"), signal);
+    await giveTurn(w, "odo");
+    const result = await runCompanionJob(
+      deps(w),
+      jobOf(w, ["odo"], "turn"),
+      signal,
+    );
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["action.commit", true],
+    ]);
+    const rows = await readRows(w);
+    expect(rows.filter((r) => r.type === "action.declared")).toHaveLength(1);
+    const committed = rows.find((r) => r.type === "action.committed");
+    expect(
+      (committed as unknown as { payload: { actionId: string } }).payload
+        .actionId,
+    ).toBe("act-odo-1");
   });
 });

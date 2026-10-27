@@ -21,6 +21,7 @@ export {
   ActionCommittedV1,
   ActionDeclaredV1,
   ActionResolvedV1,
+  ActionWithdrawnV1,
 } from "./events/actions.js";
 export {
   DmSeatChangedV1,

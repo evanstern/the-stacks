@@ -62,8 +62,12 @@ export const CompanionJobInput = z.object({
   v: z.literal(1),
   sessionId: z.uuid(),
   companions: z.array(RefIdSchema).min(1).max(4),
-  reason: z.enum(["hold", "turn", "prompt"]),
+  reason: z.enum(["hold", "turn", "prompt", "react"]),
   beatJobId: z.uuid().nullable(), // the held turn job, for reason "hold"
+  // Reason "react" only (specs/036-companion-react): database time of the first
+  // unanswered human reaction, and the earliest time the worker may claim the job.
+  firstReactionAt: z.iso.datetime().optional(),
+  notBefore: z.iso.datetime().optional(),
 });
 export type CompanionJobInput = z.infer<typeof CompanionJobInput>;
 
@@ -174,12 +178,19 @@ export async function claimDmJob(
             (j.status = 'running' AND j.heartbeat_at < now() - (interval '1 millisecond' * ${LEASE_MS}))
             OR (j.status = 'queued' AND (
               j.kind = 'chronicle'
-              OR NOT EXISTS (
-                SELECT 1 FROM jobs r
-                WHERE r.session_id = j.session_id
-                  AND r.kind IN ('turn', 'companion')
-                  AND r.status = 'running'
-                  AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
+              OR (
+                NOT EXISTS (
+                  SELECT 1 FROM jobs r
+                  WHERE r.session_id = j.session_id
+                    AND r.kind IN ('turn', 'companion')
+                    AND r.status = 'running'
+                    AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
+                )
+                AND (
+                  j.kind <> 'companion'
+                  OR j.input->>'notBefore' IS NULL
+                  OR (j.input->>'notBefore')::timestamptz <= now()
+                )
               )
             ))
           )
@@ -325,6 +336,78 @@ export async function enqueueCompanion(
     .values({ kind: "companion", sessionId: parsed.sessionId, input: parsed })
     .returning({ id: jobs.id });
   return { jobId: (row as { id: string }).id, inserted: true };
+}
+
+/** ISO-8601 UTC text (millisecond precision, `Z`) of a database timestamp expression. */
+const isoUtc = (expr: ReturnType<typeof sql>) =>
+  sql`to_char(${expr} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+
+/**
+ * Queues a `react` companion job, coalesced per session (specs/036-companion-
+ * react plan.md "Coalescing design"). `ON CONFLICT DO NOTHING` on
+ * `jobs_companion_react_queued_key`: when a queued `react` job exists, merge the
+ * companion id into it and move `notBefore` to
+ * `least(now() + quietMs, firstReactionAt + maxWaitMs)` in one statement. Both
+ * times are database time. Loops when the queued row is claimed in between.
+ */
+export async function enqueueCompanionReact(
+  db: DbClient,
+  sessionId: string,
+  companionId: string,
+  opts: { quietMs: number; maxWaitMs: number },
+): Promise<EnqueueResult> {
+  const quiet = sql`(interval '1 millisecond' * ${opts.quietMs})`;
+  const maxWait = sql`(interval '1 millisecond' * ${opts.maxWaitMs})`;
+  for (;;) {
+    const ins = await db.execute(sql`
+      INSERT INTO jobs (kind, session_id, input)
+      VALUES (
+        'companion',
+        ${sessionId}::uuid,
+        jsonb_build_object(
+          'v', 1,
+          'sessionId', ${sessionId}::text,
+          'companions', jsonb_build_array(${companionId}::text),
+          'reason', 'react',
+          'beatJobId', 'null'::jsonb,
+          'firstReactionAt', ${isoUtc(sql`now()`)},
+          'notBefore', ${isoUtc(sql`least(now() + ${quiet}, now() + ${maxWait})`)}
+        )
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `);
+    const insertedRow = ins.rows[0] as { id: string } | undefined;
+    if (insertedRow) return { jobId: insertedRow.id, inserted: true };
+    const upd = await db.execute(sql`
+      UPDATE jobs SET input = jsonb_set(
+        jsonb_set(
+          input,
+          '{companions}',
+          (
+            SELECT jsonb_agg(u.c ORDER BY u.ord)
+            FROM (
+              SELECT DISTINCT ON (t.c) t.c, t.ord
+              FROM jsonb_array_elements_text(
+                input->'companions' || jsonb_build_array(${companionId}::text)
+              ) WITH ORDINALITY AS t(c, ord)
+              ORDER BY t.c, t.ord
+            ) u
+          )
+        ),
+        '{notBefore}',
+        to_jsonb(${isoUtc(sql`least(now() + ${quiet}, (input->>'firstReactionAt')::timestamptz + ${maxWait})`)})
+      )
+      WHERE session_id = ${sessionId}::uuid
+        AND kind = 'companion'
+        AND status = 'queued'
+        AND input->>'reason' = 'react'
+      RETURNING id
+    `);
+    const updatedRow = upd.rows[0] as { id: string } | undefined;
+    if (updatedRow) return { jobId: updatedRow.id, inserted: false };
+    // The queued row was claimed in between; loop to insert a fresh one.
+  }
 }
 
 /** `ON CONFLICT DO NOTHING` on `jobs_chronicle_queued_key`: one queued pass per session. */

@@ -32,6 +32,8 @@ export interface ActionCardView {
   }[];
   /** Status is declared or discussed. */
   open: boolean;
+  /** The viewer may withdraw this open action: its declarer, or the seated DM. */
+  canWithdraw: boolean;
   commit: ViewCommitAuthority;
   committed: { actorLabel: string; authority: ActionAuthority } | null;
   resolved: {
@@ -90,6 +92,10 @@ function toViewAuthority(
         canCommit: false,
         holderLabel: commit.holder === null ? null : label(commit.holder),
       };
+}
+
+function isOpen(status: ActionView["status"]): boolean {
+  return status === "declared" || status === "discussed";
 }
 
 /** Every value the table renders, derived from the projections. Pure and total. */
@@ -156,7 +162,9 @@ export function toTableViewModel(
             stance: c.stance,
             text: c.text,
           })),
-          open: action.status === "declared" || action.status === "discussed",
+          open: isOpen(action.status),
+          canWithdraw:
+            isOpen(action.status) && (isDm || action.actor === input.actor),
           commit: toViewAuthority(
             commitAuthorityFor(action, tableMode, viewer, party),
             label,

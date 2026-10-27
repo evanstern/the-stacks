@@ -3,7 +3,7 @@ import type {
   StoredEvent,
 } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
-import { enqueueTurn } from "./jobs.js";
+import { enqueueCompanionReact, enqueueTurn } from "./jobs.js";
 
 /**
  * The gate listener (contracts/turn-jobs.md "Enqueue"). Registered with
@@ -12,7 +12,9 @@ import { enqueueTurn } from "./jobs.js";
  * 1. Any `action.committed` row enqueues a turn (`commit`).
  * 2. A `proposal.approved` or `proposal.rejected` row whose proposal came from
  *    `ai:dm` enqueues a turn (`approval`), so the DM resumes.
- * 3. `nudge()` wakes the worker.
+ * 3. A human `action.commented` row on an open action of an AI companion
+ *    queues a coalesced `react` companion job (specs/036-companion-react).
+ * 4. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -22,6 +24,10 @@ export interface DmEnqueuerDeps {
   nudge: () => void;
   /** The DM view of the session; used to find who proposed a decided proposal. */
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
+  /** Quiet window after the latest reaction before a `react` job may run (ms). */
+  reactQuietMs?: number;
+  /** Cap on the wait, measured from the first reaction (ms). */
+  reactMaxWaitMs?: number;
   log?: (line: Record<string, unknown>) => void;
 }
 
@@ -47,6 +53,31 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     return null;
   }
 
+  async function reactTargets(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<string[]> {
+    const human = rows.filter(
+      (r) => r.type === "action.commented" && !r.actor.startsWith("ai:"),
+    );
+    if (human.length === 0) return [];
+    const projections = await deps.loadProjections(sessionId);
+    const companions = new Set<string>();
+    for (const row of human) {
+      const id = (row.payload as { actionId?: string }).actionId;
+      const action = projections.actions.find((a) => a.actionId === id);
+      if (!action) continue;
+      if (action.status !== "declared" && action.status !== "discussed") {
+        continue;
+      }
+      const prefix = "ai:companion:";
+      if (action.actor.startsWith(prefix)) {
+        companions.add(action.actor.slice(prefix.length));
+      }
+    }
+    return [...companions];
+  }
+
   return {
     async onAppended(sessionId, rows) {
       try {
@@ -58,6 +89,12 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
           if (decision) {
             await enqueueTurn(deps.db, sessionId, "approval", decision.seq);
           }
+        }
+        for (const companionId of await reactTargets(sessionId, rows)) {
+          await enqueueCompanionReact(deps.db, sessionId, companionId, {
+            quietMs: deps.reactQuietMs ?? 3000,
+            maxWaitMs: deps.reactMaxWaitMs ?? 10000,
+          });
         }
       } catch (error) {
         deps.log?.({

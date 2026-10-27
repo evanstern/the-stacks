@@ -14,13 +14,15 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v2";
+export const PROMPT_VERSION = "dm.companion-v4";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"say":str (400 characters at most)|null,',
   ' "comment":{"actionId":id of an open action,"stance":"approve"|"object"|"comment","text":str}|null,',
-  ' "act":{"text":str (what you attempt, 400 characters at most),"commit":bool}|null}',
+  ' "act":{"text":str (what you attempt, 400 characters at most),"commit":bool}|null,',
+  ' "pending":[{"actionId":id of one of YOUR open actions,"decision":"commit"|"withdraw"|"revise","text":str (400 characters at most, required for revise)|null}]}',
+  "pending holds one entry for each of your own open actions, up to 4. Decision commit puts the action to the table as declared. Decision withdraw closes the action: use it when a player objected and you agree. Decision revise withdraws the action and declares a new one with your text in its place. Leave text null unless the decision is revise. Leave pending empty when you have no open action. Do not declare a new act while you have an open action.",
 ].join("\n");
 
 const SYSTEM = [
@@ -36,6 +38,8 @@ export interface CompanionPromptInput {
   projections: SessionProjections;
   characterId: string;
   active: boolean;
+  /** Ids of the companion's own open actions; they get their own section. */
+  ownOpenActionIds?: string[];
 }
 
 export function buildCompanionPrompt(input: CompanionPromptInput): {
@@ -70,8 +74,22 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
   const committed = projections.actions
     .filter((a) => a.status === "committed")
     .map((a) => `${a.actionId} by ${a.characterId ?? a.actor}: ${a.text}`);
-  const open = projections.actions
-    .filter((a) => a.status === "declared" || a.status === "discussed")
+  const ownIds = new Set(input.ownOpenActionIds ?? []);
+  const openActions = projections.actions.filter(
+    (a) => a.status === "declared" || a.status === "discussed",
+  );
+  const own = openActions
+    .filter((a) => ownIds.has(a.actionId))
+    .map((a) =>
+      [
+        `${a.actionId}: ${a.text}`,
+        ...a.comments.map(
+          (c) => `  ${c.actor} (${c.stance}, seq ${c.seq}): ${c.text}`,
+        ),
+      ].join("\n"),
+    );
+  const open = openActions
+    .filter((a) => !ownIds.has(a.actionId))
     .map((a) => `${a.actionId} by ${a.characterId ?? a.actor}: ${a.text}`);
 
   const user = joinSections([
@@ -92,7 +110,8 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
       CAPS.transcript,
       "start",
     ),
-    section("Open actions you may comment on", open, 400, "end"),
+    section("Your open actions (decide each one in pending)", own, 600, "end"),
+    section("Other open actions you may comment on", open, 400, "end"),
     section("Committed actions this beat", committed, 400, "end"),
     active
       ? "It is YOUR turn. You must act: set act with commit true."

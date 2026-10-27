@@ -13,6 +13,7 @@ import {
   type EventFrame,
   localEventOf,
   talkFrame,
+  withdrawFrame,
 } from "./frames.ts";
 import { appendLocal } from "./local-log.ts";
 import {
@@ -135,6 +136,7 @@ export function useFixtureTable(
       declareAction: (input) => append(declareFrame(input)),
       comment: (input) => append(commentFrame(input)),
       commit: (input) => append(commitFrame(input), input.authority),
+      withdraw: (input) => append(withdrawFrame(input)),
       approve: (id) => decide(id),
       reject: (id) => decide(id),
     };

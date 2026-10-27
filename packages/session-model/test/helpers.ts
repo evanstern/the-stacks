@@ -222,6 +222,7 @@ export const sessionPayloads: Record<string, unknown> = {
     text: "Careful.",
   },
   "action.committed": { actionId: "act-1", authority: "declarer" },
+  "action.withdrawn": { actionId: "act-1" },
   "action.resolved": {
     actionId: "act-1",
     outcome: "applied",
@@ -298,6 +299,7 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
     { actionId: "act-1", stance: "shout", text: "x" },
   ],
   "action.committed": [{ actionId: "act-1", authority: "everyone" }],
+  "action.withdrawn": [{ actionId: "Bad Id" }, {}],
   "action.resolved": [
     { actionId: "act-1", outcome: "applied", batchIds: [], refusalCode: null },
     {
