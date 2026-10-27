@@ -45,7 +45,10 @@ Spec: specs/033-director-robustness
 - [x] #8 Spec phase: Verification run (US3; AC #3) — ORCHESTRATOR-RUN, PAID
 - [x] #9 Spec phase: Full gate (US4; AC #4)
 - [ ] #10 Spec phase: Phase 3b: Interpret fix and the skill gate (US5; AC #3, amendment) — DISPATCH (sonnet)
+- [ ] #11 Spec phase: Phase 4b: Verification rerun (US5; AC #3, amendment) — ORCHESTRATOR-RUN, PAID
 <!-- AC:END -->
+
+
 
 
 
