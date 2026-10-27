@@ -40,6 +40,8 @@ export type ActorController =
   | { kind: "dm" };                           // every monster and seed NPC
 
 export interface ActorCondition {
+  /** The engine condition instance id. The diff (§5) matches instances by it. */
+  instanceId: string;
   condition: string;              // an engine ConditionKey
   level: number | null;           // exhaustion level, else null
   source: string;
