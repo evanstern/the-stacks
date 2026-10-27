@@ -32,7 +32,14 @@ Spec: specs/050-seed-npc-presence
 - [ ] #2 Seed NPCs appear in the snapshot with id, name, aliases, kind `NPC` and scene presence.
 - [ ] #3 A seed NPC's scene presence changes only through U2's event, with a test over M2 seq 296-301 (Snag stays present without a roll).
 - [ ] #4 A seed NPC that becomes a combatant keeps one identity across both.
+- [ ] #5 Spec phase: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half)
+- [ ] #6 Spec phase: `scene-presence` proposal visibility (card AC #2 support, OQ-4)
+- [ ] #7 Spec phase: Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4)
+- [ ] #8 Spec phase: Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half)
+- [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
