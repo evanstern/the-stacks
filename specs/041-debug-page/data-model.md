@@ -14,7 +14,7 @@ in the contract. `StoredEvent` comes from `@the-stacks/session-model`.
 
 ## Client errors (`client.ts`)
 
-`DebugError = { kind: "auth"; status: 401 | 403 } | { kind: "http"; status: number } |
+`DebugError = { kind: "auth"; status: 401 | 403 } | { kind: "http"; status: number; message?: string } |
 { kind: "network" }`. `auth` stops the poller.
 
 ## DebugSnapshot (`snapshot.ts`)
@@ -51,6 +51,8 @@ interface ReadTurn { checkpoint: { beat: string[] | null; npcTurn; director: unk
   outcome: string | null; audit: unknown; calls: ReadCall[]; failure: ReadFailure | null }
 interface ReadAttempt { words: number | null; blocking: Issue[]; advisory: Issue[];
   proseHash: string | null }
+// ReadAttempt is derived from the stored audit record shape
+// { words, deterministic: { issues }, llm: { issues }, proseSha256 }; each issue carries a `blocking` flag.
 ```
 
 `readCompanionResult` → `{ plays: { companion; submissions: { kind; ok; code; seqs }[] }[]; calls }`.
