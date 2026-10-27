@@ -194,7 +194,7 @@ the other join and leave. Screenshots in the PR.
 - [x] T035 [US1] Write `apps/web/test/play/presence-strip.test.tsx`. Confirm
   `apps/web/test/no-dialog.test.mjs` passes.
 - [x] T036 [US1] Run `pnpm ci:check`.
-- [ ] T037 [US1] (awaiting operator (ruling 2026-10-27)) Run quickstart.md "Manual — the merge condition" in Brave on the worktree's
+- [x] T037 [US1] (operator screenshots 2026-10-27: evidence/join-a.png, evidence/leave-a.png (Brave, window A)) Run quickstart.md "Manual — the merge condition" in Brave on the worktree's
   stack. Save the screenshots under `specs/035-presence/evidence/` and list them in the commit
   message.
 

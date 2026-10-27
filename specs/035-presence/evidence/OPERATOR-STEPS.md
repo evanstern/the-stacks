@@ -13,7 +13,8 @@ The database has no users. Create one operator, then redeem one invitation. No p
 written in this file. Use the environment variables shown.
 
 1. Create the operator. The command reads the password from `OPERATOR_PASSWORD`.
-   `OPERATOR_USERNAME=op OPERATOR_PASSWORD='<choose one>' pnpm --filter @the-stacks/server auth:create-operator`
+   `cd <this worktree> && U="$(grep '^DATABASE_URL=' .env | cut -d= -f2- | sed 's/@db:5432/@localhost:15051/')" && DATABASE_URL="$U" TEST_DATABASE_URL="$U" OPERATOR_USERNAME=op OPERATOR_PASSWORD='<choose one>' pnpm --filter @the-stacks/server auth:create-operator`
+   Reason: Both URLs point at the app DB: `node --env-file` reloads TEST_DATABASE_URL from .env, and create-operator prefers it (TASK-0098/TASK-0103), so it would otherwise write to the test DB.
    Source: `apps/server/src/cli/create-operator.ts`.
 2. Open http://localhost:3051 in Brave window A. Sign in as the operator through the sign-in page.
 3. Open the Brave DevTools console on that page. Run this to issue one invitation.
