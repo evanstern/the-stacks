@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 14:54'
+updated_date: '2026-10-27 15:03'
 labels:
   - multiplayer
   - gate
@@ -60,6 +60,12 @@ Q6 write plan.md after PR #73 merges (both touch resolve.ts turn-advance group a
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Operator ruling 2026-10-27 (verbatim): "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Resumed spec author for plan.md, design artifacts and tasks.md: c19179f.)
+Orchestrator rulings 2026-10-27, applying the operator rulings (the operator may overturn either one):
+- The FT-3 floor job payload gets two nullable fields, holder and stanceSeq. They let the job tell that the absence or stall it was armed for has not changed. They sit inside the ruled 031 amendment.
+- Only an ai:dm floor end writes a floor marker. The planner refuses an ai:dm end with NOT_AUTHORIZED unless the active human is absent. This turns ruling Q4 (A) into a gate rule.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
