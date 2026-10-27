@@ -49,23 +49,27 @@ Amended by specs/033-director-robustness/contracts/director-output.md.
 | Decision | Legal when | Otherwise |
 |---|---|---|
 | `hold` | table mode is free; the trigger is not `forced`; every named companion is an AI companion in the party with no committed action in this beat | treated as `resolve`; recorded as an override in the turn record |
-| `turn` | table mode is free; `encounterId` names a seed encounter not yet run | treated as `stay`; recorded |
-| `free` | table mode is turn | treated as `stay`; recorded |
-| tracker advance | `trackerId` names a seed tracker that exists in the projection | dropped; recorded |
-| scene `end` | a scene is set | treated as `continue`; recorded |
+| `turn`, opening | table mode is free; `encounterId` names a seed encounter not yet run | treated as `stay`; recorded |
+| `free`, closing | table mode is turn | treated as `stay`; recorded |
+| tracker advance, closing | `trackerId` names a seed tracker that exists in the projection | dropped; recorded |
+| scene `end`, closing | a scene is set | treated as `continue`; recorded |
 | `companionPrompts` | free mode; AI companions in the party | dropped; recorded |
 
-## Decision → proposals (resolve's Director group)
+## Decision → proposals (resolve's opening and closing moves)
 
 Proposer `ai:dm` for all. `before` is filled by the gate.
 
+Each decision is an opening move or a closing move. Opening moves (scene start, `turn`) run
+before the ruling and action groups. Closing moves (tracker advance, `free`, scene `end`) run
+after the action and NPC groups. See [turn-jobs.md](turn-jobs.md) "Resolve order (decision-0025 §4)".
+
 | Decision | Proposals, in order |
 |---|---|
-| scene start (trigger `scene-start`) | `scene` (after: `sceneId` = seed id, title, summary = goal statement, location name); for each seed character: `mechanics` `combatant.add` (from the seed's identity), then `party` (controller from the start request seats); for each seed tracker: `tracker` (filled 0, `dm`); none of the beat decisions below run on scene start except `pacing` |
-| tracker advance | `tracker` with the new `after` |
-| `turn` | for each monster in the encounter not in engine state: `mechanics` `combatant.add` (built from its SRD record, [scene-seed.md](scene-seed.md)); then `mechanics` `initiative.roll` for every living party combatant and the encounter's monsters (mode `normal`); then `table-mode` `turn` with the active actor from the new encounter order |
-| `free` | `mechanics` `encounter.end` when an encounter is active; then `table-mode` `free` |
-| scene `end` | `mechanics` `encounter.end` when active; `table-mode` `free` when in turn mode; `scene` with `after: null`; the turn's narration closes the scene |
+| scene start (trigger `scene-start`), opening | `scene` (after: `sceneId` = seed id, title, summary = goal statement, location name); for each seed character: `mechanics` `combatant.add` (from the seed's identity), then `party` (controller from the start request seats); for each seed tracker: `tracker` (filled 0, `dm`); none of the beat decisions below run on scene start except `pacing` |
+| tracker advance, closing | `tracker` with the new `after` |
+| `turn`, opening | for each monster in the encounter not in engine state: `mechanics` `combatant.add` (built from its SRD record, [scene-seed.md](scene-seed.md)); then `mechanics` `initiative.roll` for every living party combatant and the encounter's monsters (mode `normal`); then `table-mode` `turn` with the active actor from the new encounter order |
+| `free`, closing | `mechanics` `encounter.end` when an encounter is active; then `table-mode` `free` |
+| scene `end`, closing | `mechanics` `encounter.end` when active; `table-mode` `free` when in turn mode; `scene` with `after: null`; the turn's narration closes the scene |
 | `hold` | none; the runner queues one companion job for the named companions |
 | `companionPrompts` | none; the runner queues one companion job after the turn (reason `prompt`) |
 
@@ -75,7 +79,7 @@ player → that user id; by an AI companion → `ai:companion:<characterId>`; no
 
 ## Holding a beat
 
-1. The runner applies the Director group (trackers can still move), then ends the job with
+1. The runner applies the opening moves and then the closing moves (trackers can still move), then ends the job with
    status `held`.
 2. It queues one companion job: `{ companions, reason: "hold", beatJobId }`.
 3. The companion job plays each named companion once ([companions.md](companions.md)).

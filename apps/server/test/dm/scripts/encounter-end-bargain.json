@@ -1,0 +1,96 @@
+{
+  "v": 1,
+  "name": "encounter-end-bargain",
+  "dice": [1, 20, 1, 1, 1, 1, 1, 15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "row 262 reason text: the Director ends the encounter on the same turn as Odo's bargain",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "free",
+            "reason": "Morale condition met - two goblins down, Snag offers the clapper for safe passage; Odo's bargain closes the encounter, no further rounds needed."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Let the bargain stand.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "reconstructed reading (the F54 evidence keeps no interpret output): a Persuasion check by Odo",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-odo-5",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Odo offers Snag the bargain: the clapper and Pell's freedom for safe passage",
+                  "combatantId": "odo",
+                  "kind": "ability-check",
+                  "ability": "cha",
+                  "skill": "persuasion",
+                  "expression": "1d20+2",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success; no refusal language",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo lowers his mace and steps between the goblins and Pell, his voice level. Snag studies him a long moment, then sets the silver clapper on the mud and waves his dogs back from the fire."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}

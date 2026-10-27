@@ -429,6 +429,227 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     expect(w.scripted.remaining().dice).toBe(0);
   });
 
+  describe("resolve order (decision-0025 §4)", () => {
+    let jobN = 0;
+    /** A job id distinct from every earlier resolve in the world. */
+    const nextJob = () => ({
+      id: `00000000-0000-4000-8000-${String(++jobN).padStart(12, "0")}`,
+    });
+    /** Initiative dice that put the combatant at `first` (party then monster order) on top. */
+    const initDice = (first: number) =>
+      [1, 1, 1, 1, 1, 1, 1].map((d, i) => (i === first ? 20 : d));
+    const TAMSIN_FIRST = 0;
+    const SNAG_FIRST = 3;
+
+    /** Starts the scene, then enters turn mode in `reed-camp`; returns with a fresh checkpoint. */
+    async function inTurnMode(dice: number[]) {
+      const w = await createWorld({ dice });
+      await startScene(w);
+      await run(w, [], {
+        director: {
+          tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+        },
+        job: nextJob(),
+      });
+      w.checkpoint.current = {
+        ...w.checkpoint.current,
+        submissions: [],
+        lastSeq: 0,
+      };
+      return w;
+    }
+    const freshCheckpoint = (w: World) => {
+      w.checkpoint.current = {
+        ...w.checkpoint.current,
+        submissions: [],
+        lastSeq: 0,
+      };
+    };
+    type Row = Awaited<ReturnType<typeof readRows>>[number];
+    const seqOf = (
+      rows: Row[],
+      type: string,
+      nth: "first" | "last" = "first",
+    ) => {
+      const hits = rows.filter((r) => r.type === type);
+      const row = nth === "first" ? hits[0] : hits.at(-1);
+      if (!row) throw new Error(`no ${type} row`);
+      return row.seq;
+    };
+    const resolvedRow = (rows: Row[], actionId: string) => {
+      const row = rows.find(
+        (r) =>
+          r.type === "action.resolved" &&
+          (r.payload as { actionId: string }).actionId === actionId,
+      );
+      if (!row) throw new Error(`no action.resolved row for ${actionId}`);
+      return row;
+    };
+
+    it("an action resolves before a free decision ends the encounter, and no turn advances", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      freshCheckpoint(w);
+      await run(w, [reading(id, [checkStep()])], {
+        director: { tableMode: { to: "free", reason: "The goblins flee." } },
+        job: nextJob(),
+      });
+      const rows = await readRows(w);
+      const resolved = resolvedRow(rows, id);
+      expect((resolved.payload as { outcome: string }).outcome).toBe("applied");
+      const ended = seqOf(rows, "encounter.ended");
+      const freed = seqOf(rows, "table-mode.changed", "last");
+      expect(resolved.seq).toBeLessThan(ended);
+      expect(ended).toBeLessThan(freed);
+      expect(
+        rows.some((r) => r.type === "turn.advanced" && r.seq > ended),
+      ).toBe(false);
+      expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
+      const p = await w.projections();
+      expect(p.tableMode.mode).toBe("free");
+    });
+
+    it("an encounter start runs before an action that names a combatant it adds", async () => {
+      const w = await createWorld({ dice: [...initDice(TAMSIN_FIRST), 3] });
+      await startScene(w);
+      const id = await commitAction(
+        w,
+        "Tamsin lunges at the pot-helmed goblin.",
+      );
+      freshCheckpoint(w);
+      const out = await run(
+        w,
+        [reading(id, [attackStep("goblin-2")], { intent: "attack" })],
+        {
+          director: {
+            tableMode: {
+              to: "turn",
+              encounterId: "reed-camp",
+              reason: "The goblins rush out.",
+            },
+          },
+          job: nextJob(),
+        },
+      );
+      expect(out.actionResults[0]?.refusalCode).toBeNull();
+      expect(out.actionResults[0]?.outcome).toBe("applied");
+      const rows = await readRows(w);
+      const added = rows.filter(
+        (r) =>
+          r.type === "combatant.added" &&
+          (r.payload as { event: { combatantId: string } }).event
+            .combatantId === "goblin-2",
+      );
+      expect(added).toHaveLength(1);
+      const started = seqOf(rows, "encounter.started");
+      const resolved = resolvedRow(rows, id);
+      expect(added[0]?.seq).toBeLessThan(started);
+      expect(started).toBeLessThan(resolved.seq);
+      expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
+    });
+
+    it("an npc-turn job runs its step rows before the encounter ends", async () => {
+      const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
+      freshCheckpoint(w);
+      const out = await run(
+        w,
+        [
+          reading(null, [attackStep("tamsin", { attackerId: "snag" })], {
+            intent: "attack",
+          }),
+        ],
+        {
+          director: { tableMode: { to: "free", reason: "The goblins flee." } },
+          job: { ...nextJob(), trigger: "npc-turn" },
+        },
+      );
+      expect(out.npcTurn).not.toBeNull();
+      const rows = await readRows(w);
+      const attack = seqOf(rows, "attack.resolved");
+      expect(attack).toBeLessThan(seqOf(rows, "encounter.ended"));
+      expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
+    });
+
+    it("tracker advances and the scene end follow the action, in order", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      freshCheckpoint(w);
+      await run(w, [reading(id, [checkStep()])], {
+        director: {
+          trackers: [
+            { trackerId: "dusk", advance: 2, reason: "An hour passed." },
+          ],
+          scene: {
+            status: "end",
+            outcome: "retreat",
+            reason: "The party withdrew.",
+          },
+        },
+        job: nextJob(),
+      });
+      const rows = await readRows(w);
+      const resolved = resolvedRow(rows, id).seq;
+      const tracker = seqOf(rows, "tracker.changed", "last");
+      const ended = seqOf(rows, "encounter.ended");
+      const scene = seqOf(rows, "scene.changed", "last");
+      expect(resolved).toBeLessThan(tracker);
+      expect(tracker).toBeLessThan(ended);
+      expect(ended).toBeLessThan(scene);
+      const p = await w.projections();
+      expect(p.scene).toBeNull();
+    });
+
+    it("a hold runs the opening and closing moves only", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      freshCheckpoint(w);
+      const out = await run(w, [reading(id, [checkStep()])], {
+        director: {
+          beat: { decision: "hold", companions: ["odo"], reason: "ask Odo" },
+          trackers: [
+            { trackerId: "dusk", advance: 1, reason: "An hour passed." },
+          ],
+        },
+        job: nextJob(),
+      });
+      expect(out.submissions.length).toBeGreaterThan(0);
+      expect(
+        out.submissions.some(
+          (s) => s.key.startsWith("act:") || s.key.startsWith("npc:"),
+        ),
+      ).toBe(false);
+      expect(out.actionResults).toEqual([]);
+      expect(out.submissions.map((s) => s.key)).toEqual([
+        "director:tracker:dusk",
+      ]);
+    });
+
+    it("a refused action still resolves before the encounter ends (rows 260-265 of the F54 evidence)", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 10]);
+      const id = await commitAction(w, "Tamsin bargains with Pell.");
+      freshCheckpoint(w);
+      // TASK-0112 AC #5 will refuse this plan at the plan gate; until then the
+      // engine refuses the step, and the refusal must land before the encounter ends.
+      const out = await run(
+        w,
+        [reading(id, [checkStep({ combatantId: "pell" })])],
+        {
+          director: { tableMode: { to: "free", reason: "The goblins flee." } },
+          job: nextJob(),
+        },
+      );
+      expect(out.actionResults[0]).toMatchObject({
+        outcome: "refused",
+        refusalCode: "UNKNOWN_COMBATANT",
+      });
+      const rows = await readRows(w);
+      expect(resolvedRow(rows, id).seq).toBeLessThan(
+        seqOf(rows, "encounter.ended"),
+      );
+    });
+  });
+
   describe("S1 and the diff", () => {
     it("a scripted-dice damage hit gives S1 the lowered HP and the exact diff", async () => {
       const w = await createWorld({ dice: [14, 8] });
