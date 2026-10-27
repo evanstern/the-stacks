@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:51'
+updated_date: '2026-10-27 03:52'
 labels:
   - design
   - dm
@@ -44,6 +44,9 @@ OPERATOR RULINGS 2026-10-26 (checkpoint C3, answered in chat to the orchestrator
 - Position and range: carded as revisit TASK-0139 (orchestrator, decision-0020).
 
 decision-0025 (D17) written, status accepted, commit ce68d69: formulation 3 adopted in the operator's words. AC #2 met. AC #3 half met: decision-0025 and docs/design/actor-state-gate.md section 5 map every rule to a card; uncovered rules are proposed as U1-U5, U7-U9 (U6 recommended as added ACs on TASK-0112). AC #3 ticks once the orchestrator creates those cards on main and the decision names their ids.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(decision record, decision-0025 (D17), commits 34297fa 6fe8d76 ce68d69; ~131k tokens.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
