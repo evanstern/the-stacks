@@ -37,14 +37,6 @@ Spec: specs/036-companion-react
 - [x] #7 Spec phase: Wiki (re-ground) — DISPATCH (sonnet)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -76,6 +68,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (reconcile after #62: merge 2b58684, fixes 9e3fd3f; migration regenerated as 0006_fearless_jamie_braddock; main's worker test gained pending: []; 7 notes re-pinned (2 NEEDS-REVIEW); ci:check exit 0, server 900 passed.)
 
 Merged in PR #63 (773d4e4); stack down, worktree and branch removed. Board stays In Progress until specs/036-companion-react/tasks.md T038 is annotated not-applicable (it applied only under W-B; the operator ruled W-A). That annotation rides the next task branch (TASK-0140), then spec-bridge sync moves this card to Done.
+
+spec-bridge sync: Trigger and coalescing (US1, US3; AC #1) — DISPATCH (sonnet): 5/5 · Resolution, the M2 repro and the contract (US2, US3, US4; AC #2, #3) — DISPATCH (sonnet): 8/8 · Withdraw lifecycle (US2; AC #2) — DISPATCH (sonnet), ONLY AFTER CHECKPOINT W = W-A: 10/10 · Wiki (re-ground) — DISPATCH (sonnet): 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
