@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 13:10'
+updated_date: '2026-10-27 13:17'
 labels:
   - dm
   - rules-gate
@@ -70,6 +70,9 @@ Orchestrator rulings 2026-10-27 (for operator confirmation): (1) an active leave
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (T007-T025) at 0a2a837, 9219e31 (main merge fee800f). REQUIRE_DATABASE=1 ci:check exit 0; gate.integration 25/25. All six frozen 028/029 amendments carry dated ruling notes; count consequences (proposals.md 17→18 GATE_REQUEST_KINDS) named in the amendment notes. scene-presence rows do not enter the ledger projection (not in spec; accepted).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T026-T030) at 1b83c14: snapshot reads presence from the scenePresence projection; plan gate refuses absent actors/targets with UNKNOWN_COMBATANT reason absent; frozen 040 rule 7 amended (OQ-4) plus Built markers in its extension table (reviewed by the orchestrator). REQUIRE_DATABASE=1 ci:check exit 0. The plan-gate presence branch uses a local guard until Phase 4 adds the effect to EffectSchema.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
