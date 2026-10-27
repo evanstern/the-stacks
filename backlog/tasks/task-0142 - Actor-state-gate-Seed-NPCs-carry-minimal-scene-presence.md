@@ -39,8 +39,6 @@ Spec: specs/050-seed-npc-presence
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -81,6 +79,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 - Mutation check: the reclaim test fails only with both guards off (findLanded, and the explicit "logged equals target" skip). Each guard alone keeps seed rows written once, so the second is defence in depth.
 - Adjusted tests: two 048 Intimidation tests now count rows from the turn start; the 048 no-Director test counts director-keyed submissions only (FR-008).
 - Encounter-start arrived rows are public (only scene-start rows are dm, per OQ-4).
+
+spec-bridge sync: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half): 7/7 · `scene-presence` proposal visibility (card AC #2 support, OQ-4): 6/6 · Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4): 5/5 · Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half): 11/11 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
