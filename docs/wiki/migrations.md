@@ -7,7 +7,8 @@ sources:
   - apps/server/drizzle.config.ts
   - apps/server/package.json
   - apps/server/drizzle/0004_glamorous_warlock.sql
-verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
+  - apps/server/drizzle/0005_unknown_lizard.sql
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # Migrations
@@ -55,8 +56,16 @@ logs success or failure, and always closes the pool (`db.$client.end()`) in a `f
 **Migration history.** `0000` (events, append-only trigger), `0001` (auth tables), `0002` (the
 `vector` extension and the library plane), `0003` (the `jobs` table), and `0004_glamorous_warlock.sql`
 (TASK-0046: the DM runtime's job kinds — `book` nullable, `session_id`, new kind/stage CHECKs, four
-partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]). Drizzle names each file with
-a random suffix; the committed SQL is the source of truth.
+partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]), and `0005_unknown_lizard.sql`
+(TASK-0116: the `dm_model_calls` usage ledger — table, three CHECKs, a cascade FK to `jobs`, two
+indexes; generated, no hand-added SQL; see [[debug-view]]). Drizzle names each file with a random
+suffix; the committed SQL is the source of truth.
+
+**Collision rule.** Two branches that each generate the next migration produce the same number
+with different names, and `meta/_journal.json` conflicts. Never hand-edit the journal. On a
+collision, take the merged-first branch's files, delete your generated `NNNN_*.sql`,
+`meta/NNNN_snapshot.json` and journal entry, and re-run `db:generate` so the file takes the next
+number with a snapshot that chains from the merged one.
 
 ## Connections
 

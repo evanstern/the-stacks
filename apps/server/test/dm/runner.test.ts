@@ -89,6 +89,12 @@ function stubNodes(
             attempt: 1,
             outcome: "ok",
             errorKind: null,
+            provider: null,
+            model: null,
+            inputTokens: null,
+            outputTokens: null,
+            costUsd: null,
+            durationMs: null,
           },
         ],
       };
@@ -261,7 +267,11 @@ describe("runTurn", () => {
     } as unknown as NodeOutputs["director"];
     const spy = stubNodes({ director: hold });
     const outcome = await runTurn(makeCtx(), spy.nodes);
-    expect(outcome).toEqual({ status: "held", companions: ["bram"] });
+    expect(outcome).toMatchObject({ status: "held", companions: ["bram"] });
+    // A held turn keeps its calls (TASK-0116): the stub nodes made calls.
+    expect(
+      outcome.status === "held" ? outcome.calls.length : 0,
+    ).toBeGreaterThan(0);
     expect(spy.order).toEqual(["assemble", "director", "resolve"]);
   });
 

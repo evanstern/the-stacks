@@ -25,6 +25,7 @@ import {
   type TurnCheckpoint,
   type TurnFailureResult,
 } from "./jobs.js";
+import { insertModelCall } from "./model-calls.js";
 import { adjudicate } from "./nodes/adjudicate.js";
 import { assemble } from "./nodes/assemble.js";
 import { audit } from "./nodes/audit.js";
@@ -34,6 +35,7 @@ import { narrate } from "./nodes/narrate.js";
 import { resolve, submitFailureNotice } from "./nodes/resolve.js";
 import type {
   NodeDeps,
+  RecordedCall,
   SrdLookup,
   TurnContext,
   TurnOutcome,
@@ -117,6 +119,32 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         message: error instanceof Error ? error.message : String(error),
       });
     }
+  }
+
+  /** One ledger writer per claimed job; a failed insert is logged, never thrown. */
+  function recorderFor(
+    job: ClaimedDmJob,
+  ): (call: RecordedCall) => Promise<void> {
+    return async (call) => {
+      try {
+        await insertModelCall(
+          db,
+          {
+            jobId: job.id,
+            sessionId: job.sessionId,
+            jobKind: job.kind,
+            jobAttempt: job.attempts,
+          },
+          call,
+        );
+      } catch {
+        log({
+          event: "dm.call.record-failed",
+          jobId: job.id,
+          purpose: call.purpose,
+        });
+      }
+    };
   }
 
   async function currentSeed(
@@ -208,6 +236,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       newId,
       log,
       minSimilarity: deps.minSimilarity,
+      recordCall: recorderFor(job),
     };
     const ctx: TurnContext = {
       job: {
@@ -283,7 +312,10 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       return;
     }
 
-    const calls = outcome.status === "completed" ? outcome.calls : [];
+    const calls =
+      outcome.status === "completed" || outcome.status === "held"
+        ? outcome.calls
+        : [];
     const auditRecord =
       outcome.status === "completed" ? outcome.results.audit.record : null;
     const finished = await finishJob(db, job, {
@@ -341,6 +373,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           enqueueTurnForced: (sessionId) => enqueueTurnForced(db, sessionId),
           fence,
           log,
+          recordCall: recorderFor(job),
         };
         result = await runCompanionJob(companionDeps, job, controller.signal);
       } else {
@@ -351,6 +384,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
             loadProjections: deps.loadProjections,
             fence,
             log,
+            recordCall: recorderFor(job),
           },
           job,
           controller.signal,

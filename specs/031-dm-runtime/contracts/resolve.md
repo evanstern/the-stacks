@@ -24,6 +24,7 @@ export interface Submission {
   refusal: GateRefusal | null;
   batchId: string | null;
   proposalId: string | null;
+  seqs: number[];                     // TASK-0116: seqs the gate returned, ascending; [] on a refusal
 }
 ```
 
@@ -110,3 +111,9 @@ The gate itself has no idempotency key. This contract adds none.
 
 Every proposal uses the `ai:dm` proposer, `summary` (one line for a human DM's panel) and
 `rationale` (the node's reason), so a human seat sees why.
+
+
+`Submission.seqs` links a job to the events it wrote. `TurnCheckpoint.narration.seqs` holds the
+shipped narration's seqs. A replayed checkpoint submission keeps its stored seqs. A submission
+recovered by `findLanded` after a reclaim carries `seqs: []`: the rows exist, but the replay
+cannot name them. Rows stored before TASK-0116 lack the field.

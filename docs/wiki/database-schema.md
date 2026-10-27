@@ -6,10 +6,12 @@ sources:
   - apps/server/src/schema/events.ts
   - apps/server/src/schema/auth.ts
   - apps/server/src/schema/jobs.ts
+  - apps/server/src/schema/dm-model-calls.ts
   - apps/server/drizzle/0000_mushy_thor_girl.sql
   - apps/server/drizzle/0003_dazzling_cargill.sql
   - apps/server/drizzle/0004_glamorous_warlock.sql
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+  - apps/server/drizzle/0005_unknown_lizard.sql
+verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
 ---
 
 # Database Schema
@@ -94,10 +96,23 @@ queued chronicle per `session_id`; `jobs_session_running_key` allows one running
 `companion` job per session. `jobs_dm_session_idx` is `(session_id, kind, status)`. Full
 lease/fencing/recovery mechanics are [[ingestion]]'s (ingest claim) and [[dm-turn-jobs]]'s (DM claim).
 
+**`dm_model_calls`** (TASK-0116, migration `0005_unknown_lizard.sql`) — the DM usage ledger,
+operational state beside `jobs`: not an event, read by no projection. One row per DM model
+attempt, inserted as the attempt ends and never updated. Identity `bigint` `id` (the paging
+cursor, read in number mode), `job_id` uuid FK to `jobs.id` `ON DELETE CASCADE`, `session_id`
+(no FK), `job_kind`, `job_attempt`, `purpose`, `prompt_version`, `call_attempt`, `outcome`,
+`error_kind`, then nullable `provider`, `model`, `input_tokens`, `output_tokens`, `cost_usd`
+(double; null when unpriced, never 0), `duration_ms`, `http_attempts`, and `created_at`. It has
+no prompt or completion column. Checks: `dm_model_calls_job_kind_valid` (`turn`, `companion`,
+`chronicle`), `dm_model_calls_call_attempt_valid` (1 or 2), `dm_model_calls_outcome_valid`
+(`ok`, `invalid-json`, `error`, `aborted`). Indexes: `dm_model_calls_session_idx`
+`(session_id, id)` and `dm_model_calls_job_idx` `(job_id)`. Who writes and reads it:
+[[dm-turn-jobs]] and [[debug-view]].
+
 ## Connections
 
 Consumed by [[event-log]] (`events`), [[session-auth]] (`users`, `auth_sessions`),
-[[invitations]] (`invitations`), [[ingestion]] and [[dm-turn-jobs]] (`jobs`). Generated and applied per
+[[invitations]] (`invitations`), [[ingestion]] and [[dm-turn-jobs]] (`jobs`), [[dm-turn-jobs]] and [[debug-view]] (`dm_model_calls`). Generated and applied per
 [[migrations]]. `events`' append-only trigger is the first instance of a pattern
 [[library-schema]] repeats for its own three tables (a different trigger function,
 `library_immutable`, refusing `UPDATE` only — library rows are deletable, `events` rows are

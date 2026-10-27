@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve as resolvePath } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { listDmJobs } from "../../src/dm/jobs.js";
+import { listModelCalls } from "../../src/dm/model-calls.js";
 import { PURPOSE_OF } from "../../src/dm/purposes.js";
 import {
   clearDmJobsBeforeEach,
@@ -83,6 +84,41 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
       result.calls.every((c) => c.outcome === "ok" && c.attempt === 1),
     ).toBe(true);
 
+    // Merge condition (TASK-0116): one ledger row per model call of the turn,
+    // each matching its stored call entry, with usage recorded.
+    const ledger = (
+      await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 100 })
+    ).rows.filter((r) => r.jobId === turn?.id);
+    expect(ledger).toHaveLength(result.calls.length);
+    const stored = result.calls as unknown as {
+      purpose: string;
+      promptVersion: string;
+      attempt: number;
+      provider: string | null;
+      model: string | null;
+      inputTokens: number | null;
+      outputTokens: number | null;
+      costUsd: number | null;
+      durationMs: number | null;
+    }[];
+    for (const [i, row] of ledger.entries()) {
+      const c = stored[i];
+      expect(row.jobKind).toBe("turn");
+      expect(row.purpose).toBe(c?.purpose);
+      expect(row.promptVersion).toBe(c?.promptVersion);
+      expect(row.callAttempt).toBe(c?.attempt);
+      expect(row.provider).toBe(c?.provider);
+      expect(row.model).toBe(c?.model);
+      expect(row.inputTokens).toBe(c?.inputTokens);
+      expect(row.outputTokens).toBe(c?.outputTokens);
+      expect(row.costUsd).toBe(c?.costUsd);
+      expect(row.durationMs).toBe(c?.durationMs);
+      expect(row.provider).not.toBeNull();
+      expect(row.model).not.toBeNull();
+      expect(row.inputTokens).not.toBeNull();
+      expect(row.outputTokens).not.toBeNull();
+    }
+
     // AC #8: the audit passed on the first attempt.
     expect(result.audit.final).toBe("passed");
     expect(result.audit.flagged).toBe(false);
@@ -106,6 +142,12 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
     expect(prose).not.toMatch(/[0-9]/);
     expect(lines.join("\n")).toMatch(/1d20 → 14 = 14/);
     expect(lines.join("\n")).toMatch(/DC 13: success/);
+
+    // The shipped narration's seqs are stored on the checkpoint.
+    const stored2 = turn?.result as unknown as {
+      checkpoint: { narration: { seqs: number[] } };
+    };
+    expect(stored2.checkpoint.narration.seqs).toEqual([narrations[0]?.seq]);
 
     // The tracker step is a dm-only row; the player view has none of it.
     const tracker = rows.filter((r) => r.type === "tracker.changed").at(-1);
