@@ -1,6 +1,6 @@
 ---
 name: dm-turn-jobs
-description: How DM work rides the shared jobs queue (TASK-0046, specs/031-dm-runtime) - kinds turn/companion/chronicle and their payloads, the gate listener that enqueues turns, the priority claim serialized per session, lease/heartbeat/fencing in jobs/queue.ts, checkpoints, beats, the resolve-order contract, reclaim idempotence (markers, landed-narration detection, marker numbering across a resolve-order deploy) and start-up reconcile. Pipeline logic is dm-runtime.
+description: How DM work rides the shared jobs queue (TASK-0046, specs/031-dm-runtime) - kinds turn/floor/companion/chronicle and their payloads, the gate listener that enqueues turns and arms floor waits, the priority claim, lease/heartbeat/fencing in jobs/queue.ts, checkpoints, beats, the resolve-order contract, reclaim idempotence (markers, landed-narration detection, marker numbering across a resolve-order deploy) and start-up reconcile (turn and floor). Pipeline logic is dm-runtime.
 kind: pipeline
 sources:
   - apps/server/src/jobs/queue.ts
@@ -12,10 +12,11 @@ sources:
   - apps/server/src/dm/model-calls.ts
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
+  - apps/server/drizzle/0007_aromatic_baron_zemo.sql
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # DM turn jobs
@@ -29,13 +30,14 @@ worker in the server process drains them.
 | kind | one row is | claim priority |
 |---|---|---|
 | `turn` | one beat of one session | 1 |
-| `companion` | one or more AI companions acting once | 2 |
-| `chronicle` | one journal pass for a session | 3 |
+| `floor` | a code-only floor check ([[turn-floor]]) | 2 |
+| `companion` | one or more AI companions acting once | 3 |
+| `chronicle` | one journal pass for a session | 4 |
 
 A `companion` payload's `reason` is `hold`, `turn`, `prompt` or `react`; `react` also
 carries `firstReactionAt` and `notBefore` (ISO UTC; specs/036-companion-react).
 
-Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
+Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
 `approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`. Stages are the node names plus
 `companion` and `chronicle`. `book` is null and `session_id` required (CHECK constraints).
@@ -45,7 +47,7 @@ Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `createDmEnqueuer(...).onAppended` (`dm/enqueue.ts`) is registered with `gate.onAppended` in
 `index.ts` ([[server-entrypoint-and-app]]). An `action.committed` row enqueues a `commit` turn.
 A `proposal.approved` or `proposal.rejected` row for an `ai:dm` proposal (found
-in the DM projection) enqueues an `approval` turn so the DM resumes. Then it calls `nudge()`; a failure is logged and reconcile repairs it. A human `action.commented` row on an
+in the DM projection) enqueues an `approval` turn so the DM resumes. Floor follow-ups and waits arm here too ([[turn-floor]]). Then it calls `nudge()`; a failure is logged; reconcile repairs it. A human `action.commented` row on an
 open (`declared` or `discussed`) action of an AI companion also calls `enqueueCompanionReact`
 (quiet window 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`), a further reaction merges its companion id into the
@@ -54,9 +56,9 @@ DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
 
 ## Claim, lease, fencing
 
-`claimDmJob` is ingest's `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED)`, ordered: an expired running job first, then by kind priority, then age. A queued turn or
-companion job is skipped while another `turn`/`companion` job of the session holds a live
-lease, and a `react` job until its `notBefore` passes; `jobs_session_running_key` (unique index) backs that. Chronicle jobs are not serialized. `jobs/queue.ts` holds the kind-generic fenced writes (`heartbeat`, `setStage`,
+`claimDmJob` is ingest's `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED)`, ordered: an expired running job first, then by kind priority, then age. A queued turn, floor or
+companion job is skipped while another `turn`/`companion`/`floor` job of the session holds a live
+lease, and a `react` or `floor` job until its `notBefore` passes; `jobs_session_running_key` (unique index) backs that. Chronicle jobs are not serialized. `jobs/queue.ts` holds the kind-generic fenced writes (`heartbeat`, `setStage`,
 `saveResult`, `finishJob`) and the constants `LEASE_MS` 60 s, `HEARTBEAT_MS` 10 s, `POLL_MS`
 2 s, `MAX_ATTEMPTS` 3; every write filters on `claim_token`, and `false` means fenced out. The
 worker aborts its `AbortController` on a lost lease, cancelling an in-flight `chat()`. The table cannot fence gate
@@ -68,7 +70,7 @@ The beat is frozen at assemble and stored in the checkpoint. A commit landing mi
 queues the next turn (or finds it queued) and never joins the running beat. After a turn,
 the worker queues follow-up jobs: a companion job for an AI companion's turn, an `npc-turn`
 turn when the DM acts next, a companion `hold` job when the director held, and a chronicle job
-when narration shipped. A failed turn queues nothing; its actions stay committed.
+when narration shipped. A failed turn queues nothing.
 
 ## Resolve order
 
@@ -96,20 +98,19 @@ finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `sto
 ## Calls, usage and the ledger
 
 Each `ModelCallRecord` in `jobs.result.calls` carries `provider`, `model`, `inputTokens`,
-`outputTokens`, `costUsd` and `durationMs` (null without a usage record;
-TASK-0116, [[ai-gateway]]). A `held` turn keeps its calls. As each attempt ends, the worker's `recordCall` seam inserts
+`outputTokens`, `costUsd` and `durationMs` (null without a usage record; [[ai-gateway]]). As each attempt ends, the worker's `recordCall` seam inserts
 one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
 id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts `calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
-the ledger, not `calls`, is the cost authority. An insert failure logs `dm.call.record-failed`, never failing the job. Every submission names the seqs the gate
+the ledger, not `calls`, is the cost authority. Every submission names the seqs the gate
 returned: `Submission.seqs`, `TurnCheckpoint.narration.seqs`, `CompanionSubmission.seqs` and the
 chronicle's `seqs` (`[]` on a refusal or on a submission recovered after reclaim). That is the
 job-to-event link; routes in [[debug-view]].
 
-**Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough` and the seed loader go to the chronicle job, which builds the state at its `throughSeq` ([[actor-snapshot]]). The companion job builds its `seat` snapshot from the projections it loads. A companion overflow records an `error` play and a chronicle overflow returns `entries: 0` and logs `dm.chronicle.failed`; neither fails the job. A turn's overflow
-fails the turn with kind `state-overflow` ([[dm-failure-and-gates]]).
+**Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough` and the seed loader go to the chronicle job, which builds the state at its `throughSeq` ([[actor-snapshot]]). The companion job builds its `seat` snapshot from the projections it loads. A companion overflow records an `error` play, a chronicle overflow returns `entries: 0`; neither fails the job. A turn's overflow
+fails the turn (`state-overflow`, [[dm-failure-and-gates]]).
 
 ## Reconcile
 
 At worker start `reconcileTurnJobs(db)` finds sessions with an `action.committed` row that has no
-later `action.resolved` and no queued or running turn job, and enqueues a `reconcile` turn for each. `GET /dm/sessions/:id/turns` lists a session's DM jobs (`listDmJobs`) with outcome and
+later `action.resolved` and no queued or running turn job, and enqueues a `reconcile` turn for each; `reconcileFloorJobs` follows ([[turn-floor]]). `GET /dm/sessions/:id/turns` lists a session's DM jobs (`listDmJobs`) with outcome and
 audit metadata.

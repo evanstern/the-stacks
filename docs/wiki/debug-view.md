@@ -37,7 +37,7 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Debug view API
@@ -64,7 +64,7 @@ environment with no flag. `GET /dm/sessions/:id/turns` is unchanged.
 | route | returns | cursor |
 |---|---|---|
 | `GET .../events?after&limit` | every event after a seq, all visibilities, as `StoredEvent`, plus `headSeq` | `after` (seq), `nextAfter`, `hasMore`; limit 1..1000, default 500 |
-| `GET .../jobs?limit&before` | DM jobs (`turn`, `companion`, `chronicle`), newest first, full `input` and `result` as stored, no claim token, with `heartbeatAt` | `before` (job id), `nextBefore`; limit 1..200, default 50; a foreign `before` is `400` |
+| `GET .../jobs?limit&before` | DM jobs (`turn`, `floor`, ...), newest first, full `input` and `result` as stored, no claim token, with `heartbeatAt` | `before` (job id), `nextBefore`; limit 1..200, default 50; a foreign `before` is `400` |
 | `GET .../seed` | `{ seedId, seed, dmOnlyPaths }` for the session's scene | none; `404` with no scene, `409` when the seed fails to load |
 | `GET .../calls?after&limit` | the usage ledger rows plus `totals` over the whole session | `after` (row id), `nextAfter`, `hasMore`; limit 1..1000, default 500 |
 

@@ -9,7 +9,8 @@ sources:
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/drizzle/0006_fearless_jamie_braddock.sql
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+  - apps/server/drizzle/0007_aromatic_baron_zemo.sql
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Migrations
@@ -61,7 +62,8 @@ partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]), and `0005
 (TASK-0116: the `dm_model_calls` usage ledger — table, three CHECKs, a cascade FK to `jobs`, two
 indexes; generated, no hand-added SQL; see [[debug-view]]), and `0006_fearless_jamie_braddock.sql`
 (TASK-0114: the partial unique index `jobs_companion_react_queued_key`; regenerated after
-TASK-0116's 0005 merged first, which is the collision rule below at work). Drizzle names each file with a random
+TASK-0116's 0005 merged first, which is the collision rule below at work), and `0007_aromatic_baron_zemo.sql`
+(TASK-0050: the `floor` job kind — `jobs_kind_valid` dropped and re-added with `floor`, `jobs_session_running_key` recreated to cover `floor`, and the new partial unique index `jobs_floor_queued_key`; generated, no hand-added SQL; see [[database-schema]] and [[dm-turn-jobs]]). Drizzle names each file with a random
 suffix; the committed SQL is the source of truth.
 
 **Collision rule.** Two branches that each generate the next migration produce the same number

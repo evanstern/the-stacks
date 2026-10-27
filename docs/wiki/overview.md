@@ -11,7 +11,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Overview

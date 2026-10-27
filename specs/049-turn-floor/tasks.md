@@ -262,25 +262,25 @@ the DM passes, takes and returns the floor in one click; no modal.
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T042 NEEDS-REVIEW `docs/wiki/proposal-gate.md`: the `floor` kind (15 kinds, 13 DM kinds, 19
+- [x] T042 NEEDS-REVIEW `docs/wiki/proposal-gate.md`: the `floor` kind (15 kinds, 13 DM kinds, 19
       request kinds), its permission, policy, refusal codes and batch; the stall override and its
       `signoff` marker; `floor` no longer reserved. Add `packages/session-model/src/gate/turn.ts`
       to its sources. Re-pin it.
-- [ ] T043 NEEDS-REVIEW `docs/wiki/session-model.md`: the turn rules in the gate core, the
+- [x] T043 NEEDS-REVIEW `docs/wiki/session-model.md`: the turn rules in the gate core, the
       `turn-floor` fixture (ten fixtures), the `floor` marker purpose now written. Add
       `src/gate/turn.ts` and `src/fixtures/turn-floor.ts` to its sources. Re-pin it.
-- [ ] T044 NEEDS-REVIEW `docs/wiki/play-route.md`: the header floor controls, the turn-order strip,
+- [x] T044 NEEDS-REVIEW `docs/wiki/play-route.md`: the header floor controls, the turn-order strip,
       transcript floor lines, the card text and the suggestion label. Add the new component to its
       sources. Re-pin it.
-- [ ] T045 Review `docs/wiki/dm-turn-jobs.md` (the `floor` kind, priority, arming, reconcile, the
+- [x] T045 Review `docs/wiki/dm-turn-jobs.md` (the `floor` kind, priority, arming, reconcile, the
       human-row follow-up), `docs/wiki/dm-runtime.md` (the "turn moved" guard, shared rules),
       `docs/wiki/presence.md` (the `floor` marker and the absence wait; `onChange` consumer),
       `docs/wiki/database-schema.md` and `docs/wiki/migrations.md` (migration 0007), and
       `docs/wiki/websocket-gateway.md` (19 request kinds). Update and re-pin each note whose
       sources changed.
-- [ ] T046 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
+- [x] T046 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
       `docs/wiki/INDEX.md` state paragraph with one sentence for turn-mode floor passing.
-- [ ] T047 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T047 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0).

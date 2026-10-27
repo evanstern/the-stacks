@@ -4,7 +4,7 @@ description: The WebSocket gateway — upgrade-time authentication (a socket onl
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # WebSocket gateway
@@ -48,13 +48,13 @@ the frame's `presence` flag, and `join`s the new table in the tracker — for ev
 whether or not it opted in, because the Director's marker counts every human at the table. On
 `close` the gateway `leave`s the table. See [[presence]]. A `send` frame goes to `handleSend`, which classifies by `eventType`:
 
-- **A gate request kind** (`GATE_REQUEST_KINDS`): requires `payloadVersion` 1 and an object
+- **A gate request kind** (`GATE_REQUEST_KINDS`, 19 kinds including `floor`): requires `payloadVersion` 1 and an object
   payload (else a `validation` error). The gateway builds the request from the payload plus
   `kind` (and `visibility` when sent) and calls `gate.handle` with a human proposer from the
   connection's identity (`userId`, `role`). On success nothing is sent directly: the gate's
   `onAppended` listener calls `publish`. A refusal becomes an `error` frame with the refusal
   `code`; the kind is `forbidden` for `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED` and
-  `GROUP_SIGNOFF_REQUIRED`, `internal` for `CONFLICT`, otherwise `validation`. See [[proposal-gate]].
+  `GROUP_SIGNOFF_REQUIRED`, `internal` for `CONFLICT`, otherwise `validation` (so `FLOOR_NOT_HELD`, `TURN_MOVED` and `NOT_TURN_MODE` arrive as `validation`; the client labels them, [[play-route]]). See [[proposal-gate]].
 - **Any other type**: refused, and nothing is written or broadcast. A catalogued type gets
   `forbidden` with code `CATALOG_TYPE_REQUIRES_GATE`; an uncatalogued type gets `validation`
   with code `UNKNOWN_EVENT_TYPE`. TASK-0099 (specs/043-retire-uncatalogued-send) retired the

@@ -27,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Test suite
@@ -41,9 +41,9 @@ TASK-0029 and TASK-0030 share a third subdirectory, `apps/server/test/bench/`: T
 TASK-0030's unit file plus two environment-gated integration files, all with the
 loud-skip-or-throw pattern of this note's three below — see [[benchmarks]], including why 5 of
 the load bench's tests are always skipped, by name.
-TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated integration files, one the CI playtest ([[m2-demo]]).
+TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated, one the CI playtest ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
-`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus: only `dm/nodes/resolve.ts` builds a `scene-presence` proposal, [[proposal-gate]]). It also extended `events.integration.test.ts` (`expectedLastSeq`,
+`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` builds `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that

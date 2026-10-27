@@ -13,13 +13,15 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # DM failure record and rules-term gates
 
 Part of the DM runtime ([[dm-runtime]]); turn jobs are in [[dm-turn-jobs]]. The director
 normalizer is described in [[dm-runtime]].
+
+A `floor` job (spec 049) is code only and has no `TurnFailureResult`: a gate refusal finishes it with outcome `refused`, and a throw logs `dm.floor.threw` and fails it with `stopped at floor: internal` ([[dm-turn-jobs]]).
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
 the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and

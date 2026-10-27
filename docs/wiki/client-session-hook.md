@@ -7,7 +7,7 @@ sources:
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
   - apps/web/app/play/reduce-frame.ts
-verified_against: 796789aff1155daf0baf77c66ba90f272100035a
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Client session hook
@@ -39,7 +39,7 @@ the hook resets `present` to `null` when the socket closes — a dead connection
 who is at the table, and the next subscribe brings a fresh snapshot. `reduceFrame` has a
 `default` branch that returns the state unchanged, so a frame type the client does not know is
 ignored rather than throwing ([[presence]]). An `error` frame sets `notice` to `message (code)` (the optional `code` is the
-gate's refusal code) and never closes the socket (FR-015); see [[play-route]].
+gate's refusal code; for the three floor refusals `FLOOR_NOT_HELD`, `TURN_MOVED` and `NOT_TURN_MODE` the message is replaced by `labels.ts`'s plain wording) and never closes the socket (FR-015); see [[play-route]].
 
 **Reconnect uses a preflight, not a raw retry.** Before opening a new `WebSocket`, `attempt()`
 calls `GET /auth/me`. This exists because **the browser `WebSocket` API never exposes the HTTP

@@ -1,6 +1,6 @@
 ---
 name: proposal-gate
-description: The proposal gate (TASK-0045, spec 029) - the 14 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
+description: The proposal gate (TASK-0045, spec 029) - the 15 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), the `floor` kind (see turn-floor), createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
 kind: component
 sources:
   - packages/session-model/src/gate/proposals.ts
@@ -9,13 +9,14 @@ sources:
   - packages/session-model/src/gate/authority.ts
   - packages/session-model/src/gate/plan.ts
   - packages/session-model/src/gate/signoff.ts
+  - packages/session-model/src/gate/turn.ts
   - packages/session-model/src/gate/seat.ts
   - packages/session-model/src/gate/refusals.ts
   - apps/server/src/gate/gate.ts
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Proposal gate
@@ -28,11 +29,11 @@ policy, plans the rows and appends them. Pure decisions live in
 
 ## Kinds and requests
 
-`ProposalKindSchema` has 14 kinds: `talk`, `action.declare`, `action.comment`,
+`ProposalKindSchema` has 15 kinds: `talk`, `action.declare`, `action.comment`,
 `action.commit`, `action.withdraw`, `action.resolve`, `mechanics` (engine command),
-`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`. The AI DM may propose the
-twelve in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
-supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (18
+`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`, `floor`. The AI DM may propose the
+thirteen in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
+supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (19
 `GATE_REQUEST_KINDS`; sent over `send` with `payloadVersion` 1, see [[websocket-gateway]]).
 A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm`, `ai:companion:<id>`).
 
@@ -42,10 +43,10 @@ A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm
 `proposal.approve`/`reject` need the seated DM (`NOT_DM`); `dm.seat` an operator;
 `gate.policy` the seated DM or an operator; `action.declare` control of the
 character (party scope: any party member), never from the AI DM; `action.withdraw`
-(TASK-0114) is allowed to the declarer and the seated DM, never the AI DM (the planner refuses a closed or unknown action); `action.commit` passes here and commit authority decides it.
+(TASK-0114) is for the declarer and the seated DM, never the AI DM; `action.commit` passes here and commit authority decides it.
 
 The DM seat is `{ kind: "ai" }` or `{ kind: "human", userId }` (`dm.seat.changed`; default AI). `DEFAULT_POLICIES`: `ask` for talk, action.comment, action.commit, mechanics,
-narration, table-mode, party, tracker, scene-presence; `auto` for action.resolve and journal; `suggest` for
+narration, table-mode, party, tracker, scene-presence, floor; `auto` for action.resolve and journal; `suggest` for
 scene. `effectivePolicy` is `auto` for every kind under an AI seat; under a human seat it is
 the session override (`gate.policy.changed`) else the default. `routeProposal` sends humans
 and companions `direct`, and `ai:dm` by policy (`action.declare` and `action.withdraw` from `ai:dm`: `NOT_AUTHORIZED`). `dm`-only rows
@@ -77,13 +78,15 @@ parse with Zod first; a failure is `INVALID_PROPOSAL`, nothing written.
 from the injected `PresenceReader` (default: nobody). It is not a proposal and skips `submit` and `handle`. It never deduplicates. It skips the
 projection load and `expectedLastSeq`; the log's advisory lock orders the append and the bounded
 conflict retry stays. On success it calls every `onAppended` listener with the stored row. The DM worker is the only
-caller of `recordPresence` ([[dm-turn-jobs]]). The planner emits the `signoff` marker inside the commit batch; `floor` is reserved (TASK-0050). See [[presence]].
+caller of `recordPresence` ([[dm-turn-jobs]]). The planner emits the `signoff` marker inside the commit batch (and `floor`, [[turn-floor]]). See [[presence]].
 
 **Sign-off in the planner.** `planProposal` takes an optional `PlanContext { present? }` from the gate's `PresenceReader`. An `action.commit` of a party action
 by two or more humans plans two rows: a `presence.recorded` marker (`purpose: "signoff"`,
 `actionId`, the present set plus the committer) then `action.committed` (authority `group`). A quorum-completing
 `approve` comment on an open party action auto-commits: three rows
 (`action.commented`, the marker, `action.committed`) in one append. Other comments plan one row. The DM commit path writes no marker.
+
+**Floor and stall** (TASK-0050): the `floor` kind, turn rules, the `ai:dm` stall override and refusal codes: [[turn-floor]].
 
 **Scene presence.** The `scene-presence` kind (`{ actorId, reason, actionId }`, TASK-0141) is a DM kind with policy `ask`. The planner takes `before` from the `scenePresence` projection and `after` from `REASON_TO_PRESENCE`, and refuses `INVALID_PROPOSAL` on no change. It plans a public `scene-presence.changed` row, plus an engine `initiative.leave` (absent actor in the order) or `initiative.join` (`arrived` into a running encounter). Only `dm/nodes/resolve.ts` builds one.
 
@@ -93,8 +96,7 @@ with a throwaway RNG, then appends one `dm` `proposal.created` row.
 
 **Atomic approval.** `proposal.approve` (pending `ask` proposals only) re-plans the
 stored proposal as the AI DM with a fresh RNG and appends the effect rows plus
-`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`. The play route ([[play-route]]) shows no Approve on a
-`suggest` proposal and sends `proposal.reject`.
+`proposal.approved` in one batch. `suggest` proposals refuse `PROPOSAL_NOT_APPROVABLE`.
 
 **Concurrency.** Every write passes `expectedLastSeq` (the projection's `throughSeq`) to
 `appendBatch` ([[event-log]]). On `SeqConflictError` the gate re-reads and retries, at most 3
