@@ -273,10 +273,49 @@ function conditionUnits(c: SrdRecord<"condition">): {
   return { header: `${c.name} [condition/${c.id}]`, units };
 }
 
+/** Looks up a rule's own title by id; the loader supplies it so `See:` can name child headings. */
+export interface CompactContext {
+  ruleTitle?: (id: string) => string | undefined;
+}
+
+function ruleUnits(
+  r: SrdRecord<"rule">,
+  context?: CompactContext,
+): { header: string; units: Unit[] } {
+  const units: Unit[] = [];
+  for (const block of r.blocks) {
+    if (block.type === "table") {
+      block.rows.forEach((row, i) => {
+        const cells = row.join(" | ");
+        units.push(
+          line(i === 0 && block.title ? `${block.title}: ${cells}` : cells),
+        );
+      });
+    }
+  }
+  for (const block of r.blocks) {
+    if (block.type === "text") units.push(...sentences(block.text));
+  }
+  for (const block of r.blocks) {
+    if (block.type === "list") {
+      for (const item of block.items) units.push(line(`- ${item}`));
+    }
+  }
+  if (r.children.length > 0) {
+    // Child titles come from the loaded rule set. Without a lookup, fall back to the id's last slug.
+    const titles = r.children.map(
+      (c) => context?.ruleTitle?.(c) ?? c.slice(c.lastIndexOf(".") + 1),
+    );
+    units.push(line(`See: ${titles.join(", ")}`));
+  }
+  return { header: `${r.title} [rule/${r.id}]`, units };
+}
+
 /** Pure: same record in, same string out. No I/O. */
 export function toCompact<K extends SrdKind>(
   kind: K,
   record: SrdRecord<K>,
+  context?: CompactContext,
 ): string {
   const page = (record as { source: { page: number } }).source.page;
   let built: { header: string; units: Unit[] };
@@ -295,6 +334,9 @@ export function toCompact<K extends SrdKind>(
       break;
     case "condition":
       built = conditionUnits(record as SrdRecord<"condition">);
+      break;
+    case "rule":
+      built = ruleUnits(record as SrdRecord<"rule">, context);
       break;
     default:
       throw new Error(`Unknown kind: ${String(kind)}`);

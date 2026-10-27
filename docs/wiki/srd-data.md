@@ -1,6 +1,6 @@
 ---
 name: srd-data
-description: The SRD 5.2.1 data package (packages/srd, TASK-0043) - five Zod-validated record kinds (monster, spell, class, equipment, condition) shipped as JSON, converted from Open5e at a pinned commit and repaired and checked against the SRD PDF, the provenance index, the id/name loader, the 120-token compact lookup form, the CC-BY-4.0 attribution file and /about surface, and the no-engine-import boundary rule. Read before touching SRD data, lookups, or attribution.
+description: The SRD 5.2.1 data package (packages/srd, TASK-0043, TASK-0123) - six Zod-validated record kinds (monster, spell, class, equipment, condition, rule) as JSON, from Open5e at a pinned commit, repaired and checked against the PDF; the rule heading-index coverage oracle, id/name loader, 120-token compact form, CC-BY-4.0 attribution and the no-engine-import rule. Read before touching SRD data, lookups or attribution.
 kind: concept
 sources:
   - packages/srd/package.json
@@ -10,13 +10,19 @@ sources:
   - packages/srd/src/tokens.ts
   - packages/srd/src/attribution.ts
   - packages/srd/src/schema/common.ts
+  - packages/srd/src/schema/rule.ts
+  - packages/srd/src/schema/index.ts
   - packages/srd/ATTRIBUTION.md
   - packages/srd/provenance/source.json
   - packages/srd/scripts/convert-open5e.mjs
   - packages/srd/scripts/verify-against-pdf.mjs
+  - packages/srd/scripts/convert-rules.mjs
+  - packages/srd/scripts/lib/rules.mjs
+  - packages/srd/scripts/extract-index.mjs
+  - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 64daef4db50d62617fc349ba988ca8b3a7c79236
 ---
 
 # SRD data package
@@ -27,14 +33,25 @@ read-only JSON data plus a small loader. It is versioned data, not a fourth data
 
 ## Record kinds and schemas
 
-Five kinds, one file each in `data/`: `monster`, `spell`, `class`, `equipment`, `condition`
+Six kinds, one file each in `data/`: `monster`, `spell`, `class`, `equipment`, `condition`, `rule`
 (`SrdKind` in `src/schema/common.ts`). Each has a Zod schema under `src/schema/`, collected in
 `RecordSchemas`, and the package exports the types. Every record shares a base:
 `id` (kebab-case slug), `name`, and `source` - a strict `SourceRef` of
 `{ document: "SRD 5.2.1", section, page }` with `page` 1..364. Shared building blocks are the six
 `Ability` keys, a `Dice` string such as `3d6` or `10d10 + 30`, the 13 `DamageType` values and the
-six `Size` values. Counts at the close of TASK-0043: 331 monsters, 339 spells, 12 classes,
-206 equipment items, 15 conditions (903 records).
+six `Size` values. Counts at the close of TASK-0123: 331 monsters, 339 spells, 12 classes,
+206 equipment items, 15 conditions and 117 rules (1020 records).
+
+### The `rule` kind (TASK-0123)
+
+`src/schema/rule.ts` defines `Rule` (strict). Its id is a **heading path**: slugs joined by `.`
+(`RuleId`), for example `playing-the-game.d20-tests.ability-checks.difficulty-class`. Fields:
+`id`, `name` (the full path joined by ` › `, so two records may share a bare `title`), `title`,
+`path`, `parent`, `children`, `source` (`SourceRef`), `pageEnd`, and `blocks`. A block is `text`,
+`list` or `table` (`title`, `columns`, `rows`; every row must match the column count). A refinement
+requires `pageEnd >= source.page` and `id` to start with `parent + "."`. `SrdRecord<"rule">` and the
+`RecordSchemas` registry include it. The 117 records cover the "Playing the Game" chapter and the
+four Rules Glossary actions (Help, Influence, Search, Study).
 
 ## Source, repairs, verification
 
@@ -50,7 +67,16 @@ missing: monster header lines, XP, proficiency bonus and legendary-action text; 
 `provenance/srd-5.2.1-index.json` is the page index extracted from the PDF
 (`scripts/extract-index.mjs`). `scripts/verify-against-pdf.mjs` checks every record against the PDF
 page it cites and writes `provenance/verification.json` (`ok`, `missing` per record). The close-out
-state is zero unresolved mismatches in 903 records, plus a hand spot-check of 25 records. A test
+state of the five original kinds is zero unresolved mismatches in 903 records, plus a hand spot-check
+of 25 records. **Rules sourcing is mixed.**
+`scripts/convert-rules.mjs` (with `scripts/lib/rules.mjs`) takes dataset text where it equals the
+PDF word for word and PDF text otherwise; headings, ids, page ranges, sidebars and PDF-only records
+(`ruleFromPdf` in `source.json`) always come from the PDF. `extract-index.mjs` writes `kinds.rule`
+(`{ id, path, page }`) into the page index, and that **heading index is the coverage oracle**: tests
+require `kinds.rule` and `data/rule.json` to match one to one on id and page, and the chapter's
+contents page was hand-checked (`ruleHeadingCheck`). `verify-against-pdf.mjs` now also checks every
+rule block over `source.page..pageEnd`, with zero mismatches. `absentTopics` records card-named
+topics the PDF does not print (contests and opposed checks). A test
 asserts the index hash matches the pinned PDF hash. `data/` and `provenance/` are excluded from Biome.
 
 ## Loader
@@ -69,7 +95,10 @@ from the entry.
 `compact` returns a short text rendering of one record for prompt use, ending in a footer
 `SRD 5.2.1 p.<page>`. `src/compact.ts` builds a header plus ordered units, then truncates whole
 units so the estimate stays at or under `COMPACT_CEILING` (120), appending `+N more` when units
-are dropped. `estimateTokens` (`src/tokens.ts`) is deterministic and dependency-free: letters count
+are dropped. A `rule` renders table rows first, then text sentences, then list items, then a
+`See: <child titles>` line. `toCompact(kind, record, context?)` takes an optional `{ ruleTitle }`
+lookup that the loader supplies (`getById("rule", id)?.title`); without it `See:` falls back to the
+id's last slug. `estimateTokens` (`src/tokens.ts`) is deterministic and dependency-free: letters count
 `ceil(len/5)`, digits `ceil(len/3)`, other non-space characters 1 each. Measured medians are 48 to
 105 tokens per kind, none above 120. A snapshot test pins the rendered forms.
 
@@ -77,7 +106,8 @@ are dropped. `estimateTokens` (`src/tokens.ts`) is deterministic and dependency-
 
 `ATTRIBUTION.md` and `src/attribution.ts` carry the exact CC-BY-4.0 statement from SRD 5.2.1 p.1
 (`SRD_ATTRIBUTION`), a change notice (`SRD_CHANGE_NOTICE`, not an endorsement claim) and
-`SRD_DATA_SOURCE` (Open5e name, URL, commit, license). Tests fail if the file is moved or its text
+`SRD_DATA_SOURCE` (Open5e name, URL, commit, license). `ATTRIBUTION.md` also has one sentence
+naming the six record kinds, and a test requires every `SrdKind` value to be named in it. Tests fail if the file is moved or its text
 drifts. The package exposes them on the subpath `@the-stacks/srd/attribution`; the web `/about`
 route (`apps/web/app/routes/about.tsx`, linked from the shell nav) imports only that subpath, so no
 SRD data enters the client bundle ([[react-router-app]], [[chat-ui]]). The image ships `dist`, `data`
@@ -87,6 +117,6 @@ and `ATTRIBUTION.md` ([[container-image]]).
 
 A Biome `noRestrictedImports` override on `packages/srd/**` forbids importing
 `@the-stacks/dnd5e-engine`, `@the-stacks/server`, `@the-stacks/web`, and `apps/**` or
-`dnd5e-engine/**` paths. The reverse direction is allowed. `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `pnpm check:boundaries` proves the rule
+`dnd5e-engine/**` paths. The reverse direction is allowed. `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `SrdKind` widened to include `rule`, which flows into the adjudicate citation schema (`apps/server/src/dm/nodes/schemas.ts`) and the pipeline types. `pnpm check:boundaries` proves the rule
 fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipeline]],
 [[monorepo-and-toolchain]]).

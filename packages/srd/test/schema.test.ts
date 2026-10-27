@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RecordSchemas } from "../src/schema/index.js";
-import { KINDS, type Rec, readData } from "./helpers.js";
+import { KINDS, type Rec, readData, ruleFixture } from "./helpers.js";
 
 interface Feature {
   name: string;
@@ -108,5 +108,61 @@ describe("text hygiene", () => {
       const raw = JSON.stringify(readData(kind));
       expect(raw, kind).not.toMatch(/\*\*|XPHB|\[Area of Effect\]|`|\]\(/);
     }
+  });
+});
+
+describe("rule schema (fixture records)", () => {
+  const ok = (r: unknown): boolean => RecordSchemas.rule.safeParse(r).success;
+
+  it("accepts a valid record, including all three block types", () => {
+    expect(ok(ruleFixture())).toBe(true);
+    expect(
+      ok(
+        ruleFixture({
+          blocks: [
+            { type: "text", text: "Body." },
+            { type: "list", items: ["one", "two"] },
+            {
+              type: "table",
+              title: "Typical DCs",
+              columns: ["Task", "DC"],
+              rows: [["Very easy", "5"]],
+            },
+          ],
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a bad id", () => {
+    expect(ok(ruleFixture({ id: "Playing The Game" }))).toBe(false);
+    expect(ok(ruleFixture({ id: "a..b" }))).toBe(false);
+  });
+
+  it("rejects an empty path", () => {
+    expect(ok(ruleFixture({ path: [] }))).toBe(false);
+  });
+
+  it("rejects a table row of the wrong length", () => {
+    const table = {
+      type: "table",
+      title: null,
+      columns: ["Task", "DC"],
+      rows: [["only one cell"]],
+    };
+    expect(ok(ruleFixture({ blocks: [table] }))).toBe(false);
+  });
+
+  it("rejects an unknown key", () => {
+    expect(ok(ruleFixture({ extra: 1 }))).toBe(false);
+  });
+
+  it("rejects a parent that is not an id prefix", () => {
+    expect(ok(ruleFixture({ parent: "other" }))).toBe(false);
+    expect(ok(ruleFixture({ parent: "playing-the-game" }))).toBe(true);
+  });
+
+  it("rejects pageEnd before the first page", () => {
+    expect(ok(ruleFixture({ pageEnd: 6 }))).toBe(false);
   });
 });

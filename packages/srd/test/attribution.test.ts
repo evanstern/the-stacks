@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { SRD_ATTRIBUTION } from "../src/attribution.js";
+import { SrdKind } from "../src/schema/index.js";
 
 // The test's oracle: a deliberate second copy, so an edit to the constant also fails.
 const GOLDEN =
@@ -40,5 +41,24 @@ describe("SRD attribution", () => {
   it("mentions Wizards nowhere outside the statement", () => {
     const rest = readAttribution().replace(GOLDEN, "");
     expect(rest).not.toMatch(/wizards/i);
+  });
+
+  it("names every record kind", () => {
+    const text = readAttribution().toLowerCase();
+    const words: Record<string, string> = {
+      monster: "monsters",
+      spell: "spells",
+      class: "classes",
+      equipment: "equipment",
+      condition: "conditions",
+      rule: "rules",
+    };
+    for (const kind of SrdKind.options) {
+      expect(
+        words[kind],
+        `no attribution word mapped for ${kind}`,
+      ).toBeDefined();
+      expect(text, kind).toContain(words[kind] as string);
+    }
   });
 });
