@@ -34,7 +34,10 @@ Spec: specs/048-scene-presence
 - [ ] #4 The declare gate refuses an absent character with CHARACTER_UNABLE (details.reason absent) and a test (decision-0025 §3.1; moved from TASK-0112 by the 2026-10-27 operator ruling, Option A)
 - [ ] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
 - [ ] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
+- [ ] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
 <!-- AC:END -->
+
+
 
 
 
