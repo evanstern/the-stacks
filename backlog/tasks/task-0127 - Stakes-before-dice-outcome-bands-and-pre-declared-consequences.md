@@ -4,6 +4,7 @@ title: 'Stakes before dice: outcome bands and pre-declared consequences'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:32'
+updated_date: '2026-10-27 02:33'
 labels:
   - dm
   - doctrine
@@ -29,7 +30,14 @@ Outcome: every check's consequences are fixed before the engine rolls, and narra
 - [ ] #4 A natural 20 on a d20 test succeeds when its flag is on, with an engine test
 - [ ] #5 A retry with no new risk resolves without a roll, with a test
 - [ ] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
+- [ ] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+OPERATOR RULING 2026-10-26, in the operator's words: 'Yes, nat 20 = success nat 1 = failure'. Applies to every d20 test as a table-rules flag, default ON (SRD 5.2.1 reserves this for attack rolls only; this extends it to checks and saves).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
