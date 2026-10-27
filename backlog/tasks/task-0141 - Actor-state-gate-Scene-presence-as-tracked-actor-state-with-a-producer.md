@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 12:54'
+updated_date: '2026-10-27 13:00'
 labels:
   - dm
   - rules-gate
@@ -64,6 +64,10 @@ Operator ruling 2026-10-27 (in chat, verbatim): "TASK-0141: I accept OQ-3 (a) en
 
 Spec author resumed after OQ-1 to OQ-4 rulings: plan.md and tasks.md via speckit skills at 1ede222. 5 phases. Plan defaults R2 (no actor-existence check in the scene-presence planner; plan gate checks targets against S0) and R3 (initiative.leave reuses UNKNOWN_COMBATANT reason not-in-order and NO_ELIGIBLE_COMBATANT); the operator can overturn either. Phases 2-4 wait on PR #71.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Phase 1 (T001-T006) at 745e43c, fix-up 668ef5e. ci:check: only the 5 known no-DB adjudicate.integration failures (TASK-0138); engine 240 tests pass.
+Orchestrator rulings 2026-10-27 (for operator confirmation): (1) an active leaver mirrors turn.advance: dead combatants after it are skipped with both expiries, the incoming combatant gets its turn-start expiry, and NO_ELIGIBLE_COMBATANT refuses when every remaining entry is dead. Reason: resolve skips its own turn.advance after a leave (D5), so without this a condition ending at the next turn start would persist. (2) specs/026 commands.md count corrected 21 to 22, the count consequence of the approved amendment. Test count edit in execute.test.ts (21 to 22) accepted.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
