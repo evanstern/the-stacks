@@ -24,6 +24,8 @@ ordinal: 38700
 Outcome: an operator who holds no seat at a table with an AI DM seat sees the player view on /play, not DM UI over player-filtered events.
 
 Why: TASK-0048 (commit 53a78fa on branch task-0048-playtest, operator ruling 'Fix the view') replaced viewerForUser with apps/web/app/play/viewer.ts viewerFor(user, projections). It already handles two cases: the human DM seat holder views as DM, and a user who controls a party character views as a player. It keeps one gap on purpose: an unseated operator still falls back to the DM viewer. The server gives the DM view only to a seated human DM (apps/server/src/ws/registry.ts viewerFor, the TASK-0045 ruling). So with an AI DM seat, an unseated operator gets DM UI (approvals panel, isDm) over player-filtered events. This card closes that one case. Found during the debug-view design (docs/design/debug-view.md); the debug view (TASK-0117) is where an unseated operator sees DM-only data.
+
+Spec: specs/038-unseated-operator-view
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Definition of Done
