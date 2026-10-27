@@ -1,9 +1,11 @@
+import { project } from "@the-stacks/session-model";
 import { fixtureIds, fixtures } from "@the-stacks/session-model/fixtures";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import type { TableSource } from "~/play/source";
 import { TableView } from "~/play/table-view";
 import { proposalsFor } from "~/play/use-fixture-table";
+import { viewerFor } from "~/play/viewer";
 
 const yes = () => true;
 const commands = {
@@ -57,6 +59,22 @@ test("only the DM sees the Pending proposals trigger", () => {
   expect(player).not.toContain("Pending proposals");
   expect(dm).toContain("Pending proposals (3)");
   expect(dm).toContain("Ledger");
+});
+
+test("an unseated operator views as a player: no approvals trigger, no modal markup", () => {
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("fixture missing");
+  const viewer = viewerFor(
+    { id: "op-unseated", role: "operator" },
+    project(f.events, f.viewers.dm),
+  );
+  expect(viewer).toEqual({ role: "player", userId: "op-unseated" });
+  const html = renderToStaticMarkup(
+    <TableView source={sourceFor(f, viewer)} />,
+  );
+  expect(html).not.toContain("Pending proposals");
+  expect(html).not.toContain("<dialog");
+  expect(html).not.toContain("aria-modal");
 });
 
 test("the hidden-entry notice shows for unknown-and-invalid", () => {
