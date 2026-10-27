@@ -1,10 +1,10 @@
 ---
 name: websocket-gateway
-description: The WebSocket gateway — upgrade-time authentication (a socket only opens for a valid session; 401 vs 503), the send-path classification (gate request kinds go to the gate, other catalogued types are refused, uncatalogued types take the legacy append), publish, which fans gate output out per viewer, and its presence duties (join/leave per connection, the heartbeat).
+description: The WebSocket gateway — upgrade-time authentication (a socket only opens for a valid session; 401 vs 503), the send-path classification (gate request kinds go to the gate; any other type is refused, `CATALOG_TYPE_REQUIRES_GATE` when catalogued and `UNKNOWN_EVENT_TYPE` when not), publish, which fans gate output out per viewer, and its presence duties (join/leave per connection, the heartbeat).
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # WebSocket gateway
@@ -55,10 +55,15 @@ whether or not it opted in, because the Director's marker counts every human at 
   `onAppended` listener calls `publish`. A refusal becomes an `error` frame with the refusal
   `code`; the kind is `forbidden` for `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED` and
   `GROUP_SIGNOFF_REQUIRED`, `internal` for `CONFLICT`, otherwise `validation`. See [[proposal-gate]].
-- **Any other catalogued type**: refused with `forbidden` and code `CATALOG_TYPE_REQUIRES_GATE`.
-- **Uncatalogued types**: the legacy path. `appendUncataloguedEvent` (see [[event-log]]) appends
-  **before** `publish`; the connection's own `userId` is the `actor`, never anything the frame
-  supplied. If the append throws, nothing is broadcast. TASK-0099 retires this path.
+- **Any other type**: refused, and nothing is written or broadcast. A catalogued type gets
+  `forbidden` with code `CATALOG_TYPE_REQUIRES_GATE`; an uncatalogued type gets `validation`
+  with code `UNKNOWN_EVENT_TYPE`. TASK-0099 (specs/043-retire-uncatalogued-send) retired the
+  legacy uncatalogued append: the gateway has no write path of its own, and every row reaches a
+  subscriber through the gate's `onAppended` listener.
+
+**Known behaviour.** Bursty concurrent `talk` sends through the gate can be refused with
+`internal` / `CONFLICT` once the gate's bounded retry on `SeqConflictError` is exhausted
+([[proposal-gate]]). The gateway reports the refusal and does not retry. Carded as TASK-0157.
 
 `createGateway` now requires a `gate` option; `index.ts` creates it and wires
 `gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish, close }`; it takes an optional `presence`

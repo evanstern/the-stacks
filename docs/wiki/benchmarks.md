@@ -45,7 +45,7 @@ sources:
   - specs/021-load-bench/tasks.md
   - specs/021-load-bench/research.md
   - specs/021-load-bench/contracts/results-format.md
-verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # Benchmarks
@@ -191,6 +191,11 @@ fixed duration; `concurrency-smoke` (commit tier) runs 3 users in-process on por
 the load database; `concurrencyVerdict` finds the first user count where latency or error-rate
 thresholds fire. Sessions come from `db.ts`'s `seedUsers` — one scrypt hash computed once and
 reused for every seeded user, so sign-in cost never dominates a step's latency (research R9).
+The optional WebSocket send is a `talk` gate request (out of character, no character) with a
+fresh `randomUUID` nonce in its text (TASK-0099, which retired the uncatalogued `send` the bench
+used before). The round trip is matched to its own `event` frame by that text; an `error` frame
+ends the wait early and counts as `ws_refused`; no reply in 5 s counts as `timeout`.
+`concurrency-smoke` wires `gate.onAppended(publish)` so the gate's rows reach subscribers.
 
 **Both stress cases** (`stress.ts`, research R6/R7). `db-exhaustion` opens raw `pg` clients
 against the load database until Postgres refuses new connections, then probes the running app:

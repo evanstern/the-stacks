@@ -200,6 +200,44 @@ DO NOTHING`).
 - The queued job can be claimed only after the running one ends (the claim's `NOT EXISTS`).
 - The next beat resolves every committed action in commit `seq` order.
 
+## Resolve order (decision-0025 §4)
+
+`resolve` runs six groups in this order. This section amends the resolve-then-narrate order of
+decision-0017 in place, as decision-0025 §4 directs. [resolve.md](resolve.md) "Order of work" and
+[director.md](director.md) state the same order.
+
+1. **Opening moves** (Director): the scene-start setup, and the `turn` table-mode decision
+   (monster combatants added, initiative rolled, turn mode set).
+2. **Rulings**: one `journal` proposal per ruling.
+3. **Action groups**, in commit `seq` order.
+4. **NPC group**, for an `npc-turn` trigger.
+5. **Closing moves** (Director): tracker advances, the `free` table-mode decision (encounter
+   end, then free mode), and the scene end.
+6. **Turn advance**, only while the encounter is active, the mode is turn and the mode did not
+   start this turn.
+
+Decision-0025 §4 says: "`resolve`: action groups first, then the Director group, then the batch
+gate." Decision-0025 §4 names the Director group as one unit. This contract splits that unit
+into opening moves and closing moves. This split is the reading of decision-0025 §4 that the
+operator has not yet ratified (spec 045, OQ-1). Decision-0025 §4 gives the rationale: a Director
+move sees the results of the actions. Closing moves follow that rationale.
+
+Encounter start and scene-start setup are opening moves. An action may name a combatant that the
+opening move adds. Run after the actions, the action would refuse with `UNKNOWN_COMBATANT`.
+Decision-0025 §2.5 passes encounter start: "Encounter start passes, because initiative is a roll."
+
+Hold runs the opening moves, then the closing moves. Hold runs no ruling, action, NPC or turn
+advance group.
+
+The batch gate (decision-0025 §3.3, TASK-0147) will run between the closing moves and the turn
+advance. That slot is empty until TASK-0147 lands.
+
+**Reclaim across a deploy.** The in-flight marker `<jobId>#<n>` counts submissions. The n-th
+submission is a different step under the old order and the new order. A job checkpointed by the
+old code and reclaimed by the new code could match a landed row to the wrong step. The window is
+one in-flight job per session, at the moment of a deploy. This contract accepts the risk (spec
+045, OQ-2 option (a)). Revisit card: TASK-0156.
+
 ## Reconcile (FR-008)
 
 At worker start, `reconcileTurnJobs(db)` finds sessions whose log holds an

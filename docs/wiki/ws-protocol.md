@@ -5,7 +5,7 @@ kind: concept
 sources:
   - apps/server/src/ws/protocol.ts
   - specs/006-ws-gateway/contracts/ws-protocol.md
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # WS protocol
@@ -34,8 +34,9 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
   and timestamp) are authoritative regardless of what a client sends. The gateway classifies a
   `send` by `eventType`: a gate request kind goes to the gate ([[proposal-gate]]; needs
   `payloadVersion` 1 and an object payload); any other catalogued type is refused with an
-  `error { kind: "forbidden", code: "CATALOG_TYPE_REQUIRES_GATE" }`; an uncatalogued type takes
-  the legacy append path (retirement carded as TASK-0099). The frame shape itself is unchanged.
+  `error { kind: "forbidden", code: "CATALOG_TYPE_REQUIRES_GATE" }`; an uncatalogued type is
+  refused with `error { kind: "validation", code: "UNKNOWN_EVENT_TYPE" }` and nothing is
+  written (TASK-0099, spec 043). The frame shape itself is unchanged.
 
 **Server → client**:
 
@@ -48,7 +49,8 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
   that wants to distinguish "caught up" from "quiet session."
 - `error { kind: "validation" | "forbidden" | "internal", message, code? }` — a refused request.
   The connection stays open. `code` is optional (spec 029 `ws-delivery.md`): present when the
-  refusal has a stable code, such as a gate refusal code or `CATALOG_TYPE_REQUIRES_GATE`.
+  refusal has a stable code, such as a gate refusal code, `CATALOG_TYPE_REQUIRES_GATE` or
+  `UNKNOWN_EVENT_TYPE`.
 - `presence { sessionId, present: [{ userId, displayName }] }` — the full set of humans at the
   table, sorted by `userId`, one entry per user. Sent only to a connection whose latest
   `subscribe` had `presence: true`: once right after that subscribe's `replay-complete`, then on
@@ -73,8 +75,9 @@ terminated. A client's `pong` is automatic in a browser.
 
 Consumed by [[websocket-gateway]] (upgrade + message loop) and [[replay-live-boundary]]
 (replay). Mirrored on the client in [[client-session-hook]]'s `types.ts`, which is a hand-kept
-copy of this same shape, not a shared import. The frozen contract was amended once, by
-decision-0024, with the `presence` field, frame and heartbeat; every other frame is unchanged.
+copy of this same shape, not a shared import. The frozen contract was amended twice: by
+decision-0024, with the `presence` field, frame and heartbeat, and by spec 043 (TASK-0099), which
+documents the `UNKNOWN_EVENT_TYPE` refusal of an uncatalogued `send`. No frame shape changed.
 
 ## Operational notes
 

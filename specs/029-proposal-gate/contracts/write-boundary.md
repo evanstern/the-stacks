@@ -23,7 +23,7 @@ already in the workspace (`ts.createSourceFile`; no new dependency).
 3. **Writers.** The log-writing bindings are:
    - from `events/log.ts`: `append`, `appendBatch`;
    - from `session/events.ts`: `appendSessionEvent`, `appendSessionEvents`,
-     `appendMechanicsBatch`, `appendUncataloguedEvent`.
+     `appendMechanicsBatch`.
 
    A namespace import (`import * as`) of either module counts as importing every binding.
    Allowed importers:
@@ -32,13 +32,14 @@ already in the workspace (`ts.createSourceFile`; no new dependency).
    |---|---|
    | `append`, `appendBatch` | `session/events.ts` |
    | `appendSessionEvent`, `appendSessionEvents`, `appendMechanicsBatch` | `gate/**` |
-   | `appendUncataloguedEvent` | `ws/gateway.ts` |
 
-4. **No model reach.** For every allowed writer (`session/**`, `gate/**`, `ws/gateway.ts`),
+4. **No model reach.** For every allowed writer (`session/**`, `gate/**`),
    the transitive import closure inside `src/` contains no file under `ai/`.
 5. **Entry parsing.** A unit test with a fake seam calls `gate.submit` and `gate.handle` with
    a raw model string, an object missing `kind`, and an object with an unknown `kind`. Each
    returns `INVALID_PROPOSAL`, and the fake seam records zero calls.
+
+> Amended by `specs/043-retire-uncatalogued-send` (TASK-0099): the legacy writer `appendUncataloguedEvent` and its allow-list entry are removed; `ws/gateway.ts` is no longer an allowed writer.
 
 Rules 3 and 4 together mean model output (which exists only in modules that import `ai/`)
 can reach the log only by calling the gate's `submit`/`handle`, which parse it into a typed

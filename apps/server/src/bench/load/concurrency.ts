@@ -42,11 +42,15 @@ export async function runConcurrencySmoke(): Promise<CaseOutcome> {
       databaseProbe: { reachable: async () => true },
       db,
     });
+    const gate = createGate({ db });
     const wsGateway = createWsGateway({
       db,
       validateSession: createValidateSession(db),
-      gate: createGate({ db }),
+      gate,
     });
+    // The bench's `talk` send goes through the gate; its rows reach
+    // subscribers only through this listener (ws-delivery.md), as in index.ts.
+    gate.onAppended(wsGateway.publish);
     let resolvePort!: (port: number) => void;
     const portPromise = new Promise<number>((resolve) => {
       resolvePort = resolve;

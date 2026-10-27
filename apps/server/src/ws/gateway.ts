@@ -24,7 +24,6 @@ import {
   type PresenceTracker,
 } from "../presence/index.js";
 import { users } from "../schema/auth.js";
-import { appendUncataloguedEvent } from "../session/events.js";
 import type { ErrorFrame, RecordedEventFrame, SendFrame } from "./protocol.js";
 import { parseInboundFrame } from "./protocol.js";
 import type { Connection } from "./registry.js";
@@ -328,8 +327,8 @@ export function createGateway({
 
   /**
    * Classifies a `send` (specs/029-proposal-gate/contracts/ws-delivery.md): a gate
-   * request kind goes to the gate; any other catalogued type is refused; the
-   * rest take the inert uncatalogued path (TASK-0099 retires it).
+   * request kind goes to the gate; any other type is refused
+   * (`CATALOG_TYPE_REQUIRES_GATE` when catalogued, `UNKNOWN_EVENT_TYPE` otherwise).
    */
   async function handleSend(conn: Connection, frame: SendFrame): Promise<void> {
     if (GATE_REQUEST_KINDS.includes(frame.eventType)) {
@@ -384,23 +383,12 @@ export function createGateway({
       return;
     }
 
-    // FR-004: append BEFORE broadcast — never the reverse. A broadcast that
-    // preceded the append could deliver an event that was never recorded,
-    // and if the append then failed, clients would have seen something the
-    // log doesn't contain. `append` itself validates seq/ts are absent, so
-    // a failure here throws and nothing is ever sent to `registry.broadcast`.
-    const recorded = await appendUncataloguedEvent(db, {
-      sessionId: frame.sessionId,
-      // FR-005: actor is the connection's authenticated identity, never the
-      // frame's — `frame` (SendFrame) has no `actor` field for it to come
-      // from in the first place (protocol.ts strips it at parse time).
-      actor: conn.userId,
-      type: frame.eventType,
-      payload: frame.payload,
-      payloadVersion: frame.payloadVersion,
-      visibility: frame.visibility,
-    });
-    publish(frame.sessionId, [recorded]);
+    sendError(
+      conn,
+      "validation",
+      `The event type ${frame.eventType} is not catalogued.`,
+      "UNKNOWN_EVENT_TYPE",
+    );
   }
 
   /** Broadcasts stored rows in order; each subscriber receives only what it may see. */
