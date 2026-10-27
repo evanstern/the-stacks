@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:35'
 labels:
   - multiplayer
   - realtime
@@ -40,6 +40,9 @@ Spec: specs/035-presence
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md, Track A1). Worktree .worktrees/task-0051, branch task-0051-presence, cut from origin/main a4aab3c. Spec number 035 claimed with a stub. Checkpoint C2: stop after spec.md for the ws-protocol frame ruling.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring to checkpoint C2: spec.md + decision-draft.md, commit 1d2f809; served verified from transcript.) Note: .specify/feature.json was committed pointing at 035; revert it before PR.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
