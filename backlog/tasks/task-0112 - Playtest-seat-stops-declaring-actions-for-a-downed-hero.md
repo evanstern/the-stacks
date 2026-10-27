@@ -1,10 +1,10 @@
 ---
 id: TASK-0112
 title: Playtest seat stops declaring actions for a downed hero
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 12:54'
+updated_date: '2026-10-27 12:55'
 labels:
   - playtest
   - harness
@@ -95,6 +95,12 @@ Phase 6 (merge 9878726, wiki 3363dbe): 9 notes amended (NEEDS-REVIEW), 2 re-pinn
 Reconciled with origin/main after #70 (merge baecb93, re-pin 3bfc40c). Freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Both gate-api.md amendments kept verbatim.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3): 10/10 · Declare gate `CHARACTER_UNABLE` (card AC #5): 5/5 · Plan gate against S0 (card AC #6): 7/7 · Death-save turns by settling (card AC #4): 6/6 · Driver and harness (card AC #1): 7/7 · Wiki re-ground (runbook expected reviews): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
