@@ -45,8 +45,6 @@ Spec: specs/049-turn-floor
 - [ ] #13 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -103,6 +101,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 - Floor reconcile after a restart only considers sessions with an event in the last 24 h (FLOOR_RECONCILE_LOOKBACK_MS), so the AI DM does not wake abandoned sessions.
 - The debug and playtest job-kind unions gained "floor".
 Rule note: to migrate the app DB, the implementer read the local stack POSTGRES_PASSWORD from the worktree .env into a throwaway URL. It printed nothing and committed nothing, but this breaks dispatch-rules "never read keys or passwords". Later briefs say to migrate with the repo scripts or stop.
+
+spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stories 1, 2, 3 gate half): 8/8 · Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture): 5/5 · Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3): 8/8 · Full round with two humans and one AI companion (card AC #6): 3/3 · The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4): 9/9 · Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5): 0/8 · Wiki re-ground (runbook expected reviews): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
