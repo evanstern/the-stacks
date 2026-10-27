@@ -1,10 +1,10 @@
 ---
 id: TASK-0141
 title: 'Actor-state gate: Scene presence as tracked actor state, with a producer'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 10:07'
+updated_date: '2026-10-27 10:54'
 labels:
   - dm
   - rules-gate
@@ -39,6 +39,8 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 
 <!-- SECTION:NOTES:BEGIN -->
 Scope added 2026-10-27 by the operator's TASK-0112 ruling (sequencing Option A): both absent checks move here; depends on TASK-0112.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0141, branch task-0141-scene-presence, cut from origin/main a17d0b9. Spec number 048 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C6 (runbook amendment 1); carries the two absent checks moved from TASK-0112 (Option A).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
