@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 02:34'
+updated_date: '2026-10-27 02:52'
 labels:
   - dm
   - engine
@@ -32,6 +32,8 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator ruling 2026-10-27 (via parent session local_415a1f81): "Leave TASK-0110 in m-3: the demo never hit it." It stays in m-3 and does not block M2 close. This answers next action 1 of the runbook handoff of 2026-10-27.
+
+Operator ruling 2026-10-27 (in chat with the third M2 orchestrator session): leave in m-3. The live demo (session e8c848ec) never hit it — no refused outcome; the fight ended by flight. Does not block M2 close.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
