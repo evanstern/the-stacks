@@ -18,6 +18,8 @@ ordinal: 110000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: the project's rules baseline holds the DM-facing adjudication text, so engine, doctrine and research cite a repo copy. Today packages/srd holds class, condition, equipment, monster and spell records only; the Playing the Game chapter (d20 tests, ability checks, the DC table, advantage, contests, saving throws, Influence, Search and Study actions, exploration and social rules) is absent. Found by TASK-0115 (docs/research/DM-Craft-Map/SRD-5.2.1-Rules-Pass.md). SRD 5.2.1 is CC-BY-4.0; keep its attribution.
+
+Spec: specs/039-srd-rules-text
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
