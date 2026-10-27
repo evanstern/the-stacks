@@ -68,3 +68,341 @@ export const MAX_WORDS = 220;
 export function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
+
+// ---------------------------------------------------------------------------
+// Claim-gate lexicons (specs/051-output-claim-gate/data-model.md, FR-014).
+// Verb lists hold lemmas; `verbForms` expands the inflected forms. The bare
+// lemma is never matched: after a singular subject a bare form is mostly a
+// noun ("the fire", "a wave").
+
+/** Voluntary acts. "laugh" and "sob" sit here: they are sounds, not speech. */
+export const ACT_VERBS: readonly string[] = [
+  "attack",
+  "swing",
+  "strike",
+  "slash",
+  "lunge",
+  "grip",
+  "grab",
+  "seize",
+  "draw",
+  "raise",
+  "lift",
+  "reach",
+  "curl",
+  "stand",
+  "rise",
+  "climb",
+  "run",
+  "charge",
+  "step",
+  "walk",
+  "wade",
+  "move",
+  "turn",
+  "look",
+  "watch",
+  "nod",
+  "smile",
+  "grin",
+  "aim",
+  "nock",
+  "fire",
+  "shoot",
+  "throw",
+  "cast",
+  "point",
+  "wave",
+  "pull",
+  "push",
+  "shove",
+  "flee",
+  "bolt",
+  "laugh",
+  "sob",
+];
+
+/** Verbs of utterance. */
+export const SPEECH_VERBS: readonly string[] = [
+  "say",
+  "speak",
+  "shout",
+  "shriek",
+  "call",
+  "cry",
+  "whisper",
+  "mutter",
+  "snarl",
+  "growl",
+  "answer",
+  "reply",
+  "ask",
+  "beg",
+  "plead",
+  "yell",
+];
+
+/** Verbs that describe a downed body without an act. Disjoint from the two lists above. */
+export const INVOLUNTARY_VERBS: readonly string[] = [
+  "lie",
+  "breathe",
+  "bleed",
+  "slump",
+  "sprawl",
+  "twitch",
+  "shiver",
+  "stay",
+  "remain",
+  "rest",
+];
+
+/** An act verb counts only when one of these words follows it. */
+export const ACT_VERB_PARTICLES: Readonly<Record<string, readonly string[]>> = {
+  curl: ["around"],
+  look: [
+    "at",
+    "toward",
+    "towards",
+    "up",
+    "down",
+    "around",
+    "over",
+    "to",
+    "back",
+    "away",
+    "through",
+    "past",
+  ],
+  turn: [
+    "toward",
+    "towards",
+    "to",
+    "away",
+    "back",
+    "around",
+    "over",
+    "on",
+    "and",
+  ],
+};
+
+const IRREGULAR_FORMS: Readonly<Record<string, readonly string[]>> = {
+  stand: ["stood"],
+  rise: ["rose", "risen"],
+  draw: ["drew", "drawn"],
+  run: ["ran"],
+  shoot: ["shot"],
+  throw: ["threw", "thrown"],
+  flee: ["fled"],
+  speak: ["spoke", "spoken"],
+  say: ["said"],
+  swing: ["swung"],
+  strike: ["struck"],
+  lie: ["lay", "lain", "lying"],
+  bleed: ["bled"],
+  sob: ["sobbed", "sobbing"],
+};
+
+/** Inflected forms of a lemma (-s, -ed, -ing, irregulars). Never the bare lemma. */
+export function verbForms(lemma: string): string[] {
+  const out = new Set<string>();
+  const e = lemma.endsWith("e");
+  const y = /[^aeiou]y$/.test(lemma);
+  out.add(
+    /(s|x|z|ch|sh|o)$/.test(lemma)
+      ? `${lemma}es`
+      : y
+        ? `${lemma.slice(0, -1)}ies`
+        : `${lemma}s`,
+  );
+  out.add(e ? `${lemma}d` : y ? `${lemma.slice(0, -1)}ied` : `${lemma}ed`);
+  out.add(
+    e && !lemma.endsWith("ee") ? `${lemma.slice(0, -1)}ing` : `${lemma}ing`,
+  );
+  if (/[^aeiou][aeiou][bdgmnprt]$/.test(lemma)) {
+    const last = lemma.slice(-1);
+    out.add(`${lemma}${last}ed`);
+    out.add(`${lemma}${last}ing`);
+  }
+  for (const f of IRREGULAR_FORMS[lemma] ?? []) out.add(f);
+  return [...out];
+}
+
+/** Phrases that turn an act into a state. */
+export const NEGATIONS: readonly string[] = [
+  "cannot",
+  "can't",
+  "can not",
+  "could not",
+  "couldn't",
+  "does not",
+  "doesn't",
+  "did not",
+  "didn't",
+  "will not",
+  "won't",
+  "no longer",
+  "fails to",
+  "failed to",
+  "too weak to",
+  "unable to",
+  "never",
+];
+
+/** A death word that may be attributed to an actor. */
+export const DEATH_ATTRIBUTION = /\b(dies|died|dead|killed|slain)\b/gi;
+/** A down word that may be attributed to an actor. */
+export const DOWN_ATTRIBUTION =
+  /\b(unconscious|knocked out|passes out|blacks out|collapses|crumples|goes down)\b/gi;
+/** Attributed forms that need a passive auxiliary: "was killed", not "killed Snag". */
+export const PASSIVE_ONLY = /^(killed|slain|knocked out)$/i;
+
+export const NUMBER_WORDS: Readonly<Record<string, number>> = {
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  both: 2,
+};
+
+/** "<term> acts next" and "<term> moves next" (turn order, FR-004a). */
+export const TURN_ORDER_PHRASE = /^\s*(?:acts|moves)\s+next\b/i;
+
+const NUM_ALT = Object.keys(NUMBER_WORDS).join("|");
+/** Count claim shapes (FR-007). Each is global; build a fresh copy per scan. */
+export const COUNT_PATTERNS = {
+  /** "<number> [up to three words] down|dead|fallen|dropped" */
+  numberDown: `\\b(${NUM_ALT})\\b((?:\\s+[\\p{L}'’-]+){0,3}?)\\s+(down|dead|fallen|dropped)\\b`,
+  /** "no|none|not one [of the] <noun> left|remain" */
+  noneLeft: `\\b(no|none|not one)\\s+(?:of\\s+(?:the\\s+)?)?(?:[\\p{L}-]+\\s+)??([\\p{L}'’-]+)\\s+(?:left|remain|remains|remaining)\\b`,
+  /** "last|only|lone <noun>" */
+  lastOnly: `\\b(last|only|lone)\\s+(?:([\\p{L}'’-]+)\\s+)?([\\p{L}'’-]+)`,
+  /** "all [of] [the] <noun> [are] down|dead" */
+  allDown: `\\ball\\s+(?:of\\s+)?(?:the\\s+)?([\\p{L}'’-]+)\\s+(?:(?:are|were|lie|lay)\\s+)?(down|dead)\\b`,
+} as const;
+
+/** A possessive on a name attributes an act to the name only before one of these. */
+export const BODY_PARTS: ReadonlySet<string> = new Set([
+  "hand",
+  "hands",
+  "finger",
+  "fingers",
+  "arm",
+  "arms",
+  "eye",
+  "eyes",
+  "head",
+  "face",
+  "lip",
+  "lips",
+  "mouth",
+  "voice",
+  "breath",
+  "chest",
+  "leg",
+  "legs",
+  "foot",
+  "feet",
+  "shoulder",
+  "shoulders",
+  "fist",
+  "fists",
+  "jaw",
+  "body",
+  "grin",
+  "claw",
+  "claws",
+]);
+
+/** Words between a name and a death or down word that keep the word on the name. */
+export const ATTRIBUTION_GAP: ReadonlySet<string> = new Set([
+  "is",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "lies",
+  "lay",
+  "falls",
+  "fell",
+  "fallen",
+  "now",
+  "already",
+  "finally",
+  "just",
+  "then",
+  "quite",
+  "very",
+  "still",
+  "stone",
+  "cold",
+  "really",
+  "truly",
+  "nearly",
+  "almost",
+  "has",
+  "had",
+  "gets",
+  "got",
+  "goes",
+  "went",
+  "limp",
+  "also",
+  "too",
+  "at",
+  "last",
+]);
+
+/** Auxiliaries that make "killed", "slain" and "knocked out" passive. */
+export const PASSIVE_AUX: ReadonlySet<string> = new Set([
+  "is",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "gets",
+  "got",
+]);
+
+/** A name after one of these is an object, not a subject. */
+export const OBJECT_CUES: ReadonlySet<string> = new Set([
+  "at",
+  "toward",
+  "towards",
+  "to",
+  "from",
+  "over",
+  "beside",
+  "past",
+  "with",
+  "upon",
+  "on",
+  "of",
+  "by",
+  "against",
+  "around",
+  "behind",
+  "beneath",
+  "for",
+  "near",
+  "beyond",
+  "into",
+  "onto",
+  "under",
+  "between",
+  "among",
+  "like",
+  "than",
+  "about",
+  "after",
+]);

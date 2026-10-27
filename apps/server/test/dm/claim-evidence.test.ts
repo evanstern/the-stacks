@@ -17,35 +17,32 @@ import {
 } from "./claim-fixtures.js";
 
 /**
- * Spec 051 Phase 1: the recorded evidence, executable. Refusal cases are
- * `it.fails` against the pass-through seam; Phase 2 flips them to `it`.
+ * Spec 051 Phase 1/2: the recorded evidence, executable.
  */
 
-const refuse = it.fails;
-
-describe("claim evidence: refusals (flip to it in Phase 2)", () => {
-  refuse("M2 seq 225: 'Two down' is a count issue (US3.1)", () => {
+describe("claim evidence: refusals", () => {
+  it("M2 seq 225: 'Two down' is a count issue (US3.1)", () => {
     const r = checkClaims(stateAt(M2_LOG, 220, 224), narrationAt(M2_LOG, 225));
     expect(r.pass).toBe(false);
     const c = r.issues.find((i) => i.claim === "count");
     expect(c?.matched).toContain("Two down");
   });
 
-  refuse("F52, M2 seq 307: 'No goblins left' is a count issue (US3.2)", () => {
+  it("F52, M2 seq 307: 'No goblins left' is a count issue (US3.2)", () => {
     const r = checkClaims(stateAt(M2_LOG, 306, 306), narrationAt(M2_LOG, 307));
     expect(r.pass).toBe(false);
     const c = r.issues.find((i) => i.claim === "count");
     expect(c?.matched).toContain("No goblins left");
   });
 
-  refuse("run 192319Z row 162: unconscious Tamsin acts (US1.1)", () => {
+  it("run 192319Z row 162: unconscious Tamsin acts (US1.1)", () => {
     const r = checkClaims(stateAt(RUN_192319Z_LOG, 155, 160), ROW162_ACTING);
     expect(r.pass).toBe(false);
     const a = r.issues.find((i) => i.claim === "act");
     expect(a?.detail).toContain("Tamsin Vale");
   });
 
-  refuse("seq 225 alias variant: dead goblin-3 speaks (US1.5)", () => {
+  it("seq 225 alias variant: dead goblin-3 speaks (US1.5)", () => {
     const r = checkClaims(
       stateAt(M2_LOG, 220, 224),
       "The goblin lookout shrieks at Snag.",
@@ -55,7 +52,7 @@ describe("claim evidence: refusals (flip to it in Phase 2)", () => {
     expect(s?.actorIds).toContain("goblin-3");
   });
 
-  refuse("Snag absent: Snag laughs from the reeds (US1.6)", () => {
+  it("Snag absent: Snag laughs from the reeds (US1.6)", () => {
     const r = checkClaims(
       withPresence(M2_LOG, 306, ["snag"]),
       "Snag laughs from the reeds.",
@@ -65,7 +62,7 @@ describe("claim evidence: refusals (flip to it in Phase 2)", () => {
   });
 });
 
-describe("claim evidence: controls (pass on the seam)", () => {
+describe("claim evidence: controls", () => {
   it("F52 with goblin-2, goblin-4 and Snag absent passes (US3.3)", () => {
     const r = checkClaims(
       withPresence(M2_LOG, 306, ["goblin-2", "goblin-4", "snag"]),
