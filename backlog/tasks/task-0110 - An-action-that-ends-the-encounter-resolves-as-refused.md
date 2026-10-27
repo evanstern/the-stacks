@@ -53,6 +53,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (f18b9c2): resolve order in turn-jobs.md, resolve.md and director.md; AC #2 ticked.
 
 Phase 2 done (3a28ed2): directorGroup split into directorOpening/directorClosing; resolve runs the decision-0025 §4 order; 6 order tests in resolve.integration.test.ts. ci:check green with REQUIRE_DATABASE=1, no flake. One assertion change: reclaim.integration.test.ts normalizes the marker step number (a reclaim skips an already-resolved action, so a later marker number differs from the clean run; related to OQ-2 / TASK-0156).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (3a28ed2): resolve runs the decision-0025 §4 order, with 6 order tests; ci:check passed with REQUIRE_DATABASE=1. HELD BY THE ORCHESTRATOR: the reclaim SC-005 test was loosened to normalize the marker step number (#n). The same agent is resumed to check whether markers can collide on reclaim within one code version. If they can, it fixes them on this branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
