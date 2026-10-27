@@ -120,6 +120,7 @@ export type NodeErrorKind =
   | "gate" // resolve: a non-engine gate refusal after retries
   | "fenced" // the lease was lost
   | "aborted" // the signal aborted for shutdown
+  | "state-overflow" // the actor snapshot cannot fit its cap
   | "internal"; // a bug; logged with no prompt text
 
 export interface NodeError {

@@ -21,6 +21,7 @@ import {
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), "../../src");
 
@@ -133,6 +134,7 @@ const resolved: ResolveOutput = {
   nextJob: null,
   chronicle: false,
   npcTurn: null,
+  ...EMPTY_RESOLVE_SNAPSHOT,
   lastSeq: 0,
 };
 

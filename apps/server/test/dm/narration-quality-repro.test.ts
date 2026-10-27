@@ -30,6 +30,7 @@ import {
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { freeEventsThrough, makeCtx, projectDm, testSeed } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
  * TASK-0106 Phase 1: each test reproduces a run-5 defect on the UNFIXED code,
@@ -72,6 +73,7 @@ const noResolve = (over: Partial<ResolveOutput> = {}): ResolveOutput => ({
   nextJob: null,
   chronicle: false,
   npcTurn: null,
+  ...EMPTY_RESOLVE_SNAPSHOT,
   lastSeq: 0,
   ...over,
 });

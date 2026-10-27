@@ -12,6 +12,12 @@ import type { Gate } from "../../gate/index.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { combatantFromSrd } from "../seed/combatants.js";
+import {
+  type ActorSnapshot,
+  buildSnapshot,
+  diffSnapshots,
+  type SnapshotDiff,
+} from "../snapshot/index.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
@@ -71,6 +77,10 @@ export interface ResolveOutput {
   } | null;
   /** Highest seq the gate returned to this job. */
   lastSeq: number;
+  /** S1: the actor snapshot after the last gate write. */
+  snapshot: ActorSnapshot;
+  /** The S0-to-S1 diff. */
+  diff: SnapshotDiff;
 }
 
 class Stop extends Error {
@@ -999,11 +1009,16 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     };
   }
 
+  const finalProjections = await ctx.deps.loadProjections(ctx.job.sessionId);
+  const snapshot = buildSnapshot(finalProjections, ctx.seed);
+
   return {
     ok: true,
     node: "resolve",
     calls: [],
     output: {
+      snapshot,
+      diff: diffSnapshots(assembled.snapshot, snapshot),
       submissions: run.submissions,
       actionResults,
       appendedRows: run.appended,

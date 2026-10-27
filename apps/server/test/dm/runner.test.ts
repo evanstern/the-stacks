@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { interpret } from "../../src/dm/nodes/interpret.js";
 import {
   depsFor,
   NODE_NAMES,
@@ -8,7 +9,9 @@ import {
   throwingGate,
 } from "../../src/dm/pipeline/context.js";
 import { type Nodes, runTurn } from "../../src/dm/pipeline/runner.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { emptyCheckpoint, makeCtx, makeDeps, testSeed } from "./helpers.js";
+import { greyhollowFight } from "./snapshot-fixtures.js";
 
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
@@ -225,6 +228,48 @@ describe("runTurn", () => {
       error: { kind: "gateway" },
     });
     if (outcome.status === "failed") expect(outcome.calls).toHaveLength(2);
+  });
+
+  it("fails the turn with state-overflow when interpret's state cannot fit, and makes no call", async () => {
+    const { projections, seed } = greyhollowFight();
+    const base = buildSnapshot(projections, seed);
+    const template = base.actors[0];
+    if (!template) throw new Error("fixture has no actors");
+    const snapshot = {
+      ...base,
+      actors: Array.from({ length: 150 }, (_, i) => ({
+        ...template,
+        id: `big-${i}`,
+        name: `Overflow Beast ${i}`,
+        kind: "monster" as const,
+      })),
+    };
+    const spy = stubNodes({ assemble: assembled({ snapshot }) });
+    let chats = 0;
+    const logs: Record<string, unknown>[] = [];
+    spy.nodes.interpret = interpret;
+    const ctx = makeCtx({
+      deps: {
+        gateway: {
+          chat: () => {
+            chats++;
+            throw new Error("a model call was made");
+          },
+        },
+        log: (e) => logs.push(e as Record<string, unknown>),
+      },
+    });
+    const outcome = await runTurn(ctx, spy.nodes);
+    expect(chats).toBe(0);
+    expect(outcome).toMatchObject({
+      status: "failed",
+      node: "interpret",
+      error: {
+        kind: "state-overflow",
+        detail: { view: "dm", actors: 150, node: "interpret" },
+      },
+    });
+    expect(logs.some((l) => l.event === "dm.node.state-overflow")).toBe(true);
   });
 
   it("makes no call on an empty beat", async () => {

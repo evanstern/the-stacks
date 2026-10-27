@@ -9,8 +9,8 @@ import {
   beatEntries,
   CAPS,
   capEntries,
+  dmStateSection,
   joinSections,
-  projectionEntries,
   section,
   seedEntries,
   srdEntries,
@@ -18,7 +18,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v2";
+export const PROMPT_VERSION = "dm.interpret-v3";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -86,12 +86,7 @@ export function buildInterpretPrompt(input: {
   );
   const user = joinSections([
     section("Scene seed", seedEntries(ctx.seed, assembled), CAPS.seed, "end"),
-    section(
-      "State",
-      projectionEntries(assembled.projections, ctx.seed, false),
-      CAPS.projections,
-      "end",
-    ),
+    dmStateSection(assembled.snapshot, ctx.seed, false),
     section(
       "Recent transcript",
       transcriptEntries(assembled.transcriptTail),

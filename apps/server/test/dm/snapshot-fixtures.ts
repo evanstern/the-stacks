@@ -151,3 +151,25 @@ export function greyhollowFight(): Scenario {
 export function clone<T>(v: T): T {
   return structuredClone(v);
 }
+
+/** An empty S1 and diff for ResolveOutput fixtures that do not exercise the snapshot. */
+export const EMPTY_RESOLVE_SNAPSHOT = {
+  snapshot: {
+    v: 1,
+    throughSeq: 0,
+    seedId: null,
+    actors: [],
+    stage: {
+      tableMode: { mode: "free" },
+      encounter: null,
+      scene: null,
+      trackers: [],
+    },
+  } as import("../../src/dm/snapshot/index.js").ActorSnapshot,
+  diff: {
+    fromSeq: 0,
+    toSeq: 0,
+    actors: [],
+    stage: [],
+  } as import("../../src/dm/snapshot/index.js").SnapshotDiff,
+};

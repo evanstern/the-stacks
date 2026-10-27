@@ -14,6 +14,7 @@ import { buildCompanionPrompt } from "../../src/dm/prompts/companion.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
 import { projectDm, row, testSeed } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
  * TASK-0106 card AC #1 (contracts/player-facing-context.md "Tests"): no
@@ -62,6 +63,7 @@ const noResolve = (over: Partial<ResolveOutput> = {}): ResolveOutput => ({
   nextJob: null,
   chronicle: false,
   npcTurn: null,
+  ...EMPTY_RESOLVE_SNAPSHOT,
   lastSeq: 0,
   ...over,
 });

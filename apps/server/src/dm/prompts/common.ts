@@ -5,6 +5,7 @@ import type {
 import { estimateTokens } from "@the-stacks/srd";
 import type { AssembleOutput, BeatItem } from "../nodes/assemble.js";
 import type { SceneSeed, SeedCharacterT } from "../seed/schema.js";
+import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
 
 /**
  * Shared prompt parts and the token caps (contracts/nodes.md "Token budget",
@@ -223,6 +224,25 @@ export function projectionEntries(
     }
   }
   return entries;
+}
+
+/** `## State` from the snapshot in the `dm` view; throws SnapshotOverflowError on overflow. */
+export function dmStateSection(
+  snapshot: ActorSnapshot,
+  seed: { trackers?: readonly { trackerId: string; advanceWhen: string }[] },
+  withTrackers: boolean,
+): string {
+  return snapshotSection("State", snapshot, {
+    view: "dm",
+    cap: CAPS.snapshotDm,
+    trackers: withTrackers
+      ? {
+          advanceWhen: new Map(
+            (seed.trackers ?? []).map((t) => [t.trackerId, t.advanceWhen]),
+          ),
+        }
+      : false,
+  });
 }
 
 export function srdEntries(assembled: AssembleOutput): string[] {

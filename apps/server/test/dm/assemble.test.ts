@@ -6,6 +6,7 @@ import {
   buildDirectorPrompt,
   PROMPT_VERSION as DIRECTOR_VERSION,
 } from "../../src/dm/prompts/director.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   commit,
   declare,
@@ -266,6 +267,34 @@ describe("assemble", () => {
   });
 });
 
+describe("assemble: S0", () => {
+  it("builds the actor snapshot from the projections and the seed", async () => {
+    const events = freeEventsThrough("action.committed");
+    const { ctx, output } = await run(events);
+    expect(output.snapshot).toEqual(buildSnapshot(projectDm(events), ctx.seed));
+    expect(output.snapshot.throughSeq).toBe(output.throughSeq);
+    expect(output.snapshot.actors.length).toBeGreaterThan(0);
+  });
+
+  it("renders the director State section from S0 with tracker lines", async () => {
+    const { ctx, output } = await run(freeEventsThrough("action.committed"));
+    const prompt = buildDirectorPrompt({
+      ctx,
+      assembled: output,
+      aiCompanions: [],
+      runnableEncounterIds: [],
+    });
+    const state = /## State\n([\s\S]*?)(\n\n##|$)/.exec(prompt.user);
+    expect(state?.[1]).toContain("Table mode: free");
+    for (const a of output.snapshot.actors) {
+      expect(state?.[1]).toContain(`"${a.name}"`);
+    }
+    for (const t of output.snapshot.stage.trackers) {
+      expect(state?.[1]).toContain(t.trackerId);
+    }
+  });
+});
+
 describe("prompt caps (SC-007)", () => {
   it("cuts whole entries and keeps each part under its cap", async () => {
     const base = freeEventsThrough("narration");
@@ -287,7 +316,7 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v2");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v3");
     const transcript = /## Recent transcript\n([\s\S]*?)(\n\n##|$)/.exec(
       prompt.user,
     );
