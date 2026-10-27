@@ -62,6 +62,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (Spec authoring resumed after the operator ruling: plan and tasks, commit 44601a4. Six phases. FR-026 fixes the stale sentence in turn-jobs.md.)
 
 Phase 1 done (45991b9): origin/main merged (9ad8aa9); turn-jobs Resolve order records operator approval; engine ACTOR_UNABLE (attack.roll, ability-check check.roll) with tests; contracts amended (026 row 27, 029 engine count 27, 028 refusalCode note); session-model catalog test. Engine 228 and session-model 600 tests green; ci:check fails only on the 5 adjudicate.integration tests (no stack, TASK-0138).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (merge 9ad8aa9, work 45991b9): engine ACTOR_UNABLE (27 codes); 026, 029 §2 and 028 amended as ruled; stale turn-jobs.md sentence fixed. Engine 228 and session-model 600 tests pass. Owed: the 028 session-events.md edit still lacks its 'Amended 2026-10-27' line; Phase 2 adds it.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
