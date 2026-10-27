@@ -4,7 +4,7 @@ title: 'Actor-state gate: Scene presence as tracked actor state, with a producer
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 12:48'
+updated_date: '2026-10-27 12:54'
 labels:
   - dm
   - rules-gate
@@ -35,6 +35,11 @@ Spec: specs/048-scene-presence
 - [ ] #5 A plan gate refuses a step whose actor or target is absent in S0, with a test and its engine/refusal code ruled in this card (decision-0025 §3.2; moved from TASK-0112, Option A)
 - [ ] #6 A presence effect lets interpret and adjudicate propose a presence change, including under a roll outcome; the gate applies it only through a scene-presence proposal (policy ask), with tests (OQ-1 (a), OQ-2 (a), operator ruling 2026-10-27).
 - [ ] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
+- [ ] #8 Spec phase: Engine `initiative.leave` (card AC #7, User Story 3 engine half)
+- [ ] #9 Spec phase: Session model — event, projection, `scene-presence` kind, declare gate (card AC #1, #4, #6 gate half)
+- [ ] #10 Spec phase: Snapshot from the log, plan gate absent reason (card AC #2, #5)
+- [ ] #11 Spec phase: Step grammar, resolve, facts, no Director field (card AC #3, #5 resolve half, #6, #7 resolve half)
+- [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -56,6 +61,9 @@ OQ-5 (no ruling needed): yielded cannot return to present in this card.
 Operator ruling 2026-10-27 (in chat, verbatim; the message ended after OQ-2): "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including the frozen 029 and 028 amendments, OQ-2 (a)". OQ-1 resolved (a). OQ-2 resolved (a). OQ-3 and OQ-4 not yet ruled; plan.md waits on them.
 
 Operator ruling 2026-10-27 (in chat, verbatim): "TASK-0141: I accept OQ-3 (a) engine initiative.leave with AC #3 reworded to \"through an engine command\", and OQ-4 (a) reuse UNKNOWN_COMBATANT with reason absent." All OQ-1 to OQ-4 resolved (a). AC #3 reworded per the ruling. AC #2 reworded to match OQ-2 (a) (a presence effect, not a step kind). Both moved to the end of the list by the CLI. AC #7 code: UNKNOWN_COMBATANT, reason absent (OQ-4 (a)).
+
+Spec author resumed after OQ-1 to OQ-4 rulings: plan.md and tasks.md via speckit skills at 1ede222. 5 phases. Plan defaults R2 (no actor-existence check in the scene-presence planner; plan gate checks targets against S0) and R3 (initiative.leave reuses UNKNOWN_COMBATANT reason not-in-order and NO_ELIGIBLE_COMBATANT); the operator can overturn either. Phases 2-4 wait on PR #71.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
