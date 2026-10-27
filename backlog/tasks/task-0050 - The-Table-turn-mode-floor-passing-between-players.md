@@ -1,10 +1,10 @@
 ---
 id: TASK-0050
 title: 'The Table: turn-mode floor passing between players'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 16:20'
+updated_date: '2026-10-27 18:44'
 labels:
   - multiplayer
   - gate
@@ -112,6 +112,12 @@ spec-bridge sync: Turn rules and the `floor` kind (card AC #1, #3, #5; User Stor
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 7, T042-T047: df55b7a wiki, 9fca38e runbook rows. Freshness OK: 52 notes; spec-bridge check exit 0.) New note docs/wiki/turn-floor.md: the host notes were at the 8000-char cap, so the floor detail moved there and each host note keeps a pointer. The final Done sync runs on main after the merge.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Turn rules and the `floor` kind (card AC #1, #3, #5; User Stories 1, 2, 3 gate half): 8/8 · Stall override and the `turn-floor` fixture (TASK-0049 Q5 gate half; card AC #6 fixture): 5/5 · Server wiring — resolve guard, shared rules, follow-ups (card AC #3, #5; User Stories 2, 3): 8/8 · Full round with two humans and one AI companion (card AC #6): 3/3 · The `floor` job kind and migration (TASK-0049 Q5; decision-0024 absent wait; User Story 4): 9/9 · Play route (card AC #2, #4, #5 UI; User Stories 1, 3, 5): 8/8 · Wiki re-ground (runbook expected reviews): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
