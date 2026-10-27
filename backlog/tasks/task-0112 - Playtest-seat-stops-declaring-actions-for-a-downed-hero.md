@@ -30,10 +30,11 @@ Spec: specs/046-downed-hero-gate
 <!-- AC:BEGIN -->
 - [ ] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
-- [ ] #3 The declare gate refuses a character that is not conscious or is absent, with a refusal code and a test (decision-0025 §3.1, card U6)
-- [ ] #4 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
-- [ ] #5 Death-save turns for unconscious PCs still run (U6)
+- [ ] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
+- [ ] #4 Death-save turns for unconscious PCs still run (U6)
 <!-- AC:END -->
+
+
 
 
 
