@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 09:53'
+updated_date: '2026-10-27 09:54'
 labels:
   - ws
   - session
@@ -59,6 +59,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge 6204c23, work 92e0a14): the uncatalogued path is retired; frozen amendments applied exactly as written; bench and M0 WS tests moved to talk; ci:check passed with REQUIRE_DATABASE=1; concurrency-smoke passes. Fixed in scope: concurrencySmoke never wired gate.onAppended to the WS publish. Finding: bursty concurrent talk through the gate can be refused with CONFLICT. The tests resend on CONFLICT, and the problem is carded as TASK-0157 (m-3, before the demo).
 
 Phase 2 done (b77e6e0): wiki re-grounded. websocket-gateway, ws-protocol, proposal-gate, session-model, benchmarks, test-suite re-pinned after prose review; event-log prose updated (pin unchanged, sources untouched); CAPSULES.md regenerated; INDEX.md state paragraph and websocket-gateway entry updated. TASK-0157 CONFLICT behaviour noted in websocket-gateway and proposal-gate. Freshness OK, spec-bridge exit 0, ci:check green.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (merge 1eca063, wiki b77e6e0): six notes amended (NEEDS-REVIEW) and re-pinned; freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
