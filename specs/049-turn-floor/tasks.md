@@ -230,28 +230,28 @@ the DM passes, takes and returns the floor in one click; no modal.
 **Independent test**: `pnpm --filter web test`; `apps/web/test/no-dialog.test.mjs` stays green;
 `play/fixtures` → `turn-floor` renders in Brave.
 
-- [ ] T034 [P] [US5] Extend `apps/web/test/play/view-model.test.mjs`: `ModeView.held`, `order`
+- [x] T034 [P] [US5] Extend `apps/web/test/play/view-model.test.mjs`: `ModeView.held`, `order`
       (active, next, you), `FloorControls` per viewer, `floor` transcript items, card
       `commitsOnOwnTurn` and `suggest` (data-model.md "View model").
-- [ ] T035 [US5] Implement them in `apps/web/app/play/view-model.ts`, using `activeActorFor`,
+- [x] T035 [US5] Implement them in `apps/web/app/play/view-model.ts`, using `activeActorFor`,
       `floorHeld` and `currentTurn` from `@the-stacks/session-model`.
-- [ ] T036 [US3] Add `floorFrame` to `apps/web/app/play/frames.ts`, `floor(input)` to
+- [x] T036 [US3] Add `floorFrame` to `apps/web/app/play/frames.ts`, `floor(input)` to
       `TableSource` in `apps/web/app/play/source.ts`, the live path in `use-live-table.ts`, the
       fixture path (`localEventOf`) in `use-fixture-table.ts` or `local-log.ts`, refusal labels in
       `labels.ts`, and `case "floor"` in `proposals.ts`. Extend `apps/web/test/play/frames.test.mjs`
       and `proposals.test.mjs`.
-- [ ] T037 [US5] Add the header controls to `apps/web/app/play/components/table-header.tsx`, the held
+- [x] T037 [US5] Add the header controls to `apps/web/app/play/components/table-header.tsx`, the held
       text to `components/mode-badge.tsx`, new `components/turn-order.tsx`, the floor line to
       `components/transcript.tsx`, and wire them in `table-view.tsx` (`contracts/ui-floor.md`).
-- [ ] T038 [US1] In `apps/web/app/play/components/action-card.tsx` show "Commits on your turn" and
+- [x] T038 [US1] In `apps/web/app/play/components/action-card.tsx` show "Commits on your turn" and
       the "Suggest an alternative" label (FR-003, FR-004).
-- [ ] T039 [P] [US5] Component tests: `apps/web/test/play/mode-badge.test.tsx`,
+- [x] T039 [P] [US5] Component tests: `apps/web/test/play/mode-badge.test.tsx`,
       `action-card.test.tsx`, `table-view.test.tsx`, new `turn-order.test.tsx` (End turn sends
       one `floor` request with the current `turn`; DM controls; no dialog element).
-- [ ] T040 [US5] List `turn-floor` on the operator fixture route. Take Brave screenshots of the
+- [x] T040 [US5] List `turn-floor` on the operator fixture route. Take Brave screenshots of the
       fixture at an active-player step and a held-floor step, light and dark, under
       `specs/049-turn-floor/evidence/`.
-- [ ] T041 [US5] Amend `specs/030-play-route/contracts/ui-surfaces.md` with the floor surfaces
+- [x] T041 [US5] Amend `specs/030-play-route/contracts/ui-surfaces.md` with the floor surfaces
       (additive; Q1, Q2).
 
 **Checkpoint**: web suite and `pnpm ci:check` green.

@@ -27,11 +27,13 @@ scrolls sideways.
 | Component | Props | Renders | AC |
 |---|---|---|---|
 | `TableView` (`play/table-view.tsx`) | `{ source: TableSource }` | everything below; owns open-panel and composer UI state | #7 |
-| `TableHeader` | `{ model, status, ledgerOpen, approvalsOpen, onLedger, onApprovals }` | scene, `ModeBadge`, status, panel triggers (approvals only when `model.isDm`) | #3, #5, #6 |
-| `ModeBadge` | `{ mode: ModeView }` | "Free mode" / "Turn mode · Ana's turn" / "Turn mode · Your turn" | #3 |
-| `Transcript` | `{ items, commands }` | talk lines (IC/OOC/whisper markers), narration, `ActionCard`s | #1, #2 |
+| `TableHeader` | `{ model, status, ledgerOpen, approvalsOpen, onLedger, onApprovals, onFloor }` | scene, `ModeBadge`, `FloorControls`, status, panel triggers (approvals only when `model.isDm`) | #3, #5, #6 |
+| `ModeBadge` | `{ mode: ModeView }` | "Free mode" / "Turn mode · Ana's turn" / "Turn mode · Your turn" / "Turn mode · The DM has the floor" | #3 |
+| `FloorControls` (`components/floor-controls.tsx`) | `{ controls: FloorControls, onFloor }` | "End turn" (the active player); "Pass", "Take floor", "Return floor" (the seated DM). One `floor` request per click, no confirmation | 049 |
+| `TurnOrder` (`components/turn-order.tsx`) | `{ order: OrderEntry[] }` | the strip under the header, turn mode only: one entry per combatant, the active entry marked, "next" and "you" flags, wraps at phone width | 049 |
+| `Transcript` | `{ items, commands }` | talk lines (IC/OOC/whisper markers), narration, floor lines ("Bram's turn", "Your turn", "The DM has the floor"), `ActionCard`s | #1, #2 |
 | `ActionCard` | `{ card: ActionCardView, onComment, onCommit }` | text, character, declarer, scope, status chip, comments, inline comment form when open, `CommitControl`, outcome when resolved | #2 |
-| `CommitControl` | `{ commit: CommitAuthority, onCommit }` | a "Commit" button (labelled with the authority, e.g. "Commit as DM") or "Waiting for Ana to commit" | #2 |
+| `CommitControl` | `{ commit: CommitAuthority, onCommit }` | a "Commit" button (labelled with the authority, e.g. "Commit as DM"), "Waiting for Ana to commit", or "Commits on your turn" for the viewer's own open action while another player is active | #2 |
 | `Composer` | `{ composer: ComposerView, onTalk, onDeclare, disabled, notice }` | Talk/Action radio group, IC/OOC or character + scope radio groups, text input, Send | #1 |
 | `LedgerList` | `{ items: LedgerItem[] }` | roll, outcome and change rows; change rows list `path: before → after` | #4 |
 | `ProposalList` | `{ proposals, onApprove, onReject }` | each proposal: summary, kind, proposer, action, details; Approve; Reject expands an inline reason field and a confirm button; "No pending proposals" when empty | #5 |
@@ -48,7 +50,11 @@ scrolls sideways.
 - Send button: "Send" (Talk) or "Declare" (Action).
 - Panel triggers: "Ledger" and "Pending proposals" (with the count as visible text).
 - Commit button: "Commit"; comment form: input "Comment on this action", stances "Comment",
-  "Approve", "Object".
+  "Approve", "Object". Amended 2026-10-27 (TASK-0050, operator ruling Q2): on a non-active party
+  member's view of the active player's open character action in turn mode, the input is named
+  "Suggest an alternative". The request is unchanged (`action.comment`, stance `comment`).
+- Floor controls: buttons "End turn", "Pass", "Take floor", "Return floor"; turn-order strip: list
+  named "Turn order". Amended 2026-10-27 (TASK-0050, operator ruling Q1).
 
 ## Forbidden
 
@@ -57,3 +63,10 @@ scrolls sideways.
 - Importing `components/ui/sheet` anywhere but `components/panel.tsx`.
 - A server `loader` on any table route. Library content on any table route (constitution VIII).
 - `localStorage` or `sessionStorage` (chat-ui standing rule).
+
+Amended 2026-10-27 (TASK-0050, operator ruling Q1, Q2): the floor surfaces above (`FloorControls`,
+`TurnOrder`, the floor transcript line, the held-floor badge text, "Commits on your turn", the
+"Suggest an alternative" label). Additive: no existing surface changes. The operator's words:
+"TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+frozen-contract amendments to 029, 031 and 044 and the one jobs migration." Detail:
+`specs/049-turn-floor/contracts/ui-floor.md`.
