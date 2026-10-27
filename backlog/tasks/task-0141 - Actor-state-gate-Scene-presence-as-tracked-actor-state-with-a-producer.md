@@ -37,14 +37,6 @@ Spec: specs/048-scene-presence
 - [ ] #7 An `absent` combatant leaves the encounter order through an engine command (`initiative.leave`, which keeps its state) (OQ-3 (a), operator ruling 2026-10-27).
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -62,6 +54,8 @@ OQ-4: (a) reuse UNKNOWN_COMBATANT with plan-gate reason absent / (b) new engine 
 OQ-5 (no ruling needed): yielded cannot return to present in this card.
 
 Operator ruling 2026-10-27 (in chat, verbatim; the message ended after OQ-2): "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including the frozen 029 and 028 amendments, OQ-2 (a)". OQ-1 resolved (a). OQ-2 resolved (a). OQ-3 and OQ-4 not yet ruled; plan.md waits on them.
+
+Operator ruling 2026-10-27 (in chat, verbatim): "TASK-0141: I accept OQ-3 (a) engine initiative.leave with AC #3 reworded to \"through an engine command\", and OQ-4 (a) reuse UNKNOWN_COMBATANT with reason absent." All OQ-1 to OQ-4 resolved (a). AC #3 reworded per the ruling. AC #2 reworded to match OQ-2 (a) (a presence effect, not a step kind). Both moved to the end of the list by the CLI. AC #7 code: UNKNOWN_COMBATANT, reason absent (OQ-4 (a)).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
