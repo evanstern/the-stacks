@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 03:58'
+updated_date: '2026-10-27 04:10'
 labels:
   - dm
   - rules-gate
@@ -32,12 +32,22 @@ Spec: specs/040-actor-snapshot
 - [ ] #4 Under the token cap, dead and absent actors compress to one line; no actor is dropped, with a test over a large party and encounter.
 - [ ] #5 A snapshot that cannot fit fails the node loudly, with a test.
 - [ ] #6 Existing dm tests and the scripted CI playtest stay green.
+- [ ] #7 Spec phase: The snapshot module (US1, US2 diff, US4 render)
+- [ ] #8 Spec phase: S0, S1 and the planning prompts (US2, US3, US4)
+- [ ] #9 Spec phase: Player-facing prompts and retirement (US3, US4, US5)
+- [ ] #10 Spec phase: Wiki re-ground
+- [ ] #11 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0140, branch task-0140-actor-snapshot, cut from origin/main 53250a9. Spec number 040 claimed with a stub. Track C3 (runbook amendment 1). decision-0025 card U1.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring, spec 040, commit 1fd1f48; served verified from transcript.)
+
+ORCHESTRATOR RULINGS 2026-10-27 on spec open questions: Q1 split confirmed: U1 builds and tests the diff; TASK-0146 renders it for audit. Q2 the three views (dm / seat / fiction) stand as the orchestrator default; reported to the operator. Q3 reclaim S0 carded as revisit TASK-0153. Q4 TASK-0142's spec cites contract §3 rule 3. Q5 TASK-0135 merges before this PR. Q6 reconcile merges budgeted. PROMPT VERSION COLLISION: TASK-0114 Phase 2 already bumped dm.companion to v3; whichever of TASK-0114 / TASK-0140 merges second bumps to the next free version after merging main.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
