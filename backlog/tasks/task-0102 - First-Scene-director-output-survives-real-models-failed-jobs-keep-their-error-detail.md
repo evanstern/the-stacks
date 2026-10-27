@@ -3,7 +3,7 @@ id: TASK-0102
 title: >-
   First Scene: director output survives real models; failed jobs keep their
   error detail
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 14:50'
 updated_date: '2026-10-27 02:56'
