@@ -3,10 +3,11 @@
  */
 import { renderDoctrine } from "../doctrine/doctrine.js";
 import type { NarrationFacts } from "../facts.js";
+import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v2";
+export const PROMPT_VERSION = "dm.audit-v3";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -16,6 +17,8 @@ const OUTPUT_SHAPE = [
 
 export function buildAuditPrompt(input: {
   facts: NarrationFacts;
+  /** S1: the actor snapshot after resolve. */
+  snapshot: ActorSnapshot;
   prose: string;
 }): { system: string; user: string } {
   const doctrine = capEntries(
@@ -36,7 +39,7 @@ export function buildAuditPrompt(input: {
     OUTPUT_SHAPE,
   ].join("\n\n");
   const user = joinSections([
-    ...characterSections(input.facts),
+    ...characterSections(input.snapshot),
     section("Facts", factEntries(input.facts), CAPS.facts, "end"),
     `## Narration\n${input.prose}`,
   ]);

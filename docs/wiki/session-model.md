@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/plan.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: ff78b96b37569e59be1f03b49f518c516043574c
 ---
 
 # Session model
@@ -126,8 +126,10 @@ later DM tests, and are a separate subpath so the main entry stays free of test 
   A refusal writes nothing.
 - `toStoredEvent` converts a row (Date `ts`) to a `StoredEvent` (ISO `ts`).
 
-`apps/server/src/session/projections.ts`: `loadProjections(db, sessionId, viewer)` reads the
-log from seq 0 in `readFrom` batches of 200 and folds it.
+`apps/server/src/session/projections.ts`: `loadProjections(db, sessionId, viewer, opts?)` reads the
+log from seq 0 in `readFrom` batches of 200 and folds it. With `opts.throughSeq`, it stops at the
+first row above that seq, so the result is the state as of `throughSeq`. The chronicle job uses
+this bound to snapshot the state at the end of its transcript ([[actor-snapshot]]).
 
 ## Connections
 

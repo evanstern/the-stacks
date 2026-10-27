@@ -17,6 +17,7 @@ import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { factEntries } from "../../src/dm/prompts/narrate.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { projectDm, testSeed } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 const names: Record<string, string> = { ana: "Ana", goblin: "Goblin" };
 const nameOf = (id: string | null) => (id ? (names[id] ?? id) : "The scene");
@@ -323,6 +324,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     nextJob: null,
     chronicle: false,
     npcTurn: null,
+    ...EMPTY_RESOLVE_SNAPSHOT,
     lastSeq: 0,
     ...over,
   });
@@ -435,9 +437,6 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       locationName: VIEW.location.name,
       openingFraming: VIEW.openingFraming,
     });
-    expect(f.npcNames).toContain("Snag");
-    expect(new Set(f.npcNames).size).toBe(f.npcNames.length);
-    expect(f.npcNames).not.toContain("Odo");
   });
 
   it("renders no-effect, on-hold and event lines", () => {

@@ -7,6 +7,7 @@ import type {
 import type { SrdKind } from "@the-stacks/srd";
 import type { Node, NodeDeps, TurnContext } from "../pipeline/context.js";
 import type { SceneSeed } from "../seed/schema.js";
+import { type ActorSnapshot, buildSnapshot } from "../snapshot/index.js";
 
 /**
  * The assemble node (contracts/nodes.md "assemble"): no model call, no write.
@@ -38,6 +39,8 @@ export interface SrdSelection {
 
 export interface AssembleOutput {
   projections: SessionProjections;
+  /** S0: the actor snapshot at the start of the turn. */
+  snapshot: ActorSnapshot;
   throughSeq: number;
   beat: BeatItem[];
   npcTurn: { combatantId: string; srdMonsterId: string | null } | null;
@@ -303,6 +306,7 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
     calls: [],
     output: {
       projections,
+      snapshot: buildSnapshot(projections, ctx.seed),
       throughSeq: projections.throughSeq,
       beat,
       npcTurn,

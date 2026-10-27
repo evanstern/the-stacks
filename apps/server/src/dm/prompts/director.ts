@@ -8,15 +8,15 @@ import {
   beatEntries,
   CAPS,
   capEntries,
+  dmStateSection,
   joinSections,
-  projectionEntries,
   section,
   seedEntries,
   srdEntries,
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v2";
+export const PROMPT_VERSION = "dm.director-v3";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -68,12 +68,7 @@ export function buildDirectorPrompt(input: DirectorPromptInput): {
     section("Scene seed", seedEntries(ctx.seed, assembled), CAPS.seed, "end"),
     section("Seed beats", beats, CAPS.seed, "end"),
     section("Encounters you may start", encounters, 400, "end"),
-    section(
-      "State",
-      projectionEntries(assembled.projections, ctx.seed, true),
-      CAPS.projections,
-      "end",
-    ),
+    dmStateSection(assembled.snapshot, ctx.seed, true),
     section("AI companions in the party", input.aiCompanions, 200, "end"),
     section(
       "Recent transcript",

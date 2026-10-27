@@ -1,6 +1,6 @@
 ---
 name: dm-narration-quality
-description: DM narration quality (TASK-0106, specs/034-narration-quality) - the PlayerSeedView that keeps DM-only seed text out of player-facing prompts, named public-only transcripts, facts v2 (party, npcNames, public events, setting, roll target), the code-derived blocking/advisory audit with the party-name filter, and the in-fiction deterministic fallback. Read before touching narrate, audit, facts or fallback.
+description: DM narration quality (TASK-0106, specs/034-narration-quality) - the PlayerSeedView that keeps DM-only seed text out of player-facing prompts, named public-only transcripts, facts v2 (party, public events, setting, roll target), the party and world prompt sections from the S1 snapshot, the code-derived blocking/advisory audit with the party-name filter, and the in-fiction deterministic fallback. Read before touching narrate, audit, facts or fallback.
 kind: component
 sources:
   - apps/server/src/dm/seed/views.ts
@@ -8,9 +8,11 @@ sources:
   - apps/server/src/dm/prompts/narrate.ts
   - apps/server/src/dm/facts.ts
   - apps/server/src/dm/fallback.ts
+  - apps/server/src/dm/snapshot/aliases.ts
+  - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/nodes/audit.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: ff78b96b37569e59be1f03b49f518c516043574c
 ---
 
 # DM narration quality
@@ -34,10 +36,21 @@ DM-only seed facts never reach a player-facing prompt. The director still sees t
 drops non-public rows and names speakers; without one it is the unchanged DM-side form (director
 and interpret). `NarrationFacts` (`facts.ts`, `buildNarrationFacts`) carries trigger, actions
 with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, rulings,
-`clarify` questions, plus v2 fields: `party` (id, name, controller), `npcNames` (seed NPCs plus
-non-party combatants), `events` (public encounter and turn changes) and `setting`
-(`locationName`, `openingFraming`). A roll fact carries its `target`. `factEntries` renders
+`clarify` questions, plus v2 fields: `party` (id, name, controller), `events` (public encounter
+and turn changes) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
+party-name filter and the fallback. The `npcNames` field is gone (TASK-0140): the world list
+now comes from the snapshot. A roll fact carries its `target`. `factEntries` renders
 the facts for the prompt; `renderDiceLines` still renders every number.
+
+## State sections from the snapshot
+
+`characterSections(snapshot)` (`prompts/narrate.ts`), shared by the narrate and audit prompts,
+renders S1 ([[actor-snapshot]]) once in the `fiction` view under `CAPS.snapshotFiction` (800) and
+splits it into three sections: `## Scene state` (the stage lines), `## Party (player characters)`
+(party actors) and `## Other characters (the world)` (every other actor, so a goblin dead since an
+earlier turn appears as dead). The `fiction` view prints no digit and no id: it prints name, kind,
+controller ("human player" or "AI companion"), life state, conditions and presence. An overflow
+throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-runtime]]).
 
 ## Audit
 
@@ -50,7 +63,8 @@ with `blocking`. From `dm.audit`, kinds `ledger-mismatch`, `invented-mechanics` 
 `player-agency` may block; `doctrine` and `other` are advisory and logged with an
 `[advisory]` prefix. A `player-agency` issue blocks only when its detail names a party member
 (`llmIssueBlocksFor`, `partyNameTerms`, `detailNamesPartyMember`: full name, characterId, or
-given name after a title word, whole-word match). Each `AuditAttempt` records the prose word
+given name after a title word, whole-word match). The title list and the given-name rule moved to
+`snapshot/aliases.ts` (`nameTerms`); `partyNameTerms` calls it and its output is unchanged. Each `AuditAttempt` records the prose word
 count, both result sets and the prose hash. Regeneration passes blocking issues back.
 
 ## Fallback
@@ -64,5 +78,7 @@ flag.
 
 ## Prompt versions
 
-`dm.narrate-v3`, `dm.audit-v2`, `dm.director-v2`, `dm.chronicle-v2`, `dm.companion-v4` (v3 added the react trigger, v4 the withdraw and revise decisions; see
-[[dm-runtime]]).
+`dm.narrate-v4`, `dm.audit-v3`, `dm.director-v3`, `dm.chronicle-v3`, `dm.companion-v5` (v3 on the
+snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
+revise decisions; v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
+director, interpret, adjudicate and chronicle too.

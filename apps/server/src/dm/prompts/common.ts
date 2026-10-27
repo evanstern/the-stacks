@@ -4,7 +4,8 @@ import type {
 } from "@the-stacks/session-model";
 import { estimateTokens } from "@the-stacks/srd";
 import type { AssembleOutput, BeatItem } from "../nodes/assemble.js";
-import type { SceneSeed, SeedCharacterT } from "../seed/schema.js";
+import type { SceneSeed } from "../seed/schema.js";
+import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
 
 /**
  * Shared prompt parts and the token caps (contracts/nodes.md "Token budget",
@@ -19,7 +20,9 @@ export const CAPS = {
   transcriptEntries: 20,
   srdRecords: 8,
   srdPerRecord: 120,
-  projections: 800,
+  snapshotDm: 2000,
+  snapshotSeat: 2000,
+  snapshotFiction: 800,
   facts: 800,
   passages: 2500,
   passageCount: 5,
@@ -166,62 +169,23 @@ export function beatEntries(beat: readonly BeatItem[]): string[] {
   );
 }
 
-/** Party, encounter and table mode; trackers only when asked (the Director). */
-export function projectionEntries(
-  projections: SessionProjections,
-  seed: {
-    characters: readonly Pick<SeedCharacterT, "characterId" | "identity">[];
-    trackers?: readonly { trackerId: string; advanceWhen: string }[];
-  },
+/** `## State` from the snapshot in the `dm` view; throws SnapshotOverflowError on overflow. */
+export function dmStateSection(
+  snapshot: ActorSnapshot,
+  seed: { trackers?: readonly { trackerId: string; advanceWhen: string }[] },
   withTrackers: boolean,
-): string[] {
-  const entries: string[] = [];
-  entries.push(
-    projections.tableMode.mode === "turn"
-      ? `Table mode: turn; active ${projections.tableMode.activeActor}`
-      : "Table mode: free",
-  );
-  for (const m of projections.party) {
-    const c = m.combatant;
-    const sheet = seed.characters.find((s) => s.characterId === m.characterId);
-    const state = c
-      ? `${m.combatantId} HP ${c.hp.current}/${c.hp.max}${c.ac !== null ? ` AC ${c.ac}` : ""} ${c.lifeState}${c.conditions.length > 0 ? ` [${c.conditions.map((x) => x.condition).join(",")}]` : ""}`
-      : "no combatant";
-    const mods = sheet
-      ? ` mods ${JSON.stringify(sheet.identity.abilityMods)} prof +${sheet.identity.proficiencyBonus} saves ${JSON.stringify(sheet.identity.saves)} skills ${JSON.stringify(sheet.identity.skills)}`
-      : "";
-    const attacks = sheet
-      ? sheet.identity.attacks
-          .map(
-            (a) =>
-              ` attack ${a.name}: ${a.expression} dmg ${a.damage.map((d) => `${d.dice} ${d.damageType}`).join("+")}`,
-          )
-          .join(";")
-      : "";
-    entries.push(
-      `Party ${m.characterId} (${m.name}, ${m.controller.kind}): ${state}${mods}${attacks}`,
-    );
-  }
-  const enc = projections.encounter;
-  if (enc) {
-    entries.push(
-      `Encounter round ${enc.round}, active ${enc.activeCombatantId}: ${enc.order
-        .map(
-          (o) =>
-            `${o.combatantId} init ${o.initiative} HP ${o.hp.current}/${o.hp.max} ${o.lifeState}`,
-        )
-        .join("; ")}`,
-    );
-  }
-  if (withTrackers) {
-    for (const t of projections.trackers) {
-      const def = seed.trackers?.find((s) => s.trackerId === t.trackerId);
-      entries.push(
-        `Tracker ${t.trackerId} (${t.name}) ${t.filled}/${t.segments}${def ? `; advance when: ${def.advanceWhen}` : ""}`,
-      );
-    }
-  }
-  return entries;
+): string {
+  return snapshotSection("State", snapshot, {
+    view: "dm",
+    cap: CAPS.snapshotDm,
+    trackers: withTrackers
+      ? {
+          advanceWhen: new Map(
+            (seed.trackers ?? []).map((t) => [t.trackerId, t.advanceWhen]),
+          ),
+        }
+      : false,
+  });
 }
 
 export function srdEntries(assembled: AssembleOutput): string[] {

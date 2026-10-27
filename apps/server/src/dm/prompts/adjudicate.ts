@@ -5,14 +5,14 @@ import type { InterpretReading } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
 import {
   CAPS,
+  dmStateSection,
   joinSections,
-  projectionEntries,
   section,
   srdEntries,
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.adjudicate-v2";
+export const PROMPT_VERSION = "dm.adjudicate-v3";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -55,12 +55,7 @@ export function buildAdjudicatePrompt(input: {
   const user = joinSections([
     `Action ${input.reading.actionId ?? "(monster turn)"}: ${input.actionText}`,
     `Rules question: ${input.reading.rulesQuestion ?? ""}`,
-    section(
-      "State",
-      projectionEntries(input.assembled.projections, input.seed, false),
-      CAPS.projections,
-      "end",
-    ),
+    dmStateSection(input.assembled.snapshot, input.seed, false),
     section(
       "SRD records",
       srdEntries(input.assembled),
