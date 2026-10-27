@@ -28,6 +28,7 @@ import type {
 } from "../pipeline/context.js";
 import { buildAuditPrompt, PROMPT_VERSION } from "../prompts/audit.js";
 import { PURPOSE_OF } from "../purposes.js";
+import { nameTerms } from "../snapshot/aliases.js";
 import { composeText, narrateAttempt } from "./narrate.js";
 
 /**
@@ -79,39 +80,11 @@ const BLOCKING_LLM_KINDS: ReadonlySet<AuditIssueKind> = new Set([
 export const llmIssueBlocks = (kind: AuditIssueKind): boolean =>
   BLOCKING_LLM_KINDS.has(kind);
 
-/** Leading title words dropped when deriving a given name (compared case-insensitively). */
-const TITLE_WORDS: ReadonlySet<string> = new Set([
-  "brother",
-  "sister",
-  "father",
-  "mother",
-  "sir",
-  "dame",
-  "lord",
-  "lady",
-  "master",
-  "mistress",
-]);
-
 /** Party-name terms: full name, characterId, given name. Deduped, no empties. */
 export function partyNameTerms(party: NarrationFacts["party"]): string[] {
   const terms = new Set<string>();
   for (const m of party) {
-    const name = m.name.trim();
-    if (name) terms.add(name);
-    const id = m.characterId.trim();
-    if (id) terms.add(id);
-    const words = name.split(/\s+/).filter(Boolean);
-    if (words.length > 1) {
-      let i = 0;
-      while (
-        i < words.length &&
-        TITLE_WORDS.has((words[i] ?? "").toLowerCase())
-      )
-        i++;
-      const given = words[i];
-      if (given) terms.add(given);
-    }
+    for (const t of nameTerms(m.name, [m.characterId])) terms.add(t);
   }
   return [...terms];
 }
@@ -303,7 +276,8 @@ export function deterministicChecks(
 export const audit: Node<"audit"> = async (ctx) => {
   const narration = ctx.results.narrate;
   const assembled = ctx.results.assemble;
-  if (!narration || !assembled) {
+  const resolved = ctx.results.resolve;
+  if (!narration || !assembled || !resolved) {
     return {
       ok: false,
       node: "audit",
@@ -369,7 +343,11 @@ export const audit: Node<"audit"> = async (ctx) => {
     let llm: AuditAttempt["llm"] = { skipped: true };
     let llmFailed = false;
     if (det.pass) {
-      const prompt = buildAuditPrompt({ facts, prose: current.prose });
+      const prompt = buildAuditPrompt({
+        facts,
+        snapshot: resolved.snapshot,
+        prose: current.prose,
+      });
       const res = await callJson(ctx.deps, {
         purpose: PURPOSE_OF.audit,
         promptVersion: PROMPT_VERSION,
@@ -442,10 +420,16 @@ export const audit: Node<"audit"> = async (ctx) => {
       ...blocking.map(({ kind, detail }) => ({ kind, detail })),
     ];
     attempt++;
-    const regen = await narrateAttempt(ctx, assembled, facts, {
-      prose: current.prose,
-      issues: issuesSoFar,
-    });
+    const regen = await narrateAttempt(
+      ctx,
+      assembled,
+      facts,
+      resolved.snapshot,
+      {
+        prose: current.prose,
+        issues: issuesSoFar,
+      },
+    );
     calls.push(...regen.calls);
     if (!regen.ok) {
       if (regen.error.kind === "aborted" || regen.error.kind === "fenced") {

@@ -20,6 +20,7 @@ import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 const roll = (outcome: FactOutcome | null = "success") => ({
   name: "Ana",
@@ -62,7 +63,6 @@ function facts(actions: FactAction[] = [action()]): NarrationFacts {
     rulings: [],
     clarify: [],
     party: [],
-    npcNames: [],
     events: [],
     setting: { locationName: "The Vault", openingFraming: "The vault waits." },
   };
@@ -261,6 +261,7 @@ const resolved: ResolveOutput = {
   nextJob: null,
   chronicle: false,
   npcTurn: null,
+  ...EMPTY_RESOLVE_SNAPSHOT,
   lastSeq: 0,
 };
 

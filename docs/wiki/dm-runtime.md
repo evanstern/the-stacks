@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), resolve as the only gate writer with the engine owning every number, digit-free narration with code-rendered dice lines, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine MIT NOTICE, companions, chronicle, /dm routes, the dm/ import boundary. Jobs: dm-turn-jobs.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, digit-free narration, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, the dm/ import boundary.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -11,6 +11,12 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/prompts/interpret.ts
+  - apps/server/src/dm/snapshot/aliases.ts
+  - apps/server/src/dm/snapshot/build.ts
+  - apps/server/src/dm/snapshot/diff.ts
+  - apps/server/src/dm/snapshot/index.ts
+  - apps/server/src/dm/snapshot/render.ts
+  - apps/server/src/dm/snapshot/types.ts
   - apps/server/src/dm/jobs.ts
   - apps/server/src/dm/nodes/interpret.ts
   - apps/server/src/dm/nodes/adjudicate.ts
@@ -26,26 +32,25 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: ff78b96b37569e59be1f03b49f518c516043574c
 ---
 
 # DM runtime
 
 `apps/server/src/dm/` runs the AI dungeon master for a play session. A commit by a player
 queues a **turn**; the turn reads the log, plans, resolves mechanics through the engine, narrates,
-audits the narration, and writes everything back through the proposal gate ([[proposal-gate]]) as
-the actor `ai:dm`. Spec: `specs/031-dm-runtime/` (contracts under `contracts/`). Queue and worker
+audits the narration, and writes back through the proposal gate ([[proposal-gate]]) as `ai:dm`. Spec: `specs/031-dm-runtime/`. Queue and worker
 mechanics are in [[dm-turn-jobs]].
 
 ## The pipeline
 
 The runner (`pipeline/runner.ts`, `runTurn`) walks a fixed node order. Each node is a plain
-async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framework, decision-0019).
+async function `(TurnContext) => NodeResult` (`pipeline/context.ts`).
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
    folds the DM projection ([[session-model]]), reads `projections.presence` into
-   `AssembleOutput.presence` (`present` user ids, `absent` human party controllers not in the
-   marker, and the marker's `seq`; `null` before any marker; no Director prompt text uses it yet), selects scene-seed material, and looks up SRD
+   `AssembleOutput.presence` ([[presence]]; no Director prompt text uses it yet), builds **S0**
+   (`AssembleOutput.snapshot`), selects scene-seed material, and looks up SRD
    records (`@the-stacks/srd`, [[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup) and whether the beat resolves or **holds** for companions.
@@ -53,21 +58,28 @@ async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framewor
    flags `needsAdjudication`.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling.
-5. **resolve** - code only; the one node that writes. See below.
-6. **narrate** - `dm.narrate`. Writes prose from code-built facts and the player-facing seed view ([[dm-narration-quality]]).
-7. **audit** - deterministic checks plus one `dm.audit` call; decides what ships ([[dm-narration-quality]]).
+5. **resolve** - code only; the one node that writes. After its last gate write it builds **S1** and returns
+   `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
+6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
+7. **audit** - deterministic checks plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so a reclaimed job
-does not re-pay model calls. Between nodes the runner checks the lease and aborts on a fence loss.
+does not re-pay model calls. The runner aborts on a fence loss between nodes.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-records its purpose, prompt version, outcome and (TASK-0116) provider, model, token counts, cost and duration, never prompt text. Each attempt also goes to an optional `recordCall` seam that stores a usage-ledger row ([[dm-turn-jobs]]).
+records its purpose, prompt version, outcome, provider, model, tokens, cost and duration, never prompt text, and goes to the `recordCall` seam ([[dm-turn-jobs]]).
 
 `callJson` makes at most two attempts: the second sends the first attempt's schema issues back.
-A node may pass `normalize`, applied to the parsed JSON before the schema on every attempt. Only
-the director passes one: `normalizeDirector` (`nodes/director.ts`) cuts an over-long `goalNote`
-and each over-long `reason` (beat, table mode, scene, trackers) to the 300-character cap, at the
-last space. It never touches a number, id or discriminant and adds no default (spec 033, row C4
-of `contracts/director-output.md`).
+Only the director passes a `normalize` hook: `normalizeDirector` (`nodes/director.ts`) cuts an
+over-long `goalNote` or `reason` to 300 characters at the last space, and touches no number, id or
+discriminant (spec 033, `contracts/director-output.md` row C4).
+
+## Actor snapshot
+
+Every prompt's state comes from one `ActorSnapshot` ([[actor-snapshot]]): S0 for director,
+interpret and adjudicate (`dm` view); S1 for narrate and audit (`fiction` view); the current
+state for the companion (`seat` view); the state at `throughSeq` for the chronicle (`fiction`
+view). A snapshot over its cap makes `safeRun` return a `state-overflow` `NodeError` and log
+`dm.node.state-overflow`; the turn fails through the usual record ([[dm-failure-and-gates]]).
 
 ## Failure record and rules-term gates
 
@@ -84,7 +96,7 @@ do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. No model is 
 resolve, and no model ever sees or invents a number: the engine ([[dnd5e-engine]]) owns dice,
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a
 retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
-`<jobId>#<n>`, key, kind, result, refusal, batch and proposal ids, and `seqs`, the seqs the gate returned).
+`<jobId>#<n>`, key, kind, result, refusal, ids, and the `seqs` the gate returned).
 
 ## Narration and audit
 
@@ -103,15 +115,13 @@ purpose; `PURPOSE_MAX_TOKENS` holds default caps. Model choice stays in `AI_PURP
 ## Seed, doctrine, script
 
 - **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`):
-  a validated JSON scene (goal, location, beats with clues and checks, NPCs, encounters).
-  Original content plus SRD references; the seed id is stored as the scene id so the log alone
-  names the seed. The Dockerfile copies `apps/server/seeds` ([[container-image]]).
+  a validated JSON scene (goal, location, beats, NPCs, encounters); the seed id is the scene id,
+  so the log alone names the seed. The Dockerfile copies `apps/server/seeds` ([[container-image]]).
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the full licence
   text and ships beside the compiled module.
-- **Scripted DM** (`dm/script/`): a Zod-validated script that turns a recorded set of
-  per-purpose responses and dice into a `FakeProvider` plus `scriptedRng`, for tests and
-  evidence runs ([[ai-gateway]], [[test-suite]]).
+- **Scripted DM** (`dm/script/`): per-purpose responses and dice become a `FakeProvider` plus
+  `scriptedRng`, for tests and evidence runs ([[ai-gateway]], [[test-suite]]).
 
 ## Companions and chronicle
 
@@ -119,17 +129,20 @@ An AI companion is a party member with controller `ai-companion`. `companion.ts`
 `dm.companion` for `say`, `comment` and `act` output and submits it through the gate as that
 companion, under the same permission matrix and commit authority as a human. In turn mode the
 active companion always acts (a null act becomes a hold action).
-Each run shows the model the companion's own open actions and returns one `pending` decision
-per action: `commit`, `withdraw` or `revise` (default: `withdraw` when the latest human stance
-is `object`, else `commit`; a new act is dropped while an own action is open). A human
-comment on a companion's open action queues a `react` run ([[dm-turn-jobs]]). In turn mode a
-non-active companion never commits (the action waits for its turn), and an active companion
-that commits nothing (a withdraw) still takes the hold act so the turn advances.
-`PROMPT_VERSION` is `dm.companion-v4`. A `hold` director decision queues a companion job; when it ends it
+Each run returns one `pending` decision per own open action: `commit`, `withdraw` or `revise`
+(default `withdraw` when the latest human stance is `object`, else `commit`). A human comment on
+an open action queues a `react` run ([[dm-turn-jobs]]). In turn mode only the active companion
+commits, and a withdraw still takes the hold act so the turn advances.
+`PROMPT_VERSION` is `dm.companion-v5` (v3 added the snapshot `seat` view, v4 the react, withdraw and
+revise decisions). Each run builds its snapshot from the projections it loads and the full seed. On
+overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` director decision queues a companion job; when it ends it
 force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
-turns new narration into `journal` proposals, idempotent when nothing is new.
+turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
+its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
+(`dm.chronicle-v3`). On overflow it writes nothing, returns `entries: 0` and logs
+`dm.chronicle.failed` (`kind: "state-overflow"`).
 
-The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end to end in process and audits the result against the same facts renderers.
+The playtest harness ([[playtest-harness]]) drives this pipeline in process.
 
 ## Routes and boundary
 
@@ -137,6 +150,6 @@ The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end 
 `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 409 if a scene or a
 start job exists), `POST /dm/sessions/:id/turn` (manual retry, 202), and
 `GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata, never
-prompt text). Four read-only operator routes serve the debug view (TASK-0116): `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls`; `/turns` is unchanged ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
+prompt text). Four read-only operator routes serve the debug view: `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls` ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
 writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
 session state is written only through the gate.

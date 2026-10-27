@@ -188,7 +188,6 @@ describe("code checks", () => {
       party: [
         { characterId: "tamsin", name: "Tamsin Vale", controller: "human" },
       ],
-      npcNames: ["Goblin with a pot-helm"],
       events: [],
       setting: { locationName: "Greyhollow Ford", openingFraming: "" },
     } as unknown as NarrationFacts;

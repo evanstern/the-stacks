@@ -29,7 +29,9 @@ import {
 } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { freeEventsThrough, makeCtx, projectDm, testSeed } from "./helpers.js";
+import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
  * TASK-0106 Phase 1: each test reproduces a run-5 defect on the UNFIXED code,
@@ -72,6 +74,7 @@ const noResolve = (over: Partial<ResolveOutput> = {}): ResolveOutput => ({
   nextJob: null,
   chronicle: false,
   npcTurn: null,
+  ...EMPTY_RESOLVE_SNAPSHOT,
   lastSeq: 0,
   ...over,
 });
@@ -198,6 +201,7 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
       seed: VIEW,
       roster: [],
       assembled,
+      snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
       prior: null,
     });
@@ -227,6 +231,7 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
       seed: VIEW,
       roster: [],
       assembled,
+      snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
       prior: null,
     });
@@ -238,6 +243,7 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
     const prompt = buildCompanionPrompt({
       seed: VIEW,
       projections: projectedThrough(87),
+      snapshot: buildSnapshot(projectedThrough(87), SEED),
       characterId: "odo",
       active: false,
     });
@@ -298,6 +304,7 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     expect(transcriptEntries(dm, rosterOf(p.party))).toEqual([]);
     // Chronicle, companion and narrate all pass the roster.
     const chronicle = buildChroniclePrompt({
+      snapshot: buildSnapshot(p, SEED),
       transcript: entry,
       goal: "",
       trackerNames: [],
@@ -308,6 +315,7 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     const companion = buildCompanionPrompt({
       seed: VIEW,
       projections: p,
+      snapshot: buildSnapshot(p, SEED),
       characterId: "odo",
       active: false,
     });
@@ -338,6 +346,7 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       seed: VIEW,
       roster: [],
       assembled,
+      snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
       prior: null,
     });

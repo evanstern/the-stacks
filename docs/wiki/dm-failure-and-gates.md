@@ -6,12 +6,14 @@ sources:
   - apps/server/src/dm/jobs.ts
   - apps/server/src/dm/worker.ts
   - apps/server/src/dm/pipeline/call.ts
+  - apps/server/src/dm/pipeline/runner.ts
+  - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/director.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+verified_against: ff78b96b37569e59be1f03b49f518c516043574c
 ---
 
 # DM failure record and rules-term gates
@@ -23,7 +25,9 @@ When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm
 the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
 `failure: { node, kind, message, detail }`. `node` is a pipeline node, or `presence` when the
 marker write before the pipeline failed (`kind` `gate` for a refusal, `internal` for a throw;
-`detail` holds the refusal `code` or `null`; [[presence]]). `kind` is a node error kind or `seed` (the bad-seed
+`detail` holds the refusal `code` or `null`; [[presence]]). `kind` is a node error kind (one is `state-overflow`: an actor snapshot did not fit its cap; `detail`
+holds `view`, `tokens`, `cap`, `actors`, `compressed` and the `node`; the runner logs
+`dm.node.state-overflow`; [[actor-snapshot]]) or `seed` (the bad-seed
 path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
 (`pipeline/call.ts`) bounds each excerpt: text up to 8,000 characters whole, else the first
@@ -36,7 +40,7 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v2`, `dm.adjudicate-v2`), so no list is
+into the interpret and adjudicate prompts (`dm.interpret-v3`, `dm.adjudicate-v3`), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The audit
