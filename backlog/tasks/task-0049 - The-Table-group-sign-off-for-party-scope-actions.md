@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:11'
+updated_date: '2026-10-27 10:12'
 labels:
   - multiplayer
   - gate
@@ -75,6 +75,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (57d04bc): PlanContext; a group commit writes the signoff marker and the commit; the completing approval auto-commits; group-signoff fixture; SC-006 reads present from the marker; 029 gate-api.md and fixtures.md amended as ruled. 650 session-model tests pass. Without context.present a comment never auto-commits, so Phase 3 must pass present into every planProposal call.
 
 Phase 3 done (344e73c): gate.ts passes the presence ids to every planProposal call; gate.signoff.integration.test.ts covers two and three human seats on real Postgres (approval, objection, absent player, DM override, withdraw); companion-react case proves one commit turn and no react job. enqueue.ts unchanged. REQUIRE_DATABASE=1 pnpm ci:check green first run.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (merge fbc7da0, work 344e73c): gate.ts passes presence-reader ids to every planProposal. The two-seat DB test (gate.signoff.integration, 8 cases) passes on stacks-task-0049; this is the runbook merge condition. ci:check passed with REQUIRE_DATABASE=1 on the first run.
+Orchestrator ruling on Q2: a non-completing human approval on a companion's open action queuing a react job is intended (TASK-0114 AC #1, any human comment or approval re-runs the companion).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
