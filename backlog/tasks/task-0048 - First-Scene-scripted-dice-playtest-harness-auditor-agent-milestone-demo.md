@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-27 02:51'
+updated_date: '2026-10-27 02:56'
 labels:
   - first-scene
   - test
@@ -163,6 +163,8 @@ spec-bridge sync: Foundations — purpose, schemas and fixtures (US1, US2, US3; 
 
 Wrap (third orchestrator session, 2026-10-27): sign-off applied to the record, origin/main merged (no conflicts), wiki m2-demo + play-route/test-suite re-ground, gates green (ci:check REQUIRE_DATABASE=1: 850 passed/5 skipped; freshness OK 48; spec-bridge ok 34), T044-T049 ticked. ~123k tokens.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Foundations — purpose, schemas and fixtures (US1, US2, US3; AC #1, #2, #3): 9/9 · The harness run (US1; AC #1): 9/9 · The auditor (US2; AC #2, #3): 12/12 · Provider mode, the cost guard and the CLI (US3; AC #3, #1 evidence): 9/9 · Demo runbook and record template (US4, US5 preparation; AC #4, #5): 4/4 · The M2 demo — ORCHESTRATOR AND OPERATOR, NOT DISPATCHED (US4, US5; AC #4, #5): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
