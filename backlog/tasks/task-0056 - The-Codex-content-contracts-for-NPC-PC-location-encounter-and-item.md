@@ -4,6 +4,7 @@ title: 'The Codex: content contracts for NPC, PC, location, encounter and item'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
+updated_date: '2026-10-27 03:54'
 labels:
   - codex
   - contracts
@@ -32,6 +33,12 @@ Why: architecture A5 and constitution II. The First Scene ran from a hand-author
 - [ ] #4 A portrayal-completeness lint runs in CI and fails on an entity missing required portrayal fields.
 - [ ] #5 The M2 scene seed fixture converts to valid codex entities, and a test proves it.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From decision-0025 (D17, TASK-0135, 2026-10-26): M3 tracks only minimal scene presence for seed NPCs (TASK-0142). NPC disposition beyond 'yielded' (attitude, loyalty) is untracked in M3 and belongs to the Codex NPC contract; research basis: docs/research/NPCs-Social-and-Information/ (TASK-0119).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
