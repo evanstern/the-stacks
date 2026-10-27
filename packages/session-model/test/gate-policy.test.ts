@@ -29,6 +29,7 @@ describe("DEFAULT_POLICIES (AC #2)", () => {
       scene: "suggest",
       party: "ask",
       tracker: "ask",
+      "scene-presence": "ask",
       journal: "auto",
     };
     expect({ ...DEFAULT_POLICIES }).toEqual(expected);

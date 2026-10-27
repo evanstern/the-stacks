@@ -1137,3 +1137,345 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     });
   });
 });
+
+describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
+  let jobN = 0;
+  const nextJob = () => ({
+    id: `00000000-0000-4000-8000-${String(900 + ++jobN).padStart(12, "0")}`,
+  });
+  const initDice = (first: number) =>
+    [1, 1, 1, 1, 1, 1, 1].map((d, i) => (i === first ? 20 : d));
+  const TAMSIN_FIRST = 0;
+  const SNAG_FIRST = 3;
+  const fresh = (w: World) => {
+    w.checkpoint.current = {
+      ...w.checkpoint.current,
+      submissions: [],
+      lastSeq: 0,
+    };
+  };
+  async function inTurnMode(dice: number[]) {
+    const w = await createWorld({ dice });
+    await startScene(w);
+    await run(w, [], {
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+      },
+      job: nextJob(),
+    });
+    fresh(w);
+    return w;
+  }
+  const flee = (targetId: string, reason = "fled") => ({
+    effect: "presence",
+    targetId,
+    reason,
+  });
+  const count = (rows: { type: string }[], type: string) =>
+    rows.filter((r) => r.type === type).length;
+  const presenceSubs = (out: ResolveOutput) =>
+    out.submissions.filter((s) => s.kind === "scene-presence");
+  const intimidate = (over: Record<string, unknown> = {}) =>
+    checkStep({
+      reason: "Tamsin intimidates the goblin",
+      kind: "ability-check",
+      ability: "cha",
+      skill: "intimidation",
+      ...over,
+    });
+
+  it("an Intimidation success runs onSuccess presence fled: one scene-presence submission, S1 absent", async () => {
+    const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+    const id = await commitAction(w, "Tamsin scares the goblin off.");
+    fresh(w);
+    const out = await run(
+      w,
+      [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
+      { job: nextJob() },
+    );
+    expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
+    expect(presenceSubs(out)).toHaveLength(1);
+    expect(presenceSubs(out)[0]).toMatchObject({ result: "applied" });
+    const rows = await readRows(w);
+    const changed = rows.filter((r) => r.type === "scene-presence.changed");
+    expect(changed).toHaveLength(1);
+    expect(payloadOf(changed[0])).toMatchObject({
+      actorId: "goblin-2",
+      before: "present",
+      after: "absent",
+      reason: "fled",
+    });
+    const p = await w.projections();
+    expect(p.scenePresence["goblin-2"]?.presence).toBe("absent");
+    expect(p.encounter?.order.some((o) => o.combatantId === "goblin-2")).toBe(
+      false,
+    );
+    expect(out.snapshot.actors.find((a) => a.id === "goblin-2")?.presence).toBe(
+      "absent",
+    );
+  });
+
+  it("the same check failing writes no presence row: S1 present", async () => {
+    const w = await inTurnMode([...initDice(TAMSIN_FIRST), 2]);
+    const id = await commitAction(w, "Tamsin scares the goblin off.");
+    fresh(w);
+    const out = await run(
+      w,
+      [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
+      { job: nextJob() },
+    );
+    expect(presenceSubs(out)).toHaveLength(0);
+    const rows = await readRows(w);
+    expect(count(rows, "scene-presence.changed")).toBe(0);
+    expect(out.snapshot.actors.find((a) => a.id === "goblin-2")?.presence).toBe(
+      "present",
+    );
+  });
+
+  it("an adjudicate ruling's effect step with a presence effect lands", async () => {
+    const w = await inTurnMode([...initDice(TAMSIN_FIRST)]);
+    const id = await commitAction(w, "Tamsin orders the goblin to withdraw.");
+    fresh(w);
+    const out = await run(
+      w,
+      [reading(id, [], { needsAdjudication: true, intent: "other" })],
+      {
+        job: nextJob(),
+        rulings: [
+          {
+            actionId: id,
+            ruling: "The goblin withdraws at once.",
+            improvised: true,
+            citations: [],
+            dropped: 0,
+            steps: [
+              {
+                step: "effect",
+                reason: "The goblin withdraws",
+                effects: [flee("goblin-2", "left")],
+              },
+            ],
+          },
+        ] as never,
+      },
+    );
+    expect(presenceSubs(out)).toHaveLength(1);
+    const p = await w.projections();
+    expect(p.scenePresence["goblin-2"]).toMatchObject({
+      presence: "absent",
+      reason: "left",
+    });
+  });
+
+  it("a fled active NPC hands the turn on once: no double advance, no later turn over two rounds", async () => {
+    const w = await inTurnMode([...initDice(SNAG_FIRST)]);
+    const before = await w.projections();
+    expect(before.encounter?.activeCombatantId).toBe("snag");
+    const next = before.encounter?.order[1]?.combatantId;
+    expect(next).toBeDefined();
+    const start = (await readRows(w)).length;
+    const out = await run(
+      w,
+      [
+        reading(null, [
+          { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
+        ]),
+      ],
+      { job: { ...nextJob(), trigger: "npc-turn" } },
+    );
+    const rows = (await readRows(w)).slice(start);
+    expect(presenceSubs(out)).toHaveLength(1);
+    // The leave hands the turn on (one encounter.changed row); resolve adds none.
+    expect(count(rows, "encounter.changed")).toBe(1);
+    expect(count(rows, "turn.advanced")).toBe(0);
+    expect(out.submissions.some((s) => s.key === "advance")).toBe(false);
+    const p = await w.projections();
+    expect(p.encounter?.activeCombatantId).toBe(next);
+    expect(p.encounter?.order.some((o) => o.combatantId === "snag")).toBe(
+      false,
+    );
+    // Two rounds of turn.advance never name the goblin again.
+    const dm = { kind: "ai", actor: "ai:dm" } as const;
+    const seen: string[] = [];
+    for (let i = 0; i < 12; i++) {
+      const res = await w.gate.submit(
+        w.sessionId,
+        dm,
+        mechanicsProposal({ type: "turn.advance", reason: "setup" } as never, {
+          actionId: null,
+          summary: "setup",
+          rationale: "setup",
+        }),
+      );
+      if (!res.ok) throw new Error(`advance refused: ${res.refusal.code}`);
+      seen.push((await w.projections()).encounter?.activeCombatantId ?? "none");
+    }
+    expect(seen).not.toContain("snag");
+  });
+
+  it("a fled active NPC followed by a downed party member still settles", async () => {
+    const w = await inTurnMode([...initDice(SNAG_FIRST), 12]);
+    const order = (await w.projections()).encounter?.order ?? [];
+    const downed = order[1]?.combatantId;
+    if (!downed) throw new Error("no second combatant");
+    const dm = { kind: "ai", actor: "ai:dm" } as const;
+    const hp = (await w.projections()).engine.combatants[downed]?.hp.current;
+    const res = await w.gate.submit(
+      w.sessionId,
+      dm,
+      mechanicsProposal(
+        {
+          type: "damage.apply",
+          reason: "setup",
+          targetId: downed,
+          components: [
+            { amount: { kind: "fixed", value: hp }, damageType: "slashing" },
+          ],
+          critical: false,
+          defenses: null,
+        } as never,
+        { actionId: null, summary: "setup", rationale: "setup" },
+      ),
+    );
+    if (!res.ok) throw new Error(`setup refused: ${res.refusal.code}`);
+    const start = (await readRows(w)).length;
+    const out = await run(
+      w,
+      [
+        reading(null, [
+          { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
+        ]),
+      ],
+      { job: { ...nextJob(), trigger: "npc-turn" } },
+    );
+    const rows = (await readRows(w)).slice(start);
+    expect(out.submissions.some((s) => s.key.startsWith("settle:"))).toBe(true);
+    expect(count(rows, "scene-presence.changed")).toBe(1);
+    const p = await w.projections();
+    expect(p.encounter?.activeCombatantId).not.toBe("snag");
+    expect(p.encounter?.activeCombatantId).not.toBe(downed);
+  });
+
+  it("an attack on an absent goblin is refused UNKNOWN_COMBATANT, verdict absent, no row lands", async () => {
+    const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+    const gone = await w.gate.submit(
+      w.sessionId,
+      { kind: "ai", actor: "ai:dm" },
+      {
+        kind: "scene-presence",
+        actorId: "goblin-2",
+        reason: "fled",
+        actionId: null,
+        summary: "setup",
+        rationale: "setup",
+      } as never,
+    );
+    if (!gone.ok) throw new Error(`setup refused: ${gone.refusal.code}`);
+    const id = await commitAction(w, "Tamsin swings at the goblin.");
+    fresh(w);
+    const start = (await readRows(w)).length;
+    const out = await run(
+      w,
+      [reading(id, [attackStep("goblin-2")], { intent: "attack" })],
+      { job: nextJob() },
+    );
+    expect(out.actionResults[0]).toMatchObject({
+      outcome: "refused",
+      refusalCode: "UNKNOWN_COMBATANT",
+    });
+    expect(out.planGate).toMatchObject([
+      {
+        actionId: id,
+        ok: false,
+        code: "UNKNOWN_COMBATANT",
+        failure: { id: "goblin-2", reason: "absent" },
+      },
+    ]);
+    const rows = (await readRows(w)).slice(start);
+    expect(count(rows, "attack.resolved")).toBe(0);
+  });
+
+  it("a reclaim after the leave landed but before its checkpoint advances the turn only once", async () => {
+    const crash = { armed: false };
+    const w = await createWorld({
+      dice: [...initDice(SNAG_FIRST)],
+      gate: (g) => ({
+        ...g,
+        submit: async (...args) => {
+          const res = await g.submit(...args);
+          if (
+            crash.armed &&
+            (args[2] as { kind: string }).kind === "scene-presence"
+          ) {
+            crash.armed = false;
+            // The leave and its mirrored turn change landed; the process dies
+            // before the checkpoint save.
+            throw new Error("crash after the presence batch");
+          }
+          return res;
+        },
+      }),
+    });
+    await startScene(w);
+    await run(w, [], {
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+      },
+      job: nextJob(),
+    });
+    fresh(w);
+    const before = await w.projections();
+    expect(before.encounter?.activeCombatantId).toBe("snag");
+    const next = before.encounter?.order[1]?.combatantId;
+    const start = (await readRows(w)).length;
+    const job = { ...nextJob(), trigger: "npc-turn" as const };
+    const readings = [
+      reading(null, [
+        { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
+      ]),
+    ] as never;
+    crash.armed = true;
+    await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
+    const saved = w.checkpoint.current;
+    expect(
+      saved.submissions.filter((x) => x.kind === "scene-presence"),
+    ).toHaveLength(0);
+
+    const again = await w.runResolve({
+      readings,
+      job: { ...job, attempt: 2 },
+      checkpoint: saved,
+    });
+    expect(again.result.ok).toBe(true);
+    const rows = (await readRows(w)).slice(start);
+    expect(count(rows, "scene-presence.changed")).toBe(1);
+    expect(count(rows, "encounter.changed")).toBe(1);
+    expect(count(rows, "turn.advanced")).toBe(0);
+    const p = await w.projections();
+    expect(p.encounter?.activeCombatantId).toBe(next);
+    expect(p.encounter?.order.some((o) => o.combatantId === "snag")).toBe(
+      false,
+    );
+  });
+
+  it("no Director fixture produces a scene-presence submission", async () => {
+    const w = await createWorld({ dice: [...initDice(TAMSIN_FIRST)] });
+    const started = await startScene(w);
+    const entered = await run(w, [], {
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+        trackers: [{ trackerId: "dusk", advance: 1, reason: "Time." }],
+      },
+      job: nextJob(),
+    });
+    fresh(w);
+    const left = await run(w, [], {
+      director: { tableMode: { to: "free", reason: "The goblins flee." } },
+      job: nextJob(),
+    });
+    for (const out of [started, entered, left]) {
+      expect(presenceSubs(out)).toHaveLength(0);
+    }
+    expect(count(await readRows(w), "scene-presence.changed")).toBe(0);
+  });
+});

@@ -8,6 +8,7 @@ import {
 import { JournalEntryAddedV1 } from "../events/journal.js";
 import { PartyMemberSchema } from "../events/party.js";
 import { SceneSchema } from "../events/scene.js";
+import { PresenceReasonSchema } from "../events/scene-presence.js";
 import { TableModeSchema } from "../events/table-mode.js";
 import { NarrationV1, TalkV1 } from "../events/talk.js";
 import { TrackerSchema } from "../events/tracker.js";
@@ -28,11 +29,12 @@ export const ProposalKindSchema = z.enum([
   "scene",
   "party",
   "tracker",
+  "scene-presence",
   "journal",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
-/** The eleven kinds the AI DM may propose; the policy table is total over these. */
+/** The twelve kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude([
   "action.declare",
   "action.withdraw",
@@ -120,6 +122,13 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     visibility: z.literal("dm").default("dm"),
   }),
   z.object({
+    kind: z.literal("scene-presence"),
+    ...ProposalNote,
+    actorId: RefIdSchema,
+    reason: PresenceReasonSchema,
+    actionId: RefIdSchema.nullable().default(null),
+  }),
+  z.object({
     kind: z.literal("journal"),
     ...ProposalNote,
     entry: JournalEntryAddedV1,
@@ -171,7 +180,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-/** The 17 `kind` literals of GateRequestSchema. */
+/** The 18 `kind` literals of GateRequestSchema. */
 export const GATE_REQUEST_KINDS: readonly string[] =
   GateRequestSchema.options.map(
     (option) => (option.shape.kind as unknown as { value: string }).value,

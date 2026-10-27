@@ -2,6 +2,7 @@ import { scriptedRng } from "@the-stacks/dnd5e-engine";
 import { describe, expect, it } from "vitest";
 import {
   catalogEntry,
+  checkPermission,
   currentVersion,
   mechanicsProposal,
   type PlanContext,
@@ -1016,6 +1017,248 @@ describe("group sign-off planning (specs/044-group-signoff/contracts/signoff.md)
       source: "gate",
       code: "GROUP_SIGNOFF_REQUIRED",
       details: { waiting: [], objecting: [PLAYER_B] },
+    });
+  });
+});
+
+describe("scene-presence planner (TASK-0141)", () => {
+  const presence = (actorId: string, reason: string, actionId?: string) =>
+    parse({
+      kind: "scene-presence",
+      actorId,
+      reason,
+      actionId: actionId ?? null,
+    });
+  const init = {
+    type: "initiative.roll",
+    participants: [{ combatantId: "ana" }, { combatantId: "goblin" }],
+    reason: "r",
+  };
+  const turnOpts = {
+    turn: { activeActor: PLAYER_A, activeCharacterId: "ana" },
+  };
+
+  it("a free-mode fled lands one presence row only", () => {
+    const p = dmFold();
+    const rows = okRows(plan(p, aiDm, presence("goblin", "fled")));
+    expect(rows).toEqual([
+      {
+        actor: "ai:dm",
+        type: "scene-presence.changed",
+        visibility: "public",
+        payload: {
+          actorId: "goblin",
+          before: "present",
+          after: "absent",
+          reason: "fled",
+          actionId: null,
+        },
+      },
+    ]);
+  });
+
+  it("turn mode, in the order, fled: presence row then initiative.leave rows in one batch", () => {
+    const p = dmFoldWith([init], turnOpts);
+    const result = plan(p, aiDm, presence("goblin", "fled"));
+    const rows = okRows(result);
+    expect(rows[0].type).toBe("scene-presence.changed");
+    expect(rows.slice(1).map((r) => r.type)).toEqual(["encounter.changed"]);
+    expect(result.ok && result.batchId).toBe("b-plan");
+    expect(
+      (rows[1].payload as { event: { after: { order: unknown[] } } }).event
+        .after.order,
+    ).toHaveLength(1);
+  });
+
+  it("an absent combatant out of the order, arrived: presence row then initiative.join rows", () => {
+    const base = dmFoldWith([init], turnOpts);
+    const left = dmFoldWith(
+      [init, { type: "initiative.leave", combatantId: "goblin", reason: "r" }],
+      {
+        ...turnOpts,
+        extra: [
+          {
+            type: "scene-presence.changed",
+            payload: {
+              actorId: "goblin",
+              before: "present",
+              after: "absent",
+              reason: "fled",
+              actionId: null,
+            },
+          },
+        ],
+      },
+    );
+    expect(base.engine.encounter?.order).toHaveLength(2);
+    expect(left.engine.encounter?.order).toHaveLength(1);
+    const rows = okRows(plan(left, aiDm, presence("goblin", "arrived"), [12]));
+    expect(rows.map((r) => r.type)[0]).toBe("scene-presence.changed");
+    expect(rows.slice(1).map((r) => r.type)).toContain("dice.rolled");
+    expect(rows.slice(1).map((r) => r.type)).toContain("encounter.changed");
+  });
+
+  it("yielded in turn mode: presence row only, order unchanged", () => {
+    const p = dmFoldWith([init], turnOpts);
+    const rows = okRows(plan(p, aiDm, presence("goblin", "surrendered")));
+    expect(rows.map((r) => r.type)).toEqual(["scene-presence.changed"]);
+  });
+
+  it("refuses the same value with INVALID_PROPOSAL", () => {
+    expect(plan(dmFold(), aiDm, presence("goblin", "arrived"))).toMatchObject({
+      ok: false,
+      refusal: { source: "gate", code: "INVALID_PROPOSAL" },
+    });
+  });
+
+  it("refuses an unknown action with UNKNOWN_ACTION", () => {
+    expect(
+      plan(dmFold(), aiDm, presence("goblin", "fled", "act-missing")),
+    ).toMatchObject({ ok: false, refusal: { code: "UNKNOWN_ACTION" } });
+  });
+
+  it("an engine refusal (the last entry leaves) returns source engine and no rows", () => {
+    const solo = dmFoldWith([
+      { ...init, participants: [{ combatantId: "goblin" }] },
+    ]);
+    expect(plan(solo, aiDm, presence("goblin", "fled"))).toMatchObject({
+      ok: false,
+      refusal: { source: "engine", code: "NO_ELIGIBLE_COMBATANT" },
+    });
+  });
+
+  it("a seated human DM may propose it; players and companions are refused", () => {
+    const p = dmFold({ humanDm: true });
+    expect(plan(p, seatedDm, presence("goblin", "fled")).ok).toBe(true);
+    for (const who of [ana, bram, outsider]) {
+      const result = checkPermission(p, who, presence("goblin", "fled"));
+      expect(result.ok).toBe(false);
+    }
+  });
+});
+
+describe("action.declare absent gate (CHARACTER_UNABLE, TASK-0141)", () => {
+  const absentRow = (actorId: string, reason = "left") => ({
+    type: "scene-presence.changed",
+    payload: {
+      actorId,
+      before: "present",
+      after: reason === "surrendered" ? "yielded" : "absent",
+      reason,
+      actionId: null,
+    },
+  });
+  const declareFor = (scope: "character" | "party") =>
+    parse({
+      kind: "action.declare",
+      action: {
+        actionId: "act-new",
+        characterId: scope === "character" ? "ana" : null,
+        scope,
+        text: "Ana tries.",
+      },
+    });
+
+  it("refuses an absent character with reason absent", () => {
+    const p = dmFold({ extra: [absentRow("ana")] });
+    expect(plan(p, ana, declareFor("character"))).toMatchObject({
+      ok: false,
+      refusal: {
+        source: "gate",
+        code: "CHARACTER_UNABLE",
+        details: { characterId: "ana", reason: "absent" },
+      },
+    });
+  });
+
+  it("party scope: refused when every controlled member is absent", () => {
+    const p = dmFold({ extra: [absentRow("ana")] });
+    expect(plan(p, ana, declareFor("party"))).toMatchObject({
+      ok: false,
+      refusal: {
+        code: "CHARACTER_UNABLE",
+        details: { reason: "absent" },
+      },
+    });
+  });
+
+  it("party scope: reason is absent when one member is absent and the other unable", () => {
+    const dara = {
+      type: "party.member.changed",
+      payload: {
+        reason: "j",
+        characterId: "dara",
+        before: null,
+        after: {
+          characterId: "dara",
+          name: "Dara",
+          controller: { kind: "player", userId: PLAYER_A },
+          combatantId: "dara",
+        },
+      },
+    };
+    const p = dmFoldWith(
+      [
+        {
+          type: "combatant.add",
+          combatant: {
+            id: "dara",
+            name: "Dara",
+            hp: { max: 12 },
+            zeroHpRule: "death-saves",
+            ac: 12,
+            hitDice: [],
+            spellSlots: { standard: {}, pact: null },
+          },
+          reason: "r",
+        },
+        {
+          type: "damage.apply",
+          targetId: "dara",
+          components: [
+            { amount: { kind: "fixed", value: 14 }, damageType: "fire" },
+          ],
+          reason: "r",
+        },
+      ],
+      { extra: [dara, absentRow("ana")] },
+    );
+    const result = plan(p, ana, declareFor("party"));
+    expect(result).toMatchObject({
+      ok: false,
+      refusal: { code: "CHARACTER_UNABLE", details: { reason: "absent" } },
+    });
+  });
+
+  it("a yielded character declares", () => {
+    const p = dmFold({ extra: [absentRow("ana", "surrendered")] });
+    expect(plan(p, ana, declareFor("character")).ok).toBe(true);
+  });
+
+  it("an arrived character declares", () => {
+    const p = dmFold({
+      extra: [
+        absentRow("ana"),
+        {
+          type: "scene-presence.changed",
+          payload: {
+            actorId: "ana",
+            before: "absent",
+            after: "present",
+            reason: "arrived",
+            actionId: null,
+          },
+        },
+      ],
+    });
+    expect(plan(p, ana, declareFor("character")).ok).toBe(true);
+  });
+
+  it("an unauthorised proposer still gets NOT_AUTHORIZED", () => {
+    const p = dmFold({ extra: [absentRow("ana")] });
+    expect(plan(p, outsider, declareFor("character"))).toMatchObject({
+      ok: false,
+      refusal: { code: "NOT_AUTHORIZED" },
     });
   });
 });

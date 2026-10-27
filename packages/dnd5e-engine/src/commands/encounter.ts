@@ -178,6 +178,97 @@ function expiring(
   return events;
 }
 
+export const handleInitiativeLeave: Handler<"initiative.leave"> = (
+  state,
+  command,
+  _rng,
+) => {
+  const enc = state.encounter;
+  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  const id = command.combatantId;
+  if (!state.combatants[id]) return unknownCombatant(id);
+  const at = enc.order.findIndex((e) => e.combatantId === id);
+  if (at === -1) {
+    return refuse("UNKNOWN_COMBATANT", `"${id}" is not in the order`, {
+      combatantId: id,
+      reason: "not-in-order",
+    });
+  }
+  if (enc.order.length === 1) {
+    return refuse(
+      "NO_ELIGIBLE_COMBATANT",
+      "leaving would empty the initiative order",
+      { combatantId: id },
+    );
+  }
+  const reason = command.reason;
+  const order = enc.order.filter((_, i) => i !== at);
+  const isDead = (e: Entry) =>
+    state.combatants[e.combatantId]?.lifeState === "dead";
+  const events: EngineEvent[] = [];
+  let turnIndex = enc.turnIndex;
+  let round = enc.round;
+  let incomingId: string | null = null;
+  if (at === enc.turnIndex) {
+    // The leave is the turn transition: mirror turn.advance.
+    if (order.every(isDead)) {
+      return refuse(
+        "NO_ELIGIBLE_COMBATANT",
+        "every remaining combatant in the order is dead",
+        { combatantId: id },
+      );
+    }
+    events.push(
+      ...expiring(
+        state,
+        { round: enc.round, combatantId: id, boundary: "turn-end" },
+        reason,
+      ),
+    );
+    let index = at;
+    for (;;) {
+      if (index >= order.length) {
+        index = 0;
+        round += 1;
+      }
+      const entry = order[index] as Entry;
+      if (!isDead(entry)) break;
+      for (const boundary of ["turn-start", "turn-end"] as const) {
+        events.push(
+          ...expiring(
+            state,
+            { round, combatantId: entry.combatantId, boundary },
+            reason,
+          ),
+        );
+      }
+      index += 1;
+    }
+    turnIndex = index;
+    incomingId = (order[index] as Entry).combatantId;
+  } else if (at < enc.turnIndex) {
+    turnIndex -= 1;
+  }
+  events.push({
+    type: "encounter.changed",
+    v: 1,
+    reason,
+    combatantId: id,
+    before: enc,
+    after: { ...enc, round, turnIndex, order },
+  });
+  if (incomingId !== null) {
+    events.push(
+      ...expiring(
+        state,
+        { round, combatantId: incomingId, boundary: "turn-start" },
+        reason,
+      ),
+    );
+  }
+  return { ok: true, events };
+};
+
 export const handleTurnAdvance: Handler<"turn.advance"> = (
   state,
   command,

@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: baecb93e012266902cea61c04d2633ba3bd65499
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # DM failure record and rules-term gates
@@ -35,14 +35,14 @@ one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`).
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
 
-Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The **plan gate** (`dm/gates/plan-gate.ts`, `checkPlan`, TASK-0112) is pure and runs first in resolve. It checks every actor and target id a step names against the S0 actors' `combatantId`s plus the combatants this turn's encounter start adds. An action group with an unknown id resolves `refused` with `UNKNOWN_COMBATANT` before any step runs; the verdict reason is `not-a-combatant` (the id is an NPC or alias with no combatant) or `not-in-snapshot`. It never maps an alias. Verdicts are stored as `checkpoint.planGate` (absent on older rows). The declare gate refuses a declaration for a downed character with `CHARACTER_UNABLE` ([[proposal-gate]]).
+Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The **plan gate** (`dm/gates/plan-gate.ts`, `checkPlan`, TASK-0112) is pure and runs first in resolve. It checks every actor and target id a step names against the S0 actors' `combatantId`s plus the combatants this turn's encounter start adds. An action group with an unknown id resolves `refused` with `UNKNOWN_COMBATANT` before any step runs; the verdict reason is `not-a-combatant` (the id is an NPC or alias with no combatant), `not-in-snapshot` or `absent` (TASK-0141: the S0 actor's `presence` is `absent`; the code stays `UNKNOWN_COMBATANT`, operator ruling OQ-4). A step that names an absent actor fails unless it is a `presence` effect with reason `arrived`. A `presence` effect may target any S0 actor, combatant or not. It never maps an alias. Verdicts are stored as `checkpoint.planGate` (absent on older rows). The declare gate refuses a declaration for a downed character with `CHARACTER_UNABLE` ([[proposal-gate]]).
 
 A **rules term** is a value with a rules definition that a model writes into node output. The
 interpret and adjudicate schemas accept only closed lists derived from engine enums:
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
-and `DamageTypeSchema` ([[dnd5e-engine]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v3`, `dm.adjudicate-v3`), so no list is
+and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. `prompts/step-grammar.ts` renders the same lists
+into the interpret and adjudicate prompts (`dm.interpret-v4`, `dm.adjudicate-v4`), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The audit

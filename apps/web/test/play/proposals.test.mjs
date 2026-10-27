@@ -53,6 +53,36 @@ test("a view carries summary, proposer label, action id and detail rows", () => 
   }
 });
 
+test("a scene-presence proposal renders actor, reason, new value and visibility", () => {
+  const last = dmApprovals.events[dmApprovals.events.length - 1];
+  const row = {
+    ...last,
+    seq: last.seq + 1,
+    actor: "ai:dm",
+    type: "proposal.created",
+    visibility: "dm",
+    payloadVersion: 1,
+    payload: {
+      proposalId: "prop-presence",
+      policy: "ask",
+      proposal: { ...proposalExamples["scene-presence"], actorId: "goblin-1" },
+    },
+  };
+  const list = selectPendingProposals([...dmApprovals.events, row], dm);
+  const view = list.find((p) => p.proposalId === "prop-presence");
+  assert.ok(view);
+  assert.equal(view.kind, "scene-presence");
+  assert.deepEqual(
+    view.details.filter((d) => d.label !== "Rationale"),
+    [
+      { label: "Actor", value: "goblin-1" },
+      { label: "Reason", value: "fled" },
+      { label: "New value", value: "absent" },
+      { label: "Visibility", value: "Everyone" },
+    ],
+  );
+});
+
 test("each pending proposal carries its recorded policy", () => {
   const list = selectPendingProposals(dmApprovals.events, dm);
   assert.deepEqual(

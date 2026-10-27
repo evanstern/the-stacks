@@ -61,8 +61,8 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v3");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v3");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v4");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v4");
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -140,9 +140,12 @@ describe("interpret and adjudicate prompts", () => {
       {"effect":"damage","targetId":id,"components":[{"amount":Amount,"damageType":damage type}],"defenses":{"resistances":[],"vulnerabilities":[],"immunities":[]}|null}
       {"effect":"heal","targetId":id,"amount":Amount}
       {"effect":"condition","op":"apply"|"remove","targetId":id,"condition":condition key,"source":str}
+      {"effect":"presence","targetId":id,"reason":presence reason}
       Amount is {"kind":"roll","expression":"1d8+3"} or {"kind":"fixed","value":int}; use fixed only where the SRD names a fixed value.
       The expression carries the modifier you choose (ability modifier, proficiency, bonus dice). Never state a total, an applied amount or whether anything succeeds: the engine rolls and decides every number.
       Conditions (the only allowed values of "condition"): blinded, charmed, deafened, frightened, grappled, incapacitated, invisible, paralyzed, petrified, poisoned, prone, restrained, stunned, unconscious
+      Presence reasons (the only allowed values of "reason" in a presence effect): arrived, left, fled, removed, surrendered, conceded
+      A presence effect states that an actor arrived, left, fled, was removed, surrendered or conceded. Put another actor's presence change in onSuccess, onFailure or onHit of a roll against that actor. The acting actor's own presence change may stand in an effect step.
       Skills (the only allowed values of "skill", or null): acrobatics, animal-handling, arcana, athletics, deception, history, insight, intimidation, investigation, medicine, nature, perception, performance, persuasion, religion, sleight-of-hand, stealth, survival
       Damage types (the only allowed values of "damageType"): acid, bludgeoning, cold, fire, force, lightning, necrotic, piercing, poison, psychic, radiant, slashing, thunder
       A condition effect may use only a listed condition. A narrative outcome such as spotting, learning or noticing something is narration, not an effect: leave onSuccess empty.

@@ -49,7 +49,7 @@ Rows per kind:
 | Kind | Rows | Kind-specific checks (refusal code) |
 |---|---|---|
 | `talk` | one `talk` | IC character control (`NOT_AUTHORIZED`) |
-| `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`); character able (`CHARACTER_UNABLE`: not conscious, `details.reason: "life-state"`). Amended 2026-10-27 (TASK-0112, operator ruling) |
+| `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`); character able (`CHARACTER_UNABLE`: not conscious, `details.reason: "life-state"`). Amended 2026-10-27 (TASK-0112, operator ruling). Also `details.reason: "absent"` when the character is absent in `scenePresence`. Amended 2026-10-27 (TASK-0141, the TASK-0112 OQ-1 open-reason ruling: "the declare gate's code is `CHARACTER_UNABLE` (source `gate`), with an open `details.reason`") |
 | `action.comment` | one `action.commented`; when the sign-off quorum is met by this `approve`, `action.commented`, a `presence.recorded` marker (`signoff`) and `action.committed` (`group`) | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
 | `action.commit` | one `action.committed` with the derived authority; for `group` authority with more than one party human, a `presence.recorded` marker (`signoff`) first | `commitAuthority` with `context.present` (policy-and-authority.md) |
 | `action.withdraw` | one `action.withdrawn` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`); permission in proposals.md (TASK-0114 amendment, W-A ruling) |
@@ -60,7 +60,13 @@ Rows per kind:
 | `scene` | one `scene.changed`, `before` = `p.scene` | not both null (`INVALID_PROPOSAL`) |
 | `party` | one `party.member.changed`, `before` from `p.party` | not both null (`INVALID_PROPOSAL`) |
 | `tracker` | one `tracker.changed` (`dm`), `before` from `p.trackers` | not both null (`INVALID_PROPOSAL`) |
+| `scene-presence` | one `scene-presence.changed` (`public`), `before` from `p.scenePresence`, `after` from the reason; then, in the same batch, the engine `initiative.leave` rows (an absent value, actor in the order) or `initiative.join` rows (`arrived`, encounter active, actor not in the order) | `actionId`, when set, names an existing action (`UNKNOWN_ACTION`); not a no-change (`INVALID_PROPOSAL`); engine refusal (source `engine`) |
 | `journal` | one `journal.entry.added` | `entryId` unused (`JOURNAL_ENTRY_EXISTS`) |
+
+Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the `scene-presence` row above.
+
+> "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
+> the frozen 029 and 028 amendments, OQ-2 (a)"
 
 The row's `actor` is `actorOf(proposer)` for direct and auto applications, and the original
 proposer for an approved proposal (the approval row carries the DM). Each planned payload is
@@ -86,7 +92,7 @@ export const GateRefusalCodeSchema = z.enum([
   "UNKNOWN_PROPOSAL", "PROPOSAL_NOT_PENDING", "PROPOSAL_NOT_APPROVABLE",
   "CONFLICT", "CHARACTER_UNABLE",
 ]);
-// CHARACTER_UNABLE details.reason is an open set: "life-state" (TASK-0112); TASK-0141 adds "absent".
+// CHARACTER_UNABLE details.reason is an open set: "life-state" (TASK-0112); "absent" is added (TASK-0141).
 // Amended 2026-10-27 (TASK-0112, operator ruling): the list was 15 codes before CHARACTER_UNABLE.
 
 export interface GateRefusal {

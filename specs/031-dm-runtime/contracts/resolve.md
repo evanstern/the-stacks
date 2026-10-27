@@ -54,6 +54,10 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    checkpoint holds the `advance` submission runs the group again, so the settling and the mode
    row still land.
 
+   Amended 2026-10-27 (TASK-0141, operator ruling OQ-2): when the combatant active at the start
+   of the turn left the order (`initiative.leave` already handed the turn on), resolve skips its
+   own `turn.advance`. Settling and the `table-mode` row still run.
+
    **Settling** (code only; `settleTurn` in `nodes/settle.ts`). Amended 2026-10-27 (TASK-0112,
    operator ruling). Settling runs in the turn advance group and at the encounter start. It
    repeats while the active combatant cannot act (not `conscious`, or holding an incapacitating
@@ -83,6 +87,13 @@ For one beat item with its reading (or ruling, which replaces the reading's step
      a damage effect sets `critical: true` exactly when the outcome is `critical-hit`. On
      `miss`, run nothing.
    - `effect` → each effect as one `mechanics` command.
+
+   Amended 2026-10-27 (TASK-0141, operator ruling OQ-2, "... OQ-2 (a)"). A presence effect
+   `{ effect: "presence", targetId, reason }` may stand in an `effect` step and in `onSuccess`,
+   `onFailure` and `onHit`. Resolve submits it as a `scene-presence` proposal (`actorId:
+   targetId`, `reason`, `actionId`) as `ai:dm`, in effect order, and records the result as any
+   effect. The gate's policy for the kind is `ask`. The plan gate refuses an `absent` actor id with
+   `UNKNOWN_COMBATANT` (reason `absent`), except an `arrived` presence effect.
    - `roll` → `mechanics` `roll`.
 4. Then submit `action.resolve`:
    - `applied` with every applied `batchId`, when at least one batch applied;
@@ -129,6 +140,7 @@ The gate itself has no idempotency key. This contract adds none.
 |---|---|
 | `scene`, `party`, `tracker`, `table-mode` | opening moves and closing moves |
 | `mechanics` | combatants, initiative, encounter end, every step, turn advance |
+| `scene-presence` | each presence effect (TASK-0141) |
 | `journal` | rulings; the audit flag ([audit.md](audit.md)) |
 | `action.resolve` | each beat item |
 | `narration` | `submitNarration`, after audit ([audit.md](audit.md)) |
