@@ -4,7 +4,7 @@ title: 'Play route: an unseated operator with an AI DM seat views as a player'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:34'
 labels:
   - play-route
   - web
@@ -39,10 +39,15 @@ Spec: specs/038-unseated-operator-view
 - [ ] #1 With an AI DM seat, an unseated operator's /play renders the player view, with no approvals panel.
 - [ ] #2 The seat-holder and character-controller cases of viewerFor keep their TASK-0048 behaviour.
 - [ ] #3 viewer.test covers the unseated-operator case with an AI DM seat and with a human DM seat held by someone else.
+- [ ] #4 Spec phase: The viewer mirrors the server rule (US1, US2, US3) — sonnet dispatch
+- [ ] #5 Spec phase: Wiki re-pin — sonnet dispatch
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0118, branch task-0118-unseated-operator-view, cut from origin/main a4aab3c. Spec number 038 claimed with a stub. Track B3.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring, spec 038; served verified from transcript; ~130k tokens.)
 <!-- SECTION:NOTES:END -->
