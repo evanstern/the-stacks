@@ -2,7 +2,7 @@
 
 - **Status:** agreed with the operator, 2026-10-26 (design Q&A session; no mockup rounds)
 - **Milestone:** M3 — The Table, first in line
-- **Cards:** TASK-0116 (card A, server), TASK-0117 (card B, web; depends on TASK-0116), TASK-0118 (viewer bug)
+- **Cards:** TASK-0116 (card A, server), TASK-0117 (card B, web; depends on TASK-0116), TASK-0118 (unseated-operator viewer gap; depends on TASK-0048)
 - **Origin:** the M2 demo (TASK-0048). The operator played Tamsin with an AI DM and two AI
   companions and could not see the machinery from the table. A companion's uncommitted
   action looked like a frozen table. Narration fallbacks had to be diagnosed by SQL.
@@ -132,11 +132,14 @@ slide-out `Panel`s opened from the column header (no modals):
 
 ## Separate bug card (TASK-0118, side finding)
 
-`apps/web/app/play/use-live-table.ts` `viewerForUser` treats any operator as DM. The server
-gives the DM view only to a seated human DM. With an AI DM seat, the operator's `/play`
-renders DM UI (approvals panel, `isDm`) over player-filtered events. The client should derive
-DM-ness from the session's DM seat, matching `ws/registry.ts` `viewerFor`. Out of this
-design's scope; carded on its own.
+The server gives the DM view only to a seated human DM (`ws/registry.ts` `viewerFor`).
+TASK-0048 (commit `53a78fa`, branch `task-0048-playtest`) already moved the `/play` client to
+`apps/web/app/play/viewer.ts` `viewerFor(user, projections)`: the human DM seat holder views
+as DM, and a user who controls a party character views as a player. One case stays open on
+purpose: an unseated operator still falls back to the DM viewer. With an AI DM seat, that
+operator gets DM UI (approvals panel, `isDm`) over player-filtered events. TASK-0118 closes
+that case only and depends on TASK-0048. The debug view is where an unseated operator sees
+DM-only data.
 
 ## Later (not MVP)
 
