@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 04:30'
+updated_date: '2026-10-27 04:43'
 labels:
   - dm
   - rules-gate
@@ -56,6 +56,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 2, T012-T019: contract amendment f918e6e, work af65201; S0 at assemble, S1 + diff at resolve, state-overflow; dm.director-v3, dm.interpret-v3, dm.adjudicate-v3; server 889 passed.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 3, T020-T029, commit 914a112; npcNames and projectionEntries removed; narrate-v4, audit-v3, companion-v3, chronicle-v3; ci:check exit 0, server 896 passed.) Next: Phase 4 wiki (pins on dm/facts.ts, prompts, nodes narrate/audit, companion, chronicle, worker, index.ts, session/projections.ts).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
