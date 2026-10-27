@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-26 15:42'
+updated_date: '2026-10-27 02:33'
 labels:
   - engine
   - dm
@@ -34,6 +35,12 @@ Scope: the source of stats is the scene seed's combatant records (apps/server/sr
 - [ ] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
 - [ ] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+RESEARCH FINDINGS 2026-10-26 (TASK-0115; decision-0022 D14 point 4). Derive the modifier from the character's ability, proficiency and skill data. The model picks a difficulty tier from the SRD 5.2.1 ladder (Very Easy 5, Easy 10, Medium 15, Hard 20, Very Hard 25, Nearly Impossible 30; SRD p.6), never a raw number. Advantage and disadvantage come from conditions where the SRD defines them, plus model-stated circumstances with a reason. Social DCs keyed to NPC attitude belong to TASK-0119. Dependents: TASK-0128 (opposition DC and Help), TASK-0130 (doctrine pass).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
