@@ -1,10 +1,10 @@
 ---
 id: TASK-0110
 title: An action that ends the encounter resolves as refused
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 02:52'
+updated_date: '2026-10-27 09:20'
 labels:
   - dm
   - engine
@@ -34,6 +34,8 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 Operator ruling 2026-10-27 (via parent session local_415a1f81): "Leave TASK-0110 in m-3: the demo never hit it." It stays in m-3 and does not block M2 close. This answers next action 1 of the runbook handoff of 2026-10-27.
 
 Operator ruling 2026-10-27 (in chat with the third M2 orchestrator session): leave in m-3. The live demo (session e8c848ec) never hit it — no refused outcome; the fight ended by flight. Does not block M2 close.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0110, branch task-0110-encounter-end-resolves, cut from origin/main a6c0baa. Spec number 045 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C4 (runbook amendment 1).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
