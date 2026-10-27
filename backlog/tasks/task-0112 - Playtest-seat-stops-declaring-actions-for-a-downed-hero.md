@@ -4,7 +4,7 @@ title: Playtest seat stops declaring actions for a downed hero
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 10:27'
+updated_date: '2026-10-27 10:40'
 labels:
   - playtest
   - harness
@@ -30,13 +30,13 @@ Spec: specs/046-downed-hero-gate
 - [ ] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
 - [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
 - [x] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
-- [ ] #4 Death-save turns for unconscious PCs still run (U6)
+- [x] #4 Death-save turns for unconscious PCs still run (U6)
 - [x] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
 - [x] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
 - [x] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
 - [x] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
 - [x] #9 Spec phase: Plan gate against S0 (card AC #6)
-- [ ] #10 Spec phase: Death-save turns by settling (card AC #4)
+- [x] #10 Spec phase: Death-save turns by settling (card AC #4)
 - [ ] #11 Spec phase: Driver and harness (card AC #1)
 - [ ] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
@@ -75,6 +75,8 @@ Phase 3 done (2abab8b): checkPlan in apps/server/src/dm/gates/plan-gate.ts, Turn
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (2abab8b): plan gate checkPlan runs before directorOpening; a refused group lands no step. SC-003 ambush still passes. One fixture changed in meaning-preserving form (the seq-naming test now uses an engine-refused expression). ci:check passed with REQUIRE_DATABASE=1, server 1006 tests.
+
+Phase 4 done (b9edfb0): settleTurn in nodes/settle.ts (death-save.roll then turn.advance, one lap bound, nat 20 keeps the turn); table-mode row stays in resolve (dm/ write boundary). Narration facts gain a death-saves change and a settled section (facts.ts, fallback.ts, narrate prompt); auditor render.ts needed no edit. Reclaim fix: the advance group re-enters when the checkpoint holds 'advance'. resolve.md amended. No existing fixture changed rows. ci:check green with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
