@@ -1,10 +1,10 @@
 ---
 id: TASK-0118
 title: 'Play route: an unseated operator with an AI DM seat views as a player'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 03:38'
+updated_date: '2026-10-27 03:46'
 labels:
   - play-route
   - web
@@ -36,11 +36,11 @@ Spec: specs/038-unseated-operator-view
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 With an AI DM seat, an unseated operator's /play renders the player view, with no approvals panel.
-- [ ] #2 The seat-holder and character-controller cases of viewerFor keep their TASK-0048 behaviour.
-- [ ] #3 viewer.test covers the unseated-operator case with an AI DM seat and with a human DM seat held by someone else.
-- [ ] #4 Spec phase: The viewer mirrors the server rule (US1, US2, US3) — sonnet dispatch
-- [ ] #5 Spec phase: Wiki re-pin — sonnet dispatch
+- [x] #1 With an AI DM seat, an unseated operator's /play renders the player view, with no approvals panel.
+- [x] #2 The seat-holder and character-controller cases of viewerFor keep their TASK-0048 behaviour.
+- [x] #3 viewer.test covers the unseated-operator case with an AI DM seat and with a human DM seat held by someone else.
+- [x] #4 Spec phase: The viewer mirrors the server rule (US1, US2, US3) — sonnet dispatch
+- [x] #5 Spec phase: Wiki re-pin — sonnet dispatch
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -54,3 +54,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phases 1+2 grouped by orchestrator call, small card; commits 088e722, ab61727; ~102k tokens; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #58 (68e0513). The /play viewer mirrors the server rule (apps/server/src/ws/registry.ts, TASK-0045): DM view only for the human DM seat holder; every other user, operator included, views as a player with their own id. An unseated operator gets the spectator player view (no approvals panel, no Action). Spec 038: 9/9 tasks. Tests: viewer.test.mjs rows (AI seat, human seat held by another, empty party) and a TableView render with no 'Pending proposals'. Wiki play-route amended and re-pinned. DM-only data is the debug view's job (TASK-0117).
+<!-- SECTION:FINAL_SUMMARY:END -->
