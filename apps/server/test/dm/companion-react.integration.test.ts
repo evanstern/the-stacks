@@ -14,6 +14,7 @@ import {
   createWorld,
   db,
   loudSkip,
+  payloadOf,
   player,
   reachable,
   readRows,
@@ -174,10 +175,9 @@ const turnCalls = (actionId: string) => [
   jsonCall("dm.chronicle", { entries: [] }),
 ];
 
-/** Odo declares `act-odo-1` without committing it (M2 e8c848ec seq 29-34). */
-async function odoDeclaresOpenAction(w: World) {
+function runOdo(w: World, reason: "prompt" | "react") {
   const base = w.ctx().deps;
-  const result = await runCompanionJob(
+  return runCompanionJob(
     {
       gateway: base.gateway,
       gate: base.gate,
@@ -193,12 +193,17 @@ async function odoDeclaresOpenAction(w: World) {
         v: 1 as const,
         sessionId: w.sessionId,
         companions: ["odo"],
-        reason: "prompt" as const,
+        reason,
         beatJobId: null,
       },
     },
     new AbortController().signal,
   );
+}
+
+/** Odo declares `act-odo-1` without committing it (M2 e8c848ec seq 29-34). */
+async function odoDeclaresOpenAction(w: World) {
+  const result = await runOdo(w, "prompt");
   expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
     ["action.declare", true],
   ]);
@@ -255,7 +260,7 @@ describe.skipIf(!reachable)("companion react resolution (database)", () => {
     const rows = await readRows(w);
     const committed = rows.find((r) => r.type === "action.committed");
     expect(committed?.actor).toBe("ai:companion:odo");
-    expect((committed?.payload as { actionId: string }).actionId).toBe(
+    expect(payloadOf<{ actionId: string }>(committed).actionId).toBe(
       "act-odo-1",
     );
     expect(
@@ -265,5 +270,130 @@ describe.skipIf(!reachable)("companion react resolution (database)", () => {
       (a) => a.actionId === "act-odo-1",
     );
     expect(odo1?.status).toBe("resolved");
+  });
+
+  it("invalid companion output still commits the open action (default)", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+        {
+          purpose: "dm.companion",
+          respond: { type: "text", value: "not json" },
+        },
+        {
+          purpose: "dm.companion",
+          respond: { type: "text", value: "not json" },
+        },
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    await humanComment(w, "approve", "Go on.");
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.status).toBe("invalid-output");
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["action.commit", true],
+    ]);
+    const odo1 = (await w.projections()).actions.find(
+      (a) => a.actionId === "act-odo-1",
+    );
+    expect(odo1?.status).toBe("committed");
+  });
+
+  it("a prompt run that declares a new act while act-odo-1 is open commits act-odo-1 only (seq 44)", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+        companionCall({
+          say: "Steady now.",
+          comment: null,
+          act: { text: "Odo draws a second blade.", commit: true },
+          pending: [],
+        }),
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    const result = await runOdo(w, "prompt");
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["talk", true],
+      ["action.commit", true],
+    ]);
+    const rows = await readRows(w);
+    expect(rows.filter((r) => r.type === "action.declared")).toHaveLength(1);
+    expect(
+      payloadOf<{ actionId: string }>(
+        rows.find((r) => r.type === "action.committed"),
+      ).actionId,
+    ).toBe("act-odo-1");
+  });
+
+  it("a react run with no unanswered human reaction is skipped with no model call", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.status).toBe("skipped");
+    expect(result.calls).toHaveLength(0);
+    expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+  });
+
+  it("five human comments inside the window run Odo once, and the prompt carries all five", async () => {
+    const w = await createWorld({
+      calls: [
+        companionCall({
+          say: null,
+          comment: null,
+          act: { text: "Odo asks who is there.", commit: false },
+          pending: [],
+        }),
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [{ actionId: "act-odo-1", decision: "commit", text: null }],
+        }),
+        ...turnCalls("act-odo-1"),
+      ],
+    });
+    const { worker } = workerFor(w, { reactQuietMs: 0 });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    for (let i = 1; i <= 5; i++) {
+      await humanComment(w, "comment", `reaction number ${i}`);
+    }
+    await tick();
+    await drainAll(worker);
+    const jobs = await listDmJobs(requireDb(), w.sessionId, 20, "companion");
+    expect(jobs).toHaveLength(1);
+    expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+    // One declare run plus one react run; the react prompt names all five.
+    const companionCalls = w.scripted.provider.chatCalls.filter(
+      (c) => c.request.purpose === "dm.companion",
+    );
+    expect(companionCalls).toHaveLength(2);
+    const prompt = JSON.stringify(companionCalls[1]?.request.messages);
+    for (let i = 1; i <= 5; i++) {
+      expect(prompt).toContain(`reaction number ${i}`);
+    }
   });
 });

@@ -34,6 +34,16 @@ export const CompanionOutput = z.object({
   act: z
     .object({ text: z.string().min(1).max(400), commit: z.boolean() })
     .nullable(),
+  /** One decision per own open action (specs/036-companion-react FR-010). */
+  pending: z
+    .array(
+      z.object({
+        actionId: RefIdSchema,
+        decision: z.literal("commit"),
+        text: z.string().min(1).max(400).nullable(),
+      }),
+    )
+    .max(4),
 });
 export type CompanionOutput = z.infer<typeof CompanionOutput>;
 
@@ -86,6 +96,31 @@ function nextActionId(p: SessionProjections, companionId: string): string {
   return id.slice(0, 64);
 }
 
+type ActionView = SessionProjections["actions"][number];
+
+const isOpen = (a: ActionView) =>
+  a.status === "declared" || a.status === "discussed";
+
+/** The companion's own open actions, oldest first. */
+function ownOpenActions(
+  p: SessionProjections,
+  companionId: string,
+): ActionView[] {
+  return p.actions
+    .filter((a) => a.actor === companionActor(companionId) && isOpen(a))
+    .sort((a, b) => a.declaredSeq - b.declaredSeq);
+}
+
+/** FR-009: a human comment newer than the companion's own last event on the action. */
+function hasUnansweredReaction(a: ActionView, companionId: string): boolean {
+  const me = companionActor(companionId);
+  const ownLast = Math.max(
+    a.declaredSeq,
+    ...a.comments.filter((c) => c.actor === me).map((c) => c.seq),
+  );
+  return a.comments.some((c) => !c.actor.startsWith("ai:") && c.seq > ownLast);
+}
+
 function isActive(p: SessionProjections, companionId: string): boolean {
   return (
     p.tableMode.mode === "turn" &&
@@ -130,6 +165,15 @@ export async function runCompanionJob(
       continue;
     }
 
+    const ownOpen = ownOpenActions(projections, companionId);
+    if (
+      reason === "react" &&
+      !ownOpen.some((a) => hasUnansweredReaction(a, companionId))
+    ) {
+      plays.push({ companionId, status: "skipped", submissions: [] });
+      continue;
+    }
+
     const active = isActive(projections, companionId);
     const turnMode = projections.tableMode.mode === "turn";
     const prompt = buildCompanionPrompt({
@@ -137,6 +181,7 @@ export async function runCompanionJob(
       projections,
       characterId: companionId,
       active,
+      ownOpenActionIds: ownOpen.map((a) => a.actionId),
     });
     const result = await callJson(deps, {
       purpose: PURPOSE_OF.companion,
@@ -149,11 +194,17 @@ export async function runCompanionJob(
     calls.push(...result.calls);
 
     let output: CompanionOutput;
+    let playStatus: CompanionPlay["status"] = "played";
     if (result.ok) {
       output = result.value;
-    } else if (result.error.kind === "invalid-output" && active && turnMode) {
-      // The active companion must still advance the turn.
-      output = { say: null, comment: null, act: null };
+    } else if (
+      result.error.kind === "invalid-output" &&
+      ((active && turnMode) || ownOpen.length > 0)
+    ) {
+      // The active companion must still advance the turn, and an open action
+      // must still get its default decision (FR-012).
+      output = { say: null, comment: null, act: null, pending: [] };
+      if (!(active && turnMode)) playStatus = "invalid-output";
     } else {
       plays.push({
         companionId,
@@ -164,8 +215,26 @@ export async function runCompanionJob(
       continue;
     }
 
-    // The active companion in turn mode MUST act and commit.
-    if (active && turnMode && (output.act === null || !output.act.commit)) {
+    // A new act is dropped while the companion had an open action: the run
+    // addresses that action first (FR-013).
+    if (ownOpen.length > 0 && output.act !== null) {
+      deps.log({
+        event: "dm.companion.act-dropped",
+        jobId: job.id,
+        companionId,
+        openActionIds: ownOpen.map((a) => a.actionId),
+      });
+      output = { ...output, act: null };
+    }
+
+    // The active companion in turn mode MUST act and commit. With an open
+    // action of its own it commits that action instead (FR-014).
+    if (
+      active &&
+      turnMode &&
+      ownOpen.length === 0 &&
+      (output.act === null || !output.act.commit)
+    ) {
       output = {
         ...output,
         act: { text: output.act?.text ?? HOLD_ACT_TEXT, commit: true },
@@ -224,6 +293,32 @@ export async function runCompanionJob(
         });
       }
     }
+    // One decision per own open action; the default is `commit` (FR-012). In
+    // turn mode only the active companion commits (FR-014).
+    if (!turnMode || active) {
+      const decided = new Set(
+        output.pending
+          .filter((d) => ownOpen.some((a) => a.actionId === d.actionId))
+          .map((d) => d.actionId),
+      );
+      for (const open of ownOpen) {
+        if (!decided.has(open.actionId)) {
+          deps.log({
+            event: "dm.companion.default-decision",
+            jobId: job.id,
+            companionId,
+            actionId: open.actionId,
+            decision: "commit",
+          });
+        }
+        await send({
+          kind: "action.commit",
+          summary: null,
+          rationale: null,
+          actionId: open.actionId,
+        });
+      }
+    }
     if (output.act !== null) {
       const actionId = nextActionId(projections, companionId);
       const declared = await send({
@@ -246,7 +341,7 @@ export async function runCompanionJob(
         });
       }
     }
-    plays.push({ companionId, status: "played", submissions });
+    plays.push({ companionId, status: playStatus, submissions });
   }
 
   if (reason === "hold" && !signal.aborted) {

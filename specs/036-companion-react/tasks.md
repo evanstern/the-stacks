@@ -84,39 +84,39 @@ the worker claims only after its start time.
 
 **Goal**: every companion run decides its own open actions; the M2 stall cannot recur.
 
-- [ ] T020 [US2] In `apps/server/src/dm/companion.ts`, add `pending` to `CompanionOutput`
+- [x] T020 [US2] In `apps/server/src/dm/companion.ts`, add `pending` to `CompanionOutput`
   (`{ actionId, decision: "commit", text: null }[]`, max 4) per plan.md "Resolution design".
   Implement: the react skip rule (FR-009, no model call); per own open action, the model's
   decision or the default `commit` (FR-012); `commit` submits `action.commit` for the existing
   id (FR-013); a new `act` is dropped and logged while an own action stays open; in turn mode the
   active companion commits its open action instead of declaring a new one, and a non-active
   companion's commit is not submitted (FR-014). Reason `react` ends with nothing more (FR-015).
-- [ ] T021 [US2] M2 repro in `companion-react.integration.test.ts`, named
+- [x] T021 [US2] M2 repro in `companion-react.integration.test.ts`, named
   `"M2 e8c848ec seq 35-38: a human reaction re-runs Odo and closes act-odo-1"`: free mode;
   Odo declares `act-odo-1` uncommitted; the human comments ("Who is there?"), then approves
   ("Let's be cautious"); listener quiet window 0; drain the worker with fake-gateway output that
   commits. Assert one `dm.companion` call, `act-odo-1` committed by `ai:companion:odo`, a turn
   job ran, and `act-odo-1` is `resolved`. Run it once on the Phase 1 tip before T020 lands and
   record in the commit message that it failed there.
-- [ ] T022 [US2] In the same file: (a) invalid companion output still commits the open action
+- [x] T022 [US2] In the same file: (a) invalid companion output still commits the open action
   (default); (b) a `prompt` run whose output declares a new act while `act-odo-1` is open commits
   `act-odo-1` and declares nothing new (the seq 44 case); (c) a skipped run makes no model call.
-- [ ] T023 [US3] In the same file: five human comments inside the window, then drain: exactly one
+- [x] T023 [US3] In the same file: five human comments inside the window, then drain: exactly one
   `dm.companion` call, and the captured prompt carries all five comment texts.
-- [ ] T024 [US2] In `apps/server/test/dm/companion.integration.test.ts`: (a) turn mode, a
+- [x] T024 [US2] In `apps/server/test/dm/companion.integration.test.ts`: (a) turn mode, a
   non-active companion's react run submits no commit; (b) the active companion with an open
   action commits that action and declares no second one. Keep every existing test's outcome.
-- [ ] T025 [US2] In `apps/server/src/dm/prompts/companion.ts`, split own open actions (with
+- [x] T025 [US2] In `apps/server/src/dm/prompts/companion.ts`, split own open actions (with
   comments and stances) from others' open actions; instruct one decision per own action; bump
   `PROMPT_VERSION`. Update tests that assert the version
   (`player-facing-prompts.test.ts`, others found by grep). Add `pending: []` to every
   fake-gateway companion fixture or script the schema now rejects.
-- [ ] T026 [P] [US4] Amend `specs/031-dm-runtime/contracts/companions.md`: reason `react` (trigger,
+- [x] T026 [P] [US4] Amend `specs/031-dm-runtime/contracts/companions.md`: reason `react` (trigger,
   coalescing rule, skip rule, ending), the `pending` field, the default decision, the turn-mode
   rule. Amend `specs/031-dm-runtime/contracts/turn-jobs.md` "Enqueue" (react rule) and "Claim"
   (`notBefore` predicate, new index). Each amended section ends with
   "Amended by specs/036-companion-react."
-- [ ] T027 Run the phase gate and the DB suites, including `worker.integration.test.ts` and
+- [x] T027 Run the phase gate and the DB suites, including `worker.integration.test.ts` and
   `full-turn.integration.test.ts`. Commit.
 
 **Checkpoint**: AC #2 (commit path) and AC #3 met. The runbook merge condition holds (T021).

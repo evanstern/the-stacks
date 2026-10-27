@@ -496,7 +496,8 @@
           "act": {
             "text": "Odo swings his mace at the goblin lookout.",
             "commit": true
-          }
+          },
+          "pending": []
         }
       }
     },
@@ -600,7 +601,8 @@
           "act": {
             "text": "Kestrel looses an arrow at the goblin by the fire.",
             "commit": true
-          }
+          },
+          "pending": []
         }
       }
     },
