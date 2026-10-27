@@ -1,0 +1,23 @@
+# TASK-0117 Phase 7 gate evidence (2026-10-27)
+HEAD before commit: 796789a
+
+$ REQUIRE_DATABASE=1 pnpm ci:check  (stack stacks-task-0117, TEST_DATABASE_URL only)
+exit=0
+@the-stacks/srd:test:  Test Files  9 passed (9)
+@the-stacks/dnd5e-engine:test:  Test Files  15 passed (15)
+@the-stacks/session-model:test:  Test Files  21 passed (21)
+@the-stacks/web:test:  Test Files  15 passed (15)
+@the-stacks/server:test:  Test Files  98 passed | 1 skipped (99)
+# tests 20
+# pass 20
+# fail 0
+# tests 42
+# pass 42
+# fail 0
+
+$ grounding-wiki freshness . docs/wiki
+OK: 51 note(s) fresh against their pinned sources.
+
+$ spec-bridge check .
+spec-bridge ok: 43 linked task(s), none exceed their artifacts
+exit=0

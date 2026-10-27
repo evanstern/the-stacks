@@ -168,10 +168,10 @@ Re-run `pnpm ci:check` after the merge. Reconcile any contract drift against
 Classify each staled pin against `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or
 NEEDS-REVIEW. Amend prose before bumping a NEEDS-REVIEW pin.
 
-- [ ] T042 [P] NEEDS-REVIEW `docs/wiki/play-route.md`: the Debug link in the header for operators (`debugHref`), the new route beside `play/:sessionId`; add `apps/web/app/routes/play-debug.tsx` to sources only if the note describes it, else link `[[debug-view]]`.
-- [ ] T043 [P] NEEDS-REVIEW `docs/wiki/debug-view.md` (created by TASK-0116): add the page — the strip, the three columns, the poll cadence, the scrub, the panels, the retry rule, and the "link unknown" reading; add `apps/web/app/debug/*` and `apps/web/app/routes/play-debug.tsx` to sources; state what TASK-0132 can reuse (`waiting.ts`'s commit-without-narration fold, the stage labels).
-- [ ] T044 Update `docs/wiki/INDEX.md` (state paragraph: the debug page exists) and regenerate `docs/wiki/CAPSULES.md` for every changed `description:`.
-- [ ] T045 Run `pnpm ci:check`, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0). Record the output in `specs/041-debug-page/ci-evidence.txt`.
+- [x] T042 [P] NEEDS-REVIEW `docs/wiki/play-route.md`: the Debug link in the header for operators (`debugHref`), the new route beside `play/:sessionId`; add `apps/web/app/routes/play-debug.tsx` to sources only if the note describes it, else link `[[debug-view]]`.
+- [x] T043 [P] NEEDS-REVIEW `docs/wiki/debug-view.md` (created by TASK-0116): add the page — the strip, the three columns, the poll cadence, the scrub, the panels, the retry rule, and the "link unknown" reading; add `apps/web/app/debug/*` and `apps/web/app/routes/play-debug.tsx` to sources; state what TASK-0132 can reuse (`waiting.ts`'s commit-without-narration fold, the stage labels).
+- [x] T044 Update `docs/wiki/INDEX.md` (state paragraph: the debug page exists) and regenerate `docs/wiki/CAPSULES.md` for every changed `description:`.
+- [x] T045 Run `pnpm ci:check`, `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (prints `OK`) and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (exits 0). Record the output in `specs/041-debug-page/ci-evidence.txt`.
 
 **Checkpoint**: commit `TASK-0117: Phase 7 — wiki re-ground`.
 
