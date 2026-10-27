@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 03:45'
+updated_date: '2026-10-27 03:50'
 labels:
   - dm
   - companions
@@ -46,6 +46,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 036, commit f81c2ab; ~185k tokens; served verified from transcript.)
 
 OPERATOR RULING 2026-10-26 (checkpoint W, in chat): 'W-A: add withdraw'. New action.withdraw proposal kind and action.withdrawn event; revise = withdraw + new declaration; humans can use it too. Amends the frozen specs/029-proposal-gate contract in Phase 3. Orchestrator defaults on the spec's other open questions: only human reactions trigger a re-run (as the card says); the 3 s quiet window and 10 s max wait stay code constants; the outlives-a-fight risk stays a listed risk.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 1, T010-T014, commit 6688ab7; migration 0005_lean_cable (react queued index). TASK-0116 also generates a 0005 on its branch: whichever merges second regenerates after merging main.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
