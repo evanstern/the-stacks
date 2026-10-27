@@ -6,8 +6,12 @@
 - **Escape line:** E3. This inventory and the later decision record stand in for a spec set.
 - **Verified against:** branch `task-0135-actor-state-gate`, cut from `origin/main` `a4aab3c`.
   Every `file:line` below refers to that tree.
-- **Status:** draft for checkpoint C3. Nothing here is decided. Section 3 holds the question
-  for the operator.
+- **Status:** decided. The operator ruled at checkpoint C3 on 2026-10-26: **Formulation 3
+  (ledger plus opposition dice) is adopted**; seed NPCs get minimal scene presence state in
+  M3; position and range are revisit TASK-0139. The binding record is decision-0025 (D17,
+  `backlog/decisions/decision-0025 - D17-Actor-state-rule-gate-…md`). Where this inventory
+  and decision-0025 differ, decision-0025 wins. Sections 1–4 are the inventory as presented
+  at C3; section 5 lists the cards to create.
 
 ## Terms
 
@@ -169,7 +173,7 @@ Every formulation keeps clause B as written: each model output passes a determin
 over a snapshot of every tracked actor and the stage, and the gate refuses an output that
 asserts a state the snapshot contradicts.
 
-**Formulation 1 — Dice only (literal).** Only a die roll recorded this turn may change plot.
+**Formulation 1 — Dice only (literal).** *Not adopted.* Only a die roll recorded this turn may change plot.
 A no-roll outcome is narrated as an attempt with no change.
 - Amends decision-0022 point 3: a certain outcome or a no-risk retry must roll anyway, or it
   achieves nothing. That reintroduces "roll for everything", which D14 point 3 exists to stop.
@@ -179,7 +183,7 @@ A no-roll outcome is narrated as an attempt with no change.
   morale rule must exist first.
 - Simplest gate: a plot change with no roll row in the same batch is refused.
 
-**Formulation 2 — Ledger only.** The model may change plot only through a fact the ledger
+**Formulation 2 — Ledger only.** *Not adopted.* The model may change plot only through a fact the ledger
 records: a die result, or an engine outcome reached without a roll under decision-0022
 point 3. Prose may add flavor but may not assert any actor or stage state that the ledger
 does not record.
@@ -193,7 +197,7 @@ does not record.
 - Weakness: the DM may still grant an opposed outcome without a roll, as long as it records
   it. The Odo bargain (G3) would pass if the Director recorded "fled".
 
-**Formulation 3 — Ledger only, and opposition needs dice.** Formulation 2, plus: a plot change
+**Formulation 3 — Ledger only, and opposition needs dice. ADOPTED at checkpoint C3 (decision-0025).** Formulation 2, plus: a plot change
 to any actor other than the acting one (harm, a condition, flight, surrender, a handover, a
 change of disposition) needs a die roll against that actor, or an SRD rule that decides it
 without one.
@@ -257,6 +261,8 @@ state it as an amendment to decision-0017.
 
 ### 4.3 Which card implements which rule
 
+Superseded by section 5.2, which maps decision-0025's rules. The table below is the C3 draft.
+
 | Rule | Card |
 |---|---|
 | A committed action whose own effect ends the encounter resolves `applied`; Director group after action groups | TASK-0110 |
@@ -269,7 +275,7 @@ state it as an amendment to decision-0017.
 | Narrate and audit wording for NPC reactions (`prompts/narrate.ts:26-27`) to the ruled formulation | TASK-0130 |
 | Chronicle keeps distinct combatants distinct | TASK-0109 |
 
-No card covers these. The decision record must card each one:
+No card covers these. Section 5 cards each one:
 
 - **U1.** The `ActorSnapshot` type, built once and rendered in every prompt. Every other rule
   reads it, so it is the natural first implementation card (AC #4).
@@ -283,10 +289,196 @@ No card covers these. The decision record must card each one:
   TASK-0112 asks the question but scopes the gate, not the engine.
 - **U7.** `dm.audit` receives the snapshot.
 
-## Open questions for the orchestrator
 
-- **Seed NPCs as actors.** Clause B says "all trackable actors". Seed NPCs have no state
-  outside an encounter. Whether they get presence state in m-3 or with the codex (m-4) needs
-  a ruling or a card.
-- **Position and range.** Untracked. No rule here depends on them, but "all trackable
-  actors" will. Card a revisit task with a trigger, per decision-0020.
+## 5. Decision and cards
+
+### 5.1 The ruling
+
+Decision-0025 (D17) records the operator's words and the C3 choices. It adopts Formulation 3:
+
+- Plot moves only through a recorded fact: a die result, an engine event, or a no-roll
+  outcome row under decision-0022 point 3.
+- A change to an actor other than the acting actor needs a roll against that actor in the
+  same batch, or an SRD rule the engine codes.
+- Uncontested effort needs no roll. Scene framing and talk are flavour and may not assert
+  unrecorded state.
+- `resolve` runs the action groups before the Director group (amends decision-0017).
+
+The two open questions of the C3 draft are closed. Seed NPCs get scene presence in M3 (card
+U8 below). Position and range are revisit TASK-0139. "Scene presence" (`present`, `yielded`,
+`absent`) is distinct from decision-0024's player connection presence.
+
+### 5.2 Rule-to-card table
+
+Rule numbers refer to decision-0025.
+
+| Rule (decision-0025) | Card |
+|---|---|
+| §1 ActorSnapshot built in code; every node receives it | **U1** (new) |
+| §1.6 No silent drop under the token cap | **U1** (new) |
+| §2.1 Plot only through a recorded fact; §2.2 other-actor change needs a roll or SRD rule; §2.4 deterministic batch test (§3.3) | **U9** (new) |
+| §2.2 The opposition roll against another actor (derived DC) | TASK-0128 |
+| §2.3 Uncontested effort resolves as a no-roll outcome row | TASK-0127 (AC #5) |
+| §2.5 Director stage changes need a basis in state; no spotlight on a downed or absent actor (§3.1) | **U5** (new) |
+| §2.6 Scene framing and §2.7 talk as flavour, in narrate and audit doctrine | TASK-0113 (scene start), TASK-0130 (NPC reactions and talk wording) |
+| §3.1 Declare gate refuses a non-conscious or absent character | **U6** (new; recommended as added ACs on TASK-0112) |
+| §3.1 Playtest seat stops declaring for a downed hero | TASK-0112 (AC #1); its AC #2 is answered by decision-0025 |
+| §3.2 Plan gate: step actor and target exist and are not absent; engine refuses an unconscious, stable or incapacitated actor | **U6** (new) |
+| §3.4 Output claim gate over narrate prose, ruling text and `goalNote` | **U3** (new) |
+| §3.4 Claim gate on companion `say` and public chronicle entries | **U4** (new) |
+| §3.5 `dm.audit` receives S1 | **U7** (new) |
+| §4 Resolve order: action groups before the Director group | TASK-0110 |
+| Scene presence as tracked state with a producer | **U2** (new) |
+| Seed NPCs carry minimal scene presence (C3 ruling) | **U8** (new) |
+| Numbers from the sheet; the snapshot carries stats | TASK-0104 |
+| Spells by SRD id | TASK-0105 |
+| Allowed involuntary effects in NarrationFacts (decision-0022 point 1) | TASK-0113 |
+| Chronicle keeps distinct combatants distinct | TASK-0109 |
+| Position and range | TASK-0139 (revisit) |
+
+### 5.3 Cards to create
+
+The orchestrator creates these cards on `main`. Each card's spec cites decision-0025 and
+names the rules it implements (runbook merge condition for Track C).
+
+**U1. Actor snapshot: one code-built state view for every DM node**
+- Outcome: code builds an `ActorSnapshot` from the projections and the seed, and every DM
+  node renders state from it. This is the first implementation card (TASK-0135 AC #4).
+- Acceptance criteria:
+  1. An `ActorSnapshot` type carries, per actor, id, display name, aliases, kind, controller,
+     HP, life state, conditions, initiative, resources and scene presence; and the stage.
+  2. `assemble` builds S0 and `resolve` builds S1 plus the S0-to-S1 diff, with tests.
+  3. Director, interpret, adjudicate, narrate, audit, companion and chronicle prompts render
+     state from the snapshot; `projectionEntries` and `npcNames` are retired.
+  4. Under the token cap, dead and absent actors compress to one line; no actor is dropped,
+     with a test over a large party and encounter.
+  5. A snapshot that cannot fit fails the node loudly, with a test.
+  6. Existing dm tests and the scripted CI playtest stay green.
+- Dependencies: none. Scene presence fields are present but default to `present` until U2.
+
+**U2. Scene presence as tracked actor state, with a producer**
+- Outcome: an actor's scene presence (`present`, `yielded`, `absent`) is a logged fact, and
+  only a resolved step can change it.
+- Acceptance criteria:
+  1. A catalogued event records a scene presence change with actor id, new value and reason
+     (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`).
+  2. A step kind lets interpret and adjudicate propose a presence change; the gate applies it
+     only through the engine, with tests.
+  3. An `absent` combatant leaves the encounter order through `combatant.remove`.
+  4. The snapshot reads scene presence from the log.
+  5. No Director field writes scene presence, with a test.
+- Dependencies: U1.
+
+**U3. Output claim gate: actor-aware checks over shipped narration**
+- Outcome: a deterministic checker keyed to snapshot aliases refuses shipped text that
+  contradicts actor state.
+- Acceptance criteria:
+  1. The checker refuses a dead, downed or absent actor shown acting or speaking, with tests
+     over M2 seq 225 and run 192319Z row 162.
+  2. It refuses a death or drop named on the wrong actor.
+  3. It refuses a count or quantifier that disagrees with the snapshot ("two down", "no
+     goblins left"), with a test over M2 seq 225 and F52.
+  4. It runs on narrate prose and on the ruling and `goalNote` text that reach narrate.
+  5. A refusal feeds the existing regenerate loop and code fallback.
+  6. The actor-anonymous word checks in `audit-words.ts` are replaced or keyed to actors.
+- Dependencies: U1, U2, U8.
+
+**U4. Claim gate on companion `say` and public chronicle entries**
+- Outcome: the two model outputs that ship with no state check pass the U3 checker.
+- Acceptance criteria:
+  1. Companion `say` passes the claim gate before `gate.submit`; a refusal drops or
+     regenerates it, with a test.
+  2. Public chronicle entries pass the claim gate against the snapshot at `throughSeq`, with
+     a test.
+  3. DM-only chronicle entries are not gated and say so in the contract.
+- Dependencies: U3; TASK-0109 (same chronicle footprint, merge after it).
+
+**U5. Director legality over actor state**
+- Outcome: `legalizeDirector` reads the snapshot and refuses stage changes the state does not
+  support.
+- Acceptance criteria:
+  1. Free mode and encounter end are refused unless every hostile actor is dead, unconscious,
+     stable, `yielded` or `absent`, with a test over run 183818Z seq 260-265.
+  2. A tracker advance and a scene end must cite a recorded fact from the turn; one with no
+     valid citation is refused, with tests.
+  3. The spotlight and companion prompts never name a downed or absent actor, with a test.
+  4. A refused Director move is logged and does not block the turn.
+- Dependencies: U1, U2, U8, TASK-0110.
+
+**U6. Able-actor gates: declare and engine refuse a downed or absent actor**
+- Outcome: no downed or absent actor reaches a model or the engine as an actor.
+- Recommended delivery: as added acceptance criteria on TASK-0112, whose runbook row (C4)
+  already names the gate half. A separate card only if the orchestrator prefers.
+- Acceptance criteria:
+  1. The declare gate refuses a character that is not `conscious` or is `absent`, with a
+     refusal code and a test.
+  2. The engine refuses an unconscious, stable or incapacitated attacker or checker, beside
+     the existing dead-actor refusals, with engine tests.
+  3. A plan gate refuses a step whose actor or target is missing from S0 or `absent`.
+  4. Death-save turns for unconscious PCs still run.
+- Dependencies: none for criteria 1, 2 and 4; criterion 3 needs U1 and U2.
+
+**U7. `dm.audit` receives the actor snapshot**
+- Outcome: the model auditor judges prose against S1, not this turn's facts only.
+- Acceptance criteria:
+  1. The audit prompt renders S1 and the diff, with a prompt test.
+  2. A regression over F52 (M2 seq 307) shows the auditor's verdict follows recorded scene
+     presence.
+  3. Blocking derivation in code is unchanged.
+- Dependencies: U1; U2 for criterion 2.
+
+**U8. Seed NPCs carry minimal scene presence**
+- Outcome: every seed NPC is an actor in the snapshot with scene presence, so claims about it
+  can be checked. Richer NPC records stay with the Codex (M4).
+- Acceptance criteria:
+  1. A seed declares each NPC's initial scene presence per beat, with a schema test.
+  2. Seed NPCs appear in the snapshot with id, name, aliases, kind `NPC` and scene presence.
+  3. A seed NPC's scene presence changes only through U2's event, with a test over M2 seq
+     296-301 (Snag stays present without a roll).
+  4. A seed NPC that becomes a combatant keeps one identity across both.
+- Dependencies: U1, U2.
+
+**U9. Resolve batch gate: formulation 3 in code**
+- Outcome: the resolve batch is refused when a plot change lacks a recorded fact, or when a
+  change to another actor lacks a roll against that actor or an engine-coded SRD rule.
+- Acceptance criteria:
+  1. A change to another actor with no roll row naming that actor in the batch is refused,
+     with a test over M2 seq 296-301.
+  2. An engine-coded SRD rule (0 HP to unconscious; a willing ally accepting a beneficial
+     effect) passes with no roll, with tests.
+  3. An uncontested effort passes as a no-roll outcome row, with a test over M2 seq 304.
+  4. The gate compares effect target ids with the acting actor; it reads no prose.
+  5. A refused batch writes nothing and the action resolves `refused` with a refusal code.
+- Dependencies: U1, U2, TASK-0110, TASK-0127, TASK-0128.
+
+### 5.4 Recommended Track C order
+
+This amends the runbook's Track C table (a checkpoint C3 runbook amendment). One card in
+implementation at a time; TASK-0109 still floats.
+
+| Order | Card | Why here |
+|---|---|---|
+| C1 | TASK-0135 | This decision. |
+| C2 | TASK-0123 | Unchanged; `packages/srd` only. |
+| C3 | U1 | Every other rule reads the snapshot. TASK-0135 AC #4 specs it. |
+| C4 | TASK-0110 | Resolve order; U5 and U9 depend on it. |
+| C5 | TASK-0112 with U6 | Able-actor gates; small; criteria 1, 2 and 4 need nothing new. |
+| C6 | U2 | Scene presence and its producer. |
+| C7 | U8 | Seed NPCs need U2's event. |
+| C8 | TASK-0104 | Heaviest card; changes `StepSchema`. |
+| C9 | U7 | Cheap once U1, U2 and U8 exist. |
+| C10 | U3 | Needs aliases and presence for seed NPCs. |
+| C11 | U4 | Reuses U3; after TASK-0109. |
+| C12 | TASK-0128 | Depends on TASK-0104. |
+| C13 | TASK-0105 | Depends on TASK-0104. |
+| C14 | U5 | Needs U2, U8 and TASK-0110. |
+| C15 | TASK-0111 | Narration audit; unchanged. |
+| C16 | TASK-0113 | Unchanged. |
+| C17 | TASK-0127 | Unchanged. |
+| C18 | U9 | Needs TASK-0127 and TASK-0128. |
+| C19 | TASK-0130 | Doctrine wording last, against the built gates. |
+| float | TASK-0109 | Any time after C1; must merge before U4. |
+
+The track grows by eight cards (U6 folded into TASK-0112). If the waves cannot carry it before
+TASK-0053, the demo-critical subset is U1, TASK-0110, TASK-0112 with U6, U2, U8 and U3; the
+orchestrator and operator rule on the rest at the wave boundary.
