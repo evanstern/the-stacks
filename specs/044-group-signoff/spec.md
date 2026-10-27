@@ -4,10 +4,9 @@
 
 **Created**: 2026-10-27
 
-**Status**: Draft — blocked on operator rulings (see Open Questions). `plan.md` and
-`tasks.md` are not written until the rulings are recorded on TASK-0049. Every behaviour
-below needs at least one change to frozen text in `specs/029-proposal-gate/contracts/`
-(Open Questions FT-1 to FT-4), so this spec stops here, as the dispatch brief requires.
+**Status**: Ruled — the operator accepted every recommended default on 2026-10-27 (see
+"Operator rulings" below). `plan.md` and `tasks.md` follow from these rulings. The frozen
+contract amendments FT-1 to FT-4 land in this task's PR.
 
 **Input**: Board card TASK-0049. "A party-scope action (for example 'we take the left
 tunnel' or 'we long rest') commits only after the party signs off, in any table mode. Each
@@ -25,9 +24,9 @@ decision-0016 (commit-authority table, party-scope row), decision-0024 (D16, pre
 `packages/session-model/src/gate/authority.ts`, `src/events/actions.ts`,
 `src/projections/actions.ts`, `apps/web/app/play/components/{composer,action-card}.tsx`.
 
-**Clarify step**: `speckit-clarify` was not run. The ambiguities are not questions for the
-spec author; they are one-way doors on frozen contracts, so they are written as operator
-rulings below.
+**Clarify step**: `speckit-clarify` was not run. The ambiguities were not questions for the
+spec author; they were one-way doors on frozen contracts, so they went to the operator as
+rulings (below).
 
 ## Background
 
@@ -232,7 +231,15 @@ Approve sends an `action.comment` request with stance `approve`.
   the commit batch (Constitution IV; the SC-006 replay check, Q FT-3).
 - **FR-013**: Character-scope commit authority (turn mode, free mode) MUST NOT change.
 - **FR-014**: The single-human case MUST NOT change behaviour: one human player in the party
-  still commits a party action with authority `group` on an explicit commit.
+  still commits a party action with authority `group` on an explicit commit, and an approval
+  in a one-human party never auto-commits.
+- **FR-015**: The human who commits, or whose approval completes the quorum, MUST count as
+  present, whatever the presence reader says: acting at the table is presence. The
+  `signoff` marker MUST record the reader's present set plus that human, sorted and unique.
+- **FR-016**: An explicit commit by a quorum member MUST count as that member's approval.
+- **FR-017**: Auto-commit MUST fire only on an `approve` from a party human, in a party with
+  more than one human, when the quorum is met after that approval. A companion's comment,
+  a `comment` stance and an `object` stance never commit.
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -278,7 +285,7 @@ Approve sends an `action.comment` request with stance `approve`.
 - Sign-off reuses the proposal gate (decision-0015). It is a policy, not a new mechanism: no
   new event type, no new gate request kind, no new WebSocket frame.
 - The AI DM's *capability* to commit is in scope (FR-008). When the Director *chooses* to
-  override a stalled sign-off is not; see Q5.
+  override a stalled sign-off is out of scope: it folds into TASK-0050 (ruling Q5).
 
 ## Overlap with siblings
 
@@ -291,7 +298,27 @@ Approve sends an `action.comment` request with stance `approve`.
   `apps/web/app/play/`. The planner context added under FT-2 (a present set handed to the
   planner) is the seam TASK-0050's `floor` purpose will reuse; its shape should be ruled once.
 
-## Open Questions (operator rulings needed)
+## Operator rulings (2026-10-27)
+
+Recorded on TASK-0049. The operator's words: "I accept the defaults on the TASK-0099 and
+TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006." Every
+question below settles on its recommended default:
+
+| Item | Ruling |
+|---|---|
+| FT-1 | A: `commitAuthority` takes an optional present set; step 4 of `policy-and-authority.md` is rewritten. |
+| FT-2 | A: `planProposal` takes an optional context `{ present? }`; the `gate-api.md` rows table and §3 step 2 are amended. |
+| FT-3 | The SC-006 replay check reads `present` from the `signoff` marker; `fixtures.md` gains a `group-signoff` fixture row. |
+| FT-4 | `GROUP_SIGNOFF_REQUIRED` carries `details: { waiting, objecting }`. |
+| Q1 | A: the declarer sets `scope`; the gate checks party membership; the DM fixes a wrong scope by withdrawing. |
+| Q2 | A: declaring counts as the declarer's approval. |
+| Q3 | C: auto-commit on the completing approval, plus an explicit commit once the quorum is met. |
+| Q4 | The additive sign-off props on the action card are confirmed. |
+| Q5 | Out of scope here. The AI DM's policy for overriding a stalled sign-off folds into TASK-0050 (the orchestrator notes it on TASK-0050's card). |
+
+The sections below keep the options as they were put to the operator.
+
+## Open Questions (as put to the operator; all ruled above)
 
 Items marked **FT** change frozen contract text. Items marked **Q** are design choices; each
 has a recommended default. No new event type and no ws-protocol frame change is needed under

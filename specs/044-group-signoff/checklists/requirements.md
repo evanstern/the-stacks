@@ -31,4 +31,4 @@
 
 ## Notes
 
-- BLOCKED for planning: FT-1..FT-4 change frozen text in specs/029-proposal-gate/contracts/. plan.md and tasks.md wait for the operator rulings on TASK-0049.
+- Rulings recorded 2026-10-27 (all defaults). Planning proceeds.
