@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:38'
+updated_date: '2026-10-27 09:43'
 labels:
   - dm
   - engine
@@ -56,6 +56,9 @@ Phase 2 done (3a28ed2): directorGroup split into directorOpening/directorClosing
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (3a28ed2): resolve runs the decision-0025 §4 order, with 6 order tests; ci:check passed with REQUIRE_DATABASE=1. HELD BY THE ORCHESTRATOR: the reclaim SC-005 test was loosened to normalize the marker step number (#n). The same agent is resumed to check whether markers can collide on reclaim within one code version. If they can, it fixes them on this branch.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 follow-up (af0baac): the marker-number difference on reclaim is a label only. Printed rows show no shared marker across steps; findLanded matches by kind. A new double-crash reclaim test passes, and ci:check passed again with REQUIRE_DATABASE=1. The orchestrator accepts the #n normalization and releases the hold.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
