@@ -1493,6 +1493,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
   async function turnWorld(
     dice: number[],
     onFirstSubmit?: (w: World) => Promise<void>,
+    when: "before" | "after" = "before",
   ) {
     let armed = false;
     let world!: World;
@@ -1503,7 +1504,13 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
         submit: async (...args) => {
           if (armed && onFirstSubmit) {
             armed = false;
-            await onFirstSubmit(world);
+            if (when === "before") {
+              await onFirstSubmit(world);
+            } else {
+              const landed = await g.submit(...args);
+              await onFirstSubmit(world);
+              return landed;
+            }
           }
           return g.submit(...args);
         },
@@ -1582,25 +1589,31 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
   });
 
   it("a held floor skips the turn-advance group", async () => {
-    const { w } = await turnWorld([...initDice(0), 15]);
+    // The DM sits and takes the floor after the check lands, before the
+    // advance group reads the board. A floor held before the job starts
+    // leaves `done` false (a human seat holds the check as a proposal), so
+    // only a mid-job take reaches the held guard.
+    const { w, arm } = await turnWorld([...initDice(0), 15], async (world) => {
+      const seat = await world.as(operator, {
+        kind: "dm.seat",
+        reason: "A human takes the DM seat",
+        after: { kind: "human", userId: HUMAN_DM },
+      });
+      if (!seat.ok) throw new Error(`seat refused: ${seat.refusal.code}`);
+      const p = await world.projections();
+      const taken = await world.as(operator, {
+        kind: "floor",
+        op: "take",
+        turn: {
+          round: p.encounter?.round ?? 1,
+          combatantId: p.encounter?.activeCombatantId ?? "",
+        },
+        reason: "The DM takes the floor.",
+      });
+      if (!taken.ok) throw new Error(`take refused: ${taken.refusal.code}`);
+    }, "after");
     const id = await commitAction(w, "Tamsin forces the shutter.");
-    const seat = await w.as(operator, {
-      kind: "dm.seat",
-      reason: "A human takes the DM seat",
-      after: { kind: "human", userId: HUMAN_DM },
-    });
-    expect(seat.ok).toBe(true);
-    const p = await w.projections();
-    const taken = await w.as(operator, {
-      kind: "floor",
-      op: "take",
-      turn: {
-        round: p.encounter?.round ?? 1,
-        combatantId: p.encounter?.activeCombatantId ?? "",
-      },
-      reason: "The DM takes the floor.",
-    });
-    expect(taken.ok).toBe(true);
+    arm();
     const before = (await readRows(w)).length;
     const { result } = await w.runResolve({
       readings: [reading(id, [checkStep()])] as never,
@@ -1610,7 +1623,8 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     const out = result.output as ResolveOutput;
     const rows = (await readRows(w)).slice(before);
     expect(count(rows, "turn.advanced")).toBe(0);
-    expect(count(rows, "table-mode.changed")).toBe(0);
+    // The one mode row is the DM's own take; resolve writes none.
+    expect(count(rows, "table-mode.changed")).toBe(1);
     expect(out.submissions.some((s) => s.key === "advance")).toBe(false);
     expect((await w.projections()).tableMode).toMatchObject({
       activeActor: HUMAN_DM,
