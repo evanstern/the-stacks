@@ -84,6 +84,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (1379857): job timeline, event log, cross-links; AC #4-#6 ticked. Phase 6's live check covers the untested interactions: follow-bottom, scroll-into-view, combobox keys.
 
 Phase 5 done (a8684c3): state-column (live/pinned, pin badge, back to live, panel triggers), seed/ledger/journal/cost panels over shared Panel, DebugBoard folds via createFolder.through(pinnedSeq), one panel open at a time (Radix Sheet closes on Escape). Tests: state-column, panels, surfaces.test.mjs (no storage, no fixed inset-0, only debug reads + POST turn, only panel.tsx imports ui/sheet). web test/typecheck/lint green; ci:check fails only adjudicate.integration (TASK-0138, pre-existing).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5 (a8684c3): state column, seq pin, four slide-out panels, structural no-modal/no-storage gates; AC #7, #8 ticked.
+OPERATOR GRANT 2026-10-27, relayed verbatim from the parent session: "I'll let the session pick up and go as far as it can -- if it needs to automate browser work and/or set passwords for users in the dev environment for the-stacks, or needs to take screenshots, i give permission for the session to automate that itself. go forward without my supervision until you hit a PR." Phase 6 acts under it. The agent drives Brave by executablePath and takes the merge-condition screenshots. It creates test accounts on the local worktree stack only, with generated passwords kept in an untracked creds file that is never printed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
