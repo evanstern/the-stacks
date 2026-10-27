@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:38'
+updated_date: '2026-10-27 03:45'
 labels:
   - design
   - dm
@@ -37,6 +37,11 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (design inventory, docs/design/actor-state-gate.md, commit 0cb18c8; ~220k tokens; served verified from transcript.) AC #1 met. Stopped at checkpoint C3.
+
+OPERATOR RULINGS 2026-10-26 (checkpoint C3, answered in chat to the orchestrator's questions):
+- Binding wording: '3: Ledger + opposition dice'. Every model output passes a code gate over a snapshot of every tracked actor and the stage. Plot changes only through a recorded fact (a die result, or an engine outcome under decision-0022 point 3). Any change to an actor other than the one acting (harm, condition, flight, surrender, handover, disposition) needs a roll against that actor or an SRD rule that decides it. Uncontested effort needs no roll.
+- Seed NPCs: 'M3, minimal'. Add presence state for seed NPCs now as a Track C card; richer NPC records stay with the Codex (M4).
+- Position and range: carded as revisit TASK-0139 (orchestrator, decision-0020).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
