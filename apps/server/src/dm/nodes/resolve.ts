@@ -588,6 +588,58 @@ async function runSteps(
 
 // ---------------------------------------------------------- Director group
 
+/** Every target of a presence effect in the turn's planned steps. */
+function presenceTargets(
+  readings: readonly { steps: readonly Step[] }[],
+  rulings: readonly { steps: readonly Step[] }[],
+): string[] {
+  const out: string[] = [];
+  const effects = (list: readonly Effect[]): void => {
+    for (const e of list) if (e.effect === "presence") out.push(e.targetId);
+  };
+  for (const { steps } of [...readings, ...rulings]) {
+    for (const step of steps) {
+      if (step.step === "effect") effects(step.effects);
+      else if (step.step === "check") {
+        effects(step.onSuccess);
+        effects(step.onFailure);
+      } else if (step.step === "attack") effects(step.onHit);
+    }
+  }
+  return out;
+}
+
+/**
+ * Reclaim (spec 048): the combatant that was active when a landed presence
+ * leave began. An `initiative.leave` of the active combatant already handed
+ * the turn on, so the projection read on a reclaim no longer names it. The
+ * leave's `encounter.changed` ledger row (the first one after the presence
+ * row, subject the leaver) keeps the encounter as it was before the leave.
+ */
+function activeLeaverFromLog(
+  p: SessionProjections,
+  targets: readonly string[],
+): string | null {
+  for (const id of targets) {
+    const presence = p.scenePresence[id];
+    if (!presence || presence.presence === "present") continue;
+    const row = p.ledger.find(
+      (r) =>
+        r.kind === "change" &&
+        r.type === "encounter.changed" &&
+        r.subject === id &&
+        r.seq > presence.seq,
+    );
+    if (!row || row.kind !== "change") continue;
+    const before = row.before as {
+      turnIndex: number;
+      order: { combatantId: string }[];
+    } | null;
+    if (before?.order[before.turnIndex]?.combatantId === id) return id;
+  }
+  return null;
+}
+
 /** Active actor rule (director.md). */
 export function activeActorFor(
   p: SessionProjections,
@@ -965,7 +1017,17 @@ export const resolve: Node<"resolve"> = async (ctx) => {
   const actionResults: ResolveOutput["actionResults"] = [];
   /** The active combatant when the turn began (spec 048, the skipped advance). */
   const activeAtStart =
-    assembled.projections.encounter?.activeCombatantId ?? null;
+    ctx.job.attempt > 1
+      ? (activeLeaverFromLog(
+          assembled.projections,
+          presenceTargets(
+            hold ? [] : (ctx.results.interpret?.readings ?? []),
+            hold ? [] : (ctx.results.adjudicate?.rulings ?? []),
+          ),
+        ) ??
+        assembled.projections.encounter?.activeCombatantId ??
+        null)
+      : (assembled.projections.encounter?.activeCombatantId ?? null);
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {

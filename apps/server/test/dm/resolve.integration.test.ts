@@ -1395,6 +1395,69 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     expect(count(rows, "attack.resolved")).toBe(0);
   });
 
+  it("a reclaim after the leave landed but before its checkpoint advances the turn only once", async () => {
+    const crash = { armed: false };
+    const w = await createWorld({
+      dice: [...initDice(SNAG_FIRST)],
+      gate: (g) => ({
+        ...g,
+        submit: async (...args) => {
+          const res = await g.submit(...args);
+          if (
+            crash.armed &&
+            (args[2] as { kind: string }).kind === "scene-presence"
+          ) {
+            crash.armed = false;
+            // The leave and its mirrored turn change landed; the process dies
+            // before the checkpoint save.
+            throw new Error("crash after the presence batch");
+          }
+          return res;
+        },
+      }),
+    });
+    await startScene(w);
+    await run(w, [], {
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+      },
+      job: nextJob(),
+    });
+    fresh(w);
+    const before = await w.projections();
+    expect(before.encounter?.activeCombatantId).toBe("snag");
+    const next = before.encounter?.order[1]?.combatantId;
+    const start = (await readRows(w)).length;
+    const job = { ...nextJob(), trigger: "npc-turn" as const };
+    const readings = [
+      reading(null, [
+        { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
+      ]),
+    ] as never;
+    crash.armed = true;
+    await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
+    const saved = w.checkpoint.current;
+    expect(
+      saved.submissions.filter((x) => x.kind === "scene-presence"),
+    ).toHaveLength(0);
+
+    const again = await w.runResolve({
+      readings,
+      job: { ...job, attempt: 2 },
+      checkpoint: saved,
+    });
+    expect(again.result.ok).toBe(true);
+    const rows = (await readRows(w)).slice(start);
+    expect(count(rows, "scene-presence.changed")).toBe(1);
+    expect(count(rows, "encounter.changed")).toBe(1);
+    expect(count(rows, "turn.advanced")).toBe(0);
+    const p = await w.projections();
+    expect(p.encounter?.activeCombatantId).toBe(next);
+    expect(p.encounter?.order.some((o) => o.combatantId === "snag")).toBe(
+      false,
+    );
+  });
+
   it("no Director fixture produces a scene-presence submission", async () => {
     const w = await createWorld({ dice: [...initDice(TAMSIN_FIRST)] });
     const started = await startScene(w);
