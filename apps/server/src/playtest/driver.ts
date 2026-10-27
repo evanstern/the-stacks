@@ -32,6 +32,23 @@ export const STALL_LIMIT = 3;
 /** The `stallReason` recorded when the seat gives up. */
 export const STALL_REASON_SEAT_EXHAUSTED = "seat-exhausted";
 
+/** The `stallReason` recorded when the seat's character is down and the fight is over. */
+export const STALL_REASON_SEAT_DOWNED = "seat-downed";
+
+/**
+ * True when the seat's character is at 0 HP or not conscious. A seat whose
+ * party member has no combatant (no encounter yet) is not downed
+ * (specs/046-downed-hero-gate plan D6).
+ */
+export function seatDowned(p: SessionProjections, scenario: Scenario): boolean {
+  const member = p.party?.find(
+    (m) => m.characterId === scenario.seat.characterId,
+  );
+  const c = member?.combatant;
+  if (!c) return false;
+  return c.hp.current === 0 || c.lifeState !== "conscious";
+}
+
 export function initialDriverState(): DriverState {
   return {
     freeIndex: 0,
@@ -91,6 +108,12 @@ export function nextMove(
       a.characterId === scenario.seat.characterId && a.status !== "resolved",
   );
   if (inFlight) return "wait";
+
+  // 3b. The seat's character is down: never declare for it. Settling plays
+  // its death saves; in free mode no move is left to make.
+  if (seatDowned(p, scenario)) {
+    return p.tableMode.mode === "turn" ? "wait" : "done";
+  }
 
   const generated = `pt-${state.moves + 1}`;
   if (p.tableMode.mode === "turn") {

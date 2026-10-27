@@ -176,6 +176,8 @@ export const ActionResolvedV1 = z.object({
 });
 ```
 
+The `refusalCode` set follows the engine enum. `ACTOR_UNABLE` was added 2026-10-27 (TASK-0112, operator ruling). Amended 2026-10-27 (TASK-0112, operator ruling). The payload stays v1.
+
 Status rules for the projection are in projections.md ("Actions").
 
 ### Table mode

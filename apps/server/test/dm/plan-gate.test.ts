@@ -1,0 +1,189 @@
+import { describe, expect, it } from "vitest";
+import {
+  checkPlan,
+  encounterToStart,
+  joiningCombatants,
+} from "../../src/dm/gates/plan-gate.js";
+import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
+import { greyhollowFight } from "./snapshot-fixtures.js";
+import { attackStep, checkStep, reading } from "./world.js";
+
+const { projections, seed } = greyhollowFight();
+const snapshot = buildSnapshot(projections, seed);
+
+const steps = (...s: unknown[]) => s as Step[];
+const read = (actionId: string | null, s: unknown[], over = {}) =>
+  reading(actionId, s, over) as unknown as InterpretReading;
+
+const plan = (
+  readings: InterpretReading[],
+  extra: Partial<Parameters<typeof checkPlan>[0]> = {},
+) => checkPlan({ snapshot, readings, rulings: [], joining: [], ...extra });
+
+const damageOn = (targetId: string) => ({
+  effect: "damage",
+  targetId,
+  components: [
+    { amount: { kind: "roll", expression: "1d4" }, damageType: "fire" },
+  ],
+  defenses: null,
+});
+
+describe("checkPlan", () => {
+  it("accepts a plan whose ids are all S0 combatants", () => {
+    const v = plan([read("a1", [attackStep("goblin-2")])]);
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("refuses an effect on a seed NPC with no combatant as not-a-combatant", () => {
+    const v = plan([
+      read("a1", [
+        {
+          step: "effect",
+          reason: "Fire burns Pell",
+          effects: [damageOn("pell")],
+        },
+      ]),
+    ]);
+    expect(v).toEqual([
+      {
+        actionId: "a1",
+        ok: false,
+        code: "UNKNOWN_COMBATANT",
+        failure: {
+          stepIndex: 0,
+          field: "effects[0].targetId",
+          id: "pell",
+          reason: "not-a-combatant",
+        },
+      },
+    ]);
+  });
+
+  it("refuses an unknown id as not-in-snapshot", () => {
+    const v = plan([read("a1", [attackStep("ghoul-9")])]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: {
+        field: "targetId",
+        id: "ghoul-9",
+        reason: "not-in-snapshot",
+      },
+    });
+  });
+
+  it("does not map an alias to its combatant", () => {
+    const goblinAlias = snapshot.actors
+      .find((a) => a.id === "goblin-2")
+      ?.aliases.find((x) => x !== "goblin-2");
+    expect(goblinAlias).toBeDefined();
+    const v = plan([read("a1", [attackStep(goblinAlias as string)])]);
+    expect(v[0]?.ok).toBe(false);
+  });
+
+  it("walks nested onHit, onSuccess and onFailure targets in step order", () => {
+    const hit = plan([
+      read("a1", [
+        attackStep("goblin-2", {
+          onHit: [damageOn("goblin-3"), damageOn("x")],
+        }),
+      ]),
+    ]);
+    expect(hit[0]).toMatchObject({
+      failure: { stepIndex: 0, field: "onHit[1].targetId", id: "x" },
+    });
+    const ok = plan([
+      read("a1", [
+        checkStep({
+          onSuccess: [damageOn("goblin-3")],
+          onFailure: [damageOn("zzz")],
+        }),
+      ]),
+    ]);
+    expect(ok[0]).toMatchObject({
+      failure: { field: "onFailure[0].targetId", id: "zzz" },
+    });
+    const second = plan([read("a1", [checkStep(), attackStep("pell")])]);
+    expect(second[0]).toMatchObject({
+      failure: { stepIndex: 1, reason: "not-a-combatant" },
+    });
+  });
+
+  it("reports the first failure of the group only", () => {
+    const v = plan([
+      read("a1", [attackStep("zzz", { onHit: [damageOn("pell")] })]),
+    ]);
+    expect(v[0]).toMatchObject({ failure: { id: "zzz" } });
+  });
+
+  it("lets a ruling replace the reading's steps", () => {
+    const bad = read("a1", [attackStep("pell")]);
+    const v = plan([bad], {
+      rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
+    });
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+    const v2 = plan([read("a1", [attackStep("goblin-2")])], {
+      rulings: [{ actionId: "a1", steps: steps(attackStep("pell")) }],
+    });
+    expect(v2[0]?.ok).toBe(false);
+  });
+
+  it("gates the NPC group (actionId null)", () => {
+    const v = plan([
+      read("a1", [attackStep("goblin-2")]),
+      read(null, [attackStep("pell", { attackerId: "snag" })]),
+    ]);
+    expect(v.map((x) => [x.actionId, x.ok])).toEqual([
+      ["a1", true],
+      [null, false],
+    ]);
+  });
+
+  it("accepts the ids an encounter start adds", () => {
+    const readings = [read("a1", [attackStep("goblin-9")])];
+    expect(plan(readings)[0]?.ok).toBe(false);
+    expect(plan(readings, { joining: ["goblin-9"] })[0]?.ok).toBe(true);
+  });
+
+  it("skips null actor ids and clarify readings", () => {
+    const v = plan([
+      read("a1", [checkStep({ combatantId: null })]),
+      read("a2", [attackStep("pell")], { clarify: "Which one?" }),
+    ]);
+    expect(v.every((x) => x.ok)).toBe(true);
+  });
+});
+
+describe("joiningCombatants", () => {
+  it("lists the encounter's monsters missing from the engine", () => {
+    const enc = encounterToStart(
+      seed,
+      {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+      } as never,
+      "player-action",
+    );
+    expect(enc?.id).toBe("reed-camp");
+    const ids = enc?.monsters.map((m) => m.combatantId) ?? [];
+    expect(joiningCombatants(enc, {})).toEqual(ids);
+    expect(joiningCombatants(enc, { [ids[0] as string]: {} })).toEqual(
+      ids.slice(1),
+    );
+    expect(joiningCombatants(undefined, {})).toEqual([]);
+  });
+
+  it("starts no encounter on a scene start or a free decision", () => {
+    const turn = {
+      tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+    } as never;
+    expect(encounterToStart(seed, turn, "scene-start")).toBeUndefined();
+    expect(
+      encounterToStart(
+        seed,
+        { tableMode: { to: "free", reason: "x" } } as never,
+        "player-action",
+      ),
+    ).toBeUndefined();
+  });
+});

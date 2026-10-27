@@ -79,6 +79,12 @@ is pure.
 1. `p.scene === null` and the scene had started → `"done"`.
 2. `state.moves >= limits.maxMoves` → `"done"` (the harness records `stalled` unless rule 1 held).
 3. Any action of the human seat is `declared` or `committed` and not `resolved` → `"wait"`.
+3b. The seat's character is down (`seatDowned`: its party member has a combatant at 0 HP or not
+   `conscious`) → `"wait"` in turn mode, `"done"` in free mode. The seat never declares for a
+   downed character; settling plays its death saves. A party member with `combatant: null` is not down.
+   The harness records `stalled` with `stallReason: "seat-downed"` in `run.json` when `"done"` came from
+   this rule. `stallReason` stays a free string (`seat-exhausted`, `seat-downed`).
+   *Amended 2026-10-27 (TASK-0112, operator ruling; additive, spec 046).*
 4. `p.tableMode.mode === "turn"`:
    - the active combatant is `seat.characterId` → `moves.combat`;
    - otherwise → `"wait"`.

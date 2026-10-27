@@ -19,6 +19,7 @@ if (result.ok) state = replay(result.events, state);
 
 - `execute` never mutates its inputs.
 - `execute` draws dice only after every refusal check passes.
+- `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE`, beside the dead-actor `TARGET_DEAD` refusals. Unable means `unconscious` or `stable`, or a condition of `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious`. Saving throws and attack targets are never checked.
 - Every state change is an event with before and after values.
 - `replay` of the events from `execute` yields the next state.
 - Replaying all events from `emptyState()` reproduces the live state.

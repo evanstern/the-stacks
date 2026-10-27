@@ -49,7 +49,7 @@ Rows per kind:
 | Kind | Rows | Kind-specific checks (refusal code) |
 |---|---|---|
 | `talk` | one `talk` | IC character control (`NOT_AUTHORIZED`) |
-| `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`) |
+| `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`); character able (`CHARACTER_UNABLE`: not conscious, `details.reason: "life-state"`). Amended 2026-10-27 (TASK-0112, operator ruling) |
 | `action.comment` | one `action.commented`; when the sign-off quorum is met by this `approve`, `action.commented`, a `presence.recorded` marker (`signoff`) and `action.committed` (`group`) | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
 | `action.commit` | one `action.committed` with the derived authority; for `group` authority with more than one party human, a `presence.recorded` marker (`signoff`) first | `commitAuthority` with `context.present` (policy-and-authority.md) |
 | `action.withdraw` | one `action.withdrawn` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`); permission in proposals.md (TASK-0114 amendment, W-A ruling) |
@@ -84,8 +84,10 @@ export const GateRefusalCodeSchema = z.enum([
   "COMMIT_NOT_ALLOWED", "GROUP_SIGNOFF_REQUIRED",
   "UNKNOWN_BATCH", "JOURNAL_ENTRY_EXISTS",
   "UNKNOWN_PROPOSAL", "PROPOSAL_NOT_PENDING", "PROPOSAL_NOT_APPROVABLE",
-  "CONFLICT",
+  "CONFLICT", "CHARACTER_UNABLE",
 ]);
+// CHARACTER_UNABLE details.reason is an open set: "life-state" (TASK-0112); TASK-0141 adds "absent".
+// Amended 2026-10-27 (TASK-0112, operator ruling): the list was 15 codes before CHARACTER_UNABLE.
 
 export interface GateRefusal {
   source: GateRefusalSource;
@@ -101,7 +103,7 @@ export interface GateRefusal {
 | Source | Codes | When |
 |---|---|---|
 | `gate` | the list above | schema, permission, lifecycle and supervision checks; `CONFLICT` after three sequence conflicts |
-| `engine` | the engine's 26 `RefusalCode`s, unchanged (refusals.md) | `execute` returned `ok: false` (AC #8) |
+| `engine` | the engine's 27 `RefusalCode`s, unchanged (refusals.md). Amended 2026-10-27 (TASK-0112, operator ruling): the count was 26 before `ACTOR_UNABLE` | `execute` returned `ok: false` (AC #8) |
 | `append` | 028's `AppendRefusalCode`s | the session seam refused a planned row (a planner bug; tested as unreachable for every fixture) |
 
 Every refusal leaves the log unchanged. The planner runs fully before the first write, and

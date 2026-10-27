@@ -50,6 +50,131 @@ const checkOf = (events: ReturnType<typeof expectOk>) => {
 };
 const state = () => stateWith(hero(), goblin());
 
+const cond = (condition: string) => ({
+  instanceId: `c-${condition}`,
+  condition,
+  level: null,
+  source: "test",
+  expiresAt: null,
+});
+
+describe("ACTOR_UNABLE", () => {
+  it("refuses an unconscious or stable attacker before any draw", () => {
+    for (const lifeState of ["unconscious", "stable"] as const) {
+      const out = run(
+        stateWith(
+          hero({ lifeState, hp: { current: 0, max: 12, temp: 0 } }),
+          goblin(),
+        ),
+        attack(),
+        [10],
+      );
+      expectRefusedBeforeDraw(out, "ACTOR_UNABLE");
+      expect(out.rng.remaining()).toBe(1);
+      expect(out.result.ok === false && out.result.refusal.details).toEqual({
+        combatantId: "pc-ana",
+        role: "attacker",
+        lifeState,
+        conditions: [],
+      });
+    }
+  });
+
+  it("refuses an attacker with an incapacitating condition", () => {
+    for (const key of [
+      "incapacitated",
+      "paralyzed",
+      "petrified",
+      "stunned",
+      "unconscious",
+    ]) {
+      const out = run(
+        stateWith(hero({ conditions: [cond(key)] as never }), goblin()),
+        attack(),
+        [10],
+      );
+      expectRefusedBeforeDraw(out, "ACTOR_UNABLE");
+      expect(
+        out.result.ok === false && out.result.refusal.details,
+      ).toMatchObject({ role: "attacker", conditions: [key] });
+    }
+  });
+
+  it("refuses an unable ability checker", () => {
+    const out = run(
+      stateWith(
+        hero({
+          lifeState: "unconscious",
+          hp: { current: 0, max: 12, temp: 0 },
+        }),
+      ),
+      check({ combatantId: "pc-ana", kind: "ability-check" }),
+      [10],
+    );
+    expectRefusedBeforeDraw(out, "ACTOR_UNABLE");
+    expect(out.result.ok === false && out.result.refusal.details).toMatchObject(
+      { combatantId: "pc-ana", role: "checker", lifeState: "unconscious" },
+    );
+  });
+
+  it("accepts an unable saving thrower", () => {
+    const { result } = run(
+      stateWith(
+        hero({
+          lifeState: "unconscious",
+          hp: { current: 0, max: 12, temp: 0 },
+        }),
+      ),
+      check({ combatantId: "pc-ana", kind: "saving-throw" }),
+      [10],
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("still refuses a dead attacker with TARGET_DEAD", () => {
+    expectRefusedBeforeDraw(
+      run(
+        stateWith(
+          hero({ lifeState: "dead", hp: { current: 0, max: 12, temp: 0 } }),
+          goblin(),
+        ),
+        attack(),
+      ),
+      "TARGET_DEAD",
+    );
+  });
+
+  it("checks no one when the ids are null", () => {
+    const { result } = run(
+      stateWith(goblin()),
+      attack({ attackerId: null }),
+      [10],
+    );
+    expect(result.ok).toBe(true);
+    const checked = run(
+      stateWith(goblin()),
+      check({ combatantId: null, kind: "ability-check" }),
+      [10],
+    );
+    expect(checked.result.ok).toBe(true);
+  });
+
+  it("accepts an unconscious target", () => {
+    const { result } = run(
+      stateWith(
+        hero(),
+        goblin({
+          lifeState: "unconscious",
+          hp: { current: 0, max: 7, temp: 0 },
+        }),
+      ),
+      attack(),
+      [10],
+    );
+    expect(result.ok).toBe(true);
+  });
+});
+
 describe("attack.roll", () => {
   it("natural 20 is a critical hit against any AC", () => {
     const { result, rng } = run(

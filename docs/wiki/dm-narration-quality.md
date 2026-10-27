@@ -12,7 +12,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/nodes/audit.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # DM narration quality
@@ -39,7 +39,7 @@ with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, 
 `clarify` questions, plus v2 fields: `party` (id, name, controller), `events` (public encounter
 and turn changes) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
 party-name filter and the fallback. The `npcNames` field is gone (TASK-0140): the world list
-now comes from the snapshot. A roll fact carries its `target`. `factEntries` renders
+now comes from the snapshot. A roll fact carries its `target`. `settled` holds the death saves rolled for combatants the turn passed (`FactSettled`; a `death-saves` change; the fallback says "holds on" or "slips closer to death"), and a turn with only settled facts is narrated. `factEntries` renders
 the facts for the prompt; `renderDiceLines` still renders every number.
 
 ## State sections from the snapshot

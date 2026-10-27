@@ -32,7 +32,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # DM runtime
@@ -65,7 +65,7 @@ async function `(TurnContext) => NodeResult`.
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so a reclaimed job
 does not re-pay model calls. The runner aborts on a fence loss between nodes.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-records its purpose, prompt version, outcome, provider, model, tokens, cost and duration, never prompt text, and goes to the `recordCall` seam ([[dm-turn-jobs]]).
+records purpose, prompt version, outcome, provider, model, tokens, cost and duration (never prompt text) to the `recordCall` seam ([[dm-turn-jobs]]).
 
 `callJson` makes at most two attempts: the second sends the first attempt's schema issues back.
 Only the director passes a `normalize` hook: `normalizeDirector` (`nodes/director.ts`) cuts an
@@ -97,7 +97,7 @@ modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded resu
 retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
 `<jobId>#<n>`, key, kind, result, refusal, ids, and the `seqs` the gate returned).
 
-Resolve runs six groups: [[dm-turn-jobs]] (decision-0025 §4).
+Resolve runs six groups, plan-gated, with downed-combatant settling: [[dm-turn-jobs]].
 
 ## Narration and audit
 
@@ -135,9 +135,8 @@ Each run returns one `pending` decision per own open action: `commit`, `withdraw
 an open action queues a `react` run ([[dm-turn-jobs]]). In turn mode only the active companion
 commits, and a withdraw still takes the hold act so the turn advances.
 `PROMPT_VERSION` is `dm.companion-v5` (v3 added the snapshot `seat` view, v4 the react, withdraw and
-revise decisions). Each run builds its snapshot from the projections it loads and the full seed. On
-overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` director decision queues a companion job; when it ends it
-force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
+revise decisions). On
+overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` decision queues a companion job, which force-queues the turn when it ends. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
 (`dm.chronicle-v3`). On overflow it writes nothing, returns `entries: 0` and logs

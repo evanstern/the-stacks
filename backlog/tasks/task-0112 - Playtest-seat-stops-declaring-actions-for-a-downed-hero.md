@@ -1,17 +1,16 @@
 ---
 id: TASK-0112
 title: Playtest seat stops declaring actions for a downed hero
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 03:54'
+updated_date: '2026-10-27 12:56'
 labels:
   - playtest
   - harness
 milestone: m-3
 dependencies:
   - TASK-0140
-  - TASK-0141
 priority: medium
 ordinal: 102000
 ---
@@ -22,26 +21,91 @@ ordinal: 102000
 Outcome: the scripted playtest seat does not declare actions for its character while that character is at 0 HP or unconscious. It waits, or the run ends with a stated reason.
 
 Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/ classification.md, R2). After Tamsin dropped to 0 HP, the seat kept declaring 'offer a fair trade' and 'ready my sword' (seq 201, 216). The narrator correctly showed she could not act, and the auditor flagged player-agency, forcing the fallback. Also decide whether the engine or gate should refuse a declared action from an unconscious character before narration. Operator ruling 2026-10-26: card it in m-3.
+
+Spec: specs/046-downed-hero-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
-- [ ] #2 A decision records whether an unconscious character's declared action is refused before narration
-- [ ] #3 The declare gate refuses a character that is not conscious or is absent, with a refusal code and a test (decision-0025 §3.1, card U6)
-- [ ] #4 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
-- [ ] #5 A plan gate refuses a step whose actor or target is missing from S0 or absent (decision-0025 §3.2, U6; needs TASK-0140 and TASK-0141)
-- [ ] #6 Death-save turns for unconscious PCs still run (U6)
+- [x] #1 The driver does not declare a move for a seat character at 0 HP or unconscious, with a test
+- [x] #2 A decision records whether an unconscious character's declared action is refused before narration
+- [x] #3 The engine refuses an unconscious, stable or incapacitated attacker or checker, beside the existing dead-actor refusals, with engine tests (decision-0025 §3.2, U6)
+- [x] #4 Death-save turns for unconscious PCs still run (U6)
+- [x] #5 The declare gate refuses a character that is not conscious with CHARACTER_UNABLE (details.reason life-state) and a test (decision-0025 §3.1, U6; the absent half is TASK-0141)
+- [x] #6 A plan gate refuses a step whose actor or target is not a combatant in S0, before any step lands, with a test (decision-0025 §3.2, U6; the absent half is TASK-0141)
+- [x] #7 Spec phase: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3)
+- [x] #8 Spec phase: Declare gate `CHARACTER_UNABLE` (card AC #5)
+- [x] #9 Spec phase: Plan gate against S0 (card AC #6)
+- [x] #10 Spec phase: Death-save turns by settling (card AC #4)
+- [x] #11 Spec phase: Driver and harness (card AC #1)
+- [x] #12 Spec phase: Wiki re-ground (runbook expected reviews)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 OPERATOR RULING 2026-10-26: 'Fold into TASK-0112'. decision-0025 card U6 (able-actor gates) lands here as added ACs; it answers this card's question of whether the engine or gate refuses a declared action from an unconscious character: yes.
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0112, branch task-0112-downed-hero-gate, cut from origin/main 429e865. Spec number 046 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track C5 (runbook amendment 1), with U6 folded in.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+The spec author stopped after spec.md (c0f38e9): two refusal codes amend frozen 029 gate-api.md. OPERATOR RULINGS NEEDED (recommended first):
+OQ-1, the declare-gate code: (a) new CHARACTER_UNABLE with details.reason (life-state now, absent from TASK-0141) / (b) reuse NOT_AUTHORIZED / (c) two codes.
+OQ-2, the engine code: (a) new ACTOR_UNABLE (26 to 27 codes; amends gate-api.md §2, specs/026 refusals.md and the action.resolved payload, additively) / (b) reuse TARGET_DEAD / (c) server-only.
+SEQUENCING (amends the runbook across Track C cards): Option A (rec). TASK-0112 takes the life-state declare gate and the S0 plan gate. TASK-0141 takes both absent checks, adding 2 ACs and a dependency on TASK-0112. Option B: TASK-0141 first.
+Defaults stated, not blocking: OQ-3 an unable creature's saving throw is allowed; OQ-4 the plan gate accepts ids added by this turn's encounter start; OQ-5 no interpret re-ask.
+Finding: death saves today ride on the seat's declaration. AC #6 needs a code-only settling loop in resolve that rolls an engine death-save.roll for an unconscious PC.
+
+OPERATOR RULING 2026-10-27 (in chat): "TASK-0112: I accept OQ-1 (a) CHARACTER_UNABLE, OQ-2 (a) ACTOR_UNABLE, including the frozen-contract amendments to spec 029 gate-api.md and spec 026 refusals.md, the OQ-3 to OQ-5 defaults, and sequencing Option A (absent checks move to TASK-0141)." Orchestrator applied Option A: ACs #3 and #5 replaced by their life-state and S0 halves; dependency on TASK-0141 dropped; TASK-0141 gains the two absent ACs and depends on TASK-0112.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(Spec authoring resumed after the operator ruling: plan and tasks, commit 44601a4. Six phases. FR-026 fixes the stale sentence in turn-jobs.md.)
+
+Phase 1 done (45991b9): origin/main merged (9ad8aa9); turn-jobs Resolve order records operator approval; engine ACTOR_UNABLE (attack.roll, ability-check check.roll) with tests; contracts amended (026 row 27, 029 engine count 27, 028 refusalCode note); session-model catalog test. Engine 228 and session-model 600 tests green; ci:check fails only on the 5 adjudicate.integration tests (no stack, TASK-0138).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (merge 9ad8aa9, work 45991b9): engine ACTOR_UNABLE (27 codes); 026, 029 §2 and 028 amended as ruled; stale turn-jobs.md sentence fixed. Engine 228 and session-model 600 tests pass. Owed: the 028 session-events.md edit still lacks its 'Amended 2026-10-27' line; Phase 2 adds it.
+
+Phase 2 done (be540e0): origin/main merged (fbb8a93); TASK-0117 T039-T041 ticked; 028 session-events.md Amended line added; gate CHARACTER_UNABLE (details.reason life-state, CHARACTER_UNABLE_REASONS exported), 029 gate-api.md §1 and §2 amended. session-model 606 tests and ci:check green with REQUIRE_DATABASE=1 on the task stack (gate.integration 23 tests pass), no re-runs.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (merge fbb8a93, work be540e0): declare gate CHARACTER_UNABLE (details.reason life-state); 029 gate-api.md §1 and §2 amended as ruled. gate.integration passed 23 tests on stacks-task-0112; ci:check passed with REQUIRE_DATABASE=1. This branch also carries the TASK-0117 T039-T041 ticks; sync TASK-0117 to Done after this PR merges.
+
+Phase 3 done (2abab8b): checkPlan in apps/server/src/dm/gates/plan-gate.ts, TurnCheckpoint.planGate, resolve wiring (refused UNKNOWN_COMBATANT before any step; refused NPC group still advances). SC-003 ambush test passes unchanged. ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (2abab8b): plan gate checkPlan runs before directorOpening; a refused group lands no step. SC-003 ambush still passes. One fixture changed in meaning-preserving form (the seq-naming test now uses an engine-refused expression). ci:check passed with REQUIRE_DATABASE=1, server 1006 tests.
+
+Phase 4 done (b9edfb0): settleTurn in nodes/settle.ts (death-save.roll then turn.advance, one lap bound, nat 20 keeps the turn); table-mode row stays in resolve (dm/ write boundary). Narration facts gain a death-saves change and a settled section (facts.ts, fallback.ts, narrate prompt); auditor render.ts needed no edit. Reclaim fix: the advance group re-enters when the checkpoint holds 'advance'. resolve.md amended. No existing fixture changed rows. ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (b9edfb0): settleTurn rolls death saves for unconscious PCs, with natural-20 and one-lap stop rules; facts gain a death-saves change kind (additive); 8 resolve cases; no fixture changed. ci:check passed with REQUIRE_DATABASE=1, server 1016 tests.
+ORCHESTRATOR RULINGS: Q1 the reclaim done-condition fix (a landed advance counts as done) stays in this task, because settling's correctness depends on it; Phase 5 adds a regression test for it. Q3 a turn whose only event is a death save is narrated (D5); reported to the operator.
+
+Phase 5 done (4fa930d): seatDowned and seat-downed stall reason in the playtest driver and harness; downed-seat fixture and harness case; scenario.md amended. Regression test for a landed advance (a6cad1c). pnpm ci:check green with REQUIRE_DATABASE=1.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5 (reclaim regression a6cad1c, work 4fa930d): driver waits or stops for a downed seat; stall reason seat-downed; downed-seat harness case; 032 scenario.md amended. The shipped greyhollow-ford CI case still passes. ci:check passed with REQUIRE_DATABASE=1.
+
+Phase 6 done (3363dbe): 11 notes re-pinned; ci:check green with REQUIRE_DATABASE=1; freshness OK; spec-bridge exit 0.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 6 (merge 9878726, wiki 3363dbe): 9 notes amended (NEEDS-REVIEW), 2 re-pinned only. Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+Reconciled with origin/main after #70 (merge baecb93, re-pin 3bfc40c). Freshness 51 fresh; REQUIRE_DATABASE=1 ci:check exit 0. Both gate-api.md amendments kept verbatim.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3): 10/10 · Declare gate `CHARACTER_UNABLE` (card AC #5): 5/5 · Plan gate against S0 (card AC #6): 7/7 · Death-save turns by settling (card AC #4): 6/6 · Driver and harness (card AC #1): 7/7 · Wiki re-ground (runbook expected reviews): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Main merge, turn-jobs fix, engine `ACTOR_UNABLE` (card AC #3): 10/10 · Declare gate `CHARACTER_UNABLE` (card AC #5): 5/5 · Plan gate against S0 (card AC #6): 7/7 · Death-save turns by settling (card AC #4): 6/6 · Driver and harness (card AC #1): 7/7 · Wiki re-ground (runbook expected reviews): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

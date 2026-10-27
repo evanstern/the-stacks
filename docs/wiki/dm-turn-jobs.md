@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: 60e3ed1942cd0b6da653934946ee0aed7411ad50
+verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
 ---
 
 # DM turn jobs
@@ -47,7 +47,7 @@ Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `index.ts` ([[server-entrypoint-and-app]]). An `action.committed` row enqueues a `commit` turn.
 A `proposal.approved` or `proposal.rejected` row whose proposal's proposer is `ai:dm` (found
 in the DM projection) enqueues an `approval` turn so the DM resumes. Then it calls `nudge()`. A
-failure is logged, not thrown; reconcile repairs it. A human `action.commented` row on an
+failure is logged; reconcile repairs it. A human `action.commented` row on an
 open (`declared` or `discussed`) action of an AI companion also calls `enqueueCompanionReact`
 (quiet window 3 s, maximum wait 10 s, injectable): one queued `react` job per session
 (`jobs_companion_react_queued_key`), a further reaction merges its companion id into the
@@ -78,26 +78,20 @@ when narration shipped. A failed turn queues nothing; the actions stay committed
 
 ## Resolve order
 
-Opening moves (encounter start), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
+Opening moves (encounter start), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. The plan gate (pure) runs first and refuses a group naming an unknown combatant ([[dm-failure-and-gates]]). After an encounter start and after each turn advance, `settleTurn` (`nodes/settle.ts`, code only) settles each downed combatant reached: a dying one rolls `death-save.roll`, then `turn.advance` passes it; a stable or unable one passes unrolled; a natural 20 revives it and keeps the turn. One lap at most. The `table-mode` row names the combatant settling stops on. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
 
 ## Reclaim idempotence
 
 Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which
 claim never clears. A reclaimed job replays recorded submissions from the checkpoint and looks
 for the one in flight: proposals carry a marker `[<jobId>#<n>]` in their reason text, and the
-checkpoint's `lastSeq` bounds the search. Narration rows carry no marker, so
-`findLandedNarration` detects a narration by position: an `ai:dm` narration row after the job's
-last known seq. When one exists the runner skips narrate and audit, spends no model calls, and
-never duplicates the narration. The marker `<jobId>#<n>` is a label: the six-group resolve order ([[dm-runtime]]) shifts step numbers, so a job reclaimed across a deploy could mismatch a landed row (accepted, TASK-0156). A claim past `MAX_ATTEMPTS` marks the job `failed` and appends a failure notice.
+checkpoint's `lastSeq` bounds the search. Narration rows carry no marker: `findLandedNarration` finds an `ai:dm` narration row after the job's
+last known seq, and the runner then skips narrate and audit. The marker is a label: a job reclaimed across a deploy that shifts step numbers could mismatch a landed row (accepted, TASK-0156). A checkpoint holding the `advance` submission counts the turn as ended, so a reclaim still settles and sets the mode. A claim past `MAX_ATTEMPTS` marks the job `failed` and appends a failure notice.
 
 ## Failed turns
 
 A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stopped at <node>:
-<kind>`) and `jobs.result` a `TurnFailureResult` (`TurnFailure` in `dm/jobs.ts`): checkpoint,
-`outcome.status = "failed"`, `audit: null`, the model calls made, and `failure` (`node`, `kind`,
-`message`, `detail`; `node` is a pipeline node or `presence`). The worker writes it for a node failure and for the bad-seed path (`kind`
-`seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim. Excerpt bounds
-and the `invalid-output` detail are in [[dm-runtime]].
+<kind>`) and `jobs.result` a `TurnFailureResult` (record shape and excerpt bounds: [[dm-failure-and-gates]]). The worker writes it for a node failure and for the bad-seed path (`kind` `seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim.
 
 **The presence marker.** The worker takes `gate: Pick<Gate, "submit" | "recordPresence">`.
 Before the pipeline of each claimed `turn` job it calls `gate.recordPresence(sessionId, {
@@ -105,15 +99,13 @@ purpose: "director" })` once, so the log holds who was at the table when the Dir
 (decision-0024, [[presence]]). Every `turn` job result carries `presenceSeq`, the marker's `seq`
 (`null` when none was written). Companion and chronicle jobs record nothing. A refusal or a throw
 finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `stopped at presence:
-<kind>` (`gate` for a refusal, `internal` for a throw); the pipeline does not run. The worker still
-never calls `gate.submit` from outside `resolve`.
+<kind>` (`gate` for a refusal, `internal` for a throw); the pipeline does not run. 
 
 ## Calls, usage and the ledger
 
 Each `ModelCallRecord` in `jobs.result.calls` carries `provider`, `model`, `inputTokens`,
-`outputTokens`, `costUsd` and `durationMs` (each null when the gateway emitted no usage record;
-TASK-0116, via `ChatRequest.onUsage`, [[ai-gateway]]). A `held` turn now keeps its calls in
-`jobs.result.calls` instead of `[]`. As each attempt ends, the worker's `recordCall` seam inserts
+`outputTokens`, `costUsd` and `durationMs` (null when the gateway emitted no usage record;
+TASK-0116, [[ai-gateway]]). A `held` turn keeps its calls. As each attempt ends, the worker's `recordCall` seam inserts
 one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
 id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts that
 `calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
@@ -126,8 +118,7 @@ job-to-event link; routes in [[debug-view]].
 **Snapshot seams.** `DmWorkerDeps.loadProjectionsThrough(sessionId, throughSeq)` and the
 worker's seed loader are handed to the chronicle job, which builds the state at its `throughSeq`
 ([[actor-snapshot]]). The companion job builds its `seat` snapshot from the projections it already
-loads, so a `react` run needs no extra seam; the react job and the snapshot state share one prompt
-([[dm-runtime]]). A snapshot overflow in a companion job records an `error` play and in a chronicle
+loads. A snapshot overflow in a companion job records an `error` play and in a chronicle
 job returns `entries: 0` and logs `dm.chronicle.failed`; neither fails the job. A turn's overflow
 fails the turn with kind `state-overflow` ([[dm-failure-and-gates]]).
 

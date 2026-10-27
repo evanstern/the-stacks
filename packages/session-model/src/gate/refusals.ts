@@ -18,7 +18,11 @@ export const GateRefusalCodeSchema = z.enum([
   "PROPOSAL_NOT_PENDING",
   "PROPOSAL_NOT_APPROVABLE",
   "CONFLICT",
+  "CHARACTER_UNABLE",
 ]);
+
+/** The `details.reason` values of a `CHARACTER_UNABLE` refusal (an open set; TASK-0141 adds `absent`). */
+export const CHARACTER_UNABLE_REASONS = ["life-state"] as const;
 export type GateRefusalCode = z.infer<typeof GateRefusalCodeSchema>;
 
 export interface GateRefusal {
