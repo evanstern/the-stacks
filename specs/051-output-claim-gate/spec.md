@@ -3,8 +3,8 @@
 **Feature Branch**: `task-0143-output-claim-gate`
 **Spec dir**: `specs/051-output-claim-gate`
 **Created**: 2026-10-27
-**Status**: Draft — awaiting operator rulings on OQ-1 to OQ-6. `plan.md` and `tasks.md` are
-not written until the rulings land.
+**Status**: Ready for planning — the operator ruled OQ-1 to OQ-6, all (a), on 2026-10-27 (see
+"Operator rulings").
 **Board card**: TASK-0143 (Track C10, runbook amendment 1; demo subset)
 **Input**: TASK-0143, decision-0025 (D17) card U3, `docs/design/actor-state-gate.md` §2 (G1,
 G2), §4.1 point 4, §5.3 (U3); specs/040-actor-snapshot (U1), specs/048-scene-presence (U2),
@@ -31,6 +31,23 @@ It implements none of these, each owned by a card:
 - `dm.audit` receiving S1 and the diff (§3.5): TASK-0146 (U7).
 - Disposition, offers and anything else the gate cannot parse: `dm.audit` (§3.5).
 - Director legality over state (§2.5): TASK-0145 (U5). The resolve batch gate (§3.3): TASK-0147.
+
+## Operator rulings (2026-10-27, recorded on the card, commit b7be35d)
+
+The operator's words, verbatim: "TASK-0143: I accept the recommended defaults OQ-1 to OQ-6 (a),
+including the dm.narrate-v5 prompt bump and a follow-up card for checking roll reasons at the
+plan gate."
+
+| Question | Ruling | Effect on this spec |
+|---|---|---|
+| OQ-1 Roll reasons | (a) | Out of U3's gate. FR-011 keeps a refused reason out of fallback prose. Follow-up card TASK-0161 ("Actor-state gate: Check model-written roll reasons at the plan gate", main 88194c8). |
+| OQ-2 Refused ruling or `goalNote` | (a) | FR-009: checked once before narrate, withheld, recorded as a non-blocking claim issue on attempt 1. |
+| OQ-3 Narrate wording | (a) | FR-020: `dm.narrate-v4` becomes `dm.narrate-v5`. |
+| OQ-4 Issue kind | (a) | FR-016: `ledger-mismatch` with the detail prefix "Actor state:". |
+| OQ-5 Matcher strictness | (a) | FR-002 to FR-007 as written, with the FR-004a clarification. |
+| OQ-6 Anonymous checks | (a) | FR-012 and FR-013 replace all four. |
+
+The options under "Open questions" stay below as the record.
 
 ## Dependencies (all merged into this branch's base)
 
@@ -203,6 +220,12 @@ passes the checker.
   or whose presence is `absent`, when the same clause pairs it with an act verb or attributes
   quoted speech to it. Negated acts and involuntary-state verbs pass. The issue names the actor,
   its state and the matched text. (AC #1)
+- **FR-004a** (plan-time clarification, within OQ-5 (a)): FR-004 does not fire on an actor whose
+  life state or presence changed this turn in the diff. The turn narrates that transition ("the
+  lookout lunges, then drops"; "Snag flees into the reeds"); FR-005 and FR-006 check it instead.
+  FR-004 also ignores the turn-order phrase "<name> acts next" or "<name> moves next": the
+  fallback writes it for an unconscious PC whose death-save turn comes up (run 192319Z seq 161
+  shape). Without these two exemptions the fallback cannot pass the checker (FR-011). (AC #1, #5)
 - **FR-005**: Refuse a death word attributed to a unique actor that is not `dead` in S1. Refuse a
   down word attributed to a unique actor that is not `unconscious`, `stable` or `dead` in S1.
   (AC #2)
@@ -251,6 +274,11 @@ passes the checker.
   contract (`ws-protocol`, `specs/029-proposal-gate/contracts/`,
   `specs/030-play-route/contracts/proposal-seam.md`).
 
+- **FR-020**: Bump the narrate prompt to `dm.narrate-v5` (OQ-3). Change the rule "Name a character
+  as dead or unconscious only when a fact says so" to "only when a fact or the state sections say
+  so". Add the rule "A dead, unconscious, stable or absent character does not act or speak. Count
+  only what the state sections show." (AC #1–#3, #6)
+
 **Evidence tests**
 
 - **FR-018**: Build the evidence fixtures from the recorded logs: the S1 snapshots at M2 seq 220,
@@ -295,7 +323,7 @@ passes the checker.
 
 | Card AC | FRs | Tests |
 |---|---|---|
-| #1 dead, downed or absent actor acting or speaking; M2 seq 225 and row 162 | FR-001, FR-002, FR-004, FR-018 | US1.1–1.7 |
+| #1 dead, downed or absent actor acting or speaking; M2 seq 225 and row 162 | FR-001, FR-002, FR-004, FR-004a, FR-018, FR-020 | US1.1–1.7 |
 | #2 death or drop on the wrong actor | FR-005, FR-006 | US2.1, US2.2, US2.5 |
 | #3 count or quantifier; M2 seq 225 and F52 | FR-003, FR-007, FR-018 | US3.1–3.4 |
 | #4 runs on narrate prose, ruling and `goalNote` | FR-008, FR-009 | US4.1, US4.2 |
@@ -324,12 +352,13 @@ passes the checker.
   and TASK-0130 doctrine.
 - The playtest auditor's own life-state check (`playtest/auditor/checks.ts`). It is already
   name-keyed and judges captured runs offline.
-- Step reasons on dice lines: OQ-1 recommends a follow-up card.
+- Step reasons on dice lines and in narrate facts: TASK-0161 (OQ-1 ruling).
 
 ## Open questions
 
 Each question changes a prompt or output schema, a prompt version, or what a player sees. Each
-gives options, a recommended default and why. The FRs above assume each recommended default.
+gives options, a recommended default and why. The operator ruled every one (a) on 2026-10-27
+(see "Operator rulings"); the FRs above follow the rulings.
 
 ### OQ-1 — Model-written roll reasons (behaviour a player sees; AC #4)
 
@@ -339,7 +368,7 @@ two kin have fallen" onto the seq 225 dice line. AC #4 names only the ruling and
 
 - **(a) Recommended.** Out of U3's gate, with two guards here: the fallback stops voicing a
   refused reason (FR-011), and the orchestrator cards a follow-up that checks step reasons at the
-  plan gate, before `resolve` writes them.
+  plan gate, before `resolve` writes them. **Ruled; the follow-up is TASK-0161.**
   *Why:* `resolve` logs the reason before narrate runs, and the log is append-only. A narrate-time
   gate cannot retract it. The plan gate (TASK-0112) is the only point before the write.
 - **(b)** In U3: check reasons at narrate time and render a code-built reason ("<name> attacks

@@ -35,5 +35,5 @@
    names the existing modules it amends (`deterministicChecks`, `audit-words.ts`, the
    fallback) and the recorded evidence by file and seq, because the card ACs are phrased
    against them. No new technology is chosen in the spec.
-2. Planning is blocked on operator rulings for OQ-1 to OQ-6, per the dispatch brief.
+2. The operator ruled OQ-1 to OQ-6 (a) on 2026-10-27 (card commit b7be35d); planning proceeds.
 3. Row 162's prose is unrecorded (hash only); the spec records the rebuilt-fixture substitute.
