@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 03:50'
+updated_date: '2026-10-27 04:07'
 labels:
   - dm
   - companions
@@ -49,6 +49,9 @@ OPERATOR RULING 2026-10-26 (checkpoint W, in chat): 'W-A: add withdraw'. New act
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 1, T010-T014, commit 6688ab7; migration 0005_lean_cable (react queued index). TASK-0116 also generates a 0005 on its branch: whichever merges second regenerates after merging main.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 2, T020-T027; failing repro f99b4df (evidence/T021-failing-on-phase1-tip.txt), fix 2932c20; merge condition T021 met; prompt dm.companion-v3.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
