@@ -1,10 +1,10 @@
 ---
 id: TASK-0142
 title: 'Actor-state gate: Seed NPCs carry minimal scene presence'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 19:25'
+updated_date: '2026-10-27 19:43'
 labels:
   - dm
   - rules-gate
@@ -36,7 +36,7 @@ Spec: specs/050-seed-npc-presence
 - [x] #6 Spec phase: `scene-presence` proposal visibility (card AC #2 support, OQ-4)
 - [x] #7 Spec phase: Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4)
 - [x] #8 Spec phase: Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half)
-- [ ] #9 Spec phase: Wiki re-ground
+- [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -84,7 +84,15 @@ spec-bridge sync: Seed declaration, identity check and aliases (card AC #1, AC #
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 5, T030-T036: 0abe525 wiki, 653fe62 runbook rows. Freshness OK: 53 notes; spec-bridge check exit 0.) New note docs/wiki/seed-npc-presence.md. Small older details were cut from dm-runtime, session-model, proposal-gate and dm-turn-jobs to hold the 8000-char cap; the cut list is in the Phase 5 report. The final Done sync runs on main after the merge.
+
+spec-bridge sync: Seed declaration, identity check and aliases (card AC #1, AC #4 seed half): 7/7 · `scene-presence` proposal visibility (card AC #2 support, OQ-4): 6/6 · Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4): 5/5 · Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half): 11/11 · Wiki re-ground: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Seed declaration, identity check and aliases (card AC #1, AC #4 seed half): 7/7 · `scene-presence` proposal visibility (card AC #2 support, OQ-4): 6/6 · Snapshot aliases, the M2 log test, one identity (card AC #2, AC #3, AC #4): 5/5 · Seed-presence group in resolve, NPC lists from presence (card AC #2, AC #4 resolve half): 11/11 · Wiki re-ground: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
