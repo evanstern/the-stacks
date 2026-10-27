@@ -4,7 +4,7 @@ title: 'Approval panel: suggest proposals offer no Approve control'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
-updated_date: '2026-10-27 10:30'
+updated_date: '2026-10-27 10:33'
 labels:
   - ui
   - gate
@@ -38,6 +38,9 @@ Spec: specs/047-suggest-no-approve
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0100, branch task-0100-suggest-no-approve, cut from origin/main 5cae90e. Spec number 047 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track A4.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+The spec author stopped after spec.md (c53d50f). Dismiss reuses proposal.reject with reason null, so 029 and the gate do not change. OPERATOR RULING NEEDED, R1 (amends the frozen 030 proposal-seam.md): A (rec) add policy: 'ask'|'suggest' to PendingProposalView, copied from the projection; Dismiss calls the existing onReject(id, null). B: A plus a new onDismiss prop. C: approvable: boolean (fails AC #1). OQ-1 (no human-DM scene-change command) carded as TASK-0159 (m-3).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
