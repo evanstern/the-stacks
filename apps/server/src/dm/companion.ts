@@ -34,14 +34,19 @@ export const CompanionOutput = z.object({
   act: z
     .object({ text: z.string().min(1).max(400), commit: z.boolean() })
     .nullable(),
-  /** One decision per own open action (specs/036-companion-react FR-010). */
+  /** One decision per own open action (specs/036-companion-react FR-010, FR-011). */
   pending: z
     .array(
-      z.object({
-        actionId: RefIdSchema,
-        decision: z.literal("commit"),
-        text: z.string().min(1).max(400).nullable(),
-      }),
+      z
+        .object({
+          actionId: RefIdSchema,
+          decision: z.enum(["commit", "withdraw", "revise"]),
+          text: z.string().min(1).max(400).nullable(),
+        })
+        .refine((d) => d.decision !== "revise" || d.text !== null, {
+          message: "a revise decision carries the new text",
+          path: ["text"],
+        }),
     )
     .max(4),
 });
@@ -81,14 +86,18 @@ export interface CompanionDeps {
 
 export const companionActor = (id: string) => `ai:companion:${id}` as const;
 
-function nextActionId(p: SessionProjections, companionId: string): string {
+function nextActionId(
+  p: SessionProjections,
+  companionId: string,
+  also: ReadonlySet<string> = new Set(),
+): string {
   const prefix = `act-${companionId}-`;
   let n = 0;
   for (const a of p.actions) {
     if (a.actionId.startsWith(prefix)) n += 1;
   }
   let id = `${prefix}${n + 1}`;
-  const taken = new Set(p.actions.map((a) => a.actionId));
+  const taken = new Set([...p.actions.map((a) => a.actionId), ...also]);
   while (taken.has(id)) {
     n += 1;
     id = `${prefix}${n + 1}`;
@@ -119,6 +128,12 @@ function hasUnansweredReaction(a: ActionView, companionId: string): boolean {
     ...a.comments.filter((c) => c.actor === me).map((c) => c.seq),
   );
   return a.comments.some((c) => !c.actor.startsWith("ai:") && c.seq > ownLast);
+}
+
+/** FR-012: `withdraw` when the latest human stance on the action is `object`, else `commit`. */
+function defaultDecision(a: ActionView): "commit" | "withdraw" {
+  const human = a.comments.filter((c) => !c.actor.startsWith("ai:"));
+  return human.at(-1)?.stance === "object" ? "withdraw" : "commit";
 }
 
 function isActive(p: SessionProjections, companionId: string): boolean {
@@ -278,7 +293,9 @@ export async function runCompanionJob(
     if (output.comment !== null) {
       const open = projections.actions.find(
         (a) =>
-          a.actionId === output.comment?.actionId && a.status !== "resolved",
+          a.actionId === output.comment?.actionId &&
+          a.status !== "resolved" &&
+          a.status !== "withdrawn",
       );
       if (open) {
         await send({
@@ -293,34 +310,66 @@ export async function runCompanionJob(
         });
       }
     }
-    // One decision per own open action; the default is `commit` (FR-012). In
-    // turn mode only the active companion commits (FR-014).
-    if (!turnMode || active) {
-      const decided = new Set(
-        output.pending
-          .filter((d) => ownOpen.some((a) => a.actionId === d.actionId))
-          .map((d) => d.actionId),
-      );
-      for (const open of ownOpen) {
-        if (!decided.has(open.actionId)) {
-          deps.log({
-            event: "dm.companion.default-decision",
-            jobId: job.id,
-            companionId,
+    // One decision per own open action (FR-011, FR-012). A commit needs turn
+    // authority (FR-014); a withdraw or revise does not.
+    const mayCommit = !turnMode || active;
+    const decisions = new Map(output.pending.map((d) => [d.actionId, d]));
+    const minted = new Set<string>();
+    for (const open of ownOpen) {
+      const explicit = decisions.get(open.actionId);
+      const decision = explicit?.decision ?? defaultDecision(open);
+      if (!explicit) {
+        deps.log({
+          event: "dm.companion.default-decision",
+          jobId: job.id,
+          companionId,
+          actionId: open.actionId,
+          decision,
+        });
+      }
+      if (decision === "commit") {
+        if (mayCommit) {
+          await send({
+            kind: "action.commit",
+            summary: null,
+            rationale: null,
             actionId: open.actionId,
-            decision: "commit",
           });
         }
-        await send({
-          kind: "action.commit",
+        continue;
+      }
+      const withdrawn = await send({
+        kind: "action.withdraw",
+        summary: null,
+        rationale: null,
+        actionId: open.actionId,
+      });
+      if (decision === "revise" && withdrawn && explicit?.text) {
+        const revisedId = nextActionId(projections, companionId, minted);
+        minted.add(revisedId);
+        const declared = await send({
+          kind: "action.declare",
           summary: null,
           rationale: null,
-          actionId: open.actionId,
+          action: {
+            actionId: revisedId,
+            characterId: open.characterId,
+            scope: open.scope,
+            text: explicit.text,
+          },
         });
+        if (declared && mayCommit) {
+          await send({
+            kind: "action.commit",
+            summary: null,
+            rationale: null,
+            actionId: revisedId,
+          });
+        }
       }
     }
     if (output.act !== null) {
-      const actionId = nextActionId(projections, companionId);
+      const actionId = nextActionId(projections, companionId, minted);
       const declared = await send({
         kind: "action.declare",
         summary: null,

@@ -92,6 +92,7 @@ row's `payload_version`. Every type below is at version 1.
 | `action.commented` | `lifecycle` | any | `ActionCommentedV1` |
 | `action.committed` | `lifecycle` | any | `ActionCommittedV1` |
 | `action.resolved` | `lifecycle` | any | `ActionResolvedV1` |
+| `action.withdrawn` | `lifecycle` | any | `ActionWithdrawnV1` (added by `029-proposal-gate/contracts/proposal-events.md`, "Action withdrawal"; TASK-0114, W-A ruling) |
 | `table-mode.changed` | `state-change` | any | `TableModeChangedV1` |
 | `scene.changed` | `state-change` | any | `SceneChangedV1` |
 | `party.member.changed` | `state-change` | any | `PartyMemberChangedV1` |

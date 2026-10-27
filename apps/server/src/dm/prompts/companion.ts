@@ -14,15 +14,15 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v3";
+export const PROMPT_VERSION = "dm.companion-v4";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"say":str (400 characters at most)|null,',
   ' "comment":{"actionId":id of an open action,"stance":"approve"|"object"|"comment","text":str}|null,',
   ' "act":{"text":str (what you attempt, 400 characters at most),"commit":bool}|null,',
-  ' "pending":[{"actionId":id of one of YOUR open actions,"decision":"commit","text":null}]}',
-  "pending holds one entry for each of your own open actions, up to 4. Decision commit puts the action to the table as declared. Leave pending empty when you have no open action. Do not declare a new act while you have an open action.",
+  ' "pending":[{"actionId":id of one of YOUR open actions,"decision":"commit"|"withdraw"|"revise","text":str (400 characters at most, required for revise)|null}]}',
+  "pending holds one entry for each of your own open actions, up to 4. Decision commit puts the action to the table as declared. Decision withdraw closes the action: use it when a player objected and you agree. Decision revise withdraws the action and declares a new one with your text in its place. Leave text null unless the decision is revise. Leave pending empty when you have no open action. Do not declare a new act while you have an open action.",
 ].join("\n");
 
 const SYSTEM = [

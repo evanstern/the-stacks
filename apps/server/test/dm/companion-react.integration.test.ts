@@ -397,3 +397,146 @@ describe.skipIf(!reachable)("companion react resolution (database)", () => {
     }
   });
 });
+
+describe.skipIf(!reachable)("companion withdraw and revise (database)", () => {
+  const declareCall = companionCall({
+    say: null,
+    comment: null,
+    act: { text: "Odo asks who is there.", commit: false },
+    pending: [],
+  });
+  const statusOf = async (w: World, actionId: string) =>
+    (await w.projections()).actions.find((a) => a.actionId === actionId)
+      ?.status;
+
+  it("an objection then a withdraw closes act-odo-1 and queues no turn job", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [
+            { actionId: "act-odo-1", decision: "withdraw", text: null },
+          ],
+        }),
+      ],
+    });
+    const { worker } = workerFor(w, { reactQuietMs: 0 });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    expect((await humanComment(w, "object", "Too risky.")).ok).toBe(true);
+    await tick();
+    await drainAll(worker);
+
+    expect(await statusOf(w, "act-odo-1")).toBe("withdrawn");
+    const rows = await readRows(w);
+    const withdrawn = rows.find((r) => r.type === "action.withdrawn");
+    expect(withdrawn?.actor).toBe("ai:companion:odo");
+    expect(payloadOf<{ actionId: string }>(withdrawn).actionId).toBe(
+      "act-odo-1",
+    );
+    expect(rows.some((r) => r.type === "action.committed")).toBe(false);
+    const jobs = await listDmJobs(requireDb(), w.sessionId, 20);
+    expect(jobs.filter((j) => j.kind === "turn")).toHaveLength(0);
+    expect(w.scripted.remaining().calls["dm.companion"]).toBe(0);
+  });
+
+  it("a revise withdraws the old action and declares and commits the new text", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [
+            {
+              actionId: "act-odo-1",
+              decision: "revise",
+              text: "Odo knocks softly and waits.",
+            },
+          ],
+        }),
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    await humanComment(w, "object", "Do not shout.");
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["action.withdraw", true],
+      ["action.declare", true],
+      ["action.commit", true],
+    ]);
+    expect(await statusOf(w, "act-odo-1")).toBe("withdrawn");
+    const revised = (await w.projections()).actions.find(
+      (a) => a.actionId !== "act-odo-1",
+    );
+    expect(revised?.text).toBe("Odo knocks softly and waits.");
+    expect(revised?.status).toBe("committed");
+    expect(revised?.actor).toBe("ai:companion:odo");
+  });
+
+  it("a revise decision without text is invalid output and takes the default", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [{ actionId: "act-odo-1", decision: "revise", text: null }],
+        }),
+        companionCall({
+          say: null,
+          comment: null,
+          act: null,
+          pending: [{ actionId: "act-odo-1", decision: "revise", text: null }],
+        }),
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    await humanComment(w, "approve", "Fine.");
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.status).toBe("invalid-output");
+    expect(await statusOf(w, "act-odo-1")).toBe("committed");
+  });
+
+  it("invalid companion output after an objection withdraws the action (default)", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        { purpose: "dm.companion", respond: { type: "text", value: "no" } },
+        { purpose: "dm.companion", respond: { type: "text", value: "no" } },
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    await humanComment(w, "object", "No.");
+    const result = await runOdo(w, "react");
+    expect(result.plays[0]?.status).toBe("invalid-output");
+    expect(result.plays[0]?.submissions.map((s) => [s.kind, s.ok])).toEqual([
+      ["action.withdraw", true],
+    ]);
+    expect(await statusOf(w, "act-odo-1")).toBe("withdrawn");
+  });
+
+  it("the latest human stance decides the default: object then approve commits", async () => {
+    const w = await createWorld({
+      calls: [
+        declareCall,
+        { purpose: "dm.companion", respond: { type: "text", value: "no" } },
+        { purpose: "dm.companion", respond: { type: "text", value: "no" } },
+      ],
+    });
+    await startScene(w);
+    await odoDeclaresOpenAction(w);
+    await humanComment(w, "object", "No.");
+    await humanComment(w, "approve", "Fine, go.");
+    await runOdo(w, "react");
+    expect(await statusOf(w, "act-odo-1")).toBe("committed");
+  });
+});

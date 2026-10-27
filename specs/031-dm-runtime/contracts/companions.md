@@ -28,7 +28,8 @@ For each id in the job's `companions`, in order:
    1. `talk` (channel `ic`, `characterId` = the companion) when `say` is set;
    2. `action.comment` when `comment` is set (stance `approve` or `object`, to a named open
       action);
-   3. `action.commit` for each of the companion's own open actions (see "Pending actions");
+   3. the decision for each of the companion's own open actions: `action.commit`,
+      `action.withdraw`, or `action.withdraw` then `action.declare` (see "Pending actions");
    4. `action.declare` when `act` is set, with a new action id `act-<companionId>-<n>`;
    5. `action.commit` for that action when `act.commit` is true.
 5. Record each gate result in the job's `result`. A refusal (for example
@@ -40,8 +41,9 @@ export const CompanionOutput = z.object({
   comment: z.object({ actionId: RefIdSchema, stance: z.enum(["approve", "object", "comment"]),
     text: z.string().min(1).max(400) }).nullable(),
   act: z.object({ text: z.string().min(1).max(400), commit: z.boolean() }).nullable(),
-  pending: z.array(z.object({ actionId: RefIdSchema, decision: z.literal("commit"),
-    text: z.string().min(1).max(400).nullable() })).max(4),
+  pending: z.array(z.object({ actionId: RefIdSchema,
+    decision: z.enum(["commit", "withdraw", "revise"]),
+    text: z.string().min(1).max(400).nullable() })).max(4),   // text is required for "revise"
 });
 ```
 
@@ -63,18 +65,27 @@ Amended by specs/034-narration-quality/contracts/player-facing-context.md.
 Every companion run (reasons `hold`, `turn`, `prompt` and `react`) shows the model the
 companion's own open actions (status `declared` or `discussed`), each with its comments and
 stances, apart from other players' open actions. The model returns one `pending` entry per own
-open action. The decision is `commit`.
+open action. The decision is `commit`, `withdraw` or `revise`. A `revise` entry without `text`
+fails the schema, and the whole output is then invalid.
 
-- Code applies the default decision, `commit`, to an own open action that `pending` leaves
-  unaddressed, and to every own open action when the output is invalid. The run's play status
+- Code applies the default decision to an own open action that `pending` leaves unaddressed,
+  and to every own open action when the output is invalid. The default is `withdraw` when the
+  latest human comment on the action has stance `object`, else `commit`. Code logs each default
+  as `dm.companion.default-decision` with the decision. The run's play status
   is then `invalid-output`.
+- `withdraw` submits `action.withdraw` for the existing action id. `revise` submits
+  `action.withdraw`, then `action.declare` with a new action id, the original character and
+  scope, and the `text`. When the gate accepts the declaration and the run may commit, `revise`
+  then submits `action.commit` for the new action. `withdraw` and `revise` need no turn
+  authority. Amended by the TASK-0114 operator ruling "W-A: add withdraw" (the withdraw kind and
+  event: `specs/029-proposal-gate/contracts/proposals.md`).
 - `commit` submits `action.commit` for the existing action id. The run declares no new action
   while it started with an own open action: a non-null `act` is dropped and logged as
   `dm.companion.act-dropped`.
 - In turn mode, only the active companion's commit is submitted (authority `active-player`).
   A non-active companion's commit is not submitted, and the action stays open for its turn.
   The active companion with an own open action commits it instead of declaring the hold act.
-- `PROMPT_VERSION` is `dm.companion-v3`.
+- `PROMPT_VERSION` is `dm.companion-v4`.
 
 Amended by specs/036-companion-react.
 
@@ -96,6 +107,7 @@ Amended by specs/036-companion-react.
 - `reason: "turn"` → nothing more; the commit already enqueued the next turn job.
 - `reason: "prompt"` → nothing more.
 - `reason: "react"` → nothing more; the companion's commit already enqueued the next turn job.
+  A `withdraw` enqueues no turn job.
 
 Amended by specs/036-companion-react.
 

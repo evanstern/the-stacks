@@ -9,6 +9,7 @@ import {
   localEventOf,
   rejectFrame,
   talkFrame,
+  withdrawFrame,
 } from "../../app/play/frames.ts";
 
 test("talkFrame builds the talk frame and trims text", () => {
@@ -83,6 +84,15 @@ test("commitFrame builds the action.commit request and rejects a bad id", () => 
   assert.equal(commitFrame({ actionId: "", authority: "dm" }), null);
 });
 
+test("withdrawFrame builds the action.withdraw request and rejects a bad id", () => {
+  assert.deepEqual(withdrawFrame({ actionId: "act-1" }), {
+    eventType: "action.withdraw",
+    payloadVersion: 1,
+    payload: { actionId: "act-1" },
+  });
+  assert.equal(withdrawFrame({ actionId: "" }), null);
+});
+
 test("no frame carries actor, seq or ts", () => {
   const frames = [
     talkFrame({ text: "x", channel: "ic", characterId: null }),
@@ -134,5 +144,8 @@ test("localEventOf maps request frames back to catalog events for fixture mode",
   );
   assert.deepEqual(commit.payload, { actionId: "act-1", authority: "dm" });
   assert.equal(commit.eventType, "action.committed");
+  const withdrawn = localEventOf(withdrawFrame({ actionId: "act-1" }));
+  assert.equal(withdrawn.eventType, "action.withdrawn");
+  assert.deepEqual(withdrawn.payload, { actionId: "act-1" });
   assert.equal(localEventOf(approveFrame("prop-1")), null);
 });

@@ -135,7 +135,8 @@ function applyKnown(
     case "action.declared":
     case "action.commented":
     case "action.committed":
-    case "action.resolved": {
+    case "action.resolved":
+    case "action.withdrawn": {
       const result = applyLifecycle(p.actions, event);
       const next = {
         ...p,

@@ -58,6 +58,7 @@ const requests: Record<string, GateRequest> = {
     comment: { actionId: "act-ana", stance: "comment", text: "x" },
   }),
   "action.commit": req({ kind: "action.commit", actionId: "act-ana" }),
+  "action.withdraw": req({ kind: "action.withdraw", actionId: "act-ana" }),
   "action.resolve": req({
     kind: "action.resolve",
     resolution: {
@@ -149,6 +150,7 @@ const allowed: Record<string, Who[]> = {
     "outsider",
     "operator",
   ],
+  "action.withdraw": ["seatedDm", "player"],
   "proposal.approve": ["seatedDm"],
   "proposal.reject": ["seatedDm"],
   "gate.policy": ["seatedDm", "operator"],

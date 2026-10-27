@@ -16,6 +16,10 @@ const committed = (id: string): RowSpec => ({
   type: "action.committed",
   payload: { actionId: id, authority: "declarer" },
 });
+const withdrawn = (id: string): RowSpec => ({
+  type: "action.withdrawn",
+  payload: { actionId: id },
+});
 const resolved = (id: string): RowSpec => ({
   type: "action.resolved",
   payload: {
@@ -59,7 +63,28 @@ describe("action lifecycle (AC #1)", () => {
     expect(p.actions[0]?.comments).toHaveLength(2);
   });
 
+  it("withdraws a declared or a discussed action (terminal)", () => {
+    const declaredOnly = fold([declared("a"), withdrawn("a")]);
+    expect(declaredOnly.actions[0]?.status).toBe("withdrawn");
+    expect(declaredOnly.diagnostics.ignoredTransitions).toBe(0);
+    const discussed = fold([declared("a"), commented("a"), withdrawn("a")]);
+    expect(discussed.actions[0]?.status).toBe("withdrawn");
+    expect(discussed.transcript.at(-1)).toMatchObject({
+      kind: "action.withdrawn",
+      actionId: "a",
+    });
+  });
+
   const disallowed: [string, RowSpec[]][] = [
+    ["withdraw committed", [declared("a"), committed("a"), withdrawn("a")]],
+    [
+      "withdraw resolved",
+      [declared("a"), committed("a"), resolved("a"), withdrawn("a")],
+    ],
+    ["withdraw twice", [declared("a"), withdrawn("a"), withdrawn("a")]],
+    ["withdraw unknown", [withdrawn("zz")]],
+    ["comment on withdrawn", [declared("a"), withdrawn("a"), commented("a")]],
+    ["commit withdrawn", [declared("a"), withdrawn("a"), committed("a")]],
     ["resolve from declared", [declared("a"), resolved("a")]],
     ["resolve from discussed", [declared("a"), commented("a"), resolved("a")]],
     ["comment on committed", [declared("a"), committed("a"), commented("a")]],

@@ -127,30 +127,30 @@ the worker claims only after its start time.
 
 **Goal**: a companion (or human) can withdraw or revise an open action.
 
-- [ ] T030 Merge `origin/main` into the branch (session-model and play hotspots). Re-run the
+- [x] T030 Merge `origin/main` into the branch (session-model and play hotspots). Re-run the
   Phase 2 gate.
-- [ ] T031 [US2] In `packages/session-model`: `ActionWithdrawnV1` (`{ actionId }`) in
+- [x] T031 [US2] In `packages/session-model`: `ActionWithdrawnV1` (`{ actionId }`) in
   `events/actions.ts`; register `action.withdrawn` in `catalog.ts`; `ActionStatus` gains
   `withdrawn`; `applyLifecycle` moves an open action to `withdrawn` and ignores any other
   (FR-018). Unit tests for each transition.
-- [ ] T032 [US2] In `packages/session-model/src/gate/`: proposal kind `action.withdraw`
+- [x] T032 [US2] In `packages/session-model/src/gate/`: proposal kind `action.withdraw`
   (`{ actionId }`); permission for the action's declarer and for a DM (FR-017); the planner
   refuses a withdraw of a non-open action before writing. Unit tests.
-- [ ] T033 [US2] Amend `specs/029-proposal-gate/contracts/proposals.md` (thirteen kinds,
+- [x] T033 [US2] Amend `specs/029-proposal-gate/contracts/proposals.md` (thirteen kinds,
   schema, permission-matrix row) and `proposal-events.md`, each citing the checkpoint-W ruling
   on TASK-0114.
-- [ ] T034 [US2] In `apps/server/src/dm/companion.ts`, widen `decision` to
+- [x] T034 [US2] In `apps/server/src/dm/companion.ts`, widen `decision` to
   `commit | withdraw | revise` (`text` required for `revise`); `withdraw` submits
   `action.withdraw`; `revise` submits `action.withdraw` then `action.declare` (and
   `action.commit` when not in non-active turn mode). Default is `withdraw` when the latest human
   stance is `object` (FR-012). Update the prompt; bump `PROMPT_VERSION` again.
-- [ ] T035 [US2] Tests in `companion-react.integration.test.ts`: (a) objection then withdraw:
+- [x] T035 [US2] Tests in `companion-react.integration.test.ts`: (a) objection then withdraw:
   status `withdrawn`, no turn job queued; (b) revise: old `withdrawn`, new action declared with
   the new text and committed; (c) invalid output after an objection withdraws.
-- [ ] T036 [US2] In `apps/web/app/play/view-model.ts` and the action card component, render a
+- [x] T036 [US2] In `apps/web/app/play/view-model.ts` and the action card component, render a
   `withdrawn` action as closed, with no commit control and no "Waiting for … to commit" line.
   No modals. Update its unit test.
-- [ ] T037 Run the phase gate and the DB suites. Commit.
+- [x] T037 Run the phase gate and the DB suites. Commit.
 
 **Under W-B instead of Phase 3:**
 
