@@ -54,39 +54,39 @@ three frozen contracts carry the ruled amendments.
 
 ### The gateway and the writer (US1, US2)
 
-- [ ] T001 [US1] In `apps/server/src/ws/gateway.ts` `handleSend`, replace the uncatalogued
+- [x] T001 [US1] In `apps/server/src/ws/gateway.ts` `handleSend`, replace the uncatalogued
   append block with `sendError(conn, "validation", \`The event type ${frame.eventType} is not catalogued.\`, "UNKNOWN_EVENT_TYPE")`
   and `return` (research R1). Remove the `appendUncataloguedEvent` import. Rewrite the
   `handleSend` doc comment: "a gate request kind goes to the gate; any other type is refused
   (`CATALOG_TYPE_REQUIRES_GATE` when catalogued, `UNKNOWN_EVENT_TYPE` otherwise)". Remove the
   FR-004/FR-005 comments that described the deleted append. Keep `publish` unchanged.
-- [ ] T002 [US2] In `apps/server/src/session/events.ts`, delete `appendUncataloguedEvent` and
+- [x] T002 [US2] In `apps/server/src/session/events.ts`, delete `appendUncataloguedEvent` and
   its doc comment. Remove any import that only it used (check `AppendInput`). Keep `append`
   if `appendSessionEvent` or `appendSessionEvents` still use it.
-- [ ] T003 [US2] In `apps/server/test/helpers/import-graph.ts`, delete
+- [x] T003 [US2] In `apps/server/test/helpers/import-graph.ts`, delete
   `appendUncataloguedEvent` from `WRITER_BINDINGS` and from `ALLOWED`. Delete the
   `file === "ws/gateway.ts"` branch of `isWriterModule` (research R2). Update any comment
   that names the legacy writer.
-- [ ] T004 [US2] Run `git grep -n appendUncataloguedEvent -- apps packages`. Expect no
+- [x] T004 [US2] Run `git grep -n appendUncataloguedEvent -- apps packages`. Expect no
   output. Run `apps/server/test/write-boundary.test.ts`. Expect zero violations on `src/` and
   exactly the three seeded violations on the fixture tree.
-- [ ] T005 [P] [US2] Apply `contracts/frozen-amendments.md` sections 1–3 to
+- [x] T005 [P] [US2] Apply `contracts/frozen-amendments.md` sections 1–3 to
   `specs/029-proposal-gate/contracts/ws-delivery.md`,
   `specs/029-proposal-gate/contracts/write-boundary.md` and
   `specs/006-ws-gateway/contracts/ws-protocol.md`. Change no other text.
 
 ### The senders (US3)
 
-- [ ] T006 [US3] In `apps/server/src/bench/load/users.ts`, replace the `load-bench-ping` send
+- [x] T006 [US3] In `apps/server/src/bench/load/users.ts`, replace the `load-bench-ping` send
   with the `talk` gate request of research R3. Generate the nonce with `randomUUID` from
   `node:crypto`. Confirm the payload against `GateRequestSchema`'s `talk` member in
   `packages/session-model/src/gate/proposals.ts`.
-- [ ] T007 [US3] In the same file, make the wait resolve on the `event` frame whose
+- [x] T007 [US3] In the same file, make the wait resolve on the `event` frame whose
   `event.type` is `talk` and whose `event.payload.text` equals the sent text. Make it end
   early on an `error` frame and record `ws_refused`. Keep `timeout` for a timeout. Keep
   `ERROR_KINDS`, the results format and the profile schema unchanged. Update the file's doc
   comment and any `concurrency.ts` comment that names the ping.
-- [ ] T008 [US3] In `apps/server/test/ws.integration.test.ts`, convert every raw send of
+- [x] T008 [US3] In `apps/server/test/ws.integration.test.ts`, convert every raw send of
   `chat`, `ambient`, `tick` and `whisper` (T009–T034) to a `talk` gate request (research R4).
   Use a frame-level `visibility` of the recipient's user id for the restricted cases. Update
   each `event.type` and payload assertion to match. Keep each test's sender count and the
@@ -94,7 +94,7 @@ three frozen contracts carry the ruled amendments.
 
 ### The refusal test (US1)
 
-- [ ] T009 [US1] Add to the spec 029 block of `apps/server/test/ws.integration.test.ts` the
+- [x] T009 [US1] Add to the spec 029 block of `apps/server/test/ws.integration.test.ts` the
   test of research R5. Two subscribers share one session. The sender sends
   `eventType: "chat"` and receives `error` with `kind: "validation"` and
   `code: "UNKNOWN_EVENT_TYPE"`. The other subscriber receives nothing. The log for the
@@ -102,13 +102,13 @@ three frozen contracts carry the ruled amendments.
 
 ### Verification
 
-- [ ] T010 Run `ws.integration.test.ts`, `gate.integration.test.ts`,
+- [x] T010 Run `ws.integration.test.ts`, `gate.integration.test.ts`,
   `gate.restart.integration.test.ts`, `ws.presence.integration.test.ts` and
   `test/bench/*.test.ts` with `REQUIRE_DATABASE=1` on the worktree stack. Run the load bench
   `concurrency-smoke` case (quickstart check 5). Expect `pass`, zero errors and a non-null
   round-trip p95. Record the results in the commit message. Report any `CONFLICT` refusal
   under concurrency; do not widen the gate retry.
-- [ ] T011 Run `pnpm ci:check`. Expect green.
+- [x] T011 Run `pnpm ci:check`. Expect green.
 
 **Checkpoint**: card ACs #1, #2 and #3 are true in code.
 

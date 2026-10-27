@@ -37,7 +37,9 @@ export function viewerFor(conn: Connection, seat: DmSeat): Viewer {
 |---|---|
 | a `GATE_REQUEST_KINDS` member | `payloadVersion` must equal `GATE_REQUEST_VERSION` (1), else a `validation` error. Build the request `{ ...payload, kind: eventType }`; when the frame carries `visibility`, it overrides the request's `visibility`. Call `gate.handle(sessionId, { kind: "human", userId, role }, request)`. |
 | any other catalogued type (`currentVersion(type) !== undefined`) | `forbidden` error, code `CATALOG_TYPE_REQUIRES_GATE`; nothing written |
-| anything else | `appendUncataloguedEvent`, then broadcast, exactly as M0 (inert: every projection skips unknown types) |
+| anything else | `validation` error, code `UNKNOWN_EVENT_TYPE`; nothing written, nothing broadcast |
+
+> Amended by `specs/043-retire-uncatalogued-send` (TASK-0099): the uncatalogued append is retired; an uncatalogued `eventType` is refused.
 
 `talk` is both a request kind and a catalog type; the first row wins, so `talk` goes to the
 gate. A `payload` that is not a JSON object is a `validation` error.

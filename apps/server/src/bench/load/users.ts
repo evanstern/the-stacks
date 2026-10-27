@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import WebSocket, { type RawData } from "ws";
 import type { ConcurrencyStep } from "./results.js";
 import { percentile } from "./stats.js";
@@ -39,18 +40,23 @@ function sorted(values: number[]): number[] {
 }
 
 /** Resolves with the first message matching `pred`, parsed as JSON. */
+interface BenchFrame {
+  type?: string;
+  event?: { type?: string; payload?: { text?: unknown } };
+}
+
 function waitForFrame(
   ws: WebSocket,
-  pred: (frame: { type?: string }) => boolean,
+  pred: (frame: BenchFrame) => boolean,
   timeoutMs: number,
-): Promise<{ type?: string }> {
+): Promise<BenchFrame> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       ws.off("message", onMessage);
       reject(new Error("timed out waiting for frame"));
     }, timeoutMs);
     function onMessage(data: RawData) {
-      let frame: { type?: string };
+      let frame: BenchFrame;
       try {
         frame = JSON.parse(data.toString());
       } catch {
@@ -150,18 +156,34 @@ async function runUser(
     while (!closed && Date.now() < deadline) {
       if (wsSend) {
         const t0 = performance.now();
+        // A `talk` gate request (out of character, no character): the
+        // smallest catalogued write. The round trip is matched to its own
+        // event by the nonce in the text; an `error` frame ends the wait.
+        const text = `load-bench ${randomUUID()}`;
         ws.send(
           JSON.stringify({
             type: "send",
             sessionId: wsSessionId,
-            eventType: "load-bench-ping",
-            payload: {},
+            eventType: "talk",
+            payload: { talk: { text, channel: "ooc", characterId: null } },
             payloadVersion: 1,
           }),
         );
         try {
-          await waitForFrame(ws, (f) => f.type === "event", 5000);
-          collect.wsRoundTripLatencies.push(performance.now() - t0);
+          const reply = await waitForFrame(
+            ws,
+            (f) =>
+              f.type === "error" ||
+              (f.type === "event" &&
+                f.event?.type === "talk" &&
+                f.event.payload?.text === text),
+            5000,
+          );
+          if (reply.type === "error") {
+            recordError("ws_refused");
+          } else {
+            collect.wsRoundTripLatencies.push(performance.now() - t0);
+          }
         } catch {
           recordError("timeout");
         }

@@ -36,7 +36,6 @@ const WRITER_BINDINGS: Record<string, string> = {
   appendSessionEvent: SESSION,
   appendSessionEvents: SESSION,
   appendMechanicsBatch: SESSION,
-  appendUncataloguedEvent: SESSION,
 };
 
 /** Allowed importer predicate per writer binding. */
@@ -46,15 +45,10 @@ const ALLOWED: Record<string, (file: string) => boolean> = {
   appendSessionEvent: (f) => f.startsWith("gate/"),
   appendSessionEvents: (f) => f.startsWith("gate/"),
   appendMechanicsBatch: (f) => f.startsWith("gate/"),
-  appendUncataloguedEvent: (f) => f === "ws/gateway.ts",
 };
 
 function isWriterModule(file: string): boolean {
-  return (
-    file.startsWith("session/") ||
-    file.startsWith("gate/") ||
-    file === "ws/gateway.ts"
-  );
+  return file.startsWith("session/") || file.startsWith("gate/");
 }
 
 function listTs(dir: string): string[] {
