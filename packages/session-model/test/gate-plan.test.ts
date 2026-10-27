@@ -1194,6 +1194,37 @@ describe("scene-presence planner (TASK-0141)", () => {
     ]);
   });
 
+  it("a dm proposal plans a dm row; a default proposal plans public", () => {
+    const dm = parse({
+      kind: "scene-presence",
+      actorId: "goblin",
+      reason: "fled",
+      visibility: "dm",
+    });
+    const rows = okRows(plan(dmFold(), aiDm, dm));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      type: "scene-presence.changed",
+      visibility: "dm",
+    });
+    const dflt = okRows(plan(dmFold(), aiDm, presence("goblin", "fled")));
+    expect(dflt[0].visibility).toBe("public");
+  });
+
+  it("engine rows planned beside a dm row stay public", () => {
+    const p = dmFoldWith([init], turnOpts);
+    const dm = parse({
+      kind: "scene-presence",
+      actorId: "goblin",
+      reason: "fled",
+      visibility: "dm",
+    });
+    const rows = okRows(plan(p, aiDm, dm));
+    expect(rows[0].visibility).toBe("dm");
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows.slice(1)) expect(row.visibility).toBe("public");
+  });
+
   it("turn mode, in the order, fled: presence row then initiative.leave rows in one batch", () => {
     const p = dmFoldWith([init], turnOpts);
     const result = plan(p, aiDm, presence("goblin", "fled"));

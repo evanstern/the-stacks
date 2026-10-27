@@ -501,6 +501,7 @@ async function runSteps(
           actorId: effect.targetId,
           reason: effect.reason,
           actionId,
+          visibility: "public",
         }));
         take(sub);
         continue;

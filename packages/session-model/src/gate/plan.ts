@@ -622,7 +622,7 @@ function plan(
           reason: proposal.reason,
           actionId: proposal.actionId,
         },
-        visibility: "public",
+        visibility: proposal.visibility,
       };
       const member = p.party.find((m) => m.characterId === proposal.actorId);
       const cid = member ? member.combatantId : proposal.actorId;

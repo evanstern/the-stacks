@@ -105,6 +105,24 @@ describe("visibility shapes", () => {
     ).toBe(false);
   });
 
+  it("scene-presence accepts an absent, public or dm visibility and refuses any other", () => {
+    const base = {
+      kind: "scene-presence",
+      actorId: "goblin",
+      reason: "fled",
+    };
+    expect(ProposalSchema.parse(base)).toMatchObject({ visibility: "public" });
+    expect(
+      ProposalSchema.parse({ ...base, visibility: "public" }),
+    ).toMatchObject({ visibility: "public" });
+    expect(ProposalSchema.parse({ ...base, visibility: "dm" })).toMatchObject({
+      visibility: "dm",
+    });
+    expect(
+      ProposalSchema.safeParse({ ...base, visibility: "some-user" }).success,
+    ).toBe(false);
+  });
+
   it("table-mode, scene, party and tracker carry no before", () => {
     const proposals = [
       { kind: "table-mode", reason: "r", after: { mode: "free" } },

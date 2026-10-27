@@ -150,6 +150,7 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
     actorId: "watcher",
     reason: "fled",
     actionId: null,
+    visibility: "dm",
   },
   journal: {
     kind: "journal",

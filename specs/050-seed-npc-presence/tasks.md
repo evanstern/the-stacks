@@ -98,23 +98,23 @@ and carries authored aliases. The loader refuses every breach.
 
 ### Tests first
 
-- [ ] T008 [US2] [P] In `packages/session-model/test/gate-schemas.test.ts`, assert a
+- [x] T008 [US2] [P] In `packages/session-model/test/gate-schemas.test.ts`, assert a
       `scene-presence` proposal parses with `visibility` absent (default `public`), `public` and
       `dm`, and refuses any other value.
-- [ ] T009 [US2] [P] In `packages/session-model/test/gate-plan.test.ts`
+- [x] T009 [US2] [P] In `packages/session-model/test/gate-plan.test.ts`
       ("scene-presence planner"), assert a `dm` proposal plans a `scene-presence.changed` row
       with visibility `dm`, a default proposal plans `public`, and engine rows planned beside a
       `dm` row stay `public`.
 
 ### Implementation
 
-- [ ] T010 [US2] In `packages/session-model/src/gate/proposals.ts`, add
+- [x] T010 [US2] In `packages/session-model/src/gate/proposals.ts`, add
       `visibility: z.enum(["public", "dm"]).default("public")` to the `scene-presence` schema.
-- [ ] T011 [US2] In `packages/session-model/src/gate/plan.ts`, write the changed row with
+- [x] T011 [US2] In `packages/session-model/src/gate/plan.ts`, write the changed row with
       `proposal.visibility`. Leave the engine rows `public`.
-- [ ] T012 [US2] Add a `dm` `scene-presence` example to
+- [x] T012 [US2] Add a `dm` `scene-presence` example to
       `packages/session-model/src/fixtures/proposal-examples.ts`; keep `fixtures.test.ts` green.
-- [ ] T013 [US2] Amend `specs/029-proposal-gate/contracts/proposals.md` (the schema block and the
+- [x] T013 [US2] Amend `specs/029-proposal-gate/contracts/proposals.md` (the schema block and the
       "`scene-presence` is always `public`" rule) and `specs/029-proposal-gate/contracts/gate-api.md`
       §1 (the `scene-presence` row: visibility from the proposal). Add the amendment line quoting
       the ruling to each.
