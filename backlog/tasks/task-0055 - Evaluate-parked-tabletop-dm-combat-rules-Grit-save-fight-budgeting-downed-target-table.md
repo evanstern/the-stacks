@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:31'
+updated_date: '2026-10-27 03:32'
 labels:
   - revisit
   - engine
@@ -46,6 +46,9 @@ OPERATOR RULING 2026-10-26 (M3 sweep Lane 0, option A): 'A'. Reject the Grit sav
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0055, branch task-0055-combat-rules-ruling, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track D1. Escape line E1; ruling R1 (option A).
 
 Decision recorded: decision-0023 (D15). Grit save, fight budgeting and downed-target table rejected. Re-entry path: TASK-0122. AC #4 met vacuously (no rule adopted).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(decision record; served verified by the orchestrator from the transcript's assistant-message model field; ~81k tokens.) Decision body written into the CLI-created file: backlog decision create has no body option.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
