@@ -12,7 +12,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Presence

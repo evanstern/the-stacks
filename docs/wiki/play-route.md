@@ -24,7 +24,7 @@ sources:
   - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: 351fc199e76a43a0e6801b5bfb239efe847baa31
+verified_against: baecb93e012266902cea61c04d2633ba3bd65499
 ---
 
 # Play route
