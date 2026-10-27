@@ -1,0 +1,85 @@
+{
+  "v": 1,
+  "runId": "20261026T142711Z-greyhollow-ford-provider",
+  "sessionId": "78873763-9cec-42c7-940a-15e44eef6f11",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T14:27:13.028Z",
+  "commit": "d994673dcf5c5c972e167ca53e3a854b961deb09",
+  "verdict": "incomplete",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 1,
+    "narrations": 0,
+    "segments": 0,
+    "rolls": 0,
+    "findings": {
+      "fail": 1,
+      "warn": 0,
+      "note": 0
+    }
+  },
+  "segments": [],
+  "findings": [
+    {
+      "id": "F1",
+      "source": "check",
+      "check": "no-scene",
+      "kind": "no-scene",
+      "severity": "fail",
+      "segment": null,
+      "doctrineId": null,
+      "seqs": [],
+      "detail": "The transcript has no scene.changed row; nothing was audited."
+    }
+  ],
+  "fight": null,
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "modelNote": null,
+  "usage": {
+    "calls": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "costUsd": 0
+  }
+}

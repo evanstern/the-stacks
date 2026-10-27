@@ -1,0 +1,16 @@
+[
+  {
+    "id": "bbdaca84-3aec-42b9-8f34-2493525fa95e",
+    "kind": "turn",
+    "status": "failed",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "scene-start",
+    "createdAt": "2026-10-26T14:27:11.798Z",
+    "finishedAt": "2026-10-26T14:27:12.852Z",
+    "outcome": "failed",
+    "audit": null,
+    "calls": [],
+    "error": "stopped at director: gateway"
+  }
+]

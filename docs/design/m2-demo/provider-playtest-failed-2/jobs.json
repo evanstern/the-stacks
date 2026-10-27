@@ -1,0 +1,355 @@
+[
+  {
+    "id": "9e29bc74-63e9-41ff-8b5e-de77b9beedf7",
+    "kind": "turn",
+    "status": "failed",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T14:29:32.557Z",
+    "finishedAt": "2026-10-26T14:29:49.274Z",
+    "outcome": "failed",
+    "audit": null,
+    "calls": [],
+    "error": "stopped at director: invalid-output"
+  },
+  {
+    "id": "563f1066-f22f-43e3-b526-90673df58c65",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:29:23.362Z",
+    "finishedAt": "2026-10-26T14:29:32.418Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "a9b4de90-78ca-4015-b46e-12736d4d0a6b",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:29:23.358Z",
+    "finishedAt": "2026-10-26T14:29:28.834Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "fb946896-c0ac-4299-b690-8be52e630fc2",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T14:28:59.551Z",
+    "finishedAt": "2026-10-26T14:29:23.357Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "a30986e0441b9311d997eeb7b4b1bdda9ab4e57f5c84b08b798114d100fa96a3",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "a30986e0441b9311d997eeb7b4b1bdda9ab4e57f5c84b08b798114d100fa96a3"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "f799adbb-85aa-444c-b2f5-6f133cc46805",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:28:52.228Z",
+    "finishedAt": "2026-10-26T14:28:59.426Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d13f896d-fce9-48c7-9d8a-6287edc4d071",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:28:52.223Z",
+    "finishedAt": "2026-10-26T14:28:57.666Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "df48161b-bb7f-48b9-a913-28b096a80c82",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T14:28:13.866Z",
+    "finishedAt": "2026-10-26T14:28:52.221Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed-after-regenerate",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "Search returned no-effect, but narration reveals the culprit's location (loft), appearance (woman), weapon (knife), and emotional state (trembling, counting breath). This contradicts the roll outcome by supplying specific discoveries the search did not yield."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides Tamsin 'catches the glint' and 'watches' — describing her perception and action rather than what the world presents. Should describe the loft evidence itself, then stop before her response."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Ends on 'waiting to see which one of you speaks first' — an either-or framed as silence. Should end on a concrete prompt: the knife's tremor, the breath's rhythm, or her first word. Something that demands a reply, not a binary."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "af926cb0e5bb303878591b814426a872def3c0fb8607644f32d42b8732ed7339",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "invented-mechanics",
+                "detail": "The search produced no-effect per the ledger, but narration invents a ceiling creak and loft as new environmental facts, plus a voice and character above. These are facts the game state does not support."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration decides the outcome of Tamsin's search by naming what was *not* found (footprints, coin) and then pivots to a new discovery (the voice). The no-effect should be narrated as genuinely fruitless, not as a segue into a manufactured encounter."
+              },
+              {
+                "kind": "doctrine",
+                "detail": "Narration exceeds one hundred fifty words (approximately 170). Also violates the rule against deciding the player character's inner state: 'the search can name' speaks for Tamsin's agency in interpretation."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 2,
+          "proseSha256": "3ef7a2d3d4201d57aa5e909874d5a9cb7932e9408fcfeb3a4e1aa1994353d52c",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 3,
+          "proseSha256": "95db4b5f396f44289cc6e6a13ae918df5b47f793d25acc96cfb8a25038c58eaa",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "95db4b5f396f44289cc6e6a13ae918df5b47f793d25acc96cfb8a25038c58eaa"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d1a3acaf-169c-48b5-8749-6c8a23d79c9d",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:28:10.575Z",
+    "finishedAt": "2026-10-26T14:28:13.728Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "386e897e-e202-4a95-b074-3a181c411d7f",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "scene-start",
+    "createdAt": "2026-10-26T14:27:59.065Z",
+    "finishedAt": "2026-10-26T14:28:10.567Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "3cfc6c1fb9058c61a4f40f1b8977665f2672f825de37f87d2df6b91e038291de",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "3cfc6c1fb9058c61a4f40f1b8977665f2672f825de37f87d2df6b91e038291de"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  }
+]

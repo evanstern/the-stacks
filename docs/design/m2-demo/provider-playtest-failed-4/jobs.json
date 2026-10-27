@@ -1,0 +1,238 @@
+[
+  {
+    "id": "1a3ebe4f-46fa-4840-8f56-37edf8604a24",
+    "kind": "turn",
+    "status": "failed",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T14:43:42.529Z",
+    "finishedAt": "2026-10-26T14:44:03.066Z",
+    "outcome": "failed",
+    "audit": null,
+    "calls": [],
+    "error": "stopped at director: invalid-output"
+  },
+  {
+    "id": "36878394-391f-4ca4-8906-594b54533f56",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:43:36.268Z",
+    "finishedAt": "2026-10-26T14:43:42.391Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "2c73859e-8abe-4d8a-9969-595f67debf5a",
+    "kind": "companion",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:43:36.265Z",
+    "finishedAt": "2026-10-26T14:43:41.041Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.companion",
+        "promptVersion": "dm.companion-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "093a208b-ea23-47b8-90c5-c417919c565e",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "commit",
+    "createdAt": "2026-10-26T14:42:59.870Z",
+    "finishedAt": "2026-10-26T14:43:36.263Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "fallback",
+      "flagged": true,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [
+              {
+                "kind": "ledger-mismatch",
+                "detail": "Action was no-effect, but narration reveals Wenna Marsh and describes her with the cut rope, treating the search as successful. The facts state the search had no effect; this narration contradicts that by producing a clear discovery."
+              },
+              {
+                "kind": "player-agency",
+                "detail": "Narration ends on Wenna's statement and her watching Tamsin's face, which prompts a response but doesn't leave the player room to decide what to do. It narrows the moment to 'what will you ask' rather than leaving the situation open."
+              }
+            ],
+            "verdict": "fail"
+          },
+          "attempt": 1,
+          "proseSha256": "b414d96bff2b17709eef1b16ec487b2023e7896b2f941d26552963aaa201d534",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 2,
+          "proseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The narration is empty."
+              }
+            ]
+          }
+        },
+        {
+          "llm": {
+            "skipped": true
+          },
+          "attempt": 3,
+          "proseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "deterministic": {
+            "pass": false,
+            "issues": [
+              {
+                "kind": "doctrine",
+                "detail": "The narration is empty."
+              }
+            ]
+          }
+        }
+      ],
+      "shippedProseSha256": "bbedbff8224a572e352a9a8f452f22513e5c1fd8ed157a89153b7177f124742d"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.interpret",
+        "promptVersion": "dm.interpret-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "d97aae0b-63e3-4833-a525-0db4a73e552b",
+    "kind": "chronicle",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": null,
+    "createdAt": "2026-10-26T14:42:54.770Z",
+    "finishedAt": "2026-10-26T14:42:59.739Z",
+    "outcome": "completed",
+    "audit": null,
+    "calls": [
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "invalid-json"
+      },
+      {
+        "purpose": "dm.chronicle",
+        "promptVersion": "dm.chronicle-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  },
+  {
+    "id": "8b2c1d21-57b7-4b74-9421-7f36e1a829de",
+    "kind": "turn",
+    "status": "succeeded",
+    "stage": null,
+    "attempts": 1,
+    "trigger": "scene-start",
+    "createdAt": "2026-10-26T14:42:44.921Z",
+    "finishedAt": "2026-10-26T14:42:54.761Z",
+    "outcome": "completed",
+    "audit": {
+      "final": "passed",
+      "flagged": false,
+      "attempts": [
+        {
+          "llm": {
+            "issues": [],
+            "verdict": "pass"
+          },
+          "attempt": 1,
+          "proseSha256": "4cc770ea9ecead433e79ff05bf905c11d13780ad764affaf06e1d418561a01d8",
+          "deterministic": {
+            "pass": true,
+            "issues": []
+          }
+        }
+      ],
+      "shippedProseSha256": "4cc770ea9ecead433e79ff05bf905c11d13780ad764affaf06e1d418561a01d8"
+    },
+    "calls": [
+      {
+        "purpose": "dm.director",
+        "promptVersion": "dm.director-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.narrate",
+        "promptVersion": "dm.narrate-v1",
+        "outcome": "ok"
+      },
+      {
+        "purpose": "dm.audit",
+        "promptVersion": "dm.audit-v1",
+        "outcome": "ok"
+      }
+    ],
+    "error": null
+  }
+]

@@ -1,0 +1,272 @@
+{
+  "v": 1,
+  "runId": "20261026T144244Z-greyhollow-ford-provider",
+  "sessionId": "b1314ebc-6dae-4fca-90a7-82d61b22cb88",
+  "seedId": "greyhollow-ford",
+  "auditedAt": "2026-10-26T14:44:46.119Z",
+  "commit": "565e0860374cf97a8dfcc45f1df8928daf9c503b",
+  "verdict": "fail",
+  "auditorMode": "model",
+  "counts": {
+    "rows": 24,
+    "narrations": 2,
+    "segments": 3,
+    "rolls": 0,
+    "findings": {
+      "fail": 1,
+      "warn": 4,
+      "note": 1
+    }
+  },
+  "segments": [
+    {
+      "index": 0,
+      "narrationSeq": 10,
+      "fromSeq": 1,
+      "toSeq": 10,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": false
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 1,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 2
+      }
+    },
+    {
+      "index": 1,
+      "narrationSeq": 17,
+      "fromSeq": 11,
+      "toSeq": 17,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "fail",
+        "findings": 3,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    },
+    {
+      "index": 2,
+      "narrationSeq": null,
+      "fromSeq": 18,
+      "toSeq": 24,
+      "checks": [
+        {
+          "id": "prose-digits",
+          "pass": true
+        },
+        {
+          "id": "dice-lines",
+          "pass": true
+        },
+        {
+          "id": "life-states",
+          "pass": true
+        },
+        {
+          "id": "roll-reasons",
+          "pass": true
+        },
+        {
+          "id": "hidden-info",
+          "pass": true
+        },
+        {
+          "id": "dice-language",
+          "pass": true
+        }
+      ],
+      "auditor": {
+        "verdict": "pass",
+        "findings": 0,
+        "discarded": 0,
+        "truncated": false,
+        "attempts": 1
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "source": "check",
+      "check": "dice-lines",
+      "kind": "ledger-contradiction",
+      "severity": "fail",
+      "segment": 0,
+      "doctrineId": null,
+      "seqs": [
+        10
+      ],
+      "detail": "The dice lines differ from the ledger (expected 0, found 2)."
+    },
+    {
+      "id": "F2",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 0,
+      "doctrineId": "hero-is-theirs",
+      "seqs": [
+        10
+      ],
+      "detail": "\"holding its breath to match yours\" assigns the hero a held breath, deciding the hero's physical reaction for the player."
+    },
+    {
+      "id": "F3",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "fail-forward",
+      "seqs": [
+        13,
+        16,
+        17
+      ],
+      "detail": "The resolved search produces \"nothing changes\" — a dead stall with no new problem, despite the clock advancing at #15."
+    },
+    {
+      "id": "F4",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "end-on-demand",
+      "seqs": [
+        17
+      ],
+      "detail": "The turn ends on a flat non-event that demands no response from the player."
+    },
+    {
+      "id": "F5",
+      "source": "auditor",
+      "check": null,
+      "kind": "doctrine",
+      "severity": "warn",
+      "segment": 1,
+      "doctrineId": "one-sense",
+      "seqs": [
+        17
+      ],
+      "detail": "The beat offers no vivid non-visual detail, only an abstract statement of the outcome."
+    },
+    {
+      "id": "F6",
+      "source": "dm-audit",
+      "check": null,
+      "kind": "dm-audit-flag",
+      "severity": "note",
+      "segment": 1,
+      "doctrineId": null,
+      "seqs": [
+        17
+      ],
+      "detail": "final: fallback; attempts: 3; issues: ledger-mismatch, player-agency, doctrine"
+    }
+  ],
+  "fight": null,
+  "models": {
+    "answering": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "embedding": {
+      "provider": "ollama",
+      "model": "bge-m3"
+    },
+    "dm.director": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.interpret": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.adjudicate": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    },
+    "dm.narrate": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "dm.audit": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.chronicle": {
+      "provider": "claude",
+      "model": "cc/claude-haiku-4-5-20251001"
+    },
+    "dm.companion": {
+      "provider": "claude",
+      "model": "cc/claude-sonnet-5"
+    },
+    "playtest.audit": {
+      "provider": "claude",
+      "model": "cc/claude-opus-5"
+    }
+  },
+  "modelNote": null,
+  "usage": {
+    "calls": 4,
+    "inputTokens": 20876,
+    "outputTokens": 2174,
+    "costUsd": 0.15873
+  }
+}
