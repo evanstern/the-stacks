@@ -4,7 +4,7 @@ title: 'Approval panel: suggest proposals offer no Approve control'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
-updated_date: '2026-10-27 12:51'
+updated_date: '2026-10-27 12:54'
 labels:
   - ui
   - gate
@@ -49,6 +49,9 @@ Operator ruling 2026-10-27 (in chat, verbatim): "I accept the defaults: TASK-010
 
 Spec author resumed after ruling R1: plan.md, tasks.md, research.md, data-model.md, contracts/pending-proposal-policy.md, quickstart.md at 4cbe9cf (merged origin/main at c78f901). 3 phases, 17 tasks.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Phase 1 (T001-T010) at f32aa03. ci:check: web and lint pass; only the 5 known no-DB adjudicate.integration failures (TASK-0138). Deviation accepted: T008 asserts on ProposalList with the dm-approvals fixture, since the closed slide-out renders no content statically; Phase 2 Brave check covers the real panel.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
