@@ -48,6 +48,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 045, commit 86cad07; served verified from the transcript.) Root cause: resolve.ts ran the Director group (encounter end and free mode from the morale condition) before the actions. The UNKNOWN_COMBATANT refusal was a separate interpret step naming a non-combatant (likely pell), which TASK-0112 U6's plan gate covers. ORCHESTRATOR DEFAULTS (reported to the operator; the operator may overturn them): OQ-1 (a) the opening/closing Director split stands as the reading of D17 §4, so encounter start stays ahead of the actions. OQ-2 (a) the landed-row marker risk across a deploy is accepted and recorded in turn-jobs.md (Phase 1); revisit card TASK-0156 holds the trigger.
 
 Phase 1 done (f18b9c2): resolve order (six groups, opening/closing split, hold rule, empty batch-gate slot, OQ-2 reclaim risk accepted, revisit TASK-0156) written in turn-jobs.md, resolve.md, director.md. OQ-1 default (a) stated in the contract.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (f18b9c2): resolve order in turn-jobs.md, resolve.md and director.md; AC #2 ticked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
