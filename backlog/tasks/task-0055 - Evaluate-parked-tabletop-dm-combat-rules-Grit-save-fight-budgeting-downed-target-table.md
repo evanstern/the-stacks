@@ -3,10 +3,10 @@ id: TASK-0055
 title: >-
   Evaluate parked tabletop-dm combat rules: Grit save, fight budgeting,
   downed-target table
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:22'
+updated_date: '2026-10-27 03:28'
 labels:
   - revisit
   - engine
@@ -42,6 +42,8 @@ Why: decision-0021 parked two ideas because the operator was unsure: the Grit sa
 RESEARCH FINDINGS 2026-10-26 (TASK-0115, branch Resolution-and-Outcome, note Outcome-Shapes): DMG 2014 Ch 9 Combat Options offers optional Injuries (on a critical hit, drop to 0 HP, or death save failed by 5 or more; a variant hands the injury to the player as a flaw to portray), Massive Damage (half HP max from one source forces a DC 15 Con save or a System Shock roll), Hitting Cover, Cleaving and Morale (monsters and NPCs only). None are in SRD 5.2.1. Branch 5 (TASK-0122) researches these against TASK-0048 evidence. The half-HP threshold is already used as the heavy-hit reflex trigger in TASK-0113 (narration colour only, no mechanics).
 
 OPERATOR RULING 2026-10-26 (M3 sweep Lane 0, option A): 'A'. Reject the Grit save, fight budgeting and the downed-target table by one decision record citing docs/design/m2-demo.md Fight statistics (5 rounds, no hero at 0 HP, 0 death saves, ended by flight; run 5 ended by bargain). TASK-0122 (research branch 5, running combat) is the single re-entry path for any combat-pacing rule. Evidence defect carded: TASK-0134 (stats miss goblin-3 at 0 HP). Follow-up concern the operator raised with this ruling: TASK-0135 (actor-state rule gate).
+
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0055, branch task-0055-combat-rules-ruling, cut from origin/main a4aab3c. No spec dir: signed escape line covers this task. Track D1. Escape line E1; ruling R1 (option A).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
