@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:25'
-updated_date: '2026-10-27 04:41'
+updated_date: '2026-10-27 04:59'
 labels:
   - dm
   - companions
@@ -66,6 +66,8 @@ Reconcile after TASK-0116 (PR #62) merged: react queued index regenerated as mig
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (reconcile after #62: merge 2b58684, fixes 9e3fd3f; migration regenerated as 0006_fearless_jamie_braddock; main's worker test gained pending: []; 7 notes re-pinned (2 NEEDS-REVIEW); ci:check exit 0, server 900 passed.)
+
+Merged in PR #63 (773d4e4); stack down, worktree and branch removed. Board stays In Progress until specs/036-companion-react/tasks.md T038 is annotated not-applicable (it applied only under W-B; the operator ruled W-A). That annotation rides the next task branch (TASK-0140), then spec-bridge sync moves this card to Done.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
