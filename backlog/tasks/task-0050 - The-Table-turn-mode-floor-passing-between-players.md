@@ -4,7 +4,7 @@ title: 'The Table: turn-mode floor passing between players'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 13:43'
+updated_date: '2026-10-27 13:51'
 labels:
   - multiplayer
   - gate
@@ -44,6 +44,20 @@ Spec: specs/049-turn-floor
 Scope addition from TASK-0049 Q5 (operator accepted the defaults, 2026-10-27): the AI DM's override of a stalled party sign-off is in scope here.
 
 Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0050, branch task-0050-turn-floor, cut from origin/main 3529df2. Spec number 049 claimed with a stub. Spec 048 is taken by TASK-0141 (PR #73). Scope includes TASK-0049 Q5 (AI DM overrides a stalled party sign-off).
+
+Spec author: spec.md (speckit-specify) at 5df5a4c; stopped before plan.md for rulings. Defaults first:
+FT-1 new proposal kind floor {op end|take|return, turn, reason}, one atomic batch (turn.advance, settling, table-mode.changed); amends frozen 029 proposals.md. Alt B no new kind; C request marker + worker trigger.
+FT-2 end for active actor or DM; take/return for seated human DM only; policy ask under a human seat, auto under AI; new codes FLOOR_NOT_HELD, TURN_MOVED, NOT_TURN_MODE (amends 029 policy-and-authority.md, gate-api.md). Alt: reuse COMMIT_NOT_ALLOWED, CONFLICT.
+FT-3 new code-only job kind floor (absence + stall checks, notBefore, reconcile re-arms), one migration for jobs_kind_valid; amends 031 turn-jobs.md. Alt B turn trigger stall; C in-memory timers.
+FT-4 turn-floor fixture row in 029 fixtures.md; replay check covers AI DM overrides.
+FT-5 ai:dm action.commit override stall plans signoff marker + commit in one batch (amends 044 gate-api text). Alt: recordPresence first, two batches.
+Q1 UI: inline header controls (End turn; Pass / Take / Return floor) plus a turn-order strip; no confirmation, no modals. Alt B Turn order slide-out; C composer + approvals slide-out.
+Q2 no new stance; comment labelled Suggest an alternative. Alt B new suggest stance (amends 028).
+Q3 AI DM passes only, no take/return. Alt B held-floor flag (amends 028); C lend op.
+Q4 AI DM passes a human turn only when absent (30 s past 5 s grace). Alt B also ~5 min idle; C never.
+Q5 stalled sign-off: after 120 s no stance change, quorum unmet, no objection, ai:dm commits as dm; an objection blocks. Alt B commit over objection; C nudge only.
+Q6 write plan.md after PR #73 merges (both touch resolve.ts turn-advance group and settle.ts). Alt B plan now + reconcile task.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
