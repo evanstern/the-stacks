@@ -122,28 +122,28 @@ whose sources changed is re-pinned honestly. The runbook NEEDS-REVIEW notes for 
 
 **Independent test**: the freshness gate prints `OK`. The spec-bridge gate exits 0.
 
-- [ ] T012 Review `docs/wiki/websocket-gateway.md` against the Phase 1 diff. Rewrite the send
+- [x] T012 Review `docs/wiki/websocket-gateway.md` against the Phase 1 diff. Rewrite the send
   classification as two rows: gate request kind → gate; any other type → refused
   (`CATALOG_TYPE_REQUIRES_GATE` when catalogued, `UNKNOWN_EVENT_TYPE` when not). Drop the
   "TASK-0099 retires this path" line. Update `description:`. Re-pin `verified_against`.
-- [ ] T013 [P] Review `docs/wiki/ws-protocol.md`. Update the `send` classification prose and
+- [x] T013 [P] Review `docs/wiki/ws-protocol.md`. Update the `send` classification prose and
   the `error` frame's `code` examples to name `UNKNOWN_EVENT_TYPE`. Note the spec 043
   amendment beside the decision-0024 amendment in Connections. Do not change any frame shape.
   Re-pin.
-- [ ] T014 [P] Review `docs/wiki/proposal-gate.md`. Remove the legacy-path paragraph and the
+- [x] T014 [P] Review `docs/wiki/proposal-gate.md`. Remove the legacy-path paragraph and the
   `appendUncataloguedEvent` allow-list mention. State that `ws/gateway.ts` is no longer an
   allowed writer. Re-pin.
-- [ ] T015 [P] Update `docs/wiki/session-model.md` (drop `appendUncataloguedEvent` from the
+- [x] T015 [P] Update `docs/wiki/session-model.md` (drop `appendUncataloguedEvent` from the
   server append seam), `docs/wiki/event-log.md` (drop "legacy uncatalogued writes only"),
   `docs/wiki/benchmarks.md` (the WebSocket send is a `talk` gate request; the round trip is
   matched to its own event; an error frame counts as `ws_refused`) and
   `docs/wiki/test-suite.md` (the import-graph allow-list). Re-pin each note whose sources
   changed.
-- [ ] T016 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. In
+- [x] T016 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. In
   `docs/wiki/INDEX.md`, replace "the legacy uncatalogued `send` path remains until TASK-0099"
   with a statement that the path is retired (TASK-0099, specs/043), and update the
   `websocket-gateway` entry's line.
-- [ ] T017 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`.
+- [x] T017 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`.
   Expect `OK`. Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`.
   Expect exit 0. Run `pnpm ci:check`.
 

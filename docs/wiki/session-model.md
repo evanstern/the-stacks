@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/plan.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
 ---
 
 # Session model
@@ -115,8 +115,6 @@ later DM tests, and are a separate subpath so the main entry stays free of test 
   envelope first, then calls `appendBatch` (atomic, consecutive `seq`; see [[event-log]]).
 - `appendSessionEvents(db, inputs, options?)` vets every input, then calls `appendBatch`,
   forwarding `expectedLastSeq` (stale: `SeqConflictError`, [[event-log]]). The gate uses it.
-- `appendUncataloguedEvent(db, input)` is the legacy `send` path: it refuses any catalogued
-  type, else calls `append`.
 - `loadDmSeat(db, sessionId)` returns the `after` of the latest `dm.seat.changed` row, else the
   AI seat.
 - `appendMechanicsBatch` now builds its rows through the pure `mechanicsRows`.
