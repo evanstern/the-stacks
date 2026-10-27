@@ -88,10 +88,13 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (reclaim regression a6cad1c, work 4fa930d): driver waits or stops for a downed seat; stall reason seat-downed; downed-seat harness case; 032 scenario.md amended. The shipped greyhollow-ford CI case still passes. ci:check passed with REQUIRE_DATABASE=1.
 
 Phase 6 done (3363dbe): 11 notes re-pinned; ci:check green with REQUIRE_DATABASE=1; freshness OK; spec-bridge exit 0.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 6 (merge 9878726, wiki 3363dbe): 9 notes amended (NEEDS-REVIEW), 2 re-pinned only. Freshness OK; ci:check passed with REQUIRE_DATABASE=1.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
