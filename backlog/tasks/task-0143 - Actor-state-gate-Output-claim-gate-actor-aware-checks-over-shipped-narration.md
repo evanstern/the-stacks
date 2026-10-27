@@ -43,8 +43,6 @@ Spec: specs/051-output-claim-gate
 - [ ] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -88,6 +86,8 @@ Operator ruling 2026-10-27 (verbatim): "TASK-0143: keep the same-sentence pronou
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3, T015-T022: 551182e red tests, 9721e8f source. The four anonymous checks are replaced; seq 216 no longer refuses Tamsin. The fallback 400-iteration loop passes checkClaims. ci:check without a DB: only the 5 expected adjudicate.integration failures.)
 Matcher gap found: "Goblin three is dead" reads as the count claim "3 down". Phase 3 changed the fallback to say "<numbered target> dies." Model prose naming a numbered goblin would still be refused falsely. Phase 4 fixes the matcher: a number word right after a group noun is part of a name, not a count.
+
+spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 8/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 0/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 0/6 · Wiki re-ground: 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
