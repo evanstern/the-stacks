@@ -6,6 +6,7 @@ export const SrdKind = z.enum([
   "class",
   "equipment",
   "condition",
+  "rule",
 ]);
 
 export const RecordId = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/);
