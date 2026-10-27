@@ -107,15 +107,15 @@ companion card, the log with filters, and the highlight states for a selected jo
 
 ### Tests first
 
-- [ ] T027 [P] [US2] Write `apps/web/test/debug/job-card.test.tsx`: collapsed card shows kind, trigger, status, duration, attempts, call count, tokens, cost and badge; expanded turn shows the seven sections in order with "not run" placeholders; resolve rows show refusal codes and seq links; audit attempts list blocking and advisory issues separately with word count and prose hash; the fallback flag; the failure section with excerpts; a call without usage reads "usage not recorded"; a companion card shows plays and submissions; "link unknown" shows when `linkUnknown`.
-- [ ] T028 [P] [US3] Write `apps/web/test/debug/event-log.test.tsx`: each row shows seq, time, actor name, type, visibility and a collapsed payload; the type combobox has `role="combobox"`, `aria-expanded`, `aria-controls` and a `role="listbox"` of matching options; chosen filters narrow the rows; rows in the selected job's `wroteSeqs` carry the highlight marker; "show 500 older" appears past 500 rows.
-- [ ] T029 [P] [US3] Write `apps/web/test/debug/cross-link.test.tsx`: rendering `DebugView` with a selected seq highlights the job that wrote it; a seq no job wrote highlights no card.
+- [x] T027 [P] [US2] Write `apps/web/test/debug/job-card.test.tsx`: collapsed card shows kind, trigger, status, duration, attempts, call count, tokens, cost and badge; expanded turn shows the seven sections in order with "not run" placeholders; resolve rows show refusal codes and seq links; audit attempts list blocking and advisory issues separately with word count and prose hash; the fallback flag; the failure section with excerpts; a call without usage reads "usage not recorded"; a companion card shows plays and submissions; "link unknown" shows when `linkUnknown`.
+- [x] T028 [P] [US3] Write `apps/web/test/debug/event-log.test.tsx`: each row shows seq, time, actor name, type, visibility and a collapsed payload; the type combobox has `role="combobox"`, `aria-expanded`, `aria-controls` and a `role="listbox"` of matching options; chosen filters narrow the rows; rows in the selected job's `wroteSeqs` carry the highlight marker; "show 500 older" appears past 500 rows.
+- [x] T029 [P] [US3] Write `apps/web/test/debug/cross-link.test.tsx`: rendering `DebugView` with a selected seq highlights the job that wrote it; a seq no job wrote highlights no card.
 
 ### Implementation
 
-- [ ] T030 [P] [US2] Implement `apps/web/app/debug/components/job-card.tsx` and `apps/web/app/debug/components/job-timeline.tsx` (oldest at top, follow-bottom unless scrolled up, "load older jobs", scroll the selected card into view).
-- [ ] T031 [P] [US3] Implement `apps/web/app/debug/components/type-filter.tsx` (ARIA combobox autocomplete dropdown per research R6; no portal, no overlay) and `apps/web/app/debug/components/event-log.tsx` (filters, rows, payload expander with `JSON.stringify(v, null, 2)`, window per research R4).
-- [ ] T032 [US3] Wire selection in `apps/web/app/debug/components/debug-view.tsx`: selecting a job highlights its rows; clicking a row selects it, pins the state column (Phase 5 renders the pin) and highlights its job via `buildSeqIndex`.
+- [x] T030 [P] [US2] Implement `apps/web/app/debug/components/job-card.tsx` and `apps/web/app/debug/components/job-timeline.tsx` (oldest at top, follow-bottom unless scrolled up, "load older jobs", scroll the selected card into view).
+- [x] T031 [P] [US3] Implement `apps/web/app/debug/components/type-filter.tsx` (ARIA combobox autocomplete dropdown per research R6; no portal, no overlay) and `apps/web/app/debug/components/event-log.tsx` (filters, rows, payload expander with `JSON.stringify(v, null, 2)`, window per research R4).
+- [x] T032 [US3] Wire selection in `apps/web/app/debug/components/debug-view.tsx`: selecting a job highlights its rows; clicking a row selects it, pins the state column (Phase 5 renders the pin) and highlights its job via `buildSeqIndex`.
 
 **Checkpoint**: web tests and typecheck green. Commit `TASK-0117: Phase 4 — timeline, log, cross-links`.
 
