@@ -31,9 +31,8 @@
 
 ## Notes
 
-- The spec names server seams (subscribe opt-in, presence reader, turn record) because the card's
-  AC #1 and #4 are themselves about a protocol contract and a server interface. Frame shapes live
-  in `decision-draft.md`, not the spec.
-- Open questions Q1–Q5 go to the operator at checkpoint C2 instead of `[NEEDS CLARIFICATION]`
-  markers. `speckit-clarify` was skipped: the remaining ambiguity is the frame ruling, which C2 owns.
-- FR-001–FR-011 assume decision option A; a different ruling re-opens them before `plan.md`.
+- The spec names server seams (subscribe opt-in, presence reader, presence marker, turn record)
+  because the card's AC #1 and #4 are themselves about a protocol contract and a server
+  interface. Frame and marker shapes live in decision-0024.
+- Open questions Q1–Q5 went to the operator at checkpoint C2 and were ruled on 2026-10-26
+  (option D). `speckit-clarify` was skipped: C2 owned the remaining ambiguity.

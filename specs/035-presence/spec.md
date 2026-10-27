@@ -4,20 +4,24 @@
 
 **Created**: 2026-10-26
 
-**Status**: Draft — stopped at operator checkpoint C2 (frame ruling) before `plan.md`
+**Status**: Ruled — operator checkpoint C2 answered 2026-10-26 (option D); decision-0024
 
 **Input**: Board task TASK-0051: "Every connected client sees who is at the table, and the gate
-and the Director know which players are present." Carriage (protocol frame or session event)
-is decided by a decision record first; the draft is `decision-draft.md` in this directory.
+and the Director know which players are present." Carriage is decided by decision-0024 (D16):
+an opt-in presence frame for the UI, plus a logged `presence.recorded` marker whenever presence
+feeds a decision.
+
+`speckit-clarify` was skipped: the five open questions were put to the operator at checkpoint
+C2 and are resolved below from the rulings on the TASK-0051 card.
 
 **Card acceptance criteria → this spec**
 
 | Card AC | Covered by |
 |---|---|
-| #1 A decision record states how presence is carried and why | FR-001, `decision-draft.md` (moves to `backlog/decisions/` after the C2 ruling, and merges in this task's PR) |
+| #1 A decision record states how presence is carried and why | FR-001, decision-0024 (merges in this task's PR) |
 | #2 Every connected client sees the present players and the DM | User Story 1, FR-002–FR-007 |
 | #3 A disconnect updates presence within a stated timeout | User Story 2, FR-008–FR-011, SC-002 |
-| #4 The gate and the Director read presence through one server-side interface | User Story 3, FR-012–FR-016 |
+| #4 The gate and the Director read presence through one server-side interface | User Story 3, FR-012–FR-016, FR-018–FR-022 |
 | #5 Tests cover join, leave and reconnect | FR-017, SC-004 |
 
 ## User Scenarios & Testing *(mandatory)*
@@ -87,17 +91,20 @@ only present players.
 **Why this priority**: it is the card's stated reason for existing, but its behavioural
 payoff lands in TASK-0049 and TASK-0050. This task delivers the seam and its first reader.
 
-**Independent Test**: a unit test gives the Director's context a fake presence reader with one
-of two party players absent; the assembled turn context and the turn record both name only the
-present player.
+**Independent Test**: a test gives the gate a fake presence reader with one of two party players
+absent and runs a DM turn. The log gains one `presence.recorded` row naming only the present
+player, and the assembled turn context reads that set from the projection.
 
 **Acceptance Scenarios**:
 
-1. **Given** party players A and B with only A present, **When** a DM turn assembles, **Then**
-   the turn context lists A as present and B as absent, and the turn record stores that set.
-2. **Given** a server restart, **When** no one has reconnected yet, **Then** the presence
-   reader reports no human present for any table.
-3. **Given** an AI actor (the AI DM or an AI companion), **Then** the presence reader always
+1. **Given** party players A and B with only A present, **When** a DM turn starts, **Then** the
+   log gains a public `presence.recorded` row with `present: [A]` and purpose `director`, the
+   turn context lists A as present and B as absent, and the turn record stores the marker's seq.
+2. **Given** two DM turns with no presence change between them, **Then** each turn appends its
+   own marker row.
+3. **Given** a server restart, **When** no one has reconnected yet, **Then** the presence
+   reader reports no human present for any table. Markers already in the log are unchanged.
+4. **Given** an AI actor (the AI DM or an AI companion), **Then** the presence reader always
    reports it present.
 
 ---
@@ -125,10 +132,9 @@ present player.
 
 **Carriage (card AC #1)**
 
-- **FR-001**: Presence MUST be carried as `decision-draft.md` states once the operator rules at
-  C2. The ruled record MUST land in `backlog/decisions/` in this task's PR. Requirements below
-  assume the draft's recommendation (option A: a new server→client snapshot frame, opt-in on
-  subscribe, presence kept out of the event log). A different ruling re-opens FR-002–FR-011.
+- **FR-001**: Presence MUST be carried as decision-0024 states: live presence in an opt-in
+  `presence` frame, and a `presence.recorded` log marker at each decision read. The record MUST
+  merge in this task's PR. It amends the frozen ws-protocol contract.
 
 **What is shown (card AC #2)**
 
@@ -145,6 +151,9 @@ present player.
   party). It MUST show the AI DM as present whenever the seat is AI. It MUST show a human DM
   seat whose holder is absent as absent.
 - **FR-007**: The strip MUST NOT use a modal. Any detail view MUST open as a slide-out panel.
+- **FR-024**: The web client's `reduceFrame` MUST gain a `presence` branch and a `default`
+  branch. The `default` branch MUST return the state unchanged for an unknown frame type, so
+  the next additive frame needs no opt-in.
 
 **Timing (card AC #3)**
 
@@ -159,16 +168,20 @@ present player.
 
 **One server-side interface (card AC #4)**
 
-- **FR-012**: The server MUST expose one presence reader. The gate, the Director and the
-  gateway MUST obtain presence only through it. No other module may read the subscriber
-  registry to answer "who is present".
+- **FR-012**: The server MUST expose one presence reader. The gateway and the gate MUST obtain
+  live presence only through it. The Director obtains presence only through the gate's marker
+  (FR-019–FR-021), so every server-side read starts at the one reader. No other module may read
+  the subscriber registry to answer "who is present".
 - **FR-013**: The reader MUST answer, for a table, the set of present human user ids, and
   whether a given actor is present. Any AI actor MUST be reported present.
-- **FR-014**: The DM turn context MUST carry the present set from the reader. The turn record
-  MUST store the set the Director saw, so the playtest auditor can check a decision against it.
-- **FR-015**: The gate MUST receive the reader as a dependency. Gate behaviour MUST NOT change in
-  this task. TASK-0049 decides how group sign-off counts present players.
-- **FR-016**: Presence MUST NOT write to the event log, trigger a DM turn, or reach any model
+- **FR-014**: The DM turn context MUST carry the present set from the turn's marker (FR-021).
+  The turn record MUST store the marker's seq, so the playtest auditor can check a decision
+  against the log.
+- **FR-015**: The gate MUST receive the reader as a dependency. The behaviour of `submit` and
+  `handle` MUST NOT change in this task. TASK-0049 decides how group sign-off counts present
+  players.
+- **FR-016**: Live connection changes MUST NOT write to the event log. Only a decision read
+  writes, through FR-018. A marker MUST NOT trigger a DM turn. Presence MUST NOT reach any model
   prompt other than the Director's.
 
 **Tests (card AC #5)**
@@ -177,7 +190,34 @@ present player.
   first); leave (a clean close reaches the others within FR-008); reconnect inside the grace
   (no absent update is sent); silent loss (a heartbeat timeout closes the socket and the user
   goes absent); multi-tab (one close keeps the user present); non-opted-in subscriber (no
-  presence frame); the reader (AI actors present, restart empty).
+  presence frame); the reader (AI actors present, restart empty); the marker (one row per
+  turn, public, actor `system`, folded into the `presence` view, no turn enqueued); the unknown
+  frame `default` branch.
+
+**The presence marker (decision-0024, Constitution IV)**
+
+- **FR-018**: The session-model catalog MUST gain `presence.recorded`, version 1, kind `marker`,
+  catalog visibility `any`, `current: true`. The payload schema is
+  `{ present: uuid[], purpose: "director" | "signoff" | "floor", actionId?: RefId }`.
+  `present` MUST be sorted, unique, and at most 64 entries. The row MUST be stored with
+  visibility `public` and actor `system`.
+- **FR-019**: The gate MUST expose `recordPresence(sessionId, { purpose, actionId? })`. It reads
+  the present set from the reader, appends one marker through the catalog vetting path with
+  `expectedLastSeq` and the gate's bounded retry, and notifies `onAppended` listeners. It
+  returns the stored row. It MUST NOT deduplicate against an earlier marker.
+- **FR-020**: The DM worker MUST call `gate.recordPresence(sessionId, { purpose: "director" })`
+  once per claimed `turn` job, before the pipeline runs. A refused or failed record fails the
+  turn the way any other pre-pipeline failure does. Companion and chronicle jobs MUST NOT record.
+- **FR-021**: `project()` MUST fold the latest marker into a `presence` view:
+  `{ present, purpose, actionId, seq } | null`. The assemble node MUST read the Director's
+  present set from this view, never from the reader. The turn record (`jobs.result`) MUST store
+  the marker's `seq` as `presenceSeq`. The transcript MUST NOT show the marker.
+- **FR-022**: The DM enqueuer MUST NOT enqueue a turn for a `presence.recorded` row. The marker
+  reaches subscribers as an ordinary `event` frame. A client running the previous bundle skips
+  it as an unknown type.
+- **FR-023**: Purposes `signoff` and `floor` are reserved in the v1 schema for TASK-0049 and
+  TASK-0050. Those cards append the marker in the same batch as the commit it fed. This task
+  writes only `director`.
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -186,8 +226,8 @@ present player.
   that path.
 - **CR-006** (IV. Event-sourced play, server authority): Presence MUST be server-authoritative:
   a client cannot declare another user present. Roles shown beside presence MUST be derived from
-  the log. Whether connection state outside the log satisfies "client state MUST be a
-  projection of the log" is the ruling `decision-draft.md` asks the operator for.
+  the log. Agent context MUST be a projection of the log: the Director reads presence only from
+  the folded `presence.recorded` marker (FR-021). The marker is written only by the gate.
 - **CR-004** (VI. 5e engine boundary): Presence MUST NOT reach mechanics. No roll or number may
   depend on it.
 
@@ -198,7 +238,9 @@ presence creates no content entity, draws nothing from the library, and ships no
 
 - **Presence entry**: one present user at one table — user id and display name.
 - **Present set**: the presence entries for one table at one moment. Ephemeral: rebuilt from live
-  connections, never stored.
+  connections. Stored only as a marker when a decision reads it.
+- **Presence marker**: one `presence.recorded` row — the present user ids a decision read, the
+  decision's purpose, and an optional action id.
 - **Presence reader**: the one server-side question "who is present at table T", used by the
   gateway, the gate and the Director.
 
@@ -213,32 +255,35 @@ presence creates no content entity, draws nothing from the library, and ships no
 - **SC-003**: A page reload shows no absent flicker to other viewers, in an automated test.
 - **SC-004**: Every scenario in FR-017 has a passing test, and `pnpm ci:check` is green.
 - **SC-005**: A tab running the pre-change client stays working when connected to the changed
-  server (no presence frame reaches it), in an automated test.
+  server (no presence frame reaches it, and a marker row folds as an unknown type), in an
+  automated test.
+- **SC-006**: A DM turn on a table with one of two players absent appends a marker naming only
+  the present player, and the turn record names its seq, in a database test.
 
 ## Assumptions
 
 - The server is one process. The DM worker, the gate and the gateway share memory
   (`apps/server/src/index.ts`), so an in-memory reader serves all three. A multi-process
-  deployment would need a shared presence store; see open question Q4.
+  deployment would need a shared presence store; TASK-0136 revisits it when a second server
+  process is planned.
 - The Director never waits on a human today: its `hold` waits only for AI companions
   (`apps/server/src/dm/nodes/director.ts`). "The Director must not wait on an absent player"
   becomes live when TASK-0050 (floor) and TASK-0049 (sign-off) add waits on humans. This task
-  supplies the present set to the Director and records it; it does not change a Director
+  logs the present set at each turn and gives it to the Director; it does not change a Director
   decision.
 - Display names come from `users.display_name`, read once at upgrade beside the identity.
 - The client keeps retrying every second (`useSession`), so a reload reconnects well inside the
   5-second grace.
 
-## Open Questions (for the operator at C2)
+## Resolved Questions (operator rulings, checkpoint C2, 2026-10-26)
 
-- **Q1 — Carriage.** Rule on `decision-draft.md`: option A (recommended), B, C or D.
-- **Q2 — Constitution IV reading.** Option A keeps presence outside the log. Rule whether
-  "client state MUST be a projection of the log" covers connection state. If it does, A needs a
-  constitution amendment, or option B or D applies.
-- **Q3 — Observers.** Should a connected user who is neither seated DM nor a party player appear
-  in the strip (as "observer"), or be hidden? The spec assumes shown.
-- **Q4 — Multi-process.** The in-memory reader assumes one server process. If a multi-process
-  deployment is planned, card a shared presence store with that trigger (decision-0020).
-- **Q5 — Absent DM.** When a human DM seat holder is absent, should anything beyond the strip
-  happen (for example, the AI DM covering)? The spec does nothing beyond the strip; a behaviour
-  change needs its own card.
+- **Q1 — Carriage.** "D: frame + log marker". The frame of draft option A, plus the
+  `presence.recorded` marker at decision points (FR-018–FR-023).
+- **Q2 — Constitution IV reading.** Resolved by D: the marker makes the Director's presence
+  context a projection of the log. Live connection state reaches only the UI strip. No
+  constitution amendment is needed.
+- **Q3 — Observers.** "Show as observer" (FR-006, User Story 1 scenario 4).
+- **Q4 — Multi-process.** "Card the revisit": TASK-0136, trigger "a second server process is
+  planned".
+- **Q5 — Absent DM.** No new behaviour beyond the strip (FR-006, User Story 1 scenario 3).
+- **Timings.** "Timings stand" (FR-008–FR-011).
