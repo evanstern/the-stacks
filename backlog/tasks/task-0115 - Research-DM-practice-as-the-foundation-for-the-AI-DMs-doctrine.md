@@ -4,7 +4,7 @@ title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:44'
-updated_date: '2026-10-27 01:44'
+updated_date: '2026-10-27 01:46'
 labels:
   - research
   - dm
@@ -39,6 +39,16 @@ Branch 0 (DM craft map), operator-approved 2026-10-26:
 3. Orchestrator (opus) reviews and writes the analysis note: competency x component x refactor risk, ranked deep-dive branches.
 4. Operator check-in on the map before branch 1 (dice versus player).
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Branch 0 gather (A1 books, A2 web, A3 project), 2026-10-26:
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(A1 served model verified from its transcript before A2/A3 launched; A2/A3 re-verified at completion.)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
