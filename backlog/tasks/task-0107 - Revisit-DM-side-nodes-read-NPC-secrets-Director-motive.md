@@ -4,6 +4,7 @@ title: 'Revisit: DM-side nodes read NPC secrets (Director motive)'
 status: To Do
 assignee: []
 created_date: '2026-10-26 18:11'
+updated_date: '2026-10-27 03:59'
 labels:
   - dm
   - revisit
@@ -25,7 +26,17 @@ Context: TASK-0106 (specs/034-narration-quality) moved Snag's motive from portra
 <!-- AC:BEGIN -->
 - [ ] #1 A decision records whether DM-side nodes read NPC secrets, with the evidence that triggered the revisit
 - [ ] #2 If yes, a DM-only seed view feeds them, and a test proves the goalNote path cannot carry a secret to player-facing prompts
+- [ ] #3 a DM-only seed view type feeds the four DM-side prompts
+- [ ] #4 narrate takes Director guidance only as structured fields, and `goalNote` reaches Interpret only
+- [ ] #5 a type-level test proves no player-facing prompt builder accepts the DM-only view or Director free text
+- [ ] #6 the 034 contract's "Who gets what" table is amended
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+ADOPTED 2026-10-26 by decision-0026 (D18, TASK-0119 analysis, card K3); operator ruling 'K3 now' puts it in m-3 Track C now (floats; runbook amendment 1). Outcome: the Director, Interpret, Adjudicate and the audit read NPC `knows`, `secrets` and `relationships`; no player-facing prompt can receive them or Director free text.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
