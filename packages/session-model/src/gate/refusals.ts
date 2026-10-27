@@ -19,6 +19,9 @@ export const GateRefusalCodeSchema = z.enum([
   "PROPOSAL_NOT_APPROVABLE",
   "CONFLICT",
   "CHARACTER_UNABLE",
+  "FLOOR_NOT_HELD",
+  "TURN_MOVED",
+  "NOT_TURN_MODE",
 ]);
 
 /** The `details.reason` values of a `CHARACTER_UNABLE` refusal (an open set). */

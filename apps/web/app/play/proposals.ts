@@ -198,6 +198,12 @@ function detailsOf(
         { label: "Entry", value: proposal.entry.body },
         { label: "Visibility", value: visibilityLabel(proposal.visibility) },
       ];
+    case "floor":
+      return [
+        { label: "Request", value: proposal.op },
+        { label: "Reason", value: proposal.reason },
+        { label: "Visibility", value: "Everyone" },
+      ];
   }
 }
 

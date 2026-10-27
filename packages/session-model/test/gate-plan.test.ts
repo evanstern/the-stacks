@@ -1325,7 +1325,9 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
       after: { mode: "turn", activeActor: "ai:dm", activeCharacterId: null },
     });
     const wrap = floorFold({ active: "goblin" });
-    const wrapRows = okRows(plan(wrap, aiDm, floor("end", turnOf("goblin"))));
+    const wrapRows = okRows(
+      plan(wrap, seatedDm, floor("end", turnOf("goblin"))),
+    );
     expect(wrapRows[wrapRows.length - 1]?.payload).toMatchObject({
       after: { activeActor: PLAYER_A, activeCharacterId: "ana" },
     });
@@ -1374,7 +1376,11 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
 
   it("take plans one table-mode row naming the DM and leaves the engine turn alone", () => {
     const p = floorFold({ active: "ana" });
-    const result = plan(p, seatedDm, floor("take", turnOf("ana"), "DM steps in."));
+    const result = plan(
+      p,
+      seatedDm,
+      floor("take", turnOf("ana"), "DM steps in."),
+    );
     expect(okRows(result)).toEqual([
       {
         actor: DM_USER,
@@ -1383,7 +1389,11 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
         payload: {
           reason: "DM steps in.",
           before: p.tableMode,
-          after: { mode: "turn", activeActor: DM_USER, activeCharacterId: null },
+          after: {
+            mode: "turn",
+            activeActor: DM_USER,
+            activeCharacterId: null,
+          },
         },
       },
     ]);
@@ -1493,9 +1503,9 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
 
     it("ai:dm take or return -> NOT_AUTHORIZED; a player's take -> NOT_DM", () => {
       const p = floorFold({ active: "ana" });
-      expect(
-        refusalOf(plan(p, aiDm, floor("take", turnOf("ana")))).code,
-      ).toBe("NOT_AUTHORIZED");
+      expect(refusalOf(plan(p, aiDm, floor("take", turnOf("ana")))).code).toBe(
+        "NOT_AUTHORIZED",
+      );
       const held = floorFold({ active: "ana", held: true });
       expect(
         refusalOf(plan(held, aiDm, floor("return", turnOf("ana")))).code,
@@ -1514,8 +1524,6 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
 
   it("mutates no input", () => {
     const p = deepFreeze(floorFold({ active: "ana", downBram: true }));
-    expect(() =>
-      plan(p, ana, floor("end", turnOf("ana")), [5]),
-    ).not.toThrow();
+    expect(() => plan(p, ana, floor("end", turnOf("ana")), [5])).not.toThrow();
   });
 });

@@ -114,6 +114,15 @@ export type {
   SignoffState,
 } from "./gate/signoff.js";
 export { signoffState } from "./gate/signoff.js";
+export type { SettleStep, TurnRef } from "./gate/turn.js";
+export {
+  activeActorFor,
+  canAct,
+  currentTurn,
+  floorHeld,
+  INCAPACITATING,
+  nextSettleStep,
+} from "./gate/turn.js";
 export {
   ActorIdSchema,
   CombatantIdSchema,

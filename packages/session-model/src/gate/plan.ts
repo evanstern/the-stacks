@@ -1,4 +1,9 @@
-import { type EngineEvent, execute, type Rng } from "@the-stacks/dnd5e-engine";
+import {
+  type EngineEvent,
+  evolve,
+  execute,
+  type Rng,
+} from "@the-stacks/dnd5e-engine";
 import { catalogEntry, currentVersion } from "../catalog.js";
 import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
@@ -6,8 +11,15 @@ import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
 import type { GateRefusal } from "./refusals.js";
-import { controls, isDm, isPartyMember } from "./roles.js";
+import { controls, isAiDm, isDm, isPartyMember, isSeatedDm } from "./roles.js";
 import { signoffState } from "./signoff.js";
+import {
+  activeActorFor,
+  canAct,
+  currentTurn,
+  floorHeld,
+  nextSettleStep,
+} from "./turn.js";
 
 export interface PlannedRow {
   actor: string;
@@ -133,6 +145,163 @@ function signoffMarker(
       actionId,
     },
   };
+}
+
+/** The `floor` presence marker row: who was present when the AI DM passed an absent human. */
+function floorMarker(present: readonly string[]): PlannedRow {
+  return {
+    actor: "system",
+    type: "presence.recorded",
+    visibility: "public",
+    payload: { present: [...new Set(present)].sort(), purpose: "floor" },
+  };
+}
+
+type FloorProposal = Extract<Proposal, { kind: "floor" }>;
+
+/**
+ * Plans a `floor` request (specs/049-turn-floor, research R3 to R5). Checks run in order
+ * before any die is drawn; a refusal plans no rows. `end` runs `turn.advance` and the
+ * shared settling rule on an evolving engine state, then names the next holder.
+ */
+function planFloor(
+  p: SessionProjections,
+  proposer: Proposer,
+  proposal: FloorProposal,
+  rng: Rng,
+  ids: PlanIds,
+  proposalId: string | null,
+  context: PlanContext | undefined,
+): PlanResult {
+  const actor = actorOf(proposer);
+  const now = currentTurn(p);
+  if (p.tableMode.mode !== "turn" || now === null) {
+    return refuse("NOT_TURN_MODE", "the table is not in turn mode");
+  }
+  if (
+    proposal.turn.round !== now.round ||
+    proposal.turn.combatantId !== now.combatantId
+  ) {
+    return refuse("TURN_MOVED", "the turn has moved", {
+      expected: proposal.turn,
+      actual: now,
+    });
+  }
+  const holder = p.tableMode.activeActor;
+  const seated = isSeatedDm(p, proposer);
+  const toModeRow = (after: unknown): PlannedRow => ({
+    actor,
+    type: "table-mode.changed",
+    visibility: "public",
+    payload: { reason: proposal.reason, before: p.tableMode, after },
+  });
+
+  if (proposal.op !== "end") {
+    if (!seated) {
+      return isAiDm(proposer)
+        ? refuse(
+            "NOT_AUTHORIZED",
+            "the AI DM does not take or return the floor",
+          )
+        : refuse("NOT_DM", "only the seated DM takes or returns the floor");
+    }
+    const held = floorHeld(p);
+    if (proposal.op === "take") {
+      if (held) return refuse("INVALID_PROPOSAL", "the DM holds the floor");
+      return one(
+        actor,
+        "table-mode.changed",
+        toModeRow({
+          mode: "turn",
+          activeActor: actor,
+          activeCharacterId: null,
+        }).payload,
+      );
+    }
+    if (!held)
+      return refuse("INVALID_PROPOSAL", "the DM does not hold the floor");
+    return one(
+      actor,
+      "table-mode.changed",
+      toModeRow({ mode: "turn", ...activeActorFor(p, now.combatantId) })
+        .payload,
+    );
+  }
+
+  if (isAiDm(proposer)) {
+    const absent =
+      !holder.startsWith("ai:") &&
+      context?.present !== undefined &&
+      !context.present.includes(holder);
+    if (!absent) {
+      return refuse(
+        "NOT_AUTHORIZED",
+        "the AI DM passes only an absent human's turn",
+      );
+    }
+  } else if (!seated && actor !== holder) {
+    return refuse("FLOOR_NOT_HELD", "the floor is not yours", { holder });
+  }
+
+  let state = p.engine;
+  const events: EngineEvent[] = [];
+  const step = (command: unknown): PlanResult | null => {
+    const result = execute(state, command, rng);
+    if (!result.ok) {
+      const { code, message, details } = result.refusal;
+      return {
+        ok: false,
+        refusal: {
+          source: "engine",
+          code,
+          message,
+          ...(details ? { details } : {}),
+        },
+      };
+    }
+    for (const event of result.events) state = evolve(state, event);
+    events.push(...result.events);
+    return null;
+  };
+  const activeOf = (): string =>
+    state.encounter?.order[state.encounter.turnIndex]?.combatantId ?? "";
+
+  const advanced = step({ type: "turn.advance", reason: proposal.reason });
+  if (advanced) return advanced;
+  const lap = state.encounter?.order.length ?? 0;
+  for (let n = 0; n < lap; n++) {
+    const next = nextSettleStep(state);
+    if (!next) break;
+    if (next.type === "death-save.roll") {
+      const rolled = step({
+        type: "death-save.roll",
+        targetId: next.targetId,
+        mode: "normal",
+        reason: "Death saving throw at the start of the turn",
+      });
+      if (rolled) return rolled;
+      if (canAct(state, next.targetId)) break;
+    }
+    const passed = step({
+      type: "turn.advance",
+      reason: "The turn passes a downed combatant",
+    });
+    if (passed) return passed;
+  }
+
+  const rows: PlannedRow[] = [
+    ...(isAiDm(proposer) ? [floorMarker(context?.present ?? [])] : []),
+    ...mechanicsRows({
+      actor,
+      batchId: ids.batchId,
+      events,
+      actionId: null,
+      proposalId,
+      visibility: "public",
+    }),
+    toModeRow({ mode: "turn", ...activeActorFor(p, activeOf()) }),
+  ];
+  return { ok: true, rows, batchId: ids.batchId };
 }
 
 function plan(
@@ -507,6 +676,8 @@ function plan(
         "dm",
       );
     }
+    case "floor":
+      return planFloor(p, proposer, proposal, rng, ids, proposalId, context);
     case "journal": {
       if (p.journal.some((j) => j.entryId === proposal.entry.entryId)) {
         return refuse("JOURNAL_ENTRY_EXISTS", "the journal entry exists");
