@@ -33,6 +33,11 @@ export interface Submission {
 Resolve runs these groups in order. Each group is a list of submissions. The order is stated in
 [turn-jobs.md](turn-jobs.md) "Resolve order (decision-0025 §4)".
 
+0. **Plan gate** (pure, runs once before any write). `checkPlan` tests every actor and target id of
+   every action group and the NPC group against the S0 actors' `combatantId`s plus the ids the
+   turn's encounter start adds. A refused action group submits `action.resolve` `refused`
+   `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
+   advances. The verdicts go to `TurnCheckpoint.planGate`.
 1. **Opening moves** ([director.md](director.md)): scene, party, combatants and trackers (scene
    start); the `turn` decision's combatants, initiative and turn mode.
 2. **Ruling group**: one `journal` proposal per ruling, visibility `dm`, entry id

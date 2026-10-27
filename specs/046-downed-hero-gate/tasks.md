@@ -132,7 +132,7 @@ row of that group lands.
 **Independent test**: `apps/server/test/dm/plan-gate.test.ts` (unit) and the new resolve
 integration cases.
 
-- [ ] T016 [P] Write `apps/server/test/dm/plan-gate.test.ts` over S0 built with
+- [x] T016 [P] Write `apps/server/test/dm/plan-gate.test.ts` over S0 built with
       `test/dm/snapshot-fixtures.ts`. Cover spec User Story 5, scenarios 1, 2, 4 and 6:
       - an effect on `pell` (`not-a-combatant`);
       - an unknown id (`not-in-snapshot`);
@@ -142,24 +142,24 @@ integration cases.
       - the NPC group;
       - the `joining` ids for an ambush;
       - an all-valid plan.
-- [ ] T017 Implement `apps/server/src/dm/gates/plan-gate.ts` (`checkPlan`, `PlanVerdict`,
+- [x] T017 Implement `apps/server/src/dm/gates/plan-gate.ts` (`checkPlan`, `PlanVerdict`,
       `PlanFailure`) per plan D3. Extract the "monsters an encounter start adds" helper so that
       `directorOpening` and `checkPlan` share it.
-- [ ] T018 Wire `checkPlan` into `apps/server/src/dm/nodes/resolve.ts`:
+- [x] T018 Wire `checkPlan` into `apps/server/src/dm/nodes/resolve.ts`:
       - call it once at the top, before `directorOpening`;
       - a refused action group submits `action.resolve` `refused` with `UNKNOWN_COMBATANT`
         and runs no step;
       - a refused NPC group runs no step and lets the turn advance.
-- [ ] T019 Add `planGate?: PlanVerdict[]` to `TurnCheckpoint` in `apps/server/src/dm/jobs.ts`.
+- [x] T019 Add `planGate?: PlanVerdict[]` to `TurnCheckpoint` in `apps/server/src/dm/jobs.ts`.
       Fill it where resolve's checkpoint is written.
-- [ ] T020 Add resolve integration cases in `apps/server/test/dm/resolve.integration.test.ts`
+- [x] T020 Add resolve integration cases in `apps/server/test/dm/resolve.integration.test.ts`
       for User Story 5, scenarios 3 and 5:
       - step 0 valid and step 1 on `pell`: no row from step 0, outcome `refused`;
       - a refused NPC group: the turn still advances.
       Re-run spec 045's ambush case (SC-003) unchanged.
-- [ ] T021 Confirm `apps/server/test/dm/boundary.test.ts` passes: narrate's import closure
+- [x] T021 Confirm `apps/server/test/dm/boundary.test.ts` passes: narrate's import closure
       does not include `plan-gate.ts`.
-- [ ] T022 Amend `specs/031-dm-runtime/contracts/resolve.md` "Order of work" to put the plan
+- [x] T022 Amend `specs/031-dm-runtime/contracts/resolve.md` "Order of work" to put the plan
       gate first. Amend `specs/040-actor-snapshot/contracts/actor-snapshot.md` "Extension
       points": the TASK-0112 plan gate is built, and TASK-0141 adds the absent reason.
 

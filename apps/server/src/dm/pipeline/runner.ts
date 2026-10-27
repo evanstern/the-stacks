@@ -222,6 +222,7 @@ export async function runTurn(
       ...ctx.checkpoint,
       submissions: resolved?.submissions ?? ctx.checkpoint.submissions,
       lastSeq: resolved?.lastSeq ?? ctx.checkpoint.lastSeq,
+      ...(resolved ? { planGate: resolved.planGate } : {}),
     };
     if (!(await ctx.deps.fence())) return fenced("resolve");
     const shipped = await submitNarration(ctx, audited, checkpoint);

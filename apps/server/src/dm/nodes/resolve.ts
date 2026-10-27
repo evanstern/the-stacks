@@ -9,6 +9,12 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
+import {
+  checkPlan,
+  encounterToStart,
+  joiningCombatants,
+  type PlanVerdict,
+} from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { combatantFromSrd } from "../seed/combatants.js";
@@ -88,6 +94,8 @@ export interface ResolveOutput {
   snapshot: ActorSnapshot;
   /** The S0-to-S1 diff. */
   diff: SnapshotDiff;
+  /** The plan gate's verdict per action group (TASK-0112). */
+  planGate?: PlanVerdict[];
 }
 
 class Stop extends Error {
@@ -217,6 +225,8 @@ class Run {
   lastSeq: number;
   private checkLanded: boolean;
   private checkpoint: TurnCheckpoint;
+  /** The plan gate's verdicts; saved with every checkpoint this run writes. */
+  planGate: PlanVerdict[] = [];
 
   constructor(readonly ctx: TurnContext) {
     this.checkpoint = ctx.checkpoint;
@@ -341,6 +351,7 @@ class Run {
       ...this.checkpoint,
       submissions: this.submissions,
       lastSeq: this.lastSeq,
+      planGate: this.planGate,
     });
     if (!saved) throw stop("fenced", "the lease was lost");
     return sub;
@@ -701,7 +712,7 @@ async function directorOpening(
   // table mode
   const tm = director.tableMode;
   if (tm.to === "turn") {
-    const enc = seed.encounters.find((e) => e.id === tm.encounterId);
+    const enc = encounterToStart(seed, director, ctx.job.trigger);
     if (enc) {
       for (const m of enc.monsters) {
         if (p.engine.combatants[m.combatantId]) continue;
@@ -826,11 +837,14 @@ async function resolveAction(
   item: BeatItem,
   reading: InterpretReading | undefined,
   ruling: { steps: Step[] } | undefined,
+  verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
-  const chain: ChainResult = clarify
-    ? { batchIds: [], awaiting: false, firstRefusal: null }
-    : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
+  const planRefused = verdict !== undefined && !verdict.ok;
+  const chain: ChainResult =
+    planRefused || clarify
+      ? { batchIds: [], awaiting: false, firstRefusal: null }
+      : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
   if (chain.awaiting) {
     return {
       actionId: item.actionId,
@@ -842,7 +856,11 @@ async function resolveAction(
   const batchIds = [...new Set(chain.batchIds)].slice(0, 20);
   let outcome: "applied" | "refused" | "no-effect";
   let refusalCode: string | null = null;
-  if (batchIds.length > 0) outcome = "applied";
+  if (planRefused) {
+    // The plan gate refused the whole group before any step ran.
+    outcome = "refused";
+    refusalCode = "UNKNOWN_COMBATANT";
+  } else if (batchIds.length > 0) outcome = "applied";
   else if (chain.firstRefusal) {
     outcome = "refused";
     refusalCode = chain.firstRefusal.code;
@@ -903,6 +921,22 @@ export const resolve: Node<"resolve"> = async (ctx) => {
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {
+    // The plan gate is pure: it runs first and changes no write order. It
+    // accepts the ids this turn's encounter start adds (spec 045 SC-003).
+    const planReadings = hold ? [] : (ctx.results.interpret?.readings ?? []);
+    const planRulings = hold ? [] : (ctx.results.adjudicate?.rulings ?? []);
+    run.planGate = checkPlan({
+      snapshot: assembled.snapshot,
+      readings: planReadings,
+      rulings: planRulings,
+      joining: joiningCombatants(
+        encounterToStart(ctx.seed, director, ctx.job.trigger),
+        assembled.projections.engine.combatants,
+      ),
+    });
+    const verdictFor = (actionId: string | null) =>
+      run.planGate.find((v) => v.actionId === actionId);
+
     // Decision-0025 §4: opening moves, rulings, actions, NPC, closing moves,
     // turn advance. Hold runs the opening and closing moves only.
     await directorOpening(run, ctx, assembled, director, local);
@@ -945,7 +979,15 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         if (item.status === "resolved") continue;
         const reading = readings.find((r) => r.actionId === item.actionId);
         const ruling = rulings.find((r) => r.actionId === item.actionId);
-        actionResults.push(await resolveAction(run, item, reading, ruling));
+        actionResults.push(
+          await resolveAction(
+            run,
+            item,
+            reading,
+            ruling,
+            verdictFor(item.actionId),
+          ),
+        );
       }
 
       // NPC group.
@@ -953,7 +995,11 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         const reading = readings.find((r) => r.actionId === null);
         const ruling = rulings.find((r) => r.actionId === null);
         const { steps } = actionGroupSteps(reading, ruling);
-        const chain = await runSteps(run, "npc", steps, null);
+        const npcVerdict = verdictFor(null);
+        const chain =
+          npcVerdict && !npcVerdict.ok
+            ? { batchIds: [] as string[], awaiting: false }
+            : await runSteps(run, "npc", steps, null);
         npcTurn = {
           combatantId: assembled.npcTurn.combatantId,
           batchIds: [...new Set(chain.batchIds)],
@@ -1073,6 +1119,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       chronicle: false,
       npcTurn,
       lastSeq: run.lastSeq,
+      planGate: run.planGate,
     },
   };
 };

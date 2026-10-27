@@ -209,9 +209,12 @@ describe.skipIf(!reachable)("resolve (database)", () => {
   it("names the seqs each submission appended; a refusal names none", async () => {
     const w = await createWorld({ dice: [10] });
     await startScene(w);
-    const id = await commitAction(w, "Tamsin swings at a shadow.");
+    const id = await commitAction(w, "Tamsin swings at Kestrel.");
+    // An engine refusal that passes the plan gate: both ids are S0 combatants.
     const out = await run(w, [
-      reading(id, [attackStep("nobody")], { intent: "attack" }),
+      reading(id, [attackStep("kestrel", { expression: "not dice" })], {
+        intent: "attack",
+      }),
     ]);
     const refused = out.submissions.find((x) => x.result === "refused");
     expect(refused?.seqs).toEqual([]);
@@ -533,6 +536,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       );
       expect(out.actionResults[0]?.refusalCode).toBeNull();
       expect(out.actionResults[0]?.outcome).toBe("applied");
+      expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
       const rows = await readRows(w);
       const added = rows.filter(
         (r) =>
@@ -629,8 +633,8 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const w = await inTurnMode([...initDice(TAMSIN_FIRST), 10]);
       const id = await commitAction(w, "Tamsin bargains with Pell.");
       freshCheckpoint(w);
-      // TASK-0112 AC #5 will refuse this plan at the plan gate; until then the
-      // engine refuses the step, and the refusal must land before the encounter ends.
+      // The plan gate (TASK-0112) refuses this plan; the refusal must land
+      // before the encounter ends.
       const out = await run(
         w,
         [reading(id, [checkStep({ combatantId: "pell" })])],
@@ -647,6 +651,71 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       expect(resolvedRow(rows, id).seq).toBeLessThan(
         seqOf(rows, "encounter.ended"),
       );
+    });
+
+    describe("plan gate (TASK-0112)", () => {
+      it("refuses the whole action group when a later step names a non-combatant, with no row from step 0", async () => {
+        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
+        const id = await commitAction(
+          w,
+          "Tamsin forces the shutter, then Pell.",
+        );
+        freshCheckpoint(w);
+        const before = (await readRows(w)).length;
+        const out = await run(
+          w,
+          [reading(id, [checkStep(), checkStep({ combatantId: "pell" })])],
+          { job: nextJob() },
+        );
+        expect(out.actionResults).toMatchObject([
+          {
+            actionId: id,
+            outcome: "refused",
+            refusalCode: "UNKNOWN_COMBATANT",
+          },
+        ]);
+        expect(out.planGate).toMatchObject([
+          {
+            actionId: id,
+            ok: false,
+            code: "UNKNOWN_COMBATANT",
+            failure: { stepIndex: 1, id: "pell", reason: "not-a-combatant" },
+          },
+        ]);
+        const rows = (await readRows(w)).slice(before);
+        expect(rows.some((r) => r.type === "check.resolved")).toBe(false);
+        expect(
+          out.submissions.map((s) => s.key).filter((k) => k.startsWith("act:")),
+        ).toEqual([`act:${id}:resolve`]);
+        expect(w.scripted.remaining().dice).toBe(1);
+      });
+
+      it("a refused NPC group runs no step and the turn still advances", async () => {
+        const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
+        freshCheckpoint(w);
+        const before = (await readRows(w)).length;
+        const out = await run(
+          w,
+          [reading(null, [attackStep("pell", { attackerId: "snag" })])],
+          { job: { ...nextJob(), trigger: "npc-turn" } },
+        );
+        expect(out.planGate).toMatchObject([
+          { actionId: null, ok: false, failure: { id: "pell" } },
+        ]);
+        expect(out.npcTurn).toMatchObject({ batchIds: [], awaitingDm: false });
+        const rows = (await readRows(w)).slice(before);
+        expect(rows.some((r) => r.type === "attack.resolved")).toBe(false);
+        expect(rows.some((r) => r.type === "turn.advanced")).toBe(true);
+      });
+
+      it("records an all-valid verdict and runs the plan unchanged", async () => {
+        const w = await createWorld({ dice: [15] });
+        await startScene(w);
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        const out = await run(w, [reading(id, [checkStep()])]);
+        expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
+        expect(out.actionResults[0]?.outcome).toBe("applied");
+      });
     });
   });
 
