@@ -1,9 +1,10 @@
 ---
 id: TASK-0100
 title: 'Approval panel: suggest proposals offer no Approve control'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 05:00'
+updated_date: '2026-10-27 10:30'
 labels:
   - ui
   - gate
@@ -30,6 +31,12 @@ No modals: slide-out panels or autocomplete dropdowns only.
 - [ ] #2 A suggest proposal offers a dismiss control and no Approve control.
 - [ ] #3 A test proves no Approve control renders for a suggest proposal.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0100, branch task-0100-suggest-no-approve, cut from origin/main 5cae90e. Spec number 047 claimed with a stub. Session 2 of the M3 orchestrator (2026-10-27). Track A4.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
