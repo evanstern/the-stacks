@@ -4,7 +4,7 @@ title: Add the SRD 5.2.1 Playing the Game rules text to packages/srd
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-10-27 03:28'
+updated_date: '2026-10-27 03:37'
 labels:
   - srd
   - rules
@@ -27,12 +27,20 @@ Spec: specs/039-srd-rules-text
 - [ ] #1 packages/srd exposes the Playing the Game sections as validated records with heading-path ids
 - [ ] #2 The CC-BY-4.0 attribution covers the new records
 - [ ] #3 A test proves the DC table and each d20-test section load
+- [ ] #4 Spec phase: Rule kind in the package (schema, loader, compact)
+- [ ] #5 Spec phase: Generated rule data and coverage proof
+- [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0123, branch task-0123-srd-rules-text, cut from origin/main a4aab3c. Spec number 039 claimed with a stub. Track C2.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+(spec authoring, spec 039, commit 82d8188; served verified from transcript; ~156k tokens.) Deviation: plan.md and tasks.md written to the Spec Kit templates by hand, not via the speckit-plan/speckit-tasks skills; reported to the operator.
+
+ORCHESTRATOR RULINGS 2026-10-26 on spec open questions: OQ-1 the rest of the Rules Glossary is out of scope; carded as a revisit with a trigger. OQ-2 TASK-0104 offers rule citations in the adjudicate prompt (DC table first). OQ-3 the SRD PDF is needed by Phase 2 only; operator asked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
