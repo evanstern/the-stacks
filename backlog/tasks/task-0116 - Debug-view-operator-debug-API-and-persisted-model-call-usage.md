@@ -4,7 +4,7 @@ title: 'Debug view: operator debug API and persisted model-call usage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 04:15'
+updated_date: '2026-10-27 04:23'
 labels:
   - debug-view
   - server
@@ -63,6 +63,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 3, T018-T029, commit fac9d65; four operator-only GET routes; first full ci:check failed only on playtest/provider.integration 5 s load timeout (TASK-0154), passed alone.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Phase 4 wiki + full gate, T030-T037, commit 37c4341; 8 notes NEEDS-REVIEW amended and re-pinned; new note debug-view; final ci:check exit 0 after one TASK-0154 re-run.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
