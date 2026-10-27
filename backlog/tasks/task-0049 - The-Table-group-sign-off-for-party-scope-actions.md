@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 05:30'
+updated_date: '2026-10-27 09:30'
 labels:
   - multiplayer
   - gate
@@ -53,6 +53,8 @@ Q2 declaring counts as the declarer's approval (A) / must press Approve (B).
 Q3 C auto-commit on the completing approval plus explicit commit once quorum met / A auto only / B explicit only.
 Q4 new sign-off props on the action card (additive to proposal-seam.md); confirm.
 Q5 AI DM override of a stalled sign-off: fold into TASK-0050 or a new card.
+
+OPERATOR RULING 2026-10-27 (in chat): "I accept the defaults on the TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and spec 006." Spec authoring resumes with plan.md and tasks.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
