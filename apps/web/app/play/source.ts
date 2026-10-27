@@ -1,4 +1,5 @@
 import type { StoredEvent, Viewer } from "@the-stacks/session-model";
+import type { PresenceEntry } from "../ws/types.ts";
 import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
 
 export type SourceStatus = "connecting" | "open" | "retrying" | "fixture";
@@ -17,6 +18,8 @@ export interface TableSource {
   notice: string | null;
   /** Pending proposals for a DM viewer; always [] for a player viewer. */
   proposals: readonly PendingProposalView[];
+  /** Who is at the table; null when unknown (connecting, or a server without presence). */
+  presence: readonly PresenceEntry[] | null;
   commands: TableCommands;
 }
 
@@ -40,9 +43,14 @@ export interface CommitInput {
   authority: "declarer" | "active-player" | "group" | "dm";
 }
 
+export interface WithdrawInput {
+  actionId: string;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
   comment(input: CommentInput): boolean;
   commit(input: CommitInput): boolean;
+  withdraw(input: WithdrawInput): boolean;
 }

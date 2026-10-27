@@ -11,6 +11,7 @@ import type {
   CommitInput,
   DeclareInput,
   TalkInput,
+  WithdrawInput,
 } from "./source.ts";
 
 /**
@@ -102,6 +103,16 @@ export function commitFrame(input: CommitInput): EventFrame | null {
   };
 }
 
+/** Withdraw an open action; the gate allows its declarer and the seated DM. */
+export function withdrawFrame(input: WithdrawInput): EventFrame | null {
+  if (!RefIdSchema.safeParse(input.actionId).success) return null;
+  return {
+    eventType: "action.withdraw",
+    payload: { actionId: input.actionId },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
 export function approveFrame(proposalId: string): EventFrame | null {
   if (!RefIdSchema.safeParse(proposalId).success) return null;
   return {
@@ -145,6 +156,9 @@ export function localEventOf(
   if (frame.eventType === "action.commit") {
     type = "action.committed";
     body = { actionId: payload.actionId, authority };
+  } else if (frame.eventType === "action.withdraw") {
+    type = "action.withdrawn";
+    body = { actionId: payload.actionId };
   } else {
     const map = LOCAL_TYPE[frame.eventType];
     if (!map?.key) return null;

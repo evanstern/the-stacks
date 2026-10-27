@@ -8,6 +8,7 @@ import {
 import { loadSeed } from "../../src/dm/seed/load.js";
 import { loadProjections } from "../../src/session/projections.js";
 import { withManyMonsters } from "./snapshot-fixtures.js";
+import { listModelCalls } from "../../src/dm/model-calls.js";
 import {
   clearDmJobsBeforeEach,
   script,
@@ -83,6 +84,36 @@ describe.skipIf(!reachable)("chronicle (database)", () => {
       (entries[0] as unknown as { payload: { sourceActionIds: string[] } })
         .payload.sourceActionIds,
     ).toEqual(["act-shutter"]);
+
+    // TASK-0116: the chronicle result names its seqs, carries usage, and has ledger rows.
+    const chronResult = (
+      chronicles[0] as unknown as {
+        result: {
+          entries: number;
+          seqs: number[];
+          calls: {
+            provider: string | null;
+            model: string | null;
+            inputTokens: number | null;
+            outputTokens: number | null;
+            durationMs: number | null;
+          }[];
+        };
+      }
+    ).result;
+    expect(chronResult.seqs).toEqual(entries.map((r) => r.seq));
+    expect(chronResult.calls).toHaveLength(1);
+    expect(chronResult.calls[0]?.provider).not.toBeNull();
+    expect(chronResult.calls[0]?.model).not.toBeNull();
+    expect(chronResult.calls[0]?.inputTokens).not.toBeNull();
+    expect(chronResult.calls[0]?.outputTokens).not.toBeNull();
+    expect(chronResult.calls[0]?.durationMs).not.toBeNull();
+    const ledger = (
+      await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 100 })
+    ).rows.filter((r) => r.jobId === chronicles[0]?.id);
+    expect(ledger.map((r) => [r.jobKind, r.purpose, r.outcome])).toEqual([
+      ["chronicle", "dm.chronicle", "ok"],
+    ]);
 
     // A second chronicle pass with nothing new writes nothing and calls no model.
     const p = await w.projections();

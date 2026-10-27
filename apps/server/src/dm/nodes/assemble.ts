@@ -50,6 +50,8 @@ export interface AssembleOutput {
   transcriptTail: TranscriptEntry[];
   priorSteps: Record<string, LedgerRow[]>;
   rejections: Record<string, number>;
+  /** The latest presence marker; absent = human party controllers not in it (decision-0024). */
+  presence: { present: string[]; absent: string[]; seq: number } | null;
 }
 
 /** Action ids a proposal names, for the narration and rejection scans. */
@@ -263,6 +265,27 @@ function priorStepsFor(
   return out;
 }
 
+function presenceOf(
+  projections: SessionProjections,
+): AssembleOutput["presence"] {
+  const view = projections.presence;
+  if (!view) return null;
+  const here = new Set(view.present);
+  const absent = new Set<string>();
+  for (const member of projections.party) {
+    if (
+      member.controller.kind === "player" &&
+      !here.has(member.controller.userId)
+    )
+      absent.add(member.controller.userId);
+  }
+  return {
+    present: [...view.present],
+    absent: [...absent].sort(),
+    seq: view.seq,
+  };
+}
+
 export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
   const projections = await ctx.deps.loadProjections(ctx.job.sessionId);
   const rejections = rejectionCounts(projections);
@@ -300,6 +323,7 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
       transcriptTail: projections.transcript.slice(-TRANSCRIPT_TAIL),
       priorSteps: priorStepsFor(projections, beat),
       rejections,
+      presence: presenceOf(projections),
     },
   };
 };

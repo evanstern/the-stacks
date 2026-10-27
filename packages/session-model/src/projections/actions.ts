@@ -26,7 +26,8 @@ type TalkLike = Extract<
       | "action.declared"
       | "action.commented"
       | "action.committed"
-      | "action.resolved";
+      | "action.resolved"
+      | "action.withdrawn";
   }
 >;
 
@@ -73,6 +74,12 @@ export function transcriptEntry(event: TalkLike): TranscriptEntry {
         actionId: event.payload.actionId,
         authority: event.payload.authority,
       };
+    case "action.withdrawn":
+      return {
+        ...b,
+        kind: "action.withdrawn",
+        actionId: event.payload.actionId,
+      };
     case "action.resolved":
       return {
         ...b,
@@ -91,7 +98,8 @@ type LifecycleEvent = Extract<
       | "action.declared"
       | "action.commented"
       | "action.committed"
-      | "action.resolved";
+      | "action.resolved"
+      | "action.withdrawn";
   }
 >;
 
@@ -152,6 +160,9 @@ export function applyLifecycle(
           authority: event.payload.authority,
         },
       });
+    case "action.withdrawn":
+      if (!open) return { actions, ignored: true };
+      return replace({ ...existing, status: "withdrawn" });
     case "action.resolved":
       if (existing.status !== "committed") return { actions, ignored: true };
       return replace({

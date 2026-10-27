@@ -1,9 +1,13 @@
 import { z } from "zod";
 import type { RecordedEvent } from "../events/log.js";
+import type { PresenceEntry } from "../presence/index.js";
 
 /**
  * The WebSocket frame schemas (contracts/ws-protocol.md, binding for
  * TASK-0016 — do not change a frame shape without an operator checkpoint).
+ * Amended once by decision-0024 (TASK-0051): the optional `subscribe.presence`
+ * field and the `presence` frame, plus the protocol-level heartbeat. See
+ * specs/035-presence/contracts/ws-presence.md.
  */
 
 /** Client -> server: join a session and (later, US3) begin replay. */
@@ -11,6 +15,8 @@ export const SubscribeFrame = z.object({
   type: z.literal("subscribe"),
   sessionId: z.string().uuid(),
   afterSeq: z.number().int().min(0).optional(),
+  /** Opt in to `presence` frames (decision-0024). Absent or false: today's stream exactly. */
+  presence: z.boolean().optional(),
 });
 
 /**
@@ -72,9 +78,20 @@ export interface ErrorFrame {
   code?: string;
 }
 
+/**
+ * Server -> client: the full set of humans present at the table (decision-0024).
+ * Sent only to a connection whose latest subscribe had `presence: true`.
+ */
+export interface PresenceFrame {
+  type: "presence";
+  sessionId: string;
+  present: readonly PresenceEntry[];
+}
+
 export type OutboundFrame =
   | RecordedEventFrame
   | ReplayCompleteFrame
+  | PresenceFrame
   | ErrorFrame;
 
 /**

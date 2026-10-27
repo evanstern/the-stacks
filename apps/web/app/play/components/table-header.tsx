@@ -1,7 +1,9 @@
 import { ApprovalsIcon, ChevronIcon, LedgerIcon } from "~/components/icons";
+import type { PresenceRow } from "../presence.ts";
 import type { SourceStatus } from "../source.ts";
 import type { TableViewModel } from "../view-model.ts";
 import { ModeBadge } from "./mode-badge.tsx";
+import { PresenceStrip } from "./presence-strip.tsx";
 
 const STATUS_TEXT: Record<SourceStatus, string> = {
   connecting: "Connecting…",
@@ -19,6 +21,7 @@ const TRIGGER =
 export function TableHeader({
   model,
   status,
+  presence,
   ledgerOpen,
   approvalsOpen,
   onLedger,
@@ -26,6 +29,7 @@ export function TableHeader({
 }: {
   model: TableViewModel;
   status: SourceStatus;
+  presence: readonly PresenceRow[];
   ledgerOpen: boolean;
   approvalsOpen: boolean;
   onLedger: () => void;
@@ -50,6 +54,7 @@ export function TableHeader({
           </p>
         )}
       </div>
+      <PresenceStrip rows={presence} />
       <ModeBadge mode={model.mode} />
       <span className="text-xs text-muted-foreground">
         {STATUS_TEXT[status]}

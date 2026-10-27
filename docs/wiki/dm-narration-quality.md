@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/fallback.ts
   - apps/server/src/dm/nodes/audit.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 4af42befcf49b1e666df097dcd49e1d3b35e4057
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM narration quality
@@ -24,7 +24,7 @@ Spec: `specs/034-narration-quality/` (contracts `player-facing-context.md`,
 `seed/views.ts` exports `PlayerSeedView` and `playerFacingSeed(seed)`. The view copies only
 player-facing fields: title, goal statement, location (name, features, mood, senses), opening
 framing, NPC name/role/voice/want/detail/appearance, and character identity, portrayal, `knows`
-and relationship kinds. `dmOnlySeedText(seed)` lists every DM-only string, for tests. The
+and relationship kinds. `dmOnlySeedText(seed)` lists every DM-only string, for tests; it is built over `dmOnlySeedPaths(seed)`, the JSON Pointers of the same fields, which the operator seed route returns as `dmOnlyPaths` ([[debug-view]]). The
 narrate builder (`prompts/narrate.ts`) and `companion.ts` take the view (the chronicle prompt takes the roster only);
 DM-only seed facts never reach a player-facing prompt. The director still sees the full seed.
 
@@ -64,4 +64,5 @@ flag.
 
 ## Prompt versions
 
-`dm.narrate-v3`, `dm.audit-v2`, `dm.director-v2`, `dm.chronicle-v2`, `dm.companion-v2`.
+`dm.narrate-v3`, `dm.audit-v2`, `dm.director-v2`, `dm.chronicle-v2`, `dm.companion-v4` (v3 added the react trigger, v4 the withdraw and revise decisions; see
+[[dm-runtime]]).

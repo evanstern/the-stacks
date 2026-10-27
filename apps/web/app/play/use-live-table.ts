@@ -10,6 +10,7 @@ import {
   type EventFrame,
   rejectFrame,
   talkFrame,
+  withdrawFrame,
 } from "./frames.ts";
 import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
@@ -23,7 +24,7 @@ export type { LiveUser };
  */
 export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
   const revalidator = useRevalidator();
-  const { events, status, caughtUp, notice, sendEvent } = useSession(
+  const { events, status, caughtUp, notice, present, sendEvent } = useSession(
     sessionId,
     revalidator.revalidate,
   );
@@ -45,6 +46,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       declareAction: (input) => send(declareFrame(input)),
       comment: (input) => send(commentFrame(input)),
       commit: (input) => send(commitFrame(input)),
+      withdraw: (input) => send(withdrawFrame(input)),
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).
       approve: (proposalId) => send(approveFrame(proposalId)),
@@ -60,6 +62,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     caughtUp,
     notice,
     proposals,
+    presence: present,
     commands,
   };
 }

@@ -6,7 +6,7 @@ import {
 } from "@the-stacks/session-model";
 import type { WebSocket } from "ws";
 import type { Role } from "../auth/session.js";
-import type { RecordedEventFrame } from "./protocol.js";
+import type { PresenceFrame, RecordedEventFrame } from "./protocol.js";
 
 /**
  * One open, authenticated WebSocket (data-model.md, "Connection"). Built
@@ -52,6 +52,14 @@ export interface Connection {
    * seqs in order), so skipping exactly those is lossless.
    */
   replayedThroughSeq: number;
+  /** Unique per connection; the presence tracker's key (decision-0024). */
+  connId: string;
+  /** `users.display_name`, read once at upgrade. */
+  displayName: string;
+  /** True when the latest `subscribe` carried `presence: true`. */
+  wantsPresence: boolean;
+  /** Heartbeat: cleared on each ping, set on pong; false at the next tick means terminate. */
+  alive: boolean;
 }
 
 /**
@@ -174,6 +182,26 @@ export function createRegistry() {
     }
   }
 
+  /**
+   * Sends a presence snapshot to every subscriber of `sessionId` that opted in
+   * and is not mid-replay (a replaying connection gets its snapshot after
+   * `replay-complete`, subscribe.ts). Per-recipient failure never stops the rest.
+   */
+  function sendPresence(sessionId: string, frame: PresenceFrame): void {
+    const set = bySession.get(sessionId);
+    if (!set) return;
+    const message = JSON.stringify(frame);
+    for (const conn of set) {
+      if (!conn.wantsPresence || conn.pendingQueue !== null) continue;
+      if (conn.socket.readyState !== conn.socket.OPEN) continue;
+      try {
+        conn.socket.send(message);
+      } catch (err) {
+        console.error("ws: presence send failed", err);
+      }
+    }
+  }
+
   function subscriberCount(sessionId: string): number {
     return bySession.get(sessionId)?.size ?? 0;
   }
@@ -182,6 +210,7 @@ export function createRegistry() {
     subscribe,
     unsubscribe,
     broadcast,
+    sendPresence,
     subscriberCount,
     setSeat,
     seatOf,

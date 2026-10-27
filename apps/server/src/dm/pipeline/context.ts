@@ -80,6 +80,8 @@ export interface NodeDeps {
   log: (line: Record<string, unknown>) => void;
   /** ASK_MIN_SIMILARITY: the relevance floor `adjudicate` applies to retrieved passages. */
   minSimilarity: number;
+  /** Optional ledger seam: awaited once per model attempt, after it ends. */
+  recordCall?: (call: RecordedCall) => Promise<void>;
 }
 
 export interface NodeOutputs {
@@ -112,7 +114,21 @@ export interface ModelCallRecord {
   attempt: number;
   outcome: "ok" | "invalid-json" | "error";
   errorKind: ErrorKind | null;
+  /** From the gateway's usage record for this attempt; null when none arrived. */
+  provider: string | null;
+  model: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  /** Null also when the model has no configured price. */
+  costUsd: number | null;
+  durationMs: number | null;
 }
+
+/** What `recordCall` receives: one model attempt, including an aborted one. */
+export type RecordedCall = Omit<ModelCallRecord, "outcome"> & {
+  outcome: ModelCallRecord["outcome"] | "aborted";
+  httpAttempts: number | null;
+};
 
 export type NodeErrorKind =
   | "gateway" // chat() ended with an error event
@@ -140,7 +156,7 @@ export type Node<N extends NodeName> = (
 export type TurnOutcome =
   | { status: "completed"; results: NodeOutputs; calls: ModelCallRecord[] }
   | { status: "empty-beat" }
-  | { status: "held"; companions: string[] }
+  | { status: "held"; companions: string[]; calls: ModelCallRecord[] }
   | {
       status: "failed";
       node: NodeName;

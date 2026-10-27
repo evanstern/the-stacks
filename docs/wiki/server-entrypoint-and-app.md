@@ -6,7 +6,7 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Server entrypoint and app
@@ -41,14 +41,13 @@ enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice.
 
-Since TASK-0046 (specs/031-dm-runtime), `const gate = createGate({ db })` (see
+Since TASK-0046 (specs/031-dm-runtime), `createGate({ db, presence: presence.reader })` (see
 [[proposal-gate]]) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
 `console.warn`; `startDmWorker({ db, gateway: aiGateway, gate, retrieve, loadProjections,
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
 and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, log })` builds the gate
-listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db,
-validateSession: createValidateSession(db), gate })` for the WebSocket side, two listeners
+listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. [[presence]] is made first. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
 register: `gate.onAppended(gateway.publish)` so every row the gate appends reaches the entitled
 subscribers, and `gate.onAppended(dmEnqueuer.onAppended)` so a committed action (or a decided
 `ai:dm` proposal) queues a DM turn ([[dm-runtime]]).
@@ -77,7 +76,7 @@ default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and
 (`Omit<AnswerDeps, "db">`, TASK-0027), [[rules-answerer]]; an absent `answer` makes
 `POST /library/ask` stream a single SSE `error` event, `{kind:"config"}`, rather than the
 `{error:{kind,...}}` JSON shape [[error-contract]] describes for non-streamed routes; `dm` is
-`{ nudge? }`, default a no-op, wired into `createDmRoutes` at `/dm`) and
+`{ nudge? }`, default a no-op, wired into `createDmRoutes` at `/dm`, plus [[debug-view]] routes) and
 returns a plain `Hono` app with no port bound. It builds one `identityLookup`
 (`createIdentityLookup({ db, validateSession })`, plan D2) shared by `/auth/me` and the web
 load context, so the two callers cannot drift. It registers, **in this exact order**:

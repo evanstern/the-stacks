@@ -337,4 +337,41 @@ describe("prompt caps (SC-007)", () => {
       prompt.system.split("Doctrine:")[1]?.split("Reply with")[0] ?? "";
     expect(estimateTokens(doctrine)).toBeLessThanOrEqual(CAPS.doctrine);
   });
+
+  describe("presence (decision-0024)", () => {
+    const ANA = "00000000-0000-4000-8000-000000000001";
+    const OTHER = "00000000-0000-4000-8000-000000000002";
+
+    function withMarker(present: string[]) {
+      const events = freeEventsThrough("action.committed");
+      const seq = events.length + 1;
+      return [
+        ...events,
+        row(seq, "system", "presence.recorded", {
+          present,
+          purpose: "director",
+        }),
+      ];
+    }
+
+    it("splits present from absent human controllers using the folded marker", async () => {
+      const { output } = await run(withMarker([OTHER]));
+      expect(output.presence).toEqual({
+        present: [OTHER],
+        absent: [ANA],
+        seq: output.projections.presence?.seq,
+      });
+    });
+
+    it("lists no absent controller when every controller is present", async () => {
+      const { output } = await run(withMarker([ANA]));
+      expect(output.presence?.present).toEqual([ANA]);
+      expect(output.presence?.absent).toEqual([]);
+    });
+
+    it("is null when no marker was folded", async () => {
+      const { output } = await run(freeEventsThrough("action.committed"));
+      expect(output.presence).toBeNull();
+    });
+  });
 });

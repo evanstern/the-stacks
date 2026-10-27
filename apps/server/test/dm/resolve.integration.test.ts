@@ -206,6 +206,29 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     expect(w.scripted.remaining().dice).toBe(1);
   });
 
+  it("names the seqs each submission appended; a refusal names none", async () => {
+    const w = await createWorld({ dice: [10] });
+    await startScene(w);
+    const id = await commitAction(w, "Tamsin swings at a shadow.");
+    const out = await run(w, [
+      reading(id, [attackStep("nobody")], { intent: "attack" }),
+    ]);
+    const refused = out.submissions.find((x) => x.result === "refused");
+    expect(refused?.seqs).toEqual([]);
+    const applied = out.submissions.filter((x) => x.result === "applied");
+    expect(applied.length).toBeGreaterThan(0);
+    const named = applied.flatMap((x) => x.seqs);
+    expect(named.length).toBeGreaterThan(0);
+    const seqs = (await readRows(w)).map((r) => r.seq);
+    for (const x of applied) {
+      expect([...x.seqs].sort((a, b) => a - b)).toEqual(x.seqs);
+      for (const q of x.seqs) expect(seqs).toContain(q);
+    }
+    expect(out.appendedRows.map((r) => r.seq).sort((a, b) => a - b)).toEqual(
+      out.submissions.flatMap((x) => x.seqs).sort((a, b) => a - b),
+    );
+  });
+
   it("marks a clarify or none step no-effect", async () => {
     const w = await createWorld();
     await startScene(w);

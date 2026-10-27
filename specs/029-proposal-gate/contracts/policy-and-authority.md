@@ -59,7 +59,7 @@ export function routeProposal(p: SessionProjections, proposer: Proposer, proposa
 
 - Human proposers and AI companions route `direct` once permitted (proposals.md matrix).
 - `ai:dm` routes `policy` with `effectivePolicy(p.gate, proposal.kind)`.
-- `ai:dm` submitting `action.declare` is `NOT_AUTHORIZED`.
+- `ai:dm` submitting `action.declare` or `action.withdraw` is `NOT_AUTHORIZED` (`action.withdraw`: TASK-0114 amendment, W-A ruling).
 
 ## Commit authority (AC #6)
 

@@ -18,8 +18,9 @@ sources:
   - apps/server/src/playtest/auditor/stats.ts
   - apps/server/playtests/scenarios/greyhollow-ford.json
   - apps/server/test/playtest/playtest.integration.test.ts
+  - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: 944f2a182daf428604594fba1ff7635e3594f5ea
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # Playtest harness
@@ -32,7 +33,9 @@ Code: `apps/server/src/playtest/`. Spec: `specs/032-playtest-harness/` (contract
 
 ## The run
 
-`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate,
+`harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate (with
+a static presence reader that names the scripted seat's user present and counts every `ai:`
+actor present, so each turn's marker lists the scripted seat; [[presence]]),
 gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`, then loops:
 `driver.ts`'s `nextMove` picks the next scripted move, the harness submits it through
 `gate.handle` as the human seat, and the worker drains until idle. Dice come from
@@ -115,7 +118,7 @@ contradiction, invented mechanics, hidden-info leak, player agency, roll without
 no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM
 runtime audit was flagged. `stats.ts` derives fight statistics from the ledger for TASK-0055
 (rounds, attacks, hits, damage, reduced-to-zero, death saves, and `fledOrBargained` from roll
-reasons, `null` plus `fledOrBargainedNote` when not derivable). A model note warns when
+reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A model note warns when
 `playtest.audit` and `dm.narrate` resolve to the same provider and model.
 
 `cli.ts` (`pnpm playtest run|audit|estimate`, built with `tsc -b`, loads `../../.env`, the same

@@ -142,6 +142,8 @@ function transcriptLine(
       return `[${e.seq}] ${e.actionId} committed (${e.authority})`;
     case "action.resolved":
       return `[${e.seq}] ${e.actionId} resolved: ${e.outcome}`;
+    case "action.withdrawn":
+      return `[${e.seq}] ${e.actionId} withdrawn`;
   }
 }
 

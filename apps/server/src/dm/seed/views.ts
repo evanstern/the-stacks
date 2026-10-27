@@ -73,22 +73,48 @@ export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
   };
 }
 
+/** Every non-empty DM-only string in the seed, with its JSON Pointer into the seed. */
+function dmOnlyEntries(seed: SceneSeed): [string, string][] {
+  const out: [string, string][] = [
+    ["/goal/success", seed.goal.success],
+    ["/goal/failure", seed.goal.failure],
+  ];
+  const list = (base: string, items: string[]) =>
+    items.forEach((s, i) => {
+      out.push([`${base}/${i}`, s]);
+    });
+  list("/location/hooks/secrets", seed.location.hooks.secrets);
+  seed.npcs.forEach((n, i) => {
+    list(`/npcs/${i}/hooks/knows`, n.hooks.knows);
+    list(`/npcs/${i}/hooks/secrets`, n.hooks.secrets);
+  });
+  seed.characters.forEach((c, i) => {
+    list(`/characters/${i}/hooks/secrets`, c.hooks.secrets);
+  });
+  seed.beats.forEach((b, i) => {
+    out.push([`/beats/${i}/summary`, b.summary]);
+    b.clues.forEach((k, j) => {
+      out.push([`/beats/${i}/clues/${j}/text`, k.text]);
+    });
+  });
+  seed.encounters.forEach((e, i) => {
+    out.push([`/encounters/${i}/terrain`, e.terrain]);
+    out.push([`/encounters/${i}/trigger`, e.trigger]);
+    out.push([`/encounters/${i}/morale`, e.morale]);
+  });
+  seed.trackers.forEach((t, i) => {
+    out.push([`/trackers/${i}/note`, t.note]);
+    out.push([`/trackers/${i}/advanceWhen`, t.advanceWhen]);
+  });
+  return out.filter(([, s]) => s.length > 0);
+}
+
+/** JSON Pointers into the seed of every non-empty DM-only field. */
+export function dmOnlySeedPaths(seed: SceneSeed): string[] {
+  return dmOnlyEntries(seed).map(([path]) => path);
+}
+
 /** Every DM-only string in the seed, for tests. Non-empty strings only. */
 export function dmOnlySeedText(seed: SceneSeed): string[] {
-  const out: string[] = [
-    seed.goal.success,
-    seed.goal.failure,
-    ...seed.location.hooks.secrets,
-  ];
-  for (const n of seed.npcs) {
-    out.push(...n.hooks.knows, ...n.hooks.secrets);
-  }
-  for (const c of seed.characters) out.push(...c.hooks.secrets);
-  for (const b of seed.beats) {
-    out.push(b.summary);
-    for (const k of b.clues) out.push(k.text);
-  }
-  for (const e of seed.encounters) out.push(e.terrain, e.trigger, e.morale);
-  for (const t of seed.trackers) out.push(t.note, t.advanceWhen);
-  return out.filter((s) => s.length > 0);
+  return dmOnlyEntries(seed).map(([, s]) => s);
 }

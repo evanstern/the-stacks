@@ -28,6 +28,10 @@ export const ActionCommittedV1 = z.object({
   authority: z.enum(["declarer", "active-player", "group", "dm"]),
 });
 
+export const ActionWithdrawnV1 = z.object({
+  actionId: RefIdSchema,
+});
+
 export const ActionResolvedV1 = z
   .object({
     actionId: RefIdSchema,

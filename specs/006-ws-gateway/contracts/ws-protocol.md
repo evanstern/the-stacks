@@ -27,7 +27,7 @@ logs the user out spuriously.
 ### `subscribe`
 
 ```json
-{ "type": "subscribe", "sessionId": "<uuid>", "afterSeq": 0 }
+{ "type": "subscribe", "sessionId": "<uuid>", "afterSeq": 0, "presence": true }
 ```
 
 Joins the play session and begins replay from `afterSeq` (omitted or `0` means from the
@@ -75,6 +75,22 @@ hide a loading state. It is **not** required for correctness — ordering alread
 what a client needs — but a client that wants to distinguish "caught up" from "quiet
 session" cannot otherwise tell them apart.
 
+### `presence`
+
+```json
+{ "type": "presence", "sessionId": "<uuid>", "present": [{ "userId": "<uuid>", "displayName": "Ana" }] }
+```
+
+Sent only to a connection whose latest `subscribe` carried `presence: true` (optional; absent or
+`false` means today's stream exactly). Sent once after `replay-complete`, then on every change.
+A full snapshot sorted by `userId`, humans only, one entry per user. A client replaces its set
+on each frame.
+
+### Heartbeat
+
+The server sends a protocol-level ping every 10 s. A connection that has not answered the
+previous ping is terminated. No frame is involved.
+
 ### `error`
 
 ```json
@@ -99,8 +115,8 @@ client that may immediately send a good one.
 - **No acknowledgements.** A `send` is not confirmed except by the resulting `event` frame
   arriving, which every subscriber including the sender receives. A separate ack would be a
   second delivery path to keep consistent with the first.
-- **No presence, typing indicators, or room membership.** Later features; they need no
-  protocol space reserved now.
+- **No typing indicators or room membership.** Later features; they need no
+  protocol space reserved now. (Presence was added by decision-0024.)
 - **No play-session creation or listing.** No session registry exists (spec 004 left
   `session_id` opaque); a client subscribes to an identifier it already knows.
 - **No client-side write path.** By construction (FR-014).
@@ -109,3 +125,6 @@ client that may immediately send a good one.
 > request, other catalogued type refused with `CATALOG_TYPE_REQUIRES_GATE`, else uncatalogued
 > append); `error` frames gain an optional `code`; delivery filters per recipient with
 > `canSee` against the session's DM seat.
+
+> Amended by decision-0024 and `specs/035-presence/contracts/ws-presence.md`: the optional
+> `subscribe.presence` field, the `presence` frame, and the protocol-level heartbeat.

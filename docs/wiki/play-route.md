@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, and the operator-only fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, and the operator-only fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -19,13 +19,16 @@ sources:
   - apps/web/app/play/ledger-format.ts
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
-verified_against: 088e7223b68e17bcec34ebaf47663e24d5fde53d
+  - apps/web/app/play/presence.ts
+  - apps/web/app/play/components/presence-strip.tsx
+  - apps/web/app/play/components/table-header.tsx
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # Play route
 
 TASK-0047 (specs/030-play-route) replaces the M0 echo page at `play/:sessionId` with the
-table: a transcript, a composer, action cards with a commit control, a table-mode badge, a
+table: a transcript, a composer, action cards with a commit control and a Withdraw control, a table-mode badge, a
 ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/app/play/`;
 `routes/play.tsx` is a thin wrapper. All three routes are client-only (`clientLoader` plus
 `HydrateFallback`, no server `loader`), like the route it replaced ([[react-router-app]]).
@@ -34,7 +37,8 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 
 `play/table-view.tsx`'s `TableView({ source })` is the only view. A `TableSource`
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
-`status`, `caughtUp`, `notice`, pending `proposals`, and `commands` (`sendTalk`,
+`status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
+`null` when unknown) and `commands` (`sendTalk`,
 `declareAction`, `comment`, `commit`, `approve`, `reject`). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
@@ -56,25 +60,43 @@ it holds only UI state (which panel is open). Two hooks build a source:
 
 - `view-model.ts` - `toTableViewModel`: transcript items, action cards, `ModeView`
   (free, or turn with the active actor and whether it is the viewer's turn), composer, ledger
-  and proposal lists, `hiddenCount`, `isDm`.
+  and proposal lists, `hiddenCount`, `isDm`. An action card carries `canWithdraw` (open, and the
+  viewer is its declarer or the DM). A `withdrawn` card is closed: no commit control, no
+  "Waiting for ... to commit" line, and a "Withdrawn" status.
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
   can always commit; a player goes through `commitAuthority` from [[proposal-gate]]'s pure
   core. The gate enforces; this only decides the display.
 - `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
-  `commitFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
+  `commitFrame`, `withdrawFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
   `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixture mode.
 - `reduce-frame.ts` - `reduceFrame` folds every inbound WebSocket frame into `FrameState`
-  (`events`, `highestSeq` as a max, `caughtUp`, `notice`).
+  (`events`, `highestSeq` as a max, `caughtUp`, `notice`, `present`). A `presence` frame replaces
+  `present`; a `default` branch returns the state unchanged, so a frame type the client does not
+  know is ignored.
+- `presence.ts` - `presenceRows(present, projections)`: one row per user, marked `dm`, `player`
+  or `observer`. The AI DM row is present whenever the seat is AI. A human DM seat holder is
+  always listed and shown absent when not in `present`. A present user who holds the seat is
+  `dm`, one who controls a party member is `player`, any other is `observer`. A `null` list yields
+  only the DM row. See [[presence]].
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
   oldest first; a player always gets `[]`.
 - `ledger-format.ts` formats roll, outcome and change rows; `labels.ts` resolves actor and
   character display names from the party.
 
+## Presence strip
+
+`TableView` projects the events once, derives the rows with `presenceRows`, and passes them to
+`TableHeader`, which renders `components/presence-strip.tsx`: a list labelled "At the table"
+with one chip per row, role text (DM, Player or Observer) and an "absent" mark with a dimmed,
+dashed chip. It renders nothing when there are no rows. `useLiveTable` supplies `presence` from
+`useSession`; `useFixtureTable` supplies a static list from `fixturePresence` (the human DM seat
+holder and each party controller). The strip is inline, not a panel, and opens nothing.
+
 ## Live writes and refusals
 
 Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` frame:
 `eventType` is the request kind (`talk`, `action.declare`, `action.comment`, `action.commit`,
-`proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
+`action.withdraw`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` from the frame's `code` in `notice`,
 which the composer shows inline. A refusal does not close the socket.

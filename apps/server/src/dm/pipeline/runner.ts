@@ -195,7 +195,11 @@ export async function runTurn(
         const held = await safeRun(nodes.resolve, "resolve", ctx);
         calls.push(...held.calls);
         if (!held.ok) return fail("resolve", held.error);
-        return { status: "held", companions: director.beat.companions };
+        return {
+          status: "held",
+          companions: director.beat.companions,
+          calls,
+        };
       }
     }
   }

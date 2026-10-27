@@ -1,11 +1,13 @@
 import type { StoredEvent } from "@the-stacks/session-model";
-import type { ServerFrame } from "../ws/types.ts";
+import type { PresenceEntry, ServerFrame } from "../ws/types.ts";
 
 export interface FrameState {
   events: readonly StoredEvent[];
   highestSeq: number;
   caughtUp: boolean;
   notice: string | null;
+  /** Who is at the table; null until the first presence frame (or on an older server). */
+  present: readonly PresenceEntry[] | null;
 }
 
 export const initialFrameState: FrameState = {
@@ -13,6 +15,7 @@ export const initialFrameState: FrameState = {
   highestSeq: 0,
   caughtUp: false,
   notice: null,
+  present: null,
 };
 
 /**
@@ -35,5 +38,10 @@ export function reduceFrame(state: FrameState, frame: ServerFrame): FrameState {
         ...state,
         notice: frame.code ? `${frame.message} (${frame.code})` : frame.message,
       };
+    case "presence":
+      return { ...state, present: frame.present };
+    default:
+      // An unknown frame type changes nothing, so the next additive frame needs no opt-in.
+      return state;
   }
 }

@@ -1,8 +1,13 @@
 import { canSee, type DmSeat } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
 import { readFrom } from "../events/log.js";
+import type { PresenceReader } from "../presence/index.js";
 import { loadDmSeat } from "../session/events.js";
-import type { RecordedEventFrame, ReplayCompleteFrame } from "./protocol.js";
+import type {
+  PresenceFrame,
+  RecordedEventFrame,
+  ReplayCompleteFrame,
+} from "./protocol.js";
 import { toEventPayload } from "./protocol.js";
 import type { Connection, Registry } from "./registry.js";
 import { viewerFor } from "./registry.js";
@@ -15,7 +20,7 @@ const REPLAY_BATCH_SIZE = 200;
 
 function sendFrame(
   conn: Connection,
-  frame: RecordedEventFrame | ReplayCompleteFrame,
+  frame: RecordedEventFrame | ReplayCompleteFrame | PresenceFrame,
 ): void {
   if (conn.socket.readyState !== conn.socket.OPEN) return;
   conn.socket.send(JSON.stringify(frame));
@@ -61,6 +66,8 @@ export interface SubscribeDeps {
   readFrom: typeof readFrom;
   /** Loads the session's DM seat when the registry has none cached. */
   loadDmSeat?: (db: DbClient, sessionId: string) => Promise<DmSeat>;
+  /** When set, a connection that opted in gets a presence snapshot after replay. */
+  presence?: PresenceReader;
 }
 
 export async function subscribe(
@@ -118,5 +125,15 @@ export async function subscribe(
   for (const event of queued ?? []) {
     if (event.seq <= conn.replayedThroughSeq) continue;
     sendFrame(conn, { type: "event", event });
+  }
+
+  // decision-0024: the snapshot follows replay-complete (and the drained
+  // queue), and only goes to a connection that opted in.
+  if (conn.wantsPresence && deps.presence) {
+    sendFrame(conn, {
+      type: "presence",
+      sessionId,
+      present: deps.presence.presentUsers(sessionId),
+    });
   }
 }

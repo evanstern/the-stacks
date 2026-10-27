@@ -8,9 +8,12 @@ sources:
   - apps/server/src/dm/worker.ts
   - apps/server/src/dm/enqueue.ts
   - apps/server/src/schema/jobs.ts
+  - apps/server/src/schema/dm-model-calls.ts
+  - apps/server/src/dm/model-calls.ts
   - apps/server/drizzle/0004_glamorous_warlock.sql
+  - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: c4249350f5d1a39bb3cd342f5cb76af7455820f0
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM turn jobs
@@ -27,6 +30,9 @@ worker in the server process drains them. Nothing here is a new queue technology
 | `companion` | one or more AI companions acting once | 2 |
 | `chronicle` | one journal pass for a session | 3 |
 
+A `companion` payload's `reason` is `hold`, `turn`, `prompt` or `react`. A `react` payload also
+carries `firstReactionAt` and `notBefore` (ISO UTC, database time; specs/036-companion-react).
+
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
 `approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`. Stages are the node names plus
@@ -39,7 +45,11 @@ Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `CompanionJobInput`,
 `index.ts` ([[server-entrypoint-and-app]]). An `action.committed` row enqueues a `commit` turn.
 A `proposal.approved` or `proposal.rejected` row whose proposal's proposer is `ai:dm` (found
 in the DM projection) enqueues an `approval` turn so the DM resumes. Then it calls `nudge()`. A
-failure is logged, not thrown; reconcile repairs it. `enqueueTurn` is `INSERT ... ON CONFLICT
+failure is logged, not thrown; reconcile repairs it. A human `action.commented` row on an
+open (`declared` or `discussed`) action of an AI companion also calls `enqueueCompanionReact`
+(quiet window 3 s, maximum wait 10 s, injectable): one queued `react` job per session
+(`jobs_companion_react_queued_key`), a further reaction merges its companion id into the
+queued job and moves `notBefore` to `least(now + quiet, firstReactionAt + maxWait)`. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so at most one beat is queued per session.
 
 ## Claim, lease, fencing
@@ -47,7 +57,8 @@ DO NOTHING` on `jobs_turn_queued_key`, so at most one beat is queued per session
 `claimDmJob` is one `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED)` like ingest's, but
 ordered: an expired running job first, then by kind priority, then age. A queued turn or
 companion job is skipped while another `turn`/`companion` job for the same session holds a live
-lease; `jobs_session_running_key` backs that with a unique index. Chronicle jobs are not
+lease, and a `react` companion job is also skipped until its `notBefore` has passed;
+`jobs_session_running_key` backs that with a unique index. Chronicle jobs are not
 serialized. `jobs/queue.ts` holds the kind-generic fenced writes (`heartbeat`, `setStage`,
 `saveResult`, `finishJob`, which takes `{ result }` or `{ error, result? }`) and the constants `LEASE_MS` 60 s, `HEARTBEAT_MS` 10 s, `POLL_MS`
 2 s, `MAX_ATTEMPTS` 3; every write filters on `claim_token`, and `false` means fenced out. The
@@ -78,9 +89,33 @@ never duplicates the narration. A claim past `MAX_ATTEMPTS` marks the job `faile
 A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stopped at <node>:
 <kind>`) and `jobs.result` a `TurnFailureResult` (`TurnFailure` in `dm/jobs.ts`): checkpoint,
 `outcome.status = "failed"`, `audit: null`, the model calls made, and `failure` (`node`, `kind`,
-`message`, `detail`). The worker writes it for a node failure and for the bad-seed path (`kind`
+`message`, `detail`; `node` is a pipeline node or `presence`). The worker writes it for a node failure and for the bad-seed path (`kind`
 `seed`, no calls). A fenced or aborted run writes nothing and is left for reclaim. Excerpt bounds
 and the `invalid-output` detail are in [[dm-runtime]].
+
+**The presence marker.** The worker takes `gate: Pick<Gate, "submit" | "recordPresence">`.
+Before the pipeline of each claimed `turn` job it calls `gate.recordPresence(sessionId, {
+purpose: "director" })` once, so the log holds who was at the table when the Director decided
+(decision-0024, [[presence]]). Every `turn` job result carries `presenceSeq`, the marker's `seq`
+(`null` when none was written). Companion and chronicle jobs record nothing. A refusal or a throw
+finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `stopped at presence:
+<kind>` (`gate` for a refusal, `internal` for a throw); the pipeline does not run. The worker still
+never calls `gate.submit` from outside `resolve`.
+
+## Calls, usage and the ledger
+
+Each `ModelCallRecord` in `jobs.result.calls` carries `provider`, `model`, `inputTokens`,
+`outputTokens`, `costUsd` and `durationMs` (each null when the gateway emitted no usage record;
+TASK-0116, via `ChatRequest.onUsage`, [[ai-gateway]]). A `held` turn now keeps its calls in
+`jobs.result.calls` instead of `[]`. As each attempt ends, the worker's `recordCall` seam inserts
+one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
+id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts that
+`calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
+the ledger, not `calls`, is the cost authority. An insert failure logs
+`dm.call.record-failed` and never fails the job. Every submission names the seqs the gate
+returned: `Submission.seqs`, `TurnCheckpoint.narration.seqs`, `CompanionSubmission.seqs` and the
+chronicle's `seqs` (`[]` on a refusal or on a submission recovered after reclaim). That is the
+job-to-event link; routes in [[debug-view]].
 
 ## Reconcile
 

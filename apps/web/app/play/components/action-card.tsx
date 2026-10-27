@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CommentInput, CommitInput } from "../source.ts";
+import type { CommentInput, CommitInput, WithdrawInput } from "../source.ts";
 import type { ActionCardView } from "../view-model.ts";
 import { CommitControl } from "./commit-control.tsx";
 
@@ -14,6 +14,7 @@ const STATUS_LABEL: Record<ActionCardView["status"], string> = {
   discussed: "Discussed",
   committed: "Committed",
   resolved: "Resolved",
+  withdrawn: "Withdrawn",
 };
 
 function CommentForm({
@@ -64,10 +65,12 @@ export function ActionCard({
   card,
   onComment,
   onCommit,
+  onWithdraw,
 }: {
   card: ActionCardView;
   onComment: (input: CommentInput) => boolean;
   onCommit: (input: CommitInput) => boolean;
+  onWithdraw: (input: WithdrawInput) => boolean;
 }) {
   return (
     <article
@@ -108,7 +111,22 @@ export function ActionCard({
             }
           />
           <CommentForm actionId={card.actionId} onComment={onComment} />
+          {card.canWithdraw && (
+            <button
+              type="button"
+              onClick={() => onWithdraw({ actionId: card.actionId })}
+              className="mt-2 rounded-md border border-border px-3 py-1 text-sm hover:bg-accent"
+            >
+              Withdraw
+            </button>
+          )}
         </div>
+      )}
+
+      {card.status === "withdrawn" && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Withdrawn. This action is closed.
+        </p>
       )}
 
       {card.committed && !card.resolved && (

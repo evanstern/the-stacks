@@ -48,6 +48,7 @@ Rows per kind:
 | `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`) |
 | `action.comment` | one `action.commented` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
 | `action.commit` | one `action.committed` with the derived authority | `commitAuthority` (policy-and-authority.md) |
+| `action.withdraw` | one `action.withdrawn` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`); permission in proposals.md (TASK-0114 amendment, W-A ruling) |
 | `action.resolve` | one `action.resolved` | action is `committed` (`ACTION_NOT_COMMITTED`); every `batchId` names a batch in the DM ledger with this `actionId` (`UNKNOWN_BATCH`) |
 | `mechanics` | the engine's events as one batch (`mechanicsRows`) | engine refusal (source `engine`, the engine's code); `actionId`, when set, names an existing action (`UNKNOWN_ACTION`) |
 | `narration` | one `narration` | every `actionIds` entry exists (`UNKNOWN_ACTION`) |

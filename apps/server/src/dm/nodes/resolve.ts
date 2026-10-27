@@ -46,6 +46,8 @@ export interface Submission {
   proposalId: string | null;
   /** The engine outcome (`hit`, `success`, ...) read from the appended events. */
   outcome: string | null;
+  /** The seqs the gate returned for this submission, ascending; `[]` on a refusal or an unrecoverable replay. */
+  seqs: number[];
 }
 
 export type ActionOutcome = "applied" | "refused" | "no-effect" | "awaiting-dm";
@@ -323,6 +325,7 @@ class Run {
       batchId: outcome.batchId,
       proposalId,
       outcome: outcome.outcome,
+      seqs: events.map((e) => e.seq).sort((a, b) => a - b),
     };
     this.submissions.push(sub);
     for (const e of events) {
@@ -1104,7 +1107,11 @@ export async function submitNarration(
       ...checkpoint,
       submissions: run.submissions,
       lastSeq: run.lastSeq,
-      narration: { attempts: audit.record.attempts, shipped: true },
+      narration: {
+        attempts: audit.record.attempts,
+        shipped: true,
+        seqs: run.submissions.find((s) => s.key === "narration")?.seqs ?? [],
+      },
     });
     if (!saved)
       return {

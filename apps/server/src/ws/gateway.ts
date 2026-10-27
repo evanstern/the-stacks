@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import type { ServerType } from "@hono/node-server";
@@ -7,6 +8,7 @@ import {
   GATE_REQUEST_VERSION,
   type StoredEvent,
 } from "@the-stacks/session-model";
+import { eq } from "drizzle-orm";
 import { WebSocketServer } from "ws";
 import { SESSION_COOKIE_NAME } from "../auth/middleware.js";
 import type {
@@ -14,7 +16,14 @@ import type {
   SessionIdentity,
   ValidateSession,
 } from "../auth/session.js";
+import { readFrom } from "../events/log.js";
 import type { Gate, GateResult } from "../gate/index.js";
+import {
+  createPresence,
+  HEARTBEAT_INTERVAL_MS,
+  type PresenceTracker,
+} from "../presence/index.js";
+import { users } from "../schema/auth.js";
 import { appendUncataloguedEvent } from "../session/events.js";
 import type { ErrorFrame, RecordedEventFrame, SendFrame } from "./protocol.js";
 import { parseInboundFrame } from "./protocol.js";
@@ -83,6 +92,10 @@ export interface CreateGatewayOptions {
   validateSession: ValidateSession;
   /** Receives gate request kinds sent over `send` (spec 029 ws-delivery.md). */
   gate: Gate;
+  /** The presence tracker (decision-0024). Default: a private one, for tests that do not read presence. */
+  presence?: PresenceTracker;
+  /** Ping cadence; tests shorten it. Default HEARTBEAT_INTERVAL_MS. */
+  heartbeatIntervalMs?: number;
 }
 
 /** Gate refusal codes the sender is not entitled to (a `forbidden` error frame). */
@@ -118,11 +131,51 @@ export function createGateway({
   db,
   validateSession,
   gate,
+  presence = createPresence(),
+  heartbeatIntervalMs = HEARTBEAT_INTERVAL_MS,
 }: CreateGatewayOptions) {
   const wss = new WebSocketServer({ noServer: true });
   const registry = createRegistry();
+  /** Every open connection, subscribed or not: the heartbeat pings all of them. */
+  const connections = new Set<Connection>();
+
+  // A presence change reaches every opted-in subscriber of that table.
+  presence.reader.onChange((sessionId) => {
+    registry.sendPresence(sessionId, {
+      type: "presence",
+      sessionId,
+      present: presence.reader.presentUsers(sessionId),
+    });
+  });
+
+  // Protocol-level ping (decision-0024): a connection that has not answered the
+  // previous ping is terminated, which runs the normal close path and so
+  // starts its grace window. No frame is involved.
+  const heartbeat = setInterval(() => {
+    for (const conn of connections) {
+      if (!conn.alive) {
+        conn.socket.terminate();
+        continue;
+      }
+      conn.alive = false;
+      try {
+        conn.socket.ping();
+      } catch (err) {
+        console.error("ws: ping failed", err);
+      }
+    }
+  }, heartbeatIntervalMs);
+  heartbeat.unref();
+
+  function close(): void {
+    clearInterval(heartbeat);
+  }
 
   function attach(server: ServerType): void {
+    (server as unknown as { on(e: "close", l: () => void): void }).on(
+      "close",
+      close,
+    );
     (server as unknown as UpgradableServer).on(
       "upgrade",
       (request: IncomingMessage, socket: Duplex, head: Buffer) => {
@@ -170,8 +223,25 @@ export function createGateway({
       return;
     }
 
+    // Read once at upgrade (data-model.md); a missing row falls back to the id.
+    let displayName = identity.userId;
+    try {
+      const [row] = await db
+        .select({ displayName: users.displayName })
+        .from(users)
+        .where(eq(users.id, identity.userId))
+        .limit(1);
+      if (row) displayName = row.displayName;
+    } catch (err) {
+      console.error("ws: display name lookup failed", err);
+    }
+
     wss.handleUpgrade(request, socket, head, (ws) => {
       const conn: Connection = {
+        connId: randomUUID(),
+        displayName,
+        wantsPresence: false,
+        alive: true,
         socket: ws,
         userId: identity.userId,
         role: identity.role,
@@ -184,6 +254,10 @@ export function createGateway({
   }
 
   function handleConnection(conn: Connection): void {
+    connections.add(conn);
+    conn.socket.on("pong", () => {
+      conn.alive = true;
+    });
     conn.socket.on("message", (data: Buffer | ArrayBuffer | Buffer[]) => {
       handleMessage(conn, data.toString()).catch((err: unknown) => {
         console.error("ws: message handler crashed", err);
@@ -191,6 +265,8 @@ export function createGateway({
       });
     });
     conn.socket.on("close", () => {
+      connections.delete(conn);
+      if (conn.sessionId !== null) presence.leave(conn.sessionId, conn.connId);
       registry.unsubscribe(conn);
     });
     conn.socket.on("error", (err: unknown) => {
@@ -227,12 +303,22 @@ export function createGateway({
       // The replay/live boundary (research D1, ws/subscribe.ts): joins the
       // registry with delivery queued, replays from afterSeq in bounded
       // batches, then drains the queue with a position-based skip.
+      // Presence: leave the previous table, join this one, for every
+      // connection whether or not it opted in to presence frames.
+      if (conn.sessionId !== null) presence.leave(conn.sessionId, conn.connId);
+      conn.wantsPresence = parsed.frame.presence === true;
+      presence.join(parsed.frame.sessionId, {
+        connId: conn.connId,
+        userId: conn.userId,
+        displayName: conn.displayName,
+      });
       await subscribeWithReplay(
         db,
         registry,
         conn,
         parsed.frame.sessionId,
         parsed.frame.afterSeq ?? 0,
+        { readFrom, presence: presence.reader },
       );
       return;
     }
@@ -337,7 +423,7 @@ export function createGateway({
     }
   }
 
-  return { attach, registry, publish };
+  return { attach, registry, publish, close };
 }
 
 export type Gateway = ReturnType<typeof createGateway>;

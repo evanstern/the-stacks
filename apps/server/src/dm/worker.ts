@@ -25,8 +25,10 @@ import {
   reconcileTurnJobs,
   saveCheckpoint,
   type TurnCheckpoint,
+  type TurnFailure,
   type TurnFailureResult,
 } from "./jobs.js";
+import { insertModelCall } from "./model-calls.js";
 import { adjudicate } from "./nodes/adjudicate.js";
 import { assemble } from "./nodes/assemble.js";
 import { audit } from "./nodes/audit.js";
@@ -36,6 +38,7 @@ import { narrate } from "./nodes/narrate.js";
 import { resolve, submitFailureNotice } from "./nodes/resolve.js";
 import type {
   NodeDeps,
+  RecordedCall,
   SrdLookup,
   TurnContext,
   TurnOutcome,
@@ -65,7 +68,7 @@ export const DEFAULT_NODES: Nodes = {
 export interface DmWorkerDeps {
   db: DbClient;
   gateway: Pick<Gateway, "chat">;
-  gate: Pick<Gate, "submit">;
+  gate: Pick<Gate, "submit" | "recordPresence">;
   retrieve: NodeDeps["retrieve"];
   /** The DM view of a session (the log folded for `{ role: "dm" }`). */
   loadProjections: NodeDeps["loadProjections"];
@@ -133,6 +136,32 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     }
   }
 
+  /** One ledger writer per claimed job; a failed insert is logged, never thrown. */
+  function recorderFor(
+    job: ClaimedDmJob,
+  ): (call: RecordedCall) => Promise<void> {
+    return async (call) => {
+      try {
+        await insertModelCall(
+          db,
+          {
+            jobId: job.id,
+            sessionId: job.sessionId,
+            jobKind: job.kind,
+            jobAttempt: job.attempts,
+          },
+          call,
+        );
+      } catch {
+        log({
+          event: "dm.call.record-failed",
+          jobId: job.id,
+          purpose: call.purpose,
+        });
+      }
+    };
+  }
+
   async function currentSeed(
     job: Extract<ClaimedDmJob, { kind: "turn" }>,
   ): Promise<SceneSeed | "no-scene" | "bad-seed"> {
@@ -155,6 +184,30 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     fence: () => Promise<boolean>,
   ): Promise<void> {
     const seed = await currentSeed(job);
+    // The Director reads who is at the table from this marker (decision-0024).
+    let presenceSeq: number | null = null;
+    let presenceFailure: TurnFailure | null = null;
+    try {
+      const recorded = await deps.gate.recordPresence(job.sessionId, {
+        purpose: "director",
+      });
+      if (recorded.ok) presenceSeq = recorded.event.seq;
+      else {
+        presenceFailure = {
+          node: "presence",
+          kind: "gate",
+          message: recorded.refusal.message,
+          detail: { code: recorded.refusal.code },
+        };
+      }
+    } catch (error) {
+      presenceFailure = {
+        node: "presence",
+        kind: "internal",
+        message: error instanceof Error ? error.message : String(error),
+        detail: null,
+      };
+    }
     let latest: TurnCheckpoint = loadCheckpoint(job) ?? {
       beat: null,
       npcTurn: null,
@@ -166,6 +219,27 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       narration: null,
     };
 
+    if (presenceFailure) {
+      const failed: TurnFailureResult = {
+        checkpoint: latest,
+        outcome: { status: "failed" },
+        audit: null,
+        calls: [],
+        failure: presenceFailure,
+        presenceSeq: null,
+      };
+      log({ event: "dm.turn.failed", jobId: job.id, node: "presence" });
+      if (
+        await finishJob(db, job, {
+          error: `stopped at presence: ${presenceFailure.kind}`,
+          result: failed,
+        })
+      ) {
+        await notice(job.sessionId, "presence", presenceFailure.kind);
+      }
+      return;
+    }
+
     if (seed === "no-scene") {
       await finishJob(db, job, {
         result: {
@@ -173,6 +247,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           outcome: { status: "empty-beat" },
           audit: null,
           calls: [],
+          presenceSeq,
         },
       });
       return;
@@ -189,6 +264,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           message: "the scene seed did not load",
           detail: null,
         },
+        presenceSeq,
       };
       if (
         await finishJob(db, job, {
@@ -222,6 +298,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       newId,
       log,
       minSimilarity: deps.minSimilarity,
+      recordCall: recorderFor(job),
     };
     const ctx: TurnContext = {
       job: {
@@ -287,6 +364,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           message: outcome.error.message,
           detail: outcome.error.detail ?? null,
         },
+        presenceSeq,
       };
       const finished = await finishJob(db, job, {
         error: `stopped at ${outcome.node}: ${outcome.error.kind}`,
@@ -297,7 +375,10 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       return;
     }
 
-    const calls = outcome.status === "completed" ? outcome.calls : [];
+    const calls =
+      outcome.status === "completed" || outcome.status === "held"
+        ? outcome.calls
+        : [];
     const auditRecord =
       outcome.status === "completed" ? outcome.results.audit.record : null;
     const finished = await finishJob(db, job, {
@@ -306,6 +387,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         outcome: { status: outcome.status },
         audit: auditRecord,
         calls,
+        presenceSeq,
       },
     });
     if (!finished) return;
@@ -355,6 +437,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           enqueueTurnForced: (sessionId) => enqueueTurnForced(db, sessionId),
           fence,
           log,
+          recordCall: recorderFor(job),
         };
         result = await runCompanionJob(companionDeps, job, controller.signal);
       } else {
@@ -367,6 +450,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
             loadSeed: seedLoader,
             fence,
             log,
+            recordCall: recorderFor(job),
           },
           job,
           controller.signal,
