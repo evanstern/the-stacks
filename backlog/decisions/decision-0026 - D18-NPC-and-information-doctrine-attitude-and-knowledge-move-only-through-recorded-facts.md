@@ -4,7 +4,7 @@ title: >-
   D18 NPC and information doctrine: attitude and knowledge move only through
   recorded facts
 date: '2026-10-27 03:53'
-status: proposed
+status: accepted
 ---
 ## Context
 
@@ -29,18 +29,19 @@ Angry GM, Sly Flourish and Pool Time.
 
 ## Decision
 
-Status: proposed. The orchestrator flips it to accepted after the operator's go on the open
-questions below.
+Status: accepted. The operator ruled on four questions on 2026-10-26. The rulings are recorded below and change points 2 and 5.
 
 1. **Information moves only through recorded facts.** Each `hooks.knows`, `hooks.secrets`
    and beat `clues` entry gets a stable id. An `info.revealed` fact records the item, its
    source (an NPC, a Search, a Study) and its recipients. Player-facing text may state a
    DM-only item only after a reveal fact for it exists. The output gate checks this against
    the ledger, not by string match.
-2. **NPC attitude is tracked state.** The scale is SRD 5.2.1's Friendly, Indifferent and
-   Hostile. The seed sets a starting attitude; the default is Indifferent. An `npc.attitude`
-   fact moves it at most one step. The fact cites a check row against that NPC, or a recorded
-   harmful act by a party member, which sets Hostile. The actor snapshot carries attitude.
+2. **NPC attitude is tracked state, per character.** The scale is SRD 5.2.1's Friendly,
+   Indifferent and Hostile. Each NPC tracks an attitude toward each PC. The seed sets one
+   starting value per NPC, and it applies to every PC; the default is Indifferent. An
+   `npc.attitude` fact names the NPC and the PC, and moves that pair at most one step. The
+   fact cites a check by that PC against that NPC, or a recorded harmful act by that PC. A
+   harmful act sets Hostile toward that PC. The actor snapshot carries attitude per PC.
    Patience, Mood, loyalty and cross-scene standing are not adopted; they stay with the
    Codex (M4).
 3. **TASK-0107 is adopted.** The Director, Interpret, Adjudicate and the audit read NPC
@@ -60,8 +61,8 @@ questions below.
    SRD's GM-set duration. The DMG 2014 DC-by-attitude table is not adopted.
 5. **The clue economy is authored as conclusions.** The seed lists conclusions, each with
    the clue ids that point to it and a core flag. A test over shipped seeds warns below three
-   clue paths per conclusion. The loader refuses a core conclusion with no clue path. A
-   failed check on a core conclusion's clue resolves as success at a cost (D14 point 6). A
+   clue paths per conclusion. Seed load fails only for a core conclusion with no clue path.
+   A failed check on a core conclusion's clue resolves as success at a cost (D14 point 6). A
    reveal fact names only seed clue ids. The doctrine pair `one-clue` (P22) becomes "at most
    one conclusion advances per beat".
 6. **NPC knowledge and lies are bounded by authored data.** An NPC reveals only its own
@@ -69,19 +70,24 @@ questions below.
    DM-only secret contradicts. A successful Insight read reveals a tell, not the secret. A
    failed Insight check yields no evidence, never a false read.
 
-Open questions for the operator (the analysis recommends the first option of each):
-- Attitude in M3 beside presence, or with the Codex in M4?
-- Attitude toward the party with a per-character override, or per character only?
-- Three-clue lint as a warning test, or as a load error?
-- Confirm the SRD Influence DC over the DMG 2014 table.
+## Operator rulings (2026-10-26)
+
+1. **Attitude scope.** "Per character." Each NPC tracks an attitude toward each PC. The
+   analysis recommended attitude toward the party with a per-character override; the operator
+   chose per character only.
+2. **Clue lint.** "Warn; fail only core." The test warns below three paths. Seed load fails
+   only for a core conclusion with no path.
+3. **Influence DC.** "SRD Influence DC." The DMG 2014 DC-by-attitude table is rejected.
+4. **Placement.** "K3 now, K1-K6 after demo." TASK-0107 (K3) joins m-3 Track C now. K1, K2,
+   K4, K5 and K6 are created in m-3, ordered after the demo subset.
 
 ## Consequences
 
-- TASK-0107 carries point 3 and becomes a Track C card. Its trigger: the shipped seed's
+- TASK-0107 carries point 3 and joins m-3 Track C now. Its trigger: the shipped seed's
   secret is a willingness condition ("trade the clapper for safe passage if two goblins
   fall") that Interpret needs under the C3 ruling. No captured run was searched for the
   Director ignoring a motive.
-- Proposed cards, not yet created (titles, outcomes and ACs in the analysis):
+- Cards (titles, outcomes and ACs in the analysis). K1, K2, K4, K5 and K6 are m-3 cards ordered after the demo subset:
   K1 seed information ids and the reveal fact (point 1); K2 NPC attitude as tracked state
   (point 2); K3 is TASK-0107 (point 3); K4 Influence as an engine shape (point 4); K5
   conclusions and the clue economy (point 5); K6 NPC doctrine pass (points 5 and 6, P14,
