@@ -4,7 +4,7 @@ title: 'The Table: presence — who is at the table'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 03:52'
+updated_date: '2026-10-27 04:12'
 labels:
   - multiplayer
   - realtime
@@ -62,6 +62,9 @@ ORCHESTRATOR RULINGS 2026-10-26 on spec open questions: Q1 one presence.recorded
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (implementation Phase 1, T001-T007, commit d3cd2d5; served verified from transcript.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 2, T008-T015, commit cf378f6; ws-protocol amended per decision-0024; playtest harness integration test hit the 5 s load timeout once, passed on re-run.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
