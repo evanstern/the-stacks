@@ -130,6 +130,16 @@ The project has no path for any of this. A player's question is talk, and talk n
 2. Should the reflex thresholds come from the sources? A crit always allows a stagger; damage of at least half the character's current or maximum HP allows a heavy-hit reaction, following the DMG's massive-damage threshold as a reference; a failed save allows a flinch matched to the effect. Or should the operator set the thresholds?
 3. Should "ask the DM" go into decision-0016 as an amendment now, or be carded for a design round with the M3 table work?
 
+## Operator resolution (2026-10-26)
+
+The operator approved the seven recommendations and answered the open questions. The rulings are recorded in decision-0022 (D14) on the board:
+- **Outcome bands:** adopted as a table-rules setting, default ON.
+- **Natural 20 and natural 1:** natural 20 succeeds and natural 1 fails on any d20 test, default ON. This supersedes recommendation 6's "no special effect on checks".
+- **Corollary on rolling:** never call for a roll that cannot succeed, or that the DM does not want to succeed.
+- **Reflex thresholds:** confirmed as proposed.
+- **Flavour intensity:** narration follows the natural die. A low roll gets a bigger, more dramatic failure; a high roll a more dramatic success. It never changes state or chooses for the player.
+- **Ask the DM:** needed soon, and carded as a design round alongside the M3 table work.
+
 ## Basis
 
 - [[_grounding]] — sources (SRD 5.2.1 PDF with its hash, DMG 2014 Ch 8–9, XGtE, TCoE, VRGtR, 29 web articles), method and gaps
