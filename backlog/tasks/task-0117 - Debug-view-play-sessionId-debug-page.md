@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 09:28'
+updated_date: '2026-10-27 09:57'
 labels:
   - debug-view
   - web
@@ -33,21 +33,21 @@ Spec: specs/041-debug-page
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The play/:sessionId/debug route renders for an operator and renders OperatorOnly for anyone else; /play shows a Debug link to operators.
-- [ ] #2 The page polls the debug API about every 2 s and advances the event log by seq cursor.
+- [x] #2 The page polls the debug API about every 2 s and advances the event log by seq cursor.
 - [x] #3 The strip shows queued and running jobs with stage and heartbeat age, uncommitted actions, table mode and turn, pending proposals, companion holds, and the latest failed turn.
 - [x] #4 The job timeline shows one card per DM job; an expanded turn card shows each pipeline node's output, submissions with linked seqs, audit attempts split blocking and advisory, the fallback flag, the failure record, and per-call usage.
 - [x] #5 The event log shows every event with seq, time, actor name, type, visibility and payload, filtered by type, actor and visibility.
 - [x] #6 Selecting a job highlights the events it wrote; selecting an event highlights the job that wrote it.
 - [x] #7 Clicking an event pins the state column to that seq; a back-to-live control unpins it.
 - [x] #8 Seed, ledger, journal and cost-total panels open as slide-out Panels; the page uses no modals.
-- [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
-- [ ] #10 The PR carries Brave screenshots of the page during a live session.
+- [x] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
+- [x] #10 The PR carries Brave screenshots of the page during a live session.
 - [x] #11 Spec phase: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet)
 - [x] #12 Spec phase: Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet)
 - [x] #13 Spec phase: Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet)
 - [x] #14 Spec phase: Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet)
 - [x] #15 Spec phase: State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet)
-- [ ] #16 Spec phase: Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet)
+- [x] #16 Spec phase: Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet)
 - [ ] #17 Spec phase: Wiki re-ground and full gate — DISPATCH (sonnet)
 <!-- AC:END -->
 
@@ -88,6 +88,8 @@ Phase 5 done (a8684c3): state-column (live/pinned, pin badge, back to live, pane
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (a8684c3): state column, seq pin, four slide-out panels, structural no-modal/no-storage gates; AC #7, #8 ticked.
 OPERATOR GRANT 2026-10-27, relayed verbatim from the parent session: "I'll let the session pick up and go as far as it can -- if it needs to automate browser work and/or set passwords for users in the dev environment for the-stacks, or needs to take screenshots, i give permission for the session to automate that itself. go forward without my supervision until you hit a PR." Phase 6 acts under it. The agent drives Brave by executablePath and takes the merge-condition screenshots. It creates test accounts on the local worktree stack only, with generated passwords kept in an untracked creds file that is never printed.
+
+Phase 6 done (b4d0378): Brave live check on this worktree's stack (fake provider, no key). 96 checks pass across 1280/390 px, light/dark; 44 shots in specs/041-debug-page/evidence/shots. Fixed three defects found live: Seed DM-only matcher (JSON Pointer paths, 0 marks before), unbounded desktop columns, follow-bottom scroller. Every turn fails (fake provider is empty and unscriptable via env), so job-to-row highlight was not exercised live. Retry POST returned 202. See evidence/live-check.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
