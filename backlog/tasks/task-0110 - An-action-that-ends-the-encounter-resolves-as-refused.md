@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:48'
+updated_date: '2026-10-27 09:49'
 labels:
   - dm
   - engine
@@ -61,6 +61,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 follow-up (af0baac): the marker-number difference on reclaim is a label only. Printed rows show no shared marker across steps; findLanded matches by kind. A new double-crash reclaim test passes, and ci:check passed again with REQUIRE_DATABASE=1. The orchestrator accepts the #n normalization and releases the hold.
 
 Phase 3 done (73bc3a3): encounter-end-resolves.integration.test.ts and scripts/encounter-end-bargain.json. Odo's bargain act-odo-5 runs through the real worker with the fake gateway and scripted dice; resolves applied; seq order committed < check.resolved < action.resolved < encounter.ended < table-mode.changed (free) < narration. Reading is reconstructed (Persuasion check). pnpm ci:check green with REQUIRE_DATABASE=1, no re-runs.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (73bc3a3): rows 260-265 reproduced through the real worker; act-odo-5 resolves applied before encounter.ended. The encounter is set up directly through runResolve, as resolve.integration does; the bargain turn itself runs on the worker. ci:check passed with REQUIRE_DATABASE=1 on the first run.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
