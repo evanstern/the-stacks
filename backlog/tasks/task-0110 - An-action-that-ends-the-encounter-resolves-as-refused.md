@@ -4,7 +4,7 @@ title: An action that ends the encounter resolves as refused
 status: In Progress
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:54'
+updated_date: '2026-10-27 09:57'
 labels:
   - dm
   - engine
@@ -69,6 +69,8 @@ Phase 4 done (2b5158d): wiki re-ground. dm-runtime and dm-turn-jobs amended (six
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (merge 60e3ed1, wiki 2b5158d): dm-runtime and dm-turn-jobs amended (NEEDS-REVIEW); dm-failure-and-gates and dnd5e-engine re-pinned with one sentence each; freshness OK; ci:check passed with REQUIRE_DATABASE=1.
+
+OPERATOR RULING 2026-10-27 (in chat), on spec 045 OQ-1, the reading of §4 as Director opening and closing moves: "Approved". This ratifies option (a).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
