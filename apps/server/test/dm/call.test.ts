@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import type { ChatEvent, ChatRequest } from "../../src/ai/types.js";
+import type {
+  ChatEvent,
+  ChatRequest,
+  UsageRecord,
+} from "../../src/ai/types.js";
 import {
   callJson,
   callText,
   excerptOf,
   stripFence,
 } from "../../src/dm/pipeline/call.js";
+import type { RecordedCall } from "../../src/dm/pipeline/context.js";
 
 const usage = { inputTokens: 1, outputTokens: 1 };
 
@@ -22,6 +27,49 @@ function gatewayOf(scripts: ChatEvent[][]) {
     },
   };
 }
+
+const usageRecord = (over: Partial<UsageRecord> = {}): UsageRecord => ({
+  purpose: "dm.director",
+  provider: "fake-provider",
+  model: "fake-model",
+  inputTokens: 11,
+  outputTokens: 7,
+  costUsd: 0.002,
+  durationMs: 15,
+  attempts: 1,
+  outcome: "ok",
+  at: "2026-10-26T00:00:00.000Z",
+  ...over,
+});
+
+/** Like gatewayOf, but each script also fires onUsage the way the real gateway does. */
+function usageGatewayOf(
+  scripts: { events: ChatEvent[]; record: UsageRecord | null }[],
+) {
+  return {
+    gateway: {
+      chat: async function* (req: ChatRequest) {
+        const next = scripts.shift();
+        // Like the real gateway: the record fires in `finally`, so an early
+        // return by the consumer still delivers it.
+        try {
+          for (const e of next?.events ?? []) yield e;
+        } finally {
+          if (next?.record) req.onUsage?.(next.record);
+        }
+      },
+    },
+  };
+}
+
+const NULL_USAGE = {
+  provider: null,
+  model: null,
+  inputTokens: null,
+  outputTokens: null,
+  costUsd: null,
+  durationMs: null,
+};
 
 const text = (t: string): ChatEvent[] => [
   { type: "text", text: t },
@@ -49,6 +97,7 @@ describe("callJson", () => {
         attempt: 1,
         outcome: "ok",
         errorKind: null,
+        ...NULL_USAGE,
       },
     ]);
   });
@@ -165,6 +214,173 @@ describe("callJson", () => {
     const r = await callJson({ gateway }, req(controller.signal));
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error.kind).toBe("aborted");
+  });
+});
+
+describe("usage fields and recordCall", () => {
+  it("fills the usage fields on a first-try ok", async () => {
+    const { gateway } = usageGatewayOf([
+      { events: text('{"n": 1}'), record: usageRecord() },
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r.calls).toEqual([
+      {
+        purpose: "dm.director",
+        promptVersion: "dm.director-v2",
+        attempt: 1,
+        outcome: "ok",
+        errorKind: null,
+        provider: "fake-provider",
+        model: "fake-model",
+        inputTokens: 11,
+        outputTokens: 7,
+        costUsd: 0.002,
+        durationMs: 15,
+      },
+    ]);
+  });
+
+  it("gives a repaired invalid-json two records with two usages", async () => {
+    const { gateway } = usageGatewayOf([
+      { events: text("nope"), record: usageRecord({ inputTokens: 1 }) },
+      { events: text('{"n": 2}'), record: usageRecord({ inputTokens: 2 }) },
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r.calls.map((c) => [c.outcome, c.inputTokens])).toEqual([
+      ["invalid-json", 1],
+      ["ok", 2],
+    ]);
+  });
+
+  it("fills the usage fields on a gateway error", async () => {
+    const { gateway } = usageGatewayOf([
+      {
+        events: [{ type: "error", kind: "upstream", message: "x", usage }],
+        record: usageRecord({ outcome: "error", costUsd: null }),
+      },
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r.calls[0]).toMatchObject({
+      outcome: "error",
+      errorKind: "upstream",
+      provider: "fake-provider",
+      inputTokens: 11,
+      costUsd: null,
+    });
+  });
+
+  it("uses nulls when the gateway emits no usage record", async () => {
+    const { gateway } = usageGatewayOf([
+      { events: text('{"n": 1}'), record: null },
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r.calls[0]).toMatchObject(NULL_USAGE);
+  });
+
+  it("hands recordCall one call per attempt, with http attempts", async () => {
+    const { gateway } = usageGatewayOf([
+      { events: text("nope"), record: usageRecord({ attempts: 3 }) },
+      { events: text('{"n": 2}'), record: usageRecord() },
+    ]);
+    const recorded: RecordedCall[] = [];
+    const r = await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          recorded.push(c);
+        },
+      },
+      req(),
+    );
+    expect(recorded.map((c) => [c.attempt, c.outcome, c.httpAttempts])).toEqual(
+      [
+        [1, "invalid-json", 3],
+        [2, "ok", 1],
+      ],
+    );
+    expect(r.calls).toHaveLength(2);
+  });
+
+  it("records an aborted attempt but keeps it out of calls", async () => {
+    const controller = new AbortController();
+    const gateway = {
+      chat: async function* (r: ChatRequest) {
+        try {
+          controller.abort();
+          yield { type: "done" as const, usage };
+        } finally {
+          r.onUsage?.(usageRecord({ outcome: "cancelled" }));
+        }
+      },
+    };
+    const recorded: RecordedCall[] = [];
+    const r = await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          recorded.push(c);
+        },
+      },
+      req(controller.signal),
+    );
+    expect(r.ok).toBe(false);
+    expect(r.calls).toEqual([]);
+    expect(recorded).toHaveLength(1);
+    expect(recorded[0]).toMatchObject({ outcome: "aborted", attempt: 1 });
+  });
+
+  it("records the callText attempt too", async () => {
+    const { gateway } = usageGatewayOf([
+      { events: text("prose"), record: usageRecord() },
+    ]);
+    const recorded: RecordedCall[] = [];
+    const { schema: _schema, ...rest } = req();
+    const r = await callText(
+      {
+        gateway,
+        recordCall: async (c) => {
+          recorded.push(c);
+        },
+      },
+      rest,
+    );
+    expect(r.calls[0]).toMatchObject({ inputTokens: 11 });
+    expect(recorded).toHaveLength(1);
+  });
+
+  it("stores exactly the documented keys and no prompt or completion text", async () => {
+    const secret = "SCRIPTED-OUTPUT-TEXT-9f3a";
+    const { gateway } = usageGatewayOf([
+      { events: text(`{"n": 1, "x": "${secret}"}`), record: usageRecord() },
+    ]);
+    const recorded: RecordedCall[] = [];
+    const r = await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          recorded.push(c);
+        },
+      },
+      req(),
+    );
+    expect(Object.keys(r.calls[0] ?? {}).sort()).toEqual(
+      [
+        "purpose",
+        "promptVersion",
+        "attempt",
+        "outcome",
+        "errorKind",
+        "provider",
+        "model",
+        "inputTokens",
+        "outputTokens",
+        "costUsd",
+        "durationMs",
+      ].sort(),
+    );
+    expect(JSON.stringify(r.calls)).not.toContain(secret);
+    expect(JSON.stringify(r.calls)).not.toContain("usr");
+    expect(JSON.stringify(recorded)).not.toContain(secret);
   });
 });
 

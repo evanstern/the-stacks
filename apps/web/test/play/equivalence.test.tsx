@@ -15,6 +15,7 @@ const commands = {
   declareAction: yes,
   comment: yes,
   commit: yes,
+  withdraw: yes,
   approve: yes,
   reject: yes,
 };
@@ -34,6 +35,7 @@ function fixtureSource(f: Fixture, viewer: Viewer): TableSource {
     events: f.events,
     status: "fixture",
     caughtUp: true,
+    presence: null,
     notice: null,
     proposals: proposalsFor(f.events, viewer, new Set()),
     commands,

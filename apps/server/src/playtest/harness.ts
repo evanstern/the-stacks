@@ -266,6 +266,15 @@ export async function runPlaytest(
   const gate = createGate({
     db,
     rng: gateRng,
+    // The scripted seat is always at the table (CR-001).
+    presence: {
+      presentUsers: () => [
+        { userId: scenario.seat.userId, displayName: "scripted seat" },
+      ],
+      isPresent: (_sid, actor) =>
+        actor.startsWith("ai:") || actor === scenario.seat.userId,
+      onChange: () => () => {},
+    },
     newId: () => `id-${sessionId.slice(0, 8)}-${++idN}`,
   });
   const loadDm = () => loadProjections(db, sessionId, { role: "dm" });

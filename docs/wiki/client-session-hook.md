@@ -1,18 +1,18 @@
 ---
 name: client-session-hook
-description: useSession's reconnect algorithm — subscribing with afterSeq tracked via Math.max, one code path for replayed and live events, no optimistic send, and the /auth/me preflight that stands in for a refused upgrade's unobservable HTTP status. Takes an onSignedOut callback instead of writing a TanStack Query cache. Since TASK-0047 every inbound frame goes through the pure reduceFrame, refusals set a notice (with the gate's code) instead of logging, and sendEvent sends arbitrary gate-request frames.
+description: useSession's reconnect algorithm — subscribing with afterSeq tracked via Math.max, one code path for replayed and live events, no optimistic send, and the /auth/me preflight that stands in for a refused upgrade's unobservable HTTP status. Takes an onSignedOut callback instead of writing a TanStack Query cache. Opts in to presence frames (TASK-0051). Every inbound frame goes through the pure reduceFrame, refusals set a notice, and sendEvent sends gate-request frames.
 kind: pattern
 sources:
   - apps/web/app/ws/useSession.ts
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
   - apps/web/app/play/reduce-frame.ts
-verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Client session hook
 
-`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, sendEvent }`
+`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, present, sendEvent }`
 and is the client half of [[replay-live-boundary]]: it opens the socket,
 tracks the events it's been shown, and reconnects on drop. `types.ts` is a hand-kept mirror of
 [[ws-protocol]]'s `RecordedEvent`/`ServerFrame` shapes — not a shared import from the server
@@ -29,11 +29,16 @@ sent verbatim as `afterSeq` on every `subscribe` frame, including reconnects.
 
 **Replayed and live events go through one path.** The `message` listener has no notion of
 "replay phase" — every frame is folded by `play/reduce-frame.ts`'s `reduceFrame` into
-`FrameState` (`events`, `highestSeq`, `caughtUp`, `notice`), and an `event` frame also updates
+`FrameState` (`events`, `highestSeq`, `caughtUp`, `notice`, `present`), and an `event` frame also updates
 `highestSeqRef`, whether it arrived before or after `replay-complete`. `replay-complete` only
 flips `caughtUp`, which the table view uses to show/hide a loading message; it's not
 load-bearing for correctness, matching [[ws-protocol]]'s note that the frame exists for UX,
-not ordering. An `error` frame sets `notice` to `message (code)` (the optional `code` is the
+not ordering. A `presence` frame replaces `present` (the hook sends `presence: true` on every
+`subscribe`; `types.ts` mirrors `PresenceEntry`, `SubscribeFrame` and the `presence` frame), and
+the hook resets `present` to `null` when the socket closes — a dead connection says nothing about
+who is at the table, and the next subscribe brings a fresh snapshot. `reduceFrame` has a
+`default` branch that returns the state unchanged, so a frame type the client does not know is
+ignored rather than throwing ([[presence]]). An `error` frame sets `notice` to `message (code)` (the optional `code` is the
 gate's refusal code) and never closes the socket (FR-015); see [[play-route]].
 
 **Reconnect uses a preflight, not a raw retry.** Before opening a new `WebSocket`, `attempt()`

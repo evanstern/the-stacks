@@ -17,6 +17,25 @@ describe("ws protocol — parseInboundFrame", () => {
     });
   });
 
+  it("parses the optional presence flag and strips nothing else (decision-0024)", () => {
+    const on = parseInboundFrame(
+      JSON.stringify({ type: "subscribe", sessionId, presence: true }),
+    );
+    expect(on).toEqual({
+      ok: true,
+      frame: { type: "subscribe", sessionId, presence: true },
+    });
+    const off = parseInboundFrame(
+      JSON.stringify({ type: "subscribe", sessionId }),
+    );
+    expect(off).toEqual({ ok: true, frame: { type: "subscribe", sessionId } });
+    expect(
+      parseInboundFrame(
+        JSON.stringify({ type: "subscribe", sessionId, presence: "yes" }),
+      ).ok,
+    ).toBe(false);
+  });
+
   it("parses a valid send frame", () => {
     const result = parseInboundFrame(
       JSON.stringify({

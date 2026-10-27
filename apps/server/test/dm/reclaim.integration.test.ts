@@ -29,13 +29,19 @@ clearDmJobsBeforeEach();
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
 const BATCH = /id-[0-9a-f]{8}-\d+/g;
 
-/** The log without ids that differ per session or job. */
+/**
+ * The log without ids that differ per session or job. Presence markers are left out: the
+ * worker records one per claim, so a reclaimed turn legitimately holds one more than a
+ * clean run (decision-0024; no deduplication).
+ */
 function normalized(rows: Awaited<ReturnType<typeof readRows>>): string[] {
-  return rows.map((r) =>
-    JSON.stringify([r.type, r.actor, r.visibility, r.payload])
-      .replace(UUID, "<uuid>")
-      .replace(BATCH, "<id>"),
-  );
+  return rows
+    .filter((r) => r.type !== "presence.recorded")
+    .map((r) =>
+      JSON.stringify([r.type, r.actor, r.visibility, r.payload])
+        .replace(UUID, "<uuid>")
+        .replace(BATCH, "<id>"),
+    );
 }
 
 const chronicle = {

@@ -1,10 +1,10 @@
 ---
 name: websocket-gateway
-description: The WebSocket gateway — upgrade-time authentication (a socket only opens for a valid session; 401 vs 503), the send-path classification (gate request kinds go to the gate, other catalogued types are refused, uncatalogued types take the legacy append), and publish, which fans gate output out per viewer.
+description: The WebSocket gateway — upgrade-time authentication (a socket only opens for a valid session; 401 vs 503), the send-path classification (gate request kinds go to the gate, other catalogued types are refused, uncatalogued types take the legacy append), publish, which fans gate output out per viewer, and its presence duties (join/leave per connection, the heartbeat).
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # WebSocket gateway
@@ -34,14 +34,19 @@ status line and destroys the socket rather than sending any WebSocket frame:
 
 Only on success does `wss.handleUpgrade` run, building a `Connection` (see
 [[subscriber-registry]]) from the validated identity — `userId` and `role` are captured once,
-at upgrade time, and never re-derived per message. The new `Connection` starts with
-`sessionId: null`, `pendingQueue: null` and `replayedThroughSeq: 0` (the replay floor
-[[replay-live-boundary]] sets on subscribe).
+at upgrade time, and never re-derived per message. The upgrade also reads the user's `users.display_name` once (falling back to the user id when
+the row is missing or the read fails) for the presence list. The new `Connection` starts with
+`sessionId: null`, `pendingQueue: null`, `replayedThroughSeq: 0` (the replay floor
+[[replay-live-boundary]] sets on subscribe), a random `connId`, `wantsPresence: false` and
+`alive: true`.
 
 After that, `handleConnection` wires `message`/`close`/`error` listeners. Each inbound frame
 is parsed by [[ws-protocol]]'s `parseInboundFrame`; a frame that fails validation gets an
-`error` frame back but the connection stays open. A `subscribe` frame delegates entirely to
-[[replay-live-boundary]]. A `send` frame goes to `handleSend`, which classifies by `eventType`:
+`error` frame back but the connection stays open. A `subscribe` frame first updates presence, then delegates to
+[[replay-live-boundary]]: it `leave`s the connection's previous table, sets `wantsPresence` from
+the frame's `presence` flag, and `join`s the new table in the tracker — for every connection,
+whether or not it opted in, because the Director's marker counts every human at the table. On
+`close` the gateway `leave`s the table. See [[presence]]. A `send` frame goes to `handleSend`, which classifies by `eventType`:
 
 - **A gate request kind** (`GATE_REQUEST_KINDS`): requires `payloadVersion` 1 and an object
   payload (else a `validation` error). The gateway builds the request from the payload plus
@@ -56,9 +61,18 @@ is parsed by [[ws-protocol]]'s `parseInboundFrame`; a frame that fails validatio
   supplied. If the append throws, nothing is broadcast. TASK-0099 retires this path.
 
 `createGateway` now requires a `gate` option; `index.ts` creates it and wires
-`gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish }`.
+`gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish, close }`; it takes an optional `presence`
+tracker (default: a private one) and `heartbeatIntervalMs`.
 `publish(sessionId, events)` broadcasts stored rows in order through [[subscriber-registry]],
 which filters per viewer. `sendError` takes an optional `code`.
+
+## Presence and heartbeat
+
+The gateway subscribes to the tracker's `onChange` and calls `registry.sendPresence` with the
+table's sorted snapshot ([[presence]]). A `setInterval` (unref'd, cleared by `close()` and when
+the http server closes) pings every open connection, subscribed or not: a connection whose
+`alive` is still false is `terminate()`d, which runs the normal close path and starts the grace
+window; otherwise `alive` is cleared and a ping sent. A `pong` sets `alive`.
 
 ## Connections
 

@@ -143,6 +143,41 @@ test("action cards carry labels, comments and commit authority", () => {
   assert.equal(done.resolved.outcome, "applied");
 });
 
+test("a withdrawn action card is closed and offers no withdraw", () => {
+  const f = fixtures.find((x) => x.name === "free-mode-action");
+  const events = f.events.filter((e) => e.seq <= 7);
+  const last = events[events.length - 1];
+  const open = vm(events, f.viewers.players[0]).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(open.canWithdraw, true);
+  const other = vm(events, f.viewers.players[1]).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(other.canWithdraw, false);
+  const dm = vm(events, f.viewers.dm).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(dm.canWithdraw, true);
+  const withdrawn = [
+    ...events,
+    {
+      ...last,
+      seq: last.seq + 1,
+      type: "action.withdrawn",
+      version: 1,
+      payload: { actionId: open.actionId },
+      visibility: "public",
+    },
+  ];
+  const card = vm(withdrawn, f.viewers.players[0]).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(card.status, "withdrawn");
+  assert.equal(card.open, false);
+  assert.equal(card.canWithdraw, false);
+});
+
 test("a 1,000-event talk log projects and maps in under 50 ms", () => {
   const events = Array.from({ length: 1000 }, (_, i) => ({
     sessionId: "00000000-0000-4000-8000-000000000999",

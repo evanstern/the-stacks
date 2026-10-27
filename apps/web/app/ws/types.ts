@@ -11,9 +11,24 @@ export interface RecordedEvent {
   ts: string;
 }
 
+/** One human at the table (specs/035-presence/contracts/ws-presence.md). */
+export interface PresenceEntry {
+  userId: string;
+  displayName: string;
+}
+
+/** The subscribe frame a client sends; `presence` opts in to presence frames. */
+export interface SubscribeFrame {
+  type: "subscribe";
+  sessionId: string;
+  afterSeq: number;
+  presence?: boolean;
+}
+
 export type ServerFrame =
   | { type: "event"; event: RecordedEvent }
   | { type: "replay-complete"; throughSeq: number }
+  | { type: "presence"; sessionId: string; present: PresenceEntry[] }
   | {
       type: "error";
       kind: "validation" | "forbidden" | "internal";

@@ -5,11 +5,14 @@ import { createApp } from "../../src/app.js";
 import { createSession } from "../../src/auth/session.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
+import { listModelCalls } from "../../src/dm/model-calls.js";
+import type { Gate } from "../../src/gate/index.js";
 import { MAX_ATTEMPTS } from "../../src/jobs/queue.js";
 import { users } from "../../src/schema/auth.js";
 import { jobs } from "../../src/schema/jobs.js";
 import {
   clearDmJobsBeforeEach,
+  drainAll,
   script,
   tick,
   workerFor,
@@ -256,5 +259,302 @@ describe.skipIf(!reachable)("DM enqueuer on approvals (database)", () => {
     expect(
       (queued[0] as unknown as { input: { trigger: string } }).input.trigger,
     ).toBe("approval");
+  });
+});
+
+describe.skipIf(!reachable)("DM worker presence marker (database)", () => {
+  const here = {
+    presentUsers: () => [{ userId: TAMSIN_USER, displayName: "Tamsin" }],
+    isPresent: (_sid: string, actor: string) =>
+      actor.startsWith("ai:") || actor === TAMSIN_USER,
+    onChange: () => () => {},
+  };
+  const chronicle = {
+    purpose: "dm.chronicle",
+    respond: { type: "json", value: { entries: [] } },
+  };
+
+  async function markers(w: Awaited<ReturnType<typeof createWorld>>) {
+    return (await readRows(w)).filter((r) => r.type === "presence.recorded");
+  }
+
+  it("records one director marker per turn job and stores presenceSeq", async () => {
+    const s = script("exploration-check.json");
+    const w = await createWorld({
+      dice: s.dice,
+      calls: [...s.calls, chronicle],
+      presence: here,
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await commitAction(w, "I search the ferry-house.", "act-search");
+    await tick();
+    await drainAll(worker);
+
+    const found = await markers(w);
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({
+      actor: "system",
+      visibility: "public",
+      payload: { present: [TAMSIN_USER], purpose: "director" },
+    });
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 20)).find(
+      (j) => j.kind === "turn",
+    );
+    expect(
+      (turn?.result as { presenceSeq: number } | undefined)?.presenceSeq,
+    ).toBe(found[0]?.seq);
+  });
+
+  it("records a second marker for a second turn job and writes none for companion or chronicle jobs", async () => {
+    const w = await createWorld({ calls: [], presence: here });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    // Two failing turns (no scripted calls): each still records exactly once.
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const found = await markers(w);
+    expect(found).toHaveLength(2);
+    const turns = (await listDmJobs(requireDb(), w.sessionId, 20, "turn")).map(
+      (j) => (j.result as { presenceSeq?: number } | null)?.presenceSeq,
+    );
+    expect(turns.sort()).toEqual(found.map((r) => r.seq).sort());
+    // No companion or chronicle job ran for these sessions' markers.
+    const others = await listDmJobs(requireDb(), w.sessionId, 20);
+    expect(
+      others.filter((j) => j.kind !== "turn" && j.status === "succeeded"),
+    ).toHaveLength(0);
+  });
+
+  it("fails the turn with failure.node presence when the record is refused", async () => {
+    const w = await createWorld({
+      calls: [],
+      presence: here,
+      gate: (g): Gate => ({
+        ...g,
+        recordPresence: async () => ({
+          ok: false,
+          refusal: { source: "gate", code: "CONFLICT", message: "busy" },
+        }),
+      }),
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn")).find(
+      (j) => j.status === "failed",
+    );
+    expect(turn?.error).toBe("stopped at presence: gate");
+    expect(
+      (turn?.result as { failure: { node: string } } | undefined)?.failure.node,
+    ).toBe("presence");
+    expect(await markers(w)).toHaveLength(0);
+  });
+
+  it("fails the turn with failure.node presence when the record throws", async () => {
+    const w = await createWorld({
+      calls: [],
+      gate: (g): Gate => ({
+        ...g,
+        recordPresence: async () => {
+          throw new Error("db down");
+        },
+      }),
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await enqueueTurn(requireDb(), w.sessionId, "manual", null);
+    await worker.drain();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn")).find(
+      (j) => j.status === "failed",
+    );
+    expect(turn?.error).toBe("stopped at presence: internal");
+  });
+});
+
+const holdDirector = {
+  purpose: "dm.director",
+  respond: {
+    type: "json",
+    value: {
+      beat: { decision: "hold", companions: ["odo"], reason: "ask Odo" },
+      tableMode: { to: "stay" },
+      trackers: [],
+      scene: { status: "continue" },
+      pacing: { tension: "low", spotlight: null, beatId: "ferry-house" },
+      goalNote: "",
+      companionPrompts: [],
+    },
+  },
+};
+
+describe.skipIf(!reachable)("DM worker usage ledger (database)", () => {
+  it("a held turn keeps its calls and has ledger rows", async () => {
+    const w = await createWorld({ calls: [holdDirector] });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await commitAction(w, "Tamsin asks the party.", "act-ask");
+    await tick();
+    await worker.processOne();
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn"))[0];
+    expect(turn?.status).toBe("succeeded");
+    const result = turn?.result as {
+      outcome: { status: string };
+      calls: {
+        purpose: string;
+        provider: string | null;
+        model: string | null;
+      }[];
+    };
+    expect(result.outcome.status).toBe("held");
+    expect(result.calls.map((c) => c.purpose)).toEqual(["dm.director"]);
+    expect(result.calls[0]?.provider).not.toBeNull();
+    const rows = (
+      await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 50 })
+    ).rows;
+    expect(rows.map((r) => [r.jobId, r.purpose, r.outcome])).toEqual([
+      [turn?.id, "dm.director", "ok"],
+    ]);
+  });
+
+  it("a failed ledger insert still finishes the job and logs dm.call.record-failed", async () => {
+    const w = await createWorld({ calls: [holdDirector] });
+    const lines: Record<string, unknown>[] = [];
+    const { worker } = workerFor(w, { log: (l) => lines.push(l) });
+    await startScene(w);
+    // A trigger scoped to this session makes every insert for it fail.
+    const fn = `fail_dm_calls_${w.sessionId.replace(/-/g, "")}`;
+    await requireDb().execute(
+      sql.raw(`CREATE FUNCTION ${fn}() RETURNS trigger AS $$ BEGIN
+        IF NEW.session_id = '${w.sessionId}' THEN RAISE EXCEPTION 'ledger down'; END IF;
+        RETURN NEW; END; $$ LANGUAGE plpgsql`),
+    );
+    await requireDb().execute(
+      sql.raw(
+        `CREATE TRIGGER ${fn} BEFORE INSERT ON dm_model_calls FOR EACH ROW EXECUTE FUNCTION ${fn}()`,
+      ),
+    );
+    try {
+      await commitAction(w, "Tamsin asks the party.", "act-ask");
+      await tick();
+      await worker.processOne();
+    } finally {
+      await requireDb().execute(
+        sql.raw(`DROP TRIGGER ${fn} ON dm_model_calls`),
+      );
+      await requireDb().execute(sql.raw(`DROP FUNCTION ${fn}()`));
+    }
+    const turn = (await listDmJobs(requireDb(), w.sessionId, 10, "turn"))[0];
+    expect(turn?.status).toBe("succeeded");
+    expect(
+      lines.find((l) => l.event === "dm.call.record-failed"),
+    ).toMatchObject({ jobId: turn?.id, purpose: "dm.director" });
+    expect(
+      (await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 50 }))
+        .rows,
+    ).toEqual([]);
+  });
+
+  it("an aborted attempt leaves an aborted row; the reclaim's rows carry the higher job_attempt", async () => {
+    const s = script("exploration-check.json");
+    const w = await createWorld({
+      dice: s.dice,
+      calls: [
+        ...s.calls,
+        {
+          purpose: "dm.chronicle",
+          respond: { type: "json", value: { entries: [] } },
+        },
+      ],
+    });
+    const base = w.ctx().deps.gateway;
+    let first = true;
+    const gateway = {
+      chat(req: Parameters<typeof base.chat>[0]) {
+        if (!first) return base.chat(req);
+        first = false;
+        return (async function* () {
+          // The lease is lost mid-call: the heartbeat aborts the signal.
+          await requireDb().execute(
+            sql`UPDATE jobs SET claim_token = gen_random_uuid()
+                WHERE session_id = ${w.sessionId} AND kind = 'turn' AND status = 'running'`,
+          );
+          while (!req.signal?.aborted) await tick();
+          yield { type: "text" as const, text: "" };
+        })();
+      },
+    };
+    const { worker } = workerFor(w, { gateway, heartbeatMs: 20 });
+    await startScene(w);
+    await commitAction(
+      w,
+      "I search the ferry-house for whoever cut the bell rope.",
+      "act-search",
+    );
+    await tick();
+    await worker.processOne(); // aborted: the job stays running
+    await requireDb().execute(
+      sql`UPDATE jobs SET heartbeat_at = now() - interval '5 minutes'
+          WHERE session_id = ${w.sessionId} AND kind = 'turn' AND status = 'running'`,
+    );
+    await drainAll(worker);
+    const rows = (
+      await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 50 })
+    ).rows.filter((r) => r.jobKind === "turn");
+    expect(rows[0]).toMatchObject({
+      purpose: "dm.director",
+      outcome: "aborted",
+      jobAttempt: 1,
+      provider: null,
+    });
+    const later = rows.slice(1);
+    expect(later.length).toBeGreaterThan(0);
+    expect(
+      later.every((r) => r.jobAttempt === 2 && r.outcome !== "aborted"),
+    ).toBe(true);
+  });
+
+  it("a companion job's calls carry usage and have ledger rows", async () => {
+    const w = await createWorld({
+      calls: [
+        holdDirector,
+        {
+          purpose: "dm.companion",
+          respond: {
+            type: "json",
+            value: { say: null, comment: null, act: null, pending: [] },
+          },
+        },
+        {
+          purpose: "dm.director",
+          respond: { type: "json", value: holdDirector.respond.value },
+        },
+      ],
+    });
+    const { worker } = workerFor(w);
+    await startScene(w);
+    await commitAction(w, "Tamsin asks the party.", "act-ask");
+    await tick();
+    await worker.processOne(); // the held turn; queues a companion job
+    await worker.processOne(); // the companion job
+    const jobsAll = await listDmJobs(requireDb(), w.sessionId, 20);
+    const companion = jobsAll.find((j) => j.kind === "companion");
+    expect(companion?.status).toBe("succeeded");
+    const companionResult = companion?.result as unknown as {
+      calls: { provider: string | null; inputTokens: number | null }[];
+    };
+    const stored = companionResult.calls;
+    expect(stored).toHaveLength(1);
+    expect(stored[0]?.provider).not.toBeNull();
+    expect(stored[0]?.inputTokens).not.toBeNull();
+    const ledger = (
+      await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 50 })
+    ).rows.filter((r) => r.jobId === companion?.id);
+    expect(ledger.map((r) => [r.jobKind, r.purpose])).toEqual([
+      ["companion", "dm.companion"],
+    ]);
   });
 });

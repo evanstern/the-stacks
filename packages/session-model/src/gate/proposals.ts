@@ -20,6 +20,7 @@ export const ProposalKindSchema = z.enum([
   "action.declare",
   "action.comment",
   "action.commit",
+  "action.withdraw",
   "action.resolve",
   "mechanics",
   "narration",
@@ -34,6 +35,7 @@ export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 /** The eleven kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude([
   "action.declare",
+  "action.withdraw",
 ]);
 export type DmProposalKind = z.infer<typeof DmProposalKindSchema>;
 
@@ -63,6 +65,11 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     kind: z.literal("action.commit"),
+    ...ProposalNote,
+    actionId: RefIdSchema,
+  }),
+  z.object({
+    kind: z.literal("action.withdraw"),
     ...ProposalNote,
     actionId: RefIdSchema,
   }),
@@ -164,7 +171,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-/** The 16 `kind` literals of GateRequestSchema. */
+/** The 17 `kind` literals of GateRequestSchema. */
 export const GATE_REQUEST_KINDS: readonly string[] =
   GateRequestSchema.options.map(
     (option) => (option.shape.kind as unknown as { value: string }).value,

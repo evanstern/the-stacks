@@ -26,7 +26,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 4af42befcf49b1e666df097dcd49e1d3b35e4057
+verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
 ---
 
 # DM runtime
@@ -43,7 +43,9 @@ The runner (`pipeline/runner.ts`, `runTurn`) walks a fixed node order. Each node
 async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framework, decision-0019).
 
 1. **assemble** - code only. Freezes the beat (committed, unresolved actions in `seq` order),
-   folds the DM projection ([[session-model]]), selects scene-seed material, and looks up SRD
+   folds the DM projection ([[session-model]]), reads `projections.presence` into
+   `AssembleOutput.presence` (`present` user ids, `absent` human party controllers not in the
+   marker, and the marker's `seq`; `null` before any marker; no Director prompt text uses it yet), selects scene-seed material, and looks up SRD
    records (`@the-stacks/srd`, [[srd-data]]).
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup) and whether the beat resolves or **holds** for companions.
@@ -58,7 +60,7 @@ async function `(TurnContext) => NodeResult` (`pipeline/context.ts`; no framewor
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result` so a reclaimed job
 does not re-pay model calls. Between nodes the runner checks the lease and aborts on a fence loss.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-records its purpose, prompt version and outcome, never prompt text.
+records its purpose, prompt version, outcome and (TASK-0116) provider, model, token counts, cost and duration, never prompt text. Each attempt also goes to an optional `recordCall` seam that stores a usage-ledger row ([[dm-turn-jobs]]).
 
 `callJson` makes at most two attempts: the second sends the first attempt's schema issues back.
 A node may pass `normalize`, applied to the parsed JSON before the schema on every attempt. Only
@@ -82,7 +84,7 @@ do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. No model is 
 resolve, and no model ever sees or invents a number: the engine ([[dnd5e-engine]]) owns dice,
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a
 retry loop. Each submission is stored in the checkpoint (`Submission`: `stepRef`
-`<jobId>#<n>`, key, kind, result, refusal, batch and proposal ids).
+`<jobId>#<n>`, key, kind, result, refusal, batch and proposal ids, and `seqs`, the seqs the gate returned).
 
 ## Narration and audit
 
@@ -116,7 +118,14 @@ purpose; `PURPOSE_MAX_TOKENS` holds default caps. Model choice stays in `AI_PURP
 An AI companion is a party member with controller `ai-companion`. `companion.ts` asks
 `dm.companion` for `say`, `comment` and `act` output and submits it through the gate as that
 companion, under the same permission matrix and commit authority as a human. In turn mode the
-active companion always acts (a null act becomes a hold action). A `hold` director decision queues a companion job; when it ends it
+active companion always acts (a null act becomes a hold action).
+Each run shows the model the companion's own open actions and returns one `pending` decision
+per action: `commit`, `withdraw` or `revise` (default: `withdraw` when the latest human stance
+is `object`, else `commit`; a new act is dropped while an own action is open). A human
+comment on a companion's open action queues a `react` run ([[dm-turn-jobs]]). In turn mode a
+non-active companion never commits (the action waits for its turn), and an active companion
+that commits nothing (a withdraw) still takes the hold act so the turn advances.
+`PROMPT_VERSION` is `dm.companion-v4`. A `hold` director decision queues a companion job; when it ends it
 force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new.
 
@@ -128,6 +137,6 @@ The playtest harness ([[playtest-harness]], TASK-0048) drives this pipeline end 
 `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 409 if a scene or a
 start job exists), `POST /dm/sessions/:id/turn` (manual retry, 202), and
 `GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata, never
-prompt text). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
+prompt text). Four read-only operator routes serve the debug view (TASK-0116): `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls`; `/turns` is unchanged ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
 writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
 session state is written only through the gate.

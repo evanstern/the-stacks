@@ -13,6 +13,7 @@ const commands = {
   declareAction: yes,
   comment: yes,
   commit: yes,
+  withdraw: yes,
   approve: yes,
   reject: yes,
 };
@@ -28,6 +29,7 @@ function sourceFor(
     events: f.events,
     status: "fixture",
     caughtUp: true,
+    presence: null,
     notice: null,
     proposals: proposalsFor(f.events, viewer, new Set()),
     commands,
@@ -84,4 +86,20 @@ test("the hidden-entry notice shows for unknown-and-invalid", () => {
     <TableView source={sourceFor(f, f.viewers.dm)} />,
   );
   expect(html).toContain("entries not shown");
+});
+
+test("presence.recorded rows stay out of the transcript and the ledger", async () => {
+  const { presenceMarker } = await import("@the-stacks/session-model/fixtures");
+  const viewer = presenceMarker.viewers.dm;
+  const html = renderToStaticMarkup(
+    <TableView
+      source={{
+        ...sourceFor(presenceMarker as never, viewer),
+        presence: [],
+      }}
+    />,
+  );
+  expect(html).toContain("I just joined.");
+  expect(html).not.toContain("presence.recorded");
+  expect(html).not.toContain("director");
 });

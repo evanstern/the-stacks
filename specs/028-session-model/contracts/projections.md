@@ -84,6 +84,7 @@ export type TranscriptEntry = {
   | { kind: "action.commented"; actionId: string; stance: "comment" | "approve" | "object";
       text: string }
   | { kind: "action.committed"; actionId: string; authority: ActionAuthority }
+  | { kind: "action.withdrawn"; actionId: string }   // TASK-0114, W-A ruling
   | { kind: "action.resolved"; actionId: string; outcome: "applied" | "refused" | "no-effect";
       refusalCode: string | null }
 );
@@ -96,7 +97,7 @@ changes no projection other than `transcript` (AC #2).
 ### Actions
 
 ```ts
-export type ActionStatus = "declared" | "discussed" | "committed" | "resolved";
+export type ActionStatus = "declared" | "discussed" | "committed" | "resolved" | "withdrawn";  // `withdrawn`: TASK-0114, W-A ruling
 
 export interface ActionView {
   actionId: string;
@@ -121,6 +122,7 @@ Transitions (anything else counts `ignoredTransitions` and leaves the action unc
 | `action.commented` | `declared`, `discussed` | `discussed` (comment appended) |
 | `action.committed` | `declared`, `discussed` | `committed` |
 | `action.resolved` | `committed` | `resolved` |
+| `action.withdrawn` | `declared`, `discussed` | `withdrawn` (terminal; added by 029 `proposal-events.md`, "Action withdrawal") |
 
 A comment on a committed or resolved action is kept in the transcript only. `actions` is
 ordered by `declaredSeq`. Committed actions that wait for resolution stay `committed` in

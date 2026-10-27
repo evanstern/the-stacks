@@ -9,7 +9,7 @@ import type { Gateway } from "../ai/gateway.js";
 import type { Gate } from "../gate/index.js";
 import type { ChronicleJobInput } from "./jobs.js";
 import { callJson } from "./pipeline/call.js";
-import type { ModelCallRecord } from "./pipeline/context.js";
+import type { ModelCallRecord, RecordedCall } from "./pipeline/context.js";
 import { buildChroniclePrompt, PROMPT_VERSION } from "./prompts/chronicle.js";
 import { rosterOf } from "./prompts/common.js";
 import { PURPOSE_OF } from "./purposes.js";
@@ -39,6 +39,8 @@ const AI_DM = { kind: "ai", actor: "ai:dm" } as const;
 
 export interface ChronicleResult {
   entries: number;
+  /** The seqs the gate returned for the written entries, ascending. */
+  seqs: number[];
   calls: ModelCallRecord[];
 }
 
@@ -48,6 +50,7 @@ export interface ChronicleDeps {
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
   fence: () => Promise<boolean>;
   log: (line: Record<string, unknown>) => void;
+  recordCall?: (call: RecordedCall) => Promise<void>;
 }
 
 /**
@@ -88,7 +91,7 @@ export async function runChronicleJob(
     (e) => e.seq > bound && e.seq <= throughSeq,
   );
   const lastNarration = narrations(fresh).at(-1);
-  if (!lastNarration) return { entries: 0, calls: [] };
+  if (!lastNarration) return { entries: 0, seqs: [], calls: [] };
 
   const prompt = buildChroniclePrompt({
     transcript: fresh,
@@ -110,12 +113,13 @@ export async function runChronicleJob(
       jobId: job.id,
       kind: result.error.kind,
     });
-    return { entries: 0, calls: result.calls };
+    return { entries: 0, seqs: [], calls: result.calls };
   }
 
   const short = sessionId.replace(/-/g, "").slice(0, 8);
   const taken = new Set(p.journal.map((j) => j.entryId));
   let written = 0;
+  const seqs: number[] = [];
   for (const [i, entry] of result.value.entries.entries()) {
     const entryId = `${CHRONICLE_PREFIX}${short}-${lastNarration.seq}${i === 0 ? "" : `-${i}`}`;
     if (taken.has(entryId)) continue;
@@ -133,8 +137,10 @@ export async function runChronicleJob(
       visibility: entry.visibility,
     };
     const res = await deps.gate.submit(sessionId, AI_DM, proposal);
-    if (res.ok) written += 1;
-    else {
+    if (res.ok) {
+      written += 1;
+      for (const e of res.events) seqs.push(e.seq);
+    } else {
       deps.log({
         event: "dm.chronicle.refused",
         jobId: job.id,
@@ -142,5 +148,9 @@ export async function runChronicleJob(
       });
     }
   }
-  return { entries: written, calls: result.calls };
+  return {
+    entries: written,
+    seqs: seqs.sort((a, b) => a - b),
+    calls: result.calls,
+  };
 }

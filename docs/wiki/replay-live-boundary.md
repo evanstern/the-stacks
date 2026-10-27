@@ -4,7 +4,7 @@ description: The algorithm that delivers a reconnecting client its missed events
 kind: pipeline
 sources:
   - apps/server/src/ws/subscribe.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
 ---
 
 # Replay/live boundary
@@ -62,6 +62,12 @@ session's `DmSeat` from the registry cache (`seatOf`). On a miss it awaits `load
 a concurrent broadcast set during the await wins over the load, and only otherwise is the loaded
 seat cached. `viewerFor(conn, seat)` gives the replay's `Viewer`. This closes the DM-seat
 subscribe race fixed in TASK-0045.
+
+5. **Sends a presence snapshot, if opted in.** After the drain, a connection with
+   `wantsPresence` gets one `presence` frame from the tracker's reader (`subscribe` takes an
+   optional `presence` dep). It comes after `replay-complete` and the drained queue, and it is
+   outside the exactly-once machinery: a snapshot is the whole set, so it needs no cursor
+   ([[presence]]).
 
 Visibility is decided exactly once, at broadcast/queue time (`canSee` in
 [[subscriber-registry]]) and again independently by the replay loop's own read — draining the

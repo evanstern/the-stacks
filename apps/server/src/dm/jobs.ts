@@ -1,5 +1,5 @@
 import { RefIdSchema } from "@the-stacks/session-model";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { DbClient } from "../auth/session.js";
 import { isUniqueViolation } from "../db.js";
@@ -62,8 +62,12 @@ export const CompanionJobInput = z.object({
   v: z.literal(1),
   sessionId: z.uuid(),
   companions: z.array(RefIdSchema).min(1).max(4),
-  reason: z.enum(["hold", "turn", "prompt"]),
+  reason: z.enum(["hold", "turn", "prompt", "react"]),
   beatJobId: z.uuid().nullable(), // the held turn job, for reason "hold"
+  // Reason "react" only (specs/036-companion-react): database time of the first
+  // unanswered human reaction, and the earliest time the worker may claim the job.
+  firstReactionAt: z.iso.datetime().optional(),
+  notBefore: z.iso.datetime().optional(),
 });
 export type CompanionJobInput = z.infer<typeof CompanionJobInput>;
 
@@ -80,7 +84,8 @@ export type ChronicleJobInput = z.infer<typeof ChronicleJobInput>;
  * The queue only stores and returns the object.
  */
 export interface TurnFailure {
-  node: NodeName;
+  /** "presence" is the pre-pipeline marker write (decision-0024). */
+  node: NodeName | "presence";
   kind: NodeErrorKind | "seed";
   message: string;
   detail: Record<string, unknown> | null;
@@ -93,6 +98,8 @@ export interface TurnFailureResult {
   audit: null;
   calls: ModelCallRecord[];
   failure: TurnFailure;
+  /** Seq of the presence marker this turn recorded; null when none. */
+  presenceSeq?: number | null;
 }
 
 export interface TurnCheckpoint {
@@ -103,7 +110,12 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
-  narration: { attempts: AuditRecord["attempts"]; shipped: boolean } | null;
+  narration: {
+    attempts: AuditRecord["attempts"];
+    shipped: boolean;
+    /** The shipped narration's event seqs, ascending; absent on rows stored before TASK-0116. */
+    seqs: number[];
+  } | null;
 }
 
 interface ClaimBase {
@@ -166,12 +178,19 @@ export async function claimDmJob(
             (j.status = 'running' AND j.heartbeat_at < now() - (interval '1 millisecond' * ${LEASE_MS}))
             OR (j.status = 'queued' AND (
               j.kind = 'chronicle'
-              OR NOT EXISTS (
-                SELECT 1 FROM jobs r
-                WHERE r.session_id = j.session_id
-                  AND r.kind IN ('turn', 'companion')
-                  AND r.status = 'running'
-                  AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
+              OR (
+                NOT EXISTS (
+                  SELECT 1 FROM jobs r
+                  WHERE r.session_id = j.session_id
+                    AND r.kind IN ('turn', 'companion')
+                    AND r.status = 'running'
+                    AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
+                )
+                AND (
+                  j.kind <> 'companion'
+                  OR j.input->>'notBefore' IS NULL
+                  OR (j.input->>'notBefore')::timestamptz <= now()
+                )
               )
             ))
           )
@@ -319,6 +338,78 @@ export async function enqueueCompanion(
   return { jobId: (row as { id: string }).id, inserted: true };
 }
 
+/** ISO-8601 UTC text (millisecond precision, `Z`) of a database timestamp expression. */
+const isoUtc = (expr: ReturnType<typeof sql>) =>
+  sql`to_char(${expr} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+
+/**
+ * Queues a `react` companion job, coalesced per session (specs/036-companion-
+ * react plan.md "Coalescing design"). `ON CONFLICT DO NOTHING` on
+ * `jobs_companion_react_queued_key`: when a queued `react` job exists, merge the
+ * companion id into it and move `notBefore` to
+ * `least(now() + quietMs, firstReactionAt + maxWaitMs)` in one statement. Both
+ * times are database time. Loops when the queued row is claimed in between.
+ */
+export async function enqueueCompanionReact(
+  db: DbClient,
+  sessionId: string,
+  companionId: string,
+  opts: { quietMs: number; maxWaitMs: number },
+): Promise<EnqueueResult> {
+  const quiet = sql`(interval '1 millisecond' * ${opts.quietMs})`;
+  const maxWait = sql`(interval '1 millisecond' * ${opts.maxWaitMs})`;
+  for (;;) {
+    const ins = await db.execute(sql`
+      INSERT INTO jobs (kind, session_id, input)
+      VALUES (
+        'companion',
+        ${sessionId}::uuid,
+        jsonb_build_object(
+          'v', 1,
+          'sessionId', ${sessionId}::text,
+          'companions', jsonb_build_array(${companionId}::text),
+          'reason', 'react',
+          'beatJobId', 'null'::jsonb,
+          'firstReactionAt', ${isoUtc(sql`now()`)},
+          'notBefore', ${isoUtc(sql`least(now() + ${quiet}, now() + ${maxWait})`)}
+        )
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `);
+    const insertedRow = ins.rows[0] as { id: string } | undefined;
+    if (insertedRow) return { jobId: insertedRow.id, inserted: true };
+    const upd = await db.execute(sql`
+      UPDATE jobs SET input = jsonb_set(
+        jsonb_set(
+          input,
+          '{companions}',
+          (
+            SELECT jsonb_agg(u.c ORDER BY u.ord)
+            FROM (
+              SELECT DISTINCT ON (t.c) t.c, t.ord
+              FROM jsonb_array_elements_text(
+                input->'companions' || jsonb_build_array(${companionId}::text)
+              ) WITH ORDINALITY AS t(c, ord)
+              ORDER BY t.c, t.ord
+            ) u
+          )
+        ),
+        '{notBefore}',
+        to_jsonb(${isoUtc(sql`least(now() + ${quiet}, (input->>'firstReactionAt')::timestamptz + ${maxWait})`)})
+      )
+      WHERE session_id = ${sessionId}::uuid
+        AND kind = 'companion'
+        AND status = 'queued'
+        AND input->>'reason' = 'react'
+      RETURNING id
+    `);
+    const updatedRow = upd.rows[0] as { id: string } | undefined;
+    if (updatedRow) return { jobId: updatedRow.id, inserted: false };
+    // The queued row was claimed in between; loop to insert a fresh one.
+  }
+}
+
 /** `ON CONFLICT DO NOTHING` on `jobs_chronicle_queued_key`: one queued pass per session. */
 export async function enqueueChronicle(
   db: DbClient,
@@ -401,7 +492,25 @@ export interface DmJobRow {
   error: string | null;
   createdAt: Date;
   startedAt: Date | null;
+  heartbeatAt: Date | null;
   finishedAt: Date | null;
+}
+
+function toDmJobRow(r: typeof jobs.$inferSelect): DmJobRow {
+  return {
+    id: r.id,
+    kind: r.kind as DmJobKind,
+    status: r.status,
+    stage: r.stage,
+    attempts: r.attempts,
+    input: r.input,
+    result: r.result,
+    error: r.error,
+    createdAt: r.createdAt,
+    startedAt: r.startedAt,
+    heartbeatAt: r.heartbeatAt,
+    finishedAt: r.finishedAt,
+  };
 }
 
 export async function listDmJobs(
@@ -420,17 +529,51 @@ export async function listDmJobs(
     )
     .orderBy(desc(jobs.createdAt))
     .limit(limit);
-  return rows.map((r) => ({
-    id: r.id,
-    kind: r.kind as DmJobKind,
-    status: r.status,
-    stage: r.stage,
-    attempts: r.attempts,
-    input: r.input,
-    result: r.result,
-    error: r.error,
-    createdAt: r.createdAt,
-    startedAt: r.startedAt,
-    finishedAt: r.finishedAt,
-  }));
+  return rows.map(toDmJobRow);
+}
+
+export interface DmJobPage {
+  rows: DmJobRow[];
+  /** True when jobs older than the last row exist. */
+  hasMore: boolean;
+}
+
+/**
+ * One page of the session's DM jobs, newest first, ordered
+ * `(created_at desc, id desc)`. `before` is the id of a job of this session:
+ * the page holds jobs strictly older than it. Returns null when `before` is
+ * not a DM job of this session. Leaves `listDmJobs` unchanged.
+ */
+export async function listDmJobsPage(
+  db: DbClient,
+  sessionId: string,
+  opts: { limit: number; before?: string },
+): Promise<DmJobPage | null> {
+  const dmKinds = inArray(jobs.kind, [...DM_JOB_KINDS]);
+  const scope = and(eq(jobs.sessionId, sessionId), dmKinds);
+  let where = scope;
+  if (opts.before !== undefined) {
+    const [anchor] = await db
+      .select({ id: jobs.id })
+      .from(jobs)
+      .where(and(scope, eq(jobs.id, opts.before)))
+      .limit(1);
+    if (!anchor) return null;
+    where = and(
+      scope,
+      // Compared in SQL: a JS Date would truncate created_at to milliseconds.
+      sql`(${jobs.createdAt}, ${jobs.id}) < (select created_at, id from jobs where id = ${anchor.id})`,
+    );
+  }
+  const rows = await db
+    .select()
+    .from(jobs)
+    .where(where)
+    .orderBy(desc(jobs.createdAt), desc(jobs.id))
+    .limit(opts.limit + 1);
+  const hasMore = rows.length > opts.limit;
+  return {
+    rows: (hasMore ? rows.slice(0, opts.limit) : rows).map(toDmJobRow),
+    hasMore,
+  };
 }

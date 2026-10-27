@@ -159,6 +159,14 @@ function plan(
         authority: decision.authority,
       });
     }
+    case "action.withdraw": {
+      const action = findAction(p, proposal.actionId);
+      if (!action) return refuse("UNKNOWN_ACTION", "no such action");
+      if (action.status !== "declared" && action.status !== "discussed") {
+        return refuse("ACTION_NOT_OPEN", "the action is not open");
+      }
+      return one(actor, "action.withdrawn", { actionId: proposal.actionId });
+    }
     case "action.resolve": {
       const { resolution } = proposal;
       const action = findAction(p, resolution.actionId);

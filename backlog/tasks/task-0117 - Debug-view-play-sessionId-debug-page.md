@@ -60,6 +60,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 041, commit 8939e2c.)
 
 ORCHESTRATOR NOTES 2026-10-27 on spec open questions: Q1 the page ships wherever the app runs behind the operator role, following the operator's TASK-0116 ruling 'Ship everywhere' (to confirm with the operator at PR). Q2 Phase 6 decides the fake-gateway config; if neither outcome gives a useful turn, the Phase 6 implementer scripts one in the test harness style. Q3 carded as revisit (windowed fetch). Q4/Q5: TASK-0116 merged (#62, 654ad7b) — merge origin/main before Phase 1. Brave screenshots (Phase 6) are taken by the operator (ruling 2026-10-27).
+
+OPERATOR RULING 2026-10-27 (in chat): 'I take them in Brave'. Agents cannot drive Brave; the operator takes the merge-condition screenshots (light and dark) from steps the orchestrator gives. Gate unchanged.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
