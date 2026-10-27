@@ -4,7 +4,7 @@ title: 'Debug view: operator debug API and persisted model-call usage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 03:39'
+updated_date: '2026-10-27 03:46'
 labels:
   - debug-view
   - server
@@ -54,6 +54,9 @@ Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring, spec 037, commit 06eb633; ~202k tokens; served verified from transcript.)
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(implementation Phase 1, T001-T007, commit d13f1e3; ~113k tokens; served verified from transcript.)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
