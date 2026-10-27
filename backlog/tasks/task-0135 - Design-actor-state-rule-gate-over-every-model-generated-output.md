@@ -4,7 +4,7 @@ title: 'Design: actor-state rule gate over every model-generated output'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:22'
-updated_date: '2026-10-27 03:55'
+updated_date: '2026-10-27 03:56'
 labels:
   - design
   - dm
@@ -30,8 +30,6 @@ Outcome: a decision record and design pattern by which every model-generated seq
 - [ ] #4 The spec for the first implementation card is written against the decision
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -49,6 +47,10 @@ decision-0025 (D17) written, status accepted, commit ce68d69: formulation 3 adop
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (decision record, decision-0025 (D17), commits 34297fa 6fe8d76 ce68d69; ~131k tokens.)
+
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+(docs: card ids linked into decision-0025 and actor-state-gate.md, commit dc5e74e; ~87k tokens; served verified from transcript.)
+OPERATOR RULINGS 2026-10-26 (in chat): 'Add all, D17 order' -> TASK-0140 to TASK-0147 created on main; 'Fold into TASK-0112' (U6); 'Demo after a subset' (TASK-0053 runs after TASK-0140, TASK-0110, TASK-0112 with U6, TASK-0141, TASK-0142, TASK-0143; the rest of Track C merges after the demo, still in m-3). AC #4 (spec for the first implementation card) is met when TASK-0140's spec set is committed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
