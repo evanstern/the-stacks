@@ -314,22 +314,22 @@ Rule numbers refer to decision-0025.
 
 | Rule (decision-0025) | Card |
 |---|---|
-| §1 ActorSnapshot built in code; every node receives it | **U1** (new) |
-| §1.6 No silent drop under the token cap | **U1** (new) |
-| §2.1 Plot only through a recorded fact; §2.2 other-actor change needs a roll or SRD rule; §2.4 deterministic batch test (§3.3) | **U9** (new) |
+| §1 ActorSnapshot built in code; every node receives it | **U1 (TASK-0140)** (new) |
+| §1.6 No silent drop under the token cap | **U1 (TASK-0140)** (new) |
+| §2.1 Plot only through a recorded fact; §2.2 other-actor change needs a roll or SRD rule; §2.4 deterministic batch test (§3.3) | **U9 (TASK-0147)** (new) |
 | §2.2 The opposition roll against another actor (derived DC) | TASK-0128 |
 | §2.3 Uncontested effort resolves as a no-roll outcome row | TASK-0127 (AC #5) |
-| §2.5 Director stage changes need a basis in state; no spotlight on a downed or absent actor (§3.1) | **U5** (new) |
+| §2.5 Director stage changes need a basis in state; no spotlight on a downed or absent actor (§3.1) | **U5 (TASK-0145)** (new) |
 | §2.6 Scene framing and §2.7 talk as flavour, in narrate and audit doctrine | TASK-0113 (scene start), TASK-0130 (NPC reactions and talk wording) |
-| §3.1 Declare gate refuses a non-conscious or absent character | **U6** (new; recommended as added ACs on TASK-0112) |
+| §3.1 Declare gate refuses a non-conscious or absent character | **U6 (TASK-0112)** (new; recommended as added ACs on TASK-0112) |
 | §3.1 Playtest seat stops declaring for a downed hero | TASK-0112 (AC #1); its AC #2 is answered by decision-0025 |
-| §3.2 Plan gate: step actor and target exist and are not absent; engine refuses an unconscious, stable or incapacitated actor | **U6** (new) |
-| §3.4 Output claim gate over narrate prose, ruling text and `goalNote` | **U3** (new) |
-| §3.4 Claim gate on companion `say` and public chronicle entries | **U4** (new) |
-| §3.5 `dm.audit` receives S1 | **U7** (new) |
+| §3.2 Plan gate: step actor and target exist and are not absent; engine refuses an unconscious, stable or incapacitated actor | **U6 (TASK-0112)** (new) |
+| §3.4 Output claim gate over narrate prose, ruling text and `goalNote` | **U3 (TASK-0143)** (new) |
+| §3.4 Claim gate on companion `say` and public chronicle entries | **U4 (TASK-0144)** (new) |
+| §3.5 `dm.audit` receives S1 | **U7 (TASK-0146)** (new) |
 | §4 Resolve order: action groups before the Director group | TASK-0110 |
-| Scene presence as tracked state with a producer | **U2** (new) |
-| Seed NPCs carry minimal scene presence (C3 ruling) | **U8** (new) |
+| Scene presence as tracked state with a producer | **U2 (TASK-0141)** (new) |
+| Seed NPCs carry minimal scene presence (C3 ruling) | **U8 (TASK-0142)** (new) |
 | Numbers from the sheet; the snapshot carries stats | TASK-0104 |
 | Spells by SRD id | TASK-0105 |
 | Allowed involuntary effects in NarrationFacts (decision-0022 point 1) | TASK-0113 |
@@ -341,7 +341,7 @@ Rule numbers refer to decision-0025.
 The orchestrator creates these cards on `main`. Each card's spec cites decision-0025 and
 names the rules it implements (runbook merge condition for Track C).
 
-**U1. Actor snapshot: one code-built state view for every DM node**
+**U1 (TASK-0140). Actor snapshot: one code-built state view for every DM node**
 - Outcome: code builds an `ActorSnapshot` from the projections and the seed, and every DM
   node renders state from it. This is the first implementation card (TASK-0135 AC #4).
 - Acceptance criteria:
@@ -356,7 +356,7 @@ names the rules it implements (runbook merge condition for Track C).
   6. Existing dm tests and the scripted CI playtest stay green.
 - Dependencies: none. Scene presence fields are present but default to `present` until U2.
 
-**U2. Scene presence as tracked actor state, with a producer**
+**U2 (TASK-0141). Scene presence as tracked actor state, with a producer**
 - Outcome: an actor's scene presence (`present`, `yielded`, `absent`) is a logged fact, and
   only a resolved step can change it.
 - Acceptance criteria:
@@ -369,7 +369,7 @@ names the rules it implements (runbook merge condition for Track C).
   5. No Director field writes scene presence, with a test.
 - Dependencies: U1.
 
-**U3. Output claim gate: actor-aware checks over shipped narration**
+**U3 (TASK-0143). Output claim gate: actor-aware checks over shipped narration**
 - Outcome: a deterministic checker keyed to snapshot aliases refuses shipped text that
   contradicts actor state.
 - Acceptance criteria:
@@ -383,7 +383,7 @@ names the rules it implements (runbook merge condition for Track C).
   6. The actor-anonymous word checks in `audit-words.ts` are replaced or keyed to actors.
 - Dependencies: U1, U2, U8.
 
-**U4. Claim gate on companion `say` and public chronicle entries**
+**U4 (TASK-0144). Claim gate on companion `say` and public chronicle entries**
 - Outcome: the two model outputs that ship with no state check pass the U3 checker.
 - Acceptance criteria:
   1. Companion `say` passes the claim gate before `gate.submit`; a refusal drops or
@@ -393,7 +393,7 @@ names the rules it implements (runbook merge condition for Track C).
   3. DM-only chronicle entries are not gated and say so in the contract.
 - Dependencies: U3; TASK-0109 (same chronicle footprint, merge after it).
 
-**U5. Director legality over actor state**
+**U5 (TASK-0145). Director legality over actor state**
 - Outcome: `legalizeDirector` reads the snapshot and refuses stage changes the state does not
   support.
 - Acceptance criteria:
@@ -405,7 +405,7 @@ names the rules it implements (runbook merge condition for Track C).
   4. A refused Director move is logged and does not block the turn.
 - Dependencies: U1, U2, U8, TASK-0110.
 
-**U6. Able-actor gates: declare and engine refuse a downed or absent actor**
+**U6 (TASK-0112). Able-actor gates: declare and engine refuse a downed or absent actor**
 - Outcome: no downed or absent actor reaches a model or the engine as an actor.
 - Recommended delivery: as added acceptance criteria on TASK-0112, whose runbook row (C4)
   already names the gate half. A separate card only if the orchestrator prefers.
@@ -418,7 +418,7 @@ names the rules it implements (runbook merge condition for Track C).
   4. Death-save turns for unconscious PCs still run.
 - Dependencies: none for criteria 1, 2 and 4; criterion 3 needs U1 and U2.
 
-**U7. `dm.audit` receives the actor snapshot**
+**U7 (TASK-0146). `dm.audit` receives the actor snapshot**
 - Outcome: the model auditor judges prose against S1, not this turn's facts only.
 - Acceptance criteria:
   1. The audit prompt renders S1 and the diff, with a prompt test.
@@ -427,7 +427,7 @@ names the rules it implements (runbook merge condition for Track C).
   3. Blocking derivation in code is unchanged.
 - Dependencies: U1; U2 for criterion 2.
 
-**U8. Seed NPCs carry minimal scene presence**
+**U8 (TASK-0142). Seed NPCs carry minimal scene presence**
 - Outcome: every seed NPC is an actor in the snapshot with scene presence, so claims about it
   can be checked. Richer NPC records stay with the Codex (M4).
 - Acceptance criteria:
@@ -438,7 +438,7 @@ names the rules it implements (runbook merge condition for Track C).
   4. A seed NPC that becomes a combatant keeps one identity across both.
 - Dependencies: U1, U2.
 
-**U9. Resolve batch gate: formulation 3 in code**
+**U9 (TASK-0147). Resolve batch gate: formulation 3 in code**
 - Outcome: the resolve batch is refused when a plot change lacks a recorded fact, or when a
   change to another actor lacks a roll against that actor or an engine-coded SRD rule.
 - Acceptance criteria:
@@ -482,3 +482,5 @@ implementation at a time; TASK-0109 still floats.
 The track grows by eight cards (U6 folded into TASK-0112). If the waves cannot carry it before
 TASK-0053, the demo-critical subset is U1, TASK-0110, TASK-0112 with U6, U2, U8 and U3; the
 orchestrator and operator rule on the rest at the wave boundary.
+
+Adopted by operator ruling 2026-10-26; the demo (TASK-0053) runs after U1, TASK-0110, TASK-0112 (with U6), U2, U8 and U3.

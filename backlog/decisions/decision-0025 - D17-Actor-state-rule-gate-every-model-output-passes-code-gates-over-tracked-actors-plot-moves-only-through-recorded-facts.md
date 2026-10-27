@@ -158,11 +158,14 @@ Point 3 stands. Two clarifications bind it:
   rolls rule 2.2 needs.
 - TASK-0113 and TASK-0130 align narrate and audit wording with rules 2.6 and 2.7.
 - TASK-0109 keeps distinct combatants distinct in the chronicle.
-- New cards carry the rest: the snapshot, scene presence and its producer, seed-NPC scene
-  presence, the claim gate, the gates on companion `say` and public chronicle entries, Director
-  legality over state, the able-actor gates, audit with the snapshot, and the batch gate. The
-  card proposals and the rule-to-card table are in `docs/design/actor-state-gate.md`.
+- New cards carry the rest: the snapshot (U1 (TASK-0140)), scene presence and its producer
+  (U2 (TASK-0141)), seed-NPC scene presence (U8 (TASK-0142)), the claim gate (U3 (TASK-0143)),
+  the gates on companion `say` and public chronicle entries (U4 (TASK-0144)), Director legality
+  over state (U5 (TASK-0145)), the able-actor gates (U6 (TASK-0112)), audit with the snapshot
+  (U7 (TASK-0146)), and the batch gate (U9 (TASK-0147)). The card proposals and the rule-to-card
+  table are in `docs/design/actor-state-gate.md`.
 - Disposition beyond `yielded` is untracked in M3. Prose asserting it rides `dm.audit` and the
   narrate doctrine. Richer NPC records belong to the Codex (M4).
 - Position and range stay untracked until TASK-0139 rules.
 - The resolve order change touches the turn-jobs contract; TASK-0110 documents it.
+- U6 lands as added acceptance criteria on TASK-0112 (operator ruling 2026-10-26).
