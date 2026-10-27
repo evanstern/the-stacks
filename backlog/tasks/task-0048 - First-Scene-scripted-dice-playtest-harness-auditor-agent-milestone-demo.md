@@ -4,7 +4,7 @@ title: 'First Scene: scripted-dice playtest harness, auditor agent, milestone de
 status: In Progress
 assignee: []
 created_date: '2026-10-25 19:59'
-updated_date: '2026-10-27 01:23'
+updated_date: '2026-10-27 01:25'
 labels:
   - first-scene
   - test
@@ -152,6 +152,8 @@ Operator demo finding (5), runtime: in free mode a companion may declare without
 Demo paused 2026-10-26 at the operator's request (a break of a few hours). Session e8c848ec-11e9-442d-9bfa-8c26a0d84fcd stays live on stacks-task-0048 (app :3048), last seq 77; jobs: companion:succeeded:7, turn:succeeded:11, chronicle:succeeded:9. 8 human actions committed so far, 2 narration fallbacks (seq 25 and 65), no failed turn. Findings 1-5 are logged above. Resume: the operator reopens http://localhost:3048/play/e8c848ec-11e9-442d-9bfa-8c26a0d84fcd in Brave and keeps playing Tamsin; the orchestrator re-arms the session watch. Do not env:down this stack before the demo ends (that would wipe the session).
 
 Operator demo finding (6), UI: dice lines in narration (e.g. 'Tamsin Vale — …: 1d20+2 → 4 = 6 vs DC 12: failure') render as ordinary prose. They should be visually distinct, monospaced like a code block, so rolls read apart from the story text.
+
+OPERATOR RULING 2026-10-26, in the operator's words: 'Ruling: keep playing with the workaround (commit Tamsin's action). Card the companion stall in m-3.' Finding 5 recurred during the resumed demo. Carded on main: TASK-0114.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
