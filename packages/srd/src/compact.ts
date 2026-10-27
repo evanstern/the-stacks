@@ -273,6 +273,35 @@ function conditionUnits(c: SrdRecord<"condition">): {
   return { header: `${c.name} [condition/${c.id}]`, units };
 }
 
+function ruleUnits(r: SrdRecord<"rule">): { header: string; units: Unit[] } {
+  const units: Unit[] = [];
+  for (const block of r.blocks) {
+    if (block.type === "table") {
+      block.rows.forEach((row, i) => {
+        const cells = row.join(" | ");
+        units.push(
+          line(i === 0 && block.title ? `${block.title}: ${cells}` : cells),
+        );
+      });
+    }
+  }
+  for (const block of r.blocks) {
+    if (block.type === "text") units.push(...sentences(block.text));
+  }
+  for (const block of r.blocks) {
+    if (block.type === "list") {
+      for (const item of block.items) units.push(line(`- ${item}`));
+    }
+  }
+  if (r.children.length > 0) {
+    // Child titles are the last path segment, recovered from the id's last "." part is lossy,
+    // so list child ids' final slug segment. Titles are not stored on the parent.
+    const titles = r.children.map((c) => c.slice(c.lastIndexOf(".") + 1));
+    units.push(line(`See: ${titles.join(", ")}`));
+  }
+  return { header: `${r.title} [rule/${r.id}]`, units };
+}
+
 /** Pure: same record in, same string out. No I/O. */
 export function toCompact<K extends SrdKind>(
   kind: K,
@@ -295,6 +324,9 @@ export function toCompact<K extends SrdKind>(
       break;
     case "condition":
       built = conditionUnits(record as SrdRecord<"condition">);
+      break;
+    case "rule":
+      built = ruleUnits(record as SrdRecord<"rule">);
       break;
     default:
       throw new Error(`Unknown kind: ${String(kind)}`);

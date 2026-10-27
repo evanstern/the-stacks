@@ -37,15 +37,15 @@ byte-identical.
 **Goal**: the package accepts, validates, looks up and compacts `rule` records. Tests use
 hand-written fixture records in a temp data directory, so this phase needs no PDF.
 
-- [ ] T001 [US1] Add `packages/srd/src/schema/rule.ts` with `RuleId`, `RuleBlock` and `Rule`, per plan.md "Data model". Use `.strict()` objects.
-- [ ] T002 [US1] Add `"rule"` to `SrdKind` in `packages/srd/src/schema/common.ts`. Export and register `Rule` in `packages/srd/src/schema/index.ts`.
-- [ ] T003 [P] [US1] Add schema tests in `packages/srd/test/schema.test.ts`: a valid record passes; a bad id, an empty path, a table row of wrong length and an unknown key each fail.
-- [ ] T004 [US2] Add `ruleUnits` and the `rule` case to `toCompact` in `packages/srd/src/compact.ts`, per plan.md D8.
-- [ ] T005 [P] [US2] Add compact tests in `packages/srd/test/compact.test.ts`: a DC-table fixture renders all six rows unbroken under the ceiling; a long fixture truncates by whole units with `+N more`; the footer is `SRD 5.2.1 p.<page>`.
-- [ ] T006 [US1] Add one sentence to `packages/srd/ATTRIBUTION.md` naming the six record kinds, per plan.md D9. Do not change the statement or the change notice.
-- [ ] T007 [P] [US1] Add a test in `packages/srd/test/attribution.test.ts` that every `SrdKind` value is named in `ATTRIBUTION.md`. Keep every existing assertion.
-- [ ] T008 [US1] Add a loader test with `createLoader` over a temp `rule.json`: `getById` by heading-path id, `getByName` by the full ` › ` name, a miss returns `undefined`, and two records sharing a bare `title` load without a duplicate-name error.
-- [ ] T009 [US1] Ship an empty `packages/srd/data/rule.json` (`[]`) so the default loader and the server build stay green until Phase 2 fills it.
+- [x] T001 [US1] Add `packages/srd/src/schema/rule.ts` with `RuleId`, `RuleBlock` and `Rule`, per plan.md "Data model". Use `.strict()` objects.
+- [x] T002 [US1] Add `"rule"` to `SrdKind` in `packages/srd/src/schema/common.ts`. Export and register `Rule` in `packages/srd/src/schema/index.ts`.
+- [x] T003 [P] [US1] Add schema tests in `packages/srd/test/schema.test.ts`: a valid record passes; a bad id, an empty path, a table row of wrong length and an unknown key each fail.
+- [x] T004 [US2] Add `ruleUnits` and the `rule` case to `toCompact` in `packages/srd/src/compact.ts`, per plan.md D8.
+- [x] T005 [P] [US2] Add compact tests in `packages/srd/test/compact.test.ts`: a DC-table fixture renders all six rows unbroken under the ceiling; a long fixture truncates by whole units with `+N more`; the footer is `SRD 5.2.1 p.<page>`.
+- [x] T006 [US1] Add one sentence to `packages/srd/ATTRIBUTION.md` naming the six record kinds, per plan.md D9. Do not change the statement or the change notice.
+- [x] T007 [P] [US1] Add a test in `packages/srd/test/attribution.test.ts` that every `SrdKind` value is named in `ATTRIBUTION.md`. Keep every existing assertion.
+- [x] T008 [US1] Add a loader test with `createLoader` over a temp `rule.json`: `getById` by heading-path id, `getByName` by the full ` › ` name, a miss returns `undefined`, and two records sharing a bare `title` load without a duplicate-name error.
+- [x] T009 [US1] Ship an empty `packages/srd/data/rule.json` (`[]`) so the default loader and the server build stay green until Phase 2 fills it.
 
 **Checkpoint**: package gate green. `apps/server` typechecks with the widened `SrdKind`.
 
