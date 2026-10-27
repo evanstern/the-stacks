@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 05:23'
+updated_date: '2026-10-27 05:29'
 labels:
   - dm
   - rules-gate
@@ -35,8 +35,8 @@ Spec: specs/040-actor-snapshot
 - [ ] #7 Spec phase: The snapshot module (US1, US2 diff, US4 render)
 - [ ] #8 Spec phase: S0, S1 and the planning prompts (US2, US3, US4)
 - [ ] #9 Spec phase: Player-facing prompts and retirement (US3, US4, US5)
-- [ ] #10 Spec phase: Wiki re-ground
-- [ ] #11 Spec phase: Constitution Compliance (the-stacks)
+- [x] #10 Spec phase: Wiki re-ground
+- [x] #11 Spec phase: Constitution Compliance (the-stacks)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -64,6 +64,8 @@ OPERATOR RULING 2026-10-27 (relayed verbatim from the parent session): "Also: th
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Reconcile with main (orchestrator session 2): merge aecaa10, fix 39554f5 (ChronicleResult.seqs on overflow). Companion prompt dm.companion-v5 (main had v4 from TASK-0114); chronicle stays v3. ci:check green with REQUIRE_DATABASE=1; playtest integration passes. TASK-0114 T038 annotated not-applicable (W-A) on this branch.
+
+Phase 4 done (7e9c226): wiki re-ground. New actor-snapshot note; dm-runtime, dm-narration-quality, session-model, dm-turn-jobs, dm-failure-and-gates amended; ai-gateway, debug-view, overview, presence, retrieval, server-entrypoint-and-app re-pinned only; CAPSULES/INDEX regenerated; companion prompt text in spec set now dm.companion-v5. Freshness OK (51 notes), spec-bridge exit 0, T030-T039 ticked. ci:check: only the 5 adjudicate.integration tests fail, for lack of a database (no REQUIRE_DATABASE run).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
