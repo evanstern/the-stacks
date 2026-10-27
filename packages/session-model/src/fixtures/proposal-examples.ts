@@ -45,6 +45,12 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
     rationale: "Ana's player asked the DM to go ahead.",
     actionId: "act-lockpick",
   },
+  "action.withdraw": {
+    kind: "action.withdraw",
+    summary: "Withdraw Ana's lockpick",
+    rationale: "Ana's player changed their mind.",
+    actionId: "act-lockpick",
+  },
   "action.resolve": {
     kind: "action.resolve",
     summary: "Mark the lockpick applied",

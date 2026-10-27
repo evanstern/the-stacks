@@ -15,6 +15,7 @@ const commands = {
   declareAction: yes,
   comment: yes,
   commit: yes,
+  withdraw: yes,
   approve: yes,
   reject: yes,
 };

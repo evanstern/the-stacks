@@ -20,6 +20,7 @@ export function workerFor(
   opts: {
     retrieve?: DmWorkerDeps["retrieve"];
     nodes?: Nodes;
+    reactQuietMs?: number;
     gateway?: DmWorkerDeps["gateway"];
     heartbeatMs?: number;
     log?: (line: Record<string, unknown>) => void;
@@ -33,6 +34,7 @@ export function workerFor(
       nudges.count += 1;
     },
     loadProjections: base.loadProjections,
+    reactQuietMs: opts.reactQuietMs,
   });
   w.gate.onAppended((sessionId, rows) => {
     void enqueuer.onAppended(sessionId, rows);

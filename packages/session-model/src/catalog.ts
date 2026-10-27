@@ -5,6 +5,7 @@ import {
   ActionCommittedV1,
   ActionDeclaredV1,
   ActionResolvedV1,
+  ActionWithdrawnV1,
 } from "./events/actions.js";
 import { DmSeatChangedV1, GatePolicyChangedV1 } from "./events/gate-config.js";
 import { JournalEntryAddedV1 } from "./events/journal.js";
@@ -73,6 +74,7 @@ const sessionEntries: CatalogEntry[] = [
   session("action.commented", "lifecycle", ActionCommentedV1),
   session("action.committed", "lifecycle", ActionCommittedV1),
   session("action.resolved", "lifecycle", ActionResolvedV1),
+  session("action.withdrawn", "lifecycle", ActionWithdrawnV1),
   session("table-mode.changed", "state-change", TableModeChangedV1),
   session("scene.changed", "state-change", SceneChangedV1),
   session("party.member.changed", "state-change", PartyMemberChangedV1),
@@ -125,6 +127,7 @@ type SessionPayloads = {
   "action.commented": z.infer<typeof ActionCommentedV1>;
   "action.committed": z.infer<typeof ActionCommittedV1>;
   "action.resolved": z.infer<typeof ActionResolvedV1>;
+  "action.withdrawn": z.infer<typeof ActionWithdrawnV1>;
   "table-mode.changed": z.infer<typeof TableModeChangedV1>;
   "scene.changed": z.infer<typeof SceneChangedV1>;
   "party.member.changed": z.infer<typeof PartyMemberChangedV1>;

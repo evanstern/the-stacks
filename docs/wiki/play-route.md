@@ -19,13 +19,13 @@ sources:
   - apps/web/app/play/ledger-format.ts
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
-verified_against: 088e7223b68e17bcec34ebaf47663e24d5fde53d
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # Play route
 
 TASK-0047 (specs/030-play-route) replaces the M0 echo page at `play/:sessionId` with the
-table: a transcript, a composer, action cards with a commit control, a table-mode badge, a
+table: a transcript, a composer, action cards with a commit control and a Withdraw control, a table-mode badge, a
 ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/app/play/`;
 `routes/play.tsx` is a thin wrapper. All three routes are client-only (`clientLoader` plus
 `HydrateFallback`, no server `loader`), like the route it replaced ([[react-router-app]]).
@@ -56,12 +56,14 @@ it holds only UI state (which panel is open). Two hooks build a source:
 
 - `view-model.ts` - `toTableViewModel`: transcript items, action cards, `ModeView`
   (free, or turn with the active actor and whether it is the viewer's turn), composer, ledger
-  and proposal lists, `hiddenCount`, `isDm`.
+  and proposal lists, `hiddenCount`, `isDm`. An action card carries `canWithdraw` (open, and the
+  viewer is its declarer or the DM). A `withdrawn` card is closed: no commit control, no
+  "Waiting for ... to commit" line, and a "Withdrawn" status.
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
   can always commit; a player goes through `commitAuthority` from [[proposal-gate]]'s pure
   core. The gate enforces; this only decides the display.
 - `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
-  `commitFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
+  `commitFrame`, `withdrawFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
   `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixture mode.
 - `reduce-frame.ts` - `reduceFrame` folds every inbound WebSocket frame into `FrameState`
   (`events`, `highestSeq` as a max, `caughtUp`, `notice`).
@@ -74,7 +76,7 @@ it holds only UI state (which panel is open). Two hooks build a source:
 
 Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` frame:
 `eventType` is the request kind (`talk`, `action.declare`, `action.comment`, `action.commit`,
-`proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
+`action.withdraw`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` from the frame's `code` in `notice`,
 which the composer shows inline. A refusal does not close the socket.

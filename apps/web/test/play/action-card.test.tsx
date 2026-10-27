@@ -14,6 +14,7 @@ const card = (over: Partial<ActionCardView> = {}): ActionCardView => ({
   status: "discussed",
   comments: [{ seq: 5, actorLabel: "Bram", stance: "approve", text: "Go on." }],
   open: true,
+  canWithdraw: false,
   commit: { canCommit: true, authority: "declarer" },
   committed: null,
   resolved: null,
@@ -21,7 +22,7 @@ const card = (over: Partial<ActionCardView> = {}): ActionCardView => ({
 });
 const render = (c: ActionCardView) =>
   renderToStaticMarkup(
-    <ActionCard card={c} onComment={noop} onCommit={noop} />,
+    <ActionCard card={c} onComment={noop} onCommit={noop} onWithdraw={noop} />,
   );
 
 test("an open card shows comments with stance and the comment form", () => {
@@ -85,4 +86,24 @@ test("a refused resolution shows its code", () => {
   );
   expect(html).toContain("refused");
   expect(html).toContain("out-of-turn");
+});
+
+test("an open card shows Withdraw only when the viewer may withdraw it", () => {
+  expect(render(card({ canWithdraw: false }))).not.toContain(">Withdraw<");
+  expect(render(card({ canWithdraw: true }))).toContain(">Withdraw<");
+});
+
+test("a withdrawn card is closed: no form, no control, no waiting line", () => {
+  const html = render(
+    card({
+      status: "withdrawn",
+      open: false,
+      canWithdraw: false,
+      commit: { canCommit: false, holderLabel: "Ana" },
+    }),
+  );
+  expect(html).toContain("Withdrawn");
+  expect(html).not.toContain("<form");
+  expect(html).not.toContain("<button");
+  expect(html).not.toContain("Waiting for");
 });

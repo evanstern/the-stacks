@@ -6,6 +6,9 @@ route sends gate requests and renders proposal bodies) and this task's server ga
 to any kind, field, permission or visibility rule below is a contract change: update this
 file in the same PR.
 
+**Amendment (TASK-0114).** Amended by the operator ruling "W-A: add withdraw" on TASK-0114 (checkpoint W, 2026-10-26; spec 036-companion-react, FR-017 to FR-019). The kinds grew from twelve to thirteen: `action.withdraw`
+is new. Every other rule below is unchanged.
+
 Siblings: [policy-and-authority.md](policy-and-authority.md),
 [proposal-events.md](proposal-events.md), [gate-api.md](gate-api.md),
 [ws-delivery.md](ws-delivery.md), [fixtures.md](fixtures.md),
@@ -13,17 +16,17 @@ Siblings: [policy-and-authority.md](policy-and-authority.md),
 
 ## Proposal kinds
 
-Twelve kinds, closed:
+Thirteen kinds, closed:
 
 ```ts
 export const ProposalKindSchema = z.enum([
-  "talk", "action.declare", "action.comment", "action.commit", "action.resolve",
-  "mechanics", "narration", "table-mode", "scene", "party", "tracker", "journal",
+  "talk", "action.declare", "action.comment", "action.commit", "action.withdraw",
+  "action.resolve", "mechanics", "narration", "table-mode", "scene", "party", "tracker", "journal",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
 /** The eleven kinds the AI DM may propose; the policy table is total over these. */
-export const DmProposalKindSchema = ProposalKindSchema.exclude(["action.declare"]);
+export const DmProposalKindSchema = ProposalKindSchema.exclude(["action.declare", "action.withdraw"]);
 export type DmProposalKind = z.infer<typeof DmProposalKindSchema>;
 ```
 
@@ -52,6 +55,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     comment: ActionCommentedV1 }),
   z.object({ kind: z.literal("action.commit"), ...ProposalNote,
     actionId: RefIdSchema }),                       // authority is derived by the gate, never supplied
+  z.object({ kind: z.literal("action.withdraw"), ...ProposalNote,
+    actionId: RefIdSchema }),                       // closes an open action; TASK-0114 amendment
 
   // ── DM-side ──
   z.object({ kind: z.literal("action.resolve"), ...ProposalNote,
@@ -120,7 +125,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-export const GATE_REQUEST_KINDS: readonly string[];   // the 16 `kind` literals above
+export const GATE_REQUEST_KINDS: readonly string[];   // the 17 `kind` literals above
 export const GATE_REQUEST_VERSION = 1;                 // the send frame's payloadVersion
 ```
 
@@ -162,6 +167,7 @@ refuses with `NOT_AUTHORIZED` (source `gate`), before planning.
 | `action.declare` | as controller only | no | for a character it controls; party scope if a party member | same as companion |
 | `action.comment` | yes | yes (policy) | if a party member | if a party member |
 | `action.commit` | yes (authority `dm`) | yes (policy; authority `dm`) | per commit authority | per commit authority |
+| `action.withdraw` | yes | no | for an action it declared | for an action it declared |
 | `action.resolve`, `mechanics`, `narration`, `table-mode`, `scene`, `party`, `tracker`, `journal` | yes, applied directly | yes (policy) | no | no |
 | `proposal.approve`, `proposal.reject` | yes | no | no | no |
 | `gate.policy` | yes | no | no | operator only |
@@ -172,6 +178,11 @@ Further checks inside a permitted kind:
 - `talk` with `channel: "ic"` and a non-null `characterId` requires controlling that
   character, unless the proposer is a DM (an NPC voice uses `characterId: null`).
 - `action.commit` runs commit authority (policy-and-authority.md).
+- `action.withdraw` is permitted for the action's declarer (the row `actor` of its
+  `action.declared`) and for the seated human DM. An unknown action passes the matrix and is
+  refused by the planner with `UNKNOWN_ACTION`. `ai:dm` is `NOT_AUTHORIZED`, as for
+  `action.declare`, so `action.withdraw` has no policy entry. The planner refuses an action
+  that is not open (`declared` or `discussed`) with `ACTION_NOT_OPEN`, before writing.
 - A human DM's and an operator's `dm.seat` may seat any user id or the AI DM.
 
 "Applied directly" is AC #7: a seated human DM's submission of a DM kind skips the policy

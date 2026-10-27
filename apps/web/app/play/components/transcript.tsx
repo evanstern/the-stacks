@@ -7,7 +7,7 @@ export function Transcript({
   commands,
 }: {
   items: readonly TranscriptItem[];
-  commands: Pick<TableCommands, "comment" | "commit">;
+  commands: Pick<TableCommands, "comment" | "commit" | "withdraw">;
 }) {
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">Nothing said yet.</p>;
@@ -36,6 +36,7 @@ export function Transcript({
               card={item.card}
               onComment={commands.comment}
               onCommit={commands.commit}
+              onWithdraw={commands.withdraw}
             />
           )}
         </li>

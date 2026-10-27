@@ -1,6 +1,6 @@
 ---
 name: proposal-gate
-description: The proposal gate (TASK-0045, spec 029) - the 12 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode, createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
+description: The proposal gate (TASK-0045, spec 029) - the 13 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode, createGate (submit/handle/onAppended, bounded retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
 kind: component
 sources:
   - packages/session-model/src/gate/proposals.ts
@@ -13,7 +13,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
 ---
 
 # Proposal gate
@@ -26,11 +26,11 @@ permission, routes it by policy, plans the rows, and appends them. Pure decision
 
 ## Kinds and requests
 
-`ProposalKindSchema` has 12 kinds: `talk`, `action.declare`, `action.comment`,
-`action.commit`, `action.resolve`, `mechanics` (an engine command, validated by the engine),
+`ProposalKindSchema` has 13 kinds: `talk`, `action.declare`, `action.comment`,
+`action.commit`, `action.withdraw`, `action.resolve`, `mechanics` (an engine command, validated by the engine),
 `narration`, `table-mode`, `scene`, `party`, `tracker`, `journal`. The AI DM may propose the
-eleven in `DmProposalKindSchema` (all but `action.declare`). `GateRequestSchema` adds four
-supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (16
+twelve in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
+supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (17
 `GATE_REQUEST_KINDS`; sent over `send` with `payloadVersion` 1, see [[websocket-gateway]]).
 A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm`,
 `ai:companion:<id>`).
@@ -40,15 +40,18 @@ A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm
 `checkPermission` is the pure matrix: DM kinds need the seated DM or the AI DM;
 `proposal.approve`/`reject` need the seated DM (`NOT_DM`); `dm.seat` needs an operator;
 `gate.policy` needs the seated DM or an operator; `action.declare` needs control of the
-character (party scope: any party member) and never comes from the AI DM; `action.commit`
-passes here and is decided by commit authority.
+character (party scope: any party member) and never comes from the AI DM; `action.withdraw`
+(TASK-0114) is allowed to the action's declarer and the seated DM, never the AI DM, and the
+planner refuses an action that is not open (`ACTION_NOT_OPEN`) or unknown (`UNKNOWN_ACTION`);
+`action.commit` passes here and is decided by commit authority.
 
 The DM seat is `{ kind: "ai" }` or `{ kind: "human", userId }`, changed by `dm.seat.changed`
 (default AI). `DEFAULT_POLICIES`: `ask` for talk, action.comment, action.commit, mechanics,
 narration, table-mode, party, tracker; `auto` for action.resolve and journal; `suggest` for
 scene. `effectivePolicy` is `auto` for every kind when the seat is AI; with a human seat it is
 the session override (`gate.policy.changed`) else the default. `routeProposal` sends humans
-and companions `direct`, and `ai:dm` by policy. Operator ruling: the DM view of `dm`-only rows
+and companions `direct`, and `ai:dm` by policy (`action.declare` and `action.withdraw` from
+`ai:dm` are refused `NOT_AUTHORIZED`). Operator ruling: the DM view of `dm`-only rows
 (including `proposal.*` rows) goes only to the logged human DM seat ([[subscriber-registry]]).
 
 ## Commit authority

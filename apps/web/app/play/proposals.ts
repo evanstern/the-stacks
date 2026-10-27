@@ -56,6 +56,7 @@ function actionIdOf(proposal: Proposal): string | null {
     case "action.comment":
       return proposal.comment.actionId;
     case "action.commit":
+    case "action.withdraw":
       return proposal.actionId;
     case "action.resolve":
       return proposal.resolution.actionId;
@@ -101,6 +102,7 @@ function detailsOf(
         { label: "Comment", value: proposal.comment.text },
       ];
     case "action.commit":
+    case "action.withdraw":
       return [{ label: "Action", value: proposal.actionId }];
     case "action.resolve":
       return [

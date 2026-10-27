@@ -8,7 +8,8 @@ sources:
   - apps/server/package.json
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
-verified_against: 0822fb959951b8aa06f3ae2b836549ee72730498
+  - apps/server/drizzle/0006_fearless_jamie_braddock.sql
+verified_against: 2b58684eba93e597b951465770a9fa11cc5d4a24
 ---
 
 # Migrations
@@ -58,7 +59,9 @@ logs success or failure, and always closes the pool (`db.$client.end()`) in a `f
 (TASK-0046: the DM runtime's job kinds — `book` nullable, `session_id`, new kind/stage CHECKs, four
 partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]), and `0005_unknown_lizard.sql`
 (TASK-0116: the `dm_model_calls` usage ledger — table, three CHECKs, a cascade FK to `jobs`, two
-indexes; generated, no hand-added SQL; see [[debug-view]]). Drizzle names each file with a random
+indexes; generated, no hand-added SQL; see [[debug-view]]), and `0006_fearless_jamie_braddock.sql`
+(TASK-0114: the partial unique index `jobs_companion_react_queued_key`; regenerated after
+TASK-0116's 0005 merged first, which is the collision rule below at work). Drizzle names each file with a random
 suffix; the committed SQL is the source of truth.
 
 **Collision rule.** Two branches that each generate the next migration produce the same number

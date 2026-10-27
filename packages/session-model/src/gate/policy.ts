@@ -47,7 +47,10 @@ export function routeProposal(
   proposal: Proposal,
 ): Route {
   if (!isAiDm(proposer)) return { route: "direct" };
-  if (proposal.kind === "action.declare") {
+  if (
+    proposal.kind === "action.declare" ||
+    proposal.kind === "action.withdraw"
+  ) {
     return { route: "refuse", code: "NOT_AUTHORIZED" };
   }
   return { route: "policy", policy: effectivePolicy(p.gate, proposal.kind) };

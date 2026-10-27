@@ -144,6 +144,15 @@ describe("planProposal rows per kind (gate-api.md section 1)", () => {
         expect(payload).toEqual({ actionId: "act-ana", authority: "declarer" }),
     },
     {
+      name: "action.withdraw",
+      proposer: ana,
+      proposal: parse({ kind: "action.withdraw", actionId: "act-ana" }),
+      type: "action.withdrawn",
+      actor: PLAYER_A,
+      visibility: "public",
+      check: (payload) => expect(payload).toEqual({ actionId: "act-ana" }),
+    },
+    {
       name: "narration",
       proposer: seatedDm,
       proposal: parse({
@@ -349,6 +358,12 @@ describe("planProposal refusals (AC #8)", () => {
       "COMMIT_NOT_ALLOWED",
     ],
     [
+      "withdraw an unknown action",
+      ana,
+      { kind: "action.withdraw", actionId: "nope" },
+      "UNKNOWN_ACTION",
+    ],
+    [
       "resolve an uncommitted action",
       aiDm,
       {
@@ -443,6 +458,47 @@ describe("planProposal refusals (AC #8)", () => {
     expect(result).toMatchObject({
       ok: false,
       refusal: { code: "JOURNAL_ENTRY_EXISTS" },
+    });
+  });
+
+  it("withdraw of a committed or withdrawn action -> ACTION_NOT_OPEN", () => {
+    const committed = dmFold({
+      extra: [
+        {
+          type: "action.committed",
+          payload: { actionId: "act-ana", authority: "declarer" },
+          opts: { actor: PLAYER_A },
+        },
+      ],
+    });
+    const withdrawnAlready = dmFold({
+      extra: [
+        {
+          type: "action.withdrawn",
+          payload: { actionId: "act-ana" },
+          opts: { actor: PLAYER_A },
+        },
+      ],
+    });
+    for (const q of [committed, withdrawnAlready]) {
+      expect(
+        plan(q, ana, parse({ kind: "action.withdraw", actionId: "act-ana" })),
+      ).toMatchObject({ ok: false, refusal: { code: "ACTION_NOT_OPEN" } });
+    }
+  });
+
+  it("the seated DM plans a withdraw of a player's open action", () => {
+    const rows = okRows(
+      plan(
+        dmFold({ humanDm: true }),
+        seatedDm,
+        parse({ kind: "action.withdraw", actionId: "act-bram" }),
+      ),
+    );
+    expect(rows[0]).toMatchObject({
+      type: "action.withdrawn",
+      actor: DM_USER,
+      payload: { actionId: "act-bram" },
     });
   });
 
