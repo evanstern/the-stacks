@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: To Do
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 01:47'
+updated_date: '2026-10-27 04:27'
 labels:
   - debug-view
   - web
@@ -41,6 +41,12 @@ Scope: web only, over the debug API card. Layout: a pinned 'why waiting?' strip 
 - [ ] #9 A retry control calls POST /dm/sessions/:id/turn and shows only when a turn failed or the table is stuck.
 - [ ] #10 The PR carries Brave screenshots of the page during a live session.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+OPERATOR RULING 2026-10-27 (in chat): 'I take them in Brave'. Agents cannot drive Brave; the operator takes the merge-condition screenshots (light and dark) from steps the orchestrator gives. Gate unchanged.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
