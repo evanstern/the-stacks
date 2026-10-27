@@ -24,7 +24,7 @@ sources:
   - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # Play route
@@ -128,7 +128,7 @@ Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list f
 the project uses no modals. The approvals panel mounts only for the DM. A `suggest` row
 (TASK-0100, specs/047) shows a Suggestion label and a Dismiss button, never Approve: Dismiss calls
 `onReject(id, null)`, the existing `proposal.reject` request, because the gate refuses Approve on a
-suggestion. An `ask` row keeps Approve and Reject. Open gap: the human DM has no scene-change
+suggestion. An `ask` row keeps Approve and Reject; that includes `scene-presence` (policy `ask`), whose details are Actor, Reason, New value (from `REASON_TO_PRESENCE`) and Visibility `Everyone`. Open gap: the human DM has no scene-change
 command on this route (TASK-0159).
 
 ## Fixture routes

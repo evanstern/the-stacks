@@ -12,7 +12,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/nodes/audit.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 98787267ceb9b464788faea18ab76a51a199a95b
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # DM narration quality
@@ -37,10 +37,10 @@ drops non-public rows and names speakers; without one it is the unchanged DM-sid
 and interpret). `NarrationFacts` (`facts.ts`, `buildNarrationFacts`) carries trigger, actions
 with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, rulings,
 `clarify` questions, plus v2 fields: `party` (id, name, controller), `events` (public encounter
-and turn changes) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
+and turn changes, plus a `presence` fact from each `scene-presence.changed` row: name, new presence and reason; the name falls back to the seed NPC name) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
 party-name filter and the fallback. The `npcNames` field is gone (TASK-0140): the world list
 now comes from the snapshot. A roll fact carries its `target`. `settled` holds the death saves rolled for combatants the turn passed (`FactSettled`; a `death-saves` change; the fallback says "holds on" or "slips closer to death"), and a turn with only settled facts is narrated. `factEntries` renders
-the facts for the prompt; `renderDiceLines` still renders every number.
+the facts for the prompt; `renderDiceLines` still renders every number. The narrate prompt renders a presence fact as `Event: <name> is now <presence> (<reason>)`, and the fallback says the actor arrives, leaves, flees, is removed, surrenders or concedes.
 
 ## State sections from the snapshot
 
@@ -81,4 +81,4 @@ flag.
 `dm.narrate-v4`, `dm.audit-v3`, `dm.director-v3`, `dm.chronicle-v3`, `dm.companion-v5` (v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
-director, interpret, adjudicate and chronicle too.
+director, interpret, adjudicate and chronicle too. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.

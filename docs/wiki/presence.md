@@ -12,7 +12,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: a66aa36be628f0d897f23521d4a33f4994b832cf
+verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
 ---
 
 # Presence
@@ -21,7 +21,7 @@ Presence answers "which humans are at this table right now" two ways, by decisio
 D, `backlog/decisions/`): a **live** answer held in server memory and pushed to clients that
 ask, and a **logged** answer, the `presence.recorded` marker, written at decision points so a
 later reader can see who was there. Spec: `specs/035-presence/` (contracts under
-`contracts/`). The multi-process revisit is TASK-0136.
+`contracts/`). This note is about humans at the table. Whether an actor is in the scene (`present`, `yielded`, `absent`) is a different fact: the `scene-presence.changed` event and the `scenePresence` projection ([[session-model]]), which the plan gate and the declare gate read (the declare gate refuses an absent character with `CHARACTER_UNABLE`, [[proposal-gate]]). The multi-process revisit is TASK-0136.
 
 ## The tracker and the reader
 

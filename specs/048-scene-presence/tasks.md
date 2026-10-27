@@ -271,21 +271,21 @@ unit schema, grammar, facts and write-boundary tests.
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T042 NEEDS-REVIEW `docs/wiki/actor-snapshot.md`: presence read from the log, the projection
+- [x] T042 NEEDS-REVIEW `docs/wiki/actor-snapshot.md`: presence read from the log, the projection
       key rules, the extension point built. Re-pin it.
-- [ ] T043 NEEDS-REVIEW `docs/wiki/dnd5e-engine.md`: the `initiative.leave` command in the handler
+- [x] T043 NEEDS-REVIEW `docs/wiki/dnd5e-engine.md`: the `initiative.leave` command in the handler
       list, its refusals and the active-leaver rule. Re-pin it.
-- [ ] T044 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md`: the plan gate's `absent` reason under
+- [x] T044 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md`: the plan gate's `absent` reason under
       `UNKNOWN_COMBATANT`, and the presence effect as a closed-list rules term. Re-pin it.
-- [ ] T045 NEEDS-REVIEW `docs/wiki/session-model.md`: `scene-presence.changed` in the catalog table,
+- [x] T045 NEEDS-REVIEW `docs/wiki/session-model.md`: `scene-presence.changed` in the catalog table,
       the `scenePresence` projection, and the declare gate's `absent` reason. Add
       `packages/session-model/src/events/scene-presence.ts` to its sources. Re-pin it.
-- [ ] T046 Review `docs/wiki/proposal-gate.md` (14 kinds, 12 DM kinds, the `scene-presence`
+- [x] T046 Review `docs/wiki/proposal-gate.md` (14 kinds, 12 DM kinds, the `scene-presence`
       policy) and `docs/wiki/dm-runtime.md` (the presence effect, the skipped second advance).
       Update and re-pin each note whose sources changed.
-- [ ] T047 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
+- [x] T047 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Update the
       `docs/wiki/INDEX.md` state paragraph with one sentence for scene presence.
-- [ ] T048 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T048 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0).
