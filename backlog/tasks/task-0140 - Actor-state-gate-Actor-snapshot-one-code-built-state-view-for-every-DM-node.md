@@ -4,7 +4,7 @@ title: 'Actor-state gate: Actor snapshot: one code-built state view for every DM
 status: In Progress
 assignee: []
 created_date: '2026-10-27 03:53'
-updated_date: '2026-10-27 05:16'
+updated_date: '2026-10-27 05:23'
 labels:
   - dm
   - rules-gate
@@ -61,6 +61,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 3, T020-T029, commit 914a112; npcNames and projectionEntries removed; narrate-v4, audit-v3, companion-v3, chronicle-v3; ci:check exit 0, server 896 passed.) Next: Phase 4 wiki (pins on dm/facts.ts, prompts, nodes narrate/audit, companion, chronicle, worker, index.ts, session/projections.ts).
 
 OPERATOR RULING 2026-10-27 (relayed verbatim from the parent session): "Also: the TASK-0140 snapshot views (DM all, companion no monster AC/resources, narration no numbers/ids) are confirmed."
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Reconcile with main (orchestrator session 2): merge aecaa10, fix 39554f5 (ChronicleResult.seqs on overflow). Companion prompt dm.companion-v5 (main had v4 from TASK-0114); chronicle stays v3. ci:check green with REQUIRE_DATABASE=1; playtest integration passes. TASK-0114 T038 annotated not-applicable (W-A) on this branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
