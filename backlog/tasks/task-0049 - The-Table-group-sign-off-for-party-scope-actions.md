@@ -4,7 +4,7 @@ title: 'The Table: group sign-off for party-scope actions'
 status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-27 10:05'
+updated_date: '2026-10-27 10:11'
 labels:
   - multiplayer
   - gate
@@ -30,14 +30,14 @@ Spec: specs/044-group-signoff
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 The gate classifies an action as party-scope or character-scope, and the classification is recorded on the event.
-- [ ] #2 A party-scope action commits only after every present player approves.
-- [ ] #3 Any player objects to a party-scope action, and the objection is visible to the table.
-- [ ] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
+- [x] #2 A party-scope action commits only after every present player approves.
+- [x] #3 Any player objects to a party-scope action, and the objection is visible to the table.
+- [x] #4 The DM (human or AI) commits or overrides a party-scope action at any time.
 - [ ] #5 The play route shows sign-off state per player and an approve or object control.
-- [ ] #6 Gate tests cover approval, objection and DM override with several players.
+- [x] #6 Gate tests cover approval, objection and DM override with several players.
 - [x] #7 Spec phase: The sign-off rule and commit authority (pure core)
 - [x] #8 Spec phase: The planner, the marker rows and the fixture
-- [ ] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
+- [x] #9 Spec phase: Server gate wiring and the two-seat DB test (merge condition)
 - [ ] #10 Spec phase: The play route shows sign-off (US4)
 - [ ] #11 Spec phase: Wiki re-ground
 <!-- AC:END -->
@@ -73,6 +73,8 @@ Phase 2 done (57d04bc): PlanContext + planProposal context param; multi-human gr
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (57d04bc): PlanContext; a group commit writes the signoff marker and the commit; the completing approval auto-commits; group-signoff fixture; SC-006 reads present from the marker; 029 gate-api.md and fixtures.md amended as ruled. 650 session-model tests pass. Without context.present a comment never auto-commits, so Phase 3 must pass present into every planProposal call.
+
+Phase 3 done (344e73c): gate.ts passes the presence ids to every planProposal call; gate.signoff.integration.test.ts covers two and three human seats on real Postgres (approval, objection, absent player, DM override, withdraw); companion-react case proves one commit turn and no react job. enqueue.ts unchanged. REQUIRE_DATABASE=1 pnpm ci:check green first run.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
