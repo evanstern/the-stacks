@@ -1,0 +1,31 @@
+---
+id: TASK-0159
+title: Human DM can carry out a scene change from the table
+status: To Do
+assignee: []
+created_date: '2026-10-27 10:33'
+labels:
+  - play-route
+  - gate
+milestone: m-3
+dependencies: []
+ordinal: 146000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Outcome: a seated human DM can change scene from the play route. That includes acting on a dismissed or pending scene suggestion. Evidence: the TASK-0100 spec author (spec 047, c53d50f, OQ-1) found that apps/web/app/play/frames.ts builds no scene request, so a human DM can read and dismiss a scene suggestion but cannot carry it out at the table. Why it matters: the M3 demo's second run is ask mode with a human DM (checkpoint C7).
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test
+- [ ] #2 A scene suggestion's content can seed that control
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
