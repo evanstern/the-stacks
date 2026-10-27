@@ -30,19 +30,23 @@ export interface Submission {
 
 ## Order of work
 
-Resolve runs these groups in order. Each group is a list of submissions.
+Resolve runs these groups in order. Each group is a list of submissions. The order is stated in
+[turn-jobs.md](turn-jobs.md) "Resolve order (decision-0025 §4)".
 
-1. **Director group** ([director.md](director.md)): scene, party and combatants (scene
-   start), trackers, table mode and encounter setup, scene end.
+1. **Opening moves** ([director.md](director.md)): scene, party, combatants and trackers (scene
+   start); the `turn` decision's combatants, initiative and turn mode.
 2. **Ruling group**: one `journal` proposal per ruling, visibility `dm`, entry id
    `ruling-<jobId>-<n>`, `sourceActionIds: [actionId]`.
 3. **Action groups**, one per beat item in commit `seq` order (AC #9). Skip items with
    status `resolved` (they need narration only).
 4. **NPC group** for an `npc-turn` trigger.
-5. **Turn advance group** in turn mode, after the active actor's action or the NPC turn
-   resolved: `mechanics` `turn.advance`, then `table-mode` with the next active actor.
+5. **Closing moves** ([director.md](director.md)): tracker advances, the `free` decision, scene
+   end. The batch gate (TASK-0147) will run after this group; the slot is empty.
+6. **Turn advance group** in turn mode, after the active actor's action or the NPC turn
+   resolved: `mechanics` `turn.advance`, then `table-mode` with the next active actor. It runs
+   only while the encounter is active and the mode is still turn.
 
-In hold mode (runner step 2.7), resolve runs the Director group only.
+In hold mode (runner step 2.7), resolve runs the opening moves, then the closing moves.
 
 ## Action group
 
@@ -102,7 +106,7 @@ The gate itself has no idempotency key. This contract adds none.
 
 | Kind | When |
 |---|---|
-| `scene`, `party`, `tracker`, `table-mode` | Director group |
+| `scene`, `party`, `tracker`, `table-mode` | opening moves and closing moves |
 | `mechanics` | combatants, initiative, encounter end, every step, turn advance |
 | `journal` | rulings; the audit flag ([audit.md](audit.md)) |
 | `action.resolve` | each beat item |
