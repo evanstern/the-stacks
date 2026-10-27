@@ -20,8 +20,13 @@ import {
 } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
-import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
+import {
+  combatant,
+  EMPTY_RESOLVE_SNAPSHOT,
+  greyhollowFight,
+} from "./snapshot-fixtures.js";
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), "../../src");
 
@@ -161,20 +166,21 @@ async function setup(responses: string[]) {
   });
   const assembled = await assemble(ctx0);
   if (!assembled.ok) throw new Error("assemble failed");
+  const snapshot = buildSnapshot(assembled.output.projections, ctx0.seed);
   const ctx = {
     ...ctx0,
     results: {
       assemble: assembled.output,
       director,
-      resolve: resolved,
+      resolve: { ...resolved, snapshot },
     },
   };
-  return { scripted, ctx, assembled: assembled.output };
+  return { scripted, ctx, assembled: assembled.output, snapshot };
 }
 
 describe("narrate", () => {
   it("ships prose plus the rendered dice lines, with facts and no command in the prompt", async () => {
-    const { ctx, scripted, assembled } = await setup([
+    const { ctx, scripted, assembled, snapshot } = await setup([
       "The tumblers give way, and the vault door swings inward on a breath of cold air. Something moves inside.",
     ]);
     const out = await narrate(ctx);
@@ -193,6 +199,7 @@ describe("narrate", () => {
       seed: playerFacingSeed(ctx.seed),
       roster: rosterOf(assembled.projections.party),
       assembled,
+      snapshot,
       facts: n.facts,
       prior: null,
     });
@@ -205,13 +212,14 @@ describe("narrate", () => {
   });
 
   it("includes the previous text and issues when regenerating", async () => {
-    const { ctx, assembled } = await setup(["x"]);
+    const { ctx, assembled, snapshot } = await setup(["x"]);
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
     const prompt = buildNarratePrompt({
       seed: playerFacingSeed(ctx.seed),
       roster: rosterOf(assembled.projections.party),
       assembled,
+      snapshot,
       facts: out.output.facts,
       prior: {
         prose: "Too long.",
@@ -251,17 +259,15 @@ describe("narrate", () => {
     const { ctx, assembled } = await setup(["x"]);
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
+    const fight = greyhollowFight();
+    fight.projections.engine.combatants["goblin-3"] = combatant(
+      "goblin-3",
+      "Goblin",
+      { hp: { current: 0, max: 7, temp: 0 }, lifeState: "dead" },
+    );
+    const snapshot = buildSnapshot(fight.projections, fight.seed);
     const facts = {
       ...out.output.facts,
-      party: [
-        {
-          characterId: "c1",
-          name: "Tamsin Vale",
-          controller: "human" as const,
-        },
-        { characterId: "c2", name: "Odo", controller: "ai-companion" as const },
-      ],
-      npcNames: ["Snag", "Goblin-3"],
       events: [
         {
           kind: "encounter-started" as const,
@@ -297,15 +303,17 @@ describe("narrate", () => {
       seed: playerFacingSeed(ctx.seed),
       roster: rosterOf(assembled.projections.party),
       assembled,
+      snapshot,
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v3");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v4");
     expect(prompt.user).toContain("## Party (player characters)");
-    expect(prompt.user).toContain("Tamsin Vale (human player)");
-    expect(prompt.user).toContain("Odo (AI companion)");
+    expect(prompt.user).toContain("Tamsin Vale (party, human player)");
+    expect(prompt.user).toContain("Brother Odo (party, AI companion)");
     expect(prompt.user).toContain("## Other characters (the world)");
-    expect(prompt.user).toContain("Goblin-3");
+    // A goblin that died on an earlier turn still reads as dead (T021).
+    expect(prompt.user).toContain("Goblin (monster): dead");
     expect(prompt.user).toContain(
       "jabs at Tamsin with its dagger target Tamsin Vale",
     );
@@ -347,17 +355,16 @@ describe("narrate", () => {
     const { ctx } = await setup(["x"]);
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
-    const facts = {
-      ...out.output.facts,
-      party: [
-        { characterId: "c2", name: "Odo", controller: "ai-companion" as const },
-      ],
-      npcNames: ["Snag"],
-    };
-    const p = buildAuditPrompt({ facts, prose: "Prose." });
-    expect(AUDIT_VERSION).toBe("dm.audit-v2");
+    const fight = greyhollowFight();
+    const snapshot = buildSnapshot(fight.projections, fight.seed);
+    const p = buildAuditPrompt({
+      facts: out.output.facts,
+      snapshot,
+      prose: "Prose.",
+    });
+    expect(AUDIT_VERSION).toBe("dm.audit-v3");
     expect(p.user).toContain("## Party (player characters)");
-    expect(p.user).toContain("Odo (AI companion)");
+    expect(p.user).toContain("Brother Odo (party, AI companion)");
     expect(p.user).toContain("## Other characters (the world)");
     expect(p.system).toContain("beyond their declared action");
     expect(p.system).toContain("never `player-agency`");

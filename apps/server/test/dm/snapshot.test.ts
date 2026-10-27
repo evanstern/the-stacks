@@ -1,9 +1,13 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { partyNameTerms } from "../../src/dm/nodes/audit.js";
 import { dmOnlySeedText } from "../../src/dm/seed/views.js";
 import {
   buildSnapshot,
   nameTerms,
+  renderSnapshot,
   SnapshotBuildError,
 } from "../../src/dm/snapshot/index.js";
 import {
@@ -280,5 +284,46 @@ describe("aliases", () => {
       "x",
     ]);
     expect(nameTerms("Sir Dame", [])).toEqual(["Sir Dame"]);
+  });
+});
+
+describe("fiction render of the world (moved from facts.test.ts)", () => {
+  const worldNames = (): string[] => {
+    const { projections, seed } = greyhollowFight();
+    const r = renderSnapshot(buildSnapshot(projections, seed), {
+      view: "fiction",
+      cap: 800,
+    });
+    if (!r.ok) throw new Error("overflow");
+    return r.lines;
+  };
+
+  it("lists Snag once, joined across the seed NPC and the combatant", () => {
+    const lines = worldNames();
+    expect(lines.filter((l) => l.startsWith("Snag "))).toHaveLength(1);
+  });
+
+  it("lists every world character once and no party member as a world character", () => {
+    const lines = worldNames();
+    const monsters = lines.filter((l) => l.includes("(monster)"));
+    expect(monsters).toHaveLength(3);
+    expect(lines.filter((l) => l.startsWith("Brother Odo "))).toHaveLength(1);
+    expect(lines.some((l) => l.startsWith("Brother Odo (npc)"))).toBe(false);
+  });
+});
+
+describe("retired names (T026)", () => {
+  const SRC = join(dirname(fileURLToPath(import.meta.url)), "../../src");
+  const walk = (dir: string): string[] =>
+    readdirSync(dir).flatMap((n) => {
+      const f = join(dir, n);
+      return statSync(f).isDirectory() ? walk(f) : f.endsWith(".ts") ? [f] : [];
+    });
+
+  it("no file under src names projectionEntries or npcNames", () => {
+    const hits = walk(SRC).filter((f) =>
+      /projectionEntries|npcNames/.test(readFileSync(f, "utf8")),
+    );
+    expect(hits).toEqual([]);
   });
 });

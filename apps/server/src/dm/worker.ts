@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { SessionProjections } from "@the-stacks/session-model";
 import { compact, getById, getByName } from "@the-stacks/srd";
 import type { Gateway } from "../ai/gateway.js";
 import type { DbClient } from "../auth/session.js";
@@ -10,6 +11,7 @@ import {
   POLL_MS,
   setStage,
 } from "../jobs/queue.js";
+import { loadProjections as loadSessionProjections } from "../session/projections.js";
 import { runChronicleJob } from "./chronicle.js";
 import { type CompanionDeps, runCompanionJob } from "./companion.js";
 import {
@@ -67,6 +69,14 @@ export interface DmWorkerDeps {
   retrieve: NodeDeps["retrieve"];
   /** The DM view of a session (the log folded for `{ role: "dm" }`). */
   loadProjections: NodeDeps["loadProjections"];
+  /**
+   * The DM view as of `throughSeq` (the chronicle's state-at-seq read). The
+   * default reads the log through `session/projections`.
+   */
+  loadProjectionsThrough?: (
+    sessionId: string,
+    throughSeq: number,
+  ) => Promise<SessionProjections>;
   /** ASK_MIN_SIMILARITY. */
   minSimilarity: number;
   /** Test seams; the defaults are the real nodes, SRD and seed loader. */
@@ -97,6 +107,10 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
   const log = deps.log ?? defaultLog;
   const nodes = deps.nodes ?? DEFAULT_NODES;
   const seedLoader = deps.loadSeed ?? ((id: string) => loadSeed(id));
+  const loadProjectionsThrough =
+    deps.loadProjectionsThrough ??
+    ((sessionId: string, throughSeq: number) =>
+      loadSessionProjections(db, sessionId, { role: "dm" }, { throughSeq }));
   const srd: SrdLookup =
     deps.srd ?? ({ getById, getByName, compact } as SrdLookup);
   const newId = deps.newId ?? randomUUID;
@@ -349,6 +363,8 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
             gateway: deps.gateway,
             gate: deps.gate,
             loadProjections: deps.loadProjections,
+            loadProjectionsThrough,
+            loadSeed: seedLoader,
             fence,
             log,
           },

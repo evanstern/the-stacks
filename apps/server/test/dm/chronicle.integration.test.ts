@@ -1,9 +1,13 @@
 import { afterAll, describe, expect, it } from "vitest";
+import { runChronicleJob } from "../../src/dm/chronicle.js";
 import {
   enqueueChronicle,
   enqueueTurn,
   listDmJobs,
 } from "../../src/dm/jobs.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
+import { loadProjections } from "../../src/session/projections.js";
+import { withManyMonsters } from "./snapshot-fixtures.js";
 import {
   clearDmJobsBeforeEach,
   script,
@@ -104,5 +108,82 @@ describe.skipIf(!reachable)("chronicle (database)", () => {
     const chron = all.find((j) => j.kind === "chronicle");
     expect(turn?.status).not.toBe("queued");
     expect(chron?.status).toBe("queued");
+  });
+
+  it("reads the state at the job's throughSeq, not the live log", async () => {
+    const w = await createWorld();
+    await startScene(w);
+    const full = await w.projections();
+    expect(full.throughSeq).toBeGreaterThan(3);
+    const bound = full.throughSeq - 2;
+    const at = await loadProjections(
+      requireDb(),
+      w.sessionId,
+      { role: "dm" },
+      { throughSeq: bound },
+    );
+    expect(at.throughSeq).toBeLessThanOrEqual(bound);
+    expect(at.throughSeq).toBeLessThan(full.throughSeq);
+  });
+
+  it("an overflowing state writes nothing, logs state-overflow and makes no model call", async () => {
+    const w = await createWorld({
+      calls: [
+        {
+          purpose: "dm.chronicle",
+          respond: { type: "json", value: { entries: [] } },
+        },
+      ],
+    });
+    await startScene(w);
+    const base = w.ctx().deps;
+    const live = await w.projections();
+    const seen: number[] = [];
+    const logs: Record<string, unknown>[] = [];
+    // The scene-start narration is not part of the start rows; add one.
+    const withNarration = {
+      ...live,
+      transcript: [
+        ...live.transcript,
+        {
+          seq: live.throughSeq + 1,
+          kind: "narration" as const,
+          actor: "ai:dm",
+          text: "The shutter gives.",
+          visibility: "public" as const,
+          actionId: null,
+        },
+      ],
+    } as unknown as typeof live;
+    const result = await runChronicleJob(
+      {
+        gateway: base.gateway,
+        gate: base.gate,
+        loadProjections: async () => withNarration,
+        loadProjectionsThrough: async (_s, through) => {
+          seen.push(through);
+          return withManyMonsters(live, 90);
+        },
+        loadSeed: (id) => loadSeed(id),
+        fence: async () => true,
+        log: (l) => logs.push(l),
+      },
+      {
+        id: "00000000-0000-4000-8000-0000000000c2",
+        input: {
+          v: 1,
+          sessionId: w.sessionId,
+          throughSeq: live.throughSeq + 1,
+        },
+      },
+      new AbortController().signal,
+    );
+    expect(seen).toEqual([live.throughSeq + 1]);
+    expect(result).toEqual({ entries: 0, calls: [] });
+    expect(logs.find((l) => l.event === "dm.chronicle.failed")).toMatchObject({
+      kind: "state-overflow",
+      view: "fiction",
+    });
+    expect(w.scripted.remaining().calls["dm.chronicle"]).toBe(1);
   });
 });

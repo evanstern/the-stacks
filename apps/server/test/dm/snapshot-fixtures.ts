@@ -173,3 +173,18 @@ export const EMPTY_RESOLVE_SNAPSHOT = {
     stage: [],
   } as import("../../src/dm/snapshot/index.js").SnapshotDiff,
 };
+
+/** A copy of `p` with `n` extra live monsters, enough to overflow every view. */
+export function withManyMonsters(
+  p: SessionProjections,
+  n: number,
+): SessionProjections {
+  const out = structuredClone(p);
+  for (let i = 0; i < n; i++) {
+    const id = `extra-${i}`;
+    out.engine.combatants[id] = combatant(id, `Extra Goblin ${i}`, {
+      conditions: [condition(`c-${i}`, "frightened")],
+    });
+  }
+  return out;
+}

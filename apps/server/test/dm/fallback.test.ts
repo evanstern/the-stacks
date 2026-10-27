@@ -71,7 +71,6 @@ function facts(over: Partial<NarrationFacts> = {}): NarrationFacts {
     rulings: [],
     clarify: [],
     party: [],
-    npcNames: [],
     events: [],
     setting: {
       locationName: "The Vault",

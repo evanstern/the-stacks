@@ -437,9 +437,6 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       locationName: VIEW.location.name,
       openingFraming: VIEW.openingFraming,
     });
-    expect(f.npcNames).toContain("Snag");
-    expect(new Set(f.npcNames).size).toBe(f.npcNames.length);
-    expect(f.npcNames).not.toContain("Odo");
   });
 
   it("renders no-effect, on-hold and event lines", () => {

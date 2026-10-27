@@ -63,7 +63,6 @@ function facts(actions: FactAction[] = [action()]): NarrationFacts {
     rulings: [],
     clarify: [],
     party: [],
-    npcNames: [],
     events: [],
     setting: { locationName: "The Vault", openingFraming: "The vault waits." },
   };

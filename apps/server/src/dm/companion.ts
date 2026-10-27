@@ -14,6 +14,7 @@ import { buildCompanionPrompt, PROMPT_VERSION } from "./prompts/companion.js";
 import { PURPOSE_OF } from "./purposes.js";
 import type { SceneSeed } from "./seed/schema.js";
 import { playerFacingSeed } from "./seed/views.js";
+import { buildSnapshot, SnapshotOverflowError } from "./snapshot/index.js";
 
 /**
  * AI companions (contracts/companions.md): party members whose controller is
@@ -132,12 +133,26 @@ export async function runCompanionJob(
 
     const active = isActive(projections, companionId);
     const turnMode = projections.tableMode.mode === "turn";
-    const prompt = buildCompanionPrompt({
-      seed: playerFacingSeed(seed),
-      projections,
-      characterId: companionId,
-      active,
-    });
+    let prompt: ReturnType<typeof buildCompanionPrompt>;
+    try {
+      prompt = buildCompanionPrompt({
+        seed: playerFacingSeed(seed),
+        projections,
+        snapshot: buildSnapshot(projections, seed),
+        characterId: companionId,
+        active,
+      });
+    } catch (error) {
+      if (!(error instanceof SnapshotOverflowError)) throw error;
+      deps.log({
+        event: "dm.companion.state-overflow",
+        jobId: job.id,
+        companionId,
+        ...error.detail,
+      });
+      plays.push({ companionId, status: "error", submissions: [] });
+      continue;
+    }
     const result = await callJson(deps, {
       purpose: PURPOSE_OF.companion,
       promptVersion: PROMPT_VERSION,

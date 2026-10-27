@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { runCompanionJob } from "../../src/dm/companion.js";
 import { enqueueTurnForced, listDmJobs } from "../../src/dm/jobs.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
+import { withManyMonsters } from "./snapshot-fixtures.js";
 import {
   createWorld,
   db,
@@ -192,5 +193,34 @@ describe.skipIf(!reachable)("AI companions (database)", () => {
       signal,
     );
     expect(result.plays[0]?.status).toBe("skipped");
+  });
+
+  it("an overflowing seat state records an error play, logs state-overflow and makes no model call", async () => {
+    const w = await createWorld({
+      calls: [companionCall({ say: "unused", comment: null, act: null })],
+    });
+    await turnModeWith(w, "odo");
+    const d = deps(w);
+    const logs: Record<string, unknown>[] = [];
+    const result = await runCompanionJob(
+      {
+        ...d,
+        loadProjections: async (id: string) =>
+          withManyMonsters(await d.loadProjections(id), 90),
+        log: (l) => logs.push(l),
+      },
+      jobOf(w, ["odo"], "turn"),
+      signal,
+    );
+    expect(result.plays.map((p) => [p.companionId, p.status])).toEqual([
+      ["odo", "error"],
+    ]);
+    expect(result.calls).toEqual([]);
+    expect(
+      logs.find((l) => l.event === "dm.companion.state-overflow"),
+    ).toMatchObject({
+      view: "seat",
+    });
+    expect(w.scripted.remaining().calls["dm.companion"]).toBe(1);
   });
 });

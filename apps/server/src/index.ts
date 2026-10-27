@@ -59,6 +59,8 @@ const ingestWorker = startIngestWorker({
 const gate = createGate({ db });
 const loadDmProjections = (sessionId: string) =>
   loadProjections(db, sessionId, { role: "dm" });
+const loadDmProjectionsThrough = (sessionId: string, throughSeq: number) =>
+  loadProjections(db, sessionId, { role: "dm" }, { throughSeq });
 const missingPurposes = missingDmPurposes(aiConfig.purposes);
 if (missingPurposes.length > 0) {
   console.warn(
@@ -72,6 +74,7 @@ const dmWorker = startDmWorker({
   retrieve: (q) =>
     retrieve({ db, gateway: aiGateway, config: retrievalConfig }, q),
   loadProjections: loadDmProjections,
+  loadProjectionsThrough: loadDmProjectionsThrough,
   minSimilarity: answerConfig.minSimilarity,
 });
 const dmEnqueuer = createDmEnqueuer({

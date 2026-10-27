@@ -15,6 +15,7 @@ import { rosterOf } from "../prompts/common.js";
 import { buildNarratePrompt, PROMPT_VERSION } from "../prompts/narrate.js";
 import { PURPOSE_OF } from "../purposes.js";
 import { playerFacingSeed } from "../seed/views.js";
+import type { ActorSnapshot } from "../snapshot/index.js";
 import type { AssembleOutput } from "./assemble.js";
 import type { AuditIssue } from "./audit.js";
 
@@ -72,12 +73,14 @@ export async function narrateAttempt(
   ctx: TurnContext,
   assembled: AssembleOutput,
   facts: NarrationFacts,
+  snapshot: ActorSnapshot,
   prior: { prose: string; issues: AuditIssue[] } | null,
 ): Promise<AttemptResult> {
   const prompt = buildNarratePrompt({
     seed: playerFacingSeed(ctx.seed),
     roster: rosterOf(ctx.deps ? assembled.projections.party : []),
     assembled,
+    snapshot,
     facts,
     prior,
   });
@@ -143,7 +146,13 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     };
   }
 
-  const result = await narrateAttempt(ctx, assembled, facts, null);
+  const result = await narrateAttempt(
+    ctx,
+    assembled,
+    facts,
+    resolve.snapshot,
+    null,
+  );
   if (!result.ok) {
     return {
       ok: false,

@@ -276,7 +276,8 @@ export function deterministicChecks(
 export const audit: Node<"audit"> = async (ctx) => {
   const narration = ctx.results.narrate;
   const assembled = ctx.results.assemble;
-  if (!narration || !assembled) {
+  const resolved = ctx.results.resolve;
+  if (!narration || !assembled || !resolved) {
     return {
       ok: false,
       node: "audit",
@@ -342,7 +343,11 @@ export const audit: Node<"audit"> = async (ctx) => {
     let llm: AuditAttempt["llm"] = { skipped: true };
     let llmFailed = false;
     if (det.pass) {
-      const prompt = buildAuditPrompt({ facts, prose: current.prose });
+      const prompt = buildAuditPrompt({
+        facts,
+        snapshot: resolved.snapshot,
+        prose: current.prose,
+      });
       const res = await callJson(ctx.deps, {
         purpose: PURPOSE_OF.audit,
         promptVersion: PROMPT_VERSION,
@@ -415,10 +420,16 @@ export const audit: Node<"audit"> = async (ctx) => {
       ...blocking.map(({ kind, detail }) => ({ kind, detail })),
     ];
     attempt++;
-    const regen = await narrateAttempt(ctx, assembled, facts, {
-      prose: current.prose,
-      issues: issuesSoFar,
-    });
+    const regen = await narrateAttempt(
+      ctx,
+      assembled,
+      facts,
+      resolved.snapshot,
+      {
+        prose: current.prose,
+        issues: issuesSoFar,
+      },
+    );
     calls.push(...regen.calls);
     if (!regen.ok) {
       if (regen.error.kind === "aborted" || regen.error.kind === "fenced") {
