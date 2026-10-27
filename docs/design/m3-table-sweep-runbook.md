@@ -1,6 +1,6 @@
 # M3 The Table, multiplayer (milestone m-3) — sweep runbook (2026-10-26)
 
-- **Status:** draft — awaiting operator lane sign-off. Never execute a draft.
+- **Status:** signed-off (operator, 2026-10-26, in chat): "Signed off: tracks and waves as written, escape lines E1-E4, standing opus sign-off C1 for spec authoring, TASK-0135 design and research analysis. Start wave 1."
 - **Milestone:** m-3, "The Table (multiplayer)" (`docs/design/milestones.md`, M3 section).
   Target 2026-12-15. Demo-gated, not date-gated.
 - **Orchestrator:** this session plans, dispatches and gates. It never implements.
@@ -251,7 +251,7 @@ rules. The demo's findings become cards per decision-0020.
       the implementation, after checkpoint C2.
 - [ ] **TASK-0053 only:** the demo record lists every audit finding and its resolution, in
       `docs/design/m2-demo.md`'s shape.
-- **Escape lines (operator-signed only; proposed, not yet signed):**
+- **Escape lines (operator-signed 2026-10-26 at C0):**
   - **E1 — TASK-0055:** a decision record (D15) stands in for `spec.md`/`plan.md`/`tasks.md`.
     The ruling is R1; the record cites `docs/design/m2-demo.md` Fight statistics.
   - **E2 — TASK-0119, TASK-0120, TASK-0121, TASK-0122:** the research-vault branch under
@@ -374,3 +374,4 @@ rules. The demo's findings become cards per decision-0020.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-26 | (runbook) | — | — | — | Lane 0 rulings R1–R4 recorded (TASK-0055 option A; TASK-0134 and TASK-0135 carded; debug view first). Authored as draft. Awaiting lane sign-off (C0, C1, E1–E4). |
+| 2026-10-26 | (runbook) | — | — | — | Operator signed off at C0: tracks and waves as written, E1–E4 signed, C1 standing opus sign-off (spec authoring, TASK-0135 design, research analysis). Wave 1 starts. |
