@@ -4,7 +4,7 @@ title: Retire the uncatalogued WebSocket send path
 status: In Progress
 assignee: []
 created_date: '2026-10-26 03:48'
-updated_date: '2026-10-27 09:34'
+updated_date: '2026-10-27 09:46'
 labels:
   - ws
   - session
@@ -28,10 +28,10 @@ Spec: specs/043-retire-uncatalogued-send
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The WebSocket send path refuses every uncatalogued event type.
-- [ ] #2 appendUncataloguedEvent and its write-boundary allow-list entry are removed.
-- [ ] #3 The load benchmark and any remaining M0 sender use a catalogued type or are retired, and their tests pass.
-- [ ] #4 Spec phase: Retire the path and migrate its senders (US1, US2, US3; FR-001–FR-007, FR-009)
+- [x] #1 The WebSocket send path refuses every uncatalogued event type.
+- [x] #2 appendUncataloguedEvent and its write-boundary allow-list entry are removed.
+- [x] #3 The load benchmark and any remaining M0 sender use a catalogued type or are retired, and their tests pass.
+- [x] #4 Spec phase: Retire the path and migrate its senders (US1, US2, US3; FR-001–FR-007, FR-009)
 - [ ] #5 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
@@ -52,6 +52,8 @@ OPERATOR RULING 2026-10-27 (in chat): "I accept the defaults on the TASK-0099 an
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 (spec authoring resumed after the operator ruling: plan, research, tasks, contracts/frozen-amendments.md; commit eacfd07.)
+
+Phase 1 done (92e0a14): gateway refuses uncatalogued types with UNKNOWN_EVENT_TYPE; appendUncataloguedEvent and allow-list entry removed; frozen amendments applied; bench + M0 WS tests send talk; refusal test added. Finding: gate CONFLICT under back-to-back/concurrent talk sends (MAX_ATTEMPTS=3); retry not widened. Tests await each echo and resend on CONFLICT. concurrency-smoke needed gate.onAppended(publish) wired (it was missing). ci:check green; concurrency-smoke PASS 0 errors wsRtP95 19.0ms.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
