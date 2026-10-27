@@ -1,10 +1,10 @@
 ---
 id: TASK-0110
 title: An action that ends the encounter resolves as refused
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-10-27 09:57'
+updated_date: '2026-10-27 09:58'
 labels:
   - dm
   - engine
@@ -72,6 +72,12 @@ Phase 4 (merge 60e3ed1, wiki 2b5158d): dm-runtime and dm-turn-jobs amended (NEED
 
 OPERATOR RULING 2026-10-27 (in chat), on spec 045 OQ-1, the reading of §4 as Director opening and closing moves: "Approved". This ratifies option (a).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The resolve order in the contracts (US4, AC #2): 4/4 · Resolve runs the new order (US1, US2, US3): 10/10 · Reproduce rows 260–265 end to end (US1, AC #1): 4/4 · Wiki re-ground: 6/6 · Constitution Compliance (the-stacks): 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
