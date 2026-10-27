@@ -4,11 +4,12 @@ title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:44'
-updated_date: '2026-10-27 02:03'
+updated_date: '2026-10-27 02:07'
 labels:
   - research
   - dm
   - doctrine
+milestone: m-3
 dependencies: []
 priority: high
 ordinal: 105000
@@ -56,6 +57,9 @@ Findings: SRD 5.2.1 Playing the Game text is absent from packages/srd; DMG is 20
 Awaiting operator review of Analysis-Refactor-Risk-and-Deep-Dive-Order (AC #2) and five open questions before branch 1.
 
 OPERATOR APPROVAL 2026-10-26, in the operator's words: 'Approve the order and the widened branch 1.' Order: (1) resolution and outcome, widened with outcome richness, DC derivation, contests/group checks/retries, out-of-character questions to the DM; (2) NPCs, social and information; (3) exploration, awareness and time; (4) table contract; (5) running combat (trigger TASK-0048); trigger-bound: encounter/adventure design (TASK-0060), world/tone/horror (non-default content), rewards/house rules (multi-session). Open questions 1-5 pending.
+
+OPERATOR ANSWERS 2026-10-26 to the five open questions: (1) branch 1 reads the official SRD 5.2.1 PDF (CC-BY-4.0); packaging carded as TASK-0123. (2) No 2024 DMG; branch 1 uses DMG 2014 and flags divergence. (3) Full reads of key web articles; Colville dropped as a branch 1 source. (4) Widened branch 1 approved. (5) Card now.
+Cards created on main (414aa07): TASK-0119 branch 2 NPCs/social/information (dep TASK-0115); TASK-0120 branch 3 exploration/awareness/time (dep 0119); TASK-0121 branch 4 table contract (dep 0120, before M3 multiplayer); TASK-0122 branch 5 combat (dep 0121 + TASK-0048); TASK-0123 SRD Playing the Game text; revisits TASK-0124 (trigger TASK-0060 Codex schema), TASK-0125 (trigger non-default content), TASK-0126 (trigger multi-session or house rule). Branches 2-5 are separate tasks, not subtasks: one-task-one-PR would otherwise hold this task's PR until branch 5.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
