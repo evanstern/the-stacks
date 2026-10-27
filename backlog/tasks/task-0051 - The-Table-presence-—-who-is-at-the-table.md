@@ -1,9 +1,10 @@
 ---
 id: TASK-0051
 title: 'The Table: presence — who is at the table'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-25 20:00'
+updated_date: '2026-10-27 03:27'
 labels:
   - multiplayer
   - realtime
@@ -32,6 +33,12 @@ Why: group sign-off (TASK-0049) needs the set of present players, and the Direct
 - [ ] #4 The gate and the Director read presence through one server-side interface.
 - [ ] #5 Tests cover join, leave and reconnect.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-26 by the M3 sweep (docs/design/m3-table-sweep-runbook.md, Track A1). Worktree .worktrees/task-0051, branch task-0051-presence, cut from origin/main a4aab3c. Spec number 035 claimed with a stub. Checkpoint C2: stop after spec.md for the ws-protocol frame ruling.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
