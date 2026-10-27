@@ -953,6 +953,78 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         expect(count(rows, "turn.advanced")).toBe(2);
       });
 
+      it("a reclaim after a landed advance does not skip the turn-advance group and writes no duplicate rows", async () => {
+        const crash = { armed: false };
+        const w = await createWorld({
+          dice: [...initDice(TAMSIN_FIRST), 15],
+          gate: (g) => ({
+            ...g,
+            submit: async (...args) => {
+              const res = await g.submit(...args);
+              const proposal = args[2] as {
+                kind: string;
+                command?: { type?: string };
+              };
+              if (
+                crash.armed &&
+                proposal.kind === "mechanics" &&
+                proposal.command?.type === "turn.advance"
+              ) {
+                crash.armed = false;
+                // The advance landed; the process dies before its checkpoint.
+                throw new Error("crash after the advance");
+              }
+              return res;
+            },
+          }),
+        });
+        await startScene(w);
+        await run(w, [], {
+          director: {
+            tableMode: {
+              to: "turn",
+              encounterId: "reed-camp",
+              reason: "Fight.",
+            },
+          },
+          job: nextJob(),
+        });
+        freshCheckpoint(w);
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        const job = nextJob();
+        const readings = [reading(id, [checkStep()])] as never;
+        const before = (await readRows(w)).length;
+        crash.armed = true;
+        await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
+        const saved = w.checkpoint.current;
+        expect(saved.submissions.map((x) => x.key)).not.toContain("advance");
+        expect(count((await readRows(w)).slice(before), "turn.advanced")).toBe(
+          1,
+        );
+
+        const again = await w.runResolve({
+          readings,
+          job: { ...job, attempt: 2 },
+          checkpoint: saved,
+        });
+        expect(again.result.ok).toBe(true);
+        const rows = (await readRows(w)).slice(before);
+        // The landed advance is found by its marker: one advance, one check, no repeat.
+        expect(count(rows, "turn.advanced")).toBe(1);
+        expect(
+          rows.filter(
+            (r) =>
+              r.type === "dice.rolled" && eventOf(r).purpose !== "death-save",
+          ),
+        ).toHaveLength(1);
+        expect(count(rows, "action.resolved")).toBe(1);
+        // The group still ran: the table mode follows the new active combatant.
+        const p = await w.projections();
+        expect(p.encounter?.activeCombatantId).not.toBe("tamsin");
+        expect(p.tableMode).toMatchObject({ mode: "turn" });
+        expect(w.scripted.remaining().dice).toBe(0);
+      });
+
       it("stops after one lap when every combatant is unable", async () => {
         const w = await inTurnMode([...initDice(SNAG_FIRST)]);
         for (const id of Object.keys(
