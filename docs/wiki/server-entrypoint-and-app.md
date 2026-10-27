@@ -6,7 +6,7 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Server entrypoint and app
@@ -41,28 +41,27 @@ enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice.
 
-Since TASK-0046 (specs/031-dm-runtime), `createGate({ db, presence: presence.reader })` (see
+Since TASK-0046, `createGate({ db, presence: presence.reader })` (see
 [[proposal-gate]]) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
-`console.warn`; `startDmWorker({ db, gateway: aiGateway, gate, retrieve, loadProjections,
+`console.warn`; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
-and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, log })` builds the gate
-listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. [[presence]] is made first. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
+and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, presence: presence.reader, log })` builds the gate
+listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
 register: `gate.onAppended(gateway.publish)` so every row the gate appends reaches the entitled
 subscribers, and `gate.onAppended(dmEnqueuer.onAppended)` so a committed action (or a decided
-`ai:dm` proposal) queues a DM turn ([[dm-runtime]]).
+`ai:dm` proposal) queues a DM turn ([[dm-runtime]]); `presence.reader.onChange` calls `dmEnqueuer.onPresenceChange` ([[turn-floor]]).
 It calls `serve({ fetch: app.fetch, port: config.port, serverOptions: { requestTimeout: 60 *
 60 * 1000 } }, ...)` from `@hono/node-server` — the hour-long `requestTimeout` (`ponytail:`
 fixed, not configurable) exists so a large, slow upload isn't cut off mid-stream by Node's
 default; the callback logs `Server listening on port ${info.port}`. The load-bearing line is
 the last one: `gateway.attach(server)` — the object `serve()` returns is passed directly into
-the gateway, so the WebSocket upgrade handler attaches to the **same** underlying Node HTTP
-server, not a second listener on a second port. One process, one port, carries the HTTP API,
-the ingest and DM workers' background loops, the WebSocket gateway (and the in-process proposal gate), and (via static middleware) the
+the gateway, so the WebSocket upgrade handler attaches to the **same** Node HTTP
+server, not a second port. One process, one port, carries the HTTP API,
+the ingest and DM workers' loops, the WebSocket gateway (and the in-process gate), and (via static middleware) the
 built client.
 
-`createValidateSession(db)` is called in `createApp` and again for the gateway, both from the
-same `db`: HTTP and WebSocket share one session-validation seam ([[session-auth]]).
+`createValidateSession(db)` is called in `createApp` and again for the gateway: HTTP and WebSocket share one session-validation seam ([[session-auth]]).
 
 `app.ts`'s `createApp` takes `{ databaseProbe, db, web?, commit?, library?, dm? }` (`web` is `{
 clientRoot?, handler?, listJobs? }`, test-only overrides for the web app's static root, SSR

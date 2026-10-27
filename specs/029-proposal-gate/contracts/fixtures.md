@@ -29,10 +29,18 @@ proposal type" becomes "a future type"). Every listed fact stays: `skippedUnknow
 | `dm-approvals` | `dm.seat.changed` AI → human (`dmUserId`, actor `dmUserId`); `scene.changed` and two party joins (Ana: player; Bram: companion), all by `dmUserId` (direct); `gate.policy.changed` (`journal`: auto → ask) by `dmUserId`; Ana declares and commits a lockpick in free mode (`declarer`); P1 `mechanics` `check.roll` proposal from `ai:dm` (`ask`) then `proposal.approved` by `dmUserId` landing **after** the `check.roll` batch (consecutive seqs, envelopes carry `proposalId` P1); `action.resolved` (`applied`) by `ai:dm`; P2 `narration` (`ask`) then `proposal.rejected` with a reason; P3 `scene` (`suggest`), left pending; P4 `tracker` create (`ask`), left pending; P5 `table-mode` free → turn (`ask`), left pending | DM viewer: `proposals` has P1–P5 in that order with statuses approved, rejected, pending, pending, pending and policies ask, ask, suggest, ask, ask; `pendingProposals` returns P3, P4, P5; `gate.seat` is the human DM; `gate.policyOverrides` is `{ journal: "ask" }`; `trackers` is `[]` (P4 is only proposed). Each player viewer: `proposals` is `[]`; serialized projections contain none of P1–P5's ids and none of P4's tracker name; the ledger holds the approved roll |
 | `commit-authority` | AI seat; Ana (player) and Bram (companion) join; free mode: Ana declares A1 (character), Bram declares B1 (character), Ana declares a party action P1 (party), Bram comments `approve` on P1; `table-mode.changed` free → turn with `activeActor` Bram; Ana declares A2 | The table below |
 | `group-signoff` | AI seat; Ana and Cleo (players) and Bram (companion) join; Ana declares party action P1; Cleo objects, then approves; the approval row is followed by a `presence.recorded` marker (`signoff`, `[Ana, Cleo]`, P1) and `action.committed` (`group`, actor Cleo); Ana declares party action P2; Cleo objects; `ai:dm` commits P2 (`dm`) | P1 `committed.authority` is `group`, P2 is `dm`; the marker names both players and P1; `commitAuthority` for Ana on P2 with both present returns `GROUP_SIGNOFF_REQUIRED` with `objecting: [Cleo]` |
+| `turn-floor` | AI seat; Ana and Bram (players) and Pip (companion) fight a goblin; `table-mode.changed` free → turn; Ana ends her turn (`floor` request: `turn.advance` batch then `table-mode.changed`); Bram declares and commits (`active-player`), resolve advances; Pip ends her turn; the goblin's turn closes round 1; round 2: `dm.seat.changed` to a human DM, the DM takes and returns the floor, the seat returns to the AI; `ai:dm` passes Ana's turn as absent (`presence.recorded` `floor` marker `[Bram]`, then the batch); Bram declares party action `act-party`; `ai:dm` commits it with the stall override (`presence.recorded` `signoff` `[Ana, Bram]`, then `action.committed` `dm`) | `table-mode.changed` holders: Ana, Bram, Pip, `ai:dm`, Ana, the DM, Ana, Bram; `encounter.round` is 2; Bram's commit is `active-player`; the `floor` marker names only Bram and precedes the row whose `before.activeActor` is Ana; the `signoff` marker is the row directly before the stall commit |
 
 > **Amendment (TASK-0049).** The `group-signoff` row is added by the 2026-10-27 operator
 > ruling ("I accept the defaults on the TASK-0099 and TASK-0049 cards, including the
 > frozen-contract amendments to spec 029 and spec 006"). The fixtures list has eight entries.
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-4): the `turn-floor` row above. The fixtures
+list has nine entries. The fixture uses the human DM seat for one `take`/`return` pair, so it
+carries two `dm.seat.changed` rows.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 
 `commit-authority` facts: `commitAuthority(dmFold, { actor }, actionId)` at the end of the
 stream (turn mode, Bram active):
@@ -75,3 +83,8 @@ kind's body in the approval panel from these.
    `action.committed`, `present` is the `present` of the latest `presence.recorded` row with
    purpose `signoff` and the same `actionId` before the commit, or omitted when none exists
    (Amendment TASK-0049).
+   Amended 2026-10-27 (TASK-0050, operator ruling FT-4), two more checks. For a `dm`
+   `action.committed` directly preceded by a `signoff` marker, `signoffState` against the
+   marker's `present`, folded before the marker, has empty `objecting`. For a `floor` marker,
+   the next `table-mode.changed` row has a `before.activeActor` absent from the marker's
+   `present`.

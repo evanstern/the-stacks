@@ -24,7 +24,7 @@ const PAGE = 1000;
 /** The `/dm/sessions/:id/turns` item shape (dm-api.md): no prompt text. */
 export interface JobItem {
   id: string;
-  kind: "turn" | "companion" | "chronicle";
+  kind: "turn" | "floor" | "companion" | "chronicle";
   status: string;
   stage: string | null;
   attempts: number;

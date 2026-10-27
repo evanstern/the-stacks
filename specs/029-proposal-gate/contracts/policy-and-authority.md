@@ -27,6 +27,7 @@ export const DEFAULT_POLICIES: PolicyTable = {
   "tracker":        "ask",
   "scene-presence": "ask",      // a presence change is a story decision (TASK-0141)
   "journal":        "auto",     // chronicle, off the hot path; the DM may dial it
+  "floor":          "ask",      // the AI DM passes an absent human's turn (TASK-0050)
 };
 ```
 
@@ -36,6 +37,11 @@ Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the table gains the `"scen
 
 > "TASK-0141 OQ-1 (a) scene-presence.changed via a new scene-presence proposal kind including
 > the frozen 029 and 028 amendments, OQ-2 (a)"
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-2): the table gains the `"floor": "ask"` row, and the DM kinds number thirteen. An AI seat still resolves every kind to `auto`.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 
 ## The effective policy
 
@@ -77,6 +83,14 @@ decision-0016's table, made executable:
 | Free mode | the declaring actor, for a character it controls | `declarer` |
 | Party scope, any mode | group sign-off; with one human player in the party, that player | `group` |
 | Always | the DM: the seated human DM, or `ai:dm` (through its policy) | `dm` |
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-5): the "Always" row also covers the stall
+override. An `action.commit` from `ai:dm` with `override: "stall"` commits an unopposed party
+action with authority `dm`. The planner refuses `GROUP_SIGNOFF_REQUIRED` while a present quorum
+member objects.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 
 ```ts
 export type CommitDecision =

@@ -1,4 +1,7 @@
-import { RefIdSchema } from "@the-stacks/session-model";
+import {
+  RefIdSchema,
+  type SessionProjections,
+} from "@the-stacks/session-model";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { DbClient } from "../auth/session.js";
@@ -9,7 +12,14 @@ import {
   MAX_ATTEMPTS,
   saveResult,
 } from "../jobs/queue.js";
+import type { PresenceReader } from "../presence/index.js";
 import { jobs } from "../schema/jobs.js";
+import {
+  absentHolder,
+  isAiSeat,
+  isStallCandidate,
+  latestStanceSeq,
+} from "./floor-state.js";
 import type { PlanVerdict } from "./gates/plan-gate.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { AuditRecord } from "./nodes/audit.js";
@@ -29,7 +39,12 @@ import type {
  * (heartbeat, setStage, finishJob) live in `jobs/queue.ts`.
  */
 
-export const DM_JOB_KINDS = ["turn", "companion", "chronicle"] as const;
+export const DM_JOB_KINDS = [
+  "turn",
+  "floor",
+  "companion",
+  "chronicle",
+] as const;
 export type DmJobKind = (typeof DM_JOB_KINDS)[number];
 
 export const TurnTriggerSchema = z.enum([
@@ -78,6 +93,34 @@ export const ChronicleJobInput = z.object({
   throughSeq: z.number().int().min(0), // chronicle covers rows up to here
 });
 export type ChronicleJobInput = z.infer<typeof ChronicleJobInput>;
+
+/** Wait before the AI DM passes an absent human's turn, after the 5 s presence grace (ruling Q4). */
+export const FLOOR_ABSENCE_WAIT_MS = 30_000;
+/** Silence on a party action before the AI DM commits it (ruling Q5). */
+export const FLOOR_STALL_WINDOW_MS = 120_000;
+/** Reconcile ignores sessions with no event inside this window (an abandoned session). */
+export const FLOOR_RECONCILE_LOOKBACK_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * A code-only floor check (specs/049-turn-floor contracts/floor-jobs.md): the AI DM
+ * passes an absent human's turn (`absence`) or commits a stalled party action (`stall`).
+ */
+export const FloorJobInput = z.object({
+  v: z.literal(1),
+  sessionId: z.uuid(),
+  check: z.enum(["absence", "stall"]),
+  actionId: RefIdSchema.nullable(), // stall only
+  holder: z.string().nullable(), // absence: the absent human's user id
+  stanceSeq: z.number().int().min(0).nullable(), // stall: latest stance seq at arm time
+  notBefore: z.iso.datetime(), // database time; the earliest claim
+});
+export type FloorJobInput = z.infer<typeof FloorJobInput>;
+
+export interface FloorJobResult {
+  outcome: "passed" | "committed" | "noop" | "skipped" | "refused";
+  seqs: number[];
+  refusal?: { code: string; message: string };
+}
 
 /**
  * The turn checkpoint stored at `jobs.result.checkpoint`. Phase 3 narrows the
@@ -132,6 +175,7 @@ interface ClaimBase {
 
 export type ClaimedDmJob =
   | (ClaimBase & { kind: "turn"; input: TurnJobInput })
+  | (ClaimBase & { kind: "floor"; input: FloorJobInput })
   | (ClaimBase & { kind: "companion"; input: CompanionJobInput })
   | (ClaimBase & { kind: "chronicle"; input: ChronicleJobInput });
 
@@ -147,8 +191,8 @@ interface ClaimRow {
 
 /**
  * Claims the next DM job: an expired lease first, then queued by priority
- * (turn, companion, chronicle) and age. A queued turn or companion job is not
- * claimable while another turn or companion job holds a live lease for its
+ * (turn, floor, companion, chronicle) and age. A queued turn, floor or companion
+ * job is not claimable while another of the three holds a live lease for its
  * session. A unique violation on `jobs_session_running_key` (a reclaim racing
  * a queued claim) returns null. A claim past `MAX_ATTEMPTS` is failed and
  * returns null.
@@ -173,10 +217,10 @@ export async function claimDmJob(
         claim_token = gen_random_uuid(),
         heartbeat_at = now(),
         started_at = coalesce(started_at, now()),
-        stage = CASE kind WHEN 'turn' THEN 'assemble' WHEN 'companion' THEN 'companion' ELSE 'chronicle' END
+        stage = CASE kind WHEN 'turn' THEN 'assemble' WHEN 'companion' THEN 'companion' WHEN 'floor' THEN NULL ELSE 'chronicle' END
       WHERE id = (
         SELECT j.id FROM jobs j
-        WHERE j.kind IN ('turn', 'companion', 'chronicle')
+        WHERE j.kind IN ('turn', 'floor', 'companion', 'chronicle')
           AND (
             (j.status = 'running' AND j.heartbeat_at < now() - (interval '1 millisecond' * ${LEASE_MS}))
             OR (j.status = 'queued' AND (
@@ -185,12 +229,12 @@ export async function claimDmJob(
                 NOT EXISTS (
                   SELECT 1 FROM jobs r
                   WHERE r.session_id = j.session_id
-                    AND r.kind IN ('turn', 'companion')
+                    AND r.kind IN ('turn', 'companion', 'floor')
                     AND r.status = 'running'
                     AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
                 )
                 AND (
-                  j.kind <> 'companion'
+                  j.kind NOT IN ('companion', 'floor')
                   OR j.input->>'notBefore' IS NULL
                   OR (j.input->>'notBefore')::timestamptz <= now()
                 )
@@ -198,7 +242,7 @@ export async function claimDmJob(
             ))
           )
         ORDER BY (j.status = 'running') DESC,
-                 CASE j.kind WHEN 'turn' THEN 1 WHEN 'companion' THEN 2 ELSE 3 END,
+                 CASE j.kind WHEN 'turn' THEN 1 WHEN 'floor' THEN 2 WHEN 'companion' THEN 3 ELSE 4 END,
                  j.created_at
         FOR UPDATE SKIP LOCKED
         LIMIT 1
@@ -243,6 +287,8 @@ export async function claimDmJob(
         kind: "companion",
         input: CompanionJobInput.parse(row.input),
       };
+    case "floor":
+      return { ...base, kind: "floor", input: FloorJobInput.parse(row.input) };
     default:
       return {
         ...base,
@@ -428,6 +474,84 @@ export async function enqueueChronicle(
   return inserted[0] ? { jobId: inserted[0].id, inserted: true } : null;
 }
 
+export interface FloorCheckArm {
+  sessionId: string;
+  check: FloorJobInput["check"];
+  actionId: string | null;
+  holder: string | null;
+  stanceSeq: number | null;
+}
+
+/**
+ * Arms a floor check (specs/049-turn-floor R9, R10): inserts a queued `floor` job whose
+ * `notBefore` is database `now() + waitMs`, or moves `notBefore`, `holder` and `stanceSeq`
+ * on the queued row for the same `(session, check, actionId)`. Loops when the queued row
+ * is claimed between the insert and the update.
+ */
+export async function enqueueFloorCheck(
+  db: DbClient,
+  arm: FloorCheckArm,
+  waitMs: number,
+): Promise<EnqueueResult> {
+  const wait = sql`(interval '1 millisecond' * ${waitMs})`;
+  const notBefore = isoUtc(sql`(now() + ${wait})`);
+  const actionId = arm.actionId;
+  for (;;) {
+    const ins = await db.execute(sql`
+      INSERT INTO jobs (kind, session_id, input)
+      VALUES (
+        'floor',
+        ${arm.sessionId}::uuid,
+        jsonb_build_object(
+          'v', 1,
+          'sessionId', ${arm.sessionId}::text,
+          'check', ${arm.check}::text,
+          'actionId', ${actionId}::text,
+          'holder', ${arm.holder}::text,
+          'stanceSeq', ${arm.stanceSeq}::int,
+          'notBefore', ${notBefore}
+        )
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `);
+    const insertedRow = ins.rows[0] as { id: string } | undefined;
+    if (insertedRow) return { jobId: insertedRow.id, inserted: true };
+    const upd = await db.execute(sql`
+      UPDATE jobs SET input = input || jsonb_build_object(
+        'holder', ${arm.holder}::text,
+        'stanceSeq', ${arm.stanceSeq}::int,
+        'notBefore', ${notBefore}
+      )
+      WHERE session_id = ${arm.sessionId}::uuid
+        AND kind = 'floor'
+        AND status = 'queued'
+        AND input->>'check' = ${arm.check}
+        AND coalesce(input->>'actionId', '') = ${actionId ?? ""}
+      RETURNING id
+    `);
+    const updatedRow = upd.rows[0] as { id: string } | undefined;
+    if (updatedRow) return { jobId: updatedRow.id, inserted: false };
+  }
+}
+
+/** Drops the queued floor check for `(session, check, actionId)`, if any. */
+export async function cancelFloorCheck(
+  db: DbClient,
+  sessionId: string,
+  check: FloorJobInput["check"],
+  actionId: string | null,
+): Promise<void> {
+  await db.execute(sql`
+    DELETE FROM jobs
+    WHERE session_id = ${sessionId}::uuid
+      AND kind = 'floor'
+      AND status = 'queued'
+      AND input->>'check' = ${check}
+      AND coalesce(input->>'actionId', '') = ${actionId ?? ""}
+  `);
+}
+
 /** Writes `result.checkpoint` (fenced). Returns false when fenced out. */
 export function saveCheckpoint(
   db: DbClient,
@@ -482,6 +606,115 @@ export async function reconcileTurnJobs(db: DbClient): Promise<string[]> {
     if (result.inserted) enqueued.push(row.sessionId);
   }
   return enqueued;
+}
+
+export interface FloorReconcileDeps {
+  loadProjections: (sessionId: string) => Promise<SessionProjections>;
+  presence: Pick<PresenceReader, "presentUsers">;
+  absenceWaitMs?: number;
+  stallWindowMs?: number;
+  lookbackMs?: number;
+}
+
+/**
+ * Floor reconcile (specs/049-turn-floor R10), run at worker start after `reconcileTurnJobs`:
+ * arms `absence` for each turn-mode session whose holder is an absent human, and `stall` for
+ * each open multi-human party action with no queued `stall`, under an AI seat. Only sessions
+ * with an event inside the lookback window are read. Returns the session ids it armed.
+ */
+export async function reconcileFloorJobs(
+  db: DbClient,
+  deps: FloorReconcileDeps,
+): Promise<string[]> {
+  const lookback = sql`(interval '1 millisecond' * ${deps.lookbackMs ?? FLOOR_RECONCILE_LOOKBACK_MS})`;
+  const modes = await db.execute(sql`
+    SELECT DISTINCT ON (e.session_id) e.session_id AS "sessionId",
+      e.payload->'after'->>'mode' AS "mode",
+      e.payload->'after'->>'activeActor' AS "holder"
+    FROM events e
+    WHERE e.type = 'table-mode.changed' AND e.ts > now() - ${lookback}
+    ORDER BY e.session_id, e.seq DESC
+  `);
+  const actions = await db.execute(sql`
+    SELECT DISTINCT d.session_id AS "sessionId"
+    FROM events d
+    WHERE d.type = 'action.declared'
+      AND d.payload->>'scope' = 'party'
+      AND d.ts > now() - ${lookback}
+      AND NOT EXISTS (
+        SELECT 1 FROM events c
+        WHERE c.session_id = d.session_id
+          AND c.type IN ('action.committed', 'action.withdrawn')
+          AND c.seq > d.seq
+          AND c.payload->>'actionId' = d.payload->>'actionId'
+      )
+  `);
+  const present = (sessionId: string) =>
+    deps.presence.presentUsers(sessionId).map((u) => u.userId);
+  const candidates = new Set<string>();
+  for (const row of modes.rows as unknown as {
+    sessionId: string;
+    mode: string | null;
+    holder: string | null;
+  }[]) {
+    if (row.mode !== "turn" || !row.holder || row.holder.startsWith("ai:")) {
+      continue;
+    }
+    if (!present(row.sessionId).includes(row.holder)) {
+      candidates.add(row.sessionId);
+    }
+  }
+  for (const row of actions.rows as unknown as { sessionId: string }[]) {
+    candidates.add(row.sessionId);
+  }
+
+  const armed: string[] = [];
+  for (const sessionId of candidates) {
+    const p = await deps.loadProjections(sessionId);
+    if (!isAiSeat(p)) continue;
+    const holder = absentHolder(p, present(sessionId));
+    if (holder !== null) {
+      await enqueueFloorCheck(
+        db,
+        {
+          sessionId,
+          check: "absence",
+          actionId: null,
+          holder,
+          stanceSeq: null,
+        },
+        deps.absenceWaitMs ?? FLOOR_ABSENCE_WAIT_MS,
+      );
+      armed.push(sessionId);
+    }
+    for (const action of p.actions) {
+      if (!isStallCandidate(p, action)) continue;
+      const [queued] = await db
+        .select({ id: jobs.id })
+        .from(jobs)
+        .where(
+          and(
+            eq(jobs.sessionId, sessionId),
+            eq(jobs.status, "queued"),
+            sql`${jobs.kind} = 'floor' AND ${jobs.input}->>'check' = 'stall' AND ${jobs.input}->>'actionId' = ${action.actionId}`,
+          ),
+        );
+      if (queued) continue;
+      await enqueueFloorCheck(
+        db,
+        {
+          sessionId,
+          check: "stall",
+          actionId: action.actionId,
+          holder: null,
+          stanceSeq: latestStanceSeq(action),
+        },
+        deps.stallWindowMs ?? FLOOR_STALL_WINDOW_MS,
+      );
+      armed.push(sessionId);
+    }
+  }
+  return armed;
 }
 
 export interface DmJobRow {

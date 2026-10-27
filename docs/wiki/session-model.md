@@ -1,6 +1,6 @@
 ---
 name: session-model
-description: The session model (packages/session-model) - typed event catalog (talk, lifecycle, state-change, marker, record, proposal), the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the pure gate core (see proposal-gate), fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
+description: The session model (packages/session-model) - typed event catalog (talk, lifecycle, state-change, marker, record, proposal), the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the pure gate core and turn rules (see proposal-gate), ten fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
 kind: component
 sources:
   - packages/session-model/package.json
@@ -16,17 +16,18 @@ sources:
   - packages/session-model/src/fixtures/index.ts
   - packages/session-model/src/gate/plan.ts
   - packages/session-model/src/gate/signoff.ts
+  - packages/session-model/src/gate/turn.ts
   - packages/session-model/src/fixtures/group-signoff.ts
+  - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Session model
 
 `packages/session-model` (`@the-stacks/session-model`) defines what a session's events are and
-how a stream of them folds into the views a client renders. It is pure and
-client-importable: a Biome override on `packages/session-model/src/**` forbids server, web,
+how a stream of them folds into the views a client renders. It is pure and client-importable: a Biome override on `packages/session-model/src/**` forbids server, web,
 database, network, model and clock imports and globals ([[monorepo-and-toolchain]]), and
 the engine override forbids the reverse import. It depends on [[dnd5e-engine]] for the
 engine's event schema. Rows live in the [[event-log]]; it never touches the database.
@@ -49,11 +50,10 @@ Six kinds exist:
 `dm.seat.changed` carries the new `DmSeat` (`{kind:"ai"}` or `{kind:"human",userId}`);
 `gate.policy.changed` carries `proposalKind`, `before` and `after` policy. `proposal.created`
 holds `{ proposalId, policy, proposal }`; `proposal.approved` `{ proposalId, batchId }`;
-`proposal.rejected` `{ proposalId, reason }`. `action.withdrawn` holds `{ actionId }`
-(TASK-0114) and folds the action to the closed status `withdrawn`. `scene-presence.changed` (TASK-0141, public) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
+`proposal.rejected` `{ proposalId, reason }`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141, public) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
 `any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
 the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`
-(per DM turn), `signoff` (by the gate in a group commit batch) or `floor` (reserved). See [[presence]].
+(per DM turn), `signoff` (by the gate in a group commit batch) or `floor` (an AI DM floor pass). See [[presence]].
 
 Engine event types derive from `EngineEventSchema`; there is no second list. State-change payloads carry `before` and `after`.
 
@@ -80,34 +80,33 @@ pure, total and never throws. `SessionProjections` holds: `scene`, `tableMode`, 
 `trackers`, `scenePresence` (per actor id: `presence`, `reason`, `seq`; no entry means present), `gate` (`seat`, `policyOverrides`; default AI seat), `proposals` (`ProposalView`s with a status, DM view only; `pendingProposals`, `findProposal`), the folded `engine` state (via the engine's `evolve`, never recomputed rules),
 `presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
 until a marker folds, and each marker replaces the last), `throughSeq`, and `diagnostics`. The
-marker adds no transcript entry. Order inside `applyEvent`: hidden rows are dropped
+marker adds no transcript entry. Inside `applyEvent`, hidden rows are dropped
 uncounted and do not move `throughSeq`; a row at or below `throughSeq` counts as `outOfOrder`;
-then the row is decoded and applied. Replaying a stream for one viewer always gives the
-same projection.
+then the row is decoded and applied. Replay for one viewer is deterministic.
 
 ## Unknown-type tolerance
 
 `decodeEvent` returns `known`, `unknown-type`, `unknown-version` or `invalid`. The fold
 skips the last three and bumps `skippedUnknownType`, `skippedUnknownVersion` or
-`skippedInvalid`; one bad row never stops a replay. Other diagnostics count ignored lifecycle
+`skippedInvalid`. Other diagnostics count ignored lifecycle
 transitions, `before` mismatches, engine rejections and incomplete batches.
 
 ## Gate core
 
 `src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `signoffState`
-(the group sign-off rule over public projections; see [[proposal-gate]]), `routeProposal`
+(the group sign-off rule over public projections; see [[proposal-gate]]), the turn rules in `gate/turn.ts` ([[turn-floor]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
-proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE`, a downed or absent declarer, `details.reason` `life-state` or `absent`; the `scene-presence` kind plans the change row plus an engine `initiative.leave` or `initiative.join` when the actor is in or joins the order). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `initiative.leave` or `initiative.join` when the actor is in or joins the order). All are exported from the package
 index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 
 ## Fixtures contract
 
-The `@the-stacks/session-model/fixtures` subpath exports nine stored-event streams
+The `@the-stacks/session-model/fixtures` subpath exports ten stored-event streams
 (`talkOnly`, `freeModeAction`, `turnModeCombat`, `secretTracker`, `unknownAndInvalid`,
-`dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`) as `fixtures`, plus the `proposalExamples` set, plus `recipes` and `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
-quorum commit with its `signoff` marker. The SC-006 replay check (`gate-authority.test.ts`) passes
+`dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`, `turnFloor`) as `fixtures`, plus the `proposalExamples` set, plus `recipes`, `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
+quorum commit with its `signoff` marker. The `turn-floor` fixture walks floor passing ([[turn-floor]]). The SC-006 replay check (`gate-authority.test.ts`) passes
 `present` from the latest `signoff` marker for the `actionId` before each recorded commit.
-They are the shared test input and a separate subpath, so the main entry holds no test data.
+They are shared test input on a separate subpath; the main entry holds no test data.
 
 ## Server seam
 

@@ -98,7 +98,7 @@ function toDebugJob(job: DmJobRow) {
 
 interface TurnItem {
   id: string;
-  kind: "turn" | "companion" | "chronicle";
+  kind: "turn" | "floor" | "companion" | "chronicle";
   status: string;
   stage: string | null;
   attempts: number;

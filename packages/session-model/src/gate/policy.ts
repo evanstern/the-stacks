@@ -22,6 +22,7 @@ export const DEFAULT_POLICIES: PolicyTable = {
   tracker: "ask",
   "scene-presence": "ask",
   journal: "auto",
+  floor: "ask",
 };
 
 /**

@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests with refusal codes, the DM approvals and ledger slide-outs, the presence strip, per-player sign-off rows on party actions, the operator-only Debug link, and the operator-only fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format, local-log, labels), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines (TASK-0050), the operator Debug link, and operator fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -24,7 +24,11 @@ sources:
   - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+  - apps/web/app/play/components/floor-controls.tsx
+  - apps/web/app/play/components/turn-order.tsx
+  - apps/web/app/play/components/mode-badge.tsx
+  - apps/web/app/play/components/commit-control.tsx
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Play route
@@ -41,7 +45,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
-`declareAction`, `comment`, `commit`, `approve`, `reject`). The view runs
+`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `approve`, `reject`). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
 
@@ -71,10 +75,10 @@ route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-v
 ## Pure modules
 
 - `view-model.ts` - `toTableViewModel`: transcript items, action cards, `ModeView`
-  (free, or turn with the active actor and whether it is the viewer's turn), composer, ledger
+  (free, or turn with the active actor, whether it is the viewer's turn, `held` and `order`), `floor` controls, composer, ledger
   and proposal lists, `hiddenCount`, `isDm`. An action card carries `canWithdraw` (open, and the
   viewer is its declarer or the DM). A `withdrawn` card is closed: no commit control, no
-  "Waiting for ... to commit" line, and a "Withdrawn" status.
+  "Waiting for ... to commit" line, and a "Withdrawn" status. Floor controls, the turn-order strip and floor lines: [[turn-floor]].
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
   can always commit; a player goes through `commitAuthority` from [[proposal-gate]]'s pure
   core. It takes the live present set as a fifth argument (`null` keeps the pre-sign-off
@@ -87,7 +91,7 @@ route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-v
   `ActionCardView.signoff`; `ActionCard` renders them, with Approve and Object on the viewer's
   own row (sent as `commentFrame`).
 - `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
-  `commitFrame`, `withdrawFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
+  `commitFrame`, `withdrawFrame`, `floorFrame`, `approveFrame`, `rejectFrame`) validated by `session-model` schemas, each with
   `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixture mode.
 - `reduce-frame.ts` - `reduceFrame` folds every inbound WebSocket frame into `FrameState`
   (`events`, `highestSeq` as a max, `caughtUp`, `notice`, `present`). A `presence` frame replaces
@@ -117,7 +121,7 @@ holder and each party controller). The strip is inline, not a panel, and opens n
 
 Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` frame:
 `eventType` is the request kind (`talk`, `action.declare`, `action.comment`, `action.commit`,
-`action.withdraw`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
+`action.withdraw`, `floor`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` from the frame's `code` in `notice`,
 which the composer shows inline. A refusal does not close the socket.

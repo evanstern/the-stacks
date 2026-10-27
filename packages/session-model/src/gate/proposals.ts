@@ -12,7 +12,12 @@ import { PresenceReasonSchema } from "../events/scene-presence.js";
 import { TableModeSchema } from "../events/table-mode.js";
 import { NarrationV1, TalkV1 } from "../events/talk.js";
 import { TrackerSchema } from "../events/tracker.js";
-import { ReasonSchema, RefIdSchema, VisibilitySchema } from "../ids.js";
+import {
+  CombatantIdSchema,
+  ReasonSchema,
+  RefIdSchema,
+  VisibilitySchema,
+} from "../ids.js";
 import { PolicySchema } from "./policy.js";
 import { DmSeatSchema } from "./seat.js";
 
@@ -31,10 +36,11 @@ export const ProposalKindSchema = z.enum([
   "tracker",
   "scene-presence",
   "journal",
+  "floor",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
-/** The twelve kinds the AI DM may propose; the policy table is total over these. */
+/** The thirteen kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude([
   "action.declare",
   "action.withdraw",
@@ -69,6 +75,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     kind: z.literal("action.commit"),
     ...ProposalNote,
     actionId: RefIdSchema,
+    /** `ai:dm` only: commit a stalled party action (specs/049-turn-floor, ruling FT-5). */
+    override: z.literal("stall").optional(),
   }),
   z.object({
     kind: z.literal("action.withdraw"),
@@ -134,6 +142,16 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     entry: JournalEntryAddedV1,
     visibility: z.enum(["public", "dm"]).default("public"),
   }),
+  z.object({
+    kind: z.literal("floor"),
+    ...ProposalNote,
+    op: z.enum(["end", "take", "return"]),
+    turn: z.object({
+      round: z.number().int().min(1),
+      combatantId: CombatantIdSchema,
+    }),
+    reason: ReasonSchema,
+  }),
 ]);
 export type Proposal = z.infer<typeof ProposalSchema>;
 
@@ -180,7 +198,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-/** The 18 `kind` literals of GateRequestSchema. */
+/** The 19 `kind` literals of GateRequestSchema. */
 export const GATE_REQUEST_KINDS: readonly string[] =
   GateRequestSchema.options.map(
     (option) => (option.shape.kind as unknown as { value: string }).value,

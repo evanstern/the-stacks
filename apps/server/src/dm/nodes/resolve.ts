@@ -1,5 +1,7 @@
 import type { EngineCommand } from "@the-stacks/dnd5e-engine";
 import {
+  activeActorFor,
+  floorHeld,
   type GateRefusal,
   mechanicsProposal,
   type Proposal,
@@ -640,22 +642,6 @@ function activeLeaverFromLog(
   return null;
 }
 
-/** Active actor rule (director.md). */
-export function activeActorFor(
-  p: SessionProjections,
-  combatantId: string,
-): { activeActor: string; activeCharacterId: string | null } {
-  const member = p.party.find((m) => m.combatantId === combatantId);
-  if (!member) return { activeActor: "ai:dm", activeCharacterId: null };
-  return {
-    activeActor:
-      member.controller.kind === "player"
-        ? member.controller.userId
-        : member.controller.actor,
-    activeCharacterId: member.characterId,
-  };
-}
-
 interface Local {
   mode: "free" | "turn";
   encounterActive: boolean;
@@ -1028,6 +1014,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         assembled.projections.encounter?.activeCombatantId ??
         null)
       : (assembled.projections.encounter?.activeCombatantId ?? null);
+  /** The turn at assemble: the "turn moved" guard compares against it (spec 049 R7). */
+  const turnAtStart =
+    assembled.projections.encounter && activeAtStart !== null
+      ? {
+          round: assembled.projections.encounter.round,
+          activeCombatantId: activeAtStart,
+        }
+      : null;
   let npcTurn: ResolveOutput["npcTurn"] = null;
 
   try {
@@ -1150,9 +1144,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
                 ),
             );
           if (done) {
-            // Spec 048: an active combatant that left the order already
-            // handed the turn on (`initiative.leave`); a second advance
-            // would skip the next combatant.
+            // One "turn moved" guard (specs/049-turn-floor R7, with spec 048).
             const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
             const leftOrder =
               activeAtStart !== null &&
@@ -1160,25 +1152,45 @@ export const resolve: Node<"resolve"> = async (ctx) => {
               !fresh.encounter.order.some(
                 (o) => o.combatantId === activeAtStart,
               );
-            const advanced = leftOrder
-              ? true
-              : (
-                  await run.mech(
-                    "advance",
-                    { type: "turn.advance" },
-                    "Advance the turn",
-                    null,
-                  )
-                ).result === "applied";
-            if (advanced) {
-              await settleTurn(run, ctx);
-              await setActiveMode(
-                run,
-                ctx,
-                local,
-                "advance:table-mode",
-                "The turn advanced.",
-              );
+            // Spec 048: an active combatant that left the order already
+            // handed the turn on (`initiative.leave`); a second advance
+            // would skip the next combatant. Settling and the mode row
+            // are still owed.
+            // Spec 049: a floor batch moved the turn and wrote its own mode
+            // row; an advance here would skip a combatant. A reclaim whose
+            // checkpoint holds `advance` replays the group as before.
+            const moved =
+              !leftOrder &&
+              fresh.encounter !== null &&
+              turnAtStart !== null &&
+              !run.submissions.some((x) => x.key === "advance") &&
+              (fresh.encounter.round !== turnAtStart.round ||
+                fresh.encounter.activeCombatantId !==
+                  turnAtStart.activeCombatantId);
+            if (moved || floorHeld(fresh)) {
+              // Nothing is owed: the floor batch settled and set the mode,
+              // or the seated DM holds the floor.
+            } else {
+              const advanced = leftOrder
+                ? true
+                : (
+                    await run.mech(
+                      "advance",
+                      { type: "turn.advance" },
+                      "Advance the turn",
+                      null,
+                    )
+                  ).result === "applied";
+              if (advanced) {
+                await settleTurn(run, ctx);
+                await setActiveMode(
+                  run,
+                  ctx,
+                  local,
+                  "advance:table-mode",
+                  "The turn advanced.",
+                );
+              }
             }
           }
         }

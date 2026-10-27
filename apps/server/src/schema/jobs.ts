@@ -76,16 +76,24 @@ export const jobs = pgTable(
       .where(
         sql`${table.kind} = 'companion' AND ${table.status} = 'queued' AND ${table.input}->>'reason' = 'react'`,
       ),
-    // One acting (turn or companion) job running per session (FR-003).
+    // One acting (turn, companion or floor) job running per session (FR-003).
     uniqueIndex("jobs_session_running_key")
       .on(table.sessionId)
       .where(
-        sql`${table.kind} IN ('turn', 'companion') AND ${table.status} = 'running'`,
+        sql`${table.kind} IN ('turn', 'companion', 'floor') AND ${table.status} = 'running'`,
       ),
+    // One queued floor check per (session, check, action) (specs/049-turn-floor R13).
+    uniqueIndex("jobs_floor_queued_key")
+      .on(
+        table.sessionId,
+        sql`(${table.input}->>'check')`,
+        sql`coalesce(${table.input}->>'actionId', '')`,
+      )
+      .where(sql`${table.kind} = 'floor' AND ${table.status} = 'queued'`),
     index("jobs_dm_session_idx").on(table.sessionId, table.kind, table.status),
     check(
       "jobs_kind_valid",
-      sql`${table.kind} IN ('ingest', 'turn', 'companion', 'chronicle')`,
+      sql`${table.kind} IN ('ingest', 'turn', 'companion', 'chronicle', 'floor')`,
     ),
     check(
       "jobs_book_required_for_ingest",

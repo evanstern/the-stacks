@@ -1,7 +1,8 @@
 import { ApprovalsIcon, ChevronIcon, LedgerIcon } from "~/components/icons";
 import type { PresenceRow } from "../presence.ts";
-import type { SourceStatus } from "../source.ts";
+import type { FloorInput, SourceStatus } from "../source.ts";
 import type { TableViewModel } from "../view-model.ts";
+import { FloorControls } from "./floor-controls.tsx";
 import { ModeBadge } from "./mode-badge.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
 
@@ -27,6 +28,7 @@ export function TableHeader({
   debugHref,
   onLedger,
   onApprovals,
+  onFloor,
 }: {
   model: TableViewModel;
   status: SourceStatus;
@@ -36,6 +38,7 @@ export function TableHeader({
   debugHref?: string;
   onLedger: () => void;
   onApprovals: () => void;
+  onFloor: (input: FloorInput) => boolean;
 }) {
   const chevron = (open: boolean) => (
     <ChevronIcon
@@ -58,6 +61,7 @@ export function TableHeader({
       </div>
       <PresenceStrip rows={presence} />
       <ModeBadge mode={model.mode} />
+      <FloorControls controls={model.floor} onFloor={onFloor} />
       <span className="text-xs text-muted-foreground">
         {STATUS_TEXT[status]}
       </span>

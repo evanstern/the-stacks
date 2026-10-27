@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { fixtures } from "../src/fixtures/index.js";
-import { commitAuthority, project } from "../src/index.js";
+import { commitAuthority, project, signoffState } from "../src/index.js";
 import {
   aiDm,
   ana,
   bram,
   DM_USER,
   dmFold,
+  floorFold,
   outsider,
   seatedDm,
 } from "./gate-helpers.js";
@@ -329,4 +330,108 @@ describe("commit authority replays every fixture (SC-006)", () => {
       }
     });
   }
+});
+
+describe("replay checks for the AI DM's stall and floor markers (spec 049, FT-4, FT-5)", () => {
+  for (const f of fixtures) {
+    it(`${f.name}: a dm commit with a signoff marker has no objection against the marker`, () => {
+      for (const event of f.events) {
+        if (event.type !== "action.committed") continue;
+        const payload = event.payload as {
+          actionId: string;
+          authority: string;
+        };
+        if (payload.authority !== "dm") continue;
+        const prior = f.events.filter((e) => e.seq < event.seq);
+        const marker = prior
+          .filter(
+            (e) =>
+              e.type === "presence.recorded" &&
+              (e.payload as { purpose?: string }).purpose === "signoff" &&
+              (e.payload as { actionId?: string }).actionId ===
+                payload.actionId,
+          )
+          .at(-1);
+        // A marker directly before the commit belongs to that commit's batch.
+        if (!marker || marker.seq !== event.seq - 1) continue;
+        const present = (marker.payload as { present: string[] }).present;
+        const before = project(
+          f.events.filter((e) => e.seq < marker.seq),
+          { role: "dm" },
+        );
+        const state = signoffState(before, payload.actionId, present);
+        expect(state, `${f.name} seq ${event.seq}`).not.toBeNull();
+        expect(state?.objecting, `${f.name} seq ${event.seq}`).toEqual([]);
+      }
+    });
+
+    it(`${f.name}: a floor marker's batch passes a user id absent from its present set`, () => {
+      for (const marker of f.events) {
+        if (marker.type !== "presence.recorded") continue;
+        const payload = marker.payload as {
+          purpose: string;
+          present: string[];
+        };
+        if (payload.purpose !== "floor") continue;
+        const row = f.events.find(
+          (e) => e.seq > marker.seq && e.type === "table-mode.changed",
+        );
+        if (!row)
+          throw new Error(`${f.name} seq ${marker.seq}: no table-mode row`);
+        const before = (
+          row.payload as { before: { mode: string; activeActor?: string } }
+        ).before;
+        expect(before.mode).toBe("turn");
+        expect(payload.present).not.toContain(before.activeActor);
+      }
+    });
+  }
+});
+
+describe("commitAuthority with two humans in turn mode (spec 049 FR-001, FR-002)", () => {
+  const cade = {
+    kind: "human",
+    userId: PLAYER_B,
+    role: "player",
+  } as const;
+
+  it("the active human commits active-player; the other human is COMMIT_NOT_ALLOWED", () => {
+    const p = floorFold({ active: "ana" });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: true,
+      authority: "active-player",
+    });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+  });
+
+  it("the turn passes: the other human commits and the first is refused", () => {
+    const p = floorFold({ active: "cade" });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: true,
+      authority: "active-player",
+    });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+  });
+
+  it("while the DM holds the floor, both humans are refused and the DM commits as dm", () => {
+    const p = floorFold({ active: "ana", held: true });
+    expect(commitAuthority(p, ana, "act-ana")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+    expect(commitAuthority(p, cade, "act-cade")).toEqual({
+      ok: false,
+      code: "COMMIT_NOT_ALLOWED",
+    });
+    expect(commitAuthority(p, seatedDm, "act-ana")).toEqual({
+      ok: true,
+      authority: "dm",
+    });
+  });
 });

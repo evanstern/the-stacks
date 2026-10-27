@@ -39,3 +39,26 @@ describe("scene-presence write boundary (spec 048, User Story 5)", () => {
     expect(builders).toEqual(["dm/nodes/resolve.ts"]);
   });
 });
+
+describe("floor write boundary (spec 049, FT-3)", () => {
+  const listTs = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) return listTs(full);
+      return name.endsWith(".ts") ? [full] : [];
+    });
+  const buildersOf = (pattern: RegExp) => {
+    const root = here("../src");
+    return listTs(root)
+      .filter((f) => pattern.test(readFileSync(f, "utf8")))
+      .map((f) => relative(root, f).split("\\").join("/"));
+  };
+
+  it("only dm/floor.ts builds a floor proposal", () => {
+    expect(buildersOf(/kind:\s*"floor"[^}]*op:/s)).toEqual(["dm/floor.ts"]);
+  });
+
+  it("only dm/floor.ts builds a stall override", () => {
+    expect(buildersOf(/override:\s*"stall"/)).toEqual(["dm/floor.ts"]);
+  });
+});

@@ -8,8 +8,11 @@ import {
   commitAction,
   createWorld,
   db,
+  HUMAN_DM,
   loudSkip,
+  operator,
   payloadOf,
+  player,
   reachable,
   reading,
   readRows,
@@ -1477,5 +1480,159 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
       expect(presenceSubs(out)).toHaveLength(0);
     }
     expect(count(await readRows(w), "scene-presence.changed")).toBe(0);
+  });
+});
+
+describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
+  const initDice = (first: number) =>
+    [1, 1, 1, 1, 1, 1, 1].map((d, i) => (i === first ? 20 : d));
+  const count = (rows: { type: string }[], type: string) =>
+    rows.filter((r) => r.type === type).length;
+  const JOB = { id: "00000000-0000-4000-8000-0000000a5001" };
+
+  async function turnWorld(
+    dice: number[],
+    onFirstSubmit?: (w: World) => Promise<void>,
+    when: "before" | "after" = "before",
+  ) {
+    let armed = false;
+    let world!: World;
+    world = await createWorld({
+      dice,
+      gate: (g) => ({
+        ...g,
+        submit: async (...args) => {
+          if (armed && onFirstSubmit) {
+            armed = false;
+            if (when === "before") {
+              await onFirstSubmit(world);
+            } else {
+              const landed = await g.submit(...args);
+              await onFirstSubmit(world);
+              return landed;
+            }
+          }
+          return g.submit(...args);
+        },
+      }),
+    });
+    await startScene(world);
+    await run(world, [], {
+      director: {
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
+      },
+      job: { id: "00000000-0000-4000-8000-0000000a5000" },
+    });
+    world.checkpoint.current = {
+      ...world.checkpoint.current,
+      submissions: [],
+      lastSeq: 0,
+    };
+    return { w: world, arm: () => (armed = true) };
+  }
+
+  it("End turn lands while the turn job resolves the same action: one turn.advance", async () => {
+    const { w, arm } = await turnWorld([...initDice(0), 15], async (world) => {
+      const p = await world.projections();
+      const res = await world.as(player, {
+        kind: "floor",
+        op: "end",
+        turn: {
+          round: p.encounter?.round ?? 1,
+          combatantId: p.encounter?.activeCombatantId ?? "",
+        },
+        reason: "Tamsin ends her turn.",
+      });
+      if (!res.ok) throw new Error(`floor refused: ${res.refusal.code}`);
+    });
+    const id = await commitAction(w, "Tamsin forces the shutter.");
+    const before = (await readRows(w)).length;
+    arm();
+    const out = await run(w, [reading(id, [checkStep()])], { job: JOB });
+    expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
+    const rows = (await readRows(w)).slice(before);
+    expect(count(rows, "turn.advanced")).toBe(1);
+    expect(count(rows, "table-mode.changed")).toBe(1);
+    expect(out.submissions.some((s) => s.key === "advance")).toBe(false);
+    expect(out.submissions.some((s) => s.key === "advance:table-mode")).toBe(
+      false,
+    );
+  });
+
+  it("a crash after End turn and a reclaim of the same job do not advance again", async () => {
+    const { w, arm } = await turnWorld([...initDice(0), 15], async (world) => {
+      const p = await world.projections();
+      const res = await world.as(player, {
+        kind: "floor",
+        op: "end",
+        turn: {
+          round: p.encounter?.round ?? 1,
+          combatantId: p.encounter?.activeCombatantId ?? "",
+        },
+        reason: "Tamsin ends her turn.",
+      });
+      if (!res.ok) throw new Error(`floor refused: ${res.refusal.code}`);
+    });
+    const id = await commitAction(w, "Tamsin forces the shutter.");
+    const before = (await readRows(w)).length;
+    arm();
+    await run(w, [reading(id, [checkStep()])], { job: JOB });
+    const active = (await w.projections()).encounter?.activeCombatantId;
+    const saved = w.checkpoint.current;
+    await run(w, [reading(id, [checkStep()])], {
+      job: { ...JOB, attempt: 2 },
+      checkpoint: saved,
+    });
+    const rows = (await readRows(w)).slice(before);
+    expect(count(rows, "turn.advanced")).toBe(1);
+    expect((await w.projections()).encounter?.activeCombatantId).toBe(active);
+  });
+
+  it("a held floor skips the turn-advance group", async () => {
+    // The DM sits and takes the floor after the check lands, before the
+    // advance group reads the board. A floor held before the job starts
+    // leaves `done` false (a human seat holds the check as a proposal), so
+    // only a mid-job take reaches the held guard.
+    const { w, arm } = await turnWorld(
+      [...initDice(0), 15],
+      async (world) => {
+        const seat = await world.as(operator, {
+          kind: "dm.seat",
+          reason: "A human takes the DM seat",
+          after: { kind: "human", userId: HUMAN_DM },
+        });
+        if (!seat.ok) throw new Error(`seat refused: ${seat.refusal.code}`);
+        const p = await world.projections();
+        const taken = await world.as(operator, {
+          kind: "floor",
+          op: "take",
+          turn: {
+            round: p.encounter?.round ?? 1,
+            combatantId: p.encounter?.activeCombatantId ?? "",
+          },
+          reason: "The DM takes the floor.",
+        });
+        if (!taken.ok) throw new Error(`take refused: ${taken.refusal.code}`);
+      },
+      "after",
+    );
+    const id = await commitAction(w, "Tamsin forces the shutter.");
+    arm();
+    const before = (await readRows(w)).length;
+    const { result } = await w.runResolve({
+      readings: [reading(id, [checkStep()])] as never,
+      job: JOB,
+    });
+    if (!result.ok) throw new Error(result.error.message);
+    const out = result.output as ResolveOutput;
+    const rows = (await readRows(w)).slice(before);
+    expect(count(rows, "turn.advanced")).toBe(0);
+    // The one mode row is the DM's own take; resolve writes none.
+    expect(count(rows, "table-mode.changed")).toBe(1);
+    expect(out.submissions.some((s) => s.key === "advance")).toBe(false);
+    expect((await w.projections()).tableMode).toMatchObject({
+      activeActor: HUMAN_DM,
+      activeCharacterId: null,
+    });
   });
 });

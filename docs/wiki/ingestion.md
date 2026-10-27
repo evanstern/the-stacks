@@ -23,7 +23,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: 3d8f3a8d9de03d84962c501c6c32aa0895f3a36c
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Ingestion
@@ -82,8 +82,8 @@ Output re-uses [[ddb-parser]]'s `ParsedBook` shape, so `storeParsedBook` needs n
 **Jobs: schema, claim, lease, fencing, recovery.** `schema/jobs.ts`'s `jobs` table (see
 [[database-schema]]) is deliberately **not** under `library_immutable` — rows update in place
 as `status`/`stage`/`attempts`/`claim_token`/`heartbeat_at` advance. The table is **shared**
-since TASK-0046: ingest rows are `kind = 'ingest'` and the DM runtime adds `turn`, `companion`
-and `chronicle` kinds ([[dm-runtime]]). Ingestion never sees them: `claimJob`, `listJobs` and
+since TASK-0046: ingest rows are `kind = 'ingest'` and the DM runtime adds `turn`, `companion`,
+`chronicle` and `floor` kinds ([[dm-runtime]]). Ingestion never sees them: `claimJob`, `listJobs` and
 `getJob` all filter `kind = 'ingest'`, and `book` is nullable in the schema (the ingest code
 reads it as `book ?? ""`). The kind-generic fenced writes — `heartbeat`, `setStage`, `finishJob`
 (plus `saveResult`, used by DM only) and the lease constants — live in `jobs/queue.ts`;

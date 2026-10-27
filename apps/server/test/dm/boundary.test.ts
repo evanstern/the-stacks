@@ -24,7 +24,7 @@ function code(file: string): string {
 }
 
 describe("dm/ write boundary (AC #5)", () => {
-  it("only resolve, companion and chronicle call gate.submit", () => {
+  it("only resolve, companion, chronicle and the floor job call gate.submit", () => {
     const callers = listTs(DM)
       .filter((f) => /\.submit\(/.test(code(f)))
       .map((f) => relative(DM, f).split("\\").join("/"))
@@ -32,6 +32,7 @@ describe("dm/ write boundary (AC #5)", () => {
     expect(callers).toEqual([
       "chronicle.ts",
       "companion.ts",
+      "floor.ts",
       "nodes/resolve.ts",
     ]);
   });

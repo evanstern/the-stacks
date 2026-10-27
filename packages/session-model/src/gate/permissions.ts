@@ -77,6 +77,21 @@ export function checkPermission(
         : no("a comment needs a party member or the DM");
     case "action.commit":
       return ok;
+    case "floor": {
+      if (request.kind !== "floor") return no("not a floor request");
+      // `end` by a party member, the seated DM or ai:dm passes here; the planner narrows it
+      // (FLOOR_NOT_HELD, the absent-human rule).
+      if (request.op === "end") {
+        return seated || ai || isPartyMember(p, proposer)
+          ? ok
+          : no("only a party member or the DM ends a turn");
+      }
+      if (seated) return ok;
+      if (ai) return no("the AI DM does not take or return the floor");
+      return isPartyMember(p, proposer)
+        ? { ok: false, code: "NOT_DM", message: "only the seated DM does this" }
+        : no("only the seated DM takes or returns the floor");
+    }
     case "action.withdraw": {
       if (request.kind !== "action.withdraw" || ai) {
         return no("the AI DM does not withdraw actions");

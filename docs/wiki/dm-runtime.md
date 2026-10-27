@@ -21,6 +21,7 @@ sources:
   - apps/server/src/dm/nodes/interpret.ts
   - apps/server/src/dm/nodes/adjudicate.ts
   - apps/server/src/dm/nodes/resolve.ts
+  - apps/server/src/dm/nodes/settle.ts
   - apps/server/src/dm/nodes/narrate.ts
   - apps/server/src/dm/purposes.ts
   - apps/server/src/dm/companion.ts
@@ -32,7 +33,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: a4f6a791f9315e387aedf8ccaca5efdb69329f81
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # DM runtime
@@ -62,7 +63,7 @@ async function `(TurnContext) => NodeResult`.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
-Director, interpret and adjudicate outputs are checkpointed in `jobs.result`, so a reclaim does not re-pay model calls. The runner aborts on a fence loss between nodes.
+Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay model calls. The runner aborts on a fence loss between nodes.
 Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 records purpose, prompt version, outcome, provider, model, tokens, cost and duration (no prompt text) to the `recordCall` seam ([[dm-turn-jobs]]).
 
@@ -90,12 +91,11 @@ resolve, and no model sees or invents a number: the engine ([[dnd5e-engine]]) ow
 modifiers and damage. A gate refusal ([[proposal-gate]]) becomes a recorded result, never a retry. Each submission is stored in the checkpoint (`Submission`: `stepRef`
 `<jobId>#<n>`, key, kind, result, refusal, ids, gate `seqs`).
 
-Resolve's six plan-gated groups and settling: [[dm-turn-jobs]].
+Resolve's six plan-gated groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
 ## Narration and audit
 
-Prose is **digit-free**; code builds the facts and renders the dice lines, so prose cannot
-misstate a roll. The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
+Prose is **digit-free**; code builds the facts and dice lines, so prose cannot misstate a roll. The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
 a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. Facts, audit checks,
 the fallback and the player-facing seed view are in [[dm-narration-quality]].
 

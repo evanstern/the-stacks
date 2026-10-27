@@ -1,6 +1,6 @@
 ---
 name: database-schema
-description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane content tables are [[library-schema]]; the shared operational jobs table (ingest plus DM turn/companion/chronicle kinds) is here.
+description: The session- and auth-plane tables and their constraints — events (composite PK, positive-seq/positive-version CHECKs, no extra index), users/auth_sessions/invitations — and the append-only trigger hand-added to the generated migration, which really does make Postgres refuse a DELETE. Library-plane content tables are [[library-schema]]; the shared operational jobs table (ingest plus DM turn/floor/companion/chronicle kinds) is here.
 kind: component
 sources:
   - apps/server/src/schema/events.ts
@@ -12,7 +12,8 @@ sources:
   - apps/server/drizzle/0004_glamorous_warlock.sql
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/drizzle/0006_fearless_jamie_braddock.sql
-verified_against: 7698263c1fa5c709759b111440d7cd245997a05f
+  - apps/server/drizzle/0007_aromatic_baron_zemo.sql
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Database Schema
@@ -78,15 +79,15 @@ is a permanent backdoor), and `redeemedAt`/`redeemedBy`, null meaning unredeemed
 exactly once via a conditional `UPDATE` (see [[invitations]]) — never read-then-write.
 
 **`jobs`** (TASK-0024; extended by TASK-0046, migration `0004_glamorous_warlock.sql`; react index in `0006_fearless_jamie_braddock.sql`) — one
-shared queue table with four `kind`s: `ingest` (one row per upload), plus the DM runtime's
-`turn`, `companion` and `chronicle` ([[dm-runtime]]). It tracks operational state
+shared queue table with five `kind`s: `ingest` (one row per upload), plus the DM runtime's
+`turn`, `companion`, `chronicle` and (migration 0007, TASK-0050) `floor` ([[dm-runtime]], [[dm-turn-jobs]]). It tracks operational state
 (`queued → running → succeeded|failed`, `stage`, `attempts`, a per-claim
 `claim_token`/`heartbeat_at` lease). Unlike every table above, **it is not append-only or
 immutable** — rows update in place as a job advances, and it carries no trigger.
 `jobs_claim_idx` (`status`, `created_at`) serves the oldest-first claim query.
 
 Migration 0004 made `book` nullable and added `session_id` (uuid, no FK). Checks:
-`jobs_kind_valid` allows the four kinds; `jobs_book_required_for_ingest` (`kind <> 'ingest' OR
+`jobs_kind_valid` allows the five kinds; `jobs_book_required_for_ingest` (`kind <> 'ingest' OR
 book IS NOT NULL`); `jobs_session_required_for_dm` (`kind = 'ingest' OR session_id IS NOT NULL`);
 `jobs_stage_valid` now also admits the DM stages (`assemble`, `director`, `interpret`,
 `adjudicate`, `resolve`, `narrate`, `audit`, `companion`, `chronicle`). Partial unique indexes:
@@ -95,8 +96,8 @@ IN ('queued','running')`, so a finished book can be re-uploaded while a second c
 is refused; `jobs_turn_queued_key` and `jobs_chronicle_queued_key` allow one queued turn / one
 queued chronicle per `session_id`; `jobs_companion_react_queued_key` (migration `0006_fearless_jamie_braddock.sql`, TASK-0114) allows one
 queued `companion` job with `input->>'reason' = 'react'` per session;
-`jobs_session_running_key` allows one running `turn` or
-`companion` job per session. `jobs_dm_session_idx` is `(session_id, kind, status)`. Full
+`jobs_floor_queued_key` (migration `0007_aromatic_baron_zemo.sql`) allows one queued `floor` job per `(session_id, input->>'check', coalesce(input->>'actionId', ''))`;
+`jobs_session_running_key` allows one running `turn`, `companion` or `floor` job per session (0007 recreated it). `jobs_dm_session_idx` is `(session_id, kind, status)`. Full
 lease/fencing/recovery mechanics are [[ingestion]]'s (ingest claim) and [[dm-turn-jobs]]'s (DM claim).
 
 **`dm_model_calls`** (TASK-0116, migration `0005_unknown_lizard.sql`) — the DM usage ledger,

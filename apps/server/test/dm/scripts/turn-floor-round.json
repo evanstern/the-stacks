@@ -1,0 +1,251 @@
+{
+  "v": 1,
+  "name": "turn-floor-round",
+  "dice": [20, 10, 15, 5, 1, 1, 1, 2],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Bram moves Kestrel along the posts.",
+          "companionPrompts": []
+        }
+      },
+      "note": "Bram's committed action"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-bram",
+              "intent": "move",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "The move needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "Bram's move needs no roll"
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Bram's move",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel slips along the old posts, keeping low behind the reeds while the camp fire crackles ahead."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": {
+            "text": "Odo shuffles closer to the fire and raises his mace.",
+            "commit": true
+          },
+          "pending": []
+        }
+      },
+      "note": "Pip's (Odo's) turn"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Odo closes on the camp.",
+          "companionPrompts": []
+        }
+      },
+      "note": "Odo's committed action"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-odo-1",
+              "intent": "move",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "The move needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "Odo's move needs no roll"
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Odo's move",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo edges toward the smoky fire, mace raised, and the goblins hiss in answer."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Snag swings at the nearest foe.",
+          "companionPrompts": []
+        }
+      },
+      "note": "Snag's turn"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Snag swings his notched scimitar at Tamsin",
+                  "attackerId": "snag",
+                  "targetId": "tamsin",
+                  "expression": "1d20+4",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "tamsin",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+2"
+                          },
+                          "damageType": "slashing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "NPC reading: actionId null"
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a miss for the NPC",
+      "respond": {
+        "type": "text",
+        "value": "Snag lunges with his notched scimitar, sing-songing threats, but Tamsin sways aside and the blade only finds air."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ sources:
   - apps/server/src/library/retrieve.ts
   - apps/server/src/index.ts
   - .env.example
-verified_against: ff78b96b37569e59be1f03b49f518c516043574c
+verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
 ---
 
 # Retrieval

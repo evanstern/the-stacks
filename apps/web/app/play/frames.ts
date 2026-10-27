@@ -1,6 +1,7 @@
 import {
   ActionCommentedV1,
   ActionDeclaredV1,
+  CombatantIdSchema,
   currentVersion,
   GATE_REQUEST_VERSION,
   RefIdSchema,
@@ -10,6 +11,7 @@ import type {
   CommentInput,
   CommitInput,
   DeclareInput,
+  FloorInput,
   TalkInput,
   WithdrawInput,
 } from "./source.ts";
@@ -113,6 +115,45 @@ export function withdrawFrame(input: WithdrawInput): EventFrame | null {
   };
 }
 
+const FLOOR_REASON: Record<FloorInput["op"], string> = {
+  end: "Ends the turn.",
+  take: "The DM takes the floor.",
+  return: "The DM returns the floor.",
+};
+
+/** The reason a floor request carries when the caller names none. */
+export function floorReason(op: FloorInput["op"]): string {
+  return FLOOR_REASON[op];
+}
+
+/**
+ * A `floor` gate request (specs/049-turn-floor/contracts/floor-request.md). It carries the
+ * turn the viewer saw, so the gate refuses it with TURN_MOVED when the turn has moved on.
+ */
+export function floorFrame(input: FloorInput): EventFrame | null {
+  if (!(input.op in FLOOR_REASON)) return null;
+  const { turn } = input;
+  if (
+    !turn ||
+    !Number.isInteger(turn.round) ||
+    turn.round < 1 ||
+    !CombatantIdSchema.safeParse(turn.combatantId).success
+  ) {
+    return null;
+  }
+  const reason = (input.reason ?? "").trim() || FLOOR_REASON[input.op];
+  if (reason.length > 500) return null;
+  return {
+    eventType: "floor",
+    payload: {
+      op: input.op,
+      turn: { round: turn.round, combatantId: turn.combatantId },
+      reason,
+    },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
 export function approveFrame(proposalId: string): EventFrame | null {
   if (!RefIdSchema.safeParse(proposalId).success) return null;
   return {
@@ -144,7 +185,9 @@ const LOCAL_TYPE: Record<string, { type: string; key: string | null }> = {
 
 /**
  * Fixture mode: the catalog event a gate-request frame stands for, to append to the
- * page-local log. `authority` is the committer's authority (the live gate derives it).
+ * page-local log. `authority` is the committer's authority (the live gate derives it). A
+ * `floor` request maps to null: its rows depend on the projection, so fixture mode builds
+ * them with `localFloorEvents` (local-log.ts).
  */
 export function localEventOf(
   frame: EventFrame,

@@ -1,5 +1,6 @@
 import type { StoredEvent } from "@the-stacks/session-model";
 import type { PresenceEntry, ServerFrame } from "../ws/types.ts";
+import { refusalLabel } from "./labels.ts";
 
 export interface FrameState {
   events: readonly StoredEvent[];
@@ -36,7 +37,9 @@ export function reduceFrame(state: FrameState, frame: ServerFrame): FrameState {
     case "error":
       return {
         ...state,
-        notice: frame.code ? `${frame.message} (${frame.code})` : frame.message,
+        notice: frame.code
+          ? `${refusalLabel(frame.code) ?? frame.message} (${frame.code})`
+          : frame.message,
       };
     case "presence":
       return { ...state, present: frame.present };

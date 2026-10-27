@@ -6,6 +6,7 @@ import {
   commentFrame,
   commitFrame,
   declareFrame,
+  floorFrame,
   localEventOf,
   rejectFrame,
   talkFrame,
@@ -148,4 +149,47 @@ test("localEventOf maps request frames back to catalog events for fixture mode",
   assert.equal(withdrawn.eventType, "action.withdrawn");
   assert.deepEqual(withdrawn.payload, { actionId: "act-1" });
   assert.equal(localEventOf(approveFrame("prop-1")), null);
+});
+
+test("floorFrame builds the floor request with the current turn", () => {
+  const turn = { round: 2, combatantId: "ana" };
+  assert.deepEqual(floorFrame({ op: "end", turn }), {
+    eventType: "floor",
+    payloadVersion: 1,
+    payload: { op: "end", turn, reason: "Ends the turn." },
+  });
+  assert.equal(
+    floorFrame({ op: "take", turn }).payload.reason,
+    "The DM takes the floor.",
+  );
+  assert.equal(
+    floorFrame({ op: "return", turn }).payload.reason,
+    "The DM returns the floor.",
+  );
+  assert.equal(
+    floorFrame({ op: "end", turn, reason: "  Bram is done.  " }).payload.reason,
+    "Bram is done.",
+  );
+});
+
+test("floorFrame returns null for a bad op or a missing turn", () => {
+  const turn = { round: 1, combatantId: "ana" };
+  assert.equal(floorFrame({ op: "skip", turn }), null);
+  assert.equal(floorFrame({ op: "end", turn: null }), null);
+  assert.equal(
+    floorFrame({ op: "end", turn: { round: 0, combatantId: "ana" } }),
+    null,
+  );
+  assert.equal(
+    floorFrame({ op: "end", turn: { round: 1, combatantId: "" } }),
+    null,
+  );
+});
+
+test("localEventOf leaves a floor request to the fixture projection", () => {
+  const frame = floorFrame({
+    op: "take",
+    turn: { round: 1, combatantId: "ana" },
+  });
+  assert.equal(localEventOf(frame), null);
 });

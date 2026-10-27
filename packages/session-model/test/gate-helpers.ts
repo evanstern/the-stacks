@@ -192,3 +192,129 @@ export function dmFoldWith(
   });
   return project(stream({ ...options, extra }), { role: "dm" });
 }
+
+export const CADE_USER = PLAYER_B;
+export const BRAM_ACTOR = "ai:companion:bram";
+
+export interface FloorOptions {
+  /** Seat a human DM (DM_USER). Default: true. */
+  humanDm?: boolean;
+  /** The combatant whose turn it is. Default: ana. Initiative order: ana, bram, cade, goblin. */
+  active?: "ana" | "bram" | "cade" | "goblin";
+  /** Drop Bram to 0 HP (dying) before initiative. */
+  downBram?: boolean;
+  /** The DM holds the floor (table mode names the DM; the engine turn is unchanged). */
+  held?: boolean;
+}
+
+const ORDER = ["ana", "bram", "cade", "goblin"] as const;
+
+const FLOOR_ACTORS: Record<
+  (typeof ORDER)[number],
+  { activeActor: string; activeCharacterId: string | null }
+> = {
+  ana: { activeActor: PLAYER_A, activeCharacterId: "ana" },
+  bram: { activeActor: BRAM_ACTOR, activeCharacterId: "bram" },
+  cade: { activeActor: PLAYER_B, activeCharacterId: "cade" },
+  goblin: { activeActor: "ai:dm", activeCharacterId: null },
+};
+
+/**
+ * A turn-mode DM projection with two humans (Ana, Cade), one companion (Bram), one goblin and
+ * a rolled encounter. Initiative ties break by id, so the order is ana, bram, cade, goblin.
+ */
+export function floorFold(options: FloorOptions = {}): SessionProjections {
+  const humanDm = options.humanDm ?? true;
+  const active = options.active ?? "ana";
+  const base = project(stream({ humanDm, twoHumans: true }), { role: "dm" });
+  let state = base.engine;
+  const extra: RowSpec[] = [];
+  const mech = (command: unknown, batchId: string) => {
+    const executed = run(state, command);
+    state = executed.state;
+    extra.push(...batchSpecs(executed.events, batchId, { actor: "ai:dm" }));
+  };
+  const hero = (id: string, name: string) => ({
+    id,
+    name,
+    hp: { max: 10 },
+    zeroHpRule: "death-saves",
+    ac: 14,
+    hitDice: [{ die: 8, total: 2 }],
+  });
+  extra.push({
+    type: "party.member.changed",
+    payload: {
+      reason: "j",
+      characterId: "cade",
+      before: {
+        characterId: "cade",
+        name: "Cade",
+        controller: { kind: "player", userId: PLAYER_B },
+        combatantId: null,
+      },
+      after: {
+        characterId: "cade",
+        name: "Cade",
+        controller: { kind: "player", userId: PLAYER_B },
+        combatantId: "cade",
+      },
+    },
+  });
+  mech(
+    { type: "combatant.add", combatant: hero("cade", "Cade"), reason: "r" },
+    "b-cade",
+  );
+  mech(
+    { type: "combatant.add", combatant: hero("bram", "Bram"), reason: "r" },
+    "b-bram",
+  );
+  if (options.downBram) {
+    mech(
+      {
+        type: "damage.apply",
+        targetId: "bram",
+        components: [
+          { amount: { kind: "fixed", value: 10 }, damageType: "fire" },
+        ],
+        reason: "r",
+      },
+      "b-down",
+    );
+  }
+  mech(
+    {
+      type: "initiative.roll",
+      participants: ORDER.map((combatantId) => ({ combatantId })),
+      reason: "r",
+    },
+    "b-init",
+  );
+  for (let i = 0; i < ORDER.indexOf(active); i++) {
+    mech({ type: "turn.advance", reason: "r" }, `b-adv${i}`);
+  }
+  extra.push({
+    type: "action.declared",
+    payload: {
+      actionId: "act-cade",
+      characterId: "cade",
+      scope: "character",
+      text: "Cade readies a bow.",
+    },
+    opts: { actor: PLAYER_B },
+  });
+  extra.push({
+    type: "table-mode.changed",
+    payload: {
+      reason: "turns",
+      before: { mode: "free" },
+      after: {
+        mode: "turn",
+        ...(options.held
+          ? { activeActor: DM_USER, activeCharacterId: null }
+          : FLOOR_ACTORS[active]),
+      },
+    },
+  });
+  return project(stream({ humanDm, twoHumans: true, extra }), { role: "dm" });
+}

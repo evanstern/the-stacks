@@ -12,8 +12,15 @@ gate listener). Schema: `apps/server/src/schema/jobs.ts`, migration `0004_*`. Qu
 |---|---|---|---|
 | `ingest` | one book upload (unchanged) | `extract`, `parse`, `store`, `embed` | ingest worker only |
 | `turn` | one beat of one session | `assemble`, `director`, `interpret`, `adjudicate`, `resolve`, `narrate`, `audit` | 1 |
-| `companion` | one or more AI companions acting once | `companion` | 2 |
-| `chronicle` | one journal pass for one session | `chronicle` | 3 |
+| `floor` | one absence or stall check for one session; no model call | none (`stage` stays null) | 2 |
+| `companion` | one or more AI companions acting once | `companion` | 3 |
+| `chronicle` | one journal pass for one session | `chronicle` | 4 |
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-3). The operator said: "TASK-0050: I accept
+the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the frozen-contract amendments
+to 029, 031 and 044 and the one jobs migration." The `floor` kind is serialised with `turn`
+and `companion` per session. Its `input.notBefore` gates the claim, as the `react` companion
+job's does. Payload and result: `specs/049-turn-floor/data-model.md`.
 
 ## Payloads (`jobs.input`)
 
@@ -65,14 +72,14 @@ Amended by specs/033-director-robustness/contracts/failure-record.md.
 
 | Change | Why |
 |---|---|
-| `kind` CHECK → `IN ('ingest','turn','companion','chronicle')` | new kinds |
+| `kind` CHECK → `IN ('ingest','turn','companion','chronicle')` | new kinds; migration `0007` adds `'floor'` and `jobs_floor_queued_key` (TASK-0050, FT-3) |
 | `stage` CHECK adds `assemble`, `director`, `interpret`, `adjudicate`, `resolve`, `narrate`, `audit`, `companion`, `chronicle` | per-kind stages |
 | `book` → nullable; CHECK `kind <> 'ingest' OR book IS NOT NULL` | DM jobs have no book |
 | add `session_id uuid` nullable; CHECK `kind = 'ingest' OR session_id IS NOT NULL` | DM jobs belong to a session |
 | `jobs_active_book_key` gains `AND kind = 'ingest'` | keep the ingest rule exact |
 | new unique `jobs_turn_queued_key (session_id) WHERE kind='turn' AND status='queued'` | one queued beat per session (FR-003) |
 | new unique `jobs_chronicle_queued_key (session_id) WHERE kind='chronicle' AND status='queued'` | one queued chronicle per session (FR-080) |
-| new unique `jobs_session_running_key (session_id) WHERE kind IN ('turn','companion') AND status='running'` | one acting job per session (FR-003) |
+| new unique `jobs_session_running_key (session_id) WHERE kind IN ('turn','companion') AND status='running'` | one acting job per session (FR-003); migration `0007` adds `'floor'` (TASK-0050, FT-3) |
 | new index `jobs_dm_session_idx (session_id, kind, status)` | enqueue and reconcile reads |
 
 Generate it with `drizzle-kit generate` from the schema. No hand-added statement is expected.
@@ -97,16 +104,16 @@ One statement, priority then age, serialized per session:
 ```sql
 UPDATE jobs SET status='running', attempts=attempts+1, claim_token=gen_random_uuid(),
        heartbeat_at=now(), started_at=coalesce(started_at, now()),
-       stage = CASE kind WHEN 'turn' THEN 'assemble' WHEN 'companion' THEN 'companion' ELSE 'chronicle' END
+       stage = CASE kind WHEN 'turn' THEN 'assemble' WHEN 'companion' THEN 'companion' WHEN 'floor' THEN NULL ELSE 'chronicle' END
 WHERE id = (
   SELECT j.id FROM jobs j
-  WHERE j.kind IN ('turn','companion','chronicle')
+  WHERE j.kind IN ('turn','floor','companion','chronicle')
     AND ( (j.status='running' AND j.heartbeat_at < now() - <LEASE_MS>)
        OR (j.status='queued' AND (j.kind='chronicle' OR NOT EXISTS (
-             SELECT 1 FROM jobs r WHERE r.session_id=j.session_id AND r.kind IN ('turn','companion')
+             SELECT 1 FROM jobs r WHERE r.session_id=j.session_id AND r.kind IN ('turn','companion','floor')
                AND r.status='running' AND r.heartbeat_at >= now() - <LEASE_MS>))) )
   ORDER BY (j.status='running') DESC,
-           CASE j.kind WHEN 'turn' THEN 1 WHEN 'companion' THEN 2 ELSE 3 END,
+           CASE j.kind WHEN 'turn' THEN 1 WHEN 'floor' THEN 2 WHEN 'companion' THEN 3 ELSE 4 END,
            j.created_at
   FOR UPDATE SKIP LOCKED LIMIT 1)
 RETURNING …;
@@ -161,7 +168,30 @@ it with `gate.onAppended`. For each call:
    `ai:companion:<id>` → `enqueueCompanionReact(sessionId, id, { quietMs, maxWaitMs })`.
    Comments by any `ai:` actor queue none. A failure is logged and never fails the human's
    submission. Amended by specs/036-companion-react.
-4. Call `nudge()` so the worker polls at once.
+4. For each `table-mode.changed` row in turn mode whose actor is a human (a `floor` request:
+   End turn, Pass, Take floor or Return floor): `after` names `ai:dm` →
+   `enqueueTurn(sessionId, "npc-turn", seq)`; `after` names `ai:companion:<id>` →
+   `enqueueCompanion` with reason `turn` for that character. Rows written by `ai:dm` queue
+   none: their producer (resolve's `nextJob`) queues its own follow-up. Amended 2026-10-27
+   (TASK-0050, operator rulings FT-3, Q6; specs/049-turn-floor R8).
+5. Under an AI seat, when the enqueuer has a presence reader, arm the floor waits
+   (`dm/floor.ts` runs them). Amended 2026-10-27 (TASK-0050, operator ruling FT-3;
+   specs/049-turn-floor R10):
+   - `table-mode.changed` in turn mode naming an absent human (any actor): arm `absence`,
+     `notBefore = now() + FLOOR_ABSENCE_WAIT_MS`.
+   - `action.declared` with scope `party`, two or more party humans: arm `stall`,
+     `notBefore = now() + FLOOR_STALL_WINDOW_MS`.
+   - `action.commented` on such an open action: re-arm `stall` (`notBefore` and `stanceSeq`).
+   - `action.committed` or `action.withdrawn`: cancel that action's queued `stall`.
+   - `onPresenceChange(sessionId)`, called from the presence reader's `onChange`: arm
+     `absence` when the active human is now absent.
+6. Call `nudge()` so the worker polls at once.
+
+`enqueueFloorCheck` inserts `ON CONFLICT DO NOTHING` on the partial unique index
+`jobs_floor_queued_key` (`session_id`, `input->>'check'`, `coalesce(input->>'actionId','')`
+where `kind = 'floor'` and `status = 'queued'`). On conflict it moves `holder`, `stanceSeq`
+and `notBefore` on the queued row and loops when that row was claimed in between.
+`cancelFloorCheck` deletes the queued row. Times are database time (migration `0007`).
 
 `enqueueTurn` is `INSERT … ON CONFLICT ON jobs_turn_queued_key DO NOTHING`. A queued job
 already covers the next beat. A listener failure is logged, and FR-008's reconcile repairs
@@ -244,6 +274,18 @@ At worker start, `reconcileTurnJobs(db)` finds sessions whose log holds an
 `queued` or `running` turn job. It enqueues one turn job each with trigger `reconcile`. The
 query reads `events` by type and `payload->>'actionId'`; its cost is bounded by the number of
 sessions with play.
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-3): at worker start, after
+`reconcileTurnJobs`, `reconcileFloorJobs` arms `absence` for each turn-mode session whose
+holder is an absent human, and `stall` for each open multi-human party action with no queued
+`stall`, under an AI seat. It reads only sessions with an event in the last 24 hours
+(`FLOOR_RECONCILE_LOOKBACK_MS`). It runs only when the worker has a presence reader.
+
+## Floor constants
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-3): `FLOOR_ABSENCE_WAIT_MS = 30_000`,
+`FLOOR_STALL_WINDOW_MS = 120_000`. Both are injectable through `createDmEnqueuer` and the
+worker deps (`floorAbsenceWaitMs`, `floorStallWindowMs`), as `reactQuietMs` is for react.
 
 ## Ingestion changes
 

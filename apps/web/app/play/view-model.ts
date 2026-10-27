@@ -1,13 +1,27 @@
-import type {
-  ActionAuthority,
-  ActionView,
-  SessionProjections,
+import {
+  type ActionAuthority,
+  type ActionView,
+  currentTurn,
+  floorHeld,
+  type PartyMemberView,
+  type SessionProjections,
+  type TableMode,
+  type TurnRef,
 } from "@the-stacks/session-model";
 import { type CommitAuthority, commitAuthorityFor } from "./authority.ts";
 import { actorLabel, characterLabel } from "./labels.ts";
 import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
 import { type SignoffRowView, signoffRows } from "./signoff.ts";
+
+export interface OrderEntry {
+  combatantId: string;
+  label: string;
+  isActive: boolean;
+  isNext: boolean;
+  /** The viewer controls this combatant's character. */
+  isViewer: boolean;
+}
 
 export type ModeView =
   | { mode: "free" }
@@ -16,7 +30,20 @@ export type ModeView =
       activeActor: string;
       activeLabel: string;
       isViewersTurn: boolean;
+      /** The seated human DM holds the floor (spec 049). */
+      held: boolean;
+      /** One entry per combatant in initiative order; [] with no encounter. */
+      order: OrderEntry[];
     };
+
+/** Which floor buttons this viewer sees, and the turn each request carries. */
+export interface FloorControls {
+  endTurn: boolean;
+  pass: boolean;
+  take: boolean;
+  return: boolean;
+  turn: TurnRef | null;
+}
 
 export interface ActionCardView {
   actionId: string;
@@ -35,6 +62,10 @@ export interface ActionCardView {
   open: boolean;
   /** The viewer may withdraw this open action: its declarer, or the seated DM. */
   canWithdraw: boolean;
+  /** The viewer's own open character action in turn mode while another player is active. */
+  commitsOnOwnTurn: boolean;
+  /** The comment input reads "Suggest an alternative": a party member on the active player's action. */
+  suggest: boolean;
   commit: ViewCommitAuthority;
   /** Per-player sign-off rows; null for character scope, closed actions and one-human parties. */
   signoff: SignoffRowView[] | null;
@@ -60,7 +91,8 @@ export type TranscriptItem =
       whisper: boolean;
     }
   | { kind: "narration"; seq: number; text: string }
-  | { kind: "action"; seq: number; card: ActionCardView };
+  | { kind: "action"; seq: number; card: ActionCardView }
+  | { kind: "floor"; seq: number; text: string };
 
 export interface ComposerView {
   characters: { characterId: string; label: string }[];
@@ -71,6 +103,7 @@ export interface ComposerView {
 export interface TableViewModel {
   scene: { title: string; location: string | null } | null;
   mode: ModeView;
+  floor: FloorControls;
   transcript: TranscriptItem[];
   ledger: LedgerItem[];
   proposals: PendingProposalView[];
@@ -99,6 +132,19 @@ function toViewAuthority(
       };
 }
 
+/** The name the badge and the floor line use for the actor whose turn it is. */
+function turnLabel(
+  mode: Extract<TableMode, { mode: "turn" }>,
+  party: readonly PartyMemberView[],
+  viewerActor: string,
+): string {
+  const byCharacter =
+    mode.activeCharacterId === null
+      ? undefined
+      : party.find((m) => m.characterId === mode.activeCharacterId);
+  return byCharacter?.name ?? actorLabel(mode.activeActor, party, viewerActor);
+}
+
 function isOpen(status: ActionView["status"]): boolean {
   return status === "declared" || status === "discussed";
 }
@@ -113,26 +159,47 @@ export function toTableViewModel(
   const label = (actorId: string) => actorLabel(actorId, party, input.actor);
   const present = input.present ?? null;
 
+  const held = floorHeld(p);
+  const turn = currentTurn(p);
   let mode: ModeView = { mode: "free" };
   if (tableMode.mode === "turn") {
-    const byCharacter =
-      tableMode.activeCharacterId === null
-        ? undefined
-        : party.find((m) => m.characterId === tableMode.activeCharacterId);
-    const byController = party.find((m) =>
-      m.controller.kind === "player"
-        ? m.controller.userId === tableMode.activeActor
-        : m.controller.actor === tableMode.activeActor,
-    );
+    const encounter = p.encounter;
+    const next =
+      encounter && encounter.order.length > 1
+        ? encounter.order[(encounter.turnIndex + 1) % encounter.order.length]
+        : undefined;
+    const order: OrderEntry[] = (encounter?.order ?? []).map((o) => {
+      const member = party.find((m) => m.combatantId === o.combatantId);
+      return {
+        combatantId: o.combatantId,
+        label: o.name,
+        isActive: o.combatantId === encounter?.activeCombatantId,
+        isNext: o.combatantId === next?.combatantId,
+        isViewer:
+          viewer.role === "player" &&
+          member?.controller.kind === "player" &&
+          member.controller.userId === viewer.userId,
+      };
+    });
     mode = {
       mode: "turn",
       activeActor: tableMode.activeActor,
-      activeLabel:
-        byCharacter?.name ?? byController?.name ?? tableMode.activeActor,
+      activeLabel: turnLabel(tableMode, party, ""),
       isViewersTurn:
         viewer.role === "player" && viewer.userId === tableMode.activeActor,
+      held,
+      order,
     };
   }
+  const turnMode = mode.mode === "turn" && turn !== null;
+  const dmControls = turnMode && isDm && p.gate.seat.kind === "human";
+  const floor: FloorControls = {
+    endTurn: turnMode && mode.mode === "turn" && mode.isViewersTurn && !held,
+    pass: dmControls,
+    take: dmControls && !held,
+    return: dmControls && held,
+    turn,
+  };
 
   const actionsById = new Map(p.actions.map((a) => [a.actionId, a]));
   const transcript: TranscriptItem[] = [];
@@ -171,6 +238,25 @@ export function toTableViewModel(
           open: isOpen(action.status),
           canWithdraw:
             isOpen(action.status) && (isDm || action.actor === input.actor),
+          commitsOnOwnTurn:
+            isOpen(action.status) &&
+            action.scope === "character" &&
+            tableMode.mode === "turn" &&
+            viewer.role === "player" &&
+            action.actor === viewer.userId &&
+            tableMode.activeActor !== viewer.userId,
+          suggest:
+            isOpen(action.status) &&
+            action.scope === "character" &&
+            tableMode.mode === "turn" &&
+            viewer.role === "player" &&
+            party.some(
+              (m) =>
+                m.controller.kind === "player" &&
+                m.controller.userId === viewer.userId,
+            ) &&
+            action.actor === tableMode.activeActor &&
+            tableMode.activeActor !== viewer.userId,
           commit: toViewAuthority(
             commitAuthorityFor(action, tableMode, viewer, party, present),
             label,
@@ -194,6 +280,27 @@ export function toTableViewModel(
       });
     }
   }
+
+  for (const row of p.ledger) {
+    if (row.kind !== "change" || row.type !== "table-mode.changed") continue;
+    const after = row.after as TableMode;
+    if (after.mode !== "turn") continue;
+    const seat = p.gate.seat;
+    const heldRow =
+      seat.kind === "human" &&
+      after.activeActor === seat.userId &&
+      after.activeCharacterId === null;
+    transcript.push({
+      kind: "floor",
+      seq: row.seq,
+      text: heldRow
+        ? "The DM has the floor"
+        : viewer.role === "player" && after.activeActor === viewer.userId
+          ? "Your turn"
+          : `${turnLabel(after, party, input.actor)}'s turn`,
+    });
+  }
+  transcript.sort((a, b) => a.seq - b.seq);
 
   const characters =
     viewer.role === "player"
@@ -219,6 +326,7 @@ export function toTableViewModel(
       ? { title: p.scene.title, location: p.scene.location }
       : null,
     mode,
+    floor,
     transcript,
     ledger: toLedgerItems(p.ledger),
     proposals: isDm ? [...input.proposals] : [],

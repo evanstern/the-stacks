@@ -1,11 +1,20 @@
 import type { ModeView } from "../view-model.ts";
 
-/** "Free mode" / "Turn mode · Ana's turn" / "Turn mode · Your turn" (AC #3). */
+/**
+ * "Free mode" / "Turn mode · Ana's turn" / "Turn mode · Your turn" (AC #3) /
+ * "Turn mode · The DM has the floor" while the seated DM holds it (spec 049).
+ */
 export function ModeBadge({ mode }: { mode: ModeView }) {
   const text =
     mode.mode === "free"
       ? "Free mode"
-      : `Turn mode · ${mode.isViewersTurn ? "Your turn" : `${mode.activeLabel}'s turn`}`;
+      : `Turn mode · ${
+          mode.held
+            ? "The DM has the floor"
+            : mode.isViewersTurn
+              ? "Your turn"
+              : `${mode.activeLabel}'s turn`
+        }`;
   return (
     <span
       data-mode={mode.mode}

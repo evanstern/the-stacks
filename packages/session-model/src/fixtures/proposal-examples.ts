@@ -163,4 +163,12 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
     },
     visibility: "public",
   },
+  floor: {
+    kind: "floor",
+    summary: "Pass the turn of an absent player",
+    rationale: "Bram's player left the table, so the turn passes on.",
+    op: "end",
+    turn: { round: 1, combatantId: "ana" },
+    reason: "Ana is away from the table.",
+  },
 };

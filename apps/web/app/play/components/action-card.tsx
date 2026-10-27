@@ -82,11 +82,15 @@ function SignoffList({
 
 function CommentForm({
   actionId,
+  suggest,
   onComment,
 }: {
   actionId: string;
+  /** A non-active party member on the active player's action: the same comment, labelled. */
+  suggest: boolean;
   onComment: (input: CommentInput) => boolean;
 }) {
+  const label = suggest ? "Suggest an alternative" : "Comment on this action";
   const [text, setText] = useState("");
   function send(stance: CommentInput["stance"]) {
     if (onComment({ actionId, stance, text })) setText("");
@@ -101,10 +105,10 @@ function CommentForm({
       }}
     >
       <input
-        aria-label="Comment on this action"
+        aria-label={label}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Comment on this action"
+        placeholder={label}
         className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring"
       />
       <div className="flex flex-wrap gap-2">
@@ -181,11 +185,16 @@ export function ActionCard({
         <div className="mt-2">
           <CommitControl
             commit={card.commit}
+            commitsOnOwnTurn={card.commitsOnOwnTurn}
             onCommit={(authority) =>
               onCommit({ actionId: card.actionId, authority })
             }
           />
-          <CommentForm actionId={card.actionId} onComment={onComment} />
+          <CommentForm
+            actionId={card.actionId}
+            suggest={card.suggest}
+            onComment={onComment}
+          />
           {card.canWithdraw && (
             <button
               type="button"

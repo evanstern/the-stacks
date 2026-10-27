@@ -62,6 +62,26 @@ Rows per kind:
 | `tracker` | one `tracker.changed` (`dm`), `before` from `p.trackers` | not both null (`INVALID_PROPOSAL`) |
 | `scene-presence` | one `scene-presence.changed` (`public`), `before` from `p.scenePresence`, `after` from the reason; then, in the same batch, the engine `initiative.leave` rows (an absent value, actor in the order) or `initiative.join` rows (`arrived`, encounter active, actor not in the order) | `actionId`, when set, names an existing action (`UNKNOWN_ACTION`); not a no-change (`INVALID_PROPOSAL`); engine refusal (source `engine`) |
 | `journal` | one `journal.entry.added` | `entryId` unused (`JOURNAL_ENTRY_EXISTS`) |
+| `floor` `end` | one mechanics batch (`turn.advance`, then each settling step: `death-save.roll` for a dying combatant, `turn.advance` for a downed one, at most one lap), then one `table-mode.changed` (`public`) naming `activeActorFor(next)`; an `ai:dm` proposer prepends a `presence.recorded` row (`purpose: "floor"`, `present` from `PlanContext`) | in order: `NOT_TURN_MODE`; `TURN_MOVED` (`details: { expected, actual }`); proposer is the active actor or the seated DM, else `FLOOR_NOT_HELD` (`details: { holder }`); `ai:dm` only for an absent active human, else `NOT_AUTHORIZED`; engine refusal (source `engine`) |
+| `floor` `take` | one `table-mode.changed` (`public`), `after` = `{ mode: "turn", activeActor: <DM user id>, activeCharacterId: null }`; the engine turn is unchanged | `NOT_TURN_MODE`; `TURN_MOVED`; not the seated DM (`NOT_DM`, `NOT_AUTHORIZED` for `ai:dm`); floor already held (`INVALID_PROPOSAL`) |
+| `floor` `return` | one `table-mode.changed` (`public`), `after` = `activeActorFor(encounter.activeCombatantId)` | `NOT_TURN_MODE`; `TURN_MOVED`; not the seated DM (`NOT_DM`, `NOT_AUTHORIZED` for `ai:dm`); floor not held (`INVALID_PROPOSAL`) |
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-1, FT-2): the three `floor` rows above.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+Amended 2026-10-27 (TASK-0050, operator ruling FT-5): the stall override. An `action.commit` with
+`override: "stall"` from `ai:dm` plans `presence.recorded` (`purpose: "signoff"`, `actionId`,
+`present` from `PlanContext` without `ai:dm`) then `action.committed` (`dm`). It refuses
+`INVALID_PROPOSAL` from any other proposer, for a character action, for fewer than two party
+humans, or without `context.present`. It refuses `GROUP_SIGNOFF_REQUIRED` with
+`details: { waiting, objecting }` while a present quorum member objects. This is the one
+exception to "a `dm` commit writes no marker" (spec 044 FR-008). The time window belongs to the
+`floor` job's stall check; the planner has no clock.
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
 
 Amended 2026-10-27 (TASK-0141, operator ruling OQ-1): the `scene-presence` row above.
 
@@ -91,7 +111,9 @@ export const GateRefusalCodeSchema = z.enum([
   "UNKNOWN_BATCH", "JOURNAL_ENTRY_EXISTS",
   "UNKNOWN_PROPOSAL", "PROPOSAL_NOT_PENDING", "PROPOSAL_NOT_APPROVABLE",
   "CONFLICT", "CHARACTER_UNABLE",
+  "FLOOR_NOT_HELD", "TURN_MOVED", "NOT_TURN_MODE",   // TASK-0050 amendment, FT-2
 ]);
+// Amended 2026-10-27 (TASK-0050, operator ruling FT-2): FLOOR_NOT_HELD, TURN_MOVED and NOT_TURN_MODE join the list.
 // CHARACTER_UNABLE details.reason is an open set: "life-state" (TASK-0112); "absent" is added (TASK-0141).
 // Amended 2026-10-27 (TASK-0112, operator ruling): the list was 15 codes before CHARACTER_UNABLE.
 

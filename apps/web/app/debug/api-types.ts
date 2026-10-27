@@ -6,7 +6,7 @@ import type { StoredEvent } from "@the-stacks/session-model";
  * apps/server, so the wire shapes are copied by hand.
  */
 
-export type DebugJobKind = "turn" | "companion" | "chronicle";
+export type DebugJobKind = "turn" | "floor" | "companion" | "chronicle";
 export type DebugJobStatus = "queued" | "running" | "succeeded" | "failed";
 
 export interface DebugJob {

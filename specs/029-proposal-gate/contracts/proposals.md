@@ -18,6 +18,25 @@ The kinds grew from thirteen to fourteen, and the DM kinds from eleven to twelve
 `scene-presence` is new. `GATE_REQUEST_KINDS` grew from 17 to 18 literals. Every other rule
 below is unchanged.
 
+**Amendment (TASK-0050, stall override).** Amended 2026-10-27 (TASK-0050, operator ruling FT-5):
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+`action.commit` gains the optional field `override: "stall"`. Only `ai:dm` may send it. It applies
+to an open party action when the party has two or more humans; any other use is
+`INVALID_PROPOSAL`. The planned rows are in gate-api.md. A commit without `override` is unchanged.
+
+**Amendment (TASK-0050).** Amended 2026-10-27 (TASK-0050, operator ruling FT-1):
+
+> "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
+> frozen-contract amendments to 029, 031 and 044 and the one jobs migration."
+
+The kinds grew from fourteen to fifteen, and the DM kinds from twelve to thirteen: `floor` is new
+(`op: end | take | return`, `turn: { round, combatantId }`, `reason`; always `public`).
+`GATE_REQUEST_KINDS` grew from 18 to 19 literals. The permission rows are in the matrix below
+and the planned rows are in gate-api.md. Every other rule is unchanged.
+
 Siblings: [policy-and-authority.md](policy-and-authority.md),
 [proposal-events.md](proposal-events.md), [gate-api.md](gate-api.md),
 [ws-delivery.md](ws-delivery.md), [fixtures.md](fixtures.md),
@@ -25,17 +44,17 @@ Siblings: [policy-and-authority.md](policy-and-authority.md),
 
 ## Proposal kinds
 
-Fourteen kinds, closed:
+Fifteen kinds, closed:
 
 ```ts
 export const ProposalKindSchema = z.enum([
   "talk", "action.declare", "action.comment", "action.commit", "action.withdraw",
   "action.resolve", "mechanics", "narration", "table-mode", "scene", "party", "tracker",
-  "scene-presence", "journal",
+  "scene-presence", "journal", "floor",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
-/** The twelve kinds the AI DM may propose; the policy table is total over these. */
+/** The thirteen kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude(["action.declare", "action.withdraw"]);
 export type DmProposalKind = z.infer<typeof DmProposalKindSchema>;
 ```
@@ -64,7 +83,8 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("action.comment"), ...ProposalNote,
     comment: ActionCommentedV1 }),
   z.object({ kind: z.literal("action.commit"), ...ProposalNote,
-    actionId: RefIdSchema }),                       // authority is derived by the gate, never supplied
+    actionId: RefIdSchema,                          // authority is derived by the gate, never supplied
+    override: z.literal("stall").optional() }),     // `ai:dm` only; spec 049 stall override
   z.object({ kind: z.literal("action.withdraw"), ...ProposalNote,
     actionId: RefIdSchema }),                       // closes an open action; TASK-0114 amendment
 
@@ -89,6 +109,10 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     actorId: RefIdSchema, reason: PresenceReasonSchema, actionId: RefIdSchema.nullable().default(null) }),
   z.object({ kind: z.literal("journal"), ...ProposalNote,
     entry: JournalEntryAddedV1, visibility: z.enum(["public", "dm"]).default("public") }),
+  z.object({ kind: z.literal("floor"), ...ProposalNote,           // TASK-0050 amendment, FT-1
+    op: z.enum(["end", "take", "return"]),
+    turn: z.object({ round: z.number().int().min(1), combatantId: CombatantIdSchema }),
+    reason: ReasonSchema }),
 ]);
 export type Proposal = z.infer<typeof ProposalSchema>;
 
@@ -140,7 +164,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-export const GATE_REQUEST_KINDS: readonly string[];   // the 18 `kind` literals above
+export const GATE_REQUEST_KINDS: readonly string[];   // the 19 `kind` literals above
 export const GATE_REQUEST_VERSION = 1;                 // the send frame's payloadVersion
 ```
 
@@ -184,6 +208,8 @@ refuses with `NOT_AUTHORIZED` (source `gate`), before planning.
 | `action.commit` | yes (authority `dm`) | yes (policy; authority `dm`) | per commit authority | per commit authority |
 | `action.withdraw` | yes | no | for an action it declared | for an action it declared |
 | `action.resolve`, `mechanics`, `narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal` | yes, applied directly | yes (policy) | no | no |
+| `floor` `end` | yes (Pass); `ai:dm` only for an absent active human, else `NOT_AUTHORIZED` | yes (policy) | the active actor; another party member gets `FLOOR_NOT_HELD` at plan time | same as companion |
+| `floor` `take`, `return` | yes | no (`NOT_AUTHORIZED`) | no (`NOT_DM` for a party member) | no (`NOT_DM` for a party member; `NOT_AUTHORIZED` otherwise) |
 | `proposal.approve`, `proposal.reject` | yes | no | no | no |
 | `gate.policy` | yes | no | no | operator only |
 | `dm.seat` | operator only | no | no | operator only |

@@ -26,3 +26,14 @@ export function characterLabel(
   if (characterId === null) return null;
   return party.find((m) => m.characterId === characterId)?.name ?? characterId;
 }
+
+const REFUSAL_LABEL: Record<string, string> = {
+  FLOOR_NOT_HELD: "Only the active player or the DM can end this turn.",
+  TURN_MOVED: "The turn moved on. Try again.",
+  NOT_TURN_MODE: "The table is not in turn mode.",
+};
+
+/** Plain wording for a floor refusal code; null for any other code (the server message stands). */
+export function refusalLabel(code: string | undefined): string | null {
+  return (code && REFUSAL_LABEL[code]) || null;
+}

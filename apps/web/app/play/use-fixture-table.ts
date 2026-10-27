@@ -11,11 +11,12 @@ import {
   commitFrame,
   declareFrame,
   type EventFrame,
+  floorFrame,
   localEventOf,
   talkFrame,
   withdrawFrame,
 } from "./frames.ts";
-import { appendLocal } from "./local-log.ts";
+import { appendLocal, localFloorEvents } from "./local-log.ts";
 import {
   type PendingProposalView,
   selectPendingProposals,
@@ -124,6 +125,21 @@ export function useFixtureTable(
       });
       return true;
     }
+    function appendFloor(
+      input: Parameters<TableCommands["floor"]>[0],
+    ): boolean {
+      // Same validation as the live path; the rows come from the DM's full projection.
+      if (!floorFrame(input)) return false;
+      const rows = localFloorEvents(project(events, fixture.viewers.dm), input);
+      if (!rows) return false;
+      setState((prev) => {
+        const cur = prev.key === key ? prev : { key, local: [], decided: [] };
+        let all = [...base, ...cur.local];
+        for (const row of rows) all = appendLocal(all, row, actor);
+        return { ...cur, local: all.slice(base.length) };
+      });
+      return true;
+    }
     function decide(proposalId: string): boolean {
       setState((prev) => {
         const cur = prev.key === key ? prev : { key, local: [], decided: [] };
@@ -137,10 +153,11 @@ export function useFixtureTable(
       comment: (input) => append(commentFrame(input)),
       commit: (input) => append(commitFrame(input), input.authority),
       withdraw: (input) => append(withdrawFrame(input)),
+      floor: appendFloor,
       approve: (id) => decide(id),
       reject: (id) => decide(id),
     };
-  }, [key, base, actor]);
+  }, [key, base, actor, events, fixture]);
 
   return {
     kind: "fixture",

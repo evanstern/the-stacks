@@ -45,6 +45,12 @@ export type SelectPendingProposals = (
 
 type Detail = { label: string; value: string };
 
+const FLOOR_OP_LABEL = {
+  end: "End the turn",
+  take: "Take the floor",
+  return: "Return the floor",
+} as const;
+
 const VISIBILITY_LABEL: Record<string, string> = {
   public: "Public",
   dm: "DM only",
@@ -197,6 +203,12 @@ function detailsOf(
         { label: "Title", value: proposal.entry.title },
         { label: "Entry", value: proposal.entry.body },
         { label: "Visibility", value: visibilityLabel(proposal.visibility) },
+      ];
+    case "floor":
+      return [
+        { label: "Request", value: FLOOR_OP_LABEL[proposal.op] },
+        { label: "Reason", value: proposal.reason },
+        { label: "Visibility", value: "Everyone" },
       ];
   }
 }
