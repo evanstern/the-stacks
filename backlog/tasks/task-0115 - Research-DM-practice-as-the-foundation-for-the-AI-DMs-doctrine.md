@@ -4,7 +4,7 @@ title: 'Research: DM practice as the foundation for the AI DM''s doctrine'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 01:44'
-updated_date: '2026-10-27 02:15'
+updated_date: '2026-10-27 02:24'
 labels:
   - research
   - dm
@@ -25,7 +25,7 @@ Outcome: the AI DM's doctrine (apps/server/src/dm/doctrine/, specs 031/033/034) 
 <!-- AC:BEGIN -->
 - [x] #1 docs/research/ holds a vault with a DM craft map branch that passes the research branch gate
 - [x] #2 The map branch has an analysis note ranking deep-dive branches by refactor risk, reviewed by the operator
-- [ ] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
+- [x] #3 A dice-versus-player branch passes the branch gate and has an analysis note with a recommendation
 - [ ] #4 A decision record is created with the backlog CLI after operator go
 - [ ] #5 Doctrine follow-up cards exist, and TASK-0113, TASK-0104 and TASK-0055 carry the applicable findings
 - [ ] #6 No DMG or other non-SRD book text is committed beyond one short attributed quote per note
@@ -64,6 +64,10 @@ Cards created on main (414aa07): TASK-0119 branch 2 NPCs/social/information (dep
 Branch 1 gather (B1 books+SRD 5.2.1 PDF sha256 8974902d…, B2 29 web articles), 2026-10-26:
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Branch 1 landed (142af0d): docs/research/Resolution-and-Outcome, gates green.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(assembler). Orchestrator review trimmed five book paraphrases that tracked DMG/VRGtR examples or tables too closely, and corrected the analysis: SRD 5.2.1 has no contest rule (opposition is a check against a derived DC). Analysis-Dice-Versus-Player recommends seven points; awaiting operator go and three open questions before the decision record and cards.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
