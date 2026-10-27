@@ -6,6 +6,7 @@ import {
   fixtureIds,
   fixtures,
   freeModeAction,
+  groupSignoff,
   proposalExamples,
   recipes,
   type SessionFixture,
@@ -49,7 +50,7 @@ function foldUpTo(f: SessionFixture, seqExclusive: number): SessionProjections {
 const cleanDiagnostics: Diagnostics = emptyProjections(dm).diagnostics;
 
 describe("fixture identity (guarantee 2)", () => {
-  it("has the seven contract fixtures with unique names and session ids", () => {
+  it("has the eight contract fixtures with unique names and session ids", () => {
     expect(fixtures.map((f) => f.name)).toEqual([
       "talk-only",
       "free-mode-action",
@@ -58,9 +59,10 @@ describe("fixture identity (guarantee 2)", () => {
       "unknown-and-invalid",
       "dm-approvals",
       "commit-authority",
+      "group-signoff",
     ]);
-    expect(new Set(fixtures.map((f) => f.name)).size).toBe(7);
-    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(7);
+    expect(new Set(fixtures.map((f) => f.name)).size).toBe(8);
+    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(8);
     for (const f of fixtures) {
       expect(f.name).toMatch(/^[a-z]+(-[a-z]+)*$/);
       expect(f.description.length).toBeGreaterThan(40);
@@ -554,6 +556,60 @@ describe("commit-authority facts (contracts/fixtures.md)", () => {
     expect(
       end.actions.find((a) => a.actionId === "act-p1")?.comments,
     ).toHaveLength(1);
+  });
+});
+
+describe("group-signoff facts (specs/029 contracts/fixtures.md, TASK-0049)", () => {
+  const f = groupSignoff;
+  const { playerUserId, otherPlayerUserId } = fixtureIds;
+
+  it("the stream is clean for every viewer", () => {
+    for (const viewer of viewersOf(f)) {
+      expect(project(f.events, viewer).diagnostics).toEqual(cleanDiagnostics);
+    }
+  });
+
+  it("P1 is committed group, P2 is committed dm", () => {
+    const end = project(f.events, dm);
+    expect(
+      end.actions.map((a) => [a.actionId, a.committed?.authority]),
+    ).toEqual([
+      ["act-p1", "group"],
+      ["act-p2", "dm"],
+    ]);
+    expect(end.actions[0]?.comments.map((c) => c.stance)).toEqual([
+      "object",
+      "approve",
+    ]);
+  });
+
+  it("the marker names both players and the P1 action", () => {
+    const markers = f.events.filter((e) => e.type === "presence.recorded");
+    expect(markers).toHaveLength(1);
+    expect(markers[0]?.payload).toEqual({
+      present: [playerUserId, otherPlayerUserId],
+      purpose: "signoff",
+      actionId: "act-p1",
+    });
+    expect(markers[0]?.actor).toBe("system");
+  });
+
+  it("Cleo's objection blocks Ana's commit of P2 until the DM commits", () => {
+    const p2 = (
+      f.events.find(
+        (e) => e.type === "action.committed" && e.seq > 8,
+      ) as StoredEvent
+    ).seq;
+    const before = foldUpTo(f, p2);
+    const present = [playerUserId, otherPlayerUserId];
+    expect(
+      commitAuthority(before, { actor: playerUserId }, "act-p2", present),
+    ).toEqual({
+      ok: false,
+      code: "GROUP_SIGNOFF_REQUIRED",
+      waiting: [],
+      objecting: [otherPlayerUserId],
+    });
   });
 });
 

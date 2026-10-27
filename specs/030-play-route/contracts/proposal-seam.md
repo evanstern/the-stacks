@@ -83,3 +83,5 @@ phase obligations:
 
 `PendingProposalView`, `ProposalCommands`, `CommitAuthority`, and every component's props. A needed
 change to any of them is a spec amendment recorded in `spec.md`, not an implementer decision.
+
+**Amendment (TASK-0049, operator ruling 2026-10-27, Q4):** the sign-off props on the action card (`ActionCardView.signoff` and the `present` argument of `commitAuthorityFor`) are additive; `CommitAuthority` is unchanged.

@@ -7,6 +7,7 @@ import { type CommitAuthority, commitAuthorityFor } from "./authority.ts";
 import { actorLabel, characterLabel } from "./labels.ts";
 import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
+import { type SignoffRowView, signoffRows } from "./signoff.ts";
 
 export type ModeView =
   | { mode: "free" }
@@ -35,6 +36,8 @@ export interface ActionCardView {
   /** The viewer may withdraw this open action: its declarer, or the seated DM. */
   canWithdraw: boolean;
   commit: ViewCommitAuthority;
+  /** Per-player sign-off rows; null for character scope, closed actions and one-human parties. */
+  signoff: SignoffRowView[] | null;
   committed: { actorLabel: string; authority: ActionAuthority } | null;
   resolved: {
     outcome: "applied" | "refused" | "no-effect";
@@ -80,6 +83,8 @@ export interface ViewModelInput {
   /** The actor id this viewer writes as. */
   actor: string;
   proposals: readonly PendingProposalView[];
+  /** User ids at the table; null or omitted when presence is unknown. */
+  present?: readonly string[] | null;
 }
 
 function toViewAuthority(
@@ -106,6 +111,7 @@ export function toTableViewModel(
   const { viewer, party, tableMode } = p;
   const isDm = viewer.role === "dm";
   const label = (actorId: string) => actorLabel(actorId, party, input.actor);
+  const present = input.present ?? null;
 
   let mode: ModeView = { mode: "free" };
   if (tableMode.mode === "turn") {
@@ -166,9 +172,12 @@ export function toTableViewModel(
           canWithdraw:
             isOpen(action.status) && (isDm || action.actor === input.actor),
           commit: toViewAuthority(
-            commitAuthorityFor(action, tableMode, viewer, party),
+            commitAuthorityFor(action, tableMode, viewer, party, present),
             label,
           ),
+          signoff: isOpen(action.status)
+            ? signoffRows(action, party, present, viewer, label)
+            : null,
           committed: action.committed
             ? {
                 actorLabel: label(action.committed.actor),

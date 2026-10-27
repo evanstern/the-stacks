@@ -6,6 +6,7 @@ import { commitAuthority } from "./authority.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
 import { CHARACTER_UNABLE_REASONS, type GateRefusal } from "./refusals.js";
 import { controls, isDm, isPartyMember } from "./roles.js";
+import { signoffState } from "./signoff.js";
 
 export interface PlannedRow {
   actor: string;
@@ -18,6 +19,14 @@ export interface PlannedRow {
 
 export interface PlanIds {
   batchId: string;
+}
+
+/**
+ * Facts the planner cannot read from the projection (specs/044-group-signoff/contracts/signoff.md).
+ * `present` is the present set (user ids) the group sign-off quorum counts.
+ */
+export interface PlanContext {
+  present?: readonly string[];
 }
 
 export type PlanResult =
@@ -99,6 +108,32 @@ function findAction(p: SessionProjections, actionId: string) {
   return p.actions.find((a) => a.actionId === actionId);
 }
 
+function partyHumans(p: SessionProjections): Set<string> {
+  return new Set(
+    p.party.flatMap((m) =>
+      m.controller.kind === "player" ? [m.controller.userId] : [],
+    ),
+  );
+}
+
+/** The `signoff` presence marker row: the quorum a group commit was decided against. */
+function signoffMarker(
+  actionId: string,
+  present: readonly string[],
+  committer: string,
+): PlannedRow {
+  return {
+    actor: "system",
+    type: "presence.recorded",
+    visibility: "public",
+    payload: {
+      present: [...new Set([...present, committer])].sort(),
+      purpose: "signoff",
+      actionId,
+    },
+  };
+}
+
 function plan(
   p: SessionProjections,
   proposer: Proposer,
@@ -106,6 +141,7 @@ function plan(
   rng: Rng,
   ids: PlanIds,
   proposalId: string | null,
+  context: PlanContext | undefined,
 ): PlanResult {
   const actor = actorOf(proposer);
   switch (proposal.kind) {
@@ -165,17 +201,98 @@ function plan(
       if (action.status !== "declared" && action.status !== "discussed") {
         return refuse("ACTION_NOT_OPEN", "the action is not open");
       }
-      return one(actor, "action.commented", proposal.comment);
+      const commented: PlannedRow = {
+        actor,
+        type: "action.commented",
+        payload: proposal.comment,
+        visibility: "public",
+      };
+      const present = context?.present;
+      if (
+        present !== undefined &&
+        proposal.comment.stance === "approve" &&
+        action.scope === "party"
+      ) {
+        const humans = partyHumans(p);
+        if (humans.size > 1 && humans.has(actor)) {
+          const folded: SessionProjections = {
+            ...p,
+            actions: p.actions.map((a) =>
+              a === action
+                ? {
+                    ...a,
+                    status: "discussed",
+                    comments: [
+                      ...a.comments,
+                      {
+                        seq: p.throughSeq + 1,
+                        actor,
+                        stance: proposal.comment.stance,
+                        text: proposal.comment.text,
+                      },
+                    ],
+                  }
+                : a,
+            ),
+          };
+          if (signoffState(folded, action.actionId, present, actor)?.met) {
+            return {
+              ok: true,
+              rows: [
+                commented,
+                signoffMarker(action.actionId, present, actor),
+                {
+                  actor,
+                  type: "action.committed",
+                  payload: { actionId: action.actionId, authority: "group" },
+                  visibility: "public",
+                },
+              ],
+              batchId: null,
+            };
+          }
+        }
+      }
+      return { ok: true, rows: [commented], batchId: null };
     }
     case "action.commit": {
-      const decision = commitAuthority(p, proposer, proposal.actionId);
+      const decision = commitAuthority(
+        p,
+        proposer,
+        proposal.actionId,
+        context?.present,
+      );
       if (!decision.ok) {
-        return refuse(decision.code, `commit refused: ${decision.code}`);
+        return refuse(
+          decision.code,
+          `commit refused: ${decision.code}`,
+          decision.code === "GROUP_SIGNOFF_REQUIRED"
+            ? { waiting: decision.waiting, objecting: decision.objecting }
+            : undefined,
+        );
       }
-      return one(actor, "action.committed", {
-        actionId: proposal.actionId,
-        authority: decision.authority,
-      });
+      const committed: PlannedRow = {
+        actor,
+        type: "action.committed",
+        payload: { actionId: proposal.actionId, authority: decision.authority },
+        visibility: "public",
+      };
+      const action = findAction(p, proposal.actionId);
+      if (
+        decision.authority === "group" &&
+        action?.scope === "party" &&
+        partyHumans(p).size > 1
+      ) {
+        return {
+          ok: true,
+          rows: [
+            signoffMarker(proposal.actionId, context?.present ?? [], actor),
+            committed,
+          ],
+          batchId: null,
+        };
+      }
+      return { ok: true, rows: [committed], batchId: null };
     }
     case "action.withdraw": {
       const action = findAction(p, proposal.actionId);
@@ -325,6 +442,7 @@ export function planProposal(
   rng: Rng,
   ids: PlanIds,
   proposalId: string | null,
+  context?: PlanContext,
 ): PlanResult {
-  return validate(plan(p, proposer, proposal, rng, ids, proposalId));
+  return validate(plan(p, proposer, proposal, rng, ids, proposalId, context));
 }

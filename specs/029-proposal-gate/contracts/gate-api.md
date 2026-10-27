@@ -31,7 +31,11 @@ export type PlanResult =
 export function planProposal(
   p: SessionProjections, proposer: Proposer, proposal: Proposal,
   rng: Rng, ids: PlanIds, proposalId: string | null,
+  context?: PlanContext,
 ): PlanResult;
+
+/** Facts the planner cannot read from the projection (Amendment TASK-0049). */
+export interface PlanContext { present?: readonly string[] }
 
 /** Wraps one engine result in mechanics envelopes (moved here from the server seam). */
 export function mechanicsRows(input: {
@@ -46,8 +50,8 @@ Rows per kind:
 |---|---|---|
 | `talk` | one `talk` | IC character control (`NOT_AUTHORIZED`) |
 | `action.declare` | one `action.declared` | id unused (`ACTION_EXISTS`); character control / party membership (`NOT_AUTHORIZED`); character able (`CHARACTER_UNABLE`: not conscious, `details.reason: "life-state"`). Amended 2026-10-27 (TASK-0112, operator ruling) |
-| `action.comment` | one `action.commented` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
-| `action.commit` | one `action.committed` with the derived authority | `commitAuthority` (policy-and-authority.md) |
+| `action.comment` | one `action.commented`; when the sign-off quorum is met by this `approve`, `action.commented`, a `presence.recorded` marker (`signoff`) and `action.committed` (`group`) | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
+| `action.commit` | one `action.committed` with the derived authority; for `group` authority with more than one party human, a `presence.recorded` marker (`signoff`) first | `commitAuthority` with `context.present` (policy-and-authority.md) |
 | `action.withdraw` | one `action.withdrawn` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`); permission in proposals.md (TASK-0114 amendment, W-A ruling) |
 | `action.resolve` | one `action.resolved` | action is `committed` (`ACTION_NOT_COMMITTED`); every `batchId` names a batch in the DM ledger with this `actionId` (`UNKNOWN_BATCH`) |
 | `mechanics` | the engine's events as one batch (`mechanicsRows`) | engine refusal (source `engine`, the engine's code); `actionId`, when set, names an existing action (`UNKNOWN_ACTION`) |
@@ -61,6 +65,13 @@ Rows per kind:
 The row's `actor` is `actorOf(proposer)` for direct and auto applications, and the original
 proposer for an approved proposal (the approval row carries the DM). Each planned payload is
 validated against its catalog schema inside the planner; a failure is `INVALID_PROPOSAL`.
+
+> **Amendment (TASK-0049).** The operator ruled on 2026-10-27 ("I accept the defaults on the
+> TASK-0099 and TASK-0049 cards, including the frozen-contract amendments to spec 029 and
+> spec 006"). `planProposal` takes a trailing optional `PlanContext`. The signature, the
+> `action.comment` and `action.commit` rows and the `GROUP_SIGNOFF_REQUIRED` details are
+> defined in `specs/044-group-signoff/contracts/signoff.md`. Without `context.present`, a
+> comment never commits.
 
 ## 2. Refusals
 
@@ -85,6 +96,9 @@ export interface GateRefusal {
   details?: Record<string, unknown>;
 }
 ```
+
+> **Amendment (TASK-0049).** A `GROUP_SIGNOFF_REQUIRED` refusal carries
+> `details: { waiting: string[]; objecting: string[] }` (user ids, sorted).
 
 | Source | Codes | When |
 |---|---|---|
@@ -135,7 +149,7 @@ export function createGate(deps: GateDeps): Gate;
 1. Parse the input. Fold the DM projection: `loadProjections(db, sessionId, { role: "dm" })`.
    Let `lastSeq = p.throughSeq`.
 2. **Proposal:** check the permission matrix (`NOT_AUTHORIZED`), then `routeProposal`.
-   - `direct` or `policy: auto` → `planProposal(…, proposalId = null)`. Refusal → return it.
+   - `direct` or `policy: auto` → `planProposal(…, proposalId = null, context)`. Refusal → return it.
      Else append the rows.
    - `policy: ask | suggest` → `planProposal` with a throwaway `seededRng(0)` as the legality
      check (refuse-before-draw makes the verdict independent of dice). Refusal → return it.
@@ -158,6 +172,10 @@ export function createGate(deps: GateDeps): Gate;
 
 The gate holds no proposal state in memory. Everything it decides is read from the log in
 step 1, so a restart loses nothing (AC #9).
+
+> **Amendment (TASK-0049).** Every `planProposal` call in this section passes `context =
+> { present: presence.presentUsers(sessionId).map((e) => e.userId) }`, read from the live
+> presence reader. Step 2's legality check and step 3's approval plan receive it too.
 
 ### AC #7 equivalence
 
