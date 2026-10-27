@@ -10,6 +10,7 @@ import {
   TableHeader,
 } from "./components/table-header.tsx";
 import { Transcript } from "./components/transcript.tsx";
+import { TurnOrder } from "./components/turn-order.tsx";
 import { presenceRows } from "./presence.ts";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
@@ -60,7 +61,9 @@ export function TableView({
         debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
+        onFloor={source.commands.floor}
       />
+      {model.mode.mode === "turn" && <TurnOrder order={model.mode.order} />}
       {model.hiddenCount > 0 && (
         <p className="border-b border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
           {model.hiddenCount} entries not shown

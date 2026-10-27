@@ -29,6 +29,13 @@ export function Transcript({
               )}{" "}
               {item.text}
             </p>
+          ) : item.kind === "floor" ? (
+            <p
+              data-kind="floor"
+              className="text-center text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              {item.text}
+            </p>
           ) : item.kind === "narration" ? (
             <p className="italic text-muted-foreground">{item.text}</p>
           ) : (

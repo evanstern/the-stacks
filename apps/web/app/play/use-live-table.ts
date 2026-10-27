@@ -8,6 +8,7 @@ import {
   commitFrame,
   declareFrame,
   type EventFrame,
+  floorFrame,
   rejectFrame,
   talkFrame,
   withdrawFrame,
@@ -47,6 +48,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       comment: (input) => send(commentFrame(input)),
       commit: (input) => send(commitFrame(input)),
       withdraw: (input) => send(withdrawFrame(input)),
+      floor: (input) => send(floorFrame(input)),
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).
       approve: (proposalId) => send(approveFrame(proposalId)),

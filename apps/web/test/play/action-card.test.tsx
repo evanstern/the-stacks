@@ -15,6 +15,8 @@ const card = (over: Partial<ActionCardView> = {}): ActionCardView => ({
   comments: [{ seq: 5, actorLabel: "Bram", stance: "approve", text: "Go on." }],
   open: true,
   canWithdraw: false,
+  commitsOnOwnTurn: false,
+  suggest: false,
   commit: { canCommit: true, authority: "declarer" },
   signoff: null,
   committed: null,
@@ -138,4 +140,31 @@ test("a party card with sign-off rows shows state and own-row Approve and Object
 
 test("a card without sign-off rows has no sign-off section", () => {
   expect(render(card())).not.toContain('aria-label="Sign-off"');
+});
+
+test("a non-active player's own open action says it commits on their turn", () => {
+  const html = render(
+    card({
+      commit: { canCommit: false, holderLabel: "Ana" },
+      commitsOnOwnTurn: true,
+    }),
+  );
+  expect(html).toContain("Commits on your turn");
+  expect(html).not.toContain("Waiting for Ana to commit");
+});
+
+test("without the flag the card still says who it waits for", () => {
+  const html = render(
+    card({ commit: { canCommit: false, holderLabel: "Ana" } }),
+  );
+  expect(html).toContain("Waiting for Ana to commit");
+  expect(html).not.toContain("Commits on your turn");
+});
+
+test("a suggestion card labels the comment input and keeps the stances", () => {
+  const html = render(card({ suggest: true }));
+  expect(html).toContain('aria-label="Suggest an alternative"');
+  expect(html).toContain('placeholder="Suggest an alternative"');
+  expect(html).not.toContain('aria-label="Comment on this action"');
+  for (const s of ["Comment", "Approve", "Object"]) expect(html).toContain(s);
 });

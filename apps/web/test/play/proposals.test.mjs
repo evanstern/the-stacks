@@ -90,3 +90,33 @@ test("each pending proposal carries its recorded policy", () => {
     ["suggest", "ask", "ask"],
   );
 });
+
+test("a floor proposal renders its request, reason and visibility", () => {
+  const last = dmApprovals.events[dmApprovals.events.length - 1];
+  const row = {
+    ...last,
+    seq: last.seq + 1,
+    actor: "ai:dm",
+    type: "proposal.created",
+    visibility: "dm",
+    payloadVersion: 1,
+    payload: {
+      proposalId: "prop-floor",
+      policy: "ask",
+      proposal: proposalExamples.floor,
+    },
+  };
+  const view = selectPendingProposals([...dmApprovals.events, row], dm).find(
+    (p) => p.proposalId === "prop-floor",
+  );
+  assert.ok(view);
+  assert.equal(view.kind, "floor");
+  assert.deepEqual(
+    view.details.filter((d) => d.label !== "Rationale"),
+    [
+      { label: "Request", value: "End the turn" },
+      { label: "Reason", value: proposalExamples.floor.reason },
+      { label: "Visibility", value: "Everyone" },
+    ],
+  );
+});

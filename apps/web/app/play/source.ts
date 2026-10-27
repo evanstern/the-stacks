@@ -47,10 +47,20 @@ export interface WithdrawInput {
   actionId: string;
 }
 
+export type FloorOp = "end" | "take" | "return";
+
+/** One floor request: the op, the turn the viewer saw, and an optional reason. */
+export interface FloorInput {
+  op: FloorOp;
+  turn: { round: number; combatantId: string } | null;
+  reason?: string;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
   comment(input: CommentInput): boolean;
   commit(input: CommitInput): boolean;
   withdraw(input: WithdrawInput): boolean;
+  floor(input: FloorInput): boolean;
 }

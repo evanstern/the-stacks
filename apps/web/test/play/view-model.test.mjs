@@ -7,6 +7,7 @@ import {
   groupSignoff,
   secretTracker,
   talkOnly,
+  turnFloor,
   turnModeCombat,
   unknownAndInvalid,
 } from "@the-stacks/session-model/fixtures";
@@ -48,13 +49,15 @@ test("turnModeCombat mode follows each table-mode change", () => {
   const through = (seq) => turnModeCombat.events.filter((e) => e.seq <= seq);
   const before = vm(through(modeIds[0] - 1), ana).mode;
   assert.deepEqual(before, { mode: "free" });
-  const m1 = vm(through(modeIds[0]), ana).mode;
+  const { order, ...m1 } = vm(through(modeIds[0]), ana).mode;
   assert.deepEqual(m1, {
     mode: "turn",
     activeActor: fixtureIds.playerUserId,
     activeLabel: "Ana",
     isViewersTurn: true,
+    held: false,
   });
+  assert.ok(order.length > 0);
   const m2 = vm(through(modeIds[1]), ana).mode;
   assert.equal(m2.activeLabel, "Bram");
   assert.equal(m2.isViewersTurn, false);
@@ -224,4 +227,174 @@ test("sign-off rows ride open party cards only", () => {
   );
   const closed = card(groupSignoff.events, cleo, null);
   assert.equal(closed.signoff, null);
+});
+
+// ---- spec 049: floor passing ----
+
+const ANA = fixtureIds.playerUserId;
+const BRAM = fixtureIds.otherPlayerUserId;
+const tf = (through, viewer) =>
+  vm(
+    turnFloor.events.filter((e) => e.seq <= through),
+    viewer,
+  );
+const [tfAna, tfBram] = turnFloor.viewers.players;
+
+test("turn-floor order strip: active, next and you per viewer", () => {
+  const ana = tf(13, tfAna).mode;
+  assert.equal(ana.held, false);
+  assert.deepEqual(
+    ana.order.map((o) => [o.combatantId, o.label]),
+    [
+      ["ana", "Ana"],
+      ["bram", "Bram"],
+      ["pip", "Pip"],
+      ["goblin", "Goblin"],
+    ],
+  );
+  assert.deepEqual(
+    ana.order.map((o) => [o.isActive, o.isNext, o.isViewer]),
+    [
+      [true, false, true],
+      [false, true, false],
+      [false, false, false],
+      [false, false, false],
+    ],
+  );
+  const bram = tf(13, tfBram).mode;
+  assert.deepEqual(
+    bram.order.map((o) => o.isViewer),
+    [false, true, false, false],
+  );
+  const dm = tf(13, turnFloor.viewers.dm).mode;
+  assert.ok(dm.order.every((o) => o.isViewer === false));
+});
+
+test("the last combatant's next entry wraps to the first", () => {
+  const order = tf(21, tfAna).mode.order;
+  const active = order.findIndex((o) => o.isActive);
+  assert.equal(order[active].combatantId, "goblin");
+  assert.equal(order[0].isNext, true);
+});
+
+test("held is true only while the seated DM holds the floor", () => {
+  assert.equal(tf(24, turnFloor.viewers.dm).mode.held, false);
+  assert.equal(tf(25, turnFloor.viewers.dm).mode.held, true);
+  assert.equal(tf(25, tfAna).mode.held, true);
+  assert.equal(tf(26, turnFloor.viewers.dm).mode.held, false);
+});
+
+test("floor controls per viewer", () => {
+  const turn = (combatantId, round = 1) => ({ round, combatantId });
+  // Ana's turn, AI seat: Ana ends; Bram and the AI-seat DM have nothing.
+  assert.deepEqual(tf(13, tfAna).floor, {
+    endTurn: true,
+    pass: false,
+    take: false,
+    return: false,
+    turn: turn("ana"),
+  });
+  assert.deepEqual(tf(13, tfBram).floor, {
+    endTurn: false,
+    pass: false,
+    take: false,
+    return: false,
+    turn: turn("ana"),
+  });
+  assert.equal(tf(13, turnFloor.viewers.dm).floor.pass, false);
+  // Round 2, human DM seated, floor not held: Pass and Take floor.
+  assert.deepEqual(tf(24, turnFloor.viewers.dm).floor, {
+    endTurn: false,
+    pass: true,
+    take: true,
+    return: false,
+    turn: turn("ana", 2),
+  });
+  // Floor held: Pass and Return floor; Ana's End turn is gone.
+  assert.deepEqual(tf(25, turnFloor.viewers.dm).floor, {
+    endTurn: false,
+    pass: true,
+    take: false,
+    return: true,
+    turn: turn("ana", 2),
+  });
+  assert.equal(tf(25, tfAna).floor.endTurn, false);
+});
+
+test("no floor controls in free mode or without an encounter", () => {
+  const free = vm(talkOnly.events, talkOnly.viewers.players[0]).floor;
+  assert.deepEqual(free, {
+    endTurn: false,
+    pass: false,
+    take: false,
+    return: false,
+    turn: null,
+  });
+});
+
+test("floor transcript lines: Your turn, a name, the DM floor; none for free mode", () => {
+  const lines = (through, viewer) =>
+    tf(through, viewer)
+      .transcript.filter((i) => i.kind === "floor")
+      .map((i) => i.text);
+  assert.deepEqual(lines(15, tfAna), ["Your turn", "Bram's turn"]);
+  assert.deepEqual(lines(15, tfBram), ["Ana's turn", "Your turn"]);
+  assert.equal(lines(25, tfAna).at(-1), "The DM has the floor");
+  assert.equal(lines(26, tfAna).at(-1), "Your turn");
+  const seqs = tf(26, tfAna).transcript.map((i) => i.seq);
+  assert.deepEqual(
+    seqs,
+    [...seqs].sort((a, b) => a - b),
+  );
+  const free = vm(talkOnly.events, talkOnly.viewers.players[0]).transcript;
+  assert.ok(free.every((i) => i.kind !== "floor"));
+  const combat = vm(
+    turnModeCombat.events,
+    turnModeCombat.viewers.players[0],
+  ).transcript.filter((i) => i.kind === "floor");
+  assert.equal(combat.length, 2, "the free-mode change adds no line");
+});
+
+test("card flags: commitsOnOwnTurn and suggest", () => {
+  const events = turnFloor.events.filter((e) => e.seq <= 13);
+  const declare = (actor, actionId, characterId, text) => ({
+    sessionId: events[0].sessionId,
+    seq: events.length + 1 + (actionId === "act-b" ? 1 : 0),
+    actor,
+    type: "action.declared",
+    payload: { actionId, characterId, scope: "character", text },
+    payloadVersion: 1,
+    visibility: "public",
+    ts: "2026-10-27T12:00:00.000Z",
+  });
+  const log = [
+    ...events,
+    declare(BRAM, "act-b", "bram", "Bram readies his bow."),
+  ];
+  const cardFor = (viewer) =>
+    vm(log, viewer).transcript.find((i) => i.kind === "action").card;
+  // Bram's own open action while Ana is active: waits for his turn.
+  const own = cardFor(tfBram);
+  assert.equal(own.commitsOnOwnTurn, true);
+  assert.equal(own.suggest, false);
+  // Ana is active; Bram's card is not hers to suggest on, and not hers to wait on.
+  const active = cardFor(tfAna);
+  assert.equal(active.commitsOnOwnTurn, false);
+  assert.equal(active.suggest, false);
+  // The DM sees neither.
+  const dm = cardFor(turnFloor.viewers.dm);
+  assert.equal(dm.commitsOnOwnTurn, false);
+  assert.equal(dm.suggest, false);
+  // Ana declares on her own turn: Bram may suggest an alternative.
+  const anaLog = [...events, declare(ANA, "act-a", "ana", "Ana charges.")];
+  const forBram = vm(anaLog, tfBram).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(forBram.suggest, true);
+  assert.equal(forBram.commitsOnOwnTurn, false);
+  const forAna = vm(anaLog, tfAna).transcript.find(
+    (i) => i.kind === "action",
+  ).card;
+  assert.equal(forAna.suggest, false);
+  assert.equal(forAna.commitsOnOwnTurn, false);
 });

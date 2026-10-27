@@ -12,6 +12,7 @@ import { viewerFor } from "~/play/viewer";
 
 const yes = () => true;
 const commands = {
+  floor: yes,
   sendTalk: yes,
   declareAction: yes,
   comment: yes,
@@ -146,4 +147,94 @@ test("the DM's dm-approvals panel content has two Approve, one Dismiss and the n
   expect(src).toContain(
     "Approve or reject each proposal. Dismiss a suggestion once you have acted on it.",
   );
+});
+
+// ---- spec 049: floor controls ----
+
+function floorSource(
+  through: number,
+  viewerOf: (
+    f: (typeof fixtures)[number],
+  ) => (typeof fixtures)[number]["viewers"]["dm"],
+  floor: (input: unknown) => boolean = yes,
+): TableSource {
+  const f = fixtures.find((x) => x.name === "turn-floor");
+  if (!f) throw new Error("turn-floor fixture missing");
+  const events = f.events.filter((e) => e.seq <= through);
+  const viewer = viewerOf(f);
+  return {
+    ...sourceFor({ ...f, events }, viewer),
+    commands: { ...commands, floor },
+  };
+}
+
+test("the active player sees End turn; others and an AI-seat DM see no floor controls", () => {
+  const ana = renderToStaticMarkup(
+    <TableView source={floorSource(13, (f) => f.viewers.players[0])} />,
+  );
+  expect(ana).toContain(">End turn<");
+  expect(ana).not.toContain(">Pass<");
+  expect(ana).not.toContain(">Take floor<");
+  const bram = renderToStaticMarkup(
+    <TableView source={floorSource(13, (f) => f.viewers.players[1])} />,
+  );
+  expect(bram).not.toContain(">End turn<");
+  const dm = renderToStaticMarkup(
+    <TableView source={floorSource(13, (f) => f.viewers.dm)} />,
+  );
+  expect(dm).not.toContain(">Pass<");
+  expect(dm).not.toContain(">Take floor<");
+});
+
+test("the seated DM sees Pass and Take floor, then Pass and Return floor", () => {
+  const free = renderToStaticMarkup(
+    <TableView source={floorSource(24, (f) => f.viewers.dm)} />,
+  );
+  expect(free).toContain(">Pass<");
+  expect(free).toContain(">Take floor<");
+  expect(free).not.toContain(">Return floor<");
+  expect(free).not.toContain(">End turn<");
+  const held = renderToStaticMarkup(
+    <TableView source={floorSource(25, (f) => f.viewers.dm)} />,
+  );
+  expect(held).toContain(">Pass<");
+  expect(held).toContain(">Return floor<");
+  expect(held).not.toContain(">Take floor<");
+  expect(held).toContain("The DM has the floor");
+});
+
+test("the strip and the floor line render with no modal markup", () => {
+  const html = renderToStaticMarkup(
+    <TableView source={floorSource(25, (f) => f.viewers.players[0])} />,
+  );
+  expect(html).toContain('aria-label="Turn order"');
+  expect(html).toContain("Goblin");
+  expect(html).toContain("The DM has the floor");
+  expect(html).not.toContain("<dialog");
+  expect(html).not.toContain("aria-modal");
+  expect(html).not.toContain("confirm(");
+});
+
+test("a free-mode table renders no strip and no floor controls", () => {
+  const f = fixtures.find((x) => x.name === "talk-only");
+  if (!f) throw new Error("fixture missing");
+  const html = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.players[0])} />,
+  );
+  expect(html).not.toContain('aria-label="Turn order"');
+  expect(html).not.toContain("End turn");
+});
+
+test("a floor refusal shows inline with its label", () => {
+  const f = fixtures.find((x) => x.name === "turn-floor");
+  if (!f) throw new Error("turn-floor fixture missing");
+  const html = renderToStaticMarkup(
+    <TableView
+      source={{
+        ...floorSource(13, (g) => g.viewers.players[0]),
+        notice: "The turn moved on. Try again. (TURN_MOVED)",
+      }}
+    />,
+  );
+  expect(html).toContain("The turn moved on");
 });
