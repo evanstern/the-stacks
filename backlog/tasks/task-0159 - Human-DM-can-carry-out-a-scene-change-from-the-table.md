@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 07:59'
+updated_date: '2026-10-28 08:06'
 labels:
   - play-route
   - gate
@@ -48,6 +48,8 @@ Carded per the ruling: DC-1 is TASK-0165 (m-3). DC-2 is TASK-0166 (revisit).
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Spec author resumed (573cafc): resolved OQ-1 to OQ-7 as D-1 to D-7, wrote plan.md, tasks.md (6 phases, 40 tasks), contracts/scene-change.md and quickstart.md. Risks raised: the live check may not show the next AI DM turn running while other scene-start proposals stay pending (T023 stops and raises an open question if so); the operator header keeps offering Start scene while the scene-start suggestion is pending.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
