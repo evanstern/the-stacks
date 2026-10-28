@@ -1,7 +1,7 @@
 ---
 id: TASK-0168
 title: 'With a human DM, approving a check roll re-proposes the same roll'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
 updated_date: '2026-10-28 15:24'
@@ -27,6 +27,13 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #1 With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal, and a DB test
 - [ ] #2 The resumed turn reuses the resolved check rather than interpreting the action again, or a spec records why it must re-interpret
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0168, branch task-0168-human-dm-roll-resume, cut from origin/main 934d8d78. Spec 057 authored at 1b61d85 (056 is TASK-0154's). Root cause: the approval turn is a new job with an empty checkpoint, so assemble reselects the committed action and interpret re-proposes the same check; resolve keys submissions per job. Chosen (AC #2): reuse the resolved check. Open questions OQ-1 to OQ-4 go to the operator.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
