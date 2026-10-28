@@ -27,11 +27,13 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #1 With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal, and a DB test
 - [ ] #2 The resumed turn reuses the resolved check rather than interpreting the action again, or a spec records why it must re-interpret
 - [x] #3 Spec phase: The resume classifier and the prior-turn read (card AC #2)
-- [ ] #4 Spec phase: The pipeline reuses the plan (card AC #1, card AC #2)
+- [x] #4 Spec phase: The pipeline reuses the plan (card AC #1, card AC #2)
 - [ ] #5 Spec phase: DB test, scripts and mutation guard (card AC #1)
 - [ ] #6 Spec phase: Live check in script mode (card AC #1)
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
