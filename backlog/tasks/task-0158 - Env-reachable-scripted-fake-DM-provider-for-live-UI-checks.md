@@ -30,8 +30,10 @@ Spec: specs/053-env-fake-dm-script
 - [x] #4 Spec phase: Boot wiring, the live script and a scripted scene-start (card AC #1)
 - [x] #5 Spec phase: Image, env docs and evidence helpers (card AC #2)
 - [x] #6 Spec phase: Live quickstart run on this worktree's stack (card AC #2)
-- [ ] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
+- [x] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
+
+
 
 
 
