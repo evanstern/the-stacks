@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 18:39'
+updated_date: '2026-10-28 18:42'
 labels:
   - dm-runtime
   - gate
@@ -46,6 +46,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (e8620cec): resume.ts (awaitingActionIds, needsPriorTurns, findResumedPlans, refreshSubmission), red on the missing module then 16/16; TurnCheckpoint.resumed, loadPriorTurnCheckpoints, NodeDeps.loadPriorTurns, worker wiring; 031 resolve.md and nodes.md Amended-by lines; OQ rulings in spec.md. No-DB server run: only the known TASK-0138 adjudicate failures.
 
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 0/7 · DB test, scripts and mutation guard (card AC #1): 0/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (99be423c): assemble drops awaiting actions and fills resumed; runner freezes resumed and skips adjudicate for resumed readings; interpret asks only about fresh items (no call when all resumed); adjudicate carries resumed rulings; resolve seeds refreshed submissions. 8 new unit cases red first, then 66/66 green. Orchestrator accepts the implementer's call that a frozen beat with null resumed reads as [] and does not search again (contract: a later attempt does not search again). resolve seeding is first exercised by the Phase 3 DB test.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
