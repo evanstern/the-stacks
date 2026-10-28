@@ -1,10 +1,10 @@
 ---
 id: TASK-0158
 title: Env-reachable scripted fake DM provider for live UI checks
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 05:01'
+updated_date: '2026-10-28 05:07'
 labels:
   - dm
   - debug-view
@@ -77,6 +77,12 @@ spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Bo
 
 REQUIRE_DATABASE=1 pnpm ci:check on the merged tree (bf32bf2) exits 0, server 1244 passed. AC #1: DM_FAKE_SCRIPT=<name> loads a shipped script into the running app (script-env tests, DB integration, live run). AC #2: specs/053-env-fake-dm-script/quickstart.md, run live on stacks-task-0158 (evidence/live-run.md).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 7/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
