@@ -1,4 +1,12 @@
-# Live run: a human DM carries out the scene-start suggestion (script mode) - STOPPED at step 8c
+# Live run: a human DM carries out the scene-start suggestion (script mode)
+
+The sections after "Clean pass" (last section) supersede the two earlier runs below for steps 4 to 8b, the
+shots and T032. Those runs are kept as the record of how the script gap and the reconcile
+contamination were found. The clean pass also stops at step 8c (see its last section).
+
+---
+
+# Earlier run 1 - STOPPED at step 8c
 
 Date: 2026-10-28. Branch `task-0159-human-dm-scene-change`. Stack `stacks-task-0159`, app
 `http://localhost:3159`, script `greyhollow-human-dm` (boot line `DM script mode:
@@ -112,3 +120,62 @@ the narrated flow once, with a restart only before the baseline (the baseline se
 no action, so it leaves nothing to reconcile). Then `shoot-live.mjs` runs unchanged, but it
 creates the accounts' sessions only; the accounts must be recreated (`setup-0159.mjs` style).
 The `check.roll` pause and a second reconcile pass are a product property, not a defect here.
+
+
+---
+
+# Clean pass (supersedes the earlier runs) - narrated turn still fails at step 8c
+
+Date: 2026-10-28. Fresh volumes (orchestrator `env:down`/`env:up`), both databases migrated, app
+booted once: `DM script mode: greyhollow-human-dm (10 calls, 1 dice)`, no `ai_usage` line and no
+users before my first command. No app restart during this pass. New accounts `op0159` (operator) and
+`pl0159` (player), created by an untracked scratchpad script. Passwords only in the untracked
+creds file. Run by `shoot-live.mjs` (Brave, Playwright). Session
+`67af18db-10fa-4483-828b-d5ff91c24cf6`.
+
+| Step | Result |
+| --- | --- |
+| 4 start | `dm.seat` then start (202). |
+| 5 scene-start turn | Job `9a70b7b3`, `succeeded`, `completed`, calls `dm.director`, `dm.narrate`, `dm.audit`; chronicle job `d0c999ea` succeeded. The harness line "header: No scene yet" printed FAIL: a timing race in the script's immediate visibility check (the exploration run read the header as "No scene yet"). The seeded-panel and applied shots below show the header state. |
+| 6 panel | Scene id `greyhollow-ford`, title, location, summary and reason seeded. Shots taken BEFORE Apply. |
+| 7 Apply | Summary edited, Apply clicked, header showed the scene title and location. |
+| 8 rows | `scene.changed` seq 15 and `proposal.rejected` seq 16, both by the operator (`ca6d0cf6-...`). |
+| 8 approval turn | Job `9fa8bd51-5a04-4912-9958-ec656ecce329` (triggerSeq 16): `empty-beat`, `checkpoint.beat` `[]` (set), calls none. All 11 approval turns of this pass are `empty-beat` with beat `[]` and no calls. |
+| 8b | 10 suggestions approved (combatants, party, trackers, presence). Narration left pending. |
+| 8c commit turn | Job `58bc8dfc-ea67-449f-bb7c-bcf5a8971396`, `completed`, `checkpoint.beat` `["act-search"]`, calls `dm.director`, `dm.interpret`. It paused on a `check.roll` proposal (seq 51, policy `ask`). |
+| 8c roll approved | seq 52 `dice.rolled`, seq 53 `check.resolved`, seq 54 `proposal.approved`. |
+| 8c resumed turn | Job `e014b0b1-8ec6-4886-9086-34440673d4ef`, trigger `approval`, **failed**, `stopped at interpret: gateway`. Calls in order: `dm.director` (ok), `dm.interpret` (error, kind `config`, `unscripted call`). Seq 56: "DM runtime failure notice" talk proposal. No narrate, no audit, no narration. |
+
+## Resumed-turn call order (settles open question 2)
+
+After the roll approval the resumed turn calls `dm.director` and then `dm.interpret` again. It
+does not skip interpret. The script holds one `dm.interpret` entry, used by the commit turn, so
+the second interpret is unscripted. The narrate and audit entries are untouched. The script needs
+the sequence director, interpret, director, interpret, narrate, audit across the two turns (one more
+`dm.interpret` entry after the second director), or the resumed turn must reuse the interpret
+result (a server change, not made). Per the coordinator's rule, this pass stops here: the script
+was not amended.
+
+## T032 (second scene change, same session)
+
+On the same session: "Change scene", "Use: Current scene", location set to
+"Greyhollow Ford, the ferry-house", reason set, Apply. Row: `scene.changed` seq 57 by the operator,
+`after.sceneId` `greyhollow-ford` (same id as seq 15), `before.location` "Greyhollow Ford",
+`after.location` "Greyhollow Ford, the ferry-house". The header showed the new location.
+
+## Step 10 (player view)
+
+The player's table has no "Change scene" button (PASS). Shot `player-no-control-1280-light.png`.
+
+## Shots (`evidence/shots/`, retaken on this session)
+
+`scene-panel-seeded-<1280|390>-<light|dark>.png`, `scene-applied-<1280|390>-<light|dark>.png`,
+`debug-approval-turn-1280-light.png`, `scene-panel-current-1280-light.png`,
+`player-no-control-1280-light.png`. No modal in any shot (the harness checks `dialog[open]` and
+`[aria-modal=true]`: 0 in every one).
+
+## Not done in this pass
+
+Step 9 (Dismiss-only baseline), step 11 and T033, and T029 (the narrated turn). They wait on the
+ruling for the second interpret entry and a stack reset: the failed resumed turn leaves this
+session's `act-search` unresolved, so the next boot's reconcile would use up the script again.
