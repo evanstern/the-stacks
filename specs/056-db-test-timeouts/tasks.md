@@ -63,9 +63,9 @@ TASK-0154 comment and a numeric third argument; `git diff --stat` lists only tes
 **Independent test**: `evidence/run-1.txt`, `run-2.txt` and `run-3.txt` each show every
 package's test files passing.
 
-- [ ] T012 (orchestrator-run) [US1] Run quickstart.md "Phase 3" on the Phase 2 commit. Write `specs/056-db-test-timeouts/evidence/run-1.txt` to `run-3.txt`. A failed run restarts the count: keep its filtered file as `evidence/run-failed-<k>.txt` and start again at run 1 (spec OQ-1 default (a)).
-- [ ] T013 (orchestrator-run) Report a failure in a test Phase 2 changed as a finding: its timeout is too small. Do not count that run. Re-size it in a new Phase 2 dispatch.
-- [ ] T014 (orchestrator-run) Read every evidence file for secrets. Leave them uncommitted for Phase 4.
+- [x] T012 (orchestrator-run) [US1] Run quickstart.md "Phase 3" on the Phase 2 commit. Write `specs/056-db-test-timeouts/evidence/run-1.txt` to `run-3.txt`. A failed run restarts the count: keep its filtered file as `evidence/run-failed-<k>.txt` and start again at run 1 (spec OQ-1 default (a)).
+- [x] T013 (orchestrator-run) Report a failure in a test Phase 2 changed as a finding: its timeout is too small. Do not count that run. Re-size it in a new Phase 2 dispatch.
+- [x] T014 (orchestrator-run) Read every evidence file for secrets. Leave them uncommitted for Phase 4.
 
 ---
 
