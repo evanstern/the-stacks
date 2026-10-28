@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:40'
+updated_date: '2026-10-28 05:50'
 labels:
   - multiplayer
   - dev-tooling
@@ -78,6 +78,9 @@ spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (92c22de): docs/ops/dev-vm-104.md 'Run a two-player table' (19 steps, labels quoted from the shipped code); spec 031 dm-api.md additive GET /dm/seeds and seat rule 3 with the 2026-10-28 ruling note. T031: docs-only since e4d1fe0, whose DB ci:check passed; the next phase ticks T031 on that basis.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 6 (8767b51): local live run on stacks-task-0163 in script mode, two Brave contexts. Invite on Settings, redeem from the sign-in card, both at one table, Start scene seats operator as Tamsin and Player Two as Kestrel; opening narration reached both. Refusals: player GET /dm/seeds 403; one user two seats 400 seats.kestrel; second start 409; used token refused. 20 shots, no modal. Docs corrected (seed label carries the id; issue message is issues[0]). Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on 8767b51: exit 0, server 1261, web 107 (T035). A leftover local test account player2 exists on this stack only. Observation: the table shows no chip for AI companions.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
