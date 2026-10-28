@@ -155,3 +155,4 @@ interfaces, so rows CR-001 to CR-005 of the template do not apply.
   and the count restarts; (b) yes, with the flake named in the evidence. **Default (a)**: the
   card's AC says "without re-runs" and draws no exception. If the flake blocks three clean
   runs, the orchestrator reports it rather than widening the AC.
+  Orchestrator ruling, 2026-10-28: default (a). A run with any failure, including the known WebSocket gateway flake, does not count; the count restarts.

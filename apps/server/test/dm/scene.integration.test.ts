@@ -75,6 +75,7 @@ describe("fixture scripts", () => {
 });
 
 describe.skipIf(!reachable)("the whole scene (database)", () => {
+  // TASK-0154: 30 s budget; worst measured 1 987 ms (alone 1 987 ms, full run 1 928 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("plays Greyhollow Ford to its end through exploration, social and fight", async () => {
     const s = script("greyhollow-ford-full.json");
     const w = await createWorld({ dice: s.dice, calls: s.calls });
@@ -201,5 +202,5 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
     for (const [purpose, n] of Object.entries(left.calls)) {
       if (purpose !== "dm.chronicle") expect(n, purpose).toBe(0);
     }
-  });
+  }, 30_000);
 });

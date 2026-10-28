@@ -31,9 +31,9 @@ to implementers. Run phases in order.
 **Independent test**: `evidence/alone.txt` and `evidence/baseline.txt` exist and show per-test
 durations for the 8 DB tests in the three named files.
 
-- [ ] T001 (orchestrator-run) Bring the stack up and migrate, per quickstart.md "Prerequisites".
-- [ ] T002 (orchestrator-run) [US1] Run the three files alone, per quickstart.md "Phase 1" step 1. Write `specs/056-db-test-timeouts/evidence/alone.txt`.
-- [ ] T003 (orchestrator-run) [US1] Run one full `REQUIRE_DATABASE=1 pnpm test`, per quickstart.md "Phase 1" steps 2 and 3. Write `specs/056-db-test-timeouts/evidence/baseline.txt`. Read both files for secrets. Leave them uncommitted for Phase 2.
+- [x] T001 (orchestrator-run) Bring the stack up and migrate, per quickstart.md "Prerequisites".
+- [x] T002 (orchestrator-run) [US1] Run the three files alone, per quickstart.md "Phase 1" step 1. Write `specs/056-db-test-timeouts/evidence/alone.txt`.
+- [x] T003 (orchestrator-run) [US1] Run one full `REQUIRE_DATABASE=1 pnpm test`, per quickstart.md "Phase 1" steps 2 and 3. Write `specs/056-db-test-timeouts/evidence/baseline.txt`. Read both files for secrets. Leave them uncommitted for Phase 2.
 
 ---
 
@@ -45,14 +45,14 @@ durations for the 8 DB tests in the three named files.
 TASK-0154 comment and a numeric third argument; `git diff --stat` lists only test files and
 `specs/056-db-test-timeouts/`.
 
-- [ ] T004 [US1] Read `evidence/alone.txt` and `evidence/baseline.txt`. Write `specs/056-db-test-timeouts/evidence/measurement.md` with one row per in-scope test: file, test name, alone ms, baseline ms (or "timed out"), `measuredMs`, timeout from plan.md D2. In-scope: the 8 DB tests in the three named files, plus every `*.integration.test.ts` test over 2 500 ms in `baseline.txt` (plan.md D3). List non-DB tests over 2.5 s in a separate "reported, not changed" section.
-- [ ] T005 Stop and report to the orchestrator if any D2 result exceeds 120 000 ms. Do not set that timeout.
-- [ ] T006 [P] [US1] [US2] In `apps/server/test/dm/scene.integration.test.ts`, set the D2 timeout as the third argument of the "plays Greyhollow Ford to its end through exploration, social and fight" `it(`. Add the one-line comment from plan.md D4 above it, with the real figures.
-- [ ] T007 [P] [US1] [US2] In `apps/server/test/playtest/harness.integration.test.ts`, do the same for each of its 4 tests.
-- [ ] T008 [P] [US1] [US2] In `apps/server/test/playtest/provider.integration.test.ts`, do the same for each of its 3 tests.
-- [ ] T009 [US1] [US2] Do the same for each extra test T004 put in scope. Skip this task when T004 found none, and say so in `measurement.md`.
-- [ ] T010 Run `pnpm lint` and `pnpm typecheck`. Both exit 0. Run `pnpm --filter @the-stacks/server test` without a database: the DB suites loud-skip and the rest pass.
-- [ ] T011 Commit `specs/056-db-test-timeouts/evidence/` and the test files: `TASK-0154: load-sized timeouts for DB scene and playtest tests`. Push.
+- [x] T004 [US1] Read `evidence/alone.txt` and `evidence/baseline.txt`. Write `specs/056-db-test-timeouts/evidence/measurement.md` with one row per in-scope test: file, test name, alone ms, baseline ms (or "timed out"), `measuredMs`, timeout from plan.md D2. In-scope: the 8 DB tests in the three named files, plus every `*.integration.test.ts` test over 2 500 ms in `baseline.txt` (plan.md D3). List non-DB tests over 2.5 s in a separate "reported, not changed" section.
+- [x] T005 Stop and report to the orchestrator if any D2 result exceeds 120 000 ms. Do not set that timeout.
+- [x] T006 [P] [US1] [US2] In `apps/server/test/dm/scene.integration.test.ts`, set the D2 timeout as the third argument of the "plays Greyhollow Ford to its end through exploration, social and fight" `it(`. Add the one-line comment from plan.md D4 above it, with the real figures.
+- [x] T007 [P] [US1] [US2] In `apps/server/test/playtest/harness.integration.test.ts`, do the same for each of its 4 tests.
+- [x] T008 [P] [US1] [US2] In `apps/server/test/playtest/provider.integration.test.ts`, do the same for each of its 3 tests.
+- [x] T009 [US1] [US2] Do the same for each extra test T004 put in scope. Skip this task when T004 found none, and say so in `measurement.md`.
+- [x] T010 Run `pnpm lint` and `pnpm typecheck`. Both exit 0. Run `pnpm --filter @the-stacks/server test` without a database: the DB suites loud-skip and the rest pass.
+- [x] T011 Commit `specs/056-db-test-timeouts/evidence/` and the test files: `TASK-0154: load-sized timeouts for DB scene and playtest tests`. Push.
 
 ---
 
