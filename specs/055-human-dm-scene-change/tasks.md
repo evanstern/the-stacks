@@ -136,7 +136,7 @@ is updated.
 - [x] T037 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`. Expect exit 0.
 - [x] T038 In `docs/design/m3-table-sweep-runbook.md`, fill the TASK-0163 row: replace "(this PR)" with `[#79](https://github.com/evanstern/the-stacks/pull/79)` and "—" with `` `6d6982e` ``. Append a TASK-0159 row with "(this PR)", using the text the orchestrator gives. Do not edit other rows.
 - [x] T039 Run `pnpm ci:check`. Commit: `TASK-0159: re-ground wiki, runbook rows`. Push.
-- [ ] T040 (orchestrator) Run `REQUIRE_DATABASE=1 pnpm ci:check` on the merged tree with only `TEST_DATABASE_URL` exported. Re-run a WebSocket gateway or DB scene timeout failure once and report it (TASK-0154).
+- [x] T040 (orchestrator) Run `REQUIRE_DATABASE=1 pnpm ci:check` on the merged tree with only `TEST_DATABASE_URL` exported. Re-run a WebSocket gateway or DB scene timeout failure once and report it (TASK-0154).
 
 ---
 
