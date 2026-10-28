@@ -1,7 +1,7 @@
 ---
 id: TASK-0161
 title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 19:52'
 updated_date: '2026-10-28 20:03'
@@ -36,6 +36,9 @@ Spec: specs/058-roll-reason-plan-gate
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-10-28, verbatim: "0161 can be done in M3 if it fits well. If you think it should move to another milestone, I'll leave it to your judgement". Orchestrator ruling: keep in M3. It is the direct follow-up of TASK-0143 (an M3 sweep task), and a dice line that contradicts actor state would show in the TASK-0053 demo. It runs after TASK-0168, because both touch the roll path.
+
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0161, branch task-0161-roll-reason-plan-gate, cut from origin/main b51f0b42. Spec 058 authored at bbcb1374: checkPlan runs the spec 051 checkClaims on every step reason and autoFail reason against S0 plus a presence-only planned diff; a refused reason refuses the group through the existing path; a resumed plan (spec 057) keeps its id check but does not rerun the reason check. Open questions OQ-1 to OQ-3 go to the operator.
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
