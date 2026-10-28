@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:20'
+updated_date: '2026-10-28 05:26'
 labels:
   - multiplayer
   - dev-tooling
@@ -62,6 +62,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (merge e8befda, 143044b): greyhollow-ford-duo seed, at-least-one-human loader rule, listSeeds, GET /dm/seeds, one-user-one-seat refusal. T009: the implementer's TEST_DATABASE_URL export was denied by the auto-mode classifier; the orchestrator migrated the test DB and ran REQUIRE_DATABASE=1 pnpm ci:check on 143044b: exit 0, server 1250 passed, routes.integration 15/15 (the two new DB cases ran green; they were not run red first). From here the orchestrator runs every DB suite.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 2 (a20de88, 68ff701): duo views 7/7 (no DB); loader mutation (a) caught. Orchestrator-run on 68ff701: duo.integration 4/4 passed (scene start, sign-off waits on B, absent B lets A commit, floor passes absent B to odo); mutation (b) duplicate-seat filter off -> 'refuses one user in two seats and accepts two users' fails, restored, diff empty, 15/15; REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed. Observation (not carded yet): the seat snapshot view has no own-character marker.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
