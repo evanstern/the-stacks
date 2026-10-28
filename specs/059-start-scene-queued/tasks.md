@@ -71,46 +71,46 @@ the DB cases run in Phase 3.
 
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/play/start-scene.test.mjs test/play/table-view.test.tsx`.
 
-- [ ] T011 In `apps/web/test/play/start-scene.test.mjs`, add `fetchStartState` cases with a stubbed
+- [x] T011 In `apps/web/test/play/start-scene.test.mjs`, add `fetchStartState` cases with a stubbed
       `fetch`: 200 `{ state: "pending" }` → `"pending"`; a 403 → `null`; a body with an unknown
       state → `null`; a thrown fetch → `null`. It calls `GET /dm/sessions/<encoded id>/start` with
       `credentials: "same-origin"`.
-- [ ] T012 In the same file, add `nextStartView` cases: `unknown` + `fetched("queued")` →
+- [x] T012 In the same file, add `nextStartView` cases: `unknown` + `fetched("queued")` →
       `queued`; any + `fetchFailed` → `none`; `none` + `started202` → `queued`; `queued` +
       `fetched("pending")` → `pending`. Add `shouldPollStart`: true for `queued` and `pending`,
       false for `unknown`, `none` and `started`. See them fail.
-- [ ] T013 In `apps/web/app/play/start-scene.ts`, add `fetchStartState`, `nextStartView` and
+- [x] T013 In `apps/web/app/play/start-scene.ts`, add `fetchStartState`, `nextStartView` and
       `shouldPollStart` (plan.md "The hook"). T011 and T012 pass.
-- [ ] T014 In `apps/web/app/play/source.ts`, add `SceneStartView` and the optional
+- [x] T014 In `apps/web/app/play/source.ts`, add `SceneStartView` and the optional
       `TableSource.sceneStart` per the contract.
-- [ ] T015 In `apps/web/app/play/use-live-table.ts`, for `user.role === "operator"` only: hold the
+- [x] T015 In `apps/web/app/play/use-live-table.ts`, for `user.role === "operator"` only: hold the
       view in state (start `unknown`); fetch when `caughtUp` turns true; wrap `startScene` so a
       `{ ok: true }` applies `started202` and every result triggers a fetch; while
       `shouldPollStart(view)`, fetch every 5000 ms (OQ-2 (a)), clearing the timer on change and
       unmount. Return `sceneStart` on the source. Leave it absent for other roles.
-- [ ] T016 In `apps/web/test/play/table-view.test.tsx`, add a live operator source helper (role
+- [x] T016 In `apps/web/test/play/table-view.test.tsx`, add a live operator source helper (role
       `operator`, `startScene` stubbed, no scene in the events). Assert by accessible name:
       `sceneStart: "none"` → a "Start scene" button, no status note; `"unknown"` → no button, no
       note; `"queued"` → no button, status "Scene start queued."; `"pending"` → no button, status
       "Scene start waiting for the DM."; `"started"` with no scene → no button, no note. And a
       fixture with a scene → no button, no note. See them fail.
-- [ ] T017 In `apps/web/app/play/table-view.tsx`: add `source.sceneStart === "none"` to
+- [x] T017 In `apps/web/app/play/table-view.tsx`: add `source.sceneStart === "none"` to
       `canStart`; remove the `startQueued` state and the `onQueued` setter use (keep
       `StartScenePanel`'s `onQueued` prop as a no-op or drop it if nothing else needs it); pass
       `startNote` = `sceneStart` when it is `queued` or `pending` and `model.scene === null`.
-- [ ] T018 In `apps/web/app/play/components/table-header.tsx`, replace `startQueued?: boolean` with
+- [x] T018 In `apps/web/app/play/components/table-header.tsx`, replace `startQueued?: boolean` with
       `startNote?: "queued" | "pending"` (OQ-4 (a)) and render the contract's two texts with
       `role="status"`. Update every caller and test that passes `startQueued`.
-- [ ] T019 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
+- [x] T019 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
       pass unchanged (plan.md "Equivalence test").
-- [ ] T020 Amend `specs/030-play-route/contracts/table-source.md` (the `sceneStart` field),
+- [x] T020 Amend `specs/030-play-route/contracts/table-source.md` (the `sceneStart` field),
       `specs/030-play-route/contracts/ui-surfaces.md` (the header's start note texts) and
       `specs/054-two-player-alpha-kit/contracts/web-surfaces.md` ("Play route: Start scene
       slide-out": shown only while the state is `none`; the note per state). Each is a dated
       "Amendment, TASK-0167 (additive)" block.
-- [ ] T021 In `docs/ops/dev-vm-104.md` step 17, add: with a human DM the header then shows `Scene
+- [x] T021 In `docs/ops/dev-vm-104.md` step 17, add: with a human DM the header then shows `Scene
       start waiting for the DM.` until the DM carries out the suggestion.
-- [ ] T022 Run `pnpm ci:check`.
+- [x] T022 Run `pnpm ci:check`.
 
 ## Phase 3: DB suites and the live check **[orchestrator]**
 

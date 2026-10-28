@@ -257,3 +257,70 @@ test("the dm-approvals DM viewer renders a Change scene trigger; a player render
   expect(dm).not.toContain("aria-modal");
   expect(player).not.toContain("Change scene");
 });
+
+function liveOperator(sceneStart: TableSource["sceneStart"]): TableSource {
+  return {
+    kind: "live",
+    viewer: { role: "player", userId: "op" },
+    actor: "op",
+    events: [],
+    status: "open",
+    caughtUp: true,
+    presence: null,
+    notice: null,
+    proposals: [],
+    role: "operator",
+    sceneStart,
+    commands: { ...commands, startScene: async () => ({ ok: true as const }) },
+  };
+}
+
+test("the header offers Start scene only when the server says none", () => {
+  const none = renderToStaticMarkup(
+    <TableView source={liveOperator("none")} />,
+  );
+  expect(none).toContain("Start scene");
+  expect(none).not.toContain("Scene start queued.");
+  expect(none).not.toContain("Scene start waiting for the DM.");
+  for (const v of ["unknown", "started"] as const) {
+    const html = renderToStaticMarkup(<TableView source={liveOperator(v)} />);
+    expect(html, v).not.toContain(">Start scene<");
+    expect(html, v).not.toContain("Scene start queued.");
+    expect(html, v).not.toContain("Scene start waiting for the DM.");
+  }
+});
+
+test("the header shows the queued and pending notes without the button", () => {
+  const queued = renderToStaticMarkup(
+    <TableView source={liveOperator("queued")} />,
+  );
+  expect(queued).not.toContain(">Start scene<");
+  expect(queued).toContain("Scene start queued.");
+  const pending = renderToStaticMarkup(
+    <TableView source={liveOperator("pending")} />,
+  );
+  expect(pending).not.toContain(">Start scene<");
+  expect(pending).toContain("Scene start waiting for the DM.");
+  expect(pending).toContain('role="status"');
+});
+
+test("a session with a scene shows no Start scene button and no note", () => {
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("fixture missing");
+  const html = renderToStaticMarkup(
+    <TableView
+      source={{
+        ...sourceFor(f, f.viewers.dm),
+        kind: "live",
+        role: "operator",
+        sceneStart: "none",
+        commands: {
+          ...commands,
+          startScene: async () => ({ ok: true as const }),
+        },
+      }}
+    />,
+  );
+  expect(html).not.toContain(">Start scene<");
+  expect(html).not.toContain("Scene start queued.");
+});

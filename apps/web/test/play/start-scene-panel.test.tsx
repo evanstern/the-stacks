@@ -33,6 +33,7 @@ function source(
     proposals: [],
     presence: [],
     role: "operator",
+    sceneStart: "none",
     commands: withStart
       ? { ...base, startScene: async () => ({ ok: true as const }) }
       : base,

@@ -1,7 +1,9 @@
 import type { StoredEvent, Viewer } from "@the-stacks/session-model";
 import type { PresenceEntry } from "../ws/types.ts";
 import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
-import type { StartBody, StartResult } from "./start-scene.ts";
+import type { SceneStartView, StartBody, StartResult } from "./start-scene.ts";
+
+export type { SceneStartView } from "./start-scene.ts";
 
 export type SourceStatus = "connecting" | "open" | "retrying" | "fixture";
 
@@ -23,6 +25,8 @@ export interface TableSource {
   presence: readonly PresenceEntry[] | null;
   /** The signed-in user's account role; absent on fixtures. */
   role?: string;
+  /** Live operator sources only. Absent for a fixture source and for a non-operator. */
+  sceneStart?: SceneStartView;
   commands: TableCommands;
 }
 

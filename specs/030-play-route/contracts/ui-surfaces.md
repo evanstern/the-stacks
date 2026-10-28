@@ -86,3 +86,10 @@ Accessible names: seed buttons "Use: <label>" under the headings "Suggestions" a
 "Scene summary", "Scene location", "Reason for the change"; checkbox "Clear the scene"; button
 "Apply"; texts "The table stays in turn mode." and "No scene to change yet. Start a scene, or wait
 for the AI DM's suggestion." Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`.
+
+Amendment, TASK-0167 (additive, 2026-10-28): the header's start note.
+
+`TableHeader` takes `startNote?: "queued" | "pending"` in place of `startQueued?: boolean`. It renders
+a `role="status"` text: `Scene start queued.` for `queued`, `Scene start waiting for the DM.` for
+`pending`. The "Start scene" button shows only while the source's `sceneStart` is `none`.
+Detail: `specs/059-start-scene-queued/contracts/scene-start-state.md`.

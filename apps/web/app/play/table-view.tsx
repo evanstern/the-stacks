@@ -47,14 +47,19 @@ export function TableView({
   const [approvalsOpen, setApprovalsOpen] = useState(false);
   const [sceneOpen, setSceneOpen] = useState(false);
   const [startOpen, setStartOpen] = useState(false);
-  const [startQueued, setStartQueued] = useState(false);
   const { startScene } = source.commands;
   const canStart =
     source.kind === "live" &&
     source.role === "operator" &&
     source.caughtUp &&
     model.scene === null &&
+    source.sceneStart === "none" &&
     startScene !== undefined;
+  const startNote =
+    model.scene === null &&
+    (source.sceneStart === "queued" || source.sceneStart === "pending")
+      ? source.sceneStart
+      : undefined;
   const endRef = useRef<HTMLDivElement>(null);
   const count = model.transcript.length;
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when the transcript grows.
@@ -79,7 +84,7 @@ export function TableView({
         }
         onFloor={source.commands.floor}
         onStartScene={canStart ? () => setStartOpen(true) : undefined}
-        startQueued={startQueued && model.scene === null}
+        startNote={startNote}
       />
       {model.mode.mode === "turn" && <TurnOrder order={model.mode.order} />}
       {model.hiddenCount > 0 && (
@@ -119,7 +124,6 @@ export function TableView({
           onOpenChange={setStartOpen}
           present={source.presence ?? []}
           startScene={startScene}
-          onQueued={() => setStartQueued(true)}
         />
       )}
       {model.sceneChange && (

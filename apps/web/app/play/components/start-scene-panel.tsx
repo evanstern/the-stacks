@@ -146,13 +146,11 @@ export function StartScenePanel({
   onOpenChange,
   present,
   startScene,
-  onQueued,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   present: readonly PresenceEntry[];
   startScene: (body: StartBody) => Promise<StartResult>;
-  onQueued: () => void;
 }) {
   const [seeds, setSeeds] = useState<SeedSummary[]>([]);
   const [seedId, setSeedId] = useState("");
@@ -192,7 +190,6 @@ export function StartScenePanel({
     setPending(false);
     if (outcome.ok) {
       onOpenChange(false);
-      onQueued();
     } else {
       setIssues(outcome.issues);
       setError(outcome.error);
