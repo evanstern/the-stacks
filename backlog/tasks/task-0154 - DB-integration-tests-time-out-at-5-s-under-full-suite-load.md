@@ -52,6 +52,8 @@ spec-bridge sync: Measure before the fix (card AC #1) — orchestrator-run: 3/3 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (orchestrator, 6b52c1a0): three consecutive REQUIRE_DATABASE=1 pnpm test runs, each exit 0, server 1266 passed | 5 skipped, no re-run (AC #2). Phase 4 (4a5e6905): measurement three-run section, test-suite wiki note re-pinned, runbook rows, spec 054 T041-T043 ticked. T026: final REQUIRE_DATABASE=1 pnpm ci:check exit 0. AC #1: all 8 DB tests carry an explicit 30 s timeout sized by plan D2 from a 2102 ms worst case (evidence/measurement.md).
+
+spec-bridge sync: Measure before the fix (card AC #1) — orchestrator-run: 3/3 · Size and set the timeouts (card AC #1): 8/8 · Three consecutive full runs (card AC #2) — orchestrator-run: 3/3 · Evidence, wiki, runbook and close (card AC #1, card AC #2): 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
