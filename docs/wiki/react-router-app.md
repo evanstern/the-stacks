@@ -1,6 +1,6 @@
 ---
 name: react-router-app
-description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) - framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (role-aware "/" redirect, ask/books/play/settings/about, play/:sessionId, operator-only play/:sessionId/debug and play/fixtures), root.tsx as the loader-driven identity gate wrapping the app shell, and the client-only play routes. Retires spa-shell.
+description: The web app's shape after the React Router 8 migration (doc-0003 / decision-0008) - framework-mode SSR by default, server.ts as the Hono-facing request handler, routes.ts's route tree (role-aware "/" redirect, ask/books/play/settings/about, play/:sessionId, operator-only play/:sessionId/debug and play/fixtures), root.tsx as the loader-driven identity gate wrapping the app shell, the sign-in card's invitation redeem mode, and the client-only play routes. Retires spa-shell.
 kind: component
 sources:
   - apps/web/app/root.tsx
@@ -16,7 +16,7 @@ sources:
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: 796789aff1155daf0baf77c66ba90f272100035a
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # React Router app
@@ -71,7 +71,12 @@ anymore now that `/` never renders for a signed-in person.
 **`sign-in.tsx`** exports `SignIn` (imported by `root.tsx`, not a routed component): a
 `Card`/`Label`/`Input`/`Button` form (shadcn, [[static-serving]]'s styling note) that calls
 `signIn(username, password)` then revalidates on success, and shows one generic failure
-message on error (see [[client-identity]]). The submit button stays disabled until the
+message on error (see [[client-identity]]). `SignIn` renders `SignInCard`, which holds a `mode`
+(`signin` or `redeem`): the "Have an invitation?" button swaps in `RedeemForm` (token, username,
+display name, password; "Back to sign in" swaps back). `submitRedeem` trims the token and calls
+`redeemInvitation`; a 409 reads "That username is already taken.", a 400 on `token` reads the one
+invalid/expired/redeemed message, other 400s show the issue messages, anything else a generic
+line. The token never enters a URL; success calls `onSignedIn` (revalidate). The submit button stays disabled until the
 component has mounted (D10), so a pre-hydration submit can't leak the password into a GET
 query string.
 
