@@ -6,7 +6,7 @@ import {
   type StoredEvent,
 } from "@the-stacks/session-model";
 import { floorReason } from "./frames.ts";
-import type { FloorInput } from "./source.ts";
+import type { FloorInput, SceneInput } from "./source.ts";
 
 export interface LocalEventInput {
   eventType: string;
@@ -130,4 +130,23 @@ export function localFloorEvents(
   };
   const row = modeChange(activeActorFor(p, nextId));
   return row ? [advance, row] : null;
+}
+
+/**
+ * Fixture mode: the `scene.changed` row a `scene` request stands for, with `before` read from
+ * the projection. Null when both sides are null (the gate refuses it).
+ */
+export function localSceneEvents(
+  p: SessionProjections,
+  input: SceneInput,
+): LocalEventInput | null {
+  const version = currentVersion("scene.changed");
+  if (version === undefined || (p.scene === null && input.after === null)) {
+    return null;
+  }
+  return {
+    eventType: "scene.changed",
+    payload: { reason: input.reason, before: p.scene, after: input.after },
+    payloadVersion: version,
+  };
 }

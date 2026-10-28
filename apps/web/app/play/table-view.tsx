@@ -4,6 +4,7 @@ import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
+import { SCENE_PANEL_ID, ScenePanel } from "./components/scene-panel.tsx";
 import { StartScenePanel } from "./components/start-scene-panel.tsx";
 import {
   APPROVALS_PANEL_ID,
@@ -44,6 +45,7 @@ export function TableView({
   );
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
+  const [sceneOpen, setSceneOpen] = useState(false);
   const [startOpen, setStartOpen] = useState(false);
   const [startQueued, setStartQueued] = useState(false);
   const { startScene } = source.commands;
@@ -68,9 +70,13 @@ export function TableView({
         presence={presence}
         ledgerOpen={ledgerOpen}
         approvalsOpen={approvalsOpen}
+        sceneOpen={sceneOpen}
         debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
+        onScene={
+          model.sceneChange ? () => setSceneOpen((was) => !was) : undefined
+        }
         onFloor={source.commands.floor}
         onStartScene={canStart ? () => setStartOpen(true) : undefined}
         startQueued={startQueued && model.scene === null}
@@ -115,6 +121,24 @@ export function TableView({
           startScene={startScene}
           onQueued={() => setStartQueued(true)}
         />
+      )}
+      {model.sceneChange && (
+        <Panel
+          open={sceneOpen}
+          onOpenChange={setSceneOpen}
+          title="Change scene"
+          description="Change the scene, or carry out a scene suggestion."
+          id={SCENE_PANEL_ID}
+        >
+          <ScenePanel
+            view={model.sceneChange}
+            onApply={(input) => {
+              const ok = source.commands.changeScene(input);
+              if (ok) setSceneOpen(false);
+              return ok;
+            }}
+          />
+        </Panel>
       )}
       {model.isDm && (
         <Panel

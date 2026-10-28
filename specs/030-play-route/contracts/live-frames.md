@@ -36,3 +36,9 @@ sendEvent(frame: { eventType: string; payload: unknown; payloadVersion: number; 
 It returns `false` unless the socket is open. Everything else in `useSession` (the `/auth/me`
 preflight, `Math.max` seq tracking, one path for replayed and live events, no optimistic append) is
 unchanged. An `error` frame sets the source's `notice` to its `message` instead of only logging it.
+
+Amendment (TASK-0159, operator ruling 2026-10-28, D-1): the `changeScene` command. Additive.
+
+| Command | Frame |
+|---|---|
+| `changeScene(input)` | `eventType: "scene"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { reason, after, summary, rationale: null }`. When the frame was sent and `input.closeProposalId` is set, a second frame `proposal.reject` closes that pending seed. Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`. |

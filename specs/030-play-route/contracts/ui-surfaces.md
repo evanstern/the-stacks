@@ -70,3 +70,19 @@ Amended 2026-10-27 (TASK-0050, operator ruling Q1, Q2): the floor surfaces above
 "TASK-0050: I accept the recommended defaults FT-1 to FT-5 and Q1 to Q6, including the
 frozen-contract amendments to 029, 031 and 044 and the one jobs migration." Detail:
 `specs/049-turn-floor/contracts/ui-floor.md`.
+
+Amendment (TASK-0159, operator ruling 2026-10-28, D-1): the human DM's "Change scene" slide-out.
+Additive: no existing surface changes. The operator's words: "TASK-0159: I accept the recommended
+defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an
+encounter or changes table mode) in m-3; card DC-2 as a revisit."
+
+| Surface | Change |
+|---|---|
+| `TableHeader` | gains `sceneOpen: boolean` and `onScene?: () => void`. When `model.isDm` and `onScene` is set, it renders a button named "Change scene" with `aria-controls="scene-panel"` and `aria-expanded={sceneOpen}`. |
+| `ScenePanel` | `components/scene-panel.tsx`; props `view: SceneChangeView`, `onApply(input: SceneInput): boolean`. `TableView` mounts it in the shared `Panel` (title "Change scene", id `scene-panel`) only when `model.sceneChange` is not null. |
+
+Accessible names: seed buttons "Use: <label>" under the headings "Suggestions" and "Earlier suggestions"
+(tags "Suggestion", "Proposal"); "Use: Current scene"; fields "Scene id" (read-only), "Scene title",
+"Scene summary", "Scene location", "Reason for the change"; checkbox "Clear the scene"; button
+"Apply"; texts "The table stays in turn mode." and "No scene to change yet. Start a scene, or wait
+for the AI DM's suggestion." Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`.

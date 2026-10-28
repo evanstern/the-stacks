@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { project } from "@the-stacks/session-model";
-import { turnFloor } from "@the-stacks/session-model/fixtures";
-import { appendLocal, localFloorEvents } from "../../app/play/local-log.ts";
+import { currentVersion, project } from "@the-stacks/session-model";
+import { dmApprovals, turnFloor } from "@the-stacks/session-model/fixtures";
+import {
+  appendLocal,
+  localFloorEvents,
+  localSceneEvents,
+} from "../../app/play/local-log.ts";
 
 const base = (seq, ts) => ({
   sessionId: "00000000-0000-4000-8000-000000000102",
@@ -140,6 +144,36 @@ test("localFloorEvents: a stale turn or a free table gives null", () => {
       turn: { round: 1, combatantId: "ana" },
       reason: "x",
     }),
+    null,
+  );
+});
+
+const dmProjection = () => project(dmApprovals.events, dmApprovals.viewers.dm);
+const nextScene = {
+  sceneId: "vault-interior",
+  title: "Inside the vault",
+  summary: "Dust.",
+  location: null,
+};
+
+test("localSceneEvents builds a scene.changed row with before from the projection", () => {
+  const p = dmProjection();
+  const row = localSceneEvents(p, {
+    reason: "Carry out",
+    after: nextScene,
+    closeProposalId: null,
+  });
+  assert.equal(row.eventType, "scene.changed");
+  assert.equal(row.payload.before.sceneId, "vault-door");
+  assert.deepEqual(row.payload.after, nextScene);
+  assert.equal(row.payload.reason, "Carry out");
+  assert.equal(row.payloadVersion, currentVersion("scene.changed"));
+});
+
+test("localSceneEvents returns null when before and after are both null", () => {
+  const p = { ...dmProjection(), scene: null };
+  assert.equal(
+    localSceneEvents(p, { reason: "r", after: null, closeProposalId: null }),
     null,
   );
 });

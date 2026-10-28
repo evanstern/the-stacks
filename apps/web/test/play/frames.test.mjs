@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { RefIdSchema } from "@the-stacks/session-model";
+import { GATE_REQUEST_VERSION, RefIdSchema } from "@the-stacks/session-model";
 import {
   approveFrame,
   commentFrame,
@@ -9,6 +9,8 @@ import {
   floorFrame,
   localEventOf,
   rejectFrame,
+  sceneFrame,
+  sceneSummary,
   talkFrame,
   withdrawFrame,
 } from "../../app/play/frames.ts";
@@ -190,6 +192,91 @@ test("localEventOf leaves a floor request to the fixture projection", () => {
   const frame = floorFrame({
     op: "take",
     turn: { round: 1, combatantId: "ana" },
+  });
+  assert.equal(localEventOf(frame), null);
+});
+
+const sceneAfter = {
+  sceneId: "vault-interior",
+  title: "  Inside the vault ",
+  summary: " Dust and silence. ",
+  location: "   ",
+};
+
+test("sceneFrame builds a scene gate request with trimmed fields", () => {
+  assert.deepEqual(
+    sceneFrame({
+      reason: "  Carry out the suggestion ",
+      after: sceneAfter,
+      closeProposalId: "p-3",
+    }),
+    {
+      eventType: "scene",
+      payloadVersion: GATE_REQUEST_VERSION,
+      payload: {
+        reason: "Carry out the suggestion",
+        after: {
+          sceneId: "vault-interior",
+          title: "Inside the vault",
+          summary: "Dust and silence.",
+          location: null,
+        },
+        summary: "Scene: Inside the vault",
+        rationale: null,
+      },
+    },
+  );
+});
+
+test("sceneFrame with after null builds the clear summary", () => {
+  const frame = sceneFrame({
+    reason: "Done",
+    after: null,
+    closeProposalId: null,
+  });
+  assert.equal(frame.payload.summary, "Clear the scene");
+  assert.equal(frame.payload.after, null);
+  assert.equal(sceneSummary(null), "Clear the scene");
+});
+
+test("sceneFrame never carries closeProposalId", () => {
+  const frame = sceneFrame({
+    reason: "r",
+    after: sceneAfter,
+    closeProposalId: "p-3",
+  });
+  assert.equal("closeProposalId" in frame.payload, false);
+});
+
+test("sceneFrame returns null for a long title, empty reason or bad sceneId", () => {
+  const ok = { ...sceneAfter, title: "T" };
+  assert.equal(
+    sceneFrame({
+      reason: "r",
+      after: { ...ok, title: "x".repeat(201) },
+      closeProposalId: null,
+    }),
+    null,
+  );
+  assert.equal(
+    sceneFrame({ reason: "  ", after: ok, closeProposalId: null }),
+    null,
+  );
+  assert.equal(
+    sceneFrame({
+      reason: "r",
+      after: { ...ok, sceneId: "bad id!" },
+      closeProposalId: null,
+    }),
+    null,
+  );
+});
+
+test("localEventOf returns null for a scene frame", () => {
+  const frame = sceneFrame({
+    reason: "r",
+    after: sceneAfter,
+    closeProposalId: null,
   });
   assert.equal(localEventOf(frame), null);
 });

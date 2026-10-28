@@ -5,6 +5,7 @@ import type { TableViewModel } from "../view-model.ts";
 import { FloorControls } from "./floor-controls.tsx";
 import { ModeBadge } from "./mode-badge.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
+import { SCENE_PANEL_ID } from "./scene-panel.tsx";
 import { START_SCENE_PANEL_ID } from "./start-scene-panel.tsx";
 
 const STATUS_TEXT: Record<SourceStatus, string> = {
@@ -26,9 +27,11 @@ export function TableHeader({
   presence,
   ledgerOpen,
   approvalsOpen,
+  sceneOpen,
   debugHref,
   onLedger,
   onApprovals,
+  onScene,
   onFloor,
   onStartScene,
   startQueued = false,
@@ -38,9 +41,12 @@ export function TableHeader({
   presence: readonly PresenceRow[];
   ledgerOpen: boolean;
   approvalsOpen: boolean;
+  sceneOpen: boolean;
   debugHref?: string;
   onLedger: () => void;
   onApprovals: () => void;
+  /** Present only for the DM seat; opens the Change scene slide-out. */
+  onScene?: () => void;
   onFloor: (input: FloorInput) => boolean;
   /** Present only when the operator may start a scene. */
   onStartScene?: () => void;
@@ -93,6 +99,18 @@ export function TableHeader({
           <ApprovalsIcon />
           <span>Pending proposals ({model.proposals.length})</span>
           {chevron(approvalsOpen)}
+        </button>
+      )}
+      {model.isDm && onScene && (
+        <button
+          type="button"
+          onClick={onScene}
+          aria-expanded={sceneOpen}
+          aria-controls={SCENE_PANEL_ID}
+          className={TRIGGER}
+        >
+          <span>Change scene</span>
+          {chevron(sceneOpen)}
         </button>
       )}
       {startQueued && (

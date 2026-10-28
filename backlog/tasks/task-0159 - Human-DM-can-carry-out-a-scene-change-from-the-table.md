@@ -1,9 +1,10 @@
 ---
 id: TASK-0159
 title: Human DM can carry out a scene change from the table
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
+updated_date: '2026-10-28 09:04'
 labels:
   - play-route
   - gate
@@ -16,13 +17,100 @@ ordinal: 146000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: a seated human DM can change scene from the play route. That includes acting on a dismissed or pending scene suggestion. Evidence: the TASK-0100 spec author (spec 047, c53d50f, OQ-1) found that apps/web/app/play/frames.ts builds no scene request, so a human DM can read and dismiss a scene suggestion but cannot carry it out at the table. Why it matters: the M3 demo's second run is ask mode with a human DM (checkpoint C7).
+
+Spec: specs/055-human-dm-scene-change
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test
-- [ ] #2 A scene suggestion's content can seed that control
+- [x] #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test
+- [x] #2 A scene suggestion's content can seed that control
+- [x] #3 Spec phase: The scene request and command (card AC #1)
+- [x] #4 Spec phase: Seeds and the view model (card AC #2)
+- [x] #5 Spec phase: The scene panel and the header trigger (card AC #1, card AC #2)
+- [x] #6 Spec phase: The AI DM resumes in the carried-out scene (card AC #2, SC-002)
+- [x] #7 Spec phase: Live check in script mode (card AC #1, card AC #2)
+- [x] #8 Spec phase: Merge, re-ground and close (all ACs)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0159, branch task-0159-human-dm-scene-change, cut from origin/main 7e3e029. Spec number 055 claimed with a stub. Spec 054 is held by TASK-0163 (PR #79), so this takes 055.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (spec.md, 212a4f8) stopped with open questions OQ-1 to OQ-7. Finding: with a human DM the scene-start suggestion stays pending, p.scene stays null, and every later AI DM turn fails no-scene until the human DM carries out a scene with the seed's sceneId.
+
+Operator ruling, in chat 2026-10-28, verbatim: "TASK-0159: I accept the recommended defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an encounter or changes table mode) in m-3; card DC-2 as a revisit."
+
+Carded per the ruling: DC-1 is TASK-0165 (m-3). DC-2 is TASK-0166 (revisit).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Spec author resumed (573cafc): resolved OQ-1 to OQ-7 as D-1 to D-7, wrote plan.md, tasks.md (6 phases, 40 tasks), contracts/scene-change.md and quickstart.md. Risks raised: the live check may not show the next AI DM turn running while other scene-start proposals stay pending (T023 stops and raises an open question if so); the operator header keeps offering Start scene while the scene-start suggestion is pending.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 0/4 · The scene panel and the header trigger (card AC #1, card AC #2): 0/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 0/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Phase 1 gate (orchestrator): REQUIRE_DATABASE=1 pnpm ci:check exits 0 on 6a75be7 with the test DB migrated. Web node 255 pass.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Orchestrator ruling (Phase 2): a scene seed whose proposal summary is null takes its label from the after title, or "Clear the scene" for a clear seed. This fills a null case the contract left open; it changes no frozen contract.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 0/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 0/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Orchestrator rulings (Phase 3), keeping the panel as built: (1) unchecking Clear on a clear-scene seed leaves Apply disabled, because D-2 takes the sceneId only from a seed; (2) the panel closes on a successful apply; (3) the extra Current scene heading stays; (4) Apply needs a non-empty reason, as the gate's ReasonSchema does. None changes a frozen contract.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 0/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+T023 first DB run (orchestrator): (a) and (b) pass. (c) fails only on its last line: it expects 2 scene.changed rows and gets 1. One is right, because the human-DM scene-start leaves the scene pending, so only the DM carry-out writes a row. Every other (c) check passes: no failure, and checkpoint.beat is set, so the seed loaded and assemble ran.
+
+Orchestrator ruling (Phase 4, OQ from the implementer): an approval turn with no player action ends empty-beat by design (runner.ts), with or without a scene. So the discriminator between (b) and (c) is checkpoint.beat: null on the no-scene path, set once the seed loads. SC-002 is unchanged. Tasks T021 and T028-T030 and quickstart step 8 are reworded to that discriminator. The live check also proves a narrated turn: after the carry-out the DM approves the pending scene-start suggestions, a player declares act-search, and the AI DM narrates it. If that cannot run, Phase 5 stops and raises an open question.
+
+Phase 4 gate (orchestrator): T023 DB test 3/3 at 8f6a283; T024 DB mutations both fail (c) as expected (evidence a40b954). REQUIRE_DATABASE=1 pnpm ci:check run on a40b954.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 first run (f0ddcfa) stopped at step 8c. Carry-out, the approval turn (beat set, no calls) and the 10 suggestion approvals all ran. The player act-search commit turn paused on a check.roll proposal (policy ask, by design with a human DM). After the DM approved the roll, the resumed turn called dm.director a third time; the script holds only two, so the call failed config and nothing narrated.
+
+Orchestrator ruling (Phase 5): this is a script fixture gap, not a product defect. Add a second dm.director call between dm.interpret and dm.narrate in human-dm-approval.json, so greyhollow-human-dm covers the roll pause. The roll policy is unchanged. Then rebuild the app and rerun Phase 5 on a fresh session.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 rerun (a202e04 script fix, be153da shots and evidence) stopped at 8c again. Cause: at boot the worker enqueues a reconcile turn for every session with an unresolved action.committed. The first-run session reconciled on each restart and spent the script, one queue per purpose, before the fresh session ran. This is the known one-process script queue limit (spec 053 Q8), not a TASK-0159 defect. Orchestrator ruling: reset the worktree stack (env:down, env:up, migrate both DBs, one app start), then run the narrated flow once with no restart before it finishes. The baseline session commits no action, so a restart before it is safe. The Start scene header finding is already TASK-0167.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 clean pass (01cd836) on a reset stack: steps 4 to 8b, T031 shots, T032 and step 10 pass. 8c stopped: the turn that resumes after the DM approves the roll calls dm.director then dm.interpret again, and the script held one interpret entry. Orchestrator ruling: add a second dm.interpret entry after the second director in both scripts (director, interpret, director, interpret, narrate, audit). No server change in TASK-0159. Reset the stack again before the next pass, because the unresolved act-search reconciles at boot.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Clean pass 2 (5614968) on a reset stack: steps 4 to 8b, T031 (all shots retaken on this session, no modal), T032 and step 10 pass. Every call was scripted. The commit turn paused on a check.roll (policy ask). After the DM approved it, the resumed turn re-interpreted act-search and proposed the same roll again (seq 56). So with a human DM a check never narrates: each approval re-proposes the roll. This is a server defect outside TASK-0159, now TASK-0168 (promoted to m-3).
+
+Orchestrator ruling: TASK-0159 closes without a narrated player turn. SC-002 is proven: the approval turn and the commit turn load the seed with no no-scene or bad-seed failure, live and in the DB test. Quickstart 8c and T029 record the roll loop and cite TASK-0168; no longer script. The step 9 baseline runs on a reset stack, since the unresolved action reconciles at boot.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 closed (cf2b2df, 429eb0f). Step 9 baseline, session 1f55d0f8: Dismiss only, approval turn 6e3e7dc4 empty-beat with checkpoint.beat null, no scene.changed row. The carry-out turn 7fb204d0 had beat set. Orchestrator ruling: step 11 dropped, because the classifier refused the .env edit for the implementer and for me, and post-merge env:down deletes the stack and its .env.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+T040 (orchestrator): REQUIRE_DATABASE=1 pnpm ci:check exits 0 on the merged tree (db69826): server 1266 passed, web 265 node + 117 vitest, session-model 816, engine 240, srd 181.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 7/7 — status In Progress → Done
+
+AC #1 met: DM-only Change scene slide-out (no modal) sends a scene gate request (sceneFrame, changeScene), tested in frames, local-log, fixture, scene-panel and table-view tests, and live in Brave. AC #2 met: scene-seeds.ts seeds the form from pending and recent ai:dm scene suggestions, tested, and live (seeded panel shots; carried out with sceneId greyhollow-ford).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

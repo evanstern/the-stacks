@@ -398,3 +398,21 @@ test("card flags: commitsOnOwnTurn and suggest", () => {
   assert.equal(forAna.suggest, false);
   assert.equal(forAna.commitsOnOwnTurn, false);
 });
+
+test("sceneChange: a DM viewer sees P3 pending; a player viewer gets null", async () => {
+  const { dmApprovals } = await import("@the-stacks/session-model/fixtures");
+  const { selectPendingProposals } = await import(
+    "../../app/play/proposals.ts"
+  );
+  const dmViewer = dmApprovals.viewers.dm;
+  const proposals = selectPendingProposals(dmApprovals.events, dmViewer);
+  const dm = vm(dmApprovals.events, dmViewer, proposals);
+  assert.notEqual(dm.sceneChange, null);
+  assert.deepEqual(
+    dm.sceneChange.pending.map((s) => s.proposalId),
+    ["prop-3"],
+  );
+  for (const player of dmApprovals.viewers.players) {
+    assert.equal(vm(dmApprovals.events, player, proposals).sceneChange, null);
+  }
+});

@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals, ledger-format), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines (TASK-0050), the operator Debug link and Start scene slide-out, and fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines (TASK-0050), the operator Debug link, the scene panels (Start scene, Change scene) and fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -28,9 +28,7 @@ sources:
   - apps/web/app/play/components/turn-order.tsx
   - apps/web/app/play/components/mode-badge.tsx
   - apps/web/app/play/components/commit-control.tsx
-  - apps/web/app/play/components/start-scene-panel.tsx
-  - apps/web/app/play/start-scene.ts
-verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
+verified_against: fd4d45161c7407d4dcc59ad9ffe43df147e70c29
 ---
 
 # Play route
@@ -72,19 +70,17 @@ anchor (new tab); the fixture routes pass none. The page is `play/:sessionId/deb
 ## Start scene
 
 TASK-0163 (specs/054). `TableView` sets `canStart` only for a live source whose `role` is
-`operator`, once caught up, with no scene (`model.scene === null`) and `startScene` present.
-`TableHeader` then shows a "Start scene" button (`aria-controls` the panel id) and, after a
-queued start, "Scene start queued." while no scene exists. The button opens
-`components/start-scene-panel.tsx`'s `StartScenePanel`, a `Panel` slide-out. On open it calls
-`fetchSeeds` (`start-scene.ts`, `GET /dm/seeds`) and picks the first seed. It shows a select of
-the present users per human seat and a note naming the AI companions. Pure
-helpers: `seatMapIssues` (an empty seat, a user in two seats), `startBody`, `issuesBySeat`. `useLiveTable` wires
-`startScene` to `postStart`, `POST /dm/sessions/:id/start`; a 202 closes the panel; a 400 shows its issues inline, any other refusal its message ([[dm-runtime]]).
+`operator`, once caught up, with no scene (`model.scene === null`) and `## Scene panels
 
-## Pure modules
+Two slide-outs change the scene; both live in [[scene-panels]]. The operator's Start scene
+slide-out (TASK-0163, specs/054) starts a scene on a table with none. The human DM's Change scene
+slide-out (TASK-0159, specs/055) edits the scene or carries out an AI DM scene suggestion.
+`toTableViewModel` sets `sceneChange` only when `isDm`.
 
-- `view-model.ts` - `toTableViewModel`: transcript items, action cards, `ModeView`
-  (free, or turn with the active actor, `held` and `order`), `floor` controls, composer, ledger
+With a human DM, a check's roll approval re-proposes the same roll instead of narrating
+(TASK-0168, found in the TASK-0159 live check).
+
+ composer, ledger
   and proposal lists, `hiddenCount`, `isDm`. An action card carries `canWithdraw` (open, and the
   viewer is its declarer or the DM); a `withdrawn` card is closed and shows "Withdrawn". Floor controls, the turn-order strip and floor lines: [[turn-floor]].
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
@@ -133,7 +129,7 @@ any other code shows the server message. A refusal does not close the socket.
 Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list for the human DM. The ledger and the DM approvals list open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
 the project uses no modals. The approvals panel mounts only for the DM. A `suggest` row
 (TASK-0100, specs/047) shows a Suggestion label and a Dismiss button, never Approve: Dismiss sends
-`proposal.reject`, because the gate refuses Approve on a suggestion. An `ask` row keeps Approve and Reject; that includes `scene-presence` (policy `ask`), whose details are Actor, Reason, New value (from `REASON_TO_PRESENCE`) and Visibility `Everyone`. Open gap: the human DM has no scene-change command (TASK-0159).
+`proposal.reject`, because the gate refuses Approve on a suggestion. An `ask` row keeps Approve and Reject; that includes `scene-presence` (policy `ask`), whose details are Actor, Reason, New value (from `REASON_TO_PRESENCE`) and Visibility `Everyone`.
 
 ## Fixture routes
 

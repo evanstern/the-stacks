@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { dmApprovals } from "@the-stacks/session-model/fixtures";
 import {
+  planScene,
   proposalsFor,
   viewerForKey,
 } from "../../app/play/use-fixture-table.ts";
@@ -28,4 +29,39 @@ test("a player viewer receives no proposals", () => {
   );
   assert.equal(player.role, "player");
   assert.deepEqual(proposalsFor(events, player, new Set()), []);
+});
+
+const seed = {
+  sceneId: "vault-interior",
+  title: "Inside the vault",
+  summary: "Dust.",
+  location: null,
+};
+
+test("planScene yields one scene.changed row and the proposal to close", () => {
+  const plan = planScene(events, dm, {
+    reason: "Carry out",
+    after: seed,
+    closeProposalId: "p-3",
+  });
+  assert.equal(plan.rows.length, 1);
+  assert.equal(plan.rows[0].eventType, "scene.changed");
+  assert.equal(plan.rows[0].payload.before.sceneId, "vault-door");
+  assert.equal(plan.close, "p-3");
+});
+
+test("planScene with no closeProposalId closes nothing", () => {
+  const plan = planScene(events, dm, {
+    reason: "Edit",
+    after: seed,
+    closeProposalId: null,
+  });
+  assert.equal(plan.close, null);
+});
+
+test("planScene returns null for an invalid input", () => {
+  assert.equal(
+    planScene(events, dm, { reason: "", after: seed, closeProposalId: null }),
+    null,
+  );
 });
