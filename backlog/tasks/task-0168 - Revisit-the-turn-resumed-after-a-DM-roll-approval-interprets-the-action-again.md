@@ -30,8 +30,10 @@ Spec: specs/057-human-dm-roll-resume
 - [x] #4 Spec phase: The pipeline reuses the plan (card AC #1, card AC #2)
 - [x] #5 Spec phase: DB test, scripts and mutation guard (card AC #1)
 - [x] #6 Spec phase: Live check in script mode (card AC #1)
-- [ ] #7 Spec phase: Re-ground and close (all ACs)
+- [x] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
+
+
 
 
 
