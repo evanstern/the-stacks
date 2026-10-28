@@ -40,11 +40,13 @@ Spec: specs/054-two-player-alpha-kit
 - [x] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
 - [x] #7 Spec phase: Redeem toggle and the invite section (card AC #2)
 - [x] #8 Spec phase: Start scene slide-out (card AC #3)
-- [ ] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
+- [x] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
 - [ ] #10 Spec phase: Local live run on this worktree's stack (card AC #2, #3)
 - [ ] #11 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3)
 - [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
+
+
 
 
 
