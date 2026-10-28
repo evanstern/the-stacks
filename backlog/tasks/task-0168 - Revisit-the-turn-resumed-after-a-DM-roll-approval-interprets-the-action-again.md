@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: To Do
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 08:53'
+updated_date: '2026-10-28 08:54'
 labels:
   - dm-runtime
   - gate
@@ -22,8 +22,11 @@ Outcome: with a human DM seated, a player check narrates after the DM approves i
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The trigger fired and a spec covers reuse of the interpret result on a resumed turn, or a decision record drops this card
+- [ ] #1 With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal, and a DB test
+- [ ] #2 The resumed turn reuses the resolved check rather than interpreting the action again, or a spec records why it must re-interpret
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
