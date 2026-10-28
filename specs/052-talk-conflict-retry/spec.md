@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-27
 
-**Status**: Draft — open questions pending (see "Open questions")
+**Status**: Ready for planning — Q1–Q6 resolved 2026-10-27 (see "Open questions")
 
 **Input**: User description: "Spec dir already exists: specs/052-talk-conflict-retry (TASK-0157). Several humans talking at once must never see a CONFLICT refusal for a talk request; document the gate's retry policy in the gate contract."
 
@@ -140,7 +140,7 @@ Each requirement names the card acceptance criterion it serves.
 
 - **FR-001** (AC #1): The gate MUST run the gate requests of one session one at a time, in
   arrival order, inside the server process, so that no two requests in one session read and
-  append concurrently. *(Recommended default for Q1; replace if Q1 rules otherwise.)*
+  append concurrently. *(Q1 ruling: A.)*
 - **FR-002** (AC #1): Every write the gate makes MUST take part in that ordering: `handle`,
   `submit` and `recordPresence`.
 - **FR-003** (AC #1): Requests in different sessions MUST NOT wait for one another.
@@ -148,7 +148,9 @@ Each requirement names the card acceptance criterion it serves.
   The next request in the session MUST still run.
 - **FR-005** (AC #1): The gate MUST keep the `expectedLastSeq` guard on every append and MUST
   keep a bounded retry on `SeqConflictError`, so a writer outside the process can never make
-  the gate decide against a stale log.
+  the gate decide against a stale log. The bound MUST stay 3 attempts, with a random wait of
+  10–50 ms between attempts and none after the last. Tests MUST be able to inject the wait.
+  *(Q3 ruling.)*
 - **FR-006** (AC #1): A test MUST run at least 3 concurrent human talk senders, with more than
   one line in flight per sender, against one session over the WebSocket gateway. It MUST
   assert that no sender receives a `CONFLICT` error frame and that every line lands exactly
@@ -166,7 +168,7 @@ Each requirement names the card acceptance criterion it serves.
 - **FR-010** (AC #2): The wire contract MUST stay unchanged: `CONFLICT` keeps the `internal`
   error kind (`specs/029-proposal-gate/contracts/ws-delivery.md`) and no frame gains a field.
 - **FR-011** (AC #1): The play-route client MUST show a plain-language label for `CONFLICT`
-  if one ever reaches it, instead of "the log kept changing". *(Recommended default for Q4.)*
+  if one ever reaches it, instead of "the log kept changing". *(Q4 ruling.)*
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -205,10 +207,14 @@ adds no service.
 
 ## Open questions
 
-Each question changes a frozen contract, the wire, or what a player sees. Each has a
-recommended default. The spec above is written against the defaults; plan.md waits for a ruling.
+**Resolved 2026-10-27.** The operator ruled in chat, verbatim: "TASK-0157: I accept the
+recommended defaults Q1 to Q6, including the per-session gate queue, the jittered retry and the
+029 gate-api amendment." The ruling is recorded on the card (commit 8a3105a). Every question
+below is closed at its recommended default, and the spec above is written against them.
 
-### Q1 — Where does the fix live?
+Each question changed a frozen contract, the wire, or what a player sees.
+
+### Q1 — RESOLVED (recommended default accepted) — Where does the fix live?
 
 | Option | What it does | Cost and risk |
 |---|---|---|
@@ -221,7 +227,7 @@ recommended default. The spec above is written against the defaults; plan.md wai
 request kind and every producer (human, AI DM, playtest seat), and it changes no wire shape.
 The card's AC #1 is met on its first branch ("no CONFLICT reaches the client").
 
-### Q2 — Does the ordering cover every request kind, or `talk` only?
+### Q2 — RESOLVED (recommended default accepted) — Does the ordering cover every request kind, or `talk` only?
 
 - **All gate writes, including `recordPresence` (recommended).** Approvals, declarations, floor
   passes and DM writes race the same way; ordering only `talk` leaves them refusable and leaves
@@ -231,7 +237,7 @@ The card's AC #1 is met on its first branch ("no CONFLICT reaches the client").
 
 **Recommended default: all gate writes.** The root cause is shared; the fix should be.
 
-### Q3 — What residual retry policy stays for writers outside the process?
+### Q3 — RESOLVED (recommended default accepted) — What residual retry policy stays for writers outside the process?
 
 - **Keep `MAX_ATTEMPTS = 3`, add a short jittered wait (10–50 ms) between attempts
   (recommended).** In the current topology (one server process, `index.ts`) nothing outside the
@@ -243,7 +249,7 @@ The card's AC #1 is met on its first branch ("no CONFLICT reaches the client").
 **Recommended default: 3 attempts with a 10–50 ms jittered wait.** The contract states the
 numbers, and a gate test injects the wait so tests stay fast.
 
-### Q4 — What does a player see if a `CONFLICT` still reaches them?
+### Q4 — RESOLVED (recommended default accepted) — What does a player see if a `CONFLICT` still reaches them?
 
 Under the defaults this happens only when a writer outside the process wins three times.
 
@@ -259,14 +265,14 @@ the draft on a refusal that should no longer occur does not justify a protocol c
 operator wants the draft kept, that is a separate card (it touches every refusal, not only
 `CONFLICT`).
 
-### Q5 — Can a talk ever double-land?
+### Q5 — RESOLVED (recommended default accepted) — Can a talk ever double-land?
 
 Not under any option except C without a request id. A `CONFLICT` appends zero rows
 (`appendBatch` throws before its first insert, inside the transaction), so a server-side retry
 can never land a line twice. Option A adds no resend at all. **Recommended default: no change;
 the amendment states that a `CONFLICT` writes nothing and is safe to resend by hand.**
 
-### Q6 — Does the per-session queue need a depth cap or a wait timeout?
+### Q6 — RESOLVED (recommended default accepted) — Does the per-session queue need a depth cap or a wait timeout?
 
 - **No cap, no timeout (recommended).** A table holds a handful of humans plus the DM. The
   measured burst of 100 lines drained in under 1 second. A cap would add a new refusal code,

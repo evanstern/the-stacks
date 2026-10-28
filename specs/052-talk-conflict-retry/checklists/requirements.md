@@ -34,7 +34,6 @@
 1. This is a defect fix against a frozen contract. "Background and root cause" cites code paths
    as evidence, and FR-009/FR-010 name the contracts the card requires amended. User stories and
    success criteria stay player-facing. This is deliberate, not a leak.
-2. Six open questions (Q1–Q6) change a frozen contract or player-visible behaviour. Each has a
-   recommended default, and the FRs are written against those defaults. `speckit-plan` waits
-   for the operator's ruling.
+2. Six open questions (Q1–Q6) changed a frozen contract or player-visible behaviour. All six were
+   resolved at their recommended defaults by the operator on 2026-10-27 (card commit 8a3105a).
 3. Card AC mapping: AC #1 → FR-001..FR-008, FR-011; AC #2 → FR-009, FR-010.
