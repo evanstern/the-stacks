@@ -1,0 +1,86 @@
+{
+  "v": 1,
+  "name": "human-dm-approval",
+  "dice": [9],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "approval turn after the human DM carries out the scene: free mode, resolve, no tracker step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the party act in the scene the DM set.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "one check against the ferry-house clue's DC",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-search",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin studies the chained ferry for fresh tool marks",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded failure",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin runs her eyes along the ferry chain but the links are rusted alike from end to end. Whatever kept the bell quiet left no mark she can read from the bank."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

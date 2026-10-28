@@ -43,4 +43,20 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     }
     expect(live.dice).toEqual([14]);
   });
+  it("greyhollow-human-dm is scene-start plus human-dm-approval, then only chronicle calls", () => {
+    const human = loadDmScript(read(LIVE_DIR, "greyhollow-human-dm.json"));
+    const start = loadDmScript(read(TEST_SCRIPTS, "scene-start.json"));
+    const approval = loadDmScript(read(TEST_SCRIPTS, "human-dm-approval.json"));
+    const base = [...start.calls, ...approval.calls];
+    expect(human.calls.slice(0, base.length)).toEqual(base);
+    const extra = human.calls.slice(base.length);
+    expect(extra.length).toBeGreaterThan(0);
+    for (const c of extra) {
+      expect(c.purpose).toBe("dm.chronicle");
+      expect(
+        ChronicleOutput.safeParse((c.respond as { value: unknown }).value),
+      ).toMatchObject({ success: true });
+    }
+    expect(human.dice).toEqual(approval.dice);
+  });
 });
