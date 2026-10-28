@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 18:47'
+updated_date: '2026-10-28 18:50'
 labels:
   - dm-runtime
   - gate
@@ -58,6 +58,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (ef5ca417): second dm.interpret removed from human-dm-approval and greyhollow-human-dm (11 -> 10 calls); new human-dm-roll-chain script; new human-dm-roll-resume.integration.test.ts. Orchestrator-run T016: the new test 3/3 ((a) the approval turn calls exactly director, narrate, audit, one check.roll, action resolved applied; (b) a manual turn while the roll is pending is empty-beat; (c) roll, then effect, then one narration), plus five neighbouring DB suites, 25/25. T017 mutation: both resume functions stubbed, all 3 cases fail ((a)/(b) job failed on the spent script, (c) interpret called again); restored, diff empty.
 
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 (3d05faa1): evidence/live-resume.mjs for Brave (node --check passes), quickstart step 4 corrected. T019 blocked 2026-10-28: the auto-mode classifier denied the orchestrator's append of DM_FAKE_SCRIPT=greyhollow-human-dm to the worktree .env (quickstart step 2). Not worked around; put to the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
