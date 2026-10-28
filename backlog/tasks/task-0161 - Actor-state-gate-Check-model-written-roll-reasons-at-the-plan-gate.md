@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 21:36'
+updated_date: '2026-10-28 21:37'
 labels:
   - dm
   - rules-gate
@@ -56,6 +56,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (T022-T030) at c7999f3f: resolve passes arriving and resumed; refusalCode comes from the verdict; REASON_CONTRADICTS_STATE appended to the engine enum (OQ-2 (a)), count 27->28, PLAN_GATE_ONLY exemption in coverage.test; 3 resolve DB tests; 026 refusals.md, 031 resolve.md, 051 claim-gate.md amended additively. Without a DB, ci:check shows only the 5 known adjudicate requireDb failures.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 [orchestrator] at c7999f3f on stacks-task-0161 (test DB migrated): REQUIRE_DATABASE=1 resolve.integration, encounter-end-resolves, human-dm-roll-resume, full-turn, duo, script-env, scene.integration, worker, plan-gate and adjudicate.integration: 12 files, 153 tests passed, 0 skipped. No scripted suite hit a refused reason (T032 nothing to triage).
+Mutation guard (T033): reason walk disabled at plan-gate.ts:351 -> 7 failed in plan-gate.test + resolve.integration: seq 221, act refusal, autoFail.reason, condition source (OQ-3), first-text-only, T025 NPC group, T026 action group. Pass-direction cases (arriving exemption, resumed skip, T027) stay green as expected. Restored; git diff empty. The app DB was not migrated: spec 058 has no UI change and no live run.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
