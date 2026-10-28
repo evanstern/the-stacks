@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:50'
+updated_date: '2026-10-28 05:51'
 labels:
   - multiplayer
   - dev-tooling
@@ -39,12 +39,14 @@ Spec: specs/054-two-player-alpha-kit
 - [x] #5 Spec phase: Duo seed, seat rules and the seeds route (card AC #1)
 - [x] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
 - [x] #7 Spec phase: Redeem toggle and the invite section (card AC #2)
-- [ ] #8 Spec phase: Start scene slide-out (card AC #3)
+- [x] #8 Spec phase: Start scene slide-out (card AC #3)
 - [ ] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
 - [ ] #10 Spec phase: Local live run on this worktree's stack (card AC #2, #3)
 - [ ] #11 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3)
 - [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
