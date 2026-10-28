@@ -18,6 +18,8 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/types.ts
   - apps/server/src/dm/jobs.ts
+  - apps/server/src/dm/script/env.ts
+  - apps/server/dm-scripts/greyhollow-live.json
   - apps/server/src/dm/nodes/interpret.ts
   - apps/server/src/dm/nodes/adjudicate.ts
   - apps/server/src/dm/nodes/resolve.ts
@@ -33,7 +35,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
   - biome.json
-verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # DM runtime
@@ -109,8 +111,10 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the full licence
   text and ships beside the compiled module.
-- **Scripted DM** (`dm/script/`): per-purpose responses and dice become a `FakeProvider` plus
-  `scriptedRng`, for tests and evidence runs ([[ai-gateway]], [[test-suite]]).
+- **Scripted DM** (`dm/script/`): per-purpose responses and dice become a strict `FakeProvider` plus
+  `scriptedRng`, for tests and evidence runs ([[test-suite]]). `script/env.ts` also loads a shipped
+  script (`apps/server/dm-scripts/greyhollow-live.json`) at boot under `DM_FAKE_SCRIPT` on a worktree
+  stack, replacing the whole AI config ([[ai-gateway]], TASK-0158).
 
 ## Companions and chronicle
 
@@ -120,16 +124,13 @@ companion, under a human's permission matrix and commit authority. In turn mode 
 active companion always acts (a null act becomes a hold action).
 Each run returns one `pending` decision per own open action: `commit`, `withdraw` or `revise`
 (default `withdraw` after a human `object`, else `commit`). A human comment on
-an open action queues a `react` run ([[dm-turn-jobs]]). In turn mode only the active companion
+an open action queues a `react` run ([[dm-turn-jobs]], [[playtest-harness]]). In turn mode only the active companion
 commits, and a withdraw still takes the hold act so the turn advances.
-`PROMPT_VERSION` is `dm.companion-v5` (v3 added the `seat` view, v4 the react, withdraw and
-revise decisions). On overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` decision queues a companion job, which force-queues the turn when it ends. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
+`PROMPT_VERSION` is `dm.companion-v5`. On overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` decision queues a companion job that force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
 (`dm.chronicle-v3`). On overflow it writes nothing, returns `entries: 0` and logs
-`dm.chronicle.failed` (`kind: "state-overflow"`).
-
-The playtest harness ([[playtest-harness]]) drives this pipeline in process.
+`dm.chronicle.failed`.
 
 ## Routes and boundary
 

@@ -1,6 +1,6 @@
 ---
 name: runtime-stacks
-description: scripts/env.mjs — a labeled, isolated compose stack per git worktree (env up/down/status/prune/main), the pure derivation logic in env-lib.mjs, root-.env inheritance, the orphan-warning Stop hook, and the local origin/main stack. Load for worktree-database, port-collision, shared-secret, or "why is this container still running" questions.
+description: scripts/env.mjs — a labeled, isolated compose stack per git worktree (env up/down/status/prune/main), the pure derivation logic in env-lib.mjs, root-.env inheritance, the orphan-warning Stop hook, the local origin/main stack, and the scripted-DM setup (credential-free app-DB migrate, printf .env append). Load for worktree-database, port-collision, shared-secret, or "why is this container still running" questions.
 kind: component
 sources:
   - scripts/env.mjs
@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Runtime stacks
@@ -33,8 +33,7 @@ own app project would collide with `foo`'s test project — see below). Otherwis
 (1 ≤ n ≤ 999) maps to the fixed range `3000+n`/`15000+n`/`25000+n` (app/db/test-db);
 anything else gets a `sha256`-hashed range (`4000`–`11999`/`16000`–`23999`/`26000`–`33999`)
 so an unnumbered worktree name still works with no registry — the test port is always the
-db port shifted by `+10000`, so one worktree's three ports read as a triple (e.g.
-`3033`/`15033`/`25033`). `env up` writes `.env` via `mergeEnvFile` — per key, the first
+db port shifted by `+10000`. `env up` writes `.env` via `mergeEnvFile` — per key, the first
 layer that has it wins: derived (`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`,
 `TEST_DATABASE_URL`), then the root checkout's own `.env` (spec 022, below), then the
 worktree's existing `.env`, then `.env.example`'s default — probes all three ports on
@@ -46,7 +45,7 @@ Those three flow into `docker-compose.yml`'s `org.the-stacks.*` container labels
 `GIT_COMMIT` build arg (see [[compose-stack]] and [[container-image]]), which
 `apps/server/src/config.ts` reads back out and [[health-check]] surfaces at `/health` —
 "which build is this" is never a guess. `env down` tears the test project down first, then
-the app project (`docker compose -p <project> down -v --remove-orphans` each), and succeeds
+the app project (`down -v --remove-orphans` each), and succeeds
 even when either or both are absent (`env:main` has no test project to tear down).
 
 **The test stack (spec 020).** Every non-`main` worktree gets a second, DB-only compose
@@ -69,19 +68,14 @@ down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can 
 side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
 hook (`.claude/settings.json`) and **only ever warns** — on exit 1 it prints the orphan list
 to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always itself exits 0, so an
-orphan never blocks ending a session. `CLAUDE.md`'s "Runtime stacks" section (outside the
-`pdlc:grounding` markers, so plugin re-bootstraps never erase it) is where the actual gating
-rule lives: run `pnpm env:prune --check` at sweep start and before removing a worktree, and
-`pnpm env:down` before `git worktree remove`.
+orphan never blocks ending a session. `CLAUDE.md`'s "Runtime stacks" section holds the gating rule.
 
 **`env main`.** A dedicated detached worktree at `.worktrees/env-main`, kept across runs so
 Docker's build-layer cache stays warm: `git fetch origin main`, then either `git worktree add
 --detach .worktrees/env-main origin/main` (first run) or, inside the existing worktree,
 `git checkout --detach origin/main` + `git reset --hard origin/main` + `git clean -fdx -e
 .env` (subsequent runs) — then the same `up` path with `mainIdentity()` (env `main`, fixed
-ports 3000/5432). No command in this sequence runs with the root checkout as its cwd except
-the `fetch` and the `worktree add`/`remove` themselves — the reset/clean/checkout all run
-inside `.worktrees/env-main`, which is registered as its own worktree, so the root's `git
+ports 3000/5432). The reset, clean and checkout run inside `.worktrees/env-main`, so the root's `git
 status`/`HEAD` never change. `env down main` downs `stacks-main` and
 `git worktree remove --force`s that worktree. Because `env-main` is a registered worktree and
 `main` is an exempt env name, the local-main stack is never flagged an orphan.
@@ -94,16 +88,25 @@ derives — `env:main` derives no `TEST_*` keys, so without this a stale `TEST_D
 from root could aim host-run tests at root's database). Root wins over the worktree's own
 existing value for the same key — a rotated secret or an edited `AI_PROVIDERS` propagates to
 every worktree on its next `env:up`, with no per-worktree override built (an operator
-hand-edit of a shared key is silently overwritten on the next `up`; the upgrade path, if ever
-needed, is a git-ignored `.env.local` layer between derived and shared). `env:main`'s
-`.worktrees/env-main` inherits the same way — `writeEnvFile` is one function, shared by `up`
-and `main`, so there is no separate code path to keep in sync. `env:up`/`env:main` print
-`inherited from <root>/.env: KEY, KEY` — key names only, never a value — and print nothing
-when root's `.env` is absent or has no non-derived key. Root's `.env` itself is never written
-by this tooling (`deriveIdentity` already refuses `env.mjs up` from the root checkout).
+hand-edit of a shared key is silently overwritten on the next `up`). `env:main`
+inherits the same way (one shared `writeEnvFile`). `env:up`/`env:main` print
+`inherited from <root>/.env: KEY, KEY` (names only, never a value). Root's `.env` is never
+written by this tooling.
 **Caveat:** Postgres reads `POSTGRES_PASSWORD` only at volume init, so a worktree whose `db`
 volume predates a root-side password change keeps the old password until `env:down` (which
 drops the volume, `-v`) then `env:up` again.
+
+**Scripted DM on a worktree stack (TASK-0158, specs/053).** `DM_FAKE_SCRIPT=<name>` makes the app
+replay `apps/server/dm-scripts/<name>.json` with no provider key ([[ai-gateway]]). Set it in the
+worktree's `.env`, never root's: a root key wins over a worktree key and would reach every stack.
+A fresh stack is unmigrated, and a host `db:migrate` hits the test database ([[configuration]]), so
+migrate the app database without reading a credential: `docker build --target build -t
+stacks-<env>-migrate .`, then `docker run --rm --network stacks-<env>_default --env-file .env -e
+TEST_DATABASE_URL= -w /app/apps/server stacks-<env>-migrate node --experimental-strip-types
+scripts/migrate.ts` (Docker passes the env file; `deploy/dev`'s `migrate` service has the same
+shape). Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
+without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env>
+up -d --force-recreate --wait app`. Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
 
 ## Connections
 
@@ -113,11 +116,9 @@ Feeds container identity into [[compose-stack]]'s labels and [[container-image]]
 
 ## Operational notes
 
-`env.mjs` exits 2 (not 1) whenever Docker itself is unreachable, distinct from exit 1
-("refused" — a bound port, an unhealthy `docker compose up`, a reserved/root env) so a caller
-can tell "fix Docker" apart from "fix the request." `pnpm check:env` (`scripts/env.test.mjs`,
-Node `--test`, real Docker) proves the no-leftovers guarantee end to end; it is **not** part
-of `pnpm ci:check` — no Docker-in-Docker in this repo's CI today — so it is run locally and
-its result recorded on the task instead. `scripts/env-lib.mjs`'s unit tests
+`env.mjs` exits 2 when Docker is unreachable, distinct from exit 1
+("refused": a bound port, an unhealthy `up`, a reserved/root env). `pnpm check:env` (`scripts/env.test.mjs`,
+real Docker) proves the no-leftovers guarantee end to end; it is **not** part
+of `pnpm ci:check` (no Docker-in-Docker in CI), so it is run locally and recorded on the task. `scripts/env-lib.mjs`'s unit tests
 (`scripts/env-lib.test.mjs`) *are* in `ci:check` via `check:scripts` (see
 [[monorepo-and-toolchain]] and [[ci-pipeline]]).
