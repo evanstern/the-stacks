@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: Done
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 22:36'
+updated_date: '2026-10-28 22:56'
 labels:
   - dm
   - rules-gate
@@ -37,8 +37,6 @@ Spec: specs/058-roll-reason-plan-gate
 - [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -70,6 +68,8 @@ spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 
 spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
 
 Merged: PR #83 as merge commit 78f65740. Cleanup pending: Docker Desktop was not reachable, so pnpm env:down and the worktree removal wait for it.
+
+Cleanup done 2026-10-28: pnpm env:down, worktree removed, local and remote branch deleted, env:prune --check reports no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
