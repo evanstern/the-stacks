@@ -139,19 +139,19 @@ the DB cases run in Phase 3.
 
 ## Phase 4: Wiki re-ground
 
-- [ ] T027 Re-verify and re-pin `docs/wiki/scene-panels.md` ("Start scene": the server state, the
+- [x] T027 Re-verify and re-pin `docs/wiki/scene-panels.md` ("Start scene": the server state, the
       GET, the hidden button, the two notes, the poll).
-- [ ] T028 Re-verify and re-pin `docs/wiki/play-route.md` (`TableSource.sceneStart`; `TableView`
+- [x] T028 Re-verify and re-pin `docs/wiki/play-route.md` (`TableSource.sceneStart`; `TableView`
       holds no start flag) and `docs/wiki/dm-runtime.md` (`/dm` routes: the GET and the `pending`
       409).
-- [ ] T029 Re-pin `docs/wiki/debug-view.md`, `docs/wiki/server-entrypoint-and-app.md`,
+- [x] T029 Re-pin `docs/wiki/debug-view.md`, `docs/wiki/server-entrypoint-and-app.md`,
       `docs/wiki/hosted-dev.md` and `docs/wiki/react-router-app.md` where they list a touched
       source. Re-verify each claim that names a touched file; edit only what changed.
-- [ ] T030 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+- [x] T030 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
       spec 059 to `docs/wiki/INDEX.md`'s state paragraph.
-- [ ] T031 Add a TASK-0167 "(this PR)" row to the execution log in
+- [x] T031 Add a TASK-0167 "(this PR)" row to the execution log in
       `docs/design/m3-table-sweep-runbook.md`, in the TASK-0168 row's shape.
-- [ ] T032 Run the wiki freshness gate
+- [x] T032 Run the wiki freshness gate
       (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       prints `OK`) and the spec-bridge check
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` exits 0).

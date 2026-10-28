@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
+verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
 ---
 
 # Hosted dev (vm-104)
@@ -113,7 +113,7 @@ sign-in card, the operator starts a table and, in the Start scene slide-out ([[p
 picks `greyhollow-ford-duo` and a different user for each human seat ([[seed-npc-presence]],
 [[invitations]]). The scene opening needs a model key under `Secrets`; the runbook also lists
 three expected refusals (403 on `GET /dm/seeds` as a player, 400 on one user in two seats, 409
-on a second start).
+on a second start). With a human DM the header then reads "Scene start waiting for the DM." until the DM carries out the suggestion (TASK-0167, specs/059).
 
 ## Connections
 
