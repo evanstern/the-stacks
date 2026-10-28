@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:47'
+updated_date: '2026-10-28 08:50'
 labels:
   - play-route
   - gate
@@ -86,6 +86,10 @@ Orchestrator ruling (Phase 5): this is a script fixture gap, not a product defec
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 5 rerun (a202e04 script fix, be153da shots and evidence) stopped at 8c again. Cause: at boot the worker enqueues a reconcile turn for every session with an unresolved action.committed. The first-run session reconciled on each restart and spent the script, one queue per purpose, before the fresh session ran. This is the known one-process script queue limit (spec 053 Q8), not a TASK-0159 defect. Orchestrator ruling: reset the worktree stack (env:down, env:up, migrate both DBs, one app start), then run the narrated flow once with no restart before it finishes. The baseline session commits no action, so a restart before it is safe. The Start scene header finding is already TASK-0167.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 clean pass (01cd836) on a reset stack: steps 4 to 8b, T031 shots, T032 and step 10 pass. 8c stopped: the turn that resumes after the DM approves the roll calls dm.director then dm.interpret again, and the script held one interpret entry. Orchestrator ruling: add a second dm.interpret entry after the second director in both scripts (director, interpret, director, interpret, narrate, audit). No server change in TASK-0159. Reset the stack again before the next pass, because the unresolved act-search reconciles at boot.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
