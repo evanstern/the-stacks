@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:39'
+updated_date: '2026-10-28 05:40'
 labels:
   - multiplayer
   - dev-tooling
@@ -75,6 +75,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (431a9af, e4d1fe0): operator Start scene slide-out on the table page (seed select, one present human per human seat, inline refusals, closes on 202). Web tests red then green (107 vitest, 245 node). Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on e4d1fe0: exit 0, server 1261, web 107. T028 to be ticked by the next phase.
 
 spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 8/8 · Start scene slide-out (card AC #3): 5/6 · Runbook section and the DM API contract (card AC #3): 0/3 · Local live run on this worktree's stack (card AC #2, #3): 0/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 0/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 0/5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5 (92c22de): docs/ops/dev-vm-104.md 'Run a two-player table' (19 steps, labels quoted from the shipped code); spec 031 dm-api.md additive GET /dm/seeds and seat rule 3 with the 2026-10-28 ruling note. T031: docs-only since e4d1fe0, whose DB ci:check passed; the next phase ticks T031 on that basis.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
