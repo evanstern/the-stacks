@@ -33,8 +33,6 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -52,6 +50,8 @@ spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (99be423c): assemble drops awaiting actions and fills resumed; runner freezes resumed and skips adjudicate for resumed readings; interpret asks only about fresh items (no call when all resumed); adjudicate carries resumed rulings; resolve seeds refreshed submissions. 8 new unit cases red first, then 66/66 green. Orchestrator accepts the implementer's call that a frozen beat with null resumed reads as [] and does not search again (contract: a later attempt does not search again). resolve seeding is first exercised by the Phase 3 DB test.
+
+spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 0/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
