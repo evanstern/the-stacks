@@ -72,7 +72,8 @@ then `REQUIRE_DATABASE=1` `vitest run test/dm/routes.integration.test.ts`.
 - [x] T008 [US1] In `apps/server/src/routes/dm.ts`, add `GET /seeds` (operator only) per
   `contracts/dm-seeds.md`, and add rule 3 of `contracts/scene-start-seats.md` to the start
   route's seat issues. Run T002 to T004 green.
-- [ ] T009 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Commit and push.
+- [x] T009 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Commit and push.
+  Orchestrator ran the DB suite on 143044b: REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1250 passed, routes.integration 15/15.
 
 ---
 
@@ -84,7 +85,7 @@ sign-off and floor passing behave with two humans; the two new seat rules are pi
 **Independent test**: `vitest run test/dm/duo-views.test.ts`, then `REQUIRE_DATABASE=1`
 `vitest run test/dm/duo.integration.test.ts`.
 
-- [ ] T010 [P] [US1] Create `apps/server/test/dm/duo-views.test.ts` (no database), per research
+- [x] T010 [P] [US1] Create `apps/server/test/dm/duo-views.test.ts` (no database), per research
   R9. Build duo projections in which tamsin and kestrel have `player` controllers for two distinct
   user ids and odo is an `ai-companion`; reuse the builders in `apps/server/test/dm/snapshot-fixtures.ts`
   and `helpers.ts`, adding a duo variant beside the existing greyhollow-ford one. Assert: the
@@ -92,7 +93,7 @@ sign-off and floor passing behave with two humans; the two new seat rules are pi
   human as a party member; the `dm` view lists both humans as players and odo as a companion;
   the player-facing interpret and narrate prompts (see `test/dm/player-facing-prompts.test.ts`)
   name both humans and never call kestrel a companion.
-- [ ] T011 [P] [US1] Create `apps/server/test/dm/duo.integration.test.ts` (database), modelled on
+- [x] T011 [P] [US1] Create `apps/server/test/dm/duo.integration.test.ts` (database), modelled on
   `test/dm/scene.integration.test.ts` and `test/dm/floor-jobs.integration.test.ts`. Run scene start
   on `greyhollow-ford-duo` through the real queue with the `scene-start.json` script and seats
   `{ tamsin: <user A>, kestrel: <user B> }`. Assert three party rows: tamsin and kestrel with
