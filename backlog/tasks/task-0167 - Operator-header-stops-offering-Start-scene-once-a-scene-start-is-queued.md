@@ -4,7 +4,7 @@ title: Operator header stops offering Start scene once a scene start is queued
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:59'
-updated_date: '2026-10-28 22:44'
+updated_date: '2026-10-28 22:54'
 labels:
   - play-route
 milestone: m-3
@@ -30,13 +30,13 @@ Spec: specs/059-start-scene-queued
 - [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0167, branch task-0167-start-scene-queued, cut from origin/main ba18aaf7. Spec 059 authored at 21be5ba9: one server predicate sceneStartState (none | queued | pending | started) drives both the start route 409 and a new operator-only GET /dm/sessions/:id/start that the header reads; TableView drops its local startQueued flag. The author found that with a human DM a second start is accepted today (no 409) and re-proposes the opening moves; T003 is a red-first DB test for it. No frozen contract change, no new frame, no modal. Open questions OQ-1 to OQ-4 go to the operator.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Operator ruling 2026-10-28, verbatim: "Accept all (a)", in answer to "Do you accept the recommended defaults (a) for TASK-0167's OQ-1 to OQ-4?". So: OQ-1 (a) the start route refuses with 409 while the scene suggestion is pending (amend 031 dm-api.md); OQ-2 (a) the header polls the GET every 5 s while queued or pending, plus fetch on catch-up and after each start result; OQ-3 (a) after a Dismiss the state is none and the operator may start again; OQ-4 (a) two texts, "Scene start queued." and "Scene start waiting for the DM."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
