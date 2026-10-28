@@ -4,9 +4,11 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: To Do
 assignee: []
 created_date: '2026-10-27 19:52'
+updated_date: '2026-10-28 14:44'
 labels:
   - dm
   - rules-gate
+milestone: m-3
 dependencies:
   - TASK-0143
 priority: medium
@@ -27,6 +29,12 @@ Why: operator ruling 2026-10-27 on TASK-0143 OQ-1 (a): model-written roll reason
 - [ ] #2 A refused reason feeds the existing plan refusal path, with a test over M2 seq 221.
 - [ ] #3 A reason the checker passes ships unchanged.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-10-28, verbatim: "0161 can be done in M3 if it fits well. If you think it should move to another milestone, I'll leave it to your judgement". Orchestrator ruling: keep in M3. It is the direct follow-up of TASK-0143 (an M3 sweep task), and a dice line that contradicts actor state would show in the TASK-0053 demo. It runs after TASK-0168, because both touch the roll path.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
