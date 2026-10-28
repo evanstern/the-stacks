@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:13'
+updated_date: '2026-10-28 04:17'
 labels:
   - dm
   - debug-view
@@ -46,6 +46,9 @@ Operator ruling, 2026-10-27, verbatim: "TASK-0158: I accept the recommended defa
 Correction: the operator ruling above was given 2026-10-28, not 2026-10-27.
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (7144696, a8318ce): createAiRuntime in dm/script/env.ts, 17 tests red then green. Mutation (STACKS_ENV guard off): 5 refuse cases fail; restored, diff empty. ci:check without a DB fails only the 5 known adjudicate.integration tests; the DB run is Phase 2's.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
