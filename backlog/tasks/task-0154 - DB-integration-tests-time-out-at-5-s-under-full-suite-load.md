@@ -4,7 +4,7 @@ title: DB integration tests time out at 5 s under full-suite load
 status: To Do
 assignee: []
 created_date: '2026-10-27 04:11'
-updated_date: '2026-10-27 04:32'
+updated_date: '2026-10-28 14:52'
 labels:
   - test
   - bug
@@ -19,6 +19,8 @@ ordinal: 141000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: the server's DB-backed scene and playtest integration tests pass reliably under a full REQUIRE_DATABASE=1 run, without single re-runs. Evidence (M3 sweep, 2026-10-27): test/dm/scene.integration.test.ts 'plays Greyhollow Ford' (TASK-0116 Phase 2) and test/playtest/harness.integration.test.ts (TASK-0051 Phase 2) each hit vitest's 5 s default timeout under full-suite load, passed alone in about 3 s, and passed on a single re-run. Distinct from the known WebSocket gateway flake.
+
+Spec: specs/056-db-test-timeouts
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
