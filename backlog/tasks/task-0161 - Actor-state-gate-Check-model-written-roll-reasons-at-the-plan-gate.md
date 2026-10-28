@@ -66,6 +66,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
 
 spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
+
+Merged: PR #83 as merge commit 78f65740. Cleanup pending: Docker Desktop was not reachable, so pnpm env:down and the worktree removal wait for it.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
