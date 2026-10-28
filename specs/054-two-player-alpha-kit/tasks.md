@@ -160,12 +160,12 @@ from the humans present at the table.
 
 **Independent test**: `pnpm --filter @the-stacks/web test`.
 
-- [ ] T023 [P] [US3] Create `apps/web/test/play/start-scene.test.mjs` for pure helpers in
+- [x] T023 [P] [US3] Create `apps/web/test/play/start-scene.test.mjs` for pure helpers in
   `apps/web/app/play/start-scene.ts`: `seatMapIssues(humans, seats)` returns an issue per empty
   seat and per repeated user; `startBody(seedId, seats)` returns `{ seedId, seats }` with empty
   seats dropped; `issuesBySeat(errorIssues)` maps `seats.<id>` paths to seats and the rest to
   a form-level list.
-- [ ] T024 [P] [US3] Create `apps/web/test/play/start-scene-panel.test.tsx` per
+- [x] T024 [P] [US3] Create `apps/web/test/play/start-scene-panel.test.tsx` per
   `contracts/web-surfaces.md` ("Play route"). Stub `fetch` for `GET /dm/seeds` and the start
   route. Cases: the header shows `Start scene` only for the operator, on a live table, after
   replay, with no scene; the panel lists the seeds; choosing the duo seed shows a select for
@@ -173,10 +173,10 @@ from the humans present at the table.
   companion; `Start` is disabled while a seat is empty or one user holds both seats; `Start`
   posts the seat map and on 202 closes the panel and shows `Scene start queued.`; a 400 shows its
   seat issue beside that seat.
-- [ ] T025 [US3] Run T023 and T024 and confirm each new case fails.
-- [ ] T026 [US3] Create `apps/web/app/play/start-scene.ts` (pure helpers) and
+- [x] T025 [US3] Run T023 and T024 and confirm each new case fails.
+- [x] T026 [US3] Create `apps/web/app/play/start-scene.ts` (pure helpers) and
   `apps/web/app/play/components/start-scene-panel.tsx` (the slide-out, on `components/panel.tsx`).
-- [ ] T027 [US3] Expose what the panel needs on the live source in
+- [x] T027 [US3] Expose what the panel needs on the live source in
   `apps/web/app/play/source.ts` and `apps/web/app/play/use-live-table.ts`: the signed-in user's
   role and a `startScene(body)` command that posts to `/dm/sessions/<sessionId>/start`. The
   fixture source (`use-fixture-table.ts`) leaves both absent, so fixtures never show the control.
