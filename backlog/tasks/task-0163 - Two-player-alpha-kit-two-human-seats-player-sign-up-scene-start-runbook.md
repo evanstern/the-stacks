@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:01'
+updated_date: '2026-10-28 05:06'
 labels:
   - multiplayer
   - dev-tooling
@@ -44,6 +44,9 @@ Spec: specs/054-two-player-alpha-kit
 Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Add TASK-0163 to the M3 sweep runbook, right after TASK-0158 and before TASK-0159, TASK-0154 and the TASK-0053 demo." (Relayed first from the design-fork session: "I'd ratehr you hand the task off to the m3 sweep, frankly, but you use your judgement at this point since it's been a while".) AC #4's live run on vm-104 needs the operator's go on the exact command; the merge-on-green grant does not cover it. Runbook rows land on the TASK-0158 branch (Phase 5).
 
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0163, branch task-0163-two-player-alpha-kit, cut from origin/main cc5e39b. Spec number 054 claimed with a stub. Spec 053 is held by TASK-0158 (PR #78), so this takes 054. Operator placed it after TASK-0158 (note cc5e39b).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (spec.md, 2caeccc) stopped with open questions Q1-Q6. Blocker found: crossCheckSeed refuses any seed whose human count is not exactly one; redeem already makes a signed-in player but the web app has no surface; no runbook section for scene start.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
