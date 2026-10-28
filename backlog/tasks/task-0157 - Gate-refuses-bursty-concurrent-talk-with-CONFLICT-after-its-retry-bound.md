@@ -1,9 +1,10 @@
 ---
 id: TASK-0157
 title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
+updated_date: '2026-10-28 03:00'
 labels:
   - gate
   - ws
@@ -24,6 +25,12 @@ Outcome: several humans talking at once never see a CONFLICT refusal for a talk 
 - [ ] #1 A test with at least 3 concurrent human talk senders shows no CONFLICT reaches the client, or the play-route client resends and the talk lands once
 - [ ] #2 The chosen retry policy is documented in the gate contract
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0157, branch task-0157-talk-conflict-retry, cut from origin/main 88194c8. Spec number 052 claimed with a stub. Spec 051 is held by TASK-0143 (PR #76), so this takes 052.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
