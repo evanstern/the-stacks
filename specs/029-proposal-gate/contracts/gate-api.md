@@ -201,7 +201,9 @@ export function createGate(deps: GateDeps): Gate;
 6. **`gate.policy`:** seated human DM or operator (`NOT_AUTHORIZED`). Append
    `gate.policy.changed` with `before` = the current human-seat effective policy.
 7. Every append calls the seam with `expectedLastSeq: lastSeq`. On `SeqConflictError`,
-   restart from step 1. After the third conflict, refuse `CONFLICT`.
+   wait, then restart from step 1. After the third conflict, refuse `CONFLICT`. See the
+   TASK-0157 amendment ("Ordering and retry policy") below for the order, the wait and the
+   bound.
 8. On success, call every `onAppended` listener (a listener that throws is logged and does
    not affect the result or other listeners), then return the result.
 
@@ -211,6 +213,32 @@ step 1, so a restart loses nothing (AC #9).
 > **Amendment (TASK-0049).** Every `planProposal` call in this section passes `context =
 > { present: presence.presentUsers(sessionId).map((e) => e.userId) }`, read from the live
 > presence reader. Step 2's legality check and step 3's approval plan receive it too.
+
+> **Amendment (TASK-0157, specs/052-talk-conflict-retry). Ordering and retry policy.**
+>
+> - **Per-session order.** The gate runs one session's writes one at a time, in arrival
+>   order, inside the server process. A write is a `handle` call, a `submit` call or a
+>   `recordPresence` call. The whole of each write runs in its turn: every attempt, every
+>   wait and every `onAppended` call. Writes to different sessions never wait for each other.
+> - **Parse first.** A request that fails `ProposalSchema` or `GateRequestSchema` is refused
+>   `INVALID_PROPOSAL` at once. It never joins the order.
+> - **Isolation.** A refusal or a thrown error ends that write only. The next write in the
+>   session still runs.
+> - **No re-entry.** Code that runs inside a write MUST NOT await another gate write for the
+>   same session. `onAppended` listeners are synchronous for this reason.
+> - **Retry bound.** At most 3 attempts per write. After a `SeqConflictError` on attempt 1 or
+>   2, the gate waits a random 10–50 ms, then restarts from step 1. No wait follows attempt 3.
+>   `GateDeps.retryDelayMs(attempt)` overrides the wait for tests.
+> - **When `CONFLICT` can still occur.** In-process writes cannot conflict with one another.
+>   A `CONFLICT` now means a writer outside this gate instance (another process, or a second
+>   gate over the same database) appended to the session three times in a row.
+> - **Safe to resend.** A `CONFLICT` writes zero rows. A caller may resend the same request
+>   without risk of a duplicate.
+> - **Wire unchanged.** `CONFLICT` keeps the `internal` error kind (ws-delivery.md).
+>
+> Amended 2026-10-27 (TASK-0157), operator ruling: "TASK-0157: I accept the recommended
+> defaults Q1 to Q6, including the per-session gate queue, the jittered retry and the 029
+> gate-api amendment."
 
 ### AC #7 equivalence
 

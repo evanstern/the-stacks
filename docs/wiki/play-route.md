@@ -28,7 +28,7 @@ sources:
   - apps/web/app/play/components/turn-order.tsx
   - apps/web/app/play/components/mode-badge.tsx
   - apps/web/app/play/components/commit-control.tsx
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
 ---
 
 # Play route
@@ -65,11 +65,9 @@ it holds only UI state (which panel is open). Two hooks build a source:
 
 ## The Debug link
 
-`play.tsx`'s `LiveTable` passes `TableView` a `debugHref` of `/play/<sessionId>/debug` when
-`user.role === "operator"`, else `undefined`. `TableView` forwards it to `TableHeader`
-(`components/table-header.tsx`), which renders a "Debug" anchor after the ledger and approvals
-triggers only when the prop is set. The anchor opens in a new tab (`target="_blank"`,
-`rel="noopener"`). The fixture routes pass no `debugHref`. The page behind the link is a separate
+`play.tsx`'s `LiveTable` passes `TableView` a `debugHref` of `/play/<sessionId>/debug` only when
+`user.role === "operator"`. `TableHeader` (`components/table-header.tsx`) then renders a "Debug"
+anchor (new tab, `rel="noopener"`); the fixture routes pass none. The page behind the link is a separate
 route, `play/:sessionId/debug` (`routes/play-debug.tsx`), described in [[debug-view]].
 
 ## Pure modules
@@ -124,7 +122,8 @@ Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` fr
 `action.withdraw`, `floor`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` from the frame's `code` in `notice`,
-which the composer shows inline. A refusal does not close the socket.
+which the composer shows inline. `refusalLabel` in `labels.ts` gives plain wording for the floor codes and `CONFLICT` ("Send it again."); any other code shows the server message.
+A refusal does not close the socket.
 
 ## Surfaces
 

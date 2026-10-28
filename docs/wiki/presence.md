@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
+verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
 ---
 
 # Presence
@@ -63,7 +63,7 @@ ordinary close path and starts its grace window ([[websocket-gateway]]).
 `presence.recorded` v1 (`session-model/src/events/presence.ts`) is a catalogued `marker` with
 `present` (sorted, unique user ids, at most 64), `purpose` (`director`, `signoff` or `floor`) and
 optional `actionId` ([[session-model]]). `gate.recordPresence` writes the `director` marker: a `system`
-actor, visibility `public`, no deduplication ([[proposal-gate]]). `purpose: "director"` is
+actor, visibility `public`, no deduplication; the write joins the session's gate queue ([[proposal-gate]]). It reads `present` from the injected `PresenceReader` (default: nobody), skips the projection load and `expectedLastSeq` (the log's advisory lock orders the append), and keeps the bounded conflict retry with its wait. `purpose: "director"` is
 written per DM turn. `purpose: "signoff"` is written by the gate (TASK-0049, specs/044-group-signoff) inside the commit batch of a party action with two or more human players, with the `actionId` and the present set the quorum was decided against; it is not written through `recordPresence`. `purpose: "floor"` (TASK-0050, specs/049-turn-floor) is written by the gate as the first row of an `ai:dm` `floor` `end` batch: the present set when the AI DM passed an absent human's turn; it too skips `recordPresence`. The DM worker
 writes one per claimed `turn` job, before the pipeline, and stores its `seq` as `presenceSeq` in
 the job result; a failed write fails the turn at node `presence`
