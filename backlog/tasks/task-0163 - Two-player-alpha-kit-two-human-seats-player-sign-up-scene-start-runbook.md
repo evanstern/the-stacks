@@ -46,10 +46,6 @@ Spec: specs/054-two-player-alpha-kit
 - [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -85,6 +81,8 @@ Phase 5 (92c22de): docs/ops/dev-vm-104.md 'Run a two-player table' (19 steps, la
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 6 (8767b51): local live run on stacks-task-0163 in script mode, two Brave contexts. Invite on Settings, redeem from the sign-in card, both at one table, Start scene seats operator as Tamsin and Player Two as Kestrel; opening narration reached both. Refusals: player GET /dm/seeds 403; one user two seats 400 seats.kestrel; second start 409; used token refused. 20 shots, no modal. Docs corrected (seed label carries the id; issue message is issues[0]). Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on 8767b51: exit 0, server 1261, web 107 (T035). A leftover local test account player2 exists on this stack only. Observation: the table shows no chip for AI companions.
+
+spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 8/8 · Start scene slide-out (card AC #3): 6/6 · Runbook section and the DM API contract (card AC #3): 3/3 · Local live run on this worktree's stack (card AC #2, #3): 3/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 0/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
