@@ -6,7 +6,8 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+  - apps/server/src/dm/script/env.ts
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Server entrypoint and app
@@ -17,19 +18,19 @@ via `createApp` without binding a port.
 
 ## How it works
 
-`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `loadAiConfig(process.env)`
-(from `ai/config.ts`, called directly here rather than through `loadConfig` — see
-[[configuration]]'s "no relative imports" note), then constructs the AI gateway (see
-[[ai-gateway]]) via `createGateway({ config: aiConfig, sink: logSink })` from `ai/gateway.ts` —
-imported under the alias `createAiGateway` to avoid colliding with the WebSocket module's own
-`createGateway`. It also calls `loadRetrievalConfig(process.env)` (from `library/retrieve.ts`,
+`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `createAiRuntime(process.env)`
+(from `dm/script/env.ts`, TASK-0158, specs/053), which calls `loadAiConfig` directly (not through
+`loadConfig` — see [[configuration]]'s "no relative imports" note) or, when `DM_FAKE_SCRIPT` is
+set, builds script mode ([[ai-gateway]]) and `index.ts` logs `DM script mode: <name> (<n> calls, <n> dice)`.
+It then constructs the AI gateway via `createGateway({ config: aiConfig, sink: logSink, adapters:
+runtime.adapters })` from `ai/gateway.ts`, imported as `createAiGateway` to avoid colliding with the
+WebSocket module's own `createGateway`. It also calls `loadRetrievalConfig(process.env)` (from `library/retrieve.ts`,
 see [[retrieval]]) and, since TASK-0027 (specs/018-rules-answerer), `loadAnswerConfig(process.env)`
 (from `library/answer.ts`, see [[rules-answerer]]) — both validated here so a bad `RETRIEVAL_*`
 or `ASK_MIN_SIMILARITY` value fails fast at boot, before `aiGateway` exists.
 
 Since TASK-0024, `index.ts` then: creates
-`uploadDir = path.join(os.tmpdir(), "the-stacks-uploads")` (survives a `restart`, not a
-`recreate`, per [[ingestion]]); resolves
+`uploadDir = path.join(os.tmpdir(), "the-stacks-uploads")` ([[ingestion]]); resolves
 `embedPurpose` from `retrievalConfig.embedPurpose`, only when `aiConfig.purposes[name]?.op ===
 "embed"`, else `null`; and starts `startIngestWorker({ db, gateway: aiGateway, embedPurpose,
 uploadDir })` (see [[ingestion]]), which returns `{ nudge, stop }`. `createDb(config.databaseUrl)`
@@ -41,8 +42,8 @@ enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice.
 
-Since TASK-0046, `createGate({ db, presence: presence.reader })` (see
-[[proposal-gate]]) is created **before** `createApp`, because the DM runtime needs it:
+Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateRng })` (see
+[[proposal-gate]]; `rng` is set only in script mode) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
 `console.warn`; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
@@ -65,10 +66,7 @@ built client.
 
 `app.ts`'s `createApp` takes `{ databaseProbe, db, web?, commit?, library?, dm? }` (`web` is `{
 clientRoot?, handler?, listJobs? }`, test-only overrides for the web app's static root, SSR
-handler, and jobs reader — this replaced the earlier `staticRoot?` when the app moved to
-React Router SSR, TASK-0040; `listJobs` defaults to `(limit) => listJobs(db, limit)` from
-`library/ingest/jobs.js`, TASK-0028 plan D2, threaded through to the load context's `jobs()`
-— [[client-identity]], [[chat-ui]]; `commit` defaults to
+handler, and jobs reader, threaded to the load context's `jobs()` — [[client-identity]], [[chat-ui]]; `commit` defaults to
 `"unknown"` and is passed straight to `createHealthRoute` — see [[health-check]]; `library`
 is `{ uploadMaxBytes?, uploadDir?, onEnqueued?, answer? }`, each falling back to a test-safe
 default — 1 GiB, `os.tmpdir()`, a no-op, `undefined` — see [[ingestion]] and, for `answer`

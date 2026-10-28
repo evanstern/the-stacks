@@ -3,7 +3,6 @@ import { createServer as createHttpServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { serve } from "@hono/node-server";
-import { loadAiConfig } from "./ai/config.js";
 import { createGateway as createAiGateway } from "./ai/gateway.js";
 import { logSink } from "./ai/usage.js";
 import { createApp } from "./app.js";
@@ -12,6 +11,7 @@ import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
 import { createDmEnqueuer } from "./dm/enqueue.js";
 import { missingDmPurposes } from "./dm/purposes.js";
+import { createAiRuntime } from "./dm/script/env.js";
 import { startDmWorker } from "./dm/worker.js";
 import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
@@ -26,7 +26,14 @@ import type { WebDev } from "./web-dev.js";
 import { createGateway } from "./ws/gateway.js";
 
 const config = loadConfig();
-const aiConfig = loadAiConfig(process.env);
+// Script mode (DM_FAKE_SCRIPT, specs/053) replaces the whole AI config; unset is the plain path.
+const runtime = createAiRuntime(process.env);
+const aiConfig = runtime.aiConfig;
+if (runtime.scriptName !== null) {
+  console.log(
+    `DM script mode: ${runtime.scriptName} (${runtime.scriptCalls} calls, ${runtime.scriptDice} dice)`,
+  );
+}
 // Validated at boot so a bad RETRIEVAL_* value fails fast (FR-004); unused
 // until a route reads it (TASK-0027).
 const retrievalConfig = loadRetrievalConfig(process.env);
@@ -36,6 +43,7 @@ const answerConfig = loadAnswerConfig(process.env);
 const aiGateway = createAiGateway({
   config: aiConfig,
   sink: logSink,
+  adapters: runtime.adapters,
 });
 const db = createDb(config.databaseUrl);
 
@@ -59,7 +67,11 @@ const ingestWorker = startIngestWorker({
 // worker, and the worker submits through the gate (specs/031-dm-runtime).
 // Presence comes first: the gate reads it (TASK-0051 Phase 3) and the gateway feeds it.
 const presence = createPresence();
-const gate = createGate({ db, presence: presence.reader });
+const gate = createGate({
+  db,
+  presence: presence.reader,
+  rng: runtime.gateRng,
+});
 const loadDmProjections = (sessionId: string) =>
   loadProjections(db, sessionId, { role: "dm" });
 const loadDmProjectionsThrough = (sessionId: string, throughSeq: number) =>
