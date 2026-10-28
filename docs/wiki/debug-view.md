@@ -37,7 +37,7 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Debug view API
@@ -135,13 +135,12 @@ before matching (a live check found zero marks before this). Ledger and Cost ren
 `/calls` rows and `totals`; Cost reports a null price as `unpriced`.
 
 **Layout.** On `xl` the board is `h-dvh` with three columns that scroll on their own; under
-`xl` the jobs column is capped at 60 dvh. The jobs timeline box, not the column section, is the
-scroller that follow-bottom and scroll-into-view act on.
+`xl` the jobs column is capped at 60 dvh.
 
-**Known limit.** The env-configured `fake` provider returns an empty body for every call, so a
-live stack cannot produce narration: every turn fails at the director, and "events written by a
-job" highlighting is unexercised live (the unit tests cover it). A scriptable env fake is
-TASK-0158.
+**Live check (TASK-0158, specs/053).** Under `DM_FAKE_SCRIPT` ([[ai-gateway]]) a stack runs a
+scripted scene start and `act-search` turn to `done`; selecting that job highlights its written
+events (5 rows in `evidence/live-run.md`). Without a script the env `fake` provider returns an
+empty body and every turn fails at the director.
 
 ## What consumers can and cannot use
 

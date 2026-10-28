@@ -1,10 +1,10 @@
 ---
 name: container-image
-description: The Dockerfile's four-stage build (base, deps, build, runtime), what the runtime stage actually copies — since TASK-0040, apps/web/build rather than apps/web/dist->apps/server/public, and the web app's own production deps installed alongside the server's — and why WORKDIR is set to apps/server before CMD. Load for image-build or "why is this file missing at runtime" questions.
+description: The Dockerfile's four-stage build (base, deps, build, runtime), what the runtime stage actually copies — since TASK-0040, apps/web/build rather than apps/web/dist->apps/server/public, and the web app's own production deps installed alongside the server's — the shipped DM scripts directory, and why WORKDIR is set to apps/server before CMD. Load for image-build or "why is this file missing at runtime" questions.
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: ce238f2cc6012bc5f971a6197c6b3ade03d23d69
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Container image
@@ -41,7 +41,7 @@ GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfa
 `RUN`, specifically so a changing commit never busts that layer's cache. It then copies
 build outputs from the `build` stage by exact path: `packages/shared/dist`,
 `packages/dnd5e-engine/dist`, `packages/session-model/dist` (TASK-0044; the server now depends on both, and their `package.json` files are copied in `deps` and `runtime` too), `packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
-`runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, `apps/server/seeds` (TASK-0046: scene seeds load at runtime, module-relative, for the DM runtime — [[dm-runtime]]), and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
+`runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, `apps/server/seeds` (TASK-0046: scene seeds load at runtime, module-relative, for the DM runtime — [[dm-runtime]]), `apps/server/dm-scripts` (TASK-0158, specs/053: the shipped DM scripts `DM_FAKE_SCRIPT` names, loaded module-relative — [[ai-gateway]]), and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
 **this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
 `src/static.ts` now resolves its default roots as `apps/web/build/client` and
 `apps/web/build/server/index.js`, both module-relative to `apps/server/dist/static.js`, not

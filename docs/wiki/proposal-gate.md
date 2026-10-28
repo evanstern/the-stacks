@@ -16,7 +16,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Proposal gate
@@ -64,7 +64,7 @@ non-empty and each one's latest stance is `approve` (the declarer defaults to ap
 
 ## The gate API
 
-`createGate({ db, rng?, newId?, appendSessionEvents?, presence? })` returns `submit(sessionId,
+`createGate({ db, rng?, newId?, appendSessionEvents?, presence? })` (`rng` is a `() => Rng` factory; `DM_FAKE_SCRIPT` mode passes the script's dice, [[ai-gateway]]) returns `submit(sessionId,
 proposer, proposal)`, `handle(sessionId, proposer, request)`, `recordPresence(sessionId, input)` and
 `onAppended(listener)`. Both entries
 parse with Zod first; a failure is `INVALID_PROPOSAL`, nothing written.
@@ -74,7 +74,7 @@ parse with Zod first; a failure is `INVALID_PROPOSAL`, nothing written.
 **`recordPresence(sessionId, { purpose, actionId? })`** (decision-0024, TASK-0051) appends one
 `presence.recorded` row (`system`, `public`, the sorted present user ids). It is not a proposal, skips the projection load and `expectedLastSeq`, joins the
 per-session queue, and calls every `onAppended` listener on success; the row's detail is in [[presence]]. The DM worker is the only
-caller ([[dm-turn-jobs]]). The planner emits the `signoff` marker inside the commit batch (and `floor`, [[turn-floor]]). See [[presence]].
+caller ([[dm-turn-jobs]]).
 
 **Sign-off in the planner.** `planProposal` takes an optional `PlanContext { present? }` from the gate's `PresenceReader`. An `action.commit` of a party action
 by two or more humans plans two rows: a `presence.recorded` marker (`purpose: "signoff"`,

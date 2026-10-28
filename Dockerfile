@@ -48,6 +48,8 @@ COPY --from=build /app/packages/srd/ATTRIBUTION.md packages/srd/ATTRIBUTION.md
 COPY --from=build /app/apps/server/dist apps/server/dist
 # Scene seeds load at runtime from apps/server/seeds (module-relative, spec 031).
 COPY --from=build /app/apps/server/seeds apps/server/seeds
+# Shipped DM scripts load at runtime from apps/server/dm-scripts (spec 053, DM_FAKE_SCRIPT).
+COPY --from=build /app/apps/server/dm-scripts apps/server/dm-scripts
 # The doctrine's MIT notice ships beside the compiled doctrine module (spec 031).
 COPY --from=build /app/apps/server/src/dm/doctrine/NOTICE.md apps/server/dist/dm/doctrine/NOTICE.md
 # apps/web/build is where src/static.ts resolves its default client root and

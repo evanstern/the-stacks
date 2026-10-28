@@ -20,7 +20,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 ---
 
 # Playtest harness
@@ -62,8 +62,9 @@ another connection exists.
 
 ## Modes
 
-- **ci** (default; the Vitest case): a strict `FakeProvider` answers the DM from a DM script and
-  the auditor from an audit script (`queueAuditScript` queues them on purpose `playtest.audit`).
+- **ci** (default; the Vitest case): a strict `FakeProvider` answers the DM from a DM script
+  (`dm/script/load.ts`, shared with `apps/server/dm-scripts`, TASK-0158) and
+  the auditor from an audit script (`queueAuditScript`).
   It never spends.
 - **provider** (`--mode provider` only): `loadAiConfig(process.env)` drives real models. It is
   refused when `CI` is set, needs every `dm.*` purpose plus `playtest.audit`, a price in
