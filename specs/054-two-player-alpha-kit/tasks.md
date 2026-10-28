@@ -237,10 +237,10 @@ quickstart step with its observed result, and `evidence/shots/` holds the screen
   `apps/server/test/dm/dm-scripts.test.ts`, recreate the app container and rerun. Check the three
   refusals of `quickstart.md` (a 403 on `GET /dm/seeds` as the player, a duplicate-seat 400, a
   second-start 409) and the second redeem of a used token.
-- [ ] T035 [US2] [US3] Write `specs/054-two-player-alpha-kit/evidence/live-run.md`: the commit,
+- [x] T035 [US2] [US3] Write `specs/054-two-player-alpha-kit/evidence/live-run.md`: the commit,
   each step and its observed result, the refusals, and a list of the screenshots in
   `evidence/shots/`. Name no password and no token. Leave the stack up. Run `pnpm ci:check`.
-  Commit and push.
+  Commit and push. Orchestrator-run on 8767b51: REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed, web 107 passed.
 
 ---
 
@@ -253,10 +253,10 @@ sweep runbook records the ruling and the PRs.
 prints `OK`, and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
 exits 0.
 
-- [ ] T036 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 fetch origin`
+- [x] T036 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 fetch origin`
   and then `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 merge origin/main`.
-  Keep both sides of any conflict. Run `pnpm ci:check` with `REQUIRE_DATABASE=1`.
-- [ ] T037 Run `/grounding-wiki:wiki-update`. Review every note the planner lists as
+  Keep both sides of any conflict. Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Merged origin/main as 13f64ae; one new file (TASK-0164 card), no conflicts.
+- [x] T037 Run `/grounding-wiki:wiki-update`. Review every note the planner lists as
   NEEDS-REVIEW against the diff. Expected: `dm-runtime` and `seed-npc-presence` (the
   at-least-one rule, `listSeeds`, the duo seed; add `apps/server/seeds/greyhollow-ford-duo.json`
   to their sources), `debug-view` and `server-entrypoint-and-app` (`routes/dm.ts`: `GET /dm/seeds`,
@@ -264,19 +264,19 @@ exits 0.
   `client-identity` (the new `auth.ts` wrappers), `chat-ui` (the Settings invite section),
   `play-route` (the Start scene slide-out, the `startScene` command; add the two new files to its
   sources), `invitations` (now has a web caller; the operational note), and `hosted-dev` (the new
-  runbook section). Note in `playtest-harness` that the harness seats one human (research R2).
-- [ ] T038 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the state line gains one
+  runbook section). Note in `playtest-harness` that the harness seats one human (research R2). Ten notes re-verified against the diff: chat-ui, client-identity, debug-view, dm-runtime, hosted-dev, invitations, play-route, react-router-app, seed-npc-presence, server-entrypoint-and-app.
+- [x] T038 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the state line gains one
   sentence on the two-player kit (TASK-0163, specs/054), and every changed note's one-liner stays
   true. Re-pin every touched note to the commit verified. Run the freshness gate until it prints
-  `OK`.
-- [ ] T039 Update `docs/design/m3-table-sweep-runbook.md` "Execution log": in the TASK-0158 row,
+  `OK`. CAPSULES.md regenerated, INDEX.md state line and one-liners updated, notes re-pinned to 13f64ae; freshness prints OK.
+- [x] T039 Update `docs/design/m3-table-sweep-runbook.md` "Execution log": in the TASK-0158 row,
   replace "(this PR)" with `[#78](https://github.com/evanstern/the-stacks/pull/78)` and fill its
   merge cell with `` `e20030d` ``; add an amendment row dated 2026-10-28 that quotes the ruling
   as recorded in `spec.md` ("Open questions"), marks the 300-character cut, and says all six
   defaults were accepted; add a TASK-0163 row with PR "(this PR)", merge "—", tokens
   "spec (opus ×2), impl ×6 (sonnet)", and a one-sentence note naming the duo seed, the redeem
-  toggle, the invite section, the Start scene slide-out and the local live run.
-- [ ] T040 Run `pnpm ci:check`, the freshness gate and the spec-bridge gate. Commit and push.
+  toggle, the invite section, the Start scene slide-out and the local live run. Runbook rows written.
+- [x] T040 Run `pnpm ci:check`, the freshness gate and the spec-bridge gate. Commit and push. pnpm typecheck exit 0, pnpm lint exit 0 (one existing warning in resolve.ts), freshness OK. The orchestrator runs REQUIRE_DATABASE=1 pnpm ci:check.
 
 ---
 
