@@ -1,6 +1,6 @@
 ---
 name: dm-failure-and-gates
-description: DM runtime robustness (TASK-0102, specs/033-director-robustness) - the TurnFailureResult stored in jobs.result with bounded model-output excerpts, the director normalizer, and the closed rules-term lists (skills, conditions, damage types) rendered into prompts, with spells and modifiers/DCs not yet gated. Read before touching failure handling or model-output schemas.
+description: DM runtime robustness (TASK-0102, specs/033-director-robustness) - the TurnFailureResult stored in jobs.result with bounded model-output excerpts, the director normalizer, the plan gate's reason check (REASON_CONTRADICTS_STATE, spec 058), and the closed rules-term lists (skills, conditions, damage types) rendered into prompts, with spells and modifiers/DCs not yet gated. Read before touching failure handling or model-output schemas.
 kind: component
 sources:
   - apps/server/src/dm/jobs.ts
@@ -10,10 +10,11 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/director.ts
   - apps/server/src/dm/nodes/schemas.ts
+  - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
 ---
 
 # DM failure record and rules-term gates
@@ -37,7 +38,7 @@ one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`).
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
 
-Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The **plan gate** (`dm/gates/plan-gate.ts`, `checkPlan`, TASK-0112) is pure and runs first in resolve. It checks every actor and target id a step names against the S0 actors' `combatantId`s plus the combatants this turn's encounter start adds. An action group with an unknown id resolves `refused` with `UNKNOWN_COMBATANT` before any step runs; the verdict reason is `not-a-combatant` (the id is an NPC or alias with no combatant), `not-in-snapshot` or `absent` (TASK-0141: the S0 actor's `presence` is `absent`; the code stays `UNKNOWN_COMBATANT`, operator ruling OQ-4). A step that names an absent actor fails unless it is a `presence` effect with reason `arrived`. A `presence` effect may target any S0 actor, combatant or not. It never maps an alias. Verdicts are stored as `checkpoint.planGate` (absent on older rows). The declare gate refuses a declaration for a downed character with `CHARACTER_UNABLE` ([[proposal-gate]]).
+Since TASK-0110 a gate-refused action resolves before a Director stage change (encounter end, free mode), because resolve runs the action groups before the closing moves ([[dm-runtime]], "Resolve order"). The **plan gate** (`dm/gates/plan-gate.ts`, `checkPlan`, TASK-0112) is pure and runs first in resolve. It checks every actor and target id a step names against the S0 actors' `combatantId`s plus the combatants this turn's encounter start adds. An action group with an unknown id resolves `refused` with `UNKNOWN_COMBATANT` before any step runs; the verdict reason is `not-a-combatant` (the id is an NPC or alias with no combatant), `not-in-snapshot` or `absent` (TASK-0141: the S0 actor's `presence` is `absent`; the code stays `UNKNOWN_COMBATANT`, operator ruling OQ-4). A step that names an absent actor fails unless it is a `presence` effect with reason `arrived`. A `presence` effect may target any S0 actor, combatant or not. It never maps an alias. Since TASK-0161 (spec 058) `checkPlan` also checks model-written text against S0 with `checkClaims` ([[output-claim-gate]]): each step `reason`, a `check` step's `autoFail.reason`, and each condition effect `source` in `effects`, `onSuccess`, `onFailure` and `onHit` (`stepTexts`). The id check runs first and only a group that passes it has its text checked. `plannedDiff` is a presence-only diff: one change per `presence` effect target in any group and one per `arriving` seed NPC (`arrivingNpcs`, mirroring the encounter-start branch of `seedPresence`, [[seed-npc-presence]]), so a reason that names an NPC the same turn marks `arrived` passes. A group whose action id is in `resumed` skips the text check (spec 057 reuses the paused plan). The first refused text is the group's `ReasonFailure` (`stepIndex`, `field`, `text`, `issues`) and the group resolves `refused` with `REASON_CONTRADICTS_STATE`; `resolveAction` takes the code from the verdict. A refused NPC group runs no step and the turn still advances. A passing text is never rewritten. Verdicts are stored as `checkpoint.planGate` (absent on older rows). The declare gate refuses a declaration for a downed character with `CHARACTER_UNABLE` ([[proposal-gate]]).
 
 A **rules term** is a value with a rules definition that a model writes into node output. The
 interpret and adjudicate schemas accept only closed lists derived from engine enums:

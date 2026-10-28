@@ -37,7 +37,7 @@ sources:
   - apps/server/seeds/greyhollow-ford.json
   - apps/server/seeds/greyhollow-ford-duo.json
   - biome.json
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
 ---
 
 # DM runtime

@@ -91,30 +91,30 @@ commit led by `TASK-0161:`.
 
 ## Phase 4: DB suites and the mutation guard **[orchestrator]**
 
-- [ ] T031 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
+- [x] T031 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
       the app), run with `REQUIRE_DATABASE=1`: `resolve.integration`, `encounter-end-resolves`,
       `human-dm-roll-resume`, `full-turn`, `duo`, `script-env`, `scene` and `worker` integration
       suites. Export only `TEST_DATABASE_URL` from the worktree `.env`.
-- [ ] T032 **[orchestrator]** Triage any scripted suite that fails on a refused reason. A genuine
+- [x] T032 **[orchestrator]** Triage any scripted suite that fails on a refused reason. A genuine
       contradiction: dispatch a script-text fix. A false positive: stop and raise it to the operator.
-- [ ] T033 **[orchestrator]** Mutation guard (plan D4): stub the reason walk, run `plan-gate.test`
+- [x] T033 **[orchestrator]** Mutation guard (plan D4): stub the reason walk, run `plan-gate.test`
       and `resolve.integration`, and confirm the seq 221 case, the refusal cases of T016 to T018,
       and T025 and T026 fail. Restore; `git diff` is empty. Record the result
       on the card.
 
 ## Phase 5: Wiki re-ground
 
-- [ ] T034 Re-verify and re-pin `docs/wiki/dm-failure-and-gates.md` (plan gate paragraph: the
+- [x] T034 Re-verify and re-pin `docs/wiki/dm-failure-and-gates.md` (plan gate paragraph: the
       reason check, `plannedDiff`, the resumed skip, the code).
-- [ ] T035 Re-verify and re-pin `docs/wiki/output-claim-gate.md` (callers: the plan gate) and
+- [x] T035 Re-verify and re-pin `docs/wiki/output-claim-gate.md` (callers: the plan gate) and
       `docs/wiki/dm-turn-jobs.md` (resolve order sentence on the plan gate).
-- [ ] T036 Re-verify and re-pin `docs/wiki/dm-runtime.md` and, under OQ-2 (a),
+- [x] T036 Re-verify and re-pin `docs/wiki/dm-runtime.md` and, under OQ-2 (a),
       `docs/wiki/dnd5e-engine.md` (the plan-gate-only code).
-- [ ] T037 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+- [x] T037 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
       spec 058 to `docs/wiki/INDEX.md`'s state paragraph.
-- [ ] T038 Add a TASK-0161 "(this PR)" row to the execution log in
+- [x] T038 Add a TASK-0161 "(this PR)" row to the execution log in
       `docs/design/m3-table-sweep-runbook.md`, in the TASK-0168 row's shape.
-- [ ] T039 Run the wiki freshness gate
+- [x] T039 Run the wiki freshness gate
       (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       prints `OK`) and the spec-bridge check (exits 0). Run `pnpm ci:check`.
 
