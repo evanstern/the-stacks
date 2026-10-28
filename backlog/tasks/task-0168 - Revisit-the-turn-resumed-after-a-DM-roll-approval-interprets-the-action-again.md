@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 15:24'
+updated_date: '2026-10-28 18:35'
 labels:
   - dm-runtime
   - gate
@@ -33,13 +33,13 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0168, branch task-0168-human-dm-roll-resume, cut from origin/main 934d8d78. Spec 057 authored at 1b61d85 (056 is TASK-0154's). Root cause: the approval turn is a new job with an empty checkpoint, so assemble reselects the committed action and interpret re-proposes the same check; resolve keys submissions per job. Chosen (AC #2): reuse the resolved check. Open questions OQ-1 to OQ-4 go to the operator.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Operator ruling, 2026-10-28, in the M3 sweep chat, verbatim: "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
