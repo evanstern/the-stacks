@@ -292,13 +292,13 @@ enters a credential there.
 **Independent test**: TASK-0163 carries a dated result note naming the deployed commit and the
 session id.
 
-- [ ] T041 [US4] From a tailnet machine, run
+- [x] T041 [US4] From a tailnet machine, run
   `curl -s --max-time 60 https://vm-104.tailb3c1b6.ts.net:8443/health`. Expect `status` `ok` and
   `commit` equal to the TASK-0163 merge commit. Only when the commit is older, run
-  `gh workflow run deploy-dev.yml`, then `gh run watch`, then repeat the `curl`.
-- [ ] T042 [US4] On vm-104, as `stacks`, from the checkout, run `node scripts/deploy-dev.mjs status`.
-- [ ] T043 [US4] On vm-104, as `stacks`, from the checkout, before play, run
-  `node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha`.
+  `gh workflow run deploy-dev.yml`, then `gh run watch`, then repeat the `curl`. Done 2026-10-28 under the operator's go; result recorded on TASK-0163.
+- [x] T042 [US4] On vm-104, as `stacks`, from the checkout, run `node scripts/deploy-dev.mjs status`. Done 2026-10-28 under the operator's go; result recorded on TASK-0163.
+- [x] T043 [US4] On vm-104, as `stacks`, from the checkout, before play, run
+  `node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha`. Done 2026-10-28 under the operator's go; result recorded on TASK-0163.
 - [ ] T044 [US4] The operator and the other developer play in their own browsers, following the
   `Run a two-player table` section of `docs/ops/dev-vm-104.md`: issue an invitation, redeem it,
   both open one `/play/<uuid>` link, start `greyhollow-ford-duo` with one seat each, and play one

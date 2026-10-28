@@ -66,6 +66,7 @@ const lines = (p: string) =>
     .filter((l) => l.trim());
 
 describe.skipIf(!reachable)("the harness run (database)", () => {
+  // TASK-0154: 30 s budget; worst measured 2 102 ms (alone 1 974 ms, full run 2 102 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("plays the CI scenario to its end and writes the run directory", async () => {
     const scenario = loadScenario(SHIPPED);
     const out = join(mkdtempSync(join(tmpdir(), "run-")), "run");
@@ -124,8 +125,9 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
     expect(committers).toContain(scenario.seat.userId);
     expect(committers).toContain("ai:companion:odo");
     expect(committers).toContain("ai:companion:kestrel");
-  });
+  }, 30_000);
 
+  // TASK-0154: 30 s budget; worst measured 1 492 ms (alone 1 412 ms, full run 1 492 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112)", async () => {
     const { scenario, dir } = variant((s) => {
       s.ci.dmScript = new URL(
@@ -171,8 +173,9 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
       ).length,
     ).toBeGreaterThanOrEqual(1);
     expect(manifest.scriptRemaining?.dice).toBe(0);
-  });
+  }, 30_000);
 
+  // TASK-0154: 30 s budget; worst measured 887 ms (alone 887 ms, full run 767 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("ends stalled with artifacts saved when the move cap is reached", async () => {
     const { scenario, dir } = variant((s) => {
       s.limits.maxMoves = 2;
@@ -186,8 +189,9 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
     });
     expect(manifest.outcome).toBe("stalled");
     expect(readRunDir(out).transcript.length).toBeGreaterThan(0);
-  });
+  }, 30_000);
 
+  // TASK-0154: 30 s budget; worst measured 167 ms (alone 163 ms, full run 167 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("ends failed with the job id and artifacts saved on a DM error", async () => {
     const { scenario, dir } = variant(
       () => {},
@@ -212,5 +216,5 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
     expect(manifest.outcome).toBe("failed");
     expect(manifest.failedJobId).toBeTruthy();
     expect(readRunDir(out).jobs.some((j) => j.status === "failed")).toBe(true);
-  });
+  }, 30_000);
 });

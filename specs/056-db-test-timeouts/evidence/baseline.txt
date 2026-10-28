@@ -1,0 +1,1286 @@
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > runs the Director group at scene start: scene, party, combatants, dm trackers 142ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolves a check and runs the success effects only 116ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > runs the failure effects on a failed check 84ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > applies damage on a hit, with critical false on a plain hit 97ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > sets critical only on a critical hit 99ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > runs no damage on a miss and still marks the action applied 75ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > records an engine refusal as a refused action with the engine's code 65ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > names the seqs each submission appended; a refusal names none 59ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > marks a clarify or none step no-effect 72ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolves actions in commit order 80ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > ends every mechanics reason with its marker 75ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > never reads a model 71ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > enters turn mode from the Director: SRD combatants, initiative, table mode 121ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > ends the encounter and returns to free mode on a free decision 116ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > advances a tracker as a dm-only row and ends the scene 54ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > replays recorded submissions on a reclaim and submits nothing twice 66ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > finds the in-flight submission by its marker 64ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > an action resolves before a free decision ends the encounter, and no turn advances 124ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > an encounter start runs before an action that names a combatant it adds 212ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > an npc-turn job runs its step rows before the encounter ends 342ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > tracker advances and the scene end follow the action, in order 250ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > a hold runs the opening and closing moves only 53ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > a refused action still resolves before the encounter ends (rows 260-265 of the F54 evidence) 116ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > plan gate (TASK-0112) > refuses the whole action group when a later step names a non-combatant, with no row from step 0 116ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > plan gate (TASK-0112) > a refused NPC group runs no step and the turn still advances 96ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > plan gate (TASK-0112) > records an all-valid verdict and runs the plan unchanged 69ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > rolls the unconscious party member's death save, then the turn passes 146ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > passes a stable combatant with no roll 232ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > keeps the turn on a natural 20: 1 HP, conscious, table mode on it 280ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > a third failed save kills the combatant and the turn passes 212ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > an encounter start whose first combatant is downed settles it 221ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > passes an unable non-party combatant with no roll and queues no job for it 317ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > a reclaim finds the landed death save by its marker and rolls nothing twice 206ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > a reclaim after a landed advance does not skip the turn-advance group and writes no duplicate rows 118ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > resolve order (decision-0025 §4) > settling (TASK-0112, plan D4) > stops after one lap when every combatant is unable 158ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > S1 and the diff > a scripted-dice damage hit gives S1 the lowered HP and the exact diff 61ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > S1 and the diff > an encounter start gives joined actors and stage entries 76ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > S1 and the diff > a no-op turn gives an empty diff 42ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve (database) > S1 and the diff > a reclaim rebuilds an equal S1 50ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > an Intimidation success runs onSuccess presence fled: one scene-presence submission, S1 absent 122ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > the same check failing writes no presence row: S1 present 107ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > an adjudicate ruling's effect step with a presence effect lands 112ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > a fled active NPC hands the turn on once: no double advance, no later turn over two rounds 159ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > a fled active NPC followed by a downed party member still settles 179ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > an attack on an absent goblin is refused UNKNOWN_COMBATANT, verdict absent, no row lands 144ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > a reclaim after the leave landed but before its checkpoint advances the turn only once 124ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > scene presence effects (spec 048) > no Director fixture produces a scene-presence submission 100ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > seed presence (spec 050) > scene start logs the opening beat's non-present NPCs as dm rows 44ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > seed presence (spec 050) > encounter start logs public arrived rows before the initiative roll 88ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > seed presence (spec 050) > two different Director outputs starting reed-camp write identical seed rows 158ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > seed presence (spec 050) > a reclaimed scene start writes each seed row once 47ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve turn-moved guard (spec 049) > End turn lands while the turn job resolves the same action: one turn.advance 95ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve turn-moved guard (spec 049) > a crash after End turn and a reclaim of the same job do not advance again 105ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts > resolve turn-moved guard (spec 049) > a held floor skips the turn-advance group 109ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > Phase 2 — authenticated connections > an authenticated client's upgrade succeeds and the socket opens 89ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > Phase 2 — authenticated connections > an unauthenticated client's upgrade is refused with 401 — the socket never opens (research D4) 2ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > Phase 2 — authenticated connections > a client with a bogus session token is refused with 401 3ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US1 — fan-out (T009-T012) > T009: two subscribers to one session both receive a message, including the sender 116ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US1 — fan-out (T009-T012) > T010: a subscriber to session A receives nothing when a message is sent in session B (FR-008) 383ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US1 — fan-out (T009-T012) > T011: after delivery, reading the log finds the event — delivery and durability are the same act (SC-002) 96ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US1 — fan-out (T009-T012) > T012: several concurrent senders — every subscriber observes the same sequence (FR-007) 227ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US1 — fan-out (T009-T012) > T012b: three senders with every line in flight — no CONFLICT, each line once (TASK-0157) 219ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US2 — server authority (T016-T019) > T016: a malformed frame produces an error frame, the connection stays open, and nothing is appended (FR-003) 88ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US2 — server authority (T016-T019) > T017: a send claiming a different actor records the connection's own identity (FR-005, SC-004) 86ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US2 — server authority (T016-T019) > T018: client-supplied seq and ts are ignored; the server assigns its own (FR-006) 86ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US2 — server authority (T016-T019) > T019: a refused message leaves no trace — no gap, no stray event in the log (US2 scenario 4) 98ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US3 — the replay/live boundary (T021-T024) > T021: subscribing from position N delivers every event after N, in order, and none at or before N 100ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US3 — the replay/live boundary (T021-T024) > T022: subscribing from a cursor while another client is actively sending yields ascending, no-duplicate, no-gap positions (SC-003, quickstart step 2) 827ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US3 — the replay/live boundary (T021-T024) > T024: subscribing with no cursor replays from the beginning; subscribing from the newest position delivers nothing but stays live (US3 scenarios 3-4) 430ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US4 — visibility filtering at the single send point (T028-T031) > T028: a public event reaches every subscriber 167ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US4 — visibility filtering at the single send point (T028-T031) > T029: a restricted event reaches only its named recipient, and nothing is sent in its place to anyone else (FR-011) 514ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US4 — visibility filtering at the single send point (T028-T031) > T030: replay applies the same visibility filter as live delivery (US4 scenario 3) 462ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > US4 — visibility filtering at the single send point (T028-T031) > T031: a filtered recipient's received positions may have gaps — that is correct, not a missed event (US4 scenario 4, research D2) 182ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > a raw catalogued type is refused with CATALOG_TYPE_REQUIRES_GATE and writes nothing 80ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > an uncatalogued type is refused with UNKNOWN_EVENT_TYPE: nothing written, nothing broadcast, the connection still works (TASK-0099) 388ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > a gate request over send is appended and broadcast 94ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > a refused gate request returns an error frame with a code 77ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > with a human DM seated, an ask proposal reaches the DM and not a player, live and on replay 1068ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > spec 029 — gate delivery and the send path (T039) > with an AI seat a dm event reaches no connection, and a dm.seat.changed switches later delivery 785ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts > ws gateway (Phases 2-7, integration) > Phase 7 — polish (T034) > T034: killing a subscriber abruptly mid-broadcast does not stop delivery to the survivors (FR-012, SC-007) 162ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — auto (AI seat) > applies a mechanics proposal at once as one atomic batch, with no proposal rows 59ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — ask (human seat) > records one DM-only proposal.created, applies effects then approval on approve 38ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — ask (human seat) > appends proposal.rejected on reject and applies nothing 16ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — suggest > shows a suggestion, applies nothing, and refuses approval 10ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — direct DM command > applies a seated human DM's mechanics with no proposal rows; refuses a player's 22ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — direct DM command > produces the same engine events as an approved proposal (AC #7) 38ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — operator seated as a character > accepts declare and commit by seat (control), not account role (TASK-0048) 21ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — commit authority > free mode: the declarer commits (declarer); a non-controller is refused 22ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — commit authority > turn mode: the active player commits (active-player) 27ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — commit authority > party scope: the one human player commits (group) 22ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — commit authority > the DM commits any open action (dm) 20ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — refusals > returns the engine's code for a direct command and writes nothing 15ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — refusals > refuses an ask proposal before recording it 13ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — refusals > refuses an approval that became illegal and leaves the proposal pending 27ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — refusals > refuses NOT_DM, UNKNOWN_PROPOSAL and PROPOSAL_NOT_PENDING 15ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — entry parsing > refuses INVALID_PROPOSAL with zero seam calls 2ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — seat and policy > lets only an operator seat the DM 6ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — seat and policy > changes the effective policy through gate.policy 18ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — sequence conflicts > retries twice and then succeeds 65ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — sequence conflicts > refuses CONFLICT after three conflicts and lands zero rows 88ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — sequence conflicts > waits between attempts, never after the last (FR-005) 18ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — race > applies exactly one of two concurrent approvals 20ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — onAppended > delivers the stored rows in order, and a throwing listener changes nothing 4ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — downed character (CHARACTER_UNABLE) > refuses a declaration for an unconscious character and leaves the log unchanged 20ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — scene presence (TASK-0141) > refuses a declaration for an absent character and leaves the log unchanged 16ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — scene presence (TASK-0141) > lands the presence row and the order row in one batch with consecutive seqs 27ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > 3 senders × 5 lines, one in flight each: every line lands, zero CONFLICT 1031ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > 3 senders × 5 lines, all in flight at once: zero CONFLICT 50ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > 5 senders × 20 lines into a 500-event log: zero CONFLICT 1101ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > recordPresence interleaved with talk: zero CONFLICT 68ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > sessions do not wait for each other 41ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts > gate — per-session ordering > a thrown error ends that write only 7ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > starts a scene: 202 and a scene-start job; a second start is 409 95ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > rejects a bad seed id with 400 and issues 6ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > rejects seats that do not match the seed's human characters 8ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > GET /dm/seeds lists seeds for the operator only 15ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > refuses one user in two seats and accepts two users 16ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > turn: 202 and a manual turn job 5ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > turns: lists records without prose 10ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM routes (database) > 401 with no session and 403 for a player on every route 8ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > 401 with no session and 403 for a player, before query validation 10ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > events: every visibility, paged once each, empty poll at the head 116ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > jobs: stored input and result unchanged, paged without gap, no claim token 21ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > seed: 404 without a scene, 200 with DM-only paths 59ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > calls: rows after a cursor and whole-session totals 15ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > no debug response carries scripted model text outside failure excerpts 265ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts > DM debug routes (database) > /turns still carries only purpose, promptVersion and outcome per call 5ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > passes a clean narration 8ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails on digits 1ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails on dice language when the turn has no roll 1ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails an attributed death on a living Guard (keyed, not anonymous) 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > passes a death word for a Guard already dead in S1 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails the omission of a diff death, and passes once the prose records it 1ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails an attributed drop on a living Guard 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > passes a drop word for a Guard already unconscious in S1 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails the omission of a diff drop, and passes once the prose records it 1ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > passes an unattributed death word when S1 holds a dead actor, fails it otherwise 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > marks every claim issue ledger-mismatch with an 'Actor state:' detail (OQ-4) 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails when the actor's name pairs with the opposite outcome word 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > matches a full name by its first or last word 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails on length over 220 words 4ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails on a list line or an either-or ending 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails a clarify turn whose prose has no closing question, passes an open one 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > quotes the matched words, the closing question and the word count 3ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > deterministicChecks > fails when the dice lines differ from the renderer 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > world character only (seq 86) 4ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > world character the auditor calls party (seq 196) 3ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > world character, words in mouth (seq 278) 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > given name of a human player (seq 278) 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > given name of a titled companion (seq 153) 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > full titled name 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > one-word companion name 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > character id, lowercase 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > curly possessive 2ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > whitespace in a multi-word term 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > surname alone 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > title word alone 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > term inside a longer word 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > hyphenated suffix 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > detailNamesPartyMember (party-name filter, E2) > matches nothing for an empty party 0ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > passes on the first attempt 51ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > regenerates after a failed verdict and records the failed attempt 5ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > passes on a doctrine-only fail and records the issue as advisory 6ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > regenerates on player-agency and hands over only blocking issues 5ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > sends the regeneration prompt only the blocking issues 4ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > skips the model audit when a deterministic check fails 2ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > stops at three attempts and ships the fallback with a flag 3ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > ships the fallback when the audit call itself errors 2ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > records a hash, not the prose 2ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > ships on the first attempt when the only issue names a world character, recorded advisory 4ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > regenerates when the only player-agency issue names a party member 1ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > hands regeneration only the party issue when a world-character issue sits beside it 2ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts > audit loop > still blocks a deterministic issue beside an advisory player-agency issue 0ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T011: successful sign-in returns 200 with a user body and sets a cookie 163ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T012: wrong password and unknown username return byte-identical status and body (FR-004, SC-003) 202ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T013: a session cookie authenticates a later request to /auth/me 144ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T014: sign-out immediately invalidates the cookie, and is idempotent 144ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T020: validateSession returns {userId, role} for a live session, with no HTTP request object 74ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T021: validateSession returns null for unknown, malformed, signed-out, and expired tokens 81ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T022: validateSession does not extend a session's lifetime (FR-008, SC-007) 81ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T023: HTTP middleware and a direct validateSession call resolve the same session to the same identity (SC-002) 145ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > spec 025 T010: the identity lookup resolves the public user for a live token, and null after sign-out 70ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T027/T028: create-operator provisions the first operator (who can sign in), and refuses a second run (US3 scenario 2) 2ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T032: an operator can issue an invitation and a player cannot (FR-012, 403) 296ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T033: redemption creates a player account that can sign in with the password they chose 219ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T034: redeeming an already-redeemed or expired invitation is refused 292ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > TASK-0032: redeeming with a taken username is a conflict, not a 500 418ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts > session auth (US1-US4, integration) > T035: simultaneous redemptions of one invitation create exactly one account (SC-005) 411ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > one queued turn per session under 20 concurrent commits 37ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > a queued turn is not claimable while a turn or companion job runs for its session 14ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > claims in priority order: turn, companion, chronicle 10ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > a chronicle job is claimable while the session's turn runs 4ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > a lease expiry reclaims with a new token and attempts + 1, keeping the checkpoint 6ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > a stale token's writes return false and change nothing 11ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > attempts beyond the maximum fail the job and return nothing 12ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > enqueueTurnForced inserts a forced job or flips the queued job's flag 8ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM jobs queue (Phase 1, integration) > reconcile enqueues only sessions with an unanswered commit and no active turn job 14ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > DM enqueuer and the presence marker > queues no turn for a presence.recorded row 1ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > companion react coalescing (specs/036-companion-react, integration) > two enqueues give one queued row naming both companions 7ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > companion react coalescing (specs/036-companion-react, integration) > does not claim a row before notBefore and claims it after 4ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > companion react coalescing (specs/036-companion-react, integration) > the maximum wait caps a moving notBefore 4ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > companion react coalescing (specs/036-companion-react, integration) > ten concurrent enqueues leave exactly one queued row 6ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > companion react coalescing (specs/036-companion-react, integration) > a running react job plus a new reaction gives one new queued row 6ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > claims in priority order: turn, floor, companion, chronicle 8ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > holds a floor job back until its notBefore passes 6ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > keeps one queued floor job per (session, check, actionId) and moves its wait 8ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > 20 concurrent arms of one check leave one queued row 8ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > cancels only the named queued check 4ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts > floor jobs (specs/049-turn-floor, integration) > serialises with turn and companion jobs of the same session 12ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > a human comment on a companion's open action queues one react job 15ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > a human approve on a companion's open action queues one react job 6ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > a human object on a companion's open action queues one react job 3ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > comments by ai:dm and by a companion queue none 2ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > a human comment on a human's action, or on a closed action, queues none 2ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react trigger (database) > five human comments queue one job 12ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > M2 e8c848ec seq 35-38: a human reaction re-runs Odo and closes act-odo-1 437ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > invalid companion output still commits the open action (default) 81ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > a prompt run that declares a new act while act-odo-1 is open commits act-odo-1 only (seq 44) 105ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > a react run with no unanswered human reaction is skipped with no model call 69ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > a human approval that auto-commits a companion's party action queue one commit turn and no react job 107ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion react resolution (database) > five human comments inside the window run Odo once, and the prompt carries all five 299ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > an objection then a withdraw closes act-odo-1 and queues no turn job 317ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > turn mode: the active companion withdraws its only open action and still ends its turn 170ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > a revise withdraws the old action and declares and commits the new text 142ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > a revise decision without text is invalid output and takes the default 58ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > invalid companion output after an objection withdraws the action (default) 76ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts > companion withdraw and revise (database) > the latest human stance decides the default: object then approve commits 73ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a synthetic MM-shaped zip succeeds as a DDB-parsed, chunked, embedded book 81ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a zip-of-zips succeeds 60ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a single HTML page succeeds 58ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T027: a plain (non-DDB) HTML page succeeds, parser html, headings promoted 59ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T027: a Markdown file succeeds, parser markdown 57ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a re-upload of the same book replaces it, with identical counts and no duplicate embeddings 117ms
+@the-stacks/server:test: stderr | test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a gateway error fails the job at stage embed; chunks stay stored
+@the-stacks/server:test: stderr | test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: an empty zip fails with 'No HTML or Markdown pages found in the upload.'
+@the-stacks/server:test:     at collectPages (/Users/evanstern/projects/the-stacks/.worktrees/task-0154/apps/server/src/library/ingest/collect.ts:151:11)
+@the-stacks/server:test:     at runJob (/Users/evanstern/projects/the-stacks/.worktrees/task-0154/apps/server/src/library/ingest/worker.ts:110:23)
+@the-stacks/server:test:     at processOne (/Users/evanstern/projects/the-stacks/.worktrees/task-0154/apps/server/src/library/ingest/worker.ts:286:22)
+@the-stacks/server:test:     at /Users/evanstern/projects/the-stacks/.worktrees/task-0154/apps/server/src/library/ingest/worker.ts:312:21 {
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: embedPurpose null succeeds with embedding.status skipped 61ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: a gateway error fails the job at stage embed; chunks stay stored 64ms
+@the-stacks/server:test: stderr | test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: the upload file and job dir are deleted after both terminal states
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: an empty zip fails with 'No HTML or Markdown pages found in the upload.' 68ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T023: the upload file and job dir are deleted after both terminal states 120ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T029: a stale claim (dead process) is reclaimed and completed; the stale claim's writes are refused 71ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts > ingest worker (Phase 4, integration) > T029: the fourth claim (attempts > 3) fails the job as abandoned and deletes its upload file 39ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — fts mode (US1, integration) > T008: the nonce-word passage ranks first and its span slices back to its text 14ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — fts mode (US1, integration) > T008: a question matching nothing returns passages: [] 5ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — fts mode (US1, integration) > T008: query-syntax characters in the question never throw (invariant 7) 6ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — fts mode (US1, integration) > T008: a stop-word-only question returns [] 5ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — fts mode (US1, integration) > T008: EXPLAIN of the keyword query names library_chunks_tsv_idx 3ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — vector mode (US2, integration) > T011: filters by the model the gateway reports, never a chunk whose only vector is the decoy's 18ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — vector mode (US2, integration) > T011: makes exactly one embed call in vector mode, zero in fts mode (SC-003) 13ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — vector mode (US2, integration) > T011: config mode fts + request mode vector runs vector, and request k overrides config k (US2 AC4, SC-002) 9ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — vector mode (US2, integration) > T011: an unknown embed purpose throws naming RETRIEVAL_EMBED_PURPOSE, with the gateway error as cause (invariant 6) 2ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — vector mode (US2, integration) > T011: EXPLAIN of the vector query names library_embeddings_embedding_idx 5ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — hybrid mode (US3, integration) > T013: a both-lists chunk ranks first; single-list chunks still appear once each; order matches fuseRrf (invariant 8, US3 AC4, SC-005) 14ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — hybrid mode (US3, integration) > T013: with no vectors stored for the question's model, hybrid returns keyword results and candidates.vector === 0 (research R6) 6ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts > retrieve — deterministic tie-break (operator ruling 2026-09-29) > returns identical ordered results across two fresh ingests of the same book, in fts, vector, and hybrid modes 27ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 401 without a session 9ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 403 for a player 153ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for a non-multipart body 145ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for a missing book field 146ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for a missing file part 157ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for a file part under another name 141ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for two file parts 142ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 400 for an empty file 141ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 202 with a queued job when `book` is sent after the file part 146ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > format detection: a zip signature is reported as zip 140ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > format detection: a .md filename with non-zip content is reported as markdown 138ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 409 on a second upload of the same book while the first is still active 142ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 413 from Content-Length alone, reading no body and leaving no file 142ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > 413 mid-stream when the file part's streamed bytes exceed the ceiling (no Content-Length precheck involved) 164ms
+@the-stacks/server:test: stderr | test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > a client abort mid-stream (no closing boundary) leaves no file and no job
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > a client abort mid-stream (no closing boundary) leaves no file and no job 147ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T028: GET /library/jobs lists newest-created first, operator-only 158ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T028: GET /library/jobs is 401 without a session and 403 for a player 143ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T028: GET /library/jobs/:id returns the job by id 153ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T028: GET /library/jobs/:id is 404 for an unknown or malformed id 144ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T028: while a job runs, stage is non-null; once it ends, result/error is set 166ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts > POST /library/uploads (US2, integration) > T013 (heavy): a large streamed upload lands intact with bounded memory growth 1391ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > stripMarker > removes the trailing step marker only 1ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders a check 1ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders an attack hit with a damage line 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders a critical hit 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders a miss with no damage line 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders no line for an engine refusal (no rows) 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders an auto-fail with no roll 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dice-line renderer > renders healing and records life-state and condition changes 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > builds events from rows 39 to 58 and never from tracker.changed 9ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > skips non-public rows 3ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > drops turn-advanced when the encounter ends in the same turn 2ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > reads target and reason from rows 60 and 61 1ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > marks odo and kestrel as AI companions and carries the setting 1ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > facts v2: party, events, target, setting (run-5 rows) > renders no-effect, on-hold and event lines 1ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > presence fact (spec 048, User Story 2) > maps a landed scene-presence.changed row to a presence fact and a fallback line 3ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > dm presence rows (spec 050, OQ-4) > yields no presence fact for a dm row and one for a public row 5ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > settled death saves (TASK-0112, plan D5) > yields a roll line and a tally line for the save 0ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts > settled death saves (TASK-0112, plan D5) > renders a settled save in the dice lines and the narration facts 0ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker (database) > a committed action enqueues one turn; a second commit does not add another 224ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker (database) > fills the scene-start job's start from its input 115ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker (database) > appends the failure notice for a job abandoned past MAX_ATTEMPTS 60ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker (database) > appends the failure notice when a turn fails 131ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker failure record (database) > keeps the schema issues, purpose and excerpts of an invalid director output 149ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM enqueuer on approvals (database) > enqueues a turn when an ai:dm proposal is approved or rejected, not another proposer's 4ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker presence marker (database) > records one director marker per turn job and stores presenceSeq 335ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker presence marker (database) > records a second marker for a second turn job and writes none for companion or chronicle jobs 110ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker presence marker (database) > fails the turn with failure.node presence when the record is refused 59ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker presence marker (database) > fails the turn with failure.node presence when the record throws 53ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker usage ledger (database) > a held turn keeps its calls and has ledger rows 126ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker usage ledger (database) > a failed ledger insert still finishes the job and logs dm.call.record-failed 146ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker usage ledger (database) > an aborted attempt leaves an aborted row; the reclaim's rows carry the higher job_attempt 366ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts > DM worker usage ledger (database) > a companion job's calls carry usage and have ledger rows 229ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > scene-start gives the opening framing verbatim 1ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > an applied action with a roll gives the reason and the outcome 1ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > hit, critical hit and miss outcome sentences 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > drops a reason that holds a system word or a contradicting verb 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > speaks a digit name in a reason 1ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > no roll, no-effect without a clarify, and refused 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > changes 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > an NPC turn with and without a roll 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > events 1ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > mode changes 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: one sentence per fact > scene end, clarify and the empty turn 0ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: run-5 replays > seq 88 reads 'Kestrel goes ahead with it. The fighting stops.' 10ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: run-5 replays > seq 53 states the fight, the joiners, the first mover and asks 3ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: property > holds no system word or digit, passes the checks, covers every fact 62ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: property > does not voice a roll reason that claims two kin fell with one dead (M2 seq 221, US4.4) 2ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts > factualSummary: property > never names a tracker or a DM-only fact 1ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > loadAnswerConfig > defaults minSimilarity to 0.3 on an empty env 1ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > loadAnswerConfig > rejects ASK_MIN_SIMILARITY=-0.1, naming the variable 1ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > loadAnswerConfig > rejects ASK_MIN_SIMILARITY=1.1, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > loadAnswerConfig > rejects ASK_MIN_SIMILARITY=abc, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > isRelevant > is relevant when the keyword signal is present, regardless of vector 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > isRelevant > is relevant when the vector score is above the floor 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > isRelevant > is relevant when the vector score equals the floor 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > isRelevant > is not relevant when the vector score is below the floor 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > isRelevant > is not relevant when both signals are null 1ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (a) drops a hallucinated quote, keeps the real one; done.dropped is 1 3ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (b) a whitespace-drifted quote is emitted with the passage's exact words 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (c) a marker split across three text events parses and cites 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (d) an unknown p is dropped; a valid citation alongside it still counts 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (e) the same quote cited twice reuses its citation number 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (f) the chat request's purpose is answering; only relevant passages are numbered 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US1 streamed answer with verified citations > (g) exactly one terminal event, last; every citation satisfies the three guarantees 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US2 refuse when nothing is relevant > no relevant passages → refusal{nothing_relevant}, zero chat calls 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US2 refuse when nothing is relevant > every passage fails the vector floor → refusal{nothing_relevant}, zero chat calls 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US2 refuse when nothing is relevant > <refuse/> after some text ends with refusal{model_declined}, last 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US2 refuse when nothing is relevant > a gateway error{kind:"refusal"} maps to refusal{model_declined} 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US2 refuse when nothing is relevant > an answer with only invented quotes ends with refusal{unverified}, no done 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US3 failures, auth, and cancellation > a mid-stream error{upstream} yields the deltas so far, then one error, last 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US3 failures, auth, and cancellation > an unconfigured answering purpose yields one error{config} and records no usage 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US3 failures, auth, and cancellation > a throwing retrieve() yields error{retrieval}; no chat call is made 0ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts > answer() — US3 failures, auth, and cancellation > aborting the signal mid-stream ends with no terminal event; the provider saw the abort 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: references (unique versus group terms) > 'goblin' is shared by four actors and never selects one 42ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: references (unique versus group terms) > a unique alias selects its actor 5ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: references (unique versus group terms) > 'the goblin leader' selects Snag, not the goblins 3ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: references (unique versus group terms) > a pronoun or a description resolves to no actor and passes 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: possessives > 'Tamsin's hand reaches' attributes the act to Tamsin 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: possessives > 'Snag's goblins flee' attributes the act to the goblins, not Snag 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: possessives > 'Snag's belt once held it' is no act by Snag 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 1: possessives > carries the actor across a comma to 'her fingers curling around' 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > refuses an act by a dead actor 2ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > refuses an act by an absent actor 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > negation turns the act into a state 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > involuntary verbs describe a downed actor and pass 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > an actor named as the object of an act is not the actor 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > quoted speech attributed before the quote 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > quoted speech attributed after the quote 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > a quote with no unique speaker passes 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > an act word inside a quote is not an act by the named actor 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > stable counts as downed 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > yielded may act and speak (US1.7) 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 2: acts, speech, negation and involuntary verbs > a null life state (an NPC with no combatant) may act 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > FR-004a: transition and turn-order exemptions > an actor that dies this turn may act in the same sentence 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > FR-004a: transition and turn-order exemptions > without the diff change the same sentence is refused 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > FR-004a: transition and turn-order exemptions > an actor that flees this turn may act in the same sentence 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > FR-004a: transition and turn-order exemptions > '<name> moves next' passes for an unconscious actor 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > FR-004a: transition and turn-order exemptions > '<name> moves' without 'next' is still an act 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > 'Snag falls dead' names the wrong actor (US2.1) 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > 'Snag drops the clapper' is no down attribution 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > 'Snag stares at the dead lookout' does not call Snag dead 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > 'Kestrel killed the goblin' does not call Kestrel dead 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > 'the dead lookout' passes when goblin-3 died earlier (US2.4) 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > calling a dead actor dead passes 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > calling an unconscious actor unconscious passes (US2.3) 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > calling a conscious actor unconscious is refused 2ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > an unconscious actor called dead is refused 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > an unattributed death word refuses when nobody is dead 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > an unattributed death word passes when an actor is dead (FR-013) 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rules 4 and 5: death and down attribution > an unattributed down word refuses when nobody is down 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 6: omission > a recorded drop with no sentence describing it refuses (US2.5) 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 6: omission > a recorded drop named by a unique term passes 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 6: omission > a recorded death named by a group noun passes 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 6: omission > a recorded death with no death word refuses 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 6: omission > no diff means no omission 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'two goblins lie dead' passes with two dead (US3.4) 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'two goblins lie dead' refuses with one dead 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'both down' passes with two downed party members 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > a bare 'two down' passes when either side matches 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'Goblin three is dead' names an actor and is not a count (TASK-0143 OQ-5) 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > a bare 'two down' refuses when neither side matches 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'his last goblin' refuses with three goblin-group actors standing 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'his last goblin' passes with exactly one standing 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'all the goblins are dead' refuses with one standing 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'all the goblins are dead' passes when every goblin is down 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'no goblins left' refuses while any goblin stands 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > a yielded goblin counts as left 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 7: counts > 'no goblins left' passes when every goblin is dead or absent 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 8 and the result shape > empty text passes 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 8 and the result shape > pass equals an empty issue list; issues come in text order 1ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > rule 8 and the result shape > every matched text is at most 60 characters 0ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts > lexicons (FR-014) > ACT_VERBS, SPEECH_VERBS and INVOLUNTARY_VERBS are pairwise disjoint 0ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate import boundary (AC #6) > walks a real closure 1ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate import boundary (AC #6) > imports no engine value 0ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate import boundary (AC #6) > imports nothing from gate/ and no log writer 0ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate import boundary (AC #6) > holds no RNG in its closure 1ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > ships prose plus the rendered dice lines, with facts and no command in the prompt 54ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > includes the previous text and issues when regenerating 7ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > returns a gateway error as a node failure 5ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > skips with no call when there is nothing to narrate 3ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > builds the v2 prompt: party, world, no-effect, on-hold, open question, events 5ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > input check on rulings and goalNote (spec 051, OQ-2) > removes a refused ruling from the facts the prompt receives 4ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > input check on rulings and goalNote (spec 051, OQ-2) > blanks a refused goalNote 2ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > input check on rulings and goalNote (spec 051, OQ-2) > passes a clean ruling and note unchanged 2ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > drops NPCs that S1 reads absent from the beat's NPC list (spec 050) 2ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts > narrate > builds the v2 audit prompt: party section and the five statements 2ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > streams text in order then one usage summary, with cost from the price table (US1 AC1, US4 AC1, invariant 2) 4ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > fires onUsage once with the sink's record on done, error and cancel; never for an unknown purpose; a throwing onUsage is harmless 1ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > fails immediately with a config error naming the purpose, without calling any provider (US1 AC2, invariant 1) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > ends the stream with a distinguishable error when the provider fails mid-stream, and still records usage (US1 AC3, US4 AC2) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > ends the stream with a cancelled error when the caller aborts, and records outcome cancelled (US1 AC4, invariant 3) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > uses and reports each purpose's own provider name and model (US3 AC1) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.chat > records cost as unknown (null), never 0, for a model with no configured price (US4 AC3, invariant 6) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.embed > returns one vector per text in input order, each length 1024, labeled with model and dim (US2 AC1, invariant 4) 1ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.embed > rejects the whole call, naming expected and actual dimension, when the provider returns a wrong-length vector (US2 AC2, invariant 4) 1ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.embed > returns an empty result without calling the provider or recording usage for an empty batch (US2 AC3, invariant 5) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.embed > splits a batch larger than batchSize into multiple provider calls, preserving input order (spec edge case) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > gateway.embed > fails immediately with an error naming the purpose for an unknown purpose, without calling any provider (invariant 1 symmetry) 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > FakeProvider purpose queues (spec 031) > consumes a purpose's queue before the global FIFO 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > FakeProvider purpose queues (spec 031) > keeps queues independent per purpose 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > FakeProvider purpose queues (spec 031) > strict mode fails an unscripted call with a config error 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > FakeProvider purpose queues (spec 031) > non-strict default is unchanged: an unscripted call is a bare done 0ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts > no vendor lock-in (decision-0007, invariant 10) > names no provider, vendor, or key variable anywhere in apps/server/src/ai/ 2ms
+@the-stacks/server:test: stdout | test/bench/retrieval.test.ts > runCommand paid-run refusal (contract invariant 9) > exits 2 with no database connection opened for a non-fake provider without --allow-paid
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > scoreQuestion > hits the first passage whose span overlaps >= half the target 1ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > scoreQuestion > misses a passage with less than half overlap 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > scoreQuestion > ignores a matching span in the wrong book 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > scoreQuestion > returns the rank of the first hit, not the best-overlapping one 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > scoreQuestion > accepts any expected target among several 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > summarize > is all zeros when every rank is a miss 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > summarize > is all ones when every rank is 1 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > summarize > uses 1/rank for ranks <= 10 and ignores misses/rank>10 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > bowEmbed > is deterministic, unit-norm, length 1024 2ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > bowEmbed > gives higher cosine similarity to texts sharing content words 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > truncateVector > at 1024 returns the input renormalized 1ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > truncateVector > at d < 1024 zeroes components d..1023 and keeps unit norm 1ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > warmUpModel (operator ruling 2026-09-29) > POSTs Ollama's native /api/embed with keep_alive: -1, not the gateway 25ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > warmUpModel (operator ruling 2026-09-29) > throws naming the model on a non-ok response 2ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > loadCorpus / loadQuestions (committed data) > loads the committed questions against the committed corpus 9ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > loadQuestions (mutated real data) > throws naming the id when a quote is missing 2ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > loadQuestions (mutated real data) > throws naming the id when a quote matches more than once 1ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > loadMatrix > rejects a dim above 1024 2ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > resolveBenchUrl (contract invariant 5) > appends _bench to the base database name 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > resolveBenchUrl (contract invariant 5) > prefers TEST_DATABASE_URL over DATABASE_URL for the base 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > resolveBenchUrl (contract invariant 5) > honors an explicit BENCH_DATABASE_URL 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > resolveBenchUrl (contract invariant 5) > throws when the bench URL equals the base URL 0ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > runCommand paid-run refusal (contract invariant 9) > exits 2 with no database connection opened for a non-fake provider without --allow-paid 8ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > writeResults (contract invariant 8) > never writes a question's text or expected quote (question ids only) 65ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > report (contract US3 AC2) > prints one group per distinct corpusHash 113ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts > report (contract US3 AC2) > skips an invalid file and an unknown schemaVersion, warning by name 1ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > storeParsedBook (US1, integration) > T005: stores basic-rules.html and every chunk round-trips (invariants 1, 3, 4) 35ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > storeParsedBook (US1, integration) > T005: stores bestiary.html and every chunk round-trips (invariants 1, 3, 4) 17ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > storeParsedBook (US1, integration) > T005: storing the same book again (different case) replaces it wholesale (invariant 2) 25ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > storeParsedBook (US1, integration) > T005: a validation failure mid-book leaves the previous version intact (invariants 1, 2) 11ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > storeParsedBook — keyword search (US2, integration) > T007: tsv is populated on insert and served by the GIN index (invariant 9, SC-002) 11ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > attachEmbeddings (US3, integration) > T009: two models' vectors on one chunk coexist (AC1) 12ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > attachEmbeddings (US3, integration) > T009: a duplicate (chunk, model) is refused and the call writes nothing (invariant 6) 15ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > attachEmbeddings (US3, integration) > T009: deleting a document removes its embeddings (invariant 8) 13ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > attachEmbeddings (US3, integration) > T009: a nearest-neighbour query restricted to one model uses the HNSW index (SC-003) 14ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > library immutability (Phase 5, integration) > T011: a raw UPDATE on each of the three tables is rejected (invariant 7, SC-004) 27ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts > library immutability (Phase 5, integration) > T011: a raw DELETE of a document succeeds and cascades 19ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > passes an absent active human after the wait and logs the present set 258ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > does nothing when the human returns inside the wait 116ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > never passes a present human 120ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > acts only if the absence it was armed for has not changed 99ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > commits a stalled party action with a signoff marker 170ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > commits nothing while a present member objects 173ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > restarts the window on a stance change 217ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > acts only if no stance changed since the stall was armed 108ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > cancels the stall check when the action is committed or withdrawn 215ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > finishes skipped under a human DM seat 109ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > arms no wait under a human DM seat 91ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > re-arms after a restart 275ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts > floor jobs (database) > queues the new holder's follow-up after an absence pass 158ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > gives nine actors with Snag joined once, in contract order 38ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > fills every contract field 3ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > resolves the stage active actor for ai:dm, a companion and a character 3ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > keeps a party member with no combatant as an actor with null state 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > builds without a seed: no NPCs, no sheets, null seedId 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > throws ACTOR_ID_COLLISION when two actors share an id 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > is deterministic and holds no DM-only seed text 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot > uses a combatant name for a monster with no seed name 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > one identity across the NPC and its combatant (US4) > Snag is one npc actor before and after combatant.add 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot: logged scene presence > reads an absent monster keyed by combatant id 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot: logged scene presence > reads a party member keyed by character id, not combatant id 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot: logged scene presence > reads a joined NPC keyed by NPC id 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot: logged scene presence > compresses an absent actor under the fiction cap 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > buildSnapshot: logged scene presence > ignores an entry for an unknown id 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > aliases > "Brother Odo" gives "Odo" 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > aliases > Snag carries its engine name; ids join only when they differ 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > aliases > NPC aliases end with the seed aliases, deduped 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > aliases > nameTerms matches partyNameTerms output 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > fiction render of the world (moved from facts.test.ts) > lists Snag once, joined across the seed NPC and the combatant 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > fiction render of the world (moved from facts.test.ts) > lists every world character once and no party member as a world character 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts > retired names (T026) > no file under src names projectionEntries or npcNames 15ms
+@the-stacks/server:test: stderr | test/bench/load.test.ts > dev tier CLI guards (invariant 7) > without --allow-dev, exits 2 before any network call
+@the-stacks/server:test: stdout | test/bench/load.test.ts > dev tier CLI guards (invariant 7) > with LOAD_DEV_URL unset, skips concurrency-dev and exits 0
+@the-stacks/server:test: stdout | test/bench/load.test.ts > dev tier CLI guards (invariant 7) > with LOAD_DEV_URL unset, skips concurrency-dev and exits 0
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > cases registry (invariant 1) > every case has exactly one tier and a unique id 1ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > cases registry (invariant 1) > only dev-tier cases have target dev 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > selectCases (invariant 2) > every non-selected case is skipped with a non-empty reason; run + skipped = CASES 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > selectCases (invariant 2) > --case filters within the tier 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > resolveLoadUrl (invariant 3) > appends _load to the base database name 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > resolveLoadUrl (invariant 3) > honors LOAD_DATABASE_URL 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > resolveLoadUrl (invariant 3) > throws when the load URL equals the base URL 1ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > resolveLoadUrl (invariant 3) > throws for a non-loopback host 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > synthDoc (invariant 4) > is deterministic for the same seed and bytes 2ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > synthDoc (invariant 4) > differs for a different seed 1ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > synthDoc (invariant 4) > is within 5% of the requested bytes 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > synthDoc (invariant 4) > parses with parseMarkdown into at least one chunk 4ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > percentile (invariant 6) > nearest-rank: p95 of [1..100] is 95 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > percentile (invariant 6) > a single sample returns it for any percentile 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ingestVerdict (invariant 5) > a flat series is not degraded 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ingestVerdict (invariant 5) > names the first degraded step and every rule that fired there 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ingestVerdict (invariant 5) > absolute floors suppress sub-floor changes even past the ratio 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ingestVerdict (invariant 5) > a failed job degrades regardless of thresholds 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > concurrencyVerdict (invariant 5) > a flat series is not degraded 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > concurrencyVerdict (invariant 5) > names latency and errors when both fire 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > concurrencyVerdict (invariant 5) > the latency floor suppresses a sub-floor change 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ProfileSchema dev validation (invariant 8) > accepts a valid dev profile 1ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ProfileSchema dev validation (invariant 8) > rejects wsSend: true 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > ProfileSchema dev validation (invariant 8) > rejects more than 25 users 0ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > writeResults (invariant 9) > a results file for a dev-target run contains no URL, credential, or session cookie 63ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > dev tier CLI guards (invariant 7) > without --allow-dev, exits 2 before any network call 3ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > dev tier CLI guards (invariant 7) > with LOAD_DEV_URL unset, skips concurrency-dev and exits 0 2ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts > report (US5, T023) > groups local and dev results for the same case id apart 113ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > run-5 fixture > names its source and carries the selected rows 2ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > F23: the fallback states the ledger in the fiction (T012, flipped) > seq 88 says the fight stops and drops 'nothing changes' 10ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > F23: the fallback states the ledger in the fiction (T012, flipped) > seq 53 states the fight, the joiners and the first mover, and asks 2ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > leaks: DM-only seed facts no longer reach player-facing prompts (T013) > the narrate system prompt no longer holds 'river things' (L1, doctrine example) 4ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > leaks: DM-only seed facts no longer reach player-facing prompts (T013) > the reed-camp narrate prompt carries Snag's shown want, not the river-things (L2) 2ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > leaks: DM-only seed facts no longer reach player-facing prompts (T013) > Odo's companion prompt no longer holds 'wards' (L3) 2ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > F17 and F76: facts and transcript lines lose detail (T014) > F17: the Goblin-3 NPC turn facts render the roll reason and target 1ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > F17 and F76: facts and transcript lines lose detail (T014) > F76: the transcript line for row 187 names 'Tamsin Vale' and drops the user id (public, with roster) 4ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > A3 and A4: clarify relay and craft judgments (T015) > A3 (flipped): the narrate prompt tells the model to ask in its own words, never to offer options 2ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > A3 and A4: clarify relay and craft judgments (T015) > A3: prose ending with that question fails deterministicChecks as an option menu 7ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts > A3 and A4: clarify relay and craft judgments (T015) > A4 (flipped): a doctrine-only dm.audit failure ships the narration on attempt 1 8ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US1 streamed answer with verified citations (integration) > T013: real + hallucinated quote → one citation, done.dropped 1, span slices back to the stored text (SC-001, SC-002) 189ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US2 refuse when nothing is relevant (integration) > T017: a question sharing no word with the library yields nothing_relevant, zero chat calls (SC-003) 140ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US2 refuse when nothing is relevant (integration) > T017: vector mode — below-floor similarity refuses; an above-floor chunk gets the model called 306ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 401 without a session, before any stream opens 2ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 403 for a player, before any stream opens, zero chat calls (SC-005) 138ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 400 validation for an empty body 144ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 400 validation for a blank question 138ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 400 validation for an over-length question 144ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: 400 validation for a non-JSON body 142ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts > POST /library/ask — US3 failures, auth, and cancellation (integration) > T020: no answer deps configured → one error{config} event 138ms
+@the-stacks/server:test: stderr | test/dm/seed.test.ts > scene seed (AC #13) > lists only valid seeds from a directory and does not throw
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed skill gate > fails to load a character with an unknown skill key 9ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > loads the shipped seed 37ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > is a byte-for-byte copy of the spec data file 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > says original plus SRD in its license header 4ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > rejects a missing seed with a SeedError 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names a schema failure 2ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names a duplicate id 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names an unknown srdMonsterId 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names an unknown spell 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names an unresolved beat npc and encounter 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names an unresolved relationship target 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names a combatant id that differs from the character id 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names an attack expression without a plain d20 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > names a damage expression that does not parse 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > requires at least one human seat 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > loads the two-player duo seed 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > keeps exactly one human in greyhollow-ford 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > lists the shipped seeds sorted by id 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > lists only valid seeds from a directory and does not throw 3ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > scene seed (AC #13) > collects every issue before throwing 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > combatantFromSrd > maps goblin-warrior 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > combatantFromSrd > maps goblin-minion and falls back to the SRD name 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > combatantFromSrd > filters defenses to the engine's damage types, lower-cased 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > player-facing authoring rule (TASK-0106) > no player-facing field mentions river-things or wards 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > player-facing authoring rule (TASK-0106) > dmOnlySeedText holds the DM-only strings and no player-facing one 2ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > player-facing authoring rule (TASK-0106) > playerFacingSeed copies player-facing fields only 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > player-facing authoring rule (TASK-0106) > dmOnlySeedPaths resolves to exactly the dmOnlySeedText strings 2ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > declares presence per beat for every seed NPC (plan D2) 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > names a beat that declares no presence for an NPC 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > names a beat that declares presence for an unknown NPC 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > names a beat whose npcIds lists an NPC it declares absent 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > names an NPC whose identity.combatant differs from its id 0ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > names an NPC whose identity.combatant names no encounter monster 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > refuses an alias over 60 characters and seven aliases 1ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts > seed NPC presence, identity and aliases (spec 050) > yields aliases [] when absent and the ruled aliases on the shipped seed 1ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > talk-only: incremental fold, project and loadProjections agree 42ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > free-mode-action: incremental fold, project and loadProjections agree 65ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > turn-mode-combat: incremental fold, project and loadProjections agree 68ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > secret-tracker: incremental fold, project and loadProjections agree 22ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > dm-approvals: incremental fold, project and loadProjections agree 57ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > commit-authority: incremental fold, project and loadProjections agree 26ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > group-signoff: incremental fold, project and loadProjections agree 40ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — replay on a real log (AC #7) > turn-floor: incremental fold, project and loadProjections agree 103ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — refusals write nothing (AC #5) > refuses a public tracker.changed (VISIBILITY_NOT_ALLOWED) 2ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — refusals write nothing (AC #5) > refuses an invalid payload (INVALID_PAYLOAD) 2ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > session seam — refusals write nothing (AC #5) > refuses an unknown type (UNKNOWN_EVENT_TYPE) 2ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendBatch — atomic failure (AC #6, AC #7) > a failure mid-batch leaves zero rows and no seq gap 10ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendBatch — atomic failure (AC #6, AC #7) > a failure after existing rows keeps them and the next seq is gapless 12ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendBatch — atomic failure (AC #6, AC #7) > a successful batch lands with consecutive seq after prior rows 6ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendBatch — atomic failure (AC #6, AC #7) > guards throw before any write: empty, mixed sessions, seq or ts supplied 4ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendMechanicsBatch — atomic failure (AC #6, AC #7) > an injected database failure on the third row lands nothing and leaves the projection unchanged 9ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > appendMechanicsBatch — atomic failure (AC #6, AC #7) > an invalid third engine event is refused before any write 1ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts > a damaged log still folds (AC #8) > unknown-and-invalid rows appended directly produce the fixture's counters 22ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: capacity > fits the schema-maximum shape in every view, uncompressed 6ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: compression > compresses only the dead and shows all 50 actors exactly once 6ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: compression > compresses an absent actor, and dead plus absent 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: overflow > returns ok false after compression, and snapshotSection throws 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: overflow > counts compressed actors in the overflow detail and never drops a line 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: overflow > returns a labelled section when it fits 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: views > dm view shows a monster's AC and condition 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: views > fiction view of the shipped seed holds no digit, no actor id and no DM-only text 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: views > seat view shows no AC, resources or sheet for a non-party actor 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: views > trackers render only in the dm view, only when asked 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts > renderSnapshot: views > renders a free table without an encounter 0ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T011: returns appended events in ascending seq order starting at 1 25ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T012: a cursor of 3 in a 5-event session returns exactly events 4 and 5 16ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T013: a cursor at or beyond the newest position returns an empty list, not an error 8ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T014: limit caps the number of events returned 15ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T018: 50 concurrent appends to one session are gapless and duplicate-free (SC-003) 81ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T019: concurrent appends to two sessions number each session independently (FR-003) 61ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T023: a direct UPDATE and DELETE against events are both rejected at the database (FR-004) 8ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T026: visibility and payloadVersion survive append and read unchanged (FR-005, FR-013) 3ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T027: an append omitting visibility records the public marker, never null (FR-013) 5ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — append and readFrom (US1, integration) > T028: an event with an unrecognized type and payloadVersion is still returned by a read (FR-012, constitution IV) 4ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — expectedLastSeq and readLatestOfType (spec 029) > T033: a matching expectedLastSeq appends; the empty session expects 0 5ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — expectedLastSeq and readLatestOfType (spec 029) > T033: a mismatched expectedLastSeq throws SeqConflictError and lands zero rows 6ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts > event log — expectedLastSeq and readLatestOfType (spec 029) > T033: readLatestOfType returns the latest row of that type, or null 5ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > includes a committed action as a committed beat item 44ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > includes a resolved-but-unnarrated action (FR-004) 5ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > excludes a resolved action that has a narration row 3ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > excludes a resolved action named by a pending narration proposal 2ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > orders the beat by commit seq, not declare seq 2ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > freezes the beat on a later attempt (FR-004) 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > skips an action with two rejected proposals 2ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > derives an NPC turn from state, whatever the trigger 5ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > derives no NPC turn when a player is active 2ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > selects SRD records by name from the beat, within the cap 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > gathers prior steps for a beat action 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble > keeps the transcript tail to 20 entries 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble: S0 > builds the actor snapshot from the projections and the seed 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > assemble: S0 > renders the director State section from S0 with tracker lines 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > prompt caps (SC-007) > cuts whole entries and keeps each part under its cap 5ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > prompt caps (SC-007) > presence (decision-0024) > splits present from absent human controllers using the folded marker 1ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > prompt caps (SC-007) > presence (decision-0024) > lists no absent controller when every controller is present 0ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > prompt caps (SC-007) > presence (decision-0024) > is null when no marker was folded 0ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts > prompt caps (SC-007) > lists only NPCs that are not absent, in seed order (spec 050) 1ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > parses fenced JSON 2ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > joins text events and names exactly one purpose per call 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > re-asks once with the bad text and the issues 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > returns invalid-output after a second failure 1ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > records purpose, version, issues and one excerpt per failed attempt 1ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > records outputTokens as null when the stream has no usage 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > passes a gateway error kind through without a re-ask 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callJson > reports aborted when the signal is aborted 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > fills the usage fields on a first-try ok 1ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > gives a repaired invalid-json two records with two usages 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > fills the usage fields on a gateway error 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > uses nulls when the gateway emits no usage record 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > hands recordCall one call per attempt, with http attempts 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > records an aborted attempt but keeps it out of calls 1ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > records the callText attempt too 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > usage fields and recordCall > stores exactly the documented keys and no prompt or completion text 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > callText > returns the joined prose 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > stripFence > strips one surrounding fence and leaves bare text alone 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > excerptOf > keeps text up to 8000 characters whole 0ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts > excerptOf > keeps the head 6000 and tail 2000 around an elided count at 8001 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > POSTs the chat body with stream options and headers, streaming text then usage from the final chunk 21ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > sends a Bearer token from the env var named by apiKeyEnv (invariant 9) 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps a content_filter finish reason to a refusal error, carrying the final chunk's usage 1ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps an HTTP 400 response to error kind config 1ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps an HTTP 401 response to error kind auth 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps an HTTP 403 response to error kind auth 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps an HTTP 429 response to error kind rate_limit 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > maps an HTTP 500 response to error kind upstream 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > completes with done when a finish_reason arrives but no [DONE] follows 1ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > completes with done on [DONE] alone, without a finish_reason 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > reports an upstream error when the stream ends with neither [DONE] nor a finish_reason, with counts seen (zero) 1ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > never retries once output has started, even when the stream itself errors mid-flight 1ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.chat > retries a 500 before the first output, then succeeds through the gateway with one usage record carrying the real attempt count 2ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.embed > POSTs dimensions:1024, sorts returned vectors by index, and maps usage.prompt_tokens 0ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts > OpenAiCompatibleProvider.embed > throws naming the status and the provider's message on an error response 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > runs the nodes in pipeline order and skips adjudicate without a flagged reading 43ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > runs adjudicate when a reading is flagged 2ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > reuses checkpointed planning outputs and makes no call for them 2ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > saves the checkpoint after each planning node and freezes the beat 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > stops before the next node when the fence is false 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > fails fenced when the stage write is refused 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > turns a thrown node into an internal error without leaking the message 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > returns a failed outcome with the node's error 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > fails the turn with state-overflow when interpret's state cannot fit, and makes no call 10ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > makes no call on an empty beat 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > does not treat an empty beat as empty on scene start 0ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > does not treat an empty beat as empty when an NPC acts 0ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > runs resolve in hold mode and returns held 0ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > gives only resolve the real gate (AC #5) 1ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > stops when the signal is aborted 0ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts > runTurn > each node is a plain async function of one argument 116ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: every heading path is in document order, starting with the book title 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: a skipped heading level (h2 -> h4) is recorded without an invented h3 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: every block's anchor round-trips against the normalized text 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: block spans strictly increase and never overlap 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: no block contains site-chrome text 2ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: non-ASCII text is preserved exactly 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US1: anchored sections > T010: parsing the same fixture twice yields deep-equal output 2ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: every table in the export becomes exactly one table block 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: a table with a header row and no merged cells 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: a table with a header column instead of a header row 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: a merged (colspan) cell keeps its text without inventing columns 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: every table block's anchor round-trips 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: tables whole > T014: no block contains site-chrome text 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: stat blocks whole > T014: every stat block in the export becomes exactly one statBlock block 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: stat blocks whole > T014: a complete stat block keeps its name and labelled fields, including ability scores 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: stat blocks whole > T014: the malformed stat block (missing ability scores) still becomes one whole block 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: stat blocks whole > T014: every stat-block anchor round-trips 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: stat blocks whole > T014: no block contains site-chrome text 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — US2: sidebar marking > T014: the sidebar in basic-rules.html becomes exactly one sidebar block 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — headings: all (T025, generic HTML) > an unclassed h2/h3 page gives paths from its headings 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — headings: all (T025, generic HTML) > default 'ddb' mode does not promote unclassed h2/h3 to headings 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — headings: all (T025, generic HTML) > every existing DDB fixture test passes unchanged (spot check) 2ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — error paths (T013) > throws ValidationError on empty pages 1ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — error paths (T013) > throws ValidationError when a page has no content root and no body 0ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts > parseDdbExport — error paths (T013) > throws ValidationError for a non-DDB page with no content 0ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > an active companion talks, declares and commits as active-player 158ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > refuses and records a commit from a companion who is not active 60ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > replaces a null act in turn mode with a committed hold-position act 66ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > a hold job ends by forcing the queued turn 56ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > skips a companion who is not in the party 53ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > an overflowing seat state records an error play, logs state-overflow and makes no model call 50ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > turn mode: a non-active companion's react run submits no commit 68ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts > AI companions (database) > turn mode: the active companion commits its open action and declares no second one 66ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: enqueue returns a queued job 21ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: a second active enqueue for the same book (case/whitespace-insensitive) conflicts 12ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: two concurrent claimJob calls never return the same job 24ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: a running job with a fresh heartbeat is not reclaimed 6ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: a running job whose heartbeat is older than the lease is reclaimed (attempts 2, new token) 8ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: a stale claim token's setStage/finishJob/heartbeat return false and change nothing 11ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: the fourth claim yields failed 12ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T007: JobStatusSchema never exposes uploadPath or claim_token 7ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > T009: the web load context's jobs() returns the inserted job for an operator, null for a player 44ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts > jobs store (Phase 1, integration) > FR-007: the ingest claim, listJobs and getJob never see a DM job 12ms
+@the-stacks/server:test:  ✓ test/ws.subscribe.test.ts > replay/live boundary (research D1, deterministic) > delivers an event appended DURING replay exactly once, in order 2ms
+@the-stacks/server:test:  ✓ test/ws.subscribe.test.ts > replay/live boundary (research D1, deterministic) > skips a queued event the replay already covered (no duplicate at the boundary) 0ms
+@the-stacks/server:test:  ✓ test/ws.subscribe.test.ts > DM-seat subscribe race (TASK-0045) > never sends dm-only events to a former DM when the seat changes between load and cache write 2ms
+@the-stacks/server:test:  ✓ test/ws.subscribe.test.ts > replay/append/broadcast race (TASK-0095) > does not re-send an event the replay already delivered when its broadcast runs after replay completes 14ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > the second player's approval auto-commits with a signoff marker 48ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > an explicit commit before the quorum is met refuses with the waiting list 19ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > an objection blocks the commit, names the objector, and a later approval commits 29ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > an absent third player does not block, and the marker omits them 25ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > a present third player who has not approved keeps the action open 22ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > a seated human DM commits over an objection with dm authority and no marker 19ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > the AI DM commits over an objection with dm authority 15ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts > gate — group sign-off (two human seats) > a seated DM withdraws an open party action and a later approval refuses ACTION_NOT_OPEN 17ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > keeps a legal hold 1ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a hold to resolve when forceResolve is set 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a hold to resolve when table mode is turn 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a hold to resolve when the companion is a player's character 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a hold to resolve when the companion is not in the party 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a hold to resolve when the companion already has a committed action 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > forceResolve overrides a hold (open question 6) 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > allows a turn into a seed encounter that has not run 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a turn to stay for an unknown encounter 1ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a turn to stay for table mode is already turn 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > overrides a turn into an encounter whose monsters already exist 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > allows free only from turn mode 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > reports a readable issue for a zero tracker advance 1ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > drops a tracker advance for a tracker that does not exist 1ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > treats scene end as continue when no scene is set 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > drops companion prompts outside free mode or for non-companions 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > legalizeDirector (director.md legality table) > keeps only pacing on scene start 0ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts > director node > makes one dm.director call and applies legality 8ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > a second subscriber's arrival reaches the first; snapshot follows replay-complete 188ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > a close reaches the other client within the bound 344ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > a reconnect inside grace sends no absent snapshot 621ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > a client that stops answering pings is terminated and goes absent 520ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > multiple tabs of one user count once and survive one closing 632ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > a subscribe without presence receives no presence frame (SC-005) 621ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts > ws presence (integration) > re-subscribing to another table leaves the first 350ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > regenerates once and ships the second text with a one-failure record 186ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > ships the factual summary and a dm journal flag after three failures 85ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > ships the narration when dm.audit returns only doctrine issues (advisory) 74ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > ships the fallback after three refused downed-actor narrations (spec 051) 92ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > regenerates a refused narration and ships the later clean attempt (spec 051) 81ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts > audit through a full pipeline (database) > blanks a refused goalNote, records it as advisory and does not fall back (spec 051) 75ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > accepts a plan whose ids are all S0 combatants 1ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > refuses an effect on a seed NPC with no combatant as not-a-combatant 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > refuses an unknown id as not-in-snapshot 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > does not map an alias to its combatant 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > walks nested onHit, onSuccess and onFailure targets in step order 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > reports the first failure of the group only 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > lets a ruling replace the reading's steps 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > gates the NPC group (actionId null) 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > accepts the ids an encounter start adds 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan > skips null actor ids and clarify readings 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > refuses an absent targetId 2ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > refuses an absent attackerId 3ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > refuses an absent check combatantId 1ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > refuses an absent onHit effect target 1ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > lets an arrived presence effect name an absent actor 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > refuses a non-arrived presence effect on an absent actor 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > passes a yielded target 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > passes a presence effect on a seed NPC with no combatant 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > checkPlan: absent actors > still reports an unknown id as not-in-snapshot 1ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > joiningCombatants > lists the encounter's monsters missing from the engine 0ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts > joiningCombatants > starts no encounter on a scene start or a free decision 0ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > segments > closes a segment at each DM narration 39ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > segments > drops a tail without talk and keeps one with talk 3ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > segments > yields no segments without a scene.changed row 3ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > pass on every segment of the clean run 30ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > fail each planted problem with the right kind and seqs, and nothing else 8ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > hidden-info and secret trackers > passes a sentence that tells a tracker's outcome without its state 8ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > hidden-info and secret trackers > flags tracker state: Full dark falls on the ford: 3 of 4 segments filled. 7ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > hidden-info and secret trackers > flags tracker state: The reed-camp is alerted, two of three. 6ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > hidden-info and secret trackers > flags tracker state: The dusk clock is nearly full. 8ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > hidden-info and secret trackers > flags tracker state: The tracker for full dark falls on the ford is at 2/4. 6ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > code checks > passes the DM runtime's factual summary, with a recorded death 4ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > dice-lines false positive (multi-paragraph prose) > counts no dice lines in real scene-start narration (provider-playtest) 6ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > dice-lines false positive (multi-paragraph prose) > counts no dice lines in real scene-start narration (provider-playtest-failed-2) 5ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > dice-lines false positive (multi-paragraph prose) > still counts a trailing block of rendered dice lines 0ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts > dice-lines false positive (multi-paragraph prose) > treats a trailing prose block without arrows as prose 0ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts > adjudicate (database) > keeps a verified library citation with its anchor and drops an unverifiable quote 71ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts > adjudicate (database) > marks a ruling improvised when no citation verifies 14ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts > adjudicate (database) > carries the SRD page on an SRD citation and drops an unknown record 13ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts > adjudicate (database) > retrieves once per adjudicated action 12ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts > adjudicate (database) > ships an uncited ruling when retrieval finds nothing 21ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: a single HTML upload reads as one page 4ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: a single Markdown upload reads as one page 1ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: MM shape — chapter folders, __MACOSX twins, .DS_Store, *_files assets 13ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: DMG/XGtE shape — a zip of per-chapter zips, stored method 6ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: LMoP directory shape — per-chapter zips plus a combined duplicate zip with a directory-only inner zip 8ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T034: LMoP real-export shape — combined zip is the first extracted entry, with data-descriptor chapters 6ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: PHB order — numeric collation, not lexical 1ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: asset entries are never inflated, and tmpDir is empty after the walk 2ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: zero pages throws ValidationError 2ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts > collectPages > T020: nesting deeper than MAX_ZIP_DEPTH throws ValidationError 2ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > bumps the prompt versions 1ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > renders a frightened monster's condition and AC from S0 (G6) 43ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > the interpret system prompt holds every rules-term key 8ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > the adjudicate system prompt holds the three lists 3ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > the example object parses under InterpretOutput 0ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts > interpret and adjudicate prompts > matches the step grammar and output shape snapshot 4ms
+@the-stacks/server:test:  ✓ test/dm/reclaim.integration.test.ts > lease expiry and reclaim (database) > a crash after any resolve submission reclaims to the uninterrupted log (SC-005) 1481ms
+@the-stacks/server:test:  ✓ test/dm/reclaim.integration.test.ts > lease expiry and reclaim (database) > a crash after the narration lands reclaims without a second narration 701ms
+@the-stacks/server:test:  ✓ test/dm/reclaim.integration.test.ts > lease expiry and reclaim (database) > a second crash after the tracker lands reclaims to the same log, each step once 772ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > builds every variant 2ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > holds no DM-only seed text 3ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > carries the snapshot sections in the narrate, audit and chronicle prompts 0ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > holds no river-things or ward wording 0ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > holds no dm-visibility line and no user id 0ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts > player-facing prompts (card AC #1) > gives each companion its own knows and not the other's 1ms
+@the-stacks/server:test:  ✓ test/dm/duo.integration.test.ts > two humans at one table (database) > scene start seats tamsin and kestrel as players and odo as the companion 304ms
+@the-stacks/server:test:  ✓ test/dm/duo.integration.test.ts > two humans at one table (database) > a party action with both present commits only after both approve 249ms
+@the-stacks/server:test:  ✓ test/dm/duo.integration.test.ts > two humans at one table (database) > with kestrel's player absent, tamsin's player alone commits it 244ms
+@the-stacks/server:test:  ✓ test/dm/duo.integration.test.ts > two humans at one table (database) > in turn mode the floor passes an absent kestrel player's turn to odo 361ms
+@the-stacks/server:test:  ✓ test/dm/turn-floor-round.integration.test.ts > turn floor, a full round (database) > passes the floor Ana, Bram, Pip, the goblin, then Ana in round 2 690ms
+@the-stacks/server:test:  ✓ test/gate.restart.integration.test.ts > proposal gate — server restart (AC #9) > keeps pending proposals, lets the DM approve one, and never shows a player any 1250ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: reads back stored and deflated entries 23ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: skip opens no stream, even for a corrupt entry 7ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: extracts an inner zip, hands onExtract a path, and deletes it after 6ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: a corrupt CRC on a read entry throws ZipError 1ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: an encrypted entry throws ZipError 1ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: an unsupported compression method throws ZipError 1ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: a declared size smaller than the inflated content throws ZipError 2ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: an exhausted extraction budget throws ZipError 1ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: a page over MAX_PAGE_BYTES (declared size) throws ZipError before reading 2ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: a truncated file (no EOCD) throws ZipError 1ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts > walkZip > T018: the handle is closed after an error — a second walk of the same path succeeds 1ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > fails the doctored fixture with exactly the README's findings (checks only) 69ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > passes the clean run and fills the fight statistics 14ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > turns a doctrine finding into a warn that never changes the verdict 14ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > turns an unknown doctrine id into kind other 8ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > drops out-of-segment seqs and counts discarded findings 9ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > retries once on bad JSON, then records an error and verdict incomplete 8ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > retries a gateway error once and then succeeds 8ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > parses a fenced JSON answer 6ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > gives stable finding ids across two runs 15ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > reports no-scene as incomplete 2ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > keeps prompt text out of both report files 6ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts > runAudit > sets modelNote when the auditor and narrator share a model 12ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > estimate > pins the per-purpose table of contracts/cost-guard.md 1ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > estimate > uses configured maxTokens as the output size, else the purpose default 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > estimate > keeps expected at or under the upper bound for every purpose 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > estimate > estimates an audit alone from the segment count 1ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > budgetGateway > lets one call through at a one-call ceiling and cancels the next without a provider call 2ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > budgetGateway > throws from embed past the ceiling without a provider call 1ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > budgetGateway > totals tokens and cost across records 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > returns nothing for a complete priced config outside CI 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > refuses under CI 1ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > names every missing purpose 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > names every unpriced model 0ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > orders CI, then missing purposes, then unpriced models 1ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts > providerPreflight > skips dm purposes for an audit-only need 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — DDB fixtures (round trip) > invariants 1, 5, 7 hold over basic-rules.html at the default budget 2ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — DDB fixtures (round trip) > invariant 2: every table in equipment.html becomes exactly one unchanged output block 1ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — DDB fixtures (round trip) > invariant 2: every stat block in bestiary.html becomes exactly one unchanged output block 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > a heading plus short paragraphs under the same section merge into one prose chunk 1ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > invariant 3: blocks under different paths never merge 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > invariant 2 + 4: a 5,000-char table under a section stays its own chunk, never merged 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > invariant 4: an oversize single prose block stays whole, unmerged with neighbors 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > invariant 6: maxChars 0 returns one output block per input block (identity) 0ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts > chunkBook — hand-built invariants > astral-plane text keeps span equality after a merge 1ms
+@the-stacks/server:test:  ✓ test/dm/scene.integration.test.ts > fixture scripts > the full script is the four scene segments in order, plus chronicle passes 13ms
+@the-stacks/server:test:  ✓ test/dm/scene.integration.test.ts > the whole scene (database) > plays Greyhollow Ford to its end through exploration, social and fight 1928ms
+@the-stacks/server:test:  ✓ test/playtest/harness.integration.test.ts > the harness run (database) > plays the CI scenario to its end and writes the run directory 2102ms
+@the-stacks/server:test:  ✓ test/playtest/harness.integration.test.ts > the harness run (database) > stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112) 1492ms
+@the-stacks/server:test:  ✓ test/playtest/harness.integration.test.ts > the harness run (database) > ends stalled with artifacts saved when the move cap is reached 767ms
+@the-stacks/server:test:  ✓ test/playtest/harness.integration.test.ts > the harness run (database) > ends failed with the job id and artifacts saved on a DM error 167ms
+@the-stacks/server:test:  ✓ test/dm/chronicle.integration.test.ts > chronicle (database) > runs a committed action to a finished turn and queues one chronicle that writes a journal entry 356ms
+@the-stacks/server:test:  ✓ test/dm/chronicle.integration.test.ts > chronicle (database) > a chronicle job never waits behind a turn job (turn claims first) 17ms
+@the-stacks/server:test:  ✓ test/dm/chronicle.integration.test.ts > chronicle (database) > reads the state at the job's throughSeq, not the live log 59ms
+@the-stacks/server:test:  ✓ test/dm/chronicle.integration.test.ts > chronicle (database) > an overflowing state writes nothing, logs state-overflow and makes no model call 53ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > End turn by the active human lands one batch and names the next holder 232ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > another human is refused FLOOR_NOT_HELD and the log is unchanged 105ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > a stale turn is refused TURN_MOVED and the log is unchanged 115ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > the DM passes, takes and returns the floor 138ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > a player cannot take or return the floor 111ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts > gate floor requests (database) > a player commit while the DM holds the floor is COMMIT_NOT_ALLOWED 116ms
+@the-stacks/server:test:  ✓ test/dm/full-turn.integration.test.ts > one full turn (database) > runs the search turn end to end and passes its audit 438ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove > serves the free moves in order, then the fallback 1ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove > plays the combat move only when the seat is active; the first uses firstActionId 1ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove > waits while a human action is unresolved 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove > is done when the scene ended or the move cap is reached 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > fallback cycling and the stall stop > cycles the fallback list without an immediate repeat 1ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > fallback cycling and the stall stop > skips a fallback that equals the last one sent 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > fallback cycling and the stall stop > stops after three no-change fallback moves, not before 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > fallback cycling and the stall stop > counts a ledger change as a state change, a fallback move that changed nothing as none 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > fallback cycling and the stall stop > counts a table-mode row only when the mode changed 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove for a downed seat (TASK-0112) > is done in free mode with 0 HP 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove for a downed seat (TASK-0112) > waits in turn mode when another combatant is active 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove for a downed seat (TASK-0112) > waits in turn mode even when its own turn is shown active 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove for a downed seat (TASK-0112) > declares again once the character is conscious 0ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts > nextMove for a downed seat (TASK-0112) > declares for a seat whose party member has no combatant 0ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > is empty on identical input 38ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > gives one presence entry when the log presence changes 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > gives one hp and one life-state entry for a kill 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > matches conditions by instanceId: one applied, one removed 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > reports joined and left actors 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > reports encounter start and end 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > reports round, active actor, tracker and scene changes in union order 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > gives active-actor when an AI companion's turn begins 1ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > gives nothing for a max-HP-only change 2ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts > diffSnapshots > reports resources with both whole values 1ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > returns the loadAiConfig result when the value is unset 2ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > treats an empty value as unset 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > denies the listed STACKS_ENV values 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > refuses script mode when STACKS_ENV is undefined 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > refuses script mode when STACKS_ENV is "" 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > refuses script mode when STACKS_ENV is "default" 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > refuses script mode when STACKS_ENV is "main" 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > refuses script mode when STACKS_ENV is "dev" 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > returns the scripted config on a worktree stack 2ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > rejects a bad name 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > rejects an unknown name and lists the available names 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > rejects a file that fails the schema, naming the file 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > createAiRuntime > does not call loadAiConfig in script mode 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > script-mode gateway > serves the script, then fails loudly on an empty purpose, and embeds hash vectors 2ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > facesThenSeed > serves faces in order, then matches seededRng(0) 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > facesThenSeed > throws on a face outside 1..sides 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts > facesThenSeed > shares one instance from gateRng() 0ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > refuses provider mode under CI with exit 4 38ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > refuses with no AI config, naming the purposes, exit 4 3ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > refuses an unpriced model, exit 4 2ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > prints the estimate and exits 3 with no ceiling, no run and no directory 5ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > exits 3 when the ceiling is below the upper-bound estimate 6ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > estimate exits 0 for a complete config and makes no run 1ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > estimate exits 4 naming the missing purposes with no config 1ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > exits 64 on a bad flag, a bad mode and a missing scenario 1ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > playtest CLI guards > audits a doctored run directory without a model and exits 1 57ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > host provider URL rewrite > rewrites host.docker.internal to localhost on the host and reports it 1ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts > host provider URL rewrite > leaves the URLs alone when PLAYTEST_HOST_NETWORK=0 (container) 0ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > appends one public system marker with a sorted payload 13ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > carries the action id when given 7ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > appends one row per call even when the set is unchanged 10ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > retries on a seq conflict and then succeeds 75ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > refuses with CONFLICT after three conflicts 46ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > notifies onAppended listeners with the stored row 5ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts > gate.recordPresence > records an empty set when no human is present 7ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: refusals > M2 seq 225: 'Two down' is a count issue (US3.1) 75ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: refusals > F52, M2 seq 307: 'No goblins left' is a count issue (US3.2) 7ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: refusals > run 192319Z row 162: unconscious Tamsin acts (US1.1) 8ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: refusals > seq 225 alias variant: dead goblin-3 speaks (US1.5) 5ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: refusals > Snag absent: Snag laughs from the reeds (US1.6) 4ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: controls > F52 with goblin-2, goblin-4 and Snag absent passes (US3.3) 3ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: controls > ROW162_STATE passes (US1.2) 4ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: controls > SEQ201_NEGATED passes (US1.3) 2ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: controls > shipped seq 225 prose raises no act or speech issue (US1.4) 4ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: controls > M2 seq 220 passes (US2.2) 3ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: seq 216 false positive (US2) > deterministicChecks passes it: the anonymous check is replaced by a keyed one 3ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: seq 216 false positive (US2) > checkClaims passes it: Tamsin is unconscious since seq 135 2ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: fixture state sanity > M2 seq 224: goblin-3 is dead, goblin-2 and Snag stand 3ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: fixture state sanity > run 192319Z seq 160: Tamsin is unconscious with no life-state change in the diff 2ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: fixture state sanity > withPresence holds Snag absent with an empty diff 2ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: fixture state sanity > narrationAt strips dice lines 0ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: both logs fold cleanly (T007) > M2 parses every row with no diagnostics 1ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts > claim evidence: both logs fold cleanly (T007) > run 192319Z parses every row with no diagnostics 1ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo actor snapshot > seats tamsin and kestrel as players for two different users 1ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo actor snapshot > the dm view lists both humans as players and odo as a companion 1ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo actor snapshot > the seat view for tamsin marks its own sheet and shows kestrel as a party member 0ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo actor snapshot > the seat view for kestrel marks its own sheet and shows tamsin as a party member 0ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo actor snapshot > the fiction view calls both humans human players, never a companion 0ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo player-facing prompts > the interpret prompt names both humans as players and kestrel as no companion 1ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts > duo player-facing prompts > the narrate prompt names both humans and calls only odo a companion 1ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > computeBackoffMs > doubles the base delay per attempt, capped, under full jitter 1ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > computeBackoffMs > is 0 at the jitter floor 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > parseRetryAfterMs > reads a seconds value 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > parseRetryAfterMs > reads an HTTP-date relative to now 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > parseRetryAfterMs > returns null for a missing or unparseable header 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > returns the first successful response without sleeping 12ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > retries 429 and 5xx up to the bound, then returns the last response 1ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > retries a network failure and succeeds 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > throws RetryExhaustedError carrying the attempt count when a network failure never succeeds 1ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > never retries a 400 response 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > never retries a 401 response 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > never retries a 403 response 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > never retries a 404 response 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > never retries a 422 response 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > honors a Retry-After (seconds) header, overriding the computed backoff 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > caps a Retry-After delay at maxRetryAfterMs 0ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > stops retrying once the signal aborts during backoff 1ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts > retryFetch > rethrows immediately, without sleeping, when a network failure races an already-aborted signal 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > finds an exact match and returns its offsets 1ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > repairs whitespace drift (newline vs space, doubled spaces) to the passage's own offsets 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > repairs curly quotes and dashes to straight equivalents 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > rejects a paraphrase 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > rejects a case change 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > rejects a quote under 3 words / 12 characters 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > accepts the whole passage even when short 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > locateQuote > returns the first occurrence when the quote repeats 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > parses text, a citation, and trailing text unsplit 1ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > parses <refuse/> and tolerates <refuse /> 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > plain < and 'a < b' stay text 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > yields malformed for an unterminated marker at end() 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > yields malformed for an oversized marker (over 1000 characters) 0ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > a marker split at every possible character boundary parses identically to unsplit 2ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts > createCiteParser > holds a marker split across three text events 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > defaults to hybrid mode, k = 8, embedPurpose = embedding on an empty env 1ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > rejects an unknown RETRIEVAL_MODE, naming the variable 1ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > rejects RETRIEVAL_K=0, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > rejects RETRIEVAL_K=51, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > rejects RETRIEVAL_K=abc, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > loadRetrievalConfig > rejects an empty RETRIEVAL_EMBED_PURPOSE, naming the variable 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > fuseRrf > matches hand-computed RRF scores (SC-004) 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > fuseRrf > dedupes a chunk found by both lists into one entry 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > fuseRrf > keeps a chunk found by only one list 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > fuseRrf > breaks equal scores by book, then anchor start, then chunk id (operator ruling 2026-09-29) 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > fuseRrf > returns identical output on a second call with the same inputs (SC-005) 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > retrieve — request validation > rejects an empty question 2ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > retrieve — request validation > rejects a whitespace-only question 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > retrieve — request validation > rejects k = 0 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > retrieve — request validation > rejects k = 51 0ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts > retrieve — request validation > rejects an unknown request mode 0ms
+@the-stacks/server:test:  ✓ test/dm/encounter-end-resolves.integration.test.ts > an encounter-ending action (database) > resolves Odo's bargain applied before the encounter ends (rows 260-265) 476ms
+@the-stacks/server:test: stderr | test/db.test.ts > createDatabaseProbe — pool error survival > survives a real pool 'error' event from an idle connection dropped like Postgres's 57P01
+@the-stacks/server:test:  ✓ test/db.test.ts > createDatabaseProbe — pool error survival > survives a real pool 'error' event from an idle connection dropped like Postgres's 57P01 62ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a raw pg error -> { code: '23505' } 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a drizzle-wrapped error -> { cause: { code: '23505' } } 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a different bare code -> { code: '23503' } 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a different wrapped code -> { cause: { code: '40001' } } 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > null -> null 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > undefined -> undefined 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a string -> 23505 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a number -> 42 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > an empty object -> {} 0ms
+@the-stacks/server:test:  ✓ test/db.test.ts > isUniqueViolation > a null cause -> { cause: null } 0ms
+@the-stacks/server:test:  ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > plays to the end under a generous ceiling and records spend 2009ms
+@the-stacks/server:test:  ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > stops budget-stopped once spend reaches the ceiling 252ms
+@the-stacks/server:test:  ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > refuses to run under CI even when called directly 5ms
+@the-stacks/server:test:  ✓ test/dm/human-dm-scene.integration.test.ts > human DM carries out a scene suggestion (database) > (a) the scene-start turn leaves one pending scene suggestion and no scene 148ms
+@the-stacks/server:test:  ✓ test/dm/human-dm-scene.integration.test.ts > human DM carries out a scene suggestion (database) > (b) baseline: dismissing the suggestion only leaves the approval turn empty-beat with no scene 236ms
+@the-stacks/server:test:  ✓ test/dm/human-dm-scene.integration.test.ts > human DM carries out a scene suggestion (database) > (c) scene request then dismiss: the approval turn loads the seed and runs assemble 268ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.integration.test.ts > retrieval bench — per-commit recall gate (US2, integration) > T020: runs the CI matrix and holds every cell's recall@5 to baseline (invariants 6, 7) 13628ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > cuts an over-cap goalNote at the last space before the cap 3ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > cuts an over-cap reason in each reason-bearing field 1ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > cuts a string with no space hard at the cap 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > trims after the cut 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > leaves under-cap strings unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > returns non-object input null unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > returns non-object input undefined unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > returns non-object input 7 unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > returns non-object input "text" unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > returns non-object input "a" unchanged 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector (C4) > adds no default for a missing field 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector leaves numbers, ids and discriminants alone > goalNote cut 1ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector leaves numbers, ids and discriminants alone > reason cut 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector leaves numbers, ids and discriminants alone > no-space cut 0ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts > normalizeDirector leaves numbers, ids and discriminants alone > under-cap 0ms
+@the-stacks/server:test:  ✓ test/dm/beat.integration.test.ts > the beat queue (database) > queues one turn for actions committed during a turn, resolved in commit order 588ms
+@the-stacks/server:test:  ✓ test/dm/model-calls.integration.test.ts > usage ledger (database) > stores only metadata columns, never model text 14ms
+@the-stacks/server:test:  ✓ test/dm/model-calls.integration.test.ts > usage ledger (database) > pages by after, and totals cover the whole session with unpriced calls 9ms
+@the-stacks/server:test:  ✓ test/dm/model-calls.integration.test.ts > usage ledger (database) > returns empty totals for an unknown session 1ms
+@the-stacks/server:test:  ✓ test/dm/model-calls.integration.test.ts > usage ledger (database) > deletes its rows with the job 3ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > interpret > returns one reading per beat item with one dm.interpret call 47ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > interpret > fails invalid-output when a beat item has no reading 3ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > interpret > fails invalid-output on an extra reading 2ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > interpret > makes no call for an empty beat 4ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > interpret > requires a rulesQuestion when adjudication is needed 0ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts > step schema (AC #5) > has no field for a total, an applied amount or a verdict 0ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > storeParsedBook — span validation (US1, no DB) > T004: rejects a reversed span 3ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > storeParsedBook — span validation (US1, no DB) > T004: rejects an empty span 0ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > storeParsedBook — span validation (US1, no DB) > T004: rejects a span past text.length 0ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > storeParsedBook — span validation (US1, no DB) > T004: rejects a block whose text.slice(start, end) differs from its text 0ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > attachEmbeddings — input validation (US3, no DB) > T008: rejects dim !== 1024 0ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts > attachEmbeddings — input validation (US3, no DB) > T008: rejects vector.length !== 1024 0ms
+@the-stacks/server:test:  ✓ test/static.test.ts > web middleware: reserved paths, assets, and the handler seam (plan D4, D13) > never calls the handler for a reserved path, and unknown sub-paths return the structured JSON 404 16ms
+@the-stacks/server:test:  ✓ test/static.test.ts > web middleware: reserved paths, assets, and the handler seam (plan D4, D13) > serves a real static asset without calling the handler 5ms
+@the-stacks/server:test:  ✓ test/static.test.ts > web middleware: reserved paths, assets, and the handler seam (plan D4, D13) > calls the handler once for an unmatched non-reserved path, with a Request for that URL 1ms
+@the-stacks/server:test:  ✓ test/static.test.ts > web middleware: reserved paths, assets, and the handler seam (plan D4, D13) > hands the handler a load context whose identity() resolves null with no cookie, with no database touched 1ms
+@the-stacks/server:test:  ✓ test/static.test.ts > web middleware: reserved paths, assets, and the handler seam (plan D4, D13) > T008: the load context's jobs() resolves null with no cookie, and never calls the injected listJobs 2ms
+@the-stacks/server:test:  ✓ test/static.test.ts > favicon > answers /favicon.ico with 204 without calling the handler 1ms
+@the-stacks/server:test: stderr | test/echo.test.ts > POST /api/echo > discloses nothing for an internal failure (FR-006)
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns 200 and a body matching the declared output shape for valid input 17ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns 400 kind:validation naming the offending path for missing field 2ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns 400 kind:validation naming the offending path for wrong type 1ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns 400 kind:validation naming the offending path for over-length string 1ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns kind:not_found in the same structured shape for an unknown path 1ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > discloses nothing for an internal failure (FR-006) 3ms
+@the-stacks/server:test:  ✓ test/echo.test.ts > POST /api/echo > returns 413 kind:too_large for PayloadTooLargeError (specs/017-ingestion-pipeline) 0ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > a human row naming ai:dm queues one npc-turn 18ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > a human row naming a companion queues one companion turn job 7ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > a human row naming a human queues nothing 4ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > an ai:dm row queues none, whichever actor it names 5ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > a row that leaves turn mode queues nothing 3ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts > floor follow-ups (database) > the same human row twice queues one npc-turn 5ms
+@the-stacks/server:test: stderr | test/library/ddb.private.test.ts
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > a first join emits and lists the user 1ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > a second tab of the same user does not emit 1ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > one tab closing keeps the user and starts no timer 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > the last close keeps the user through grace, then emits once 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > a rejoin inside grace emits nothing and cancels the timer 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > presentUsers is sorted by userId and scoped to the table 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > a new tracker (restart) is empty 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > isPresent is true for AI actors regardless of membership 0ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts > presence tracker > onChange returns an unsubscribe; close clears timers 0ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts > DM purposes > names seven purposes, one per caller, with no vendor in source 2ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts > DM script > rejects a malformed script 3ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts > DM script > serves each purpose from its own queue in document order 3ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts > DM script > fails an unscripted call loudly (strict) 0ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts > DM script > feeds one shared scripted rng 0ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > yields no providers or purposes when nothing is set (M0 behavior unchanged) 1ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > accepts two arbitrarily named providers mapped to two purposes 2ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > fails naming the purpose and the missing provider (US3 AC2) 1ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > fails naming the missing key variable for a provider a purpose uses (US3 AC4) 0ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > does not fail startup over an unused provider's missing key (US3 AC4) 0ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > fails naming the variable when AI_PROVIDERS is not valid JSON 0ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > loadAiConfig > fails naming the variable when AI_PURPOSES fails schema validation 1ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts > crossValidate — op unsupported by provider kind (US3 AC3, FR-006b) > throws naming both the purpose's op and the provider's kind 0ms
+@the-stacks/server:test:  ✓ test/health.test.ts > GET /health > reports ok when the database is reachable 15ms
+@the-stacks/server:test:  ✓ test/health.test.ts > GET /health > reports the given commit without affecting status 1ms
+@the-stacks/server:test:  ✓ test/health.test.ts > GET /health > stays 200 and reports degraded when the database is unreachable 1ms
+@the-stacks/server:test:  ✓ test/health.test.ts > GET /health > answers within the 5-second bound when the database connection hangs 1011ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > the shipped scenario > loads and resolves its ci paths 58ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > the shipped scenario > names a DM script that loads unchanged, and an auditor script 4ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > scenario validation > rejects a seat that is not the human character 8ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > scenario validation > rejects an unknown seed 1ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > scenario validation > rejects a bad move id 1ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > scenario validation > rejects an unreadable auditor script 0ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > moves.fallback > accepts the list form 2ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > moves.fallback > reads the legacy single object as a one-element list 1ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts > moves.fallback > rejects an empty list 1ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > span equality for every block 4ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > ATX headings push the path stack 1ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > a fenced code block stays one whole prose block 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > consecutive `|` lines stay one whole table block 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > consecutive list-item lines form one list block 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > blank-line-separated text forms separate prose paragraphs 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > CRLF input parses the same as LF input 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > throws ValidationError on empty text 0ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts > parseMarkdown > throws ValidationError on whitespace-only text 0ms
+@the-stacks/server:test:  ✓ test/dm/script-env.integration.test.ts > script mode through the DM worker (database) > narrates a scene-start from the env-built runtime 376ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts > presence effect schema > accepts a presence effect with every reason 6ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts > presence effect schema > accepts it in an effect step, onSuccess, onFailure and onHit 4ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts > presence effect schema > refuses an unknown reason and an after field 0ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts > presence effect schema > renders the effect, the six reasons and the two placement rules 0ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts > no Director presence field (User Story 5) > has no key matching /presence/i 4ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts > seed NPC presence over the recorded M2 log (AC #3) > folds 333 rows with no diagnostics 2ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts > seed NPC presence over the recorded M2 log (AC #3) > holds no scene-presence.changed row 0ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts > seed NPC presence over the recorded M2 log (AC #3) > lists Snag once, as one present npc with his combatant, at seq 295 to 301 2ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts > seed NPC presence over the recorded M2 log (AC #3) > shows no presence change between seq 298 and 301 1ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts > seed NPC presence over the recorded M2 log (AC #3) > moves Snag to absent only when a scene-presence.changed row says so 1ms
+@the-stacks/server:test:  ✓ test/bench/load-db.integration.test.ts > load database isolation (integration) > recreateLoadDb creates and migrates the load database; refuses while it is in use; succeeds again once free 349ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > AuditorOutput > accepts a pass with no findings 2ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > AuditorOutput > rejects a fail with no findings 0ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > AuditorOutput > rejects more than 12 findings 1ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > severity and findings > SEVERITY_OF covers every kind 0ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > severity and findings > a finding id must match F<n> 1ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > ReportSchema > round-trips a minimal report 2ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts > RunManifest stallReason > carries stallReason when present and stays valid without it 1ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts > doctrine attribution (AC #14) > rule 1: NOTICE.md carries the notice and the full MIT text 1ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts > doctrine attribution (AC #14) > rule 2: doctrine.ts exports the notice and repeats it in its header 0ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts > doctrine attribution (AC #14) > rule 3: every prompt module importing doctrine holds the notice in its header 1ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts > doctrine attribution (AC #14) > rule 4: the Dockerfile ships NOTICE.md beside dist/dm/doctrine and the seeds 0ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts > doctrine attribution (AC #14) > holds the 24 pairs with unique ids and valid node mappings 1ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts > captured director failure (reproduction) > has two attempts 1ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts > captured director failure (reproduction) > attempt 1 fails the strict parse at goalNote 3ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts > captured director failure (reproduction) > attempt 2 fails the strict parse at goalNote 0ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts > captured director failure (fixed pipeline) > attempt 1 passes callJson with the director normalizer and is legal 41ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts > captured director failure (fixed pipeline) > attempt 2 passes callJson with the director normalizer and is legal 3ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > parses a valid subscribe frame 2ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > parses the optional presence flag and strips nothing else (decision-0024) 1ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > parses a valid send frame 1ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > refuses malformed JSON 0ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > refuses an unknown type 0ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > refuses a send frame missing required fields 0ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts > ws protocol — parseInboundFrame > parses a send frame carrying actor/seq/ts, with those fields ignored (data-model.md) 0ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts > shipped DM scripts (apps/server/dm-scripts) > ships at least one script 1ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts > shipped DM scripts (apps/server/dm-scripts) > greyhollow-human-dm.json loads with loadDmScript 3ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts > shipped DM scripts (apps/server/dm-scripts) > greyhollow-live.json loads with loadDmScript 0ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts > shipped DM scripts (apps/server/dm-scripts) > greyhollow-live is scene-start, exploration-check and their two chronicle calls, with dice [14] 2ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts > shipped DM scripts (apps/server/dm-scripts) > greyhollow-human-dm is scene-start plus human-dm-approval, then only chronicle calls 1ms
+@the-stacks/server:test: stdout | test/bench/load.integration.test.ts
+@the-stacks/server:test:  ✓ test/bench/load.integration.test.ts > load bench — every-commit tier > ingest-smoke 972ms
+@the-stacks/server:test:  ✓ test/bench/load.integration.test.ts > load bench — every-commit tier > concurrency-smoke 2303ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts > write boundary (AC #1) > the real server source has no violations 212ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts > write boundary (AC #1) > the seeded violation tree trips exactly the three rules 10ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts > scene-presence write boundary (spec 048, User Story 5) > only dm/nodes/resolve.ts builds a scene-presence proposal 7ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts > floor write boundary (spec 049, FT-3) > only dm/floor.ts builds a floor proposal 5ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts > floor write boundary (spec 049, FT-3) > only dm/floor.ts builds a stall override 5ms
+@the-stacks/server:test:  ✓ test/dm/resolve.human-seat.integration.test.ts > resolve with a human DM seat (database) > comes back pending, leaves the action committed, and the approval shows in priorSteps 190ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > yields each blank-line-framed data payload, in order 7ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > joins a multi-line data field with newlines 1ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > ignores comment lines 1ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > reassembles a line split across chunk boundaries 0ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > stops at [DONE] without yielding it, and marks the stream done 1ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > reports a stream that ends without [DONE] 0ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts > parseSse > flushes a trailing event even if the stream closes without a final blank line 0ms
+@the-stacks/server:test:  ✓ test/playtest/playtest.integration.test.ts > the CI playtest with its audit (AC #3) > plays the scenario and the auditor reports pass 2027ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > accepts a listed skill and null 3ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > StepSchema rejects the skill spotting 0ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > StepSchema rejects the skill Perception 0ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > StepSchema rejects the skill sleight of hand 0ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > StepSchema rejects an unknown ability 0ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > StepSchema rejects the condition spotted-lookout 1ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > EffectSchema rejects an unknown damage type 1ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > the server skill keys equal the engine skill keys 1ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts > rules-terms gate > condition keys exclude exhaustion 1ms
+@the-stacks/server:test:  ✓ test/playtest/stats.test.ts > fightStats reducedToZero > counts an NPC dropped to 0 HP 56ms
+@the-stacks/server:test:  ✓ test/playtest/stats.test.ts > fightStats reducedToZero > counts a party member dropped to 0 HP 5ms
+@the-stacks/server:test:  ✓ test/playtest/stats.test.ts > fightStats reducedToZero > recomputes the M2 demo session 10ms
+@the-stacks/server:test:  ✓ test/dm/boundary.test.ts > dm/ write boundary (AC #5) > only resolve, companion, chronicle and the floor job call gate.submit 6ms
+@the-stacks/server:test:  ✓ test/dm/boundary.test.ts > dm/ write boundary (AC #5) > no file under dm/ imports a log writer 216ms
+@the-stacks/server:test:  ✓ test/dm/boundary.test.ts > dm/ write boundary (AC #5) > no file under dm/ reaches the log, ingestion, library store, codex or ws 3ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts > password hashing > round-trips: hash then verify succeeds for the correct password 134ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts > password hashing > rejects the wrong password 130ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts > password hashing > hashes the same password differently each time (random salt) 260ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts > password hashing > refuses an over-length password rather than truncating it (FR-016) 1ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts > password hashing > accepts a password at exactly the maximum length 65ms
+@the-stacks/server:test:  ✓ test/dm/interpret-capture.test.ts > captured interpret failure (reproduction) > has two attempts from the v1 prompt 2ms
+@the-stacks/server:test:  ✓ test/dm/interpret-capture.test.ts > captured interpret failure (reproduction) > attempt 1 is not valid JSON (truncated) 1ms
+@the-stacks/server:test:  ✓ test/dm/interpret-capture.test.ts > captured interpret failure (reproduction) > attempt 2 fails the strict parse at an invented condition 4ms
+@the-stacks/server:test:  ✓ test/library/ddb.perf.test.ts > parseDdbExport — perf (T019) > parses a ~300-page book in under 10s 163ms
+@the-stacks/server:test:  ✓ test/events.test.ts > append — input validation (no database) > T030: rejects a caller-supplied seq 1ms
+@the-stacks/server:test:  ✓ test/events.test.ts > append — input validation (no database) > T030: rejects a caller-supplied ts 1ms
+@the-stacks/server:test:  ✓ test/ai.usage.test.ts > computeCost > computes USD from the configured per-million-token price 1ms
+@the-stacks/server:test:  ✓ test/ai.usage.test.ts > computeCost > returns null — never 0 — for an unpriced model (FR-008) 0ms
+@the-stacks/server:test:  ✓ test/ai.usage.test.ts > memorySink > records usage records in order, exposed on .records 2ms
+@the-stacks/server:test:  ✓ test/playtest/db.test.ts > resolvePlaytestUrl > suffixes the base database with _playtest 1ms
+@the-stacks/server:test:  ✓ test/playtest/db.test.ts > resolvePlaytestUrl > honours the override and refuses equal-to-base and non-loopback 1ms
+@the-stacks/server:test:  ✓ test/playtest/dice.test.ts > scenarioRng > serves scripted faces first, then the seeded sequence 1ms
+@the-stacks/server:test:  ✓ test/playtest/dice.test.ts > scenarioRng > counts both kinds of draw 0ms
+@the-stacks/server:test:  ✓ test/playtest/dice.test.ts > scenarioRng > rejects a scripted face outside the die 0ms
+@the-stacks/server:test:  ✓ test/config.test.ts > loadConfig — uploadMaxBytes (specs/017-ingestion-pipeline T001) > defaults to 1 GiB when UPLOAD_MAX_BYTES is unset 1ms
+@the-stacks/server:test:  ✓ test/config.test.ts > loadConfig — uploadMaxBytes (specs/017-ingestion-pipeline T001) > reads an override 0ms
+@the-stacks/server:test:  ✓ test/config.test.ts > loadConfig — uploadMaxBytes (specs/017-ingestion-pipeline T001) > rejects 0 0ms
+@the-stacks/server:test:  ✓ test/config.test.ts > loadConfig — uploadMaxBytes (specs/017-ingestion-pipeline T001) > rejects -1 0ms
+@the-stacks/server:test:  ✓ test/config.test.ts > loadConfig — uploadMaxBytes (specs/017-ingestion-pipeline T001) > rejects abc 0ms
+@the-stacks/server:test:  Test Files  114 passed | 1 skipped (115)
+@the-stacks/server:test:       Tests  1266 passed | 5 skipped (1271)
+@the-stacks/server:test:     Isolate  115 workers spawned · ~75ms startup each (spawn + environment, per file)

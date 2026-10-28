@@ -1,0 +1,11 @@
+ ✓ test/playtest/harness.integration.test.ts > the harness run (database) > plays the CI scenario to its end and writes the run directory 1974ms
+ ✓ test/playtest/harness.integration.test.ts > the harness run (database) > stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112) 1412ms
+ ✓ test/playtest/harness.integration.test.ts > the harness run (database) > ends stalled with artifacts saved when the move cap is reached 887ms
+ ✓ test/playtest/harness.integration.test.ts > the harness run (database) > ends failed with the job id and artifacts saved on a DM error 163ms
+ ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > plays to the end under a generous ceiling and records spend 2018ms
+ ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > stops budget-stopped once spend reaches the ceiling 247ms
+ ✓ test/playtest/provider.integration.test.ts > provider mode on a priced fake provider > refuses to run under CI even when called directly 4ms
+ ✓ test/dm/scene.integration.test.ts > fixture scripts > the full script is the four scene segments in order, plus chronicle passes 9ms
+ ✓ test/dm/scene.integration.test.ts > the whole scene (database) > plays Greyhollow Ford to its end through exploration, social and fight 1987ms
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
