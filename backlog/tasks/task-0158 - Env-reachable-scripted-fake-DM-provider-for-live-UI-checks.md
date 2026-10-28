@@ -1,9 +1,10 @@
 ---
 id: TASK-0158
 title: Env-reachable scripted fake DM provider for live UI checks
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
+updated_date: '2026-10-28 03:32'
 labels:
   - dm
   - debug-view
@@ -24,6 +25,12 @@ Outcome: a worktree stack can run a full fake-gateway turn (director through nar
 - [ ] #1 Setting one env value (a script path or name) makes the running app's fake provider replay a DM script, with a test
 - [ ] #2 A documented quickstart runs a narrated turn on a worktree stack with no key
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0158, branch task-0158-env-fake-dm-script, cut from origin/main e631d45. Spec number 053 claimed with a stub. Spec 052 is held by TASK-0157 (PR #77), so this takes 053.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
