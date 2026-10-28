@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:53'
+updated_date: '2026-10-28 08:57'
 labels:
   - play-route
   - gate
@@ -96,6 +96,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Clean pass 2 (5614968) on a reset stack: steps 4 to 8b, T031 (all shots retaken on this session, no modal), T032 and step 10 pass. Every call was scripted. The commit turn paused on a check.roll (policy ask). After the DM approved it, the resumed turn re-interpreted act-search and proposed the same roll again (seq 56). So with a human DM a check never narrates: each approval re-proposes the roll. This is a server defect outside TASK-0159, now TASK-0168 (promoted to m-3).
 
 Orchestrator ruling: TASK-0159 closes without a narrated player turn. SC-002 is proven: the approval turn and the commit turn load the seed with no no-scene or bad-seed failure, live and in the DB test. Quickstart 8c and T029 record the roll loop and cite TASK-0168; no longer script. The step 9 baseline runs on a reset stack, since the unresolved action reconciles at boot.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 closed (cf2b2df, 429eb0f). Step 9 baseline, session 1f55d0f8: Dismiss only, approval turn 6e3e7dc4 empty-beat with checkpoint.beat null, no scene.changed row. The carry-out turn 7fb204d0 had beat set. Orchestrator ruling: step 11 dropped, because the classifier refused the .env edit for the implementer and for me, and post-merge env:down deletes the stack and its .env.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
