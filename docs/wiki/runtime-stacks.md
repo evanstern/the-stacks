@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: fd4d45161c7407d4dcc59ad9ffe43df147e70c29
+verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
 ---
 
 # Runtime stacks
@@ -41,10 +41,8 @@ worktree's existing `.env`, then `.env.example`'s default — probes all three p
 stack]] up first (`docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d
 --wait`, exits 1 on failure), then runs `docker compose -p stacks-<env> up -d --build --wait`
 for the app stack with `STACKS_ENV`/`STACKS_WORKTREE`/`STACKS_COMMIT` in its environment.
-Those three flow into `docker-compose.yml`'s `org.the-stacks.*` container labels and the
-`GIT_COMMIT` build arg (see [[compose-stack]] and [[container-image]]), which
-`apps/server/src/config.ts` reads back out and [[health-check]] surfaces at `/health` —
-"which build is this" is never a guess. `env down` tears the test project down first, then
+Those three flow into the `org.the-stacks.*` container labels and the `GIT_COMMIT` build arg
+([[compose-stack]], [[container-image]]); [[health-check]] surfaces them at `/health`. `env down` tears the test project down first, then
 the app project (`down -v --remove-orphans` each), and succeeds
 even when either or both are absent (`env:main` has no test project to tear down).
 
@@ -52,7 +50,7 @@ even when either or both are absent (`env:main` has no test project to tear down
 project, `stacks-<env>-test`, from `docker-compose.test.yml` — a database with fixed,
 throwaway credentials (`stacks`/`stacks`/`stacks`) on `tmpfs`, no named volume, and no app
 service, so integration tests never share a database with the worktree's own running app
-(TASK-0024's worker-claims-test-jobs flake). `.env`'s `TEST_DATABASE_URL` now always points
+. `.env`'s `TEST_DATABASE_URL` now always points
 at this test stack's port, never at the app database's credentials — see [[configuration]].
 Because the reservation above refuses a worktree name ending in `-test`, `stacks-<env>-test`
 can never collide with another worktree's own project name.
@@ -67,8 +65,7 @@ leaves both projects orphaned, and `prune --check` names both. `prune` tears eac
 down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can gate without
 side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
 hook (`.claude/settings.json`) and **only ever warns** — on exit 1 it prints the orphan list
-to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always itself exits 0, so an
-orphan never blocks ending a session. `CLAUDE.md`'s "Runtime stacks" section holds the gating rule.
+to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always exits 0. `CLAUDE.md`'s "Runtime stacks" section holds the gating rule.
 
 **`env main`.** A dedicated detached worktree at `.worktrees/env-main`, kept across runs so
 Docker's build-layer cache stays warm: `git fetch origin main`, then either `git worktree add
@@ -102,7 +99,7 @@ A fresh stack is unmigrated and a host `db:migrate` hits the test database ([[co
 stacks-<env>-migrate .`, then `docker run --rm --network stacks-<env>_default --env-file .env -e
 TEST_DATABASE_URL= -w /app/apps/server stacks-<env>-migrate node --experimental-strip-types
 scripts/migrate.ts` (`deploy/dev`'s `migrate` service has the same shape). Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
-without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env> up -d --force-recreate --wait app`. See `specs/053-env-fake-dm-script/quickstart.md`. Scripts: `greyhollow-live`, `greyhollow-human-dm`. An unresolved committed action reconciles at every boot and spends the script.
+without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env> up -d --force-recreate --wait app`. See `specs/053-env-fake-dm-script/quickstart.md`. Scripts: `greyhollow-live`, `greyhollow-human-dm` (10 calls; the resumed turn has no second `dm.interpret`). An unresolved committed action still enqueues a reconcile turn at every boot; a roll awaiting the human DM is out of its beat.
 
 ## Connections
 
