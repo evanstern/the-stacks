@@ -50,6 +50,8 @@ const check = (ok, label) => {
   console.log(`${ok ? "PASS" : "FAIL"} ${label}`);
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// A roll card is a proposal-list <li> whose subtitle starts "mechanics" (kind · from proposer); counts cards, not nested nodes.
+const rollCards = (page) => page.locator("li").filter({ has: page.locator("p").filter({ hasText: /^mechanics · from/ }) }).filter({ has: page.getByRole("button", { name: "Approve" }) });
 
 async function shoot(page, name, variants = ALL) {
   for (const [w, h, scheme] of variants) {
@@ -165,7 +167,7 @@ try {
   console.log(execFileSync("node", [join(here, "../../053-env-fake-dm-script/evidence/declare.mjs"), playerFile, sessionId], { encoding: "utf8", timeout: 60000 }).trim());
   await a.goto(playUrl);
   await a.getByRole("button", { name: /Pending proposals/ }).click();
-  const rollCard = a.locator("section, article, li, div").filter({ hasText: "Tamsin studies the chained ferry" }).filter({ has: a.getByRole("button", { name: "Approve" }) }).last();
+  const rollCard = rollCards(a).last();
   await rollCard.waitFor({ timeout: 30000 });
   check(true, "step 7 commit turn paused on a check.roll proposal");
   const afterCommit = await waitTurns("commit turn", (t) => t.some((x) => trig(x).includes("commit") && settled(x)));
@@ -182,7 +184,7 @@ try {
   check(resumed?.status === "succeeded" && resumed?.outcome === "completed", `step 8 resumed turn ${resumed?.status}/${resumed?.outcome}`);
   check(purposes(resumed ?? { calls: [] }).join() === "dm.director,dm.narrate,dm.audit", `step 8 resumed calls ${purposes(resumed ?? { calls: [] }).join()} (no dm.interpret)`);
   await a.waitForTimeout(2000);
-  const rollsLeft = await a.locator("section, article, li, div").filter({ hasText: "Tamsin studies the chained ferry" }).filter({ has: a.getByRole("button", { name: "Approve" }) }).count();
+  const rollsLeft = await rollCards(a).count();
   check(rollsLeft === 0, `step 8 no second check.roll in the approvals slide-out (${rollsLeft})`);
   const narrCard = a.locator("section, article, li, div").filter({ hasText: "rusted alike" }).filter({ has: a.getByRole("button", { name: "Approve" }) }).last();
   await narrCard.waitFor({ timeout: 15000 });
