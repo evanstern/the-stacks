@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 03:36'
+updated_date: '2026-10-28 04:09'
 labels:
   - dm
   - debug-view
@@ -35,6 +35,8 @@ Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 5039353) stopped with open questions Q1-Q8. Root cause: index.ts builds the gateway with the default FakeProvider (empty queues, not strict), so the director got empty bodies; loadDmScript is test-only and test scripts are not in the image.
+
+Operator ruling, 2026-10-27, verbatim: "TASK-0158: I accept the recommended defaults Q1 to Q8, including the DM_FAKE_SCRIPT name, the shipped dm-scripts directory, the whole-config replacement and the STACKS_ENV boot guard."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
