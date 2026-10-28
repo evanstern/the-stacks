@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:13'
+updated_date: '2026-10-28 05:20'
 labels:
   - multiplayer
   - dev-tooling
@@ -59,6 +59,9 @@ Spec author (spec.md, 2caeccc) stopped with open questions Q1-Q6. Blocker found:
 Operator ruling, 2026-10-28, verbatim (the reply button cut it at 300 characters): "TASK-0163: I accept the recommended defaults Q1 to Q6, including the greyhollow-ford-duo seed, the at-least-one-human seed rule, the inline redeem toggle on the sign-in card, the Settings invite section, the Start scene slide-out with the new GET /dm/seeds route, and the two of us playing AC #4 on d". Read as: Q1-Q6 defaults accepted; Q6 = the operator and the other developer play AC #4 on hosted dev with the real AI DM. The spend ceiling for that run and the go on each vm-104 command are still to come from the operator.
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (merge e8befda, 143044b): greyhollow-ford-duo seed, at-least-one-human loader rule, listSeeds, GET /dm/seeds, one-user-one-seat refusal. T009: the implementer's TEST_DATABASE_URL export was denied by the auto-mode classifier; the orchestrator migrated the test DB and ran REQUIRE_DATABASE=1 pnpm ci:check on 143044b: exit 0, server 1250 passed, routes.integration 15/15 (the two new DB cases ran green; they were not run red first). From here the orchestrator runs every DB suite.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
