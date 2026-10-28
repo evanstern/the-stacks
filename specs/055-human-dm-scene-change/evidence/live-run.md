@@ -1,8 +1,8 @@
 # Live run: a human DM carries out the scene-start suggestion (script mode)
 
-The sections after "Clean pass" (last section) supersede the two earlier runs below for steps 4 to 8b, the
+The "Clean pass 2" section (last) supersedes the two earlier runs below for steps 4 to 8b, the
 shots and T032. Those runs are kept as the record of how the script gap and the reconcile
-contamination were found. The clean pass also stops at step 8c (see its last section).
+contamination were found. Clean pass 2 also stops before narration (see its last section).
 
 ---
 
@@ -124,7 +124,7 @@ The `check.roll` pause and a second reconcile pass are a product property, not a
 
 ---
 
-# Clean pass (supersedes the earlier runs) - narrated turn still fails at step 8c
+# Clean pass 1 (superseded by clean pass 2 below) - narrated turn fails at step 8c
 
 Date: 2026-10-28. Fresh volumes (orchestrator `env:down`/`env:up`), both databases migrated, app
 booted once: `DM script mode: greyhollow-human-dm (10 calls, 1 dice)`, no `ai_usage` line and no
@@ -179,3 +179,51 @@ The player's table has no "Change scene" button (PASS). Shot `player-no-control-
 Step 9 (Dismiss-only baseline), step 11 and T033, and T029 (the narrated turn). They wait on the
 ruling for the second interpret entry and a stack reset: the failed resumed turn leaves this
 session's `act-search` unresolved, so the next boot's reconcile would use up the script again.
+
+
+---
+
+# Clean pass 2 (current) - script `greyhollow-human-dm`, 11 calls
+
+Date: 2026-10-28. Fresh volumes, app rebuilt from `7fb95e11`, booted once:
+`DM script mode: greyhollow-human-dm (11 calls, 1 dice)`. No `ai_usage` line and no users before my
+first command. No app restart in this pass. Accounts `op0159` and `pl0159` recreated (creds file
+overwritten, untracked). `shoot-live.mjs` (Brave); its step 5 check now waits for the header.
+Session `6cb00938-08a0-4b78-8f78-959b8d9e7aaf`. All shots were retaken on this session.
+
+| Step | Job | Result |
+| --- | --- | --- |
+| 5 scene-start | `45ac2fe1` | `succeeded`, `completed`, calls `dm.director`, `dm.narrate`, `dm.audit`. Chronicle `5b3ab730` succeeded. Header "No scene yet". |
+| 6 to 7 | - | Seeded panel (Scene id `greyhollow-ford`, title, location, summary, reason), shots before Apply, Apply, header showed title and location. |
+| 8 rows | - | `scene.changed` seq 15, `proposal.rejected` seq 16, both by the operator `b47880bb-...`. |
+| 8 approval turn | `7fb204d0` (triggerSeq 16) | `succeeded`, `empty-beat`, `checkpoint.beat` `[]` (set), no calls. |
+| 8b | 10 approval turns (`9a282ea3`, `288d7f93`, `cce0c442`, `c9c7fea8`, `3a991255`, `4523d7b5`, `0b9d5b76`, `66140570`, `9d5d7553`, `0ac5764c`) | each `empty-beat`, beat `[]`, no calls. 10 suggestions approved, seq 18 to 47; narration suggestion left pending. |
+| 8c commit turn | `7530b6d2` | `completed`, beat `["act-search"]`, calls `dm.director`, `dm.interpret`. Paused on a `check.roll` proposal (seq 51, `ask`). |
+| 8c roll approved | - | seq 52 `dice.rolled`, 53 `check.resolved`, 54 `proposal.approved`. |
+| 8c resumed turn | `d5b5d97e` (triggerSeq 54) | `succeeded`, `completed`, beat `["act-search"]`, calls in order `dm.director`, `dm.interpret`, both ok. No `dm.narrate`, no `dm.audit`, no narration. It wrote a second `check.roll` proposal (seq 56, same check: perception, DC 13) and paused again. |
+
+No call was unscripted and no failure notice appeared. The resumed turn re-interprets the
+unresolved action (TASK-0168) and proposes the same roll again, so it does not reach narrate.
+Approving the second roll would start a third turn that calls `dm.director`: the script's three
+director entries are spent (scene-start, commit, resumed), so that call would be unscripted. I did
+not approve it, and did not amend the script. The narrated turn is therefore not shown.
+
+T032: "Use: Current scene", location "Greyhollow Ford, the ferry-house", Apply. `scene.changed`
+seq 57 by the operator, `after.sceneId` `greyhollow-ford` (same as seq 15). The header showed the
+new location.
+
+Step 10: the player's table has no "Change scene" button (PASS).
+
+Shots (`evidence/shots/`, this session): `scene-panel-seeded-*`, `scene-applied-*` (1280 and 390,
+light and dark), `debug-approval-turn-1280-light`, `scene-panel-current-1280-light`,
+`player-no-control-1280-light`. No modal in any shot (0 `dialog[open]` or `aria-modal` in every one).
+
+Not done: the narrated turn (T029 stays open), the step 9 baseline (T030), step 11 and T033. The
+app was not restarted, per the rule to stop on a blocked turn.
+
+## Open question (third)
+
+Two ways to let the resumed turn narrate, both a ruling: (a) script one more director, interpret,
+director chain (or `dm.interpret` returning a reading the roll gate treats as already rolled), or
+(b) fix re-interpret (TASK-0168) so the resumed turn reuses the resolved check. The check result
+(seq 53) already exists when the resumed turn re-interprets, and the loop proposes it again.

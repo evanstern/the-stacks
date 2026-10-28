@@ -83,7 +83,8 @@ try {
 
   // Step 6: open the panel; shoot BEFORE Apply.
   await a.goto(playUrl);
-  check(await a.getByText("No scene yet").first().isVisible(), "step 5 header: No scene yet");
+  await a.getByText("No scene yet").first().waitFor({ timeout: 15000 });
+  check(true, "step 5 header: No scene yet");
   await a.getByRole("button", { name: "Change scene" }).click();
   await a.locator("#scene-id").waitFor({ timeout: 15000 });
   const f = async (id) => a.locator(`#${id}`).inputValue();
