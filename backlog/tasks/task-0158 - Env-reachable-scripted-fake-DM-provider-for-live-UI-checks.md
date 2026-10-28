@@ -26,12 +26,14 @@ Spec: specs/053-env-fake-dm-script
 <!-- AC:BEGIN -->
 - [ ] #1 Setting one env value (a script path or name) makes the running app's fake provider replay a DM script, with a test
 - [ ] #2 A documented quickstart runs a narrated turn on a worktree stack with no key
-- [ ] #3 Spec phase: Script-mode runtime and its boot guard (card AC #1)
+- [x] #3 Spec phase: Script-mode runtime and its boot guard (card AC #1)
 - [ ] #4 Spec phase: Boot wiring, the live script and a scripted scene-start (card AC #1)
 - [ ] #5 Spec phase: Image, env docs and evidence helpers (card AC #2)
 - [ ] #6 Spec phase: Live quickstart run on this worktree's stack (card AC #2)
 - [ ] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
