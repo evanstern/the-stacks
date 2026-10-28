@@ -33,6 +33,9 @@ export interface AiRuntime {
   gateRng?: () => Rng;
   /** null when script mode is off. */
   scriptName: string | null;
+  /** Counts for the boot log line; set only in script mode. */
+  scriptCalls?: number;
+  scriptDice?: number;
 }
 
 /** Script dice in order, then seededRng(seed). A face outside 1..sides throws. */
@@ -130,5 +133,7 @@ export function createAiRuntime(
     adapters: { fake: () => scripted.provider },
     gateRng: () => rng,
     scriptName: name,
+    scriptCalls: script.calls.length,
+    scriptDice: script.dice.length,
   };
 }

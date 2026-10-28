@@ -65,25 +65,25 @@ Commit as `TASK-0158: Phase <n> — <title>`.
 **Independent test**: `REQUIRE_DATABASE=1` with only `TEST_DATABASE_URL` exported from the
 worktree `.env`: `pnpm --filter @the-stacks/server exec vitest run test/dm/script-env.integration.test.ts test/dm/dm-scripts.test.ts`.
 
-- [ ] T008 [P] [US1] Create `apps/server/test/dm/dm-scripts.test.ts`. Assert every file in
+- [x] T008 [P] [US1] Create `apps/server/test/dm/dm-scripts.test.ts`. Assert every file in
   `apps/server/dm-scripts/` loads with `loadDmScript`. Assert `greyhollow-live.json`'s `calls`
   deep-equal `scene-start.json`'s calls followed by `exploration-check.json`'s calls (both in
   `apps/server/test/dm/scripts/`), and its `dice` equal `[14]` (plan D5).
-- [ ] T009 [P] [US1] Create `apps/server/test/dm/script-env.integration.test.ts`, skipped without
+- [x] T009 [P] [US1] Create `apps/server/test/dm/script-env.integration.test.ts`, skipped without
   a database like `apps/server/test/dm/scene.integration.test.ts`. Build the runtime with
   `createAiRuntime({ DM_FAKE_SCRIPT: "greyhollow-live", STACKS_ENV: "task-158" })`. Build the
   gateway and the gate from it as `index.ts` will (plan D2), and start the DM worker the way the
   existing scene integration test does. Enqueue a scene-start for a new session with the
   `greyhollow-ford` seed. Assert the turn job ends `done`, a `narration` event holds the scripted
   opening text, and `dm_model_calls` rows name provider `scripted` with null cost.
-- [ ] T010 [US1] Run T008 and T009 and confirm they fail (no script file, no wiring).
-- [ ] T011 [US1] Create `apps/server/dm-scripts/greyhollow-live.json` (`name: "greyhollow-live"`)
+- [x] T010 [US1] Run T008 and T009 and confirm they fail (no script file, no wiring).
+- [x] T011 [US1] Create `apps/server/dm-scripts/greyhollow-live.json` (`name: "greyhollow-live"`)
   per plan D5. Run T008 green.
-- [ ] T012 [US1] Edit `apps/server/src/index.ts` per plan D2: call `createAiRuntime(process.env)`
+- [x] T012 [US1] Edit `apps/server/src/index.ts` per plan D2: call `createAiRuntime(process.env)`
   in place of `loadAiConfig`; pass `adapters` to `createAiGateway` and `rng: runtime.gateRng` to
   `createGate`; read `runtime.aiConfig` everywhere `aiConfig` was read; log
   `DM script mode: <name> (<n> calls, <d> dice)` once when `scriptName` is set. Run T009 green.
-- [ ] T013 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1` on this worktree's stack
+- [x] T013 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1` on this worktree's stack
   (`pnpm env:up`, migrate both databases by hand). Leave the stack up. Commit.
 
 ---
