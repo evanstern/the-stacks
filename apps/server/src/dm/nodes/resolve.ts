@@ -1108,6 +1108,9 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         encounterToStart(ctx.seed, director, ctx.job.trigger),
         assembled.projections.engine.combatants,
       ),
+      // Phase 3 (spec 058) wires these two from the encounter and the resume.
+      arriving: [],
+      resumed: [],
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

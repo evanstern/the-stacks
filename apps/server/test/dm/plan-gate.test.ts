@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  arrivingNpcs,
   checkPlan,
   encounterToStart,
   joiningCombatants,
@@ -25,7 +26,16 @@ const read = (actionId: string | null, s: unknown[], over = {}) =>
 const plan = (
   readings: InterpretReading[],
   extra: Partial<Parameters<typeof checkPlan>[0]> = {},
-) => checkPlan({ snapshot, readings, rulings: [], joining: [], ...extra });
+) =>
+  checkPlan({
+    snapshot,
+    readings,
+    rulings: [],
+    joining: [],
+    arriving: [],
+    resumed: [],
+    ...extra,
+  });
 
 const damageOn = (targetId: string) => ({
   effect: "damage",
@@ -175,7 +185,14 @@ describe("checkPlan: absent actors", () => {
     snap: typeof snapshot,
     readings: InterpretReading[],
   ): ReturnType<typeof checkPlan> =>
-    checkPlan({ snapshot: snap, readings, rulings: [], joining: [] });
+    checkPlan({
+      snapshot: snap,
+      readings,
+      rulings: [],
+      joining: [],
+      arriving: [],
+      resumed: [],
+    });
   const presenceOn = (targetId: string, reason: string) => ({
     effect: "presence",
     targetId,
@@ -316,6 +333,8 @@ describe("checkPlan: roll reasons", () => {
       readings: [m2Seq221Reading(reason)],
       rulings: [],
       joining: [],
+      arriving: [],
+      resumed: [],
     });
 
   it("M2 seq 221 state: goblin-3 dead, goblin-2 and snag up, no party actor down", () => {
@@ -336,7 +355,7 @@ describe("checkPlan: roll reasons", () => {
     expect(down).toEqual([]);
   });
 
-  it.fails("refuses the M2 seq 221 reason at step 0", () => {
+  it("refuses the M2 seq 221 reason at step 0", () => {
     const v = run(M2_SEQ221_REASON);
     expect(v[0]).toMatchObject({
       actionId: null,
@@ -347,11 +366,224 @@ describe("checkPlan: roll reasons", () => {
       .failure;
     expect(JSON.stringify(failure.issues)).toContain("two kin have fallen");
     expect(failure.issues).toContainEqual(
-      expect.objectContaining({ kind: "count" }),
+      expect.objectContaining({ claim: "count" }),
     );
   });
 
   it("passes the control reason (the clause removed)", () => {
     expect(run(M2_SEQ221_CONTROL)).toEqual([{ actionId: null, ok: true }]);
+  });
+});
+
+describe("checkPlan: reason state", () => {
+  const PELL_REASON = "Pell steps out of the reeds";
+  const pellAway = () => {
+    const f = greyhollowFight();
+    f.projections.scenePresence.pell = {
+      presence: "absent",
+      reason: "removed",
+      seq: 125,
+    };
+    return buildSnapshot(f.projections, f.seed);
+  };
+  const pellStep = (over: Record<string, unknown> = {}) => ({
+    step: "effect",
+    reason: PELL_REASON,
+    effects: [],
+    ...over,
+  });
+  const arrivedEffect = {
+    effect: "presence",
+    targetId: "pell",
+    reason: "arrived",
+  };
+  const run = (
+    readings: InterpretReading[],
+    extra: Partial<Parameters<typeof checkPlan>[0]> = {},
+  ) =>
+    checkPlan({
+      snapshot: pellAway(),
+      readings,
+      rulings: [],
+      joining: [],
+      arriving: [],
+      resumed: [],
+      ...extra,
+    });
+
+  it("passes an arrived presence effect with the arrival reason", () => {
+    const v = run([read("a1", [pellStep({ effects: [arrivedEffect] })])]);
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("refuses the same reason with no presence effect (act)", () => {
+    const v = run([read("a1", [pellStep()])]);
+    expect(v[0]).toMatchObject({
+      actionId: "a1",
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { stepIndex: 0, field: "reason", text: PELL_REASON },
+    });
+    const failure = (v[0] as unknown as { failure: { issues: unknown[] } })
+      .failure;
+    expect(failure.issues).toContainEqual(
+      expect.objectContaining({ claim: "act" }),
+    );
+  });
+
+  it("exempts an arriving NPC from the act rule", () => {
+    const v = run([read("a1", [pellStep()])], { arriving: ["pell"] });
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("skips the reason check for a resumed action id", () => {
+    const v = run([read("a1", [pellStep()])], { resumed: ["a1"] });
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("still runs the id check for a resumed action id", () => {
+    const f = greyhollowFight();
+    f.projections.scenePresence["goblin-3"] = {
+      presence: "absent",
+      reason: "removed",
+      seq: 125,
+    };
+    const v = checkPlan({
+      snapshot: buildSnapshot(f.projections, f.seed),
+      readings: [read("a1", [attackStep("goblin-3")])],
+      rulings: [],
+      joining: [],
+      arriving: [],
+      resumed: ["a1"],
+    });
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "UNKNOWN_COMBATANT",
+      failure: { field: "targetId", id: "goblin-3", reason: "absent" },
+    });
+  });
+
+  it("checks a check step's autoFail.reason", () => {
+    const v = run([
+      read("a1", [checkStep({ autoFail: { reason: PELL_REASON } })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { stepIndex: 0, field: "autoFail.reason", text: PELL_REASON },
+    });
+  });
+
+  it("checks a condition effect's source (OQ-3)", () => {
+    const v = run([
+      read("a1", [
+        attackStep("goblin-2", {
+          onHit: [
+            {
+              effect: "condition",
+              targetId: "goblin-2",
+              op: "apply",
+              condition: "prone",
+              source: PELL_REASON,
+            },
+          ],
+        }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "onHit[0].source", text: PELL_REASON },
+    });
+  });
+
+  it("replaces a reading's steps with its ruling's steps", () => {
+    const v = run([read("a1", [pellStep()])], {
+      rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
+    });
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("does not check a clarify reading", () => {
+    const v = run([read("a1", [pellStep()], { clarify: "Which one?" })]);
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("lets an id failure win over a reason failure in the same group", () => {
+    const v = run([read("a1", [pellStep(), attackStep("nobody")])]);
+    expect(v[0]).toMatchObject({ ok: false, code: "UNKNOWN_COMBATANT" });
+  });
+
+  it("reports only the first refused text", () => {
+    const v = run([
+      read("a1", [
+        pellStep({ reason: "Tamsin swings her sword" }),
+        pellStep(),
+        pellStep({ reason: "Pell lunges at Odo" }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { stepIndex: 1, text: PELL_REASON },
+    });
+  });
+
+  it("never rewrites a passing reading", () => {
+    const r = read("a1", [pellStep({ effects: [arrivedEffect] })]);
+    const before = structuredClone(r);
+    const v = run([r]);
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+    expect(r).toEqual(before);
+  });
+});
+
+describe("arrivingNpcs", () => {
+  const enc = encounterToStart(
+    seed,
+    {
+      tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+    } as never,
+    "player-action",
+  );
+  const beat = seed.beats.find((b) => b.encounterId === enc?.id);
+  const declared = Object.entries(beat?.presence ?? {})
+    .filter(([, v]) => v === "present")
+    .map(([id]) => id);
+
+  it("lists the NPCs the encounter beat declares present and not logged present", () => {
+    expect(declared.length).toBeGreaterThan(0);
+    const logged = Object.fromEntries(
+      declared.map((id) => [
+        id,
+        { presence: "absent", reason: "removed", seq: 1 },
+      ]),
+    ) as never;
+    expect(arrivingNpcs(seed, enc, logged).sort()).toEqual(
+      [...declared].sort(),
+    );
+  });
+
+  it("omits an NPC with no logged presence (it defaults to present)", () => {
+    expect(arrivingNpcs(seed, enc, {})).toEqual([]);
+  });
+
+  it("omits an NPC whose logged presence is already present", () => {
+    const first = declared[0] as string;
+    const logged = {
+      [first]: { presence: "present", reason: "arrived", seq: 1 },
+    } as never;
+    expect(arrivingNpcs(seed, enc, logged)).not.toContain(first);
+  });
+
+  it("lists an NPC logged absent", () => {
+    const first = declared[0] as string;
+    const logged = {
+      [first]: { presence: "absent", reason: "removed", seq: 1 },
+    } as never;
+    expect(arrivingNpcs(seed, enc, logged)).toContain(first);
+  });
+
+  it("returns [] with no encounter", () => {
+    expect(arrivingNpcs(seed, undefined, {})).toEqual([]);
   });
 });

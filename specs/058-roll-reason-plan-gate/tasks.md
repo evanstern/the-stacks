@@ -35,35 +35,35 @@ commit led by `TASK-0161:`.
 
 ## Phase 2: The reason check in `checkPlan` (card AC #1, #2, #3)
 
-- [ ] T009 In `apps/server/src/dm/gates/plan-gate.ts`, add `arriving` and `resumed` to `PlanInput`,
+- [x] T009 In `apps/server/src/dm/gates/plan-gate.ts`, add `arriving` and `resumed` to `PlanInput`,
       the `ReasonFailure` type and the third `PlanVerdict` variant, as
       `contracts/plan-reason-gate.md` states. Update every `checkPlan` caller and test helper to pass
       `arriving: []` and `resumed: []`.
-- [ ] T010 Export `REASON_REFUSAL_CODE = "REASON_CONTRADICTS_STATE"` (OQ-2). Type it as a string
+- [x] T010 Export `REASON_REFUSAL_CODE = "REASON_CONTRADICTS_STATE"` (OQ-2). Type it as a string
       literal here; Phase 3 ties it to the engine enum.
-- [ ] T011 Add the internal `stepTexts(step)`: the step `reason`, then `autoFail.reason` for a
+- [x] T011 Add the internal `stepTexts(step)`: the step `reason`, then `autoFail.reason` for a
       `check` step. Under OQ-3 (a) add each `condition` effect's `source` in `effects`, `onSuccess`,
       `onFailure` and `onHit`, with its path as the field.
-- [ ] T012 Add the internal `plannedDiff(snapshot, groups, arriving)` (contract rule 5). Use
+- [x] T012 Add the internal `plannedDiff(snapshot, groups, arriving)` (contract rule 5). Use
       `REASON_TO_PRESENCE` from `@the-stacks/session-model` for the `after` value.
-- [ ] T013 Export the pure `arrivingNpcs(seed, enc, scenePresence)`: NPC ids the encounter's beat
+- [x] T013 Export the pure `arrivingNpcs(seed, enc, scenePresence)`: NPC ids the encounter's beat
       declares `present` whose logged presence is not `present`. Return `[]` with no encounter.
-- [ ] T014 Wire the walk into `checkPlan` after the id loop (contract rules 2, 3, 4 and 6). Call
+- [x] T014 Wire the walk into `checkPlan` after the id loop (contract rules 2, 3, 4 and 6). Call
       `checkClaims` from `../claims.js`. Add no word list or matcher.
-- [ ] T015 Flip T006 from `it.fails` to `it`.
-- [ ] T016 Add unit tests: an `arrived` presence effect on absent Pell with reason "Pell staggers out
+- [x] T015 Flip T006 from `it.fails` to `it`.
+- [x] T016 Add unit tests: an `arrived` presence effect on absent Pell with reason "Pell staggers out
       of the reeds" passes, and the same reason with no presence effect is refused `act`.
-- [ ] T017 Add unit tests: an id in `arriving` exempts that NPC from the act rule; a resumed action
+- [x] T017 Add unit tests: an id in `arriving` exempts that NPC from the act rule; a resumed action
       id with a refused reason gives `ok: true`; a resumed action id with an absent target is still
       refused `UNKNOWN_COMBATANT`.
-- [ ] T018 Add unit tests: an `autoFail.reason` is checked (field `autoFail.reason`); a ruling's
+- [x] T018 Add unit tests: an `autoFail.reason` is checked (field `autoFail.reason`); a ruling's
       steps replace the reading's (the reading's bad reason is not checked); a clarify reading is
       not checked; an id failure wins over a reason failure in the same group; only the first
       refused text is reported.
-- [ ] T019 Add a unit test that a passing verdict leaves the reading object deep-equal to its input
+- [x] T019 Add a unit test that a passing verdict leaves the reading object deep-equal to its input
       (the gate never rewrites text).
-- [ ] T020 Add a unit test for `arrivingNpcs` over the `greyhollow-ford` seed.
-- [ ] T021 Run `pnpm ci:check`.
+- [x] T020 Add a unit test for `arrivingNpcs` over the `greyhollow-ford` seed.
+- [x] T021 Run `pnpm ci:check`.
 
 ## Phase 3: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
 
