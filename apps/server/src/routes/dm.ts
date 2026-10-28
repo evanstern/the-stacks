@@ -15,7 +15,7 @@ import {
 } from "../dm/jobs.js";
 import { listModelCalls, modelCallTotals } from "../dm/model-calls.js";
 import type { AuditRecord } from "../dm/nodes/audit.js";
-import { loadSeed, SeedError } from "../dm/seed/load.js";
+import { listSeeds, loadSeed, SeedError } from "../dm/seed/load.js";
 import { dmOnlySeedPaths } from "../dm/seed/views.js";
 import {
   ConflictError,
@@ -167,6 +167,26 @@ export function createDmRoutes({
     return parsed.data;
   }
 
+  route.get("/seeds", (c) => {
+    requireOperator(c);
+    const seeds = listSeeds().map((seed) => {
+      const pick = (seat: "human" | "companion") =>
+        seed.characters
+          .filter((ch) => ch.seat === seat)
+          .map((ch) => ({
+            characterId: ch.characterId,
+            name: ch.name,
+          }));
+      return {
+        seedId: seed.seedId,
+        title: seed.title,
+        humans: pick("human"),
+        companions: pick("companion"),
+      };
+    });
+    return c.json({ seeds });
+  });
+
   route.post("/sessions/:sessionId/start", async (c) => {
     requireOperator(c);
     const sessionId = sessionIdOf(c.req.param("sessionId"));
@@ -201,6 +221,9 @@ export function createDmRoutes({
     const humans = seed.characters
       .filter((ch) => ch.seat === "human")
       .map((ch) => ch.characterId);
+    const seatOrder = seed.characters
+      .map((ch) => ch.characterId)
+      .filter((id) => id in body.data.seats);
     const issues = [
       ...humans
         .filter((id) => !(id in body.data.seats))
@@ -213,6 +236,18 @@ export function createDmRoutes({
         .map((id) => ({
           path: `seats.${id}`,
           message: "Not a human character in this seed.",
+        })),
+      ...seatOrder
+        .filter((id, i) => {
+          const user = body.data.seats[id];
+          return (
+            user !== undefined &&
+            seatOrder.findIndex((o) => body.data.seats[o] === user) < i
+          );
+        })
+        .map((id) => ({
+          path: `seats.${id}`,
+          message: "A user can hold only one seat.",
         })),
     ];
     if (issues.length > 0) throw new ValidationError(issues);

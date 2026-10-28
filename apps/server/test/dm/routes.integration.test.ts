@@ -138,6 +138,72 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     expect(res.status).toBe(400);
   });
 
+  it("GET /dm/seeds lists seeds for the operator only", async () => {
+    const app = appWith({ count: 0 });
+    const op = await cookieFor("operator");
+    const player = await cookieFor("player");
+    const res = await app.request("/dm/seeds", {
+      headers: { cookie: op.cookie },
+    });
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      seeds: {
+        seedId: string;
+        title: string;
+        humans: { characterId: string; name: string }[];
+        companions: { characterId: string; name: string }[];
+      }[];
+    };
+    expect(json.seeds.map((s) => s.seedId)).toEqual([
+      "greyhollow-ford",
+      "greyhollow-ford-duo",
+    ]);
+    for (const s of json.seeds) {
+      expect(Object.keys(s).sort()).toEqual([
+        "companions",
+        "humans",
+        "seedId",
+        "title",
+      ]);
+    }
+    expect(json.seeds[1]?.humans.map((h) => h.characterId)).toEqual([
+      "tamsin",
+      "kestrel",
+    ]);
+    expect(
+      (await app.request("/dm/seeds", { headers: { cookie: player.cookie } }))
+        .status,
+    ).toBe(403);
+    expect((await app.request("/dm/seeds")).status).toBe(401);
+  });
+
+  it("refuses one user in two seats and accepts two users", async () => {
+    const nudges = { count: 0 };
+    const app = appWith(nudges);
+    const { cookie, userId } = await cookieFor("operator");
+    const other = await cookieFor("player");
+    const sessionId = randomUUID();
+    const dup = await post(app, `/dm/sessions/${sessionId}/start`, cookie, {
+      seedId: "greyhollow-ford-duo",
+      seats: { tamsin: userId, kestrel: userId },
+    });
+    expect(dup.status).toBe(400);
+    const json = (await dup.json()) as {
+      error: { issues: { path: string; message: string }[] };
+    };
+    expect(json.error.issues).toEqual([
+      { path: "seats.kestrel", message: "A user can hold only one seat." },
+    ]);
+    expect(await listDmJobs(requireDb(), sessionId, 10, "turn")).toHaveLength(
+      0,
+    );
+    const ok = await post(app, `/dm/sessions/${sessionId}/start`, cookie, {
+      seedId: "greyhollow-ford-duo",
+      seats: { tamsin: userId, kestrel: other.userId },
+    });
+    expect(ok.status).toBe(202);
+  });
+
   it("turn: 202 and a manual turn job", async () => {
     const app = appWith({ count: 0 });
     const { cookie } = await cookieFor("operator");

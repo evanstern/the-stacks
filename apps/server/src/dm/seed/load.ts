@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDiceExpression } from "@the-stacks/dnd5e-engine";
@@ -166,9 +166,9 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
     }
   }
   const humans = seed.characters.filter((c) => c.seat === "human").length;
-  if (humans !== 1) {
+  if (humans < 1) {
     issues.push(
-      `exactly one character must have seat "human", found ${humans}`,
+      `at least one character must have seat "human", found ${humans}`,
     );
   }
   return issues;
@@ -203,4 +203,38 @@ export function loadSeed(
     ]);
   }
   return parseSeed(raw);
+}
+
+/**
+ * Every seed in `dir` that loads, sorted by id. A file that fails to load is
+ * left out and logged once; this never throws for a bad file.
+ */
+export function listSeeds(dir: string = DEFAULT_SEED_DIR): SceneSeed[] {
+  let names: string[];
+  try {
+    names = readdirSync(dir).filter((n) => n.endsWith(".json"));
+  } catch {
+    return [];
+  }
+  const seeds: SceneSeed[] = [];
+  for (const name of names) {
+    const seedId = name.slice(0, -".json".length);
+    try {
+      seeds.push(loadSeed(seedId, dir));
+    } catch (error) {
+      console.warn(
+        JSON.stringify({
+          event: "dm.seeds.load-failed",
+          seedId,
+          issues:
+            error instanceof SeedError
+              ? error.issues
+              : [(error as Error).message],
+        }),
+      );
+    }
+  }
+  return seeds.sort((a, b) =>
+    a.seedId < b.seedId ? -1 : a.seedId > b.seedId ? 1 : 0,
+  );
 }

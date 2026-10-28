@@ -41,35 +41,35 @@ refuses one user in two seats, and `GET /dm/seeds` lists the shipped seeds.
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/seed.test.ts`,
 then `REQUIRE_DATABASE=1` `vitest run test/dm/routes.integration.test.ts`.
 
-- [ ] T001 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 fetch origin`,
+- [x] T001 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 fetch origin`,
   then `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0163 merge origin/main`. This
   brings in TASK-0158 (`DM_FAKE_SCRIPT`, merge `e20030d`). Keep both sides of any conflict. Run
   `pnpm install --frozen-lockfile`.
-- [ ] T002 [US1] In `apps/server/test/dm/seed.test.ts`, rewrite the "exactly one character"
+- [x] T002 [US1] In `apps/server/test/dm/seed.test.ts`, rewrite the "exactly one character"
   cases: a seed with no human is refused with `at least one character must have seat "human",
   found 0`; a seed with every character human loads. Add a case that `loadSeed("greyhollow-ford-duo")`
   loads, its humans are `["tamsin", "kestrel"]` and its companions are `["odo"]`. Add a case
   that greyhollow-ford still has exactly one human.
-- [ ] T003 [US1] In the same file, add `listSeeds` cases per `contracts/dm-seeds.md`: the default
+- [x] T003 [US1] In the same file, add `listSeeds` cases per `contracts/dm-seeds.md`: the default
   directory lists `greyhollow-ford` and `greyhollow-ford-duo` sorted by id; a temp directory
   (`mkdtempSync` under `os.tmpdir()`) holding one valid and one invalid seed lists only the valid
   one and does not throw.
-- [ ] T004 [US1] In `apps/server/test/dm/routes.integration.test.ts`, add cases: `GET /dm/seeds`
+- [x] T004 [US1] In `apps/server/test/dm/routes.integration.test.ts`, add cases: `GET /dm/seeds`
   as the operator returns 200 with each seed's `seedId`, `title`, `humans` and `companions` and no
   other field; as a player returns 403; with no cookie returns 401. A start on
   `greyhollow-ford-duo` with one user id in both seats returns 400 with one issue at
   `seats.kestrel`, `A user can hold only one seat.`, and enqueues no job. A start with two
   distinct user ids returns 202.
-- [ ] T005 [US1] Run T002 to T004 and confirm each new case fails.
-- [ ] T006 [US1] Create `apps/server/seeds/greyhollow-ford-duo.json` per `data-model.md`: a copy
+- [x] T005 [US1] Run T002 to T004 and confirm each new case fails.
+- [x] T006 [US1] Create `apps/server/seeds/greyhollow-ford-duo.json` per `data-model.md`: a copy
   of `greyhollow-ford.json` with `seedId` `greyhollow-ford-duo`, `title`
   `Greyhollow Ford (two players)`, kestrel's `seat` `human`, and kestrel's `portrayal.voice` and
   `portrayal.want` set to `Chosen by the player.`. Keep every other field.
-- [ ] T007 [US1] In `apps/server/src/dm/seed/load.ts`, change the human-count rule in
+- [x] T007 [US1] In `apps/server/src/dm/seed/load.ts`, change the human-count rule in
   `crossCheckSeed` to "at least one" with the issue text from T002. Add and export
   `listSeeds(dir = DEFAULT_SEED_DIR)` per research R4. Log a failed file once as
   `{ event: "dm.seeds.load-failed", seedId, issues }` with `console.warn(JSON.stringify(...))`.
-- [ ] T008 [US1] In `apps/server/src/routes/dm.ts`, add `GET /seeds` (operator only) per
+- [x] T008 [US1] In `apps/server/src/routes/dm.ts`, add `GET /seeds` (operator only) per
   `contracts/dm-seeds.md`, and add rule 3 of `contracts/scene-start-seats.md` to the start
   route's seat issues. Run T002 to T004 green.
 - [ ] T009 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Commit and push.
