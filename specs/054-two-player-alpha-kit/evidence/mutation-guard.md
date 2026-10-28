@@ -24,7 +24,7 @@ The implementer cannot export `TEST_DATABASE_URL`, so the orchestrator runs this
    `git diff -- apps/server/src/routes/dm.ts` is empty.
 5. Record the failing case name below, then tick T013.
 
-Result of (b): not yet run.
+Result of (b), run by the orchestrator on 68ff701: with the duplicate-seat `.filter` short-circuited to `() => false`, `DM routes (database) > refuses one user in two seats and accepts two users` failed (1 failed, 14 passed); after `git checkout -- apps/server/src/routes/dm.ts` the diff was empty and the file passed 15/15.
 
 ## Orchestrator-run steps: duo integration file (T012, T014)
 

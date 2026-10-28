@@ -102,12 +102,12 @@ sign-off and floor passing behave with two humans; the two new seat rules are pi
   A's approval alone commits it. Then, in turn mode with B absent, the floor job passes B's turn
   (TASK-0050). Add a script under `apps/server/test/dm/scripts/` only if `scene-start.json` does
   not fit.
-- [ ] T012 [US1] Run T010 and T011. For each failure, decide: does it block the duo seed from
+- [x] T012 [US1] Run T010 and T011. For each failure, decide: does it block the duo seed from
   starting or seating two humans? If yes, fix it in the smallest change and note the fix. If no,
   mark the case `it.fails` with a comment naming the defect, and write the defect (symptom, test
   name, source file) in `specs/054-two-player-alpha-kit/evidence/two-human-check.md` for the
   orchestrator to card. When nothing fails, the file says so and lists the cases run.
-- [ ] T013 [US1] Mutation check. Commit T010 to T012 first. Then:
+- [x] T013 [US1] Mutation check. Commit T010 to T012 first. Then:
   (a) in `apps/server/src/dm/seed/load.ts`, make the human-count rule always pass; run
   `test/dm/seed.test.ts` and confirm the no-human case fails; restore the file.
   (b) in `apps/server/src/routes/dm.ts`, remove the one-user-two-seats issue; run
@@ -115,7 +115,8 @@ sign-off and floor passing behave with two humans; the two new seat rules are pi
   case fails; restore the file.
   After each restore, confirm `git diff -- <file>` is empty. Record the failing case names in
   `specs/054-two-player-alpha-kit/evidence/mutation-guard.md`.
-- [ ] T014 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Commit and push.
+- [x] T014 [US1] Run `pnpm ci:check` with `REQUIRE_DATABASE=1`. Commit and push.
+  Orchestrator-run on 68ff701: duo.integration 4/4 passed; REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed.
 
 ---
 
@@ -126,26 +127,26 @@ a player; the operator creates an invitation on Settings. No modal.
 
 **Independent test**: `pnpm --filter @the-stacks/web test`.
 
-- [ ] T015 [P] [US2] Create `apps/web/test/sign-in.test.tsx` per `contracts/web-surfaces.md`
+- [x] T015 [P] [US2] Create `apps/web/test/sign-in.test.tsx` per `contracts/web-surfaces.md`
   ("Sign-in card"). Stub `fetch`. Cases: the card shows `Have an invitation?`; pressing it shows
   the four redeem fields and `Back to sign in`; submit posts `{ token, username, displayName,
   password }` to `/auth/invitations/redeem` with the token trimmed, and on 201 revalidates;
   a 400 with a `token` issue shows the invalid-token message; a 409 shows the username message;
   `Back to sign in` restores the sign-in form. No case puts the token in `location`.
-- [ ] T016 [P] [US2] Create `apps/web/test/settings-invite.test.tsx` per `contracts/web-surfaces.md`
+- [x] T016 [P] [US2] Create `apps/web/test/settings-invite.test.tsx` per `contracts/web-surfaces.md`
   ("Settings"). Cases: a player sees no `Invite a player` section; the operator sees it with
   expiry default 7; `Create invitation` posts `{ expiresInDays: 7 }` to `/auth/invitations`; on
   201 the token shows in a read-only field with `Copy` and the expiry; a failure shows
   `Could not create an invitation.`.
-- [ ] T017 [P] [US2] In `apps/web/test/ssr.test.mjs`, add a case: `/` signed out renders the
+- [x] T017 [P] [US2] In `apps/web/test/ssr.test.mjs`, add a case: `/` signed out renders the
   `Have an invitation?` control.
-- [ ] T018 [US2] Run T015 to T017 and confirm each new case fails.
-- [ ] T019 [US2] In `apps/web/app/auth.ts`, add `redeemInvitation(input)` and
+- [x] T018 [US2] Run T015 to T017 and confirm each new case fails.
+- [x] T019 [US2] In `apps/web/app/auth.ts`, add `redeemInvitation(input)` and
   `issueInvitation(expiresInDays)` fetch wrappers. Each returns a typed result or throws an
   error that carries the HTTP status and the error-contract `issues`.
-- [ ] T020 [US2] In `apps/web/app/sign-in.tsx`, add the redeem mode per the contract and research
+- [x] T020 [US2] In `apps/web/app/sign-in.tsx`, add the redeem mode per the contract and research
   R7. Keep the existing sign-in form and its hydration guard unchanged.
-- [ ] T021 [US2] In `apps/web/app/routes/settings.tsx`, add the operator-only invite section per
+- [x] T021 [US2] In `apps/web/app/routes/settings.tsx`, add the operator-only invite section per
   the contract and research R8.
 - [ ] T022 [US2] Run T015 to T017 green. Confirm `apps/web/test/no-dialog.test.mjs` passes. Run
   `pnpm ci:check`. Commit and push.
