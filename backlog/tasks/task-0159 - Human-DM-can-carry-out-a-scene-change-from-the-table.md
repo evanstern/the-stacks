@@ -17,6 +17,8 @@ ordinal: 146000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: a seated human DM can change scene from the play route. That includes acting on a dismissed or pending scene suggestion. Evidence: the TASK-0100 spec author (spec 047, c53d50f, OQ-1) found that apps/web/app/play/frames.ts builds no scene request, so a human DM can read and dismiss a scene suggestion but cannot carry it out at the table. Why it matters: the M3 demo's second run is ask mode with a human DM (checkpoint C7).
+
+Spec: specs/055-human-dm-scene-change
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
