@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:57'
+updated_date: '2026-10-28 09:02'
 labels:
   - play-route
   - gate
@@ -102,6 +102,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 closed (cf2b2df, 429eb0f). Step 9 baseline, session 1f55d0f8: Dismiss only, approval turn 6e3e7dc4 empty-beat with checkpoint.beat null, no scene.changed row. The carry-out turn 7fb204d0 had beat set. Orchestrator ruling: step 11 dropped, because the classifier refused the .env edit for the implementer and for me, and post-merge env:down deletes the stack and its .env.
 
 spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
