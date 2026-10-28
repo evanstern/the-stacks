@@ -148,8 +148,8 @@ a player; the operator creates an invitation on Settings. No modal.
   R7. Keep the existing sign-in form and its hydration guard unchanged.
 - [x] T021 [US2] In `apps/web/app/routes/settings.tsx`, add the operator-only invite section per
   the contract and research R8.
-- [ ] T022 [US2] Run T015 to T017 green. Confirm `apps/web/test/no-dialog.test.mjs` passes. Run
-  `pnpm ci:check`. Commit and push.
+- [x] T022 [US2] Run T015 to T017 green. Confirm `apps/web/test/no-dialog.test.mjs` passes. Run
+  `pnpm ci:check`. Commit and push. Orchestrator-run on 49391e5: REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed, web 97 passed.
 
 ---
 

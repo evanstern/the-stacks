@@ -113,6 +113,7 @@ Server:
 Web:
 
 - `apps/web/app/sign-in.tsx` — the inline redeem toggle and form.
+- `apps/web/app/invite-section.tsx` — the operator invite section component (Phase 3).
 - `apps/web/app/auth.ts` — `redeemInvitation()` and `issueInvitation()` fetch wrappers.
 - `apps/web/app/routes/settings.tsx` — the operator "Invite a player" section.
 - `apps/web/app/play/components/start-scene-panel.tsx` — new slide-out.
