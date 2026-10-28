@@ -64,6 +64,8 @@ spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Pe
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phases 4-5 in one dispatch: amendment 853e726, merge of origin/main dd1f3dc, wiki d5ee5e1, runbook 0ed1d15. ci:check on the merged tree exit 0 (server 1223). Freshness OK (54 notes); spec-bridge ok. AC #1: gate-level and WS T012b tests show zero CONFLICT with 3+ senders. AC #2: specs/029-proposal-gate/contracts/gate-api.md TASK-0157 block.
+
+spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Per-session queue and jittered retry (card AC #1): 8/8 · WebSocket burst test, resend workaround removed, client label (card AC #1): 6/6 · Gate contract amendment (card AC #2): 4/4 · Wiki re-ground and runbook rows (card AC #1, AC #2): 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
