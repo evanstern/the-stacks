@@ -81,7 +81,7 @@ the jobs read that feeds them.
 **Independent test**: `evidence/live-run.md` records quickstart.md steps 1 to 10, with shots.
 
 - [x] T018 [US1] Write `specs/057-human-dm-roll-resume/evidence/live-resume.mjs` (Brave, Playwright), adapting `specs/055-human-dm-scene-change/evidence/shoot-live.mjs`, `start-human-dm.mjs` and `specs/053-env-fake-dm-script/evidence/declare.mjs`. It runs quickstart steps 5 to 9, takes the shots, asserts 0 modals, and prints job ids, outcomes and call purposes from the `/dm` debug routes. It reads credentials from the file argument and never prints them.
-- [ ] T019 (orchestrator) Run quickstart.md on the `task-0168` stack. Record steps, jobs, calls, the `action.resolved` row and the `check.roll` count in `evidence/live-run.md`. Commit the shots.
+- [x] T019 (orchestrator) Run quickstart.md on the `task-0168` stack. Record steps, jobs, calls, the `action.resolved` row and the `check.roll` count in `evidence/live-run.md`. Commit the shots.
 
 ---
 
