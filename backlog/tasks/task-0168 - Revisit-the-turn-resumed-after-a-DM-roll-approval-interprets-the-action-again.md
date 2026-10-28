@@ -82,6 +82,8 @@ spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/
 T023 (orchestrator): merged origin/main at f8cffae3 (runbook rows from both sides kept, #81 filled; CAPSULES regenerated); REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1294 passed | 5 skipped, web 265 node + 117 vitest; freshness OK (55); spec-bridge ok. AC #1: the DB test (a) and the live run 3 show an approved roll narrating in the resumed turn with no second check.roll. AC #2: the resumed turn reuses the paused plan (contracts/turn-resume.md; 031 amended by the operator's ruling).
 
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 2/2 · Re-ground and close (all ACs): 4/4 — status In Progress → Done
+
+Merged: PR #82 as merge commit 68032ecf on 2026-10-28 (merged by the operator). Worktree, branch and stack removed; env:prune --check clean.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
