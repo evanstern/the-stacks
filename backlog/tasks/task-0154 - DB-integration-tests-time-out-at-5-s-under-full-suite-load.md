@@ -1,7 +1,7 @@
 ---
 id: TASK-0154
 title: DB integration tests time out at 5 s under full-suite load
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 04:11'
 updated_date: '2026-10-28 14:52'
@@ -35,6 +35,10 @@ Spec: specs/056-db-test-timeouts
 Third instance 2026-10-27: test/playtest/provider.integration.test.ts timed out at 5 s under full-suite load on TASK-0116 Phase 3; passed alone (3 tests).
 
 2026-10-27: on TASK-0051 the 5090 ms scene.integration hit was load plus a per-turn full-log replay in gate.recordPresence; fixed on that branch (2b09a07). The other instances stand.
+
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0154, branch task-0154-db-test-timeouts, cut from origin/main 934d8d78. Spec 056 authored at d78bdfe5 (explicit per-test timeouts, chosen over isolation; plan D1-D6).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Orchestrator ruling on spec OQ-1 (a test-evidence reading, not player-facing): default (a). A full run counts toward AC #2 only when it passes with no re-run, including the known WebSocket gateway flake; a failed run is kept as run-failed-<k>.txt and the count restarts. If the gateway flake blocks three clean runs twice in a row, the orchestrator reports it to the operator rather than widening the AC.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
