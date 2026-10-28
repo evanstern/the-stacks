@@ -26,6 +26,8 @@ Evidence (2026-10-28 survey of main at 1de4e6e):
 - Scene start is an operator API call with a seed id and a seat map. No UI or runbook covers it.
 
 Why: group sign-off, floor passing and presence (TASK-0049, TASK-0050, TASK-0051) are merged, but no table can seat two humans. This kit also serves TASK-0053, which needs several humans at one table.
+
+Spec: specs/054-two-player-alpha-kit
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
