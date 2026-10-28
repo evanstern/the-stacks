@@ -28,7 +28,7 @@ Commit as `TASK-0158: Phase <n> — <title>`.
 
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/script-env.test.ts`.
 
-- [ ] T001 [US1] Create `apps/server/test/dm/script-env.test.ts` with cases for contract rules 1
+- [x] T001 [US1] Create `apps/server/test/dm/script-env.test.ts` with cases for contract rules 1
   to 6 (`contracts/env-dm-script.md`). Pass `scriptDir` as a temp directory built in the test
   (`mkdtempSync` under `os.tmpdir()`), holding one valid script and one invalid one. Cases:
   unset value returns `scriptName: null`, no `adapters`, no `gateRng`, and the `loadAiConfig`
@@ -37,24 +37,24 @@ Commit as `TASK-0158: Phase <n> — <title>`.
   the scripted config; a bad name (`../x`, `X`, empty after trim) throws; an unknown name throws
   and lists the available names; a file failing `DmScriptSchema` throws naming the file; script
   mode does not call `loadAiConfig` (an env whose `AI_PROVIDERS` is invalid JSON still boots).
-- [ ] T002 [US1] In the same file, add gateway cases. Build `createGateway({ config, sink:
+- [x] T002 [US1] In the same file, add gateway cases. Build `createGateway({ config, sink:
   memorySink(), adapters })` from the runtime. Assert a `dm.director` chat yields the scripted JSON
   text and `done`; a second call to the now-empty purpose yields `error` kind `config` with
   `unscripted call for dm.director`; an `embedding` embed returns 1024-length vectors.
-- [ ] T003 [US1] In the same file, add `facesThenSeed` cases: faces come out in order; after the
+- [x] T003 [US1] In the same file, add `facesThenSeed` cases: faces come out in order; after the
   faces it matches `seededRng(0)` draw for draw; a face outside `1..sides` throws; one shared
   instance from `gateRng()` advances across calls (two `gateRng()` calls return the same RNG).
-- [ ] T004 [US1] Run the file and confirm every case fails because the module is missing.
-- [ ] T005 [US1] Create `apps/server/src/dm/script/env.ts` per `contracts/env-dm-script.md` and
+- [x] T004 [US1] Run the file and confirm every case fails because the module is missing.
+- [x] T005 [US1] Create `apps/server/src/dm/script/env.ts` per `contracts/env-dm-script.md` and
   plan D1, D3 and D4. Resolve the default `scriptDir` from `import.meta.url` three levels up to
   `apps/server`, then `dm-scripts`, as `apps/server/src/dm/seed/load.ts` resolves `seeds`.
   Import only `ai/config.ts`, `ai/adapters/fake.ts` types, `dm/script/load.ts`, `dm/script/schema.ts`
   and `@the-stacks/dnd5e-engine`. Run T001 to T003 green.
-- [ ] T006 [US1] Mutation check on the guard. Commit T001 to T005 first. Then replace the `STACKS_ENV` deny check in
+- [x] T006 [US1] Mutation check on the guard. Commit T001 to T005 first. Then replace the `STACKS_ENV` deny check in
   `apps/server/src/dm/script/env.ts` with a pass-through. Run `test/dm/script-env.test.ts` and
   confirm the guard cases fail. Restore the file. Confirm `git diff -- apps/server/src/dm/script/env.ts`
   is empty. Record the failing case names in `specs/053-env-fake-dm-script/evidence/mutation-guard.md`.
-- [ ] T007 [US1] Run `pnpm ci:check`. Commit the mutation record.
+- [x] T007 [US1] Run `pnpm ci:check`. Commit the mutation record.
 
 ---
 
