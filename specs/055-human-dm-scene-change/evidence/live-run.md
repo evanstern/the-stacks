@@ -227,3 +227,30 @@ Two ways to let the resumed turn narrate, both a ruling: (a) script one more dir
 director chain (or `dm.interpret` returning a reading the roll gate treats as already rolled), or
 (b) fix re-interpret (TASK-0168) so the resumed turn reuses the resolved check. The check result
 (seq 53) already exists when the resumed turn re-interprets, and the loop proposes it again.
+
+
+---
+
+# T029 result and step 9 baseline (final)
+
+**T029 (steps 1 to 8c).** The result is clean pass 2 (session `6cb00938-08a0-4b78-8f78-959b8d9e7aaf`,
+above). Steps 4 to 8b ran as written. The commit turn `7530b6d2` paused on a `check.roll` proposal
+(policy `ask`). After the DM approved it, the resumed turn `d5b5d97e` called `dm.director` and
+`dm.interpret` again and proposed the same roll a second time. It never reached narrate. That is
+TASK-0168, "With a human DM, approving a check roll re-proposes the same roll", a server defect
+outside TASK-0159. The narrated player turn is not shown. SC-002 holds without it: the approval
+turn (`7fb204d0`) and the commit turn load the seed with no no-scene or bad-seed failure
+(`checkpoint.beat` `[]` and `["act-search"]`, both set). The scripts were not amended.
+
+**Step 9, Dismiss-only baseline.** Stack freshly reset, no restart needed (script unspent). Accounts
+recreated. Session `1f55d0f8-7c6b-42d1-9276-936ea3ea4834`, run by `evidence/baseline-dismiss.mjs` (Brave):
+`dm.seat`, start, then Dismiss on the scene suggestion. No action committed.
+
+| Row or job | Result |
+| --- | --- |
+| seq 14 `proposal.created` (scene suggestion), seq 15 `proposal.rejected` by the operator, seq 16 `presence.recorded` | no `scene.changed` row |
+| scene-start turn `2fc5f711-652a-4bde-a108-b23d09d1e5c6` | `completed`, 3 calls |
+| `approval` turn `6e3e7dc4-26da-4f24-96d3-80291f8eb95c` (triggerSeq 15) | `succeeded`, outcome `empty-beat`, `checkpoint.beat` null, calls none |
+
+The header still read "No scene yet". No modal. Contrast with the carry-out (`7fb204d0`):
+`checkpoint.beat` `[]` (set). The baseline leaves it null.
