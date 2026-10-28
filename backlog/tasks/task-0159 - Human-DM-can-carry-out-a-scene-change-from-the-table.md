@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 06:04'
+updated_date: '2026-10-28 07:52'
 labels:
   - play-route
   - gate
@@ -34,6 +34,8 @@ Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 212a4f8) stopped with open questions OQ-1 to OQ-7. Finding: with a human DM the scene-start suggestion stays pending, p.scene stays null, and every later AI DM turn fails no-scene until the human DM carries out a scene with the seed's sceneId.
+
+Operator ruling, in chat 2026-10-28, verbatim: "TASK-0159: I accept the recommended defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an encounter or changes table mode) in m-3; card DC-2 as a revisit."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
