@@ -21,10 +21,13 @@ provider key. Browser automation uses Brave. The UI has no modals. The orchestra
    Generate passwords randomly. Keep them in an untracked file outside the repo. Never print them.
 4. Run `PLAYWRIGHT_CORE=<path inside a dir whose node_modules holds playwright-core> node specs/057-human-dm-roll-resume/evidence/live-resume.mjs <creds-file>`.
    The creds file is `{"operator":{username,password},"player":{username,password,userId}}`. It does steps 5
-   to 10 in Brave, once per fresh stack.
+   to 10 in Brave, once per fresh stack. Every wait is bounded at 30 s; a miss prints a FAIL line and the
+   summary still prints.
 5. Seat the operator as human DM and start `greyhollow-ford` (055 `start-human-dm.mjs`).
-6. As the DM, carry out the scene suggestion and approve the 10 non-narration suggestions (055 steps
-   6 to 8b).
+6. As the DM, open "Change scene" and click "Apply" (exact) on the seeded scene. The Apply closes the
+   scene suggestion. Open "Pending proposals" and approve the 10 remaining non-narration suggestions
+   (055 steps 6 to 8b). Expect every approval turn to end `empty-beat` with no calls. Leave the opening
+   narration pending.
 7. As the player, declare and commit `act-search` (053 `declare.mjs`). Expect the commit turn to
    call `dm.director` and `dm.interpret` and pause on one `check.roll` proposal (policy `ask`).
 8. As the DM, approve the roll. Expect the `approval` turn to end `completed` with calls

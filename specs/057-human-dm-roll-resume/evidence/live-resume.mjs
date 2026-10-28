@@ -8,7 +8,7 @@
 // Both accounts already exist on the stack. The stack runs `DM_FAKE_SCRIPT=greyhollow-human-dm`
 // (10 calls). Optional: STACKS_APP_URL overrides the app origin (default http://localhost:<APP_PORT>).
 // The script: seats the operator as human DM and starts greyhollow-ford (055 start-human-dm.mjs),
-// approves the 10 scene-start suggestions, has the player declare and commit `act-search`
+// carries out the scene suggestion ("Change scene" > "Apply"), approves the 10 other scene-start suggestions, has the player declare and commit `act-search`
 // (053 declare.mjs), approves the one check.roll, approves the resumed turn's narration, and
 // reads the player's table. It asserts 0 modals in every shot and prints job ids, outcomes,
 // call purposes, the action.resolved row and the check.roll proposal count from the /dm debug
@@ -36,6 +36,7 @@ const appPort = envText.match(/^APP_PORT=(\S+)$/m)?.[1] ?? "3000";
 const base = process.env.STACKS_APP_URL ?? `http://localhost:${appPort}`;
 const require = createRequire(process.env.PLAYWRIGHT_CORE ?? import.meta.url);
 const { chromium } = require("playwright-core");
+const STEP_MS = 30000;
 const BRAVE = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser";
 const ALL = [
   [1280, 800, "light"],
@@ -76,6 +77,7 @@ async function signIn(page, who) {
 
 // Operator cookie for the /dm debug routes (no output of the cookie).
 const si = await fetch(`${base}/auth/sign-in`, {
+  signal: AbortSignal.timeout(STEP_MS),
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({ username: creds.operator.username, password: creds.operator.password }),
@@ -86,13 +88,13 @@ if (!si.ok) {
 }
 const cookie = si.headers.getSetCookie().map((c) => c.split(";")[0]).join("; ");
 const api = async (path) => {
-  const r = await fetch(`${base}${path}`, { headers: { cookie } });
+  const r = await fetch(`${base}${path}`, { headers: { cookie }, signal: AbortSignal.timeout(STEP_MS) });
   if (!r.ok) throw new Error(`GET ${path}: HTTP ${r.status}`);
   return r.json();
 };
 
 // Steps 5: fresh session with the operator seated as human DM.
-const started = execFileSync("node", [join(here, "../../055-human-dm-scene-change/evidence/start-human-dm.mjs"), credsPath], { encoding: "utf8" });
+const started = execFileSync("node", [join(here, "../../055-human-dm-scene-change/evidence/start-human-dm.mjs"), credsPath], { encoding: "utf8", timeout: 60000 });
 const sessionId = started.match(/sessionId (\S+)/)[1];
 console.log(`session ${sessionId}`);
 const playUrl = `${base}/play/${sessionId}`;
@@ -118,33 +120,49 @@ const purposes = (t) => t.calls.map((c) => c.purpose);
 
 const browser = await chromium.launch({ executablePath: BRAVE, headless: false, timeout: 30000 });
 const tmp = mkdtempSync(join(tmpdir(), "live-resume-"));
+const bounded = async (ctx) => {
+  ctx.setDefaultTimeout(STEP_MS);
+  ctx.setDefaultNavigationTimeout(STEP_MS);
+  return ctx;
+};
 try {
-  const ctxA = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  try {
+  const ctxA = await bounded(await browser.newContext({ viewport: { width: 1280, height: 800 } }));
   const a = await ctxA.newPage();
   await signIn(a, creds.operator);
 
-  // Step 6: approve the scene-start suggestions; the opening narration stays pending.
+  // Step 6 (spec 055 shoot-live.mjs steps 6 to 8b): carry out the scene suggestion, then approve the rest.
+  // The Apply closes the scene suggestion (proposal.rejected), so 10 suggestions stay: 3 combatant adds,
+  // 3 party members, 2 trackers, 2 presence removals. The opening narration stays pending.
   await waitTurns("scene-start turn", (t) => t.some((x) => x.kind === "turn" && settled(x)));
   await a.goto(playUrl);
+  await a.getByText("No scene yet").first().waitFor();
+  await a.getByRole("button", { name: "Change scene" }).click();
+  await a.locator("#scene-id").waitFor();
+  check((await a.locator("#scene-id").inputValue()) === "greyhollow-ford", "step 6 scene panel seeded with greyhollow-ford");
+  await a.getByRole("button", { name: "Apply", exact: true }).click();
+  await a.getByText("The Bell at Greyhollow Ford").first().waitFor();
+  await waitTurns("scene approval turn", (t) => t.filter((x) => x.kind === "turn").length >= 2 && t.filter((x) => x.kind === "turn").every(settled));
+  await a.goto(playUrl);
   await a.getByRole("button", { name: /Pending proposals/ }).click();
-  await a.getByRole("button", { name: "Approve" }).first().waitFor({ timeout: 15000 });
+  await a.getByRole("button", { name: "Approve" }).first().waitFor();
   let approved = 0;
   for (let n = 0; n < 15; n++) {
     const b = a.getByRole("button", { name: "Approve" });
     const c = await b.count();
     if (c <= 1) break;
     await b.first().click();
-    await a.waitForFunction((k) => [...document.querySelectorAll("button")].filter((x) => x.textContent.trim() === "Approve").length < k, c, { timeout: 15000 });
+    await a.waitForFunction((k) => [...document.querySelectorAll("button")].filter((x) => x.textContent.trim() === "Approve").length < k, c, { timeout: STEP_MS });
     approved++;
   }
-  check(approved === 10, `step 6 approved ${approved} suggestions (expect 10; opening narration left pending)`);
+  check(approved === 10, `step 6 approved ${approved} suggestions (expect 10 after Apply; opening narration left pending)`);
   await waitTurns("approval turns drained", (t) => t.filter((x) => x.kind === "turn").every(settled));
   await a.getByRole("button", { name: "Close" }).last().click().catch(() => {});
 
   // Step 7: the player declares and commits; the commit turn pauses on one check.roll.
   const playerFile = join(tmp, "player.json");
   writeFileSync(playerFile, JSON.stringify({ username: creds.player.username, password: creds.player.password }), { mode: 0o600 });
-  console.log(execFileSync("node", [join(here, "../../053-env-fake-dm-script/evidence/declare.mjs"), playerFile, sessionId], { encoding: "utf8" }).trim());
+  console.log(execFileSync("node", [join(here, "../../053-env-fake-dm-script/evidence/declare.mjs"), playerFile, sessionId], { encoding: "utf8", timeout: 60000 }).trim());
   await a.goto(playUrl);
   await a.getByRole("button", { name: /Pending proposals/ }).click();
   const rollCard = a.locator("section, article, li, div").filter({ hasText: "Tamsin studies the chained ferry" }).filter({ has: a.getByRole("button", { name: "Approve" }) }).last();
@@ -183,7 +201,7 @@ try {
   check(/\bd20\b|1d20|rolled|roll/i.test(bodyA), "step 9 DM table shows the dice line");
   check(!/DM runtime stopped/.test(bodyA), "step 9 no runtime failure notice");
 
-  const ctxB = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const ctxB = await bounded(await browser.newContext({ viewport: { width: 1280, height: 800 } }));
   const b = await ctxB.newPage();
   await signIn(b, creds.player);
   await b.goto(playUrl);
@@ -216,9 +234,12 @@ try {
   check(proposedRolls.length === 1, `step 10 check.roll proposals: ${proposedRolls.length} (expect 1)`);
   await ctxA.close();
   await ctxB.close();
+  } catch (e) {
+    check(false, `script aborted: ${String(e?.message ?? e).split("\n")[0]}`);
+  }
 } finally {
   rmSync(tmp, { recursive: true, force: true });
-  await browser.close();
+  await browser.close().catch(() => {});
 }
 console.log(failures === 0 ? "ALL CHECKS PASSED" : `${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
