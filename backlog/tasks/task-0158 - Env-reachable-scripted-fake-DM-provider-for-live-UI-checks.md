@@ -33,8 +33,6 @@ Spec: specs/053-env-fake-dm-script
 - [ ] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -51,6 +49,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (7144696, a8318ce): createAiRuntime in dm/script/env.ts, 17 tests red then green. Mutation (STACKS_ENV guard off): 5 refuse cases fail; restored, diff empty. ci:check without a DB fails only the 5 known adjudicate.integration tests; the DB run is Phase 2's.
+
+spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 0/6 · Image, env docs and evidence helpers (card AC #2): 0/5 · Live quickstart run on this worktree's stack (card AC #2): 0/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
