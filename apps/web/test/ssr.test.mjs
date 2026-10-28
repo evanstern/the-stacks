@@ -34,6 +34,12 @@ test("/ signed out shows the sign-in form", async () => {
   assert.match(html, /<form/);
 });
 
+test("/ signed out renders the Have an invitation? control", async () => {
+  const res = await handle(new Request("http://localhost/"), stubContext(null));
+  assert.equal(res.status, 200);
+  assert.match(await res.text(), /Have an invitation\?/);
+});
+
 test("/ as operator redirects to /ask", async () => {
   const res = await handle(
     new Request("http://localhost/"),
