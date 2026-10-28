@@ -33,8 +33,6 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -46,6 +44,8 @@ Operator ruling, 2026-10-28, in the M3 sweep chat, verbatim: "TASK-0168: I accep
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 1 (e8620cec): resume.ts (awaitingActionIds, needsPriorTurns, findResumedPlans, refreshSubmission), red on the missing module then 16/16; TurnCheckpoint.resumed, loadPriorTurnCheckpoints, NodeDeps.loadPriorTurns, worker wiring; 031 resolve.md and nodes.md Amended-by lines; OQ rulings in spec.md. No-DB server run: only the known TASK-0138 adjudicate failures.
+
+spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 0/7 · DB test, scripts and mutation guard (card AC #1): 0/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
