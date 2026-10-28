@@ -40,3 +40,25 @@ Non-target tests over 2.5 s in the baseline:
 
 `bench/load.integration.test.ts` "concurrency-smoke" ran 2303 ms, under the 2 500 ms line.
 It already carries its own timeout.
+
+## Three-run result
+
+Phase 3 (2026-10-28, commit 6b52c1a0): three consecutive `REQUIRE_DATABASE=1 pnpm test` runs, one after another, no re-run. Each exited 0. No timeout, no failure, no `run-failed-<k>.txt` file.
+
+| Run file | Exit | server Test Files | server Tests | web | session-model | dnd5e-engine | srd |
+|---|---|---|---|---|---|---|---|
+| run-1.txt | 0 | 114 passed, 1 skipped (115) | 1266 passed, 5 skipped (1271) | 265 node, 117 vitest | 816 | 240 | 181 |
+| run-2.txt | 0 | 114 passed, 1 skipped (115) | 1266 passed, 5 skipped (1271) | 265 node, 117 vitest | 816 | 240 | 181 |
+| run-3.txt | 0 | 114 passed, 1 skipped (115) | 1266 passed, 5 skipped (1271) | 265 node, 117 vitest | 816 | 240 | 181 |
+
+Slowest duration of each timed test across the three runs (the reporter prints only tests above its slow threshold; the two fastest harness and provider tests print no line):
+
+| Test | run 1 ms | run 2 ms | run 3 ms | Slowest ms | Timeout ms |
+|---|---|---|---|---|---|
+| plays Greyhollow Ford to its end through exploration, social and fight | 2069 | 2016 | 1976 | 2069 | 30 000 |
+| plays the CI scenario to its end and writes the run directory | 2052 | 2039 | 2171 | 2171 | 30 000 |
+| stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112) | 1429 | 1436 | 1493 | 1493 | 30 000 |
+| ends stalled with artifacts saved when the move cap is reached | 835 | 825 | 806 | 835 | 30 000 |
+| plays to the end under a generous ceiling and records spend | 1947 | 1992 | 2052 | 2052 | 30 000 |
+
+The slowest run was 2171 ms, 7.2 percent of the 30 000 ms timeout.
