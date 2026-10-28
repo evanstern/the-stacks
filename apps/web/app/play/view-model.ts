@@ -12,6 +12,7 @@ import { type CommitAuthority, commitAuthorityFor } from "./authority.ts";
 import { actorLabel, characterLabel } from "./labels.ts";
 import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
+import { type SceneChangeView, sceneChangeView } from "./scene-seeds.ts";
 import { type SignoffRowView, signoffRows } from "./signoff.ts";
 
 export interface OrderEntry {
@@ -110,6 +111,8 @@ export interface TableViewModel {
   composer: ComposerView;
   hiddenCount: number;
   isDm: boolean;
+  /** The seeds for the human DM's scene change; null for a player viewer. */
+  sceneChange: SceneChangeView | null;
 }
 
 export interface ViewModelInput {
@@ -334,5 +337,8 @@ export function toTableViewModel(
     hiddenCount:
       d.skippedUnknownType + d.skippedUnknownVersion + d.skippedInvalid,
     isDm,
+    sceneChange: isDm
+      ? sceneChangeView(p, new Set(input.proposals.map((v) => v.proposalId)))
+      : null,
   };
 }
