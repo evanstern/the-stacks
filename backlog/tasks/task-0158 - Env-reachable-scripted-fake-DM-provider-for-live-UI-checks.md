@@ -37,6 +37,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 5039353) stopped with open questions Q1-Q8. Root cause: index.ts builds the gateway with the default FakeProvider (empty queues, not strict), so the director got empty bodies; loadDmScript is test-only and test scripts are not in the image.
 
 Operator ruling, 2026-10-27, verbatim: "TASK-0158: I accept the recommended defaults Q1 to Q8, including the DM_FAKE_SCRIPT name, the shipped dm-scripts directory, the whole-config replacement and the STACKS_ENV boot guard."
+
+Correction: the operator ruling above was given 2026-10-28, not 2026-10-27.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
