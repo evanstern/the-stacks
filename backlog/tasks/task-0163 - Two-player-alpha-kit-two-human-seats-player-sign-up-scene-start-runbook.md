@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:26'
+updated_date: '2026-10-28 05:33'
 labels:
   - multiplayer
   - dev-tooling
@@ -65,6 +65,9 @@ Phase 1 (merge e8befda, 143044b): greyhollow-ford-duo seed, at-least-one-human l
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (a20de88, 68ff701): duo views 7/7 (no DB); loader mutation (a) caught. Orchestrator-run on 68ff701: duo.integration 4/4 passed (scene start, sign-off waits on B, absent B lets A commit, floor passes absent B to odo); mutation (b) duplicate-seat filter off -> 'refuses one user in two seats and accepts two users' fails, restored, diff empty, 15/15; REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed. Observation (not carded yet): the seat snapshot view has no own-character marker.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (aa9c370 bookkeeping, 49391e5 code): inline 'Have an invitation?' redeem on the sign-in card; operator-only Invite a player section on Settings (token shown once, copy). Web tests red then green (97 vitest, 236 node incl. no-dialog). No DOM library, so clicks are covered in Phase 6's browser run. Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on 49391e5: exit 0, server 1261, web 97. T022 to be ticked by the next phase.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
