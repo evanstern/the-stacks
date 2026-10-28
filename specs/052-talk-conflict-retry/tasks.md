@@ -112,31 +112,31 @@ fails, and every other gate integration test still passes.
 
 ### Implementation
 
-- [ ] T010 [US1] In `apps/server/src/gate/gate.ts`, add
+- [x] T010 [US1] In `apps/server/src/gate/gate.ts`, add
       `retryDelayMs?: (attempt: number) => number` to `GateDeps` with a doc comment. Default it
       in `createGate` to `() => 10 + randomInt(0, 41)`.
-- [ ] T011 [US1] In `run` and in `recordPresence`, after a `SeqConflictError` on attempt `n`
+- [x] T011 [US1] In `run` and in `recordPresence`, after a `SeqConflictError` on attempt `n`
       with `n < MAX_ATTEMPTS`, await a sleep of `retryDelayMs(n)` ms, then continue. Do not
       wait after the last attempt. Keep `MAX_ATTEMPTS = 3` and the `CONFLICT` message unchanged.
-- [ ] T012 [US1] In `createGate`, add a private `Map<string, Promise<void>>` of queue tails and
+- [x] T012 [US1] In `createGate`, add a private `Map<string, Promise<void>>` of queue tails and
       a function `inOrder<T>(sessionId, fn: () => Promise<T>): Promise<T>` per research.md R2.
       Chain with `prev.then(fn, fn)`. Store `next.then(noop, noop)` as the tail. Delete the map
       entry when the finished tail is still the current one.
-- [ ] T013 [US1] Wrap the body of `recordPresence` and both `run(...)` calls (in `submit` and
+- [x] T013 [US1] Wrap the body of `recordPresence` and both `run(...)` calls (in `submit` and
       `handle`) in `inOrder`. Keep schema parsing outside the queue, so an `INVALID_PROPOSAL`
       refusal never waits. Keep the `onAppended` calls inside the queued unit.
-- [ ] T014 [US1] Confirm nothing inside a queued write awaits a gate write for the same
+- [x] T014 [US1] Confirm nothing inside a queued write awaits a gate write for the same
       session. Grep every `onAppended(` listener and `apps/server/src/dm/worker.ts`. Record the
       finding in the commit message. A listener that awaits a gate write is a STOP: report it.
-- [ ] T015 [US1] Run the gate integration suite. Every test passes, Phase 1's included. Run the
+- [x] T015 [US1] Run the gate integration suite. Every test passes, Phase 1's included. Run the
       phase gate. Commit as "TASK-0157: Phase 2 — per-session gate queue and jittered retry".
-- [ ] T016 [US1] Mutation check, after the T015 commit. Temporarily change the body of `inOrder`
+- [x] T016 [US1] Mutation check, after the T015 commit. Temporarily change the body of `inOrder`
       to `return fn();`. Run
       `REQUIRE_DATABASE=1 npx vitest run test/gate.integration.test.ts -t "per-session ordering"`
       and confirm at least T002 or T003 fails with a nonzero `conflicts` count. Restore the file
       with `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0157 checkout -- apps/server/src/gate/gate.ts`.
       Re-run the block and confirm it passes.
-- [ ] T017 [US1] Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0157 diff`
+- [x] T017 [US1] Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0157 diff`
       and confirm it is empty. Report the mutation run's failing tests and counts, and the
       restored run's result, in the phase report. Push.
 

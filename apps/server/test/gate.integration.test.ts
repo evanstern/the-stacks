@@ -726,16 +726,14 @@ describe.skipIf(!reachable)("gate — sequence conflicts", () => {
       [3, false],
     ] as const) {
       const calls: number[] = [];
-      // Built outside the call so today's code, which lacks `retryDelayMs`, still typechecks.
-      const deps = {
+      const gate = createGate({
         db: requireDb(),
         appendSessionEvents: conflicting(times),
-        retryDelayMs: (attempt: number) => {
+        retryDelayMs: (attempt) => {
           calls.push(attempt);
           return 0;
         },
-      };
-      const gate = createGate(deps);
+      });
       const result = await gate.submit(randomUUID(), aiDm, entry);
       expect(calls).toEqual([1, 2]);
       if (expectOk) expect(result.ok).toBe(true);
