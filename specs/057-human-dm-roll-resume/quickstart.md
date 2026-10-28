@@ -19,8 +19,9 @@ provider key. Browser automation uses Brave. The UI has no modals. The orchestra
    `DM script mode: greyhollow-human-dm (10 calls, 1 dice)`.
 3. Create the operator in the app container and one player by invitation (055 quickstart step 3).
    Generate passwords randomly. Keep them in an untracked file outside the repo. Never print them.
-4. Run `node specs/057-human-dm-roll-resume/evidence/live-resume.mjs <creds-file>`. It does steps 5
-   to 9 in Brave.
+4. Run `PLAYWRIGHT_CORE=<path inside a dir whose node_modules holds playwright-core> node specs/057-human-dm-roll-resume/evidence/live-resume.mjs <creds-file>`.
+   The creds file is `{"operator":{username,password},"player":{username,password,userId}}`. It does steps 5
+   to 10 in Brave, once per fresh stack.
 5. Seat the operator as human DM and start `greyhollow-ford` (055 `start-human-dm.mjs`).
 6. As the DM, carry out the scene suggestion and approve the 10 non-narration suggestions (055 steps
    6 to 8b).
