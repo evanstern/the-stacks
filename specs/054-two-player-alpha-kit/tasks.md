@@ -180,9 +180,10 @@ from the humans present at the table.
   `apps/web/app/play/source.ts` and `apps/web/app/play/use-live-table.ts`: the signed-in user's
   role and a `startScene(body)` command that posts to `/dm/sessions/<sessionId>/start`. The
   fixture source (`use-fixture-table.ts`) leaves both absent, so fixtures never show the control.
-- [ ] T028 [US3] Wire the header control and the panel in
+- [x] T028 [US3] Wire the header control and the panel in
   `apps/web/app/play/components/table-header.tsx` and `apps/web/app/play/table-view.tsx`. Run
   T023 and T024 green. Confirm `no-dialog.test.mjs` passes. Run `pnpm ci:check`. Commit and push.
+  Orchestrator-run on e4d1fe0: REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1261 passed, web 107 passed.
 
 ---
 
@@ -194,7 +195,7 @@ records the new route and refusal.
 **Independent test**: a reader can follow the new section against `quickstart.md` with no step
 that needs source code.
 
-- [ ] T029 [US3] In `docs/ops/dev-vm-104.md`, add a section `Run a two-player table` after
+- [x] T029 [US3] In `docs/ops/dev-vm-104.md`, add a section `Run a two-player table` after
   `Create the first operator`. Write it in procedural prose: one instruction per sentence,
   imperative, about 20 words at most, one name per concept. Cover, in order: sign in as the
   operator; create an invitation on Settings; send the token by a private channel; the player
@@ -205,7 +206,7 @@ that needs source code.
   page). Name the model-key requirement and point at the `Secrets` section. Name
   `specs/054-two-player-alpha-kit/quickstart.md` and `specs/053-env-fake-dm-script/quickstart.md`
   as the local rehearsal.
-- [ ] T030 [P] [US3] In `specs/031-dm-runtime/contracts/dm-api.md`, add a `GET /dm/seeds` section
+- [x] T030 [P] [US3] In `specs/031-dm-runtime/contracts/dm-api.md`, add a `GET /dm/seeds` section
   that points at `specs/054-two-player-alpha-kit/contracts/dm-seeds.md`, and add rule 3 of
   `contracts/scene-start-seats.md` to the start route's list. Additive only.
 - [ ] T031 [US3] Run `pnpm ci:check`. Commit and push.
