@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 07:53'
+updated_date: '2026-10-28 07:59'
 labels:
   - play-route
   - gate
@@ -25,6 +25,12 @@ Spec: specs/055-human-dm-scene-change
 <!-- AC:BEGIN -->
 - [ ] #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test
 - [ ] #2 A scene suggestion's content can seed that control
+- [ ] #3 Spec phase: The scene request and command (card AC #1)
+- [ ] #4 Spec phase: Seeds and the view model (card AC #2)
+- [ ] #5 Spec phase: The scene panel and the header trigger (card AC #1, card AC #2)
+- [ ] #6 Spec phase: The AI DM resumes in the carried-out scene (card AC #2, SC-002)
+- [ ] #7 Spec phase: Live check in script mode (card AC #1, card AC #2)
+- [ ] #8 Spec phase: Merge, re-ground and close (all ACs)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -38,6 +44,10 @@ Spec author (spec.md, 212a4f8) stopped with open questions OQ-1 to OQ-7. Finding
 Operator ruling, in chat 2026-10-28, verbatim: "TASK-0159: I accept the recommended defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an encounter or changes table mode) in m-3; card DC-2 as a revisit."
 
 Carded per the ruling: DC-1 is TASK-0165 (m-3). DC-2 is TASK-0166 (revisit).
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Spec author resumed (573cafc): resolved OQ-1 to OQ-7 as D-1 to D-7, wrote plan.md, tasks.md (6 phases, 40 tasks), contracts/scene-change.md and quickstart.md. Risks raised: the live check may not show the next AI DM turn running while other scene-start proposals stay pending (T023 stops and raises an open question if so); the operator header keeps offering Start scene while the scene-start suggestion is pending.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
