@@ -33,8 +33,6 @@ Spec: specs/055-human-dm-scene-change
 - [ ] #8 Spec phase: Merge, re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -76,6 +74,8 @@ T023 first DB run (orchestrator): (a) and (b) pass. (c) fails only on its last l
 Orchestrator ruling (Phase 4, OQ from the implementer): an approval turn with no player action ends empty-beat by design (runner.ts), with or without a scene. So the discriminator between (b) and (c) is checkpoint.beat: null on the no-scene path, set once the seed loads. SC-002 is unchanged. Tasks T021 and T028-T030 and quickstart step 8 are reworded to that discriminator. The live check also proves a narrated turn: after the carry-out the DM approves the pending scene-start suggestions, a player declares act-search, and the AI DM narrates it. If that cannot run, Phase 5 stops and raises an open question.
 
 Phase 4 gate (orchestrator): T023 DB test 3/3 at 8f6a283; T024 DB mutations both fail (c) as expected (evidence a40b954). REQUIRE_DATABASE=1 pnpm ci:check run on a40b954.
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
