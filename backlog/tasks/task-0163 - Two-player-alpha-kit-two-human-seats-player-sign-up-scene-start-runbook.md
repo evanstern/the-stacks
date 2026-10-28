@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 06:04'
+updated_date: '2026-10-28 14:44'
 labels:
   - multiplayer
   - dev-tooling
@@ -90,6 +90,9 @@ Phase 7: merge 13f64ae (clean), wiki a8457a9 (10 notes re-pinned, CAPSULES regen
 spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 8/8 · Start scene slide-out (card AC #3): 6/6 · Runbook section and the DM API contract (card AC #3): 3/3 · Local live run on this worktree's stack (card AC #2, #3): 4/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 5/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 0/5
 
 Merged as #79 at 6d6982e under the operator's merge-on-green grant (TASK-0117). Worktree, branch and stack removed; env:prune clean. The card stays In Progress: AC #4 and spec Phase 8 (T041-T045, hosted-dev alpha run) wait on the operator's spend ceiling and go on each vm-104 command.
+
+Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Spending Ceiling: Since we're essentially using my subscription to Claude through 9router, dollar-wise it's fuzzy. I'm pretty happy with doing as high as you'd like -- maybe cap it at $50 and if that causes any issues we can scale down. I'm not actually being charged $50 so it's okay." Read as: a $50 ceiling for the hosted-dev alpha run (AC #4), by the debug page's cost slide-out.
+Operator, 2026-10-28, verbatim: "You have a go on those commands" — the four Phase 8 commands T041-T043: curl /health; gh workflow run deploy-dev.yml + gh run watch only if stale; node scripts/deploy-dev.mjs status; node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
