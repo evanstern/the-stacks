@@ -87,6 +87,7 @@ function pricedProvider(ceilingUsd: number): ProviderRunOptions {
 }
 
 describe.skipIf(!reachable)("provider mode on a priced fake provider", () => {
+  // TASK-0154: 30 s budget; worst measured 2 018 ms (alone 2 018 ms, full run 2 009 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("plays to the end under a generous ceiling and records spend", async () => {
     const out = join(mkdtempSync(join(tmpdir(), "playtest-prov-")), "run");
     const manifest = await runPlaytest({
@@ -111,8 +112,9 @@ describe.skipIf(!reachable)("provider mode on a priced fake provider", () => {
     );
     expect(report.verdict).toBe("pass");
     expect(report.usage.costUsd).toBeGreaterThan(0);
-  });
+  }, 30_000);
 
+  // TASK-0154: 30 s budget; worst measured 252 ms (alone 247 ms, full run 252 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("stops budget-stopped once spend reaches the ceiling", async () => {
     const out = join(mkdtempSync(join(tmpdir(), "playtest-prov-")), "run");
     const manifest = await runPlaytest({
@@ -128,8 +130,9 @@ describe.skipIf(!reachable)("provider mode on a priced fake provider", () => {
     expect(spend?.costUsd).toBeGreaterThanOrEqual(5);
     // Overshoot is bounded by the calls in flight when the ceiling was crossed.
     expect(spend?.costUsd).toBeLessThan(5 + 2 * 8);
-  });
+  }, 30_000);
 
+  // TASK-0154: 30 s budget; worst measured 5 ms (alone 4 ms, full run 5 ms); sized 3x max(measured, 5 s), 30 s floor.
   it("refuses to run under CI even when called directly", async () => {
     const p = pricedProvider(1000);
     await expect(
@@ -141,5 +144,5 @@ describe.skipIf(!reachable)("provider mode on a priced fake provider", () => {
         out: join(tmpdir(), "never-written"),
       }),
     ).rejects.toThrow(/refused under CI/);
-  });
+  }, 30_000);
 });

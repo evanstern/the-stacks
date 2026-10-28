@@ -1,0 +1,203 @@
+@the-stacks/server:test:  ✓ test/bench/retrieval.integration.test.ts (1 test) 14974ms
+@the-stacks/server:test:    ✓ retrieval bench — per-commit recall gate (US2, integration) (1)
+@the-stacks/server:test:      ✓ T020: runs the CI matrix and holds every cell's recall@5 to baseline (invariants 6, 7) 14973ms
+@the-stacks/server:test:  ✓ test/ws.integration.test.ts (26 tests) 6839ms
+@the-stacks/server:test:    ✓ ws gateway (Phases 2-7, integration) (26)
+@the-stacks/server:test:      ✓ US1 — fan-out (T009-T012) (5)
+@the-stacks/server:test:        ✓ T010: a subscriber to session A receives nothing when a message is sent in session B (FR-008) 391ms
+@the-stacks/server:test:      ✓ US3 — the replay/live boundary (T021-T024) (3)
+@the-stacks/server:test:        ✓ T022: subscribing from a cursor while another client is actively sending yields ascending, no-duplicate, no-gap positions (SC-003, quickstart step 2) 827ms
+@the-stacks/server:test:        ✓ T024: subscribing with no cursor replays from the beginning; subscribing from the newest position delivers nothing but stays live (US3 scenarios 3-4) 424ms
+@the-stacks/server:test:      ✓ US4 — visibility filtering at the single send point (T028-T031) (4)
+@the-stacks/server:test:        ✓ T029: a restricted event reaches only its named recipient, and nothing is sent in its place to anyone else (FR-011) 527ms
+@the-stacks/server:test:        ✓ T030: replay applies the same visibility filter as live delivery (US4 scenario 3) 481ms
+@the-stacks/server:test:      ✓ spec 029 — gate delivery and the send path (T039) (6)
+@the-stacks/server:test:        ✓ an uncatalogued type is refused with UNKNOWN_EVENT_TYPE: nothing written, nothing broadcast, the connection still works (TASK-0099) 399ms
+@the-stacks/server:test:        ✓ with a human DM seated, an ask proposal reaches the DM and not a player, live and on replay 1067ms
+@the-stacks/server:test:        ✓ with an AI seat a dm event reaches no connection, and a dm.seat.changed switches later delivery 771ms
+@the-stacks/server:test:  ✓ test/dm/resolve.integration.test.ts (54 tests) 7140ms
+@the-stacks/server:test:    ✓ seed presence (spec 050) (4)
+@the-stacks/server:test:      ✓ two different Director outputs starting reed-camp write identical seed rows 354ms
+@the-stacks/server:test:  ✓ test/playtest/harness.integration.test.ts (4 tests) 4645ms
+@the-stacks/server:test:    ✓ the harness run (database) (4)
+@the-stacks/server:test:      ✓ plays the CI scenario to its end and writes the run directory 2171ms
+@the-stacks/server:test:      ✓ stops declaring for a downed seat and ends stalled with seat-downed (TASK-0112) 1493ms
+@the-stacks/server:test:      ✓ ends stalled with artifacts saved when the move cap is reached 806ms
+@the-stacks/server:test:  ✓ test/library/uploads.integration.test.ts (21 tests) 4672ms
+@the-stacks/server:test:    ✓ POST /library/uploads (US2, integration) (21)
+@the-stacks/server:test:      ✓ T013 (heavy): a large streamed upload lands intact with bounded memory growth 1779ms
+@the-stacks/server:test:  ✓ test/ws.presence.integration.test.ts (7 tests) 3177ms
+@the-stacks/server:test:    ✓ ws presence (integration) (7)
+@the-stacks/server:test:      ✓ a close reaches the other client within the bound 323ms
+@the-stacks/server:test:      ✓ a reconnect inside grace sends no absent snapshot 632ms
+@the-stacks/server:test:      ✓ a client that stops answering pings is terminated and goes absent 428ms
+@the-stacks/server:test:      ✓ multiple tabs of one user count once and survive one closing 627ms
+@the-stacks/server:test:      ✓ a subscribe without presence receives no presence frame (SC-005) 642ms
+@the-stacks/server:test:      ✓ re-subscribing to another table leaves the first 330ms
+@the-stacks/server:test:  ✓ test/bench/load.integration.test.ts (7 tests | 5 skipped) 3298ms
+@the-stacks/server:test:    ✓ load bench — every-commit tier (7)
+@the-stacks/server:test:      ✓ ingest-smoke 976ms
+@the-stacks/server:test:      ✓ concurrency-smoke 2300ms
+@the-stacks/server:test:  ✓ test/dm/reclaim.integration.test.ts (3 tests) 3075ms
+@the-stacks/server:test:    ✓ lease expiry and reclaim (database) (3)
+@the-stacks/server:test:      ✓ a crash after any resolve submission reclaims to the uninterrupted log (SC-005) 1594ms
+@the-stacks/server:test:      ✓ a crash after the narration lands reclaims without a second narration 741ms
+@the-stacks/server:test:      ✓ a second crash after the tracker lands reclaims to the same log, each step once 738ms
+@the-stacks/server:test:  ✓ test/auth.integration.test.ts (15 tests) 2789ms
+@the-stacks/server:test:    ✓ session auth (US1-US4, integration) (15)
+@the-stacks/server:test:      ✓ T034: redeeming an already-redeemed or expired invitation is refused 315ms
+@the-stacks/server:test:      ✓ TASK-0032: redeeming with a taken username is a conflict, not a 500 434ms
+@the-stacks/server:test:      ✓ T035: simultaneous redemptions of one invitation create exactly one account (SC-005) 424ms
+@the-stacks/server:test:  ✓ test/dm/floor-jobs.integration.test.ts (13 tests) 3042ms
+@the-stacks/server:test:    ✓ floor jobs (database) (13)
+@the-stacks/server:test:      ✓ re-arms after a restart 1058ms
+@the-stacks/server:test:  ✓ test/gate.integration.test.ts (32 tests) 2992ms
+@the-stacks/server:test:    ✓ gate — per-session ordering (6)
+@the-stacks/server:test:      ✓ 3 senders × 5 lines, one in flight each: every line lands, zero CONFLICT 1040ms
+@the-stacks/server:test:      ✓ 5 senders × 20 lines into a 500-event log: zero CONFLICT 1185ms
+@the-stacks/server:test:  ✓ test/playtest/provider.integration.test.ts (3 tests) 2305ms
+@the-stacks/server:test:    ✓ provider mode on a priced fake provider (3)
+@the-stacks/server:test:      ✓ plays to the end under a generous ceiling and records spend 2052ms
+@the-stacks/server:test:  ✓ test/dm/worker.integration.test.ts (14 tests) 2068ms
+@the-stacks/server:test:    ✓ DM worker presence marker (database) (4)
+@the-stacks/server:test:      ✓ records one director marker per turn job and stores presenceSeq 305ms
+@the-stacks/server:test:    ✓ DM worker usage ledger (database) (4)
+@the-stacks/server:test:      ✓ an aborted attempt leaves an aborted row; the reclaim's rows carry the higher job_attempt 360ms
+@the-stacks/server:test:  ✓ test/playtest/playtest.integration.test.ts (1 test) 2021ms
+@the-stacks/server:test:    ✓ the CI playtest with its audit (AC #3) (1)
+@the-stacks/server:test:      ✓ plays the scenario and the auditor reports pass 2018ms
+@the-stacks/server:test:  ✓ test/dm/scene.integration.test.ts (2 tests) 1993ms
+@the-stacks/server:test:    ✓ the whole scene (database) (1)
+@the-stacks/server:test:      ✓ plays Greyhollow Ford to its end through exploration, social and fight 1976ms
+@the-stacks/server:test:  ✓ test/dm/companion-react.integration.test.ts (18 tests) 2081ms
+@the-stacks/server:test:    ✓ companion react resolution (database) (6)
+@the-stacks/server:test:      ✓ M2 e8c848ec seq 35-38: a human reaction re-runs Odo and closes act-odo-1 473ms
+@the-stacks/server:test:      ✓ five human comments inside the window run Odo once, and the prompt carries all five 399ms
+@the-stacks/server:test:    ✓ companion withdraw and revise (database) (6)
+@the-stacks/server:test:      ✓ an objection then a withdraw closes act-odo-1 and queues no turn job 307ms
+@the-stacks/server:test:  ✓ test/library/ask.integration.test.ts (10 tests) 1510ms
+@the-stacks/server:test:    ✓ POST /library/ask — US2 refuse when nothing is relevant (integration) (2)
+@the-stacks/server:test:      ✓ T017: vector mode — below-floor similarity refuses; an above-floor chunk gets the model called 307ms
+@the-stacks/server:test:  ✓ test/gate.restart.integration.test.ts (1 test) 1275ms
+@the-stacks/server:test:    ✓ proposal gate — server restart (AC #9) (1)
+@the-stacks/server:test:      ✓ keeps pending proposals, lets the DM approve one, and never shows a player any 1274ms
+@the-stacks/server:test:  ✓ test/dm/duo.integration.test.ts (4 tests) 1236ms
+@the-stacks/server:test:    ✓ two humans at one table (database) (4)
+@the-stacks/server:test:      ✓ scene start seats tamsin and kestrel as players and odo as the companion 302ms
+@the-stacks/server:test:      ✓ in turn mode the floor passes an absent kestrel player's turn to odo 386ms
+@the-stacks/server:test:  ✓ test/health.test.ts (4 tests) 1028ms
+@the-stacks/server:test:    ✓ GET /health (4)
+@the-stacks/server:test:      ✓ answers within the 5-second bound when the database connection hangs 1009ms
+@the-stacks/server:test:  ✓ test/library/worker.integration.test.ts (12 tests) 892ms
+@the-stacks/server:test:  ✓ test/gate.floor.integration.test.ts (6 tests) 820ms
+@the-stacks/server:test:  ✓ test/dm/turn-floor-round.integration.test.ts (1 test) 736ms
+@the-stacks/server:test:    ✓ turn floor, a full round (database) (1)
+@the-stacks/server:test:      ✓ passes the floor Ana, Bram, Pip, the goblin, then Ana in round 2 734ms
+@the-stacks/server:test:  ✓ test/dm/routes.integration.test.ts (15 tests) 635ms
+@the-stacks/server:test:  ✓ test/dm/human-dm-scene.integration.test.ts (3 tests) 711ms
+@the-stacks/server:test:    ✓ human DM carries out a scene suggestion (database) (3)
+@the-stacks/server:test:      ✓ (c) scene request then dismiss: the approval turn loads the seed and runs assemble 308ms
+@the-stacks/server:test:  ✓ test/auth.password.test.ts (5 tests) 592ms
+@the-stacks/server:test:  ✓ test/dm/audit.integration.test.ts (6 tests) 605ms
+@the-stacks/server:test:  ✓ test/dm/companion.integration.test.ts (8 tests) 625ms
+@the-stacks/server:test:  ✓ test/dm/beat.integration.test.ts (1 test) 559ms
+@the-stacks/server:test:    ✓ the beat queue (database) (1)
+@the-stacks/server:test:      ✓ queues one turn for actions committed during a turn, resolved in commit order 557ms
+@the-stacks/server:test:  ✓ test/dm/encounter-end-resolves.integration.test.ts (1 test) 520ms
+@the-stacks/server:test:    ✓ an encounter-ending action (database) (1)
+@the-stacks/server:test:      ✓ resolves Odo's bargain applied before the encounter ends (rows 260-265) 519ms
+@the-stacks/server:test:  ✓ test/session.integration.test.ts (18 tests) 464ms
+@the-stacks/server:test:  ✓ test/dm/full-turn.integration.test.ts (1 test) 465ms
+@the-stacks/server:test:    ✓ one full turn (database) (1)
+@the-stacks/server:test:      ✓ runs the search turn end to end and passes its audit 463ms
+@the-stacks/server:test:  ✓ test/dm/chronicle.integration.test.ts (4 tests) 468ms
+@the-stacks/server:test:    ✓ chronicle (database) (4)
+@the-stacks/server:test:      ✓ runs a committed action to a finished turn and queues one chronicle that writes a journal entry 357ms
+@the-stacks/server:test:  ✓ test/dm/script-env.integration.test.ts (1 test) 362ms
+@the-stacks/server:test:    ✓ script mode through the DM worker (database) (1)
+@the-stacks/server:test:      ✓ narrates a scene-start from the env-built runtime 360ms
+@the-stacks/server:test:  ✓ test/bench/load-db.integration.test.ts (1 test) 335ms
+@the-stacks/server:test:    ✓ load database isolation (integration) (1)
+@the-stacks/server:test:      ✓ recreateLoadDb creates and migrates the load database; refuses while it is in use; succeeds again once free 333ms
+@the-stacks/server:test:  ✓ test/events.integration.test.ts (13 tests) 253ms
+@the-stacks/server:test:  ✓ test/write-boundary.test.ts (5 tests) 254ms
+@the-stacks/server:test:  ✓ test/dm/jobs.integration.test.ts (21 tests) 343ms
+@the-stacks/server:test:  ✓ test/gate.presence.integration.test.ts (7 tests) 197ms
+@the-stacks/server:test:  ✓ test/dm/boundary.test.ts (3 tests) 234ms
+@the-stacks/server:test:  ✓ test/bench/retrieval.test.ts (26 tests) 223ms
+@the-stacks/server:test:  ✓ test/library/store.integration.test.ts (11 tests) 195ms
+@the-stacks/server:test:  ✓ test/gate.signoff.integration.test.ts (8 tests) 240ms
+@the-stacks/server:test:  ✓ test/bench/load.test.ts (28 tests) 205ms
+@the-stacks/server:test:  ✓ test/playtest/audit.test.ts (12 tests) 178ms
+@the-stacks/server:test:  ✓ test/dm/runner.test.ts (16 tests) 199ms
+@the-stacks/server:test:  ✓ test/library/ddb.perf.test.ts (1 test) 164ms
+@the-stacks/server:test:  ✓ test/dm/resolve.human-seat.integration.test.ts (1 test) 176ms
+@the-stacks/server:test:  ✓ test/playtest/checks.test.ts (15 tests) 137ms
+@the-stacks/server:test:  ✓ test/library/retrieve.integration.test.ts (13 tests) 146ms
+@the-stacks/server:test:  ✓ test/dm/claim-evidence.test.ts (18 tests) 134ms
+@the-stacks/server:test:  ✓ test/dm/audit.test.ts (46 tests) 150ms
+@the-stacks/server:test:  ✓ test/library/jobs.integration.test.ts (10 tests) 156ms
+@the-stacks/server:test:  ✓ test/dm/adjudicate.integration.test.ts (5 tests) 131ms
+@the-stacks/server:test:  ✓ test/playtest/cli.test.ts (11 tests) 118ms
+@the-stacks/server:test:  ✓ test/playtest/stats.test.ts (3 tests) 75ms
+@the-stacks/server:test:  ✓ test/dm/claims.test.ts (59 tests) 84ms
+@the-stacks/server:test:  ✓ test/dm/narrate.test.ts (14 tests) 89ms
+@the-stacks/server:test:  ✓ test/dm/fallback.test.ts (16 tests) 87ms
+@the-stacks/server:test:  ✓ test/dm/assemble.test.ts (19 tests) 82ms
+@the-stacks/server:test:  ✓ test/dm/seed.test.ts (35 tests) 83ms
+@the-stacks/server:test:  ✓ test/dm/snapshot.test.ts (21 tests) 78ms
+@the-stacks/server:test:  ✓ test/db.test.ts (11 tests) 64ms
+@the-stacks/server:test:  ✓ test/dm/interpret.test.ts (6 tests) 62ms
+@the-stacks/server:test:  ✓ test/playtest/scenario.test.ts (9 tests) 65ms
+@the-stacks/server:test:  ✓ test/library/collect.test.ts (10 tests) 86ms
+@the-stacks/server:test:  ✓ test/dm/interpret-prompt.test.ts (6 tests) 56ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-diff.test.ts (10 tests) 51ms
+@the-stacks/server:test:  ✓ test/dm/director-capture.test.ts (5 tests) 50ms
+@the-stacks/server:test:  ✓ test/dm/enqueue-floor.integration.test.ts (6 tests) 32ms
+@the-stacks/server:test:  ✓ test/dm/narration-quality-repro.test.ts (11 tests) 48ms
+@the-stacks/server:test:  ✓ test/dm/model-calls.integration.test.ts (4 tests) 35ms
+@the-stacks/server:test:  ✓ test/ai.openai-compatible.test.ts (15 tests) 31ms
+@the-stacks/server:test:  ✓ test/dm/facts.test.ts (18 tests) 30ms
+@the-stacks/server:test:  ✓ test/echo.test.ts (7 tests) 27ms
+@the-stacks/server:test:  ✓ test/library/zip.test.ts (11 tests) 27ms
+@the-stacks/server:test:  ✓ test/static.test.ts (6 tests) 26ms
+@the-stacks/server:test:  ✓ test/ws.subscribe.test.ts (4 tests) 29ms
+@the-stacks/server:test:  ✓ test/dm/snapshot-render.test.ts (11 tests) 21ms
+@the-stacks/server:test:  ✓ test/ai.retry.test.ts (18 tests) 20ms
+@the-stacks/server:test:  ✓ test/library/ddb.test.ts (25 tests) 18ms
+@the-stacks/server:test:  ✓ test/dm/director.test.ts (18 tests) 16ms
+@the-stacks/server:test:  ✓ test/dm/script-env.test.ts (17 tests) 19ms
+@the-stacks/server:test:  ✓ test/ai.gateway.test.ts (17 tests) 11ms
+@the-stacks/server:test:  ✓ test/dm/plan-gate.test.ts (21 tests) 13ms
+@the-stacks/server:test:  ✓ test/library/answer.test.ts (25 tests) 11ms
+@the-stacks/server:test:  ✓ test/dm/call.test.ts (20 tests) 9ms
+@the-stacks/server:test:  ✓ test/dm/script.test.ts (5 tests) 9ms
+@the-stacks/server:test:  ✓ test/dm/dm-scripts.test.ts (5 tests) 8ms
+@the-stacks/server:test:  ✓ test/dm/presence-effect.test.ts (5 tests) 10ms
+@the-stacks/server:test:  ✓ test/playtest/schema.test.ts (7 tests) 8ms
+@the-stacks/server:test:  ✓ test/dm/director-normalize.test.ts (15 tests) 9ms
+@the-stacks/server:test:  ✓ test/ai.sse.test.ts (7 tests) 11ms
+@the-stacks/server:test:  ✓ test/playtest/budget.test.ts (13 tests) 9ms
+@the-stacks/server:test:  ✓ test/library/markdown.test.ts (9 tests) 8ms
+@the-stacks/server:test:  ✓ test/library/retrieve.test.ts (16 tests) 7ms
+@the-stacks/server:test:  ✓ test/library/cite.test.ts (15 tests) 7ms
+@the-stacks/server:test:  ✓ test/dm/rules-terms.test.ts (9 tests) 10ms
+@the-stacks/server:test:  ✓ test/dm/interpret-capture.test.ts (3 tests) 7ms
+@the-stacks/server:test:  ✓ test/dm/player-facing-prompts.test.ts (6 tests) 7ms
+@the-stacks/server:test:  ✓ test/library/chunk.test.ts (9 tests) 6ms
+@the-stacks/server:test:  ✓ test/ws.protocol.test.ts (7 tests) 5ms
+@the-stacks/server:test:  ✓ test/dm/seed-npc-presence.test.ts (5 tests) 6ms
+@the-stacks/server:test:  ✓ test/ai.config.test.ts (8 tests) 6ms
+@the-stacks/server:test:  ✓ test/dm/duo-views.test.ts (7 tests) 7ms
+@the-stacks/server:test:  ✓ test/dm/doctrine.test.ts (5 tests) 6ms
+@the-stacks/server:test:  ✓ test/playtest/driver.test.ts (14 tests) 5ms
+@the-stacks/server:test:  ✓ test/presence.tracker.test.ts (9 tests) 5ms
+@the-stacks/server:test:  ✓ test/library/store.test.ts (6 tests) 5ms
+@the-stacks/server:test:  ✓ test/events.test.ts (2 tests) 3ms
+@the-stacks/server:test:  ✓ test/ai.usage.test.ts (3 tests) 3ms
+@the-stacks/server:test:  ✓ test/playtest/db.test.ts (2 tests) 3ms
+@the-stacks/server:test:  ✓ test/playtest/dice.test.ts (3 tests) 3ms
+@the-stacks/server:test:  ✓ test/config.test.ts (5 tests) 3ms
+@the-stacks/server:test:  Test Files  114 passed | 1 skipped (115)
+@the-stacks/server:test:       Tests  1266 passed | 5 skipped (1271)
+@the-stacks/server:test:     Isolate  115 workers spawned · ~79ms startup each (spawn + environment, per file)

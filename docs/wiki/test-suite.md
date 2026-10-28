@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 93 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. static.test.ts now tests createWebMiddleware's handler seam, including the load context's jobs() (TASK-0028). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
+description: What this note's 12 core server test files / 93 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. DB scene and playtest tests carry load-sized timeouts (TASK-0154). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -22,12 +22,15 @@ sources:
   - apps/server/test/bench/load.test.ts
   - apps/server/test/bench/load.integration.test.ts
   - apps/server/test/bench/load-db.integration.test.ts
+  - apps/server/test/dm/scene.integration.test.ts
+  - apps/server/test/playtest/harness.integration.test.ts
+  - apps/server/test/playtest/provider.integration.test.ts
   - apps/server/package.json
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
+verified_against: 9a5fae22a747c0f4d800eaf5f9887fb4e1c7f7e1
 ---
 
 # Test suite
@@ -83,13 +86,7 @@ exists to run.
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
 resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **48
-tests pass, 45 skip**, out of 93 (TASK-0095 added one gated case to `ws.subscribe.test.ts`,
-whose file still reports as passing because its other two tests run; TASK-0024 added `config.test.ts`'s 5 always-run cases and one
-case to `echo.test.ts`'s gated-free `describe`, on top of TASK-0032's `isUniqueViolation`
-cases; TASK-0040 added one gated case to `auth.integration.test.ts` and rewrote
-`static.test.ts` onto the new web-middleware seam, netting no change to the file's own test
-count at the time; TASK-0028 added one always-run case to `static.test.ts` for the load
-context's `jobs()`; a later `favicon` case asserts `/favicon.ico` answers 204 without calling the handler). A green run in this state proves the unit-level behavior only; every
+tests pass, 45 skip**, out of 93 (TASK-0095 added one gated case to `ws.subscribe.test.ts`, whose file still reports as passing because its other two tests run; TASK-0024 added `config.test.ts`'s 5 always-run cases and one `echo.test.ts` case; TASK-0028 added one `static.test.ts` case; a `favicon` case asserts `/favicon.ico` answers 204). A green run in this state proves the unit-level behavior only; every
 session-auth flow, every event-log write/read, and the entire WebSocket gateway (including
 [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
 pass/fail summary, not the warning text, would not notice. With a reachable database and
@@ -100,6 +97,11 @@ package — every suite in this note's scope included — because [[ingestion]]'
 suites share one real Postgres `jobs` queue across files; see that note for the full race it
 closes. This only serializes file execution order, changing nothing about any individual
 suite's pass/fail outcome.
+
+The DB tests in `dm/scene.integration.test.ts`, `playtest/harness.integration.test.ts` and
+`playtest/provider.integration.test.ts` set per-test timeouts of 3x the measured worst case, 30 s
+floor (TASK-0154). The default stays 5 s. The load is turbo running every package at once;
+`fileParallelism: false` already serialises server files.
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` `apps/server`,
