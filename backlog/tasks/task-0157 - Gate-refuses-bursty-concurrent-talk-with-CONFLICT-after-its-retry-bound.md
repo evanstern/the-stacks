@@ -26,12 +26,14 @@ Spec: specs/052-talk-conflict-retry
 <!-- AC:BEGIN -->
 - [ ] #1 A test with at least 3 concurrent human talk senders shows no CONFLICT reaches the client, or the play-route client resends and the talk lands once
 - [ ] #2 The chosen retry policy is documented in the gate contract
-- [ ] #3 Spec phase: Failing gate-level zero-CONFLICT tests (card AC #1)
+- [x] #3 Spec phase: Failing gate-level zero-CONFLICT tests (card AC #1)
 - [ ] #4 Spec phase: Per-session queue and jittered retry (card AC #1)
 - [ ] #5 Spec phase: WebSocket burst test, resend workaround removed, client label (card AC #1)
 - [ ] #6 Spec phase: Gate contract amendment (card AC #2)
 - [ ] #7 Spec phase: Wiki re-ground and runbook rows (card AC #1, AC #2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
