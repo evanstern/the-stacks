@@ -75,6 +75,12 @@ const post = (
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
+const get = (
+  app: ReturnType<typeof appWith>,
+  path: string,
+  cookie: string | null,
+) => app.request(path, { headers: cookie ? { cookie } : {} });
+
 describe.skipIf(!reachable)("DM routes (database)", () => {
   it("starts a scene: 202 and a scene-start job; a second start is 409", async () => {
     const nudges = { count: 0 };
@@ -82,6 +88,10 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     const { cookie, userId } = await cookieFor("operator");
     const sessionId = randomUUID();
     const body = { seedId: "greyhollow-ford", seats: { tamsin: userId } };
+
+    const before = await get(app, `/dm/sessions/${sessionId}/start`, cookie);
+    expect(before.status).toBe(200);
+    expect(await before.json()).toEqual({ state: "none" });
 
     const first = await post(
       app,
@@ -101,6 +111,9 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     expect(input.start.seedId).toBe("greyhollow-ford");
     expect(nudges.count).toBe(1);
 
+    const queued = await get(app, `/dm/sessions/${sessionId}/start`, cookie);
+    expect(await queued.json()).toEqual({ state: "queued" });
+
     const second = await post(
       app,
       `/dm/sessions/${sessionId}/start`,
@@ -108,9 +121,48 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
       body,
     );
     expect(second.status).toBe(409);
-    expect(
-      ((await second.json()) as { error: { kind: string } }).error.kind,
-    ).toBe("conflict");
+    const secondJson = (await second.json()) as {
+      error: { kind: string; message: string };
+    };
+    expect(secondJson.error.kind).toBe("conflict");
+    expect(secondJson.error.message).toBe("A scene start is already queued.");
+  });
+
+  it("GET start: 401 with no cookie, 403 for a player, 400 for a bad session id", async () => {
+    const app = appWith({ count: 0 });
+    const operatorAuth = await cookieFor("operator");
+    const playerAuth = await cookieFor("player");
+    const sessionId = randomUUID();
+    const none = await get(app, `/dm/sessions/${sessionId}/start`, null);
+    expect(none.status).toBe(401);
+    const forbidden = await get(
+      app,
+      `/dm/sessions/${sessionId}/start`,
+      playerAuth.cookie,
+    );
+    expect(forbidden.status).toBe(403);
+    const bad = await get(
+      app,
+      "/dm/sessions/not-a-uuid/start",
+      operatorAuth.cookie,
+    );
+    expect(bad.status).toBe(400);
+  });
+
+  it("a session with a committed scene reads started and its start is 409", async () => {
+    const app = appWith({ count: 0 });
+    const { cookie, userId } = await cookieFor("operator");
+    const w = await createWorld();
+    await startScene(w);
+    const state = await get(app, `/dm/sessions/${w.sessionId}/start`, cookie);
+    expect(await state.json()).toEqual({ state: "started" });
+    const res = await post(app, `/dm/sessions/${w.sessionId}/start`, cookie, {
+      seedId: "greyhollow-ford",
+      seats: { tamsin: userId },
+    });
+    expect(res.status).toBe(409);
+    const json = (await res.json()) as { error: { message: string } };
+    expect(json.error.message).toBe("The session already has a scene.");
   });
 
   it("rejects a bad seed id with 400 and issues", async () => {

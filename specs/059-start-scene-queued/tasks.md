@@ -5,8 +5,8 @@
 **Board task**: TASK-0167. Card AC #1: the header hides or disables Start scene once the session
 has a queued or pending scene start, with a test.
 
-**Prerequisites**: the operator rules OQ-1 to OQ-4 (spec.md). The tasks below implement (a) for
-each. A different ruling changes the tasks tagged with that OQ.
+**Prerequisites**: the operator ruled OQ-1 to OQ-4 (a) on 2026-10-28 (spec.md). The tasks below
+implement (a) for each.
 
 **Dispatch**: one phase is one implementer dispatch (sonnet), re-grounded from this spec dir and the
 branch commits. Tasks marked **[orchestrator]** are run by the orchestrator. Work only in
@@ -23,7 +23,7 @@ suites skip without a database) and one commit led by `TASK-0167:`. No modal. Do
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/scene-start.test.ts`;
 the DB cases run in Phase 3.
 
-- [ ] T001 Create `apps/server/test/dm/scene-start.test.ts`. Build projections with
+- [x] T001 Create `apps/server/test/dm/scene-start.test.ts`. Build projections with
       `project([], { role: "dm" })` and edit `scene` and `proposals` per case. Cases: empty →
       `none`; a scene → `started`; a `queued` and a `running` `scene-start` job → `queued`; a
       `succeeded` `scene-start` job → `none`; a `queued` job with trigger `manual` → `none`; a
@@ -31,38 +31,38 @@ the DB cases run in Phase 3.
       `rejected` → `none`; a pending `scene` proposal by a human proposer → `none`; a pending
       `ai:dm` `scene` proposal with `after: null` → `none`; a scene plus a queued job → `started`.
       See it fail (no module).
-- [ ] T002 Create `apps/server/src/dm/scene-start.ts` per `contracts/scene-start-state.md`
+- [x] T002 Create `apps/server/src/dm/scene-start.ts` per `contracts/scene-start-state.md`
       ("The predicate"). Export `SceneStartState`, `sceneStartState` and
       `START_CONFLICT_MESSAGE: Record<Exclude<SceneStartState, "none">, string>`. Pure: no import
       from `db` or `routes`. T001 passes.
-- [ ] T003 In `apps/server/test/dm/human-dm-scene.integration.test.ts`, add case (e): after
+- [x] T003 In `apps/server/test/dm/human-dm-scene.integration.test.ts`, add case (e): after
       `humanDmWorld()`, a second `POST /dm/sessions/:id/start` as the operator returns 409 with
       message `A scene start is waiting for the DM.`, and the session's turn jobs still hold exactly
       one `scene-start` job. Build the app as `routes.integration.test.ts` does (`appWith`,
       `cookieFor("operator")`), against the world's session id and database. Run it red against
       today's route on a database **[orchestrator if no DB]**; if it is not red, follow plan.md
       "Risks" and report.
-- [ ] T004 In the same file, add case (f): `GET /dm/sessions/:id/start` returns
+- [x] T004 In the same file, add case (f): `GET /dm/sessions/:id/start` returns
       `{ "state": "pending" }` after `humanDmWorld()`; after the DM carries out the suggestion
       (reuse case (b)'s steps) it returns `{ "state": "started" }`.
-- [ ] T005 Add case (g) (OQ-3 (a)): after Dismiss (reject the pending suggestion as the DM), GET
+- [x] T005 Add case (g) (OQ-3 (a)): after Dismiss (reject the pending suggestion as the DM), GET
       returns `{ "state": "none" }`.
-- [ ] T006 In `apps/server/src/routes/dm.ts`, replace the POST's two conflict checks with
+- [x] T006 In `apps/server/src/routes/dm.ts`, replace the POST's two conflict checks with
       `sceneStartState(projections, await listDmJobs(db, sessionId, 100, "turn"))`. Throw
       `ConflictError(START_CONFLICT_MESSAGE[state])` for every state but `none`. Keep validation
       first and the `enqueueTurn` not-inserted 409 as is.
-- [ ] T007 Add `route.get("/sessions/:sessionId/start", …)`: `requireOperator`, `sessionIdOf`, the
+- [x] T007 Add `route.get("/sessions/:sessionId/start", …)`: `requireOperator`, `sessionIdOf`, the
       same two reads, `c.json({ state })`. No other field.
-- [ ] T008 In `apps/server/test/dm/routes.integration.test.ts`, extend "starts a scene": GET before
+- [x] T008 In `apps/server/test/dm/routes.integration.test.ts`, extend "starts a scene": GET before
       the first POST is `none`; after it, `queued`; the second POST's message is
       `A scene start is already queued.` Add: GET with no cookie is 401, as a player is 403, with a
       bad session id is 400. Add: a session with a committed scene (reuse the file's existing
       setup or the world helper) returns `started`, and its POST message is
       `The session already has a scene.`
-- [ ] T009 Amend `specs/031-dm-runtime/contracts/dm-api.md`: a dated "Amendment, TASK-0167
+- [x] T009 Amend `specs/031-dm-runtime/contracts/dm-api.md`: a dated "Amendment, TASK-0167
       (additive)" block after the start route, with step 3 as amended and the GET, citing
       `specs/059-start-scene-queued/contracts/scene-start-state.md`. Do not rewrite earlier text.
-- [ ] T010 Run `pnpm ci:check`. Report the pure test count and that the DB cases skip.
+- [x] T010 Run `pnpm ci:check`. Report the pure test count and that the DB cases skip.
 
 ## Phase 2: The live source and the header (card AC #1; OQ-2, OQ-4)
 

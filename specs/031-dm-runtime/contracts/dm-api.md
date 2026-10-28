@@ -36,6 +36,22 @@ rule 3): no user id holds two seats. A user id that already holds an earlier sea
 character order, adds an issue at `seats.<id>`: `A user can hold only one seat.` The response
 is `400 validation`, and no job is enqueued. `loadSeed` now accepts one or more human seats.
 
+> Amendment, TASK-0167, 2026-10-28 (additive). The operator ruled OQ-1 (a) of spec 059. Source:
+> `specs/059-start-scene-queued/contracts/scene-start-state.md`. Nothing above is rewritten.
+
+Start route, step 3 as amended: compute `sceneStartState(projection, turnJobs)` from the DM
+projection and the session's turn jobs. Any state but `none` is `409 conflict`, with the message
+for that state. `started`: `The session already has a scene.` `queued`: `A scene start is already
+queued.` `pending`: `A scene start is waiting for the DM.` (new: a pending `ai:dm` `scene`
+proposal with a non-null `after`, the human-DM path). Steps 1, 2 and 4 are unchanged.
+
+## GET /dm/sessions/:sessionId/start
+
+Operator only (401 with no session, 403 when not operator, `400 validation` for a bad
+`sessionId`). Responds `200` with `{ "state": "none" | "queued" | "pending" | "started" }`, from
+the same function and inputs as the POST's step 3. An unknown session returns `none`. The body
+holds no other field.
+
 ## GET /dm/seeds
 
 Operator only. Lists the shipped seeds that load, with each seed's humans and companions.

@@ -15,6 +15,7 @@ import {
 } from "../dm/jobs.js";
 import { listModelCalls, modelCallTotals } from "../dm/model-calls.js";
 import type { AuditRecord } from "../dm/nodes/audit.js";
+import { START_CONFLICT_MESSAGE, sceneStartState } from "../dm/scene-start.js";
 import { listSeeds, loadSeed, SeedError } from "../dm/seed/load.js";
 import { dmOnlySeedPaths } from "../dm/seed/views.js";
 import {
@@ -253,15 +254,12 @@ export function createDmRoutes({
     if (issues.length > 0) throw new ValidationError(issues);
 
     const projections = await loadProjections(sessionId);
-    if (projections.scene !== null) {
-      throw new ConflictError("The session already has a scene.");
-    }
-    const pending = (await listDmJobs(db, sessionId, 100, "turn")).some(
-      (j) =>
-        (j.status === "queued" || j.status === "running") &&
-        (j.input as { trigger?: string }).trigger === "scene-start",
+    const state = sceneStartState(
+      projections,
+      await listDmJobs(db, sessionId, 100, "turn"),
     );
-    if (pending) throw new ConflictError("A scene start is already queued.");
+    if (state !== "none")
+      throw new ConflictError(START_CONFLICT_MESSAGE[state]);
 
     const result = await enqueueTurn(db, sessionId, "scene-start", null, {
       start: body.data,
@@ -271,6 +269,17 @@ export function createDmRoutes({
     }
     nudge();
     return c.json({ jobId: result.jobId }, 202);
+  });
+
+  route.get("/sessions/:sessionId/start", async (c) => {
+    requireOperator(c);
+    const sessionId = sessionIdOf(c.req.param("sessionId"));
+    const projections = await loadProjections(sessionId);
+    const state = sceneStartState(
+      projections,
+      await listDmJobs(db, sessionId, 100, "turn"),
+    );
+    return c.json({ state });
   });
 
   route.post("/sessions/:sessionId/turn", async (c) => {

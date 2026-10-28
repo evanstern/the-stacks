@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. Open questions OQ-1 to OQ-4 wait for the operator.
+**Status**: Draft. The operator ruled OQ-1 to OQ-4 (a) on 2026-10-28.
 
 **Input**: TASK-0167. "After the operator starts a scene, the table header stops offering 'Start
 scene' while the scene-start suggestion is pending." Evidence: the TASK-0159 spec author found that
@@ -185,6 +185,8 @@ and the hook helper tests (T012).
 
 ## Open questions
 
+Operator ruling, 2026-10-28, answering "Do you accept the recommended defaults (a) for TASK-0167's OQ-1 to OQ-4?": "Accept all (a)".
+
 ### OQ-1 — Does the start route refuse a start while the scene suggestion is pending?
 
 Today the route does not see the pending suggestion (Background 5). The brief requires the header
@@ -200,6 +202,8 @@ to use the route's own predicate.
   (read the last succeeded `scene-start` job). A dismissed suggestion then never re-enables a
   start (see OQ-3).
 
+Ruling: (a)
+
 ### OQ-2 — How does the operator's header learn that the state changed?
 
 The operator often sits as a player, so the dm-only proposal rows that move the state
@@ -212,6 +216,8 @@ The operator often sits as a player, so the dm-only proposal rows that move the 
   timer. A dismissed suggestion leaves the button hidden until some public event or a reload.
 - (c) Fetch only on catch-up and after a start result. Simplest; the header goes stale until reload.
 
+Ruling: (a)
+
 ### OQ-3 — After the DM dismisses the scene-start suggestion, may the operator start again?
 
 - **(a) Recommended.** Yes. Nothing is pending and no scene exists, so the state is `none` and the
@@ -221,6 +227,8 @@ The operator often sits as a player, so the dm-only proposal rows that move the 
   (this is OQ-1 (c)). The operator then has no way out from the table if the DM dismissed by
   mistake; the DM must carry out an earlier suggestion from "Change scene".
 
+Ruling: (a)
+
 ### OQ-4 — What does the header say while the suggestion waits for the DM?
 
 - **(a) Recommended.** Two texts. `queued`: "Scene start queued." (unchanged). `pending`: "Scene
@@ -228,3 +236,5 @@ The operator often sits as a player, so the dm-only proposal rows that move the 
   `startQueued?: boolean`; `ui-surfaces.md` gets an additive note.
 - (b) One text, "Scene start queued.", for both. `TableHeader` is unchanged. The operator cannot
   tell a slow job from a DM who has not acted.
+
+Ruling: (a)
