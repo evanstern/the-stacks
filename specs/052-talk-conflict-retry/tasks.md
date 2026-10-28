@@ -62,7 +62,7 @@ fails, and every other gate integration test still passes.
 
 ### Tests first
 
-- [ ] T001 [US1] In `apps/server/test/gate.integration.test.ts`, add a
+- [x] T001 [US1] In `apps/server/test/gate.integration.test.ts`, add a
       `describe.skipIf(!reachable)("gate — per-session ordering", …)` block. Add a local helper
       `talk(text)` that returns
       `{ kind: "talk", talk: { text, channel: "ooc", characterId: null } }`. Add a helper
@@ -70,32 +70,32 @@ fails, and every other gate integration test still passes.
       Each loop sends `perSender` talk lines through `gate.handle` with a distinct human player
       proposer, `inFlight` lines at a time (`Promise.all` per group). It returns
       `{ ok, conflicts, other }` counts.
-- [ ] T002 [US1] In the same block, add the test "3 senders × 5 lines, one in flight each:
+- [x] T002 [US1] In the same block, add the test "3 senders × 5 lines, one in flight each:
       every line lands, zero CONFLICT". Assert 15 ok and 0 conflicts. Read the session with
       `readFrom` and assert 15 `talk` rows with `seq` 1 to 15 and 15 distinct texts. Run the
       burst 20 times on 20 fresh sessions in one test (SC-001). Raise the test timeout to 30 s.
-- [ ] T003 [US1] Add the test "3 senders × 5 lines, all in flight at once: zero CONFLICT".
+- [x] T003 [US1] Add the test "3 senders × 5 lines, all in flight at once: zero CONFLICT".
       Assert 15 ok, 0 conflicts and 15 rows.
-- [ ] T004 [US1] Add the test "5 senders × 20 lines into a 500-event log: zero CONFLICT"
+- [x] T004 [US1] Add the test "5 senders × 20 lines into a 500-event log: zero CONFLICT"
       (SC-002). Prefill the session with one `appendSessionEvents` call of 500 public `talk`
       rows. Assert 100 ok, 0 conflicts and 600 rows in total.
-- [ ] T005 [US1] Add the test "recordPresence interleaved with talk: zero CONFLICT" (FR-002).
+- [x] T005 [US1] Add the test "recordPresence interleaved with talk: zero CONFLICT" (FR-002).
       Run a 3 × 5 burst and, at the same time, 5 `gate.recordPresence(sessionId,
       { purpose: "director" })` calls. Assert every result is ok and the log holds 20 rows.
-- [ ] T006 [US1] Add the test "sessions do not wait for each other" (FR-003). Build one gate
+- [x] T006 [US1] Add the test "sessions do not wait for each other" (FR-003). Build one gate
       with an injected `appendSessionEvents` seam that blocks session A's first append on a
       promise the test controls and passes every other call through. Start a write to A, then
       a write to B. Assert B resolves ok while A is still blocked. Release A and assert it
       resolves ok.
-- [ ] T007 [US1] Add the test "a thrown error ends that write only" (FR-004). Inject a seam
+- [x] T007 [US1] Add the test "a thrown error ends that write only" (FR-004). Inject a seam
       that throws `new Error("boom")` on its first call only. Start two writes to one session at
       once. Assert the first rejects with "boom" and the second resolves ok.
-- [ ] T008 [US1] In the existing `describe("gate — sequence conflicts")` block, add the test
+- [x] T008 [US1] In the existing `describe("gate — sequence conflicts")` block, add the test
       "waits between attempts, never after the last" (FR-005). Pass
       `retryDelayMs: (attempt) => { calls.push(attempt); return 0; }`. With `conflicting(2)`
       assert `calls` equals `[1, 2]` and the result is ok. With `conflicting(3)` assert
       `calls` equals `[1, 2]` and the refusal is `CONFLICT`.
-- [ ] T009 [US1] Run the file. Record in the commit message which tests fail and their
+- [x] T009 [US1] Run the file. Record in the commit message which tests fail and their
       `conflicts` counts. T002–T004 and T008 must fail. T005–T007 may pass on today's code;
       record which. Every pre-existing test must pass. Commit the failing tests as
       "TASK-0157: Phase 1 — failing per-session ordering tests".
