@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:24'
+updated_date: '2026-10-28 08:28'
 labels:
   - play-route
   - gate
@@ -72,6 +72,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 T023 first DB run (orchestrator): (a) and (b) pass. (c) fails only on its last line: it expects 2 scene.changed rows and gets 1. One is right, because the human-DM scene-start leaves the scene pending, so only the DM carry-out writes a row. Every other (c) check passes: no failure, and checkpoint.beat is set, so the seed loaded and assemble ran.
 
 Orchestrator ruling (Phase 4, OQ from the implementer): an approval turn with no player action ends empty-beat by design (runner.ts), with or without a scene. So the discriminator between (b) and (c) is checkpoint.beat: null on the no-scene path, set once the seed loads. SC-002 is unchanged. Tasks T021 and T028-T030 and quickstart step 8 are reworded to that discriminator. The live check also proves a narrated turn: after the carry-out the DM approves the pending scene-start suggestions, a player declares act-search, and the AI DM narrates it. If that cannot run, Phase 5 stops and raises an open question.
+
+Phase 4 gate (orchestrator): T023 DB test 3/3 at 8f6a283; T024 DB mutations both fail (c) as expected (evidence a40b954). REQUIRE_DATABASE=1 pnpm ci:check run on a40b954.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
