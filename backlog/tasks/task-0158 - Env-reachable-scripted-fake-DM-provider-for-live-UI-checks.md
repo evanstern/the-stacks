@@ -33,10 +33,6 @@ Spec: specs/053-env-fake-dm-script
 - [x] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -76,6 +72,8 @@ T025: REQUIRE_DATABASE=1 pnpm ci:check run by the orchestrator on 6c7b9ca exits 
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5: merge of origin/main 89d75e2 (clean), wiki d6f58a0 (14 notes re-pinned, CAPSULES regenerated), runbook rows and ticks bf32bf2. Freshness OK (54), spec-bridge ok.
+
+spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 7/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
