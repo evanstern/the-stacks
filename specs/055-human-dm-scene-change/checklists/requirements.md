@@ -14,7 +14,7 @@
 ## Requirement Completeness
 
 - [x] No [NEEDS CLARIFICATION] markers remain
-- [ ] Requirements are testable and unambiguous
+- [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
 - [x] All acceptance scenarios are defined
@@ -34,8 +34,7 @@
 - Project convention (specs 047 to 053) names the frozen contracts, modules and request kinds a
   requirement touches, because the frozen-contract rulings depend on them. The "no implementation
   details" items pass under that convention.
-- "Requirements are testable and unambiguous" stays open: FR-003, FR-005, FR-007 and the turn-mode
-  and empty-scene edge cases are written against the recommended defaults of OQ-1 to OQ-7. They
-  are final once the operator rules. Do not run `speckit-plan` before the ruling.
+- The operator ruled OQ-1 to OQ-7 = option A on 2026-10-28 (spec.md, Decisions). Every
+  requirement is now final.
 - `speckit-clarify` was skipped: the open points are operator rulings on frozen surfaces and
   DM-visible behaviour, not ambiguities.

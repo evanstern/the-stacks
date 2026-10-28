@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. Open questions OQ-1 to OQ-7 await an operator ruling. `plan.md` and `tasks.md` are not written until they are ruled.
+**Status**: Ruled. OQ-1 to OQ-7 = option A (operator, 2026-10-28, in chat; see Decisions).
 
 **Input**: TASK-0159. "A seated human DM can change scene from the play route. That includes acting on a dismissed or pending scene suggestion." Evidence: spec 047 OQ-1 (commit c53d50f) found that `apps/web/app/play/frames.ts` builds no `scene` request.
 
@@ -59,7 +59,7 @@ A human DM holds the seat. The AI DM suggests "Inside the vault". The DM opens t
 2. **Given** a seeded control, **When** the DM applies it, **Then** the client sends one `scene` request whose `after.sceneId` equals the suggestion's `sceneId`.
 3. **Given** a live table, **When** the `scene.changed` row arrives, **Then** the header shows the new title and location.
 4. **Given** a suggestion with `after: null` ("Clear the scene"), **When** the DM carries it out, **Then** the client sends `after: null`.
-5. **Given** a dismissed scene suggestion, **When** the DM seeds the control from it, **Then** the control shows that suggestion's content (OQ-1 decides where the DM finds it).
+5. **Given** a dismissed scene suggestion, **When** the DM seeds the control from it, **Then** the control shows that suggestion's content (D-1: it is listed under the panel's decided seeds).
 
 ### User Story 2 - The DM edits the current scene (Priority: P2)
 
@@ -77,13 +77,13 @@ A scene is set. No suggestion is pending. The DM opens the control. It holds the
 
 ### Edge Cases
 
-- No current scene and no scene proposal: the control has nothing to seed from. OQ-7 decides what it shows.
+- No current scene and no scene proposal: the panel shows the D-7 line and no form.
 - A player viewer, or an operator who is not seated: the control does not render (FR-009).
 - The DM loses the seat while the control is open: the gate refuses `NOT_AUTHORIZED`, and the notice shows it.
 - A title over 200 characters, a summary over 4000, a location over 200, or an empty reason: the frame fails its schema and is not sent. The command returns `false` and the draft stays.
 - Clearing the scene when no scene is set: the client does not offer it, because the gate would refuse `INVALID_PROPOSAL`.
-- Two scene suggestions are pending: each one can seed the control. OQ-3 decides which one is closed.
-- Turn mode with an active encounter: OQ-5 decides.
+- Two scene suggestions are pending: each one can seed the control. Apply closes only the seed it started from (D-3).
+- Turn mode with an active encounter: the scene changes and the table stays in turn mode (D-5).
 
 ## Requirements *(mandatory)*
 
@@ -91,10 +91,10 @@ A scene is set. No suggestion is pending. The DM opens the control. It holds the
 
 - **FR-001**: The play route MUST build a `scene` gate request frame (`eventType: "scene"`, `payloadVersion: GATE_REQUEST_VERSION`, `{ reason, after, summary?, rationale? }`). It MUST parse `after` with `SceneSchema` and `reason` with `ReasonSchema` before sending. A failing payload MUST NOT be sent. *(Card AC #1.)*
 - **FR-002**: `TableCommands` MUST gain one scene command that sends the frame (live) or appends one `scene.changed` row with `before` from the projection (fixture). It returns `false` when the request did not leave. *(Card AC #1.)*
-- **FR-003**: The play route MUST give a seated human DM a scene-change control. The control holds the scene fields OQ-2 names and a reason. One Apply click sends one request. *(Card AC #1.)*
+- **FR-003**: The play route MUST give a seated human DM a scene-change control. The control holds the scene fields D-2 names and a reason. One Apply click sends one `scene` request, plus the D-3 reject when seeded from a pending proposal. *(Card AC #1.)*
 - **FR-004**: The control MUST be a slide-out panel or an inline control. It MUST use no modal and no confirmation dialog. *(Card AC #1.)*
-- **FR-005**: The control MUST be seedable from a scene proposal's content: `after.sceneId`, `after.title`, `after.summary`, `after.location`, `reason`, or the clear-scene choice when `after` is null. Seeding MUST read the proposal body from the projection's `ProposalView.proposal`, never from the display strings in `PendingProposalView.details`. *(Card AC #2.)*
-- **FR-006**: A seeded control MUST keep the seed's `sceneId` unchanged in the request, so the AI DM can load the same seed. *(Card AC #2.)*
+- **FR-005**: The control MUST be seedable (D-1, D-4) from a scene proposal's content: `after.sceneId`, `after.title`, `after.summary`, `after.location`, `reason`, or the clear-scene choice when `after` is null. Seeding MUST read the proposal body from the projection's `ProposalView.proposal`, never from the display strings in `PendingProposalView.details`. *(Card AC #2.)*
+- **FR-006**: A seeded control MUST keep the seed's `sceneId` unchanged in the request, so the AI DM can load the same seed (D-2). *(Card AC #2.)*
 - **FR-007**: An unseeded control MUST start from the current scene, and keep its `sceneId`. *(Card AC #1.)*
 - **FR-008**: A refusal MUST show in the existing notice. The control MUST keep its draft when the command returns `false`.
 - **FR-009**: The control MUST render only when the viewer is the seated human DM (`model.isDm`). It MUST NOT render for a player or an unseated operator.
@@ -102,83 +102,44 @@ A scene is set. No suggestion is pending. The DM opens the control. It holds the
 - **FR-011**: A test MUST render the control for the `dm-approvals` DM viewer, seed it from P3, apply it, and assert the request carries P3's `sceneId` and the edited fields. *(Card AC #1, AC #2.)*
 - **FR-012**: A test MUST assert `sceneFrame` refuses an over-long title and an empty reason, and builds `after: null` for a clear.
 - **FR-013**: A test MUST assert the control does not render for a player viewer.
+- **FR-015**: When the form was seeded from a pending proposal, Apply MUST send `proposal.reject` with `reason: null` on that proposal after the scene request leaves, and only then (D-3). *(Card AC #2.)*
+- **FR-016**: In turn mode the panel MUST show "The table stays in turn mode." (D-5). With no current scene and no scene proposal it MUST show the D-7 line and no form.
 - **FR-014**: The fixture and live sources MUST stay equivalent (`specs/030-play-route/contracts/table-source.md` rule 5) for a table with the control closed.
 
 ### Card acceptance criteria mapping
 
 | Card AC | Requirement | Proof |
 |---|---|---|
-| #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test | FR-001 to FR-004, FR-007 to FR-011, FR-013, FR-014 | `frames.test.mjs`, the control's component test, `table-view.test.tsx`, a live Brave check |
-| #2 A scene suggestion's content can seed that control | FR-005, FR-006, FR-011 | the seed module's test, the control's component test |
+| #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test | FR-001 to FR-004, FR-007 to FR-011, FR-013, FR-014, FR-016 | `frames.test.mjs`, the control's component test, `table-view.test.tsx`, a live Brave check |
+| #2 A scene suggestion's content can seed that control | FR-005, FR-006, FR-011, FR-015 | the seed module's test, the control's component test |
 
 ### Key Entities
 
 - **Scene request** (029, unchanged): `{ kind: "scene", reason, after: Scene | null }`.
 - **Scene seed** (new, web-local): the content a control starts from. Fields: `sceneId`, `title`, `summary`, `location`, `reason`, `clear` (true when `after` is null), and the source `proposalId` or null for the current scene.
 - **ProposalView** (028/029 projection, unchanged): carries the full proposal body the seed reads.
-- **PendingProposalView** (030 frozen seam): unchanged under the recommended defaults.
+- **PendingProposalView** (030 frozen seam): unchanged.
 
-## Open questions
+## Decisions (ruled)
 
-Each question changes a frozen contract or behaviour a DM sees. The recommended default is marked. The operator rules each one. `speckit-clarify` was not run: these are operator rulings, not ambiguities a clarification round settles.
+The operator ruled on 2026-10-28, in chat, recorded on TASK-0159:
 
-### OQ-1 — Where the control lives, and how a suggestion seeds it
+> "TASK-0159: I accept the recommended defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an encounter or changes table mode) in m-3; card DC-2 as a revisit."
 
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | A "Scene" slide-out (`Panel`), opened from a DM-only "Change scene" header button. The panel lists scene proposals as seeds: each pending one, then each dismissed one from the last ten scene proposals. One click on a seed fills the form. `TableHeader` gains `sceneOpen` and `onScene` props. `ProposalList` props are unchanged. | One frozen-surface amendment: `TableHeader` props (`specs/030-play-route/contracts/ui-surfaces.md`), the same shape as TASK-0050's `onFloor`. Dismissed suggestions are reachable (card text: "a dismissed or pending scene suggestion"). The suggestion row itself has no new button. |
-| B | Option A, plus a "Carry out" button on each scene suggestion row in the approvals list. It opens the Scene panel seeded from that row. | Most direct from the suggestion. Amends `ProposalList` props as well (frozen by `specs/030-play-route/contracts/proposal-seam.md`, "every component's props"). Two panels in one flow. |
-| C | No new panel. A "Carry out" row button applies the suggestion as is, and an inline edit form expands in the row. | No header change. Amends `ProposalList` props. Dismissed suggestions are not reachable, because they leave the list. Fails "dismissed" in the card text. No unseeded control (User Story 2). |
+Each open question is resolved as option A. The options not taken are in this file's history at commit 212a4f8.
 
-### OQ-2 — Which scene fields the DM edits
+- **D-1 (OQ-1 A) — Where the control lives.** A "Scene" slide-out (`Panel`) opens from a DM-only "Change scene" header button. The panel lists scene proposals as seeds: each pending one, then each decided one among the last ten scene proposals. One click on a seed fills the form. `TableHeader` gains `sceneOpen` and `onScene` props: an additive amendment to `specs/030-play-route/contracts/ui-surfaces.md`, tagged TASK-0159. `ProposalList` props are unchanged.
+- **D-2 (OQ-2 A) — Editable fields.** The DM edits title, summary, location and reason. `sceneId` comes from the seed (a proposal or the current scene) and is shown read-only. A "Clear the scene" choice sends `after: null`.
+- **D-3 (OQ-3 A) — The source proposal after carry-out.** When the form was seeded from a pending proposal, Apply sends the `scene` request and then `proposal.reject` (`reason: null`) on that proposal, back to back. It sends the reject only when the scene frame left. The `proposal.rejected` row re-queues an AI DM turn (`apps/server/src/dm/enqueue.ts`, rule 2).
+- **D-4 (OQ-4 A) — Which proposals seed.** Any `scene` proposal from `ai:dm`, whatever its recorded policy (`suggest` or `ask`).
+- **D-5 (OQ-5 A) — Turn mode.** The control works in free and turn mode. It changes only the scene. In turn mode the panel shows "The table stays in turn mode."
+- **D-6 (OQ-6 A) — Who.** Only the seated human DM. The control renders when `model.isDm`. No gate change.
+- **D-7 (OQ-7 A) — No scene and no proposal.** The panel says "No scene to change yet. Start a scene, or wait for the AI DM's suggestion." and shows no form.
 
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | The DM edits title, summary, location and reason. `sceneId` comes from the seed (a proposal or the current scene) and is shown read-only. A "Clear the scene" choice sends `after: null`. | The AI DM can always load its seed (`currentSeed` reads `p.scene.sceneId`). The DM cannot author a brand-new scene. |
-| B | Option A, plus "New scene": the DM types a title, and the client derives a `sceneId` slug. | The DM can author freely. The AI DM's next turn fails `bad-seed` on an unseeded id, so an `ask`-mode table stalls. Needs a server rule for unseeded scenes, which is out of this card's scope. |
-| C | No edits. The control carries out a seed exactly as proposed. | Smallest UI. Fails User Story 2 and the card's "change scene" outcome. |
+### Carded follow-ups
 
-### OQ-3 — What happens to the source suggestion after the DM carries it out
-
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | When the control was seeded from a pending proposal, Apply sends the `scene` request and then `proposal.reject` (`reason: null`) on that proposal, back to back. It sends the reject only when the scene frame left. | The suggestion leaves the list in one click. The `proposal.rejected` row re-queues an AI DM turn ([[dm-turn-jobs]]), so the AI DM continues in the new scene. The gate orders a session's writes in arrival order (TASK-0157), and both requests share the same authority checks, so a refused scene with an accepted reject needs an `INVALID_PROPOSAL` the client already prevents. |
-| B | Apply sends only the `scene` request. The suggestion stays pending until the DM clicks Dismiss. | One request per click. The AI DM gets no turn until the DM dismisses. The DM must remember a second step. |
-| C | Apply sends the `scene` request. The client sends the reject after the `scene.changed` row arrives. | Never closes the suggestion on a refused scene. Needs pending-send state in the live source and a different path in the fixture source. |
-
-### OQ-4 — Which scene proposals may seed the control
-
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | Any `scene` proposal from `ai:dm`, whatever its recorded policy (`suggest` or `ask`). | A DM who set `scene` to `ask` can edit the proposal before applying it, instead of Approve as is. Under OQ-3 A, an `ask` source is rejected after the edit lands. |
-| B | Only `suggest` proposals. | Matches the card's wording exactly. An `ask` scene proposal can only be approved as is or rejected. |
-
-### OQ-5 — A scene change in turn mode
-
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | The control works in free and turn mode. It changes only the scene. The panel shows "The table stays in turn mode" when the mode is turn. | Matches the gate, which does not check table mode for `scene`. The play route has no human-DM control to end an encounter or set free mode, so the encounter continues. That gap is a deferral candidate for a card. |
-| B | The control is disabled in turn mode. | Avoids a scene change mid-encounter. Blocks the DM until the AI DM ends the encounter. |
-| C | In turn mode, Apply also ends the encounter and sets free mode, as the AI DM's scene end does. | Needs `mechanics` and `table-mode` frames the play route does not build. Larger scope than the card. |
-
-### OQ-6 — Who besides a seated human DM may use the control
-
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | Only the seated human DM. The control renders when `model.isDm`. | Matches the gate matrix. No gate change. An operator seats themself first (`dm.seat`). |
-| B | Also an unseated operator. | Amends the frozen 029 permission matrix and `viewerFor` (an operator views as a player on `/play`). |
-
-### OQ-7 — No scene and no scene proposal
-
-| Option | Change | Implications |
-|---|---|---|
-| **A (recommended)** | The panel says "No scene to change yet. Start a scene, or wait for the AI DM's suggestion." and shows no form. | No new route. The operator starts a scene through `POST /dm/sessions/:id/start` (TASK-0163's slide-out once PR #79 merges), and its suggestion then seeds the control. |
-| B | The panel offers a seed picker from `GET /dm/seeds`. | Depends on PR #79. `GET /dm/seeds` is operator-only, so a non-operator human DM gets 403. Applying a seed's scene skips the scene-start turn (combatants, party), so the table is half set up. |
-
-### Deferral candidates (need a card from the orchestrator, not rulings on this card)
-
-- **DC-1**: the play route gives a human DM no control to end an encounter or change table mode (OQ-5 A).
-- **DC-2**: a human DM cannot author a scene with no seed, because the AI DM cannot run one (OQ-2 A). This is a maybe: card it only with a revisit trigger.
+- **TASK-0165 (m-3)**, from DC-1: a human DM ends an encounter or changes table mode from the play route.
+- **TASK-0166 (revisit)**, from DC-2: a human DM authors a scene with no seed.
 
 ## Success Criteria *(mandatory)*
 
@@ -192,8 +153,7 @@ Each question changes a frozen contract or behaviour a DM sees. The recommended 
 
 ## Assumptions
 
-- The recommended defaults OQ-1 to OQ-7 (A) hold unless the operator rules otherwise. The FRs above are written against them.
 - `rationale` is left null on the DM's own request. `summary` is set to "Scene: <title>" or "Clear the scene".
 - A suggestion's content is read from the projection, which already carries rejected proposals.
 - The web tests run in Node with no DOM library (TASK-0163 note). Clicks are proven by a live Brave check, not unit tests.
-- No database test is needed: no server code changes. If the plan adds one, the orchestrator runs it.
+- No server code changes. The plan adds one DB regression test for SC-002 and one shipped DM script for the live check. The orchestrator runs the DB test.
