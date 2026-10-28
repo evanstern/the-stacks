@@ -1,10 +1,10 @@
 ---
 id: TASK-0143
 title: 'Actor-state gate: Output claim gate: actor-aware checks over shipped narration'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:54'
-updated_date: '2026-10-27 20:46'
+updated_date: '2026-10-28 03:02'
 labels:
   - dm
   - rules-gate
@@ -106,6 +106,12 @@ spec-bridge sync: Evidence fixtures and failing evidence tests (card AC #1, #3, 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 (Phase 6, T036-T042: 19fe197 wiki, 217508e runbook rows. Freshness OK: 54 notes; spec-bridge check exit 0.) New note docs/wiki/output-claim-gate.md. The implementer did not read the claims.ts matcher internals. The orchestrator checked the note against claims.ts and audit-words.ts: the count patterns, stable, the pronoun carry-over and possessives match. The note omits the "acts/moves next" exemption, a gap but not an error. The final Done sync runs on main after the merge.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Evidence fixtures and failing evidence tests (card AC #1, #3, #6 evidence): 7/7 · The claim checker (card AC #1, #2, #3): 7/7 · Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6): 8/8 · Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5): 7/7 · Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020): 6/6 · Wiki re-ground: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
