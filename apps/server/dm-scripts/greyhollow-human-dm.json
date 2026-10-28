@@ -1,7 +1,9 @@
 {
   "v": 1,
   "name": "greyhollow-human-dm",
-  "dice": [9],
+  "dice": [
+    9
+  ],
   "calls": [
     {
       "purpose": "dm.director",
@@ -105,6 +107,32 @@
               ]
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "turn that resumes after the human DM approves the roll: resolve the committed action, no tracker step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the party act in the scene the DM set.",
+          "companionPrompts": []
         }
       }
     },

@@ -39,8 +39,9 @@ Card AC #1 and #2, SC-002. This runs on the worktree stack in script mode (`DM_F
 8b. In the approvals slide-out, approve the pending scene-start suggestions (party, combatants,
    tracker and presence).
 8c. As the player, declare and commit `act-search` with `specs/053-env-fake-dm-script/evidence/declare.mjs`.
-   Expect a turn job that narrates it from the `human-dm-approval` calls (director, interpret,
-   narrate, audit), then the chronicle jobs. Record the job id and its `scripted` call purposes.
+   Expect the commit turn to pause on a `check.roll` proposal (policy `ask`; calls director, interpret).
+   Approve the roll in the slide-out. Expect the resumed `approval` turn to narrate it (calls director,
+   narrate, audit), then the chronicle jobs. Record both job ids and their `scripted` call purposes.
 9. Baseline (red): on a second session, repeat steps 4 and 5, then click Dismiss on the suggestion
    instead of carrying it out. Expect the `approval` turn job to finish with outcome `empty-beat`
    and `checkpoint.beat` null (no scene). Recreate the app container first if the script is spent (053 quickstart step 11).
