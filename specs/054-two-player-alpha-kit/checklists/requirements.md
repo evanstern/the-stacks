@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -32,10 +32,10 @@
 ## Notes
 
 - No inline [NEEDS CLARIFICATION] markers are used. Six open questions (Q1-Q6) stand in
-  their place under "Open questions"; the item stays unticked until the operator rules.
+  their place under "Open questions"; the operator ruled all six on 2026-10-28 (defaults accepted).
 - Route names and file paths appear in "What exists today", the FR table and the AC #4
   command list on purpose. They ground the survey and the exact vm-104 commands the
   operator must approve. The item stays unticked for that reason.
 - Every FR maps to one card AC (#1-#4) in the FR table.
 - `speckit-clarify` was skipped; the orchestrator takes Q1-Q6 to the operator.
-- Plan and tasks are not written until Q1-Q6 are answered.
+- Q1-Q6 resolved 2026-10-28; plan and tasks follow.

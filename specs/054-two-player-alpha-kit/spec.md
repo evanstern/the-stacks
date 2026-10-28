@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft — blocked on open questions (see "Open questions")
+**Status**: Ready for planning — open questions Q1-Q6 resolved 2026-10-28
 
 **Input**: Board task TASK-0163, "Two-player alpha kit: two human seats, player sign-up,
 scene-start runbook". Outcome: the operator and one other developer play one scene together
@@ -199,6 +199,17 @@ session id.
 Each question changes a seed or wire contract, an auth rule, or behaviour a player or operator
 sees. Each has a recommended default.
 
+**Resolved 2026-10-28: all six defaults accepted.** The operator ruled in the M3 sweep chat,
+recorded on TASK-0163 (commit 5e42d55). Verbatim, cut at 300 characters by the relay:
+
+> "TASK-0163: I accept the recommended defaults Q1 to Q6, including the greyhollow-ford-duo
+> seed, the at-least-one-human seed rule, the inline redeem toggle on the sign-in card, the
+> Settings invite section, the Start scene slide-out with the new GET /dm/seeds route, and the
+> two of us playing AC #4 on d"
+
+The cut falls inside Q6. The orchestrator reads it as all six defaults accepted. Each question
+below carries its resolution.
+
 ### Q1. Which seed seats the humans, and which characters are human?
 
 - **A.** Add a new seed `greyhollow-ford-duo.json`: a copy of greyhollow-ford with `tamsin`
@@ -210,6 +221,7 @@ sees. Each has a recommended default.
 - **Default: A.** It is additive, keeps the M2 record reproducible, and keeps one AI companion
   so the alpha exercises mixed human and AI play. TASK-0053 can add a third seat later or reuse
   the rule from Q2 with its own seed.
+- **Resolved 2026-10-28:** A (operator ruling above).
 
 ### Q2. What human-seat rule does the seed loader enforce?
 
@@ -219,6 +231,7 @@ sees. Each has a recommended default.
 - **C.** Keep "exactly one" and add a per-seed override flag.
 - **Default: A.** The cap has no current reason; the start route already enforces a full seat
   map. The duplicate-user refusal is new start-route behaviour (a wire-visible 400).
+- **Resolved 2026-10-28:** A (operator ruling above).
 
 ### Q3. Where does a signed-out person redeem an invitation?
 
@@ -232,6 +245,7 @@ The root gate renders the sign-in card for every route while signed out.
   which the browser never sends to the server.
 - **Default: A.** It is the smallest change, adds no gate exemption, and keeps the token out of
   every URL. C is a later convenience if the operator wants a one-click link.
+- **Resolved 2026-10-28:** A (operator ruling above).
 
 ### Q4. How does the operator issue an invitation on hosted dev?
 
@@ -244,6 +258,7 @@ The root gate renders the sign-in card for every route while signed out.
 - **Default: A.** It needs no shell on vm-104 (each vm-104 command needs the operator's go), no
   credential on a command line, and it calls the same HTTP route an agent uses. C would put a
   vm-104 command in every invitation.
+- **Resolved 2026-10-28:** A (operator ruling above).
 
 ### Q5. How does the operator start a scene with a seat per human?
 
@@ -260,6 +275,7 @@ The start route needs each human's user id, and no operator surface lists user i
 - **Default: A.** Presence already answers "who is at this table", so no user-listing endpoint
   is needed, and the operator never handles raw ids. `GET /dm/seeds` is a new, read-only,
   operator-only wire contract and needs the operator's ruling.
+- **Resolved 2026-10-28:** A (operator ruling above).
 
 ### Q6. Who runs the AC #4 alpha run, and on what DM?
 
@@ -274,8 +290,9 @@ enter credentials there. A real AI DM on dev spends provider money through the k
   `.env` edit and a redeploy, so no provider spend).
 - **Default: A**, with a provider-backed DM as the card outcome says, and the operator confirms
   the spend. The debug page's cost slide-out records the run's cost on the card.
+- **Resolved 2026-10-28:** A (operator ruling above).
 
-## AC #4 — exact hosted-dev commands (pending the operator's go)
+## AC #4 — exact hosted-dev commands (each still needs the operator's go)
 
 Under the defaults (Q4-A, Q5-A, Q6-A) the run needs no vm-104 write beyond one named backup.
 The orchestrator runs each command only after the operator's go on that exact command.
@@ -302,5 +319,5 @@ with its arguments, each needing its own go. If Q6-B is chosen, the run adds a h
 
 ## Clarification
 
-`speckit-clarify` was not run: the open questions above go to the operator through the sweep
-orchestrator, which is the clarification path for this dispatch.
+`speckit-clarify` was not run. The open questions went to the operator through the sweep
+orchestrator, and the operator ruled on 2026-10-28 (see "Open questions").
