@@ -32,10 +32,12 @@ Spec: specs/058-roll-reason-plan-gate
 - [ ] #3 A reason the checker passes ships unchanged.
 - [x] #4 Spec phase: Evidence fixture and failing tests (card AC #2, #3 evidence)
 - [x] #5 Spec phase: The reason check in `checkPlan` (card AC #1, #2, #3)
-- [ ] #6 Spec phase: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
+- [x] #6 Spec phase: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
 - [ ] #7 Spec phase: DB suites and the mutation guard **[orchestrator]**
 - [ ] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
