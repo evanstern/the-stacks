@@ -18,6 +18,8 @@ ordinal: 145000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: a worktree stack can run a full fake-gateway turn (director through narration) driven by a script chosen in the app's environment, so live UI checks show a happy-path turn. Evidence: TASK-0117 Phase 6 (spec 041, b4d0378, live-check.md) routed dm.* to the fake provider, which returns empty bodies. Scene-start and every turn failed invalid-output at the director, so job-to-event highlighting and a narrated turn could not be shown live. Tests script the fake through loadDmScript, which the running app cannot reach. Needed for the TASK-0117 merge condition (screenshots during a live fake-gateway turn) and for any later UI evidence. No provider key and no paid run.
+
+Spec: specs/053-env-fake-dm-script
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
