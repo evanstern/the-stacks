@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 19:08'
+updated_date: '2026-10-28 19:13'
 labels:
   - dm-runtime
   - gate
@@ -68,6 +68,14 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 (e2bd2bf2): dm-runtime, dm-turn-jobs, runtime-stacks re-verified and re-pinned; dm-failure-and-gates, debug-view, presence, seed-npc-presence, turn-floor re-pinned after grep found no affected claims; INDEX, CAPSULES, runbook amendment and TASK-0168 rows. Freshness OK (55), spec-bridge ok. T019 first attempt, 2026-10-28: the operator appended DM_FAKE_SCRIPT=greyhollow-human-dm to the worktree .env himself in chat; after an image rebuild the boot log read 10 calls. live-resume.mjs hung after the scene-start turn (an unbounded Playwright click; the step-6 flow skipped 055's Change scene step) and was killed. The stack was reset to fresh volumes; a fix is dispatched.
 
 Correction to the note above: the operator ran the .env append themselves; "himself" was wrong.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 fixes: bb120cd6 (055 scene flow, bounded waits), 6121ed4c (roll cards counted by kind; run 2's one FAIL was the selector matching the dice line quoted in the narration card). T019 run 3 on a fresh stack at 6121ed4c: ALL CHECKS PASSED. Commit turn director+interpret paused on one check.roll; the approval turn after the roll called exactly director, narrate, audit; narration and dice line on both tables; next approval turn empty-beat; action.resolved seq 56 outcome applied; one check.roll proposal. Recorded in evidence/live-run.md with 6 Brave shots (f1a7367d). live-run.md counts 8 turn calls: the script's other 2 calls are dm.chronicle, spent by the two chronicle jobs, whose rows list no calls in the turns view.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
