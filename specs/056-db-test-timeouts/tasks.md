@@ -88,7 +88,7 @@ package's test files passing.
 - [x] T023 In `specs/054-two-player-alpha-kit/tasks.md`, tick T041, T042 and T043 (`- [ ]` to `- [x]`). Append to each: ` Done 2026-10-28 under the operator's go; result recorded on TASK-0163.` Do not tick T044 or T045.
 - [x] T024 Run the freshness gate (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` prints `OK`) and the spec-bridge gate (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` exits 0). Run `pnpm lint`.
 - [x] T025 Commit: `TASK-0154: evidence, wiki re-ground, runbook rows`. Push.
-- [ ] T026 (orchestrator-run) Run `REQUIRE_DATABASE=1 pnpm ci:check` on the final tree with only `TEST_DATABASE_URL` exported. Expect exit 0 with no re-run.
+- [x] T026 (orchestrator-run) Run `REQUIRE_DATABASE=1 pnpm ci:check` on the final tree with only `TEST_DATABASE_URL` exported. Expect exit 0 with no re-run.
 
 ---
 
