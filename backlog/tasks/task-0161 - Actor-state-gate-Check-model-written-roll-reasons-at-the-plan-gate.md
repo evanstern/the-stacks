@@ -27,15 +27,17 @@ Spec: specs/058-roll-reason-plan-gate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The plan gate runs the TASK-0143 actor-state checker on every model-written roll reason before resolve logs it.
-- [ ] #2 A refused reason feeds the existing plan refusal path, with a test over M2 seq 221.
-- [ ] #3 A reason the checker passes ships unchanged.
+- [x] #1 The plan gate runs the TASK-0143 actor-state checker on every model-written roll reason before resolve logs it.
+- [x] #2 A refused reason feeds the existing plan refusal path, with a test over M2 seq 221.
+- [x] #3 A reason the checker passes ships unchanged.
 - [x] #4 Spec phase: Evidence fixture and failing tests (card AC #2, #3 evidence)
 - [x] #5 Spec phase: The reason check in `checkPlan` (card AC #1, #2, #3)
 - [x] #6 Spec phase: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
 - [x] #7 Spec phase: DB suites and the mutation guard **[orchestrator]**
 - [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -78,6 +80,6 @@ All spec tasks complete (Evidence fixture and failing tests (card AC #2, #3 evid
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
