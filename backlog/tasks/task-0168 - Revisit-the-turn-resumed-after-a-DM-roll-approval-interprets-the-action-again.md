@@ -80,6 +80,8 @@ Phase 4 fixes: bb120cd6 (055 scene flow, bounded waits), 6121ed4c (roll cards co
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 2/2 · Re-ground and close (all ACs): 4/4 — status In Progress → Done
 
 T023 (orchestrator): merged origin/main at f8cffae3 (runbook rows from both sides kept, #81 filled; CAPSULES regenerated); REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1294 passed | 5 skipped, web 265 node + 117 vitest; freshness OK (55); spec-bridge ok. AC #1: the DB test (a) and the live run 3 show an approved roll narrating in the resumed turn with no second check.roll. AC #2: the resumed turn reuses the paused plan (contracts/turn-resume.md; 031 amended by the operator's ruling).
+
+spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 2/2 · Re-ground and close (all ACs): 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
