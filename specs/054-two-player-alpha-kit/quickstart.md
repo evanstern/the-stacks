@@ -27,15 +27,16 @@ This runs the whole kit locally with the scripted fake DM. No provider key is us
    `This invitation is invalid, expired, or already redeemed.`
 7. Context A: open Table, press `Start a new table`, and copy the `/play/<uuid>` link.
    Context B: open that link. Expect both names in the presence strip.
-8. Context A: press `Start scene`. Choose `Greyhollow Ford (two players)`. Seat yourself on
+8. Context A: press `Start scene`. Choose `Greyhollow Ford (two players) (greyhollow-ford-duo)`. Seat yourself on
    Tamsin Vale and `player2` on Kestrel. Expect `Start` disabled while both seats hold the same
    user. Press `Start`.
 9. Expect the scripted opening narration in both contexts within a few seconds. Expect each
-   context to show its own character as its own, and Brother Odo as an AI companion.
+   context to offer only its own character in the speaker selector (Tamsin Vale for the operator,
+   Kestrel for `player2`). The table shows no chip for Brother Odo; the AI DM voices him.
 10. Open `/play/<uuid>/debug` in context A. Expect a succeeded scene-start turn job.
 
 ## Expected refusals
 
 - `GET /dm/seeds` as `player2`: 403.
-- A start request with one user on both seats: 400, `A user can hold only one seat.`
+- A start request with one user on both seats: 400, first issue `A user can hold only one seat.`
 - A second start on the same session: 409, `The session already has a scene.`

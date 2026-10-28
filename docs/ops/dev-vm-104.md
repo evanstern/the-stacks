@@ -62,17 +62,17 @@ The scene opening needs a model key. Add one under `Secrets` before you start a 
 11. Send the link to the player. Ask the player to open it.
 12. Check the presence strip. It shows both display names.
 13. Press `Start scene`. A slide-out opens.
-14. Choose `Greyhollow Ford (two players)` in `Seed`.
+14. Choose `Greyhollow Ford (two players) (greyhollow-ford-duo)` in `Seed`.
 15. Choose a user for `Tamsin Vale`. Choose a different user for `Kestrel`.
 16. Check the note `AI companions: Brother Odo.`
 17. Press `Start`. The slide-out closes. The header shows `Scene start queued.`
 18. Wait a few seconds. The opening narration appears for both humans.
-19. Check that each human sees their own character as their own, and Brother Odo as an AI companion.
+19. Check that each human's speaker selector offers only their own character. The table shows no chip for Brother Odo. The AI DM voices him.
 
 The server refuses three requests:
 
 - `GET /dm/seeds` as the player returns 403.
-- A start with one user on both seats returns 400 with `A user can hold only one seat.`
+- A start with one user on both seats returns 400. The first issue reads `A user can hold only one seat.`
 - A second start on the same session returns 409 with `The session already has a scene.`
 
 If the opening does not arrive, open `/play/<uuid>/debug` as the operator. Find the scene-start turn job. Read its status and error.

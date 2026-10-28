@@ -209,7 +209,7 @@ that needs source code.
 - [x] T030 [P] [US3] In `specs/031-dm-runtime/contracts/dm-api.md`, add a `GET /dm/seeds` section
   that points at `specs/054-two-player-alpha-kit/contracts/dm-seeds.md`, and add rule 3 of
   `contracts/scene-start-seats.md` to the start route's list. Additive only.
-- [ ] T031 [US3] Run `pnpm ci:check`. Commit and push.
+- [x] T031 [US3] Run `pnpm ci:check`. Commit and push. Docs-only since e4d1fe0, whose orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check passed (server 1261, web 107).
 
 ---
 
@@ -221,18 +221,18 @@ saved in the spec dir.
 **Independent test**: `specs/054-two-player-alpha-kit/evidence/live-run.md` records every
 quickstart step with its observed result, and `evidence/shots/` holds the screenshots.
 
-- [ ] T032 [US2] [US3] Run `pnpm env:up`. Migrate both databases credential-free per
+- [x] T032 [US2] [US3] Run `pnpm env:up`. Migrate both databases credential-free per
   `specs/053-env-fake-dm-script/quickstart.md` step 2, with `<env>` `task-0163`. Set
   `DM_FAKE_SCRIPT=greyhollow-live` per that quickstart, steps 3-5. Create the operator per step 6
   with a generated password stored only in the session scratchpad.
-- [ ] T033 [US2] [US3] Write `specs/054-two-player-alpha-kit/evidence/shoot-live.mjs`, modelled on
+- [x] T033 [US2] [US3] Write `specs/054-two-player-alpha-kit/evidence/shoot-live.mjs`, modelled on
   `specs/053-env-fake-dm-script/evidence/shoot-live.mjs` (Playwright with Brave as the
   executable). It reads a credentials file path from its arguments (never from the repo), drives
   two browser contexts through `quickstart.md` steps 4-9, generates the player password into
   the scratchpad file, and saves screenshots at 1280 and 390 px wide, light and dark, of: the
   sign-in card in redeem mode, the Settings invite section after creation, the Start scene
   slide-out with both seats chosen, and the table after the opening in each context.
-- [ ] T034 [US2] [US3] Run it. If the opening fails on the duo seed under `greyhollow-live`, add
+- [x] T034 [US2] [US3] Run it. If the opening fails on the duo seed under `greyhollow-live`, add
   `apps/server/dm-scripts/greyhollow-duo-live.json` (research R6), add it to
   `apps/server/test/dm/dm-scripts.test.ts`, recreate the app container and rerun. Check the three
   refusals of `quickstart.md` (a 403 on `GET /dm/seeds` as the player, a duplicate-seat 400, a
