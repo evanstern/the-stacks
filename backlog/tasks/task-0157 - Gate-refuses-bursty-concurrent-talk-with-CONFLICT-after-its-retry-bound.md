@@ -4,7 +4,7 @@ title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
-updated_date: '2026-10-28 03:26'
+updated_date: '2026-10-28 03:31'
 labels:
   - gate
   - ws
@@ -29,9 +29,11 @@ Spec: specs/052-talk-conflict-retry
 - [x] #3 Spec phase: Failing gate-level zero-CONFLICT tests (card AC #1)
 - [x] #4 Spec phase: Per-session queue and jittered retry (card AC #1)
 - [x] #5 Spec phase: WebSocket burst test, resend workaround removed, client label (card AC #1)
-- [ ] #6 Spec phase: Gate contract amendment (card AC #2)
+- [x] #6 Spec phase: Gate contract amendment (card AC #2)
 - [ ] #7 Spec phase: Wiki re-ground and runbook rows (card AC #1, AC #2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
