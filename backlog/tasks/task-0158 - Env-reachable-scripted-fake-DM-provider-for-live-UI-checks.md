@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:24'
+updated_date: '2026-10-28 04:29'
 labels:
   - dm
   - debug-view
@@ -56,6 +56,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (3307fc0): index.ts wired through createAiRuntime; greyhollow-live.json shipped; DB test runs a scripted scene-start (narration lands, every ledger row provider scripted, null cost). REQUIRE_DATABASE=1 ci:check exit 0 (server 1236). Finding: the scene-start already queues a dm.chronicle job, which fails (no chronicle call in the script). Orchestrator direction: Phase 3 adds dm.chronicle calls to greyhollow-live for each turn that queues one (scene-start and the exploration turn), within T021's latitude, and loosens the T008 equality to allow them.
 
 spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 0/5 · Live quickstart run on this worktree's stack (card AC #2): 0/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 0/5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (80633dd chronicle calls, ae21f3d image/env/helpers): both narrated turns queue chronicle (runner sets resolve.chronicle when narration lands); two dm.chronicle calls added; integration asserts chronicle model call outcome ok. Image contains dm-scripts/greyhollow-live.json. ci:check exit 0 (server 1236). Helpers are syntax-checked only; Phase 4 runs them live.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
