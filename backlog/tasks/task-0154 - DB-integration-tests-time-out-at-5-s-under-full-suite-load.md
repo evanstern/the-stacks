@@ -33,14 +33,6 @@ Spec: specs/056-db-test-timeouts
 - [x] #6 Spec phase: Evidence, wiki, runbook and close (card AC #1, card AC #2)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -55,6 +47,8 @@ Orchestrator ruling on spec OQ-1 (a test-evidence reading, not player-facing): d
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 1 (orchestrator, 2026-10-28): stack up and both DBs migrated. Alone, the 8 target tests ran 4-2102 ms; the full verbose baseline passed (server 1266 passed, 5 skipped) with no timeout, slowest target 2102 ms. Phase 2 (9a5fae22): every target test carries 30_000 with a TASK-0154 comment (D2 floor). No extra test over 2.5 s needed one. The implementer's no-DB server run failed 5 tests in adjudicate.integration.test.ts (requireDb throws instead of skipping), which is TASK-0138, untouched here.
+
+spec-bridge sync: Measure before the fix (card AC #1) — orchestrator-run: 3/3 · Size and set the timeouts (card AC #1): 8/8 · Three consecutive full runs (card AC #2) — orchestrator-run: 3/3 · Evidence, wiki, runbook and close (card AC #1, card AC #2): 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
