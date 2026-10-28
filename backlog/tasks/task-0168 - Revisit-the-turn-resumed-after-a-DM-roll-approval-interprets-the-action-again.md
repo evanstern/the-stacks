@@ -24,8 +24,8 @@ Spec: specs/057-human-dm-roll-resume
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal, and a DB test
-- [ ] #2 The resumed turn reuses the resolved check rather than interpreting the action again, or a spec records why it must re-interpret
+- [x] #1 With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal, and a DB test
+- [x] #2 The resumed turn reuses the resolved check rather than interpreting the action again, or a spec records why it must re-interpret
 - [x] #3 Spec phase: The resume classifier and the prior-turn read (card AC #2)
 - [x] #4 Spec phase: The pipeline reuses the plan (card AC #1, card AC #2)
 - [x] #5 Spec phase: DB test, scripts and mutation guard (card AC #1)
@@ -78,6 +78,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 fixes: bb120cd6 (055 scene flow, bounded waits), 6121ed4c (roll cards counted by kind; run 2's one FAIL was the selector matching the dice line quoted in the narration card). T019 run 3 on a fresh stack at 6121ed4c: ALL CHECKS PASSED. Commit turn director+interpret paused on one check.roll; the approval turn after the roll called exactly director, narrate, audit; narration and dice line on both tables; next approval turn empty-beat; action.resolved seq 56 outcome applied; one check.roll proposal. Recorded in evidence/live-run.md with 6 Brave shots (f1a7367d). live-run.md counts 8 turn calls: the script's other 2 calls are dm.chronicle, spent by the two chronicle jobs, whose rows list no calls in the turns view.
 
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 2/2 · Re-ground and close (all ACs): 4/4 — status In Progress → Done
+
+T023 (orchestrator): merged origin/main at f8cffae3 (runbook rows from both sides kept, #81 filled; CAPSULES regenerated); REQUIRE_DATABASE=1 pnpm ci:check exit 0, server 1294 passed | 5 skipped, web 265 node + 117 vitest; freshness OK (55); spec-bridge ok. AC #1: the DB test (a) and the live run 3 show an approved roll narrating in the resumed turn with no second check.roll. AC #2: the resumed turn reuses the paused plan (contracts/turn-resume.md; 031 amended by the operator's ruling).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
