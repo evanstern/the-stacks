@@ -110,7 +110,7 @@
     },
     {
       "purpose": "dm.director",
-      "note": "turn that resumes after the human DM approves the roll: resolve the committed action, no tracker step",
+      "note": "turn that resumes after the human DM approves the roll",
       "respond": {
         "type": "json",
         "value": {
@@ -131,41 +131,6 @@
           },
           "goalNote": "Let the party act in the scene the DM set.",
           "companionPrompts": []
-        }
-      }
-    },
-    {
-      "purpose": "dm.interpret",
-      "note": "the resumed turn interprets the committed action again (TASK-0168); same reading as the first",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": "act-search",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
-                {
-                  "step": "check",
-                  "reason": "Tamsin studies the chained ferry for fresh tool marks",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "wis",
-                  "skill": "perception",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 13,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": []
-                }
-              ]
-            }
-          ]
         }
       }
     },

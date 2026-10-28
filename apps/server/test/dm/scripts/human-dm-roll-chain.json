@@ -1,0 +1,146 @@
+{
+  "v": 1,
+  "name": "human-dm-roll-chain",
+  "dice": [18],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "first turn: free mode, resolve, no tracker step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the party act in the scene the DM set.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "one check against the ferry-house clue; success knocks Tamsin prone",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-search",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin lunges at the chained ferry and may lose her footing",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [
+                    {
+                      "effect": "condition",
+                      "op": "apply",
+                      "targetId": "tamsin",
+                      "condition": "prone",
+                      "source": "the slick ferry planks"
+                    }
+                  ],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "turn that resumes after the human DM approves the roll: the chain proposes the effect",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the party act in the scene the DM set.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "turn that resumes after the human DM approves the effect: the chain is complete",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the party act in the scene the DM set.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success and the applied condition",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin heaves at the chain and the wet planks slide out from under her. She lands hard on the boards, but the rusted links groan loose and show a bright scar where something cut them."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}
