@@ -33,8 +33,6 @@ Spec: specs/057-human-dm-roll-resume
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -58,6 +56,8 @@ spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (ef5ca417): second dm.interpret removed from human-dm-approval and greyhollow-human-dm (11 -> 10 calls); new human-dm-roll-chain script; new human-dm-roll-resume.integration.test.ts. Orchestrator-run T016: the new test 3/3 ((a) the approval turn calls exactly director, narrate, audit, one check.roll, action resolved applied; (b) a manual turn while the roll is pending is empty-beat; (c) roll, then effect, then one narration), plus five neighbouring DB suites, 25/25. T017 mutation: both resume functions stubbed, all 3 cases fail ((a)/(b) job failed on the spent script, (c) interpret called again); restored, diff empty.
+
+spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
