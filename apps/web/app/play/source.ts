@@ -1,6 +1,7 @@
 import type { StoredEvent, Viewer } from "@the-stacks/session-model";
 import type { PresenceEntry } from "../ws/types.ts";
 import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
+import type { StartBody, StartResult } from "./start-scene.ts";
 
 export type SourceStatus = "connecting" | "open" | "retrying" | "fixture";
 
@@ -20,6 +21,8 @@ export interface TableSource {
   proposals: readonly PendingProposalView[];
   /** Who is at the table; null when unknown (connecting, or a server without presence). */
   presence: readonly PresenceEntry[] | null;
+  /** The signed-in user's account role; absent on fixtures. */
+  role?: string;
   commands: TableCommands;
 }
 
@@ -63,4 +66,6 @@ export interface TableCommands extends ProposalCommands {
   commit(input: CommitInput): boolean;
   withdraw(input: WithdrawInput): boolean;
   floor(input: FloorInput): boolean;
+  /** Operator only; absent on fixtures. Posts to `/dm/sessions/<id>/start`. */
+  startScene?(body: StartBody): Promise<StartResult>;
 }

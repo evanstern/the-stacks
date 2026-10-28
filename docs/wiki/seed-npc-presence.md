@@ -1,18 +1,19 @@
 ---
 name: seed-npc-presence
-description: Seed NPC presence (TASK-0142, specs/050-seed-npc-presence, decision-0025 U8) - the required per-beat `presence` map in the scene seed, its cross-checks, NPC `aliases`, the dm-visibility option on the `scene-presence` proposal, the code-owned seed-presence group in resolve (scene start as dm rows, encounter start as arrived rows), and NPC lists read from logged presence.
+description: Seed NPC presence (TASK-0142, specs/050-seed-npc-presence, decision-0025 U8) - the required per-beat `presence` map in the scene seed, its cross-checks, NPC `aliases`, the dm-visibility option on the `scene-presence` proposal, the code-owned seed-presence group in resolve (scene start as dm rows, encounter start as arrived rows), NPC lists read from logged presence, and the at-least-one human-seat rule with `listSeeds`.
 kind: pipeline
 sources:
   - apps/server/src/dm/seed/schema.ts
   - apps/server/src/dm/seed/load.ts
   - apps/server/seeds/greyhollow-ford.json
+  - apps/server/seeds/greyhollow-ford-duo.json
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/nodes/assemble.ts
   - apps/server/src/dm/nodes/narrate.ts
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Seed NPC presence
@@ -30,13 +31,21 @@ id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no defaul
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
 characters, default empty). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
+`greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
+the same three NPCs and presence maps and three party characters: `tamsin` and `kestrel` seat
+`human`, `odo` seat `companion`.
 
 `crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
 
 - an NPC whose `identity.combatant` differs from its id, or names no encounter monster;
 - a beat that lists an NPC in `npcIds` and declares no presence for it;
 - a beat whose `presence` names an unknown NPC;
-- a beat that lists an NPC in `npcIds` and declares it `absent`.
+- a beat that lists an NPC in `npcIds` and declares it `absent`;
+- fewer than one character with seat `human` ("at least one character must have seat \"human\""). The rule was exactly one before TASK-0163.
+
+`listSeeds(dir)` loads every `*.json` in the seed directory through `loadSeed`, returns the valid
+seeds sorted by `seedId`, and logs one `dm.seeds.load-failed` line per bad file. It never throws
+for a bad file or a missing directory ([[dm-runtime]], `GET /dm/seeds`).
 
 ## The proposal option
 

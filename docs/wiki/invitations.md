@@ -6,7 +6,7 @@ sources:
   - apps/server/src/auth/invitations.ts
   - apps/server/src/auth/tokens.ts
   - apps/server/src/routes/auth.ts
-verified_against: 7f44333a9fde6ce389a9808d2e417a89b4fa8630
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Invitations
@@ -71,6 +71,9 @@ Depends on [[password-hashing]] (`hashPassword` for the new account) and shares
 [[library-schema]] via [[database-access]]. Errors surface through [[error-contract]].
 
 ## Operational notes
+
+The web callers are `redeemInvitation` and `issueInvitation` in `apps/web/app/auth.ts`: the
+sign-in card's redeem mode and the operator's Settings invite section ([[client-identity]]).
 
 There is no invitation-listing or revoke endpoint at this commit — an issued, unredeemed
 invitation can only expire, never be cancelled early.

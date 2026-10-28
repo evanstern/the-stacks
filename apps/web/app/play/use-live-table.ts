@@ -15,6 +15,7 @@ import {
 } from "./frames.ts";
 import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
+import { postStart } from "./start-scene.ts";
 import { type LiveUser, viewerFor } from "./viewer.ts";
 
 export type { LiveUser };
@@ -49,12 +50,13 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       commit: (input) => send(commitFrame(input)),
       withdraw: (input) => send(withdrawFrame(input)),
       floor: (input) => send(floorFrame(input)),
+      startScene: (body) => postStart(sessionId, body),
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).
       approve: (proposalId) => send(approveFrame(proposalId)),
       reject: (proposalId, reason) => send(rejectFrame(proposalId, reason)),
     };
-  }, [sendEvent]);
+  }, [sendEvent, sessionId]);
   return {
     kind: "live",
     viewer,
@@ -65,6 +67,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     notice,
     proposals,
     presence: present,
+    role: user.role,
     commands,
   };
 }

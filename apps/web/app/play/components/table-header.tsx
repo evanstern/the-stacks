@@ -5,6 +5,7 @@ import type { TableViewModel } from "../view-model.ts";
 import { FloorControls } from "./floor-controls.tsx";
 import { ModeBadge } from "./mode-badge.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
+import { START_SCENE_PANEL_ID } from "./start-scene-panel.tsx";
 
 const STATUS_TEXT: Record<SourceStatus, string> = {
   connecting: "Connecting…",
@@ -29,6 +30,8 @@ export function TableHeader({
   onLedger,
   onApprovals,
   onFloor,
+  onStartScene,
+  startQueued = false,
 }: {
   model: TableViewModel;
   status: SourceStatus;
@@ -39,6 +42,9 @@ export function TableHeader({
   onLedger: () => void;
   onApprovals: () => void;
   onFloor: (input: FloorInput) => boolean;
+  /** Present only when the operator may start a scene. */
+  onStartScene?: () => void;
+  startQueued?: boolean;
 }) {
   const chevron = (open: boolean) => (
     <ChevronIcon
@@ -87,6 +93,21 @@ export function TableHeader({
           <ApprovalsIcon />
           <span>Pending proposals ({model.proposals.length})</span>
           {chevron(approvalsOpen)}
+        </button>
+      )}
+      {startQueued && (
+        <span role="status" className="text-xs text-muted-foreground">
+          Scene start queued.
+        </span>
+      )}
+      {onStartScene && (
+        <button
+          type="button"
+          onClick={onStartScene}
+          aria-controls={START_SCENE_PANEL_ID}
+          className={TRIGGER}
+        >
+          Start scene
         </button>
       )}
       {debugHref && (

@@ -1,4 +1,5 @@
 import { useRevalidator, useRouteLoaderData } from "react-router";
+import { InviteSection } from "~/invite-section";
 import type { loader as rootLoader } from "~/root";
 import type { Theme } from "~/ui-prefs";
 import { uiCookie } from "~/ui-prefs";
@@ -31,6 +32,24 @@ export default function Settings() {
   }
 
   return (
+    <SettingsView
+      theme={current}
+      userRole={root?.user?.role}
+      onTheme={setTheme}
+    />
+  );
+}
+
+export function SettingsView({
+  theme: current,
+  userRole,
+  onTheme: setTheme,
+}: {
+  theme: Theme;
+  userRole: string | undefined;
+  onTheme: (theme: Theme) => void;
+}) {
+  return (
     <div className="p-4">
       <h1 className="mb-4 text-lg font-semibold">Settings</h1>
       <fieldset className="flex flex-col gap-2">
@@ -48,6 +67,7 @@ export default function Settings() {
           </label>
         ))}
       </fieldset>
+      {userRole === "operator" && <InviteSection />}
     </div>
   );
 }

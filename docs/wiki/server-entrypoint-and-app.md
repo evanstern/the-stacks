@@ -7,7 +7,7 @@ sources:
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
   - apps/server/src/dm/script/env.ts
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Server entrypoint and app
@@ -20,7 +20,7 @@ via `createApp` without binding a port.
 
 `index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `createAiRuntime(process.env)`
 (from `dm/script/env.ts`, TASK-0158, specs/053), which calls `loadAiConfig` directly (not through
-`loadConfig` — see [[configuration]]'s "no relative imports" note) or, when `DM_FAKE_SCRIPT` is
+`loadConfig`; see [[configuration]]) or, when `DM_FAKE_SCRIPT` is
 set, builds script mode ([[ai-gateway]]) and `index.ts` logs `DM script mode: <name> (<n> calls, <n> dice)`.
 It then constructs the AI gateway via `createGateway({ config: aiConfig, sink: logSink, adapters:
 runtime.adapters })` from `ai/gateway.ts`, imported as `createAiGateway` to avoid colliding with the
@@ -62,7 +62,7 @@ server, not a second port. One process, one port, carries the HTTP API,
 the ingest and DM workers' loops, the WebSocket gateway (and the in-process gate), and (via static middleware) the
 built client.
 
-`createValidateSession(db)` is called in `createApp` and again for the gateway: HTTP and WebSocket share one session-validation seam ([[session-auth]]).
+`createValidateSession(db)` is called in `createApp` and again for the gateway: one session-validation seam ([[session-auth]]).
 
 `app.ts`'s `createApp` takes `{ databaseProbe, db, web?, commit?, library?, dm? }` (`web` is `{
 clientRoot?, handler?, listJobs? }`, test-only overrides for the web app's static root, SSR
@@ -80,7 +80,7 @@ load context, so the two callers cannot drift. It registers, **in this exact ord
 `app.onError(errorHandler)` / `app.notFound(notFoundHandler)` first, then `app.route("/health",
 ...)`, `app.route("/api/echo", ...)`, `app.route("/auth", ...)`, `app.route("/library",
 createLibraryRoutes(...))` (TASK-0024, [[ingestion]]), `app.route("/dm",
-createDmRoutes(...))` (TASK-0046, operator-only, [[dm-runtime]]), and finally `app.use("*",
+createDmRoutes(...))` (TASK-0046, operator-only, [[dm-runtime]]; since TASK-0163 it also serves `GET /dm/seeds` and refuses a start that seats one user twice), and finally `app.use("*",
 createWebMiddleware({ clientRoot: web?.clientRoot, handler: web?.handler, lookup:
 identityLookup, listJobs: web?.listJobs ?? ((limit) => listJobs(db, limit)) }))`. The web
 middleware is mounted **last** on purpose: it is a catch-all
@@ -93,7 +93,7 @@ dynamically import `web-dev.js` (which imports `vite`, so production never loads
 `serve()` gets a custom `createServer` wrapper: a plain `node:http` listener that checks
 `isReservedPath` ([[static-serving]]) first — a reserved request goes straight to Hono; the rest
 runs through `webDev.middlewares` (Vite middleware mode), which falls through to Hono via
-`next()`. `gateway.attach(server)` is unaffected: it attaches to whichever server `serve()` returns.
+`next()`. `gateway.attach(server)` attaches to whichever server `serve()` returns.
 
 ## Connections
 
@@ -110,4 +110,4 @@ one port" framing this file implements.
 
 ## Operational notes
 
-`createApp` never binds a port — only `index.ts` does, so tests get an in-process app.
+`createApp` never binds a port; only `index.ts` does.

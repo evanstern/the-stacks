@@ -27,6 +27,20 @@ seed named by `projections.scene.sceneId`, so the log alone says which seed a se
 A turn job for a session with no scene (never started, or ended) and no `scene-start`
 trigger finishes as `empty-beat`.
 
+> Amendment, 2026-10-28 (additive). The operator ruling of 2026-10-28 on TASK-0163 (Q5) accepted
+> the `GET /dm/seeds` route. Spec 054 adds it and one start-route seat rule. Nothing above
+> changes.
+
+Start route, added seat rule (`specs/054-two-player-alpha-kit/contracts/scene-start-seats.md`,
+rule 3): no user id holds two seats. A user id that already holds an earlier seat, in seed
+character order, adds an issue at `seats.<id>`: `A user can hold only one seat.` The response
+is `400 validation`, and no job is enqueued. `loadSeed` now accepts one or more human seats.
+
+## GET /dm/seeds
+
+Operator only. Lists the shipped seeds that load, with each seed's humans and companions.
+The full contract is `specs/054-two-player-alpha-kit/contracts/dm-seeds.md`.
+
 ## POST /dm/sessions/:sessionId/turn
 
 Enqueues a turn job with trigger `manual` (`ON CONFLICT DO NOTHING`). Responds `202` with

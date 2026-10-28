@@ -37,7 +37,7 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Debug view API
@@ -45,7 +45,8 @@ verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
 Four read-only routes under `/dm` (`routes/dm.ts`, [[dm-runtime]]) let an operator, or an agent
 with an operator session, see everything the DM did in one session. The consumer is the debug
 page (TASK-0117, see "The debug page" below). The shapes are fixed in
-`specs/037-debug-api/contracts/debug-api.md`.
+`specs/037-debug-api/contracts/debug-api.md`. `routes/dm.ts` also serves `GET /dm/seeds`
+(TASK-0163; not a debug route).
 
 ## Auth and rules
 
@@ -148,8 +149,8 @@ The debug page folds `events` with the session-model `project` call unchanged an
 jobs, seed and calls directly. These routes are operator only, so a player browser cannot call
 them. TASK-0132 (show every seat that the DM is working) needs its own signal: a client fold
 over the player log, or a narrow non-operator route carrying only "working" and the stage.
-Neither is part of this API. Jobs stored before TASK-0116 lack the usage and `seqs` fields; a
-client reads an absent field as "not recorded".
+Neither is part of this API. Jobs stored before TASK-0116 lack the usage and `seqs` fields
+(read as "not recorded").
 
 TASK-0132 can reuse two pieces from the page. `waiting.ts` folds "a commit with no narration yet"
 (the newest `action.committed` seq above the newest `narration` seq) over an event list, with no

@@ -1,6 +1,6 @@
 ---
 name: hosted-dev
-description: The vm-104 `dev` environment (TASK-0021, spec 016) — CD from `main` via a self-hosted runner, `scripts/deploy-dev.mjs`'s deploy/status/drift/backup/restore/init-secrets verbs, the swap-then-rollback design, hourly drift checking, and tailnet-only exposure. Load for hosted-dev, deploy, rollback, or "how does CD reach vm-104" questions.
+description: The vm-104 `dev` environment (TASK-0021, spec 016) — CD from `main` via a self-hosted runner, `scripts/deploy-dev.mjs`'s deploy/status/drift/backup/restore/init-secrets verbs, the swap-then-rollback design, hourly drift checking, tailnet-only exposure, and the two-player table runbook. Load for hosted-dev, deploy, rollback, or "how does CD reach vm-104" questions.
 kind: pipeline
 sources:
   - scripts/deploy-dev.mjs
@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Hosted dev (vm-104)
@@ -105,6 +105,16 @@ dist/cli/create-operator.js` from the vm-104 checkout, typed password at the pro
 run refuses (exit 1, no changes) — see [[operator-provisioning]] for why the check runs before
 any prompt.
 
+## Run a two-player table
+
+The runbook's "Run a two-player table" section (TASK-0163, `specs/054-two-player-alpha-kit/`)
+seats two humans: the operator creates an invitation in Settings, the player redeems it on the
+sign-in card, the operator starts a table and, in the Start scene slide-out ([[play-route]]),
+picks `greyhollow-ford-duo` and a different user for each human seat ([[seed-npc-presence]],
+[[invitations]]). The scene opening needs a model key under `Secrets`; the runbook also lists
+three expected refusals (403 on `GET /dm/seeds` as a player, 400 on one user in two seats, 409
+on a second start).
+
 ## Connections
 
 Layers on [[compose-stack]] and [[container-image]] rather than redefining them. Shares
@@ -113,7 +123,7 @@ success signal is [[health-check]]'s `commit` field. Covered by [[ci-pipeline]]'
 `check:scripts` via `scripts/deploy-lib.test.mjs`. First-operator provisioning is
 [[operator-provisioning]]'s CLI, run the same way `exec`'s "Inspect" commands are. Full
 runbook: `docs/ops/dev-vm-104.md` (deploy, rollback, backup, restore, inspect, create the
-first operator, secrets, exposure, destroy, failure triage).
+first operator, two-player table, secrets, exposure, destroy, failure triage).
 
 ## Operational notes
 

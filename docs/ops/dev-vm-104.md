@@ -43,6 +43,44 @@ A second run refuses. It exits 1 and changes nothing.
 
 Sign in at the public URL with that username and password.
 
+## Run a two-player table
+
+Do this to seat two humans on hosted dev. It needs the operator account from the previous section.
+
+The scene opening needs a model key. Add one under `Secrets` before you start a scene.
+
+1. Sign in at the public URL as the operator.
+2. Open Settings.
+3. Under `Invite a player`, leave `Expires in (days)` at 7, or set it from 1 to 30.
+4. Press `Create invitation`. The page shows a token and an expiry date.
+5. Send the token to the player by a private channel. The token shows once.
+6. Ask the player to open the public URL signed out and press `Have an invitation?`.
+7. Ask the player to fill `Invitation token`, `Username`, `Display name` and `Password`.
+8. Ask the player to press `Create account`. The player lands signed in, with no operator links.
+9. Open Table and press `Start a new table`.
+10. Copy the `/play/<uuid>` link from the address bar.
+11. Send the link to the player. Ask the player to open it.
+12. Check the presence strip. It shows both display names.
+13. Press `Start scene`. A slide-out opens.
+14. Choose `Greyhollow Ford (two players) (greyhollow-ford-duo)` in `Seed`.
+15. Choose a user for `Tamsin Vale`. Choose a different user for `Kestrel`.
+16. Check the note `AI companions: Brother Odo.`
+17. Press `Start`. The slide-out closes. The header shows `Scene start queued.`
+18. Wait a few seconds. The opening narration appears for both humans.
+19. Check that each human's speaker selector offers only their own character. The table shows no chip for Brother Odo. The AI DM voices him.
+
+The server refuses three requests:
+
+- `GET /dm/seeds` as the player returns 403.
+- A start with one user on both seats returns 400. The first issue reads `A user can hold only one seat.`
+- A second start on the same session returns 409 with `The session already has a scene.`
+
+If the opening does not arrive, open `/play/<uuid>/debug` as the operator. Find the scene-start turn job. Read its status and error.
+
+A missing model key fails the scene-start turn job. Add the key under `Secrets`, then redeploy.
+
+Rehearse this run locally first. Follow `specs/054-two-player-alpha-kit/quickstart.md` and `specs/053-env-fake-dm-script/quickstart.md`.
+
 ## Rollback to a named commit
 
 Run `gh workflow run deploy-dev.yml -f commit=<sha>`. This deploys that
