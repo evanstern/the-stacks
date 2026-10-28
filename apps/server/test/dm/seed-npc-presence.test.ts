@@ -1,15 +1,7 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  applyEvent,
-  emptyProjections,
-  type SessionProjections,
-  type StoredEvent,
-  StoredEventSchema,
-} from "@the-stacks/session-model";
+import { applyEvent, type StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import { buildSnapshot, diffSnapshots } from "../../src/dm/snapshot/index.js";
+import { foldThrough, loadLog, M2_LOG } from "./claim-fixtures.js";
 import { testSeed } from "./helpers.js";
 
 /**
@@ -18,37 +10,11 @@ import { testSeed } from "./helpers.js";
  * stays present through seq 301. The test reads the record in place.
  */
 
-const LOG = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../../docs/design/m2-demo/demo-session/transcript.jsonl",
-);
-
-function loadLog(): StoredEvent[] {
-  return readFileSync(LOG, "utf8")
-    .split("\n")
-    .filter((l) => l.trim().length > 0)
-    .map((l) => StoredEventSchema.parse(JSON.parse(l)));
-}
-
-/** Folds the log; returns the projections at each requested seq. */
-function foldThrough(
-  events: readonly StoredEvent[],
-  seqs: readonly number[],
-): { at: Map<number, SessionProjections>; final: SessionProjections } {
-  let p = emptyProjections({ role: "dm" });
-  const at = new Map<number, SessionProjections>();
-  for (const e of events) {
-    p = applyEvent(p, e);
-    if (seqs.includes(e.seq)) at.set(e.seq, p);
-  }
-  return { at, final: p };
-}
-
 const SEQS = [295, 296, 297, 298, 299, 300, 301];
 
 describe("seed NPC presence over the recorded M2 log (AC #3)", () => {
   const seed = testSeed();
-  const events = loadLog();
+  const events = loadLog(M2_LOG);
   const { at, final } = foldThrough(events, SEQS);
 
   it("folds 333 rows with no diagnostics", () => {

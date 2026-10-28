@@ -363,10 +363,14 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
     const facts = noEffectFacts(194, "free", TAMSIN_PT4, [
       { actionId: "pt-4", question: CLARIFY_QUESTION },
     ]);
-    const r = deterministicChecks(facts, {
-      prose: `Snag's spear stays level and the reeds hold their breath. ${CLARIFY_QUESTION}`,
-      diceLines: renderDiceLines(facts),
-    });
+    const r = deterministicChecks(
+      facts,
+      {
+        prose: `Snag's spear stays level and the reeds hold their breath. ${CLARIFY_QUESTION}`,
+        diceLines: renderDiceLines(facts),
+      },
+      EMPTY_RESOLVE_SNAPSHOT,
+    );
     expect(r.pass).toBe(false);
     expect(r.issues).toContainEqual({
       kind: "doctrine",

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
+import type { ClaimState } from "../../src/dm/claims.js";
 import {
   type FactAction,
-  type FactChange,
   type FactOutcome,
   type NarrationFacts,
   renderDiceLines,
@@ -19,6 +19,11 @@ import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
+import type {
+  ActorChange,
+  LifeState,
+  SnapshotActor,
+} from "../../src/dm/snapshot/types.js";
 import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
@@ -71,8 +76,52 @@ function facts(actions: FactAction[] = [action()]): NarrationFacts {
 const CLEAN =
   "The last tumbler gives, and the vault door sighs open on cold air. Something shifts in the dark beyond.";
 
-function check(prose: string, f = facts()) {
-  return deterministicChecks(f, { prose, diceLines: renderDiceLines(f) });
+function guard(over: Partial<SnapshotActor> = {}): SnapshotActor {
+  return {
+    id: "guard",
+    combatantId: "guard",
+    characterId: null,
+    name: "Guard",
+    aliases: ["Guard"],
+    kind: "monster",
+    controller: { kind: "dm" },
+    hp: { current: 5, max: 5, temp: 0 },
+    lifeState: "conscious",
+    conditions: [],
+    ac: 12,
+    initiative: null,
+    resources: null,
+    sheet: null,
+    presence: "present",
+    ...over,
+  };
+}
+
+/** A ClaimState with one Guard; `changes` is this turn's diff. */
+function claimState(
+  life: LifeState | null = "conscious",
+  changes: ActorChange[] = [],
+): ClaimState {
+  return {
+    snapshot: {
+      ...EMPTY_RESOLVE_SNAPSHOT.snapshot,
+      actors: [guard({ lifeState: life })],
+    },
+    diff: { fromSeq: 0, toSeq: 1, actors: changes, stage: [] },
+  };
+}
+
+const guardLife = (
+  after: LifeState,
+  before: LifeState = "conscious",
+): ActorChange => ({ kind: "life-state", actorId: "guard", before, after });
+
+function check(prose: string, f = facts(), state: ClaimState = claimState()) {
+  return deterministicChecks(
+    f,
+    { prose, diceLines: renderDiceLines(f) },
+    state,
+  );
 }
 
 describe("deterministicChecks", () => {
@@ -93,38 +142,66 @@ describe("deterministicChecks", () => {
     expect(check("Ana rolls a die and the lock gives way.").pass).toBe(true);
   });
 
-  it("fails on an unrecorded death and on an omitted one", () => {
-    expect(check("The guard dies where he stands.").issues[0]?.kind).toBe(
-      "ledger-mismatch",
-    );
-    const dead: FactChange = {
-      kind: "life-state",
-      target: "Guard",
-      before: "conscious",
-      after: "dead",
-    };
-    const f = facts([action({ changes: [dead] })]);
-    expect(
-      check(CLEAN, f)
-        .issues.map((i) => i.detail)
-        .join(),
-    ).toMatch(/omits it/);
-    expect(check("The guard is dead, and the lock gives.", f).pass).toBe(true);
+  it("fails an attributed death on a living Guard (keyed, not anonymous)", () => {
+    const r = check("The guard dies where he stands.");
+    expect(r.pass).toBe(false);
+    expect(r.issues[0]?.kind).toBe("ledger-mismatch");
+    expect(r.issues[0]?.detail).toMatch(/^Actor state: /);
   });
 
-  it("fails on an unrecorded or omitted unconscious state", () => {
-    expect(check("The guard is knocked out.").pass).toBe(false);
-    const down: FactChange = {
-      kind: "life-state",
-      target: "Guard",
-      before: "conscious",
-      after: "unconscious",
-    };
-    const f = facts([action({ changes: [down] })]);
-    expect(check(CLEAN, f).pass).toBe(false);
-    expect(check("The guard falls unconscious. The lock gives.", f).pass).toBe(
-      true,
-    );
+  it("passes a death word for a Guard already dead in S1", () => {
+    expect(
+      check(
+        "The guard is dead, and the lock gives.",
+        facts(),
+        claimState("dead"),
+      ).pass,
+    ).toBe(true);
+  });
+
+  it("fails the omission of a diff death, and passes once the prose records it", () => {
+    const dead = claimState("dead", [guardLife("dead")]);
+    const bad = check(CLEAN, facts(), dead);
+    expect(bad.pass).toBe(false);
+    expect(bad.issues.map((i) => i.detail).join()).toMatch(/^Actor state: /);
+    expect(
+      check("The guard is dead, and the lock gives.", facts(), dead).pass,
+    ).toBe(true);
+  });
+
+  it("fails an attributed drop on a living Guard", () => {
+    const r = check("The guard is knocked out.");
+    expect(r.pass).toBe(false);
+    expect(r.issues[0]?.detail).toMatch(/^Actor state: /);
+  });
+
+  it("passes a drop word for a Guard already unconscious in S1", () => {
+    expect(
+      check("The guard is knocked out.", facts(), claimState("unconscious"))
+        .pass,
+    ).toBe(true);
+  });
+
+  it("fails the omission of a diff drop, and passes once the prose records it", () => {
+    const down = claimState("unconscious", [guardLife("unconscious")]);
+    expect(check(CLEAN, facts(), down).pass).toBe(false);
+    expect(
+      check("The guard falls unconscious. The lock gives.", facts(), down).pass,
+    ).toBe(true);
+  });
+
+  it("passes an unattributed death word when S1 holds a dead actor, fails it otherwise", () => {
+    expect(check("Someone dies in the dark.").pass).toBe(false);
+    expect(
+      check("Someone dies in the dark.", facts(), claimState("dead")).pass,
+    ).toBe(true);
+  });
+
+  it("marks every claim issue ledger-mismatch with an 'Actor state:' detail (OQ-4)", () => {
+    const r = check("The guard dies where he stands. The guard speaks.");
+    const claims = r.issues.filter((i) => i.detail.startsWith("Actor state: "));
+    expect(claims.length).toBeGreaterThan(0);
+    for (const i of claims) expect(i.kind).toBe("ledger-mismatch");
   });
 
   it("fails when the actor's name pairs with the opposite outcome word", () => {
@@ -169,9 +246,7 @@ describe("deterministicChecks", () => {
 
   it("quotes the matched words, the closing question and the word count", () => {
     const death = check("The guard dies where he stands.").issues[0];
-    expect(death?.detail).toBe(
-      'The prose says a character dies ("dies"), and no fact records a death.',
-    );
+    expect(death?.detail).toMatch(/^Actor state: .*dies/);
     const menu = check("The door opens. Do you fight or flee?").issues[0];
     expect(menu?.detail).toContain('"Do you fight or flee?"');
     const long = Array.from({ length: 230 }, () => "word").join(" ");
@@ -182,7 +257,11 @@ describe("deterministicChecks", () => {
 
   it("fails when the dice lines differ from the renderer", () => {
     const f = facts();
-    const r = deterministicChecks(f, { prose: CLEAN, diceLines: ["forged"] });
+    const r = deterministicChecks(
+      f,
+      { prose: CLEAN, diceLines: ["forged"] },
+      claimState(),
+    );
     expect(r.issues[0]?.detail).toMatch(/dice lines/);
   });
 });
