@@ -1,10 +1,10 @@
 ---
 id: TASK-0161
 title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 21:41'
+updated_date: '2026-10-28 22:36'
 labels:
   - dm
   - rules-gate
@@ -65,6 +65,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
