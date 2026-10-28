@@ -93,6 +93,41 @@
       }
     },
     {
+      "purpose": "dm.interpret",
+      "note": "the resumed turn interprets the committed action again (TASK-0168); same reading as the first",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-search",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin studies the chained ferry for fresh tool marks",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
       "purpose": "dm.narrate",
       "note": "consistent with the recorded failure",
       "respond": {
