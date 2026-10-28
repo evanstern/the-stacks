@@ -19,7 +19,7 @@ sources:
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
 ---
 
 # DM turn jobs
@@ -78,7 +78,7 @@ when narration shipped. A failed turn queues nothing. An action awaiting a human
 
 ## Resolve order
 
-Opening moves (encounter start; a seed-presence group first logs the encounter beat's `arrived` rows, [[seed-npc-presence]]), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. The plan gate (pure) runs first and refuses a group naming an unknown or absent combatant ([[dm-failure-and-gates]]). A `presence` effect submits a `scene-presence` proposal through the gate. When the active combatant left the order during the turn, `initiative.leave` already handed the turn on, so resolve skips the closing `turn.advance` and still settles (spec 048). On a reclaim, the active-at-start combatant is read back from the log (`activeLeaverFromLog`), not from the projection. After an encounter start and after each turn advance, `settleTurn` (`nodes/settle.ts`, code only) settles each downed combatant reached: a dying one rolls `death-save.roll`, then `turn.advance` passes it; a stable or unable one passes; a natural 20 revives it and keeps the turn. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
+Opening moves (encounter start; a seed-presence group first logs the encounter beat's `arrived` rows, [[seed-npc-presence]]), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. The plan gate runs first and refuses a group naming an unknown or absent combatant or a contradicting step text ([[dm-failure-and-gates]]). A `presence` effect submits a `scene-presence` proposal through the gate. When the active combatant left the order during the turn, `initiative.leave` already handed the turn on, so resolve skips the closing `turn.advance` and still settles (spec 048). On a reclaim, `activeLeaverFromLog` reads the active-at-start combatant from the log. After an encounter start and after each turn advance, `settleTurn` (`nodes/settle.ts`, code only) settles each downed combatant reached: a dying one rolls `death-save.roll`, then `turn.advance` passes it; a stable or unable one passes; a natural 20 revives it and keeps the turn. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
 
 ## Reclaim idempotence
 

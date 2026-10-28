@@ -49,10 +49,13 @@ are in `data-model.md`.
 | `deterministicChecks` (audit node) | every narration attempt | S1 and the diff | blocking `ledger-mismatch` "Actor state: …"; existing regenerate loop, then fallback |
 | narrate node, before the first call | each `facts.rulings[].ruling`, `facts.director.goalNote` | S1 and the diff | withheld from facts; non-blocking issue on attempt 1 |
 | `factualSummary` `reasonUsable` | each roll reason | S1 and the diff | the reason is not voiced |
+| `checkPlan` (plan gate, resolve step 0) | each step `reason` and `autoFail.reason` of a non-resumed group | S0 and `plannedDiff` (presence only) | the group is refused before any step runs (spec 058) |
+
+Amended by spec 058 / TASK-0161: the `checkPlan` row above.
 
 ## Not gated here
 
-- Dice lines, which hold roll reasons. Owner: TASK-0161.
+- Dice lines: their reasons are checked at the plan gate before resolve logs them (spec 058).
 - Companion `say` and public chronicle entries. Owner: TASK-0144.
 - The code fallback as a whole. It is code, not model text, and passes by construction (property
   test).

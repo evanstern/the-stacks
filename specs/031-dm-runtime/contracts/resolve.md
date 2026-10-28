@@ -38,6 +38,11 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    turn's encounter start adds. A refused action group submits `action.resolve` `refused`
    `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
    advances. The verdicts go to `TurnCheckpoint.planGate`.
+   Amended by `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md` (spec 058 / TASK-0161):
+   the plan gate also checks each step reason against S0 with `checkClaims`. A reason-refused action
+   group submits `action.resolve` `refused` with the verdict's code and runs no step. A reason-refused
+   NPC group runs no step; the turn still advances. `resolveAction` takes the refusal code from the
+   verdict instead of the literal `UNKNOWN_COMBATANT`.
 1. **Opening moves** ([director.md](director.md)): scene, party, combatants and trackers (scene
    start); the `turn` decision's combatants, initiative and turn mode. After initiative,
    **settling** runs for the first active combatant (group 6, "Settling").

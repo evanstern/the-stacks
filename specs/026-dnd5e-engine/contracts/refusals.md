@@ -55,3 +55,4 @@ export const RefusalSchema = z.object({
 | 25 | `NO_SLOT_AVAILABLE` | Every slot of that level and pool is expended | `spell-slot.expend` |
 | 26 | `SLOT_NOT_EXPENDED` | Restoring more slots than are expended | `spell-slot.restore` |
 | 27 | `ACTOR_UNABLE` | An unable attacker (`attack.roll`) or ability checker (`check.roll`): `unconscious` or `stable`, or an incapacitating condition. Amended 2026-10-27 (TASK-0112, operator ruling) | `attack.roll`, `check.roll` |
+| 28 | `REASON_CONTRADICTS_STATE` | A DM step reason contradicts actor state. Plan gate only (spec 058); `execute` never returns it. Amended by spec 058 / TASK-0161 (operator ruling OQ-2 (a)) | none (the DM plan gate) |

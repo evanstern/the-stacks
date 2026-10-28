@@ -1,20 +1,24 @@
 ---
 name: output-claim-gate
-description: The output claim gate (TASK-0143, specs/051-output-claim-gate) - checkClaims, a pure lexical checker that tests narration, rulings, goalNote and roll reasons against the S1 snapshot and the S0-to-S1 diff - refuses dead, downed or absent actors acting or speaking, wrong-actor deaths and drops, omitted deaths and wrong counts; where it is wired (audit, narrate withholding, fallback). Read before touching claims.ts or a caller.
+description: The output claim gate (TASK-0143, specs/051-output-claim-gate) - checkClaims, a pure lexical checker that tests narration, rulings, goalNote and roll reasons against the S1 snapshot and the S0-to-S1 diff - refuses dead, downed or absent actors acting or speaking, wrong-actor deaths and drops, omitted deaths and wrong counts; where it is wired (audit, narrate withholding, fallback, plan gate). Read before touching claims.ts or a caller.
 kind: component
 sources:
   - apps/server/src/dm/claims.ts
   - apps/server/src/dm/audit-words.ts
+  - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
+verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
 ---
 
 # Output claim gate
 
 Part of narration quality ([[dm-narration-quality]]) and the DM runtime ([[dm-runtime]]). It reads
 the snapshot ([[actor-snapshot]]). Contract: `specs/051-output-claim-gate/contracts/claim-gate.md`.
-TASK-0144 (companion `say`, public chronicle entries) and TASK-0161 (roll reasons at the plan gate)
-call the same function.
+TASK-0144 (companion `say`, public chronicle entries) calls the same function. So does the plan
+gate (`checkPlan` in `dm/gates/plan-gate.ts`, TASK-0161, spec 058): it checks each step reason,
+`autoFail.reason` and condition `source` of a non-resumed group against S0 and a presence-only
+`plannedDiff` before any step runs, and refuses the group with `REASON_CONTRADICTS_STATE`
+([[dm-failure-and-gates]]). Dice-line reasons therefore never reach the log unchecked.
 
 `checkClaims` is pure and lexical: no model call, no log read, snapshot types only. It resolves
 a term to an actor by `aliases` (whole word, case-insensitive, possessive-aware; a term held by one

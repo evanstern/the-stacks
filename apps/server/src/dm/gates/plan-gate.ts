@@ -1,7 +1,18 @@
+import type { RefusalCode } from "@the-stacks/dnd5e-engine";
+import {
+  REASON_TO_PRESENCE,
+  type ScenePresence,
+  type SessionProjections,
+} from "@the-stacks/session-model";
+import { type ClaimIssue, checkClaims } from "../claims.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { Effect, InterpretReading, Step } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
-import type { ActorSnapshot } from "../snapshot/index.js";
+import type {
+  ActorChange,
+  ActorSnapshot,
+  SnapshotDiff,
+} from "../snapshot/index.js";
 
 /**
  * The plan gate (specs/046-downed-hero-gate plan D3, decision-0025 §3.2).
@@ -23,6 +34,24 @@ export interface PlanFailure {
   reason: PlanFailureReason;
 }
 
+/**
+ * The refusal code of a reason-refused group (spec 058, OQ-2 (a)). The engine
+ * enum carries it; `satisfies` ties the literal to that enum.
+ */
+export const REASON_REFUSAL_CODE =
+  "REASON_CONTRADICTS_STATE" as const satisfies RefusalCode;
+export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
+
+/** A model text (step reason or condition source) the claim gate refused. */
+export interface ReasonFailure {
+  stepIndex: number;
+  /** `reason`, `autoFail.reason`, or a condition `source` path such as `onHit[0].source`. */
+  field: string;
+  /** The refused model text, as written. */
+  text: string;
+  issues: ClaimIssue[];
+}
+
 export type PlanVerdict =
   | { actionId: string | null; ok: true }
   | {
@@ -30,6 +59,12 @@ export type PlanVerdict =
       ok: false;
       code: "UNKNOWN_COMBATANT";
       failure: PlanFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: ReasonRefusalCode;
+      failure: ReasonFailure;
     };
 
 export interface PlanInput {
@@ -39,6 +74,10 @@ export interface PlanInput {
   rulings: readonly { actionId: string | null; steps: readonly Step[] }[];
   /** The combatant ids this turn's Director opening moves add. */
   joining: readonly string[];
+  /** Seed NPC ids the encounter start marks `arrived` (spec 058). */
+  arriving: readonly string[];
+  /** Action ids with a resumed plan (spec 057): they skip the reason check. */
+  resumed: readonly string[];
 }
 
 type EncounterSeed = SceneSeed["encounters"][number];
@@ -68,6 +107,28 @@ export function joiningCombatants(
   return enc.monsters
     .map((m) => m.combatantId)
     .filter((id) => !(id in existing));
+}
+
+/**
+ * The seed NPC ids an encounter start marks `arrived`: the encounter beat
+ * declares them `present` and the logged presence is not `present`. Mirrors
+ * the encounter-start branch of `seedPresence` (nodes/resolve.ts).
+ */
+export function arrivingNpcs(
+  seed: SceneSeed,
+  enc: EncounterSeed | undefined,
+  scenePresence: SessionProjections["scenePresence"],
+): string[] {
+  if (!enc) return [];
+  const beat = seed.beats.find((b) => b.encounterId === enc.id);
+  if (!beat) return [];
+  const out: string[] = [];
+  for (const npc of seed.npcs) {
+    if (beat.presence[npc.id] !== "present") continue;
+    const logged = scenePresence[npc.id]?.presence ?? "present";
+    if (logged !== REASON_TO_PRESENCE.arrived) out.push(npc.id);
+  }
+  return out;
 }
 
 interface NamedId {
@@ -114,6 +175,106 @@ function stepIds(step: Step): NamedId[] {
   }
 }
 
+interface NamedText {
+  field: string;
+  text: string;
+}
+
+function effectSources(effects: readonly Effect[], list: string): NamedText[] {
+  const out: NamedText[] = [];
+  for (const [j, e] of effects.entries()) {
+    if (e.effect === "condition") {
+      out.push({ field: `${list}[${j}].source`, text: e.source });
+    }
+  }
+  return out;
+}
+
+/** Every model-written text a step carries, in the order checked. */
+function stepTexts(step: Step): NamedText[] {
+  switch (step.step) {
+    case "none":
+    case "roll":
+      return [{ field: "reason", text: step.reason }];
+    case "effect":
+      return [
+        { field: "reason", text: step.reason },
+        ...effectSources(step.effects, "effects"),
+      ];
+    case "check":
+      return [
+        { field: "reason", text: step.reason },
+        ...(step.autoFail
+          ? [{ field: "autoFail.reason", text: step.autoFail.reason }]
+          : []),
+        ...effectSources(step.onSuccess, "onSuccess"),
+        ...effectSources(step.onFailure, "onFailure"),
+      ];
+    case "attack":
+      return [
+        { field: "reason", text: step.reason },
+        ...effectSources(step.onHit, "onHit"),
+      ];
+  }
+}
+
+/**
+ * The presence-only diff the plan implies (contract rule 5): one change per
+ * presence-effect target in any group, and one per arriving NPC. An id with no
+ * S0 actor is left out.
+ */
+function plannedDiff(
+  snapshot: ActorSnapshot,
+  groups: ReadonlyMap<string | null, readonly Step[]>,
+  arriving: readonly string[],
+): SnapshotDiff {
+  const after = new Map<string, ScenePresence>();
+  const addEffects = (effects: readonly Effect[]) => {
+    for (const e of effects) {
+      if (e.effect === "presence")
+        after.set(e.targetId, REASON_TO_PRESENCE[e.reason]);
+    }
+  };
+  for (const steps of groups.values()) {
+    for (const step of steps) {
+      switch (step.step) {
+        case "effect":
+          addEffects(step.effects);
+          break;
+        case "check":
+          addEffects(step.onSuccess);
+          addEffects(step.onFailure);
+          break;
+        case "attack":
+          addEffects(step.onHit);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  for (const id of arriving) after.set(id, REASON_TO_PRESENCE.arrived);
+  const actors: ActorChange[] = [];
+  for (const [id, to] of after) {
+    const actor = snapshot.actors.find(
+      (a) => a.id === id || a.combatantId === id,
+    );
+    if (!actor) continue;
+    actors.push({
+      kind: "presence",
+      actorId: actor.id,
+      before: actor.presence,
+      after: to,
+    });
+  }
+  return {
+    fromSeq: snapshot.throughSeq,
+    toSeq: snapshot.throughSeq,
+    stage: [],
+    actors,
+  };
+}
+
 export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
@@ -139,6 +300,10 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     groups.set(r.actionId, r.clarify !== null ? [] : r.steps);
   }
   for (const r of input.rulings) groups.set(r.actionId, r.steps);
+
+  const resumed = new Set(input.resumed);
+  const diff = plannedDiff(snapshot, groups, input.arriving);
+  const claimState = { snapshot, diff };
 
   const verdicts: PlanVerdict[] = [];
   for (const [actionId, steps] of groups) {
@@ -172,9 +337,36 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
       }
       if (failure) break;
     }
+    if (failure) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: "UNKNOWN_COMBATANT",
+        failure,
+      });
+      continue;
+    }
+    // Spec 058: the reason check. A resumed plan skips it (spec 057).
+    let reasonFailure: ReasonFailure | null = null;
+    if (actionId === null || !resumed.has(actionId)) {
+      scan: for (const [stepIndex, step] of steps.entries()) {
+        for (const { field, text } of stepTexts(step)) {
+          const res = checkClaims(claimState, text);
+          if (!res.pass) {
+            reasonFailure = { stepIndex, field, text, issues: res.issues };
+            break scan;
+          }
+        }
+      }
+    }
     verdicts.push(
-      failure
-        ? { actionId, ok: false, code: "UNKNOWN_COMBATANT", failure }
+      reasonFailure
+        ? {
+            actionId,
+            ok: false,
+            code: REASON_REFUSAL_CODE,
+            failure: reasonFailure,
+          }
         : { actionId, ok: true },
     );
   }

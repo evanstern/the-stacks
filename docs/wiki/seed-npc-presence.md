@@ -8,12 +8,13 @@ sources:
   - apps/server/seeds/greyhollow-ford.json
   - apps/server/seeds/greyhollow-ford-duo.json
   - apps/server/src/dm/nodes/resolve.ts
+  - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/nodes/assemble.ts
   - apps/server/src/dm/nodes/narrate.ts
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
 ---
 
 # Seed NPC presence
@@ -55,6 +56,8 @@ where it used to write `public`. An effect-driven `presence` effect in resolve s
 `visibility: "public"` explicitly. Only the seed-presence group sends `dm`.
 
 ## The seed-presence group
+
+`arrivingNpcs` (`gates/plan-gate.ts`, spec 058) mirrors the encounter-start branch below for the plan gate: it lists the seed NPCs the beat declares `present` whose logged presence is not, so a roll reason naming one passes against the planned `arrived` change ([[dm-failure-and-gates]]).
 
 `seedPresence` in `nodes/resolve.ts` runs inside the Director's opening moves. It reads the
 seed and the projections only and never a Director field. For each seed NPC it reads the beat's

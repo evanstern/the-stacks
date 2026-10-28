@@ -13,6 +13,7 @@ import {
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
 import {
+  arrivingNpcs,
   checkPlan,
   encounterToStart,
   joiningCombatants,
@@ -1004,7 +1005,7 @@ async function resolveAction(
   if (planRefused) {
     // The plan gate refused the whole group before any step ran.
     outcome = "refused";
-    refusalCode = "UNKNOWN_COMBATANT";
+    refusalCode = verdict && !verdict.ok ? verdict.code : null;
   } else if (batchIds.length > 0) outcome = "applied";
   else if (chain.firstRefusal) {
     outcome = "refused";
@@ -1100,14 +1101,25 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     // accepts the ids this turn's encounter start adds (spec 045 SC-003).
     const planReadings = hold ? [] : (ctx.results.interpret?.readings ?? []);
     const planRulings = hold ? [] : (ctx.results.adjudicate?.rulings ?? []);
+    const startingEncounter = encounterToStart(
+      ctx.seed,
+      director,
+      ctx.job.trigger,
+    );
     run.planGate = checkPlan({
       snapshot: assembled.snapshot,
       readings: planReadings,
       rulings: planRulings,
       joining: joiningCombatants(
-        encounterToStart(ctx.seed, director, ctx.job.trigger),
+        startingEncounter,
         assembled.projections.engine.combatants,
       ),
+      arriving: arrivingNpcs(
+        ctx.seed,
+        startingEncounter,
+        assembled.projections.scenePresence,
+      ),
+      resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

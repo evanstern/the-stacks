@@ -1,0 +1,124 @@
+# Tasks: A roll reason the DM model writes cannot contradict actor state
+
+**Input**: `specs/058-roll-reason-plan-gate/` (spec.md, plan.md, contracts/plan-reason-gate.md)
+
+**Prerequisites**: the operator ruled OQ-1 to OQ-3 (a) on 2026-10-28. The ruling is in. The tasks below
+implement OQ-1 (a), OQ-2 (a) and OQ-3 (a).
+
+**Dispatch**: one phase is one implementer dispatch (sonnet), re-grounded from this spec dir and the
+branch commits. Tasks marked **[orchestrator]** are run by the orchestrator, not the implementer.
+Each implementer phase ends with `pnpm ci:check` green (DB suites skip without a database) and one
+commit led by `TASK-0161:`.
+
+## Phase 1: Evidence fixture and failing tests (card AC #2, #3 evidence)
+
+- [x] T001 Add `snapshotAt(logPath, seq)` to `apps/server/test/dm/claim-fixtures.ts`. Return the
+      `buildSnapshot` of the folded projections at `seq` with the `greyhollow-ford` seed. Reuse
+      `projectionsAt`.
+- [x] T002 Create `apps/server/test/dm/plan-reason-fixtures.ts`. Export `M2_SEQ221_S0`
+      (`snapshotAt(M2_LOG, 220)`). Export `M2_SEQ221_REASON`, read from the seq 221 `dice.rolled`
+      row with the ` [<jobId>#<n>]` marker stripped. Do not hand-type the reason.
+- [x] T003 In the same file, export `m2Seq221Reading(reason)`: an NPC reading (`actionId: null`,
+      intent `attack`) with one `attack` step, `attackerId: "goblin-2"`, `targetId: "tamsin"`,
+      `expression: "1d20+4"`, one `onHit` damage effect on `tamsin`, and the given reason.
+- [x] T004 Export `M2_SEQ221_CONTROL`: the recorded reason with the clause ", shouting that two kin
+      have fallen" removed.
+- [x] T005 Add a sanity test: at seq 220 `goblin-3` is `dead`, `goblin-2` and `snag` are not down,
+      and no party actor is down.
+- [x] T006 Add to `apps/server/test/dm/plan-gate.test.ts` a `describe("checkPlan: roll reasons")`
+      with the M2 seq 221 case as `it.fails`: the NPC verdict is refused at step 0, field `reason`,
+      with a `count` issue whose `matched` holds "two kin have fallen". Confirm it fails as plain
+      `it` against today's `checkPlan`, then mark it `it.fails`.
+- [x] T007 Add the control case as plain `it`: `M2_SEQ221_CONTROL` gives
+      `{ actionId: null, ok: true }`. It passes today and must keep passing.
+- [x] T008 Run `pnpm ci:check`. Report the `it.fails` count and the controls.
+
+## Phase 2: The reason check in `checkPlan` (card AC #1, #2, #3)
+
+- [x] T009 In `apps/server/src/dm/gates/plan-gate.ts`, add `arriving` and `resumed` to `PlanInput`,
+      the `ReasonFailure` type and the third `PlanVerdict` variant, as
+      `contracts/plan-reason-gate.md` states. Update every `checkPlan` caller and test helper to pass
+      `arriving: []` and `resumed: []`.
+- [x] T010 Export `REASON_REFUSAL_CODE = "REASON_CONTRADICTS_STATE"` (OQ-2). Type it as a string
+      literal here; Phase 3 ties it to the engine enum.
+- [x] T011 Add the internal `stepTexts(step)`: the step `reason`, then `autoFail.reason` for a
+      `check` step. Under OQ-3 (a) add each `condition` effect's `source` in `effects`, `onSuccess`,
+      `onFailure` and `onHit`, with its path as the field.
+- [x] T012 Add the internal `plannedDiff(snapshot, groups, arriving)` (contract rule 5). Use
+      `REASON_TO_PRESENCE` from `@the-stacks/session-model` for the `after` value.
+- [x] T013 Export the pure `arrivingNpcs(seed, enc, scenePresence)`: NPC ids the encounter's beat
+      declares `present` whose logged presence is not `present`. Return `[]` with no encounter.
+- [x] T014 Wire the walk into `checkPlan` after the id loop (contract rules 2, 3, 4 and 6). Call
+      `checkClaims` from `../claims.js`. Add no word list or matcher.
+- [x] T015 Flip T006 from `it.fails` to `it`.
+- [x] T016 Add unit tests: an `arrived` presence effect on absent Pell with reason "Pell staggers out
+      of the reeds" passes, and the same reason with no presence effect is refused `act`.
+- [x] T017 Add unit tests: an id in `arriving` exempts that NPC from the act rule; a resumed action
+      id with a refused reason gives `ok: true`; a resumed action id with an absent target is still
+      refused `UNKNOWN_COMBATANT`.
+- [x] T018 Add unit tests: an `autoFail.reason` is checked (field `autoFail.reason`); a ruling's
+      steps replace the reading's (the reading's bad reason is not checked); a clarify reading is
+      not checked; an id failure wins over a reason failure in the same group; only the first
+      refused text is reported.
+- [x] T019 Add a unit test that a passing verdict leaves the reading object deep-equal to its input
+      (the gate never rewrites text).
+- [x] T020 Add a unit test for `arrivingNpcs` over the `greyhollow-ford` seed.
+- [x] T021 Run `pnpm ci:check`.
+
+## Phase 3: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
+
+- [x] T022 In `apps/server/src/dm/nodes/resolve.ts`, pass `arriving` (via `encounterToStart` and
+      `arrivingNpcs` over `assembled.projections.scenePresence`) and `resumed`
+      (`assembled.resumed` action ids) to `checkPlan`.
+- [x] T023 In `resolveAction`, take `refusalCode` from the refused verdict's `code`.
+- [x] T024 OQ-2 (a): append `REASON_CONTRADICTS_STATE` to
+      `packages/dnd5e-engine/src/schema/refusals.ts`. Change the count in
+      `packages/dnd5e-engine/test/execute.test.ts` from 27 to 28. Add a `PLAN_GATE_ONLY` list to
+      `packages/dnd5e-engine/test/coverage.test.ts`, exclude it from the expectRefusal check, and
+      assert each listed code is in the enum. Type `REASON_REFUSAL_CODE` as `RefusalCode`.
+- [x] T025 Add to `apps/server/test/dm/resolve.integration.test.ts`, under "plan gate": an NPC group
+      with the M2 seq 221 reason runs no step, writes no `attack.resolved` and no row holding the
+      reason, and the turn still advances.
+- [x] T026 Add: an action group with a refused reason resolves `refused` with
+      `REASON_CONTRADICTS_STATE`, `out.planGate` holds the reason verdict, and no step row lands.
+- [x] T027 Add: an action group with a passing reason applies, and its `dice.rolled` reason equals
+      the step reason plus the existing marker.
+- [x] T028 Amend `specs/031-dm-runtime/contracts/resolve.md` step 0 and
+      `specs/051-output-claim-gate/contracts/claim-gate.md` with the text in
+      `contracts/plan-reason-gate.md`.
+- [x] T029 OQ-2 (a): add the row to `specs/026-dnd5e-engine/contracts/refusals.md`.
+- [x] T030 Run `pnpm ci:check` without a database. Report it; the DB cases skip.
+
+## Phase 4: DB suites and the mutation guard **[orchestrator]**
+
+- [x] T031 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
+      the app), run with `REQUIRE_DATABASE=1`: `resolve.integration`, `encounter-end-resolves`,
+      `human-dm-roll-resume`, `full-turn`, `duo`, `script-env`, `scene` and `worker` integration
+      suites. Export only `TEST_DATABASE_URL` from the worktree `.env`.
+- [x] T032 **[orchestrator]** Triage any scripted suite that fails on a refused reason. A genuine
+      contradiction: dispatch a script-text fix. A false positive: stop and raise it to the operator.
+- [x] T033 **[orchestrator]** Mutation guard (plan D4): stub the reason walk, run `plan-gate.test`
+      and `resolve.integration`, and confirm the seq 221 case, the refusal cases of T016 to T018,
+      and T025 and T026 fail. Restore; `git diff` is empty. Record the result
+      on the card.
+
+## Phase 5: Wiki re-ground
+
+- [x] T034 Re-verify and re-pin `docs/wiki/dm-failure-and-gates.md` (plan gate paragraph: the
+      reason check, `plannedDiff`, the resumed skip, the code).
+- [x] T035 Re-verify and re-pin `docs/wiki/output-claim-gate.md` (callers: the plan gate) and
+      `docs/wiki/dm-turn-jobs.md` (resolve order sentence on the plan gate).
+- [x] T036 Re-verify and re-pin `docs/wiki/dm-runtime.md` and, under OQ-2 (a),
+      `docs/wiki/dnd5e-engine.md` (the plan-gate-only code).
+- [x] T037 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+      spec 058 to `docs/wiki/INDEX.md`'s state paragraph.
+- [x] T038 Add a TASK-0161 "(this PR)" row to the execution log in
+      `docs/design/m3-table-sweep-runbook.md`, in the TASK-0168 row's shape.
+- [x] T039 Run the wiki freshness gate
+      (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+      prints `OK`) and the spec-bridge check (exits 0). Run `pnpm ci:check`.
+
+## Dependencies
+
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5. Strictly serial: every phase edits the plan gate or
+its tests.
