@@ -6,6 +6,12 @@ import type {
 } from "@the-stacks/session-model";
 import type { SrdKind } from "@the-stacks/srd";
 import type { Node, NodeDeps, TurnContext } from "../pipeline/context.js";
+import {
+  awaitingActionIds,
+  findResumedPlans,
+  needsPriorTurns,
+  type ResumedPlan,
+} from "../resume.js";
 import type { SceneSeed } from "../seed/schema.js";
 import { type ActorSnapshot, buildSnapshot } from "../snapshot/index.js";
 
@@ -43,6 +49,8 @@ export interface AssembleOutput {
   snapshot: ActorSnapshot;
   throughSeq: number;
   beat: BeatItem[];
+  /** Plans reused from an earlier turn whose proposal is approved (specs/057). */
+  resumed: ResumedPlan[];
   npcTurn: { combatantId: string; srdMonsterId: string | null } | null;
   presentNpcIds: string[];
   activeEncounterId: string | null;
@@ -127,16 +135,39 @@ function selectBeat(
     });
   } else {
     const narrated = narratedActionIds(projections);
-    items = projections.actions.flatMap((a) => {
+    const candidates = projections.actions.flatMap((a) => {
       const item = toBeatItem(a);
       if (!item) return [];
       if (item.status === "resolved" && narrated.has(item.actionId)) return [];
       return [item];
     });
+    // A pending ai:dm proposal names the action: the human DM has not ruled yet.
+    const awaiting = awaitingActionIds(
+      projections,
+      candidates.map((i) => i.actionId),
+    );
+    items = candidates.filter((i) => !awaiting.has(i.actionId));
   }
   return items
     .filter((i) => (rejections[i.actionId] ?? 0) < REJECTION_LIMIT)
     .sort((a, b) => a.committedSeq - b.committedSeq);
+}
+
+/** The plans this turn reuses: frozen with the beat, else read from earlier turns. */
+async function selectResumed(
+  ctx: TurnContext,
+  projections: SessionProjections,
+  beat: BeatItem[],
+): Promise<ResumedPlan[]> {
+  if (ctx.checkpoint.resumed) return ctx.checkpoint.resumed;
+  if (ctx.checkpoint.beat !== null) return [];
+  const candidates = beat
+    .filter((b) => b.status === "committed")
+    .map((b) => b.actionId);
+  const load = ctx.deps.loadPriorTurns;
+  if (!load || !needsPriorTurns(projections, candidates)) return [];
+  const prior = await load(ctx.job.sessionId, ctx.job.id);
+  return findResumedPlans(projections, candidates, prior);
 }
 
 /** Rule 4: whose monster turn it is, from state alone. */
@@ -290,6 +321,7 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
   const projections = await ctx.deps.loadProjections(ctx.job.sessionId);
   const rejections = rejectionCounts(projections);
   const beat = selectBeat(projections, ctx.checkpoint.beat, rejections);
+  const resumed = await selectResumed(ctx, projections, beat);
   const npcTurn = deriveNpcTurn(projections, ctx.seed, beat);
   const activeEncounterId = deriveActiveEncounterId(projections, ctx.seed);
 
@@ -308,6 +340,7 @@ export const assemble: Node<"assemble"> = async (ctx: TurnContext) => {
       snapshot: s0,
       throughSeq: projections.throughSeq,
       beat,
+      resumed,
       npcTurn,
       presentNpcIds,
       activeEncounterId,

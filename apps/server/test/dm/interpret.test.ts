@@ -5,8 +5,15 @@ import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { interpret } from "../../src/dm/nodes/interpret.js";
 import { InterpretOutput, StepSchema } from "../../src/dm/nodes/schemas.js";
+import type { ResumedPlan } from "../../src/dm/resume.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
-import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import {
+  commit,
+  declare,
+  freeEventsThrough,
+  makeCtx,
+  projectDm,
+} from "./helpers.js";
 
 const director: DirectorNodeOutput = {
   beat: { decision: "resolve" },
@@ -139,5 +146,80 @@ describe("step schema (AC #5)", () => {
     expect(parsed).not.toHaveProperty("total");
     expect(parsed).not.toHaveProperty("outcome");
     expect(parsed).not.toHaveProperty("applied");
+  });
+});
+
+describe("interpret: resumed plans (specs/057)", () => {
+  const twoActions = () => {
+    const base = freeEventsThrough("narration");
+    const n = base.length;
+    return [
+      ...base,
+      declare(n + 1, "act-old", "ana", "Ana searches the ford."),
+      commit(n + 2, "act-old"),
+      declare(n + 3, "act-new", "bram", "Bram shouts."),
+      commit(n + 4, "act-new"),
+    ];
+  };
+  const plan = (actionId: string) =>
+    ({
+      actionId,
+      fromJobId: "job-paused",
+      reading: reading(actionId),
+      ruling: null,
+      submissions: [],
+    }) as unknown as ResumedPlan;
+
+  async function withResumed(ids: string[], readings: unknown[] | null) {
+    const s = await setup(readings, twoActions());
+    const assemble0 = s.ctx.results.assemble;
+    if (!assemble0) throw new Error("no assemble");
+    return {
+      ...s,
+      ctx: {
+        ...s.ctx,
+        results: {
+          ...s.ctx.results,
+          assemble: { ...assemble0, resumed: ids.map(plan) },
+        },
+      },
+    };
+  }
+
+  it("makes no call when every beat item is resumed and returns their readings in beat order", async () => {
+    const s = await withResumed(["act-old", "act-new"], null);
+    const result = await interpret(s.ctx);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.calls).toEqual([]);
+    expect(result.output.readings.map((r) => r.actionId)).toEqual([
+      "act-old",
+      "act-new",
+    ]);
+  });
+
+  it("asks only about the fresh item and merges both in beat order", async () => {
+    const s = await withResumed(["act-old"], [reading("act-new")]);
+    const result = await interpret(s.ctx);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.output.readings.map((r) => r.actionId)).toEqual([
+      "act-old",
+      "act-new",
+    ]);
+    const user = JSON.stringify(
+      s.scripted.provider.chatCalls[0]?.request.messages,
+    );
+    expect(user).toContain("act-new [committed]");
+    expect(user).not.toContain("act-old [committed]");
+  });
+
+  it("fails invalid-output when the model reads the resumed item too", async () => {
+    const s = await withResumed(
+      ["act-old"],
+      [reading("act-new"), reading("act-old")],
+    );
+    const result = await interpret(s.ctx);
+    expect(result.ok).toBe(false);
   });
 });

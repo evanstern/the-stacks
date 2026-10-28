@@ -78,8 +78,15 @@ async function safeRun<N extends NodeName>(
 
 /** True when at least one interpret reading asks for a rules ruling. */
 function needsAdjudication(ctx: TurnContext): boolean {
+  const resumed = new Set(
+    (ctx.results.assemble?.resumed ?? []).map((p) => p.actionId),
+  );
   return (
-    ctx.results.interpret?.readings.some((r) => r.needsAdjudication) ?? false
+    ctx.results.interpret?.readings.some(
+      (r) =>
+        r.needsAdjudication &&
+        !(r.actionId !== null && resumed.has(r.actionId)),
+    ) ?? false
   );
 }
 
@@ -171,6 +178,7 @@ export async function runTurn(
         const saved = await store({
           ...ctx.checkpoint,
           beat: assembled.beat.map((b) => b.actionId),
+          resumed: assembled.resumed ?? [],
           npcTurn: assembled.npcTurn
             ? { combatantId: assembled.npcTurn.combatantId }
             : null,

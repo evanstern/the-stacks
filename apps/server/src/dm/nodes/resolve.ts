@@ -20,6 +20,7 @@ import {
 } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
+import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
 import {
@@ -1054,6 +1055,15 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     };
   }
   const run = new Run(ctx);
+  // Seed the paused plan's submissions, refreshed from the approved proposal,
+  // so the replay continues the chain instead of rolling again (specs/057).
+  for (const plan of assembled.resumed ?? []) {
+    for (const s of plan.submissions) {
+      if (!run.submissions.some((x) => x.key === s.key)) {
+        run.submissions.push(refreshSubmission(assembled.projections, s));
+      }
+    }
+  }
   const hold = director.beat.decision === "hold";
   const local: Local = {
     mode: assembled.projections.tableMode.mode,
