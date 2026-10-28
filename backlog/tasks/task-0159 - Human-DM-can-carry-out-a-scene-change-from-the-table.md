@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:07'
+updated_date: '2026-10-28 08:10'
 labels:
   - play-route
   - gate
@@ -52,6 +52,8 @@ Spec author resumed (573cafc): resolved OQ-1 to OQ-7 as D-1 to D-7, wrote plan.m
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 0/4 · The scene panel and the header trigger (card AC #1, card AC #2): 0/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 0/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Phase 1 gate (orchestrator): REQUIRE_DATABASE=1 pnpm ci:check exits 0 on 6a75be7 with the test DB migrated. Web node 255 pass.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
