@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:58'
+updated_date: '2026-10-28 06:04'
 labels:
   - multiplayer
   - dev-tooling
@@ -88,6 +88,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 7: merge 13f64ae (clean), wiki a8457a9 (10 notes re-pinned, CAPSULES regenerated), runbook 853ce1d, ticks 1e00c55. Freshness OK (54), spec-bridge ok. Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on 1e00c55: exit 0, server 1261, web 107.
 
 spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 8/8 · Start scene slide-out (card AC #3): 6/6 · Runbook section and the DM API contract (card AC #3): 3/3 · Local live run on this worktree's stack (card AC #2, #3): 4/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 5/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 0/5
+
+Merged as #79 at 6d6982e under the operator's merge-on-green grant (TASK-0117). Worktree, branch and stack removed; env:prune clean. The card stays In Progress: AC #4 and spec Phase 8 (T041-T045, hosted-dev alpha run) wait on the operator's spend ceiling and go on each vm-104 command.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
