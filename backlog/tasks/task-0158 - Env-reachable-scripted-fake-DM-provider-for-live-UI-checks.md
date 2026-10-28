@@ -76,6 +76,8 @@ Phase 5: merge of origin/main 89d75e2 (clean), wiki d6f58a0 (14 notes re-pinned,
 spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 7/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 5/5 — status In Progress → Done
 
 REQUIRE_DATABASE=1 pnpm ci:check on the merged tree (bf32bf2) exits 0, server 1244 passed. AC #1: DM_FAKE_SCRIPT=<name> loads a shipped script into the running app (script-env tests, DB integration, live run). AC #2: specs/053-env-fake-dm-script/quickstart.md, run live on stacks-task-0158 (evidence/live-run.md).
+
+spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 7/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
