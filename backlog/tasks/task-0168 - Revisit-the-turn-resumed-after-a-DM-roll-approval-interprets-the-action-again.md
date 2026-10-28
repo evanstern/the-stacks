@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 18:50'
+updated_date: '2026-10-28 19:07'
 labels:
   - dm-runtime
   - gate
@@ -62,6 +62,10 @@ spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 (3d05faa1): evidence/live-resume.mjs for Brave (node --check passes), quickstart step 4 corrected. T019 blocked 2026-10-28: the auto-mode classifier denied the orchestrator's append of DM_FAKE_SCRIPT=greyhollow-human-dm to the worktree .env (quickstart step 2). Not worked around; put to the operator.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 (e2bd2bf2): dm-runtime, dm-turn-jobs, runtime-stacks re-verified and re-pinned; dm-failure-and-gates, debug-view, presence, seed-npc-presence, turn-floor re-pinned after grep found no affected claims; INDEX, CAPSULES, runbook amendment and TASK-0168 rows. Freshness OK (55), spec-bridge ok. T019 first attempt, 2026-10-28: the operator appended DM_FAKE_SCRIPT=greyhollow-human-dm to the worktree .env himself in chat; after an image rebuild the boot log read 10 calls. live-resume.mjs hung after the scene-start turn (an unbounded Playwright click; the step-6 flow skipped 055's Change scene step) and was killed. The stack was reset to fresh volumes; a fix is dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
