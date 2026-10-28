@@ -1,10 +1,10 @@
 ---
 id: TASK-0159
 title: Human DM can carry out a scene change from the table
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 09:04'
+updated_date: '2026-10-28 14:40'
 labels:
   - play-route
   - gate
@@ -111,6 +111,12 @@ spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and t
 
 AC #1 met: DM-only Change scene slide-out (no modal) sends a scene gate request (sceneFrame, changeScene), tested in frames, local-log, fixture, scene-panel and table-view tests, and live in Brave. AC #2 met: scene-seeds.ts seeds the form from pending and recent ai:dm scene suggestions, tested, and live (seeded panel shots; carried out with sceneId greyhollow-ford).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
