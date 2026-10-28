@@ -64,6 +64,8 @@ Phase 5 (T034-T039) at 0f13e67f: re-pinned dm-failure-and-gates, output-claim-ga
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
+
+spec-bridge sync: Evidence fixture and failing tests (card AC #2, #3 evidence): 8/8 · The reason check in `checkPlan` (card AC #1, #2, #3): 13/13 · Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3): 9/9 · DB suites and the mutation guard **[orchestrator]**: 3/3 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
