@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — no inline markers; eight open questions (Q1–Q8) await the operator, each with a recommended default
+- [x] No [NEEDS CLARIFICATION] markers remain — Q1–Q8 resolved by operator ruling 2026-10-28
 - [x] Requirements are testable and unambiguous, given the open-question defaults
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- `plan.md` is blocked until the operator rules on Q1–Q8 (or accepts the defaults).
+- Q1–Q8 resolved 2026-10-28 (operator accepted every recommended default).

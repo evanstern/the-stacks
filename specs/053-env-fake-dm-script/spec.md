@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-27
 
-**Status**: Draft — open questions below block `plan.md`
+**Status**: Ready for plan — Q1 to Q8 resolved 2026-10-28
 
 **Input**: TASK-0158 "Env-reachable scripted fake DM provider for live UI checks". A worktree
 stack can run a full fake-gateway turn (director through narration), driven by a DM script
@@ -153,8 +153,21 @@ written events highlight in the log.
 
 ## Open questions
 
-Each question changes an env contract, a script contract, or behaviour an operator sees. Each
-has a recommended default.
+**Resolved 2026-10-28.** The operator ruled in chat: "TASK-0158: I accept the recommended
+defaults Q1 to Q8, including the DM_FAKE_SCRIPT name, the shipped dm-scripts directory, the
+whole-config replacement and the STACKS_ENV boot guard." The ruling is recorded on the card.
+Each question below keeps its options for the record; the **Recommended** option is the ruling.
+
+| Q | Ruling |
+|---|---|
+| Q1 | A — a script name, resolved in the shipped `apps/server/dm-scripts/` directory |
+| Q2 | A — `DM_FAKE_SCRIPT` |
+| Q3 | A — replace the whole AI config with the scripted config |
+| Q4 | A — fail loudly; restart the app container to reload |
+| Q5 | A — boot refuses when `STACKS_ENV` is unset, `default`, `main` or `dev` |
+| Q6 | A — scene-start, plus an optional scripted declare with the script's fixed action id |
+| Q7 | A — script dice first, then `seededRng(0)` |
+| Q8 | A — one process-wide queue |
 
 ### Q1 — Value form: script name or file path?
 
