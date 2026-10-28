@@ -33,8 +33,6 @@ Spec: specs/053-env-fake-dm-script
 - [ ] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +59,8 @@ spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Bo
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (80633dd chronicle calls, ae21f3d image/env/helpers): both narrated turns queue chronicle (runner sets resolve.chronicle when narration lands); two dm.chronicle calls added; integration asserts chronicle model call outcome ok. Image contains dm-scripts/greyhollow-live.json. ci:check exit 0 (server 1236). Helpers are syntax-checked only; Phase 4 runs them live.
+
+spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 0/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
