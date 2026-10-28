@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 07:52'
+updated_date: '2026-10-28 07:53'
 labels:
   - play-route
   - gate
@@ -36,6 +36,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 212a4f8) stopped with open questions OQ-1 to OQ-7. Finding: with a human DM the scene-start suggestion stays pending, p.scene stays null, and every later AI DM turn fails no-scene until the human DM carries out a scene with the seed's sceneId.
 
 Operator ruling, in chat 2026-10-28, verbatim: "TASK-0159: I accept the recommended defaults OQ-1 to OQ-7 (A), including the 030 TableHeader amendment. Card DC-1 (human DM ends an encounter or changes table mode) in m-3; card DC-2 as a revisit."
+
+Carded per the ruling: DC-1 is TASK-0165 (m-3). DC-2 is TASK-0166 (revisit).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
