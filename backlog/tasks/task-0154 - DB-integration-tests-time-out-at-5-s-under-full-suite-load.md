@@ -4,7 +4,7 @@ title: DB integration tests time out at 5 s under full-suite load
 status: In Progress
 assignee: []
 created_date: '2026-10-27 04:11'
-updated_date: '2026-10-28 15:00'
+updated_date: '2026-10-28 15:11'
 labels:
   - test
   - bug
@@ -27,11 +27,13 @@ Spec: specs/056-db-test-timeouts
 <!-- AC:BEGIN -->
 - [ ] #1 The affected tests set an explicit timeout sized to their measured worst case, or the suite isolates them so load does not starve them
 - [ ] #2 Three consecutive full REQUIRE_DATABASE=1 server runs pass without re-runs
-- [ ] #3 Spec phase: Measure before the fix (card AC #1) — orchestrator-run
+- [x] #3 Spec phase: Measure before the fix (card AC #1) — orchestrator-run
 - [ ] #4 Spec phase: Size and set the timeouts (card AC #1)
 - [ ] #5 Spec phase: Three consecutive full runs (card AC #2) — orchestrator-run
 - [ ] #6 Spec phase: Evidence, wiki, runbook and close (card AC #1, card AC #2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
