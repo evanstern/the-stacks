@@ -239,3 +239,21 @@ test("a floor refusal shows inline with its label", () => {
   );
   expect(html).toContain("The turn moved on");
 });
+
+// ---- spec 055: Change scene trigger ----
+
+test("the dm-approvals DM viewer renders a Change scene trigger; a player renders none", () => {
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("fixture missing");
+  const dm = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.dm)} />,
+  );
+  const player = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.players[0])} />,
+  );
+  const button = dm.match(/<button[^>]*>(?:(?!<\/button>)[\s\S])*Change scene/);
+  expect(button?.[0]).toContain('aria-controls="scene-panel"');
+  expect(button?.[0]).toContain('aria-expanded="false"');
+  expect(dm).not.toContain("aria-modal");
+  expect(player).not.toContain("Change scene");
+});

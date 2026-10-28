@@ -61,3 +61,9 @@ export interface TableCommands extends ProposalCommands {
 |---|---|---|
 | `useLiveTable(sessionId, user)` | `play/use-live-table.ts` | `kind: "live"`, events from `useSession`, commands from `play/frames.ts` (contracts/live-frames.md), proposals from `liveProposals` (contracts/proposal-seam.md) |
 | `useFixtureTable(fixture, viewerKey, through)` | `play/use-fixture-table.ts` | `kind: "fixture"`, status `"fixture"`, events = fixture rows `seq <= through` then local appends, proposals from `play/fixtures/proposals.ts` for the DM |
+
+Amendment (TASK-0159, operator ruling 2026-10-28, D-1): `TableCommands.changeScene`. Additive.
+
+`TableCommands` gains `changeScene(input: SceneInput): boolean`. It returns true when the scene request
+left (live) or was applied to the local log (fixture). `SceneInput` is `{ reason, after | null,
+closeProposalId | null }`. Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`.

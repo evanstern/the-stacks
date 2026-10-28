@@ -18,3 +18,12 @@ Each mutation was restored with `git checkout <file>`; `git diff` was empty afte
 
 The file was restored from a copy; the restored file is byte-identical and the suite is 9 pass, 0 fail.
 `scene-seeds.ts` was untracked when mutated, so an empty `git diff` does not apply; `diff` against the copy was empty.
+
+## Phase 3 (implementer)
+
+| Mutation | Expected | Result |
+|---|---|---|
+| `scene-panel.tsx` `applyInput`: `sceneId` becomes a slug of the title | T014 `applyInput` case fails | Failed: `applyInput keeps the seed's sceneId and closes only a pending seed` (scene-panel.test.tsx, 8 pass, 1 fail). |
+| `scene-panel.tsx` `applyInput`: `closeProposalId` always the seed's id | the `earlier` case fails | Failed: same test, at the `earlier` seed's `closeProposalId` null assertion (8 pass, 1 fail). |
+
+`scene-panel.tsx` was untracked when mutated, so an empty `git diff` does not apply; the file was restored from a copy, `diff` against the copy was empty and the suite is 9 pass, 0 fail.
