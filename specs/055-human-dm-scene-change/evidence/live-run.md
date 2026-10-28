@@ -75,3 +75,40 @@ this run did not change either. The orchestrator decides: amend `human-dm-approv
 DB test case (c), which does not exercise the roll pause) or accept the narration step as
 unproven live. The step 9 baseline, the shots and T032 wait on that ruling and on a script
 restart.
+
+## Rerun after the script fix (commit `a202e04f`): stopped at step 8c, stack contaminated
+
+Fix: `human-dm-approval.json` and `greyhollow-human-dm.json` gained a second `dm.director` call
+after `dm.interpret` (`DM script mode: greyhollow-human-dm (10 calls, 1 dice)`). Restart 1
+(`up -d --build --force-recreate --no-deps --wait app`) followed the commit.
+
+Fresh session `3c331d8b-9ad7-4068-ad39-db038b07d31c` (`shoot-live.mjs`). Passed: scene-start
+turn, "No scene yet", seeded panel fields (shots taken BEFORE Apply), Apply, applied header, the
+debug page, step 8b (10 approvals). Shots: `scene-panel-seeded`, `scene-applied` (4 variants
+each), `debug-approval-turn-1280-light`. No modal in any shot.
+
+Step 8c failed again, for a different reason. The commit turn `d0e016d1` failed at
+`dm.interpret` (`unscripted call`, error kind `config`). Cause: restart 1 booted with
+session `a757700e` (the first run) still holding a committed `act-search` with no
+`action.resolved`. `reconcileTurnJobs` enqueues a `reconcile` turn for every such session at
+every boot. That job (`f2af2b93`) ran `dm.director` and `dm.interpret` and consumed the one
+`dm.interpret` entry before the fresh session reached it. The script queue is per purpose, FIFO.
+
+Restarts 2 and 3 (`up -d --force-recreate --no-deps --wait app`, no build) did not help:
+both dirty sessions (`a757700e`, `3c331d8b`) reconcile at each boot and burn the script first.
+`action.withdraw` is refused (`ACTION_NOT_OPEN`: the action is committed). Approving the
+reconcile's roll on `3c331d8b` produced an `approval` turn that called `dm.director` then
+`dm.interpret` and failed there (queue spent).
+
+Result: no narrated turn is possible on this stack while any session holds a committed,
+unresolved action. Steps 9 to 11 and T032 were not run.
+
+## Open question (second)
+
+The stack needs a clean database, or a ruling to hand-resolve the two dirty sessions. Suggested:
+the orchestrator runs `pnpm env:down`, `pnpm env:up` and the two migrations, then restarts the
+app once. After that, the rerun must not leave a committed action unresolved at any restart: run
+the narrated flow once, with a restart only before the baseline (the baseline session commits
+no action, so it leaves nothing to reconcile). Then `shoot-live.mjs` runs unchanged, but it
+creates the accounts' sessions only; the accounts must be recreated (`setup-0159.mjs` style).
+The `check.roll` pause and a second reconcile pass are a product property, not a defect here.
