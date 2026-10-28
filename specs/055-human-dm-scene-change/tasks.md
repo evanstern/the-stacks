@@ -130,12 +130,12 @@ shots.
 **Goal**: the branch is current with `main`, the wiki is re-pinned, the gates pass and the runbook
 is updated.
 
-- [ ] T034 Merge `origin/main` into the branch again (`git -C <worktree> merge origin/main`). Resolve conflicts keeping both sides. Re-run `pnpm --filter @the-stacks/web test`.
-- [ ] T035 Run `/grounding-wiki:wiki-update` for the sources this branch touched. Expect `docs/wiki/play-route.md` (new sources `scene-seeds.ts`, `components/scene-panel.tsx`; the "Open gap" sentence replaced by the Change scene slide-out, D-1 to D-7) and any note the plan names as NEEDS-REVIEW (`turn-floor.md` and `runtime-stacks.md` list play-route or dm-scripts sources). Name `greyhollow-human-dm` in `runtime-stacks.md` beside `greyhollow-live`. Update the play-route lines in `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Re-pin honestly.
-- [ ] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
-- [ ] T037 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`. Expect exit 0.
-- [ ] T038 In `docs/design/m3-table-sweep-runbook.md`, fill the TASK-0163 row: replace "(this PR)" with `[#79](https://github.com/evanstern/the-stacks/pull/79)` and "—" with `` `6d6982e` ``. Append a TASK-0159 row with "(this PR)", using the text the orchestrator gives. Do not edit other rows.
-- [ ] T039 Run `pnpm ci:check`. Commit: `TASK-0159: re-ground wiki, runbook rows`. Push.
+- [x] T034 Merge `origin/main` into the branch again (`git -C <worktree> merge origin/main`). Resolve conflicts keeping both sides. Re-run `pnpm --filter @the-stacks/web test`.
+- [x] T035 Run `/grounding-wiki:wiki-update` for the sources this branch touched. Expect `docs/wiki/play-route.md` (new sources `scene-seeds.ts`, `components/scene-panel.tsx`; the "Open gap" sentence replaced by the Change scene slide-out, D-1 to D-7) and any note the plan names as NEEDS-REVIEW (`turn-floor.md` and `runtime-stacks.md` list play-route or dm-scripts sources). Name `greyhollow-human-dm` in `runtime-stacks.md` beside `greyhollow-live`. Update the play-route lines in `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Re-pin honestly.
+- [x] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`. Expect `OK`.
+- [x] T037 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`. Expect exit 0.
+- [x] T038 In `docs/design/m3-table-sweep-runbook.md`, fill the TASK-0163 row: replace "(this PR)" with `[#79](https://github.com/evanstern/the-stacks/pull/79)` and "—" with `` `6d6982e` ``. Append a TASK-0159 row with "(this PR)", using the text the orchestrator gives. Do not edit other rows.
+- [x] T039 Run `pnpm ci:check`. Commit: `TASK-0159: re-ground wiki, runbook rows`. Push.
 - [ ] T040 (orchestrator) Run `REQUIRE_DATABASE=1 pnpm ci:check` on the merged tree with only `TEST_DATABASE_URL` exported. Re-run a WebSocket gateway or DB scene timeout failure once and report it (TASK-0154).
 
 ---

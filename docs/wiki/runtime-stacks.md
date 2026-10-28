@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: fd4d45161c7407d4dcc59ad9ffe43df147e70c29
 ---
 
 # Runtime stacks
@@ -96,17 +96,13 @@ written by this tooling.
 volume predates a root-side password change keeps the old password until `env:down` (which
 drops the volume, `-v`) then `env:up` again.
 
-**Scripted DM on a worktree stack (TASK-0158, specs/053).** `DM_FAKE_SCRIPT=<name>` makes the app
-replay `apps/server/dm-scripts/<name>.json` with no provider key ([[ai-gateway]]). Set it in the
-worktree's `.env`, never root's: a root key wins over a worktree key and would reach every stack.
-A fresh stack is unmigrated, and a host `db:migrate` hits the test database ([[configuration]]), so
-migrate the app database without reading a credential: `docker build --target build -t
+**Scripted DM on a worktree stack (TASK-0158).** `DM_FAKE_SCRIPT=<name>` makes the app
+replay `apps/server/dm-scripts/<name>.json` with no key ([[ai-gateway]]). Set it in the worktree's `.env`, never root's: a root key wins and would reach every stack.
+A fresh stack is unmigrated and a host `db:migrate` hits the test database ([[configuration]]); migrate without a credential: `docker build --target build -t
 stacks-<env>-migrate .`, then `docker run --rm --network stacks-<env>_default --env-file .env -e
 TEST_DATABASE_URL= -w /app/apps/server stacks-<env>-migrate node --experimental-strip-types
-scripts/migrate.ts` (Docker passes the env file; `deploy/dev`'s `migrate` service has the same
-shape). Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
-without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env>
-up -d --force-recreate --wait app`. Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
+scripts/migrate.ts` (`deploy/dev`'s `migrate` service has the same shape). Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
+without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env> up -d --force-recreate --wait app`. See `specs/053-env-fake-dm-script/quickstart.md`. Scripts: `greyhollow-live`, `greyhollow-human-dm`. An unresolved committed action reconciles at every boot and spends the script.
 
 ## Connections
 

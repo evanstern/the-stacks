@@ -1,9 +1,7 @@
 {
   "v": 1,
   "name": "human-dm-approval",
-  "dice": [
-    9
-  ],
+  "dice": [9],
   "calls": [
     {
       "purpose": "dm.director",
