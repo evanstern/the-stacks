@@ -4,7 +4,7 @@ title: DB integration tests time out at 5 s under full-suite load
 status: In Progress
 assignee: []
 created_date: '2026-10-27 04:11'
-updated_date: '2026-10-28 14:52'
+updated_date: '2026-10-28 15:00'
 labels:
   - test
   - bug
@@ -33,8 +33,6 @@ Spec: specs/056-db-test-timeouts
 - [ ] #6 Spec phase: Evidence, wiki, runbook and close (card AC #1, card AC #2)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -45,6 +43,10 @@ Third instance 2026-10-27: test/playtest/provider.integration.test.ts timed out 
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0154, branch task-0154-db-test-timeouts, cut from origin/main 934d8d78. Spec 056 authored at d78bdfe5 (explicit per-test timeouts, chosen over isolation; plan D1-D6).
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Orchestrator ruling on spec OQ-1 (a test-evidence reading, not player-facing): default (a). A full run counts toward AC #2 only when it passes with no re-run, including the known WebSocket gateway flake; a failed run is kept as run-failed-<k>.txt and the count restarts. If the gateway flake blocks three clean runs twice in a row, the orchestrator reports it to the operator rather than widening the AC.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 1 (orchestrator, 2026-10-28): stack up and both DBs migrated. Alone, the 8 target tests ran 4-2102 ms; the full verbose baseline passed (server 1266 passed, 5 skipped) with no timeout, slowest target 2102 ms. Phase 2 (9a5fae22): every target test carries 30_000 with a TASK-0154 comment (D2 floor). No extra test over 2.5 s needed one. The implementer's no-DB server run failed 5 tests in adjudicate.integration.test.ts (requireDb throws instead of skipping), which is TASK-0138, untouched here.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
