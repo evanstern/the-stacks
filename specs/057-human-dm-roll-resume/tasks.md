@@ -94,7 +94,7 @@ the jobs read that feeds them.
 - [x] T020 Re-verify and re-pin `docs/wiki/dm-runtime.md` (assemble awaiting/resumed, interpret and adjudicate fresh-only, resolve seeding; the 031 amendment), `docs/wiki/dm-turn-jobs.md` (the resume after approval, `TurnCheckpoint.resumed`, `loadPriorTurnCheckpoints`, reconcile skips an awaiting action), `docs/wiki/dm-failure-and-gates.md` (sources `jobs.ts`, `worker.ts`, runner, context: confirm no failure-record change), and `docs/wiki/runtime-stacks.md` (`greyhollow-human-dm` is 10 calls; a pending roll no longer reconciles). Add `apps/server/src/dm/resume.ts` to the sources of `dm-runtime` and `dm-turn-jobs`.
 - [x] T021 Update the `docs/wiki/INDEX.md` state paragraph with one TASK-0168 sentence. Regenerate `docs/wiki/CAPSULES.md` with the grounding-wiki `capsules.mjs` script if any `description:` changed.
 - [x] T022 Add a TASK-0168 "(this PR)" row to `docs/design/m3-table-sweep-runbook.md`: resumed turn reuses the paused plan; 031 resolve.md and nodes.md amended; DB test mutation-checked; script-mode live run in Brave; OQ-1 to OQ-4 status.
-- [ ] T023 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (expect `OK`), `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (expect exit 0) and `pnpm ci:check`.
+- [x] T023 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` (expect `OK`), `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` (expect exit 0) and `pnpm ci:check`.
 
 ---
 
