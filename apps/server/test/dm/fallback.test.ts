@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
+import { type ClaimState, checkClaims } from "../../src/dm/claims.js";
 import {
   buildNarrationFacts,
   type FactAction,
@@ -18,8 +19,78 @@ import { deterministicChecks } from "../../src/dm/nodes/audit.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
+import { nameTerms } from "../../src/dm/snapshot/aliases.js";
+import type {
+  ActorChange,
+  LifeState,
+  SnapshotActor,
+} from "../../src/dm/snapshot/types.js";
 import { projectDm, testSeed } from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
+
+/**
+ * A ClaimState derived from a fact set: one actor per name, life states from
+ * the life-state and unconscious-condition changes (dead outranks unconscious),
+ * and a diff holding those changes as this turn's.
+ */
+function claimStateFor(
+  f: NarrationFacts,
+  names: readonly string[],
+  extra: Record<string, LifeState> = {},
+): ClaimState {
+  const life = new Map<string, LifeState>(Object.entries(extra));
+  const changes: ActorChange[] = [];
+  const set = (name: string, after: LifeState) => {
+    const prior = life.get(name);
+    if (prior === "dead") return;
+    if (prior === "unconscious" && after !== "dead") return;
+    life.set(name, after);
+    changes.push({
+      kind: "life-state",
+      actorId: name,
+      before: "conscious",
+      after,
+    });
+  };
+  const all = [
+    ...f.actions.flatMap((a) => a.changes),
+    ...(f.npcTurn?.changes ?? []),
+  ];
+  for (const c of all) {
+    if (
+      c.kind === "life-state" &&
+      (c.after === "dead" || c.after === "unconscious")
+    )
+      set(c.target, c.after);
+    if (
+      c.kind === "condition" &&
+      c.condition === "unconscious" &&
+      c.op === "applied"
+    )
+      set(c.target, "unconscious");
+  }
+  const actors: SnapshotActor[] = names.map((n) => ({
+    id: n,
+    combatantId: n,
+    characterId: null,
+    name: n,
+    aliases: nameTerms(n, [n]),
+    kind: /^(Ana|Bram)$/.test(n) ? "party" : "monster",
+    controller: { kind: "dm" },
+    hp: null,
+    lifeState: life.get(n) ?? "conscious",
+    conditions: [],
+    ac: null,
+    initiative: null,
+    resources: null,
+    sheet: null,
+    presence: "present",
+  }));
+  return {
+    snapshot: { ...EMPTY_RESOLVE_SNAPSHOT.snapshot, actors },
+    diff: { fromSeq: 0, toSeq: 1, actors: changes, stage: [] },
+  };
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixture = JSON.parse(
@@ -475,7 +546,8 @@ describe("factualSummary: property", () => {
         };
       }
       f.director.sceneEnded = rnd(4) === 0;
-      const prose = factualSummary(f);
+      const state = claimStateFor(f, names);
+      const prose = factualSummary(f, state);
       // Names are exempt from the system-word rule.
       const scrubbed = names.reduce(
         (t, n) => t.split(n.replace(/-(?=\d)/, " ")).join(""),
@@ -483,11 +555,13 @@ describe("factualSummary: property", () => {
       );
       expect(scrubbed, prose).not.toMatch(SYSTEM_WORDS);
       expect(prose).not.toMatch(/[0-9]/);
-      const r = deterministicChecks(f, {
-        prose,
-        diceLines: renderDiceLines(f),
-      });
+      const r = deterministicChecks(
+        f,
+        { prose, diceLines: renderDiceLines(f) },
+        state,
+      );
       expect(r.issues, prose).toEqual([]);
+      expect(checkClaims(state, prose).issues, prose).toEqual([]);
       // Coverage: every action, change and event adds a sentence.
       const held = new Set(f.clarify.map((c) => c.actionId));
       const expectedMin =
@@ -500,6 +574,29 @@ describe("factualSummary: property", () => {
       const sentences = prose.split(/(?<=[.?!])\s+/).length;
       expect(sentences, prose).toBeGreaterThanOrEqual(expectedMin);
     }
+  });
+
+  it("does not voice a roll reason that claims two kin fell with one dead (M2 seq 221, US4.4)", () => {
+    const reason = "The goblin shrieks, shouting that two kin have fallen";
+    const f = facts({
+      actions: [
+        action({
+          characterName: "Goblin 2",
+          rolls: [roll("hit", { reason })],
+          outcomes: ["hit"],
+        }),
+      ],
+    });
+    const state = claimStateFor(f, ["Ana", "Goblin 2", "Goblin-3"], {
+      "Goblin-3": "dead",
+    });
+    expect(checkClaims(state, reason).pass).toBe(false);
+    const out = factualSummary(f, state);
+    expect(out).not.toContain("kin have fallen");
+    expect(out).toContain("strikes home");
+    expect(checkClaims(state, out).pass).toBe(true);
+    // Without a state the reason is voiced, as before (existing callers).
+    expect(factualSummary(f)).toContain("kin have fallen");
   });
 
   it("never names a tracker or a DM-only fact", () => {

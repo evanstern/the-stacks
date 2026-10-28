@@ -4,7 +4,7 @@ title: 'Debug view: play/:sessionId/debug page'
 status: Done
 assignee: []
 created_date: '2026-10-27 01:47'
-updated_date: '2026-10-27 12:56'
+updated_date: '2026-10-28 03:01'
 labels:
   - debug-view
   - web
@@ -107,6 +107,8 @@ spec-bridge sync: Data layer — types, readers, client, snapshot, poller — DI
 PR #69 merged by the operator (2c74b6d). The PR body asked the operator to confirm two things before merging: the page ships everywhere behind the operator role, and the shots of a failed live turn satisfy the merge condition (TASK-0158 carded).
 
 spec-bridge sync: Data layer — types, readers, client, snapshot, poller — DISPATCH (sonnet): 10/10 · Derivations — waiting summary, job view, links, filters, scrub — DISPATCH (sonnet): 9/9 · Route, hook, strip, retry and the Debug link (US6, US1; AC #1, #2, #3, #9) — DISPATCH (sonnet): 7/7 · Job timeline, event log and cross-links (US2, US3; AC #4, #5, #6) — DISPATCH (sonnet): 6/6 · State column, seq pin and panels (US4, US5; AC #7, #8) — DISPATCH (sonnet): 6/6 · Live check in Brave (AC #10; runbook merge condition) — DISPATCH (sonnet): 3/3 · Wiki re-ground and full gate — DISPATCH (sonnet): 4/4 — status In Progress → Done
+
+Merge grant, 2026-10-27, operator in chat, verbatim: "BTW at this point, you have my persmission to merge on green without myh review -- we will review when review human-style on checkpoints that you decide". Scope as applied by the orchestrator: merge an M3 sweep PR as a merge commit once CI is green and the card's Dispatch lines are recorded. The grant does not cover frozen-contract or player-facing open-question rulings, paid playtests, vm-104 changes, or keys. Checkpoints chosen for human review: before the paid TASK-0053 demo run, and at M3 close. Also any PR whose open questions the operator has not ruled on.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

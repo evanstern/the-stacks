@@ -93,6 +93,37 @@ research.md R7.2 gives the counts and an alternative rule pending an operator ru
 | option menu | The detail quotes the closing question, at most 120 characters. |
 | length | The detail states the count: `The prose is <n> words; the limit is 220.` The limit stays 220. |
 
+## Deterministic checks (amendment, spec 051)
+
+The claim checks of `specs/051-output-claim-gate/contracts/claim-gate.md` replace four checks.
+
+**Retired checks.** `deterministicChecks` no longer runs these:
+
+- "says a character dies" (the life states check, death words);
+- "says a character is unconscious" (the life states check, down words);
+- "a recorded death omitted";
+- "a recorded drop omitted".
+
+**Claim checks.** `checkClaims` runs against S1 and the diff on every narration attempt. A refusal
+blocks as kind `ledger-mismatch`. The detail starts with "Actor state:". The existing regenerate
+loop and the code fallback apply unchanged. The checks refuse:
+
+- a dead, unconscious, stable or absent actor shown acting or speaking;
+- a death or drop named on the wrong actor;
+- an unattributed death or drop word when no S1 actor holds that state;
+- a recorded death or drop that the prose omits;
+- a count or quantifier that disagrees with S1.
+
+An unattributed death or down word passes when S1 holds at least one actor in that state.
+
+**Withheld-input record.** The narrate node checks each ruling and `goalNote` once before the
+first call. It withholds a refused text from the facts. It records a claim issue on attempt 1 with
+`blocking: false`. The audit node does not count that issue toward the verdict.
+
+*Amended 2026-10-27 (TASK-0143, operator ruling OQ-2, OQ-4, OQ-6: "I accept the recommended defaults OQ-1 to OQ-6 (a), including the dm.narrate-v5 prompt bump and a follow-up card for checking roll reasons at the plan gate."):* OQ-2 (a) withholds a
+refused ruling or `goalNote`. OQ-4 (a) sets the issue kind and detail prefix. OQ-6 (a) retires the
+four anonymous checks.
+
 ## The audit call v2 (`prompts/audit.ts`, `PROMPT_VERSION = "dm.audit-v2"`)
 
 The user prompt adds the facts' `## Party (player characters)` and `## Other characters (the

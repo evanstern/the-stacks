@@ -12,7 +12,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 7e974be373e4dce39778dd366f27a6edc3bdaa14
+verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
 ---
 
 # Seed NPC presence
@@ -71,7 +71,8 @@ Resolve builds these proposals, as it does every `scene-presence` proposal. Seed
 - `assemble` builds S0 first, then sets `presentNpcIds` to the seed NPCs (in seed order) whose
   snapshot actor does not read `absent`. It no longer collects `beats[].npcIds`.
 - `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
-  against the S1 snapshot and drops each actor that reads `absent`.
+  against the S1 snapshot and drops each actor that reads `absent`. It then withholds refused
+  rulings and `goalNote` text ([[output-claim-gate]]); this does not touch the NPC list.
 - `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`
   ([[actor-snapshot]]).
 

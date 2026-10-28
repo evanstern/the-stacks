@@ -1,8 +1,6 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
-  DEATH_RECORDED,
-  DEATH_WORDS,
   DICE_LANGUAGE,
   EITHER_OR_END,
   LIST_LINE,
@@ -10,15 +8,10 @@ import {
   NEGATIVE_WORDS,
   namePairsWith,
   POSITIVE_WORDS,
-  UNCONSCIOUS_RECORDED,
-  UNCONSCIOUS_WORDS,
   wordCount,
 } from "../audit-words.js";
-import {
-  type FactChange,
-  type NarrationFacts,
-  renderDiceLines,
-} from "../facts.js";
+import { type ClaimState, checkClaims } from "../claims.js";
+import { type NarrationFacts, renderDiceLines } from "../facts.js";
 import { factualSummary } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
 import type {
@@ -151,18 +144,14 @@ export interface AuditOutput {
 
 const sha = (s: string): string => createHash("sha256").update(s).digest("hex");
 
-function lifeStateFacts(facts: NarrationFacts): FactChange[] {
-  const all = [
-    ...facts.actions.flatMap((a) => a.changes),
-    ...(facts.npcTurn?.changes ?? []),
-  ];
-  return all;
-}
-
-/** Pure. Eight checks over one narration. Every issue here blocks. */
+/**
+ * Pure. Checks over one narration: the claim checker (spec 051) replaces the
+ * four actor-anonymous death and drop checks. Every issue here blocks.
+ */
 export function deterministicChecks(
   facts: NarrationFacts,
   narration: { prose: string; diceLines: readonly string[] },
+  state: ClaimState,
 ): { pass: boolean; issues: AuditIssue[] } {
   const { prose } = narration;
   const issues: AuditIssue[] = [];
@@ -187,39 +176,8 @@ export function deterministicChecks(
     );
   }
 
-  const changes = lifeStateFacts(facts);
-  const recordsDeath = changes.some(
-    (c) => c.kind === "life-state" && c.after === "dead",
-  );
-  const recordsDown =
-    changes.some((c) => c.kind === "life-state" && c.after === "unconscious") ||
-    changes.some(
-      (c) =>
-        c.kind === "condition" &&
-        c.condition === "unconscious" &&
-        c.op === "applied",
-    );
-  const deathMatch = DEATH_WORDS.exec(prose);
-  if (deathMatch && !recordsDeath) {
-    add(
-      "ledger-mismatch",
-      `The prose says a character dies ("${deathMatch[0].slice(0, 60)}"), and no fact records a death.`,
-    );
-  }
-  if (UNCONSCIOUS_WORDS.test(prose) && !recordsDown && !recordsDeath) {
-    add(
-      "ledger-mismatch",
-      "The prose says a character is unconscious, and no fact records it.",
-    );
-  }
-  if (recordsDeath && !DEATH_RECORDED.test(prose)) {
-    add("ledger-mismatch", "A fact records a death, and the prose omits it.");
-  }
-  if (recordsDown && !recordsDeath && !UNCONSCIOUS_RECORDED.test(prose)) {
-    add(
-      "ledger-mismatch",
-      "A fact records a character falling unconscious, and the prose omits it.",
-    );
+  for (const c of checkClaims(state, prose).issues) {
+    add("ledger-mismatch", `Actor state: ${c.detail}`);
   }
 
   for (const a of facts.actions) {
@@ -303,17 +261,23 @@ export const audit: Node<"audit"> = async (ctx) => {
   }
 
   const { facts } = narration;
+  const claimState: ClaimState = {
+    snapshot: resolved.snapshot,
+    diff: resolved.diff,
+  };
   const calls: ModelCallRecord[] = [];
   const attempts: AuditAttempt[] = [];
   const allIssues: string[] = [];
   const line = (i: RecordedIssue): string =>
     `${i.blocking ? "" : "[advisory] "}${i.kind}: ${i.detail}`;
+  const advisory = (xs: readonly AuditIssue[]): RecordedIssue[] =>
+    xs.map((i) => ({ ...i, blocking: false }));
   let current = { prose: narration.prose, diceLines: narration.diceLines };
   let issuesSoFar: AuditIssue[] = [];
   let attempt = 1;
 
   const fallback = (): AuditOutput => {
-    const prose = factualSummary(facts);
+    const prose = factualSummary(facts, claimState);
     const diceLines = renderDiceLines(facts);
     return {
       record: {
@@ -335,7 +299,7 @@ export const audit: Node<"audit"> = async (ctx) => {
   };
 
   for (;;) {
-    const detRaw = deterministicChecks(facts, current);
+    const detRaw = deterministicChecks(facts, current, claimState);
     const det = {
       pass: detRaw.pass,
       issues: detRaw.issues.map((i) => ({ ...i, blocking: true })),
@@ -376,7 +340,13 @@ export const audit: Node<"audit"> = async (ctx) => {
     attempts.push({
       attempt,
       words: wordCount(current.prose),
-      deterministic: det,
+      deterministic:
+        attempt === 1
+          ? {
+              pass: det.pass,
+              issues: [...det.issues, ...advisory(narration.withheld)],
+            }
+          : det,
       llm,
       proseSha256: sha(current.prose),
     });
@@ -406,7 +376,11 @@ export const audit: Node<"audit"> = async (ctx) => {
       };
     }
 
-    const found = [...det.issues, ...llmIssues];
+    const found = [
+      ...(attempt === 1 ? advisory(narration.withheld) : []),
+      ...det.issues,
+      ...llmIssues,
+    ];
     allIssues.push(
       `Attempt ${attempt}: ${
         llmFailed ? "the audit call failed; " : ""

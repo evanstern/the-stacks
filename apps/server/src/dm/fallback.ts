@@ -6,6 +6,7 @@ import {
   POSITIVE_WORDS,
   UNCONSCIOUS_WORDS,
 } from "./audit-words.js";
+import { type ClaimState, checkClaims } from "./claims.js";
 import type {
   FactChange,
   FactEvent,
@@ -81,6 +82,7 @@ function reasonUsable(
   reason: string,
   subject: string,
   outcome: FactOutcome,
+  state?: ClaimState,
 ): boolean {
   if (reason.length === 0 || reason.includes("?")) return false;
   const spoken = spellDigits(reason);
@@ -88,6 +90,7 @@ function reasonUsable(
   if (SYSTEM_WORDS.test(spoken)) return false;
   if (DICE_LANGUAGE.test(spoken)) return false;
   if (DEATH_WORDS.test(spoken) || UNCONSCIOUS_WORDS.test(spoken)) return false;
+  if (state && !checkClaims(state, spoken).pass) return false;
   const positive =
     outcome === "hit" || outcome === "critical-hit" || outcome === "success";
   const opposite = positive ? NEGATIVE_WORDS : POSITIVE_WORDS;
@@ -95,16 +98,25 @@ function reasonUsable(
   return !aliasesOf(subject).some((n) => namePairsWith(pair, n, opposite));
 }
 
-function rollSentences(rolls: readonly FactRoll[], subject: string): string[] {
+function rollSentences(
+  rolls: readonly FactRoll[],
+  subject: string,
+  state?: ClaimState,
+): string[] {
   const out: string[] = [];
   for (const r of rolls) {
     if (!r.outcome) continue;
     const spoken = spellDigits(r.reason).replace(/[.!]+$/, "");
-    if (reasonUsable(spoken, subject, r.outcome)) out.push(`${spoken}.`);
+    if (reasonUsable(spoken, subject, r.outcome, state)) out.push(`${spoken}.`);
     out.push(outcomeSentence(subject, r.outcome));
   }
   return out;
 }
+
+const NUMBERED_NAME = new RegExp(
+  `\\b(${DIGIT_WORDS.slice(1).join("|")})\\b`,
+  "i",
+);
 
 function changeSentence(c: FactChange): string | null {
   const target = spellDigits(c.target);
@@ -114,7 +126,12 @@ function changeSentence(c: FactChange): string | null {
         ? `${target} is wounded.`
         : `${target} is healed.`;
     case "life-state":
-      if (c.after === "dead") return `${target} is dead.`;
+      if (c.after === "dead") {
+        // "Goblin three is dead" reads to the claim checker as "three ... dead".
+        return NUMBERED_NAME.test(target)
+          ? `${target} dies.`
+          : `${target} is dead.`;
+      }
       if (c.after === "unconscious") return `${target} falls unconscious.`;
       return null;
     case "death-saves":
@@ -172,7 +189,10 @@ function presenceLine(e: Extract<FactEvent, { kind: "presence" }>): string {
   return `${spellDigits(e.name)} ${PRESENCE_VERB[e.reason] ?? "changes place"}.`;
 }
 
-export function factualSummary(facts: NarrationFacts): string {
+export function factualSummary(
+  facts: NarrationFacts,
+  state?: ClaimState,
+): string {
   const out: string[] = [];
   if (facts.trigger === "scene-start" && facts.setting.openingFraming) {
     out.push(facts.setting.openingFraming);
@@ -188,7 +208,7 @@ export function factualSummary(facts: NarrationFacts): string {
     } else if (a.outcome === "no-effect") {
       out.push(`${name} goes ahead with it.`);
     } else {
-      const sentences = rollSentences(a.rolls, name);
+      const sentences = rollSentences(a.rolls, name, state);
       if (sentences.length > 0) out.push(...sentences);
       else out.push(`${name} goes ahead with it.`);
     }
@@ -200,7 +220,7 @@ export function factualSummary(facts: NarrationFacts): string {
 
   if (facts.npcTurn) {
     const name = spellDigits(facts.npcTurn.name);
-    const sentences = rollSentences(facts.npcTurn.rolls, name);
+    const sentences = rollSentences(facts.npcTurn.rolls, name, state);
     if (sentences.length > 0) out.push(...sentences);
     else out.push(`${name} makes a move.`);
     for (const c of facts.npcTurn.changes) {
