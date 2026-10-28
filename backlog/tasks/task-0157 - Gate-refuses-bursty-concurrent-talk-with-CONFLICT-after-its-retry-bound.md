@@ -33,8 +33,6 @@ Spec: specs/052-talk-conflict-retry
 - [ ] #7 Spec phase: Wiki re-ground and runbook rows (card AC #1, AC #2)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -49,6 +47,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (82593a8): T002-T005 and T008 fail today for the stated reason; T006, T007 pass. T005 fails on the talk side (tasks.md said it may pass).
+
+spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Per-session queue and jittered retry (card AC #1): 0/8 · WebSocket burst test, resend workaround removed, client label (card AC #1): 0/6 · Gate contract amendment (card AC #2): 0/4 · Wiki re-ground and runbook rows (card AC #1, AC #2): 0/9
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
